@@ -51,6 +51,10 @@ flowchart LR
 
 ## 4. D1：交互原型
 
+> 当前状态：Phase 0 发现、差距分析与首批原型范围已经形成候选方案，等待产品负责人批准后进入 Figma Token、组件和屏幕创建。除空白设计文件外尚未创建界面，不包含产品代码。
+
+D1 执行包见[《D1 发现与原型计划》](15-d1-discovery-and-prototype-plan.md)、[《D1 视觉系统规格》](16-d1-visual-system.md)、[《校园 Benchmark Episode 设计》](17-benchmark-episode.md)与[《D1 用户验证协议》](18-d1-validation-protocol.md)。
+
 ### 范围
 
 - 桌面 Route、Sequence、Script、Stage；

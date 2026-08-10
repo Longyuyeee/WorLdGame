@@ -44,6 +44,10 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [容量、性能与运行稳定性优化规格](docs/12-size-performance-stability.md) | 自动优化中心、资源管线、加载/内存、弱网恢复与性能门禁 |
 | [程序工程详细设计](docs/13-program-engineering-blueprint.md) | 模块/进程边界、数据契约、状态机、插件沙箱、构建链与兼容演进 |
 | [工程审计与质量保证体系](docs/14-engineering-audit-and-assurance.md) | 风险分级、证据链、安全/供应链审计、测试矩阵与发布准入 |
+| [D1 发现与原型计划](docs/15-d1-discovery-and-prototype-plan.md) | Figma 发现、差距分析、首批屏幕范围和阶段门 |
+| [D1 视觉系统规格](docs/16-d1-visual-system.md) | 色彩、排版、密度、组件、动效和无障碍原型基线 |
+| [校园 Benchmark Episode 设计](docs/17-benchmark-episode.md) | 原创校园短篇、路线、素材、Dicing 样本与商业评分表 |
+| [D1 用户验证协议](docs/18-d1-validation-protocol.md) | 招募、任务、竞品对照、指标、证据和退出判定 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
