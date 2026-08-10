@@ -37,7 +37,7 @@ WorLd Studio 的工作区像一间安静但信息充足的数字导演台：内�
 |---|---|---|---:|
 | `Primitive` | `Default` | 中性色阶、语义原色和透明值 | 32 |
 | `Semantic.Dark` | `Dark` | 表面、文字、边框、焦点及七类内容语义 | 28 |
-| `Scale` | `Default` | 间距、圆角、尺寸、线宽、动效时长 | 30 |
+| `Scale` | `Default` | 间距、圆角、尺寸、线宽、动效时长 | 32 |
 
 所有 Primitive 变量 `scopes=[]`；Semantic 变量按填充、文字或描边设置明确 Scope；Scale 变量只进入适合的 Gap、Radius、Size 或隐藏范围。每个变量保留未来 Web/Android 代码语法槽位，但D1不创建实现文件。
 
@@ -102,8 +102,8 @@ WorLd Studio 的工作区像一间安静但信息充足的数字导演台：内�
 | Style | Size/Line | Weight | 用途 |
 |---|---:|---|---|
 | `Display/Workspace` | 24/32 | Bold | 欢迎页、模式标题 |
-| `Heading/Panel` | 16/24 | Semi Bold | 主面板标题 |
-| `Heading/Section` | 14/20 | Semi Bold | Inspector 分组 |
+| `Heading/Panel` | 16/24 | Bold | 主面板标题 |
+| `Heading/Section` | 14/20 | Bold | Inspector 分组 |
 | `Body/Default` | 14/21 | Regular | UI 正文 |
 | `Body/Compact` | 13/18 | Regular | 高密度表格/树 |
 | `Label/Default` | 12/16 | Medium | 控件标签、徽标 |
@@ -125,6 +125,8 @@ WorLd Studio 的工作区像一间安静但信息充足的数字导演台：内�
 - 边框：常规 `1`，焦点/阻断 `2`；
 - 桌面 Panel Header：`36`；顶栏 `48`；左侧模式轨 `56`；
 - Mobile Bottom Navigation：含安全区前 `64`。
+
+全部 92 项 Variable 的逐项冻结值、别名、Scope 与 Web/Android 语法见[《D1 Token 冻结清单》](19-d1-token-manifest.md)。原先 30 个 Scale 的估算在逐项审计后修正为 32 个：补回已经写入本规格、但未进入初步计数的模式轨 `56` 与移动底栏 `64`，不新增需求。
 
 ### 5.2 密度规则
 

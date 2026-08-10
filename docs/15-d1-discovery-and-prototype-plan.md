@@ -173,5 +173,6 @@ Phase 1/2 建立基础后，Phase 3 按依赖顺序创建：
 - P1.b Primitive 已完成并验证：32 个变量，全部 `scopes=[]`，Web/Android 代码语法完整；
 - P1.b Scale 已完成前两批：10 个 Spacing 与 6 个 Radius，共 16 个变量；
 - 第三个 Scale 批次开始前触发 Figma Starter 计划的 MCP 调用上限，失败调用具有原子性，没有留下半批数据；
-- 恢复点：先创建剩余 14 个 Scale，再创建 28 个 Semantic aliases、10 个 Text Styles 和 4 个 Effect Styles；
+- 精确清单审计发现原“30 个 Scale”估算遗漏模式轨 `56` 与移动底栏 `64` 两个已批准尺寸，Scale 冻结为 32 个；
+- 恢复点：先创建剩余 16 个 Scale，再创建 28 个 Semantic aliases、10 个 Text Styles 和 4 个 Effect Styles；
 - 尚未创建组件、屏幕或产品代码。
