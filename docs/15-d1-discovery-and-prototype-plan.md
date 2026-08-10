@@ -1,8 +1,10 @@
 # D1 发现与交互原型计划
 
-> 状态：Phase 0 已于 2026-08-11 获产品负责人批准；Phase 1 Foundations 执行中。
-> Figma 文件：[WorLd Studio — D1 Interaction Prototype](https://www.figma.com/design/WfeAzd4cTv1E2KEUkDiPmF)
-> 边界：本阶段只做研究、设计系统、可点击/可播放原型和用户验证，不创建产品代码。
+> 2026-08-11 流程变更：产品负责人明确要求停止使用 Figma。本文中的 Figma 发现与断点仅作为历史记录，不再继续执行；活动原型、视觉 Token、响应式和动效验证转为代码，见[《S0.1 代码原型与审计记录》](20-s0-code-prototype.md)。
+
+> 状态：Phase 0 已批准；原 Phase 1 Figma 工作已停止，活动路径为 S0 可运行代码原型。
+> 历史归档：[WorLd Studio — D1 Interaction Prototype](https://www.figma.com/design/WfeAzd4cTv1E2KEUkDiPmF)，不再写入或作为门禁。
+> 边界：当前允许有明确验收的 S0 原型代码；M1 正式工程仍需完成 D1/S0 准入。
 
 ## 1. D1 要证明什么
 

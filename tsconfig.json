@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/story-core" },
+    { "path": "./apps/editor" }
+  ]
+}

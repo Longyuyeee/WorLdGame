@@ -1,0 +1,33 @@
+{
+  "name": "world-studio",
+  "version": "0.0.0-s0.1",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @world-studio/editor",
+    "build": "npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/editor",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "audit:architecture": "node tools/audit-architecture.mjs",
+    "check": "npm run typecheck && npm run test && npm run build && npm run audit:architecture"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.0.5",
+    "jsdom": "27.4.0",
+    "typescript": "7.0.2",
+    "vite": "8.2.1",
+    "vitest": "4.1.10"
+  }
+}

@@ -19,7 +19,7 @@ flowchart LR
 
 已确认：当前计划只执行到 M1，且 M1 必须是可正式公开发布的首个 Stable 版本。M2、M3、M4 不删除，但不代表排期、预算或开发承诺。
 
-当前状态：D0 产品决策门已闭合，获准进入 D1 原型设计与用户验证；这项批准不包含 S0 或产品编码。
+当前状态：D0 产品决策门已闭合。产品负责人于 2026-08-11 要求继续开发并停止使用 Figma，因此 D1/S0 改用可运行代码原型、自动化测试和真实浏览器证据；M1 Stable 的完整准入门仍不得跳过。
 
 ## 3. D0：调研与定位（产品决策门已通过）
 
@@ -51,7 +51,7 @@ flowchart LR
 
 ## 4. D1：交互原型
 
-> 当前状态：产品负责人已于 2026-08-11 批准 D1 Phase 0。Phase 1 Foundations 已开始：Figma 中已创建 3 个变量集合、32 个 Primitive 和 16 个 Scale 变量；因 Starter 计划 MCP 调用上限暂停在 P1.b，尚未创建组件或屏幕，不包含产品代码。
+> 当前状态：产品负责人已于 2026-08-11 批准 D1 Phase 0，随后明确停止 Figma 工作流。既有 Figma Foundations 作为历史输入保留，但不再继续、不再构成阻塞；活动原型与设计 Token 转为代码实现，首个 S0.1 纵向切片见[《S0.1 代码原型与审计记录》](20-s0-code-prototype.md)。
 
 D1 执行包见[《D1 发现与原型计划》](15-d1-discovery-and-prototype-plan.md)、[《D1 视觉系统规格》](16-d1-visual-system.md)、[《校园 Benchmark Episode 设计》](17-benchmark-episode.md)与[《D1 用户验证协议》](18-d1-validation-protocol.md)。
 
@@ -69,7 +69,7 @@ D1 执行包见[《D1 发现与原型计划》](15-d1-discovery-and-prototype-pl
 
 ### 方法
 
-- 可点击原型或静态高保真；
+- 可运行代码原型；不再使用 Figma；
 - 强动效部分必须使用可播放高保真原型，不以文字说明代替；
 - 使用真实长度台词和复杂分支；
 - 至少 5 名目标用户；

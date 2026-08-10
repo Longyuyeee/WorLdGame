@@ -1,0 +1,77 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    "Noto Sans SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  --wg-color-bg-canvas: #080a10;
+  --wg-color-bg-base: #0d111a;
+  --wg-color-bg-surface-1: #121824;
+  --wg-color-bg-surface-2: #182131;
+  --wg-color-bg-surface-3: #202b3d;
+  --wg-color-border-subtle: #273247;
+  --wg-color-border-strong: #3c4962;
+  --wg-color-border-focus: #3ed7ff;
+  --wg-color-text-primary: #f4f7ff;
+  --wg-color-text-secondary: #b2bdd0;
+  --wg-color-text-muted: #78859d;
+  --wg-color-semantic-dialogue: #8b7cff;
+  --wg-color-semantic-character: #ff62a5;
+  --wg-color-semantic-visual: #3ed7ff;
+  --wg-color-semantic-audio: #ff9b4a;
+  --wg-color-semantic-choice: #55d98a;
+  --wg-color-semantic-logic: #4d91ff;
+  --wg-color-semantic-condition: #f0d45c;
+  --wg-color-status-error: #ff5f72;
+  --wg-color-status-success: #4ed6a0;
+  --wg-color-context-selected-bg: rgb(139 124 255 / 16%);
+  --wg-color-context-hover-bg: rgb(255 255 255 / 8%);
+
+  --wg-radius-4: 4px;
+  --wg-radius-8: 8px;
+  --wg-radius-12: 12px;
+  --wg-radius-16: 16px;
+  --wg-radius-full: 9999px;
+  --wg-motion-duration-fast: 140ms;
+  --wg-motion-duration-standard: 200ms;
+  --wg-motion-duration-panel: 260ms;
+  --wg-motion-duration-mode: 340ms;
+}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--wg-color-bg-canvas);
+  color: var(--wg-color-text-primary);
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--wg-color-border-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
