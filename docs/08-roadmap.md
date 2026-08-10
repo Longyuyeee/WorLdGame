@@ -106,7 +106,10 @@ flowchart LR
 - Route、Sequence、Script、Stage 基础同步；
 - 对话、背景、角色、音频、选择、变量、条件、结局；
 - 即时预览与变量查看；
-- 保存、读取、回滚、历史、自动和跳过已读；
+- 保存、读取、历史、自动播放、可调快进与逐句前进/后退；
+- 自动生成创作者 Route Map 和基础玩家流程图；
+- 自动生成基础 CG 画廊、Scene Replay、Music Room 和 Ending 页面；
+- P0 Gal 配置中心；
 - 结构 QA；
 - Windows 与 Android 编辑；
 - Web 与 Windows 玩家包；
@@ -116,7 +119,7 @@ flowchart LR
 
 ### 退出条件
 
-满足 PRD 的 14 条纵向切片验收，且：
+满足 PRD 的 20 条纵向切片验收，且：
 
 - 无 P0 数据丢失；
 - Golden Tiny/State/CJK 通过；
@@ -130,7 +133,7 @@ flowchart LR
 
 ### 范围
 
-- 资源管理、压缩和批量操作；
+- 资源管理、Dicing/Delta 自动切图压缩、平台纹理优化和批量操作；
 - UI 主题基础；
 - 本地化 CSV/XLSX；
 - 语音映射；
@@ -147,7 +150,9 @@ flowchart LR
 - 首次成功 Web 构建中位时间符合目标；
 - 构建成功率达到 95%；
 - 工程恢复演练成功；
-- Alpha 格式迁移到下一版本无静默损失。
+- Alpha 格式迁移到下一版本无静默损失；
+- Golden Foundation/Dicing 通过，无损重建逐像素一致；
+- 自动优化报告同时满足发布体积和目标设备内存预算。
 
 ## 8. M3：生产 Beta
 

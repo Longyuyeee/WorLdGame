@@ -37,6 +37,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [路线图与评审门](docs/08-roadmap.md) | 阶段、里程碑、退出条件与指标 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
+| [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
