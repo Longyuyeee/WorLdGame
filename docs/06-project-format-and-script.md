@@ -115,7 +115,7 @@ Route、Sequence、Script、Stage 的关系：
 
 下面只用于验证可读性与 AST 能力，不是最终冻结语法。
 
-\`\`\`text
+```text
 scene "序章 · 天台" @id(scn_rooftop)
 
 @background rooftop transition=fade duration=800ms
@@ -135,7 +135,7 @@ label ask_truth
 set asked_the_truth = true
 lin: 等雪落下的时候，我会把一切告诉你。 @id(txt_01M...)
 end "未寄出的真相"
-\`\`\`
+```
 
 ## 7. 语法原则
 
@@ -161,10 +161,10 @@ end "未寄出的真相"
 
 ### 7.3 插件命令
 
-\`\`\`text
+```text
 @inventory.add item=pocket_watch count=1
 @weather.set kind=snow intensity=0.7
-\`\`\`
+```
 
 插件声明：
 
@@ -223,7 +223,7 @@ end "未寄出的真相"
 
 示例语义：
 
-\`\`\`json
+```json
 {
   "formatVersion": 1,
   "sceneId": "scn_rooftop",
@@ -235,7 +235,7 @@ end "未寄出的真相"
     "route_warm": { "title": "约定路线", "collapsed": false }
   }
 }
-\`\`\`
+```
 
 位置冲突不应阻塞剧情文件合并；可以选择本地布局、远端布局或自动重排。
 

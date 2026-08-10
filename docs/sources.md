@@ -90,6 +90,17 @@
 - [Live2D Cubism 平台支持](https://docs.live2d.com/en/cubism-sdk-manual/platform/)
 - [Live2D Cubism Core 与许可说明](https://docs.live2d.com/en/cubism-sdk-manual/cubism-core/)
 
+## 商业成品表现参照
+
+- [《月姬 -A piece of blue glass moon-》英文官方网站](https://tsukihime-en.com/)：官方将进化后的画面、动画和音乐列为重制表现重点，并列出多语言与平台规格。
+- [《月姬 -A piece of blue glass moon-》TYPE-MOON 产品页](https://typemoon.com/products/tsukihime/)
+- [《魔法使之夜》英文官方网站](https://mahoyo-en.com/)
+- [《魔法使之夜》Steam 产品页](https://store.steampowered.com/app/2052410/)：用于核验全语音和 Full HD 重制信息。
+- [《ATRI -My Dear Moments-》官方网站](https://atri-mdm.com/)
+- [《ATRI -My Dear Moments-》官方英文故事页](https://atri-mdm.com/en/story/)
+
+这些作品只用于建立演出、音画、UI、本地化与发行完整性的评价维度，不意味着复制其美术风格、界面、素材或内容。
+
 ## 社区痛点样本
 
 - [大型 Twine 项目对文件夹、资源、补丁和调试工具的需求](https://www.reddit.com/r/twinegames/comments/1ubfk3h/im_working_on_a_new_version_of_the_twine/)

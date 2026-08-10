@@ -12,7 +12,7 @@
 
 ## 2. 总体架构
 
-\`\`\`mermaid
+```mermaid
 flowchart TB
     subgraph Clients["编辑端"]
         Win["Windows Editor"]
@@ -62,7 +62,7 @@ flowchart TB
     AST -. optional .-> Sync
     Sync --> Collab
     QA --> Queue --> Workers --> Artifacts
-\`\`\`
+```
 
 ## 3. 分层设计
 
@@ -141,7 +141,7 @@ Domain 层不能依赖浏览器、Electron、Capacitor 或具体 UI 框架。
 
 ## 5. 编辑器数据流
 
-\`\`\`mermaid
+```mermaid
 sequenceDiagram
     actor User as 用户
     participant View as 任一编辑视图
@@ -158,7 +158,7 @@ sequenceDiagram
     Bus->>Store: 追加操作日志，延迟持久化
     Bus->>Preview: 热更新受影响语义节点
     Bus-->>View: 所有视图收到同一 Change Set
-\`\`\`
+```
 
 ### 5.1 为什么必须有 Command Bus
 
@@ -286,7 +286,7 @@ sequenceDiagram
 
 ## 10. 云构建
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     Client["Editor"] --> Validate["Local Validate"]
     Validate --> Upload["Upload Manifest + Missing Blobs"]
@@ -301,7 +301,7 @@ flowchart LR
     IOS --> Sign
     Sign --> Artifact
     Artifact --> Client
-\`\`\`
+```
 
 ### 10.1 构建任务
 
