@@ -377,6 +377,8 @@ Source Blob -> Inspect -> Normalize Metadata -> Candidate Analysis
 
 ## 17. 云构建控制面与数据面
 
+本节是未来架构储备。M1 已确认不建设账户或云构建，只实现 Windows 本地 Web/Windows/Android 构建链；本节不得被解释为当前开发范围。
+
 构建状态机：
 
 ```mermaid
@@ -476,7 +478,7 @@ stateDiagram-v2
 - VM 的回滚/前进、异步取消和插件 Barrier 能否确定重放；
 - Dicing/KTX2/平台纹理的体积收益是否抵消解码、显存和 Draw Call 成本；
 - Worker/转换器沙箱能否处理恶意媒体与资源上限；
-- 四平台最小构建是否能输出完整 SBOM、Provenance、签名和可重复 Manifest；
+- M1 Web/Windows/Android 最小构建是否能输出完整 SBOM、Provenance、签名和可重复 Manifest；
 - 构建和同步在重试、重复提交、乱序和中断下是否幂等；
 - 最低档手机能否在预算内完成核心编辑、预览、保存和恢复。
 

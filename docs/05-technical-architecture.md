@@ -1,12 +1,14 @@
 # 技术架构
 
 > 本文定义总体技术方向；模块依赖、协议、事务、状态机和云构建边界见[程序工程详细设计](13-program-engineering-blueprint.md)。具体技术选型仍须通过 S0 Spike，不代表已经开始实现。
+>
+> 已确认的 M1 边界：无账户、无云同步、无云构建；Windows 与 Android 编辑，Windows 本地发布 Web、Windows、Android。云端章节是未来设计储备，不进入当前实施。
 
 ## 1. 架构目标
 
-1. 同一工程在 Windows、浏览器、Android 和 iOS 编辑端具有一致语义。
+1. M1 同一工程在 Windows、浏览器和 Android 编辑端具有一致语义；未来 iOS 接入时不得分叉工程格式。
 2. 编辑器、编译器、运行时和平台包装解耦。
-3. 工程在无账户、离线、没有云服务时仍可编辑和发布 Web。
+3. 工程在无账户、离线、没有云服务时仍可编辑，并由 Windows 本地发布 Web、Windows 和 Android。
 4. 四种编辑视图只能通过统一语义命令修改 AST。
 5. 运行时必须确定、可回放、可保存、可回滚。
 6. 平台差异收敛在 Capability Adapter 和 Build Adapter。
@@ -130,7 +132,7 @@ Domain 层不能依赖浏览器、Electron、Capacitor 或具体 UI 框架。
 | Windows 玩家 | Tauri/WebView2 轻量壳 | 比把 Electron 随每个游戏发布更轻 | 需要工具链和 WebView 兼容测试 |
 | 移动玩家 | Capacitor Build Adapter | 移动生态与签名流程成熟 | iOS 仍必须走 Xcode/macOS |
 | 本地索引 | SQLite；浏览器使用 OPFS/WASM 适配 | 搜索、引用和缓存，不作为源文件 | 必须可安全重建 |
-| 云构建 | 队列 + 隔离 Windows/Linux/macOS Worker | 手机可发起所有目标构建 | 成本、签名安全、供应链治理 |
+| 云构建（未来储备） | 队列 + 隔离 Windows/Linux/macOS Worker | 将来可支持任意设备发起目标构建 | 不属于 M1；账户、成本、签名和治理均暂不实施 |
 
 依据：
 
@@ -433,7 +435,7 @@ flowchart LR
 5. 保存/回滚跨 Web、Windows、Android 一致性；
 6. Electron 与 Tauri v2 的启动、内存、文件和自动更新比较；
 7. Capacitor 大工程导入/导出与后台上传；
-8. Windows/Web/Android/iOS 最小云构建链；
+8. Windows 本地 Web/Windows/Android 最小构建链；另行验证 Android 端直接生成 APK/AAB 的可行性；
 9. 插件 Worker 沙箱和未知命令往返保存；
 10. OPFS 配额、崩溃恢复和用户目录同步；
 11. PNG/JPEG/WebP/AVIF 与 KTX2/Basis/平台纹理的体积、画质、解码和显存对比；

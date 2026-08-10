@@ -3,7 +3,7 @@
 > 状态：开发前审计制度草案。
 >
 > 原则：没有证据的“完成”视为未完成；没有恢复演练的“安全”视为未证明。
-> 范围：编辑器、运行时、项目格式、资源管线、插件、云构建、发布产物与运营流程。
+> 范围：M1 编辑器、运行时、项目格式、资源管线、本地构建和发布产物；插件、账户、云构建与运营流程仅作为未来审计储备。
 
 ## 1. 审计目标
 
@@ -26,7 +26,7 @@
 | OWASP MASVS 2.1.0 | Android/iOS 编辑器与玩家壳 | STORAGE、CRYPTO、AUTH、NETWORK、PLATFORM、CODE、PRIVACY 全覆盖 |
 | OWASP TCASVS | Windows 桌面编辑器、更新器和本机集成 | 桌面权限、IPC、文件、更新、二进制与本地秘密审计 |
 | WCAG 2.2 | 编辑器和 Web 玩家界面 | P0/P1 流程达到 AA；游戏表现的例外需单独说明 |
-| SLSA 1.2 | 构建来源和防篡改 | M2 达 Build L2，M3 评估并争取 Build L3 |
+| SLSA 1.2 | 构建来源和防篡改 | M1 输出基础 Provenance；Build L2/L3 为未排期愿景 |
 | SPDX 3 | 组件、许可证和 SBOM | 每个正式产物附机器可读 SBOM |
 | TUF 原则 | 编辑器自动更新与资源包更新 | 阈值签名、回滚保护、密钥轮换和元数据过期 |
 | OpenTelemetry | Trace、Metric、Log 与相关性 | 采用稳定语义，自定义字段有版本和隐私分级 |
@@ -188,7 +188,7 @@ flowchart LR
 
 ### 9.5 差分测试
 
-- Editor Preview 与四平台 Player；
+- Editor Preview 与 M1 Web/Windows/Android Player；未来平台加入后复用同一差分套件；
 - Debug 与 Release VM；
 - 增量与全量编译；
 - 优化前与无损优化后；
@@ -242,7 +242,7 @@ Stable 前必须完成一次从备份到可编辑、可预览、可构建的全�
 - 切换语言、语音包、章节包和显示模式；
 - 后台/恢复、音频焦点、横竖屏和低内存回收。
 
-每一步记录标准化 State Hash、可见对象、音频逻辑状态、调用栈、随机种子和解锁元状态。四平台差异必须属于批准的表现容差，剧情 State Hash 必须一致。
+每一步记录标准化 State Hash、可见对象、音频逻辑状态、调用栈、随机种子和解锁元状态。M1 Web/Windows/Android 的差异必须属于批准的表现容差，剧情 State Hash 必须一致。
 
 旧存档策略：
 
@@ -346,7 +346,7 @@ Stable 前必须完成一次从备份到可编辑、可预览、可构建的全�
 - 锁定直接与传递依赖；CI Action/容器/工具链固定不可变摘要；
 - 正式构建不从未批准网络动态取“最新版本”；
 - 每个产物生成 SPDX SBOM；
-- M1 生成基本 Provenance，M2 达 SLSA Build L2，M3 评估 Build L3；
+- M1 生成基本 Provenance、SBOM、产物哈希和签名；SLSA Build L2/L3 留在未排期愿景池；
 - 编辑器、运行时模板、插件索引和更新元数据分别签名；
 - Sigstore 或平台等价机制用于可验证签名与身份审计；
 - 关键产物进行第二环境重建或可复现性检查；
@@ -391,7 +391,7 @@ Stable 前必须完成一次从备份到可编辑、可预览、可构建的全�
 | PR 快速门 | 15 分钟内 | 架构、单元、属性抽样、Round-trip、安全快速扫 | 合并 |
 | 合并门 | 45 分钟目标 | 全量核心、集成、Golden Tiny/State/CJK、SBOM | 主分支 |
 | Nightly | 数小时 | Fuzz、平台矩阵、性能、资源、迁移、混沌抽样 | 次日开发/Preview |
-| Release Candidate | 完整周期 | 全 Golden、四平台、Soak、恢复、安全、签名、可复现 | Stable 发布 |
+| Release Candidate | 完整周期 | 全 Golden、M1 三平台、Soak、恢复、安全、签名、可复现 | Stable 发布 |
 
 Flaky 测试：
 
@@ -440,13 +440,18 @@ Flaky 测试：
 
 ### M1 → M2
 
+当前没有进入 M2 的开发承诺。本门只用于 M1 完成后决定是否继续：
+
 - 无 P0 数据损坏、安全和剧情状态缺陷；
 - Windows/Android 一周连续编辑与 2 小时 Soak；
 - 恢复、迁移、固定路线、回滚和前进通过；
 - 构建产物有 SBOM、基本 Provenance、哈希和签名；
+- 原创校园短篇 Benchmark Episode 完成 Web/Windows/Android 发布并通过质量门；
 - 内部 Assurance Report 完整。
 
 ### M2 → M3
+
+未排期愿景门。
 
 - 100 名创作者与 20 个完整短篇验证生产流；
 - Dicing/Delta、分包、补丁和低内存矩阵通过；
@@ -455,6 +460,8 @@ Flaky 测试：
 - 无过期 R3/R4 例外。
 
 ### M3 Stable
+
+未排期愿景门。
 
 - 三个 10 万字项目与 Benchmark Episode 四平台完成；
 - 外部渗透、插件/构建/签名/更新链审计通过；
@@ -469,7 +476,7 @@ Release Candidate 必须回答：
 
 1. 发布的是哪个 Source Revision、Runtime、Template 和 Schema？
 2. 哪些需求、风险和已知问题包含在内？
-3. 四平台具体测试了哪些设备、系统和路线？
+3. 本次范围内的 Web、Windows、Android 具体测试了哪些设备、系统和路线？
 4. 所有迁移、存档、更新和回退是否实测？
 5. 是否存在可利用 Critical/High 漏洞或过期例外？
 6. SBOM、Provenance、签名和 Artifact Digest 是否互相匹配？
