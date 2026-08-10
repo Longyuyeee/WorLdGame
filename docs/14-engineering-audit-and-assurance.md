@@ -23,7 +23,7 @@
 | ISO/IEC 25010:2023 | 功能、性能、兼容、交互、可靠、安全、可维护等质量模型 | 建立统一质量分类，不宣称认证 |
 | NIST SSDF 1.1 | 安全需求、开发环境、组件保护、漏洞响应 | 全生命周期映射；跟踪 1.2 草案但不作为稳定基线 |
 | OWASP ASVS 5.0.0 | Web/PWA、账户、同步、构建 API 和控制面 | 云服务以 Level 2 为默认审计深度，高风险控制单独加强 |
-| OWASP MASVS 2.1.0 | Android/iOS 编辑器与玩家壳 | STORAGE、CRYPTO、AUTH、NETWORK、PLATFORM、CODE、PRIVACY 全覆盖 |
+| OWASP MASVS 2.1.0 | M1 Android 编辑器与玩家壳；未来 iOS | STORAGE、CRYPTO、AUTH、NETWORK、PLATFORM、CODE、PRIVACY 全覆盖 |
 | OWASP TCASVS | Windows 桌面编辑器、更新器和本机集成 | 桌面权限、IPC、文件、更新、二进制与本地秘密审计 |
 | WCAG 2.2 | 编辑器和 Web 玩家界面 | P0/P1 流程达到 AA；游戏表现的例外需单独说明 |
 | SLSA 1.2 | 构建来源和防篡改 | M1 输出基础 Provenance；Build L2/L3 为未排期愿景 |
@@ -314,7 +314,7 @@ Stable 前必须完成一次从备份到可编辑、可预览、可构建的全�
 - 本地工程、自动保存、云版本和玩家存档；
 - 账户、分享链接、团队权限；
 - 插件、依赖、构建模板和发布产物；
-- Windows/Android/iOS 签名凭据；
+- M1 Windows/Android 签名凭据；未来加入 iOS 时扩展；
 - Telemetry、崩溃转储和支持包。
 
 ### 16.2 自动安全门禁
@@ -326,14 +326,15 @@ Stable 前必须完成一次从备份到可编辑、可预览、可构建的全�
 - IaC/Workflow 权限扫描；
 - 恶意包、路径穿越、解压炸弹和媒体 Fuzz；
 - Web DAST、鉴权和租户隔离测试；
-- Android/iOS MASVS 检查；
+- M1 Android MASVS 检查；未来加入 iOS 时复用并扩展；
 - Windows 桌面 IPC、更新与本地权限检查；
 - 产物签名、SBOM 和 Provenance 验证。
 
 ### 16.3 人工安全验证
 
-- M2 前完成一次外部或独立 Web/API 与移动端评估；
-- M3 Stable 前完成桌面、插件、云构建、签名和更新链渗透测试；
+- M1 Stable 前完成一次独立的 Windows/Android、工程/媒体输入、本地构建、签名和更新/回退评估；无法做到职责独立时只能发布 Preview；
+- M2 前对新增的 Web/API、插件、分包和云边界完成扩展评估；
+- M3 长篇与四平台扩展门前完成桌面、插件、云构建、签名和更新链的完整渗透测试；
 - 重大信任边界变更、关键漏洞或安全事故后重测相关范围；
 - 修复必须做根因、变体搜索和回归测试，不能只堵一个样本。
 
@@ -438,28 +439,35 @@ Flaky 测试：
 - CI、测试工具、Golden Project 和证据归档方案就绪；
 - 产品负责人明确发出开始开发指令。
 
-### M1 → M2
+### M1 Stable 发布门
 
-当前没有进入 M2 的开发承诺。本门只用于 M1 完成后决定是否继续：
+M1 是首个允许正式公开发布的 Stable 版本，必须同时满足：
 
 - 无 P0 数据损坏、安全和剧情状态缺陷；
 - Windows/Android 一周连续编辑与 2 小时 Soak；
 - 恢复、迁移、固定路线、回滚和前进通过；
-- 构建产物有 SBOM、基本 Provenance、哈希和签名；
+- Golden Dicing 通过自动分组、无收益回退、逐像素重建、三端视觉与资源预算门禁；
+- Windows/Android 编辑器与 Web/Windows/Android 玩家构建产物有 SBOM、基本 Provenance、哈希和签名；
 - 原创校园短篇 Benchmark Episode 完成 Web/Windows/Android 发布并通过质量门；
-- 内部 Assurance Report 完整。
+- 许可证/IP、隐私、第三方声明、发布说明、安装/升级/卸载与回退清单完整；
+- R3/R4 关键变更完成独立审阅；没有独立审阅能力时只能发布 Preview；
+- Release Assurance Bundle 完整且红线例外为零。
+
+### M1 → M2
+
+当前没有进入 M2 的开发承诺。只有 M1 Stable 正式发布并复盘后，才决定是否进入后续愿景池。
 
 ### M2 → M3
 
 未排期愿景门。
 
 - 100 名创作者与 20 个完整短篇验证生产流；
-- Dicing/Delta、分包、补丁和低内存矩阵通过；
+- 大型资源库 Dicing/Delta、分包、补丁和低内存扩展矩阵通过；
 - SLSA Build L2、外部安全评估、隐私删除演练完成；
 - 旧工程与存档博物馆迁移通过；
 - 无过期 R3/R4 例外。
 
-### M3 Stable
+### M3 长篇与四平台扩展门
 
 未排期愿景门。
 

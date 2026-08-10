@@ -47,7 +47,8 @@ flowchart TD
     Assets --> Media["图像 / 音频 / 视频 / 字体"]
     QA --> Debugger["运行调试器"]
     QA --> Solver["路线与状态检查"]
-    Build --> Targets["Web / Windows / Android / iOS"]
+    Build --> Targets["M1: Web / Windows / Android"]
+    Build -. "未来愿景" .-> FutureTarget["iOS"]
 ```
 
 ## 3. 桌面工作区

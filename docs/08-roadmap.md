@@ -13,13 +13,15 @@
 flowchart LR
     D0["D0 调研与定位"] --> D1["D1 交互原型"]
     D1 --> S0["S0 技术 Spike"]
-    S0 --> M1["M1 核心纵向切片"]
+    S0 --> M1["M1 首个正式 Stable 版本"]
     M1 -. "验收后另行决策" .-> Future["M2+ 未排期愿景池"]
 ```
 
-已确认：当前计划只执行到 M1。M2、M3、M4 不删除，但不代表排期、预算或开发承诺。
+已确认：当前计划只执行到 M1，且 M1 必须是可正式公开发布的首个 Stable 版本。M2、M3、M4 不删除，但不代表排期、预算或开发承诺。
 
-## 3. D0：调研与定位（当前）
+当前状态：D0 产品决策门已闭合，获准进入 D1 原型设计与用户验证；这项批准不包含 S0 或产品编码。
+
+## 3. D0：调研与定位（产品决策门已通过）
 
 ### 交付
 
@@ -40,7 +42,7 @@ flowchart LR
 - 首要用户已确认：大型项目编剧/小团队为架构基准，零编程创作者为交互门槛；
 - 确认 P0 与明确排除项；
 - 确认现代多彩、强动效且专业的视觉方向；
-- 确认七种工作模式与 Benchmark Episode 规格；
+- 确认七种工作模式、原创校园短篇方向，以及由 D1 冻结 Benchmark Episode 详细规格的任务；
 - 已确认覆盖低端 Android 与集显 Windows；具体型号、容量/内存预算与默认分包策略在 S0 前冻结；
 - 批准核心工程不变量、信任边界和审计红线；
 - 确认工作名/品牌另行处理；
@@ -111,7 +113,7 @@ flowchart LR
 - 性能预算没有结构性不可达项；
 - 产品负责人明确批准开始产品编码。
 
-## 6. M1：核心纵向切片
+## 6. M1：首个正式 Stable 版本
 
 ### P0
 
@@ -132,15 +134,19 @@ flowchart LR
 - 语义色、跨视图连续动效、三级动效设置和七种模式基础布局；
 - 基础多轨时间线、关键帧、镜头与 BGM/Voice/SFX 同步；
 - P0 Optimization Center、预算面板、内容哈希去重和安全派生缓存；
-- 优先级资源加载、并发限制、取消、重试和基本显式释放。
-- 使用 WorLd Studio 完成一部 20–30 分钟的原创校园短篇 Benchmark Episode，并发布 Web、Windows、Android 测试包；
+- 自动发现相似 CG/立绘、Lossless Dicing/Delta、透明/重复块消除、Atlas 重建、逐像素验证、收益报告和无收益回退；
+- Web、Windows、Android 的 Dicing 派生资源与内存预算验证；
+- 优先级资源加载、并发限制、取消、重试和基本显式释放；
+- Windows 与 Android 编辑器自身的正式安装、升级/卸载、签名/哈希和回退链；
+- 使用 WorLd Studio 完成一部 20–30 分钟的原创校园短篇 Benchmark Episode，并发布可正式分发的 Web、Windows、Android 包。
 
 ### 退出条件
 
-满足 PRD 的 25 条纵向切片验收，且：
+满足 PRD 的 27 条纵向切片验收，且：
 
 - 无 P0 数据丢失；
 - Golden Tiny/State/CJK 通过；
+- Golden Foundation/Dicing 通过，无损重建逐像素一致；
 - Windows 与 Android 同项目连续编辑一周；
 - Web/Windows/Android 固定路线状态一致；
 - 原创校园短篇 Benchmark Episode 通过功能、演出、音画、排版、操作和稳定性评审；
@@ -149,14 +155,16 @@ flowchart LR
 - 动效期间无输入阻塞，减少动效模式功能完整；
 - 目标低内存档 2 小时 0 崩溃、0 OOM、无持续内存增长；
 - 弱网/损坏包/磁盘不足测试保住最后一个有效版本与存档。
+- Windows/Android 编辑器和 Web/Windows/Android 玩家产物完成签名/哈希、SBOM、基础 Provenance、发布说明、许可证/隐私与回退审核；
+- R3/R4 独立审阅和 Release Assurance Bundle 完整，红线缺陷为零。
 
-## 7. M2：创作者 Alpha（未排期愿景池）
+## 7. M2：规模化创作扩展（未排期愿景池）
 
 本节不进入当前开发计划。只有 M1 完整验收并由产品负责人重新批准后，才允许拆解、估时或承诺。
 
 ### 范围
 
-- 资源管理、Dicing/Delta 自动切图压缩、平台纹理优化和批量操作；
+- 超大资源库管理、Dicing/Delta 高级聚类与批量审批、有损平台纹理优化和自定义成本函数；
 - UI 主题基础；
 - 本地化 CSV/XLSX；
 - 语音映射；
@@ -176,12 +184,12 @@ flowchart LR
 - 构建成功率达到 95%；
 - 工程恢复演练成功；
 - Alpha 格式迁移到下一版本无静默损失；
-- Golden Foundation/Dicing 通过，无损重建逐像素一致；
+- 大型资源库 Dicing/Delta、分包与多质量 Profile 扩展矩阵通过；
 - 自动优化报告同时满足发布体积和目标设备内存预算；
 - 自动归档 Performance & Stability Report；
 - Balanced/Small Download/Low Memory 三个 Profile 均通过目标设备矩阵。
 
-## 8. M3：生产 Beta（未排期愿景池）
+## 8. M3：长篇与四平台扩展（未排期愿景池）
 
 本节不进入当前开发计划。
 

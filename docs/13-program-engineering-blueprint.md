@@ -470,7 +470,7 @@ stateDiagram-v2
 ## 22. S0 必须回答的工程问题
 
 - React/Svelte 与路线图渲染方案能否满足 10k 节点局部编辑预算；
-- CodeMirror 6 在 Android/iOS 输入法、选区、撤销和大文件下是否可靠；
+- CodeMirror 6 在 M1 Android 输入法、选区、撤销和大文件下是否可靠；iOS 作为未来平台另行复验；
 - Electron 与 Tauri 的文件、更新、内存、插件隔离和调试成本；
 - Pixi + DOM 在 DPR、截图、输入命中和动画中断时是否一致；
 - OPFS、可见目录和移动沙箱是否能实现同一 WAL/恢复协议；

@@ -12,6 +12,8 @@
 
 这些能力必须集成在统一工程、预览、QA 和构建流程中，不能要求普通创作者修改代码或手工维护重复数据。
 
+其中 Lossless Dicing/Delta、自动候选分组、逐像素验证、收益报告、无收益回退和 Web/Windows/Android 派生资源已经确认为 M1 P0，不得推迟到 M2。
+
 容量、加载、内存和长期稳定性的横向规则见[《容量、性能与运行稳定性优化规格》](12-size-performance-stability.md)。
 
 ## 2. Gal 基础配置中心
@@ -24,7 +26,7 @@
 - 目标帧率、渲染比例、色彩空间、图片质量和低性能设备档位；
 - 默认语言、支持语言、地区、时区和内容分级信息；
 - 启动画面、标题、应用图标、包名、版本号和版权信息；
-- Windows、Web、Android、iOS 分平台覆盖值；
+- M1 的 Windows、Web、Android 分平台覆盖值；iOS 字段仅作未来兼容保留；
 - 调试、预览、测试、正式四套配置 Profile。
 
 ### 2.2 文本与消息窗口
@@ -131,7 +133,7 @@ Utage 的 Dicing 机制会把相似纹理切成网格，省略重复块和全透
 6. 将唯一块打包为一个或多个 Atlas，并生成每张原图的重建 Manifest；
 7. 估算 Atlas、Manifest、Padding、Draw Call、加载组和平台纹理压缩后的总成本；
 8. 只有达到项目设置的最小净收益时自动采用，否则保留原图；
-9. 为 Windows、Web、Android、iOS 分别生成派生变体；
+9. 为 M1 的 Windows、Web、Android 分别生成派生变体，未来平台复用同一契约；
 10. 输出节省空间、内存峰值、重建成本和风险报告。
 
 ### 3.3 分组策略
@@ -295,7 +297,7 @@ Debugger 提供 Step Back、Step Forward、Step Over、Continue、Run to Cursor�
 - Scene Replay 缺失初始变量、依赖前序下载或退出失败；
 - 同一 CG 被误生成多个条目；
 - 差分压缩组与画廊差分列表不一致；
-- 四平台解锁、完成率和缩略图一致性。
+- M1 三平台解锁、完成率和缩略图一致性。
 
 ## 8. 验收样例
 
@@ -306,9 +308,11 @@ Golden Project 新增 `Foundation` 与 `Dicing`：
 - 覆盖 ADV/NVL、选择、保存、历史、自动、四类快进、逐句前后退；
 - 自动生成含隐藏分支的创作者路线图和玩家流程图；
 - 自动生成 CG、Scene Replay、Music Room 和 Ending 页面；
-- 在 Windows、Web、Android、iOS 执行同一记录，状态与解锁一致。
+- 在 Windows、Web、Android 执行同一记录，状态与解锁一致。
 
 ### Dicing
+
+该 Golden Project 是 M1 Stable 阻断门禁，不是 M2 增强项：
 
 - 至少 30 张同一事件 CG/立绘差分、透明立绘和不适合切块的背景；
 - 自动分组能将合适差分纳入候选，并排除无净收益背景；
