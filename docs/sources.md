@@ -102,6 +102,28 @@
 - [Live2D Cubism 平台支持](https://docs.live2d.com/en/cubism-sdk-manual/platform/)
 - [Live2D Cubism Core 与许可说明](https://docs.live2d.com/en/cubism-sdk-manual/cubism-core/)
 
+## 工程质量、安全与供应链审计
+
+- [ISO/IEC 25010:2023 产品质量模型](https://www.iso.org/standard/78176.html)
+- [NIST SP 800-218：Secure Software Development Framework 1.1](https://www.nist.gov/publications/secure-software-development-framework-ssdf-version-11-recommendations-mitigating-risk)
+- [NIST SSDF 项目与版本动态](https://csrc.nist.gov/projects/ssdf)
+- [OWASP Application Security Verification Standard 5.0.0](https://owasp.org/www-project-application-security-verification-standard/)
+- [OWASP Mobile Application Security Verification Standard 2.1.0](https://github.com/OWASP/masvs/releases/tag/v2.1.0)
+- [OWASP Thick Client Application Security Verification Standard](https://owasp.org/TCASVS/)
+- [W3C Web Content Accessibility Guidelines 2.2](https://www.w3.org/TR/WCAG22/)
+- [SLSA 1.2 规范](https://slsa.dev/spec/v1.2/)
+- [SLSA 1.2 Build Track 等级](https://slsa.dev/spec/v1.2/build-track-basics)
+- [SPDX 规范与当前版本](https://spdx.dev/use/specifications/)
+- [The Update Framework](https://theupdateframework.io/)
+- [Sigstore 与 Cosign 签名模型](https://docs.sigstore.dev/)
+- [Reproducible Builds 定义](https://reproducible-builds.org/docs/definition/)
+- [OpenSSF Scorecard](https://openssf.org/scorecard/)
+- [CISA Secure by Design 原则](https://www.cisa.gov/news-events/news/applying-secure-design-thinking-events-news)
+- [OpenTelemetry 规范](https://opentelemetry.io/docs/specs/otel/)
+- [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12)
+- [RFC 9457：HTTP API Problem Details](https://www.rfc-editor.org/rfc/rfc9457.html)
+- [Microsoft Threat Modeling Tool 与 STRIDE](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool)
+
 ## 商业成品表现参照
 
 - [《月姬 -A piece of blue glass moon-》英文官方网站](https://tsukihime-en.com/)：官方将进化后的画面、动画和音乐列为重制表现重点，并列出多语言与平台规格。

@@ -40,6 +40,8 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |
 | [容量、性能与运行稳定性优化规格](docs/12-size-performance-stability.md) | 自动优化中心、资源管线、加载/内存、弱网恢复与性能门禁 |
+| [程序工程详细设计](docs/13-program-engineering-blueprint.md) | 模块/进程边界、数据契约、状态机、插件沙箱、构建链与兼容演进 |
+| [工程审计与质量保证体系](docs/14-engineering-audit-and-assurance.md) | 风险分级、证据链、安全/供应链审计、测试矩阵与发布准入 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
@@ -49,6 +51,8 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 - 产品定位和首要用户已确认；
 - P0 范围已冻结；
 - 工程格式与脚本语义完成评审；
+- 程序模块边界、核心契约、失败语义与工程不变量完成评审；
+- 工程审计制度、风险分级、证据归档和发布职责完成评审；
 - Windows、Android、iOS、Web 的最小技术验证方案已批准；
 - 原型完成至少 5 名目标用户的任务测试；
 - 里程碑 M1 的验收标准、排除项和时间预算已确认；
