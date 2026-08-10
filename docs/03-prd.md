@@ -387,6 +387,37 @@
 
 详细配置矩阵和自动化规则见[《Gal 基础系统与自动化生产规格》](11-gal-foundation-and-automation.md)。
 
+### 3.15 Optimization Center
+
+#### P0
+
+- 项目级容量、内存、加载、帧时间和稳定性预算；
+- Quality First、Balanced、Small Download、Low Memory 和 Custom Profile；
+- 内容哈希去重、无引用派生产物排除、源素材/构建产物分离；
+- 资源体积排行、重复资源、超预算资源和优化前后报告；
+- First Playable、章节包、语言包和语音包依赖视图；
+- 资源加载优先级、并发限制、取消、重试、缓存和显式释放；
+- 崩溃、OOM、长帧、下载损坏、存档损坏和恢复诊断；
+- 每项自动优化可解释、可撤销、可锁定并可回退原始变体。
+
+#### P1
+
+- 图片格式/分辨率、GPU 纹理、音频、视频、字体子集和平台编解码自动候选比较；
+- Story Graph 预测预载、章节/路线/语言/语音分包和内容哈希补丁；
+- 引用计数 + LRU + GPU 显式释放与低内存降级；
+- Android Texture Compression Format Targeting 与 Asset Delivery 适配；
+- Web Brotli/gzip、长期缓存、Service Worker/离线包和增量更新；
+- 2 小时 Soak、弱网/断网、前后台、磁盘不足和音频设备变化测试；
+- Performance & Stability Report 自动归档。
+
+#### P2
+
+- 基于真实设备遥测的 Profile 建议；
+- 私有设备农场和团队性能基线；
+- 自定义优化器、成本函数和发布策略插件。
+
+详细规则见[《容量、性能与运行稳定性优化规格》](12-size-performance-stability.md)。
+
 ## 4. P0 纵向切片验收
 
 技术预览必须用同一个示例项目证明：
@@ -411,6 +442,10 @@
 18. 示例项目能自动生成 CG 画廊、Scene Replay、Music Room 和 Ending 页面；
 19. Gal 配置中心覆盖文本、推进、保存、音画、输入、路线和附加系统的 P0 设置；
 20. 自动生成页面和回滚/前进状态在 Web、Windows 与 Android 上结果一致。
+21. Optimization Center 能显示下载、安装、系统/GPU 内存、加载和帧时间预算，而非只有源文件大小；
+22. Safe Auto 不修改源素材，所有派生产物删除后可重建且优化可回退；
+23. 示例项目在目标低内存档连续运行两小时无崩溃、OOM 或持续内存增长；
+24. 弱网中断、损坏资源包和磁盘不足不会破坏最后一个可运行版本或有效存档。
 
 ## 5. 明确排除
 

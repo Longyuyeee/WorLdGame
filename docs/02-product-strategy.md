@@ -128,6 +128,19 @@ WorLd Studio 是一个 **本地优先、跨设备、生产级的视觉小说创�
 
 详细标准见[《视觉体验与商业制作基准》](10-visual-and-production-bar.md)。
 
+### 4.8 Budget-driven Optimization
+
+容量、速度和稳定性从项目建立时就进入预算，而不是发行前临时压缩：
+
+- 同时衡量下载、安装、补丁、系统内存、GPU 内存、解码、加载和帧时间；
+- Optimization Center 提供 Quality First、Balanced、Small Download、Low Memory 和 Custom Profile；
+- 图片、音频、视频、字体、语言、脚本、插件和章节包分别优化；
+- Story Graph 参与下一场景预测预载，资源生命周期使用引用计数、LRU 和显式释放；
+- 弱网、断网、低内存、前后台切换、磁盘不足和损坏缓存都有可恢复路径；
+- 自动优化不覆盖源素材，必须展示量化收益、质量差异、工具版本和回退方式。
+
+详细标准见[《容量、性能与运行稳定性优化规格》](12-size-performance-stability.md)。
+
 ## 5. 渐进式复杂度
 
 产品应允许用户沿同一项目逐步成长：
