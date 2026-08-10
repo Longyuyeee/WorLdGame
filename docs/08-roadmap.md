@@ -51,7 +51,7 @@ flowchart LR
 
 ## 4. D1：交互原型
 
-> 当前状态：Phase 0 发现、差距分析与首批原型范围已经形成候选方案，等待产品负责人批准后进入 Figma Token、组件和屏幕创建。除空白设计文件外尚未创建界面，不包含产品代码。
+> 当前状态：产品负责人已于 2026-08-11 批准 D1 Phase 0。Phase 1 Foundations 已开始：Figma 中已创建 3 个变量集合、32 个 Primitive 和 16 个 Scale 变量；因 Starter 计划 MCP 调用上限暂停在 P1.b，尚未创建组件或屏幕，不包含产品代码。
 
 D1 执行包见[《D1 发现与原型计划》](15-d1-discovery-and-prototype-plan.md)、[《D1 视觉系统规格》](16-d1-visual-system.md)、[《校园 Benchmark Episode 设计》](17-benchmark-episode.md)与[《D1 用户验证协议》](18-d1-validation-protocol.md)。
 

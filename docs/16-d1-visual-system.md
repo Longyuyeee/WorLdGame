@@ -1,6 +1,6 @@
 # D1 视觉系统规格
 
-> 状态：Phase 0 视觉方向已确认；具体 Token、字体、组件和屏幕范围仍须批准后才写入 Figma Variables、Styles 与 Components。
+> 状态：Phase 0 已批准；Phase 1 正在把本规范写入 Figma Variables 与 Styles。当前完成 3 个集合、32 个 Primitive 和 16 个 Scale，因 Starter 计划 MCP 调用上限暂停；尚未创建 Components 或屏幕。
 > 目标：现代化、极简、动效丰富、过渡平滑、色彩丰富、表达清晰，并与专业高密度同时成立。
 
 ## 1. 视觉主张

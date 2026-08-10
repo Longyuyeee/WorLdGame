@@ -1,6 +1,6 @@
 # D1 发现与交互原型计划
 
-> 状态：Phase 0 候选基线，等待产品负责人批准。
+> 状态：Phase 0 已于 2026-08-11 获产品负责人批准；Phase 1 Foundations 执行中。
 > Figma 文件：[WorLd Studio — D1 Interaction Prototype](https://www.figma.com/design/WfeAzd4cTv1E2KEUkDiPmF)
 > 边界：本阶段只做研究、设计系统、可点击/可播放原型和用户验证，不创建产品代码。
 
@@ -152,11 +152,9 @@ Phase 1/2 建立基础后，Phase 3 按依赖顺序创建：
 | Motion API 未验证 | 可播放动效存在工具风险 | 动效阶段先做功能标志检查；不可用则停止并报告，不以静态图冒充通过 | Motion 阶段 |
 | 无真实参与者名单 | 无法完成用户证据 | 按文档18招募5名创作者和5名玩家，记录同意与匿名ID | D1 测试前 |
 
-## 9. Phase 0 批准点
+## 9. Phase 0 批准记录
 
-产品负责人已确认总体视觉方向：现代化、极简、动效丰富、过渡平滑、色彩丰富、表达清晰。下列批准点用于冻结实现这一方向的具体方案，而不是重新选择视觉路线。
-
-进入 Figma Foundations 前，产品负责人需要批准或修改：
+产品负责人已确认总体视觉方向：现代化、极简、动效丰富、过渡平滑、色彩丰富、表达清晰，并于 2026-08-11 批准下列 Phase 0 方案：
 
 1. Wave A/Wave B 屏幕清单；
 2. 深色主题优先及字体建议；
@@ -165,4 +163,15 @@ Phase 1/2 建立基础后，Phase 3 按依赖顺序创建：
 5. D1 用户验证样本与门槛；
 6. 动效功能不可用时必须暂停报告，而不是降格为静态验收。
 
-批准 Phase 0 仅允许创建 Figma Token、样式、组件和原型，不允许产品编码。
+本次批准仅允许创建 Figma Token、样式、组件和原型，不允许产品编码。
+
+## 10. Phase 1 执行断点
+
+截至 2026-08-11：
+
+- P1.a 已完成并验证：`Primitive`、`Semantic.Dark`、`Scale` 三个单模式集合；
+- P1.b Primitive 已完成并验证：32 个变量，全部 `scopes=[]`，Web/Android 代码语法完整；
+- P1.b Scale 已完成前两批：10 个 Spacing 与 6 个 Radius，共 16 个变量；
+- 第三个 Scale 批次开始前触发 Figma Starter 计划的 MCP 调用上限，失败调用具有原子性，没有留下半批数据；
+- 恢复点：先创建剩余 14 个 Scale，再创建 28 个 Semantic aliases、10 个 Text Styles 和 4 个 Effect Styles；
+- 尚未创建组件、屏幕或产品代码。
