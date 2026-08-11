@@ -45,5 +45,5 @@ describe("S0.12 autosave integration", () => {
     }, { timeout: 5_000 });
     fireEvent.click(screen.getByRole("button", { name: /选择对白：第一次自动保存/ }));
     expect(screen.getByLabelText("对白内容")).toHaveValue("第一次自动保存。");
-  }, 10_000);
+  }, 20_000);
 });

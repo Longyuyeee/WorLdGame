@@ -1,6 +1,6 @@
 {
   "name": "world-studio",
-  "version": "0.0.0-s0.21",
+  "version": "0.0.0-s0.22",
   "private": true,
   "type": "module",
   "workspaces": [

@@ -1,6 +1,7 @@
 import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
 import {
+  analyzeLosslessDicing,
   createBlobDigest,
   computeAssetReachability,
   createAssetLifecycleManifest,
@@ -19,7 +20,7 @@ const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.20 backup-root and deterministic derivative performance gate", () => {
+describe("S0.22 asset lifecycle, derivative and Dicing performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;
@@ -119,5 +120,38 @@ describe("S0.20 backup-root and deterministic derivative performance gate", () =
     expect(new Set(sidecars.map((sidecar) => sidecar.digest)).size).toBe(5_000);
     expect(lifecycleMs).toBeLessThan(2_000);
     expect(derivativeMs).toBeLessThan(2_000);
+  });
+
+  it("analyzes an eight-image 512px exact-repeat Dicing group within budget", () => {
+    const width = 512;
+    const height = 512;
+    const rgba = new Uint8Array(width * height * 4);
+    for (let offset = 0; offset < rgba.length; offset += 4) {
+      rgba[offset] = (offset / 4) % 251;
+      rgba[offset + 1] = 80;
+      rgba[offset + 2] = 160;
+      rgba[offset + 3] = 255;
+    }
+    const sources = Array.from({ length: 8 }, (_, index) => ({
+      assetId: `cg_dicing_benchmark_${index}`,
+      width,
+      height,
+      rgba: rgba.slice()
+    }));
+    const start = performance.now();
+    const report = analyzeLosslessDicing(sources, { cellSize: 64 });
+    const dicingMs = performance.now() - start;
+
+    console.log(JSON.stringify({
+      status: "PASS",
+      baseline: { images: sources.length, width, height, rgbaBytes: rgba.byteLength * sources.length, cellSize: 64 },
+      measurementsMs: { losslessDicingAnalysisAndReconstruction: Number(dicingMs.toFixed(2)) },
+      budgetsMs: { losslessDicingAnalysisAndReconstruction: 3_000 },
+      result: { decision: report.decision, repeatedPlacements: report.repeatedPlacementCount, netSavingsRatio: report.netSavingsRatio }
+    }, null, 2));
+
+    expect(report).toMatchObject({ decision: "adopt", reconstructionVerified: true, imageCount: 8 });
+    expect(report.repeatedPlacementCount).toBeGreaterThan(400);
+    expect(dicingMs).toBeLessThan(3_000);
   });
 });

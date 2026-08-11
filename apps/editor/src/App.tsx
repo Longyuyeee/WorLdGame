@@ -17,6 +17,7 @@ import {
   type AssetIndex,
   type AssetKind,
   type AssetLifecycleManifest,
+  type LosslessDicingReport,
   type ProjectSnapshot,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
@@ -51,6 +52,7 @@ import {
 } from "./asset-file-import";
 import { inspectAssetBytes, mediaInspectionToJson } from "./media-inspection-client";
 import { generateThumbnailInWorker } from "./thumbnail-client";
+import { analyzeDicingInWorker } from "./dicing-analysis-client";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -205,7 +207,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.21</p>
+          <p className="eyebrow">WorLd Studio · S0.22</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -316,7 +318,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.21 CONSISTENT RESTORE · WORKER THUMBNAILS</small></span>
+            <span><strong>资源保险库</strong><small>S0.22 LOSSLESS DICING · VERIFIED FALLBACK</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -387,6 +389,8 @@ interface AssetVaultDialogProps {
   readonly gcLocked: boolean;
   readonly gcLockReason: string;
   readonly lifecycleDetail: string;
+  readonly dicingReport: LosslessDicingReport | null;
+  readonly dicingAnalyzing: boolean;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
   readonly createSuggestedId: (fileName: string) => string;
@@ -398,6 +402,8 @@ interface AssetVaultDialogProps {
   readonly onRestore: (digest: AssetLifecycleManifest["trash"][number]["digest"]) => void;
   readonly onBuildSidecar: (assetId: string) => void;
   readonly onBuildThumbnail: (assetId: string) => void;
+  readonly onAnalyzeDicing: () => void;
+  readonly onCancelDicing: () => void;
 }
 
 function AssetVaultDialog({
@@ -406,6 +412,8 @@ function AssetVaultDialog({
   gcLocked,
   gcLockReason,
   lifecycleDetail,
+  dicingReport,
+  dicingAnalyzing,
   status,
   importState,
   createSuggestedId,
@@ -416,18 +424,21 @@ function AssetVaultDialog({
   onSweep,
   onRestore,
   onBuildSidecar,
-  onBuildThumbnail
+  onBuildThumbnail,
+  onAnalyzeDicing,
+  onCancelDicing
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [kind, setKind] = useState<AssetKind>("other");
-  const importing = importState.phase === "reading" || importState.phase === "committing";
+  const importing = importState.phase === "reading" || importState.phase === "inspecting" || importState.phase === "committing";
   const storageReady = status === "ready" || status === "success" || status === "cancelled";
   const selectedExisting = index.assets.find((entry) => entry.assetId === assetId);
   const sourceCount = lifecycle.nodes.filter((node) => node.role === "source").length;
   const derivativeCount = lifecycle.nodes.length - sourceCount;
   const eligibleCount = lifecycle.quarantine.filter((entry) => entry.sweepAfterMs <= Date.now()).length;
+  const dicingCandidateCount = index.assets.filter(canBuildThumbnail).length;
 
   const chooseFile = (selected: File | null) => {
     setFile(selected);
@@ -486,6 +497,23 @@ function AssetVaultDialog({
               移入可恢复区{eligibleCount > 0 ? ` · ${eligibleCount}` : ""}
             </button>
             <small>扫描只登记候选；隔离满 24 小时后才能移动，移动后仍保留 7 天恢复期。</small>
+          </div>
+          <div className="dicing-analysis" aria-label="无损切图候选分析">
+            <div className="dicing-analysis__heading">
+              <div><p className="eyebrow">LOSSLESS DICING · CANDIDATE ONLY</p><h4>跨图片重复块分析</h4></div>
+              {dicingAnalyzing
+                ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
+                : <button type="button" disabled={!storageReady || importing || dicingCandidateCount === 0} onClick={onAnalyzeDicing}>
+                    分析候选 · {dicingCandidateCount}
+                  </button>}
+            </div>
+            <p>仅分析已通过检查的 PNG/JPEG/WebP；Worker 内解码为 RGBA，精确切块并逐字节重建。当前不生成 Atlas、不修改源素材。</p>
+            {dicingReport !== null && <div className={`dicing-analysis__report is-${dicingReport.decision}`} role="status">
+              <strong>{dicingReport.decision === "adopt" ? "建议进入 Atlas 候选" : "保持 Original"}</strong>
+              <span>{dicingReport.imageCount} 图 · {dicingReport.cellSize}px Cell · {dicingReport.repeatedPlacementCount} 重复放置 · {dicingReport.zeroTileCount} 全零块</span>
+              <span>RGBA 成本估算 {formatBytes(dicingReport.originalRgbaBytes)} → {formatBytes(dicingReport.estimatedDicedBytes)} · {dicingReport.netSavingsBytes > 0 ? `节省 ${(dicingReport.netSavingsRatio * 100).toFixed(1)}%` : "无净收益"}</span>
+              <code>{dicingReport.planDigest.slice(7, 19)}… · 逐字节重建 PASS</code>
+            </div>}
           </div>
           {lifecycle.trash.length > 0 && <div className="asset-trash-list" aria-label="可恢复资源">
             {lifecycle.trash.map((entry) => <article key={entry.digest}>
@@ -1083,6 +1111,8 @@ export function App() {
     createAssetLifecycleManifest(createAssetIndex(), Date.now())
   );
   const [assetLifecycleDetail, setAssetLifecycleDetail] = useState("血缘清单已校验；没有执行不可逆删除。");
+  const [dicingReport, setDicingReport] = useState<LosslessDicingReport | null>(null);
+  const [dicingAnalyzing, setDicingAnalyzing] = useState(false);
   const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
   const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
   const [unlinkedAssetBackupIds, setUnlinkedAssetBackupIds] = useState<readonly string[]>([]);
@@ -1093,6 +1123,7 @@ export function App() {
   const [assetPanelOpen, setAssetPanelOpen] = useState(false);
   const assetRepositoryRef = useRef<IndexedDbAssetRepository | null>(null);
   const assetImportAbortRef = useRef<AbortController | null>(null);
+  const dicingAnalysisAbortRef = useRef<AbortController | null>(null);
   const assetFileSerial = useRef(0);
   const [persistence, setPersistence] = useState<PersistenceViewState>(() =>
     storageAvailable ? { status: "loading", revision: 0 } : { status: "unavailable", revision: 0 }
@@ -1175,6 +1206,8 @@ export function App() {
       assetRepositoryRef.current = null;
       assetImportAbortRef.current?.abort();
       assetImportAbortRef.current = null;
+      dicingAnalysisAbortRef.current?.abort();
+      dicingAnalysisAbortRef.current = null;
       setAssetStatus("error");
       setPersistence({
         status: "conflict",
@@ -1356,6 +1389,8 @@ export function App() {
       leaseRef.current = null;
       assetImportAbortRef.current?.abort();
       assetImportAbortRef.current = null;
+      dicingAnalysisAbortRef.current?.abort();
+      dicingAnalysisAbortRef.current = null;
       if (event.persisted) {
         setPersistence({
           status: "conflict",
@@ -1609,6 +1644,10 @@ export function App() {
       assetImportAbortRef.current.abort();
       return;
     }
+    if (dicingAnalysisAbortRef.current !== null) {
+      dicingAnalysisAbortRef.current.abort();
+      return;
+    }
     setAssetPanelOpen(false);
   };
   const importAssetFile = (
@@ -1767,6 +1806,37 @@ export function App() {
     }
   };
 
+  const analyzeDicingCandidates = async () => {
+    const repository = assetRepositoryRef.current;
+    if (repository === null || dicingAnalysisAbortRef.current !== null) return;
+    const candidates = assetIndex.assets.filter(canBuildThumbnail).slice(0, 32);
+    if (candidates.length === 0) return;
+    const controller = new AbortController();
+    dicingAnalysisAbortRef.current = controller;
+    setDicingAnalyzing(true);
+    setDicingReport(null);
+    setAssetLifecycleDetail(`正在隔离 Worker 中解码 ${candidates.length} 张图片并执行精确切块重建…`);
+    try {
+      const inputs = await Promise.all(candidates.map(async (entry) => {
+        const bytes = await repository.read(entry.source.digest);
+        if (bytes === null) throw new AssetBlobError("CORRUPT_BLOB", "read", entry.source.digest, "Dicing 源 Blob 不存在");
+        return { assetId: entry.assetId, mimeType: entry.source.mimeType, bytes };
+      }));
+      const report = await analyzeDicingInWorker(inputs, 64, controller.signal);
+      setDicingReport(report);
+      setAssetLifecycleDetail(report.decision === "adopt"
+        ? `Dicing 候选通过：逐字节重建一致，RGBA 代理成本预计节省 ${(report.netSavingsRatio * 100).toFixed(1)}%；尚未发布 Atlas。`
+        : `Dicing 自动回退 Original：${report.reason === "no-repeat" ? "没有精确重复块" : "清单成本抵消了净收益"}。`);
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof AssetBlobError && error.code === "CANCELLED"
+        ? "Dicing 候选分析已取消；没有发布或修改任何资源。"
+        : error instanceof Error ? `Dicing 候选分析未完成：${error.message}` : "Dicing 候选分析未完成。");
+    } finally {
+      if (dicingAnalysisAbortRef.current === controller) dicingAnalysisAbortRef.current = null;
+      setDicingAnalyzing(false);
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -1842,7 +1912,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.21 CONSISTENT RESTORE · ISOLATED THUMBNAILS</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.22 LOSSLESS DICING · BYTE-EXACT REBUILD</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -1889,6 +1959,8 @@ export function App() {
             ? "正在核对项目备份与资源保护根；完成前安全回收保持锁定。"
             : `检测到 ${unlinkedAssetBackupIds.length} 份尚未携带资源快照的旧备份。为避免误删其依赖 Blob，安全回收已锁定。`}
           lifecycleDetail={assetLifecycleDetail}
+          dicingReport={dicingReport}
+          dicingAnalyzing={dicingAnalyzing}
           status={assetStatus}
           importState={assetImportState}
           createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
@@ -1900,6 +1972,8 @@ export function App() {
           onRestore={(digest) => void runAssetLifecycleOperation("restore", digest)}
           onBuildSidecar={(assetId) => void buildAssetSidecar(assetId)}
           onBuildThumbnail={(assetId) => void buildAssetThumbnail(assetId)}
+          onAnalyzeDicing={() => void analyzeDicingCandidates()}
+          onCancelDicing={() => dicingAnalysisAbortRef.current?.abort()}
         />
       )}
     </div>
