@@ -67,7 +67,7 @@ Parser 将对白末尾的 `@name(...)` 视为元数据区：
 - 外部编辑三方合并、WAL、磁盘原子写和崩溃恢复；
 - CodeMirror/IME/Android 真机与独立 R3 审阅。
 
-下一步应实现稳定 ID 的 Insert/Delete/Move Patch 与 Tombstone/引用保护，再决定 Script UI 的最小接入范围。任何结构 Patch 都必须继续满足“目标外字节不变”和失败不产生部分结果。
+下一步为 **S0.6 Structural Patch**：实现稳定 ID 的对白 Insert/Delete/Move、Tombstone 与注释归属保护，并据此冻结 S0.7 Script UI 的最小测试范围。
 
 ## 8. 本地审计结果
 

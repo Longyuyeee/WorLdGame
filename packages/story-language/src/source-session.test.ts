@@ -355,6 +355,175 @@ describe("script source transaction session", () => {
     expect(execution.session.draftSource).toBe(invalidSource);
   });
 
+  it("commits structural insert/delete/move commands with tombstone-aware history", () => {
+    const structuralSource = `scene "事务结构" @id(scn_transaction_structure)
+xia: 第一行 @sid(stmt_structure_first) @id(txt_structure_first)
+
+yu: 第二行 @sid(stmt_structure_second) @id(txt_structure_second)
+end "完成" @id(stmt_structure_end)
+`;
+    let session = createScriptSourceSession(structuralSource);
+    const inserted = executeScriptSourceCommand(session, {
+      schemaVersion: 0,
+      kind: "script.insert-dialogue",
+      commandId: "cmd_insert_structure",
+      baseRevision: 0,
+      afterId: "stmt_structure_first",
+      statementId: "stmt_structure_inserted",
+      textId: "txt_structure_inserted",
+      speakerId: "xia",
+      text: "插入内容"
+    });
+    expect(inserted.result.status).toBe("committed");
+    if (inserted.result.status !== "committed") {
+      throw new Error("Expected structural insert commit");
+    }
+    expect(inserted.result.changeSet).toEqual(
+      expect.objectContaining({
+        changedStatementIds: ["stmt_structure_inserted"],
+        changedTextIds: ["txt_structure_inserted"],
+        tombstones: []
+      })
+    );
+    const duplicateInsert = executeScriptSourceCommand(inserted.session, {
+      schemaVersion: 0,
+      kind: "script.insert-dialogue",
+      commandId: "cmd_insert_structure",
+      baseRevision: 0,
+      afterId: "stmt_structure_first",
+      statementId: "stmt_structure_inserted",
+      textId: "txt_structure_inserted",
+      speakerId: "xia",
+      text: "插入内容"
+    });
+    expect(duplicateInsert.result.status).toBe("duplicate");
+    session = inserted.session;
+
+    const deleted = executeScriptSourceCommand(session, {
+      schemaVersion: 0,
+      kind: "script.delete-dialogue",
+      commandId: "cmd_delete_structure",
+      baseRevision: 1,
+      statementId: "stmt_structure_inserted"
+    });
+    expect(deleted.result.status).toBe("committed");
+    if (deleted.result.status !== "committed") {
+      throw new Error("Expected structural delete commit");
+    }
+    expect(deleted.result.changeSet.tombstones).toEqual([
+      expect.objectContaining({
+        statementId: "stmt_structure_inserted",
+        textId: "txt_structure_inserted",
+        text: "插入内容"
+      })
+    ]);
+    expect(deleted.session.tombstones).toEqual(deleted.result.changeSet.tombstones);
+
+    const undoDelete = reduceScriptSourceSession(deleted.session, { type: "undo" });
+    expect(undoDelete.committedSource).toContain("stmt_structure_inserted");
+    expect(undoDelete.lastChange?.tombstones).toEqual([]);
+    expect(undoDelete.tombstones).toEqual([]);
+    const redoDelete = reduceScriptSourceSession(undoDelete, { type: "redo" });
+    expect(redoDelete.committedSource).not.toContain("stmt_structure_inserted");
+    expect(redoDelete.lastChange?.tombstones).toEqual([
+      expect.objectContaining({ statementId: "stmt_structure_inserted" })
+    ]);
+    expect(redoDelete.tombstones).toEqual(redoDelete.lastChange?.tombstones);
+
+    const reusedDeletedId = executeScriptSourceCommand(redoDelete, {
+      schemaVersion: 0,
+      kind: "script.insert-dialogue",
+      commandId: "cmd_reuse_deleted_id",
+      baseRevision: redoDelete.revision,
+      afterId: "stmt_structure_first",
+      statementId: "stmt_structure_inserted",
+      textId: "txt_structure_inserted",
+      speakerId: "xia",
+      text: "错误复用"
+    });
+    expect(reusedDeletedId.result).toEqual(
+      expect.objectContaining({
+        status: "rejected",
+        error: expect.objectContaining({
+          code: "TOMBSTONED_ID_REUSE",
+          category: "conflict"
+        })
+      })
+    );
+    expect(reusedDeletedId.session).toBe(redoDelete);
+
+    const moved = executeScriptSourceCommand(redoDelete, {
+      schemaVersion: 0,
+      kind: "script.move-dialogue",
+      commandId: "cmd_move_structure",
+      baseRevision: redoDelete.revision,
+      statementId: "stmt_structure_first",
+      afterId: "stmt_structure_second"
+    });
+    expect(moved.result.status).toBe("committed");
+    if (moved.result.status !== "committed") {
+      throw new Error("Expected structural move commit");
+    }
+    expect(moved.result.changeSet.changedStatementIds).toEqual([
+      "stmt_structure_first"
+    ]);
+    expect(moved.result.changeSet.changedTextIds).toEqual([]);
+    expect(moved.session.committedSource.indexOf("stmt_structure_second")).toBeLessThan(
+      moved.session.committedSource.indexOf("stmt_structure_first")
+    );
+  });
+
+  it("preserves structural history invariants across 30 insert/delete cycles", () => {
+    const baseSource = `scene "结构模型" @id(scn_structure_model)
+xia: 基准对白 @sid(stmt_structure_base) @id(txt_structure_base)
+end "完成" @id(stmt_structure_model_end)
+`;
+    let session = createScriptSourceSession(baseSource);
+
+    for (let iteration = 0; iteration < 30; iteration += 1) {
+      const statementId = `stmt_cycle_${iteration}`;
+      const textId = `txt_cycle_${iteration}`;
+      const inserted = executeScriptSourceCommand(session, {
+        schemaVersion: 0,
+        kind: "script.insert-dialogue",
+        commandId: `cmd_cycle_insert_${iteration}`,
+        baseRevision: session.revision,
+        afterId: "stmt_structure_base",
+        statementId,
+        textId,
+        speakerId: "xia",
+        text: `循环 ${iteration}`
+      });
+      expect(inserted.result.status).toBe("committed");
+      const deleted = executeScriptSourceCommand(inserted.session, {
+        schemaVersion: 0,
+        kind: "script.delete-dialogue",
+        commandId: `cmd_cycle_delete_${iteration}`,
+        baseRevision: inserted.session.revision,
+        statementId
+      });
+      expect(deleted.result.status).toBe("committed");
+
+      const undoDelete = reduceScriptSourceSession(deleted.session, { type: "undo" });
+      expect(undoDelete.committedSource).toContain(statementId);
+      const undoInsert = reduceScriptSourceSession(undoDelete, { type: "undo" });
+      expect(undoInsert.committedSource).not.toContain(statementId);
+      const redoInsert = reduceScriptSourceSession(undoInsert, { type: "redo" });
+      expect(redoInsert.committedSource).toContain(statementId);
+      session = reduceScriptSourceSession(redoInsert, { type: "redo" });
+
+      expect(session.committedSource).toBe(baseSource);
+      expect(session.tombstones).toHaveLength(iteration + 1);
+      expect(session.tombstones.at(-1)).toEqual(
+        expect.objectContaining({ statementId, textId })
+      );
+      expect(
+        session.committedDocument.diagnostics.filter((item) => item.severity === "error")
+      ).toEqual([]);
+      expect(session.future).toEqual([]);
+    }
+  });
+
   it("preserves committed invariants across 200 deterministic mixed operations", () => {
     let session = createScriptSourceSession(initialSource);
 

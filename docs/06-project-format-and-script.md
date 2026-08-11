@@ -110,6 +110,8 @@
 
 局部修改必须以稳定 ID 定位 CST 节点，只替换目标字段；不得通过重新生成整个场景脚本覆盖注释、Opaque Node、未知参数、换行风格或用户分段。源文本与解析文档不一致时必须进入冲突，而不是按旧行号继续写入。
 
+结构修改同样使用稳定 ID。Delete 必须产生 Tombstone，活动 Tombstone 的 `statementId/textId` 禁止被新实体复用；Undo 恢复实体时撤销对应活动 Tombstone，Redo 再建立。注释归属规则未冻结时，直接相邻注释的 Delete/Move/插入切分必须拒绝，不能猜测。
+
 ## 5. Canonical Model
 
 场景脚本是剧情语义的主要持久化形式；内存 AST 是编辑期间的权威模型。

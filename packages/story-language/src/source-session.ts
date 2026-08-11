@@ -3,6 +3,13 @@ import { formatStory, semanticSnapshot } from "./formatter";
 import type { StoryDiagnostic, StoryDocument } from "./model";
 import { patchDialogueText, type DialoguePatchErrorCode } from "./patch";
 import { parseStory } from "./parser";
+import {
+  deleteDialogue,
+  insertDialogueAfter,
+  moveDialogueAfter,
+  type DialogueTombstone,
+  type StructuralPatchErrorCode
+} from "./structural-patch";
 
 export interface ReplaceScriptSourceCommand {
   readonly schemaVersion: 0;
@@ -28,17 +35,51 @@ export interface PatchDialogueSourceCommand {
   readonly text: string;
 }
 
+export interface InsertDialogueSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.insert-dialogue";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly afterId: EntityId;
+  readonly statementId: EntityId;
+  readonly textId: EntityId;
+  readonly speakerId: EntityId;
+  readonly text: string;
+}
+
+export interface DeleteDialogueSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.delete-dialogue";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+}
+
+export interface MoveDialogueSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.move-dialogue";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+  readonly afterId: EntityId;
+}
+
 export type ScriptSourceCommand =
   | ReplaceScriptSourceCommand
   | FormatScriptSourceCommand
-  | PatchDialogueSourceCommand;
+  | PatchDialogueSourceCommand
+  | InsertDialogueSourceCommand
+  | DeleteDialogueSourceCommand
+  | MoveDialogueSourceCommand;
 
 export type ScriptCommandErrorCode =
   | "EMPTY_COMMAND_ID"
   | "STALE_REVISION"
   | "COMMAND_ID_REUSE"
   | "DRAFT_PENDING"
-  | DialoguePatchErrorCode;
+  | "TOMBSTONED_ID_REUSE"
+  | DialoguePatchErrorCode
+  | StructuralPatchErrorCode;
 
 export interface ScriptCommandError {
   readonly category: "validation" | "conflict";
@@ -56,6 +97,8 @@ export interface ScriptChangeSet {
   readonly requiresSave: boolean;
   readonly requiresCompile: boolean;
   readonly changedTextIds: readonly EntityId[];
+  readonly changedStatementIds: readonly EntityId[];
+  readonly tombstones: readonly DialogueTombstone[];
   readonly addedDiagnostics: readonly StoryDiagnostic[];
   readonly resolvedDiagnostics: readonly StoryDiagnostic[];
 }
@@ -71,6 +114,10 @@ export interface ScriptHistoryEntry {
   readonly after: CommittedSnapshot;
   readonly semanticChanged: boolean;
   readonly changedTextIds: readonly EntityId[];
+  readonly changedStatementIds: readonly EntityId[];
+  readonly tombstones: readonly DialogueTombstone[];
+  readonly beforeTombstones: readonly DialogueTombstone[];
+  readonly afterTombstones: readonly DialogueTombstone[];
 }
 
 export type AppliedOutcome = "committed" | "drafted" | "noop";
@@ -93,6 +140,7 @@ export interface ScriptSourceSession {
   readonly future: readonly ScriptHistoryEntry[];
   readonly appliedCommands: readonly AppliedCommandRecord[];
   readonly lastChange: ScriptChangeSet | null;
+  readonly tombstones: readonly DialogueTombstone[];
 }
 
 export class InvalidInitialScriptError extends Error {
@@ -175,6 +223,32 @@ function commandFingerprint(command: ScriptSourceCommand): string {
         command.statementId,
         command.text
       ].join("\u0000");
+    case "script.insert-dialogue":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.afterId,
+        command.statementId,
+        command.textId,
+        command.speakerId,
+        command.text
+      ].join("\u0000");
+    case "script.delete-dialogue":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.statementId
+      ].join("\u0000");
+    case "script.move-dialogue":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.statementId,
+        command.afterId
+      ].join("\u0000");
   }
 }
 
@@ -191,6 +265,32 @@ function dialogueTextMap(storyDocument: StoryDocument): ReadonlyMap<EntityId, st
   for (const node of storyDocument.nodes) {
     if (node.kind === "dialogue" && node.textId !== undefined) {
       result.set(node.textId, node.textRaw);
+    }
+  }
+  return result;
+}
+
+function documentIds(storyDocument: StoryDocument): ReadonlySet<EntityId> {
+  const result = new Set<EntityId>();
+  for (const node of storyDocument.nodes) {
+    switch (node.kind) {
+      case "scene":
+      case "directive":
+      case "choice":
+      case "choice-option":
+      case "end":
+        if (node.id !== undefined) result.add(node.id);
+        break;
+      case "dialogue":
+        if (node.statementId !== undefined) result.add(node.statementId);
+        if (node.textId !== undefined) result.add(node.textId);
+        break;
+      case "blank":
+      case "comment":
+      case "label":
+      case "set":
+      case "opaque":
+        break;
     }
   }
   return result;
@@ -216,6 +316,8 @@ function createChangeSet(
     readonly sourceChanged: boolean;
     readonly semanticChanged: boolean;
     readonly changedTextIds: readonly EntityId[];
+    readonly changedStatementIds?: readonly EntityId[];
+    readonly tombstones?: readonly DialogueTombstone[];
     readonly nextDiagnostics: readonly StoryDiagnostic[];
   }
 ): ScriptChangeSet {
@@ -230,6 +332,8 @@ function createChangeSet(
     requiresSave: options.sourceChanged,
     requiresCompile: options.semanticChanged,
     changedTextIds: options.changedTextIds,
+    changedStatementIds: options.changedStatementIds ?? [],
+    tombstones: options.tombstones ?? [],
     ...diagnostics
   };
 }
@@ -250,7 +354,8 @@ export function createScriptSourceSession(initialSource: string): ScriptSourceSe
     history: [],
     future: [],
     appliedCommands: [],
-    lastChange: null
+    lastChange: null,
+    tombstones: []
   };
 }
 
@@ -315,6 +420,8 @@ export function executeScriptSourceCommand(
   }
 
   let nextSource: string;
+  let commandStatementIds: readonly EntityId[] = [];
+  let commandTombstones: readonly DialogueTombstone[] = [];
   switch (command.kind) {
     case "script.replace-source":
       nextSource = command.source;
@@ -337,6 +444,60 @@ export function executeScriptSourceCommand(
         });
       }
       nextSource = patchResult.source;
+      commandStatementIds = [command.statementId];
+      break;
+    }
+    case "script.insert-dialogue": {
+      const result = insertDialogueAfter(
+        session.committedSource,
+        session.committedDocument,
+        command
+      );
+      if (!result.ok) {
+        return reject(session, {
+          category: "validation",
+          code: result.error.code,
+          message: result.error.message
+        });
+      }
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
+      break;
+    }
+    case "script.delete-dialogue": {
+      const result = deleteDialogue(
+        session.committedSource,
+        session.committedDocument,
+        command.statementId
+      );
+      if (!result.ok) {
+        return reject(session, {
+          category: "validation",
+          code: result.error.code,
+          message: result.error.message
+        });
+      }
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
+      commandTombstones = result.tombstones;
+      break;
+    }
+    case "script.move-dialogue": {
+      const result = moveDialogueAfter(
+        session.committedSource,
+        session.committedDocument,
+        command.statementId,
+        command.afterId
+      );
+      if (!result.ok) {
+        return reject(session, {
+          category: "validation",
+          code: result.error.code,
+          message: result.error.message
+        });
+      }
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
       break;
     }
   }
@@ -352,6 +513,8 @@ export function executeScriptSourceCommand(
       sourceChanged: false,
       semanticChanged: false,
       changedTextIds: [],
+      changedStatementIds: commandStatementIds,
+      tombstones: commandTombstones,
       nextDiagnostics: nextDocument.diagnostics
     });
     const record: AppliedCommandRecord = {
@@ -370,6 +533,18 @@ export function executeScriptSourceCommand(
     return { session: nextSession, result: { status: "drafted", changeSet } };
   }
 
+  const nextIds = documentIds(nextDocument);
+  const reusedTombstone = session.tombstones.find(
+    (item) => nextIds.has(item.statementId) || nextIds.has(item.textId)
+  );
+  if (reusedTombstone !== undefined) {
+    return reject(session, {
+      category: "conflict",
+      code: "TOMBSTONED_ID_REUSE",
+      message: `Deleted identities cannot be reused: ${reusedTombstone.statementId}`
+    });
+  }
+
   const sourceChanged = nextSource !== session.committedSource;
   const semanticChanged =
     executionFingerprint(nextDocument) !== executionFingerprint(session.committedDocument);
@@ -385,6 +560,8 @@ export function executeScriptSourceCommand(
     sourceChanged,
     semanticChanged,
     changedTextIds: changedIds,
+    changedStatementIds: commandStatementIds,
+    tombstones: commandTombstones,
     nextDiagnostics: nextDocument.diagnostics
   });
   const outcome: AppliedOutcome = sourceChanged ? "committed" : "noop";
@@ -402,7 +579,11 @@ export function executeScriptSourceCommand(
     },
     after: { source: nextSource, storyDocument: nextDocument },
     semanticChanged,
-    changedTextIds: changedIds
+    changedTextIds: changedIds,
+    changedStatementIds: commandStatementIds,
+    tombstones: commandTombstones,
+    beforeTombstones: session.tombstones,
+    afterTombstones: [...session.tombstones, ...commandTombstones]
   };
   const nextSession: ScriptSourceSession = {
     ...session,
@@ -415,7 +596,8 @@ export function executeScriptSourceCommand(
     history: sourceChanged ? [...session.history, historyEntry] : session.history,
     future: sourceChanged ? [] : session.future,
     appliedCommands: [...session.appliedCommands, record],
-    lastChange: changeSet
+    lastChange: changeSet,
+    tombstones: historyEntry.afterTombstones
   };
   return { session: nextSession, result: { status: outcome, changeSet } };
 }
@@ -430,6 +612,8 @@ function restoreHistory(
     return session;
   }
   const snapshot = direction === "undo" ? entry.before : entry.after;
+  const tombstones =
+    direction === "undo" ? entry.beforeTombstones : entry.afterTombstones;
   const nextRevision = session.revision + 1;
   const nextSemanticRevision =
     session.semanticRevision + (entry.semanticChanged ? 1 : 0);
@@ -441,6 +625,8 @@ function restoreHistory(
     sourceChanged: snapshot.source !== session.committedSource,
     semanticChanged: entry.semanticChanged,
     changedTextIds: entry.changedTextIds,
+    changedStatementIds: entry.changedStatementIds,
+    tombstones: direction === "redo" ? entry.tombstones : [],
     nextDiagnostics: snapshot.storyDocument.diagnostics
   });
   return {
@@ -455,7 +641,8 @@ function restoreHistory(
       direction === "undo" ? session.history.slice(0, -1) : [...session.history, entry],
     future:
       direction === "undo" ? [...session.future, entry] : session.future.slice(0, -1),
-    lastChange: changeSet
+    lastChange: changeSet,
+    tombstones
   };
 }
 
