@@ -73,7 +73,7 @@ if (
   languageDependencies.length !== 1 ||
   languageDependencies[0] !== "@world-studio/story-core"
 ) {
-  violations.push("story-language may depend only on story-core in S0.2");
+  violations.push("story-language may depend only on story-core in S0.3");
 }
 
 const editorPackage = JSON.parse(
