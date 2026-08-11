@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.3 Script Source Transaction 阶段
+> 状态：S0.4 Stable ID Projection 阶段
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -52,6 +52,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.1 代码原型与审计记录](docs/20-s0-code-prototype.md) | 取消 Figma 后的代码原型决策、首个共享语义切片、验收证据与下一步 |
 | [S0.2 脚本往返与审计记录](docs/21-s0-script-roundtrip.md) | `.world` 容错 CST、未知命令保留、稳定 ID、诊断与属性测试 |
 | [S0.3 脚本事务与审计记录](docs/22-s0-script-source-transaction.md) | 草稿/已提交 CST 隔离、幂等命令、ChangeSet 与 Undo/Redo 边界 |
+| [S0.4 稳定 ID 与投影审计](docs/23-s0-stable-id-projection.md) | 对白双 ID、演出语句 ID 与 CST → StoryScene 拒绝式投影 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

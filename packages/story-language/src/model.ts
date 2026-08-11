@@ -34,12 +34,14 @@ export interface SceneNode extends SyntaxNodeBase {
 export interface DirectiveNode extends SyntaxNodeBase {
   readonly kind: "directive";
   readonly command: "background" | "show" | "audio";
+  readonly id?: EntityId;
   readonly argumentsRaw: string;
 }
 
 export interface DialogueNode extends SyntaxNodeBase {
   readonly kind: "dialogue";
   readonly speakerId: EntityId;
+  readonly statementId?: EntityId;
   readonly textRaw: string;
   readonly textId?: EntityId;
 }

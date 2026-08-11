@@ -23,9 +23,9 @@ function formatNode(node: StorySyntaxNode): string {
       return `scene ${node.titleRaw}${metadata.length === 0 ? "" : ` ${metadata}`}`;
     }
     case "directive":
-      return `@${node.command}${node.argumentsRaw.length === 0 ? "" : ` ${node.argumentsRaw}`}`;
+      return `@${node.command}${node.argumentsRaw.length === 0 ? "" : ` ${node.argumentsRaw}`}${node.id === undefined ? "" : ` @id(${node.id})`}`;
     case "dialogue":
-      return `${node.speakerId}: ${node.textRaw}${node.textId === undefined ? "" : ` @id(${node.textId})`}`;
+      return `${node.speakerId}: ${node.textRaw}${node.statementId === undefined ? "" : ` @sid(${node.statementId})`}${node.textId === undefined ? "" : ` @id(${node.textId})`}`;
     case "choice": {
       const metadata = withMetadata(node.id, node.trailingMetadata);
       return `choice ${node.promptRaw}${metadata.length === 0 ? "" : ` ${metadata}`}`;

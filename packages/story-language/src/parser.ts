@@ -53,13 +53,14 @@ function parseQuoted(input: string): ParsedQuoted | undefined {
   return undefined;
 }
 
-function parseMetadata(input: string): ParsedMetadata {
+function parseNamedMetadata(input: string, name: "id" | "sid"): ParsedMetadata {
   const trimmed = input.trim();
-  const idMatches = [...trimmed.matchAll(/@id\(([^)]*)\)/g)];
+  const pattern = new RegExp(`@${name}\\(([^)]*)\\)`, "g");
+  const idMatches = [...trimmed.matchAll(pattern)];
   if (idMatches.length === 0) {
     return {
       trailingMetadata: trimmed,
-      malformedId: /@id(?:\s|\(|$)/.test(trimmed)
+      malformedId: new RegExp(`@${name}(?:\\s|\\(|$)`).test(trimmed)
     };
   }
   const match = idMatches[0];
@@ -72,6 +73,10 @@ function parseMetadata(input: string): ParsedMetadata {
     trailingMetadata,
     malformedId: id === undefined || id.length === 0 || idMatches.length > 1
   };
+}
+
+function parseMetadata(input: string): ParsedMetadata {
+  return parseNamedMetadata(input, "id");
 }
 
 function diagnostic(
@@ -197,15 +202,25 @@ export function parseStory(source: string): StoryDocument {
           diagnostic("MALFORMED_DIRECTIVE", "Directive requires a command name", range)
         );
       }
+      const metadata = parseMetadata(argumentsRaw);
+      if (metadata.malformedId) {
+        diagnostics.push(
+          diagnostic("MALFORMED_ID", "Directive contains a malformed @id(...)", range)
+        );
+      }
       node =
         command !== undefined && knownDirectives.has(command)
           ? {
               kind: "directive",
               command: command as "background" | "show" | "audio",
-              argumentsRaw,
+              ...(metadata.id === undefined ? {} : { id: metadata.id }),
+              argumentsRaw: metadata.trailingMetadata,
               range
             }
           : { kind: "opaque", raw: line, reason: "unknown-command", range };
+      if (command !== undefined && knownDirectives.has(command)) {
+        registerId(metadata.id, range);
+      }
     } else if (trimmed.startsWith("choice ")) {
       const parsed = parseQuotedNode<ChoiceNode>("choice", trimmed.slice(7), range, diagnostics);
       node = parsed ?? { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };
@@ -245,16 +260,26 @@ export function parseStory(source: string): StoryDocument {
       const dialogueTail = dialogueMatch?.[2];
       if (speakerId !== undefined && dialogueTail !== undefined) {
         const metadata = parseMetadata(dialogueTail);
+        const statementMetadata = parseNamedMetadata(metadata.trailingMetadata, "sid");
         if (metadata.malformedId) {
           diagnostics.push(diagnostic("MALFORMED_ID", "Dialogue contains a malformed @id(...)", range));
+        }
+        if (statementMetadata.malformedId) {
+          diagnostics.push(
+            diagnostic("MALFORMED_ID", "Dialogue contains a malformed @sid(...)", range)
+          );
         }
         node = {
           kind: "dialogue",
           speakerId,
-          textRaw: metadata.trailingMetadata,
+          ...(statementMetadata.id === undefined
+            ? {}
+            : { statementId: statementMetadata.id }),
+          textRaw: statementMetadata.trailingMetadata,
           ...(metadata.id === undefined ? {} : { textId: metadata.id }),
           range
         };
+        registerId(statementMetadata.id, range);
         registerId(metadata.id, range);
       } else {
         node = { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };

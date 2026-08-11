@@ -4,18 +4,18 @@ import { formatStory, parseStory, semanticSnapshot } from "./index";
 const referenceStory = `# 天台场景：注释必须跟随原位置
 scene "序章 · 天台" @id(scn_rooftop) chapter=prologue
 
-@background rooftop transition=fade duration=800ms future=value
-@show lin expression=smile position=center
+@background rooftop transition=fade duration=800ms future=value @id(stmt_bg_rooftop)
+@show lin expression=smile position=center @id(stmt_show_lin)
 @weather.set kind=snow intensity=0.7
 
-lin: 如果明天真的下雪，你还会来这里吗？ @id(txt_rooftop_001)
+lin: 如果明天真的下雪，你还会来这里吗？ @sid(stmt_rooftop_001) @id(txt_rooftop_001)
 choice "要怎么回答？" @id(choice_rooftop_001)
   "我答应你，一定会来。" -> promise @id(opt_promise)
   "你是不是有事瞒着我？" -> ask_truth @id(opt_truth)
 
 label promise
 set promised = true
-lin: 那就说好了。雪停之前，谁都不许失约。 @id(txt_promise_001)
+lin: 那就说好了。雪停之前，谁都不许失约。 @sid(stmt_promise_001) @id(txt_promise_001)
 end "约定之雪" @id(end_promise)
 `;
 
@@ -34,7 +34,11 @@ describe("canonical .world round-trip", () => {
     expect(document.nodes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "scene", id: "scn_rooftop" }),
-        expect.objectContaining({ kind: "dialogue", textId: "txt_rooftop_001" }),
+        expect.objectContaining({
+          kind: "dialogue",
+          statementId: "stmt_rooftop_001",
+          textId: "txt_rooftop_001"
+        }),
         expect.objectContaining({ kind: "choice", id: "choice_rooftop_001" }),
         expect.objectContaining({ kind: "choice-option", id: "opt_promise" }),
         expect.objectContaining({ kind: "set", expressionRaw: "true" }),

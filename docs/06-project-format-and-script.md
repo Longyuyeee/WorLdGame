@@ -100,6 +100,14 @@
 
 修改原文不改变 `textId`，但目标语言状态变为“源文已更新/需复审”。
 
+### 4.3 S0 稳定 ID 文本映射
+
+- 场景、选择语句、选项、演出语句和结局使用 `@id(...)` 表达各自实体/语句 ID；
+- 对白同时具有语句身份和玩家文本身份：`@sid(statementId)` 用于执行顺序、回滚和 Source Map，`@id(textId)` 用于本地化、配音、历史和已读状态；
+- Formatter、移动和改名必须同时保留两类 ID；复制对白时两者都生成新值；
+- 缺少必要 ID 时可以容错打开源文件，但不得无提示投影为 Canonical `StoryScene`；
+- 此映射仍是 S0 v0 候选，需通过大型工程、迁移和存档验证后才能冻结。
+
 ## 5. Canonical Model
 
 场景脚本是剧情语义的主要持久化形式；内存 AST 是编辑期间的权威模型。
@@ -121,23 +129,23 @@ Route、Sequence、Script、Stage 的关系：
 ```text
 scene "序章 · 天台" @id(scn_rooftop)
 
-@background rooftop transition=fade duration=800ms
-@show lin expression=smile position=center
+@background rooftop transition=fade duration=800ms @id(stmt_bg_rooftop)
+@show lin expression=smile position=center @id(stmt_show_lin)
 
-lin: 如果明天真的下雪，你还会来这里吗？ @id(txt_01J...)
+lin: 如果明天真的下雪，你还会来这里吗？ @sid(stmt_01J...) @id(txt_01J...)
 
 choice "要怎么回答？" @id(choice_01J...)
   "我答应你，一定会来。" -> promise @id(opt_01J...)
   "你是不是有事瞒着我？" -> ask_truth @id(opt_01K...)
 
 label promise
-lin: 那就说好了。雪停之前，谁都不许失约。 @id(txt_01K...)
-end "约定之雪"
+lin: 那就说好了。雪停之前，谁都不许失约。 @sid(stmt_01K...) @id(txt_01K...)
+end "约定之雪" @id(stmt_end_promise)
 
 label ask_truth
 set asked_the_truth = true
-lin: 等雪落下的时候，我会把一切告诉你。 @id(txt_01M...)
-end "未寄出的真相"
+lin: 等雪落下的时候，我会把一切告诉你。 @sid(stmt_01M...) @id(txt_01M...)
+end "未寄出的真相" @id(stmt_end_truth)
 ```
 
 ## 7. 语法原则

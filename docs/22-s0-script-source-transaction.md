@@ -98,7 +98,7 @@ stateDiagram-v2
 - 多人并发中的“撤销我的意图”；
 - R3 独立审阅。
 
-下一切片只有在稳定 ID 映射 ADR 通过后，才能实现 **CST ↔ StoryProject Projection v0**；否则先补齐 ID Schema，不能靠丢弃 Opaque/注释来强行接 UI。
+下一切片为 **S0.4 Stable ID Projection**：先明确对白双 ID 与演出语句 ID，再实现拒绝式 CST → `StoryScene` 单向投影；在反向投影能保留注释/Opaque 前仍不能强行接 UI。
 
 ## 8. 本地审计结果
 
