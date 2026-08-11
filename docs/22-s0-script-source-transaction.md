@@ -1,6 +1,6 @@
 # S0.3 Script Source Transaction 与审计记录
 
-> 状态：本地实现与门禁通过，等待远端提交与 PR 证据回读。
+> 状态：已实现、通过本地门禁并完成远端分支与 PR 证据回读。
 > 决策日期：2026-08-11。
 > 风险等级：R3（涉及 Canonical CST、revision、幂等、诊断与撤销语义）。本轮仍是 S0 技术证据，不是 M1 正式 Command/Schema 冻结。
 
@@ -113,3 +113,5 @@ stateDiagram-v2
 - `git diff --check` 通过。
 
 以上结论不替代干净锁文件安装、远端 SHA/PR 回读或独立 R3 审阅。
+
+远端记录：`agent/visual-production-bar` 已推送，Draft PR #1 已更新并保留当前范围、验证和未证明项；最终远端 SHA 以 PR Head 回读为准。
