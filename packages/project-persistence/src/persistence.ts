@@ -70,7 +70,7 @@ function tempPath(transactionId: string, targetPath: string): string {
   return `.txn/${transactionId}/${targetPath}`;
 }
 
-function assertSnapshot(snapshot: ProjectSnapshot): void {
+export function assertProjectSnapshot(snapshot: ProjectSnapshot): void {
   if (snapshot.schemaVersion !== 0) fail("INVALID_SNAPSHOT", "Unsupported snapshot schema");
   assertToken(snapshot.projectId, "projectId");
   assertToken(snapshot.entrySceneId, "entrySceneId");
@@ -213,7 +213,7 @@ export async function saveProject(
   snapshot: ProjectSnapshot,
   options: SaveProjectOptions
 ): Promise<SaveProjectResult> {
-  assertSnapshot(snapshot);
+  assertProjectSnapshot(snapshot);
   assertToken(options.transactionId, "transactionId");
   assertRevision(options.expectedStorageRevision, "expectedStorageRevision");
   await recoverProject(store);
@@ -345,7 +345,7 @@ export async function loadProject(store: ProjectFileStore): Promise<ProjectSnaps
     scenes
   };
   try {
-    assertSnapshot(snapshot);
+    assertProjectSnapshot(snapshot);
   } catch (error) {
     if (error instanceof ProjectPersistenceError) {
       return fail("CORRUPT_MANIFEST", error.message);

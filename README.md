@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.11 Web Single-Writer Lease 实现、审计、推送与 Draft PR 远端证据回读均通过
+> 状态：S0.12 Safe Autosave / Backup Rotation 本地实现、干净重装与浏览器审计通过；推送和远端回读待收尾
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -60,6 +60,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.9 本地保存、WAL 与恢复审计](docs/28-s0-local-save-wal.md) | 项目快照、SHA-256、两阶段 WAL、崩溃故障矩阵与 IndexedDB 刷新恢复 |
 | [S0.10 平台存储契约审计](docs/29-s0-platform-storage-contract.md) | 适配器能力/错误语义、Windows 文件系统参考实现与 Android 私有工作区边界 |
 | [S0.11 Web 单写者租约审计](docs/30-s0-single-writer-lease.md) | IndexedDB 原子租约、fencing token、双窗口冲突闸门与平台边界 |
+| [S0.12 安全自动保存与备份审计](docs/31-s0-safe-autosave-backup.md) | 串行自动保存、固定槽备份、配额降级和可逆恢复 UX |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

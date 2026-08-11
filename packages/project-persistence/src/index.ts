@@ -1,3 +1,4 @@
+export * from "./backup";
 export * from "./conformance";
 export * from "./memory-store";
 export * from "./model";

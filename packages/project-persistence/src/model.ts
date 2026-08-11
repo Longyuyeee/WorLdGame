@@ -122,7 +122,20 @@ export type PersistenceErrorCode =
   | "CORRUPT_MANIFEST"
   | "CORRUPT_SCENE"
   | "CORRUPT_WAL"
+  | "CORRUPT_BACKUP"
+  | "BACKUP_NOT_FOUND"
   | "INCOMPLETE_STAGED_TRANSACTION";
+
+export interface ProjectBackupPolicy {
+  readonly retention: number;
+}
+
+export interface ProjectBackup {
+  readonly slot: number;
+  readonly createdAtMs: number;
+  readonly sourceStorageRevision: number;
+  readonly snapshot: ProjectSnapshot;
+}
 
 export class ProjectPersistenceError extends Error {
   constructor(

@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.11 fenced-writer Script UI prototype", () => {
+describe("WorLd Studio S0.12 safe-autosave Script UI prototype", () => {
   it("maps storage failures to actionable local-save labels", () => {
     expect(persistenceErrorLabel("NO_SPACE")).toBe("本机空间不足");
     expect(persistenceErrorLabel("PERMISSION_DENIED")).toBe("无写入权限");
@@ -19,6 +19,7 @@ describe("WorLd Studio S0.11 fenced-writer Script UI prototype", () => {
     expect(persistenceErrorLabel("STALE_STORAGE_REVISION")).toBe("保存版本冲突");
     expect(persistenceErrorLabel("LEASE_REQUIRED")).toBe("另一窗口正在编辑");
     expect(persistenceErrorLabel("LEASE_LOST")).toBe("另一窗口正在编辑");
+    expect(persistenceErrorLabel("CORRUPT_BACKUP")).toBe("备份需要检查");
     expect(persistenceErrorLabel("CORRUPT_WAL")).toBe("项目需要恢复");
     expect(persistenceFailure(
       new ProjectStoreError("NO_SPACE", "write", "project.json", "disk full"),

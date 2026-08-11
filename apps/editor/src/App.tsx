@@ -2,8 +2,11 @@ import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties } 
 import {
   ProjectPersistenceError,
   ProjectStoreError,
+  loadProjectBackups,
   loadProject,
-  saveProject,
+  restoreProjectBackup,
+  saveProjectWithBackups,
+  type ProjectBackup,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
 import {
@@ -28,16 +31,20 @@ import {
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 
-type PersistenceStatus = "loading" | "conflict" | "unavailable" | "unsaved" | "dirty" | "saving" | "saved" | "restored" | "error";
+type PersistenceStatus = "loading" | "conflict" | "unavailable" | "unsaved" | "dirty" |
+  "saving" | "autosaving" | "saved" | "autosaved" | "restored" | "degraded" | "error";
 
 const WRITER_LEASE_TTL_MS = 12_000;
 const WRITER_LEASE_HEARTBEAT_MS = 4_000;
+const AUTOSAVE_DEBOUNCE_MS = 1_500;
+const BACKUP_POLICY = { retention: 5 } as const;
 
 interface PersistenceViewState {
   readonly status: PersistenceStatus;
   readonly revision: number;
   readonly detail?: string;
   readonly errorCode?: string;
+  readonly backupCount?: number;
 }
 
 export function persistenceFailure(error: unknown, revision: number): PersistenceViewState {
@@ -54,6 +61,7 @@ export function persistenceFailure(error: unknown, revision: number): Persistenc
 
 export function persistenceErrorLabel(errorCode: string | undefined): string {
   if (errorCode === "LEASE_REQUIRED" || errorCode === "LEASE_LOST") return "另一窗口正在编辑";
+  if (errorCode === "CORRUPT_BACKUP") return "备份需要检查";
   if (errorCode === "NO_SPACE") return "本机空间不足";
   if (errorCode === "PERMISSION_DENIED") return "无写入权限";
   if (errorCode === "BUSY") return "存储正忙";
@@ -115,6 +123,7 @@ interface WorkspaceHeaderProps extends CommonProps {
   readonly onModeChange: (mode: StudioMode) => void;
   readonly persistence: PersistenceViewState;
   readonly onSave: () => void;
+  readonly onOpenBackups: () => void;
 }
 
 function WorkspaceHeader({
@@ -124,6 +133,7 @@ function WorkspaceHeader({
   onModeChange,
   persistence,
   onSave,
+  onOpenBackups,
   dispatch
 }: WorkspaceHeaderProps) {
   const sourceSession = activeSourceSession(session);
@@ -133,7 +143,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.11</p>
+          <p className="eyebrow">WorLd Studio · S0.12</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -179,16 +189,28 @@ function WorkspaceHeader({
               : `本地事务 · r${sourceSession.revision}`}
         </span>
         <button
+          className="backup-button"
+          onClick={onOpenBackups}
+          disabled={persistence.status === "loading" || persistence.status === "saving" ||
+            persistence.status === "autosaving" || persistence.status === "unavailable"}
+        >
+          备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}
+        </button>
+        <button
           className={`local-save-button local-save-button--${persistence.status}`}
-          disabled={inputDirty || persistence.status === "loading" || persistence.status === "saving" || persistence.status === "unavailable"}
+          disabled={inputDirty || persistence.status === "loading" || persistence.status === "saving" ||
+            persistence.status === "autosaving" || persistence.status === "unavailable"}
           onClick={onSave}
           title={persistence.detail ?? "保存项目快照到本机"}
         >
           {persistence.status === "loading" ? "正在恢复"
             : persistence.status === "unavailable" ? "存储不可用"
               : persistence.status === "saving" ? "保存中…"
+                : persistence.status === "autosaving" ? "自动保存中…"
                 : persistence.status === "saved" ? `已保存 · s${persistence.revision}`
+                  : persistence.status === "autosaved" ? `已自动保存 · s${persistence.revision}`
                   : persistence.status === "restored" ? `已恢复 · s${persistence.revision}`
+                    : persistence.status === "degraded" ? "自动保存已暂停"
                     : persistence.status === "error" ? persistenceErrorLabel(persistence.errorCode)
                       : "保存到本机"}
         </button>
@@ -599,6 +621,24 @@ export function App() {
   const [leaseRetry, setLeaseRetry] = useState(0);
   const storageRevision = useRef(0);
   const saveSerial = useRef(0);
+  const saveInFlight = useRef(false);
+  const autosaveSuspended = useRef(false);
+  const editGeneration = useRef(0);
+  const sessionRef = useRef(session);
+  sessionRef.current = session;
+  const [editVersion, setEditVersion] = useState(0);
+  const [backupPanelOpen, setBackupPanelOpen] = useState(false);
+  const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
+  const [backupsLoading, setBackupsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!backupPanelOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setBackupPanelOpen(false);
+    };
+    globalThis.addEventListener("keydown", closeOnEscape);
+    return () => globalThis.removeEventListener("keydown", closeOnEscape);
+  }, [backupPanelOpen]);
   const commandSerial = useRef(0);
   const entitySerial = useRef(0);
   const dispatch = (action: StudioAction) => {
@@ -607,9 +647,19 @@ export function App() {
       "edit-script", "patch-dialogue", "insert-dialogue", "delete-dialogue",
       "move-dialogue", "format-script", "discard-draft", "undo", "redo"
     ].includes(action.type)) {
+      editGeneration.current += 1;
+      setEditVersion((value) => value + 1);
       setPersistence((current) => current.status === "unavailable" || current.status === "conflict"
         ? current
-        : { status: "dirty", revision: current.revision });
+        : current.status === "saving" || current.status === "autosaving"
+          ? current
+          : current.status === "degraded"
+            ? current
+            : {
+                status: "dirty",
+                revision: current.revision,
+                ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount })
+              });
     }
   };
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
@@ -675,12 +725,28 @@ export function App() {
       const snapshot = await loadProject(store);
       if (cancelled) return;
       if (snapshot === null) {
-        setPersistence({ status: "unsaved", revision: 0 });
+        setPersistence({ status: "unsaved", revision: 0, backupCount: 0 });
       } else {
+        let backupCount = 0;
+        let backupWarning: string | undefined;
+        try {
+          const loadedBackups = await loadProjectBackups(store, BACKUP_POLICY);
+          backupCount = loadedBackups.length;
+          setBackups(loadedBackups);
+        } catch (error) {
+          backupWarning = error instanceof Error ? `项目已恢复，但备份索引需要检查：${error.message}` :
+            "项目已恢复，但备份索引需要检查。";
+        }
+        if (cancelled) return;
         const restored = restoreStudioSession(snapshot);
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
-        setPersistence({ status: "restored", revision: snapshot.storageRevision });
+        setPersistence({
+          status: "restored",
+          revision: snapshot.storageRevision,
+          backupCount,
+          ...(backupWarning === undefined ? {} : { detail: backupWarning, errorCode: "CORRUPT_BACKUP" })
+        });
       }
     };
 
@@ -720,34 +786,143 @@ export function App() {
     };
   }, [storageAvailable, leaseRetry]);
 
-  const saveToLocal = () => {
+  const handleBlockingStoreFailure = (
+    error: unknown,
+    store: IndexedDbProjectFileStore,
+    operationLabel: string
+  ): boolean => {
+    if (!(error instanceof ProjectStoreError)) return false;
+    if (error.code === "LEASE_REQUIRED" || error.code === "LEASE_LOST") {
+      store.activateWriterLease(null);
+      leaseRef.current = null;
+      storeRef.current = null;
+      setPersistence({
+        status: "conflict",
+        revision: storageRevision.current,
+        detail: `${operationLabel}期间编辑权已失效；未写入不受保护的数据。请重试获取编辑权。`,
+        errorCode: error.code
+      });
+      return true;
+    }
+    if (error.code === "NO_SPACE" || error.code === "PERMISSION_DENIED") {
+      autosaveSuspended.current = true;
+      setPersistence((current) => ({
+        status: "degraded",
+        revision: storageRevision.current,
+        ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }),
+        errorCode: error.code,
+        detail: `${error.code} · ${operationLabel}已停止，最后有效项目未被覆盖。释放空间或恢复权限后可手动重试。`
+      }));
+      return true;
+    }
+    return false;
+  };
+
+  const saveToLocal = (reason: "manual" | "auto" = "manual") => {
     const store = storeRef.current;
-    if (store === null || inputDirty || persistence.status === "saving") return;
+    if (store === null || inputDirty || saveInFlight.current ||
+        (reason === "auto" && autosaveSuspended.current)) return;
+    saveInFlight.current = true;
+    if (reason === "manual") autosaveSuspended.current = false;
+    const generation = editGeneration.current;
     const nextRevision = storageRevision.current + 1;
-    const snapshot = createProjectSnapshot(session, nextRevision);
-    const transactionId = `save_${nextRevision}_${++saveSerial.current}`;
-    setPersistence({ status: "saving", revision: storageRevision.current });
-    void saveProject(store, snapshot, {
+    const snapshot = createProjectSnapshot(sessionRef.current, nextRevision);
+    const transactionId = `${reason}_save_${nextRevision}_${++saveSerial.current}`;
+    setPersistence((current) => ({
+      status: reason === "auto" ? "autosaving" : "saving",
+      revision: storageRevision.current,
+      ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount })
+    }));
+    void saveProjectWithBackups(store, snapshot, {
       transactionId,
-      expectedStorageRevision: storageRevision.current
-    }).then(() => {
+      expectedStorageRevision: storageRevision.current,
+      backupPolicy: BACKUP_POLICY,
+      nowMs: Date.now()
+    }).then(async () => {
       storageRevision.current = nextRevision;
-      setPersistence({ status: "saved", revision: nextRevision });
-    }).catch((error: unknown) => {
-      if (error instanceof ProjectStoreError &&
-          (error.code === "LEASE_REQUIRED" || error.code === "LEASE_LOST")) {
-        store.activateWriterLease(null);
-        leaseRef.current = null;
-        storeRef.current = null;
-        setPersistence({
-          status: "conflict",
-          revision: storageRevision.current,
-          detail: "保存前编辑权已失效；未写入不受保护的数据。请重试获取编辑权。",
-          errorCode: error.code
-        });
-        return;
+      let verifiedBackups = backups;
+      let backupWarning: string | undefined;
+      try {
+        verifiedBackups = await loadProjectBackups(store, BACKUP_POLICY);
+        setBackups(verifiedBackups);
+      } catch (error) {
+        backupWarning = error instanceof Error
+          ? `项目已保存，但备份校验失败：${error.message}`
+          : "项目已保存，但备份校验失败。";
       }
+      const backupCount = verifiedBackups.length;
+      const changedDuringSave = editGeneration.current !== generation;
+      setPersistence({
+        status: changedDuringSave ? "dirty" : reason === "auto" ? "autosaved" : "saved",
+        revision: nextRevision,
+        backupCount,
+        detail: backupWarning ?? (changedDuringSave
+          ? "保存期间又发生了编辑，新的内容仍在等待自动保存。"
+          : `${reason === "auto" ? "自动" : "手动"}保存已校验；保留 ${backupCount}/${BACKUP_POLICY.retention} 个轮换备份。`),
+        ...(backupWarning === undefined ? {} : { errorCode: "CORRUPT_BACKUP" })
+      });
+    }).catch((error: unknown) => {
+      if (handleBlockingStoreFailure(error, store, reason === "auto" ? "自动保存" : "手动保存")) return;
       setPersistence(persistenceFailure(error, storageRevision.current));
+    }).finally(() => {
+      saveInFlight.current = false;
+    });
+  };
+
+  useEffect(() => {
+    if (inputDirty || persistence.status !== "dirty" || autosaveSuspended.current) return;
+    const timer = setTimeout(() => saveToLocal("auto"), AUTOSAVE_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [editVersion, inputDirty, persistence.status]);
+
+  const openBackups = () => {
+    const store = storeRef.current;
+    setBackupPanelOpen(true);
+    if (store === null) return;
+    setBackupsLoading(true);
+    void loadProjectBackups(store, BACKUP_POLICY).then((items) => {
+      setBackups(items);
+      setPersistence((current) => ({ ...current, backupCount: items.length }));
+    }).catch((error: unknown) => {
+      if (handleBlockingStoreFailure(error, store, "备份恢复")) return;
+      setPersistence(persistenceFailure(error, storageRevision.current));
+    }).finally(() => setBackupsLoading(false));
+  };
+
+  const restoreBackup = (backup: ProjectBackup) => {
+    const store = storeRef.current;
+    if (store === null || inputDirty || saveInFlight.current) return;
+    saveInFlight.current = true;
+    const nextRevision = storageRevision.current + 1;
+    setPersistence((current) => ({
+      status: "saving",
+      revision: storageRevision.current,
+      ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }),
+      detail: `正在把备份 s${backup.sourceStorageRevision} 恢复为新的 s${nextRevision}…`
+    }));
+    void restoreProjectBackup(store, backup.slot, {
+      transactionId: `restore_${nextRevision}_${++saveSerial.current}`,
+      expectedStorageRevision: storageRevision.current,
+      backupPolicy: BACKUP_POLICY,
+      nowMs: Date.now()
+    }).then(async (result) => {
+      const restored = restoreStudioSession(result.snapshot);
+      storageRevision.current = result.snapshot.storageRevision;
+      editGeneration.current += 1;
+      baseDispatch({ type: "restore-session", session: restored });
+      const items = await loadProjectBackups(store, BACKUP_POLICY);
+      setBackups(items);
+      setBackupPanelOpen(false);
+      setPersistence({
+        status: "restored",
+        revision: result.snapshot.storageRevision,
+        backupCount: items.length,
+        detail: `已把备份 s${backup.sourceStorageRevision} 恢复为新的 s${result.snapshot.storageRevision}；被替换版本仍在轮换备份中。`
+      });
+    }).catch((error: unknown) => {
+      setPersistence(persistenceFailure(error, storageRevision.current));
+    }).finally(() => {
+      saveInFlight.current = false;
     });
   };
 
@@ -778,7 +953,7 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} persistence={persistence} onSave={saveToLocal} dispatch={dispatch} />
+      <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} persistence={persistence} onSave={() => saveToLocal("manual")} onOpenBackups={openBackups} dispatch={dispatch} />
       <main className="workspace-grid">
         <SceneRail session={session} dispatch={dispatch} />
         {mode === "writer" ? (
@@ -791,8 +966,39 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>WAL · SHA-256</span><span className="footer-accent">S0.11 FENCED WRITER LEASE</span>
+        <span>本地优先</span><span>无账户</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.12 SAFE AUTOSAVE</span>
       </footer>
+      {backupPanelOpen && (
+        <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setBackupPanelOpen(false);
+        }}>
+          <section className="backup-dialog" role="dialog" aria-modal="true" aria-labelledby="backup-dialog-title">
+            <div className="backup-dialog__heading">
+              <div>
+                <p className="eyebrow">VERIFIED LOCAL HISTORY</p>
+                <h2 id="backup-dialog-title">备份与恢复</h2>
+              </div>
+              <button className="icon-button" aria-label="关闭备份面板" onClick={() => setBackupPanelOpen(false)}>×</button>
+            </div>
+            <p className="backup-dialog__intro">每次覆盖项目前先保存上一份完整快照；恢复会创建新的 revision，不会抹掉当前版本。</p>
+            <div className="backup-list" aria-live="polite">
+              {backupsLoading ? <p>正在校验备份…</p> : backups.length === 0 ? (
+                <p>完成第二次保存后，这里会出现第一份可恢复快照。</p>
+              ) : backups.map((backup) => (
+                <article className="backup-item" key={`${backup.slot}-${backup.sourceStorageRevision}`}>
+                  <div>
+                    <strong>s{backup.sourceStorageRevision}</strong>
+                    <span>槽位 {backup.slot + 1} · {new Date(backup.createdAtMs).toLocaleString()}</span>
+                  </div>
+                  <button onClick={() => restoreBackup(backup)} disabled={inputDirty || saveInFlight.current}>
+                    恢复为新版本
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
