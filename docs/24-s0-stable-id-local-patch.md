@@ -1,6 +1,6 @@
 # S0.5 Stable-ID Local Patch 与审计记录
 
-> 状态：本地实现与门禁通过，等待远端提交与 PR 证据回读。
+> 状态：已实现、通过本地门禁并完成远端分支与 PR 证据回读。
 > 决策日期：2026-08-11。
 > 风险等级：R3（跨视图修改权威 CST、并发冲突和数据保留）。本实现仍是 S0 v0 证据，不代表完整 Script UI 已获准接入。
 
@@ -83,3 +83,5 @@ Parser 将对白末尾的 `@name(...)` 视为元数据区：
 - 官方 npm Registry 漏洞审计为 0 vulnerabilities，`git diff --check` 通过。
 
 这些证据不替代锁文件干净安装、100k 行性能、外部编辑三方合并、真机输入或独立 R3 审阅。
+
+远端记录：`agent/visual-production-bar` 已推送，Draft PR #1 已更新 S0.5 范围、验证与未证明项；最终远端 SHA 以 PR Head 回读为准。
