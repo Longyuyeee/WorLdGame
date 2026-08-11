@@ -1,6 +1,6 @@
 # S0.16 内容寻址资源索引与 Blob 安全契约审计
 
-> 状态：需求边界、可移植契约、Node 参考适配器、故障测试、干净安装与本地质量门均通过；远端证据将在提交推送后回填
+> 状态：需求边界、可移植契约、Node 参考适配器、故障测试、干净安装、真实浏览器、推送与 Draft PR 远端回读均通过
 > 日期：2026-08-11
 > 范围：源资源 Blob 与资源索引的安全底座；不冒充浏览器/Android 资源导入、媒体解码、Dicing/Delta 或正式资源发布管线已完成
 
@@ -169,4 +169,9 @@ S0.17 建议实现 Web IndexedDB Blob Store 与原子 Asset Index 发布事务�
 
 ## 12. 远端证据
 
-实现提交、PR head、PR 正文与最终证据提交将在推送和 REST 回读后补充。
+- 实现提交 `543d6b9a32619717814ed2ffea2fda7974825c56` 已推送到 `origin/agent/visual-production-bar`；
+- 既有 Draft PR #1 保持 Draft，没有创建重复 PR；
+- PR 标题更新为 `Add content-addressed asset safety and preview production controls`；
+- REST API 回读确认 PR head 与实现提交一致；
+- PR 正文包含 S0.16、`143/143`、“全局 M1 阻断项”和 S0.17 下一步，正文长度 2,567 字符；
+- 最终证据提交将在本段与 README 状态推送后再次执行本地、远端分支、PR head 三方一致性回读。
