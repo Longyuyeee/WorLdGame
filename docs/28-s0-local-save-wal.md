@@ -1,6 +1,6 @@
 # S0.9 本地保存、WAL 与崩溃恢复审计
 
-> 状态：本地实现、自动化门禁与真实浏览器闭环通过；等待推送及远端证据回读。
+> 状态：本地实现、自动化门禁、真实浏览器闭环、推送与远端证据回读均通过。
 > 决策日期：2026-08-11。
 > 风险等级：R4（项目损坏、错误草稿丢失、旧写入覆盖新版本、崩溃后半提交）。
 
@@ -117,3 +117,11 @@ clean
 - 正式项目格式需要 schema migration、备份轮换、只读降级和未知字段保留策略。
 
 因此 S0.9 的结论是：**本地保存与崩溃恢复的核心语义成立，足以进入下一持久化切片；尚不能宣称 Windows/Android 商业级存储完成。**
+
+## 9. 远端证据
+
+- 实现提交：`23df03860ba639538ce8e7690e67ea16ff15bb4a`；
+- `origin/agent/visual-production-bar`、本地 HEAD 与 Draft PR #1 head 三方 SHA 回读一致；
+- PR 标题已更新为 `Build S0 source transactions and crash-safe local recovery`；
+- PR 正文回读确认包含完整 `S0.9 Local Save / WAL Recovery` 范围、验证与排除项；
+- PR 保持 Draft，避免把通过 S0 原型误报成 M1 可发布版本。
