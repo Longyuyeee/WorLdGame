@@ -82,6 +82,9 @@ const editorPackage = JSON.parse(
 if (editorPackage.dependencies?.["@world-studio/story-core"] === undefined) {
   violations.push("editor must declare its story-core boundary explicitly");
 }
+if (editorPackage.dependencies?.["@world-studio/story-language"] === undefined) {
+  violations.push("editor must declare its story-language boundary explicitly");
+}
 
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
@@ -97,6 +100,7 @@ if (violations.length > 0) {
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
           "editor declares the story-core dependency explicitly",
+          "editor declares the story-language dependency explicitly",
           "story-core has no runtime third-party dependency"
         ]
       },

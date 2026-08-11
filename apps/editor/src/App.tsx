@@ -1,21 +1,25 @@
 import { useMemo, useReducer, useRef, useState, type CSSProperties } from "react";
 import {
-  campusStoryProject,
-  createWorkspaceSession,
   deriveRouteGraph,
   findScene,
   findStatement,
-  reduceWorkspaceSession,
   type Character,
-  type StoryStatement,
-  type WorkspaceAction,
-  type WorkspaceSession
+  type StoryStatement
 } from "@world-studio/story-core";
+import {
+  activeSourceDraft,
+  activeSourceSession,
+  createStudioSession,
+  hasPendingDraft,
+  reduceStudioSession,
+  type StudioAction,
+  type StudioMode,
+  type StudioSession
+} from "./studio-session";
 
-type WorkspaceMode = "writer" | "flow";
-
-const modeLabels: Record<WorkspaceMode, string> = {
+const modeLabels: Record<StudioMode, string> = {
   writer: "Writer",
+  script: "Script",
   flow: "Flow"
 };
 
@@ -52,11 +56,14 @@ function findCharacter(
   return characters.find((character) => character.id === characterId);
 }
 
-interface WorkspaceHeaderProps {
-  readonly mode: WorkspaceMode;
-  readonly session: WorkspaceSession;
-  readonly onModeChange: (mode: WorkspaceMode) => void;
-  readonly dispatch: (action: WorkspaceAction) => void;
+interface CommonProps {
+  readonly session: StudioSession;
+  readonly dispatch: (action: StudioAction) => void;
+}
+
+interface WorkspaceHeaderProps extends CommonProps {
+  readonly mode: StudioMode;
+  readonly onModeChange: (mode: StudioMode) => void;
 }
 
 function WorkspaceHeader({
@@ -65,20 +72,20 @@ function WorkspaceHeader({
   onModeChange,
   dispatch
 }: WorkspaceHeaderProps) {
+  const sourceSession = activeSourceSession(session);
+  const pendingDraft = hasPendingDraft(session);
   return (
     <header className="workspace-header">
       <div className="brand-lockup">
-        <span className="brand-mark" aria-hidden="true">
-          W
-        </span>
+        <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0</p>
+          <p className="eyebrow">WorLd Studio · S0.7</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
 
       <nav className="mode-switcher" aria-label="编辑模式" role="tablist">
-        {(Object.keys(modeLabels) as WorkspaceMode[]).map((candidate) => (
+        {(Object.keys(modeLabels) as StudioMode[]).map((candidate) => (
           <button
             className={candidate === mode ? "mode-tab is-active" : "mode-tab"}
             key={candidate}
@@ -92,11 +99,11 @@ function WorkspaceHeader({
         ))}
       </nav>
 
-      <div className="history-actions" aria-label="编辑历史">
+      <div className="history-actions" aria-label="脚本历史">
         <button
           className="icon-button"
           aria-label="撤销"
-          disabled={session.history.length === 0}
+          disabled={sourceSession.history.length === 0 || pendingDraft}
           onClick={() => dispatch({ type: "undo" })}
         >
           ↶
@@ -104,26 +111,21 @@ function WorkspaceHeader({
         <button
           className="icon-button"
           aria-label="重做"
-          disabled={session.future.length === 0}
+          disabled={sourceSession.future.length === 0 || pendingDraft}
           onClick={() => dispatch({ type: "redo" })}
         >
           ↷
         </button>
-        <span className="save-state">
+        <span className={pendingDraft ? "save-state is-draft" : "save-state"}>
           <span className="save-state__dot" aria-hidden="true" />
-          本地草稿 · r{session.revision}
+          {pendingDraft ? "错误草稿 · 未提交" : `本地事务 · r${sourceSession.revision}`}
         </span>
       </div>
     </header>
   );
 }
 
-interface SceneRailProps {
-  readonly session: WorkspaceSession;
-  readonly dispatch: (action: WorkspaceAction) => void;
-}
-
-function SceneRail({ session, dispatch }: SceneRailProps) {
+function SceneRail({ session, dispatch }: CommonProps) {
   return (
     <aside className="scene-rail" aria-label="场景列表">
       <div className="panel-heading">
@@ -136,9 +138,7 @@ function SceneRail({ session, dispatch }: SceneRailProps) {
       <div className="scene-list">
         {session.project.scenes.map((scene, index) => (
           <button
-            className={
-              scene.id === session.activeSceneId ? "scene-item is-active" : "scene-item"
-            }
+            className={scene.id === session.activeSceneId ? "scene-item is-active" : "scene-item"}
             key={scene.id}
             onClick={() => dispatch({ type: "select-scene", sceneId: scene.id })}
           >
@@ -153,36 +153,103 @@ function SceneRail({ session, dispatch }: SceneRailProps) {
       <div className="rail-status">
         <span className="status-orb" aria-hidden="true" />
         <span>
-          <strong>Canonical Model</strong>
-          <small>所有视图共享同一份数据</small>
+          <strong>Source of Truth</strong>
+          <small>权威脚本 → 投影 → 三视图</small>
         </span>
       </div>
     </aside>
   );
 }
 
-interface WriterViewProps {
-  readonly session: WorkspaceSession;
-  readonly dispatch: (action: WorkspaceAction) => void;
+interface WriterViewProps extends CommonProps {
   readonly createCommandId: () => string;
+  readonly createEntityId: (prefix: "stmt" | "txt") => string;
 }
 
-function WriterView({ session, dispatch, createCommandId }: WriterViewProps) {
+function WriterView({
+  session,
+  dispatch,
+  createCommandId,
+  createEntityId
+}: WriterViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
-  const selected = findStatement(
-    session.project,
-    session.activeSceneId,
-    session.selectedStatementId
-  );
+  const selected = findStatement(session.project, scene.id, session.selectedStatementId);
+  const selectedIndex = scene.statements.findIndex((statement) => statement.id === selected.id);
+  const previousAnchor =
+    selectedIndex <= 1 ? scene.id : (scene.statements[selectedIndex - 2]?.id ?? scene.id);
+  const nextStatement = scene.statements[selectedIndex + 1];
+  const pendingDraft = hasPendingDraft(session);
 
   return (
     <section className="authoring-panel view-enter" aria-labelledby="writer-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">WRITER · {scene.id}</p>
+          <p className="eyebrow">WRITER · STABLE-ID PATCH</p>
           <h2 id="writer-heading">{scene.title}</h2>
         </div>
-        <span className="context-chip">中文 · 主线</span>
+        <span className="context-chip">权威脚本投影</span>
+      </div>
+
+      <div className="statement-toolbar" aria-label="对白结构工具">
+        <button
+          disabled={selected.kind !== "dialogue" || pendingDraft}
+          onClick={() => {
+            if (selected.kind !== "dialogue") return;
+            dispatch({
+              type: "insert-dialogue",
+              commandId: createCommandId(),
+              afterId: selected.id,
+              statementId: createEntityId("stmt"),
+              textId: createEntityId("txt"),
+              speakerId: selected.speakerId,
+              text: "新对白"
+            });
+          }}
+        >
+          ＋ 插入对白
+        </button>
+        <button
+          aria-label="对白上移"
+          disabled={selected.kind !== "dialogue" || selectedIndex === 0 || pendingDraft}
+          onClick={() =>
+            dispatch({
+              type: "move-dialogue",
+              commandId: createCommandId(),
+              statementId: selected.id,
+              afterId: previousAnchor
+            })
+          }
+        >
+          ↑
+        </button>
+        <button
+          aria-label="对白下移"
+          disabled={selected.kind !== "dialogue" || nextStatement === undefined || pendingDraft}
+          onClick={() => {
+            if (nextStatement === undefined) return;
+            dispatch({
+              type: "move-dialogue",
+              commandId: createCommandId(),
+              statementId: selected.id,
+              afterId: nextStatement.id
+            });
+          }}
+        >
+          ↓
+        </button>
+        <button
+          className="danger-button"
+          disabled={selected.kind !== "dialogue" || pendingDraft}
+          onClick={() =>
+            dispatch({
+              type: "delete-dialogue",
+              commandId: createCommandId(),
+              statementId: selected.id
+            })
+          }
+        >
+          删除
+        </button>
       </div>
 
       <div className="statement-list" aria-label="剧情步骤">
@@ -194,9 +261,7 @@ function WriterView({ session, dispatch, createCommandId }: WriterViewProps) {
                 ? `statement-card statement-card--${statement.kind} is-active`
                 : `statement-card statement-card--${statement.kind}`
             }
-            onClick={() =>
-              dispatch({ type: "select-statement", statementId: statement.id })
-            }
+            onClick={() => dispatch({ type: "select-statement", statementId: statement.id })}
             aria-label={`选择${statementKindLabel(statement)}：${statementLabel(statement)}`}
           >
             <span className="statement-order">{String(index + 1).padStart(2, "0")}</span>
@@ -211,7 +276,7 @@ function WriterView({ session, dispatch, createCommandId }: WriterViewProps) {
           {selected.kind === "dialogue" ? (
             <label htmlFor="dialogue-editor">对白内容</label>
           ) : (
-            <span className="inspector-title">当前步骤</span>
+            <span className="inspector-title">当前步骤（只读）</span>
           )}
           <code>{selected.id}</code>
         </div>
@@ -220,16 +285,13 @@ function WriterView({ session, dispatch, createCommandId }: WriterViewProps) {
             id="dialogue-editor"
             value={selected.text}
             rows={4}
+            disabled={pendingDraft}
             onChange={(event) =>
               dispatch({
-                type: "execute",
-                command: {
-                  type: "edit-dialogue",
-                  commandId: createCommandId(),
-                  sceneId: scene.id,
-                  statementId: selected.id,
-                  text: event.target.value
-                }
+                type: "patch-dialogue",
+                commandId: createCommandId(),
+                statementId: selected.id,
+                text: event.target.value
               })
             }
           />
@@ -237,21 +299,90 @@ function WriterView({ session, dispatch, createCommandId }: WriterViewProps) {
           <div className="readonly-step">{statementLabel(selected)}</div>
         )}
         <p className="field-help">
-          修改会立即写入共享模型；Flow、Preview 与历史记录读取同一个 revision。
+          Writer 不直接修改模型；每次编辑都通过稳定 ID Patch 写回权威脚本，再重新投影。
         </p>
       </div>
     </section>
   );
 }
 
-interface FlowViewProps {
-  readonly session: WorkspaceSession;
-  readonly dispatch: (action: WorkspaceAction) => void;
+interface ScriptViewProps extends CommonProps {
+  readonly createCommandId: () => string;
 }
 
-function FlowView({ session, dispatch }: FlowViewProps) {
-  const graph = useMemo(() => deriveRouteGraph(session.project), [session.project]);
+function ScriptView({ session, dispatch, createCommandId }: ScriptViewProps) {
+  const sourceSession = activeSourceSession(session);
+  const source = activeSourceDraft(session);
+  const diagnostics = session.diagnostics[session.activeSceneId] ?? [];
+  const pendingDraft = hasPendingDraft(session);
+  return (
+    <section className="script-panel view-enter" aria-labelledby="script-heading">
+      <div className="panel-heading authoring-heading">
+        <div>
+          <p className="eyebrow">SCRIPT · CANONICAL SOURCE</p>
+          <h2 id="script-heading">文本脚本</h2>
+        </div>
+        <span className={pendingDraft ? "context-chip context-chip--draft" : "context-chip"}>
+          {pendingDraft ? "草稿隔离中" : `已提交 · r${sourceSession.revision}`}
+        </span>
+      </div>
 
+      <div className="script-toolbar">
+        <span>WORLD SCRIPT · UTF-8</span>
+        <div>
+          <button
+            disabled={pendingDraft}
+            onClick={() => dispatch({ type: "format-script", commandId: createCommandId() })}
+          >
+            格式化
+          </button>
+          <button
+            className="danger-button"
+            disabled={!pendingDraft}
+            onClick={() => dispatch({ type: "discard-draft" })}
+          >
+            丢弃草稿
+          </button>
+        </div>
+      </div>
+      <textarea
+        className="script-editor"
+        aria-label="权威脚本编辑器"
+        value={source}
+        spellCheck={false}
+        onChange={(event) =>
+          dispatch({
+            type: "edit-script",
+            commandId: createCommandId(),
+            source: event.target.value
+          })
+        }
+      />
+
+      <div className={diagnostics.length === 0 ? "diagnostics-console is-clear" : "diagnostics-console"}>
+        <div className="diagnostics-heading">
+          <strong>{diagnostics.length === 0 ? "0 个阻断问题" : `${diagnostics.length} 个诊断`}</strong>
+          <span>{pendingDraft ? "PREVIEW LOCKED" : "PROJECTION READY"}</span>
+        </div>
+        {diagnostics.length === 0 ? (
+          <p>语法、稳定 ID 与项目引用检查通过。</p>
+        ) : (
+          <ul>
+            {diagnostics.map((item, index) => (
+              <li key={`${item.code}:${item.line ?? 0}:${index}`}>
+                <code>{item.code}</code>
+                <span>{item.line === undefined ? "" : `L${item.line} · `}{item.message}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function FlowView({ session, dispatch }: CommonProps) {
+  const graph = useMemo(() => deriveRouteGraph(session.project), [session.project]);
   return (
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
       <div className="panel-heading authoring-heading">
@@ -261,17 +392,12 @@ function FlowView({ session, dispatch }: FlowViewProps) {
         </div>
         <span className="context-chip context-chip--cyan">无语义副本</span>
       </div>
-
       <div className="flow-canvas">
         <div className="flow-grid" aria-label="路线节点">
           {graph.nodes.map((node, index) => (
             <button
               key={node.id}
-              className={
-                node.id === session.activeSceneId
-                  ? `route-node route-node--${node.kind} is-active`
-                  : `route-node route-node--${node.kind}`
-              }
+              className={node.id === session.activeSceneId ? `route-node route-node--${node.kind} is-active` : `route-node route-node--${node.kind}`}
               style={{ "--node-order": index } as CSSProperties}
               onClick={() => dispatch({ type: "select-scene", sceneId: node.id })}
             >
@@ -283,19 +409,12 @@ function FlowView({ session, dispatch }: FlowViewProps) {
             </button>
           ))}
         </div>
-
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
           {graph.edges.map((edge) => (
             <div className="edge-row" key={edge.id}>
-              <span>{edge.sourceSceneId}</span>
-              <span className="edge-arrow" aria-hidden="true">
-                →
-              </span>
-              <strong>{edge.label}</strong>
-              <span className="edge-arrow" aria-hidden="true">
-                →
-              </span>
+              <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
+              <strong>{edge.label}</strong><span className="edge-arrow">→</span>
               <span>{edge.targetSceneId}</span>
             </div>
           ))}
@@ -305,155 +424,90 @@ function FlowView({ session, dispatch }: FlowViewProps) {
   );
 }
 
-interface PreviewPanelProps {
-  readonly session: WorkspaceSession;
-  readonly dispatch: (action: WorkspaceAction) => void;
-}
-
-function PreviewPanel({ session, dispatch }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch }: CommonProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const statement = scene.statements[session.previewIndex];
-  if (statement === undefined) {
-    throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
-  }
-  const speaker =
-    statement.kind === "dialogue"
-      ? findCharacter(session.project.characters, statement.speakerId)
-      : undefined;
-
+  if (statement === undefined) throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
+  const speaker = statement.kind === "dialogue"
+    ? findCharacter(session.project.characters, statement.speakerId)
+    : undefined;
+  const sourceSession = activeSourceSession(session);
+  const pendingDraft = hasPendingDraft(session);
   return (
     <aside className="preview-panel" aria-labelledby="preview-heading">
       <div className="panel-heading">
-        <div>
-          <p className="eyebrow">LIVE PREVIEW</p>
-          <h2 id="preview-heading">即时预览</h2>
-        </div>
-        <span className="live-badge">LIVE</span>
+        <div><p className="eyebrow">LIVE PREVIEW</p><h2 id="preview-heading">即时预览</h2></div>
+        <span className={pendingDraft ? "live-badge is-locked" : "live-badge"}>{pendingDraft ? "LOCKED" : "LIVE"}</span>
       </div>
-
       <div className="stage-preview">
-        <div className="stage-chrome">
-          <span>{scene.title}</span>
-          <span>16:9 · Balanced</span>
-        </div>
+        <div className="stage-chrome"><span>{scene.title}</span><span>16:9 · Balanced</span></div>
         <div className="stage-sky" aria-hidden="true">
-          <span className="sun" />
-          <span className="school-building" />
+          <span className="sun" /><span className="school-building" />
           <span className="character-silhouette character-silhouette--left" />
           <span className="character-silhouette character-silhouette--right" />
         </div>
         <div className="stage-content" key={statement.id} data-testid="preview-step">
           {statement.kind === "dialogue" && (
             <div className="dialogue-box">
-              <span
-                className="speaker-name"
-                style={{ "--speaker-color": speaker?.color ?? "#8B7CFF" } as CSSProperties}
-              >
+              <span className="speaker-name" style={{ "--speaker-color": speaker?.color ?? "#8B7CFF" } as CSSProperties}>
                 {speaker?.displayName ?? "未知角色"}
               </span>
               <p>{statement.text}</p>
             </div>
           )}
-          {statement.kind === "direction" && (
-            <div className="stage-note">
-              <span>演出指令</span>
-              <strong>{statement.summary}</strong>
-            </div>
-          )}
+          {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
           {statement.kind === "choice" && (
-            <div className="choice-preview">
-              <strong>{statement.prompt}</strong>
-              {statement.options.map((option) => (
-                <span key={option.id}>{option.label}</span>
-              ))}
-            </div>
+            <div className="choice-preview"><strong>{statement.prompt}</strong>{statement.options.map((option) => <span key={option.id}>{option.label}</span>)}</div>
           )}
-          {statement.kind === "end" && (
-            <div className="ending-preview">
-              <span>ENDING</span>
-              <strong>{statement.endingName}</strong>
-            </div>
-          )}
+          {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
         </div>
       </div>
-
       <div className="preview-transport">
-        <button
-          aria-label="上一步"
-          onClick={() => dispatch({ type: "step-preview", direction: -1 })}
-          disabled={session.previewIndex === 0}
-        >
-          ←
-        </button>
-        <div>
-          <strong>
-            {session.previewIndex + 1} / {scene.statements.length}
-          </strong>
-          <small>
-            {statementKindLabel(statement)} · {statement.id}
-          </small>
-        </div>
-        <button
-          aria-label="下一步"
-          onClick={() => dispatch({ type: "step-preview", direction: 1 })}
-          disabled={session.previewIndex === scene.statements.length - 1}
-        >
-          →
-        </button>
+        <button aria-label="上一步" onClick={() => dispatch({ type: "step-preview", direction: -1 })} disabled={session.previewIndex === 0}>←</button>
+        <div><strong>{session.previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
+        <button aria-label="下一步" onClick={() => dispatch({ type: "step-preview", direction: 1 })} disabled={session.previewIndex === scene.statements.length - 1}>→</button>
       </div>
-
-      <div className="diagnostic-card">
-        <span className="diagnostic-icon" aria-hidden="true">
-          ✓
-        </span>
-        <div>
-          <strong>语义同步正常</strong>
-          <p>Writer、Flow 与 Preview 正在读取 revision {session.revision}。</p>
-        </div>
+      <div className={`diagnostic-card diagnostic-card--${session.notice.tone}`} aria-live="polite">
+        <span className="diagnostic-icon" aria-hidden="true">{session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
+        <div><strong>{session.notice.title}</strong><p>{session.notice.detail}</p></div>
       </div>
+      <div className="transaction-strip">
+        <span>r{sourceSession.revision}</span><span>semantic {sourceSession.semanticRevision}</span><span>{sourceSession.tombstones.length} tombstone</span>
+      </div>
+      {sourceSession.tombstones.length > 0 && (
+        <div className="tombstone-list" aria-label="已删除对白记录">
+          <p className="eyebrow">TOMBSTONES</p>
+          {sourceSession.tombstones.slice(-3).map((item) => <code key={item.statementId}>{item.statementId}</code>)}
+        </div>
+      )}
     </aside>
   );
 }
 
 export function App() {
-  const [session, dispatch] = useReducer(
-    reduceWorkspaceSession,
-    campusStoryProject,
-    createWorkspaceSession
-  );
-  const [mode, setMode] = useState<WorkspaceMode>("writer");
+  const [session, dispatch] = useReducer(reduceStudioSession, undefined, createStudioSession);
+  const [mode, setMode] = useState<StudioMode>("writer");
   const commandSerial = useRef(0);
-  const createCommandId = () => {
-    commandSerial.current += 1;
-    return `cmd_ui_${commandSerial.current}`;
-  };
+  const entitySerial = useRef(0);
+  const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
+  const createEntityId = (prefix: "stmt" | "txt") => `${prefix}_ui_${++entitySerial.current}`;
 
   return (
     <div className="app-shell">
-      <WorkspaceHeader
-        mode={mode}
-        session={session}
-        onModeChange={setMode}
-        dispatch={dispatch}
-      />
+      <WorkspaceHeader mode={mode} session={session} onModeChange={setMode} dispatch={dispatch} />
       <main className="workspace-grid">
         <SceneRail session={session} dispatch={dispatch} />
         {mode === "writer" ? (
-          <WriterView
-            session={session}
-            dispatch={dispatch}
-            createCommandId={createCommandId}
-          />
+          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} />
+        ) : mode === "script" ? (
+          <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} />
         ) : (
           <FlowView session={session} dispatch={dispatch} />
         )}
         <PreviewPanel session={session} dispatch={dispatch} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span>
-        <span>无账户</span>
-        <span>共享语义模型</span>
-        <span className="footer-accent">S0 CODE PROTOTYPE</span>
+        <span>本地优先</span><span>无账户</span><span>权威脚本事务</span><span className="footer-accent">S0.7 SCRIPT UI PROTOTYPE</span>
       </footer>
     </div>
   );

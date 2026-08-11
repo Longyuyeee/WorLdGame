@@ -170,6 +170,11 @@ h2 {
   box-shadow: 0 0 10px rgb(85 217 138 / 60%);
 }
 
+.mode-dot--script {
+  background: var(--wg-color-semantic-visual);
+  box-shadow: 0 0 10px rgb(62 215 255 / 65%);
+}
+
 .history-actions {
   justify-content: flex-end;
   gap: 8px;
@@ -221,6 +226,15 @@ button:disabled {
   box-shadow: 0 0 9px rgb(78 214 160 / 58%);
 }
 
+.save-state.is-draft {
+  color: #ffb0ba;
+}
+
+.save-state.is-draft .save-state__dot {
+  background: var(--wg-color-status-error);
+  box-shadow: 0 0 9px rgb(255 95 114 / 60%);
+}
+
 .workspace-grid {
   display: grid;
   width: 100%;
@@ -235,6 +249,7 @@ button:disabled {
 
 .scene-rail,
 .authoring-panel,
+.script-panel,
 .flow-panel,
 .preview-panel {
   min-width: 0;
@@ -250,6 +265,7 @@ button:disabled {
 }
 
 .authoring-panel,
+.script-panel,
 .flow-panel {
   padding: 20px;
   background:
@@ -313,6 +329,16 @@ button:disabled {
   content: "";
   transform: translateY(-50%);
   animation: live-pulse 2s ease-in-out infinite;
+}
+
+.live-badge.is-locked {
+  background: rgb(255 95 114 / 10%);
+  color: #ff9aa8;
+}
+
+.live-badge.is-locked::before {
+  background: var(--wg-color-status-error);
+  animation: none;
 }
 
 .scene-list {
@@ -389,6 +415,53 @@ button:disabled {
 .rail-status strong {
   margin-bottom: 2px;
   font-size: 10px;
+}
+
+.statement-toolbar,
+.script-toolbar,
+.script-toolbar > div {
+  display: flex;
+  align-items: center;
+}
+
+.statement-toolbar {
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.statement-toolbar button,
+.script-toolbar button {
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid var(--wg-color-border-subtle);
+  border-radius: 9px;
+  background: var(--wg-color-bg-surface-2);
+  color: var(--wg-color-text-secondary);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  transition:
+    transform var(--wg-motion-duration-fast) ease,
+    border-color var(--wg-motion-duration-fast) ease,
+    color var(--wg-motion-duration-fast) ease;
+}
+
+.statement-toolbar button:hover:not(:disabled),
+.script-toolbar button:hover:not(:disabled) {
+  border-color: var(--wg-color-semantic-dialogue);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.statement-toolbar .danger-button,
+.script-toolbar .danger-button {
+  margin-left: auto;
+  color: #ff9aa8;
+}
+
+.statement-toolbar .danger-button:hover:not(:disabled),
+.script-toolbar .danger-button:hover:not(:disabled) {
+  border-color: var(--wg-color-status-error);
 }
 
 .statement-list {
@@ -527,6 +600,106 @@ textarea {
   color: var(--wg-color-text-muted);
   font-size: 10px;
   line-height: 1.5;
+}
+
+.context-chip--draft {
+  background: rgb(255 95 114 / 12%);
+  color: #ff9aa8;
+}
+
+.script-toolbar {
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  color: var(--wg-color-text-muted);
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.script-toolbar > div {
+  gap: 7px;
+}
+
+.script-editor {
+  min-height: 390px;
+  max-height: 58vh;
+  padding: 18px;
+  border-color: rgb(62 215 255 / 24%);
+  border-radius: 14px;
+  background:
+    linear-gradient(90deg, rgb(62 215 255 / 4%), transparent 36px),
+    #080c14;
+  box-shadow:
+    inset 0 0 0 1px rgb(0 0 0 / 40%),
+    0 18px 48px rgb(0 0 0 / 24%);
+  color: #d6e4ff;
+  caret-color: var(--wg-color-semantic-visual);
+  font-family: "IBM Plex Mono", "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.72;
+  resize: none;
+  tab-size: 2;
+  white-space: pre;
+}
+
+.diagnostics-console {
+  margin-top: 12px;
+  padding: 13px 14px;
+  border: 1px solid rgb(255 95 114 / 24%);
+  border-radius: 12px;
+  background: rgb(255 95 114 / 7%);
+}
+
+.diagnostics-console.is-clear {
+  border-color: rgb(78 214 160 / 20%);
+  background: rgb(78 214 160 / 6%);
+}
+
+.diagnostics-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.diagnostics-heading strong {
+  font-size: 11px;
+}
+
+.diagnostics-heading span {
+  color: var(--wg-color-text-muted);
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.diagnostics-console p {
+  margin: 7px 0 0;
+  color: var(--wg-color-text-muted);
+  font-size: 10px;
+}
+
+.diagnostics-console ul {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diagnostics-console li {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 9px;
+  color: #ffc2ca;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.diagnostics-console li code {
+  color: var(--wg-color-status-error);
+  font-size: 9px;
 }
 
 .flow-canvas {
@@ -864,6 +1037,18 @@ textarea {
   background: rgb(78 214 160 / 7%);
 }
 
+.diagnostic-card--draft,
+.diagnostic-card--error {
+  border-color: rgb(255 95 114 / 22%);
+  background: rgb(255 95 114 / 7%);
+}
+
+.diagnostic-card--draft .diagnostic-icon,
+.diagnostic-card--error .diagnostic-icon {
+  background: rgb(255 95 114 / 16%);
+  color: var(--wg-color-status-error);
+}
+
 .diagnostic-icon {
   display: grid;
   flex: 0 0 28px;
@@ -884,6 +1069,39 @@ textarea {
   color: var(--wg-color-text-muted);
   font-size: 9px;
   line-height: 1.5;
+}
+
+.transaction-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.transaction-strip span,
+.tombstone-list code {
+  padding: 5px 7px;
+  border: 1px solid var(--wg-color-border-subtle);
+  border-radius: 7px;
+  background: rgb(18 24 36 / 76%);
+  color: var(--wg-color-text-muted);
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 8px;
+}
+
+.tombstone-list {
+  display: grid;
+  gap: 6px;
+  padding: 11px;
+  border: 1px solid rgb(255 95 114 / 16%);
+  border-radius: 11px;
+  background: rgb(255 95 114 / 5%);
+}
+
+.tombstone-list code {
+  overflow: hidden;
+  color: #ff9aa8;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .workspace-footer {
@@ -999,7 +1217,7 @@ textarea {
     bottom: 12px;
     left: 12px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     box-shadow: 0 14px 40px rgb(0 0 0 / 45%);
   }
 
@@ -1048,6 +1266,7 @@ textarea {
   }
 
   .authoring-panel,
+  .script-panel,
   .flow-panel,
   .preview-panel {
     overflow: visible;
@@ -1061,6 +1280,11 @@ textarea {
 
   .stage-preview {
     min-height: 420px;
+  }
+
+  .script-editor {
+    min-height: 54vh;
+    max-height: none;
   }
 
   .flow-grid {
