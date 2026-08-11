@@ -1,6 +1,6 @@
 # S0.11 Web 单写者租约与 Fencing 审计
 
-> 状态：实现、仓库级验证与浏览器双窗口证据通过；提交推送与远端回读待收尾
+> 状态：实现、仓库级验证、浏览器双窗口证据、推送与 Draft PR 远端回读均通过
 > 日期：2026-08-11
 > 决策范围：Web/IndexedDB；Windows/Node 与 Android 不在本阶段虚构跨进程锁能力
 
@@ -96,3 +96,11 @@ S0.11 因此增加独立的单写者层：编辑器必须先取得项目级租�
 - 浏览器测试标签与临时 viewport 已全部清理。
 
 以上仍是 S0 原型证据，不等于 Windows/Android 平台锁或 M1 长稳门已经完成。
+
+## 9. 远端证据闭环
+
+- 实现提交 `4404ee09b85bdd16160bf4a453dca9daf2e437ed` 已推送到 `origin/agent/visual-production-bar`；
+- 本地 HEAD、远端跟踪分支与 Draft PR #1 head SHA 回读一致；
+- Draft PR 标题已更新为 `Fence web project writes and harden crash-safe storage`；
+- PR 正文回读确认包含完整 `S0.11 Web Single-Writer Lease / Multi-window Conflict` 范围、验证和未完成项；
+- PR 继续保持 Draft，不把 S0.11 原型证据误报为 M1 发布就绪。
