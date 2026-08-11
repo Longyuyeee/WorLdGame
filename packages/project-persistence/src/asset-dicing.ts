@@ -222,6 +222,18 @@ export function reconstructLosslessDicingImage(plan: LosslessDicingPlan, assetId
   return output;
 }
 
+export function createLosslessDicingPlanDigest(plan: LosslessDicingPlan): BlobDigest {
+  const summary = JSON.stringify({
+    schemaVersion: plan.schemaVersion,
+    algorithm: plan.algorithm,
+    cellSize: plan.cellSize,
+    tiles: plan.tiles.map((tile) => [tile.digest, tile.width, tile.height]),
+    images: plan.images.map((image) => [image.assetId, image.width, image.height, image.sourceDigest,
+      image.placements.map((placement) => [placement.x, placement.y, placement.width, placement.height, placement.tileDigest])])
+  });
+  return createBlobDigest(new TextEncoder().encode(summary));
+}
+
 export function analyzeLosslessDicing(
   sources: readonly LosslessDicingSource[],
   options: LosslessDicingOptions = {}
@@ -247,14 +259,6 @@ export function analyzeLosslessDicing(
   const netSavingsRatio = netSavingsBytes / originalRgbaBytes;
   const decision = repeatedPlacementCount > 0 && netSavingsBytes > 0 && netSavingsRatio >= settings.minNetSavingsRatio ? "adopt" : "original";
   const reason = repeatedPlacementCount === 0 ? "no-repeat" : decision === "adopt" ? "net-savings" : "insufficient-net-savings";
-  const planSummary = JSON.stringify({
-    schemaVersion: plan.schemaVersion,
-    algorithm: plan.algorithm,
-    cellSize: plan.cellSize,
-    tiles: plan.tiles.map((tile) => [tile.digest, tile.width, tile.height]),
-    images: plan.images.map((image) => [image.assetId, image.width, image.height, image.sourceDigest,
-      image.placements.map((placement) => [placement.x, placement.y, placement.width, placement.height, placement.tileDigest])])
-  });
   return {
     schemaVersion: 1,
     algorithm: plan.algorithm,
@@ -275,7 +279,7 @@ export function analyzeLosslessDicing(
     reason,
     reconstructionVerified: true,
     sourceDigests: plan.images.map((image) => image.sourceDigest),
-    planDigest: createBlobDigest(new TextEncoder().encode(planSummary))
+    planDigest: createLosslessDicingPlanDigest(plan)
   };
 }
 

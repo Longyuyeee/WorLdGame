@@ -1,6 +1,7 @@
 import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
 import {
+  buildLosslessDicingAtlas,
   createBlobDigest,
   discoverLosslessDicingGroups,
   computeAssetReachability,
@@ -20,7 +21,7 @@ const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.23 asset lifecycle, derivative and Dicing grouping performance gate", () => {
+describe("S0.24 asset lifecycle, Dicing grouping and Atlas performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;
@@ -141,18 +142,31 @@ describe("S0.23 asset lifecycle, derivative and Dicing grouping performance gate
     const discovery = discoverLosslessDicingGroups(sources, { cellSize: 64 });
     const dicingMs = performance.now() - start;
     const report = discovery.candidateGroups[0]?.report;
+    const atlasStart = performance.now();
+    const atlas = buildLosslessDicingAtlas(sources, { cellSize: 64, padding: 2, maxAtlasSize: 2048 });
+    const atlasMs = performance.now() - atlasStart;
+    const totalMs = dicingMs + atlasMs;
 
     console.log(JSON.stringify({
       status: "PASS",
       baseline: { images: sources.length, width, height, rgbaBytes: rgba.byteLength * sources.length, cellSize: 64 },
-      measurementsMs: { groupingAnalysisAndReconstruction: Number(dicingMs.toFixed(2)) },
-      budgetsMs: { groupingAnalysisAndReconstruction: 3_000 },
-      result: { groups: discovery.candidateGroups.length, decision: report?.decision, repeatedPlacements: report?.repeatedPlacementCount, netSavingsRatio: report?.netSavingsRatio }
+      measurementsMs: {
+        groupingAnalysisAndReconstruction: Number(dicingMs.toFixed(2)),
+        atlasPackingExtrusionAndReconstruction: Number(atlasMs.toFixed(2)),
+        total: Number(totalMs.toFixed(2))
+      },
+      budgetsMs: { groupingAnalysisAndReconstruction: 3_000, atlasPackingExtrusionAndReconstruction: 3_000, total: 5_000 },
+      result: { groups: discovery.candidateGroups.length, pages: atlas.pages.length, decision: report?.decision,
+        repeatedPlacements: report?.repeatedPlacementCount, netSavingsRatio: report?.netSavingsRatio }
     }, null, 2));
 
     expect(discovery.candidateGroups).toHaveLength(1);
     expect(report).toMatchObject({ decision: "adopt", reconstructionVerified: true, imageCount: 8, duplicateDecodedImageCount: 0 });
+    expect(atlas).toMatchObject({ reconstructionVerified: true, manifest: { padding: 2 } });
+    expect(atlas.pages.length).toBeGreaterThan(0);
     expect(report?.repeatedPlacementCount).toBeGreaterThan(400);
     expect(dicingMs).toBeLessThan(3_000);
+    expect(atlasMs).toBeLessThan(3_000);
+    expect(totalMs).toBeLessThan(5_000);
   });
 });

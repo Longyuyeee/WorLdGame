@@ -4,6 +4,7 @@ export * from "./asset-backup";
 export * from "./asset-restore";
 export * from "./asset-derivative";
 export * from "./asset-dicing";
+export * from "./asset-dicing-atlas";
 export * from "./asset-lifecycle";
 export * from "./asset-blob-conformance";
 export * from "./conformance";
