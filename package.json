@@ -1,6 +1,6 @@
 {
   "name": "world-studio",
-  "version": "0.0.0-s0.10",
+  "version": "0.0.0-s0.11",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -27,6 +27,7 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "@vitejs/plugin-react": "6.0.5",
+    "fake-indexeddb": "6.2.5",
     "jsdom": "27.4.0",
     "typescript": "7.0.2",
     "vite": "8.2.1",

@@ -15,7 +15,8 @@ export class InMemoryProjectFileStore implements ProjectFileStore {
     atomicReplace: true,
     durability: "volatile",
     workspaceScope: "memory",
-    directoryMetadata: "not-applicable"
+    directoryMetadata: "not-applicable",
+    writerCoordination: "none"
   } as const;
   readonly files = new Map<string, string>();
   private mutationCount = 0;

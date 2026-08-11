@@ -4,7 +4,7 @@ import {
   ProjectStoreError,
   loadProject,
   saveProject,
-  type ProjectFileStore
+  type ProjectWriterLease
 } from "@world-studio/project-persistence";
 import {
   deriveRouteGraph,
@@ -28,7 +28,10 @@ import {
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 
-type PersistenceStatus = "loading" | "unavailable" | "unsaved" | "dirty" | "saving" | "saved" | "restored" | "error";
+type PersistenceStatus = "loading" | "conflict" | "unavailable" | "unsaved" | "dirty" | "saving" | "saved" | "restored" | "error";
+
+const WRITER_LEASE_TTL_MS = 12_000;
+const WRITER_LEASE_HEARTBEAT_MS = 4_000;
 
 interface PersistenceViewState {
   readonly status: PersistenceStatus;
@@ -50,6 +53,7 @@ export function persistenceFailure(error: unknown, revision: number): Persistenc
 }
 
 export function persistenceErrorLabel(errorCode: string | undefined): string {
+  if (errorCode === "LEASE_REQUIRED" || errorCode === "LEASE_LOST") return "另一窗口正在编辑";
   if (errorCode === "NO_SPACE") return "本机空间不足";
   if (errorCode === "PERMISSION_DENIED") return "无写入权限";
   if (errorCode === "BUSY") return "存储正忙";
@@ -129,7 +133,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.10</p>
+          <p className="eyebrow">WorLd Studio · S0.11</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -587,7 +591,12 @@ export function App() {
   const [persistence, setPersistence] = useState<PersistenceViewState>(() =>
     storageAvailable ? { status: "loading", revision: 0 } : { status: "unavailable", revision: 0 }
   );
-  const storeRef = useRef<ProjectFileStore | null>(null);
+  const storeRef = useRef<IndexedDbProjectFileStore | null>(null);
+  const leaseRef = useRef<ProjectWriterLease | null>(null);
+  const leaseOwnerId = useRef(
+    globalThis.crypto?.randomUUID?.() ?? `writer_${Date.now()}_${Math.random().toString(36).slice(2)}`
+  );
+  const [leaseRetry, setLeaseRetry] = useState(0);
   const storageRevision = useRef(0);
   const saveSerial = useRef(0);
   const commandSerial = useRef(0);
@@ -598,7 +607,7 @@ export function App() {
       "edit-script", "patch-dialogue", "insert-dialogue", "delete-dialogue",
       "move-dialogue", "format-script", "discard-draft", "undo", "redo"
     ].includes(action.type)) {
-      setPersistence((current) => current.status === "unavailable"
+      setPersistence((current) => current.status === "unavailable" || current.status === "conflict"
         ? current
         : { status: "dirty", revision: current.revision });
     }
@@ -609,24 +618,107 @@ export function App() {
   useEffect(() => {
     if (!storageAvailable) return;
     let cancelled = false;
+    let heartbeat: ReturnType<typeof setInterval> | undefined;
     const store = new IndexedDbProjectFileStore(globalThis.indexedDB, "prj_twilight_broadcast");
-    storeRef.current = store;
-    void loadProject(store).then((snapshot) => {
+    setPersistence({ status: "loading", revision: storageRevision.current });
+
+    const loseLease = (detail: string) => {
+      store.activateWriterLease(null);
+      leaseRef.current = null;
+      storeRef.current = null;
+      setPersistence({
+        status: "conflict",
+        revision: storageRevision.current,
+        detail,
+        errorCode: "LEASE_LOST"
+      });
+    };
+
+    const start = async () => {
+      const acquisition = await store.acquire(
+        leaseOwnerId.current,
+        Date.now(),
+        WRITER_LEASE_TTL_MS
+      );
+      if (cancelled) return;
+      if (acquisition.status === "held") {
+        setPersistence({
+          status: "conflict",
+          revision: storageRevision.current,
+          detail: `另一编辑窗口持有写入权，最迟于 ${new Date(acquisition.holderExpiresAtMs).toLocaleTimeString()} 释放。`,
+          errorCode: "LEASE_REQUIRED"
+        });
+        return;
+      }
+
+      leaseRef.current = acquisition.lease;
+      store.activateWriterLease(acquisition.lease);
+      storeRef.current = store;
+      heartbeat = setInterval(() => {
+        const activeLease = leaseRef.current;
+        if (activeLease === null || cancelled) return;
+        void store.renew(activeLease, Date.now(), WRITER_LEASE_TTL_MS).then((renewal) => {
+          if (cancelled) return;
+          if (renewal.status === "lost") {
+            loseLease("本窗口的编辑租约已失效。请确认其他窗口后重试获取编辑权。");
+            return;
+          }
+          leaseRef.current = renewal.lease;
+          store.activateWriterLease(renewal.lease);
+        }).catch((error: unknown) => {
+          if (cancelled) return;
+          const failure = persistenceFailure(error, storageRevision.current);
+          loseLease(failure.detail ?? "无法续约本窗口的编辑权。");
+        });
+      }, WRITER_LEASE_HEARTBEAT_MS);
+
+      const snapshot = await loadProject(store);
       if (cancelled) return;
       if (snapshot === null) {
         setPersistence({ status: "unsaved", revision: 0 });
-        return;
+      } else {
+        const restored = restoreStudioSession(snapshot);
+        storageRevision.current = snapshot.storageRevision;
+        baseDispatch({ type: "restore-session", session: restored });
+        setPersistence({ status: "restored", revision: snapshot.storageRevision });
       }
-      const restored = restoreStudioSession(snapshot);
-      storageRevision.current = snapshot.storageRevision;
-      baseDispatch({ type: "restore-session", session: restored });
-      setPersistence({ status: "restored", revision: snapshot.storageRevision });
-    }).catch((error: unknown) => {
+    };
+
+    void start().catch((error: unknown) => {
       if (cancelled) return;
       setPersistence(persistenceFailure(error, storageRevision.current));
     });
-    return () => { cancelled = true; };
-  }, [storageAvailable]);
+
+    const releaseOnPageHide = (event: PageTransitionEvent) => {
+      const activeLease = leaseRef.current;
+      store.activateWriterLease(null);
+      if (storeRef.current === store) storeRef.current = null;
+      leaseRef.current = null;
+      if (event.persisted) {
+        setPersistence({
+          status: "conflict",
+          revision: storageRevision.current,
+          detail: "页面从后台缓存恢复后必须重新验证编辑权。",
+          errorCode: "LEASE_REQUIRED"
+        });
+      } else if (activeLease !== null) {
+        void store.release(activeLease).catch(() => undefined);
+      }
+    };
+    const reacquireAfterPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setLeaseRetry((value) => value + 1);
+    };
+    globalThis.addEventListener("pagehide", releaseOnPageHide);
+    globalThis.addEventListener("pageshow", reacquireAfterPageShow);
+    return () => {
+      cancelled = true;
+      if (heartbeat !== undefined) clearInterval(heartbeat);
+      globalThis.removeEventListener("pagehide", releaseOnPageHide);
+      globalThis.removeEventListener("pageshow", reacquireAfterPageShow);
+      if (storeRef.current === store) storeRef.current = null;
+      store.activateWriterLease(null);
+    };
+  }, [storageAvailable, leaseRetry]);
 
   const saveToLocal = () => {
     const store = storeRef.current;
@@ -642,6 +734,19 @@ export function App() {
       storageRevision.current = nextRevision;
       setPersistence({ status: "saved", revision: nextRevision });
     }).catch((error: unknown) => {
+      if (error instanceof ProjectStoreError &&
+          (error.code === "LEASE_REQUIRED" || error.code === "LEASE_LOST")) {
+        store.activateWriterLease(null);
+        leaseRef.current = null;
+        storeRef.current = null;
+        setPersistence({
+          status: "conflict",
+          revision: storageRevision.current,
+          detail: "保存前编辑权已失效；未写入不受保护的数据。请重试获取编辑权。",
+          errorCode: error.code
+        });
+        return;
+      }
       setPersistence(persistenceFailure(error, storageRevision.current));
     });
   };
@@ -650,9 +755,23 @@ export function App() {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
         <span className="startup-gate__orb" aria-hidden="true" />
-        <p className="eyebrow">LOCAL-FIRST RECOVERY</p>
-        <h1>正在校验本地项目…</h1>
-        <p>检查 WAL 与 SHA-256 完整性后再开放编辑。</p>
+        <p className="eyebrow">SINGLE-WRITER STARTUP</p>
+        <h1>正在获取安全编辑权…</h1>
+        <p>取得带 fencing token 的写入租约后，再检查 WAL 与 SHA-256 完整性。</p>
+      </div>
+    );
+  }
+
+  if (persistence.status === "conflict") {
+    return (
+      <div className="startup-gate startup-gate--conflict" role="alert" aria-live="assertive">
+        <span className="startup-gate__lock" aria-hidden="true">⌁</span>
+        <p className="eyebrow">WRITER LEASE CONFLICT</p>
+        <h1>此项目已在另一个窗口编辑</h1>
+        <p>{persistence.detail ?? "为避免两个窗口相互覆盖，本窗口尚未开放编辑。"}</p>
+        <button className="startup-gate__retry" onClick={() => setLeaseRetry((value) => value + 1)}>
+          重试获取编辑权
+        </button>
       </div>
     );
   }
@@ -672,7 +791,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>WAL · SHA-256</span><span className="footer-accent">S0.10 STORAGE CONTRACT</span>
+        <span>本地优先</span><span>无账户</span><span>WAL · SHA-256</span><span className="footer-accent">S0.11 FENCED WRITER LEASE</span>
       </footer>
     </div>
   );

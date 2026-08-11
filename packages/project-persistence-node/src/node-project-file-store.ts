@@ -74,7 +74,8 @@ export class NodeProjectFileStore implements ProjectFileStore {
       atomicReplace: true,
       durability: this.directorySync === "required" ? "file-and-directory-sync" : "file-sync",
       workspaceScope: "app-private",
-      directoryMetadata: this.directorySync === "required" ? "synced" : "best-effort"
+      directoryMetadata: this.directorySync === "required" ? "synced" : "best-effort",
+      writerCoordination: "none"
     } as const;
   }
 

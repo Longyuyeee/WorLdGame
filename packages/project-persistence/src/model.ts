@@ -17,6 +17,27 @@ export interface ProjectFileStoreCapabilities {
   readonly durability: "volatile" | "browser-managed" | "file-sync" | "file-and-directory-sync";
   readonly workspaceScope: "memory" | "origin-private" | "app-private" | "user-selected";
   readonly directoryMetadata: "not-applicable" | "best-effort" | "synced";
+  readonly writerCoordination: "none" | "fenced-lease";
+}
+
+export interface ProjectWriterLease {
+  readonly ownerId: string;
+  readonly fencingToken: number;
+  readonly expiresAtMs: number;
+}
+
+export type WriterLeaseAcquisition =
+  | { readonly status: "acquired"; readonly lease: ProjectWriterLease }
+  | { readonly status: "held"; readonly holderExpiresAtMs: number };
+
+export type WriterLeaseRenewal =
+  | { readonly status: "renewed"; readonly lease: ProjectWriterLease }
+  | { readonly status: "lost" };
+
+export interface ProjectWriterLeaseCoordinator {
+  acquire(ownerId: string, nowMs: number, ttlMs: number): Promise<WriterLeaseAcquisition>;
+  renew(lease: ProjectWriterLease, nowMs: number, ttlMs: number): Promise<WriterLeaseRenewal>;
+  release(lease: ProjectWriterLease): Promise<boolean>;
 }
 
 export type ProjectStoreOperation = "read" | "write" | "replace" | "remove" | "sync";
@@ -27,6 +48,8 @@ export type ProjectStoreErrorCode =
   | "NO_SPACE"
   | "PERMISSION_DENIED"
   | "BUSY"
+  | "LEASE_REQUIRED"
+  | "LEASE_LOST"
   | "UNAVAILABLE"
   | "IO_FAILURE";
 

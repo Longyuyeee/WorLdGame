@@ -239,6 +239,41 @@ h2 {
   animation: startup-spin 800ms linear infinite;
 }
 
+.startup-gate--conflict {
+  background: radial-gradient(circle, rgb(255 98 165 / 16%), transparent 25rem), var(--wg-color-bg-canvas);
+}
+
+.startup-gate__lock {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 18px;
+  place-items: center;
+  border: 1px solid rgb(255 98 165 / 42%);
+  border-radius: 14px;
+  background: rgb(255 98 165 / 12%);
+  color: #ff62a5;
+  font-size: 26px;
+}
+
+.startup-gate__retry {
+  min-height: 40px;
+  margin-top: 12px;
+  padding: 0 18px;
+  border: 1px solid rgb(139 124 255 / 46%);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgb(139 124 255 / 26%), rgb(62 215 255 / 14%));
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform var(--wg-motion-duration-fast) ease, border-color var(--wg-motion-duration-standard) ease;
+}
+
+.startup-gate__retry:hover {
+  border-color: rgb(62 215 255 / 62%);
+  transform: translateY(-1px);
+}
+
 @keyframes startup-spin {
   to { transform: rotate(360deg); }
 }
