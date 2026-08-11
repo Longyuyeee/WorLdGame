@@ -1,6 +1,6 @@
 # S0.15 Preview 逐步运行、测试倍率与停止点审计
 
-> 状态：实现、纯状态机、可控时钟、干净安装、真实浏览器与手机布局审计通过；远端证据待本次推送后回读
+> 状态：实现、纯状态机、可控时钟、干净安装、真实浏览器、手机布局、推送与 Draft PR 远端回读均通过
 > 日期：2026-08-11
 > 范围：当前场景的 Editor Preview 运输控制；不冒充正式 Narrative VM、玩家快进或完整回滚已完成
 
@@ -114,3 +114,11 @@ fake-timer UI 集成覆盖：
 - 尚未实现 Android 后台切换、计时器降频和真机输入审计。
 
 这些边界继续阻断“正式玩家快进与回滚完成”的声明。
+
+## 10. 远端证据
+
+- 实现提交 `9426251c0aa308a7d2dbf52fa500a0c2245f33d8` 已推送到 `origin/agent/visual-production-bar`；
+- 既有 Draft PR #1 保持 Draft，没有创建重复 PR；
+- PR 标题更新为 `Add Preview transport speed controls and adjustable viewport profiles`；
+- REST API 回读确认 PR head 与实现提交一致，正文保留 S0.1 累计索引并包含完整 S0.15 标题、`127/127` 与“全局 M1 阻断项”；
+- 首次回读正文长度 3,160 字符；本次 PR 更新没有发生元数据覆盖或未确认网络失败。
