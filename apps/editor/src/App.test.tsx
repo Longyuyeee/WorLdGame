@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.14 preview-profile Script UI prototype", () => {
+describe("WorLd Studio S0.15 Preview transport Script UI prototype", () => {
   it("maps storage failures to actionable local-save labels", () => {
     expect(persistenceErrorLabel("NO_SPACE")).toBe("本机空间不足");
     expect(persistenceErrorLabel("PERMISSION_DENIED")).toBe("无写入权限");

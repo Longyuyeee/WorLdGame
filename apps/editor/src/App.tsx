@@ -43,6 +43,16 @@ import {
   normalizePreviewDimension,
   type PreviewViewportProfileId
 } from "./preview-viewport";
+import {
+  PREVIEW_SPEED_PROFILES,
+  createPreviewTransportState,
+  findPreviewSpeedProfile,
+  previewStepDelayMs,
+  previewStopReasonLabel,
+  previewTransportBarrier,
+  reducePreviewTransport,
+  type PreviewSpeedId
+} from "./preview-transport";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -159,7 +169,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.14</p>
+          <p className="eyebrow">WorLd Studio · S0.15</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -560,6 +570,11 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
+  const [transport, transportDispatch] = useReducer(
+    reducePreviewTransport,
+    undefined,
+    createPreviewTransportState
+  );
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -578,6 +593,67 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
   const showBufferedNotice = inputDirty && session.notice.tone !== "error";
+  const transportBlocked = pendingDraft || inputDirty;
+  const transportBarrier = previewTransportBarrier(
+    statement,
+    session.previewIndex,
+    scene.statements.length,
+    transportBlocked
+  );
+  const speedProfile = findPreviewSpeedProfile(transport.speedId);
+  const previousTransportSceneId = useRef(session.activeSceneId);
+
+  useEffect(() => {
+    if (previousTransportSceneId.current === session.activeSceneId) return;
+    previousTransportSceneId.current = session.activeSceneId;
+    transportDispatch({ type: "reset" });
+  }, [session.activeSceneId]);
+
+  useEffect(() => {
+    if (!transportBlocked && transport.stopReason === "blocked") {
+      transportDispatch({ type: "reset" });
+    }
+  }, [transportBlocked, transport.stopReason]);
+
+  useEffect(() => {
+    if (transport.mode !== "playing") return;
+    if (transportBarrier !== undefined) {
+      transportDispatch({ type: "pause", reason: transportBarrier });
+      return;
+    }
+    const timer = setTimeout(() => {
+      dispatch({ type: "step-preview", direction: 1 });
+    }, previewStepDelayMs(statement, transport.speedId));
+    return () => clearTimeout(timer);
+  }, [
+    dispatch,
+    session.activeSceneId,
+    statement.id,
+    transport.mode,
+    transport.speedId,
+    transportBarrier
+  ]);
+
+  const togglePlayback = () => {
+    if (transport.mode === "playing") {
+      transportDispatch({ type: "pause", reason: "manual" });
+      return;
+    }
+    if (transportBarrier !== undefined) {
+      transportDispatch({ type: "pause", reason: transportBarrier });
+      return;
+    }
+    transportDispatch({ type: "play" });
+  };
+
+  const stepPreview = (direction: -1 | 1) => {
+    transportDispatch({ type: "pause", reason: "manual-step" });
+    dispatch({ type: "step-preview", direction });
+  };
+
+  const transportStatus = transport.mode === "playing"
+    ? `运行中 · ${speedProfile.label}`
+    : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
   return (
     <aside className="preview-panel" aria-labelledby="preview-heading">
       <div className="panel-heading">
@@ -669,9 +745,38 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
         </div>
       </div>
       <div className="preview-transport">
-        <button aria-label="上一步" onClick={() => dispatch({ type: "step-preview", direction: -1 })} disabled={session.previewIndex === 0}>←</button>
+        <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={session.previewIndex === 0}>←</button>
         <div><strong>{session.previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
-        <button aria-label="下一步" onClick={() => dispatch({ type: "step-preview", direction: 1 })} disabled={session.previewIndex === scene.statements.length - 1}>→</button>
+        <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={session.previewIndex === scene.statements.length - 1}>→</button>
+      </div>
+      <div className="preview-playback" aria-label="预览运行控制">
+        <button
+          className={transport.mode === "playing" ? "preview-playback__toggle is-playing" : "preview-playback__toggle"}
+          onClick={togglePlayback}
+          disabled={transport.mode !== "playing" && transportBarrier !== undefined}
+          aria-label={transport.mode === "playing" ? "暂停预览" : "开始预览"}
+        >
+          <span aria-hidden="true">{transport.mode === "playing" ? "Ⅱ" : "▶"}</span>
+          {transport.mode === "playing" ? "暂停" : "运行"}
+        </button>
+        <label>
+          <span>测试倍率</span>
+          <select
+            aria-label="预览测试倍率"
+            value={transport.speedId}
+            onChange={(event) => transportDispatch({
+              type: "set-speed",
+              speedId: event.target.value as PreviewSpeedId
+            })}
+          >
+            {PREVIEW_SPEED_PROFILES.map((profile) => (
+              <option key={profile.id} value={profile.id}>{profile.label}</option>
+            ))}
+          </select>
+        </label>
+        <output className={`preview-playback__status preview-playback__status--${transport.mode}`} aria-live="polite">
+          {transportStatus}
+        </output>
       </div>
       <div className={`diagnostic-card diagnostic-card--${showBufferedNotice ? "draft" : session.notice.tone}`} aria-live="polite">
         <span className="diagnostic-icon" aria-hidden="true">{showBufferedNotice ? "…" : session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
@@ -1141,7 +1246,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.14 PREVIEW PROFILES</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.15 PREVIEW TRANSPORT</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
