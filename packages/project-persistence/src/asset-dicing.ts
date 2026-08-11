@@ -50,6 +50,7 @@ export interface LosslessDicingReport {
   readonly algorithm: "lossless-rgba-dicing/v1";
   readonly cellSize: number;
   readonly imageCount: number;
+  readonly duplicateDecodedImageCount: number;
   readonly placementCount: number;
   readonly uniqueTileCount: number;
   readonly repeatedPlacementCount: number;
@@ -65,6 +66,28 @@ export interface LosslessDicingReport {
   readonly reconstructionVerified: true;
   readonly sourceDigests: readonly BlobDigest[];
   readonly planDigest: BlobDigest;
+}
+
+export interface LosslessDicingDiscoveryOptions extends LosslessDicingOptions {
+  readonly minSharedTileRatio?: number;
+  readonly maxGroupImages?: number;
+}
+
+export interface LosslessDicingCandidateGroup {
+  readonly groupId: string;
+  readonly assetIds: readonly string[];
+  readonly minimumPairSimilarity: number;
+  readonly report: LosslessDicingReport;
+}
+
+export interface LosslessDicingDiscoveryReport {
+  readonly schemaVersion: 1;
+  readonly algorithm: "lossless-rgba-dicing-discovery/v1";
+  readonly evaluatedImageCount: number;
+  readonly minSharedTileRatio: number;
+  readonly candidateGroups: readonly LosslessDicingCandidateGroup[];
+  readonly unassignedAssetIds: readonly string[];
+  readonly discoveryDigest: BlobDigest;
 }
 
 const DEFAULT_MAX_IMAGES = 32;
@@ -213,7 +236,10 @@ export function analyzeLosslessDicing(
   const zeroTileCount = plan.images.reduce((sum, image) => sum + image.placements.filter((placement) => placement.tileDigest === null).length, 0);
   const nonZeroPlacements = placementCount - zeroTileCount;
   const repeatedPlacementCount = nonZeroPlacements - plan.tiles.length;
-  const originalRgbaBytes = sources.reduce((sum, source) => sum + source.rgba.byteLength, 0);
+  const uniqueDecodedSources = new Map<BlobDigest, number>();
+  for (const image of plan.images) uniqueDecodedSources.set(image.sourceDigest, image.width * image.height * 4);
+  const originalRgbaBytes = [...uniqueDecodedSources.values()].reduce((sum, bytes) => sum + bytes, 0);
+  const duplicateDecodedImageCount = sources.length - uniqueDecodedSources.size;
   const uniqueTileBytes = plan.tiles.reduce((sum, tile) => sum + tile.rgba.byteLength, 0);
   const estimatedManifestBytes = plan.images.length * IMAGE_MANIFEST_BYTES + placementCount * PLACEMENT_MANIFEST_BYTES;
   const estimatedDicedBytes = uniqueTileBytes + estimatedManifestBytes;
@@ -234,6 +260,7 @@ export function analyzeLosslessDicing(
     algorithm: plan.algorithm,
     cellSize: plan.cellSize,
     imageCount: sources.length,
+    duplicateDecodedImageCount,
     placementCount,
     uniqueTileCount: plan.tiles.length,
     repeatedPlacementCount,
@@ -249,5 +276,113 @@ export function analyzeLosslessDicing(
     reconstructionVerified: true,
     sourceDigests: plan.images.map((image) => image.sourceDigest),
     planDigest: createBlobDigest(new TextEncoder().encode(planSummary))
+  };
+}
+
+function tileHistogram(image: LosslessDicingImagePlan): ReadonlyMap<BlobDigest, number> {
+  const counts = new Map<BlobDigest, number>();
+  for (const placement of image.placements) {
+    if (placement.tileDigest !== null) counts.set(placement.tileDigest, (counts.get(placement.tileDigest) ?? 0) + 1);
+  }
+  return counts;
+}
+
+function imageSimilarity(
+  left: LosslessDicingImagePlan,
+  right: LosslessDicingImagePlan,
+  histograms: ReadonlyMap<string, ReadonlyMap<BlobDigest, number>>
+): number {
+  if (left.width !== right.width || left.height !== right.height) return 0;
+  const leftCounts = histograms.get(left.assetId) ?? new Map();
+  const rightCounts = histograms.get(right.assetId) ?? new Map();
+  const digests = new Set([...leftCounts.keys(), ...rightCounts.keys()]);
+  let intersection = 0;
+  let union = 0;
+  for (const digest of digests) {
+    const leftCount = leftCounts.get(digest) ?? 0;
+    const rightCount = rightCounts.get(digest) ?? 0;
+    intersection += Math.min(leftCount, rightCount);
+    union += Math.max(leftCount, rightCount);
+  }
+  return union === 0 ? 0 : intersection / union;
+}
+
+export function discoverLosslessDicingGroups(
+  sources: readonly LosslessDicingSource[],
+  options: LosslessDicingDiscoveryOptions = {}
+): LosslessDicingDiscoveryReport {
+  const minSharedTileRatio = options.minSharedTileRatio ?? 0.35;
+  const maxGroupImages = options.maxGroupImages ?? 8;
+  if (typeof minSharedTileRatio !== "number" || !Number.isFinite(minSharedTileRatio) || minSharedTileRatio <= 0 || minSharedTileRatio > 1 ||
+      !Number.isSafeInteger(maxGroupImages) || maxGroupImages < 2 || maxGroupImages > 32) {
+    fail("dicing-discovery-options", "Dicing discovery thresholds are invalid");
+  }
+  const plan = buildLosslessDicingPlan(sources, options);
+  const imageById = new Map(plan.images.map((image) => [image.assetId, image]));
+  const sourceById = new Map(sources.map((source) => [source.assetId, source]));
+  const histograms = new Map(plan.images.map((image) => [image.assetId, tileHistogram(image)]));
+  const similarity = new Map<string, number>();
+  const pairKey = (left: string, right: string) => left < right ? `${left}\u0000${right}` : `${right}\u0000${left}`;
+  for (let leftIndex = 0; leftIndex < plan.images.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < plan.images.length; rightIndex += 1) {
+      const left = plan.images[leftIndex] as LosslessDicingImagePlan;
+      const right = plan.images[rightIndex] as LosslessDicingImagePlan;
+      similarity.set(pairKey(left.assetId, right.assetId), imageSimilarity(left, right, histograms));
+    }
+  }
+  let clusters = plan.images.map((image) => [image.assetId] as string[]);
+  while (true) {
+    let selected: { left: number; right: number; score: number; key: string } | null = null;
+    for (let left = 0; left < clusters.length; left += 1) {
+      for (let right = left + 1; right < clusters.length; right += 1) {
+        const combined = [...clusters[left]!, ...clusters[right]!].sort();
+        if (combined.length > maxGroupImages) continue;
+        let score = 1;
+        for (const leftId of clusters[left]!) for (const rightId of clusters[right]!) {
+          score = Math.min(score, similarity.get(pairKey(leftId, rightId)) ?? 0);
+        }
+        if (score < minSharedTileRatio) continue;
+        const key = combined.join("|");
+        if (selected === null || score > selected.score || (score === selected.score && key < selected.key)) selected = { left, right, score, key };
+      }
+    }
+    if (selected === null) break;
+    const merged = [...clusters[selected.left]!, ...clusters[selected.right]!].sort();
+    clusters = clusters.filter((_, index) => index !== selected.left && index !== selected.right);
+    clusters.push(merged);
+    clusters.sort((left, right) => left.join("|").localeCompare(right.join("|")));
+  }
+  const groupedIds = new Set<string>();
+  const candidateGroups = clusters.filter((cluster) => cluster.length >= 2).map((assetIds): LosslessDicingCandidateGroup => {
+    for (const assetId of assetIds) groupedIds.add(assetId);
+    let minimumPairSimilarity = 1;
+    for (let left = 0; left < assetIds.length; left += 1) for (let right = left + 1; right < assetIds.length; right += 1) {
+      minimumPairSimilarity = Math.min(minimumPairSimilarity, similarity.get(pairKey(assetIds[left]!, assetIds[right]!)) ?? 0);
+    }
+    const groupSources = assetIds.map((assetId) => sourceById.get(assetId) ?? fail(assetId, "Dicing source disappeared during discovery"));
+    const groupDigest = createBlobDigest(new TextEncoder().encode(JSON.stringify(assetIds)));
+    return {
+      groupId: `dicing-${groupDigest.slice(7, 19)}`,
+      assetIds,
+      minimumPairSimilarity,
+      report: analyzeLosslessDicing(groupSources, options)
+    };
+  }).sort((left, right) => left.groupId.localeCompare(right.groupId));
+  const unassignedAssetIds = [...imageById.keys()].filter((assetId) => !groupedIds.has(assetId)).sort();
+  const summary = JSON.stringify({
+    schemaVersion: 1,
+    algorithm: "lossless-rgba-dicing-discovery/v1",
+    minSharedTileRatio,
+    groups: candidateGroups.map((group) => [group.groupId, group.assetIds, group.minimumPairSimilarity, group.report.planDigest]),
+    unassignedAssetIds
+  });
+  return {
+    schemaVersion: 1,
+    algorithm: "lossless-rgba-dicing-discovery/v1",
+    evaluatedImageCount: sources.length,
+    minSharedTileRatio,
+    candidateGroups,
+    unassignedAssetIds,
+    discoveryDigest: createBlobDigest(new TextEncoder().encode(summary))
   };
 }

@@ -17,7 +17,7 @@ import {
   type AssetIndex,
   type AssetKind,
   type AssetLifecycleManifest,
-  type LosslessDicingReport,
+  type LosslessDicingDiscoveryReport,
   type ProjectSnapshot,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
@@ -207,7 +207,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.22</p>
+          <p className="eyebrow">WorLd Studio · S0.23</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -318,7 +318,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.22 LOSSLESS DICING · VERIFIED FALLBACK</small></span>
+            <span><strong>资源保险库</strong><small>S0.23 AUTO GROUPS · DEDUPE-AWARE COST</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -389,7 +389,7 @@ interface AssetVaultDialogProps {
   readonly gcLocked: boolean;
   readonly gcLockReason: string;
   readonly lifecycleDetail: string;
-  readonly dicingReport: LosslessDicingReport | null;
+  readonly dicingReport: LosslessDicingDiscoveryReport | null;
   readonly dicingAnalyzing: boolean;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
@@ -503,16 +503,21 @@ function AssetVaultDialog({
               <div><p className="eyebrow">LOSSLESS DICING · CANDIDATE ONLY</p><h4>跨图片重复块分析</h4></div>
               {dicingAnalyzing
                 ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
-                : <button type="button" disabled={!storageReady || importing || dicingCandidateCount === 0} onClick={onAnalyzeDicing}>
+                : <button type="button" disabled={!storageReady || importing || dicingCandidateCount < 2} onClick={onAnalyzeDicing}>
                     分析候选 · {dicingCandidateCount}
                   </button>}
             </div>
             <p>仅分析已通过检查的 PNG/JPEG/WebP；Worker 内解码为 RGBA，精确切块并逐字节重建。当前不生成 Atlas、不修改源素材。</p>
-            {dicingReport !== null && <div className={`dicing-analysis__report is-${dicingReport.decision}`} role="status">
-              <strong>{dicingReport.decision === "adopt" ? "建议进入 Atlas 候选" : "保持 Original"}</strong>
-              <span>{dicingReport.imageCount} 图 · {dicingReport.cellSize}px Cell · {dicingReport.repeatedPlacementCount} 重复放置 · {dicingReport.zeroTileCount} 全零块</span>
-              <span>RGBA 成本估算 {formatBytes(dicingReport.originalRgbaBytes)} → {formatBytes(dicingReport.estimatedDicedBytes)} · {dicingReport.netSavingsBytes > 0 ? `节省 ${(dicingReport.netSavingsRatio * 100).toFixed(1)}%` : "无净收益"}</span>
-              <code>{dicingReport.planDigest.slice(7, 19)}… · 逐字节重建 PASS</code>
+            {dicingReport !== null && <div className={`dicing-analysis__report ${dicingReport.candidateGroups.length > 0 ? "is-adopt" : "is-original"}`} role="status">
+              <strong>{dicingReport.candidateGroups.length > 0 ? `发现 ${dicingReport.candidateGroups.length} 个严格相似组` : "没有安全的自动分组"}</strong>
+              <span>评估 {dicingReport.evaluatedImageCount} 图 · 阈值 {(dicingReport.minSharedTileRatio * 100).toFixed(0)}% · {dicingReport.unassignedAssetIds.length} 图保持独立</span>
+              {dicingReport.candidateGroups.slice(0, 4).map((group) => <article key={group.groupId} className="dicing-analysis__group">
+                <strong>{group.groupId} · {group.report.decision === "adopt" ? "建议 Atlas 候选" : "保持 Original"}</strong>
+                <span>{group.assetIds.join(" · ")} · 最低两两相似度 {(group.minimumPairSimilarity * 100).toFixed(1)}%</span>
+                <span>{group.report.repeatedPlacementCount} 重复放置 · {group.report.duplicateDecodedImageCount} 重复源 · {group.report.netSavingsBytes > 0 ? `RGBA 代理节省 ${(group.report.netSavingsRatio * 100).toFixed(1)}%` : "无净收益"}</span>
+                <code>{group.report.planDigest.slice(7, 19)}… · 逐字节重建 PASS</code>
+              </article>)}
+              <code>{dicingReport.discoveryDigest.slice(7, 19)}… · 自动分组确定性摘要</code>
             </div>}
           </div>
           {lifecycle.trash.length > 0 && <div className="asset-trash-list" aria-label="可恢复资源">
@@ -1111,7 +1116,7 @@ export function App() {
     createAssetLifecycleManifest(createAssetIndex(), Date.now())
   );
   const [assetLifecycleDetail, setAssetLifecycleDetail] = useState("血缘清单已校验；没有执行不可逆删除。");
-  const [dicingReport, setDicingReport] = useState<LosslessDicingReport | null>(null);
+  const [dicingReport, setDicingReport] = useState<LosslessDicingDiscoveryReport | null>(null);
   const [dicingAnalyzing, setDicingAnalyzing] = useState(false);
   const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
   const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
@@ -1810,7 +1815,7 @@ export function App() {
     const repository = assetRepositoryRef.current;
     if (repository === null || dicingAnalysisAbortRef.current !== null) return;
     const candidates = assetIndex.assets.filter(canBuildThumbnail).slice(0, 32);
-    if (candidates.length === 0) return;
+    if (candidates.length < 2) return;
     const controller = new AbortController();
     dicingAnalysisAbortRef.current = controller;
     setDicingAnalyzing(true);
@@ -1824,9 +1829,10 @@ export function App() {
       }));
       const report = await analyzeDicingInWorker(inputs, 64, controller.signal);
       setDicingReport(report);
-      setAssetLifecycleDetail(report.decision === "adopt"
-        ? `Dicing 候选通过：逐字节重建一致，RGBA 代理成本预计节省 ${(report.netSavingsRatio * 100).toFixed(1)}%；尚未发布 Atlas。`
-        : `Dicing 自动回退 Original：${report.reason === "no-repeat" ? "没有精确重复块" : "清单成本抵消了净收益"}。`);
+      const adopted = report.candidateGroups.filter((group) => group.report.decision === "adopt");
+      setAssetLifecycleDetail(report.candidateGroups.length === 0
+        ? `自动分组完成：${report.evaluatedImageCount} 张图片没有形成满足严格两两阈值的安全组；全部保持独立。`
+        : `自动分组完成：发现 ${report.candidateGroups.length} 组，其中 ${adopted.length} 组通过 RGBA 代理收益门；尚未发布 Atlas。`);
     } catch (error) {
       setAssetLifecycleDetail(error instanceof AssetBlobError && error.code === "CANCELLED"
         ? "Dicing 候选分析已取消；没有发布或修改任何资源。"
@@ -1912,7 +1918,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.22 LOSSLESS DICING · BYTE-EXACT REBUILD</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.23 STRICT GROUPS · SOURCE DEDUPE</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

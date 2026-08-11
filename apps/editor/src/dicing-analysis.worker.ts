@@ -1,6 +1,6 @@
 import {
   AssetBlobError,
-  analyzeLosslessDicing,
+  discoverLosslessDicingGroups,
   type LosslessDicingSource
 } from "@world-studio/project-persistence";
 
@@ -46,7 +46,7 @@ workerScope.addEventListener("message", (event) => {
           bitmap.close();
         }
       }
-      const report = analyzeLosslessDicing(decoded, { cellSize: request.cellSize });
+      const report = discoverLosslessDicingGroups(decoded, { cellSize: request.cellSize });
       workerScope.postMessage({ id: request.id, ok: true, report });
     } catch (error) {
       const detail = error instanceof AssetBlobError

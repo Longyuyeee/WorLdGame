@@ -7,7 +7,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.22 asset derivative and Dicing candidate integration", () => {
+describe("S0.23 Dicing group discovery integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -36,46 +36,7 @@ describe("S0.22 asset derivative and Dicing candidate integration", () => {
     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast CG")).toBeVisible();
     expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
     expect(screen.getByRole("button", { name: "生成缩略图" })).toBeEnabled();
-    const dicingButton = screen.getByRole("button", { name: "分析候选 · 1" });
-    expect(dicingButton).toBeEnabled();
-    class DicingWorker {
-      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
-      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
-      postMessage(request: { readonly id: number }): void {
-        this.listeners.get("message")?.({ data: {
-          id: request.id,
-          ok: true,
-          report: {
-            schemaVersion: 1,
-            algorithm: "lossless-rgba-dicing/v1",
-            cellSize: 64,
-            imageCount: 1,
-            placementCount: 510,
-            uniqueTileCount: 200,
-            repeatedPlacementCount: 310,
-            zeroTileCount: 0,
-            originalRgbaBytes: 33_177_600,
-            uniqueTileBytes: 13_107_200,
-            estimatedManifestBytes: 24_576,
-            estimatedDicedBytes: 13_131_776,
-            netSavingsBytes: 20_045_824,
-            netSavingsRatio: 0.6042,
-            decision: "adopt",
-            reason: "net-savings",
-            reconstructionVerified: true,
-            sourceDigests: [`sha256:${"b".repeat(64)}`],
-            planDigest: `sha256:${"c".repeat(64)}`
-          }
-        } } as MessageEvent);
-      }
-      terminate(): void { /* completed */ }
-    }
-    vi.stubGlobal("Worker", DicingWorker);
-    fireEvent.click(dicingButton);
-    await waitFor(() => expect(screen.getByText("建议进入 Atlas 候选")).toBeVisible());
-    expect(screen.getByText(/逐字节重建 PASS/)).toBeVisible();
-    expect(screen.getByText(/RGBA 代理成本预计节省 60.4%/)).toBeVisible();
-    vi.stubGlobal("Worker", undefined);
+    expect(screen.getByRole("button", { name: "分析候选 · 1" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "保存到本机" })).toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: "生成 Sidecar" }));
@@ -94,6 +55,61 @@ describe("S0.22 asset derivative and Dicing candidate integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "导入到资源保险库" }));
     await waitFor(() => expect(screen.getByText(/媒体检查通过并复用相同 SHA-256 Blob.*Index r2/)).toBeVisible());
     expect(within(screen.getByLabelText("已导入资源")).getAllByRole("article")).toHaveLength(2);
+    const dicingButton = screen.getByRole("button", { name: "分析候选 · 2" });
+    expect(dicingButton).toBeEnabled();
+    class DicingWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: {
+          id: request.id,
+          ok: true,
+          report: {
+            schemaVersion: 1,
+            algorithm: "lossless-rgba-dicing-discovery/v1",
+            evaluatedImageCount: 2,
+            minSharedTileRatio: 0.35,
+            candidateGroups: [{
+              groupId: "dicing-broadcast",
+              assetIds: ["broadcast_cg", "broadcast_cg_copy"],
+              minimumPairSimilarity: 1,
+              report: {
+                schemaVersion: 1,
+                algorithm: "lossless-rgba-dicing/v1",
+                cellSize: 64,
+                imageCount: 2,
+                duplicateDecodedImageCount: 1,
+                placementCount: 510,
+                uniqueTileCount: 200,
+                repeatedPlacementCount: 310,
+                zeroTileCount: 0,
+                originalRgbaBytes: 33_177_600,
+                uniqueTileBytes: 13_107_200,
+                estimatedManifestBytes: 24_576,
+                estimatedDicedBytes: 13_131_776,
+                netSavingsBytes: 20_045_824,
+                netSavingsRatio: 0.6042,
+                decision: "adopt",
+                reason: "net-savings",
+                reconstructionVerified: true,
+                sourceDigests: [`sha256:${"b".repeat(64)}`, `sha256:${"b".repeat(64)}`],
+                planDigest: `sha256:${"c".repeat(64)}`
+              }
+            }],
+            unassignedAssetIds: [],
+            discoveryDigest: `sha256:${"d".repeat(64)}`
+          }
+        } } as MessageEvent);
+      }
+      terminate(): void { /* completed */ }
+    }
+    vi.stubGlobal("Worker", DicingWorker);
+    fireEvent.click(dicingButton);
+    await waitFor(() => expect(screen.getByText("发现 1 个严格相似组")).toBeVisible());
+    expect(screen.getByText(/逐字节重建 PASS/)).toBeVisible();
+    expect(screen.getByText(/1 重复源/)).toBeVisible();
+    expect(screen.getByText(/RGBA 代理节省 60.4%/)).toBeVisible();
+    vi.stubGlobal("Worker", undefined);
   }, 10_000);
 
   it("rejects MIME-confused bytes before creating a Blob or Index revision", async () => {

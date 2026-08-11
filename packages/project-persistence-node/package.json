@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/project-persistence-node",
-  "version": "0.0.0-s0.22",
+  "version": "0.0.0-s0.23",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
@@ -8,6 +8,6 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@world-studio/project-persistence": "0.0.0-s0.22"
+    "@world-studio/project-persistence": "0.0.0-s0.23"
   }
 }

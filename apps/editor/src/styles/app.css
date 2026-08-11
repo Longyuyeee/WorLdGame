@@ -929,6 +929,8 @@ button:disabled {
 .dicing-analysis__report strong { color: var(--wg-color-text-primary); font-size: 10px; }
 .dicing-analysis__report span,
 .dicing-analysis__report code { color: var(--wg-color-text-secondary); font-size: 8px; }
+.dicing-analysis__group { display: grid; gap: 3px; padding: 8px; border: 1px solid rgb(85 217 138 / 16%); border-radius: 8px; background: rgb(8 10 16 / 28%); }
+.dicing-analysis__group strong { font-size: 9px; }
 
 .asset-import-form {
   display: grid;

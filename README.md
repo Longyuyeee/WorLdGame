@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.22 无损 Dicing 候选分析已完成；全量/性能/真实浏览器审计证据均已通过
+> 状态：S0.23 自动 Dicing 分组与源去重成本审计已完成；全量/性能/真实浏览器审计证据均已通过
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -71,6 +71,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.20 备份资源根与确定性派生任务审计](docs/39-s0-backup-roots-derivative-jobs.md) | checksummed Asset Index 快照、崩溃一致对账、精确 GC 准入与幂等 Sidecar 派生任务 |
 | [S0.21 备份一致恢复与隔离缩略图审计](docs/40-s0-restore-intent-thumbnail-worker.md) | 持久恢复意图、启动续作、旧备份降级语义、无主线程回退的缩略图 Worker 与原子血缘发布 |
 | [S0.22 无损 Dicing 候选分析审计](docs/41-s0-lossless-dicing-analysis.md) | 隔离 RGBA 解码、跨图精确块去重、逐字节重建、可解释成本模型与无收益回退 |
+| [S0.23 自动 Dicing 分组与去重成本审计](docs/42-s0-dicing-group-discovery.md) | 非零块相似度、严格全成员聚类、反传递误合并、源去重感知收益与分组级报告 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

@@ -1,5 +1,6 @@
 import {
   AssetBlobError,
+  type LosslessDicingDiscoveryReport,
   type LosslessDicingReport
 } from "@world-studio/project-persistence";
 
@@ -17,18 +18,56 @@ function failure(code: "CANCELLED" | "DERIVATIVE_UNAVAILABLE" | "UNSUPPORTED_MED
   return new AssetBlobError(code, "index", "dicing-analysis", detail);
 }
 
-function isVerifiedReport(value: unknown): value is LosslessDicingReport {
+function isVerifiedGroupReport(value: unknown): value is LosslessDicingReport {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
   const report = value as Record<string, unknown>;
-  const integerFields = ["cellSize", "imageCount", "placementCount", "uniqueTileCount", "repeatedPlacementCount", "zeroTileCount",
-    "originalRgbaBytes", "uniqueTileBytes", "estimatedManifestBytes", "estimatedDicedBytes", "netSavingsBytes"];
+  const nonNegativeIntegerFields = ["duplicateDecodedImageCount", "placementCount", "uniqueTileCount", "repeatedPlacementCount", "zeroTileCount",
+    "originalRgbaBytes", "uniqueTileBytes", "estimatedManifestBytes", "estimatedDicedBytes"];
   return report.schemaVersion === 1 && report.algorithm === "lossless-rgba-dicing/v1" && report.reconstructionVerified === true &&
     (report.decision === "adopt" || report.decision === "original") &&
     (report.reason === "net-savings" || report.reason === "no-repeat" || report.reason === "insufficient-net-savings") &&
-    integerFields.every((field) => Number.isSafeInteger(report[field])) &&
+    Number.isSafeInteger(report.cellSize) && (report.cellSize as number) > 0 &&
+    Number.isSafeInteger(report.imageCount) && (report.imageCount as number) > 0 &&
+    nonNegativeIntegerFields.every((field) => Number.isSafeInteger(report[field]) && (report[field] as number) >= 0) &&
+    Number.isSafeInteger(report.netSavingsBytes) &&
     typeof report.netSavingsRatio === "number" && Number.isFinite(report.netSavingsRatio) &&
     typeof report.planDigest === "string" && DIGEST.test(report.planDigest) &&
-    Array.isArray(report.sourceDigests) && report.sourceDigests.every((digest) => typeof digest === "string" && DIGEST.test(digest));
+    Array.isArray(report.sourceDigests) && report.sourceDigests.length === report.imageCount &&
+    report.sourceDigests.every((digest) => typeof digest === "string" && DIGEST.test(digest));
+}
+
+function isVerifiedDiscoveryReport(value: unknown): value is LosslessDicingDiscoveryReport {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const report = value as Record<string, unknown>;
+  if (!(report.schemaVersion === 1 && report.algorithm === "lossless-rgba-dicing-discovery/v1" &&
+    Number.isSafeInteger(report.evaluatedImageCount) && (report.evaluatedImageCount as number) > 0 &&
+    typeof report.minSharedTileRatio === "number" && report.minSharedTileRatio > 0 && report.minSharedTileRatio <= 1 &&
+    typeof report.discoveryDigest === "string" && DIGEST.test(report.discoveryDigest) &&
+    Array.isArray(report.unassignedAssetIds) && report.unassignedAssetIds.every((assetId) => typeof assetId === "string") &&
+    Array.isArray(report.candidateGroups))) return false;
+  const minSharedTileRatio = report.minSharedTileRatio as number;
+  const allAssetIds = new Set<string>();
+  const groupIds = new Set<string>();
+  for (const assetId of report.unassignedAssetIds as string[]) {
+    if (allAssetIds.has(assetId)) return false;
+    allAssetIds.add(assetId);
+  }
+  const groupsValid = report.candidateGroups.every((group) => {
+      if (typeof group !== "object" || group === null || Array.isArray(group)) return false;
+      const record = group as Record<string, unknown>;
+      if (!(typeof record.groupId === "string" && !groupIds.has(record.groupId) && Array.isArray(record.assetIds) &&
+        record.assetIds.length >= 2 && record.assetIds.every((assetId) => typeof assetId === "string") &&
+        typeof record.minimumPairSimilarity === "number" && record.minimumPairSimilarity >= minSharedTileRatio &&
+        record.minimumPairSimilarity <= 1 &&
+        isVerifiedGroupReport(record.report) && record.report.imageCount === record.assetIds.length)) return false;
+      groupIds.add(record.groupId);
+      for (const assetId of record.assetIds as string[]) {
+        if (allAssetIds.has(assetId)) return false;
+        allAssetIds.add(assetId);
+      }
+      return true;
+    });
+  return groupsValid && allAssetIds.size === report.evaluatedImageCount;
 }
 
 export function analyzeDicingInWorker(
@@ -36,9 +75,11 @@ export function analyzeDicingInWorker(
   cellSize = 64,
   signal?: AbortSignal,
   timeoutMs = 20_000
-): Promise<LosslessDicingReport> {
+): Promise<LosslessDicingDiscoveryReport> {
   if (signal?.aborted === true) return Promise.reject(failure("CANCELLED", "Dicing analysis was cancelled"));
   if (inputs.length < 1 || inputs.length > 32) return Promise.reject(failure("RESOURCE_LIMIT", "Dicing analysis requires 1-32 inspected images"));
+  const requestedAssetIds = new Set(inputs.map((input) => input.assetId));
+  if (requestedAssetIds.size !== inputs.length) return Promise.reject(failure("RESOURCE_LIMIT", "Dicing analysis asset IDs must be unique"));
   if (inputs.some((input) => !SUPPORTED_SOURCE_TYPES.has(input.mimeType))) {
     return Promise.reject(failure("UNSUPPORTED_MEDIA_TYPE", "Dicing analysis supports inspected PNG, JPEG and WebP sources only"));
   }
@@ -69,13 +110,19 @@ export function analyzeDicingInWorker(
       const response = event.data as {
         readonly id?: number;
         readonly ok?: boolean;
-        readonly report?: LosslessDicingReport;
+        readonly report?: LosslessDicingDiscoveryReport;
         readonly error?: { readonly code?: string; readonly message?: string };
       };
       if (response.id !== id) return;
-      if (response.ok === true && isVerifiedReport(response.report)) {
-        finish(() => resolve(response.report as LosslessDicingReport));
-        return;
+      if (response.ok === true && isVerifiedDiscoveryReport(response.report) && response.report.evaluatedImageCount === inputs.length) {
+        const responseAssetIds = [
+          ...response.report.unassignedAssetIds,
+          ...response.report.candidateGroups.flatMap((group) => group.assetIds)
+        ];
+        if (responseAssetIds.every((assetId) => requestedAssetIds.has(assetId))) {
+          finish(() => resolve(response.report as LosslessDicingDiscoveryReport));
+          return;
+        }
       }
       const code = response.error?.code;
       finish(() => reject(failure(
