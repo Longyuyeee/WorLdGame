@@ -235,6 +235,15 @@ button:disabled {
   box-shadow: 0 0 9px rgb(255 95 114 / 60%);
 }
 
+.save-state.is-buffered {
+  color: #8ee9ff;
+}
+
+.save-state.is-buffered .save-state__dot {
+  background: var(--wg-color-semantic-visual);
+  box-shadow: 0 0 9px rgb(62 215 255 / 60%);
+}
+
 .workspace-grid {
   display: grid;
   width: 100%;
@@ -338,6 +347,16 @@ button:disabled {
 
 .live-badge.is-locked::before {
   background: var(--wg-color-status-error);
+  animation: none;
+}
+
+.live-badge.is-buffered {
+  background: rgb(62 215 255 / 10%);
+  color: #8ee9ff;
+}
+
+.live-badge.is-buffered::before {
+  background: var(--wg-color-semantic-visual);
   animation: none;
 }
 
@@ -587,6 +606,12 @@ textarea,
 
 textarea {
   resize: vertical;
+}
+
+textarea[data-input-state="buffered"],
+textarea[data-input-state="composing"] {
+  border-color: var(--wg-color-semantic-visual);
+  box-shadow: 0 0 0 1px rgb(62 215 255 / 12%);
 }
 
 .readonly-step {

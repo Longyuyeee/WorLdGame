@@ -1,6 +1,6 @@
 {
   "name": "world-studio",
-  "version": "0.0.0-s0.7",
+  "version": "0.0.0-s0.8",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -14,7 +14,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:architecture": "node tools/audit-architecture.mjs",
-    "check": "npm run typecheck && npm run test && npm run build && npm run audit:architecture"
+    "audit:script-performance": "vitest run --config vitest.performance.config.ts",
+    "check": "npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance"
   },
   "engines": {
     "node": ">=22.12.0"

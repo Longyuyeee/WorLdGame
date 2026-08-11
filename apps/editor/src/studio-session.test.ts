@@ -13,7 +13,7 @@ describe("S0.7 studio source projection session", () => {
 
     expect(session.project.scenes).toHaveLength(3);
     expect(session.project.scenes[0]?.title).toBe("放学后的校门");
-    expect(activeSourceDraft(session)).toContain("# S0.7：注释由权威 CST 保留");
+    expect(activeSourceDraft(session)).toContain("# S0.8：注释由权威 CST 保留");
     expect(activeSourceSession(session).revision).toBe(0);
   });
 
@@ -30,7 +30,7 @@ describe("S0.7 studio source projection session", () => {
       "char_xia: 从 Writer 写回权威脚本。 @sid(stmt_gate_001) @id(txt_gate_001)"
     );
     expect(activeSourceSession(edited).committedSource).toContain(
-      "# S0.7：注释由权威 CST 保留"
+      "# S0.8：注释由权威 CST 保留"
     );
     expect(edited.project.scenes[0]?.statements[1]).toEqual(
       expect.objectContaining({ id: "stmt_gate_001", text: "从 Writer 写回权威脚本。" })

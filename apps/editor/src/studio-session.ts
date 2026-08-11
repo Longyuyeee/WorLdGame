@@ -79,7 +79,7 @@ export type StudioAction =
   | { readonly type: "redo" };
 
 export const campusStorySources: Readonly<Record<EntityId, string>> = {
-  scn_school_gate: `# S0.7：注释由权威 CST 保留
+  scn_school_gate: `# S0.8：注释由权威 CST 保留
 scene "放学后的校门" @id(scn_school_gate)
 
 @background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)

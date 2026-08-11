@@ -16,6 +16,7 @@ import {
   type StudioMode,
   type StudioSession
 } from "./studio-session";
+import { TransactionalTextarea } from "./transactional-textarea";
 
 const modeLabels: Record<StudioMode, string> = {
   writer: "Writer",
@@ -63,12 +64,14 @@ interface CommonProps {
 
 interface WorkspaceHeaderProps extends CommonProps {
   readonly mode: StudioMode;
+  readonly inputDirty: boolean;
   readonly onModeChange: (mode: StudioMode) => void;
 }
 
 function WorkspaceHeader({
   mode,
   session,
+  inputDirty,
   onModeChange,
   dispatch
 }: WorkspaceHeaderProps) {
@@ -79,7 +82,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.7</p>
+          <p className="eyebrow">WorLd Studio · S0.8</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -103,7 +106,7 @@ function WorkspaceHeader({
         <button
           className="icon-button"
           aria-label="撤销"
-          disabled={sourceSession.history.length === 0 || pendingDraft}
+          disabled={sourceSession.history.length === 0 || pendingDraft || inputDirty}
           onClick={() => dispatch({ type: "undo" })}
         >
           ↶
@@ -111,14 +114,18 @@ function WorkspaceHeader({
         <button
           className="icon-button"
           aria-label="重做"
-          disabled={sourceSession.future.length === 0 || pendingDraft}
+          disabled={sourceSession.future.length === 0 || pendingDraft || inputDirty}
           onClick={() => dispatch({ type: "redo" })}
         >
           ↷
         </button>
-        <span className={pendingDraft ? "save-state is-draft" : "save-state"}>
+        <span className={pendingDraft ? "save-state is-draft" : inputDirty ? "save-state is-buffered" : "save-state"}>
           <span className="save-state__dot" aria-hidden="true" />
-          {pendingDraft ? "错误草稿 · 未提交" : `本地事务 · r${sourceSession.revision}`}
+          {pendingDraft
+            ? "错误草稿 · 未提交"
+            : inputDirty
+              ? "输入批次 · 未提交"
+              : `本地事务 · r${sourceSession.revision}`}
         </span>
       </div>
     </header>
@@ -164,13 +171,15 @@ function SceneRail({ session, dispatch }: CommonProps) {
 interface WriterViewProps extends CommonProps {
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: "stmt" | "txt") => string;
+  readonly onInputDirtyChange: (dirty: boolean) => void;
 }
 
 function WriterView({
   session,
   dispatch,
   createCommandId,
-  createEntityId
+  createEntityId,
+  onInputDirtyChange
 }: WriterViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -281,17 +290,18 @@ function WriterView({
           <code>{selected.id}</code>
         </div>
         {selected.kind === "dialogue" ? (
-          <textarea
+          <TransactionalTextarea
             id="dialogue-editor"
             value={selected.text}
             rows={4}
             disabled={pendingDraft}
-            onChange={(event) =>
+            onDirtyChange={onInputDirtyChange}
+            onCommit={(text) =>
               dispatch({
                 type: "patch-dialogue",
                 commandId: createCommandId(),
                 statementId: selected.id,
-                text: event.target.value
+                text
               })
             }
           />
@@ -308,9 +318,17 @@ function WriterView({
 
 interface ScriptViewProps extends CommonProps {
   readonly createCommandId: () => string;
+  readonly inputDirty: boolean;
+  readonly onInputDirtyChange: (dirty: boolean) => void;
 }
 
-function ScriptView({ session, dispatch, createCommandId }: ScriptViewProps) {
+function ScriptView({
+  session,
+  dispatch,
+  createCommandId,
+  inputDirty,
+  onInputDirtyChange
+}: ScriptViewProps) {
   const sourceSession = activeSourceSession(session);
   const source = activeSourceDraft(session);
   const diagnostics = session.diagnostics[session.activeSceneId] ?? [];
@@ -323,12 +341,16 @@ function ScriptView({ session, dispatch, createCommandId }: ScriptViewProps) {
           <h2 id="script-heading">文本脚本</h2>
         </div>
         <span className={pendingDraft ? "context-chip context-chip--draft" : "context-chip"}>
-          {pendingDraft ? "草稿隔离中" : `已提交 · r${sourceSession.revision}`}
+          {pendingDraft
+            ? "草稿隔离中"
+            : inputDirty
+              ? "输入批次未提交"
+              : `已提交 · r${sourceSession.revision}`}
         </span>
       </div>
 
       <div className="script-toolbar">
-        <span>WORLD SCRIPT · UTF-8</span>
+        <span>WORLD SCRIPT · UTF-8 · Ctrl/Cmd+S 提交 · Esc 回退</span>
         <div>
           <button
             disabled={pendingDraft}
@@ -345,16 +367,18 @@ function ScriptView({ session, dispatch, createCommandId }: ScriptViewProps) {
           </button>
         </div>
       </div>
-      <textarea
+      <TransactionalTextarea
         className="script-editor"
         aria-label="权威脚本编辑器"
         value={source}
         spellCheck={false}
-        onChange={(event) =>
+        onDirtyChange={onInputDirtyChange}
+        onEscapeWhenClean={pendingDraft ? () => dispatch({ type: "discard-draft" }) : undefined}
+        onCommit={(nextSource) =>
           dispatch({
             type: "edit-script",
             commandId: createCommandId(),
-            source: event.target.value
+            source: nextSource
           })
         }
       />
@@ -424,7 +448,11 @@ function FlowView({ session, dispatch }: CommonProps) {
   );
 }
 
-function PreviewPanel({ session, dispatch }: CommonProps) {
+interface PreviewPanelProps extends CommonProps {
+  readonly inputDirty: boolean;
+}
+
+function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const statement = scene.statements[session.previewIndex];
   if (statement === undefined) throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
@@ -433,11 +461,14 @@ function PreviewPanel({ session, dispatch }: CommonProps) {
     : undefined;
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
+  const showBufferedNotice = inputDirty && session.notice.tone !== "error";
   return (
     <aside className="preview-panel" aria-labelledby="preview-heading">
       <div className="panel-heading">
         <div><p className="eyebrow">LIVE PREVIEW</p><h2 id="preview-heading">即时预览</h2></div>
-        <span className={pendingDraft ? "live-badge is-locked" : "live-badge"}>{pendingDraft ? "LOCKED" : "LIVE"}</span>
+        <span className={pendingDraft ? "live-badge is-locked" : inputDirty ? "live-badge is-buffered" : "live-badge"}>
+          {pendingDraft ? "LOCKED" : inputDirty ? "BUFFER" : "LIVE"}
+        </span>
       </div>
       <div className="stage-preview">
         <div className="stage-chrome"><span>{scene.title}</span><span>16:9 · Balanced</span></div>
@@ -467,9 +498,12 @@ function PreviewPanel({ session, dispatch }: CommonProps) {
         <div><strong>{session.previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
         <button aria-label="下一步" onClick={() => dispatch({ type: "step-preview", direction: 1 })} disabled={session.previewIndex === scene.statements.length - 1}>→</button>
       </div>
-      <div className={`diagnostic-card diagnostic-card--${session.notice.tone}`} aria-live="polite">
-        <span className="diagnostic-icon" aria-hidden="true">{session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
-        <div><strong>{session.notice.title}</strong><p>{session.notice.detail}</p></div>
+      <div className={`diagnostic-card diagnostic-card--${showBufferedNotice ? "draft" : session.notice.tone}`} aria-live="polite">
+        <span className="diagnostic-icon" aria-hidden="true">{showBufferedNotice ? "…" : session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
+        <div>
+          <strong>{showBufferedNotice ? "输入批次尚未提交" : session.notice.title}</strong>
+          <p>{showBufferedNotice ? "Preview 保持最后有效投影；停止输入、失焦或按 Ctrl/Cmd+S 后提交。" : session.notice.detail}</p>
+        </div>
       </div>
       <div className="transaction-strip">
         <span>r{sourceSession.revision}</span><span>semantic {sourceSession.semanticRevision}</span><span>{sourceSession.tombstones.length} tombstone</span>
@@ -487,6 +521,7 @@ function PreviewPanel({ session, dispatch }: CommonProps) {
 export function App() {
   const [session, dispatch] = useReducer(reduceStudioSession, undefined, createStudioSession);
   const [mode, setMode] = useState<StudioMode>("writer");
+  const [inputDirty, setInputDirty] = useState(false);
   const commandSerial = useRef(0);
   const entitySerial = useRef(0);
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
@@ -494,20 +529,20 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <WorkspaceHeader mode={mode} session={session} onModeChange={setMode} dispatch={dispatch} />
+      <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} dispatch={dispatch} />
       <main className="workspace-grid">
         <SceneRail session={session} dispatch={dispatch} />
         {mode === "writer" ? (
-          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} />
+          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} />
         ) : mode === "script" ? (
-          <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} />
+          <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
           <FlowView session={session} dispatch={dispatch} />
         )}
-        <PreviewPanel session={session} dispatch={dispatch} />
+        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>权威脚本事务</span><span className="footer-accent">S0.7 SCRIPT UI PROTOTYPE</span>
+        <span>本地优先</span><span>无账户</span><span>批次事务 · IME 安全</span><span className="footer-accent">S0.8 INPUT HARDENING</span>
       </footer>
     </div>
   );

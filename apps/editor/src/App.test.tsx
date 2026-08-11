@@ -10,14 +10,23 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.7 Script UI prototype", () => {
+describe("WorLd Studio S0.8 input-safe Script UI prototype", () => {
   it("patches Writer dialogue through canonical source and updates Preview", () => {
     render(<App />);
     selectFirstDialogue();
 
-    fireEvent.change(screen.getByLabelText("对白内容"), {
+    const dialogueEditor = screen.getByLabelText("对白内容");
+    fireEvent.change(dialogueEditor, {
       target: { value: "这句修改通过稳定 ID 写回脚本。" }
     });
+
+    expect(screen.getByText("BUFFER")).toBeVisible();
+    expect(
+      within(screen.getByTestId("preview-step")).getByText(
+        "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
+      )
+    ).toBeVisible();
+    fireEvent.blur(dialogueEditor);
 
     expect(
       within(screen.getByTestId("preview-step")).getByText("这句修改通过稳定 ID 写回脚本。")
@@ -44,6 +53,7 @@ describe("WorLd Studio S0.7 Script UI prototype", () => {
         )
       }
     });
+    fireEvent.blur(scriptEditor);
 
     expect(screen.getByText("脚本已原子提交")).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
@@ -67,6 +77,7 @@ describe("WorLd Studio S0.7 Script UI prototype", () => {
         value: source.replace('scene "放学后的校门"', 'scene "放学后的校门')
       }
     });
+    fireEvent.blur(scriptEditor);
 
     expect(screen.getByText("草稿尚未提交")).toBeVisible();
     expect(screen.getByText("LOCKED")).toBeVisible();
@@ -82,8 +93,84 @@ describe("WorLd Studio S0.7 Script UI prototype", () => {
     ).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
-    fireEvent.click(screen.getByRole("button", { name: "丢弃草稿" }));
+    fireEvent.keyDown(screen.getByLabelText("权威脚本编辑器"), { key: "Escape" });
     expect(screen.getByText("错误草稿已丢弃")).toBeVisible();
+    expect(screen.getByText("LIVE")).toBeVisible();
+  });
+
+  it("coalesces rapid Writer input into one source revision", () => {
+    render(<App />);
+    selectFirstDialogue();
+    const editor = screen.getByLabelText("对白内容");
+
+    fireEvent.change(editor, { target: { value: "批" } });
+    fireEvent.change(editor, { target: { value: "批次" } });
+    fireEvent.change(editor, { target: { value: "批次提交" } });
+    expect(screen.getByText("输入批次 · 未提交")).toBeVisible();
+    expect(screen.getByText("BUFFER")).toBeVisible();
+    fireEvent.blur(editor);
+
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(within(screen.getByTestId("preview-step")).getByText("批次提交")).toBeVisible();
+  });
+
+  it("keeps IME composition out of Preview until one final commit", () => {
+    render(<App />);
+    selectFirstDialogue();
+    const editor = screen.getByLabelText("对白内容");
+
+    fireEvent.compositionStart(editor);
+    fireEvent.change(editor, { target: { value: "pin" } });
+    expect(
+      within(screen.getByTestId("preview-step")).getByText(
+        "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
+      )
+    ).toBeVisible();
+    fireEvent.change(editor, { target: { value: "拼音输入完成" } });
+    fireEvent.compositionEnd(editor);
+    fireEvent.blur(editor);
+
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(
+      within(screen.getByTestId("preview-step")).getByText("拼音输入完成")
+    ).toBeVisible();
+  });
+
+  it("commits Script input immediately with Ctrl+S", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    const source = String((scriptEditor as HTMLTextAreaElement).value);
+    fireEvent.change(scriptEditor, {
+      target: {
+        value: source.replace("声音像是从很多年前传过来的。", "快捷键提交成功。")
+      }
+    });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+
+    expect(screen.getByText("脚本已原子提交")).toBeVisible();
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+  });
+
+  it("keeps rejected Writer text buffered and exposes the patch error", () => {
+    render(<App />);
+    selectFirstDialogue();
+    const editor = screen.getByLabelText("对白内容");
+    fireEvent.change(editor, { target: { value: "暂不支持\n多行对白" } });
+    fireEvent.blur(editor);
+
+    expect(screen.getByText("操作未执行")).toBeVisible();
+    expect(screen.getByText(/raw newline/)).toBeVisible();
+    expect(screen.getByText("BUFFER")).toBeVisible();
+    expect(editor).toHaveValue("暂不支持\n多行对白");
+    expect(
+      within(screen.getByTestId("preview-step")).getByText(
+        "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
+      )
+    ).toBeVisible();
+
+    fireEvent.keyDown(editor, { key: "Escape" });
+    expect(editor).toHaveValue("广播站的灯还亮着。你也听见那段没有署名的留言了吗？");
     expect(screen.getByText("LIVE")).toBeVisible();
   });
 
@@ -103,9 +190,11 @@ describe("WorLd Studio S0.7 Script UI prototype", () => {
   it("undoes and redoes source transactions from the workspace header", () => {
     render(<App />);
     selectFirstDialogue();
-    fireEvent.change(screen.getByLabelText("对白内容"), {
+    const undoEditor = screen.getByLabelText("对白内容");
+    fireEvent.change(undoEditor, {
       target: { value: "可撤销的新对白。" }
     });
+    fireEvent.blur(undoEditor);
     fireEvent.click(screen.getByRole("button", { name: "撤销" }));
     expect(screen.getByLabelText("对白内容")).toHaveValue(
       "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
