@@ -1,6 +1,6 @@
 # S0.13 项目格式迁移、未知字段保留与未来版本只读审计
 
-> 状态：实现、故障注入、干净安装、真实浏览器与移动视口审计通过；远端证据待本次提交推送后回读
+> 状态：实现、故障注入、干净安装、真实浏览器、移动视口、推送与 Draft PR 远端回读均通过
 > 日期：2026-08-11
 > 范围：项目文本元数据 schema 0 → 1；不冒充 Windows/Android 原生文件迁移或完整 M1 数据安全完成
 
@@ -101,3 +101,11 @@ Studio Session 保存时引用最后一次持久化快照，把项目级与 scen
 - 2 小时 soak、低端 Android、大型商业项目迁移基准与正式支持矩阵。
 
 这些缺口继续阻断“完整 M1 商业级数据安全已经完成”的声明。
+
+## 9. 远端证据
+
+- 实现提交 `451d88da61b7a2b6d79ea0864649c419e89d7c25` 已推送到 `origin/agent/visual-production-bar`；
+- 既有 Draft PR #1 保持 Draft，没有创建重复 PR；
+- PR 标题更新为 `Add safe schema migration and future-version read-only recovery`；
+- REST API 回读确认 PR head 与实现提交一致，正文仍包含 S0.1 累计索引、完整 S0.13 标题、`116/116` 与“全局 M1 阻断项”；
+- PR 更新期间一次 PATCH 遇到 TLS handshake timeout，重试后成功；最终回读正文长度为 3,167 字符，没有把网络失败误报为完成。
