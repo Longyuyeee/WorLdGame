@@ -1,6 +1,6 @@
 {
   "name": "world-studio",
-  "version": "0.0.0-s0.1",
+  "version": "0.0.0-s0.2",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
-    "build": "npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/editor",
+    "build": "npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/editor",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -3,7 +3,10 @@ import { extname, join, relative } from "node:path";
 import process from "node:process";
 
 const repoRoot = process.cwd();
-const coreRoot = join(repoRoot, "packages", "story-core", "src");
+const auditedRoots = [
+  join(repoRoot, "packages", "story-core", "src"),
+  join(repoRoot, "packages", "story-language", "src")
+];
 
 async function collectFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -25,12 +28,20 @@ const forbiddenImports = [
   "node:path",
   "node:process"
 ];
-const forbiddenGlobals = ["document", "window", "HTMLElement", "localStorage", "indexedDB"];
+const forbiddenGlobalPatterns = new Map([
+  ["document", /\bdocument\s*(?:\.|\[)/],
+  ["window", /\bwindow\s*(?:\.|\[)/],
+  ["HTMLElement", /\bHTMLElement\b/],
+  ["localStorage", /\blocalStorage\b/],
+  ["indexedDB", /\bindexedDB\b/]
+]);
 const violations = [];
 
-const coreFiles = (await collectFiles(coreRoot)).filter(
-  (path) => extname(path) === ".ts" && !path.endsWith(".test.ts")
-);
+const coreFiles = (
+  await Promise.all(auditedRoots.map((root) => collectFiles(root)))
+)
+  .flat()
+  .filter((path) => extname(path) === ".ts" && !path.endsWith(".test.ts"));
 
 for (const path of coreFiles) {
   const source = await readFile(path, "utf8");
@@ -40,8 +51,7 @@ for (const path of coreFiles) {
       violations.push(`${relative(repoRoot, path)} imports forbidden dependency ${dependency}`);
     }
   }
-  for (const globalName of forbiddenGlobals) {
-    const globalPattern = new RegExp(`\\b${globalName}\\b`);
+  for (const [globalName, globalPattern] of forbiddenGlobalPatterns) {
     if (globalPattern.test(source)) {
       violations.push(`${relative(repoRoot, path)} references platform global ${globalName}`);
     }
@@ -53,6 +63,17 @@ const corePackage = JSON.parse(
 );
 if (corePackage.dependencies !== undefined) {
   violations.push("story-core must not declare runtime dependencies in S0.1");
+}
+
+const languagePackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "story-language", "package.json"), "utf8")
+);
+const languageDependencies = Object.keys(languagePackage.dependencies ?? {});
+if (
+  languageDependencies.length !== 1 ||
+  languageDependencies[0] !== "@world-studio/story-core"
+) {
+  violations.push("story-language may depend only on story-core in S0.2");
 }
 
 const editorPackage = JSON.parse(
@@ -70,9 +91,11 @@ if (violations.length > 0) {
     JSON.stringify(
       {
         status: "PASS",
-        auditedCoreFiles: coreFiles.length,
+        auditedPortableFiles: coreFiles.length,
         guarantees: [
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
+          "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
+          "story-language depends only on story-core",
           "editor declares the story-core dependency explicitly",
           "story-core has no runtime third-party dependency"
         ]

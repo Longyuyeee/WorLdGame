@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/story-core" },
+    { "path": "./packages/story-language" },
     { "path": "./apps/editor" }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "name": "@world-studio/story-language",
+  "version": "0.0.0-s0.2",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@world-studio/story-core": "0.0.0-s0.1"
+  }
+}
