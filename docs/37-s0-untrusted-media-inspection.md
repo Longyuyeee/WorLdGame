@@ -1,6 +1,6 @@
 # S0.18 不可信媒体 Inspection Gate 审计
 
-> 状态：需求、威胁模型、实现、故障测试、干净安装、性能与真实浏览器均通过；等待提交、推送和远端证据回读
+> 状态：需求、威胁模型、实现、故障测试、干净安装、性能、真实浏览器与远端证据回读均通过
 > 日期：2026-08-11
 > 范围：Web 导入事务之前的媒体结构检查；不冒充完整解码器、杀毒引擎、媒体转码、Android 后台导入或 Dicing 已完成
 
@@ -195,4 +195,8 @@ S0.19 建议实现 Source/Derivative 谱系与可恢复资源生命周期：原�
 
 本地测试文件已删除。独立 5174 测试 origin 保留一条 118 B S0.18 检查资源用于刷新恢复证据；常用 5173 origin 的两个 S0.17 条目不会被迁移冒充通过，而会显示 `LEGACY · 未检查`。
 
-实现提交、Draft PR head/正文与最终 REST 远端回读将在推送后补充。
+- 实现提交：`497ef276e9474463f889a24086cad07725f3903b`（`Add untrusted media inspection gate`）；
+- 分支：`agent/visual-production-bar` 已推送到 `origin`；
+- Draft PR：[#1 Add untrusted media inspection and atomic asset safety](https://github.com/Longyuyeee/WorLdGame/pull/1)；
+- GitHub REST 回读：PR `open`、`draft=true`、head 精确等于实现提交；正文包含 S0.18、179/179、全局 M1 阻断项与 S0.19；
+- 最终证据提交将在本节回填后再次推送，并执行 local/origin/PR 三方 SHA 回读。
