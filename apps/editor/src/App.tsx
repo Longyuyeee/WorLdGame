@@ -38,7 +38,7 @@ import {
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
-import { createBrowserWriterLeaseOwnerId } from "./writer-lease-owner";
+import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import {
   WEB_ASSET_IMPORT_MAX_BYTES,
@@ -46,6 +46,7 @@ import {
   inferAssetKind,
   readAssetFile
 } from "./asset-file-import";
+import { inspectAssetBytes, mediaInspectionToJson } from "./media-inspection-client";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -74,7 +75,7 @@ type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "con
 type AssetVaultStatus = "loading" | "unavailable" | "ready" | "importing" |
   "success" | "cancelled" | "error";
 
-type AssetImportPhase = "idle" | "reading" | "committing" | "success" | "cancelled" | "error";
+type AssetImportPhase = "idle" | "reading" | "inspecting" | "committing" | "success" | "cancelled" | "error";
 
 interface AssetImportViewState {
   readonly phase: AssetImportPhase;
@@ -86,7 +87,7 @@ interface AssetImportViewState {
 const IDLE_ASSET_IMPORT: AssetImportViewState = {
   phase: "idle",
   progress: 0,
-  detail: "选择本机文件后，先读取完整字节并校验容量，再原子发布 Blob 与 Asset Index。"
+  detail: "选择本机文件后，先在隔离检查边界验证签名与媒体预算，再原子发布 Blob 与 Asset Index。"
 };
 
 const WRITER_LEASE_TTL_MS = 12_000;
@@ -200,7 +201,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.17</p>
+          <p className="eyebrow">WorLd Studio · S0.18</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -311,10 +312,10 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.17 WEB IMPORT</small></span>
+            <span><strong>资源保险库</strong><small>S0.18 INSPECTION GATE</small></span>
           </div>
           <div className="asset-vault-card__rules">
-            <span>SHA-256</span><span>同内容去重</span><span>源 Blob 只读</span>
+            <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
           </div>
           <p>{assetStatus === "ready" || assetStatus === "success" || assetStatus === "cancelled"
             ? `${assetIndex.assets.length} 项资源 · Index r${assetIndex.indexRevision} · 点击管理`
@@ -342,7 +343,11 @@ function formatBytes(bytes: number): string {
 }
 
 export function assetImportErrorLabel(errorCode: string | undefined): string {
-  if (errorCode === "RESOURCE_LIMIT") return "文件超过 Web 导入上限";
+  if (errorCode === "RESOURCE_LIMIT") return "媒体超过安全预算";
+  if (errorCode === "UNSAFE_MEDIA") return "媒体结构不安全或已损坏";
+  if (errorCode === "UNSUPPORTED_MEDIA_TYPE") return "暂不支持此媒体格式";
+  if (errorCode === "MIME_MISMATCH") return "文件声明与真实内容不一致";
+  if (errorCode === "INSPECTION_UNAVAILABLE") return "媒体检查服务暂不可用";
   if (errorCode === "NO_SPACE") return "本机资源空间不足";
   if (errorCode === "PERMISSION_DENIED") return "无法读取或保存该文件";
   if (errorCode === "LEASE_REQUIRED" || errorCode === "LEASE_LOST") return "资源写入权已失效";
@@ -351,6 +356,18 @@ export function assetImportErrorLabel(errorCode: string | undefined): string {
   if (errorCode === "CANCELLED") return "导入已取消";
   if (errorCode === "UNAVAILABLE") return "本地资源存储不可用";
   return "资源导入失败";
+}
+
+function assetInspectionLabel(entry: AssetIndex["assets"][number]): string {
+  const value = entry.preservedFields?.inspection;
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return "LEGACY · 未检查";
+  const inspection = value as Record<string, unknown>;
+  if (inspection.status !== "pass" || typeof inspection.format !== "string") return "UNKNOWN · 检查记录异常";
+  const dimensions = typeof inspection.width === "number" && typeof inspection.height === "number"
+    ? ` · ${inspection.width}×${inspection.height}`
+    : "";
+  const isolation = inspection.isolation === "svg-quarantine" ? " · 隔离" : "";
+  return `PASS · ${inspection.format}${dimensions}${isolation}`;
 }
 
 interface AssetVaultDialogProps {
@@ -409,7 +426,7 @@ function AssetVaultDialog({
           </div>
         </div>
         <p className="asset-dialog__intro">
-          Web 原型单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。源文件按 SHA-256 去重；Blob 与 Index 在同一 writer-fenced 事务中提交。
+          单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。Worker 检查真实签名、尺寸、时长与危险 SVG；通过后 Blob 与 Index 才在同一 fenced 事务中提交。
         </p>
 
         <form className="asset-import-form" onSubmit={submit}>
@@ -436,6 +453,7 @@ function AssetVaultDialog({
           {selectedExisting !== undefined && <p className="asset-replace-notice">将更新稳定 ID <code>{assetId}</code> 的源内容；旧 Blob 保持不可变并进入孤儿审计。</p>}
           <div className={`asset-import-status asset-import-status--${importState.phase}`} aria-live="polite">
             <div><strong>{importState.phase === "reading" ? "正在读取文件"
+              : importState.phase === "inspecting" ? "正在执行媒体安全检查"
               : importState.phase === "committing" ? "正在校验并原子提交"
                 : importState.phase === "success" ? "资源导入完成"
                   : importState.phase === "cancelled" ? "导入已取消"
@@ -457,7 +475,7 @@ function AssetVaultDialog({
             <article className="asset-item" key={entry.assetId}>
               <span className={`asset-item__kind asset-item__kind--${entry.kind}`}>{entry.kind.toUpperCase()}</span>
               <div><strong>{entry.displayName}</strong><code>{entry.assetId}</code></div>
-              <div><span>{formatBytes(entry.source.byteLength)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
+              <div><span>{formatBytes(entry.source.byteLength)} · {assetInspectionLabel(entry)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
             </article>
           ))}
         </div>
@@ -1234,6 +1252,7 @@ export function App() {
 
     const releaseOnPageHide = (event: PageTransitionEvent) => {
       const activeLease = leaseRef.current;
+      if (!event.persisted && activeLease !== null) markBrowserWriterLeaseOwnerHandoff(activeLease.ownerId);
       store.activateWriterLease(null);
       assetRepository.activateWriterLease(null);
       if (storeRef.current === store) storeRef.current = null;
@@ -1455,11 +1474,22 @@ export function App() {
         detail: `已读取 ${formatBytes(progress.loadedBytes)} / ${formatBytes(progress.totalBytes)}`
       })
     }).then(async (bytes) => {
-      setAssetImportState({ phase: "committing", progress: 0.82, detail: "正在计算 SHA-256 并核对 Asset Index revision…" });
+      const declaredMimeType = (file.type || "application/octet-stream").toLowerCase();
+      setAssetImportState({ phase: "inspecting", progress: 0.8, detail: "正在隔离 Worker 中核对文件签名、结构与媒体预算…" });
+      const inspected = await inspectAssetBytes(bytes, declaredMimeType, metadata.kind, controller.signal);
+      setAssetImportState({
+        phase: "committing",
+        progress: 0.88,
+        detail: `${inspected.report.format} 检查通过${inspected.report.isolation === "svg-quarantine" ? "（保持 SVG 隔离）" : ""}；正在计算 SHA-256…`
+      });
       const result = await repository.importAsset({
         ...metadata,
-        mimeType: (file.type || "application/octet-stream").toLowerCase(),
-        bytes
+        mimeType: inspected.report.detectedMimeType,
+        bytes: inspected.bytes,
+        preservedFields: {
+          ...(metadata.preservedFields ?? {}),
+          inspection: mediaInspectionToJson(inspected.report)
+        }
       }, {
         expectedIndexRevision: assetIndexRef.current.indexRevision,
         maxBytes: WEB_ASSET_IMPORT_MAX_BYTES,
@@ -1478,15 +1508,15 @@ export function App() {
         phase: "success",
         progress: 1,
         detail: result.blobStatus === "existing"
-          ? `已复用相同 SHA-256 Blob；${result.entry.assetId} 已写入 Index r${result.index.indexRevision}。`
-          : `新 Blob 与 ${result.entry.assetId} 已原子写入 Index r${result.index.indexRevision}。`
+          ? `媒体检查通过并复用相同 SHA-256 Blob；${result.entry.assetId} 已写入 Index r${result.index.indexRevision}。`
+          : `媒体检查通过；新 Blob 与 ${result.entry.assetId} 已原子写入 Index r${result.index.indexRevision}。`
       });
     }).catch((error: unknown) => {
       const code = error instanceof AssetBlobError ? error.code : undefined;
       const wasCancelled = code === "CANCELLED" || controller.signal.aborted;
       const fatal = code === "LEASE_REQUIRED" || code === "LEASE_LOST" ||
         code === "CORRUPT_BLOB" || code === "UNSUPPORTED_INDEX_SCHEMA" ||
-        code === "UNAVAILABLE" || code === "IO_FAILURE";
+        code === "UNAVAILABLE" || code === "IO_FAILURE" || code === "INSPECTION_UNAVAILABLE";
       setAssetStatus(wasCancelled ? "cancelled" : fatal ? "error" : "ready");
       setAssetImportState({
         phase: wasCancelled ? "cancelled" : "error",
@@ -1587,7 +1617,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.17 ATOMIC WEB ASSET IMPORT</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.18 UNTRUSTED MEDIA GATE</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

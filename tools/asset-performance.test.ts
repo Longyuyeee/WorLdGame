@@ -2,6 +2,7 @@ import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
 import {
   createBlobDigest,
+  inspectUntrustedMedia,
   parseAssetIndex,
   serializeAssetIndex,
   type AssetIndex
@@ -9,15 +10,23 @@ import {
 
 const HASH_BYTES = 16 * 1024 * 1024;
 const INDEX_ENTRIES = 2_000;
+const MP3_FRAME_BYTES = 417;
+const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.17 asset import performance gate", () => {
-  it("hashes a production-sized source chunk and round-trips a large index within budget", () => {
+describe("S0.18 inspected asset import performance gate", () => {
+  it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;
 
     const hashStart = performance.now();
     const digest = createBlobDigest(bytes);
     const hashMs = performance.now() - hashStart;
+
+    const mp3 = new Uint8Array(MP3_FRAMES * MP3_FRAME_BYTES);
+    for (let frame = 0; frame < MP3_FRAMES; frame++) mp3.set([0xff, 0xfb, 0x90, 0], frame * MP3_FRAME_BYTES);
+    const inspectionStart = performance.now();
+    const inspection = inspectUntrustedMedia(mp3, "audio/mpeg", "audio");
+    const inspectionMs = performance.now() - inspectionStart;
 
     const assetIndex: AssetIndex = {
       schemaVersion: 1,
@@ -34,23 +43,26 @@ describe("S0.17 asset import performance gate", () => {
     const serialized = serializeAssetIndex(assetIndex);
     const parsed = parseAssetIndex(serialized);
     const indexRoundtripMs = performance.now() - indexStart;
-    const totalMs = hashMs + indexRoundtripMs;
+    const totalMs = inspectionMs + hashMs + indexRoundtripMs;
 
     console.log(JSON.stringify({
       status: "PASS",
-      baseline: { hashBytes: HASH_BYTES, indexEntries: INDEX_ENTRIES, serializedBytes: serialized.length },
+      baseline: { inspectionBytes: mp3.byteLength, hashBytes: HASH_BYTES, indexEntries: INDEX_ENTRIES, serializedBytes: serialized.length },
       measurementsMs: {
+        mediaInspection: Number(inspectionMs.toFixed(2)),
         sha256: Number(hashMs.toFixed(2)),
         indexRoundtrip: Number(indexRoundtripMs.toFixed(2)),
         total: Number(totalMs.toFixed(2))
       },
-      budgetsMs: { sha256Ms: 5_000, indexRoundtripMs: 2_000, totalMs: 7_000 }
+      budgetsMs: { mediaInspectionMs: 3_000, sha256Ms: 5_000, indexRoundtripMs: 2_000, totalMs: 10_000 }
     }, null, 2));
 
     expect(digest).toMatch(/^sha256:[a-f0-9]{64}$/);
+    expect(inspection).toMatchObject({ format: "MP3", sampleRate: 44_100, channels: 2 });
     expect(parsed.assets).toHaveLength(INDEX_ENTRIES);
+    expect(inspectionMs).toBeLessThan(3_000);
     expect(hashMs).toBeLessThan(5_000);
     expect(indexRoundtripMs).toBeLessThan(2_000);
-    expect(totalMs).toBeLessThan(7_000);
+    expect(totalMs).toBeLessThan(10_000);
   });
 });

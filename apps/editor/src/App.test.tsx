@@ -11,14 +11,14 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.17 Atomic Web asset import UI prototype", () => {
+describe("WorLd Studio S0.18 untrusted media inspection UI prototype", () => {
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });
     expect(within(vault).getByText("资源保险库")).toBeVisible();
-    expect(within(vault).getByText("SHA-256")).toBeVisible();
-    expect(within(vault).getByText("同内容去重")).toBeVisible();
-    expect(within(vault).getByText("源 Blob 只读")).toBeVisible();
+    expect(within(vault).getByText("签名验证")).toBeVisible();
+    expect(within(vault).getByText("预算闸门")).toBeVisible();
+    expect(within(vault).getByText("SHA-256 去重")).toBeVisible();
     expect(within(vault).getByText(/本机资源存储不可用/)).toBeVisible();
     fireEvent.click(vault);
     expect(screen.getByRole("heading", { name: "资源保险库" })).toBeVisible();
