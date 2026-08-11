@@ -1,4 +1,5 @@
-import { useMemo, useReducer, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties } from "react";
+import { loadProject, saveProject, type ProjectFileStore } from "@world-studio/project-persistence";
 import {
   deriveRouteGraph,
   findScene,
@@ -9,14 +10,25 @@ import {
 import {
   activeSourceDraft,
   activeSourceSession,
+  createProjectSnapshot,
   createStudioSession,
   hasPendingDraft,
   reduceStudioSession,
+  restoreStudioSession,
   type StudioAction,
   type StudioMode,
   type StudioSession
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
+import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+
+type PersistenceStatus = "loading" | "unavailable" | "unsaved" | "dirty" | "saving" | "saved" | "restored" | "error";
+
+interface PersistenceViewState {
+  readonly status: PersistenceStatus;
+  readonly revision: number;
+  readonly detail?: string;
+}
 
 const modeLabels: Record<StudioMode, string> = {
   writer: "Writer",
@@ -66,6 +78,8 @@ interface WorkspaceHeaderProps extends CommonProps {
   readonly mode: StudioMode;
   readonly inputDirty: boolean;
   readonly onModeChange: (mode: StudioMode) => void;
+  readonly persistence: PersistenceViewState;
+  readonly onSave: () => void;
 }
 
 function WorkspaceHeader({
@@ -73,6 +87,8 @@ function WorkspaceHeader({
   session,
   inputDirty,
   onModeChange,
+  persistence,
+  onSave,
   dispatch
 }: WorkspaceHeaderProps) {
   const sourceSession = activeSourceSession(session);
@@ -82,7 +98,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.8</p>
+          <p className="eyebrow">WorLd Studio · S0.9</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -127,6 +143,20 @@ function WorkspaceHeader({
               ? "输入批次 · 未提交"
               : `本地事务 · r${sourceSession.revision}`}
         </span>
+        <button
+          className={`local-save-button local-save-button--${persistence.status}`}
+          disabled={inputDirty || persistence.status === "loading" || persistence.status === "saving" || persistence.status === "unavailable"}
+          onClick={onSave}
+          title={persistence.detail ?? "保存项目快照到本机"}
+        >
+          {persistence.status === "loading" ? "正在恢复"
+            : persistence.status === "unavailable" ? "存储不可用"
+              : persistence.status === "saving" ? "保存中…"
+                : persistence.status === "saved" ? `已保存 · s${persistence.revision}`
+                  : persistence.status === "restored" ? `已恢复 · s${persistence.revision}`
+                    : persistence.status === "error" ? "保存失败"
+                      : "保存到本机"}
+        </button>
       </div>
     </header>
   );
@@ -519,17 +549,94 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
 }
 
 export function App() {
-  const [session, dispatch] = useReducer(reduceStudioSession, undefined, createStudioSession);
+  const [session, baseDispatch] = useReducer(reduceStudioSession, undefined, createStudioSession);
   const [mode, setMode] = useState<StudioMode>("writer");
   const [inputDirty, setInputDirty] = useState(false);
+  const storageAvailable = typeof globalThis.indexedDB !== "undefined";
+  const [persistence, setPersistence] = useState<PersistenceViewState>(() =>
+    storageAvailable ? { status: "loading", revision: 0 } : { status: "unavailable", revision: 0 }
+  );
+  const storeRef = useRef<ProjectFileStore | null>(null);
+  const storageRevision = useRef(0);
+  const saveSerial = useRef(0);
   const commandSerial = useRef(0);
   const entitySerial = useRef(0);
+  const dispatch = (action: StudioAction) => {
+    baseDispatch(action);
+    if ([
+      "edit-script", "patch-dialogue", "insert-dialogue", "delete-dialogue",
+      "move-dialogue", "format-script", "discard-draft", "undo", "redo"
+    ].includes(action.type)) {
+      setPersistence((current) => current.status === "unavailable"
+        ? current
+        : { status: "dirty", revision: current.revision });
+    }
+  };
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
   const createEntityId = (prefix: "stmt" | "txt") => `${prefix}_ui_${++entitySerial.current}`;
 
+  useEffect(() => {
+    if (!storageAvailable) return;
+    let cancelled = false;
+    const store = new IndexedDbProjectFileStore(globalThis.indexedDB, "prj_twilight_broadcast");
+    storeRef.current = store;
+    void loadProject(store).then((snapshot) => {
+      if (cancelled) return;
+      if (snapshot === null) {
+        setPersistence({ status: "unsaved", revision: 0 });
+        return;
+      }
+      const restored = restoreStudioSession(snapshot);
+      storageRevision.current = snapshot.storageRevision;
+      baseDispatch({ type: "restore-session", session: restored });
+      setPersistence({ status: "restored", revision: snapshot.storageRevision });
+    }).catch((error: unknown) => {
+      if (cancelled) return;
+      setPersistence({
+        status: "error",
+        revision: storageRevision.current,
+        detail: error instanceof Error ? error.message : "本地项目恢复失败"
+      });
+    });
+    return () => { cancelled = true; };
+  }, [storageAvailable]);
+
+  const saveToLocal = () => {
+    const store = storeRef.current;
+    if (store === null || inputDirty || persistence.status === "saving") return;
+    const nextRevision = storageRevision.current + 1;
+    const snapshot = createProjectSnapshot(session, nextRevision);
+    const transactionId = `save_${nextRevision}_${++saveSerial.current}`;
+    setPersistence({ status: "saving", revision: storageRevision.current });
+    void saveProject(store, snapshot, {
+      transactionId,
+      expectedStorageRevision: storageRevision.current
+    }).then(() => {
+      storageRevision.current = nextRevision;
+      setPersistence({ status: "saved", revision: nextRevision });
+    }).catch((error: unknown) => {
+      setPersistence({
+        status: "error",
+        revision: storageRevision.current,
+        detail: error instanceof Error ? error.message : "保存失败"
+      });
+    });
+  };
+
+  if (persistence.status === "loading") {
+    return (
+      <div className="startup-gate" role="status" aria-live="polite">
+        <span className="startup-gate__orb" aria-hidden="true" />
+        <p className="eyebrow">LOCAL-FIRST RECOVERY</p>
+        <h1>正在校验本地项目…</h1>
+        <p>检查 WAL 与 SHA-256 完整性后再开放编辑。</p>
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell">
-      <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} dispatch={dispatch} />
+      <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} persistence={persistence} onSave={saveToLocal} dispatch={dispatch} />
       <main className="workspace-grid">
         <SceneRail session={session} dispatch={dispatch} />
         {mode === "writer" ? (
@@ -542,7 +649,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>批次事务 · IME 安全</span><span className="footer-accent">S0.8 INPUT HARDENING</span>
+        <span>本地优先</span><span>无账户</span><span>WAL · SHA-256</span><span className="footer-accent">S0.9 LOCAL RECOVERY</span>
       </footer>
     </div>
   );

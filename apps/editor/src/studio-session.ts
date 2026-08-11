@@ -13,8 +13,10 @@ import {
   parseStory,
   projectStoryScene,
   reduceScriptSourceSession,
+  restoreScriptSourceSession,
   type ScriptSourceSession
 } from "@world-studio/story-language";
+import type { ProjectSnapshot } from "@world-studio/project-persistence";
 
 export type StudioMode = "writer" | "script" | "flow";
 
@@ -76,7 +78,8 @@ export type StudioAction =
   | { readonly type: "format-script"; readonly commandId: EntityId }
   | { readonly type: "discard-draft" }
   | { readonly type: "undo" }
-  | { readonly type: "redo" };
+  | { readonly type: "redo" }
+  | { readonly type: "restore-session"; readonly session: StudioSession };
 
 export const campusStorySources: Readonly<Record<EntityId, string>> = {
   scn_school_gate: `# S0.8：注释由权威 CST 保留
@@ -164,6 +167,73 @@ export function createStudioSession(): StudioSession {
       tone: "success",
       title: "三视图已连接",
       detail: "Script、Writer 与 Preview 正在读取同一份权威脚本事务。"
+    }
+  };
+}
+
+export function createProjectSnapshot(
+  session: StudioSession,
+  storageRevision: number
+): ProjectSnapshot {
+  return {
+    schemaVersion: 0,
+    projectId: session.project.id,
+    title: session.project.title,
+    entrySceneId: session.project.entrySceneId,
+    storageRevision,
+    scenes: session.project.scenes.map((scene) => {
+      const sourceSession = session.sourceSessions[scene.id];
+      if (sourceSession === undefined) throw new Error(`Missing source state: ${scene.id}`);
+      return {
+        sceneId: scene.id,
+        sourceRevision: sourceSession.revision,
+        semanticRevision: sourceSession.semanticRevision,
+        committedSource: sourceSession.committedSource,
+        draftSource: session.sourceDrafts[scene.id] ?? sourceSession.draftSource,
+        tombstones: sourceSession.tombstones
+      };
+    })
+  };
+}
+
+export function restoreStudioSession(snapshot: ProjectSnapshot): StudioSession {
+  if (snapshot.projectId !== campusStoryProject.id || snapshot.title !== campusStoryProject.title ||
+      snapshot.entrySceneId !== campusStoryProject.entrySceneId ||
+      snapshot.scenes.length !== campusStoryProject.scenes.length) {
+    throw new Error("Stored snapshot does not match the current prototype project");
+  }
+  const sourceSessions = Object.fromEntries(campusStoryProject.scenes.map((scene) => {
+    const persisted = snapshot.scenes.find((item) => item.sceneId === scene.id);
+    if (persisted === undefined) throw new Error(`Stored scene is missing: ${scene.id}`);
+    return [scene.id, restoreScriptSourceSession({
+      committedSource: persisted.committedSource,
+      draftSource: persisted.draftSource,
+      revision: persisted.sourceRevision,
+      semanticRevision: persisted.semanticRevision,
+      tombstones: persisted.tombstones
+    })];
+  }));
+  const project = buildProject(sourceSessions);
+  const entry = findScene(project, project.entrySceneId);
+  const sourceDrafts = Object.fromEntries(snapshot.scenes.map((scene) => [
+    scene.sceneId,
+    scene.draftSource
+  ]));
+  return {
+    project,
+    sourceSessions,
+    sourceDrafts,
+    diagnostics: Object.fromEntries(snapshot.scenes.map((scene) => [
+      scene.sceneId,
+      draftDiagnostics(scene.draftSource)
+    ])),
+    activeSceneId: entry.id,
+    selectedStatementId: firstStatementId(entry),
+    previewIndex: 0,
+    notice: {
+      tone: "success",
+      title: "本地项目已恢复",
+      detail: `已校验并恢复 storage revision ${snapshot.storageRevision}；撤销历史从本次会话重新开始。`
     }
   };
 }
@@ -405,6 +475,8 @@ export function reduceStudioSession(
 ): StudioSession {
   const currentSourceSession = activeSourceSession(session);
   switch (action.type) {
+    case "restore-session":
+      return action.session;
     case "select-scene": {
       const scene = findScene(session.project, action.sceneId);
       const targetSourceSession = session.sourceSessions[scene.id];

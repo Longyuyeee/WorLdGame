@@ -5,7 +5,8 @@ import process from "node:process";
 const repoRoot = process.cwd();
 const auditedRoots = [
   join(repoRoot, "packages", "story-core", "src"),
-  join(repoRoot, "packages", "story-language", "src")
+  join(repoRoot, "packages", "story-language", "src"),
+  join(repoRoot, "packages", "project-persistence", "src")
 ];
 
 async function collectFiles(directory) {
@@ -76,6 +77,13 @@ if (
   violations.push("story-language may depend only on story-core in S0.3");
 }
 
+const persistencePackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "project-persistence", "package.json"), "utf8")
+);
+if (persistencePackage.dependencies !== undefined) {
+  violations.push("project-persistence must not declare runtime dependencies in S0.9");
+}
+
 const editorPackage = JSON.parse(
   await readFile(join(repoRoot, "apps", "editor", "package.json"), "utf8")
 );
@@ -84,6 +92,9 @@ if (editorPackage.dependencies?.["@world-studio/story-core"] === undefined) {
 }
 if (editorPackage.dependencies?.["@world-studio/story-language"] === undefined) {
   violations.push("editor must declare its story-language boundary explicitly");
+}
+if (editorPackage.dependencies?.["@world-studio/project-persistence"] === undefined) {
+  violations.push("editor must declare its project-persistence boundary explicitly");
 }
 
 if (violations.length > 0) {
@@ -99,8 +110,10 @@ if (violations.length > 0) {
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
+          "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "editor declares the story-core dependency explicitly",
           "editor declares the story-language dependency explicitly",
+          "editor declares the project-persistence dependency explicitly",
           "story-core has no runtime third-party dependency"
         ]
       },

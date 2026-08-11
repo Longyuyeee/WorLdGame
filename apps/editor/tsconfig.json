@@ -9,5 +9,9 @@
     "types": ["vite/client", "vitest/globals"]
   },
   "include": ["src"],
-  "references": [{ "path": "../../packages/story-core" }]
+  "references": [
+    { "path": "../../packages/story-core" },
+    { "path": "../../packages/story-language" },
+    { "path": "../../packages/project-persistence" }
+  ]
 }

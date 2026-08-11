@@ -180,6 +180,69 @@ h2 {
   gap: 8px;
 }
 
+.local-save-button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgb(139 124 255 / 32%);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgb(139 124 255 / 20%), rgb(62 215 255 / 10%));
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: transform var(--wg-motion-duration-fast) ease, border-color var(--wg-motion-duration-standard) ease;
+}
+
+.local-save-button:hover:not(:disabled) {
+  border-color: rgb(62 215 255 / 52%);
+  transform: translateY(-1px);
+}
+
+.local-save-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.local-save-button--saved,
+.local-save-button--restored {
+  border-color: rgb(85 217 138 / 38%);
+  background: rgb(85 217 138 / 10%);
+}
+
+.local-save-button--error {
+  border-color: rgb(255 98 165 / 46%);
+  background: rgb(255 98 165 / 10%);
+}
+
+.startup-gate {
+  display: grid;
+  min-height: 100vh;
+  place-content: center;
+  justify-items: center;
+  background: radial-gradient(circle, rgb(139 124 255 / 18%), transparent 25rem), var(--wg-color-bg-canvas);
+  color: var(--wg-color-text-primary);
+  text-align: center;
+}
+
+.startup-gate > p:last-child {
+  color: var(--wg-color-text-secondary);
+  font-size: 12px;
+}
+
+.startup-gate__orb {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 18px;
+  border: 3px solid rgb(139 124 255 / 18%);
+  border-top-color: #8b7cff;
+  border-radius: 50%;
+  animation: startup-spin 800ms linear infinite;
+}
+
+@keyframes startup-spin {
+  to { transform: rotate(360deg); }
+}
+
 .icon-button,
 .preview-transport button {
   display: grid;

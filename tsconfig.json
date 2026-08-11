@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/story-core" },
     { "path": "./packages/story-language" },
+    { "path": "./packages/project-persistence" },
     { "path": "./apps/editor" }
   ]
 }

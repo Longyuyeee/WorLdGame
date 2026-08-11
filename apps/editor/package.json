@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/editor",
-  "version": "0.0.0-s0.8",
+  "version": "0.0.0-s0.9",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,8 +8,9 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@world-studio/project-persistence": "0.0.0-s0.9",
     "@world-studio/story-core": "0.0.0-s0.1",
-    "@world-studio/story-language": "0.0.0-s0.6",
+    "@world-studio/story-language": "0.0.0-s0.9",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   }

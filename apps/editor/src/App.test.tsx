@@ -10,7 +10,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.8 input-safe Script UI prototype", () => {
+describe("WorLd Studio S0.9 local-recovery Script UI prototype", () => {
   it("patches Writer dialogue through canonical source and updates Preview", () => {
     render(<App />);
     selectFirstDialogue();

@@ -153,6 +153,23 @@ export class InvalidInitialScriptError extends Error {
   }
 }
 
+export interface RestoredScriptSourceState {
+  readonly committedSource: string;
+  readonly draftSource: string;
+  readonly revision: number;
+  readonly semanticRevision: number;
+  readonly tombstones: readonly DialogueTombstone[];
+}
+
+export class InvalidRestoredScriptError extends Error {
+  constructor(readonly code: "INVALID_REVISION" | "TOMBSTONED_ID_PRESENT") {
+    super(code === "INVALID_REVISION"
+      ? "Restored script revisions are invalid"
+      : "Restored committed source contains a tombstoned identity");
+    this.name = "InvalidRestoredScriptError";
+  }
+}
+
 export type ScriptCommandResult =
   | {
       readonly status: AppliedOutcome;
@@ -356,6 +373,37 @@ export function createScriptSourceSession(initialSource: string): ScriptSourceSe
     appliedCommands: [],
     lastChange: null,
     tombstones: []
+  };
+}
+
+/** Restores durable source state while intentionally starting a new in-memory undo epoch. */
+export function restoreScriptSourceSession(state: RestoredScriptSourceState): ScriptSourceSession {
+  if (!Number.isSafeInteger(state.revision) || state.revision < 0 ||
+      !Number.isSafeInteger(state.semanticRevision) || state.semanticRevision < 0 ||
+      state.semanticRevision > state.revision) {
+    throw new InvalidRestoredScriptError("INVALID_REVISION");
+  }
+  const committedDocument = parseStory(state.committedSource);
+  const blocking = blockingDiagnostics(committedDocument);
+  if (blocking.length > 0) throw new InvalidInitialScriptError(blocking);
+  const committedIds = documentIds(committedDocument);
+  if (state.tombstones.some((item) =>
+    committedIds.has(item.statementId) || committedIds.has(item.textId))) {
+    throw new InvalidRestoredScriptError("TOMBSTONED_ID_PRESENT");
+  }
+  const draftDocument = parseStory(state.draftSource);
+  return {
+    committedSource: state.committedSource,
+    committedDocument,
+    draftSource: state.draftSource,
+    draftDiagnostics: draftDocument.diagnostics,
+    revision: state.revision,
+    semanticRevision: state.semanticRevision,
+    history: [],
+    future: [],
+    appliedCommands: [],
+    lastChange: null,
+    tombstones: [...state.tombstones]
   };
 }
 

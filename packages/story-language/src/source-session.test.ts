@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   InvalidInitialScriptError,
+  InvalidRestoredScriptError,
   createScriptSourceSession,
   executeScriptSourceCommand,
   parseStory,
   reduceScriptSourceSession,
+  restoreScriptSourceSession,
   semanticSnapshot,
   type ReplaceScriptSourceCommand,
   type ScriptSourceSession
@@ -37,6 +39,39 @@ describe("script source transaction session", () => {
     expect(() => createScriptSourceSession('scene "未闭合')).toThrow(
       InvalidInitialScriptError
     );
+  });
+
+  it("restores durable draft state and starts a fresh undo epoch", () => {
+    const restored = restoreScriptSourceSession({
+      committedSource: initialSource,
+      draftSource: initialSource.replace('scene "事务测试"', 'scene "事务测试'),
+      revision: 7,
+      semanticRevision: 5,
+      tombstones: [{
+        kind: "dialogue",
+        statementId: "stmt_deleted",
+        textId: "txt_deleted",
+        speakerId: "lin",
+        text: "已删除",
+        rawLine: "lin: 已删除",
+        formerLine: 3
+      }]
+    });
+    expect(restored.revision).toBe(7);
+    expect(restored.semanticRevision).toBe(5);
+    expect(restored.draftDiagnostics.some((item) => item.severity === "error")).toBe(true);
+    expect(restored.history).toEqual([]);
+    expect(restored.tombstones).toHaveLength(1);
+  });
+
+  it("rejects impossible restored revisions", () => {
+    expect(() => restoreScriptSourceSession({
+      committedSource: initialSource,
+      draftSource: initialSource,
+      revision: 1,
+      semanticRevision: 2,
+      tombstones: []
+    })).toThrow(InvalidRestoredScriptError);
   });
 
   it("keeps blocking parser errors in the draft without advancing revisions", () => {

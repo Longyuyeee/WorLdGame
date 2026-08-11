@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   activeSourceDraft,
   activeSourceSession,
+  createProjectSnapshot,
   createStudioSession,
   hasPendingDraft,
-  reduceStudioSession
+  reduceStudioSession,
+  restoreStudioSession
 } from "./studio-session";
 
-describe("S0.7 studio source projection session", () => {
+describe("S0.9 studio source projection and recovery session", () => {
   it("starts from projectable canonical sources without a second model", () => {
     const session = createStudioSession();
 
@@ -185,5 +187,25 @@ describe("S0.7 studio source projection session", () => {
     });
     expect(hasPendingDraft(returned)).toBe(true);
     expect(returned.notice.title).toBe("此场景有未提交草稿");
+  });
+
+  it("restores an error draft without replacing the last valid projection", () => {
+    const initial = createStudioSession();
+    const invalidDraft = reduceStudioSession(initial, {
+      type: "edit-script",
+      commandId: "cmd_persisted_draft",
+      source: activeSourceDraft(initial).replace(
+        'scene "放学后的校门"',
+        'scene "放学后的校门'
+      )
+    });
+    const restored = restoreStudioSession(createProjectSnapshot(invalidDraft, 4));
+
+    expect(hasPendingDraft(restored)).toBe(true);
+    expect(restored.diagnostics[restored.activeSceneId]?.some((item) => item.severity === "error"))
+      .toBe(true);
+    expect(restored.project.scenes[0]?.title).toBe("放学后的校门");
+    expect(activeSourceSession(restored).history).toEqual([]);
+    expect(restored.notice.detail).toContain("storage revision 4");
   });
 });
