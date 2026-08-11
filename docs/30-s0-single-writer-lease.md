@@ -85,10 +85,10 @@ S0.11 因此增加独立的单写者层：编辑器必须先取得项目级租�
 
 2026-08-11 本地结果：
 
-- `npm run check`：通过；13 个测试文件、101 项测试全部通过；
+- `npm ci`：从锁文件干净安装 128 个包；随后 `npm run check` 通过，13 个测试文件、101 项测试全部通过；
 - 五工作区 TypeScript/Vite 构建：通过；Web 产物 JS gzip 81.99 kB、CSS gzip 5.83 kB；
 - 架构审计：通过；18 个 portable 文件与 2 个 Node adapter 文件未越界；
-- 10k 句性能审计：最终复核总计 171.99 ms，低于 12,000 ms 预算；
+- 10k 句性能审计：干净重装后最终复核总计 166.92 ms，低于 12,000 ms 预算；
 - `npm audit --registry=https://registry.npmjs.org`：0 vulnerabilities；默认镜像缺少 audit API，已明确切换官方端点复核；
 - IndexedDB 两实例测试：同时获取只有一个成功；到期接管 token 加一；旧实例写入、续约、释放全部被拒；
 - 真实浏览器：第一窗口恢复 s3；第二窗口只显示冲突闸门；强关第一窗口后等待 12 秒 TTL，第二窗口成功接管并恢复 s3；
