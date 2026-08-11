@@ -1,6 +1,6 @@
 # S0.14 预览画布尺寸 Profile 与响应式舞台审计
 
-> 状态：实现、组件测试、干净安装、真实浏览器、桌面/手机几何审计通过；远端证据待本次推送后回读
+> 状态：实现、组件测试、干净安装、真实浏览器、桌面/手机几何、推送与 Draft PR 远端回读均通过
 > 日期：2026-08-11
 > 范围：Editor Preview 的会话级画布尺寸；不冒充玩家包渲染器、项目设计分辨率或平台构建已完成
 
@@ -95,3 +95,11 @@ Profile 定义位于独立的 `preview-viewport` 模块。ID、标签与尺寸�
 - Android 编辑器和玩家真机没有在本切片完成验证。
 
 这些边界继续阻断“Preview 与三平台成品完全一致”的声明。
+
+## 8. 远端证据
+
+- 实现提交 `fd1ef45764c2eadd958e41651d24da5119a3e413` 已推送到 `origin/agent/visual-production-bar`；
+- 既有 Draft PR #1 保持 Draft，没有创建重复 PR；
+- PR 标题更新为 `Add adjustable preview viewport profiles and safe project recovery`；
+- REST API 回读确认 PR head 与实现提交一致，正文保留 S0.1 累计索引并包含完整 S0.14 标题、`121/121` 与“全局 M1 阻断项”；
+- 首次回读正文长度 3,052 字符；本次 PR 更新没有发生元数据覆盖或未确认网络失败。
