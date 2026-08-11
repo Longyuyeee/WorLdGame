@@ -33,6 +33,16 @@ import {
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+import {
+  DEFAULT_PREVIEW_VIEWPORT_ID,
+  MAX_PREVIEW_DIMENSION,
+  MIN_PREVIEW_DIMENSION,
+  PREVIEW_VIEWPORT_PRESETS,
+  findPreviewViewportPreset,
+  formatPreviewRatio,
+  normalizePreviewDimension,
+  type PreviewViewportProfileId
+} from "./preview-viewport";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -149,7 +159,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.13</p>
+          <p className="eyebrow">WorLd Studio · S0.14</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -546,6 +556,19 @@ interface PreviewPanelProps extends CommonProps {
 }
 
 function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
+  const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
+    DEFAULT_PREVIEW_VIEWPORT_ID
+  );
+  const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
+  const selectedPreset = findPreviewViewportPreset(viewportProfileId);
+  const viewport = viewportProfileId === "custom" ? {
+    id: "custom" as const,
+    label: "自定义尺寸",
+    ratioLabel: formatPreviewRatio(customViewport.width, customViewport.height),
+    width: customViewport.width,
+    height: customViewport.height,
+    orientation: customViewport.width >= customViewport.height ? "landscape" as const : "portrait" as const
+  } : selectedPreset;
   const scene = findScene(session.project, session.activeSceneId);
   const statement = scene.statements[session.previewIndex];
   if (statement === undefined) throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
@@ -563,27 +586,86 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
           {pendingDraft ? "LOCKED" : inputDirty ? "BUFFER" : "LIVE"}
         </span>
       </div>
-      <div className="stage-preview">
-        <div className="stage-chrome"><span>{scene.title}</span><span>16:9 · Balanced</span></div>
-        <div className="stage-sky" aria-hidden="true">
-          <span className="sun" /><span className="school-building" />
-          <span className="character-silhouette character-silhouette--left" />
-          <span className="character-silhouette character-silhouette--right" />
+      <div className="preview-size-toolbar">
+        <label htmlFor="preview-viewport-profile">预览尺寸</label>
+        <select
+          id="preview-viewport-profile"
+          value={viewportProfileId}
+          onChange={(event) => setViewportProfileId(event.target.value as PreviewViewportProfileId)}
+        >
+          {PREVIEW_VIEWPORT_PRESETS.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.ratioLabel} · {preset.label}
+            </option>
+          ))}
+          <option value="custom">自定义 · 精确尺寸</option>
+        </select>
+        <span>{viewport.width} × {viewport.height}</span>
+      </div>
+      {viewportProfileId === "custom" && (
+        <div className="preview-custom-size" aria-label="自定义预览尺寸">
+          <label>
+            <span>宽</span>
+            <input
+              aria-label="自定义预览宽度"
+              type="number"
+              min={MIN_PREVIEW_DIMENSION}
+              max={MAX_PREVIEW_DIMENSION}
+              value={customViewport.width}
+              onChange={(event) => setCustomViewport((current) => ({
+                ...current,
+                width: normalizePreviewDimension(event.target.valueAsNumber, current.width)
+              }))}
+            />
+          </label>
+          <span aria-hidden="true">×</span>
+          <label>
+            <span>高</span>
+            <input
+              aria-label="自定义预览高度"
+              type="number"
+              min={MIN_PREVIEW_DIMENSION}
+              max={MAX_PREVIEW_DIMENSION}
+              value={customViewport.height}
+              onChange={(event) => setCustomViewport((current) => ({
+                ...current,
+                height: normalizePreviewDimension(event.target.valueAsNumber, current.height)
+              }))}
+            />
+          </label>
+          <output aria-label="自定义预览比例">{viewport.ratioLabel}</output>
         </div>
-        <div className="stage-content" key={statement.id} data-testid="preview-step">
-          {statement.kind === "dialogue" && (
-            <div className="dialogue-box">
-              <span className="speaker-name" style={{ "--speaker-color": speaker?.color ?? "#8B7CFF" } as CSSProperties}>
-                {speaker?.displayName ?? "未知角色"}
-              </span>
-              <p>{statement.text}</p>
-            </div>
-          )}
-          {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
-          {statement.kind === "choice" && (
-            <div className="choice-preview"><strong>{statement.prompt}</strong>{statement.options.map((option) => <span key={option.id}>{option.label}</span>)}</div>
-          )}
-          {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
+      )}
+      <div className="stage-viewport">
+        <div
+          className={`stage-preview stage-preview--${viewport.orientation}`}
+          data-testid="preview-stage"
+          data-preview-profile={viewport.id}
+          data-preview-width={viewport.width}
+          data-preview-height={viewport.height}
+          style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
+        >
+          <div className="stage-chrome"><span>{scene.title}</span><span>{viewport.ratioLabel} · Balanced</span></div>
+          <div className="stage-sky" aria-hidden="true">
+            <span className="sun" /><span className="school-building" />
+            <span className="character-silhouette character-silhouette--left" />
+            <span className="character-silhouette character-silhouette--right" />
+          </div>
+          <div className="stage-content" key={statement.id} data-testid="preview-step">
+            {statement.kind === "dialogue" && (
+              <div className="dialogue-box">
+                <span className="speaker-name" style={{ "--speaker-color": speaker?.color ?? "#8B7CFF" } as CSSProperties}>
+                  {speaker?.displayName ?? "未知角色"}
+                </span>
+                <p>{statement.text}</p>
+              </div>
+            )}
+            {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
+            {statement.kind === "choice" && (
+              <div className="choice-preview"><strong>{statement.prompt}</strong>{statement.options.map((option) => <span key={option.id}>{option.label}</span>)}</div>
+            )}
+            {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
+          </div>
         </div>
       </div>
       <div className="preview-transport">
@@ -1059,7 +1141,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.13 SAFE MIGRATION</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.14 PREVIEW PROFILES</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

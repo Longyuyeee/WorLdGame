@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.12 safe-autosave Script UI prototype", () => {
+describe("WorLd Studio S0.14 preview-profile Script UI prototype", () => {
   it("maps storage failures to actionable local-save labels", () => {
     expect(persistenceErrorLabel("NO_SPACE")).toBe("本机空间不足");
     expect(persistenceErrorLabel("PERMISSION_DENIED")).toBe("无写入权限");
@@ -238,5 +238,31 @@ describe("WorLd Studio S0.12 safe-autosave Script UI prototype", () => {
     expect(screen.getByRole("heading", { name: "自动路线图" })).toBeVisible();
     expect(screen.getByText("无语义副本")).toBeVisible();
     expect(screen.getByText("去天台")).toBeVisible();
+  });
+
+  it("defaults Preview to 16:9 and switches canvas profiles without editing the story", () => {
+    render(<App />);
+    const stage = screen.getByTestId("preview-stage");
+    const profile = screen.getByLabelText("预览尺寸");
+
+    expect(profile).toHaveValue("landscape-16-9");
+    expect(stage).toHaveAttribute("data-preview-width", "1920");
+    expect(stage).toHaveAttribute("data-preview-height", "1080");
+    expect(stage.style.getPropertyValue("--preview-aspect")).toBe("1920 / 1080");
+
+    fireEvent.change(profile, { target: { value: "portrait-9-16" } });
+    expect(profile).toHaveValue("portrait-9-16");
+    expect(stage).toHaveAttribute("data-preview-width", "1080");
+    expect(stage).toHaveAttribute("data-preview-height", "1920");
+    expect(stage).toHaveClass("stage-preview--portrait");
+    expect(screen.getByText("9:16 · Balanced")).toBeVisible();
+
+    fireEvent.change(profile, { target: { value: "custom" } });
+    fireEvent.change(screen.getByLabelText("自定义预览宽度"), { target: { value: "1000" } });
+    fireEvent.change(screen.getByLabelText("自定义预览高度"), { target: { value: "1000" } });
+    expect(screen.getByLabelText("自定义预览比例")).toHaveTextContent("1:1");
+    expect(stage).toHaveAttribute("data-preview-width", "1000");
+    expect(stage).toHaveAttribute("data-preview-height", "1000");
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
   });
 });
