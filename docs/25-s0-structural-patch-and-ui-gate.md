@@ -1,6 +1,6 @@
 # S0.6 Structural Patch 与 S0.7 UI 测试准入
 
-> 状态：本地实现与完整门禁通过，等待远端证据回读。
+> 状态：本地实现、完整门禁、远端推送与 PR 证据回读均通过；S0.7 UI 实现门禁已开放。
 > 决策日期：2026-08-11。
 > 风险等级：R3（结构编辑、历史、Tombstone 与 ID 兼容）。本切片通过后允许进入可测试 Script UI 原型，不代表 M1 数据格式冻结。
 
@@ -88,4 +88,10 @@ S0.6 门禁通过并完成远端回读后，下一步直接进入 **S0.7 Script 
 - 结构事务模型连续运行 30 轮 Insert → Delete → Undo×2 → Redo×2，源文本、历史游标与 Tombstone 状态保持确定性。
 - Editor 生产包：JavaScript 206.37 kB（gzip 64.79 kB），CSS 18.73 kB（gzip 4.78 kB）。
 - `npm audit`：0 个漏洞；`git diff --check`：通过。
-- 本地审计不替代远端提交、PR 内容与 Head SHA 回读；完成远端回读后才正式开放 S0.7 实现门禁。
+- 本地审计不替代远端提交、PR 内容与 Head SHA 回读；上述远端证据已完成，S0.7 实现门禁正式开放。
+
+## 9. 远端证据
+
+- 2026-08-11：实现提交 `e2e849518268155463e7f69c9b09e30bf5f78e6e` 已推送至 `agent/visual-production-bar`。
+- Draft PR #1 已回读确认：标题、分支、Head SHA、S0.6 摘要、55/55 测试证据与 S0.7 下一步均一致。
+- S0.6 已闭环，下一开发切片直接进入 S0.7 Script UI Prototype。
