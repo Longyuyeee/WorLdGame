@@ -1,6 +1,7 @@
 import type { EntityId } from "@world-studio/story-core";
 import { formatStory, semanticSnapshot } from "./formatter";
 import type { StoryDiagnostic, StoryDocument } from "./model";
+import { patchDialogueText, type DialoguePatchErrorCode } from "./patch";
 import { parseStory } from "./parser";
 
 export interface ReplaceScriptSourceCommand {
@@ -18,13 +19,26 @@ export interface FormatScriptSourceCommand {
   readonly baseRevision: number;
 }
 
-export type ScriptSourceCommand = ReplaceScriptSourceCommand | FormatScriptSourceCommand;
+export interface PatchDialogueSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.patch-dialogue";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+  readonly text: string;
+}
+
+export type ScriptSourceCommand =
+  | ReplaceScriptSourceCommand
+  | FormatScriptSourceCommand
+  | PatchDialogueSourceCommand;
 
 export type ScriptCommandErrorCode =
   | "EMPTY_COMMAND_ID"
   | "STALE_REVISION"
   | "COMMAND_ID_REUSE"
-  | "DRAFT_PENDING";
+  | "DRAFT_PENDING"
+  | DialoguePatchErrorCode;
 
 export interface ScriptCommandError {
   readonly category: "validation" | "conflict";
@@ -153,6 +167,14 @@ function commandFingerprint(command: ScriptSourceCommand): string {
       );
     case "script.format-source":
       return [command.schemaVersion, command.kind, command.baseRevision].join("\u0000");
+    case "script.patch-dialogue":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.statementId,
+        command.text
+      ].join("\u0000");
   }
 }
 
@@ -282,7 +304,7 @@ export function executeScriptSourceCommand(
   }
 
   if (
-    command.kind === "script.format-source" &&
+    command.kind !== "script.replace-source" &&
     session.draftSource !== session.committedSource
   ) {
     return reject(session, {
@@ -292,10 +314,32 @@ export function executeScriptSourceCommand(
     });
   }
 
-  const nextSource =
-    command.kind === "script.replace-source"
-      ? command.source
-      : formatStory(session.committedDocument);
+  let nextSource: string;
+  switch (command.kind) {
+    case "script.replace-source":
+      nextSource = command.source;
+      break;
+    case "script.format-source":
+      nextSource = formatStory(session.committedDocument);
+      break;
+    case "script.patch-dialogue": {
+      const patchResult = patchDialogueText(
+        session.committedSource,
+        session.committedDocument,
+        command.statementId,
+        command.text
+      );
+      if (!patchResult.ok) {
+        return reject(session, {
+          category: "validation",
+          code: patchResult.error.code,
+          message: patchResult.error.message
+        });
+      }
+      nextSource = patchResult.source;
+      break;
+    }
+  }
   const nextDocument = parseStory(nextSource);
   const hasBlockingDiagnostics = blockingDiagnostics(nextDocument).length > 0;
   const draftChanged = nextSource !== session.draftSource;

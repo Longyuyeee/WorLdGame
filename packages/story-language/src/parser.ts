@@ -79,6 +79,22 @@ function parseMetadata(input: string): ParsedMetadata {
   return parseNamedMetadata(input, "id");
 }
 
+function splitDialogueMetadata(input: string): {
+  readonly textRaw: string;
+  readonly trailingMetadata: string;
+} {
+  const match = input.match(
+    /((?:\s+@[A-Za-z_][A-Za-z0-9_.-]*\([^\r\n)]*\))+?)\s*$/
+  );
+  if (match === null || match.index === undefined) {
+    return { textRaw: input.trim(), trailingMetadata: "" };
+  }
+  return {
+    textRaw: input.slice(0, match.index).trim(),
+    trailingMetadata: match[1]?.trim() ?? ""
+  };
+}
+
 function diagnostic(
   code: StoryDiagnostic["code"],
   message: string,
@@ -261,6 +277,7 @@ export function parseStory(source: string): StoryDocument {
       if (speakerId !== undefined && dialogueTail !== undefined) {
         const metadata = parseMetadata(dialogueTail);
         const statementMetadata = parseNamedMetadata(metadata.trailingMetadata, "sid");
+        const dialogueContent = splitDialogueMetadata(statementMetadata.trailingMetadata);
         if (metadata.malformedId) {
           diagnostics.push(diagnostic("MALFORMED_ID", "Dialogue contains a malformed @id(...)", range));
         }
@@ -275,8 +292,9 @@ export function parseStory(source: string): StoryDocument {
           ...(statementMetadata.id === undefined
             ? {}
             : { statementId: statementMetadata.id }),
-          textRaw: statementMetadata.trailingMetadata,
+          textRaw: dialogueContent.textRaw,
           ...(metadata.id === undefined ? {} : { textId: metadata.id }),
+          trailingMetadata: dialogueContent.trailingMetadata,
           range
         };
         registerId(statementMetadata.id, range);

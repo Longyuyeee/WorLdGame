@@ -44,6 +44,7 @@ export interface DialogueNode extends SyntaxNodeBase {
   readonly statementId?: EntityId;
   readonly textRaw: string;
   readonly textId?: EntityId;
+  readonly trailingMetadata: string;
 }
 
 export interface ChoiceNode extends SyntaxNodeBase {

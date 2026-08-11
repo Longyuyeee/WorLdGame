@@ -13,7 +13,7 @@ import {
 const initialSource = `# 初始注释
 scene "事务测试" @id(scn_transaction)
 
-lin: 原始对白 @id(txt_transaction_001)
+lin: 原始对白 @sid(stmt_transaction_001) @id(txt_transaction_001)
 @weather.set kind=rain
 end "完成" @id(end_transaction)
 `;
@@ -296,6 +296,65 @@ describe("script source transaction session", () => {
     expect(execution.session.committedSource).toContain("future syntax stays opaque");
   });
 
+  it("commits stable-ID dialogue patches through the transaction history", () => {
+    const initial = createScriptSourceSession(initialSource);
+    const command = {
+      schemaVersion: 0 as const,
+      kind: "script.patch-dialogue" as const,
+      commandId: "cmd_patch_dialogue",
+      baseRevision: 0,
+      statementId: "stmt_transaction_001",
+      text: "局部 Patch 后的对白"
+    };
+    const execution = executeScriptSourceCommand(initial, command);
+
+    expect(execution.result.status).toBe("committed");
+    expect(execution.session.revision).toBe(1);
+    expect(execution.session.semanticRevision).toBe(1);
+    expect(execution.session.committedSource).toContain(
+      "lin: 局部 Patch 后的对白 @sid(stmt_transaction_001) @id(txt_transaction_001)"
+    );
+    if (execution.result.status !== "committed") {
+      throw new Error("Expected a committed dialogue patch");
+    }
+    expect(execution.result.changeSet.changedTextIds).toEqual(["txt_transaction_001"]);
+
+    const duplicate = executeScriptSourceCommand(execution.session, command);
+    expect(duplicate.result.status).toBe("duplicate");
+    expect(duplicate.session).toBe(execution.session);
+
+    const undone = reduceScriptSourceSession(execution.session, { type: "undo" });
+    expect(undone.committedSource).toBe(initialSource);
+    const redone = reduceScriptSourceSession(undone, { type: "redo" });
+    expect(redone.committedSource).toBe(execution.session.committedSource);
+  });
+
+  it("rejects Writer patches while an unresolved Script draft exists", () => {
+    const initial = createScriptSourceSession(initialSource);
+    const invalidSource = initialSource.replace('scene "事务测试"', 'scene "事务测试');
+    const drafted = executeScriptSourceCommand(
+      initial,
+      replaceCommand(initial, "cmd_pending_script", invalidSource)
+    ).session;
+    const execution = executeScriptSourceCommand(drafted, {
+      schemaVersion: 0,
+      kind: "script.patch-dialogue",
+      commandId: "cmd_conflicting_writer",
+      baseRevision: 0,
+      statementId: "stmt_transaction_001",
+      text: "不能覆盖草稿"
+    });
+
+    expect(execution.result).toEqual(
+      expect.objectContaining({
+        status: "rejected",
+        error: expect.objectContaining({ code: "DRAFT_PENDING" })
+      })
+    );
+    expect(execution.session).toBe(drafted);
+    expect(execution.session.draftSource).toBe(invalidSource);
+  });
+
   it("preserves committed invariants across 200 deterministic mixed operations", () => {
     let session = createScriptSourceSession(initialSource);
 
@@ -317,8 +376,8 @@ describe("script source transaction session", () => {
         expect(session.semanticRevision).toBe(semanticRevisionBefore);
       } else {
         const nextSource = session.committedSource.replace(
-          /lin: .* @id\(txt_transaction_001\)/,
-          `lin: 模型操作 ${iteration} @id(txt_transaction_001)`
+          /lin: .* @sid\(stmt_transaction_001\) @id\(txt_transaction_001\)/,
+          `lin: 模型操作 ${iteration} @sid(stmt_transaction_001) @id(txt_transaction_001)`
         );
         const command = replaceCommand(
           session,

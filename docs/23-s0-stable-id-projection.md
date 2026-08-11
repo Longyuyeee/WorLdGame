@@ -69,7 +69,7 @@ S0.3 已证明文本草稿能安全提交为 CST，但当前 `StoryProject` 的�
 - 10 万字、外部编辑冲突、增量索引和 Android 内存未测试；
 - 未完成独立 R3 审阅。
 
-下一步应先扩展 Canonical Model 的 Label/Set 与 Opaque preservation contract，或设计保留 CST 的双向 Patch，而不是从 `StoryScene` 重新生成整份脚本。只有证明一次 Writer 修改能够通过稳定 ID 对 CST 做局部 Patch、且 `parse → project → command → patch → parse` 不丢内容后，才能接入 Script UI。
+下一步为 **S0.5 Stable-ID Local Patch**：先证明 Writer 对白命令能够通过稳定 ID 局部修改权威 CST，并完整保留注释、换行、未知插件命令、未知对白元数据和用户分段；仍不从 `StoryScene` 重生成整份脚本。
 
 ## 7. 本地审计结果
 
