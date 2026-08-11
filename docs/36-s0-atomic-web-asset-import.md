@@ -1,6 +1,6 @@
 # S0.17 Web 资源原子导入、进度与 reload 租约审计
 
-> 状态：需求边界、IndexedDB schema 2、原子跨 Store 事务、真实文件 UI、故障测试、干净安装与真实浏览器均通过；远端证据将在推送后回填
+> 状态：需求边界、IndexedDB schema 2、原子跨 Store 事务、真实文件 UI、故障测试、干净安装、真实浏览器与远端证据回读均通过
 > 日期：2026-08-11
 > 范围：Web 编辑器本地资源导入与恢复；不冒充媒体内容验证、Android adapter、资源备份/GC 或 Dicing/Delta 已完成
 
@@ -171,4 +171,8 @@ S0.18 建议实现不可信媒体 Inspection Gate：魔数/MIME sniff、图片�
 
 ## 13. 远端证据
 
-实现提交、PR head、PR 正文与最终证据提交将在推送和 REST 回读后补充。
+- 实现提交：`96f2daa35bd98161651db24fe43848187a0ef255`（`Add atomic Web asset import`）；
+- 分支：`agent/visual-production-bar` 已推送到 `origin`；
+- Draft PR：[#1 Add atomic Web asset import and content-addressed safety](https://github.com/Longyuyeee/WorLdGame/pull/1)；
+- GitHub REST 回读：PR `open`、`draft=true`、head 精确等于实现提交；正文包含 S0.17、162/162、全局 M1 阻断项与 S0.18；
+- 最终证据提交将在本节回填后再次推送，并执行 local/origin/PR 三方 SHA 回读。
