@@ -5,6 +5,7 @@ import {
   createBlobDigest
 } from "@world-studio/project-persistence";
 import {
+  ASSET_BACKUP_STORE_NAME,
   ASSET_BLOB_STORE_NAME,
   ASSET_INDEX_STORE_NAME,
   ASSET_LIFECYCLE_STORE_NAME,
@@ -150,11 +151,12 @@ describe("IndexedDbAssetRepository", () => {
     const store = new IndexedDbProjectFileStore(indexedDb, "upgrade_test");
     await expect(store.read("project.json")).resolves.toBe("legacy-project");
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDb.open(WORLD_STUDIO_DATABASE_NAME, 3);
+      const request = indexedDb.open(WORLD_STUDIO_DATABASE_NAME, 4);
       request.addEventListener("success", () => resolve(request.result), { once: true });
       request.addEventListener("error", () => reject(request.error), { once: true });
     });
     expect([...database.objectStoreNames]).toEqual([
+      ASSET_BACKUP_STORE_NAME,
       ASSET_BLOB_STORE_NAME,
       ASSET_INDEX_STORE_NAME,
       ASSET_LIFECYCLE_STORE_NAME,
@@ -230,7 +232,7 @@ describe("IndexedDbAssetRepository", () => {
     now = 30_030;
     await expect(assets.purgeExpiredTrash()).resolves.toEqual([orphan]);
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDb.open(WORLD_STUDIO_DATABASE_NAME, 3);
+      const request = indexedDb.open(WORLD_STUDIO_DATABASE_NAME, 4);
       request.addEventListener("success", () => resolve(request.result), { once: true });
       request.addEventListener("error", () => reject(request.error), { once: true });
     });
@@ -238,6 +240,90 @@ describe("IndexedDbAssetRepository", () => {
     await expect(indexedDbRequestResult(transaction.objectStore(ASSET_TRASH_STORE_NAME).get(`trash_purge/${orphan}`))).resolves.toBeUndefined();
     await indexedDbTransactionDone(transaction);
     database.close();
+  });
+
+  it("stages a backup asset snapshot before project rotation and reconciles only verified slots", async () => {
+    let now = 40_000;
+    const { assets } = await writableRepository(new IDBFactory(), "asset_backup_link", () => now);
+    const oldBytes = new TextEncoder().encode("backup protected source");
+    await assets.importAsset({
+      assetId: "cg_backup_link",
+      kind: "cg",
+      displayName: "Backup Link",
+      mimeType: "image/png",
+      bytes: oldBytes
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    const staged = await assets.stageBackupSnapshot(1, 1, now);
+    expect(staged.snapshot).toMatchObject({ slot: 1, sourceStorageRevision: 1, index: { indexRevision: 1 } });
+    expect(staged.manifest.roots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rootId: "backup:slot-1:s1", digests: [createBlobDigest(oldBytes)] })
+    ]));
+
+    const linked = await assets.reconcileBackupSnapshots([{ slot: 1, sourceStorageRevision: 1 }]);
+    expect(linked.linkedRecordIds).toEqual(["slot-1:s1"]);
+    expect(linked.unlinkedRecordIds).toEqual([]);
+    expect(linked.manifest.roots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rootId: "backup:slot-1:s1" })
+    ]));
+
+    const legacy = await assets.reconcileBackupSnapshots([{ slot: 0, sourceStorageRevision: 2 }]);
+    expect(legacy.linkedRecordIds).toEqual([]);
+    expect(legacy.unlinkedRecordIds).toEqual(["slot-0:s2"]);
+    expect(legacy.manifest.roots.some((root) => root.kind === "backup")).toBe(false);
+  });
+
+  it("recovers a crash between staging and project-backup replacement without dropping the verified old root", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "asset_backup_crash", () => 45_000);
+    const bytes = new TextEncoder().encode("crash protected source");
+    await assets.importAsset({
+      assetId: "cg_crash",
+      kind: "cg",
+      displayName: "Crash CG",
+      mimeType: "image/png",
+      bytes
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    await assets.stageBackupSnapshot(1, 1, 45_000);
+    await assets.reconcileBackupSnapshots([{ slot: 1, sourceStorageRevision: 1 }]);
+    const interrupted = await assets.stageBackupSnapshot(1, 6, 45_001);
+    expect(interrupted.manifest.roots.filter((root) => root.kind === "backup")).toHaveLength(2);
+
+    const recovered = await assets.reconcileBackupSnapshots([{ slot: 1, sourceStorageRevision: 1 }]);
+    expect(recovered.linkedRecordIds).toEqual(["slot-1:s1"]);
+    expect(recovered.manifest.roots.filter((root) => root.kind === "backup")).toEqual([
+      expect.objectContaining({ rootId: "backup:slot-1:s1", digests: [createBlobDigest(bytes)] })
+    ]);
+  });
+
+  it("publishes an idempotent metadata sidecar Blob, lineage node and build root atomically", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "sidecar_build", () => 50_000);
+    const bytes = new TextEncoder().encode("source for deterministic sidecar");
+    await assets.importAsset({
+      assetId: "cg_sidecar",
+      kind: "cg",
+      displayName: "Sidecar CG",
+      mimeType: "image/png",
+      bytes,
+      tags: ["night", "chapter-1"]
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    const first = await assets.buildMetadataSidecar("cg_sidecar");
+    const second = await assets.buildMetadataSidecar("cg_sidecar");
+    expect(first.blobStatus).toBe("created");
+    expect(second.blobStatus).toBe("existing");
+    expect(second.digest).toBe(first.digest);
+    expect(second.manifest.lifecycleRevision).toBe(first.manifest.lifecycleRevision);
+    expect(second.manifest.nodes).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        digest: first.digest,
+        role: "derivative",
+        parents: [createBlobDigest(bytes)],
+        recipeName: "metadata-sidecar/v1"
+      })
+    ]));
+    expect(second.manifest.roots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rootId: "build:sidecar:cg_sidecar", digests: [first.digest] })
+    ]));
+    const output = await assets.read(first.digest);
+    expect(JSON.parse(new TextDecoder().decode(output ?? new Uint8Array()))).toMatchObject({ assetId: "cg_sidecar" });
   });
 
   it.each([

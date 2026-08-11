@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import {
   AssetBlobError,
+  assetBackupRecordId,
   createAssetLifecycleManifest,
   createAssetIndex,
   ProjectPersistenceError,
@@ -108,7 +109,7 @@ interface PersistenceViewState {
 }
 
 export function persistenceFailure(error: unknown, revision: number): PersistenceViewState {
-  const known = error instanceof ProjectStoreError || error instanceof ProjectPersistenceError;
+  const known = error instanceof ProjectStoreError || error instanceof ProjectPersistenceError || error instanceof AssetBlobError;
   const errorCode = known ? error.code : undefined;
   const message = error instanceof Error ? error.message : "本地存储操作失败";
   return {
@@ -203,7 +204,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.19</p>
+          <p className="eyebrow">WorLd Studio · S0.20</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -314,7 +315,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.19 ASSET LINEAGE</small></span>
+            <span><strong>资源保险库</strong><small>S0.20 BACKUP ROOTS · DERIVATIVES</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -376,6 +377,7 @@ interface AssetVaultDialogProps {
   readonly index: AssetIndex;
   readonly lifecycle: AssetLifecycleManifest;
   readonly gcLocked: boolean;
+  readonly gcLockReason: string;
   readonly lifecycleDetail: string;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
@@ -386,12 +388,14 @@ interface AssetVaultDialogProps {
   readonly onScan: () => void;
   readonly onSweep: () => void;
   readonly onRestore: (digest: AssetLifecycleManifest["trash"][number]["digest"]) => void;
+  readonly onBuildSidecar: (assetId: string) => void;
 }
 
 function AssetVaultDialog({
   index,
   lifecycle,
   gcLocked,
+  gcLockReason,
   lifecycleDetail,
   status,
   importState,
@@ -401,7 +405,8 @@ function AssetVaultDialog({
   onImport,
   onScan,
   onSweep,
-  onRestore
+  onRestore,
+  onBuildSidecar
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -461,9 +466,10 @@ function AssetVaultDialog({
           <div className={gcLocked ? "asset-lifecycle__notice is-locked" : "asset-lifecycle__notice"} role="status">
             <span aria-hidden="true">{gcLocked ? "⌁" : "✓"}</span>
             <p>{gcLocked
-              ? "检测到尚未携带资源根的项目备份。为避免误删其依赖 Blob，安全回收已锁定。"
+              ? gcLockReason
               : lifecycleDetail}</p>
           </div>
+          {gcLocked && <p className="asset-lifecycle__activity" aria-live="polite">{lifecycleDetail}</p>}
           <div className="asset-lifecycle__actions">
             <button type="button" disabled={!storageReady || importing || gcLocked} onClick={onScan}>安全扫描</button>
             <button type="button" disabled={!storageReady || importing || gcLocked || eligibleCount === 0} onClick={onSweep}>
@@ -526,6 +532,7 @@ function AssetVaultDialog({
               <span className={`asset-item__kind asset-item__kind--${entry.kind}`}>{entry.kind.toUpperCase()}</span>
               <div><strong>{entry.displayName}</strong><code>{entry.assetId}</code></div>
               <div><span>{formatBytes(entry.source.byteLength)} · {assetInspectionLabel(entry)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
+              <button type="button" className="asset-item__derive" disabled={!storageReady || importing} onClick={() => onBuildSidecar(entry.assetId)}>生成 Sidecar</button>
             </article>
           ))}
         </div>
@@ -1063,6 +1070,9 @@ export function App() {
     createAssetLifecycleManifest(createAssetIndex(), Date.now())
   );
   const [assetLifecycleDetail, setAssetLifecycleDetail] = useState("血缘清单已校验；没有执行不可逆删除。");
+  const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
+  const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
+  const [unlinkedAssetBackupIds, setUnlinkedAssetBackupIds] = useState<readonly string[]>([]);
   const [assetStatus, setAssetStatus] = useState<AssetVaultStatus>(
     storageAvailable ? "loading" : "unavailable"
   );
@@ -1262,6 +1272,17 @@ export function App() {
       if (cancelled) return;
       if (snapshot === null) {
         persistedSnapshotRef.current = null;
+        try {
+          const reconciliation = await assetRepository.reconcileBackupSnapshots([]);
+          if (cancelled) return;
+          setAssetLifecycle(reconciliation.manifest);
+          setLinkedAssetBackupIds(reconciliation.linkedRecordIds);
+          setUnlinkedAssetBackupIds(reconciliation.unlinkedRecordIds);
+          setAssetBackupAuditReady(true);
+        } catch {
+          if (cancelled) return;
+          setAssetBackupAuditReady(false);
+        }
         setPersistence({ status: "unsaved", revision: 0, backupCount: 0 });
       } else {
         let backupCount = 0;
@@ -1270,7 +1291,13 @@ export function App() {
           const loadedBackups = await loadProjectBackups(store, BACKUP_POLICY);
           backupCount = loadedBackups.length;
           setBackups(loadedBackups);
+          const reconciliation = await assetRepository.reconcileBackupSnapshots(loadedBackups);
+          setAssetLifecycle(reconciliation.manifest);
+          setLinkedAssetBackupIds(reconciliation.linkedRecordIds);
+          setUnlinkedAssetBackupIds(reconciliation.unlinkedRecordIds);
+          setAssetBackupAuditReady(true);
         } catch (error) {
+          setAssetBackupAuditReady(false);
           backupWarning = error instanceof Error ? `项目已恢复，但备份索引需要检查：${error.message}` :
             "项目已恢复，但备份索引需要检查。";
         }
@@ -1353,7 +1380,7 @@ export function App() {
     store: IndexedDbProjectFileStore,
     operationLabel: string
   ): boolean => {
-    if (!(error instanceof ProjectStoreError)) return false;
+    if (!(error instanceof ProjectStoreError) && !(error instanceof AssetBlobError)) return false;
     if (error.code === "LEASE_REQUIRED" || error.code === "LEASE_LOST") {
       store.activateWriterLease(null);
       assetRepositoryRef.current?.activateWriterLease(null);
@@ -1384,8 +1411,20 @@ export function App() {
 
   const saveToLocal = (reason: "manual" | "auto" = "manual") => {
     const store = storeRef.current;
+    const assetRepository = assetRepositoryRef.current;
     if (store === null || inputDirty || saveInFlight.current ||
         (reason === "auto" && autosaveSuspended.current)) return;
+    const currentSnapshot = persistedSnapshotRef.current;
+    if (currentSnapshot !== null && assetRepository === null) {
+      setPersistence((current) => ({
+        status: "degraded",
+        revision: storageRevision.current,
+        ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }),
+        errorCode: "UNAVAILABLE",
+        detail: "资源备份协调器不可用；为避免创建缺少资源保护根的备份，本次保存未执行。"
+      }));
+      return;
+    }
     saveInFlight.current = true;
     if (reason === "manual") autosaveSuspended.current = false;
     const generation = editGeneration.current;
@@ -1396,16 +1435,27 @@ export function App() {
       persistedSnapshotRef.current
     );
     const transactionId = `${reason}_save_${nextRevision}_${++saveSerial.current}`;
+    const nowMs = Date.now();
     setPersistence((current) => ({
       status: reason === "auto" ? "autosaving" : "saving",
       revision: storageRevision.current,
       ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount })
     }));
-    void saveProjectWithBackups(store, snapshot, {
-      transactionId,
-      expectedStorageRevision: storageRevision.current,
-      backupPolicy: BACKUP_POLICY,
-      nowMs: Date.now()
+    const stageBackup = currentSnapshot === null
+      ? Promise.resolve(null)
+      : assetRepository!.stageBackupSnapshot(
+          currentSnapshot.storageRevision % BACKUP_POLICY.retention,
+          currentSnapshot.storageRevision,
+          nowMs
+        );
+    void stageBackup.then((staged) => {
+      if (staged !== null) setAssetLifecycle(staged.manifest);
+      return saveProjectWithBackups(store, snapshot, {
+        transactionId,
+        expectedStorageRevision: storageRevision.current,
+        backupPolicy: BACKUP_POLICY,
+        nowMs
+      });
     }).then(async () => {
       persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
@@ -1414,7 +1464,15 @@ export function App() {
       try {
         verifiedBackups = await loadProjectBackups(store, BACKUP_POLICY);
         setBackups(verifiedBackups);
+        if (assetRepository !== null) {
+          const reconciliation = await assetRepository.reconcileBackupSnapshots(verifiedBackups);
+          setAssetLifecycle(reconciliation.manifest);
+          setLinkedAssetBackupIds(reconciliation.linkedRecordIds);
+          setUnlinkedAssetBackupIds(reconciliation.unlinkedRecordIds);
+          setAssetBackupAuditReady(true);
+        }
       } catch (error) {
+        setAssetBackupAuditReady(false);
         backupWarning = error instanceof Error
           ? `项目已保存，但备份校验失败：${error.message}`
           : "项目已保存，但备份校验失败。";
@@ -1452,6 +1510,15 @@ export function App() {
     void loadProjectBackups(store, BACKUP_POLICY).then((items) => {
       setBackups(items);
       setPersistence((current) => ({ ...current, backupCount: items.length }));
+      const repository = assetRepositoryRef.current;
+      if (repository !== null) return repository.reconcileBackupSnapshots(items).then((reconciliation) => {
+        setAssetLifecycle(reconciliation.manifest);
+        setLinkedAssetBackupIds(reconciliation.linkedRecordIds);
+        setUnlinkedAssetBackupIds(reconciliation.unlinkedRecordIds);
+        setAssetBackupAuditReady(true);
+      });
+      setAssetBackupAuditReady(false);
+      return undefined;
     }).catch((error: unknown) => {
       if (handleBlockingStoreFailure(error, store, "备份恢复")) return;
       setPersistence(persistenceFailure(error, storageRevision.current));
@@ -1460,7 +1527,9 @@ export function App() {
 
   const restoreBackup = (backup: ProjectBackup) => {
     const store = storeRef.current;
-    if (store === null || inputDirty || saveInFlight.current) return;
+    const assetRepository = assetRepositoryRef.current;
+    const currentSnapshot = persistedSnapshotRef.current;
+    if (store === null || assetRepository === null || currentSnapshot === null || inputDirty || saveInFlight.current) return;
     saveInFlight.current = true;
     const nextRevision = storageRevision.current + 1;
     setPersistence((current) => ({
@@ -1469,11 +1538,19 @@ export function App() {
       ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }),
       detail: `正在把备份 s${backup.sourceStorageRevision} 恢复为新的 s${nextRevision}…`
     }));
-    void restoreProjectBackup(store, backup.slot, {
-      transactionId: `restore_${nextRevision}_${++saveSerial.current}`,
-      expectedStorageRevision: storageRevision.current,
-      backupPolicy: BACKUP_POLICY,
-      nowMs: Date.now()
+    const nowMs = Date.now();
+    void assetRepository.stageBackupSnapshot(
+      currentSnapshot.storageRevision % BACKUP_POLICY.retention,
+      currentSnapshot.storageRevision,
+      nowMs
+    ).then((staged) => {
+      setAssetLifecycle(staged.manifest);
+      return restoreProjectBackup(store, backup.slot, {
+        transactionId: `restore_${nextRevision}_${++saveSerial.current}`,
+        expectedStorageRevision: storageRevision.current,
+        backupPolicy: BACKUP_POLICY,
+        nowMs
+      });
     }).then(async (result) => {
       const restored = restoreStudioSession(result.snapshot);
       persistedSnapshotRef.current = result.snapshot;
@@ -1481,6 +1558,11 @@ export function App() {
       editGeneration.current += 1;
       baseDispatch({ type: "restore-session", session: restored });
       const items = await loadProjectBackups(store, BACKUP_POLICY);
+      const reconciliation = await assetRepository.reconcileBackupSnapshots(items);
+      setAssetLifecycle(reconciliation.manifest);
+      setLinkedAssetBackupIds(reconciliation.linkedRecordIds);
+      setUnlinkedAssetBackupIds(reconciliation.unlinkedRecordIds);
+      setAssetBackupAuditReady(true);
       setBackups(items);
       setBackupPanelOpen(false);
       setPersistence({
@@ -1626,6 +1708,21 @@ export function App() {
     }
   };
 
+  const buildAssetSidecar = async (assetId: string) => {
+    const repository = assetRepositoryRef.current;
+    if (repository === null) return;
+    setAssetLifecycleDetail(`正在为 ${assetId} 生成确定性资源清单…`);
+    try {
+      const result = await repository.buildMetadataSidecar(assetId);
+      setAssetLifecycle(result.manifest);
+      setAssetLifecycleDetail(result.blobStatus === "existing"
+        ? `${assetId} 的 Sidecar 已按相同 recipe 精确复用；没有产生重复 Blob。`
+        : `${assetId} 的 Sidecar 已原子发布，并登记 Derivative 父图与 Build 根。`);
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof Error ? `派生任务未发布：${error.message}` : "派生任务未发布。");
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -1701,7 +1798,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.19 ASSET LINEAGE · RECOVERABLE GC</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.20 BACKUP ROOTS · DETERMINISTIC DERIVATIVES</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -1715,7 +1812,7 @@ export function App() {
               </div>
               <button className="icon-button" aria-label="关闭备份面板" onClick={() => setBackupPanelOpen(false)}>×</button>
             </div>
-            <p className="backup-dialog__intro">每次覆盖项目前先保存上一份完整快照；恢复会创建新的 revision，不会抹掉当前版本。</p>
+            <p className="backup-dialog__intro">每次覆盖项目前先保存上一份剧情快照；恢复会创建新的 revision。S0.20 已保护资源根，但资源索引随备份切换仍未接入。</p>
             <div className="backup-list" aria-live="polite">
               {backupsLoading ? <p>正在校验备份…</p> : backups.length === 0 ? (
                 <p>完成第二次保存后，这里会出现第一份可恢复快照。</p>
@@ -1724,9 +1821,12 @@ export function App() {
                   <div>
                     <strong>s{backup.sourceStorageRevision}</strong>
                     <span>槽位 {backup.slot + 1} · {new Date(backup.createdAtMs).toLocaleString()}</span>
+                    <span>{linkedAssetBackupIds.includes(assetBackupRecordId(backup.slot, backup.sourceStorageRevision))
+                      ? "资源根已联动"
+                      : "旧备份 · 资源回收锁定"}</span>
                   </div>
                   <button onClick={() => restoreBackup(backup)} disabled={inputDirty || saveInFlight.current}>
-                    恢复为新版本
+                    恢复剧情为新版本
                   </button>
                 </article>
               ))}
@@ -1738,7 +1838,10 @@ export function App() {
         <AssetVaultDialog
           index={assetIndex}
           lifecycle={assetLifecycle}
-          gcLocked={backups.length > assetLifecycle.roots.filter((root) => root.kind === "backup").length}
+          gcLocked={!assetBackupAuditReady || unlinkedAssetBackupIds.length > 0}
+          gcLockReason={!assetBackupAuditReady
+            ? "正在核对项目备份与资源保护根；完成前安全回收保持锁定。"
+            : `检测到 ${unlinkedAssetBackupIds.length} 份尚未携带资源快照的旧备份。为避免误删其依赖 Blob，安全回收已锁定。`}
           lifecycleDetail={assetLifecycleDetail}
           status={assetStatus}
           importState={assetImportState}
@@ -1749,6 +1852,7 @@ export function App() {
           onScan={() => void runAssetLifecycleOperation("scan")}
           onSweep={() => void runAssetLifecycleOperation("sweep")}
           onRestore={(digest) => void runAssetLifecycleOperation("restore", digest)}
+          onBuildSidecar={(assetId) => void buildAssetSidecar(assetId)}
         />
       )}
     </div>

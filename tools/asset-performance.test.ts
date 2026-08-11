@@ -8,6 +8,7 @@ import {
   parseAssetIndex,
   parseAssetLifecycleManifest,
   planAssetGarbageCollection,
+  prepareAssetMetadataSidecar,
   serializeAssetLifecycleManifest,
   serializeAssetIndex,
   type AssetIndex
@@ -18,7 +19,7 @@ const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.19 asset lifecycle performance gate", () => {
+describe("S0.20 backup-root and deterministic derivative performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;
@@ -99,16 +100,24 @@ describe("S0.19 asset lifecycle performance gate", () => {
       ...orphans
     ], 2_000);
     const lifecycleMs = performance.now() - start;
+    const derivativeStart = performance.now();
+    const sidecars = lifecycleIndex.assets.map(prepareAssetMetadataSidecar);
+    const derivativeMs = performance.now() - derivativeStart;
 
     console.log(JSON.stringify({
       status: "PASS",
       baseline: { lifecycleNodes: parsed.nodes.length, blobInventory: 5_500, unreachable: orphans.length },
-      measurementsMs: { lifecycleRoundtripReachabilityAndPlan: Number(lifecycleMs.toFixed(2)) },
-      budgetsMs: { lifecycleRoundtripReachabilityAndPlan: 2_000 }
+      measurementsMs: {
+        lifecycleRoundtripReachabilityAndPlan: Number(lifecycleMs.toFixed(2)),
+        deterministicSidecars: Number(derivativeMs.toFixed(2))
+      },
+      budgetsMs: { lifecycleRoundtripReachabilityAndPlan: 2_000, deterministicSidecars: 2_000 }
     }, null, 2));
 
     expect(reachable.size).toBe(5_000);
     expect(planned.quarantine).toHaveLength(500);
+    expect(new Set(sidecars.map((sidecar) => sidecar.digest)).size).toBe(5_000);
     expect(lifecycleMs).toBeLessThan(2_000);
+    expect(derivativeMs).toBeLessThan(2_000);
   });
 });
