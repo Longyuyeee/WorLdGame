@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import {
   AssetBlobError,
+  createAssetLifecycleManifest,
   createAssetIndex,
   ProjectPersistenceError,
   ProjectStoreError,
@@ -14,6 +15,7 @@ import {
   type AssetImportInput,
   type AssetIndex,
   type AssetKind,
+  type AssetLifecycleManifest,
   type ProjectSnapshot,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
@@ -201,7 +203,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.18</p>
+          <p className="eyebrow">WorLd Studio · S0.19</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -312,7 +314,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.18 INSPECTION GATE</small></span>
+            <span><strong>资源保险库</strong><small>S0.19 ASSET LINEAGE</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -372,22 +374,34 @@ function assetInspectionLabel(entry: AssetIndex["assets"][number]): string {
 
 interface AssetVaultDialogProps {
   readonly index: AssetIndex;
+  readonly lifecycle: AssetLifecycleManifest;
+  readonly gcLocked: boolean;
+  readonly lifecycleDetail: string;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
   readonly createSuggestedId: (fileName: string) => string;
   readonly onClose: () => void;
   readonly onCancel: () => void;
   readonly onImport: (file: File, metadata: Omit<AssetImportInput, "bytes" | "mimeType">) => void;
+  readonly onScan: () => void;
+  readonly onSweep: () => void;
+  readonly onRestore: (digest: AssetLifecycleManifest["trash"][number]["digest"]) => void;
 }
 
 function AssetVaultDialog({
   index,
+  lifecycle,
+  gcLocked,
+  lifecycleDetail,
   status,
   importState,
   createSuggestedId,
   onClose,
   onCancel,
-  onImport
+  onImport,
+  onScan,
+  onSweep,
+  onRestore
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -396,6 +410,9 @@ function AssetVaultDialog({
   const importing = importState.phase === "reading" || importState.phase === "committing";
   const storageReady = status === "ready" || status === "success" || status === "cancelled";
   const selectedExisting = index.assets.find((entry) => entry.assetId === assetId);
+  const sourceCount = lifecycle.nodes.filter((node) => node.role === "source").length;
+  const derivativeCount = lifecycle.nodes.length - sourceCount;
+  const eligibleCount = lifecycle.quarantine.filter((entry) => entry.sweepAfterMs <= Date.now()).length;
 
   const chooseFile = (selected: File | null) => {
     setFile(selected);
@@ -428,6 +445,39 @@ function AssetVaultDialog({
         <p className="asset-dialog__intro">
           单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。Worker 检查真实签名、尺寸、时长与危险 SVG；通过后 Blob 与 Index 才在同一 fenced 事务中提交。
         </p>
+
+        <section className="asset-lifecycle" aria-label="资源生命周期">
+          <div className="asset-lifecycle__heading">
+            <div><p className="eyebrow">SOURCE → DERIVATIVE LINEAGE</p><h3>资源血缘与安全回收</h3></div>
+            <span>Lifecycle r{lifecycle.lifecycleRevision}</span>
+          </div>
+          <div className="asset-lifecycle__metrics">
+            <span><strong>{sourceCount}</strong>源文件</span>
+            <span><strong>{derivativeCount}</strong>派生文件</span>
+            <span><strong>{lifecycle.roots.length}</strong>保护根</span>
+            <span><strong>{lifecycle.quarantine.length}</strong>隔离候选</span>
+            <span><strong>{lifecycle.trash.length}</strong>可恢复</span>
+          </div>
+          <div className={gcLocked ? "asset-lifecycle__notice is-locked" : "asset-lifecycle__notice"} role="status">
+            <span aria-hidden="true">{gcLocked ? "⌁" : "✓"}</span>
+            <p>{gcLocked
+              ? "检测到尚未携带资源根的项目备份。为避免误删其依赖 Blob，安全回收已锁定。"
+              : lifecycleDetail}</p>
+          </div>
+          <div className="asset-lifecycle__actions">
+            <button type="button" disabled={!storageReady || importing || gcLocked} onClick={onScan}>安全扫描</button>
+            <button type="button" disabled={!storageReady || importing || gcLocked || eligibleCount === 0} onClick={onSweep}>
+              移入可恢复区{eligibleCount > 0 ? ` · ${eligibleCount}` : ""}
+            </button>
+            <small>扫描只登记候选；隔离满 24 小时后才能移动，移动后仍保留 7 天恢复期。</small>
+          </div>
+          {lifecycle.trash.length > 0 && <div className="asset-trash-list" aria-label="可恢复资源">
+            {lifecycle.trash.map((entry) => <article key={entry.digest}>
+              <div><code>{entry.digest.slice(7, 19)}…</code><span>{formatBytes(entry.byteLength)} · {new Date(entry.purgeAfterMs).toLocaleDateString()} 前可恢复</span></div>
+              <button type="button" onClick={() => onRestore(entry.digest)}>恢复</button>
+            </article>)}
+          </div>}
+        </section>
 
         <form className="asset-import-form" onSubmit={submit}>
           <label className="asset-file-picker">
@@ -1009,6 +1059,10 @@ export function App() {
   const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
   const assetIndexRef = useRef(assetIndex);
   assetIndexRef.current = assetIndex;
+  const [assetLifecycle, setAssetLifecycle] = useState<AssetLifecycleManifest>(() =>
+    createAssetLifecycleManifest(createAssetIndex(), Date.now())
+  );
+  const [assetLifecycleDetail, setAssetLifecycleDetail] = useState("血缘清单已校验；没有执行不可逆删除。");
   const [assetStatus, setAssetStatus] = useState<AssetVaultStatus>(
     storageAvailable ? "loading" : "unavailable"
   );
@@ -1185,9 +1239,13 @@ export function App() {
         nowMs: Date.now()
       });
       try {
-        const loadedAssetIndex = await assetRepository.loadIndex();
+        const [loadedAssetIndex, loadedAssetLifecycle] = await Promise.all([
+          assetRepository.loadIndex(),
+          assetRepository.loadLifecycle()
+        ]);
         if (cancelled) return;
         setAssetIndex(loadedAssetIndex);
+        setAssetLifecycle(loadedAssetLifecycle);
         setAssetStatus("ready");
       } catch (error) {
         if (cancelled) return;
@@ -1503,6 +1561,7 @@ export function App() {
         })
       });
       setAssetIndex(result.index);
+      setAssetLifecycle(result.lifecycle);
       setAssetStatus("success");
       setAssetImportState({
         phase: "success",
@@ -1540,6 +1599,31 @@ export function App() {
     }).finally(() => {
       if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
     });
+  };
+
+  const runAssetLifecycleOperation = async (operation: "scan" | "sweep" | "restore", digest?: AssetLifecycleManifest["trash"][number]["digest"]) => {
+    const repository = assetRepositoryRef.current;
+    if (repository === null) return;
+    setAssetLifecycleDetail(operation === "scan" ? "正在计算保护根可达性…" : operation === "sweep" ? "正在原子移动合格候选…" : "正在校验并恢复 Blob…");
+    try {
+      if (operation === "scan") {
+        const result = await repository.planGarbageCollection();
+        setAssetLifecycle(result.manifest);
+        setAssetLifecycleDetail(result.affectedDigests.length === 0
+          ? "扫描完成：所有 Blob 均受当前、历史或显式保护根保护。"
+          : `扫描完成：${result.affectedDigests.length} 个不可达 Blob 已进入 24 小时隔离观察；尚未移动任何数据。`);
+      } else if (operation === "sweep") {
+        const result = await repository.sweepGarbageCollection();
+        setAssetLifecycle(result.manifest);
+        setAssetLifecycleDetail(`已将 ${result.affectedDigests.length} 个候选原子移入可恢复区；原位置不再占用活跃资源空间。`);
+      } else if (digest !== undefined) {
+        const manifest = await repository.restoreTrash(digest);
+        setAssetLifecycle(manifest);
+        setAssetLifecycleDetail("Blob 已校验并恢复；临时恢复根会阻止它立即再次进入隔离。");
+      }
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof Error ? `操作未执行：${error.message}` : "生命周期操作未执行。");
+    }
   };
 
   if (persistence.status === "loading" || persistence.status === "migrating") {
@@ -1617,7 +1701,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.18 UNTRUSTED MEDIA GATE</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.19 ASSET LINEAGE · RECOVERABLE GC</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -1653,12 +1737,18 @@ export function App() {
       {assetPanelOpen && (
         <AssetVaultDialog
           index={assetIndex}
+          lifecycle={assetLifecycle}
+          gcLocked={backups.length > assetLifecycle.roots.filter((root) => root.kind === "backup").length}
+          lifecycleDetail={assetLifecycleDetail}
           status={assetStatus}
           importState={assetImportState}
           createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
           onClose={closeAssetPanel}
           onCancel={cancelAssetImport}
           onImport={importAssetFile}
+          onScan={() => void runAssetLifecycleOperation("scan")}
+          onSweep={() => void runAssetLifecycleOperation("sweep")}
+          onRestore={(digest) => void runAssetLifecycleOperation("restore", digest)}
         />
       )}
     </div>

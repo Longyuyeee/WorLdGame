@@ -7,13 +7,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.18 inspected atomic Web asset import integration", () => {
+describe("S0.19 inspected atomic Web asset lifecycle integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
     const vaultButton = await screen.findByRole("button", { name: "打开资源保险库" });
     await waitFor(() => expect(within(vaultButton).getByText(/0 项资源 · Index r0/)).toBeVisible());
     fireEvent.click(vaultButton);
+
+    expect(screen.getByRole("heading", { name: "资源血缘与安全回收" })).toBeVisible();
+    expect(screen.getByText("Lifecycle r0")).toBeVisible();
+    expect(screen.getByRole("button", { name: "安全扫描" })).toBeEnabled();
 
     const picker = screen.getByLabelText("选择资源文件");
     const png = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 7, 128, 0, 0, 4, 56, 8, 6, 0, 0, 0, 0, 0, 0, 0]);
@@ -27,6 +31,8 @@ describe("S0.18 inspected atomic Web asset import integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "导入到资源保险库" }));
 
     await waitFor(() => expect(screen.getByText(/媒体检查通过；新 Blob 与 broadcast_cg 已原子写入 Index r1/)).toBeVisible());
+    expect(screen.getByText("Lifecycle r1")).toBeVisible();
+    expect(screen.getAllByText("1", { selector: ".asset-lifecycle__metrics strong" })).toHaveLength(2);
     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast CG")).toBeVisible();
     expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
     expect(screen.getByRole("button", { name: "保存到本机" })).toBeVisible();

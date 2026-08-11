@@ -2,8 +2,13 @@ import { performance } from "node:perf_hooks";
 import { describe, expect, it } from "vitest";
 import {
   createBlobDigest,
+  computeAssetReachability,
+  createAssetLifecycleManifest,
   inspectUntrustedMedia,
   parseAssetIndex,
+  parseAssetLifecycleManifest,
+  planAssetGarbageCollection,
+  serializeAssetLifecycleManifest,
   serializeAssetIndex,
   type AssetIndex
 } from "../packages/project-persistence/src/index";
@@ -13,7 +18,7 @@ const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.18 inspected asset import performance gate", () => {
+describe("S0.19 asset lifecycle performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;
@@ -64,5 +69,46 @@ describe("S0.18 inspected asset import performance gate", () => {
     expect(hashMs).toBeLessThan(5_000);
     expect(indexRoundtripMs).toBeLessThan(2_000);
     expect(totalMs).toBeLessThan(10_000);
+  });
+
+  it("audits reachability and plans quarantine for a 5k-resource project within budget", () => {
+    const lifecycleIndex: AssetIndex = {
+      schemaVersion: 1,
+      indexRevision: 5_000,
+      assets: Array.from({ length: 5_000 }, (_, item) => ({
+        assetId: `asset_${item}`,
+        kind: "cg" as const,
+        displayName: `Asset ${item}`,
+        source: {
+          digest: createBlobDigest(new TextEncoder().encode(`asset-${item}`)),
+          byteLength: 1_048_576,
+          mimeType: "image/png"
+        },
+        tags: []
+      }))
+    };
+    const orphans = Array.from({ length: 500 }, (_, item) =>
+      createBlobDigest(new TextEncoder().encode(`orphan-${item}`))
+    );
+    const start = performance.now();
+    const manifest = createAssetLifecycleManifest(lifecycleIndex, 1_000);
+    const parsed = parseAssetLifecycleManifest(serializeAssetLifecycleManifest(manifest));
+    const reachable = computeAssetReachability(parsed, 2_000);
+    const planned = planAssetGarbageCollection(parsed, [
+      ...lifecycleIndex.assets.map((entry) => entry.source.digest),
+      ...orphans
+    ], 2_000);
+    const lifecycleMs = performance.now() - start;
+
+    console.log(JSON.stringify({
+      status: "PASS",
+      baseline: { lifecycleNodes: parsed.nodes.length, blobInventory: 5_500, unreachable: orphans.length },
+      measurementsMs: { lifecycleRoundtripReachabilityAndPlan: Number(lifecycleMs.toFixed(2)) },
+      budgetsMs: { lifecycleRoundtripReachabilityAndPlan: 2_000 }
+    }, null, 2));
+
+    expect(reachable.size).toBe(5_000);
+    expect(planned.quarantine).toHaveLength(500);
+    expect(lifecycleMs).toBeLessThan(2_000);
   });
 });

@@ -10,10 +10,12 @@ import {
 } from "@world-studio/project-persistence";
 
 export const WORLD_STUDIO_DATABASE_NAME = "world-studio-local-projects";
-export const WORLD_STUDIO_DATABASE_VERSION = 2;
+export const WORLD_STUDIO_DATABASE_VERSION = 3;
 export const PROJECT_FILE_STORE_NAME = "project-files";
 export const ASSET_BLOB_STORE_NAME = "asset-blobs";
 export const ASSET_INDEX_STORE_NAME = "asset-indexes";
+export const ASSET_LIFECYCLE_STORE_NAME = "asset-lifecycles";
+export const ASSET_TRASH_STORE_NAME = "asset-trash";
 const STORE_NAME = PROJECT_FILE_STORE_NAME;
 const LEASE_ERROR_PATH = "coordination/writer-lease";
 
@@ -117,7 +119,8 @@ export function openWorldStudioDatabase(indexedDb: IDBFactory): Promise<IDBDatab
   return new Promise((resolve, reject) => {
     const request = indexedDb.open(WORLD_STUDIO_DATABASE_NAME, WORLD_STUDIO_DATABASE_VERSION);
     request.addEventListener("upgradeneeded", () => {
-      for (const storeName of [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME]) {
+      for (const storeName of [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME,
+        ASSET_LIFECYCLE_STORE_NAME, ASSET_TRASH_STORE_NAME]) {
         if (!request.result.objectStoreNames.contains(storeName)) request.result.createObjectStore(storeName);
       }
     });

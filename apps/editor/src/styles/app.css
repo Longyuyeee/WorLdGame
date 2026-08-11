@@ -804,6 +804,84 @@ button:disabled {
   line-height: 1.65;
 }
 
+.asset-lifecycle {
+  display: grid;
+  gap: 11px;
+  margin: 0 0 14px;
+  padding: 15px;
+  border: 1px solid rgb(85 217 138 / 22%);
+  border-radius: 17px;
+  background: radial-gradient(circle at 100% 0%, rgb(85 217 138 / 10%), transparent 18rem), rgb(85 217 138 / 4%);
+}
+
+.asset-lifecycle__heading,
+.asset-lifecycle__notice,
+.asset-lifecycle__actions,
+.asset-trash-list article {
+  display: flex;
+  align-items: center;
+}
+
+.asset-lifecycle__heading { justify-content: space-between; }
+.asset-lifecycle__heading h3,
+.asset-lifecycle__heading p,
+.asset-lifecycle__notice p { margin: 0; }
+.asset-lifecycle__heading h3 { margin-top: 3px; font-size: 13px; }
+.asset-lifecycle__heading > span { color: var(--wg-color-status-success); font: 800 9px "IBM Plex Mono", Consolas, monospace; }
+
+.asset-lifecycle__metrics {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.asset-lifecycle__metrics span {
+  display: grid;
+  gap: 2px;
+  padding: 8px;
+  border: 1px solid rgb(255 255 255 / 6%);
+  border-radius: 10px;
+  background: rgb(0 0 0 / 12%);
+  color: var(--wg-color-text-muted);
+  font-size: 8px;
+}
+
+.asset-lifecycle__metrics strong { color: var(--wg-color-text-primary); font: 700 14px "IBM Plex Mono", Consolas, monospace; }
+
+.asset-lifecycle__notice {
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgb(85 217 138 / 8%);
+  color: var(--wg-color-text-secondary);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.asset-lifecycle__notice.is-locked { background: rgb(255 184 77 / 9%); color: var(--wg-color-status-warning); }
+.asset-lifecycle__actions { flex-wrap: wrap; gap: 7px; }
+
+.asset-lifecycle__actions button,
+.asset-trash-list button {
+  min-height: 31px;
+  padding: 0 11px;
+  border: 1px solid rgb(85 217 138 / 26%);
+  border-radius: 9px;
+  background: rgb(85 217 138 / 8%);
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.asset-lifecycle__actions button:disabled { cursor: not-allowed; opacity: 0.42; }
+.asset-lifecycle__actions small { flex: 1; min-width: 230px; color: var(--wg-color-text-muted); font-size: 8px; line-height: 1.45; }
+.asset-trash-list { display: grid; gap: 6px; }
+.asset-trash-list article { justify-content: space-between; padding: 7px 9px; border-radius: 9px; background: rgb(255 255 255 / 3%); }
+.asset-trash-list article > div { display: grid; gap: 2px; }
+.asset-trash-list code, .asset-trash-list span { font-size: 8px; }
+.asset-trash-list span { color: var(--wg-color-text-muted); }
+
 .asset-import-form {
   display: grid;
   gap: 12px;

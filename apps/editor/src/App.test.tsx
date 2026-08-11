@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.18 untrusted media inspection UI prototype", () => {
+describe("WorLd Studio S0.19 asset lifecycle UI prototype", () => {
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });
