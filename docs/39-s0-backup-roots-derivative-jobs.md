@@ -98,6 +98,7 @@ Sidecar 是派生任务执行协议的最小真实产物，不包含原始媒体
 
 ## 9. 本轮证据
 
+- 实现提交：`366d369`（`Link backup roots and derivative jobs`）；
 - 干净安装：`npm ci --ignore-scripts` 通过，128 packages；
 - 全量门禁：31 个测试文件、200/200 测试通过；TypeScript、生产构建和架构审计通过；
 - 构建体积：主 JS 356.04 kB（gzip 107.70 kB），CSS 40.01 kB（gzip 8.33 kB），Worker 16.04 kB；
