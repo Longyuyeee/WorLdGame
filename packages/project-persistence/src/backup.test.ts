@@ -7,6 +7,7 @@ import {
   loadProjectBackups,
   restoreProjectBackup,
   saveProjectWithBackups,
+  sha256,
   type ProjectFileStore,
   type ProjectSnapshot
 } from "./index";
@@ -15,7 +16,7 @@ const policy = { retention: 2 } as const;
 
 function snapshot(revision: number, title = `Revision ${revision}`): ProjectSnapshot {
   return {
-    schemaVersion: 0,
+    schemaVersion: 1,
     projectId: "backup_test",
     title,
     entrySceneId: "scene_a",
@@ -63,6 +64,25 @@ describe("project backup rotation", () => {
     envelope.payload = `${envelope.payload ?? ""}tampered`;
     store.files.set(path, JSON.stringify(envelope));
     await expect(loadProjectBackups(store, policy)).rejects.toMatchObject({ code: "CORRUPT_BACKUP" });
+  });
+
+  it("loads schema 0 backup payloads as schema 1 without rewriting the archive", async () => {
+    const store = new InMemoryProjectFileStore();
+    const legacyPayload = JSON.stringify({ ...snapshot(1), schemaVersion: 0 });
+    const envelope = JSON.stringify({
+      schemaVersion: 0,
+      slot: 1,
+      createdAtMs: 1_000,
+      sourceStorageRevision: 1,
+      payload: legacyPayload,
+      sha256: sha256(legacyPayload)
+    });
+    store.files.set("backups/slot-1.snapshot.json", envelope);
+
+    const [loaded] = await loadProjectBackups(store, policy);
+    expect(loaded?.snapshot.schemaVersion).toBe(1);
+    expect(loaded?.snapshot.storageRevision).toBe(1);
+    expect(store.files.get("backups/slot-1.snapshot.json")).toBe(envelope);
   });
 
   it("does not create a backup for a stale writer", async () => {

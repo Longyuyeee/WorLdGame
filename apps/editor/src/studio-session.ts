@@ -173,16 +173,18 @@ export function createStudioSession(): StudioSession {
 
 export function createProjectSnapshot(
   session: StudioSession,
-  storageRevision: number
+  storageRevision: number,
+  preservedFrom?: ProjectSnapshot | null
 ): ProjectSnapshot {
   return {
-    schemaVersion: 0,
+    schemaVersion: 1,
     projectId: session.project.id,
     title: session.project.title,
     entrySceneId: session.project.entrySceneId,
     storageRevision,
     scenes: session.project.scenes.map((scene) => {
       const sourceSession = session.sourceSessions[scene.id];
+      const preservedScene = preservedFrom?.scenes.find((item) => item.sceneId === scene.id);
       if (sourceSession === undefined) throw new Error(`Missing source state: ${scene.id}`);
       return {
         sceneId: scene.id,
@@ -190,9 +192,15 @@ export function createProjectSnapshot(
         semanticRevision: sourceSession.semanticRevision,
         committedSource: sourceSession.committedSource,
         draftSource: session.sourceDrafts[scene.id] ?? sourceSession.draftSource,
-        tombstones: sourceSession.tombstones
+        tombstones: sourceSession.tombstones,
+        ...(preservedScene?.preservedFields === undefined
+          ? {}
+          : { preservedFields: preservedScene.preservedFields })
       };
-    })
+    }),
+    ...(preservedFrom?.preservedFields === undefined
+      ? {}
+      : { preservedFields: preservedFrom.preservedFields })
   };
 }
 

@@ -40,6 +40,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function normalizeBackupSnapshot(value: unknown): unknown {
+  if (!isRecord(value) || value.schemaVersion !== 0 || !Array.isArray(value.scenes)) return value;
+  return {
+    ...value,
+    schemaVersion: 1,
+    scenes: value.scenes.map((scene) => isRecord(scene) ? { ...scene } : scene)
+  };
+}
+
 function parseBackup(content: string, expectedSlot: number): ProjectBackup {
   let data: unknown;
   try {
@@ -57,7 +66,7 @@ function parseBackup(content: string, expectedSlot: number): ProjectBackup {
   }
   let snapshot: ProjectSnapshot;
   try {
-    snapshot = JSON.parse(data.payload) as ProjectSnapshot;
+    snapshot = normalizeBackupSnapshot(JSON.parse(data.payload)) as ProjectSnapshot;
     assertProjectSnapshot(snapshot);
   } catch {
     return fail("CORRUPT_BACKUP", `Backup slot ${expectedSlot} contains an invalid snapshot`);

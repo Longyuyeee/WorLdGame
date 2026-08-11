@@ -2,11 +2,14 @@ import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties } 
 import {
   ProjectPersistenceError,
   ProjectStoreError,
+  CURRENT_PROJECT_SCHEMA_VERSION,
   loadProjectBackups,
-  loadProject,
+  migrateProjectToCurrent,
+  probeProjectVersion,
   restoreProjectBackup,
   saveProjectWithBackups,
   type ProjectBackup,
+  type ProjectSnapshot,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
 import {
@@ -31,8 +34,9 @@ import {
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 
-type PersistenceStatus = "loading" | "conflict" | "unavailable" | "unsaved" | "dirty" |
-  "saving" | "autosaving" | "saved" | "autosaved" | "restored" | "degraded" | "error";
+type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
+  "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
+  "autosaved" | "restored" | "degraded" | "error";
 
 const WRITER_LEASE_TTL_MS = 12_000;
 const WRITER_LEASE_HEARTBEAT_MS = 4_000;
@@ -45,6 +49,8 @@ interface PersistenceViewState {
   readonly detail?: string;
   readonly errorCode?: string;
   readonly backupCount?: number;
+  readonly schemaVersion?: number;
+  readonly projectTitle?: string;
 }
 
 export function persistenceFailure(error: unknown, revision: number): PersistenceViewState {
@@ -143,7 +149,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.12</p>
+          <p className="eyebrow">WorLd Studio · S0.13</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -620,6 +626,7 @@ export function App() {
   );
   const [leaseRetry, setLeaseRetry] = useState(0);
   const storageRevision = useRef(0);
+  const persistedSnapshotRef = useRef<ProjectSnapshot | null>(null);
   const saveSerial = useRef(0);
   const saveInFlight = useRef(false);
   const autosaveSuspended = useRef(false);
@@ -649,7 +656,9 @@ export function App() {
     ].includes(action.type)) {
       editGeneration.current += 1;
       setEditVersion((value) => value + 1);
-      setPersistence((current) => current.status === "unavailable" || current.status === "conflict"
+      setPersistence((current) => current.status === "unavailable" || current.status === "conflict" ||
+        current.status === "readonly" || current.status === "blocked" || current.status === "loading" ||
+        current.status === "migrating"
         ? current
         : current.status === "saving" || current.status === "autosaving"
           ? current
@@ -722,9 +731,44 @@ export function App() {
         });
       }, WRITER_LEASE_HEARTBEAT_MS);
 
-      const snapshot = await loadProject(store);
+      const probe = await probeProjectVersion(store);
+      if (cancelled) return;
+      if (probe.status === "future") {
+        if (heartbeat !== undefined) clearInterval(heartbeat);
+        heartbeat = undefined;
+        const activeLease = leaseRef.current;
+        store.activateWriterLease(null);
+        leaseRef.current = null;
+        storeRef.current = null;
+        if (activeLease !== null) await store.release(activeLease).catch(() => false);
+        if (cancelled) return;
+        setPersistence({
+          status: "readonly",
+          revision: probe.storageRevision ?? 0,
+          schemaVersion: probe.schemaVersion,
+          ...(probe.title === undefined ? {} : { projectTitle: probe.title }),
+          errorCode: "UNSUPPORTED_FUTURE_SCHEMA",
+          detail: `项目使用 schema ${probe.schemaVersion}，当前编辑器仅支持到 schema ${CURRENT_PROJECT_SCHEMA_VERSION}。版本探测没有执行恢复、迁移或写入。`
+        });
+        return;
+      }
+      if (probe.status === "legacy") {
+        setPersistence({
+          status: "migrating",
+          revision: probe.storageRevision ?? 0,
+          schemaVersion: probe.schemaVersion,
+          ...(probe.title === undefined ? {} : { projectTitle: probe.title }),
+          detail: `正在为 schema ${probe.schemaVersion} 创建原始快照并执行连续迁移…`
+        });
+      }
+      const migration = await migrateProjectToCurrent(store, {
+        transactionId: `migration_to_v${CURRENT_PROJECT_SCHEMA_VERSION}_${++saveSerial.current}`,
+        nowMs: Date.now()
+      });
+      const snapshot = migration?.snapshot ?? null;
       if (cancelled) return;
       if (snapshot === null) {
+        persistedSnapshotRef.current = null;
         setPersistence({ status: "unsaved", revision: 0, backupCount: 0 });
       } else {
         let backupCount = 0;
@@ -739,20 +783,34 @@ export function App() {
         }
         if (cancelled) return;
         const restored = restoreStudioSession(snapshot);
+        persistedSnapshotRef.current = snapshot;
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
         setPersistence({
           status: "restored",
           revision: snapshot.storageRevision,
           backupCount,
-          ...(backupWarning === undefined ? {} : { detail: backupWarning, errorCode: "CORRUPT_BACKUP" })
+          schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
+          detail: backupWarning ?? (migration?.status === "migrated"
+            ? `已从 schema ${migration.fromSchemaVersion} 安全迁移到 ${migration.toSchemaVersion}；原始文件归档于 ${migration.archivePath}；保留 ${migration.preservedUnknownFieldCount} 个未知字段。`
+            : "项目 schema 与存储修订已校验。"),
+          ...(backupWarning === undefined ? {} : { errorCode: "CORRUPT_BACKUP" })
         });
       }
     };
 
-    void start().catch((error: unknown) => {
+    void start().catch(async (error: unknown) => {
       if (cancelled) return;
-      setPersistence(persistenceFailure(error, storageRevision.current));
+      if (heartbeat !== undefined) clearInterval(heartbeat);
+      heartbeat = undefined;
+      const activeLease = leaseRef.current;
+      store.activateWriterLease(null);
+      leaseRef.current = null;
+      storeRef.current = null;
+      if (activeLease !== null) await store.release(activeLease).catch(() => false);
+      if (cancelled) return;
+      const failure = persistenceFailure(error, storageRevision.current);
+      setPersistence({ ...failure, status: "blocked" });
     });
 
     const releaseOnPageHide = (event: PageTransitionEvent) => {
@@ -826,7 +884,11 @@ export function App() {
     if (reason === "manual") autosaveSuspended.current = false;
     const generation = editGeneration.current;
     const nextRevision = storageRevision.current + 1;
-    const snapshot = createProjectSnapshot(sessionRef.current, nextRevision);
+    const snapshot = createProjectSnapshot(
+      sessionRef.current,
+      nextRevision,
+      persistedSnapshotRef.current
+    );
     const transactionId = `${reason}_save_${nextRevision}_${++saveSerial.current}`;
     setPersistence((current) => ({
       status: reason === "auto" ? "autosaving" : "saving",
@@ -839,6 +901,7 @@ export function App() {
       backupPolicy: BACKUP_POLICY,
       nowMs: Date.now()
     }).then(async () => {
+      persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
       let verifiedBackups = backups;
       let backupWarning: string | undefined;
@@ -907,6 +970,7 @@ export function App() {
       nowMs: Date.now()
     }).then(async (result) => {
       const restored = restoreStudioSession(result.snapshot);
+      persistedSnapshotRef.current = result.snapshot;
       storageRevision.current = result.snapshot.storageRevision;
       editGeneration.current += 1;
       baseDispatch({ type: "restore-session", session: restored });
@@ -926,13 +990,42 @@ export function App() {
     });
   };
 
-  if (persistence.status === "loading") {
+  if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
         <span className="startup-gate__orb" aria-hidden="true" />
-        <p className="eyebrow">SINGLE-WRITER STARTUP</p>
-        <h1>正在获取安全编辑权…</h1>
-        <p>取得带 fencing token 的写入租约后，再检查 WAL 与 SHA-256 完整性。</p>
+        <p className="eyebrow">{persistence.status === "migrating" ? "SAFE SCHEMA MIGRATION" : "SINGLE-WRITER STARTUP"}</p>
+        <h1>{persistence.status === "migrating" ? "正在安全升级项目格式…" : "正在获取安全编辑权…"}</h1>
+        <p>{persistence.detail ?? "取得带 fencing token 的写入租约后，再检查版本、WAL 与 SHA-256 完整性。"}</p>
+      </div>
+    );
+  }
+
+  if (persistence.status === "readonly") {
+    return (
+      <div className="startup-gate startup-gate--readonly" role="alert" aria-live="assertive">
+        <span className="startup-gate__lock startup-gate__lock--readonly" aria-hidden="true">◇</span>
+        <p className="eyebrow">FUTURE PROJECT · READ ONLY</p>
+        <h1>项目来自更新版本</h1>
+        <p>{persistence.projectTitle === undefined ? "此项目" : `“${persistence.projectTitle}”`} 使用 schema {persistence.schemaVersion}；当前编辑器支持到 schema {CURRENT_PROJECT_SCHEMA_VERSION}。</p>
+        <p>{persistence.detail}</p>
+        <button className="startup-gate__retry" onClick={() => setLeaseRetry((value) => value + 1)}>
+          重新检测项目版本
+        </button>
+      </div>
+    );
+  }
+
+  if (persistence.status === "blocked") {
+    return (
+      <div className="startup-gate startup-gate--blocked" role="alert" aria-live="assertive">
+        <span className="startup-gate__lock" aria-hidden="true">!</span>
+        <p className="eyebrow">PROJECT OPEN BLOCKED</p>
+        <h1>项目尚未开放编辑</h1>
+        <p>{persistence.detail ?? "启动校验未完成；编辑器没有加载默认内容覆盖项目。"}</p>
+        <button className="startup-gate__retry" onClick={() => setLeaseRetry((value) => value + 1)}>
+          重新执行安全检查
+        </button>
       </div>
     );
   }
@@ -966,7 +1059,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.12 SAFE AUTOSAVE</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.13 SAFE MIGRATION</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

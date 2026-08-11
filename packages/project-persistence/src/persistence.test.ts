@@ -12,7 +12,7 @@ import {
 
 function snapshot(revision: number, suffix: string): ProjectSnapshot {
   return {
-    schemaVersion: 0,
+    schemaVersion: 1,
     projectId: "campus_echo",
     title: `Campus Echo ${suffix}`,
     entrySceneId: "scene_a",

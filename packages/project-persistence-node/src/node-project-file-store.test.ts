@@ -21,7 +21,7 @@ async function createStore(): Promise<{ root: string; store: NodeProjectFileStor
 
 function snapshot(revision: number): ProjectSnapshot {
   return {
-    schemaVersion: 0,
+    schemaVersion: 1,
     projectId: "node_store_test",
     title: "Node Store Test",
     entrySceneId: "scene_a",

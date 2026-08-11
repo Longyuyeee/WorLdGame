@@ -208,4 +208,19 @@ describe("S0.9 studio source projection and recovery session", () => {
     expect(activeSourceSession(restored).history).toEqual([]);
     expect(restored.notice.detail).toContain("storage revision 4");
   });
+
+  it("carries preserved project and scene fields through a Studio Session save", () => {
+    const initial = createProjectSnapshot(createStudioSession(), 1);
+    const persisted = {
+      ...initial,
+      preservedFields: { pluginProjectState: { enabled: true } },
+      scenes: initial.scenes.map((scene, index) => index === 0
+        ? { ...scene, preservedFields: { pluginSceneState: ["rain", 0.7] } }
+        : scene)
+    } as const;
+
+    const saved = createProjectSnapshot(restoreStudioSession(persisted), 2, persisted);
+    expect(saved.preservedFields).toEqual({ pluginProjectState: { enabled: true } });
+    expect(saved.scenes[0]?.preservedFields).toEqual({ pluginSceneState: ["rain", 0.7] });
+  });
 });

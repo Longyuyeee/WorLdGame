@@ -345,6 +345,14 @@ h2 {
   background: radial-gradient(circle, rgb(255 98 165 / 16%), transparent 25rem), var(--wg-color-bg-canvas);
 }
 
+.startup-gate--readonly {
+  background: radial-gradient(circle, rgb(62 215 255 / 16%), transparent 25rem), var(--wg-color-bg-canvas);
+}
+
+.startup-gate--blocked {
+  background: radial-gradient(circle, rgb(255 184 77 / 15%), transparent 25rem), var(--wg-color-bg-canvas);
+}
+
 .startup-gate__lock {
   display: grid;
   width: 44px;
@@ -356,6 +364,12 @@ h2 {
   background: rgb(255 98 165 / 12%);
   color: #ff62a5;
   font-size: 26px;
+}
+
+.startup-gate__lock--readonly {
+  border-color: rgb(62 215 255 / 42%);
+  background: rgb(62 215 255 / 12%);
+  color: #3ed7ff;
 }
 
 .startup-gate__retry {

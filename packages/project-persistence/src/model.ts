@@ -97,6 +97,12 @@ export interface PersistedDialogueTombstone {
   readonly formerLine: number;
 }
 
+export type JsonValue = null | boolean | number | string | readonly JsonValue[] | JsonObject;
+
+export interface JsonObject {
+  readonly [key: string]: JsonValue;
+}
+
 export interface ProjectSceneSnapshot {
   readonly sceneId: string;
   readonly sourceRevision: number;
@@ -104,15 +110,17 @@ export interface ProjectSceneSnapshot {
   readonly committedSource: string;
   readonly draftSource: string;
   readonly tombstones: readonly PersistedDialogueTombstone[];
+  readonly preservedFields?: JsonObject;
 }
 
 export interface ProjectSnapshot {
-  readonly schemaVersion: 0;
+  readonly schemaVersion: 1;
   readonly projectId: string;
   readonly title: string;
   readonly entrySceneId: string;
   readonly storageRevision: number;
   readonly scenes: readonly ProjectSceneSnapshot[];
+  readonly preservedFields?: JsonObject;
 }
 
 export type PersistenceErrorCode =
@@ -124,7 +132,32 @@ export type PersistenceErrorCode =
   | "CORRUPT_WAL"
   | "CORRUPT_BACKUP"
   | "BACKUP_NOT_FOUND"
+  | "UNSUPPORTED_FUTURE_SCHEMA"
+  | "MIGRATION_FAILED"
   | "INCOMPLETE_STAGED_TRANSACTION";
+
+export const CURRENT_PROJECT_SCHEMA_VERSION = 1;
+
+export type ProjectVersionProbe =
+  | { readonly status: "missing" }
+  | {
+      readonly status: "legacy" | "current" | "future";
+      readonly schemaVersion: number;
+      readonly projectId?: string;
+      readonly title?: string;
+      readonly storageRevision?: number;
+    };
+
+export interface ProjectMigrationReport {
+  readonly status: "not-needed" | "migrated";
+  readonly fromSchemaVersion: number;
+  readonly toSchemaVersion: 1;
+  readonly sourceStorageRevision: number;
+  readonly resultStorageRevision: number;
+  readonly archivePath?: string;
+  readonly preservedUnknownFieldCount: number;
+  readonly snapshot: ProjectSnapshot;
+}
 
 export interface ProjectBackupPolicy {
   readonly retention: number;

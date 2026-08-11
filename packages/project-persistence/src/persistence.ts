@@ -1,4 +1,6 @@
 import type {
+  JsonObject,
+  JsonValue,
   ProjectFileStore,
   ProjectSceneSnapshot,
   ProjectSnapshot,
@@ -6,7 +8,7 @@ import type {
   SaveProjectOptions,
   SaveProjectResult
 } from "./model";
-import { ProjectPersistenceError } from "./model";
+import { CURRENT_PROJECT_SCHEMA_VERSION, ProjectPersistenceError } from "./model";
 import { sha256 } from "./sha256";
 
 export const PROJECT_MANIFEST_PATH = "project.json";
@@ -20,7 +22,7 @@ interface ManifestScene {
 }
 
 interface ProjectManifest {
-  readonly schemaVersion: 0;
+  readonly schemaVersion: 1;
   readonly projectId: string;
   readonly title: string;
   readonly entrySceneId: string;
@@ -45,6 +47,8 @@ interface SaveWal {
 }
 
 const TOKEN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+const MANIFEST_FIELDS = new Set(["schemaVersion", "projectId", "title", "entrySceneId", "storageRevision", "scenes"]);
+const SCENE_FIELDS = new Set(["schemaVersion", "sceneId", "sourceRevision", "semanticRevision", "committedSource", "draftSource", "tombstones"]);
 
 function fail(code: ConstructorParameters<typeof ProjectPersistenceError>[0], message: string): never {
   throw new ProjectPersistenceError(code, message);
@@ -62,6 +66,37 @@ function assertRevision(value: number, label: string): void {
   }
 }
 
+function isJsonValue(value: unknown): value is JsonValue {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (Array.isArray(value)) return value.every(isJsonValue);
+  return isRecord(value) && Object.values(value).every(isJsonValue);
+}
+
+function assertPreservedFields(
+  fields: JsonObject | undefined,
+  reserved: ReadonlySet<string>,
+  label: string
+): void {
+  if (fields === undefined) return;
+  if (!isRecord(fields) || !isJsonValue(fields) || Object.keys(fields).some((key) => reserved.has(key))) {
+    fail("INVALID_SNAPSHOT", `${label} contains invalid or reserved unknown fields`);
+  }
+}
+
+function collectUnknownFields(
+  data: Record<string, unknown>,
+  known: ReadonlySet<string>,
+  code: "CORRUPT_MANIFEST" | "CORRUPT_SCENE"
+): JsonObject | undefined {
+  const entries = Object.entries(data).filter(([key]) => !known.has(key));
+  if (entries.length === 0) return undefined;
+  if (entries.some(([, value]) => !isJsonValue(value))) {
+    return fail(code, "Unknown fields contain a non-JSON value");
+  }
+  return Object.fromEntries(entries) as JsonObject;
+}
+
 function scenePath(sceneId: string): string {
   return `scenes/${sceneId}.json`;
 }
@@ -71,7 +106,10 @@ function tempPath(transactionId: string, targetPath: string): string {
 }
 
 export function assertProjectSnapshot(snapshot: ProjectSnapshot): void {
-  if (snapshot.schemaVersion !== 0) fail("INVALID_SNAPSHOT", "Unsupported snapshot schema");
+  if (snapshot.schemaVersion !== CURRENT_PROJECT_SCHEMA_VERSION) {
+    fail("INVALID_SNAPSHOT", "Unsupported snapshot schema");
+  }
+  assertPreservedFields(snapshot.preservedFields, MANIFEST_FIELDS, "project.preservedFields");
   assertToken(snapshot.projectId, "projectId");
   assertToken(snapshot.entrySceneId, "entrySceneId");
   if (snapshot.title.trim().length === 0) fail("INVALID_SNAPSHOT", "title must not be empty");
@@ -79,6 +117,7 @@ export function assertProjectSnapshot(snapshot: ProjectSnapshot): void {
   if (snapshot.scenes.length === 0) fail("INVALID_SNAPSHOT", "At least one scene is required");
   const ids = new Set<string>();
   for (const scene of snapshot.scenes) {
+    assertPreservedFields(scene.preservedFields, SCENE_FIELDS, `${scene.sceneId}.preservedFields`);
     assertToken(scene.sceneId, "sceneId");
     assertRevision(scene.sourceRevision, "sourceRevision");
     assertRevision(scene.semanticRevision, "semanticRevision");
@@ -103,7 +142,8 @@ export function assertProjectSnapshot(snapshot: ProjectSnapshot): void {
 
 function serializeScene(scene: ProjectSceneSnapshot): string {
   return JSON.stringify({
-    schemaVersion: 0,
+    ...(scene.preservedFields ?? {}),
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     sceneId: scene.sceneId,
     sourceRevision: scene.sourceRevision,
     semanticRevision: scene.semanticRevision,
@@ -234,7 +274,8 @@ export async function saveProject(
       content: serializeScene(scene)
     }));
   const manifest: ProjectManifest = {
-    schemaVersion: 0,
+    ...(snapshot.preservedFields ?? {}),
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     projectId: snapshot.projectId,
     title: snapshot.title,
     entrySceneId: snapshot.entrySceneId,
@@ -278,11 +319,36 @@ export async function saveProject(
 }
 
 export async function loadProject(store: ProjectFileStore): Promise<ProjectSnapshot | null> {
+  const initialContent = await store.read(PROJECT_MANIFEST_PATH);
+  if (initialContent !== null) {
+    try {
+      const initialData: unknown = JSON.parse(initialContent);
+      if (isRecord(initialData) && Number.isSafeInteger(initialData.schemaVersion) &&
+          (initialData.schemaVersion as number) > CURRENT_PROJECT_SCHEMA_VERSION) {
+        return fail(
+          "UNSUPPORTED_FUTURE_SCHEMA",
+          `Project schema ${initialData.schemaVersion as number} is newer than supported schema ${CURRENT_PROJECT_SCHEMA_VERSION}`
+        );
+      }
+    } catch (error) {
+      if (error instanceof ProjectPersistenceError) throw error;
+      // A malformed current target may still be repairable from a verified staged WAL.
+    }
+  }
   await recoverProject(store);
   const content = await store.read(PROJECT_MANIFEST_PATH);
   if (content === null) return null;
   const data = parseJson(content, "CORRUPT_MANIFEST");
-  if (!isRecord(data) || data.schemaVersion !== 0 || typeof data.projectId !== "string" ||
+  if (isRecord(data) && Number.isSafeInteger(data.schemaVersion) &&
+      (data.schemaVersion as number) > CURRENT_PROJECT_SCHEMA_VERSION) {
+    return fail(
+      "UNSUPPORTED_FUTURE_SCHEMA",
+      `Project schema ${data.schemaVersion as number} is newer than supported schema ${CURRENT_PROJECT_SCHEMA_VERSION}`
+    );
+  }
+  if (!isRecord(data) || !Number.isSafeInteger(data.schemaVersion) ||
+      (data.schemaVersion !== 0 && data.schemaVersion !== CURRENT_PROJECT_SCHEMA_VERSION) ||
+      typeof data.projectId !== "string" ||
       typeof data.title !== "string" || typeof data.entrySceneId !== "string" ||
       !Number.isSafeInteger(data.storageRevision) || !Array.isArray(data.scenes)) {
     return fail("CORRUPT_MANIFEST", "Manifest shape is invalid");
@@ -304,7 +370,7 @@ export async function loadProject(store: ProjectFileStore): Promise<ProjectSnaps
       return fail("CORRUPT_SCENE", `Scene integrity check failed: ${descriptor.sceneId}`);
     }
     const scene = parseJson(sceneContent, "CORRUPT_SCENE");
-    if (!isRecord(scene) || scene.schemaVersion !== 0 || scene.sceneId !== descriptor.sceneId ||
+    if (!isRecord(scene) || scene.schemaVersion !== data.schemaVersion || scene.sceneId !== descriptor.sceneId ||
         typeof scene.sourceRevision !== "number" || typeof scene.semanticRevision !== "number" ||
         typeof scene.committedSource !== "string" || typeof scene.draftSource !== "string" ||
         !Array.isArray(scene.tombstones)) {
@@ -327,22 +393,26 @@ export async function loadProject(store: ProjectFileStore): Promise<ProjectSnaps
         formerLine: item.formerLine
       };
     });
+    const scenePreservedFields = collectUnknownFields(scene, SCENE_FIELDS, "CORRUPT_SCENE");
     scenes.push({
       sceneId: scene.sceneId as string,
       sourceRevision: scene.sourceRevision,
       semanticRevision: scene.semanticRevision,
       committedSource: scene.committedSource,
       draftSource: scene.draftSource,
-      tombstones
+      tombstones,
+      ...(scenePreservedFields === undefined ? {} : { preservedFields: scenePreservedFields })
     });
   }
+  const manifestPreservedFields = collectUnknownFields(data, MANIFEST_FIELDS, "CORRUPT_MANIFEST");
   const snapshot: ProjectSnapshot = {
-    schemaVersion: 0,
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     projectId: data.projectId,
     title: data.title,
     entrySceneId: data.entrySceneId,
     storageRevision: data.storageRevision as number,
-    scenes
+    scenes,
+    ...(manifestPreservedFields === undefined ? {} : { preservedFields: manifestPreservedFields })
   };
   try {
     assertProjectSnapshot(snapshot);
