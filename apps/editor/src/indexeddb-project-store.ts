@@ -9,12 +9,15 @@ import {
   type WriterLeaseRenewal
 } from "@world-studio/project-persistence";
 
-const DATABASE_NAME = "world-studio-local-projects";
-const DATABASE_VERSION = 1;
-const STORE_NAME = "project-files";
+export const WORLD_STUDIO_DATABASE_NAME = "world-studio-local-projects";
+export const WORLD_STUDIO_DATABASE_VERSION = 2;
+export const PROJECT_FILE_STORE_NAME = "project-files";
+export const ASSET_BLOB_STORE_NAME = "asset-blobs";
+export const ASSET_INDEX_STORE_NAME = "asset-indexes";
+const STORE_NAME = PROJECT_FILE_STORE_NAME;
 const LEASE_ERROR_PATH = "coordination/writer-lease";
 
-interface WriterLeaseState {
+export interface WriterLeaseState {
   readonly schemaVersion: 0;
   readonly lastFencingToken: number;
   readonly holder: ProjectWriterLease | null;
@@ -28,7 +31,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function readLeaseState(value: unknown): WriterLeaseState {
+export function readWriterLeaseState(value: unknown): WriterLeaseState {
   if (value === undefined) return { schemaVersion: 0, lastFencingToken: 0, holder: null };
   if (!isRecord(value) || value.schemaVersion !== 0 ||
       !Number.isSafeInteger(value.lastFencingToken) || (value.lastFencingToken as number) < 0) {
@@ -52,6 +55,19 @@ function readLeaseState(value: unknown): WriterLeaseState {
       expiresAtMs: value.holder.expiresAtMs as number
     }
   };
+}
+
+export function writerLeaseKey(projectId: string): string {
+  return `__world_studio_writer_lease__/${projectId}`;
+}
+
+export function matchesLiveWriterLease(
+  holder: ProjectWriterLease | null,
+  lease: ProjectWriterLease,
+  nowMs: number
+): holder is ProjectWriterLease {
+  return holder !== null && holder.ownerId === lease.ownerId &&
+    holder.fencingToken === lease.fencingToken && holder.expiresAtMs > nowMs;
 }
 
 function validateLeaseRequest(ownerId: string, nowMs: number, ttlMs: number): void {
@@ -82,18 +98,35 @@ function indexedDbError(
   return new ProjectStoreError(code, operation, path, `IndexedDB ${operation} failed (${name || "unknown"})`);
 }
 
-function requestResult<T>(request: IDBRequest<T>): Promise<T> {
+export function indexedDbRequestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.addEventListener("success", () => resolve(request.result), { once: true });
     request.addEventListener("error", () => reject(request.error ?? new Error("IndexedDB request failed")), { once: true });
   });
 }
 
-function transactionDone(transaction: IDBTransaction): Promise<void> {
+export function indexedDbTransactionDone(transaction: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     transaction.addEventListener("complete", () => resolve(), { once: true });
     transaction.addEventListener("abort", () => reject(transaction.error ?? new Error("IndexedDB transaction aborted")), { once: true });
     transaction.addEventListener("error", () => reject(transaction.error ?? new Error("IndexedDB transaction failed")), { once: true });
+  });
+}
+
+export function openWorldStudioDatabase(indexedDb: IDBFactory): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDb.open(WORLD_STUDIO_DATABASE_NAME, WORLD_STUDIO_DATABASE_VERSION);
+    request.addEventListener("upgradeneeded", () => {
+      for (const storeName of [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME]) {
+        if (!request.result.objectStoreNames.contains(storeName)) request.result.createObjectStore(storeName);
+      }
+    });
+    request.addEventListener("success", () => {
+      request.result.addEventListener("versionchange", () => request.result.close());
+      resolve(request.result);
+    }, { once: true });
+    request.addEventListener("error", () => reject(request.error ?? new Error("Cannot open IndexedDB")), { once: true });
+    request.addEventListener("blocked", () => reject(new Error("IndexedDB upgrade is blocked by another tab")), { once: true });
   });
 }
 
@@ -118,17 +151,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
   ) {
     assertProjectStorePath(projectId, "read");
     this.now = options.now ?? Date.now;
-    this.database = new Promise((resolve, reject) => {
-      const request = indexedDb.open(DATABASE_NAME, DATABASE_VERSION);
-      request.addEventListener("upgradeneeded", () => {
-        if (!request.result.objectStoreNames.contains(STORE_NAME)) {
-          request.result.createObjectStore(STORE_NAME);
-        }
-      });
-      request.addEventListener("success", () => resolve(request.result), { once: true });
-      request.addEventListener("error", () => reject(request.error ?? new Error("Cannot open IndexedDB")), { once: true });
-      request.addEventListener("blocked", () => reject(new Error("IndexedDB upgrade is blocked")), { once: true });
-    });
+    this.database = openWorldStudioDatabase(indexedDb);
   }
 
   async acquire(ownerId: string, nowMs: number, ttlMs: number): Promise<WriterLeaseAcquisition> {
@@ -137,10 +160,10 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const database = await this.database;
       const transaction = database.transaction(STORE_NAME, "readwrite", { durability: "strict" });
       const store = transaction.objectStore(STORE_NAME);
-      const state = readLeaseState(await requestResult(store.get(this.leaseKey())));
+      const state = readWriterLeaseState(await indexedDbRequestResult(store.get(this.leaseKey())));
       const holder = state.holder;
       if (holder !== null && holder.expiresAtMs > nowMs && holder.ownerId !== ownerId) {
-        await transactionDone(transaction);
+        await indexedDbTransactionDone(transaction);
         return { status: "held", holderExpiresAtMs: holder.expiresAtMs };
       }
       const sameLiveOwner = holder !== null && holder.ownerId === ownerId && holder.expiresAtMs > nowMs;
@@ -162,7 +185,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
         holder: lease
       };
       store.put(next, this.leaseKey());
-      await transactionDone(transaction);
+      await indexedDbTransactionDone(transaction);
       return { status: "acquired", lease };
     } catch (error) {
       throw indexedDbError(error, "write", LEASE_ERROR_PATH);
@@ -175,9 +198,9 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const database = await this.database;
       const transaction = database.transaction(STORE_NAME, "readwrite", { durability: "strict" });
       const store = transaction.objectStore(STORE_NAME);
-      const state = readLeaseState(await requestResult(store.get(this.leaseKey())));
-      if (!this.matchesLiveHolder(state.holder, lease, nowMs)) {
-        await transactionDone(transaction);
+      const state = readWriterLeaseState(await indexedDbRequestResult(store.get(this.leaseKey())));
+      if (!matchesLiveWriterLease(state.holder, lease, nowMs)) {
+        await indexedDbTransactionDone(transaction);
         return { status: "lost" };
       }
       const renewed: ProjectWriterLease = {
@@ -185,7 +208,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
         expiresAtMs: Math.max(state.holder.expiresAtMs, nowMs + ttlMs)
       };
       store.put({ ...state, holder: renewed } satisfies WriterLeaseState, this.leaseKey());
-      await transactionDone(transaction);
+      await indexedDbTransactionDone(transaction);
       return { status: "renewed", lease: renewed };
     } catch (error) {
       throw indexedDbError(error, "write", LEASE_ERROR_PATH);
@@ -197,14 +220,14 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const database = await this.database;
       const transaction = database.transaction(STORE_NAME, "readwrite", { durability: "strict" });
       const store = transaction.objectStore(STORE_NAME);
-      const state = readLeaseState(await requestResult(store.get(this.leaseKey())));
+      const state = readWriterLeaseState(await indexedDbRequestResult(store.get(this.leaseKey())));
       if (state.holder?.ownerId !== lease.ownerId ||
           state.holder.fencingToken !== lease.fencingToken) {
-        await transactionDone(transaction);
+        await indexedDbTransactionDone(transaction);
         return false;
       }
       store.put({ ...state, holder: null } satisfies WriterLeaseState, this.leaseKey());
-      await transactionDone(transaction);
+      await indexedDbTransactionDone(transaction);
       if (this.activeLease?.ownerId === lease.ownerId &&
           this.activeLease.fencingToken === lease.fencingToken) {
         this.activeLease = null;
@@ -224,8 +247,8 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
     try {
       const database = await this.database;
       const transaction = database.transaction(STORE_NAME, "readonly");
-      const value = await requestResult(transaction.objectStore(STORE_NAME).get(this.key(path)));
-      await transactionDone(transaction);
+      const value = await indexedDbRequestResult(transaction.objectStore(STORE_NAME).get(this.key(path)));
+      await indexedDbTransactionDone(transaction);
       return typeof value === "string" ? value : null;
     } catch (error) {
       throw indexedDbError(error, "read", path);
@@ -240,7 +263,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const store = transaction.objectStore(STORE_NAME);
       await this.assertActiveLease(store, "write", path);
       store.put(content, this.key(path));
-      await transactionDone(transaction);
+      await indexedDbTransactionDone(transaction);
     } catch (error) {
       throw indexedDbError(error, "write", path);
     }
@@ -257,14 +280,14 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const transaction = database.transaction(STORE_NAME, "readwrite", { durability: "strict" });
       const store = transaction.objectStore(STORE_NAME);
       await this.assertActiveLease(store, "replace", sourcePath);
-      const source = await requestResult(store.get(this.key(sourcePath)));
+      const source = await indexedDbRequestResult(store.get(this.key(sourcePath)));
       if (typeof source !== "string") {
         transaction.abort();
         throw new ProjectStoreError("NOT_FOUND", "replace", sourcePath, `Missing replacement source: ${sourcePath}`);
       }
       store.put(source, this.key(targetPath));
       store.delete(this.key(sourcePath));
-      await transactionDone(transaction);
+      await indexedDbTransactionDone(transaction);
     } catch (error) {
       throw indexedDbError(error, "replace", sourcePath);
     }
@@ -278,7 +301,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const store = transaction.objectStore(STORE_NAME);
       await this.assertActiveLease(store, "remove", path);
       store.delete(this.key(path));
-      await transactionDone(transaction);
+      await indexedDbTransactionDone(transaction);
     } catch (error) {
       throw indexedDbError(error, "remove", path);
     }
@@ -289,16 +312,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
   }
 
   private leaseKey(): string {
-    return `__world_studio_writer_lease__/${this.projectId}`;
-  }
-
-  private matchesLiveHolder(
-    holder: ProjectWriterLease | null,
-    lease: ProjectWriterLease,
-    nowMs: number
-  ): holder is ProjectWriterLease {
-    return holder !== null && holder.ownerId === lease.ownerId &&
-      holder.fencingToken === lease.fencingToken && holder.expiresAtMs > nowMs;
+    return writerLeaseKey(this.projectId);
   }
 
   private async assertActiveLease(
@@ -310,8 +324,8 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
     if (active === null) {
       throw new ProjectStoreError("LEASE_REQUIRED", operation, path, "A writer lease is required");
     }
-    const state = readLeaseState(await requestResult(store.get(this.leaseKey())));
-    if (!this.matchesLiveHolder(state.holder, active, this.now())) {
+    const state = readWriterLeaseState(await indexedDbRequestResult(store.get(this.leaseKey())));
+    if (!matchesLiveWriterLease(state.holder, active, this.now())) {
       this.activeLease = null;
       throw new ProjectStoreError("LEASE_LOST", operation, path, "Writer lease was lost or expired");
     }

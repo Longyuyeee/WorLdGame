@@ -52,7 +52,8 @@ export interface AssetBlobStore {
 export type AssetBlobOperation = "put" | "read" | "index";
 export type AssetBlobErrorCode = "INVALID_DIGEST" | "DIGEST_MISMATCH" |
   "INVALID_ASSET" | "UNSUPPORTED_INDEX_SCHEMA" | "RESOURCE_LIMIT" |
-  "STALE_INDEX_REVISION" | "CORRUPT_BLOB" |
+  "STALE_INDEX_REVISION" | "CORRUPT_BLOB" | "LEASE_REQUIRED" | "LEASE_LOST" |
+  "CANCELLED" |
   "NO_SPACE" | "PERMISSION_DENIED" | "BUSY" | "UNAVAILABLE" | "IO_FAILURE";
 
 export class AssetBlobError extends Error {
@@ -86,6 +87,12 @@ export interface AssetImportResult {
   readonly index: AssetIndex;
   readonly entry: AssetIndexEntry;
   readonly blobStatus: "created" | "existing";
+}
+
+export interface PreparedAssetImport {
+  readonly digest: BlobDigest;
+  readonly index: AssetIndex;
+  readonly entry: AssetIndexEntry;
 }
 
 export interface AssetIndexAuditFinding {
@@ -240,12 +247,11 @@ function validateAssetInput(input: AssetImportInput, options: AssetImportOptions
  * Publishes bytes before returning a new immutable index. A later index-write failure can
  * leave an unreferenced blob, but can never publish an index entry pointing at partial bytes.
  */
-export async function importAssetBlob(
-  store: AssetBlobStore,
+export function prepareAssetImport(
   index: AssetIndex,
   input: AssetImportInput,
   options: AssetImportOptions
-): Promise<AssetImportResult> {
+): PreparedAssetImport {
   if (index.schemaVersion !== 1) {
     throw new AssetBlobError("INVALID_ASSET", "index", input.assetId, "Unsupported asset index schema");
   }
@@ -259,7 +265,6 @@ export async function importAssetBlob(
   }
   validateAssetInput(input, options);
   const digest = createBlobDigest(input.bytes);
-  const blobStatus = await store.put(digest, input.bytes);
   const entry: AssetIndexEntry = {
     assetId: input.assetId,
     kind: input.kind,
@@ -272,8 +277,8 @@ export async function importAssetBlob(
   assets.push(entry);
   assets.sort((left, right) => left.assetId.localeCompare(right.assetId, "en"));
   return {
+    digest,
     entry,
-    blobStatus,
     index: {
       schemaVersion: 1,
       indexRevision: index.indexRevision + 1,
@@ -281,6 +286,18 @@ export async function importAssetBlob(
       ...(index.preservedFields === undefined ? {} : { preservedFields: index.preservedFields })
     }
   };
+}
+
+
+export async function importAssetBlob(
+  store: AssetBlobStore,
+  index: AssetIndex,
+  input: AssetImportInput,
+  options: AssetImportOptions
+): Promise<AssetImportResult> {
+  const prepared = prepareAssetImport(index, input, options);
+  const blobStatus = await store.put(prepared.digest, input.bytes);
+  return { index: prepared.index, entry: prepared.entry, blobStatus };
 }
 
 export async function auditAssetIndex(

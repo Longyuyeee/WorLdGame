@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import {
+  AssetBlobError,
+  createAssetIndex,
   ProjectPersistenceError,
   ProjectStoreError,
   CURRENT_PROJECT_SCHEMA_VERSION,
@@ -9,6 +11,9 @@ import {
   restoreProjectBackup,
   saveProjectWithBackups,
   type ProjectBackup,
+  type AssetImportInput,
+  type AssetIndex,
+  type AssetKind,
   type ProjectSnapshot,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
@@ -33,6 +38,14 @@ import {
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+import { createBrowserWriterLeaseOwnerId } from "./writer-lease-owner";
+import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
+import {
+  WEB_ASSET_IMPORT_MAX_BYTES,
+  canonicalAssetId,
+  inferAssetKind,
+  readAssetFile
+} from "./asset-file-import";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -57,6 +70,24 @@ import {
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
   "autosaved" | "restored" | "degraded" | "error";
+
+type AssetVaultStatus = "loading" | "unavailable" | "ready" | "importing" |
+  "success" | "cancelled" | "error";
+
+type AssetImportPhase = "idle" | "reading" | "committing" | "success" | "cancelled" | "error";
+
+interface AssetImportViewState {
+  readonly phase: AssetImportPhase;
+  readonly progress: number;
+  readonly detail: string;
+  readonly errorCode?: string;
+}
+
+const IDLE_ASSET_IMPORT: AssetImportViewState = {
+  phase: "idle",
+  progress: 0,
+  detail: "选择本机文件后，先读取完整字节并校验容量，再原子发布 Blob 与 Asset Index。"
+};
 
 const WRITER_LEASE_TTL_MS = 12_000;
 const WRITER_LEASE_HEARTBEAT_MS = 4_000;
@@ -169,7 +200,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.16</p>
+          <p className="eyebrow">WorLd Studio · S0.17</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -245,7 +276,13 @@ function WorkspaceHeader({
   );
 }
 
-function SceneRail({ session, dispatch }: CommonProps) {
+interface SceneRailProps extends CommonProps {
+  readonly assetIndex: AssetIndex;
+  readonly assetStatus: AssetVaultStatus;
+  readonly onOpenAssets: () => void;
+}
+
+function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }: SceneRailProps) {
   return (
     <aside className="scene-rail" aria-label="场景列表">
       <div className="panel-heading">
@@ -271,16 +308,21 @@ function SceneRail({ session, dispatch }: CommonProps) {
         ))}
       </div>
       <div className="rail-card-stack">
-        <section className="asset-vault-card" aria-label="资源保险库状态">
+        <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.16 CONTRACT READY</small></span>
+            <span><strong>资源保险库</strong><small>S0.17 WEB IMPORT</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>SHA-256</span><span>同内容去重</span><span>源 Blob 只读</span>
           </div>
-          <p>资源导入前先验摘要与容量；索引只会引用完整、可校验的内容地址。</p>
-        </section>
+          <p>{assetStatus === "ready" || assetStatus === "success" || assetStatus === "cancelled"
+            ? `${assetIndex.assets.length} 项资源 · Index r${assetIndex.indexRevision} · 点击管理`
+            : assetStatus === "importing" ? "正在读取并原子提交资源…"
+            : assetStatus === "loading" ? "正在校验本地资源索引…"
+              : assetStatus === "error" ? "资源索引需要检查 · 点击查看"
+                : "本机资源存储不可用 · 点击查看原因"}</p>
+        </button>
         <div className="rail-status">
           <span className="status-orb" aria-hidden="true" />
           <span>
@@ -290,6 +332,137 @@ function SceneRail({ session, dispatch }: CommonProps) {
         </div>
       </div>
     </aside>
+  );
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MiB`;
+}
+
+export function assetImportErrorLabel(errorCode: string | undefined): string {
+  if (errorCode === "RESOURCE_LIMIT") return "文件超过 Web 导入上限";
+  if (errorCode === "NO_SPACE") return "本机资源空间不足";
+  if (errorCode === "PERMISSION_DENIED") return "无法读取或保存该文件";
+  if (errorCode === "LEASE_REQUIRED" || errorCode === "LEASE_LOST") return "资源写入权已失效";
+  if (errorCode === "STALE_INDEX_REVISION") return "资源索引已更新，请重试";
+  if (errorCode === "CORRUPT_BLOB") return "已有资源完整性异常";
+  if (errorCode === "CANCELLED") return "导入已取消";
+  if (errorCode === "UNAVAILABLE") return "本地资源存储不可用";
+  return "资源导入失败";
+}
+
+interface AssetVaultDialogProps {
+  readonly index: AssetIndex;
+  readonly status: AssetVaultStatus;
+  readonly importState: AssetImportViewState;
+  readonly createSuggestedId: (fileName: string) => string;
+  readonly onClose: () => void;
+  readonly onCancel: () => void;
+  readonly onImport: (file: File, metadata: Omit<AssetImportInput, "bytes" | "mimeType">) => void;
+}
+
+function AssetVaultDialog({
+  index,
+  status,
+  importState,
+  createSuggestedId,
+  onClose,
+  onCancel,
+  onImport
+}: AssetVaultDialogProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [assetId, setAssetId] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [kind, setKind] = useState<AssetKind>("other");
+  const importing = importState.phase === "reading" || importState.phase === "committing";
+  const storageReady = status === "ready" || status === "success" || status === "cancelled";
+  const selectedExisting = index.assets.find((entry) => entry.assetId === assetId);
+
+  const chooseFile = (selected: File | null) => {
+    setFile(selected);
+    if (selected === null) return;
+    setAssetId(createSuggestedId(selected.name));
+    setDisplayName(selected.name.replace(/\.[^.]+$/, ""));
+    setKind(inferAssetKind(selected.type || "application/octet-stream"));
+  };
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (file === null || assetId.trim().length === 0 || displayName.trim().length === 0 || importing) return;
+    onImport(file, { assetId: assetId.trim(), displayName: displayName.trim(), kind, tags: [] });
+  };
+
+  return (
+    <div className="asset-overlay" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget && !importing) onClose();
+    }}>
+      <section className="asset-dialog" role="dialog" aria-modal="true" aria-labelledby="asset-dialog-title">
+        <div className="asset-dialog__heading">
+          <div>
+            <p className="eyebrow">CONTENT-ADDRESSED LOCAL VAULT</p>
+            <h2 id="asset-dialog-title">资源保险库</h2>
+          </div>
+          <div className="asset-dialog__summary">
+            <span>{index.assets.length} 资源</span><span>Index r{index.indexRevision}</span>
+            <button className="icon-button" aria-label="关闭资源保险库" onClick={onClose}>×</button>
+          </div>
+        </div>
+        <p className="asset-dialog__intro">
+          Web 原型单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。源文件按 SHA-256 去重；Blob 与 Index 在同一 writer-fenced 事务中提交。
+        </p>
+
+        <form className="asset-import-form" onSubmit={submit}>
+          <label className="asset-file-picker">
+            <span>{file === null ? "选择图片、音频、视频或字体" : file.name}</span>
+            <small>{file === null ? "浏览本机文件" : `${formatBytes(file.size)} · ${file.type || "application/octet-stream"}`}</small>
+            <input
+              aria-label="选择资源文件"
+              type="file"
+              accept="image/*,audio/*,video/*,.woff,.woff2,.ttf,.otf"
+              disabled={!storageReady || importing}
+              onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
+            />
+          </label>
+          <div className="asset-metadata-grid">
+            <label><span>稳定 Asset ID</span><input aria-label="资源 Asset ID" value={assetId} disabled={importing} onChange={(event) => setAssetId(event.target.value)} /></label>
+            <label><span>显示名称</span><input aria-label="资源显示名称" value={displayName} disabled={importing} onChange={(event) => setDisplayName(event.target.value)} /></label>
+            <label><span>资源类型</span><select aria-label="资源类型" value={kind} disabled={importing} onChange={(event) => setKind(event.target.value as AssetKind)}>
+              <option value="background">背景</option><option value="character">角色</option><option value="cg">CG</option>
+              <option value="audio">音频</option><option value="video">视频</option><option value="font">字体</option>
+              <option value="ui">UI</option><option value="other">其他</option>
+            </select></label>
+          </div>
+          {selectedExisting !== undefined && <p className="asset-replace-notice">将更新稳定 ID <code>{assetId}</code> 的源内容；旧 Blob 保持不可变并进入孤儿审计。</p>}
+          <div className={`asset-import-status asset-import-status--${importState.phase}`} aria-live="polite">
+            <div><strong>{importState.phase === "reading" ? "正在读取文件"
+              : importState.phase === "committing" ? "正在校验并原子提交"
+                : importState.phase === "success" ? "资源导入完成"
+                  : importState.phase === "cancelled" ? "导入已取消"
+                    : importState.phase === "error" ? assetImportErrorLabel(importState.errorCode)
+                      : "准备导入"}</strong><span>{Math.round(importState.progress * 100)}%</span></div>
+            <progress value={importState.progress} max={1} aria-label="资源导入进度" />
+            <p>{importState.detail}</p>
+          </div>
+          <div className="asset-import-actions">
+            {importing ? <button type="button" className="danger-button" onClick={onCancel}>取消导入</button> : null}
+            <button type="submit" disabled={!storageReady || file === null || assetId.trim().length === 0 || displayName.trim().length === 0 || importing}>
+              {selectedExisting === undefined ? "导入到资源保险库" : "更新此资源"}
+            </button>
+          </div>
+        </form>
+
+        <div className="asset-list" aria-label="已导入资源">
+          {index.assets.length === 0 ? <p className="asset-list__empty">尚未导入资源。导入不会修改原始文件，也不会把媒体写入剧情 JSON/WAL。</p> : index.assets.map((entry) => (
+            <article className="asset-item" key={entry.assetId}>
+              <span className={`asset-item__kind asset-item__kind--${entry.kind}`}>{entry.kind.toUpperCase()}</span>
+              <div><strong>{entry.displayName}</strong><code>{entry.assetId}</code></div>
+              <div><span>{formatBytes(entry.source.byteLength)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -815,14 +988,23 @@ export function App() {
   const [mode, setMode] = useState<StudioMode>("writer");
   const [inputDirty, setInputDirty] = useState(false);
   const storageAvailable = typeof globalThis.indexedDB !== "undefined";
+  const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
+  const assetIndexRef = useRef(assetIndex);
+  assetIndexRef.current = assetIndex;
+  const [assetStatus, setAssetStatus] = useState<AssetVaultStatus>(
+    storageAvailable ? "loading" : "unavailable"
+  );
+  const [assetImportState, setAssetImportState] = useState<AssetImportViewState>(IDLE_ASSET_IMPORT);
+  const [assetPanelOpen, setAssetPanelOpen] = useState(false);
+  const assetRepositoryRef = useRef<IndexedDbAssetRepository | null>(null);
+  const assetImportAbortRef = useRef<AbortController | null>(null);
+  const assetFileSerial = useRef(0);
   const [persistence, setPersistence] = useState<PersistenceViewState>(() =>
     storageAvailable ? { status: "loading", revision: 0 } : { status: "unavailable", revision: 0 }
   );
   const storeRef = useRef<IndexedDbProjectFileStore | null>(null);
   const leaseRef = useRef<ProjectWriterLease | null>(null);
-  const leaseOwnerId = useRef(
-    globalThis.crypto?.randomUUID?.() ?? `writer_${Date.now()}_${Math.random().toString(36).slice(2)}`
-  );
+  const leaseOwnerId = useRef(createBrowserWriterLeaseOwnerId());
   const [leaseRetry, setLeaseRetry] = useState(0);
   const storageRevision = useRef(0);
   const persistedSnapshotRef = useRef<ProjectSnapshot | null>(null);
@@ -845,6 +1027,14 @@ export function App() {
     globalThis.addEventListener("keydown", closeOnEscape);
     return () => globalThis.removeEventListener("keydown", closeOnEscape);
   }, [backupPanelOpen]);
+  useEffect(() => {
+    if (!assetPanelOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && assetImportAbortRef.current === null) setAssetPanelOpen(false);
+    };
+    globalThis.addEventListener("keydown", closeOnEscape);
+    return () => globalThis.removeEventListener("keydown", closeOnEscape);
+  }, [assetPanelOpen]);
   const commandSerial = useRef(0);
   const entitySerial = useRef(0);
   const dispatch = (action: StudioAction) => {
@@ -878,12 +1068,19 @@ export function App() {
     let cancelled = false;
     let heartbeat: ReturnType<typeof setInterval> | undefined;
     const store = new IndexedDbProjectFileStore(globalThis.indexedDB, "prj_twilight_broadcast");
+    const assetRepository = new IndexedDbAssetRepository(globalThis.indexedDB, "prj_twilight_broadcast");
     setPersistence({ status: "loading", revision: storageRevision.current });
+    setAssetStatus("loading");
 
     const loseLease = (detail: string) => {
       store.activateWriterLease(null);
+      assetRepository.activateWriterLease(null);
       leaseRef.current = null;
       storeRef.current = null;
+      assetRepositoryRef.current = null;
+      assetImportAbortRef.current?.abort();
+      assetImportAbortRef.current = null;
+      setAssetStatus("error");
       setPersistence({
         status: "conflict",
         revision: storageRevision.current,
@@ -911,7 +1108,9 @@ export function App() {
 
       leaseRef.current = acquisition.lease;
       store.activateWriterLease(acquisition.lease);
+      assetRepository.activateWriterLease(acquisition.lease);
       storeRef.current = store;
+      assetRepositoryRef.current = assetRepository;
       heartbeat = setInterval(() => {
         const activeLease = leaseRef.current;
         if (activeLease === null || cancelled) return;
@@ -923,6 +1122,7 @@ export function App() {
           }
           leaseRef.current = renewal.lease;
           store.activateWriterLease(renewal.lease);
+          assetRepository.activateWriterLease(renewal.lease);
         }).catch((error: unknown) => {
           if (cancelled) return;
           const failure = persistenceFailure(error, storageRevision.current);
@@ -937,8 +1137,10 @@ export function App() {
         heartbeat = undefined;
         const activeLease = leaseRef.current;
         store.activateWriterLease(null);
+        assetRepository.activateWriterLease(null);
         leaseRef.current = null;
         storeRef.current = null;
+        assetRepositoryRef.current = null;
         if (activeLease !== null) await store.release(activeLease).catch(() => false);
         if (cancelled) return;
         setPersistence({
@@ -964,6 +1166,22 @@ export function App() {
         transactionId: `migration_to_v${CURRENT_PROJECT_SCHEMA_VERSION}_${++saveSerial.current}`,
         nowMs: Date.now()
       });
+      try {
+        const loadedAssetIndex = await assetRepository.loadIndex();
+        if (cancelled) return;
+        setAssetIndex(loadedAssetIndex);
+        setAssetStatus("ready");
+      } catch (error) {
+        if (cancelled) return;
+        const code = error instanceof AssetBlobError ? error.code : undefined;
+        setAssetStatus("error");
+        setAssetImportState({
+          phase: "error",
+          progress: 0,
+          detail: error instanceof Error ? error.message : "资源索引加载失败。",
+          ...(code === undefined ? {} : { errorCode: code })
+        });
+      }
       const snapshot = migration?.snapshot ?? null;
       if (cancelled) return;
       if (snapshot === null) {
@@ -1004,8 +1222,10 @@ export function App() {
       heartbeat = undefined;
       const activeLease = leaseRef.current;
       store.activateWriterLease(null);
+      assetRepository.activateWriterLease(null);
       leaseRef.current = null;
       storeRef.current = null;
+      assetRepositoryRef.current = null;
       if (activeLease !== null) await store.release(activeLease).catch(() => false);
       if (cancelled) return;
       const failure = persistenceFailure(error, storageRevision.current);
@@ -1015,8 +1235,12 @@ export function App() {
     const releaseOnPageHide = (event: PageTransitionEvent) => {
       const activeLease = leaseRef.current;
       store.activateWriterLease(null);
+      assetRepository.activateWriterLease(null);
       if (storeRef.current === store) storeRef.current = null;
+      if (assetRepositoryRef.current === assetRepository) assetRepositoryRef.current = null;
       leaseRef.current = null;
+      assetImportAbortRef.current?.abort();
+      assetImportAbortRef.current = null;
       if (event.persisted) {
         setPersistence({
           status: "conflict",
@@ -1040,6 +1264,10 @@ export function App() {
       globalThis.removeEventListener("pageshow", reacquireAfterPageShow);
       if (storeRef.current === store) storeRef.current = null;
       store.activateWriterLease(null);
+      if (assetRepositoryRef.current === assetRepository) assetRepositoryRef.current = null;
+      assetRepository.activateWriterLease(null);
+      assetImportAbortRef.current?.abort();
+      assetImportAbortRef.current = null;
     };
   }, [storageAvailable, leaseRetry]);
 
@@ -1051,6 +1279,8 @@ export function App() {
     if (!(error instanceof ProjectStoreError)) return false;
     if (error.code === "LEASE_REQUIRED" || error.code === "LEASE_LOST") {
       store.activateWriterLease(null);
+      assetRepositoryRef.current?.activateWriterLease(null);
+      assetRepositoryRef.current = null;
       leaseRef.current = null;
       storeRef.current = null;
       setPersistence({
@@ -1189,6 +1419,99 @@ export function App() {
     });
   };
 
+  const cancelAssetImport = () => assetImportAbortRef.current?.abort();
+  const closeAssetPanel = () => {
+    if (assetImportAbortRef.current !== null) {
+      assetImportAbortRef.current.abort();
+      return;
+    }
+    setAssetPanelOpen(false);
+  };
+  const importAssetFile = (
+    file: File,
+    metadata: Omit<AssetImportInput, "bytes" | "mimeType">
+  ) => {
+    const repository = assetRepositoryRef.current;
+    if (repository === null || assetImportAbortRef.current !== null) {
+      setAssetStatus("error");
+      setAssetImportState({
+        phase: "error",
+        progress: 0,
+        detail: "当前窗口没有有效的资源写入权；请重新获取编辑权后再试。",
+        errorCode: "LEASE_REQUIRED"
+      });
+      return;
+    }
+    const controller = new AbortController();
+    assetImportAbortRef.current = controller;
+    setAssetStatus("importing");
+    setAssetImportState({ phase: "reading", progress: 0, detail: `正在读取 ${file.name}…` });
+    void readAssetFile(file, {
+      maxBytes: WEB_ASSET_IMPORT_MAX_BYTES,
+      signal: controller.signal,
+      onProgress: (progress) => setAssetImportState({
+        phase: "reading",
+        progress: progress.ratio * 0.78,
+        detail: `已读取 ${formatBytes(progress.loadedBytes)} / ${formatBytes(progress.totalBytes)}`
+      })
+    }).then(async (bytes) => {
+      setAssetImportState({ phase: "committing", progress: 0.82, detail: "正在计算 SHA-256 并核对 Asset Index revision…" });
+      const result = await repository.importAsset({
+        ...metadata,
+        mimeType: (file.type || "application/octet-stream").toLowerCase(),
+        bytes
+      }, {
+        expectedIndexRevision: assetIndexRef.current.indexRevision,
+        maxBytes: WEB_ASSET_IMPORT_MAX_BYTES,
+        signal: controller.signal,
+        onPhase: (phase) => setAssetImportState({
+          phase: "committing",
+          progress: phase === "blob-ready" ? 0.92 : 0.97,
+          detail: phase === "blob-ready"
+            ? "Blob 已校验，正在准备原子 Index 发布…"
+            : "正在提交 writer-fenced IndexedDB 事务…"
+        })
+      });
+      setAssetIndex(result.index);
+      setAssetStatus("success");
+      setAssetImportState({
+        phase: "success",
+        progress: 1,
+        detail: result.blobStatus === "existing"
+          ? `已复用相同 SHA-256 Blob；${result.entry.assetId} 已写入 Index r${result.index.indexRevision}。`
+          : `新 Blob 与 ${result.entry.assetId} 已原子写入 Index r${result.index.indexRevision}。`
+      });
+    }).catch((error: unknown) => {
+      const code = error instanceof AssetBlobError ? error.code : undefined;
+      const wasCancelled = code === "CANCELLED" || controller.signal.aborted;
+      const fatal = code === "LEASE_REQUIRED" || code === "LEASE_LOST" ||
+        code === "CORRUPT_BLOB" || code === "UNSUPPORTED_INDEX_SCHEMA" ||
+        code === "UNAVAILABLE" || code === "IO_FAILURE";
+      setAssetStatus(wasCancelled ? "cancelled" : fatal ? "error" : "ready");
+      setAssetImportState({
+        phase: wasCancelled ? "cancelled" : "error",
+        progress: 0,
+        detail: error instanceof Error ? error.message : "资源导入失败；现有 Blob 与 Index 未被修改。",
+        ...(code === undefined ? {} : { errorCode: code })
+      });
+      if (code === "LEASE_REQUIRED" || code === "LEASE_LOST") {
+        repository.activateWriterLease(null);
+        assetRepositoryRef.current = null;
+        storeRef.current?.activateWriterLease(null);
+        storeRef.current = null;
+        leaseRef.current = null;
+        setPersistence({
+          status: "conflict",
+          revision: storageRevision.current,
+          detail: "资源导入期间编辑权已失效；Blob 与 Index 事务已回滚。",
+          errorCode: code
+        });
+      }
+    }).finally(() => {
+      if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
+    });
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -1247,7 +1570,13 @@ export function App() {
     <div className="app-shell">
       <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} persistence={persistence} onSave={() => saveToLocal("manual")} onOpenBackups={openBackups} dispatch={dispatch} />
       <main className="workspace-grid">
-        <SceneRail session={session} dispatch={dispatch} />
+        <SceneRail
+          session={session}
+          dispatch={dispatch}
+          assetIndex={assetIndex}
+          assetStatus={assetStatus}
+          onOpenAssets={() => setAssetPanelOpen(true)}
+        />
         {mode === "writer" ? (
           <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} />
         ) : mode === "script" ? (
@@ -1258,7 +1587,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.16 CONTENT-ADDRESSED ASSETS</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.17 ATOMIC WEB ASSET IMPORT</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -1290,6 +1619,17 @@ export function App() {
             </div>
           </section>
         </div>
+      )}
+      {assetPanelOpen && (
+        <AssetVaultDialog
+          index={assetIndex}
+          status={assetStatus}
+          importState={assetImportState}
+          createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
+          onClose={closeAssetPanel}
+          onCancel={cancelAssetImport}
+          onImport={importAssetFile}
+        />
       )}
     </div>
   );
