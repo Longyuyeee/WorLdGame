@@ -11,7 +11,16 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.15 Preview transport Script UI prototype", () => {
+describe("WorLd Studio S0.16 Content-addressed assets UI prototype", () => {
+  it("surfaces the audited asset-vault contract without claiming imported content", () => {
+    render(<App />);
+    const vault = screen.getByRole("region", { name: "资源保险库状态" });
+    expect(within(vault).getByText("资源保险库")).toBeVisible();
+    expect(within(vault).getByText("SHA-256")).toBeVisible();
+    expect(within(vault).getByText("同内容去重")).toBeVisible();
+    expect(within(vault).getByText("源 Blob 只读")).toBeVisible();
+    expect(within(vault).getByText(/索引只会引用完整/)).toBeVisible();
+  });
   it("maps storage failures to actionable local-save labels", () => {
     expect(persistenceErrorLabel("NO_SPACE")).toBe("本机空间不足");
     expect(persistenceErrorLabel("PERMISSION_DENIED")).toBe("无写入权限");

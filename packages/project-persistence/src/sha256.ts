@@ -21,13 +21,8 @@ function rotateRight(value: number, bits: number): number {
   return (value >>> bits) | (value << (32 - bits));
 }
 
-function utf8(value: string): Uint8Array {
-  return new TextEncoder().encode(value);
-}
-
-/** Deterministic dependency-free SHA-256 for portable core integrity checks. */
-export function sha256(value: string): string {
-  const input = utf8(value);
+/** Deterministic dependency-free SHA-256 for portable binary integrity checks. */
+export function sha256Bytes(input: Uint8Array): string {
   const bitLength = input.length * 8;
   const paddedLength = Math.ceil((input.length + 9) / 64) * 64;
   const bytes = new Uint8Array(paddedLength);
@@ -68,4 +63,9 @@ export function sha256(value: string): string {
     }
   }
   return hash.map((item) => item.toString(16).padStart(8, "0")).join("");
+}
+
+/** Deterministic dependency-free SHA-256 for portable UTF-8 integrity checks. */
+export function sha256(value: string): string {
+  return sha256Bytes(new TextEncoder().encode(value));
 }

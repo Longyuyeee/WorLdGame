@@ -169,7 +169,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.15</p>
+          <p className="eyebrow">WorLd Studio · S0.16</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -270,12 +270,24 @@ function SceneRail({ session, dispatch }: CommonProps) {
           </button>
         ))}
       </div>
-      <div className="rail-status">
-        <span className="status-orb" aria-hidden="true" />
-        <span>
-          <strong>Source of Truth</strong>
-          <small>权威脚本 → 投影 → 三视图</small>
-        </span>
+      <div className="rail-card-stack">
+        <section className="asset-vault-card" aria-label="资源保险库状态">
+          <div className="asset-vault-card__heading">
+            <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
+            <span><strong>资源保险库</strong><small>S0.16 CONTRACT READY</small></span>
+          </div>
+          <div className="asset-vault-card__rules">
+            <span>SHA-256</span><span>同内容去重</span><span>源 Blob 只读</span>
+          </div>
+          <p>资源导入前先验摘要与容量；索引只会引用完整、可校验的内容地址。</p>
+        </section>
+        <div className="rail-status">
+          <span className="status-orb" aria-hidden="true" />
+          <span>
+            <strong>Source of Truth</strong>
+            <small>权威脚本 → 投影 → 三视图</small>
+          </span>
+        </div>
       </div>
     </aside>
   );
@@ -1246,7 +1258,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.15 PREVIEW TRANSPORT</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.16 CONTENT-ADDRESSED ASSETS</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

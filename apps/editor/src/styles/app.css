@@ -636,9 +636,100 @@ button:disabled {
   font-size: 10px;
 }
 
-.rail-status {
+.rail-card-stack {
+  display: grid;
   gap: 9px;
   margin-top: auto;
+}
+
+.asset-vault-card {
+  position: relative;
+  padding: 12px;
+  overflow: hidden;
+  border: 1px solid rgb(62 215 255 / 20%);
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 100% 0%, rgb(62 215 255 / 16%), transparent 55%),
+    linear-gradient(145deg, rgb(139 124 255 / 11%), rgb(18 24 36 / 74%));
+}
+
+.asset-vault-card::after {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgb(139 124 255 / 16%);
+  border-radius: 16px;
+  content: "";
+  right: -28px;
+  bottom: -28px;
+  transform: rotate(24deg);
+}
+
+.asset-vault-card__heading,
+.asset-vault-card__rules {
+  display: flex;
+  align-items: center;
+}
+
+.asset-vault-card__heading {
+  gap: 8px;
+}
+
+.asset-vault-card__heading strong,
+.asset-vault-card__heading small {
+  display: block;
+}
+
+.asset-vault-card__heading strong {
+  font-size: 11px;
+}
+
+.asset-vault-card__heading small {
+  margin-top: 2px;
+  color: var(--wg-color-semantic-visual);
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+}
+
+.asset-vault-card__mark {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  border: 1px solid rgb(62 215 255 / 32%);
+  border-radius: 8px;
+  background: rgb(62 215 255 / 8%);
+  color: var(--wg-color-semantic-visual);
+  place-items: center;
+  box-shadow: 0 0 18px rgb(62 215 255 / 10%);
+}
+
+.asset-vault-card__rules {
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.asset-vault-card__rules span {
+  padding: 3px 5px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  color: var(--wg-color-text-secondary);
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.asset-vault-card p {
+  margin: 8px 0 0;
+  color: var(--wg-color-text-muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+
+.rail-status {
+  gap: 9px;
+  margin-top: 0;
   padding: 12px;
   border: 1px solid var(--wg-color-border-subtle);
   border-radius: 12px;
@@ -1695,6 +1786,10 @@ textarea[data-input-state="composing"] {
   .scene-rail .panel-heading,
   .workspace-footer {
     display: none;
+  }
+
+  .rail-card-stack {
+    margin-top: 10px;
   }
 
   .authoring-panel,

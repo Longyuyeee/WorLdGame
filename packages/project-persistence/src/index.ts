@@ -1,4 +1,6 @@
 export * from "./backup";
+export * from "./asset-blob";
+export * from "./asset-blob-conformance";
 export * from "./conformance";
 export * from "./memory-store";
 export * from "./migration";

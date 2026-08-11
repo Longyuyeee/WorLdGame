@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.15 Preview Transport 实现、审计、推送与 Draft PR 远端证据回读均通过
+> 状态：S0.16 内容寻址资源索引与 Blob 安全契约已完成本地实现和质量审计，等待本轮推送与 Draft PR 远端证据回读
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -64,6 +64,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.13 项目格式迁移与未来版本只读审计](docs/32-s0-schema-migration-readonly.md) | schema 0→1 原始归档、故障安全迁移、未知字段保留、旧备份兼容与只读闸门 |
 | [S0.14 预览画布尺寸 Profile 审计](docs/33-s0-preview-viewport-profiles.md) | 默认 16:9、五种生产预设、自定义宽高、真实比例与桌面/手机几何验证 |
 | [S0.15 Preview 运输状态机审计](docs/34-s0-preview-transport.md) | 逐步前后退、五档测试倍率、可取消定时器、选择/错误/结局停止点与手机控制条 |
+| [S0.16 内容寻址资源与 Blob 安全契约审计](docs/35-s0-content-addressed-assets.md) | SHA-256 不可变 Blob、稳定资源索引、精确去重、损坏/缺失/孤儿审计与 Node 参考适配器 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
