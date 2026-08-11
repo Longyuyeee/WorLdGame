@@ -1,6 +1,6 @@
 {
   "name": "world-studio",
-  "version": "0.0.0-s0.9",
+  "version": "0.0.0-s0.10",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
-    "build": "npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/editor",
+    "build": "npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor",
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -21,6 +21,7 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
+    "@types/node": "22.20.1",
     "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.2",
     "@types/react": "19.2.18",

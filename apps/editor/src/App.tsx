@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties } from "react";
-import { loadProject, saveProject, type ProjectFileStore } from "@world-studio/project-persistence";
+import {
+  ProjectPersistenceError,
+  ProjectStoreError,
+  loadProject,
+  saveProject,
+  type ProjectFileStore
+} from "@world-studio/project-persistence";
 import {
   deriveRouteGraph,
   findScene,
@@ -28,6 +34,31 @@ interface PersistenceViewState {
   readonly status: PersistenceStatus;
   readonly revision: number;
   readonly detail?: string;
+  readonly errorCode?: string;
+}
+
+export function persistenceFailure(error: unknown, revision: number): PersistenceViewState {
+  const known = error instanceof ProjectStoreError || error instanceof ProjectPersistenceError;
+  const errorCode = known ? error.code : undefined;
+  const message = error instanceof Error ? error.message : "本地存储操作失败";
+  return {
+    status: "error",
+    revision,
+    detail: errorCode === undefined ? message : `${errorCode} · ${message}`,
+    ...(errorCode === undefined ? {} : { errorCode })
+  };
+}
+
+export function persistenceErrorLabel(errorCode: string | undefined): string {
+  if (errorCode === "NO_SPACE") return "本机空间不足";
+  if (errorCode === "PERMISSION_DENIED") return "无写入权限";
+  if (errorCode === "BUSY") return "存储正忙";
+  if (errorCode === "UNAVAILABLE") return "存储已断开";
+  if (errorCode === "STALE_STORAGE_REVISION") return "保存版本冲突";
+  if (errorCode?.startsWith("CORRUPT_") === true || errorCode === "INCOMPLETE_STAGED_TRANSACTION") {
+    return "项目需要恢复";
+  }
+  return "保存失败";
 }
 
 const modeLabels: Record<StudioMode, string> = {
@@ -98,7 +129,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.9</p>
+          <p className="eyebrow">WorLd Studio · S0.10</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -154,7 +185,7 @@ function WorkspaceHeader({
               : persistence.status === "saving" ? "保存中…"
                 : persistence.status === "saved" ? `已保存 · s${persistence.revision}`
                   : persistence.status === "restored" ? `已恢复 · s${persistence.revision}`
-                    : persistence.status === "error" ? "保存失败"
+                    : persistence.status === "error" ? persistenceErrorLabel(persistence.errorCode)
                       : "保存到本机"}
         </button>
       </div>
@@ -592,11 +623,7 @@ export function App() {
       setPersistence({ status: "restored", revision: snapshot.storageRevision });
     }).catch((error: unknown) => {
       if (cancelled) return;
-      setPersistence({
-        status: "error",
-        revision: storageRevision.current,
-        detail: error instanceof Error ? error.message : "本地项目恢复失败"
-      });
+      setPersistence(persistenceFailure(error, storageRevision.current));
     });
     return () => { cancelled = true; };
   }, [storageAvailable]);
@@ -615,11 +642,7 @@ export function App() {
       storageRevision.current = nextRevision;
       setPersistence({ status: "saved", revision: nextRevision });
     }).catch((error: unknown) => {
-      setPersistence({
-        status: "error",
-        revision: storageRevision.current,
-        detail: error instanceof Error ? error.message : "保存失败"
-      });
+      setPersistence(persistenceFailure(error, storageRevision.current));
     });
   };
 
@@ -649,7 +672,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>WAL · SHA-256</span><span className="footer-accent">S0.9 LOCAL RECOVERY</span>
+        <span>本地优先</span><span>无账户</span><span>WAL · SHA-256</span><span className="footer-accent">S0.10 STORAGE CONTRACT</span>
       </footer>
     </div>
   );

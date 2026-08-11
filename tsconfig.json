@@ -4,6 +4,7 @@
     { "path": "./packages/story-core" },
     { "path": "./packages/story-language" },
     { "path": "./packages/project-persistence" },
+    { "path": "./packages/project-persistence-node" },
     { "path": "./apps/editor" }
   ]
 }

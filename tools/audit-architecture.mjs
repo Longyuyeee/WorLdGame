@@ -44,6 +44,10 @@ const coreFiles = (
   .flat()
   .filter((path) => extname(path) === ".ts" && !path.endsWith(".test.ts"));
 
+const nodeAdapterFiles = (await collectFiles(
+  join(repoRoot, "packages", "project-persistence-node", "src")
+)).filter((path) => extname(path) === ".ts" && !path.endsWith(".test.ts"));
+
 for (const path of coreFiles) {
   const source = await readFile(path, "utf8");
   for (const dependency of forbiddenImports) {
@@ -55,6 +59,21 @@ for (const path of coreFiles) {
   for (const [globalName, globalPattern] of forbiddenGlobalPatterns) {
     if (globalPattern.test(source)) {
       violations.push(`${relative(repoRoot, path)} references platform global ${globalName}`);
+    }
+  }
+}
+
+for (const path of nodeAdapterFiles) {
+  const source = await readFile(path, "utf8");
+  for (const dependency of ["react", "react-dom", "electron", "@capacitor", "@tauri-apps"]) {
+    const importPattern = new RegExp(`from\\s+["']${dependency.replaceAll("-", "\\-")}`);
+    if (importPattern.test(source)) {
+      violations.push(`${relative(repoRoot, path)} imports forbidden UI or shell dependency ${dependency}`);
+    }
+  }
+  for (const [globalName, globalPattern] of forbiddenGlobalPatterns) {
+    if (globalPattern.test(source)) {
+      violations.push(`${relative(repoRoot, path)} references forbidden platform global ${globalName}`);
     }
   }
 }
@@ -84,9 +103,28 @@ if (persistencePackage.dependencies !== undefined) {
   violations.push("project-persistence must not declare runtime dependencies in S0.9");
 }
 
+const nodePersistencePackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "project-persistence-node", "package.json"), "utf8")
+);
+const nodePersistenceDependencies = Object.keys(nodePersistencePackage.dependencies ?? {});
+if (
+  nodePersistenceDependencies.length !== 1 ||
+  nodePersistenceDependencies[0] !== "@world-studio/project-persistence"
+) {
+  violations.push("project-persistence-node may depend only on project-persistence in S0.10");
+}
+
 const editorPackage = JSON.parse(
   await readFile(join(repoRoot, "apps", "editor", "package.json"), "utf8")
 );
+const editorProductionFiles = (await collectFiles(join(repoRoot, "apps", "editor", "src")))
+  .filter((path) => [".ts", ".tsx"].includes(extname(path)) && !path.includes(".test."));
+for (const path of editorProductionFiles) {
+  const source = await readFile(path, "utf8");
+  if (source.includes("@world-studio/project-persistence-node")) {
+    violations.push(`${relative(repoRoot, path)} imports the Node adapter into the web editor`);
+  }
+}
 if (editorPackage.dependencies?.["@world-studio/story-core"] === undefined) {
   violations.push("editor must declare its story-core boundary explicitly");
 }
@@ -95,6 +133,9 @@ if (editorPackage.dependencies?.["@world-studio/story-language"] === undefined) 
 }
 if (editorPackage.dependencies?.["@world-studio/project-persistence"] === undefined) {
   violations.push("editor must declare its project-persistence boundary explicitly");
+}
+if (editorPackage.dependencies?.["@world-studio/project-persistence-node"] !== undefined) {
+  violations.push("web editor must not bundle the Node filesystem adapter");
 }
 
 if (violations.length > 0) {
@@ -106,14 +147,17 @@ if (violations.length > 0) {
       {
         status: "PASS",
         auditedPortableFiles: coreFiles.length,
+        auditedNodeAdapterFiles: nodeAdapterFiles.length,
         guarantees: [
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+          "project-persistence-node is isolated from the portable core and depends only on project-persistence",
           "editor declares the story-core dependency explicitly",
           "editor declares the story-language dependency explicitly",
           "editor declares the project-persistence dependency explicitly",
+          "web editor does not bundle the Node filesystem adapter",
           "story-core has no runtime third-party dependency"
         ]
       },
