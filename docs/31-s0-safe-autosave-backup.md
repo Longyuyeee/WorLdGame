@@ -1,6 +1,6 @@
 # S0.12 安全自动保存、备份轮换与恢复审计
 
-> 状态：实现、仓库级、干净重装与真实浏览器验证通过；提交推送和远端回读待收尾
+> 状态：实现、仓库级、干净重装、真实浏览器、推送与 Draft PR 远端回读均通过
 > 日期：2026-08-11
 > 范围：Web/IndexedDB 原型与可移植备份契约；不冒充 Windows/Android 长稳完成
 
@@ -139,3 +139,13 @@ stateDiagram-v2
 - 第二浏览器窗口继续只显示 writer lease conflict gate；测试标签和 viewport 已清理。
 
 浏览器审计曾发现升级项目从 s3 首次创建备份后，UI 用 `revision - 1` 错误显示 3/5。存储槽本身正确；实现已改为每次保存后重新读取并验证真实槽位，复核显示 1/5。该缺陷在提交前完成修复并加入集成路径。
+
+## 10. 远端证据与元数据事件
+
+- 实现提交 `90834944126c742091631d07a6dcfdb680bc9882` 已推送到 `origin/agent/visual-production-bar`；
+- 本地 HEAD、origin 跟踪分支与 Draft PR #1 head SHA 首次回读一致；
+- PR 标题更新为 `Add safe autosave, verified backups, and fenced storage`，并保持 Draft；
+- 首次更新 PR 时，旧正文预读发生 GitHub API TLS timeout，后续 PATCH 只保留了 S0.12 段；远端回读及时发现该元数据覆盖，代码与提交未受影响；
+- PR 正文随后重建为 S0.1–S0.12 累计索引、产品边界、S0.12 验证及全局 M1 阻断项；
+- 最终回读确认包含 S0.1 索引、完整 S0.12 标题、`108/108` 和“全局 M1 阻断项”，正文长度 2,946 字符；
+- GitHub API 在回读期间多次出现 TLS handshake/Schannel close timeout，使用只读重试后取得一致结果，没有把网络失败误报为完成。
