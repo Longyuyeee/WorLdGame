@@ -277,6 +277,17 @@ export function protectAssetRoot(
   return normalizeManifest({ ...provisional, quarantine: provisional.quarantine.filter((entry) => !reachable.has(entry.digest)) });
 }
 
+export function removeAssetProtectionRoot(
+  manifest: AssetLifecycleManifest,
+  rootId: string,
+  expectedLifecycleRevision: number
+): AssetLifecycleManifest {
+  if (manifest.lifecycleRevision !== expectedLifecycleRevision) fail("STALE_LIFECYCLE_REVISION", rootId, "Lifecycle revision changed before root removal");
+  const roots = manifest.roots.filter((root) => root.rootId !== rootId);
+  if (roots.length === manifest.roots.length) return manifest;
+  return normalizeManifest({ ...manifest, lifecycleRevision: manifest.lifecycleRevision + 1, roots });
+}
+
 export function planAssetGarbageCollection(
   manifest: AssetLifecycleManifest,
   availableDigests: readonly BlobDigest[],

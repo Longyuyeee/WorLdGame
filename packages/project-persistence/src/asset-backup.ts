@@ -35,7 +35,7 @@ function assertHeader(slot: number, sourceStorageRevision: number, createdAtMs: 
   }
 }
 
-function indexDigest(index: AssetIndex): BlobDigest {
+export function assetIndexContentDigest(index: AssetIndex): BlobDigest {
   return createBlobDigest(new TextEncoder().encode(serializeAssetIndex(index)));
 }
 
@@ -61,7 +61,7 @@ export function createAssetBackupSnapshot(
     slot,
     sourceStorageRevision,
     createdAtMs,
-    indexDigest: indexDigest(canonicalIndex),
+    indexDigest: assetIndexContentDigest(canonicalIndex),
     index: canonicalIndex
   };
 }

@@ -50,6 +50,7 @@ import {
   readAssetFile
 } from "./asset-file-import";
 import { inspectAssetBytes, mediaInspectionToJson } from "./media-inspection-client";
+import { generateThumbnailInWorker } from "./thumbnail-client";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -204,7 +205,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.20</p>
+          <p className="eyebrow">WorLd Studio · S0.21</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -315,7 +316,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.20 BACKUP ROOTS · DERIVATIVES</small></span>
+            <span><strong>资源保险库</strong><small>S0.21 CONSISTENT RESTORE · WORKER THUMBNAILS</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -373,6 +374,13 @@ function assetInspectionLabel(entry: AssetIndex["assets"][number]): string {
   return `PASS · ${inspection.format}${dimensions}${isolation}`;
 }
 
+function canBuildThumbnail(entry: AssetIndex["assets"][number]): boolean {
+  const inspection = entry.preservedFields?.inspection;
+  return typeof inspection === "object" && inspection !== null && !Array.isArray(inspection) &&
+    (inspection as Record<string, unknown>).status === "pass" &&
+    (entry.source.mimeType === "image/png" || entry.source.mimeType === "image/jpeg" || entry.source.mimeType === "image/webp");
+}
+
 interface AssetVaultDialogProps {
   readonly index: AssetIndex;
   readonly lifecycle: AssetLifecycleManifest;
@@ -389,6 +397,7 @@ interface AssetVaultDialogProps {
   readonly onSweep: () => void;
   readonly onRestore: (digest: AssetLifecycleManifest["trash"][number]["digest"]) => void;
   readonly onBuildSidecar: (assetId: string) => void;
+  readonly onBuildThumbnail: (assetId: string) => void;
 }
 
 function AssetVaultDialog({
@@ -406,7 +415,8 @@ function AssetVaultDialog({
   onScan,
   onSweep,
   onRestore,
-  onBuildSidecar
+  onBuildSidecar,
+  onBuildThumbnail
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -532,7 +542,10 @@ function AssetVaultDialog({
               <span className={`asset-item__kind asset-item__kind--${entry.kind}`}>{entry.kind.toUpperCase()}</span>
               <div><strong>{entry.displayName}</strong><code>{entry.assetId}</code></div>
               <div><span>{formatBytes(entry.source.byteLength)} · {assetInspectionLabel(entry)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
-              <button type="button" className="asset-item__derive" disabled={!storageReady || importing} onClick={() => onBuildSidecar(entry.assetId)}>生成 Sidecar</button>
+              <div className="asset-item__derivatives">
+                <button type="button" className="asset-item__derive" disabled={!storageReady || importing || !canBuildThumbnail(entry)} onClick={() => onBuildThumbnail(entry.assetId)}>生成缩略图</button>
+                <button type="button" className="asset-item__derive" disabled={!storageReady || importing} onClick={() => onBuildSidecar(entry.assetId)}>生成 Sidecar</button>
+              </div>
             </article>
           ))}
         </div>
@@ -1248,14 +1261,12 @@ export function App() {
         transactionId: `migration_to_v${CURRENT_PROJECT_SCHEMA_VERSION}_${++saveSerial.current}`,
         nowMs: Date.now()
       });
+      const snapshot = migration?.snapshot ?? null;
       try {
-        const [loadedAssetIndex, loadedAssetLifecycle] = await Promise.all([
-          assetRepository.loadIndex(),
-          assetRepository.loadLifecycle()
-        ]);
+        const restoreResolution = await assetRepository.resolveBackupRestoreIntent(snapshot?.storageRevision ?? 0);
         if (cancelled) return;
-        setAssetIndex(loadedAssetIndex);
-        setAssetLifecycle(loadedAssetLifecycle);
+        setAssetIndex(restoreResolution.index);
+        setAssetLifecycle(restoreResolution.manifest);
         setAssetStatus("ready");
       } catch (error) {
         if (cancelled) return;
@@ -1267,8 +1278,8 @@ export function App() {
           detail: error instanceof Error ? error.message : "资源索引加载失败。",
           ...(code === undefined ? {} : { errorCode: code })
         });
+        throw error;
       }
-      const snapshot = migration?.snapshot ?? null;
       if (cancelled) return;
       if (snapshot === null) {
         persistedSnapshotRef.current = null;
@@ -1531,19 +1542,26 @@ export function App() {
     const currentSnapshot = persistedSnapshotRef.current;
     if (store === null || assetRepository === null || currentSnapshot === null || inputDirty || saveInFlight.current) return;
     saveInFlight.current = true;
+    const backupRecordId = assetBackupRecordId(backup.slot, backup.sourceStorageRevision);
+    const restoresAssets = linkedAssetBackupIds.includes(backupRecordId);
     const nextRevision = storageRevision.current + 1;
     setPersistence((current) => ({
       status: "saving",
       revision: storageRevision.current,
       ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }),
-      detail: `正在把备份 s${backup.sourceStorageRevision} 恢复为新的 s${nextRevision}…`
+      detail: restoresAssets
+        ? `正在把备份 s${backup.sourceStorageRevision} 的剧情与资源索引一致恢复为新的 s${nextRevision}…`
+        : `正在把旧备份 s${backup.sourceStorageRevision} 仅恢复剧情为新的 s${nextRevision}…`
     }));
     const nowMs = Date.now();
-    void assetRepository.stageBackupSnapshot(
+    const prepareRestore = restoresAssets
+      ? assetRepository.prepareBackupRestore(backup.slot, backup.sourceStorageRevision, storageRevision.current)
+      : Promise.resolve(null);
+    void prepareRestore.then(() => assetRepository.stageBackupSnapshot(
       currentSnapshot.storageRevision % BACKUP_POLICY.retention,
       currentSnapshot.storageRevision,
       nowMs
-    ).then((staged) => {
+    )).then((staged) => {
       setAssetLifecycle(staged.manifest);
       return restoreProjectBackup(store, backup.slot, {
         transactionId: `restore_${nextRevision}_${++saveSerial.current}`,
@@ -1552,6 +1570,11 @@ export function App() {
         nowMs
       });
     }).then(async (result) => {
+      if (restoresAssets) {
+        const committed = await assetRepository.commitBackupRestore(result.snapshot.storageRevision);
+        setAssetIndex(committed.index);
+        setAssetLifecycle(committed.manifest);
+      }
       const restored = restoreStudioSession(result.snapshot);
       persistedSnapshotRef.current = result.snapshot;
       storageRevision.current = result.snapshot.storageRevision;
@@ -1569,7 +1592,9 @@ export function App() {
         status: "restored",
         revision: result.snapshot.storageRevision,
         backupCount: items.length,
-        detail: `已把备份 s${backup.sourceStorageRevision} 恢复为新的 s${result.snapshot.storageRevision}；被替换版本仍在轮换备份中。`
+        detail: restoresAssets
+          ? `已把备份 s${backup.sourceStorageRevision} 的剧情与资源索引一致恢复为新的 s${result.snapshot.storageRevision}；被替换版本仍在轮换备份中。`
+          : `已把旧备份 s${backup.sourceStorageRevision} 仅恢复剧情为新的 s${result.snapshot.storageRevision}；资源索引保持当前版本。`
       });
     }).catch((error: unknown) => {
       setPersistence(persistenceFailure(error, storageRevision.current));
@@ -1723,6 +1748,25 @@ export function App() {
     }
   };
 
+  const buildAssetThumbnail = async (assetId: string) => {
+    const repository = assetRepositoryRef.current;
+    const entry = assetIndex.assets.find((candidate) => candidate.assetId === assetId);
+    if (repository === null || entry === undefined) return;
+    setAssetLifecycleDetail(`正在隔离 Worker 中解码并缩放 ${assetId}…`);
+    try {
+      const source = await repository.read(entry.source.digest);
+      if (source === null) throw new AssetBlobError("CORRUPT_BLOB", "read", entry.source.digest, "缩略图源 Blob 不存在");
+      const generated = await generateThumbnailInWorker(source, entry.source.mimeType, 320);
+      const result = await repository.publishThumbnail(assetId, entry.source.digest, generated);
+      setAssetLifecycle(result.manifest);
+      setAssetLifecycleDetail(result.blobStatus === "existing"
+        ? `${assetId} 的 320px PNG 缩略图已复用相同输出；未产生重复 Blob。`
+        : `${assetId} 的 320px PNG 缩略图已从隔离 Worker 原子发布，并登记来源血缘。`);
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof Error ? `缩略图未发布：${error.message}` : "缩略图未发布。");
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -1798,7 +1842,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.20 BACKUP ROOTS · DETERMINISTIC DERIVATIVES</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.21 CONSISTENT RESTORE · ISOLATED THUMBNAILS</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -1812,7 +1856,7 @@ export function App() {
               </div>
               <button className="icon-button" aria-label="关闭备份面板" onClick={() => setBackupPanelOpen(false)}>×</button>
             </div>
-            <p className="backup-dialog__intro">每次覆盖项目前先保存上一份剧情快照；恢复会创建新的 revision。S0.20 已保护资源根，但资源索引随备份切换仍未接入。</p>
+            <p className="backup-dialog__intro">恢复总会创建新的 revision。关联备份会一致恢复剧情与资源索引；早期未携带资源快照的备份会明确保持“仅剧情恢复”。</p>
             <div className="backup-list" aria-live="polite">
               {backupsLoading ? <p>正在校验备份…</p> : backups.length === 0 ? (
                 <p>完成第二次保存后，这里会出现第一份可恢复快照。</p>
@@ -1822,11 +1866,13 @@ export function App() {
                     <strong>s{backup.sourceStorageRevision}</strong>
                     <span>槽位 {backup.slot + 1} · {new Date(backup.createdAtMs).toLocaleString()}</span>
                     <span>{linkedAssetBackupIds.includes(assetBackupRecordId(backup.slot, backup.sourceStorageRevision))
-                      ? "资源根已联动"
-                      : "旧备份 · 资源回收锁定"}</span>
+                      ? "剧情 + 资源索引 · 崩溃可续"
+                      : "旧备份 · 仅剧情 · 资源回收锁定"}</span>
                   </div>
                   <button onClick={() => restoreBackup(backup)} disabled={inputDirty || saveInFlight.current}>
-                    恢复剧情为新版本
+                    {linkedAssetBackupIds.includes(assetBackupRecordId(backup.slot, backup.sourceStorageRevision))
+                      ? "一致恢复为新版本"
+                      : "仅恢复剧情"}
                   </button>
                 </article>
               ))}
@@ -1853,6 +1899,7 @@ export function App() {
           onSweep={() => void runAssetLifecycleOperation("sweep")}
           onRestore={(digest) => void runAssetLifecycleOperation("restore", digest)}
           onBuildSidecar={(assetId) => void buildAssetSidecar(assetId)}
+          onBuildThumbnail={(assetId) => void buildAssetThumbnail(assetId)}
         />
       )}
     </div>

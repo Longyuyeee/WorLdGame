@@ -7,7 +7,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.20 backup-root and deterministic derivative integration", () => {
+describe("S0.21 asset restore and derivative integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -35,6 +35,7 @@ describe("S0.20 backup-root and deterministic derivative integration", () => {
     expect(screen.getAllByText("1", { selector: ".asset-lifecycle__metrics strong" })).toHaveLength(2);
     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast CG")).toBeVisible();
     expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "生成缩略图" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "保存到本机" })).toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: "生成 Sidecar" }));

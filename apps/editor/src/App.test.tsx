@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.20 backup-root and derivative UI prototype", () => {
+describe("WorLd Studio S0.21 consistent-restore and isolated-thumbnail UI prototype", () => {
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });

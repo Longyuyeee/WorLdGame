@@ -294,6 +294,57 @@ describe("IndexedDbAssetRepository", () => {
     ]);
   });
 
+  it("commits a linked backup Asset Index only after the project revision advances", async () => {
+    let now = 47_000;
+    const { assets } = await writableRepository(new IDBFactory(), "asset_restore_commit", () => now);
+    const oldBytes = new TextEncoder().encode("old restore source");
+    const newBytes = new TextEncoder().encode("new restore source");
+    const old = await assets.importAsset({
+      assetId: "cg_restore",
+      kind: "cg",
+      displayName: "Old Restore CG",
+      mimeType: "image/png",
+      bytes: oldBytes
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    await assets.stageBackupSnapshot(1, 1, now);
+    now += 1;
+    await assets.importAsset({
+      assetId: "cg_restore",
+      kind: "cg",
+      displayName: "New Restore CG",
+      mimeType: "image/png",
+      bytes: newBytes
+    }, { expectedIndexRevision: 1, maxBytes: 1024 });
+    const intent = await assets.prepareBackupRestore(1, 1, 2);
+    expect(intent).toMatchObject({ headBeforeRevision: 2, restoredProjectRevision: 3, targetIndexDigest: expect.any(String) });
+    expect((await assets.loadIndex()).assets[0]?.source.digest).toBe(createBlobDigest(newBytes));
+
+    const committed = await assets.commitBackupRestore(3);
+    expect(committed.status).toBe("completed");
+    expect(committed.index).toEqual(old.index);
+    expect((await assets.loadIndex()).assets[0]?.source.digest).toBe(createBlobDigest(oldBytes));
+    await expect(assets.resolveBackupRestoreIntent(3)).resolves.toMatchObject({ status: "none" });
+    await expect(assets.auditLifecycle()).resolves.toMatchObject({ status: "pass" });
+  });
+
+  it("aborts an uncommitted restore intent on startup without changing the current Asset Index", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "asset_restore_abort", () => 48_000);
+    const bytes = new TextEncoder().encode("restore abort source");
+    const current = await assets.importAsset({
+      assetId: "cg_abort",
+      kind: "cg",
+      displayName: "Abort CG",
+      mimeType: "image/png",
+      bytes
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    await assets.stageBackupSnapshot(1, 1, 48_000);
+    await assets.prepareBackupRestore(1, 1, 4);
+    const resolution = await assets.resolveBackupRestoreIntent(4);
+    expect(resolution.status).toBe("aborted");
+    expect(resolution.index).toEqual(current.index);
+    expect(resolution.manifest.roots.some((root) => root.rootId.startsWith("recovery:restore:"))).toBe(false);
+  });
+
   it("publishes an idempotent metadata sidecar Blob, lineage node and build root atomically", async () => {
     const { assets } = await writableRepository(new IDBFactory(), "sidecar_build", () => 50_000);
     const bytes = new TextEncoder().encode("source for deterministic sidecar");
@@ -324,6 +375,50 @@ describe("IndexedDbAssetRepository", () => {
     ]));
     const output = await assets.read(first.digest);
     expect(JSON.parse(new TextDecoder().decode(output ?? new Uint8Array()))).toMatchObject({ assetId: "cg_sidecar" });
+  });
+
+  it("atomically publishes an inspected thumbnail with source lineage and idempotent output", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "thumbnail_build", () => 52_000);
+    const source = new Uint8Array(33);
+    source.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]);
+    source[19] = 64;
+    source[23] = 32;
+    const imported = await assets.importAsset({
+      assetId: "cg_thumbnail",
+      kind: "cg",
+      displayName: "Thumbnail CG",
+      mimeType: "image/png",
+      bytes: source
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    const output = new Uint8Array(33);
+    output.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]);
+    output[19] = 32;
+    output[23] = 16;
+    const recipeDigest = createBlobDigest(new TextEncoder().encode("thumbnail recipe"));
+    const publication = {
+      bytes: output,
+      width: 32,
+      height: 16,
+      mimeType: "image/png" as const,
+      recipeName: "thumbnail/web-canvas-png-v1/320",
+      recipeDigest
+    };
+    const first = await assets.publishThumbnail("cg_thumbnail", imported.entry.source.digest, publication);
+    const second = await assets.publishThumbnail("cg_thumbnail", imported.entry.source.digest, publication);
+    expect(first.blobStatus).toBe("created");
+    expect(second.blobStatus).toBe("existing");
+    expect(second.digest).toBe(first.digest);
+    expect(second.manifest.lifecycleRevision).toBe(first.manifest.lifecycleRevision);
+    expect(second.manifest.nodes).toEqual(expect.arrayContaining([expect.objectContaining({
+      digest: first.digest,
+      role: "derivative",
+      parents: [imported.entry.source.digest],
+      recipeDigest,
+      recipeName: publication.recipeName
+    })]));
+    expect(second.manifest.roots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rootId: "build:thumbnail:cg_thumbnail", digests: [first.digest] })
+    ]));
   });
 
   it.each([

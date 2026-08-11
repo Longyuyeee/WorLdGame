@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/project-persistence",
-  "version": "0.0.0-s0.20",
+  "version": "0.0.0-s0.21",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",

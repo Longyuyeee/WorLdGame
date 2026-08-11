@@ -1,6 +1,7 @@
 export * from "./backup";
 export * from "./asset-blob";
 export * from "./asset-backup";
+export * from "./asset-restore";
 export * from "./asset-derivative";
 export * from "./asset-lifecycle";
 export * from "./asset-blob-conformance";

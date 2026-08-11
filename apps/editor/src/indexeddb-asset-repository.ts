@@ -1,31 +1,39 @@
 import {
   AssetBlobError,
+  ASSET_RESTORE_INTENT_RECORD_ID,
+  assetIndexContentDigest,
+  assetRestoreRecoveryRoot,
   assetBackupProtectionRoot,
   assetBackupRecordId,
   auditAssetLifecycle,
   assertBlobDigest,
   auditAssetIndex,
   createAssetBackupSnapshot,
+  createAssetBackupRestoreIntent,
   createAssetLifecycleManifest,
   createAssetIndex,
   createBlobDigest,
   DEFAULT_ASSET_LIFECYCLE_POLICY,
   eligibleAssetGarbage,
   expiredTrashDigests,
+  inspectUntrustedMedia,
   markAssetGarbageTrashed,
   markAssetTrashPurged,
   parseAssetBackupSnapshot,
+  parseAssetBackupRestoreIntent,
   parseAssetIndex,
   parseAssetLifecycleManifest,
   planAssetGarbageCollection,
   prepareAssetMetadataSidecar,
   protectAssetRoot,
+  removeAssetProtectionRoot,
   registerAssetDerivative,
   replaceAssetBackupRoots,
   prepareAssetImport,
   restoreTrashedAsset,
   serializeAssetLifecycleManifest,
   serializeAssetBackupSnapshot,
+  serializeAssetBackupRestoreIntent,
   serializeAssetIndex,
   updateAssetLifecycleForIndex,
   type AssetBlobErrorCode,
@@ -35,6 +43,7 @@ import {
   type AssetImportOptions,
   type AssetImportResult,
   type AssetBackupSnapshot,
+  type AssetBackupRestoreIntent,
   type AssetIndex,
   type AssetIndexAuditReport,
   type AssetLifecycleAuditReport,
@@ -90,6 +99,22 @@ export interface AssetDerivativeBuildResult {
   readonly manifest: AssetLifecycleManifest;
   readonly digest: BlobDigest;
   readonly blobStatus: "created" | "existing";
+}
+
+export interface AssetThumbnailPublication {
+  readonly bytes: Uint8Array;
+  readonly width: number;
+  readonly height: number;
+  readonly mimeType: "image/png";
+  readonly recipeName: string;
+  readonly recipeDigest: BlobDigest;
+}
+
+export interface AssetBackupRestoreResult {
+  readonly status: "none" | "aborted" | "completed";
+  readonly index: AssetIndex;
+  readonly manifest: AssetLifecycleManifest;
+  readonly intent?: AssetBackupRestoreIntent;
 }
 
 function cancelled(subject: string): AssetBlobError {
@@ -422,6 +447,7 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       const records = new Map<string, AssetBackupSnapshot>();
       keys.forEach((key, item) => {
         if (typeof key !== "string" || !key.startsWith(prefix)) return;
+        if (key === this.restoreIntentKey()) return;
         const source = values[item];
         if (typeof source !== "string") throw new AssetBlobError("INVALID_ASSET", "index", key, "Stored asset backup is invalid");
         const snapshot = parseAssetBackupSnapshot(source);
@@ -453,6 +479,140 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       };
     } catch (error) {
       throw normalizeIndexedDbAssetError(error, "index", "asset-backup-reconcile");
+    }
+  }
+
+  async prepareBackupRestore(
+    slot: number,
+    targetSourceStorageRevision: number,
+    headBeforeRevision: number
+  ): Promise<AssetBackupRestoreIntent> {
+    const createdAtMs = this.now();
+    try {
+      const database = await this.database;
+      const transaction = database.transaction(
+        [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME, ASSET_LIFECYCLE_STORE_NAME, ASSET_BACKUP_STORE_NAME],
+        "readwrite", { durability: "strict" }
+      );
+      await this.assertActiveLease(transaction.objectStore(PROJECT_FILE_STORE_NAME), "index", "asset-restore-prepare");
+      const backupStore = transaction.objectStore(ASSET_BACKUP_STORE_NAME);
+      const existingIntent = await indexedDbRequestResult(backupStore.get(this.restoreIntentKey()));
+      if (existingIntent !== undefined) throw new AssetBlobError("BUSY", "index", "asset-restore", "A backup restore intent is already pending");
+      const snapshotSource = await indexedDbRequestResult(backupStore.get(this.backupKey(slot, targetSourceStorageRevision)));
+      if (typeof snapshotSource !== "string") throw new AssetBlobError("INVALID_ASSET", "index", "asset-restore", "The selected backup has no linked Asset Index snapshot");
+      const snapshot = parseAssetBackupSnapshot(snapshotSource);
+      const indexStore = transaction.objectStore(ASSET_INDEX_STORE_NAME);
+      const indexSource = await indexedDbRequestResult(indexStore.get(this.projectId));
+      const index = indexSource === undefined ? createAssetIndex() : typeof indexSource === "string" ? parseAssetIndex(indexSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored asset index is invalid"); })();
+      const lifecycleStore = transaction.objectStore(ASSET_LIFECYCLE_STORE_NAME);
+      const lifecycleSource = await indexedDbRequestResult(lifecycleStore.get(this.projectId));
+      let lifecycle = lifecycleSource === undefined ? createAssetLifecycleManifest(index, createdAtMs) : typeof lifecycleSource === "string"
+        ? parseAssetLifecycleManifest(lifecycleSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored lifecycle manifest is invalid"); })();
+      const audit = auditAssetLifecycle(lifecycle, index, createdAtMs);
+      if (audit.status === "fail") throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, audit.findings[0] ?? "Lifecycle audit failed");
+      const protectedSourceDigests = [...new Set([
+        ...index.assets.map((entry) => entry.source.digest),
+        ...snapshot.index.assets.map((entry) => entry.source.digest)
+      ])];
+      const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
+      for (const digest of snapshot.index.assets.map((entry) => entry.source.digest)) {
+        const bytes = storedBytes(await indexedDbRequestResult(blobStore.get(this.blobKey(digest))));
+        if (bytes === null || createBlobDigest(bytes) !== digest) {
+          throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Backup restore source is missing or corrupt");
+        }
+      }
+      const intent = createAssetBackupRestoreIntent({
+        intentId: `s${headBeforeRevision + 1}-${createdAtMs}`,
+        targetSlot: slot,
+        targetSourceStorageRevision,
+        headBeforeRevision,
+        restoredProjectRevision: headBeforeRevision + 1,
+        previousIndexDigest: assetIndexContentDigest(index),
+        targetIndexDigest: snapshot.indexDigest,
+        targetIndex: snapshot.index,
+        protectedSourceDigests,
+        createdAtMs
+      });
+      lifecycle = protectAssetRoot(lifecycle, assetRestoreRecoveryRoot(
+        intent,
+        createdAtMs + DEFAULT_ASSET_LIFECYCLE_POLICY.recoveryRootMs
+      ), lifecycle.lifecycleRevision);
+      backupStore.put(serializeAssetBackupRestoreIntent(intent), this.restoreIntentKey());
+      lifecycleStore.put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
+      await indexedDbTransactionDone(transaction);
+      return intent;
+    } catch (error) {
+      throw normalizeIndexedDbAssetError(error, "index", "asset-restore-prepare");
+    }
+  }
+
+  async commitBackupRestore(currentStorageRevision: number): Promise<AssetBackupRestoreResult> {
+    return this.resolveBackupRestoreIntent(currentStorageRevision, true);
+  }
+
+  async resolveBackupRestoreIntent(
+    currentStorageRevision: number,
+    requirePending = false
+  ): Promise<AssetBackupRestoreResult> {
+    const nowMs = this.now();
+    try {
+      const database = await this.database;
+      const transaction = database.transaction(
+        [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME, ASSET_LIFECYCLE_STORE_NAME, ASSET_BACKUP_STORE_NAME],
+        "readwrite", { durability: "strict" }
+      );
+      await this.assertActiveLease(transaction.objectStore(PROJECT_FILE_STORE_NAME), "index", "asset-restore-resolve");
+      const backupStore = transaction.objectStore(ASSET_BACKUP_STORE_NAME);
+      const intentSource = await indexedDbRequestResult(backupStore.get(this.restoreIntentKey()));
+      const indexStore = transaction.objectStore(ASSET_INDEX_STORE_NAME);
+      const indexSource = await indexedDbRequestResult(indexStore.get(this.projectId));
+      const index = indexSource === undefined ? createAssetIndex() : typeof indexSource === "string" ? parseAssetIndex(indexSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored asset index is invalid"); })();
+      const lifecycleStore = transaction.objectStore(ASSET_LIFECYCLE_STORE_NAME);
+      const lifecycleSource = await indexedDbRequestResult(lifecycleStore.get(this.projectId));
+      let lifecycle = lifecycleSource === undefined ? createAssetLifecycleManifest(index, nowMs) : typeof lifecycleSource === "string"
+        ? parseAssetLifecycleManifest(lifecycleSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored lifecycle manifest is invalid"); })();
+      if (intentSource === undefined) {
+        await indexedDbTransactionDone(transaction);
+        if (requirePending) throw new AssetBlobError("INVALID_ASSET", "index", "asset-restore", "Prepared restore intent is missing");
+        return { status: "none", index, manifest: lifecycle };
+      }
+      if (typeof intentSource !== "string") throw new AssetBlobError("INVALID_ASSET", "index", "asset-restore", "Stored restore intent is invalid");
+      const intent = parseAssetBackupRestoreIntent(intentSource);
+      if (currentStorageRevision === intent.headBeforeRevision) {
+        lifecycle = removeAssetProtectionRoot(lifecycle, `recovery:restore:${intent.intentId}`, lifecycle.lifecycleRevision);
+        lifecycleStore.put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
+        backupStore.delete(this.restoreIntentKey());
+        await indexedDbTransactionDone(transaction);
+        if (requirePending) throw new AssetBlobError("BUSY", "index", "asset-restore", "Project restore did not commit; the asset restore intent was safely aborted");
+        return { status: "aborted", index, manifest: lifecycle, intent };
+      }
+      if (currentStorageRevision !== intent.restoredProjectRevision) {
+        throw new AssetBlobError("STALE_INDEX_REVISION", "index", "asset-restore", `Restore intent expects project s${intent.restoredProjectRevision}, current is s${currentStorageRevision}`);
+      }
+      if (assetIndexContentDigest(index) !== intent.previousIndexDigest) {
+        throw new AssetBlobError("STALE_INDEX_REVISION", "index", "asset-restore", "Asset Index changed after restore preparation");
+      }
+      const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
+      for (const entry of intent.targetIndex.assets) {
+        const bytes = storedBytes(await indexedDbRequestResult(blobStore.get(this.blobKey(entry.source.digest))));
+        if (bytes === null || createBlobDigest(bytes) !== entry.source.digest) {
+          throw new AssetBlobError("CORRUPT_BLOB", "read", entry.source.digest, "Restored Asset Index source is missing or corrupt");
+        }
+      }
+      lifecycle = updateAssetLifecycleForIndex(lifecycle, index, intent.targetIndex, nowMs);
+      const audit = auditAssetLifecycle(lifecycle, intent.targetIndex, nowMs);
+      if (audit.status === "fail") throw new AssetBlobError("INVALID_ASSET", "index", "asset-restore", audit.findings[0] ?? "Restored lifecycle audit failed");
+      indexStore.put(serializeAssetIndex(intent.targetIndex), this.projectId);
+      lifecycleStore.put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
+      backupStore.delete(this.restoreIntentKey());
+      await indexedDbTransactionDone(transaction);
+      return { status: "completed", index: intent.targetIndex, manifest: lifecycle, intent };
+    } catch (error) {
+      throw normalizeIndexedDbAssetError(error, "index", "asset-restore-resolve");
     }
   }
 
@@ -520,6 +680,84 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       lifecycleStore.put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
       await indexedDbTransactionDone(transaction);
       return { manifest: lifecycle, digest: prepared.digest, blobStatus };
+    } catch (error) {
+      throw normalizeIndexedDbAssetError(error, "index", assetId);
+    }
+  }
+
+  async publishThumbnail(
+    assetId: string,
+    expectedSourceDigest: BlobDigest,
+    output: AssetThumbnailPublication
+  ): Promise<AssetDerivativeBuildResult> {
+    assertBlobDigest(expectedSourceDigest, "index");
+    const nowMs = this.now();
+    const digest = createBlobDigest(output.bytes);
+    try {
+      const database = await this.database;
+      const transaction = database.transaction(
+        [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME, ASSET_LIFECYCLE_STORE_NAME],
+        "readwrite", { durability: "strict" }
+      );
+      await this.assertActiveLease(transaction.objectStore(PROJECT_FILE_STORE_NAME), "index", assetId);
+      const indexSource = await indexedDbRequestResult(transaction.objectStore(ASSET_INDEX_STORE_NAME).get(this.projectId));
+      const index = indexSource === undefined ? createAssetIndex() : typeof indexSource === "string" ? parseAssetIndex(indexSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored asset index is invalid"); })();
+      const entry = index.assets.find((candidate) => candidate.assetId === assetId);
+      if (entry === undefined || entry.source.digest !== expectedSourceDigest) {
+        throw new AssetBlobError("STALE_INDEX_REVISION", "index", assetId, "Thumbnail source changed before publication");
+      }
+      if (output.mimeType !== "image/png" || !Number.isSafeInteger(output.width) || output.width < 1 ||
+          !Number.isSafeInteger(output.height) || output.height < 1 || output.bytes.byteLength < 1 || output.bytes.byteLength > 4 * 1024 * 1024) {
+        throw new AssetBlobError("INVALID_ASSET", "index", assetId, "Thumbnail output metadata exceeds the publication contract");
+      }
+      const inspection = inspectUntrustedMedia(output.bytes, output.mimeType, "ui");
+      if (inspection.status !== "pass" || inspection.width !== output.width || inspection.height !== output.height) {
+        throw new AssetBlobError("INVALID_ASSET", "index", assetId, "Thumbnail bytes do not match the Worker output envelope");
+      }
+      const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
+      const sourceBytes = storedBytes(await indexedDbRequestResult(blobStore.get(this.blobKey(expectedSourceDigest))));
+      if (sourceBytes === null || createBlobDigest(sourceBytes) !== expectedSourceDigest) {
+        throw new AssetBlobError("CORRUPT_BLOB", "read", expectedSourceDigest, "Thumbnail source is missing or corrupt");
+      }
+      const outputKey = this.blobKey(digest);
+      const existingValue = await indexedDbRequestResult(blobStore.get(outputKey));
+      let blobStatus: "created" | "existing" = "existing";
+      if (existingValue === undefined) {
+        blobStore.put(output.bytes.slice(), outputKey);
+        blobStatus = "created";
+      } else {
+        const existingBytes = storedBytes(existingValue);
+        if (existingBytes === null || createBlobDigest(existingBytes) !== digest) {
+          throw new AssetBlobError("CORRUPT_BLOB", "put", digest, "Existing thumbnail Blob is corrupt");
+        }
+      }
+      const lifecycleStore = transaction.objectStore(ASSET_LIFECYCLE_STORE_NAME);
+      const lifecycleSource = await indexedDbRequestResult(lifecycleStore.get(this.projectId));
+      let lifecycle = lifecycleSource === undefined ? createAssetLifecycleManifest(index, nowMs) : typeof lifecycleSource === "string"
+        ? parseAssetLifecycleManifest(lifecycleSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored lifecycle manifest is invalid"); })();
+      const audit = auditAssetLifecycle(lifecycle, index, nowMs);
+      if (audit.status === "fail") throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, audit.findings[0] ?? "Lifecycle audit failed");
+      if (!lifecycle.nodes.some((node) => node.digest === digest)) {
+        lifecycle = registerAssetDerivative(lifecycle, {
+          digest,
+          byteLength: output.bytes.byteLength,
+          mimeType: output.mimeType,
+          parents: [expectedSourceDigest],
+          recipeDigest: output.recipeDigest,
+          recipeName: output.recipeName,
+          createdAtMs: nowMs
+        }, lifecycle.lifecycleRevision);
+      }
+      const rootId = `build:thumbnail:${assetId}`;
+      const root = lifecycle.roots.find((candidate) => candidate.rootId === rootId);
+      if (root?.kind !== "build" || root.digests.length !== 1 || root.digests[0] !== digest) {
+        lifecycle = protectAssetRoot(lifecycle, { rootId, kind: "build", digests: [digest], createdAtMs: nowMs }, lifecycle.lifecycleRevision);
+      }
+      lifecycleStore.put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
+      await indexedDbTransactionDone(transaction);
+      return { manifest: lifecycle, digest, blobStatus };
     } catch (error) {
       throw normalizeIndexedDbAssetError(error, "index", assetId);
     }
@@ -670,6 +908,10 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
 
   private backupKey(slot: number, sourceStorageRevision: number): string {
     return `${this.projectId}/${assetBackupRecordId(slot, sourceStorageRevision)}`;
+  }
+
+  private restoreIntentKey(): string {
+    return `${this.projectId}/${ASSET_RESTORE_INTENT_RECORD_ID}`;
   }
 
   private async assertActiveLease(

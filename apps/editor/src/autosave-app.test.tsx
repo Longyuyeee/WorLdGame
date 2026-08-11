@@ -38,8 +38,8 @@ describe("S0.12 autosave integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "备份 1/5" }));
     expect(screen.getByRole("heading", { name: "备份与恢复" })).toBeVisible();
     expect(await screen.findByText("s1")).toBeVisible();
-    expect(screen.getByText("资源根已联动")).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: "恢复剧情为新版本" }));
+    expect(screen.getByText("剧情 + 资源索引 · 崩溃可续")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "一致恢复为新版本" }));
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "已恢复 · s3" })).toBeVisible();
     }, { timeout: 5_000 });

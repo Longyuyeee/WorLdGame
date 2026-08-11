@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.20 备份资源根与确定性派生任务已完成；全量/性能/真实浏览器审计证据均已通过
+> 状态：S0.21 备份一致恢复与隔离 Worker 缩略图已完成；全量/性能/真实浏览器审计证据均已通过
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -69,6 +69,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.18 不可信媒体 Inspection Gate 审计](docs/37-s0-untrusted-media-inspection.md) | 魔数/MIME/Kind 一致性、像素/时长预算、SVG 隔离、字体边界、Worker 检查与写前拒绝 |
 | [S0.19 资源血缘、保留与两阶段回收审计](docs/38-s0-asset-lineage-lifecycle.md) | Source/Derivative DAG、保护根、隔离、可恢复 Trash、备份失效安全锁定与性能门 |
 | [S0.20 备份资源根与确定性派生任务审计](docs/39-s0-backup-roots-derivative-jobs.md) | checksummed Asset Index 快照、崩溃一致对账、精确 GC 准入与幂等 Sidecar 派生任务 |
+| [S0.21 备份一致恢复与隔离缩略图审计](docs/40-s0-restore-intent-thumbnail-worker.md) | 持久恢复意图、启动续作、旧备份降级语义、无主线程回退的缩略图 Worker 与原子血缘发布 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
