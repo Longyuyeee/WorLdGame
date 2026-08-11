@@ -1,6 +1,6 @@
 # S0.10 平台存储契约与 Windows 参考适配器审计
 
-> 状态：本地实现、自动化与真实浏览器审计通过；尚未推送和回读远端证据。
+> 状态：本地实现、自动化、真实浏览器审计、推送与远端证据回读均通过。
 > 决策日期：2026-08-11。
 > 风险等级：R4（虚假耐久声明、路径越界、低存储错误不可行动、平台适配器语义漂移）。
 
@@ -140,3 +140,11 @@ S0.10 的退出标准是：平台能力不再含糊、Windows 参考适配器通
 - Web 浏览器从既有 `s2` 项目恢复，丢弃错误草稿后保存为 `s3`，刷新再次得到 `已恢复 · s3`；Console 0 warning / 0 error；
 - 393×852：`innerWidth=393`、`documentScrollWidth=378`、`bodyScrollWidth=378`，无页面级横向溢出；
 - Editor 构建：JS 258.41 kB / gzip 80.27 kB；CSS 24.09 kB / gzip 5.72 kB。
+
+## 10. 远端证据
+
+- 实现提交：`11b97db089eb51aada6a561aa96a19c3d7c86d2f`；
+- `origin/agent/visual-production-bar`、本地 HEAD 与 Draft PR #1 head 三方 SHA 首次回读一致；
+- PR 标题更新为 `Build crash-safe local and platform storage contracts`；
+- PR 正文回读确认包含完整 `S0.10 Platform Storage Contract` 范围、验证和未完成项；
+- PR 保持 Draft，Android 原生与 Windows 断电级耐久未通过前不进入发布声明。
