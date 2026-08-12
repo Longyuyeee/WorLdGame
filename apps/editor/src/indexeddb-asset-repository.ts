@@ -13,7 +13,7 @@ import {
   createAssetLifecycleManifest,
   createAssetIndex,
   createBlobDigest,
-  createLosslessDicingAtlasRecipeDigest,
+  createLosslessDicingPngDeliveryRecipeDigest,
   DEFAULT_ASSET_LIFECYCLE_POLICY,
   eligibleAssetGarbage,
   expiredTrashDigests,
@@ -24,7 +24,8 @@ import {
   parseAssetBackupRestoreIntent,
   parseAssetIndex,
   parseAssetLifecycleManifest,
-  parseLosslessDicingAtlasManifest,
+  evaluateLosslessDicingEncodedDecision,
+  parseLosslessDicingPngDeliveryManifest,
   planAssetGarbageCollection,
   prepareAssetMetadataSidecar,
   protectAssetRoot,
@@ -38,7 +39,7 @@ import {
   serializeAssetBackupSnapshot,
   serializeAssetBackupRestoreIntent,
   serializeAssetIndex,
-  serializeLosslessDicingAtlasManifest,
+  serializeLosslessDicingPngDeliveryManifest,
   updateAssetLifecycleForIndex,
   type AssetBlobErrorCode,
   type AssetBlobOperation,
@@ -55,6 +56,7 @@ import {
   type AssetLifecyclePolicy,
   type BlobDigest,
   type LosslessDicingAtlasPage,
+  type LosslessDicingEncodedDecision,
   type ProjectBackup,
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
@@ -119,8 +121,8 @@ export interface AssetDicingAtlasPublication {
   readonly groupId: string;
   readonly expectedPlanDigest: BlobDigest;
   readonly sources: readonly { readonly assetId: string; readonly sourceDigest: BlobDigest }[];
-  readonly manifestJson: string;
-  readonly pages: readonly LosslessDicingAtlasPage[];
+  readonly deliveryManifestJson: string;
+  readonly pages: readonly (LosslessDicingAtlasPage & { readonly encoded: Uint8Array })[];
 }
 
 export interface AssetDicingAtlasPublicationResult {
@@ -129,6 +131,7 @@ export interface AssetDicingAtlasPublicationResult {
   readonly pageDigests: readonly BlobDigest[];
   readonly createdBlobCount: number;
   readonly blobStatus: "created" | "existing";
+  readonly decision: LosslessDicingEncodedDecision;
 }
 
 export interface AssetBackupRestoreResult {
@@ -786,8 +789,9 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
 
   async publishDicingAtlas(publication: AssetDicingAtlasPublication): Promise<AssetDicingAtlasPublicationResult> {
     const nowMs = this.now();
-    const manifest = parseLosslessDicingAtlasManifest(publication.manifestJson);
-    const canonicalManifestBytes = new TextEncoder().encode(serializeLosslessDicingAtlasManifest(manifest));
+    const deliveryManifest = parseLosslessDicingPngDeliveryManifest(publication.deliveryManifestJson);
+    const manifest = deliveryManifest.layoutManifest;
+    const canonicalManifestBytes = new TextEncoder().encode(serializeLosslessDicingPngDeliveryManifest(deliveryManifest));
     const manifestDigest = createBlobDigest(canonicalManifestBytes);
     assertBlobDigest(publication.expectedPlanDigest, "index");
     const sourceIds = new Set(publication.sources.map((source) => source.assetId));
@@ -799,14 +803,27 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
     }
     for (const source of publication.sources) assertBlobDigest(source.sourceDigest, "index");
     for (const image of manifest.images) reconstructLosslessDicingAtlasImage(manifest, publication.pages, image.assetId);
-    const pageOutputs = publication.pages.map((page) => ({ page, digest: createBlobDigest(page.rgba) }));
-    const recipeDigest = createLosslessDicingAtlasRecipeDigest(manifest);
+    const pageOutputs = publication.pages.map((page) => ({ page, digest: createBlobDigest(page.encoded) }));
+    for (const descriptor of deliveryManifest.pages) {
+      const output = pageOutputs.find((candidate) => candidate.page.pageId === descriptor.pageId);
+      if (output === undefined || output.digest !== descriptor.encodedDigest || output.page.encoded.byteLength !== descriptor.encodedByteLength ||
+          output.page.encoded.byteLength < 8 || ![137, 80, 78, 71, 13, 10, 26, 10].every((byte, index) => output.page.encoded[index] === byte)) {
+        throw new AssetBlobError("INVALID_ASSET", "index", descriptor.pageId, "Encoded Atlas Page does not match the Delivery Manifest");
+      }
+      const inspection = inspectUntrustedMedia(output.page.encoded, "image/png", "cg");
+      if (inspection.format !== "PNG" || inspection.width !== descriptor.width || inspection.height !== descriptor.height) {
+        throw new AssetBlobError("INVALID_ASSET", "index", descriptor.pageId, "Encoded Atlas PNG dimensions do not match the Delivery Manifest");
+      }
+    }
+    const recipeDigest = createLosslessDicingPngDeliveryRecipeDigest(deliveryManifest);
+    let publicationTransaction: IDBTransaction | undefined;
     try {
       const database = await this.database;
       const transaction = database.transaction(
         [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME, ASSET_LIFECYCLE_STORE_NAME],
         "readwrite", { durability: "strict" }
       );
+      publicationTransaction = transaction;
       await this.assertActiveLease(transaction.objectStore(PROJECT_FILE_STORE_NAME), "index", publication.groupId);
       const indexSource = await indexedDbRequestResult(transaction.objectStore(ASSET_INDEX_STORE_NAME).get(this.projectId));
       const index = indexSource === undefined ? createAssetIndex() : typeof indexSource === "string" ? parseAssetIndex(indexSource)
@@ -819,11 +836,21 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
         }
       }
       const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
+      let sourceEncodedBytes = 0;
+      const countedSourceDigests = new Set<BlobDigest>();
       for (const source of publication.sources) {
         const sourceBytes = storedBytes(await indexedDbRequestResult(blobStore.get(this.blobKey(source.sourceDigest))));
         if (sourceBytes === null || createBlobDigest(sourceBytes) !== source.sourceDigest) {
           throw new AssetBlobError("CORRUPT_BLOB", "read", source.sourceDigest, "Dicing source is missing or corrupt");
         }
+        if (!countedSourceDigests.has(source.sourceDigest)) {
+          countedSourceDigests.add(source.sourceDigest);
+          sourceEncodedBytes += sourceBytes.byteLength;
+        }
+      }
+      const decision = evaluateLosslessDicingEncodedDecision(deliveryManifest, sourceEncodedBytes);
+      if (decision.decision !== "adopt") {
+        throw new AssetBlobError("INVALID_ASSET", "put", publication.groupId, "Encoded Atlas has no positive net savings; Original must remain active");
       }
       const lifecycleStore = transaction.objectStore(ASSET_LIFECYCLE_STORE_NAME);
       const lifecycleSource = await indexedDbRequestResult(lifecycleStore.get(this.projectId));
@@ -848,15 +875,15 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       };
       const parentDigests = [...expectedSources.values()].sort();
       for (const output of pageOutputs) {
-        await putVerified(output.digest, output.page.rgba);
+        await putVerified(output.digest, output.page.encoded);
         if (!lifecycle.nodes.some((node) => node.digest === output.digest)) {
           lifecycle = registerAssetDerivative(lifecycle, {
             digest: output.digest,
-            byteLength: output.page.rgba.byteLength,
-            mimeType: "application/vnd.world-studio.rgba",
+            byteLength: output.page.encoded.byteLength,
+            mimeType: "image/png",
             parents: parentDigests,
             recipeDigest,
-            recipeName: "dicing-atlas/raw-rgba-page-v1",
+            recipeName: "dicing-atlas/web-png-page-v1",
             createdAtMs: nowMs
           }, lifecycle.lifecycleRevision);
         }
@@ -866,10 +893,10 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
         lifecycle = registerAssetDerivative(lifecycle, {
           digest: manifestDigest,
           byteLength: canonicalManifestBytes.byteLength,
-          mimeType: "application/vnd.world-studio.dicing+json",
+          mimeType: "application/vnd.world-studio.dicing-delivery+json",
           parents: [...parentDigests, ...pageOutputs.map((output) => output.digest)],
           recipeDigest,
-          recipeName: "dicing-atlas/manifest-v1",
+          recipeName: "dicing-atlas/png-delivery-manifest-v1",
           createdAtMs: nowMs
         }, lifecycle.lifecycleRevision);
       }
@@ -881,9 +908,11 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       }
       lifecycleStore.put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
       await indexedDbTransactionDone(transaction);
+      publicationTransaction = undefined;
       return { manifest: lifecycle, manifestDigest, pageDigests: pageOutputs.map((output) => output.digest), createdBlobCount,
-        blobStatus: createdBlobCount === 0 ? "existing" : "created" };
+        blobStatus: createdBlobCount === 0 ? "existing" : "created", decision };
     } catch (error) {
+      try { publicationTransaction?.abort(); } catch { /* Transaction already completed. */ }
       throw normalizeIndexedDbAssetError(error, "index", publication.groupId);
     }
   }

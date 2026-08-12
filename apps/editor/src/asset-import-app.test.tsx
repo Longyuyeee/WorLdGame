@@ -1,14 +1,19 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { IDBFactory } from "fake-indexeddb";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { buildLosslessDicingAtlas, serializeLosslessDicingAtlasManifest } from "@world-studio/project-persistence";
+import {
+  buildLosslessDicingAtlas,
+  createBlobDigest,
+  createLosslessDicingPngDeliveryManifest,
+  serializeLosslessDicingPngDeliveryManifest
+} from "@world-studio/project-persistence";
 import { App } from "./App";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.25 atomic Dicing Atlas publication integration", () => {
+describe("S0.26 encoded Dicing Atlas publication integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -21,7 +26,8 @@ describe("S0.25 atomic Dicing Atlas publication integration", () => {
     expect(screen.getByRole("button", { name: "安全扫描" })).toBeEnabled();
 
     const picker = screen.getByLabelText("选择资源文件");
-    const png = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 7, 128, 0, 0, 4, 56, 8, 6, 0, 0, 0, 0, 0, 0, 0]);
+    const png = new Uint8Array(10_000);
+    png.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 7, 128, 0, 0, 4, 56, 8, 6, 0, 0, 0, 0, 0, 0, 0]);
     const firstFile = new File([png], "Broadcast CG.png", {
       type: "image/png"
     });
@@ -63,14 +69,27 @@ describe("S0.25 atomic Dicing Atlas publication integration", () => {
       { assetId: "broadcast_cg", width: 8, height: 8, rgba: atlasRgba },
       { assetId: "broadcast_cg_copy", width: 8, height: 8, rgba: atlasRgba.slice() }
     ], { cellSize: 64, padding: 2, maxAtlasSize: 2048 });
+    const encodedAtlasPages = atlasArtifact.pages.map((page) => {
+      const encoded = new Uint8Array(33).fill(9);
+      encoded.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]);
+      const view = new DataView(encoded.buffer);
+      view.setUint32(16, page.width);
+      view.setUint32(20, page.height);
+      encoded.set([8, 6, 0, 0, 0], 24);
+      return { ...page, encoded };
+    });
+    const deliveryManifest = createLosslessDicingPngDeliveryManifest(atlasArtifact.manifest, encodedAtlasPages.map((page) => ({
+      pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+      encodedDigest: createBlobDigest(page.encoded), encodedByteLength: page.encoded.byteLength, mimeType: "image/png" as const
+    })));
     class DicingWorker {
       private readonly listeners = new Map<string, (event: MessageEvent) => void>();
       addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
       postMessage(request: { readonly id: number; readonly operation?: string }): void {
         if (request.operation === "build-atlas") {
           this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
-            manifestJson: serializeLosslessDicingAtlasManifest(atlasArtifact.manifest),
-            pages: atlasArtifact.pages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0) }))
+            deliveryManifestJson: serializeLosslessDicingPngDeliveryManifest(deliveryManifest),
+            pages: encodedAtlasPages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0), encoded: page.encoded.buffer.slice(0) }))
           } } } as MessageEvent);
           return;
         }
@@ -122,10 +141,10 @@ describe("S0.25 atomic Dicing Atlas publication integration", () => {
     expect(screen.getByText(/逐字节重建 PASS/)).toBeVisible();
     expect(screen.getByText(/1 重复源/)).toBeVisible();
     expect(screen.getByText(/RGBA 代理节省 60.4%/)).toBeVisible();
-    const publishButton = screen.getByRole("button", { name: "发布可重建 Atlas" });
+    const publishButton = screen.getByRole("button", { name: "编码并复决策发布" });
     expect(publishButton).toBeEnabled();
     fireEvent.click(publishButton);
-    await waitFor(() => expect(screen.getByText(/已原子发布 Manifest 与 1 个 Atlas Page/)).toBeVisible(), { timeout: 5_000 });
+    await waitFor(() => expect(screen.getByText(/已原子发布 Manifest 与 1 个无损 PNG Atlas Page/)).toBeVisible(), { timeout: 5_000 });
     expect(screen.getByText(/Original 保持受保护/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
   }, 20_000);

@@ -1,8 +1,11 @@
 import {
   AssetBlobError,
   buildLosslessDicingAtlas,
+  createBlobDigest,
+  createLosslessDicingPngDeliveryManifest,
   discoverLosslessDicingGroups,
-  serializeLosslessDicingAtlasManifest,
+  evaluateLosslessDicingEncodedDecision,
+  serializeLosslessDicingPngDeliveryManifest,
   type LosslessDicingSource
 } from "@world-studio/project-persistence";
 
@@ -57,10 +60,63 @@ workerScope.addEventListener("message", (event) => {
           throw new AssetBlobError("INVALID_ASSET", "index", "dicing-atlas", "Atlas selection does not match decoded sources");
         }
         const artifact = buildLosslessDicingAtlas(selected, { cellSize: request.cellSize, padding: 2, maxAtlasSize: 2048 });
-        const pages = artifact.pages.map((page) => ({ ...page, rgba: page.rgba.buffer }));
+        let encodedOutputBytes = 0;
+        const pages = [] as Array<{
+          pageId: string; width: number; height: number; rgbaDigest: string; rgba: ArrayBuffer; encoded: ArrayBuffer;
+        }>;
+        const descriptors = [] as Array<{
+          pageId: string; width: number; height: number; rgbaDigest: ReturnType<typeof createBlobDigest>;
+          encodedDigest: ReturnType<typeof createBlobDigest>; encodedByteLength: number; mimeType: "image/png";
+        }>;
+        for (const page of artifact.pages) {
+          const canvas = new OffscreenCanvas(page.width, page.height);
+          const context = canvas.getContext("2d", { alpha: true, willReadFrequently: true });
+          if (context === null) throw new AssetBlobError("DERIVATIVE_UNAVAILABLE", "put", page.pageId, "Atlas PNG encoder is unavailable");
+          const image = context.createImageData(page.width, page.height);
+          image.data.set(page.rgba);
+          context.putImageData(image, 0, 0);
+          const blob = await canvas.convertToBlob({ type: "image/png" });
+          const encoded = await blob.arrayBuffer();
+          encodedOutputBytes += encoded.byteLength;
+          if (encoded.byteLength === 0 || encodedOutputBytes > MAX_ENCODED_BYTES) {
+            throw new AssetBlobError("RESOURCE_LIMIT", "put", page.pageId, "Encoded Atlas output exceeds the worker budget");
+          }
+          const verificationBitmap = await createImageBitmap(new Blob([encoded], { type: "image/png" }), {
+            colorSpaceConversion: "none",
+            premultiplyAlpha: "none"
+          });
+          try {
+            if (verificationBitmap.width !== page.width || verificationBitmap.height !== page.height) {
+              throw new AssetBlobError("INVALID_ASSET", "put", page.pageId, "Encoded Atlas dimensions changed during PNG round-trip");
+            }
+            const verificationCanvas = new OffscreenCanvas(page.width, page.height);
+            const verificationContext = verificationCanvas.getContext("2d", { alpha: true, willReadFrequently: true });
+            if (verificationContext === null) throw new AssetBlobError("DERIVATIVE_UNAVAILABLE", "put", page.pageId, "Atlas PNG verifier is unavailable");
+            verificationContext.drawImage(verificationBitmap, 0, 0);
+            const verified = verificationContext.getImageData(0, 0, page.width, page.height).data;
+            if (verified.length !== page.rgba.length || verified.some((byte, index) => byte !== page.rgba[index])) {
+              throw new AssetBlobError("INVALID_ASSET", "put", page.pageId, "PNG round-trip is not byte-identical");
+            }
+          } finally {
+            verificationBitmap.close();
+          }
+          const encodedDigest = createBlobDigest(new Uint8Array(encoded));
+          descriptors.push({ pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+            encodedDigest, encodedByteLength: encoded.byteLength, mimeType: "image/png" });
+          pages.push({ pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+            rgba: page.rgba.slice().buffer as ArrayBuffer, encoded });
+        }
+        const deliveryManifest = createLosslessDicingPngDeliveryManifest(artifact.manifest, descriptors);
+        const uniqueSourceSizes = new Map<string, number>();
+        for (const source of request.sources.filter((candidate) => selectedIds.has(candidate.assetId))) {
+          const digest = createBlobDigest(new Uint8Array(source.bytes));
+          uniqueSourceSizes.set(digest, source.bytes.byteLength);
+        }
+        const sourceEncodedBytes = [...uniqueSourceSizes.values()].reduce((total, byteLength) => total + byteLength, 0);
+        const decision = evaluateLosslessDicingEncodedDecision(deliveryManifest, sourceEncodedBytes);
         workerScope.postMessage({ id: request.id, ok: true, artifact: {
-          manifestJson: serializeLosslessDicingAtlasManifest(artifact.manifest), pages
-        } }, pages.map((page) => page.rgba));
+          deliveryManifestJson: serializeLosslessDicingPngDeliveryManifest(deliveryManifest), pages, decision
+        } }, pages.flatMap((page) => [page.rgba, page.encoded]));
       } else {
         const report = discoverLosslessDicingGroups(decoded, { cellSize: request.cellSize });
         workerScope.postMessage({ id: request.id, ok: true, report });

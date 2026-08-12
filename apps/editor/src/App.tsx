@@ -207,7 +207,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.25</p>
+          <p className="eyebrow">WorLd Studio · S0.26</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -318,7 +318,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.25 ATOMIC ATLAS · LINEAGE SAFE</small></span>
+            <span><strong>资源保险库</strong><small>S0.26 LOSSLESS PNG · REAL SAVINGS</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -504,14 +504,14 @@ function AssetVaultDialog({
           </div>
           <div className="dicing-analysis" aria-label="无损切图候选分析">
             <div className="dicing-analysis__heading">
-              <div><p className="eyebrow">LOSSLESS DICING · ATOMIC DERIVATIVE</p><h4>跨图片重复块分析</h4></div>
+              <div><p className="eyebrow">LOSSLESS DICING · ENCODED RE-DECISION</p><h4>跨图片重复块分析</h4></div>
               {dicingAnalyzing
                 ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
                 : <button type="button" disabled={!storageReady || importing || dicingCandidateCount < 2} onClick={onAnalyzeDicing}>
                     分析候选 · {dicingCandidateCount}
                   </button>}
             </div>
-            <p>已通过检查的 PNG/JPEG/WebP 可在隔离 Worker 生成确定性 Atlas；Manifest、Page、血缘节点与 Build Root 在同一 fenced 事务发布。Original 永不覆盖。</p>
+            <p>候选 Atlas 会在隔离 Worker 编码为无损 PNG 并再次逐字节验证；只有 PNG Pages＋规范 Manifest 小于源文件实际字节时才进入 fenced 发布事务。Original 永不覆盖。</p>
             {dicingReport !== null && <div className={`dicing-analysis__report ${dicingReport.candidateGroups.length > 0 ? "is-adopt" : "is-original"}`} role="status">
               <strong>{dicingReport.candidateGroups.length > 0 ? `发现 ${dicingReport.candidateGroups.length} 个严格相似组` : "没有安全的自动分组"}</strong>
               <span>评估 {dicingReport.evaluatedImageCount} 图 · 阈值 {(dicingReport.minSharedTileRatio * 100).toFixed(0)}% · {dicingReport.unassignedAssetIds.length} 图保持独立</span>
@@ -522,7 +522,7 @@ function AssetVaultDialog({
                 <code>{group.report.planDigest.slice(7, 19)}… · 逐字节重建 PASS</code>
                 {group.report.decision === "adopt" && <button type="button" disabled={dicingPublishingGroupId !== null}
                   onClick={() => onPublishDicingAtlas(group.groupId)}>
-                  {dicingPublishingGroupId === group.groupId ? "正在原子发布…" : "发布可重建 Atlas"}
+                  {dicingPublishingGroupId === group.groupId ? "正在编码复决策…" : "编码并复决策发布"}
                 </button>}
               </article>)}
               <code>{dicingReport.discoveryDigest.slice(7, 19)}… · 自动分组确定性摘要</code>
@@ -1857,7 +1857,7 @@ export function App() {
     const group = dicingReport?.candidateGroups.find((candidate) => candidate.groupId === groupId);
     if (repository === null || group === undefined || group.report.decision !== "adopt" || dicingPublishingGroupId !== null) return;
     setDicingPublishingGroupId(groupId);
-    setAssetLifecycleDetail(`正在隔离 Worker 中生成 ${groupId} 的确定性 Atlas，并准备原子发布…`);
+    setAssetLifecycleDetail(`正在隔离 Worker 中生成 ${groupId}、编码无损 PNG，并按实际字节复决策…`);
     try {
       const entries = group.assetIds.map((assetId) => assetIndex.assets.find((entry) => entry.assetId === assetId));
       if (entries.some((entry) => entry === undefined)) throw new AssetBlobError("STALE_INDEX_REVISION", "index", groupId, "Dicing 组成员已变化");
@@ -1868,17 +1868,21 @@ export function App() {
         return { assetId: entry.assetId, mimeType: entry.source.mimeType, bytes };
       }));
       const artifact = await buildDicingAtlasInWorker(inputs, group.assetIds, group.report.planDigest, group.report.cellSize);
+      if (artifact.decision.decision !== "adopt") {
+        setAssetLifecycleDetail(`${groupId} 编码后无净收益：源文件 ${artifact.decision.sourceEncodedBytes} B，PNG Pages＋Manifest ${artifact.decision.publicationBytes} B；保持 Original，未进入发布事务。`);
+        return;
+      }
       const result = await repository.publishDicingAtlas({
         groupId,
         expectedPlanDigest: group.report.planDigest,
         sources: completeEntries.map((entry) => ({ assetId: entry.assetId, sourceDigest: entry.source.digest })),
-        manifestJson: artifact.manifestJson,
+        deliveryManifestJson: artifact.deliveryManifestJson,
         pages: artifact.pages
       });
       setAssetLifecycle(result.manifest);
       setAssetLifecycleDetail(result.blobStatus === "existing"
-        ? `${groupId} 已按相同 recipe 精确复用；Manifest 与 ${result.pageDigests.length} 个 Atlas Page 未产生重复 Blob。`
-        : `${groupId} 已原子发布 Manifest 与 ${result.pageDigests.length} 个 Atlas Page，共创建 ${result.createdBlobCount} 个内容寻址派生 Blob；Original 保持受保护。`);
+        ? `${groupId} 已按相同 PNG recipe 精确复用；Manifest 与 ${result.pageDigests.length} 个 Atlas Page 未产生重复 Blob。`
+        : `${groupId} 已原子发布 Manifest 与 ${result.pageDigests.length} 个无损 PNG Atlas Page，共创建 ${result.createdBlobCount} 个内容寻址派生 Blob；实际净节省 ${result.decision.netSavingsBytes} B，Original 保持受保护。`);
     } catch (error) {
       setAssetLifecycleDetail(error instanceof Error ? `Atlas 未发布：${error.message}` : "Atlas 未发布；事务已回滚。");
     } finally {
@@ -1961,7 +1965,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.25 ATOMIC DERIVATIVES · ORIGINAL SAFE</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.26 ENCODED SAVINGS · ORIGINAL SAFE</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

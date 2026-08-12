@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   auditAssetBlobStore,
   buildLosslessDicingAtlas,
-  createBlobDigest
+  createBlobDigest,
+  createLosslessDicingPngDeliveryManifest,
+  serializeLosslessDicingPngDeliveryManifest
 } from "@world-studio/project-persistence";
 import {
   ASSET_BACKUP_STORE_NAME,
@@ -35,6 +37,16 @@ async function writableRepository(
   const assets = new IndexedDbAssetRepository(indexedDb, projectId, { now });
   assets.activateWriterLease(acquisition.lease);
   return { indexedDb, files, assets, lease: acquisition.lease };
+}
+
+function inspectedPngHeader(width: number, height: number, fill: number): Uint8Array {
+  const bytes = new Uint8Array(33).fill(fill);
+  bytes.set([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]);
+  const view = new DataView(bytes.buffer);
+  view.setUint32(16, width);
+  view.setUint32(20, height);
+  bytes.set([8, 6, 0, 0, 0], 24);
+  return bytes;
 }
 
 describe("IndexedDbAssetRepository", () => {
@@ -424,14 +436,14 @@ describe("IndexedDbAssetRepository", () => {
 
   it("atomically publishes an idempotent Dicing Atlas, Manifest, lineage graph and build root", async () => {
     const { assets } = await writableRepository(new IDBFactory(), "dicing_atlas_build", () => 54_000);
-    const encodedA = new TextEncoder().encode("encoded source A");
-    const encodedB = new TextEncoder().encode("encoded source B");
+    const encodedA = new Uint8Array(10_000).fill(1);
+    const encodedB = new Uint8Array(10_000).fill(2);
     const firstImport = await assets.importAsset({
       assetId: "cg_atlas_a", kind: "cg", displayName: "Atlas A", mimeType: "image/png", bytes: encodedA
-    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    }, { expectedIndexRevision: 0, maxBytes: 20_000 });
     const secondImport = await assets.importAsset({
       assetId: "cg_atlas_b", kind: "cg", displayName: "Atlas B", mimeType: "image/png", bytes: encodedB
-    }, { expectedIndexRevision: 1, maxBytes: 1024 });
+    }, { expectedIndexRevision: 1, maxBytes: 20_000 });
     const rgbaA = new Uint8Array(16 * 8 * 4);
     const rgbaB = new Uint8Array(16 * 8 * 4);
     for (let pixel = 0; pixel < 16 * 8; pixel += 1) {
@@ -442,6 +454,14 @@ describe("IndexedDbAssetRepository", () => {
       { assetId: "cg_atlas_a", width: 16, height: 8, rgba: rgbaA },
       { assetId: "cg_atlas_b", width: 16, height: 8, rgba: rgbaB }
     ], { cellSize: 8, padding: 2, maxAtlasSize: 32 });
+    const pages = artifact.pages.map((page, index) => {
+      const encoded = inspectedPngHeader(page.width, page.height, index + 1);
+      return { ...page, encoded };
+    });
+    const deliveryManifest = createLosslessDicingPngDeliveryManifest(artifact.manifest, pages.map((page) => ({
+      pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+      encodedDigest: createBlobDigest(page.encoded), encodedByteLength: page.encoded.byteLength, mimeType: "image/png" as const
+    })));
     const publication = {
       groupId: "atlas-test",
       expectedPlanDigest: artifact.manifest.sourcePlanDigest,
@@ -449,8 +469,8 @@ describe("IndexedDbAssetRepository", () => {
         { assetId: "cg_atlas_a", sourceDigest: firstImport.entry.source.digest },
         { assetId: "cg_atlas_b", sourceDigest: secondImport.entry.source.digest }
       ],
-      manifestJson: JSON.stringify(artifact.manifest),
-      pages: artifact.pages
+      deliveryManifestJson: serializeLosslessDicingPngDeliveryManifest(deliveryManifest),
+      pages
     };
     const first = await assets.publishDicingAtlas(publication);
     const second = await assets.publishDicingAtlas(publication);
@@ -477,16 +497,52 @@ describe("IndexedDbAssetRepository", () => {
     const artifact = buildLosslessDicingAtlas([{ assetId: "cg_atlas_stale", width: 8, height: 8, rgba }], {
       cellSize: 8, padding: 2, maxAtlasSize: 32
     });
-    const manifestBlobDigest = createBlobDigest(new TextEncoder().encode(JSON.stringify(artifact.manifest)));
+    const pageEncoded = inspectedPngHeader(artifact.pages[0]!.width, artifact.pages[0]!.height, 3);
+    const pages = artifact.pages.map((page) => ({ ...page, encoded: pageEncoded }));
+    const deliveryManifest = createLosslessDicingPngDeliveryManifest(artifact.manifest, pages.map((page) => ({
+      pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+      encodedDigest: createBlobDigest(page.encoded), encodedByteLength: page.encoded.byteLength, mimeType: "image/png" as const
+    })));
+    const deliveryManifestJson = serializeLosslessDicingPngDeliveryManifest(deliveryManifest);
+    const manifestBlobDigest = createBlobDigest(new TextEncoder().encode(deliveryManifestJson));
     await expect(assets.publishDicingAtlas({
       groupId: "stale-test",
       expectedPlanDigest: artifact.manifest.sourcePlanDigest,
       sources: [{ assetId: "cg_atlas_stale", sourceDigest: createBlobDigest(new TextEncoder().encode("older source")) }],
-      manifestJson: JSON.stringify(artifact.manifest),
-      pages: artifact.pages
+      deliveryManifestJson,
+      pages
     })).rejects.toMatchObject({ code: "STALE_INDEX_REVISION" });
     expect(imported.entry.source.digest).toBe(createBlobDigest(encoded));
     expect(await assets.read(manifestBlobDigest)).toBeNull();
+  });
+
+  it("does not publish encoded Atlas outputs when real encoded bytes have no net savings", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "dicing_atlas_no_savings", () => 56_000);
+    const sourceBytes = new TextEncoder().encode("tiny source");
+    const imported = await assets.importAsset({
+      assetId: "cg_no_savings", kind: "cg", displayName: "No savings", mimeType: "image/png", bytes: sourceBytes
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    const rgba = new Uint8Array(8 * 8 * 4).fill(8);
+    const artifact = buildLosslessDicingAtlas([{ assetId: "cg_no_savings", width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    const encoded = inspectedPngHeader(artifact.pages[0]!.width, artifact.pages[0]!.height, 4);
+    const pages = artifact.pages.map((page) => ({ ...page, encoded }));
+    const deliveryManifest = createLosslessDicingPngDeliveryManifest(artifact.manifest, pages.map((page) => ({
+      pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+      encodedDigest: createBlobDigest(encoded), encodedByteLength: encoded.byteLength, mimeType: "image/png" as const
+    })));
+    const deliveryManifestJson = serializeLosslessDicingPngDeliveryManifest(deliveryManifest);
+    const manifestDigest = createBlobDigest(new TextEncoder().encode(deliveryManifestJson));
+    await expect(assets.publishDicingAtlas({
+      groupId: "no-savings-test",
+      expectedPlanDigest: artifact.manifest.sourcePlanDigest,
+      sources: [{ assetId: "cg_no_savings", sourceDigest: imported.entry.source.digest }],
+      deliveryManifestJson,
+      pages
+    })).rejects.toMatchObject({ code: "INVALID_ASSET" });
+    expect(await assets.read(manifestDigest)).toBeNull();
+    expect(await assets.read(createBlobDigest(encoded))).toBeNull();
   });
 
   it.each([

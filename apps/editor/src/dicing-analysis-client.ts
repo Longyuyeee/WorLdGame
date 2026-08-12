@@ -1,9 +1,13 @@
 import {
   AssetBlobError,
-  parseLosslessDicingAtlasManifest,
+  createBlobDigest,
+  evaluateLosslessDicingEncodedDecision,
+  parseLosslessDicingPngDeliveryManifest,
   reconstructLosslessDicingAtlasImage,
   type LosslessDicingAtlasPage,
   type LosslessDicingDiscoveryReport,
+  type LosslessDicingEncodedDecision,
+  type LosslessDicingPngDeliveryManifest,
   type LosslessDicingReport
 } from "@world-studio/project-persistence";
 
@@ -14,8 +18,10 @@ export interface DicingAnalysisInput {
 }
 
 export interface DicingAtlasWorkerArtifact {
-  readonly manifestJson: string;
-  readonly pages: readonly LosslessDicingAtlasPage[];
+  readonly deliveryManifestJson: string;
+  readonly manifest: LosslessDicingPngDeliveryManifest;
+  readonly pages: readonly (LosslessDicingAtlasPage & { readonly encoded: Uint8Array })[];
+  readonly decision: LosslessDicingEncodedDecision;
 }
 
 const SUPPORTED_SOURCE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
@@ -167,6 +173,11 @@ export function buildDicingAtlasInWorker(
   if (inputs.some((input) => !SUPPORTED_SOURCE_TYPES.has(input.mimeType)) || !Number.isSafeInteger(cellSize) || cellSize < 8 || cellSize > 512) {
     return Promise.reject(failure("UNSUPPORTED_MEDIA_TYPE", "Dicing Atlas inputs or Cell Size are unsupported"));
   }
+  const uniqueSourceSizes = new Map<string, number>();
+  for (const input of inputs.filter((candidate) => selectedIds.has(candidate.assetId))) {
+    uniqueSourceSizes.set(createBlobDigest(input.bytes), input.bytes.byteLength);
+  }
+  const sourceEncodedBytes = [...uniqueSourceSizes.values()].reduce((total, byteLength) => total + byteLength, 0);
   if (typeof Worker === "undefined") return Promise.reject(failure("DERIVATIVE_UNAVAILABLE", "Isolated Dicing Worker is unavailable"));
   const id = ++analysisSerial;
   let worker: Worker;
@@ -185,23 +196,35 @@ export function buildDicingAtlasInWorker(
     worker.addEventListener("error", (event) => finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", `Dicing Atlas Worker failed (${event.message || "unknown"})`))), { once: true });
     worker.addEventListener("message", (event: MessageEvent) => {
       const response = event.data as { readonly id?: number; readonly ok?: boolean; readonly artifact?: {
-        readonly manifestJson?: unknown;
-        readonly pages?: readonly { readonly pageId?: unknown; readonly width?: unknown; readonly height?: unknown; readonly rgbaDigest?: unknown; readonly rgba?: unknown }[];
+        readonly deliveryManifestJson?: unknown;
+        readonly pages?: readonly { readonly pageId?: unknown; readonly width?: unknown; readonly height?: unknown; readonly rgbaDigest?: unknown;
+          readonly rgba?: unknown; readonly encoded?: unknown }[];
       }; readonly error?: { readonly message?: string } };
       if (response.id !== id) return;
       try {
-        if (response.ok !== true || typeof response.artifact?.manifestJson !== "string" || !Array.isArray(response.artifact.pages)) throw new Error("invalid envelope");
-        const manifest = parseLosslessDicingAtlasManifest(response.artifact.manifestJson);
-        const pages = response.artifact.pages.map((page): LosslessDicingAtlasPage => {
+        if (response.ok !== true || typeof response.artifact?.deliveryManifestJson !== "string" || !Array.isArray(response.artifact.pages)) throw new Error("invalid envelope");
+        const manifest = parseLosslessDicingPngDeliveryManifest(response.artifact.deliveryManifestJson);
+        const pages = response.artifact.pages.map((page): LosslessDicingAtlasPage & { readonly encoded: Uint8Array } => {
           if (typeof page.pageId !== "string" || !Number.isSafeInteger(page.width) || !Number.isSafeInteger(page.height) ||
-              typeof page.rgbaDigest !== "string" || !(page.rgba instanceof ArrayBuffer)) throw new Error("invalid Atlas page");
+              typeof page.rgbaDigest !== "string" || !(page.rgba instanceof ArrayBuffer) || !(page.encoded instanceof ArrayBuffer)) throw new Error("invalid Atlas page");
           return { pageId: page.pageId, width: page.width as number, height: page.height as number,
-            rgbaDigest: page.rgbaDigest as LosslessDicingAtlasPage["rgbaDigest"], rgba: new Uint8Array(page.rgba) };
+            rgbaDigest: page.rgbaDigest as LosslessDicingAtlasPage["rgbaDigest"], rgba: new Uint8Array(page.rgba), encoded: new Uint8Array(page.encoded) };
         });
-        if (manifest.sourcePlanDigest !== expectedPlanDigest || manifest.images.length !== assetIds.length ||
-            manifest.images.some((image) => !selectedIds.has(image.assetId))) throw new Error("substituted Asset ID or plan");
-        for (const assetId of assetIds) reconstructLosslessDicingAtlasImage(manifest, pages, assetId);
-        finish(() => resolve({ manifestJson: response.artifact!.manifestJson as string, pages }));
+        if (manifest.sourcePlanDigest !== expectedPlanDigest || manifest.layoutManifest.images.length !== assetIds.length ||
+            manifest.layoutManifest.images.some((image) => !selectedIds.has(image.assetId)) || pages.length !== manifest.pages.length) {
+          throw new Error("substituted Asset ID or plan");
+        }
+        for (const descriptor of manifest.pages) {
+          const page = pages.find((candidate) => candidate.pageId === descriptor.pageId);
+          if (page === undefined || page.width !== descriptor.width || page.height !== descriptor.height || page.rgbaDigest !== descriptor.rgbaDigest ||
+              page.encoded.byteLength !== descriptor.encodedByteLength || createBlobDigest(page.encoded) !== descriptor.encodedDigest ||
+              page.encoded.byteLength < 8 || ![137, 80, 78, 71, 13, 10, 26, 10].every((byte, index) => page.encoded[index] === byte)) {
+            throw new Error("encoded Atlas page mismatch");
+          }
+        }
+        for (const assetId of assetIds) reconstructLosslessDicingAtlasImage(manifest.layoutManifest, pages, assetId);
+        const decision = evaluateLosslessDicingEncodedDecision(manifest, sourceEncodedBytes);
+        finish(() => resolve({ deliveryManifestJson: response.artifact!.deliveryManifestJson as string, manifest, pages, decision }));
       } catch {
         finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", response.error?.message ?? "Dicing Atlas Worker returned an invalid artifact")));
       }

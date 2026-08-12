@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.25 Atlas 派生资源原子发布与血缘接入已完成；全量测试、性能预算与真实浏览器审计已通过
+> 状态：S0.26 Atlas 无损 PNG 编码与实际字节复决策已完成；全量、性能与真实浏览器端到端审计已通过
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -74,6 +74,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.23 自动 Dicing 分组与去重成本审计](docs/42-s0-dicing-group-discovery.md) | 非零块相似度、严格全成员聚类、反传递误合并、源去重感知收益与分组级报告 |
 | [S0.24 Atlas 与安全回退契约审计](docs/43-s0-dicing-atlas-contract.md) | 确定性多页排布、Padding/Extrusion、严格 Manifest/Page 校验、逐字节重建与 Original 回退 |
 | [S0.25 Atlas 原子发布与血缘审计](docs/44-s0-atomic-dicing-atlas-publication.md) | Worker 产物复验、Plan 摘要绑定、fenced 多 Blob 事务、Page/Manifest 血缘与幂等 Build Root |
+| [S0.26 Atlas 无损 PNG 与编码后复决策审计](docs/45-s0-encoded-dicing-atlas-decision.md) | Worker PNG 往返验证、唯一源 Blob 成本、实际发布字节复算、无收益不发布与 PNG 血缘 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
