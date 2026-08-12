@@ -9,6 +9,7 @@ import {
   CURRENT_PROJECT_SCHEMA_VERSION,
   loadProjectBackups,
   migrateProjectToCurrent,
+  parseLosslessDicingPngDeliveryManifest,
   probeProjectVersion,
   restoreProjectBackup,
   saveProjectWithBackups,
@@ -54,6 +55,7 @@ import { inspectAssetBytes, mediaInspectionToJson } from "./media-inspection-cli
 import { generateThumbnailInWorker } from "./thumbnail-client";
 import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analysis-client";
 import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
+import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -208,7 +210,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.27</p>
+          <p className="eyebrow">WorLd Studio · S0.28</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -319,7 +321,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.27 RUNTIME LOADER · FAIL CLOSED</small></span>
+            <span><strong>资源保险库</strong><small>S0.28 BUDGETED RUNTIME · LRU</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -394,6 +396,7 @@ interface AssetVaultDialogProps {
   readonly dicingAnalyzing: boolean;
   readonly dicingPublishingGroupId: string | null;
   readonly dicingRuntimeVerifyingGroupId: string | null;
+  readonly runtimeSchedulingGroupId: string | null;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
   readonly createSuggestedId: (fileName: string) => string;
@@ -409,6 +412,7 @@ interface AssetVaultDialogProps {
   readonly onCancelDicing: () => void;
   readonly onPublishDicingAtlas: (groupId: string) => void;
   readonly onVerifyDicingRuntime: (groupId: string) => void;
+  readonly onVerifyRuntimeScheduling: (groupId: string) => void;
 }
 
 function AssetVaultDialog({
@@ -421,6 +425,7 @@ function AssetVaultDialog({
   dicingAnalyzing,
   dicingPublishingGroupId,
   dicingRuntimeVerifyingGroupId,
+  runtimeSchedulingGroupId,
   status,
   importState,
   createSuggestedId,
@@ -435,7 +440,8 @@ function AssetVaultDialog({
   onAnalyzeDicing,
   onCancelDicing,
   onPublishDicingAtlas,
-  onVerifyDicingRuntime
+  onVerifyDicingRuntime,
+  onVerifyRuntimeScheduling
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -509,14 +515,14 @@ function AssetVaultDialog({
           </div>
           <div className="dicing-analysis" aria-label="无损切图候选分析">
             <div className="dicing-analysis__heading">
-              <div><p className="eyebrow">LOSSLESS DICING · RUNTIME FAILOVER</p><h4>跨图片重复块分析</h4></div>
+              <div><p className="eyebrow">LOSSLESS DICING · BUDGETED RESIDENCY</p><h4>跨图片重复块分析</h4></div>
               {dicingAnalyzing
                 ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
                 : <button type="button" disabled={!storageReady || importing || dicingCandidateCount < 2} onClick={onAnalyzeDicing}>
                     分析候选 · {dicingCandidateCount}
                   </button>}
             </div>
-            <p>无损 PNG Atlas 通过实际字节收益门后原子发布；Runtime Worker 在受控预算内重新校验 Manifest、Page 与当前源身份，任何缺失、损坏或超限都回退当前 Original。</p>
+            <p>Runtime Worker 校验 Atlas 与当前源身份；调度器按优先级、解码并发和 RGBA 驻留硬预算加载，引用保护、LRU 与低内存清理不会驱逐正在使用的画面。</p>
             {dicingReport !== null && <div className={`dicing-analysis__report ${dicingReport.candidateGroups.length > 0 ? "is-adopt" : "is-original"}`} role="status">
               <strong>{dicingReport.candidateGroups.length > 0 ? `发现 ${dicingReport.candidateGroups.length} 个严格相似组` : "没有安全的自动分组"}</strong>
               <span>评估 {dicingReport.evaluatedImageCount} 图 · 阈值 {(dicingReport.minSharedTileRatio * 100).toFixed(0)}% · {dicingReport.unassignedAssetIds.length} 图保持独立</span>
@@ -530,9 +536,14 @@ function AssetVaultDialog({
                   {dicingPublishingGroupId === group.groupId ? "正在编码复决策…" : "编码并复决策发布"}
                 </button>}
                 {group.report.decision === "adopt" && <button type="button"
-                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null}
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null}
                   onClick={() => onVerifyDicingRuntime(group.groupId)}>
                   {dicingRuntimeVerifyingGroupId === group.groupId ? "正在验证 Loader…" : "验证 Runtime Loader"}
+                </button>}
+                {group.report.decision === "adopt" && <button type="button"
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null}
+                  onClick={() => onVerifyRuntimeScheduling(group.groupId)}>
+                  {runtimeSchedulingGroupId === group.groupId ? "正在执行内存门禁…" : "验证内存调度"}
                 </button>}
               </article>)}
               <code>{dicingReport.discoveryDigest.slice(7, 19)}… · 自动分组确定性摘要</code>
@@ -1138,6 +1149,7 @@ export function App() {
   const [dicingAnalyzing, setDicingAnalyzing] = useState(false);
   const [dicingPublishingGroupId, setDicingPublishingGroupId] = useState<string | null>(null);
   const [dicingRuntimeVerifyingGroupId, setDicingRuntimeVerifyingGroupId] = useState<string | null>(null);
+  const [runtimeSchedulingGroupId, setRuntimeSchedulingGroupId] = useState<string | null>(null);
   const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
   const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
   const [unlinkedAssetBackupIds, setUnlinkedAssetBackupIds] = useState<readonly string[]>([]);
@@ -1934,6 +1946,65 @@ export function App() {
     }
   };
 
+  const verifyRuntimeScheduling = async (groupId: string) => {
+    const repository = assetRepositoryRef.current;
+    const group = dicingReport?.candidateGroups.find((candidate) => candidate.groupId === groupId);
+    if (repository === null || group === undefined || runtimeSchedulingGroupId !== null) return;
+    setRuntimeSchedulingGroupId(groupId);
+    setAssetLifecycleDetail(`正在用并发上限、RGBA 硬预算、引用保护与 LRU 验证 ${groupId}…`);
+    try {
+      const publication = await repository.loadDicingRuntimePublication(groupId);
+      if (publication === null) throw new AssetBlobError("DERIVATIVE_UNAVAILABLE", "read", groupId, "Runtime publication is unavailable");
+      const manifest = parseLosslessDicingPngDeliveryManifest(publication.deliveryManifestJson);
+      const targets = group.assetIds.map((assetId) => {
+        const entry = assetIndex.assets.find((candidate) => candidate.assetId === assetId);
+        const image = manifest.layoutManifest.images.find((candidate) => candidate.assetId === assetId);
+        if (entry === undefined || image === undefined) throw new AssetBlobError("STALE_INDEX_REVISION", "read", assetId, "Runtime scheduling target changed");
+        return { entry, reservedBytes: image.width * image.height * 4 };
+      });
+      const residentBudget = Math.max(...targets.map((target) => target.reservedBytes));
+      const scheduler = new RuntimeResourceScheduler<Awaited<ReturnType<typeof resolveDicingRuntimeImageInWorker>>>({
+        maxConcurrentLoads: 2,
+        maxResidentBytes: residentBudget
+      });
+      let atlasLoads = 0;
+      let fallbackLoads = 0;
+      for (const target of targets) {
+        const lease = await scheduler.acquire({
+          key: target.entry.assetId,
+          priority: atlasLoads === 0 && fallbackLoads === 0 ? "critical" : "scene",
+          reservedBytes: target.reservedBytes,
+          load: async (signal) => {
+            const originalBytes = await repository.read(target.entry.source.digest);
+            if (signal.aborted) throw new AssetBlobError("CANCELLED", "read", target.entry.assetId, "Runtime scheduling was cancelled");
+            if (originalBytes === null) throw new AssetBlobError("CORRUPT_BLOB", "read", target.entry.source.digest, "Current Original is missing");
+            const resolution = await resolveDicingRuntimeImageInWorker({
+              assetId: target.entry.assetId,
+              originalMimeType: target.entry.source.mimeType,
+              originalBytes,
+              deliveryManifestJson: publication.deliveryManifestJson,
+              encodedPages: publication.encodedPages.map((page) => ({ pageId: page.pageId, bytes: page.bytes })),
+              maxDecodedPixels: target.reservedBytes / 4
+            });
+            return { value: resolution, byteLength: resolution.rgba.byteLength };
+          }
+        });
+        if (lease.value.strategy === "atlas") atlasLoads += 1;
+        else fallbackLoads += 1;
+        lease.release();
+      }
+      const beforePressure = scheduler.snapshot();
+      const afterPressure = scheduler.handleMemoryPressure();
+      setAssetLifecycleDetail(`${groupId} MEMORY SCHEDULER PASS：${targets.length} 个目标（Atlas ${atlasLoads} / Original ${fallbackLoads}）；` +
+        `峰值计账 ${formatBytes(beforePressure.peakAccountedBytes)} / 硬预算 ${formatBytes(residentBudget)}，LRU 回收 ${afterPressure.evictions}，` +
+        `压力清理后驻留 ${formatBytes(afterPressure.residentBytes)}、任务 ${afterPressure.activeLoads + afterPressure.queuedLoads}。`);
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof Error ? `内存调度门禁失败：${error.message}` : "内存调度门禁失败。");
+    } finally {
+      setRuntimeSchedulingGroupId(null);
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -2009,7 +2080,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.27 RUNTIME VERIFIED · ORIGINAL FALLBACK</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.28 MEMORY BOUNDED · PRESSURE SAFE</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -2060,6 +2131,7 @@ export function App() {
           dicingAnalyzing={dicingAnalyzing}
           dicingPublishingGroupId={dicingPublishingGroupId}
           dicingRuntimeVerifyingGroupId={dicingRuntimeVerifyingGroupId}
+          runtimeSchedulingGroupId={runtimeSchedulingGroupId}
           status={assetStatus}
           importState={assetImportState}
           createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
@@ -2075,6 +2147,7 @@ export function App() {
           onCancelDicing={() => dicingAnalysisAbortRef.current?.abort()}
           onPublishDicingAtlas={(groupId) => void publishDicingAtlas(groupId)}
           onVerifyDicingRuntime={(groupId) => void verifyDicingRuntime(groupId)}
+          onVerifyRuntimeScheduling={(groupId) => void verifyRuntimeScheduling(groupId)}
         />
       )}
     </div>

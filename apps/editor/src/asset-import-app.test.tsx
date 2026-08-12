@@ -13,7 +13,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.27 Dicing Runtime Loader integration", () => {
+describe("S0.28 budgeted Dicing runtime scheduling integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -154,6 +154,9 @@ describe("S0.27 Dicing Runtime Loader integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "验证 Runtime Loader" }));
     await waitFor(() => expect(screen.getByText(/Runtime Loader PASS/)).toBeVisible(), { timeout: 5_000 });
     expect(screen.getByText(/当前 Original 身份匹配/)).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "验证内存调度" }));
+    await waitFor(() => expect(screen.getByText(/MEMORY SCHEDULER PASS/)).toBeVisible(), { timeout: 5_000 });
+    expect(screen.getByText(/压力清理后驻留 0 B、任务 0/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
   }, 20_000);
 

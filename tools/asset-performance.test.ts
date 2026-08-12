@@ -15,13 +15,14 @@ import {
   serializeAssetIndex,
   type AssetIndex
 } from "../packages/project-persistence/src/index";
+import { RuntimeResourceScheduler } from "../apps/editor/src/runtime-resource-scheduler";
 
 const HASH_BYTES = 16 * 1024 * 1024;
 const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.27 asset lifecycle, Dicing grouping and Atlas performance gate", () => {
+describe("S0.28 asset lifecycle, Dicing grouping, Atlas and runtime scheduling performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;
@@ -168,5 +169,35 @@ describe("S0.27 asset lifecycle, Dicing grouping and Atlas performance gate", ()
     expect(dicingMs).toBeLessThan(3_000);
     expect(atlasMs).toBeLessThan(3_000);
     expect(totalMs).toBeLessThan(5_000);
+  });
+
+  it("schedules and bounds two thousand decoded resources within budget", async () => {
+    const resourceCount = 2_000;
+    const resourceBytes = 1_024;
+    const residentBudget = 64 * 1_024;
+    const scheduler = new RuntimeResourceScheduler<number>({ maxConcurrentLoads: 4, maxResidentBytes: residentBudget });
+    const start = performance.now();
+    for (let index = 0; index < resourceCount; index += 1) {
+      const lease = await scheduler.acquire({ key: `runtime-${index}`, priority: "scene", reservedBytes: resourceBytes,
+        load: async () => ({ value: index, byteLength: resourceBytes }) });
+      lease.release();
+    }
+    const beforePressure = scheduler.snapshot();
+    const afterPressure = scheduler.handleMemoryPressure();
+    const schedulingMs = performance.now() - start;
+
+    console.log(JSON.stringify({
+      status: "PASS",
+      baseline: { resourceCount, resourceBytes, residentBudget, maxConcurrentLoads: 4 },
+      measurementsMs: { schedulingAndPressureCleanup: Number(schedulingMs.toFixed(2)) },
+      budgetsMs: { schedulingAndPressureCleanup: 2_000 },
+      result: { peakAccountedBytes: beforePressure.peakAccountedBytes, evictions: afterPressure.evictions,
+        finalResidentBytes: afterPressure.residentBytes, finalTasks: afterPressure.activeLoads + afterPressure.queuedLoads }
+    }, null, 2));
+
+    expect(beforePressure.peakAccountedBytes).toBeLessThanOrEqual(residentBudget);
+    expect(afterPressure).toMatchObject({ residentBytes: 0, activeLoads: 0, queuedLoads: 0 });
+    expect(afterPressure.evictions).toBeGreaterThan(1_900);
+    expect(schedulingMs).toBeLessThan(2_000);
   });
 });
