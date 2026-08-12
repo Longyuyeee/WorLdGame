@@ -87,8 +87,9 @@ async function createLegacyArchive(
   const manifestContent = await store.read(PROJECT_MANIFEST_PATH);
   if (manifestContent === null) return fail("MIGRATION_FAILED", "Legacy manifest disappeared before migration");
   const manifest = parseManifest(manifestContent);
-  if (manifest.schemaVersion !== 0 || !Array.isArray(manifest.scenes)) {
-    return fail("MIGRATION_FAILED", "Only schema 0 can enter the schema 1 migration");
+  if (!Number.isSafeInteger(manifest.schemaVersion) || (manifest.schemaVersion as number) < 0 ||
+      (manifest.schemaVersion as number) >= CURRENT_PROJECT_SCHEMA_VERSION || !Array.isArray(manifest.scenes)) {
+    return fail("MIGRATION_FAILED", `Schema cannot enter the schema ${CURRENT_PROJECT_SCHEMA_VERSION} migration`);
   }
   const files: MigrationArchiveFile[] = [{
     path: PROJECT_MANIFEST_PATH,
@@ -106,11 +107,11 @@ async function createLegacyArchive(
     if (content === null) return fail("CORRUPT_MANIFEST", `Legacy scene is missing: ${descriptor.sceneId}`);
     files.push({ path: descriptor.path, content, sha256: sha256(content) });
   }
-  const archivePath = `migrations/pre-v1-s${sourceStorageRevision}.archive.json`;
+  const archivePath = `migrations/pre-v${CURRENT_PROJECT_SCHEMA_VERSION}-s${sourceStorageRevision}.archive.json`;
   const archive: MigrationArchive = {
     schemaVersion: 0,
     kind: "project-pre-migration",
-    fromSchemaVersion: 0,
+    fromSchemaVersion: manifest.schemaVersion as number,
     toSchemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     sourceStorageRevision,
     createdAtMs,
@@ -151,10 +152,7 @@ export async function migrateProjectToCurrent(
       snapshot: loaded
     };
   }
-  if (probe.schemaVersion !== 0) {
-    return fail("MIGRATION_FAILED", `No contiguous migration is registered for schema ${probe.schemaVersion}`);
-  }
-
+  const sourceSchemaVersion = probe.schemaVersion;
   const archivePath = await createLegacyArchive(store, loaded.storageRevision, options.nowMs);
   const migrated: ProjectSnapshot = {
     ...loaded,
@@ -167,7 +165,7 @@ export async function migrateProjectToCurrent(
   });
   return {
     status: "migrated",
-    fromSchemaVersion: 0,
+    fromSchemaVersion: sourceSchemaVersion,
     toSchemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     sourceStorageRevision: loaded.storageRevision,
     resultStorageRevision: result.snapshot.storageRevision,

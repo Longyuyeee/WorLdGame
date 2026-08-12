@@ -46,10 +46,10 @@ describe("S0.13 schema startup gate", () => {
     expect(await screen.findByText("Writer")).toBeVisible();
     await waitFor(async () => {
       const migrated = JSON.parse(await store.read("project.json") ?? "{}") as Record<string, unknown>;
-      expect(migrated.schemaVersion).toBe(1);
+      expect(migrated.schemaVersion).toBe(2);
       expect(migrated.storageRevision).toBe(2);
       expect(migrated.pluginProjectState).toEqual({ retained: true });
-      expect(await store.read("migrations/pre-v1-s1.archive.json")).not.toBeNull();
+      expect(await store.read("migrations/pre-v2-s1.archive.json")).not.toBeNull();
     });
   });
 

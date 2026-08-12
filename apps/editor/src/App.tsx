@@ -236,7 +236,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.34</p>
+          <p className="eyebrow">WorLd Studio · S0.35</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -347,7 +347,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.34 GRAPHICAL TRACK · SAFE INSERT</small></span>
+            <span><strong>资源保险库</strong><small>S0.35 STAGE CUE · SAFE EDIT</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -925,6 +925,20 @@ function WriterView({
   const nextStatement = scene.statements[selectedIndex + 1];
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
+  const [draggedDirectionId, setDraggedDirectionId] = useState<string | null>(null);
+  const canMoveDirectionLeft = selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
+  const canMoveDirectionRight = selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
+  const moveDirection = (statementId: string, afterId: string) => dispatch({
+    type: "move-direction",
+    commandId: createCommandId(),
+    statementId,
+    afterId
+  });
+  const deleteDirection = (statementId: string) => dispatch({
+    type: "delete-direction",
+    commandId: createCommandId(),
+    statementId
+  });
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if (!event.altKey || pendingDraft) return;
@@ -1012,10 +1026,23 @@ function WriterView({
       <section className="stage-track" aria-label="图形化演出轨道">
         <div className="stage-track__heading">
           <div><span className="eyebrow">STAGE TRACK</span><strong>演出层级概览</strong></div>
-          <div className="stage-track__insert" aria-label="新增演出指令">
-            <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
-            <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
-            <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
+          <div className="stage-track__tools">
+            <div className="stage-track__actions" aria-label="当前演出指令操作">
+              <button type="button" aria-label="演出左移" disabled={!canMoveDirectionLeft} onClick={() => {
+                if (selected.kind === "direction") moveDirection(selected.id, previousAnchor);
+              }}>←</button>
+              <button type="button" aria-label="演出右移" disabled={!canMoveDirectionRight} onClick={() => {
+                if (selected.kind === "direction" && nextStatement !== undefined) moveDirection(selected.id, nextStatement.id);
+              }}>→</button>
+              <button type="button" className="is-danger" aria-label="删除演出" disabled={selected.kind !== "direction" || pendingDraft} onClick={() => {
+                if (selected.kind === "direction") deleteDirection(selected.id);
+              }}>删除</button>
+            </div>
+            <div className="stage-track__insert" aria-label="新增演出指令">
+              <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
+              <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
+              <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
+            </div>
           </div>
         </div>
         <div className="stage-track__scroll">
@@ -1024,7 +1051,50 @@ function WriterView({
               <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "audio" ? "AUDIO" : "STORY"}</span>
               <div className="stage-lane__steps">
                 {scene.statements.map((statement, index) => stageLane(statement) === lane ? (
-                  <button type="button" key={statement.id} className={statement.id === selected.id ? "stage-cue is-active" : "stage-cue"} aria-label={`轨道步骤 ${index + 1}：${statementLabel(statement)}`} onClick={() => dispatch({ type: "select-statement", statementId: statement.id })}>
+                  <button
+                    type="button"
+                    key={statement.id}
+                    draggable={statement.kind === "direction" && !pendingDraft}
+                    data-dragging={draggedDirectionId === statement.id ? "true" : undefined}
+                    className={statement.id === selected.id ? "stage-cue is-active" : "stage-cue"}
+                    aria-label={`轨道步骤 ${index + 1}：${statementLabel(statement)}`}
+                    aria-keyshortcuts={statement.kind === "direction" ? "Alt+ArrowLeft Alt+ArrowRight Delete" : undefined}
+                    onClick={() => dispatch({ type: "select-statement", statementId: statement.id })}
+                    onDragStart={(event) => {
+                      if (statement.kind !== "direction" || pendingDraft) return;
+                      setDraggedDirectionId(statement.id);
+                      event.dataTransfer.effectAllowed = "move";
+                      event.dataTransfer.setData("text/plain", statement.id);
+                    }}
+                    onDragEnd={() => setDraggedDirectionId(null)}
+                    onDragOver={(event) => {
+                      const carriesDirection = draggedDirectionId !== null || event.dataTransfer.types.includes("text/plain");
+                      if (carriesDirection && draggedDirectionId !== statement.id) {
+                        event.preventDefault();
+                        event.dataTransfer.dropEffect = "move";
+                      }
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      const sourceId = draggedDirectionId ?? event.dataTransfer.getData("text/plain");
+                      setDraggedDirectionId(null);
+                      if (sourceId.length > 0 && sourceId !== statement.id) moveDirection(sourceId, statement.id);
+                    }}
+                    onKeyDown={(event) => {
+                      if (statement.kind !== "direction" || pendingDraft) return;
+                      if (event.altKey && event.key === "ArrowLeft" && index > 0) {
+                        event.preventDefault();
+                        const anchor = index <= 1 ? scene.id : (scene.statements[index - 2]?.id ?? scene.id);
+                        moveDirection(statement.id, anchor);
+                      } else if (event.altKey && event.key === "ArrowRight" && scene.statements[index + 1] !== undefined && scene.statements[index + 1]?.kind !== "end") {
+                        event.preventDefault();
+                        moveDirection(statement.id, scene.statements[index + 1]!.id);
+                      } else if (event.key === "Delete") {
+                        event.preventDefault();
+                        deleteDirection(statement.id);
+                      }
+                    }}
+                  >
                     <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>
                   </button>
                 ) : <span className="stage-cue stage-cue--empty" aria-hidden="true" key={`${statement.id}:empty`} />)}
@@ -1622,7 +1692,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
         <span>r{sourceSession.revision}</span><span>semantic {sourceSession.semanticRevision}</span><span>{sourceSession.tombstones.length} tombstone</span>
       </div>
       {sourceSession.tombstones.length > 0 && (
-        <div className="tombstone-list" aria-label="已删除对白记录">
+        <div className="tombstone-list" aria-label="已删除步骤记录">
           <p className="eyebrow">TOMBSTONES</p>
           {sourceSession.tombstones.slice(-3).map((item) => <code key={item.statementId}>{item.statementId}</code>)}
         </div>
@@ -1704,7 +1774,7 @@ export function App() {
     baseDispatch(action);
     if ([
       "edit-script", "patch-dialogue", "patch-direction", "insert-dialogue", "insert-direction", "delete-dialogue",
-      "move-dialogue", "format-script", "discard-draft", "undo", "redo"
+      "move-dialogue", "delete-direction", "move-direction", "format-script", "discard-draft", "undo", "redo"
     ].includes(action.type)) {
       editGeneration.current += 1;
       setEditVersion((value) => value + 1);
@@ -1737,7 +1807,7 @@ export function App() {
     for (const sourceSession of Object.values(sessionRef.current.sourceSessions)) {
       for (const tombstone of sourceSession.tombstones) {
         used.add(tombstone.statementId);
-        used.add(tombstone.textId);
+        if (tombstone.kind === "dialogue") used.add(tombstone.textId);
       }
     }
     let candidate: string;
@@ -2719,7 +2789,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.34 STAGE TRACK · CANONICAL INSERT</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.35 STAGE CUE · REVERSIBLE EDIT</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

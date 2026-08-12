@@ -1248,6 +1248,8 @@ button:disabled {
 }
 
 .stage-track__heading,
+.stage-track__tools,
+.stage-track__actions,
 .stage-track__insert,
 .direction-insert__heading,
 .direction-insert__heading > div,
@@ -1270,6 +1272,17 @@ button:disabled {
   gap: 6px;
 }
 
+.stage-track__tools,
+.stage-track__actions {
+  gap: 6px;
+}
+
+.stage-track__tools {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stage-track__actions button,
 .stage-track__insert button,
 .direction-insert button {
   min-height: 30px;
@@ -1285,11 +1298,17 @@ button:disabled {
 }
 
 .stage-track__insert button:hover:not(:disabled),
+.stage-track__actions button:hover:not(:disabled),
 .direction-insert button:hover:not(:disabled) {
   border-color: #8b7cff;
   background: rgb(139 124 255 / 14%);
   color: white;
   transform: translateY(-1px);
+}
+
+.stage-track__actions .is-danger:hover:not(:disabled) {
+  border-color: var(--wg-color-status-error);
+  background: rgb(255 91 113 / 14%);
 }
 
 .stage-track__scroll {
@@ -1347,6 +1366,8 @@ button:disabled {
 .stage-cue strong { overflow: hidden; color: var(--lane-color); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 .stage-cue:hover { transform: translateY(-1px); }
 .stage-cue.is-active { border-color: var(--lane-color); box-shadow: 0 0 18px color-mix(in srgb, var(--lane-color) 20%, transparent); }
+.stage-cue[draggable="true"] { cursor: grab; }
+.stage-cue[data-dragging="true"] { opacity: 0.45; transform: scale(0.96); }
 .stage-cue--empty { visibility: hidden; cursor: default; }
 
 .direction-insert {
@@ -2756,8 +2777,14 @@ textarea[data-input-state="composing"] {
     grid-template-columns: repeat(3, 1fr);
   }
 
+  .stage-track__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(44px, 1fr));
+  }
+
+  .stage-track__actions button,
   .stage-track__insert button {
-    min-height: 38px;
+    min-height: 44px;
   }
 
   .direction-insert__fields {

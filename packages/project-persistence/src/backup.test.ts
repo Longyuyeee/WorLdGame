@@ -16,7 +16,7 @@ const policy = { retention: 2 } as const;
 
 function snapshot(revision: number, title = `Revision ${revision}`): ProjectSnapshot {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     projectId: "backup_test",
     title,
     entrySceneId: "scene_a",
@@ -66,7 +66,7 @@ describe("project backup rotation", () => {
     await expect(loadProjectBackups(store, policy)).rejects.toMatchObject({ code: "CORRUPT_BACKUP" });
   });
 
-  it("loads schema 0 backup payloads as schema 1 without rewriting the archive", async () => {
+  it("loads schema 0 backup payloads as current schema without rewriting the archive", async () => {
     const store = new InMemoryProjectFileStore();
     const legacyPayload = JSON.stringify({ ...snapshot(1), schemaVersion: 0 });
     const envelope = JSON.stringify({
@@ -80,7 +80,7 @@ describe("project backup rotation", () => {
     store.files.set("backups/slot-1.snapshot.json", envelope);
 
     const [loaded] = await loadProjectBackups(store, policy);
-    expect(loaded?.snapshot.schemaVersion).toBe(1);
+    expect(loaded?.snapshot.schemaVersion).toBe(2);
     expect(loaded?.snapshot.storageRevision).toBe(1);
     expect(store.files.get("backups/slot-1.snapshot.json")).toBe(envelope);
   });

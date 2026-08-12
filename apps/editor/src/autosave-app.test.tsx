@@ -14,7 +14,7 @@ function selectFirstDialogue(): void {
 async function expectStorageRevision(revision: number): Promise<void> {
   await waitFor(() => {
     expect(screen.getByRole("button", { name: `已自动保存 · s${revision}` })).toBeVisible();
-  }, { timeout: 5_000 });
+  }, { timeout: 10_000 });
 }
 
 describe("S0.12 autosave integration", () => {

@@ -97,6 +97,17 @@ export interface PersistedDialogueTombstone {
   readonly formerLine: number;
 }
 
+export interface PersistedDirectiveTombstone {
+  readonly kind: "directive";
+  readonly statementId: string;
+  readonly command: "background" | "show" | "audio";
+  readonly argumentsRaw: string;
+  readonly rawLine: string;
+  readonly formerLine: number;
+}
+
+export type PersistedStructuralTombstone = PersistedDialogueTombstone | PersistedDirectiveTombstone;
+
 export type JsonValue = null | boolean | number | string | readonly JsonValue[] | JsonObject;
 
 export interface JsonObject {
@@ -109,12 +120,12 @@ export interface ProjectSceneSnapshot {
   readonly semanticRevision: number;
   readonly committedSource: string;
   readonly draftSource: string;
-  readonly tombstones: readonly PersistedDialogueTombstone[];
+  readonly tombstones: readonly PersistedStructuralTombstone[];
   readonly preservedFields?: JsonObject;
 }
 
 export interface ProjectSnapshot {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly projectId: string;
   readonly title: string;
   readonly entrySceneId: string;
@@ -136,7 +147,7 @@ export type PersistenceErrorCode =
   | "MIGRATION_FAILED"
   | "INCOMPLETE_STAGED_TRANSACTION";
 
-export const CURRENT_PROJECT_SCHEMA_VERSION = 1;
+export const CURRENT_PROJECT_SCHEMA_VERSION = 2;
 
 export type ProjectVersionProbe =
   | { readonly status: "missing" }
@@ -151,7 +162,7 @@ export type ProjectVersionProbe =
 export interface ProjectMigrationReport {
   readonly status: "not-needed" | "migrated";
   readonly fromSchemaVersion: number;
-  readonly toSchemaVersion: 1;
+  readonly toSchemaVersion: typeof CURRENT_PROJECT_SCHEMA_VERSION;
   readonly sourceStorageRevision: number;
   readonly resultStorageRevision: number;
   readonly archivePath?: string;

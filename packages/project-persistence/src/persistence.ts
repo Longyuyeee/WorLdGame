@@ -22,7 +22,7 @@ interface ManifestScene {
 }
 
 interface ProjectManifest {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: typeof CURRENT_PROJECT_SCHEMA_VERSION;
   readonly projectId: string;
   readonly title: string;
   readonly entrySceneId: string;
@@ -126,13 +126,16 @@ export function assertProjectSnapshot(snapshot: ProjectSnapshot): void {
     const tombstoneIds = new Set<string>();
     for (const tombstone of scene.tombstones) {
       assertToken(tombstone.statementId, "tombstone.statementId");
-      assertToken(tombstone.textId, "tombstone.textId");
-      assertToken(tombstone.speakerId, "tombstone.speakerId");
-      if (tombstone.kind !== "dialogue" || !Number.isSafeInteger(tombstone.formerLine) ||
-          tombstone.formerLine < 1) {
+      if (!Number.isSafeInteger(tombstone.formerLine) || tombstone.formerLine < 1) {
         fail("INVALID_SNAPSHOT", `Invalid tombstone metadata in ${scene.sceneId}`);
       }
-      const key = `${tombstone.statementId}\0${tombstone.textId}`;
+      if (tombstone.kind === "dialogue") {
+        assertToken(tombstone.textId, "tombstone.textId");
+        assertToken(tombstone.speakerId, "tombstone.speakerId");
+      } else if (!(["background", "show", "audio"] as const).includes(tombstone.command)) {
+        fail("INVALID_SNAPSHOT", `Invalid directive tombstone in ${scene.sceneId}`);
+      }
+      const key = tombstone.statementId;
       if (tombstoneIds.has(key)) fail("INVALID_SNAPSHOT", `Duplicate tombstone in ${scene.sceneId}`);
       tombstoneIds.add(key);
     }
@@ -150,13 +153,7 @@ function serializeScene(scene: ProjectSceneSnapshot): string {
     committedSource: scene.committedSource,
     draftSource: scene.draftSource,
     tombstones: scene.tombstones.map((item) => ({
-      kind: item.kind,
-      statementId: item.statementId,
-      textId: item.textId,
-      speakerId: item.speakerId,
-      text: item.text,
-      rawLine: item.rawLine,
-      formerLine: item.formerLine
+      ...item
     }))
   });
 }
@@ -347,7 +344,7 @@ export async function loadProject(store: ProjectFileStore): Promise<ProjectSnaps
     );
   }
   if (!isRecord(data) || !Number.isSafeInteger(data.schemaVersion) ||
-      (data.schemaVersion !== 0 && data.schemaVersion !== CURRENT_PROJECT_SCHEMA_VERSION) ||
+      ![0, 1, CURRENT_PROJECT_SCHEMA_VERSION].includes(data.schemaVersion as number) ||
       typeof data.projectId !== "string" ||
       typeof data.title !== "string" || typeof data.entrySceneId !== "string" ||
       !Number.isSafeInteger(data.storageRevision) || !Array.isArray(data.scenes)) {
@@ -377,21 +374,18 @@ export async function loadProject(store: ProjectFileStore): Promise<ProjectSnaps
       return fail("CORRUPT_SCENE", `Scene shape is invalid: ${descriptor.sceneId}`);
     }
     const tombstones = scene.tombstones.map((item) => {
-      if (!isRecord(item) || item.kind !== "dialogue" ||
-          typeof item.statementId !== "string" || typeof item.textId !== "string" ||
-          typeof item.speakerId !== "string" || typeof item.text !== "string" ||
+      if (!isRecord(item) || typeof item.statementId !== "string" ||
           typeof item.rawLine !== "string" || typeof item.formerLine !== "number") {
         return fail("CORRUPT_SCENE", `Scene tombstone is invalid: ${descriptor.sceneId}`);
       }
-      return {
-        kind: "dialogue" as const,
-        statementId: item.statementId,
-        textId: item.textId,
-        speakerId: item.speakerId,
-        text: item.text,
-        rawLine: item.rawLine,
-        formerLine: item.formerLine
-      };
+      if (item.kind === "dialogue" && typeof item.textId === "string" && typeof item.speakerId === "string" && typeof item.text === "string") {
+        return { kind: "dialogue" as const, statementId: item.statementId, textId: item.textId, speakerId: item.speakerId, text: item.text, rawLine: item.rawLine, formerLine: item.formerLine };
+      }
+      if (item.kind === "directive" && (item.command === "background" || item.command === "show" || item.command === "audio") && typeof item.argumentsRaw === "string") {
+        const command: "background" | "show" | "audio" = item.command;
+        return { kind: "directive" as const, statementId: item.statementId, command, argumentsRaw: item.argumentsRaw, rawLine: item.rawLine, formerLine: item.formerLine };
+      }
+      return fail("CORRUPT_SCENE", `Scene tombstone is invalid: ${descriptor.sceneId}`);
     });
     const scenePreservedFields = collectUnknownFields(scene, SCENE_FIELDS, "CORRUPT_SCENE");
     scenes.push({

@@ -1,7 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.34 图形化演出轨道、背景/角色/音频安全插入与权威脚本同步已完成；全量、性能与真实浏览器审计已通过
-> 文档基线：2026-08-10
+> 状态：S0.35 演出 Cue 安全删除/重排、Directive tombstone 与 project schema v2 迁移已完成；全量、性能与真实浏览器审计已通过
+> 文档基线：2026-08-12
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
@@ -83,6 +83,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.32 实时舞台媒体执行与生命周期审计](docs/51-s0-live-stage-media-runtime.md) | 累积背景/角色/音频状态、已验证 Blob、可取消加载、Object URL/音频释放、回退重建与安全占位 |
 | [S0.33 可逆舞台状态控制与多层演出审计](docs/52-s0-stage-state-controls.md) | 多角色 slot/z-order、背景 clear、音频 play/stop/pause/resume、累计资源窗口、Inspector 与无重载恢复 |
 | [S0.34 图形化演出轨道与安全指令插入审计](docs/53-s0-graphical-stage-track.md) | BG/CHAR/AUDIO/STORY 四轨、类型化插入面板、choice/end 锚点、快捷键、稳定 ID、Undo/Redo 与触控滚动 |
+| [S0.35 演出 Cue 安全删除与重排审计](docs/54-s0-stage-cue-editing.md) | Directive 删除/移动、拖放/键盘/触控等价操作、可恢复 tombstone、choice/end 边界与 schema v2 归档迁移 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

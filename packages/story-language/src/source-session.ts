@@ -9,11 +9,13 @@ import type { StoryDiagnostic, StoryDocument } from "./model";
 import { patchDialogueText, type DialoguePatchErrorCode } from "./patch";
 import { parseStory } from "./parser";
 import {
+  deleteDirective,
   deleteDialogue,
   insertDialogueAfter,
   insertDirectiveAfter,
+  moveDirectiveAfter,
   moveDialogueAfter,
-  type DialogueTombstone,
+  type StructuralTombstone,
   type StructuralPatchErrorCode
 } from "./structural-patch";
 
@@ -81,6 +83,23 @@ export interface DeleteDialogueSourceCommand {
   readonly statementId: EntityId;
 }
 
+export interface DeleteDirectiveSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.delete-directive";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+}
+
+export interface MoveDirectiveSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.move-directive";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+  readonly afterId: EntityId;
+}
+
 export interface MoveDialogueSourceCommand {
   readonly schemaVersion: 0;
   readonly kind: "script.move-dialogue";
@@ -98,7 +117,9 @@ export type ScriptSourceCommand =
   | InsertDialogueSourceCommand
   | InsertDirectiveSourceCommand
   | DeleteDialogueSourceCommand
-  | MoveDialogueSourceCommand;
+  | MoveDialogueSourceCommand
+  | DeleteDirectiveSourceCommand
+  | MoveDirectiveSourceCommand;
 
 export type ScriptCommandErrorCode =
   | "EMPTY_COMMAND_ID"
@@ -127,7 +148,7 @@ export interface ScriptChangeSet {
   readonly requiresCompile: boolean;
   readonly changedTextIds: readonly EntityId[];
   readonly changedStatementIds: readonly EntityId[];
-  readonly tombstones: readonly DialogueTombstone[];
+  readonly tombstones: readonly StructuralTombstone[];
   readonly addedDiagnostics: readonly StoryDiagnostic[];
   readonly resolvedDiagnostics: readonly StoryDiagnostic[];
 }
@@ -144,9 +165,9 @@ export interface ScriptHistoryEntry {
   readonly semanticChanged: boolean;
   readonly changedTextIds: readonly EntityId[];
   readonly changedStatementIds: readonly EntityId[];
-  readonly tombstones: readonly DialogueTombstone[];
-  readonly beforeTombstones: readonly DialogueTombstone[];
-  readonly afterTombstones: readonly DialogueTombstone[];
+  readonly tombstones: readonly StructuralTombstone[];
+  readonly beforeTombstones: readonly StructuralTombstone[];
+  readonly afterTombstones: readonly StructuralTombstone[];
 }
 
 export type AppliedOutcome = "committed" | "drafted" | "noop";
@@ -169,7 +190,7 @@ export interface ScriptSourceSession {
   readonly future: readonly ScriptHistoryEntry[];
   readonly appliedCommands: readonly AppliedCommandRecord[];
   readonly lastChange: ScriptChangeSet | null;
-  readonly tombstones: readonly DialogueTombstone[];
+  readonly tombstones: readonly StructuralTombstone[];
 }
 
 export class InvalidInitialScriptError extends Error {
@@ -187,7 +208,7 @@ export interface RestoredScriptSourceState {
   readonly draftSource: string;
   readonly revision: number;
   readonly semanticRevision: number;
-  readonly tombstones: readonly DialogueTombstone[];
+  readonly tombstones: readonly StructuralTombstone[];
 }
 
 export class InvalidRestoredScriptError extends Error {
@@ -310,6 +331,8 @@ function commandFingerprint(command: ScriptSourceCommand): string {
         command.baseRevision,
         command.statementId
       ].join("\u0000");
+    case "script.delete-directive":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId].join("\u0000");
     case "script.move-dialogue":
       return [
         command.schemaVersion,
@@ -318,6 +341,8 @@ function commandFingerprint(command: ScriptSourceCommand): string {
         command.statementId,
         command.afterId
       ].join("\u0000");
+    case "script.move-directive":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.afterId].join("\u0000");
   }
 }
 
@@ -386,7 +411,7 @@ function createChangeSet(
     readonly semanticChanged: boolean;
     readonly changedTextIds: readonly EntityId[];
     readonly changedStatementIds?: readonly EntityId[];
-    readonly tombstones?: readonly DialogueTombstone[];
+    readonly tombstones?: readonly StructuralTombstone[];
     readonly nextDiagnostics: readonly StoryDiagnostic[];
   }
 ): ScriptChangeSet {
@@ -440,7 +465,7 @@ export function restoreScriptSourceSession(state: RestoredScriptSourceState): Sc
   if (blocking.length > 0) throw new InvalidInitialScriptError(blocking);
   const committedIds = documentIds(committedDocument);
   if (state.tombstones.some((item) =>
-    committedIds.has(item.statementId) || committedIds.has(item.textId))) {
+    committedIds.has(item.statementId) || (item.kind === "dialogue" && committedIds.has(item.textId)))) {
     throw new InvalidRestoredScriptError("TOMBSTONED_ID_PRESENT");
   }
   const draftDocument = parseStory(state.draftSource);
@@ -521,7 +546,7 @@ export function executeScriptSourceCommand(
 
   let nextSource: string;
   let commandStatementIds: readonly EntityId[] = [];
-  let commandTombstones: readonly DialogueTombstone[] = [];
+  let commandTombstones: readonly StructuralTombstone[] = [];
   switch (command.kind) {
     case "script.replace-source":
       nextSource = command.source;
@@ -617,6 +642,14 @@ export function executeScriptSourceCommand(
       commandTombstones = result.tombstones;
       break;
     }
+    case "script.delete-directive": {
+      const result = deleteDirective(session.committedSource, session.committedDocument, command.statementId);
+      if (!result.ok) return reject(session, { category: "validation", code: result.error.code, message: result.error.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
+      commandTombstones = result.tombstones;
+      break;
+    }
     case "script.move-dialogue": {
       const result = moveDialogueAfter(
         session.committedSource,
@@ -631,6 +664,13 @@ export function executeScriptSourceCommand(
           message: result.error.message
         });
       }
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
+      break;
+    }
+    case "script.move-directive": {
+      const result = moveDirectiveAfter(session.committedSource, session.committedDocument, command.statementId, command.afterId);
+      if (!result.ok) return reject(session, { category: "validation", code: result.error.code, message: result.error.message });
       nextSource = result.source;
       commandStatementIds = result.affectedStatementIds;
       break;
@@ -670,7 +710,7 @@ export function executeScriptSourceCommand(
 
   const nextIds = documentIds(nextDocument);
   const reusedTombstone = session.tombstones.find(
-    (item) => nextIds.has(item.statementId) || nextIds.has(item.textId)
+    (item) => nextIds.has(item.statementId) || (item.kind === "dialogue" && nextIds.has(item.textId))
   );
   if (reusedTombstone !== undefined) {
     return reject(session, {

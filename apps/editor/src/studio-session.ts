@@ -16,7 +16,10 @@ import {
   restoreScriptSourceSession,
   type ScriptSourceSession
 } from "@world-studio/story-language";
-import type { ProjectSnapshot } from "@world-studio/project-persistence";
+import {
+  CURRENT_PROJECT_SCHEMA_VERSION,
+  type ProjectSnapshot
+} from "@world-studio/project-persistence";
 
 export type StudioMode = "writer" | "script" | "flow";
 
@@ -86,6 +89,17 @@ export type StudioAction =
     }
   | {
       readonly type: "move-dialogue";
+      readonly commandId: EntityId;
+      readonly statementId: EntityId;
+      readonly afterId: EntityId;
+    }
+  | {
+      readonly type: "delete-direction";
+      readonly commandId: EntityId;
+      readonly statementId: EntityId;
+    }
+  | {
+      readonly type: "move-direction";
       readonly commandId: EntityId;
       readonly statementId: EntityId;
       readonly afterId: EntityId;
@@ -192,7 +206,7 @@ export function createProjectSnapshot(
   preservedFrom?: ProjectSnapshot | null
 ): ProjectSnapshot {
   return {
-    schemaVersion: 1,
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     projectId: session.project.id,
     title: session.project.title,
     entrySceneId: session.project.entrySceneId,
@@ -622,6 +636,35 @@ export function reduceStudioSession(
         {
           schemaVersion: 0,
           kind: "script.move-dialogue",
+          commandId: action.commandId,
+          baseRevision: currentSourceSession.revision,
+          statementId: action.statementId,
+          afterId: action.afterId
+        },
+        action.statementId
+      );
+    case "delete-direction": {
+      const scene = findScene(session.project, session.activeSceneId);
+      const targetIndex = scene.statements.findIndex((item) => item.id === action.statementId);
+      const fallback = scene.statements[targetIndex + 1] ?? scene.statements[targetIndex - 1];
+      return executeStructuralCommand(
+        session,
+        {
+          schemaVersion: 0,
+          kind: "script.delete-directive",
+          commandId: action.commandId,
+          baseRevision: currentSourceSession.revision,
+          statementId: action.statementId
+        },
+        fallback?.id
+      );
+    }
+    case "move-direction":
+      return executeStructuralCommand(
+        session,
+        {
+          schemaVersion: 0,
+          kind: "script.move-directive",
           commandId: action.commandId,
           baseRevision: currentSourceSession.revision,
           statementId: action.statementId,

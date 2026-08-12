@@ -11,9 +11,9 @@ import {
   type ProjectSnapshot
 } from "./index";
 
-function legacyFiles(revision = 5): Readonly<Record<string, string>> {
+function legacyFiles(revision = 5, schemaVersion: 0 | 1 = 0): Readonly<Record<string, string>> {
   const scene = JSON.stringify({
-    schemaVersion: 0,
+    schemaVersion,
     sceneId: "scene_a",
     sourceRevision: 7,
     semanticRevision: 6,
@@ -23,7 +23,7 @@ function legacyFiles(revision = 5): Readonly<Record<string, string>> {
     pluginSceneState: { weather: "rain", intensity: 0.7 }
   });
   const manifest = JSON.stringify({
-    schemaVersion: 0,
+    schemaVersion,
     projectId: "migration_test",
     title: "Migration Test",
     entrySceneId: "scene_a",
@@ -41,7 +41,7 @@ function legacyFiles(revision = 5): Readonly<Record<string, string>> {
 
 function currentSnapshot(revision = 1): ProjectSnapshot {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     projectId: "current_test",
     title: "Current Test",
     entrySceneId: "scene_a",
@@ -73,7 +73,7 @@ describe("project schema migration", () => {
     const current = new InMemoryProjectFileStore();
     await saveProject(current, currentSnapshot(), { transactionId: "tx_current", expectedStorageRevision: 0 });
     const beforeProbe = current.mutations;
-    await expect(probeProjectVersion(current)).resolves.toMatchObject({ status: "current", schemaVersion: 1 });
+    await expect(probeProjectVersion(current)).resolves.toMatchObject({ status: "current", schemaVersion: 2 });
     expect(current.mutations).toBe(beforeProbe);
 
     const futureContent = JSON.stringify({
@@ -104,21 +104,21 @@ describe("project schema migration", () => {
     expect(report).toMatchObject({
       status: "migrated",
       fromSchemaVersion: 0,
-      toSchemaVersion: 1,
+      toSchemaVersion: 2,
       sourceStorageRevision: 5,
       resultStorageRevision: 6,
       preservedUnknownFieldCount: 2,
-      archivePath: "migrations/pre-v1-s5.archive.json"
+      archivePath: "migrations/pre-v2-s5.archive.json"
     });
 
-    const archive = JSON.parse(store.files.get("migrations/pre-v1-s5.archive.json") ?? "{}") as {
+    const archive = JSON.parse(store.files.get("migrations/pre-v2-s5.archive.json") ?? "{}") as {
       files?: Array<{ path: string; content: string }>;
     };
     expect(Object.fromEntries((archive.files ?? []).map((file) => [file.path, file.content]))).toEqual(original);
 
     const loaded = await loadProject(store);
     expect(loaded).toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       storageRevision: 6,
       preservedFields: { pluginProjectState: { package: "example.plugin", enabled: true } },
       scenes: [{ preservedFields: { pluginSceneState: { weather: "rain", intensity: 0.7 } } }]
@@ -130,6 +130,27 @@ describe("project schema migration", () => {
 
     const second = await migrateProjectToCurrent(store, { transactionId: "tx_again", nowMs: 11_000 });
     expect(second).toMatchObject({ status: "not-needed", resultStorageRevision: 6 });
+  });
+
+  it("archives and migrates schema 1 projects to directive-tombstone schema 2", async () => {
+    const original = legacyFiles(8, 1);
+    const store = new InMemoryProjectFileStore(original);
+    const report = await migrateProjectToCurrent(store, { transactionId: "tx_v1_to_v2", nowMs: 20_000 });
+    expect(report).toMatchObject({
+      status: "migrated",
+      fromSchemaVersion: 1,
+      toSchemaVersion: 2,
+      sourceStorageRevision: 8,
+      resultStorageRevision: 9,
+      archivePath: "migrations/pre-v2-s8.archive.json"
+    });
+    const archive = JSON.parse(store.files.get("migrations/pre-v2-s8.archive.json") ?? "{}") as {
+      fromSchemaVersion?: number;
+      files?: Array<{ path: string; content: string }>;
+    };
+    expect(archive.fromSchemaVersion).toBe(1);
+    expect(Object.fromEntries((archive.files ?? []).map((file) => [file.path, file.content]))).toEqual(original);
+    await expect(loadProject(store)).resolves.toMatchObject({ schemaVersion: 2, storageRevision: 9 });
   });
 
   it("preserves current-schema unknown fields across an ordinary save", async () => {
@@ -163,7 +184,7 @@ describe("project schema migration", () => {
       const version = await probeProjectVersion(reopened);
       expect(version.status === "legacy" || version.status === "current").toBe(true);
       const loaded = await loadProject(reopened);
-      expect(loaded).toMatchObject({ schemaVersion: 1, projectId: "migration_test" });
+      expect(loaded).toMatchObject({ schemaVersion: 2, projectId: "migration_test" });
       expect([5, 6]).toContain(loaded?.storageRevision);
     }
   });

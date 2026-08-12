@@ -58,6 +58,43 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.click(screen.getByRole("button", { name: "撤销" }));
     expect(screen.queryAllByText("action=stop bus=bgm")).toHaveLength(0);
   });
+  it("reorders and deletes direction cues through accessible track controls", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "演出右移" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const movedSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
+    expect(movedSource.indexOf("stmt_gate_001")).toBeLessThan(movedSource.indexOf("stmt_gate_bg"));
+
+    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    const selectedCue = screen.getByRole("button", { name: /轨道步骤 2：/ });
+    fireEvent.keyDown(selectedCue, { key: "Delete" });
+    expect(screen.getByLabelText("已删除步骤记录")).toBeVisible();
+    expect(within(screen.getByLabelText("已删除步骤记录")).getByText("stmt_gate_bg")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect(screen.queryByLabelText("已删除步骤记录")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /轨道步骤 2：/ })).toBeVisible();
+  });
+  it("accepts a direction drop before React drag state has rerendered", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 背景" }));
+    fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "clear" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    const sourceCue = screen.getByRole("button", { name: /轨道步骤 2：action=clear/ });
+    const targetCue = screen.getByRole("button", { name: /轨道步骤 3：广播站的灯还亮着/ });
+    const data = new Map<string, string>();
+    const dataTransfer = {
+      effectAllowed: "none",
+      dropEffect: "none",
+      types: ["text/plain"],
+      setData: (type: string, value: string) => data.set(type, value),
+      getData: (type: string) => data.get(type) ?? ""
+    };
+    fireEvent.dragStart(sourceCue, { dataTransfer });
+    fireEvent.dragOver(targetCue, { dataTransfer });
+    fireEvent.drop(targetCue, { dataTransfer });
+    expect(screen.getByRole("button", { name: /轨道步骤 3：action=clear/ })).toBeVisible();
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+  });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });
@@ -260,8 +297,8 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByLabelText("对白内容")).toHaveValue("新对白");
     fireEvent.click(screen.getByRole("button", { name: "删除" }));
 
-    expect(screen.getByLabelText("已删除对白记录")).toBeVisible();
-    expect(within(screen.getByLabelText("已删除对白记录")).getByText(/stmt_ui_/)).toBeVisible();
+    expect(screen.getByLabelText("已删除步骤记录")).toBeVisible();
+    expect(within(screen.getByLabelText("已删除步骤记录")).getByText(/stmt_ui_/)).toBeVisible();
     expect(screen.getByText("1 tombstone")).toBeVisible();
   });
 

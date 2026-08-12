@@ -6,7 +6,7 @@ import type {
   SaveProjectOptions,
   SaveProjectResult
 } from "./model";
-import { ProjectPersistenceError } from "./model";
+import { CURRENT_PROJECT_SCHEMA_VERSION, ProjectPersistenceError } from "./model";
 import { assertProjectSnapshot, loadProject, saveProject } from "./persistence";
 import { sha256 } from "./sha256";
 
@@ -41,10 +41,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function normalizeBackupSnapshot(value: unknown): unknown {
-  if (!isRecord(value) || value.schemaVersion !== 0 || !Array.isArray(value.scenes)) return value;
+  if (!isRecord(value) || !Number.isSafeInteger(value.schemaVersion) ||
+      (value.schemaVersion as number) < 0 ||
+      (value.schemaVersion as number) >= CURRENT_PROJECT_SCHEMA_VERSION ||
+      !Array.isArray(value.scenes)) return value;
   return {
     ...value,
-    schemaVersion: 1,
+    schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
     scenes: value.scenes.map((scene) => isRecord(scene) ? { ...scene } : scene)
   };
 }

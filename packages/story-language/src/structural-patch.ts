@@ -17,6 +17,7 @@ export type StructuralPatchErrorCode =
   | "STRUCTURAL_ANCHOR_NOT_FOUND"
   | "STRUCTURAL_TARGET_NOT_FOUND"
   | "STRUCTURAL_TARGET_NOT_DIALOGUE"
+  | "STRUCTURAL_TARGET_NOT_DIRECTIVE"
   | "STRUCTURAL_DUPLICATE_ID"
   | "STRUCTURAL_INVALID_IDENTIFIER"
   | "STRUCTURAL_TEXT_UNREPRESENTABLE"
@@ -54,6 +55,17 @@ export interface DialogueTombstone {
   readonly formerLine: number;
 }
 
+export interface DirectiveTombstone {
+  readonly kind: "directive";
+  readonly statementId: EntityId;
+  readonly command: DirectiveNode["command"];
+  readonly argumentsRaw: string;
+  readonly rawLine: string;
+  readonly formerLine: number;
+}
+
+export type StructuralTombstone = DialogueTombstone | DirectiveTombstone;
+
 export type StructuralPatchResult =
   | {
       readonly ok: true;
@@ -61,7 +73,7 @@ export type StructuralPatchResult =
       readonly source: string;
       readonly storyDocument: StoryDocument;
       readonly affectedStatementIds: readonly EntityId[];
-      readonly tombstones: readonly DialogueTombstone[];
+      readonly tombstones: readonly StructuralTombstone[];
     }
   | { readonly ok: false; readonly error: StructuralPatchError };
 
@@ -163,7 +175,7 @@ function preferredSeparator(lines: SplitSource, afterIndex: number): string {
 function verify(
   source: string,
   affectedStatementIds: readonly EntityId[],
-  tombstones: readonly DialogueTombstone[]
+  tombstones: readonly StructuralTombstone[]
 ): StructuralPatchResult {
   const storyDocument = parseStory(source);
   if (storyDocument.diagnostics.some((item) => item.severity === "error")) {
@@ -278,6 +290,91 @@ export function insertDirectiveAfter(
   const separatorIndex = Math.max(0, insertIndex - 1);
   separators.splice(separatorIndex, 0, preferredSeparator(prepared.lines, separatorIndex));
   return verify(joinSource({ contents, separators }), [request.statementId], []);
+}
+
+function findDirective(storyDocument: StoryDocument, statementId: EntityId): DirectiveNode | undefined {
+  return storyDocument.nodes.find((node): node is DirectiveNode => node.kind === "directive" && node.id === statementId);
+}
+
+export function deleteDirective(source: string, storyDocument: StoryDocument, statementId: EntityId): StructuralPatchResult {
+  const prepared = prepare(source, storyDocument);
+  if ("ok" in prepared) return prepared;
+  const target = findDirective(prepared.parsedDocument, statementId);
+  if (target === undefined) {
+    const exists = prepared.parsedDocument.nodes.some((node) => stableId(node) === statementId);
+    return fail(exists ? "STRUCTURAL_TARGET_NOT_DIRECTIVE" : "STRUCTURAL_TARGET_NOT_FOUND", `Delete target is not an editable directive: ${statementId}`);
+  }
+  const targetIndex = lineIndex(target, prepared.lines);
+  if (targetIndex === undefined) return fail("STRUCTURAL_SOURCE_MISMATCH", "Delete target has no source line");
+  if (hasAdjacentComment(prepared.lines, targetIndex)) return fail("STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED", "Cannot delete a directive with an adjacent comment");
+  const tombstone: DirectiveTombstone = {
+    kind: "directive",
+    statementId,
+    command: target.command,
+    argumentsRaw: target.argumentsRaw,
+    rawLine: prepared.lines.contents[targetIndex] ?? "",
+    formerLine: target.range.start.line
+  };
+  const contents = [...prepared.lines.contents];
+  const separators = [...prepared.lines.separators];
+  contents.splice(targetIndex, 1);
+  if (targetIndex < separators.length) separators.splice(targetIndex, 1);
+  else if (targetIndex > 0) separators.splice(targetIndex - 1, 1);
+  return verify(joinSource({ contents, separators }), [statementId], [tombstone]);
+}
+
+function directiveMoveInsertionLine(
+  storyDocument: StoryDocument,
+  lines: SplitSource,
+  afterId: EntityId
+): { readonly index: number } | StructuralPatchResult {
+  const anchorNodeIndex = storyDocument.nodes.findIndex((node) => stableId(node) === afterId);
+  if (anchorNodeIndex < 0) return fail("STRUCTURAL_ANCHOR_NOT_FOUND", `Move anchor was not found: ${afterId}`);
+  const anchor = storyDocument.nodes[anchorNodeIndex]!;
+  if (anchor.kind === "choice-option") return fail("STRUCTURAL_ANCHOR_NOT_FOUND", "Move anchor must reference a scene or projected statement");
+  let sourceAnchor: StorySyntaxNode = anchor;
+  if (anchor.kind === "choice") {
+    for (const candidate of storyDocument.nodes.slice(anchorNodeIndex + 1)) {
+      if (candidate.kind === "blank") continue;
+      if (candidate.kind !== "choice-option") break;
+      sourceAnchor = candidate;
+    }
+  }
+  const anchorLine = lineIndex(sourceAnchor, lines);
+  if (anchorLine === undefined) return fail("STRUCTURAL_SOURCE_MISMATCH", "Move anchor has no source line");
+  const index = anchor.kind === "end" ? anchorLine : anchorLine + 1;
+  const commentIndex = anchor.kind === "end" ? index - 1 : index;
+  if (isComment(lines.contents[commentIndex])) return fail("STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED", "Cannot move across unresolved adjacent comment ownership");
+  return { index };
+}
+
+export function moveDirectiveAfter(
+  source: string,
+  storyDocument: StoryDocument,
+  statementId: EntityId,
+  afterId: EntityId
+): StructuralPatchResult {
+  const prepared = prepare(source, storyDocument);
+  if ("ok" in prepared) return prepared;
+  if (statementId === afterId) return fail("STRUCTURAL_SELF_MOVE", "A directive cannot move after itself");
+  const target = findDirective(prepared.parsedDocument, statementId);
+  if (target === undefined) {
+    const exists = prepared.parsedDocument.nodes.some((node) => stableId(node) === statementId);
+    return fail(exists ? "STRUCTURAL_TARGET_NOT_DIRECTIVE" : "STRUCTURAL_TARGET_NOT_FOUND", `Move target is not an editable directive: ${statementId}`);
+  }
+  const targetIndex = lineIndex(target, prepared.lines);
+  if (targetIndex === undefined) return fail("STRUCTURAL_SOURCE_MISMATCH", "Move target has no source line");
+  if (hasAdjacentComment(prepared.lines, targetIndex)) return fail("STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED", "Cannot move a directive with an adjacent comment");
+  const insertion = directiveMoveInsertionLine(prepared.parsedDocument, prepared.lines, afterId);
+  if ("ok" in insertion) return insertion;
+  let insertIndex = insertion.index;
+  if (targetIndex < insertIndex) insertIndex -= 1;
+  if (insertIndex === targetIndex) return { ok: true, changed: false, source, storyDocument: prepared.parsedDocument, affectedStatementIds: [], tombstones: [] };
+  const contents = [...prepared.lines.contents];
+  const moved = contents.splice(targetIndex, 1)[0];
+  if (moved === undefined) return fail("STRUCTURAL_SOURCE_MISMATCH", "Move target line disappeared");
+  contents.splice(insertIndex, 0, moved);
+  return verify(joinSource({ contents, separators: [...prepared.lines.separators] }), [statementId], []);
 }
 
 export function insertDialogueAfter(

@@ -219,6 +219,39 @@ describe("S0.9 studio source projection and recovery session", () => {
     expect(moved.selectedStatementId).toBe("stmt_gate_001");
   });
 
+  it("moves and deletes direction cues while keeping preview selection coherent", () => {
+    const initial = createStudioSession();
+    const moved = reduceStudioSession(initial, {
+      type: "move-direction",
+      commandId: "cmd_ui_move_direction",
+      statementId: "stmt_gate_bg",
+      afterId: "stmt_gate_001"
+    });
+    const movedStatements = moved.project.scenes[0]?.statements ?? [];
+    expect(movedStatements.findIndex((item) => item.id === "stmt_gate_001")).toBeLessThan(
+      movedStatements.findIndex((item) => item.id === "stmt_gate_bg")
+    );
+    expect(moved.selectedStatementId).toBe("stmt_gate_bg");
+    expect(movedStatements[moved.previewIndex]?.id).toBe("stmt_gate_bg");
+
+    const deleted = reduceStudioSession(moved, {
+      type: "delete-direction",
+      commandId: "cmd_ui_delete_direction",
+      statementId: "stmt_gate_bg"
+    });
+    expect(deleted.project.scenes[0]?.statements.some((item) => item.id === "stmt_gate_bg")).toBe(false);
+    expect(activeSourceSession(deleted).tombstones).toEqual([expect.objectContaining({
+      kind: "directive",
+      statementId: "stmt_gate_bg",
+      command: "background"
+    })]);
+    expect(deleted.project.scenes[0]?.statements[deleted.previewIndex]?.id).toBe(deleted.selectedStatementId);
+
+    const undone = reduceStudioSession(deleted, { type: "undo" });
+    expect(undone.project.scenes[0]?.statements.some((item) => item.id === "stmt_gate_bg")).toBe(true);
+    expect(activeSourceSession(undone).tombstones).toEqual([]);
+  });
+
   it("keeps scene drafts isolated when switching between source sessions", () => {
     const initial = createStudioSession();
     const drafted = reduceStudioSession(initial, {

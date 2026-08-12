@@ -559,6 +559,72 @@ end "完成" @id(stmt_structure_model_end)
     }
   });
 
+  it("commits directive delete/move commands with idempotency and tombstone history", () => {
+    const directiveSource = `scene "演出事务" @id(scn_directive_transaction)
+@background action=set asset=bg_gate @id(stmt_directive_bg)
+xia: 台词 @sid(stmt_directive_line) @id(txt_directive_line)
+@audio action=play asset=bgm_gate bus=bgm @id(stmt_directive_audio)
+end "完成" @id(stmt_directive_end)
+`;
+    const initial = createScriptSourceSession(directiveSource);
+    const moved = executeScriptSourceCommand(initial, {
+      schemaVersion: 0,
+      kind: "script.move-directive",
+      commandId: "cmd_move_directive",
+      baseRevision: 0,
+      statementId: "stmt_directive_audio",
+      afterId: "scn_directive_transaction"
+    });
+    expect(moved.result.status).toBe("committed");
+    expect(moved.session.committedSource.indexOf("stmt_directive_audio")).toBeLessThan(
+      moved.session.committedSource.indexOf("stmt_directive_bg")
+    );
+    const duplicate = executeScriptSourceCommand(moved.session, {
+      schemaVersion: 0,
+      kind: "script.move-directive",
+      commandId: "cmd_move_directive",
+      baseRevision: 0,
+      statementId: "stmt_directive_audio",
+      afterId: "scn_directive_transaction"
+    });
+    expect(duplicate.result.status).toBe("duplicate");
+
+    const deleted = executeScriptSourceCommand(moved.session, {
+      schemaVersion: 0,
+      kind: "script.delete-directive",
+      commandId: "cmd_delete_directive",
+      baseRevision: moved.session.revision,
+      statementId: "stmt_directive_audio"
+    });
+    expect(deleted.result.status).toBe("committed");
+    expect(deleted.session.tombstones).toEqual([expect.objectContaining({
+      kind: "directive",
+      statementId: "stmt_directive_audio",
+      command: "audio"
+    })]);
+    const undone = reduceScriptSourceSession(deleted.session, { type: "undo" });
+    expect(undone.committedSource).toContain("stmt_directive_audio");
+    expect(undone.tombstones).toEqual([]);
+    const redone = reduceScriptSourceSession(undone, { type: "redo" });
+    expect(redone.committedSource).not.toContain("stmt_directive_audio");
+    expect(redone.tombstones).toHaveLength(1);
+
+    const reuse = executeScriptSourceCommand(redone, {
+      schemaVersion: 0,
+      kind: "script.insert-directive",
+      commandId: "cmd_reuse_directive",
+      baseRevision: redone.revision,
+      afterId: "stmt_directive_bg",
+      statementId: "stmt_directive_audio",
+      command: "audio",
+      parameters: { action: "stop", bus: "bgm" }
+    });
+    expect(reuse.result).toEqual(expect.objectContaining({
+      status: "rejected",
+      error: expect.objectContaining({ code: "TOMBSTONED_ID_REUSE" })
+    }));
+  });
+
   it("preserves committed invariants across 200 deterministic mixed operations", () => {
     let session = createScriptSourceSession(initialSource);
 

@@ -12,7 +12,7 @@ import {
 
 function snapshot(revision: number, suffix: string): ProjectSnapshot {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     projectId: "campus_echo",
     title: `Campus Echo ${suffix}`,
     entrySceneId: "scene_a",
@@ -40,7 +40,14 @@ function snapshot(revision: number, suffix: string): ProjectSnapshot {
         semanticRevision: revision,
         committedSource: `scene B ${suffix}`,
         draftSource: `scene B ${suffix}`,
-        tombstones: []
+        tombstones: [{
+          kind: "directive",
+          statementId: "stmt_audio_deleted",
+          command: "audio",
+          argumentsRaw: "action=play asset=bgm bus=bgm @id(stmt_audio_deleted)",
+          rawLine: "@audio action=play asset=bgm bus=bgm @id(stmt_audio_deleted)",
+          formerLine: 3
+        }]
       }
     ]
   };
@@ -77,6 +84,24 @@ describe("project persistence", () => {
       saveProject(store, snapshot(2, "overwrite"), { transactionId: "tx_2", expectedStorageRevision: 1 })
     ).rejects.toMatchObject({ code: "CORRUPT_SCENE" });
     expect(store.files.get("scenes/scene_a.json")).toBe("tampered");
+  });
+
+  it("rejects malformed directive tombstones after integrity metadata is recomputed", async () => {
+    const store = new InMemoryProjectFileStore();
+    await saveProject(store, snapshot(1, "safe"), { transactionId: "tx_1", expectedStorageRevision: 0 });
+    const path = "scenes/scene_b.json";
+    const scene = JSON.parse(store.files.get(path) ?? "{}") as { tombstones: Array<Record<string, unknown>> };
+    scene.tombstones[0]!.command = "video";
+    const content = JSON.stringify(scene);
+    store.files.set(path, content);
+    const manifest = JSON.parse(store.files.get(PROJECT_MANIFEST_PATH) ?? "{}") as {
+      scenes: Array<{ path: string; sha256: string; length: number }>;
+    };
+    const descriptor = manifest.scenes.find((item) => item.path === path)!;
+    descriptor.sha256 = sha256(content);
+    descriptor.length = content.length;
+    store.files.set(PROJECT_MANIFEST_PATH, JSON.stringify(manifest));
+    await expect(loadProject(store)).rejects.toMatchObject({ code: "CORRUPT_SCENE" });
   });
 
   it("recovers every crash boundary to the complete old or new snapshot", async () => {
