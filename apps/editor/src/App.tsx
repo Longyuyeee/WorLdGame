@@ -237,7 +237,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.36</p>
+          <p className="eyebrow">WorLd Studio · S0.37</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -348,7 +348,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.36 STAGE CUE · ATOMIC BATCH</small></span>
+            <span><strong>资源保险库</strong><small>S0.37 BATCH · VERIFIED PREFLIGHT</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -858,16 +858,22 @@ function DirectionInspector({
 
 interface BatchDirectionPanelProps {
   readonly statements: readonly Extract<StoryStatement, { readonly kind: "direction" }>[];
+  readonly sceneDirections: readonly Extract<StoryStatement, { readonly kind: "direction" }>[];
+  readonly selectionPositions: readonly number[];
   readonly assetIndex: AssetIndex;
   readonly disabled: boolean;
   readonly createCommandId: () => string;
   readonly dispatch: (action: StudioAction) => void;
+  readonly onSelectSameCommand: () => void;
+  readonly onClearSelection: () => void;
 }
 
-function BatchDirectionPanel({ statements, assetIndex, disabled, createCommandId, dispatch }: BatchDirectionPanelProps) {
+function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, assetIndex, disabled, createCommandId, dispatch, onSelectSameCommand, onClearSelection }: BatchDirectionPanelProps) {
   const command = statements[0]?.command;
   const sameCommand = command !== undefined && statements.every((statement) => statement.command === command);
   const withinLimit = statements.length <= MAX_DIRECTIVE_BATCH_TARGETS;
+  const sameCommandSceneCount = command === undefined ? 0 : sceneDirections.filter((statement) => statement.command === command).length;
+  const canSelectSameCommand = command !== undefined && sameCommandSceneCount <= MAX_DIRECTIVE_BATCH_TARGETS;
   const parameters = command === undefined ? [] : BATCH_DIRECTION_PARAMETERS[command];
   const [parameter, setParameter] = useState<BatchDirectionParameter>(parameters[0] ?? "transition");
   const [mode, setMode] = useState<"set" | "remove">("set");
@@ -881,7 +887,18 @@ function BatchDirectionPanel({ statements, assetIndex, disabled, createCommandId
             parameter === "volume" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= 0 && Number(value) <= 1 :
               parameter === "transitionAsset" ? assetIndex.assets.some((entry) => entry.assetId === value) : tokenValid
   );
-  const canApply = !disabled && statements.length >= 2 && withinLimit && sameCommand && valueValid;
+  const inspectedTargets = statements.map((statement) => ({
+    statement,
+    inspection: inspectDirectiveArguments(statement.summary)
+  }));
+  const targetValue = mode === "remove" ? undefined : value;
+  const conflictCount = inspectedTargets.filter(({ inspection }) => inspection.duplicateKeys.includes(parameter)).length;
+  const unchangedCount = valueValid ? inspectedTargets.filter(({ inspection }) => inspection.parameters[parameter] === targetValue).length : 0;
+  const changedCount = valueValid ? statements.length - unchangedCount - conflictCount : 0;
+  const canApply = !disabled && statements.length >= 2 && withinLimit && sameCommand && valueValid && conflictCount === 0 && changedCount > 0;
+  const positionSummary = selectionPositions.length <= 6
+    ? selectionPositions.map((position) => `#${position}`).join("、")
+    : `#${selectionPositions[0]}–#${selectionPositions[selectionPositions.length - 1]}`;
   const changeParameter = (next: BatchDirectionParameter) => {
     setParameter(next);
     setValue("");
@@ -900,23 +917,37 @@ function BatchDirectionPanel({ statements, assetIndex, disabled, createCommandId
     }}>
       <div className="batch-direction__heading">
         <div><span className="eyebrow">ATOMIC BATCH</span><strong>{statements.length} 个 Cue · 单步撤销</strong></div>
-        <span className={sameCommand ? `direction-command direction-command--${command}` : "direction-command"}>{sameCommand ? `@${command}` : "类型不一致"}</span>
+        <span className={sameCommand ? `direction-command direction-command--${command}` : "direction-command"}>{sameCommand ? `@${command}` : command === undefined ? "尚未选择" : "类型不一致"}</span>
       </div>
+      <div className="batch-direction__selection" aria-label="批量选择范围">
+        <span><strong>{statements.length}</strong> 已选</span>
+        <span>{positionSummary.length > 0 ? `场景步骤 ${positionSummary}` : "尚未选择 Cue"}</span>
+        <div>
+          <button type="button" disabled={disabled || !canSelectSameCommand} onClick={onSelectSameCommand}>选择本场景同类</button>
+          <button type="button" disabled={disabled || statements.length === 0} onClick={onClearSelection}>清空选择</button>
+        </div>
+      </div>
+      {!canSelectSameCommand && command !== undefined && <p className="direction-error" role="alert">本场景共有 {sameCommandSceneCount} 个 @{command} Cue，超过单批上限，未自动截断选择。</p>}
       {!withinLimit ? (
         <p className="direction-error" role="alert">单次最多修改 {MAX_DIRECTIVE_BATCH_TARGETS} 个 Cue；当前选择不会被部分修改。</p>
+      ) : statements.length < 2 ? (
+        <p className="batch-direction__hint">{command === undefined ? "请选择至少两个同类 Cue 后再预检。" : `再选择至少一个 @${command} Cue 后才能批量提交。`}</p>
       ) : !sameCommand ? (
         <p className="direction-error" role="alert">批量参数只允许同一种演出类型；当前选择不会被部分修改。</p>
-      ) : statements.length < 2 ? (
-        <p className="batch-direction__hint">再选择至少一个 @{command} Cue 后才能批量提交。</p>
       ) : (
         <div className="batch-direction__fields">
           <label><span>参数</span><select aria-label="批量演出参数名" value={parameter} disabled={disabled} onChange={(event) => changeParameter(event.target.value as BatchDirectionParameter)}>{parameters.map((item) => <option key={item} value={item}>{BATCH_PARAMETER_LABELS[item]}</option>)}</select></label>
           <label><span>操作</span><select aria-label="批量演出参数操作" value={mode} disabled={disabled} onChange={(event) => setMode(event.target.value as "set" | "remove")}><option value="set">设置</option><option value="remove">移除</option></select></label>
           {mode === "set" && <label className="batch-direction__value"><span>值</span>{parameter === "transition" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option></select> : parameter === "position" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select> : parameter === "loop" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="true">开启</option><option value="false">关闭</option></select> : <input aria-label="批量演出参数值" list={parameter === "transitionAsset" ? "batch-transition-assets" : undefined} value={value} disabled={disabled} placeholder={parameter === "duration" || parameter === "fade" ? "300ms / 0.5s" : parameter === "volume" ? "0–1" : "输入单 token"} onChange={(event) => setValue(event.target.value)} />}{parameter === "transitionAsset" && <datalist id="batch-transition-assets">{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>}</label>}
-          <button type="submit" disabled={!canApply}>原子应用到 {statements.length} 个 Cue</button>
+          <button type="submit" disabled={!canApply}>原子应用 {changedCount} 项修改</button>
         </div>
       )}
-      <small>{mode === "remove" ? "移除只影响所选参数，未知参数与原始排版保持不变。" : value.length > 0 && !valueValid ? "值未通过类型或资源索引校验。" : "任一目标失败则整批零写入。"}</small>
+      {statements.length >= 2 && sameCommand && valueValid && <div className="batch-direction__preflight" role="status" aria-live="polite">
+        <span aria-label={`${changedCount} 将修改`}><strong>{changedCount}</strong> 将修改</span>
+        <span aria-label={`${unchangedCount} 已一致`}><strong>{unchangedCount}</strong> 已一致</span>
+        <span aria-label={`${conflictCount} 冲突`} className={conflictCount > 0 ? "is-conflict" : undefined}><strong>{conflictCount}</strong> 冲突</span>
+      </div>}
+      <small>{conflictCount > 0 ? "检测到重复参数；真实提交会整批拒绝，请先在 Script 中消除歧义。" : mode === "remove" ? "移除只影响所选参数，未知参数与原始排版保持不变。" : value.length > 0 && !valueValid ? "值未通过类型或资源索引校验。" : changedCount === 0 && valueValid && statements.length >= 2 ? "全部目标已经一致，不会创建空 revision。" : "任一目标失败则整批零写入。"}</small>
     </form>
   );
 }
@@ -1017,6 +1048,12 @@ function WriterView({
   const selectedDirections = scene.statements.filter(
     (statement): statement is Extract<StoryStatement, { readonly kind: "direction" }> =>
       statement.kind === "direction" && selectedDirectionIds.includes(statement.id)
+  );
+  const sceneDirections = scene.statements.filter(
+    (statement): statement is Extract<StoryStatement, { readonly kind: "direction" }> => statement.kind === "direction"
+  );
+  const selectionPositions = scene.statements.flatMap((statement, index) =>
+    selectedDirectionIds.includes(statement.id) ? [index + 1] : []
   );
   const moveDirection = (statementId: string, afterId: string) => dispatch({
     type: "move-direction",
@@ -1221,12 +1258,21 @@ function WriterView({
       </section>
 
       {multiSelectMode && <BatchDirectionPanel
-        key={`${scene.id}:${selectedDirectionIds.join(":")}`}
+        key={`${scene.id}:${selectedDirections[0]?.command ?? "empty"}:${selectedDirections.every((item) => item.command === selectedDirections[0]?.command) ? "same" : "mixed"}`}
         statements={selectedDirections}
+        sceneDirections={sceneDirections}
+        selectionPositions={selectionPositions}
         assetIndex={assetIndex}
         disabled={pendingDraft}
         createCommandId={createCommandId}
         dispatch={dispatch}
+        onSelectSameCommand={() => {
+          const command = selectedDirections[0]?.command;
+          if (command === undefined) return;
+          const ids = sceneDirections.filter((statement) => statement.command === command).map((statement) => statement.id);
+          if (ids.length <= MAX_DIRECTIVE_BATCH_TARGETS) setSelectedDirectionIds(ids);
+        }}
+        onClearSelection={() => setSelectedDirectionIds([])}
       />}
 
       {insertCommand !== null && <DirectionInsertPanel
@@ -2914,7 +2960,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.36 STAGE CUE · ATOMIC BATCH</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.37 BATCH · VERIFIED PREFLIGHT</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

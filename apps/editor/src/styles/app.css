@@ -1407,6 +1407,38 @@ button:disabled {
 .batch-direction__heading { justify-content: space-between; align-items: center; }
 .batch-direction__heading strong { display: block; font-size: 12px; }
 .batch-direction__hint { margin: 0; color: var(--wg-color-text-secondary); font-size: 10px; }
+.batch-direction__selection,
+.batch-direction__preflight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid rgb(255 188 102 / 18%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 3%);
+  color: var(--wg-color-text-secondary);
+  font-size: 9px;
+}
+.batch-direction__selection > span,
+.batch-direction__preflight > span { padding: 4px 7px; border-radius: 7px; background: rgb(255 255 255 / 5%); }
+.batch-direction__selection strong,
+.batch-direction__preflight strong { color: #ffd398; font-size: 11px; }
+.batch-direction__selection > div { display: flex; gap: 6px; margin-left: auto; }
+.batch-direction__selection button {
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 1px solid rgb(255 188 102 / 26%);
+  border-radius: 7px;
+  background: rgb(255 188 102 / 8%);
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font-size: 8px;
+}
+.batch-direction__selection button:hover:not(:disabled) { background: rgb(255 188 102 / 16%); }
+.batch-direction__preflight { background: linear-gradient(90deg, rgb(255 188 102 / 8%), rgb(139 124 255 / 6%)); }
+.batch-direction__preflight .is-conflict { color: #ff9b9b; background: rgb(255 88 112 / 10%); }
+.batch-direction__preflight .is-conflict strong { color: #ff9b9b; }
 .batch-direction__fields { flex-wrap: wrap; }
 .batch-direction__fields label { display: grid; gap: 5px; min-width: 120px; color: var(--wg-color-text-muted); font-size: 9px; }
 .batch-direction__value { flex: 1 1 180px; }
@@ -2840,6 +2872,23 @@ textarea[data-input-state="composing"] {
     display: grid;
     align-items: stretch;
     grid-template-columns: 1fr;
+  }
+
+  .batch-direction__selection,
+  .batch-direction__preflight {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .batch-direction__selection > div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .batch-direction__selection button {
+    min-height: 44px;
   }
 
   .batch-direction__fields label,

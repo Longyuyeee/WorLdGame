@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   compileSceneResourceManifest,
+  inspectDirectiveBatch,
   parseStory,
   patchDirectiveBatch,
   patchDialogueText,
@@ -171,17 +172,25 @@ describe("large script performance audit", () => {
       ""
     ].join("\n");
     const document = parseStory(source);
+    const preflightStart = performance.now();
+    const inspection = inspectDirectiveBatch(source, document, ids);
+    const batchPreflightMs = performance.now() - preflightStart;
     const start = performance.now();
     const result = patchDirectiveBatch(source, document, ids, { parameters: { transition: "fade", duration: "300ms" } });
     const batchPatchMs = performance.now() - start;
     console.log(JSON.stringify({ status: "PASS", baseline: { targetCount }, measurementsMs: {
+      maximumDirectiveBatchPreflight: Number(batchPreflightMs.toFixed(2)),
       maximumAtomicDirectiveBatchPatch: Number(batchPatchMs.toFixed(2)) }, budgetsMs: {
-      maximumAtomicDirectiveBatchPatch: 2_000 }, result: { ok: result.ok,
+      maximumDirectiveBatchPreflight: 500, maximumAtomicDirectiveBatchPatch: 2_000 }, result: { ok: result.ok,
       changedTargets: result.ok ? result.changedStatementIds.length : 0 } }, null, 2));
+    expect(inspection.ok).toBe(true);
+    if (!inspection.ok) throw new Error(inspection.error.message);
+    expect(inspection.targets).toHaveLength(targetCount);
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error(result.error.message);
     expect(result.changedStatementIds).toHaveLength(targetCount);
     expect(result.source.match(/transition=fade/g)).toHaveLength(targetCount);
+    expect(batchPreflightMs).toBeLessThan(500);
     expect(batchPatchMs).toBeLessThan(2_000);
   });
 });

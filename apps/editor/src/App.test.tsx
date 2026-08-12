@@ -104,13 +104,21 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.click(screen.getByRole("button", { name: "开始演出多选" }));
     const originalCue = screen.getByRole("button", { name: "轨道步骤 1：黄昏校门 · 云层缓慢移动" });
     expect(originalCue).toHaveAttribute("aria-pressed", "false");
-    fireEvent.click(originalCue);
+    expect(screen.getByText("场景步骤 #2")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "选择本场景同类" }));
     expect(originalCue).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("form", { name: "批量演出参数" })).toBeVisible();
     expect(screen.getByText("2 个 Cue · 单步撤销")).toBeVisible();
+    expect(screen.getByText("场景步骤 #1、#2")).toBeVisible();
     fireEvent.change(screen.getByLabelText("批量演出参数值"), { target: { value: "fade" } });
-    fireEvent.click(screen.getByRole("button", { name: "原子应用到 2 个 Cue" }));
+    const batchForm = screen.getByRole("form", { name: "批量演出参数" });
+    expect(within(batchForm).getByLabelText("2 将修改")).toBeVisible();
+    expect(within(batchForm).getByLabelText("0 已一致")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "原子应用 2 项修改" }));
     expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(within(batchForm).getByLabelText("0 将修改")).toBeVisible();
+    expect(within(batchForm).getByLabelText("2 已一致")).toBeVisible();
+    expect(screen.getByRole("button", { name: "原子应用 0 项修改" })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const source = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
@@ -118,6 +126,19 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(source.match(/黄昏校门 · 云层缓慢移动/g)).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "撤销" }));
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("transition=fade");
+  });
+
+  it("clears an explicit batch selection without changing the source revision", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "开始演出多选" }));
+    expect(screen.getByText("1 个 Cue · 单步撤销")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "清空选择" }));
+    expect(screen.getByText("0 个 Cue · 单步撤销")).toBeVisible();
+    expect(screen.getByText("尚未选择 Cue")).toBeVisible();
+    expect(screen.getByText("尚未选择")).toBeVisible();
+    expect(screen.getByText("请选择至少两个同类 Cue 后再预检。")).toBeVisible();
+    expect(screen.queryByText(/类型不一致；当前选择不会被部分修改/)).not.toBeInTheDocument();
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
   });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);

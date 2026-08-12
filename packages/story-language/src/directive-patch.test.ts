@@ -5,6 +5,7 @@ import {
   executeScriptSourceCommand,
   parseStory,
   patchDirectiveBatch,
+  inspectDirectiveBatch,
   patchDirectiveParameters,
   semanticSnapshot
 } from "./index";
@@ -126,6 +127,20 @@ describe("stable-ID local directive patch", () => {
     expect(result.changedStatementIds).toEqual(["stmt_show", "stmt_show_second"]);
     expect(result.source.match(/transition=fade/g)).toHaveLength(2);
     expect(result.source.match(/duration=300ms/g)).toHaveLength(2);
+  });
+
+  it("preflights a batch deterministically without producing a writable source", () => {
+    const batchSource = source.replace(
+      "hero: Keep me @sid(stmt_text) @id(txt_text)",
+      "  @show asset=char_second transition=fade @id(stmt_show_second)\r\nhero: Keep me @sid(stmt_text) @id(txt_text)"
+    );
+    const inspection = inspectDirectiveBatch(batchSource, parseStory(batchSource), ["stmt_show_second", "stmt_show"]);
+    expect(inspection.ok).toBe(true);
+    if (!inspection.ok) throw new Error(inspection.error.message);
+    expect(inspection).not.toHaveProperty("source");
+    expect(inspection.command).toBe("show");
+    expect(inspection.statementIds).toEqual(["stmt_show", "stmt_show_second"]);
+    expect(inspection.targets.map((target) => target.arguments.parameters.transition)).toEqual([undefined, "fade"]);
   });
 
   it("rejects mixed, duplicate, empty, and partially invalid batches without exposing a partial source", () => {

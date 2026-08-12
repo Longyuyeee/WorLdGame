@@ -60,6 +60,18 @@ export type DirectiveBatchParameterPatchResult =
     }
   | { readonly ok: false; readonly error: DirectivePatchError };
 
+export type DirectiveBatchInspectionResult =
+  | {
+      readonly ok: true;
+      readonly statementIds: readonly EntityId[];
+      readonly command: DirectiveNode["command"];
+      readonly targets: readonly {
+        readonly statementId: EntityId;
+        readonly arguments: DirectiveArgumentInspection;
+      }[];
+    }
+  | { readonly ok: false; readonly error: DirectivePatchError };
+
 export const MAX_DIRECTIVE_BATCH_TARGETS = 256;
 
 interface TokenSpan {
@@ -262,33 +274,22 @@ export function patchDirectiveBatch(
   statementIds: readonly EntityId[],
   patch: DirectiveParameterPatch
 ): DirectiveBatchParameterPatchResult {
-  if (statementIds.length === 0) {
-    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_EMPTY", message: "Directive batch requires at least one target" } };
-  }
-  if (statementIds.length > MAX_DIRECTIVE_BATCH_TARGETS) {
-    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_LIMIT", message: `Directive batch is limited to ${MAX_DIRECTIVE_BATCH_TARGETS} targets` } };
-  }
-  if (new Set(statementIds).size !== statementIds.length) {
-    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_DUPLICATE_TARGET", message: "Directive batch target IDs must be unique" } };
-  }
-  const orderedIds = [...statementIds].sort((left, right) => left.localeCompare(right));
+  const inspection = inspectDirectiveBatch(source, storyDocument, statementIds);
+  if (!inspection.ok) return inspection;
+  const orderedIds = inspection.statementIds;
+  const command = inspection.command;
   let nextSource = source;
   let nextDocument = storyDocument;
-  let command: DirectiveNode["command"] | undefined;
   const changedStatementIds: EntityId[] = [];
   for (const statementId of orderedIds) {
     const result = patchDirectiveParameters(nextSource, nextDocument, statementId, patch);
     if (!result.ok) return result;
-    if (command !== undefined && result.command !== command) {
+    if (result.command !== command) {
       return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_MIXED_COMMANDS", message: "Directive batch targets must use the same command" } };
     }
-    command = result.command;
     if (result.changed) changedStatementIds.push(statementId);
     nextSource = result.source;
     nextDocument = result.storyDocument;
-  }
-  if (command === undefined) {
-    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_EMPTY", message: "Directive batch requires at least one target" } };
   }
   return {
     ok: true,
@@ -298,5 +299,70 @@ export function patchDirectiveBatch(
     statementIds: orderedIds,
     changedStatementIds,
     command
+  };
+}
+
+export function inspectDirectiveBatch(
+  source: string,
+  storyDocument: StoryDocument,
+  statementIds: readonly EntityId[]
+): DirectiveBatchInspectionResult {
+  if (statementIds.length === 0) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_EMPTY", message: "Directive batch requires at least one target" } };
+  }
+  if (statementIds.length > MAX_DIRECTIVE_BATCH_TARGETS) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_LIMIT", message: `Directive batch is limited to ${MAX_DIRECTIVE_BATCH_TARGETS} targets` } };
+  }
+  if (new Set(statementIds).size !== statementIds.length) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_DUPLICATE_TARGET", message: "Directive batch target IDs must be unique" } };
+  }
+  if (storyDocument.diagnostics.some((item) => item.severity === "error")) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_SOURCE_ERROR", message: "Cannot inspect a document with parser errors" } };
+  }
+  const sourceDocument = parseStory(source);
+  if (sourceDocument.diagnostics.some((item) => item.severity === "error")) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_SOURCE_ERROR", message: "Current source contains parser errors" } };
+  }
+  if (JSON.stringify(semanticSnapshot(sourceDocument)) !== JSON.stringify(semanticSnapshot(storyDocument))) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_SOURCE_MISMATCH", message: "Source changed after the supplied document was parsed" } };
+  }
+  const orderedIds = [...statementIds].sort((left, right) => left.localeCompare(right));
+  let command: DirectiveNode["command"] | undefined;
+  const targets: Array<{ readonly statementId: EntityId; readonly arguments: DirectiveArgumentInspection }> = [];
+  for (const statementId of orderedIds) {
+    const matches = sourceDocument.nodes.filter(
+      (node): node is DirectiveNode => node.kind === "directive" && node.id === statementId
+    );
+    if (matches.length === 0) {
+      const anotherKind = sourceDocument.nodes.some((node) => {
+        if (node.kind === "dialogue") return node.statementId === statementId;
+        return "id" in node && node.id === statementId;
+      });
+      return { ok: false, error: {
+        code: anotherKind ? "DIRECTIVE_PATCH_TARGET_NOT_DIRECTIVE" : "DIRECTIVE_PATCH_TARGET_NOT_FOUND",
+        message: anotherKind ? `Stable ID does not identify a directive: ${statementId}` : `Directive was not found: ${statementId}`
+      } };
+    }
+    if (matches.length > 1) {
+      return { ok: false, error: { code: "DIRECTIVE_PATCH_TARGET_AMBIGUOUS", message: `Directive ID is ambiguous: ${statementId}` } };
+    }
+    const target = matches[0];
+    if (target === undefined) {
+      return { ok: false, error: { code: "DIRECTIVE_PATCH_TARGET_NOT_FOUND", message: `Directive was not found: ${statementId}` } };
+    }
+    if (command !== undefined && target.command !== command) {
+      return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_MIXED_COMMANDS", message: "Directive batch targets must use the same command" } };
+    }
+    command = target.command;
+    targets.push({ statementId, arguments: inspectDirectiveArguments(target.argumentsRaw) });
+  }
+  if (command === undefined) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_EMPTY", message: "Directive batch requires at least one target" } };
+  }
+  return {
+    ok: true,
+    statementIds: orderedIds,
+    command,
+    targets
   };
 }
