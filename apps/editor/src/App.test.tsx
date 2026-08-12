@@ -12,6 +12,30 @@ function selectFirstDialogue() {
 }
 
 describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
+  it("searches the committed project and jumps across scenes without creating a revision", () => {
+    render(<App />);
+    const search = screen.getByRole("searchbox", { name: "全局搜索" });
+    fireEvent.change(search, { target: { value: "风中的天台" } });
+    expect(screen.getByText("1 / 1 项")).toBeVisible();
+    fireEvent.click(screen.getByRole("option", { name: /打开场景 · 风中的天台/ }));
+    expect(screen.getByRole("heading", { name: "风中的天台" })).toBeVisible();
+    expect(screen.getByRole("button", { name: /选择演出/ })).toHaveFocus();
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+    fireEvent.change(search, { target: { value: "旧广播室" } });
+    fireEvent.submit(screen.getByRole("search", { name: "搜索全部场景" }));
+    expect(screen.getByRole("heading", { name: "旧广播室" })).toBeVisible();
+  });
+
+  it("reports empty global searches without mutating the active scene", () => {
+    render(<App />);
+    const search = screen.getByRole("searchbox", { name: "全局搜索" });
+    fireEvent.change(search, { target: { value: "不存在的全局内容" } });
+    expect(screen.getByText("没有全局匹配")).toBeVisible();
+    expect(screen.getByText(/尝试输入场景标题/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "上一个全局搜索结果" })).toBeDisabled();
+    expect(screen.getByRole("heading", { name: "放学后的校门" })).toBeVisible();
+  });
+
   it("searches committed scene steps by text and number without changing the project revision", () => {
     render(<App />);
     const search = screen.getByRole("searchbox", { name: "定位步骤" });

@@ -73,6 +73,7 @@ import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analys
 import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
 import { StoryResourceCoordinator } from "./story-resource-coordinator";
+import { createProjectSearchIndex, searchProjectIndex, type ProjectSearchMatch } from "./project-search";
 import { selectStageDirectionLane, selectStageDirectionRange, type StageDirectionCommand } from "./stage-selection";
 import { createStageSearchIndex, searchStageIndex, type StageSearchMatch } from "./stage-search";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "./stage-window";
@@ -240,7 +241,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.40</p>
+          <p className="eyebrow">WorLd Studio · S0.41</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -320,9 +321,29 @@ interface SceneRailProps extends CommonProps {
   readonly assetIndex: AssetIndex;
   readonly assetStatus: AssetVaultStatus;
   readonly onOpenAssets: () => void;
+  readonly onGlobalJump: (match: ProjectSearchMatch) => void;
 }
 
-function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }: SceneRailProps) {
+function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump }: SceneRailProps) {
+  const [query, setQuery] = useState("");
+  const [activeResult, setActiveResult] = useState(0);
+  const index = useMemo(() => createProjectSearchIndex(session.project), [session.project]);
+  const result = useMemo(() => searchProjectIndex(index, query), [index, query]);
+  const resolvedResult = Math.min(activeResult, Math.max(0, result.matches.length - 1));
+  const selectedMatch = result.matches[resolvedResult];
+  const draftSceneCount = Object.entries(session.sourceDrafts).filter(([sceneId, source]) =>
+    source !== session.sourceSessions[sceneId]?.committedSource
+  ).length;
+  const jump = (match: ProjectSearchMatch | undefined) => {
+    if (match !== undefined) onGlobalJump(match);
+  };
+  const cycle = (direction: -1 | 1) => {
+    if (result.matches.length === 0) return;
+    const next = (activeResult + direction + result.matches.length) % result.matches.length;
+    setActiveResult(next);
+    jump(result.matches[next]);
+  };
+  useEffect(() => setActiveResult(0), [query, result.totalMatches]);
   return (
     <aside className="scene-rail" aria-label="场景列表">
       <div className="panel-heading">
@@ -332,6 +353,50 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         </div>
         <span className="count-badge">{session.project.scenes.length}</span>
       </div>
+      <form className="project-search" role="search" aria-label="搜索全部场景" onSubmit={(event) => {
+        event.preventDefault();
+        jump(selectedMatch);
+      }}>
+        <label htmlFor="project-search-input">全局搜索</label>
+        <div className="project-search__field"><span aria-hidden="true">⌕</span><input
+          id="project-search-input"
+          type="search"
+          value={query}
+          autoComplete="off"
+          placeholder="场景、ID 或内容"
+          aria-controls="project-search-results"
+          aria-describedby="project-search-status"
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") { event.preventDefault(); cycle(1); }
+            else if (event.key === "ArrowUp") { event.preventDefault(); cycle(-1); }
+            else if (event.key === "Escape") setQuery("");
+          }}
+        /></div>
+        <div className="project-search__meta">
+          <output id="project-search-status" aria-live="polite">{result.query.length === 0 ? "搜索已提交工程" : result.totalMatches === 0 ? "没有全局匹配" : `${resolvedResult + 1} / ${result.totalMatches} 项`}</output>
+          <span>{session.project.scenes.length} 场景</span>
+        </div>
+        <div className="project-search__nav" aria-label="全局搜索结果导航">
+          <button type="button" aria-label="上一个全局搜索结果" disabled={selectedMatch === undefined} onClick={() => cycle(-1)}>↑</button>
+          <button type="submit" disabled={selectedMatch === undefined}>打开</button>
+          <button type="button" aria-label="下一个全局搜索结果" disabled={selectedMatch === undefined} onClick={() => cycle(1)}>↓</button>
+        </div>
+        {result.query.length > 0 && <div id="project-search-results" className="project-search__results" role="listbox" aria-label="全部场景搜索结果">
+          {result.matches.map((match, matchIndex) => {
+            const startsGroup = matchIndex === 0 || result.matches[matchIndex - 1]?.sceneId !== match.sceneId;
+            return <div className="project-search__result" key={`${match.sceneId}:${match.statementId}:${match.matchedBy}`}>
+              {startsGroup && <span className="project-search__scene">{String(match.sceneIndex + 1).padStart(2, "0")} · {match.sceneTitle}</span>}
+              <button type="button" role="option" aria-selected={matchIndex === resolvedResult} onClick={() => { setActiveResult(matchIndex); jump(match); }}>
+                <span>#{match.statementIndex + 1}</span><strong>{match.label}</strong><code>{match.statementId}</code>
+              </button>
+            </div>;
+          })}
+          {result.matches.length === 0 && <p>尝试输入场景标题、stmt_… 或对白片段</p>}
+          {result.truncated && <p>仅展示前 {result.matches.length} 项；总数仍完整统计。</p>}
+        </div>}
+        {draftSceneCount > 0 && <small>{draftSceneCount} 个场景有未提交草稿；全局搜索仍使用最后一次有效投影。</small>}
+      </form>
       <div className="scene-list">
         {session.project.scenes.map((scene, index) => (
           <button
@@ -351,7 +416,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.40 SEARCH · STABLE-ID JUMP</small></span>
+            <span><strong>资源保险库</strong><small>S0.41 PROJECT · GLOBAL SEARCH</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -669,6 +734,8 @@ interface WriterViewProps extends CommonProps {
   readonly createEntityId: (prefix: "stmt" | "txt") => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
+  readonly requestedFocusStatementId: string | null;
+  readonly onRequestedFocusHandled: () => void;
 }
 
 type DirectionForm = Record<string, string>;
@@ -1044,7 +1111,9 @@ function WriterView({
   createCommandId,
   createEntityId,
   onInputDirtyChange,
-  assetIndex
+  assetIndex,
+  requestedFocusStatementId,
+  onRequestedFocusHandled
 }: WriterViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -1165,6 +1234,12 @@ function WriterView({
       setPendingStageFocusId(null);
     }
   }, [pendingStageFocusId, selected.id, stageWindow.start]);
+  useEffect(() => {
+    if (requestedFocusStatementId === null || requestedFocusStatementId !== selected.id) return;
+    setStageWindowStart(revealStageIndex(stageWindow, selectedIndex).start);
+    setPendingStageFocusId(requestedFocusStatementId);
+    onRequestedFocusHandled();
+  }, [requestedFocusStatementId, selected.id, selectedIndex]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if (!event.altKey || pendingDraft) return;
@@ -2069,6 +2144,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
 export function App() {
   const [session, baseDispatch] = useReducer(reduceStudioSession, undefined, createStudioSession);
   const [mode, setMode] = useState<StudioMode>("writer");
+  const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
   const storageAvailable = typeof globalThis.indexedDB !== "undefined";
   const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
@@ -3143,9 +3219,14 @@ export function App() {
           assetIndex={assetIndex}
           assetStatus={assetStatus}
           onOpenAssets={() => setAssetPanelOpen(true)}
+          onGlobalJump={(match) => {
+            setMode("writer");
+            setRequestedFocusStatementId(match.statementId);
+            dispatch({ type: "select-project-result", sceneId: match.sceneId, statementId: match.statementId });
+          }}
         />
         {mode === "writer" ? (
-          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} />
+          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
@@ -3154,7 +3235,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.40 SEARCH · STABLE-ID JUMP</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.41 PROJECT · GLOBAL SEARCH</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

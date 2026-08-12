@@ -10,6 +10,18 @@ import {
 } from "./studio-session";
 
 describe("S0.9 studio source projection and recovery session", () => {
+  it("atomically selects a statement in another scene for project search navigation", () => {
+    const initial = createStudioSession();
+    const targetScene = initial.project.scenes[1]!;
+    const targetStatement = targetScene.statements[1]!;
+    const selected = reduceStudioSession(initial, { type: "select-project-result", sceneId: targetScene.id, statementId: targetStatement.id });
+    expect(selected.activeSceneId).toBe(targetScene.id);
+    expect(selected.selectedStatementId).toBe(targetStatement.id);
+    expect(selected.previewIndex).toBe(1);
+    expect(selected.notice).toMatchObject({ title: "全局搜索已定位" });
+    expect(activeSourceSession(selected).revision).toBe(0);
+  });
+
   it("starts from projectable canonical sources without a second model", () => {
     const session = createStudioSession();
 

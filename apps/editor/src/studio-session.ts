@@ -49,6 +49,7 @@ export interface StudioSession {
 
 export type StudioAction =
   | { readonly type: "select-scene"; readonly sceneId: EntityId }
+  | { readonly type: "select-project-result"; readonly sceneId: EntityId; readonly statementId: EntityId }
   | { readonly type: "select-statement"; readonly statementId: EntityId }
   | { readonly type: "step-preview"; readonly direction: -1 | 1 }
   | { readonly type: "edit-script"; readonly commandId: EntityId; readonly source: string }
@@ -550,6 +551,24 @@ export function reduceStudioSession(
               title: "场景事务已切换",
               detail: `${scene.title} 当前位于 revision ${targetSourceSession.revision}。`
             }
+      };
+    }
+    case "select-project-result": {
+      const scene = findScene(session.project, action.sceneId);
+      const targetSourceSession = session.sourceSessions[scene.id];
+      const index = scene.statements.findIndex((item) => item.id === action.statementId);
+      if (targetSourceSession === undefined || index < 0) return session;
+      const targetDraft = session.sourceDrafts[scene.id] ?? targetSourceSession.committedSource;
+      return {
+        ...session,
+        activeSceneId: scene.id,
+        selectedStatementId: action.statementId,
+        previewIndex: index,
+        notice: {
+          tone: targetDraft !== targetSourceSession.committedSource ? "draft" : "success",
+          title: "全局搜索已定位",
+          detail: `${scene.title} · 步骤 ${index + 1}${targetDraft !== targetSourceSession.committedSource ? "；未提交草稿未参与搜索。" : "。"}`
+        }
       };
     }
     case "select-statement": {

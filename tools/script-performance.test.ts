@@ -9,6 +9,7 @@ import {
 } from "@world-studio/story-language";
 import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
 import { compilePreviewStageTimeline } from "../apps/editor/src/preview-media-runtime";
+import { createProjectSearchIndex, searchProjectIndex } from "../apps/editor/src/project-search";
 import { selectStageDirectionLane, selectStageDirectionRange } from "../apps/editor/src/stage-selection";
 import { createStageSearchIndex, searchStageIndex } from "../apps/editor/src/stage-search";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "../apps/editor/src/stage-window";
@@ -265,5 +266,36 @@ describe("large script performance audit", () => {
     expect(byStep.matches[0]?.index).toBe(9_743);
     expect(indexingMs).toBeLessThan(300);
     expect(searchMs).toBeLessThan(100);
+  });
+
+  it("indexes and searches a one-hundred-thousand-step committed project within budget", () => {
+    const sceneCount = 1_000;
+    const statementsPerScene = 100;
+    const project: StoryProject = { schemaVersion: 0, id: "project_global_search_perf", title: "Global Search", characters: [],
+      entrySceneId: "global_scene_0", scenes: Array.from({ length: sceneCount }, (_, sceneIndex) => ({
+        id: `global_scene_${sceneIndex}`, title: `章节 ${sceneIndex}`, statements: Array.from({ length: statementsPerScene }, (_, statementIndex) => ({
+          id: `global_stmt_${sceneIndex}_${statementIndex}`, kind: "dialogue" as const, speakerId: "hero",
+          textId: `global_text_${sceneIndex}_${statementIndex}`,
+          text: sceneIndex === 947 && statementIndex === 82 ? "跨场景索引唯一约定" : `场景 ${sceneIndex} 对白 ${statementIndex}`
+        }))
+      })) };
+    const indexStart = performance.now();
+    const index = createProjectSearchIndex(project);
+    const indexingMs = performance.now() - indexStart;
+    const searchStart = performance.now();
+    const byText = searchProjectIndex(index, "唯一约定");
+    const byId = searchProjectIndex(index, "GLOBAL_STMT_947_82");
+    const byScene = searchProjectIndex(index, "章节 947");
+    const searchMs = performance.now() - searchStart;
+    console.log(JSON.stringify({ status: "PASS", baseline: { sceneCount, statementCount: sceneCount * statementsPerScene },
+      measurementsMs: { committedProjectSearchIndexing: Number(indexingMs.toFixed(2)), threeProjectSearchQueries: Number(searchMs.toFixed(2)) },
+      budgetsMs: { committedProjectSearchIndexing: 2_000, threeProjectSearchQueries: 300 }, result: {
+        textTarget: byText.matches[0]?.statementId, idTarget: byId.matches[0]?.statementId,
+        sceneTarget: byScene.matches[0]?.sceneId, maximumMountedResults: 100 } }, null, 2));
+    expect(byText.matches[0]?.statementId).toBe("global_stmt_947_82");
+    expect(byId.matches[0]?.statementId).toBe("global_stmt_947_82");
+    expect(byScene.matches[0]).toMatchObject({ sceneId: "global_scene_947", matchedBy: "scene" });
+    expect(indexingMs).toBeLessThan(2_000);
+    expect(searchMs).toBeLessThan(300);
   });
 });
