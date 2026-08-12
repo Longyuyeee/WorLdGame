@@ -75,6 +75,7 @@ interface MutablePage {
 
 const DIGEST = /^sha256:[a-f0-9]{64}$/;
 const ASSET_ID = /^[A-Za-z][A-Za-z0-9._-]{0,127}$/;
+export const LOSSLESS_DICING_ATLAS_RECIPE_NAME = "dicing-atlas/raw-rgba-v1";
 
 function fail(subject: string, detail: string): never {
   throw new AssetBlobError("INVALID_ASSET", "index", subject, detail);
@@ -130,6 +131,16 @@ function canonicalManifestPayload(manifest: Omit<LosslessDicingAtlasManifest, "m
 
 function createManifestDigest(manifest: Omit<LosslessDicingAtlasManifest, "manifestDigest">): BlobDigest {
   return createBlobDigest(new TextEncoder().encode(canonicalManifestPayload(manifest)));
+}
+
+export function createLosslessDicingAtlasRecipeDigest(manifest: LosslessDicingAtlasManifest): BlobDigest {
+  return createBlobDigest(new TextEncoder().encode(JSON.stringify({
+    recipe: LOSSLESS_DICING_ATLAS_RECIPE_NAME,
+    algorithm: manifest.algorithm,
+    cellSize: manifest.cellSize,
+    padding: manifest.padding,
+    maxAtlasSize: manifest.maxAtlasSize
+  })));
 }
 
 function createPage(index: number): MutablePage {

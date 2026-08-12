@@ -1,5 +1,8 @@
 import {
   AssetBlobError,
+  parseLosslessDicingAtlasManifest,
+  reconstructLosslessDicingAtlasImage,
+  type LosslessDicingAtlasPage,
   type LosslessDicingDiscoveryReport,
   type LosslessDicingReport
 } from "@world-studio/project-persistence";
@@ -8,6 +11,11 @@ export interface DicingAnalysisInput {
   readonly assetId: string;
   readonly mimeType: string;
   readonly bytes: Uint8Array;
+}
+
+export interface DicingAtlasWorkerArtifact {
+  readonly manifestJson: string;
+  readonly pages: readonly LosslessDicingAtlasPage[];
 }
 
 const SUPPORTED_SOURCE_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
@@ -138,7 +146,74 @@ export function analyzeDicingInWorker(
       transferables.push(bytes);
       return { assetId: input.assetId, mimeType: input.mimeType, bytes };
     });
-    try { worker.postMessage({ id, sources, cellSize }, transferables); }
+    try { worker.postMessage({ id, operation: "analyze", sources, cellSize }, transferables); }
     catch (error) { finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", `Dicing request transfer failed (${error instanceof Error ? error.message : "unknown"})`))); }
+  });
+}
+
+export function buildDicingAtlasInWorker(
+  inputs: readonly DicingAnalysisInput[],
+  assetIds: readonly string[],
+  expectedPlanDigest: LosslessDicingReport["planDigest"],
+  cellSize = 64,
+  timeoutMs = 30_000
+): Promise<DicingAtlasWorkerArtifact> {
+  const requestedAssetIds = new Set(inputs.map((input) => input.assetId));
+  const selectedIds = new Set(assetIds);
+  if (inputs.length < 1 || inputs.length > 32 || requestedAssetIds.size !== inputs.length || selectedIds.size !== assetIds.length ||
+      assetIds.length < 1 || assetIds.some((assetId) => !requestedAssetIds.has(assetId))) {
+    return Promise.reject(failure("RESOURCE_LIMIT", "Dicing Atlas selection must be a unique subset of 1-32 inputs"));
+  }
+  if (inputs.some((input) => !SUPPORTED_SOURCE_TYPES.has(input.mimeType)) || !Number.isSafeInteger(cellSize) || cellSize < 8 || cellSize > 512) {
+    return Promise.reject(failure("UNSUPPORTED_MEDIA_TYPE", "Dicing Atlas inputs or Cell Size are unsupported"));
+  }
+  if (typeof Worker === "undefined") return Promise.reject(failure("DERIVATIVE_UNAVAILABLE", "Isolated Dicing Worker is unavailable"));
+  const id = ++analysisSerial;
+  let worker: Worker;
+  try { worker = new Worker(new URL("./dicing-analysis.worker.ts", import.meta.url), { type: "module", name: "world-studio-dicing-atlas" }); }
+  catch (error) { return Promise.reject(failure("DERIVATIVE_UNAVAILABLE", `Dicing Worker could not start (${error instanceof Error ? error.message : "unknown"})`)); }
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (action: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      worker.terminate();
+      action();
+    };
+    const timeout = setTimeout(() => finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", "Dicing Atlas Worker exceeded its execution deadline"))), timeoutMs);
+    worker.addEventListener("error", (event) => finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", `Dicing Atlas Worker failed (${event.message || "unknown"})`))), { once: true });
+    worker.addEventListener("message", (event: MessageEvent) => {
+      const response = event.data as { readonly id?: number; readonly ok?: boolean; readonly artifact?: {
+        readonly manifestJson?: unknown;
+        readonly pages?: readonly { readonly pageId?: unknown; readonly width?: unknown; readonly height?: unknown; readonly rgbaDigest?: unknown; readonly rgba?: unknown }[];
+      }; readonly error?: { readonly message?: string } };
+      if (response.id !== id) return;
+      try {
+        if (response.ok !== true || typeof response.artifact?.manifestJson !== "string" || !Array.isArray(response.artifact.pages)) throw new Error("invalid envelope");
+        const manifest = parseLosslessDicingAtlasManifest(response.artifact.manifestJson);
+        const pages = response.artifact.pages.map((page): LosslessDicingAtlasPage => {
+          if (typeof page.pageId !== "string" || !Number.isSafeInteger(page.width) || !Number.isSafeInteger(page.height) ||
+              typeof page.rgbaDigest !== "string" || !(page.rgba instanceof ArrayBuffer)) throw new Error("invalid Atlas page");
+          return { pageId: page.pageId, width: page.width as number, height: page.height as number,
+            rgbaDigest: page.rgbaDigest as LosslessDicingAtlasPage["rgbaDigest"], rgba: new Uint8Array(page.rgba) };
+        });
+        if (manifest.sourcePlanDigest !== expectedPlanDigest || manifest.images.length !== assetIds.length ||
+            manifest.images.some((image) => !selectedIds.has(image.assetId))) throw new Error("substituted Asset ID or plan");
+        for (const assetId of assetIds) reconstructLosslessDicingAtlasImage(manifest, pages, assetId);
+        finish(() => resolve({ manifestJson: response.artifact!.manifestJson as string, pages }));
+      } catch {
+        finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", response.error?.message ?? "Dicing Atlas Worker returned an invalid artifact")));
+      }
+    });
+    const transferables: ArrayBuffer[] = [];
+    const sources = inputs.map((input) => {
+      const bytes = input.bytes.byteOffset === 0 && input.bytes.byteLength === input.bytes.buffer.byteLength
+        ? input.bytes.buffer as ArrayBuffer : input.bytes.slice().buffer as ArrayBuffer;
+      transferables.push(bytes);
+      return { assetId: input.assetId, mimeType: input.mimeType, bytes };
+    });
+    try { worker.postMessage({ id, operation: "build-atlas", assetIds, sources, cellSize }, transferables); }
+    catch (error) { finish(() => reject(failure("DERIVATIVE_UNAVAILABLE", `Dicing Atlas request transfer failed (${error instanceof Error ? error.message : "unknown"})`))); }
   });
 }

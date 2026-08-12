@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { analyzeDicingInWorker } from "./dicing-analysis-client";
+import { buildLosslessDicingAtlas, serializeLosslessDicingAtlasManifest } from "@world-studio/project-persistence";
+import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analysis-client";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -105,5 +106,72 @@ describe("isolated Dicing analysis client", () => {
 
   it("rejects duplicate request asset IDs before starting a Worker", async () => {
     await expect(analyzeDicingInWorker([input, input])).rejects.toMatchObject({ code: "RESOURCE_LIMIT" });
+  });
+
+  it("accepts only a self-consistent Atlas artifact for the selected Asset IDs", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: input.assetId, width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    class AtlasWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: {
+          id: request.id,
+          ok: true,
+          artifact: {
+            manifestJson: serializeLosslessDicingAtlasManifest(built.manifest),
+            pages: built.pages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0) }))
+          }
+        } } as MessageEvent);
+      }
+      terminate(): void { /* completed */ }
+    }
+    vi.stubGlobal("Worker", AtlasWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], built.manifest.sourcePlanDigest, 8)).resolves.toMatchObject({
+      pages: [{ pageId: "atlas-000" }]
+    });
+  });
+
+  it("rejects an Atlas artifact built from a different analysis plan", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: input.assetId, width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    class StalePlanWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
+          manifestJson: serializeLosslessDicingAtlasManifest(built.manifest),
+          pages: built.pages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0) }))
+        } } } as MessageEvent);
+      }
+      terminate(): void { /* rejected */ }
+    }
+    vi.stubGlobal("Worker", StalePlanWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], `sha256:${"f".repeat(64)}`, 8))
+      .rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
+  });
+
+  it("rejects an Atlas artifact that substitutes another Asset ID", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: "substituted", width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    class SubstitutingAtlasWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
+          manifestJson: serializeLosslessDicingAtlasManifest(built.manifest),
+          pages: built.pages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0) }))
+        } } } as MessageEvent);
+      }
+      terminate(): void { /* rejected */ }
+    }
+    vi.stubGlobal("Worker", SubstitutingAtlasWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], built.manifest.sourcePlanDigest, 8)).rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
   });
 });

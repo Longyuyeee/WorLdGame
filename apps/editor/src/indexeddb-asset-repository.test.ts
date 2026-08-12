@@ -2,6 +2,7 @@ import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
 import {
   auditAssetBlobStore,
+  buildLosslessDicingAtlas,
   createBlobDigest
 } from "@world-studio/project-persistence";
 import {
@@ -419,6 +420,73 @@ describe("IndexedDbAssetRepository", () => {
     expect(second.manifest.roots).toEqual(expect.arrayContaining([
       expect.objectContaining({ rootId: "build:thumbnail:cg_thumbnail", digests: [first.digest] })
     ]));
+  });
+
+  it("atomically publishes an idempotent Dicing Atlas, Manifest, lineage graph and build root", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "dicing_atlas_build", () => 54_000);
+    const encodedA = new TextEncoder().encode("encoded source A");
+    const encodedB = new TextEncoder().encode("encoded source B");
+    const firstImport = await assets.importAsset({
+      assetId: "cg_atlas_a", kind: "cg", displayName: "Atlas A", mimeType: "image/png", bytes: encodedA
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    const secondImport = await assets.importAsset({
+      assetId: "cg_atlas_b", kind: "cg", displayName: "Atlas B", mimeType: "image/png", bytes: encodedB
+    }, { expectedIndexRevision: 1, maxBytes: 1024 });
+    const rgbaA = new Uint8Array(16 * 8 * 4);
+    const rgbaB = new Uint8Array(16 * 8 * 4);
+    for (let pixel = 0; pixel < 16 * 8; pixel += 1) {
+      rgbaA.set([pixel % 8, 20, pixel < 64 ? 30 : 40, 255], pixel * 4);
+      rgbaB.set([pixel % 8, 20, pixel < 64 ? 30 : 50, 255], pixel * 4);
+    }
+    const artifact = buildLosslessDicingAtlas([
+      { assetId: "cg_atlas_a", width: 16, height: 8, rgba: rgbaA },
+      { assetId: "cg_atlas_b", width: 16, height: 8, rgba: rgbaB }
+    ], { cellSize: 8, padding: 2, maxAtlasSize: 32 });
+    const publication = {
+      groupId: "atlas-test",
+      expectedPlanDigest: artifact.manifest.sourcePlanDigest,
+      sources: [
+        { assetId: "cg_atlas_a", sourceDigest: firstImport.entry.source.digest },
+        { assetId: "cg_atlas_b", sourceDigest: secondImport.entry.source.digest }
+      ],
+      manifestJson: JSON.stringify(artifact.manifest),
+      pages: artifact.pages
+    };
+    const first = await assets.publishDicingAtlas(publication);
+    const second = await assets.publishDicingAtlas(publication);
+
+    expect(first.blobStatus).toBe("created");
+    expect(first.createdBlobCount).toBe(artifact.pages.length + 1);
+    expect(second).toMatchObject({ blobStatus: "existing", createdBlobCount: 0, manifestDigest: first.manifestDigest });
+    expect(second.manifest.lifecycleRevision).toBe(first.manifest.lifecycleRevision);
+    expect(second.manifest.roots).toEqual(expect.arrayContaining([
+      expect.objectContaining({ rootId: "build:dicing:atlas-test", kind: "build" })
+    ]));
+    expect(second.manifest.nodes.filter((node) => node.recipeName?.startsWith("dicing-atlas/"))).toHaveLength(artifact.pages.length + 1);
+    expect(await assets.read(first.manifestDigest)).not.toBeNull();
+    for (const digest of first.pageDigests) expect(await assets.read(digest)).not.toBeNull();
+  });
+
+  it("rolls back all Dicing outputs when a source changes before publication", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "dicing_atlas_stale", () => 55_000);
+    const encoded = new TextEncoder().encode("encoded source");
+    const imported = await assets.importAsset({
+      assetId: "cg_atlas_stale", kind: "cg", displayName: "Atlas stale", mimeType: "image/png", bytes: encoded
+    }, { expectedIndexRevision: 0, maxBytes: 1024 });
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const artifact = buildLosslessDicingAtlas([{ assetId: "cg_atlas_stale", width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    const manifestBlobDigest = createBlobDigest(new TextEncoder().encode(JSON.stringify(artifact.manifest)));
+    await expect(assets.publishDicingAtlas({
+      groupId: "stale-test",
+      expectedPlanDigest: artifact.manifest.sourcePlanDigest,
+      sources: [{ assetId: "cg_atlas_stale", sourceDigest: createBlobDigest(new TextEncoder().encode("older source")) }],
+      manifestJson: JSON.stringify(artifact.manifest),
+      pages: artifact.pages
+    })).rejects.toMatchObject({ code: "STALE_INDEX_REVISION" });
+    expect(imported.entry.source.digest).toBe(createBlobDigest(encoded));
+    expect(await assets.read(manifestBlobDigest)).toBeNull();
   });
 
   it.each([

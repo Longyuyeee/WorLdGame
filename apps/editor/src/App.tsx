@@ -52,7 +52,7 @@ import {
 } from "./asset-file-import";
 import { inspectAssetBytes, mediaInspectionToJson } from "./media-inspection-client";
 import { generateThumbnailInWorker } from "./thumbnail-client";
-import { analyzeDicingInWorker } from "./dicing-analysis-client";
+import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analysis-client";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -207,7 +207,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.24</p>
+          <p className="eyebrow">WorLd Studio · S0.25</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -318,7 +318,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.24 ATLAS CONTRACT · SAFE FALLBACK</small></span>
+            <span><strong>资源保险库</strong><small>S0.25 ATOMIC ATLAS · LINEAGE SAFE</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -391,6 +391,7 @@ interface AssetVaultDialogProps {
   readonly lifecycleDetail: string;
   readonly dicingReport: LosslessDicingDiscoveryReport | null;
   readonly dicingAnalyzing: boolean;
+  readonly dicingPublishingGroupId: string | null;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
   readonly createSuggestedId: (fileName: string) => string;
@@ -404,6 +405,7 @@ interface AssetVaultDialogProps {
   readonly onBuildThumbnail: (assetId: string) => void;
   readonly onAnalyzeDicing: () => void;
   readonly onCancelDicing: () => void;
+  readonly onPublishDicingAtlas: (groupId: string) => void;
 }
 
 function AssetVaultDialog({
@@ -414,6 +416,7 @@ function AssetVaultDialog({
   lifecycleDetail,
   dicingReport,
   dicingAnalyzing,
+  dicingPublishingGroupId,
   status,
   importState,
   createSuggestedId,
@@ -426,7 +429,8 @@ function AssetVaultDialog({
   onBuildSidecar,
   onBuildThumbnail,
   onAnalyzeDicing,
-  onCancelDicing
+  onCancelDicing,
+  onPublishDicingAtlas
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -500,14 +504,14 @@ function AssetVaultDialog({
           </div>
           <div className="dicing-analysis" aria-label="无损切图候选分析">
             <div className="dicing-analysis__heading">
-              <div><p className="eyebrow">LOSSLESS DICING · ATLAS CONTRACT</p><h4>跨图片重复块分析</h4></div>
+              <div><p className="eyebrow">LOSSLESS DICING · ATOMIC DERIVATIVE</p><h4>跨图片重复块分析</h4></div>
               {dicingAnalyzing
                 ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
                 : <button type="button" disabled={!storageReady || importing || dicingCandidateCount < 2} onClick={onAnalyzeDicing}>
                     分析候选 · {dicingCandidateCount}
                   </button>}
             </div>
-            <p>仅分析已通过检查的 PNG/JPEG/WebP；可移植核心已验证确定性多页 Atlas、Padding/Extrusion 与损坏回退契约。当前仍不发布派生 Atlas、不修改源素材。</p>
+            <p>已通过检查的 PNG/JPEG/WebP 可在隔离 Worker 生成确定性 Atlas；Manifest、Page、血缘节点与 Build Root 在同一 fenced 事务发布。Original 永不覆盖。</p>
             {dicingReport !== null && <div className={`dicing-analysis__report ${dicingReport.candidateGroups.length > 0 ? "is-adopt" : "is-original"}`} role="status">
               <strong>{dicingReport.candidateGroups.length > 0 ? `发现 ${dicingReport.candidateGroups.length} 个严格相似组` : "没有安全的自动分组"}</strong>
               <span>评估 {dicingReport.evaluatedImageCount} 图 · 阈值 {(dicingReport.minSharedTileRatio * 100).toFixed(0)}% · {dicingReport.unassignedAssetIds.length} 图保持独立</span>
@@ -516,6 +520,10 @@ function AssetVaultDialog({
                 <span>{group.assetIds.join(" · ")} · 最低两两相似度 {(group.minimumPairSimilarity * 100).toFixed(1)}%</span>
                 <span>{group.report.repeatedPlacementCount} 重复放置 · {group.report.duplicateDecodedImageCount} 重复源 · {group.report.netSavingsBytes > 0 ? `RGBA 代理节省 ${(group.report.netSavingsRatio * 100).toFixed(1)}%` : "无净收益"}</span>
                 <code>{group.report.planDigest.slice(7, 19)}… · 逐字节重建 PASS</code>
+                {group.report.decision === "adopt" && <button type="button" disabled={dicingPublishingGroupId !== null}
+                  onClick={() => onPublishDicingAtlas(group.groupId)}>
+                  {dicingPublishingGroupId === group.groupId ? "正在原子发布…" : "发布可重建 Atlas"}
+                </button>}
               </article>)}
               <code>{dicingReport.discoveryDigest.slice(7, 19)}… · 自动分组确定性摘要</code>
             </div>}
@@ -1118,6 +1126,7 @@ export function App() {
   const [assetLifecycleDetail, setAssetLifecycleDetail] = useState("血缘清单已校验；没有执行不可逆删除。");
   const [dicingReport, setDicingReport] = useState<LosslessDicingDiscoveryReport | null>(null);
   const [dicingAnalyzing, setDicingAnalyzing] = useState(false);
+  const [dicingPublishingGroupId, setDicingPublishingGroupId] = useState<string | null>(null);
   const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
   const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
   const [unlinkedAssetBackupIds, setUnlinkedAssetBackupIds] = useState<readonly string[]>([]);
@@ -1843,6 +1852,40 @@ export function App() {
     }
   };
 
+  const publishDicingAtlas = async (groupId: string) => {
+    const repository = assetRepositoryRef.current;
+    const group = dicingReport?.candidateGroups.find((candidate) => candidate.groupId === groupId);
+    if (repository === null || group === undefined || group.report.decision !== "adopt" || dicingPublishingGroupId !== null) return;
+    setDicingPublishingGroupId(groupId);
+    setAssetLifecycleDetail(`正在隔离 Worker 中生成 ${groupId} 的确定性 Atlas，并准备原子发布…`);
+    try {
+      const entries = group.assetIds.map((assetId) => assetIndex.assets.find((entry) => entry.assetId === assetId));
+      if (entries.some((entry) => entry === undefined)) throw new AssetBlobError("STALE_INDEX_REVISION", "index", groupId, "Dicing 组成员已变化");
+      const completeEntries = entries as AssetIndex["assets"];
+      const inputs = await Promise.all(completeEntries.map(async (entry) => {
+        const bytes = await repository.read(entry.source.digest);
+        if (bytes === null) throw new AssetBlobError("CORRUPT_BLOB", "read", entry.source.digest, "Dicing 源 Blob 不存在");
+        return { assetId: entry.assetId, mimeType: entry.source.mimeType, bytes };
+      }));
+      const artifact = await buildDicingAtlasInWorker(inputs, group.assetIds, group.report.planDigest, group.report.cellSize);
+      const result = await repository.publishDicingAtlas({
+        groupId,
+        expectedPlanDigest: group.report.planDigest,
+        sources: completeEntries.map((entry) => ({ assetId: entry.assetId, sourceDigest: entry.source.digest })),
+        manifestJson: artifact.manifestJson,
+        pages: artifact.pages
+      });
+      setAssetLifecycle(result.manifest);
+      setAssetLifecycleDetail(result.blobStatus === "existing"
+        ? `${groupId} 已按相同 recipe 精确复用；Manifest 与 ${result.pageDigests.length} 个 Atlas Page 未产生重复 Blob。`
+        : `${groupId} 已原子发布 Manifest 与 ${result.pageDigests.length} 个 Atlas Page，共创建 ${result.createdBlobCount} 个内容寻址派生 Blob；Original 保持受保护。`);
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof Error ? `Atlas 未发布：${error.message}` : "Atlas 未发布；事务已回滚。");
+    } finally {
+      setDicingPublishingGroupId(null);
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -1918,7 +1961,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.24 EXTRUDED ATLAS · ORIGINAL FALLBACK</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.25 ATOMIC DERIVATIVES · ORIGINAL SAFE</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -1967,6 +2010,7 @@ export function App() {
           lifecycleDetail={assetLifecycleDetail}
           dicingReport={dicingReport}
           dicingAnalyzing={dicingAnalyzing}
+          dicingPublishingGroupId={dicingPublishingGroupId}
           status={assetStatus}
           importState={assetImportState}
           createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
@@ -1980,6 +2024,7 @@ export function App() {
           onBuildThumbnail={(assetId) => void buildAssetThumbnail(assetId)}
           onAnalyzeDicing={() => void analyzeDicingCandidates()}
           onCancelDicing={() => dicingAnalysisAbortRef.current?.abort()}
+          onPublishDicingAtlas={(groupId) => void publishDicingAtlas(groupId)}
         />
       )}
     </div>

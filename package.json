@@ -1,6 +1,6 @@
 {
   "name": "world-studio",
-  "version": "0.0.0-s0.24",
+  "version": "0.0.0-s0.25",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -11,7 +11,7 @@
     "dev": "npm run dev --workspace @world-studio/editor",
     "build": "npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor",
     "typecheck": "tsc -b",
-    "test": "vitest run",
+    "test": "vitest run --maxWorkers=4",
     "test:watch": "vitest",
     "audit:architecture": "node tools/audit-architecture.mjs",
     "audit:script-performance": "vitest run --config vitest.performance.config.ts",

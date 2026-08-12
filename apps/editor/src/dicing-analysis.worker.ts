@@ -1,12 +1,16 @@
 import {
   AssetBlobError,
+  buildLosslessDicingAtlas,
   discoverLosslessDicingGroups,
+  serializeLosslessDicingAtlasManifest,
   type LosslessDicingSource
 } from "@world-studio/project-persistence";
 
 interface DicingAnalysisRequest {
   readonly id: number;
+  readonly operation?: "analyze" | "build-atlas";
   readonly cellSize: number;
+  readonly assetIds?: readonly string[];
   readonly sources: readonly {
     readonly assetId: string;
     readonly mimeType: string;
@@ -16,7 +20,7 @@ interface DicingAnalysisRequest {
 
 const workerScope = self as unknown as {
   addEventListener(type: "message", listener: (event: MessageEvent<DicingAnalysisRequest>) => void): void;
-  postMessage(message: unknown): void;
+  postMessage(message: unknown, transfer?: Transferable[]): void;
 };
 
 const MAX_ENCODED_BYTES = 512 * 1024 * 1024;
@@ -46,8 +50,21 @@ workerScope.addEventListener("message", (event) => {
           bitmap.close();
         }
       }
-      const report = discoverLosslessDicingGroups(decoded, { cellSize: request.cellSize });
-      workerScope.postMessage({ id: request.id, ok: true, report });
+      if (request.operation === "build-atlas") {
+        const selectedIds = new Set(request.assetIds ?? []);
+        const selected = decoded.filter((source) => selectedIds.has(source.assetId));
+        if (selected.length < 1 || selected.length !== selectedIds.size) {
+          throw new AssetBlobError("INVALID_ASSET", "index", "dicing-atlas", "Atlas selection does not match decoded sources");
+        }
+        const artifact = buildLosslessDicingAtlas(selected, { cellSize: request.cellSize, padding: 2, maxAtlasSize: 2048 });
+        const pages = artifact.pages.map((page) => ({ ...page, rgba: page.rgba.buffer }));
+        workerScope.postMessage({ id: request.id, ok: true, artifact: {
+          manifestJson: serializeLosslessDicingAtlasManifest(artifact.manifest), pages
+        } }, pages.map((page) => page.rgba));
+      } else {
+        const report = discoverLosslessDicingGroups(decoded, { cellSize: request.cellSize });
+        workerScope.postMessage({ id: request.id, ok: true, report });
+      }
     } catch (error) {
       const detail = error instanceof AssetBlobError
         ? { code: error.code, message: error.message }

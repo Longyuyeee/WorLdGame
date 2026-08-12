@@ -1,13 +1,14 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { IDBFactory } from "fake-indexeddb";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildLosslessDicingAtlas, serializeLosslessDicingAtlasManifest } from "@world-studio/project-persistence";
 import { App } from "./App";
 
 afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.24 Dicing Atlas contract integration", () => {
+describe("S0.25 atomic Dicing Atlas publication integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -57,10 +58,22 @@ describe("S0.24 Dicing Atlas contract integration", () => {
     expect(within(screen.getByLabelText("已导入资源")).getAllByRole("article")).toHaveLength(2);
     const dicingButton = screen.getByRole("button", { name: "分析候选 · 2" });
     expect(dicingButton).toBeEnabled();
+    const atlasRgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const atlasArtifact = buildLosslessDicingAtlas([
+      { assetId: "broadcast_cg", width: 8, height: 8, rgba: atlasRgba },
+      { assetId: "broadcast_cg_copy", width: 8, height: 8, rgba: atlasRgba.slice() }
+    ], { cellSize: 64, padding: 2, maxAtlasSize: 2048 });
     class DicingWorker {
       private readonly listeners = new Map<string, (event: MessageEvent) => void>();
       addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
-      postMessage(request: { readonly id: number }): void {
+      postMessage(request: { readonly id: number; readonly operation?: string }): void {
+        if (request.operation === "build-atlas") {
+          this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
+            manifestJson: serializeLosslessDicingAtlasManifest(atlasArtifact.manifest),
+            pages: atlasArtifact.pages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0) }))
+          } } } as MessageEvent);
+          return;
+        }
         this.listeners.get("message")?.({ data: {
           id: request.id,
           ok: true,
@@ -93,7 +106,7 @@ describe("S0.24 Dicing Atlas contract integration", () => {
                 reason: "net-savings",
                 reconstructionVerified: true,
                 sourceDigests: [`sha256:${"b".repeat(64)}`, `sha256:${"b".repeat(64)}`],
-                planDigest: `sha256:${"c".repeat(64)}`
+                planDigest: atlasArtifact.manifest.sourcePlanDigest
               }
             }],
             unassignedAssetIds: [],
@@ -109,8 +122,13 @@ describe("S0.24 Dicing Atlas contract integration", () => {
     expect(screen.getByText(/逐字节重建 PASS/)).toBeVisible();
     expect(screen.getByText(/1 重复源/)).toBeVisible();
     expect(screen.getByText(/RGBA 代理节省 60.4%/)).toBeVisible();
+    const publishButton = screen.getByRole("button", { name: "发布可重建 Atlas" });
+    expect(publishButton).toBeEnabled();
+    fireEvent.click(publishButton);
+    await waitFor(() => expect(screen.getByText(/已原子发布 Manifest 与 1 个 Atlas Page/)).toBeVisible(), { timeout: 5_000 });
+    expect(screen.getByText(/Original 保持受保护/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
-  }, 10_000);
+  }, 20_000);
 
   it("rejects MIME-confused bytes before creating a Blob or Index revision", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
