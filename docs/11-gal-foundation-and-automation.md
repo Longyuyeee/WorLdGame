@@ -179,6 +179,8 @@ Utage 的 Dicing 机制会把相似纹理切成网格，省略重复块和全透
 
 ## 4. 可调快进系统
 
+> 运行语义由[《CL-04 Narrative VM 确定性证据契约》](64-cl04-narrative-vm-evidence-contract.md)约束：Skip 只改变调度与表现，不得改变同一停止点的剧情 State Hash。
+
 ### 4.1 快进模式
 
 - **Skip Read**：只跳过当前存档元数据中已读的对话；
@@ -201,6 +203,8 @@ Utage 的 Dicing 机制会把相似纹理切成网格，省略重复块和全透
 自动播放按可读性推进，综合文本长度、标点、语言和语音时长；快进以快速抵达目标为目的。两套速度和音频策略必须独立保存。
 
 ## 5. 每句/每步后退与前进
+
+> 本节的玩家历史与编辑器 Undo/Redo、工程 WAL 严格分离；Runtime History、Barrier 与 Forward Fork 证据门见 CL-04 契约。
 
 ### 5.1 Story Step
 

@@ -93,6 +93,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0 收口与方向纠偏审计](docs/61-s0-closure-course-correction.md) | 冻结 S0.41、偏移复盘、剩余风险登记、五波收口路线与强制阶段门 |
 | [CL-01 目标设备矩阵与预算冻结](docs/62-cl01-target-device-budget.md) | Windows/Android/Web 支持档位、帧时间、内存、容量预算与实体设备取证门 |
 | [S0 Claim / Evidence 登记表](docs/63-s0-claim-evidence-register.md) | CL-01–CL-12 的状态、Owner、阈值、证据、依赖与更新纪律 |
+| [CL-04 Narrative VM 确定性证据契约](docs/64-cl04-narrative-vm-evidence-contract.md) | Runtime State、Step/Effect/Save、回滚前进、快进、Barrier、State Hash 与三宿主通过门 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

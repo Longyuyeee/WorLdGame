@@ -285,6 +285,8 @@ flowchart LR
 
 ## 12. Narrative VM 与副作用调度
 
+> S0 冻结边界：实现前必须遵循[《CL-04 Narrative VM 确定性证据契约》](64-cl04-narrative-vm-evidence-contract.md)。当前 Editor Undo/Redo、Project WAL 与 Preview Stop Point 均不是 Runtime History、Runtime Save 或 Effect Barrier。
+
 VM 核心保持单线程逻辑顺序；资源加载、解码和平台调用可并行，但必须通过版本化 Effect 返回。
 
 每个 Story Step 执行：

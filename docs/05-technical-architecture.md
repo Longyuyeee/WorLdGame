@@ -209,6 +209,8 @@ sequenceDiagram
 
 ### 7.1 Narrative VM
 
+> CL-04 的最小 IR、Runtime State、Effect、History、Save 和 State Hash 证据门见[《CL-04 Narrative VM 确定性证据契约》](64-cl04-narrative-vm-evidence-contract.md)；本节为架构摘要。
+
 采用确定性指令机：
 
 - 输入：编译后的场景、用户选择、时间和平台事件；
