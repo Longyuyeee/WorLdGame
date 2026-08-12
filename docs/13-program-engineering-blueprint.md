@@ -469,6 +469,8 @@ stateDiagram-v2
 
 ## 22. S0 必须回答的工程问题
 
+> 当前审计状态：本节问题尚未全部回答。2026-08-12 起按[《S0 收口与方向纠偏审计》](61-s0-closure-course-correction.md)的 CL-01–CL-12 逐项关闭；既有 S0.1–S0.41 Web 原型不能替代平台、VM、构建、低端设备或用户证据。
+
 - React/Svelte 与路线图渲染方案能否满足 10k 节点局部编辑预算；
 - CodeMirror 6 在 M1 Android 输入法、选区、撤销和大文件下是否可靠；iOS 作为未来平台另行复验；
 - Electron 与 Tauri 的文件、更新、内存、插件隔离和调试成本；

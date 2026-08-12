@@ -2,7 +2,7 @@
 
 > 2026-08-11 流程变更：产品负责人明确要求停止使用 Figma。本文中的 Figma 发现与断点仅作为历史记录，不再继续执行；活动原型、视觉 Token、响应式和动效验证转为代码，见[《S0.1 代码原型与审计记录》](20-s0-code-prototype.md)。
 
-> 状态：Phase 0 已批准；原 Phase 1 Figma 工作已停止，活动路径为 S0 可运行代码原型。
+> 状态：Phase 0 已批准；原 Phase 1 Figma 工作已停止；S0.41 Web 原型已冻结，D1 正式用户验证仍未通过，当前活动路径见[《S0 收口与方向纠偏审计》](61-s0-closure-course-correction.md)。
 > 历史归档：[WorLd Studio — D1 Interaction Prototype](https://www.figma.com/design/WfeAzd4cTv1E2KEUkDiPmF)，不再写入或作为门禁。
 > 边界：当前允许有明确验收的 S0 原型代码；M1 正式工程仍需完成 D1/S0 准入。
 
