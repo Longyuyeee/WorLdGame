@@ -81,12 +81,14 @@
 
 最低矩阵：
 
-- Windows 10/11，x64；
-- Android 低/中/高内存机，至少两个系统主版本；
-- iPhone 小屏与常规屏、iPad；
+- 受支持的 Windows 11 x64；Windows 10 Home/Pro 只做尽力兼容，不阻断 M1；
+- Android 低档 4 GB 与主流 8 GB，至少覆盖 Android 11/12 和 Android 15/16；
+- iOS 不属于 M1 编辑器/原生玩家矩阵；Safari 最新稳定版只做 Web 玩家扩展兼容；
 - Chrome/Edge/Firefox/Safari 最新稳定与前一主版本；
 - 横屏、竖屏、刘海/挖孔和不同 DPI；
 - 触摸、鼠标、键盘和输入法。
+
+具体能力档位、内存/容量门、实体设备指纹和浏览器版本纪律见[《CL-01 目标设备矩阵与预算冻结》](62-cl01-target-device-budget.md)。
 
 ## 3. Golden Projects
 

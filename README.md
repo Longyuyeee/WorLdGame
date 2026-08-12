@@ -91,6 +91,8 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.40 场景搜索与窗口感知跳转审计](docs/59-s0-stage-search-jump.md) | 步骤号/稳定 ID/文本搜索、确定性排序、草稿隔离、结果上限、焦点迁移与 10k 场景性能门 |
 | [S0.41 全工程搜索与跨场景跳转审计](docs/60-s0-project-search.md) | 场景/稳定 ID/内容全局搜索、分组结果、Canonical 草稿隔离、原子跨场景定位与 100k 步性能门 |
 | [S0 收口与方向纠偏审计](docs/61-s0-closure-course-correction.md) | 冻结 S0.41、偏移复盘、剩余风险登记、五波收口路线与强制阶段门 |
+| [CL-01 目标设备矩阵与预算冻结](docs/62-cl01-target-device-budget.md) | Windows/Android/Web 支持档位、帧时间、内存、容量预算与实体设备取证门 |
+| [S0 Claim / Evidence 登记表](docs/63-s0-claim-evidence-register.md) | CL-01–CL-12 的状态、Owner、阈值、证据、依赖与更新纪律 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
