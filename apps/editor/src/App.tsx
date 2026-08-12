@@ -236,7 +236,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.33</p>
+          <p className="eyebrow">WorLd Studio · S0.34</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -347,7 +347,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.33 MULTI-LAYER · STAGE CONTROL</small></span>
+            <span><strong>资源保险库</strong><small>S0.34 GRAPHICAL TRACK · SAFE INSERT</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -668,6 +668,7 @@ interface WriterViewProps extends CommonProps {
 }
 
 type DirectionForm = Record<string, string>;
+type DirectionCommand = "background" | "show" | "audio";
 
 function compatibleDirectionAssets(
   command: "background" | "show" | "audio",
@@ -836,6 +837,78 @@ function DirectionInspector({
   );
 }
 
+interface DirectionInsertPanelProps {
+  readonly command: DirectionCommand;
+  readonly afterId: string;
+  readonly assetIndex: AssetIndex;
+  readonly disabled: boolean;
+  readonly createCommandId: () => string;
+  readonly createEntityId: (prefix: "stmt" | "txt") => string;
+  readonly dispatch: (action: StudioAction) => void;
+  readonly onClose: () => void;
+}
+
+function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
+  const defaultAction = resolveDirectiveAction(command, undefined)!;
+  const [action, setAction] = useState(defaultAction);
+  const [asset, setAsset] = useState("");
+  const [slot, setSlot] = useState("primary");
+  const [z, setZ] = useState("0");
+  const [bus, setBus] = useState("bgm");
+  const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
+  const assetRequired = directiveActionRequiresAsset(command, action);
+  const assetValid = !assetRequired || compatibleAssets.some((entry) => entry.assetId === asset);
+  const slotValid = command !== "show" || SAFE_STAGE_SLOT.test(slot);
+  const zNumber = Number(z);
+  const zValid = command !== "show" || !assetRequired || Number.isInteger(zNumber) && zNumber >= MIN_STAGE_Z && zNumber <= MAX_STAGE_Z;
+  const canSubmit = !disabled && assetValid && slotValid && zValid;
+  const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : "音频";
+
+  return (
+    <form className={`direction-insert direction-insert--${command}`} aria-label={`新增${commandLabel}演出`} onSubmit={(event) => {
+      event.preventDefault();
+      if (!canSubmit) return;
+      const parameters: Record<string, string> = { action };
+      if (assetRequired) parameters.asset = asset;
+      if (command === "show") {
+        parameters.slot = slot;
+        if (assetRequired) parameters.z = z;
+      }
+      if (command === "audio") {
+        parameters.bus = bus;
+        if (assetRequired) {
+          parameters.loop = "false";
+          parameters.volume = "1";
+        }
+      }
+      dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters });
+      onClose();
+    }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+      <div className="direction-insert__heading">
+        <div><span className={`track-command track-command--${command}`}>@{command}</span><strong>新增{commandLabel}演出</strong></div>
+        <button type="button" aria-label="关闭演出插入面板" onClick={onClose}>×</button>
+      </div>
+      <p>插入锚点 <code>{afterId}</code></p>
+      <div className="direction-insert__fields">
+        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => setAction(event.target.value as typeof action)}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+        {assetRequired && <label className="direction-insert__asset"><span>资源</span><input aria-label="新增演出资源" list={`insert-assets-${command}`} value={asset} disabled={disabled} placeholder={compatibleAssets.length === 0 ? "请先导入兼容资源" : "选择 Asset ID"} onChange={(event) => setAsset(event.target.value)} /><datalist id={`insert-assets-${command}`}>{compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist></label>}
+        {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
+        {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
+        {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
+      </div>
+      {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
+      {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
+      {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
+      <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
+    </form>
+  );
+}
+
+function stageLane(statement: StoryStatement): "background" | "character" | "audio" | "story" {
+  if (statement.kind !== "direction") return "story";
+  return statement.command === "background" ? "background" : statement.command === "show" ? "character" : "audio";
+}
+
 function WriterView({
   session,
   dispatch,
@@ -851,6 +924,18 @@ function WriterView({
     selectedIndex <= 1 ? scene.id : (scene.statements[selectedIndex - 2]?.id ?? scene.id);
   const nextStatement = scene.statements[selectedIndex + 1];
   const pendingDraft = hasPendingDraft(session);
+  const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
+  useEffect(() => {
+    const shortcut = (event: KeyboardEvent) => {
+      if (!event.altKey || pendingDraft) return;
+      const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : null;
+      if (command === null) return;
+      event.preventDefault();
+      setInsertCommand(command);
+    };
+    globalThis.addEventListener("keydown", shortcut);
+    return () => globalThis.removeEventListener("keydown", shortcut);
+  }, [pendingDraft]);
 
   return (
     <section className="authoring-panel view-enter" aria-labelledby="writer-heading">
@@ -923,6 +1008,43 @@ function WriterView({
           删除
         </button>
       </div>
+
+      <section className="stage-track" aria-label="图形化演出轨道">
+        <div className="stage-track__heading">
+          <div><span className="eyebrow">STAGE TRACK</span><strong>演出层级概览</strong></div>
+          <div className="stage-track__insert" aria-label="新增演出指令">
+            <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
+            <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
+            <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
+          </div>
+        </div>
+        <div className="stage-track__scroll">
+          {(["background", "character", "audio", "story"] as const).map((lane) => (
+            <div className={`stage-lane stage-lane--${lane}`} key={lane}>
+              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "audio" ? "AUDIO" : "STORY"}</span>
+              <div className="stage-lane__steps">
+                {scene.statements.map((statement, index) => stageLane(statement) === lane ? (
+                  <button type="button" key={statement.id} className={statement.id === selected.id ? "stage-cue is-active" : "stage-cue"} aria-label={`轨道步骤 ${index + 1}：${statementLabel(statement)}`} onClick={() => dispatch({ type: "select-statement", statementId: statement.id })}>
+                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>
+                  </button>
+                ) : <span className="stage-cue stage-cue--empty" aria-hidden="true" key={`${statement.id}:empty`} />)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {insertCommand !== null && <DirectionInsertPanel
+        key={`${insertCommand}:${selected.id}`}
+        command={insertCommand}
+        afterId={selected.id}
+        assetIndex={assetIndex}
+        disabled={pendingDraft}
+        createCommandId={createCommandId}
+        createEntityId={createEntityId}
+        dispatch={dispatch}
+        onClose={() => setInsertCommand(null)}
+      />}
 
       <div className="statement-list" aria-label="剧情步骤">
         {scene.statements.map((statement, index) => (
@@ -1581,7 +1703,7 @@ export function App() {
   const dispatch = (action: StudioAction) => {
     baseDispatch(action);
     if ([
-      "edit-script", "patch-dialogue", "insert-dialogue", "delete-dialogue",
+      "edit-script", "patch-dialogue", "patch-direction", "insert-dialogue", "insert-direction", "delete-dialogue",
       "move-dialogue", "format-script", "discard-draft", "undo", "redo"
     ].includes(action.type)) {
       editGeneration.current += 1;
@@ -1602,7 +1724,26 @@ export function App() {
     }
   };
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
-  const createEntityId = (prefix: "stmt" | "txt") => `${prefix}_ui_${++entitySerial.current}`;
+  const createEntityId = (prefix: "stmt" | "txt") => {
+    const used = new Set<string>();
+    for (const scene of sessionRef.current.project.scenes) {
+      used.add(scene.id);
+      for (const statement of scene.statements) {
+        used.add(statement.id);
+        if (statement.kind === "dialogue") used.add(statement.textId);
+        if (statement.kind === "choice") for (const option of statement.options) used.add(option.id);
+      }
+    }
+    for (const sourceSession of Object.values(sessionRef.current.sourceSessions)) {
+      for (const tombstone of sourceSession.tombstones) {
+        used.add(tombstone.statementId);
+        used.add(tombstone.textId);
+      }
+    }
+    let candidate: string;
+    do candidate = `${prefix}_ui_${++entitySerial.current}`; while (used.has(candidate));
+    return candidate;
+  };
 
   useEffect(() => {
     if (!storageAvailable) return;
@@ -2578,7 +2719,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.33 REVERSIBLE STAGE · BUS CONTROL</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.34 STAGE TRACK · CANONICAL INSERT</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

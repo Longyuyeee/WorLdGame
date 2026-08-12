@@ -72,6 +72,14 @@ export type StudioAction =
       readonly text: string;
     }
   | {
+      readonly type: "insert-direction";
+      readonly commandId: EntityId;
+      readonly afterId: EntityId;
+      readonly statementId: EntityId;
+      readonly command: "background" | "show" | "audio";
+      readonly parameters: Readonly<Record<string, string>>;
+    }
+  | {
       readonly type: "delete-dialogue";
       readonly commandId: EntityId;
       readonly statementId: EntityId;
@@ -574,6 +582,21 @@ export function reduceStudioSession(
           textId: action.textId,
           speakerId: action.speakerId,
           text: action.text
+        },
+        action.statementId
+      );
+    case "insert-direction":
+      return executeStructuralCommand(
+        session,
+        {
+          schemaVersion: 0,
+          kind: "script.insert-directive",
+          commandId: action.commandId,
+          baseRevision: currentSourceSession.revision,
+          afterId: action.afterId,
+          statementId: action.statementId,
+          command: action.command,
+          parameters: action.parameters
         },
         action.statementId
       );

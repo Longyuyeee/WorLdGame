@@ -1,6 +1,14 @@
 import type { EntityId } from "@world-studio/story-core";
+import {
+  DIRECTIVE_PARAMETERS,
+  MAX_STAGE_Z,
+  MIN_STAGE_Z,
+  SAFE_STAGE_SLOT,
+  directiveActionRequiresAsset,
+  resolveDirectiveAction
+} from "./directive-schema";
 import { semanticSnapshot } from "./formatter";
-import type { DialogueNode, StoryDocument, StorySyntaxNode } from "./model";
+import type { DialogueNode, DirectiveNode, StoryDocument, StorySyntaxNode } from "./model";
 import { parseStory } from "./parser";
 
 export type StructuralPatchErrorCode =
@@ -12,6 +20,7 @@ export type StructuralPatchErrorCode =
   | "STRUCTURAL_DUPLICATE_ID"
   | "STRUCTURAL_INVALID_IDENTIFIER"
   | "STRUCTURAL_TEXT_UNREPRESENTABLE"
+  | "STRUCTURAL_INVALID_DIRECTIVE"
   | "STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED"
   | "STRUCTURAL_SELF_MOVE";
 
@@ -26,6 +35,13 @@ export interface InsertDialogueRequest {
   readonly textId: EntityId;
   readonly speakerId: EntityId;
   readonly text: string;
+}
+
+export interface InsertDirectiveRequest {
+  readonly afterId: EntityId;
+  readonly statementId: EntityId;
+  readonly command: DirectiveNode["command"];
+  readonly parameters: Readonly<Record<string, string>>;
 }
 
 export interface DialogueTombstone {
@@ -170,6 +186,98 @@ function validateText(text: string): boolean {
     !text.includes("\r") &&
     !/(?:^|\s)@[A-Za-z_][A-Za-z0-9_.-]*\s*\(/.test(text)
   );
+}
+
+const audioBuses = new Set(["voice", "bgm", "sfx", "ambient"]);
+const directiveValue = /^[^\s@()=]+$/;
+
+function validateDirectiveRequest(request: InsertDirectiveRequest): string | undefined {
+  const allowed = new Set(DIRECTIVE_PARAMETERS[request.command]);
+  for (const [key, value] of Object.entries(request.parameters)) {
+    if (!allowed.has(key) || !directiveValue.test(value)) return `Invalid @${request.command} parameter: ${key}`;
+  }
+  const action = resolveDirectiveAction(request.command, request.parameters.action);
+  if (action === undefined) return `Invalid @${request.command} action`;
+  const requiresAsset = directiveActionRequiresAsset(request.command, action);
+  if (requiresAsset && request.parameters.asset === undefined) {
+    return `@${request.command} action=${action} requires asset`;
+  }
+  if (!requiresAsset) {
+    const controlKeys = new Set(request.command === "background" ? ["action"] : request.command === "show" ? ["action", "slot"] : ["action", "bus"]);
+    if (Object.keys(request.parameters).some((key) => !controlKeys.has(key))) return `@${request.command} action=${action} contains resource-only parameters`;
+  }
+  if (request.command === "show") {
+    const slot = request.parameters.slot ?? "primary";
+    if (!SAFE_STAGE_SLOT.test(slot)) return "@show requires a stable slot";
+    const z = request.parameters.z;
+    if (z !== undefined && (!/^-?\d+$/.test(z) || Number(z) < MIN_STAGE_Z || Number(z) > MAX_STAGE_Z)) {
+      return `@show z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`;
+    }
+  }
+  if (request.command === "audio" && !audioBuses.has(request.parameters.bus ?? "")) {
+    return "@audio requires a valid bus";
+  }
+  if (request.parameters.loop !== undefined && request.parameters.loop !== "true" && request.parameters.loop !== "false") {
+    return "loop must be true or false";
+  }
+  const duration = request.parameters.duration ?? request.parameters.fade;
+  if (duration !== undefined && !/^\d+(?:\.\d+)?(?:ms|s)$/.test(duration)) return "duration/fade requires ms or s";
+  const volume = request.parameters.volume;
+  if (volume !== undefined && (!/^\d+(?:\.\d+)?$/.test(volume) || Number(volume) < 0 || Number(volume) > 1)) {
+    return "volume must be between 0 and 1";
+  }
+  return undefined;
+}
+
+export function insertDirectiveAfter(
+  source: string,
+  storyDocument: StoryDocument,
+  request: InsertDirectiveRequest
+): StructuralPatchResult {
+  const prepared = prepare(source, storyDocument);
+  if ("ok" in prepared) return prepared;
+  if (!identifier.test(request.statementId)) {
+    return fail("STRUCTURAL_INVALID_IDENTIFIER", "Inserted directive requires a valid statement ID");
+  }
+  const requestError = validateDirectiveRequest(request);
+  if (requestError !== undefined) return fail("STRUCTURAL_INVALID_DIRECTIVE", requestError);
+  const allIds = new Set<EntityId>();
+  for (const node of prepared.parsedDocument.nodes) {
+    const id = stableId(node);
+    if (id !== undefined) allIds.add(id);
+    if (node.kind === "dialogue" && node.textId !== undefined) allIds.add(node.textId);
+  }
+  if (allIds.has(request.statementId)) return fail("STRUCTURAL_DUPLICATE_ID", "Inserted directive ID must be globally unique");
+  const anchorNodeIndex = prepared.parsedDocument.nodes.findIndex((node) => stableId(node) === request.afterId);
+  if (anchorNodeIndex < 0) return fail("STRUCTURAL_ANCHOR_NOT_FOUND", `Insertion anchor was not found: ${request.afterId}`);
+  const anchor = prepared.parsedDocument.nodes[anchorNodeIndex]!;
+  if (anchor.kind === "choice-option") {
+    return fail("STRUCTURAL_ANCHOR_NOT_FOUND", "Directive insertion anchor must reference a scene or projected statement");
+  }
+  let sourceAnchor: StorySyntaxNode = anchor;
+  if (anchor.kind === "choice") {
+    for (const candidate of prepared.parsedDocument.nodes.slice(anchorNodeIndex + 1)) {
+      if (candidate.kind === "blank") continue;
+      if (candidate.kind !== "choice-option") break;
+      sourceAnchor = candidate;
+    }
+  }
+  const anchorLine = lineIndex(sourceAnchor, prepared.lines);
+  if (anchorLine === undefined) return fail("STRUCTURAL_SOURCE_MISMATCH", "Insertion anchor has no source line");
+  const insertIndex = anchor.kind === "end" ? anchorLine : anchorLine + 1;
+  const adjacentCommentIndex = anchor.kind === "end" ? insertIndex - 1 : insertIndex;
+  if (isComment(prepared.lines.contents[adjacentCommentIndex])) {
+    return fail("STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED", "Cannot insert across an adjacent comment until ownership rules are frozen");
+  }
+  const parameters = DIRECTIVE_PARAMETERS[request.command]
+    .flatMap((key) => request.parameters[key] === undefined ? [] : [`${key}=${request.parameters[key]}`]);
+  const line = `@${request.command}${parameters.length === 0 ? "" : ` ${parameters.join(" ")}`} @id(${request.statementId})`;
+  const contents = [...prepared.lines.contents];
+  const separators = [...prepared.lines.separators];
+  contents.splice(insertIndex, 0, line);
+  const separatorIndex = Math.max(0, insertIndex - 1);
+  separators.splice(separatorIndex, 0, preferredSeparator(prepared.lines, separatorIndex));
+  return verify(joinSource({ contents, separators }), [request.statementId], []);
 }
 
 export function insertDialogueAfter(

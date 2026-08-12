@@ -70,6 +70,31 @@ describe("S0.9 studio source projection and recovery session", () => {
     expect(activeSourceSession(undone).committedSource).toBe(activeSourceSession(initial).committedSource);
   });
 
+  it("inserts a graphical direction, selects it and restores it through source history", () => {
+    const initial = createStudioSession();
+    const inserted = reduceStudioSession(initial, {
+      type: "insert-direction",
+      commandId: "cmd_ui_insert_direction",
+      afterId: "stmt_gate_001",
+      statementId: "stmt_ui_audio_stop",
+      command: "audio",
+      parameters: { action: "stop", bus: "bgm" }
+    });
+    expect(inserted.selectedStatementId).toBe("stmt_ui_audio_stop");
+    expect(inserted.previewIndex).toBe(2);
+    expect(inserted.project.scenes[0]?.statements[2]).toEqual(expect.objectContaining({
+      id: "stmt_ui_audio_stop",
+      kind: "direction",
+      command: "audio",
+      summary: "action=stop bus=bgm"
+    }));
+    expect(activeSourceSession(inserted).lastChange?.changedStatementIds).toEqual(["stmt_ui_audio_stop"]);
+    const undone = reduceStudioSession(inserted, { type: "undo" });
+    expect(undone.project.scenes[0]?.statements.some((statement) => statement.id === "stmt_ui_audio_stop")).toBe(false);
+    const redone = reduceStudioSession(undone, { type: "redo" });
+    expect(redone.project.scenes[0]?.statements.some((statement) => statement.id === "stmt_ui_audio_stop")).toBe(true);
+  });
+
   it("keeps invalid Script input as a draft and protects Writer and Preview", () => {
     const initial = createStudioSession();
     const invalidSource = activeSourceDraft(initial).replace(

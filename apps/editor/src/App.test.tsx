@@ -37,6 +37,27 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
     expect(screen.getByText("本地事务 · r1")).toBeVisible();
   });
+  it("inserts stage directions from the graphical track and supports keyboard access", () => {
+    render(<App />);
+    expect(screen.getByLabelText("图形化演出轨道")).toBeVisible();
+    expect(screen.getAllByText("BG")).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 背景" }));
+    expect(screen.getByRole("form", { name: "新增背景演出" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "插入演出" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "clear" } });
+    expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    expect(screen.getAllByText("action=clear").length).toBeGreaterThan(0);
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+
+    fireEvent.keyDown(window, { key: "3", altKey: true });
+    expect(screen.getByRole("form", { name: "新增音频演出" })).toBeVisible();
+    fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "stop" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    expect(screen.getAllByText("action=stop bus=bgm").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect(screen.queryAllByText("action=stop bus=bgm")).toHaveLength(0);
+  });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });

@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.33 多角色分层、背景显隐、音频总线控制与可逆舞台重放已完成；全量、性能与真实浏览器审计已通过
+> 状态：S0.34 图形化演出轨道、背景/角色/音频安全插入与权威脚本同步已完成；全量、性能与真实浏览器审计已通过
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -82,6 +82,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.31 图形化演出 Inspector 与 Directive Patch 审计](docs/50-s0-graphical-direction-inspector.md) | 类型匹配资源选择、过渡/表情/位置/音轨参数、旧描述显式迁移、稳定 ID 局部事务与 Undo/Redo |
 | [S0.32 实时舞台媒体执行与生命周期审计](docs/51-s0-live-stage-media-runtime.md) | 累积背景/角色/音频状态、已验证 Blob、可取消加载、Object URL/音频释放、回退重建与安全占位 |
 | [S0.33 可逆舞台状态控制与多层演出审计](docs/52-s0-stage-state-controls.md) | 多角色 slot/z-order、背景 clear、音频 play/stop/pause/resume、累计资源窗口、Inspector 与无重载恢复 |
+| [S0.34 图形化演出轨道与安全指令插入审计](docs/53-s0-graphical-stage-track.md) | BG/CHAR/AUDIO/STORY 四轨、类型化插入面板、choice/end 锚点、快捷键、稳定 ID、Undo/Redo 与触控滚动 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

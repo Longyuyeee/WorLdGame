@@ -11,6 +11,7 @@ import { parseStory } from "./parser";
 import {
   deleteDialogue,
   insertDialogueAfter,
+  insertDirectiveAfter,
   moveDialogueAfter,
   type DialogueTombstone,
   type StructuralPatchErrorCode
@@ -61,6 +62,17 @@ export interface InsertDialogueSourceCommand {
   readonly text: string;
 }
 
+export interface InsertDirectiveSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.insert-directive";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly afterId: EntityId;
+  readonly statementId: EntityId;
+  readonly command: "background" | "show" | "audio";
+  readonly parameters: Readonly<Record<string, string>>;
+}
+
 export interface DeleteDialogueSourceCommand {
   readonly schemaVersion: 0;
   readonly kind: "script.delete-dialogue";
@@ -84,6 +96,7 @@ export type ScriptSourceCommand =
   | PatchDialogueSourceCommand
   | PatchDirectiveSourceCommand
   | InsertDialogueSourceCommand
+  | InsertDirectiveSourceCommand
   | DeleteDialogueSourceCommand
   | MoveDialogueSourceCommand;
 
@@ -277,6 +290,18 @@ function commandFingerprint(command: ScriptSourceCommand): string {
         command.textId,
         command.speakerId,
         command.text
+      ].join("\u0000");
+    case "script.insert-directive":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.afterId,
+        command.statementId,
+        command.command,
+        ...Object.entries(command.parameters)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .flatMap(([key, value]) => [key, value])
       ].join("\u0000");
     case "script.delete-dialogue":
       return [
@@ -542,6 +567,23 @@ export function executeScriptSourceCommand(
     }
     case "script.insert-dialogue": {
       const result = insertDialogueAfter(
+        session.committedSource,
+        session.committedDocument,
+        command
+      );
+      if (!result.ok) {
+        return reject(session, {
+          category: "validation",
+          code: result.error.code,
+          message: result.error.message
+        });
+      }
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
+      break;
+    }
+    case "script.insert-directive": {
+      const result = insertDirectiveAfter(
         session.committedSource,
         session.committedDocument,
         command
