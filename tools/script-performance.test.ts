@@ -9,6 +9,7 @@ import {
 } from "@world-studio/story-language";
 import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
 import { compilePreviewStageTimeline } from "../apps/editor/src/preview-media-runtime";
+import { selectStageDirectionLane, selectStageDirectionRange } from "../apps/editor/src/stage-selection";
 
 const dialogueCount = 10_000;
 const budgets = {
@@ -192,5 +193,28 @@ describe("large script performance audit", () => {
     expect(result.source.match(/transition=fade/g)).toHaveLength(targetCount);
     expect(batchPreflightMs).toBeLessThan(500);
     expect(batchPatchMs).toBeLessThan(2_000);
+  });
+
+  it("selects lanes and ranges across ten thousand direction cues within budget", () => {
+    const directionCount = 10_000;
+    const directions = Array.from({ length: directionCount }, (_, index) => ({
+      id: `selection_perf_${index}`,
+      command: index % 3 === 0 ? "background" as const : index % 3 === 1 ? "show" as const : "audio" as const
+    }));
+    const start = performance.now();
+    const lane = selectStageDirectionLane(directions, "background", directionCount);
+    const range = selectStageDirectionRange(directions, "selection_perf_0", "selection_perf_9999", directionCount);
+    const selectionMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { directionCount }, measurementsMs: {
+      largeSceneLaneAndRangeSelection: Number(selectionMs.toFixed(2)) }, budgetsMs: {
+      largeSceneLaneAndRangeSelection: 100 }, result: {
+      laneTargets: lane.ok ? lane.statementIds.length : 0,
+      rangeTargets: range.ok ? range.statementIds.length : 0 } }, null, 2));
+    expect(lane.ok).toBe(true);
+    expect(range.ok).toBe(true);
+    if (!lane.ok || !range.ok) throw new Error("Large-scene selection failed");
+    expect(lane.statementIds).toHaveLength(3_334);
+    expect(range.statementIds).toHaveLength(3_334);
+    expect(selectionMs).toBeLessThan(100);
   });
 });

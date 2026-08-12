@@ -1408,7 +1408,8 @@ button:disabled {
 .batch-direction__heading strong { display: block; font-size: 12px; }
 .batch-direction__hint { margin: 0; color: var(--wg-color-text-secondary); font-size: 10px; }
 .batch-direction__selection,
-.batch-direction__preflight {
+.batch-direction__preflight,
+.batch-direction__lanes {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1421,7 +1422,8 @@ button:disabled {
   font-size: 9px;
 }
 .batch-direction__selection > span,
-.batch-direction__preflight > span { padding: 4px 7px; border-radius: 7px; background: rgb(255 255 255 / 5%); }
+.batch-direction__preflight > span,
+.batch-direction__lanes > span { padding: 4px 7px; border-radius: 7px; background: rgb(255 255 255 / 5%); }
 .batch-direction__selection strong,
 .batch-direction__preflight strong { color: #ffd398; font-size: 11px; }
 .batch-direction__selection > div { display: flex; gap: 6px; margin-left: auto; }
@@ -1436,6 +1438,19 @@ button:disabled {
   font-size: 8px;
 }
 .batch-direction__selection button:hover:not(:disabled) { background: rgb(255 188 102 / 16%); }
+.batch-direction__lanes { min-height: 34px; }
+.batch-direction__lanes button {
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid rgb(139 124 255 / 24%);
+  border-radius: 999px;
+  background: rgb(139 124 255 / 8%);
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font-size: 8px;
+}
+.batch-direction__lanes button:hover:not(:disabled) { border-color: rgb(139 124 255 / 55%); background: rgb(139 124 255 / 16%); }
+.batch-direction__notice { margin: 0; color: #c8c1ff; font-size: 9px; }
 .batch-direction__preflight { background: linear-gradient(90deg, rgb(255 188 102 / 8%), rgb(139 124 255 / 6%)); }
 .batch-direction__preflight .is-conflict { color: #ff9b9b; background: rgb(255 88 112 / 10%); }
 .batch-direction__preflight .is-conflict strong { color: #ff9b9b; }
@@ -2875,7 +2890,8 @@ textarea[data-input-state="composing"] {
   }
 
   .batch-direction__selection,
-  .batch-direction__preflight {
+  .batch-direction__preflight,
+  .batch-direction__lanes {
     align-items: stretch;
     flex-direction: column;
   }
@@ -2889,6 +2905,20 @@ textarea[data-input-state="composing"] {
 
   .batch-direction__selection button {
     min-height: 44px;
+  }
+
+  .batch-direction__lanes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .batch-direction__lanes > span {
+    grid-column: 1 / -1;
+  }
+
+  .batch-direction__lanes button {
+    min-height: 44px;
+    padding-inline: 4px;
   }
 
   .batch-direction__fields label,

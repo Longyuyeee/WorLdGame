@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.37 批量预检、选择范围反馈与空 revision 防护已完成；全量、性能与真实浏览器审计已通过
+> 状态：S0.38 键盘范围选择、触屏等价入口、整轨筛选与大场景选择性能门已完成；全量、性能与真实浏览器审计已通过
 > 文档基线：2026-08-12
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -86,6 +86,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.35 演出 Cue 安全删除与重排审计](docs/54-s0-stage-cue-editing.md) | Directive 删除/移动、拖放/键盘/触控等价操作、可恢复 tombstone、choice/end 边界与 schema v2 归档迁移 |
 | [S0.36 演出 Cue 无损复制、多选与原子批量编辑审计](docs/55-s0-stage-cue-batch.md) | 原始 Directive 行无损复制、桌面/手机显式多选、同命令参数 all-or-nothing 批次、256 条上限与单步 Undo |
 | [S0.37 批量预检与选择反馈审计](docs/56-s0-batch-preflight-selection-feedback.md) | 权威只读预检、场景步骤范围、选择同类/清空、修改/一致/冲突摘要、空 revision 防护与移动端反馈 |
+| [S0.38 范围选择、整轨筛选与大场景性能审计](docs/57-s0-range-lane-selection.md) | Shift+Space/点击范围、触屏首尾填充、BG/CHAR/AUDIO 整轨选择、快捷键锁定、256 上限与 10k Cue 性能门 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

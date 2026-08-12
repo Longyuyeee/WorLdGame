@@ -73,6 +73,7 @@ import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analys
 import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
 import { StoryResourceCoordinator } from "./story-resource-coordinator";
+import { selectStageDirectionLane, selectStageDirectionRange, type StageDirectionCommand } from "./stage-selection";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -237,7 +238,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.37</p>
+          <p className="eyebrow">WorLd Studio · S0.38</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -348,7 +349,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.37 BATCH · VERIFIED PREFLIGHT</small></span>
+            <span><strong>资源保险库</strong><small>S0.38 RANGE · LANE SELECTION</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -866,9 +867,12 @@ interface BatchDirectionPanelProps {
   readonly dispatch: (action: StudioAction) => void;
   readonly onSelectSameCommand: () => void;
   readonly onClearSelection: () => void;
+  readonly onSelectLane: (command: StageDirectionCommand) => void;
+  readonly onFillRange: () => void;
+  readonly selectionNotice: string | null;
 }
 
-function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, assetIndex, disabled, createCommandId, dispatch, onSelectSameCommand, onClearSelection }: BatchDirectionPanelProps) {
+function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, assetIndex, disabled, createCommandId, dispatch, onSelectSameCommand, onClearSelection, onSelectLane, onFillRange, selectionNotice }: BatchDirectionPanelProps) {
   const command = statements[0]?.command;
   const sameCommand = command !== undefined && statements.every((statement) => statement.command === command);
   const withinLimit = statements.length <= MAX_DIRECTIVE_BATCH_TARGETS;
@@ -924,9 +928,17 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
         <span>{positionSummary.length > 0 ? `场景步骤 ${positionSummary}` : "尚未选择 Cue"}</span>
         <div>
           <button type="button" disabled={disabled || !canSelectSameCommand} onClick={onSelectSameCommand}>选择本场景同类</button>
+          <button type="button" disabled={disabled || statements.length < 2 || !sameCommand} onClick={onFillRange}>填充首尾范围</button>
           <button type="button" disabled={disabled || statements.length === 0} onClick={onClearSelection}>清空选择</button>
         </div>
       </div>
+      <div className="batch-direction__lanes" aria-label="按轨道选择演出">
+        <span>按轨道替换选择</span>
+        <button type="button" disabled={disabled} onClick={() => onSelectLane("background")}>BG · {sceneDirections.filter((item) => item.command === "background").length}</button>
+        <button type="button" disabled={disabled} onClick={() => onSelectLane("show")}>CHAR · {sceneDirections.filter((item) => item.command === "show").length}</button>
+        <button type="button" disabled={disabled} onClick={() => onSelectLane("audio")}>AUDIO · {sceneDirections.filter((item) => item.command === "audio").length}</button>
+      </div>
+      {selectionNotice !== null && <p className="batch-direction__notice" role="status" aria-live="polite">{selectionNotice}</p>}
       {!canSelectSameCommand && command !== undefined && <p className="direction-error" role="alert">本场景共有 {sameCommandSceneCount} 个 @{command} Cue，超过单批上限，未自动截断选择。</p>}
       {!withinLimit ? (
         <p className="direction-error" role="alert">单次最多修改 {MAX_DIRECTIVE_BATCH_TARGETS} 个 Cue；当前选择不会被部分修改。</p>
@@ -1043,6 +1055,8 @@ function WriterView({
   const [draggedDirectionId, setDraggedDirectionId] = useState<string | null>(null);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
+  const [rangeAnchorId, setRangeAnchorId] = useState<string | null>(null);
+  const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
   const canMoveDirectionLeft = !multiSelectMode && selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
   const canMoveDirectionRight = !multiSelectMode && selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
   const selectedDirections = scene.statements.filter(
@@ -1070,8 +1084,26 @@ function WriterView({
     const next = !multiSelectMode;
     setMultiSelectMode(next);
     setSelectedDirectionIds(next && selected.kind === "direction" ? [selected.id] : []);
+    setRangeAnchorId(next && selected.kind === "direction" ? selected.id : null);
+    setSelectionNotice(null);
   };
-  const toggleDirectionSelection = (statementId: string) => {
+  const selectionFailureLabel = (code: "SELECTION_TARGET_NOT_FOUND" | "SELECTION_MIXED_COMMANDS" | "SELECTION_LIMIT") =>
+    code === "SELECTION_MIXED_COMMANDS" ? "范围首尾必须是同一种演出类型；选择保持不变。" :
+      code === "SELECTION_LIMIT" ? `选择超过 ${MAX_DIRECTIVE_BATCH_TARGETS} 个 Cue；未进行截断。` :
+        "范围锚点已经失效；请重新点选起点。";
+  const toggleDirectionSelection = (statementId: string, rangeRequested: boolean) => {
+    if (rangeRequested && rangeAnchorId !== null) {
+      const result = selectStageDirectionRange(sceneDirections, rangeAnchorId, statementId, MAX_DIRECTIVE_BATCH_TARGETS);
+      if (!result.ok) {
+        setSelectionNotice(selectionFailureLabel(result.error.code));
+        return;
+      }
+      setSelectedDirectionIds(result.statementIds);
+      setSelectionNotice(`已从范围锚点选择 ${result.statementIds.length} 个 @${result.command} Cue。`);
+      return;
+    }
+    setRangeAnchorId(statementId);
+    setSelectionNotice(null);
     setSelectedDirectionIds((current) => current.includes(statementId)
       ? current.filter((item) => item !== statementId)
       : [...current, statementId]);
@@ -1079,10 +1111,13 @@ function WriterView({
   useEffect(() => {
     setMultiSelectMode(false);
     setSelectedDirectionIds([]);
+    setRangeAnchorId(null);
+    setSelectionNotice(null);
   }, [scene.id]);
   useEffect(() => {
     const valid = new Set(scene.statements.filter((statement) => statement.kind === "direction").map((statement) => statement.id));
     setSelectedDirectionIds((current) => current.filter((statementId) => valid.has(statementId)));
+    setRangeAnchorId((current) => current !== null && valid.has(current) ? current : null);
   }, [scene.statements]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
@@ -1208,9 +1243,9 @@ function WriterView({
                     className={`${statement.id === selected.id ? "stage-cue is-active" : "stage-cue"}${selectedDirectionIds.includes(statement.id) ? " is-batch-selected" : ""}`}
                     aria-label={`轨道步骤 ${index + 1}：${statementLabel(statement)}`}
                     aria-pressed={multiSelectMode && statement.kind === "direction" ? selectedDirectionIds.includes(statement.id) : undefined}
-                    aria-keyshortcuts={statement.kind === "direction" ? "Alt+ArrowLeft Alt+ArrowRight Delete" : undefined}
-                    onClick={() => {
-                      if (multiSelectMode && statement.kind === "direction") toggleDirectionSelection(statement.id);
+                    aria-keyshortcuts={statement.kind === "direction" ? multiSelectMode ? "Shift+Space" : "Alt+ArrowLeft Alt+ArrowRight Delete" : undefined}
+                    onClick={(event) => {
+                      if (multiSelectMode && statement.kind === "direction") toggleDirectionSelection(statement.id, event.shiftKey);
                       else dispatch({ type: "select-statement", statementId: statement.id });
                     }}
                     onDragStart={(event) => {
@@ -1235,6 +1270,15 @@ function WriterView({
                     }}
                     onKeyDown={(event) => {
                       if (statement.kind !== "direction" || pendingDraft) return;
+                      if (multiSelectMode) {
+                        if (event.shiftKey && (event.key === " " || event.key === "Enter")) {
+                          event.preventDefault();
+                          toggleDirectionSelection(statement.id, true);
+                          return;
+                        }
+                        if (event.key === "Delete" || event.altKey && (event.key === "ArrowLeft" || event.key === "ArrowRight")) event.preventDefault();
+                        return;
+                      }
                       if (event.altKey && event.key === "ArrowLeft" && index > 0) {
                         event.preventDefault();
                         const anchor = index <= 1 ? scene.id : (scene.statements[index - 2]?.id ?? scene.id);
@@ -1270,9 +1314,41 @@ function WriterView({
           const command = selectedDirections[0]?.command;
           if (command === undefined) return;
           const ids = sceneDirections.filter((statement) => statement.command === command).map((statement) => statement.id);
-          if (ids.length <= MAX_DIRECTIVE_BATCH_TARGETS) setSelectedDirectionIds(ids);
+          if (ids.length <= MAX_DIRECTIVE_BATCH_TARGETS) {
+            setSelectedDirectionIds(ids);
+            setSelectionNotice(`已选择本场景全部 ${ids.length} 个 @${command} Cue。`);
+          }
         }}
-        onClearSelection={() => setSelectedDirectionIds([])}
+        onClearSelection={() => {
+          setSelectedDirectionIds([]);
+          setRangeAnchorId(null);
+          setSelectionNotice("已清空选择；权威脚本没有变化。");
+        }}
+        onSelectLane={(command) => {
+          const result = selectStageDirectionLane(sceneDirections, command, MAX_DIRECTIVE_BATCH_TARGETS);
+          if (!result.ok) {
+            setSelectionNotice(selectionFailureLabel(result.error.code));
+            return;
+          }
+          setSelectedDirectionIds(result.statementIds);
+          setRangeAnchorId(result.statementIds[0] ?? null);
+          setSelectionNotice(result.statementIds.length === 0 ? "该轨道没有 Cue；选择已清空。" : `已选择该轨道全部 ${result.statementIds.length} 个 Cue。`);
+        }}
+        onFillRange={() => {
+          const selectedInScene = sceneDirections.filter((statement) => selectedDirectionIds.includes(statement.id));
+          const first = selectedInScene[0];
+          const last = selectedInScene[selectedInScene.length - 1];
+          if (first === undefined || last === undefined) return;
+          const result = selectStageDirectionRange(sceneDirections, first.id, last.id, MAX_DIRECTIVE_BATCH_TARGETS);
+          if (!result.ok) {
+            setSelectionNotice(selectionFailureLabel(result.error.code));
+            return;
+          }
+          setSelectedDirectionIds(result.statementIds);
+          setRangeAnchorId(first.id);
+          setSelectionNotice(`已填充首尾范围，共 ${result.statementIds.length} 个 @${result.command} Cue。`);
+        }}
+        selectionNotice={selectionNotice}
       />}
 
       {insertCommand !== null && <DirectionInsertPanel
@@ -2960,7 +3036,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.37 BATCH · VERIFIED PREFLIGHT</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.38 RANGE · LANE SELECTION</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

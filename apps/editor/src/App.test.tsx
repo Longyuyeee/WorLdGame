@@ -140,6 +140,36 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.queryByText(/类型不一致；当前选择不会被部分修改/)).not.toBeInTheDocument();
     expect(screen.getByText("本地事务 · r0")).toBeVisible();
   });
+
+  it("selects a same-command range by keyboard and offers touch-equivalent lane controls", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
+    fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "开始演出多选" }));
+    const firstCue = screen.getByRole("button", { name: "轨道步骤 1：黄昏校门 · 云层缓慢移动" });
+    const thirdCue = screen.getByRole("button", { name: "轨道步骤 3：黄昏校门 · 云层缓慢移动" });
+    fireEvent.click(firstCue);
+    fireEvent.keyDown(thirdCue, { key: " ", shiftKey: true });
+    expect(screen.getByText("3 个 Cue · 单步撤销")).toBeVisible();
+    expect(screen.getByText("已从范围锚点选择 3 个 @background Cue。")).toBeVisible();
+    expect(firstCue).toHaveAttribute("aria-keyshortcuts", "Shift+Space");
+
+    fireEvent.keyDown(firstCue, { key: "Delete" });
+    expect(screen.getAllByRole("button", { name: /轨道步骤 [123]：黄昏校门/ })).toHaveLength(3);
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "清空选择" }));
+    fireEvent.click(screen.getByRole("button", { name: "BG · 3" }));
+    expect(screen.getByText("已选择该轨道全部 3 个 Cue。")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "填充首尾范围" }));
+    expect(screen.getByText("已填充首尾范围，共 3 个 @background Cue。")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "AUDIO · 0" }));
+    expect(screen.getByText("该轨道没有 Cue；选择已清空。")).toBeVisible();
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+  });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });
