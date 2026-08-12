@@ -6,6 +6,7 @@ import {
   projectStoryScene
 } from "@world-studio/story-language";
 import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
+import { compilePreviewStageTimeline } from "../apps/editor/src/preview-media-runtime";
 
 const dialogueCount = 10_000;
 const budgets = {
@@ -139,6 +140,23 @@ describe("large script performance audit", () => {
     if (!result.ok) throw new Error(result.diagnostics[0]?.message);
     expect(result.compilation.manifest.scenes).toHaveLength(sceneCount);
     expect(result.compilation.timelines).toHaveLength(sceneCount);
+    expect(compilationMs).toBeLessThan(2_000);
+  });
+
+  it("compiles a ten-thousand-step cumulative Preview timeline once within budget", () => {
+    const statementCount = 10_000;
+    const statements = Array.from({ length: statementCount }, (_, index) => index % 100 === 0
+      ? { id: `preview_bg_${index}`, kind: "direction" as const, command: "background" as const, summary: `asset=background_${index} transition=fade duration=300ms` }
+      : { id: `preview_line_${index}`, kind: "dialogue" as const, speakerId: "hero", textId: `preview_text_${index}`, text: `Line ${index}` });
+    const start = performance.now();
+    const timeline = compilePreviewStageTimeline(statements);
+    const compilationMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { statementCount }, measurementsMs: {
+      cumulativePreviewTimelineCompilation: Number(compilationMs.toFixed(2)) }, budgetsMs: {
+      cumulativePreviewTimelineCompilation: 2_000 }, result: { plans: timeline.length,
+      finalBackground: timeline.at(-1)?.background?.assetId } }, null, 2));
+    expect(timeline).toHaveLength(statementCount);
+    expect(timeline.at(-1)?.background?.assetId).toBe("background_9900");
     expect(compilationMs).toBeLessThan(2_000);
   });
 });

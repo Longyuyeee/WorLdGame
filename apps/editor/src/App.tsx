@@ -86,6 +86,16 @@ import {
   reducePreviewTransport,
   type PreviewSpeedId
 } from "./preview-transport";
+import {
+  browserPreviewUrlFactory,
+  compilePreviewStageTimeline,
+  derivePreviewStagePlan,
+  loadPreviewMedia,
+  releasePreviewMedia,
+  type LoadedPreviewMedia,
+  type PreviewAudioLayerPlan,
+  type PreviewUrlFactory
+} from "./preview-media-runtime";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -220,7 +230,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.31</p>
+          <p className="eyebrow">WorLd Studio · S0.32</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -331,7 +341,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.31 TYPED ASSETS · INSPECTOR</small></span>
+            <span><strong>资源保险库</strong><small>S0.32 VERIFIED MEDIA · LIVE STAGE</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -1082,9 +1092,56 @@ function FlowView({ session, dispatch }: CommonProps) {
 
 interface PreviewPanelProps extends CommonProps {
   readonly inputDirty: boolean;
+  readonly assetIndex: AssetIndex;
+  readonly assetRepository: IndexedDbAssetRepository | null;
 }
 
-function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
+type PreviewMediaViewState =
+  | { readonly status: "loading"; readonly planKey: string }
+  | { readonly status: "ready"; readonly media: LoadedPreviewMedia };
+
+function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & { readonly url: string } }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [status, setStatus] = useState<"starting" | "playing" | "blocked" | "error">("starting");
+  useEffect(() => {
+    const audio = audioRef.current;
+    return () => {
+      if (audio === null) return;
+      audio.pause();
+      audio.removeAttribute("src");
+    };
+  }, [layer.url]);
+  return <>
+    <audio
+      ref={audioRef}
+      src={layer.url}
+      autoPlay
+      loop={layer.loop}
+      data-testid={`preview-audio-${layer.bus}`}
+      onCanPlay={(event) => {
+        event.currentTarget.volume = layer.volume;
+        void event.currentTarget.play().catch(() => setStatus("blocked"));
+      }}
+      onPlay={() => setStatus("playing")}
+      onError={() => setStatus("error")}
+    />
+    <button
+      type="button"
+      className={`stage-audio-chip stage-audio-chip--${status}`}
+      aria-label={`${layer.bus} 音轨${status === "playing" ? "播放中" : "启用播放"}`}
+      onClick={() => {
+        const audio = audioRef.current;
+        if (audio === null || status === "playing") return;
+        audio.volume = layer.volume;
+        void audio.play().catch(() => setStatus("blocked"));
+      }}
+    >
+      {layer.bus.toUpperCase()} · {status === "playing" ? "播放中" : status === "blocked" ? "点击启用" : status === "error" ? "重试播放" : "准备中"}
+    </button>
+  </>;
+}
+
+function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository }: PreviewPanelProps) {
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
@@ -1121,6 +1178,63 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
   );
   const speedProfile = findPreviewSpeedProfile(transport.speedId);
   const previousTransportSceneId = useRef(session.activeSceneId);
+  const stageTimeline = useMemo(() => compilePreviewStageTimeline(scene.statements), [scene.statements]);
+  const stagePlan = stageTimeline[session.previewIndex] ?? derivePreviewStagePlan([], 0);
+  const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
+  const [mediaView, setMediaView] = useState<PreviewMediaViewState>({
+    status: "loading",
+    planKey: stagePlan.key
+  });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let owned: LoadedPreviewMedia | undefined;
+    const requiresRepository = stagePlan.background !== undefined || stagePlan.character !== undefined || stagePlan.audio.length > 0;
+    setMediaView({ status: "loading", planKey: stagePlan.key });
+    if (assetRepository === null && requiresRepository) {
+      setMediaView({
+        status: "ready",
+        media: {
+          planKey: stagePlan.key,
+          audio: [],
+          errors: [...stagePlan.diagnostics, "Preview Asset repository is unavailable"],
+          objectUrls: []
+        }
+      });
+      return () => controller.abort();
+    }
+    const reader = assetRepository ?? { read: async () => null };
+    void loadPreviewMedia(stagePlan, assetIndex, reader, urlFactory, controller.signal)
+      .then((media) => {
+        if (controller.signal.aborted) {
+          releasePreviewMedia(media, urlFactory);
+          return;
+        }
+        owned = media;
+        setMediaView({ status: "ready", media });
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (controller.signal.aborted) return;
+        setMediaView({
+          status: "ready",
+          media: {
+            planKey: stagePlan.key,
+            audio: [],
+            errors: [...stagePlan.diagnostics, error instanceof Error ? error.message : "Preview media load failed"],
+            objectUrls: []
+          }
+        });
+      });
+    return () => {
+      controller.abort();
+      if (owned !== undefined) releasePreviewMedia(owned, urlFactory);
+    };
+  }, [assetIndex, assetRepository, stagePlan.key, urlFactory]);
+
+  const loadedMedia = mediaView.status === "ready" && mediaView.media.planKey === stagePlan.key
+    ? mediaView.media
+    : undefined;
 
   useEffect(() => {
     if (previousTransportSceneId.current === session.activeSceneId) return;
@@ -1241,11 +1355,39 @@ function PreviewPanel({ session, dispatch, inputDirty }: PreviewPanelProps) {
           style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
         >
           <div className="stage-chrome"><span>{scene.title}</span><span>{viewport.ratioLabel} · Balanced</span></div>
-          <div className="stage-sky" aria-hidden="true">
-            <span className="sun" /><span className="school-building" />
-            <span className="character-silhouette character-silhouette--left" />
-            <span className="character-silhouette character-silhouette--right" />
+          {loadedMedia?.background === undefined ? (
+            <div className="stage-sky" aria-hidden="true">
+              <span className="sun" /><span className="school-building" />
+              <span className="character-silhouette character-silhouette--left" />
+              <span className="character-silhouette character-silhouette--right" />
+            </div>
+          ) : (
+            <img
+              className={`stage-media-background stage-transition--${loadedMedia.background.transition ?? "none"}`}
+              data-testid="preview-background"
+              src={loadedMedia.background.url}
+              alt={`背景资源 ${loadedMedia.background.assetId}`}
+              style={{ animationDuration: loadedMedia.background.duration ?? "360ms" }}
+            />
+          )}
+          {loadedMedia?.character !== undefined && (
+            <img
+              className={`stage-media-character stage-media-character--${loadedMedia.character.position ?? "center"} stage-transition--${loadedMedia.character.transition ?? "none"}`}
+              data-testid="preview-character"
+              src={loadedMedia.character.url}
+              alt={`角色资源 ${loadedMedia.character.assetId}${loadedMedia.character.expression === undefined ? "" : ` · ${loadedMedia.character.expression}`}`}
+              style={{ animationDuration: loadedMedia.character.duration ?? "360ms" }}
+            />
+          )}
+          <div className="stage-audio-stack" aria-live="polite">
+            {loadedMedia?.audio.map((layer) => <PreviewAudioLayer key={`${layer.bus}:${layer.statementId}:${layer.url}`} layer={layer} />)}
           </div>
+          {mediaView.status === "loading" && <div className="stage-media-loading" role="status">正在验证预览资源…</div>}
+          {loadedMedia !== undefined && loadedMedia.errors.length > 0 && (
+            <div className="stage-media-errors" role="status">
+              <strong>安全占位</strong><span>{loadedMedia.errors.length} 项资源未执行</span>
+            </div>
+          )}
           <div className="stage-content" key={statement.id} data-testid="preview-step">
             {statement.kind === "dialogue" && (
               <div className="dialogue-box">
@@ -2383,10 +2525,10 @@ export function App() {
         ) : (
           <FlowView session={session} dispatch={dispatch} />
         )}
-        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
+        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.31 GRAPHICAL DIRECTION · STABLE-ID PATCH</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.32 VERIFIED MEDIA · CANCEL-SAFE STAGE</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

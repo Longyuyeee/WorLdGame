@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.31 graphical direction Inspector UI prototype", () => {
+describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   it("exposes a typed graphical Inspector for the selected direction without guessing legacy text", () => {
     render(<App />);
     expect(screen.getByText("图形化演出参数")).toBeVisible();
@@ -19,6 +19,13 @@ describe("WorLd Studio S0.31 graphical direction Inspector UI prototype", () => 
     expect(screen.getByLabelText("演出主资源")).toHaveValue("");
     expect(screen.getByRole("button", { name: "迁移旧描述并应用" })).toBeDisabled();
     expect(screen.getByText(/Asset Index 中没有可用于 @background 的资源/)).toBeVisible();
+  });
+
+  it("fails closed to the visual placeholder when a legacy direction has no executable Asset ID", async () => {
+    render(<App />);
+    expect(await screen.findByText("安全占位")).toBeVisible();
+    expect(screen.getByText("1 项资源未执行")).toBeVisible();
+    expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
   });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
