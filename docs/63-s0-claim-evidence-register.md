@@ -26,7 +26,7 @@
 |---|---|---|---|---|---|---|---|
 | CL-01 | 目标设备和容量/内存/帧时间预算可执行 | 有条件通过 | Performance Owner | Product Owner + Release Owner | `62` 文档全部硬门；缺实体设备不得通过 | 能力档位与预算已冻结；本机不具代表性 | 登记 WIN-L、AND-L、AND-R 并跑基础基线 |
 | CL-02 | Android 编辑壳在文件、IME、恢复和内存上可靠 | 未开始 | Android Platform Owner | Architecture + QA | AND-L/AND-R 核心任务；任一数据损坏/不可恢复即停止 | Web 模拟不计 | 先写壳对照假设与真机脚本 |
-| CL-03 | Windows 壳选型满足文件、更新、内存和隔离 | 未开始 | Windows Platform Owner | Architecture + Security | 同功能 Electron/Tauri；数据/更新红线即停止 | Node 适配器不计 | 在 WIN-L 上设计对照 Spike |
+| CL-03 | Windows 壳选型满足文件、更新、内存和隔离 | 未开始（[证据契约已冻结](65-cl03-windows-shell-evidence-contract.md)） | Windows Platform Owner | Architecture + Security | WS-01–WS-18；WIN-L 预算；安全/数据/更新硬门；通过者再评分 | Node 适配器、空壳包体和开发机结果不计 | 准备同前端 Electron/Tauri 可抛弃对照 Spike 与 WIN-L |
 | CL-04 | Narrative VM 可确定回滚、前进、快进与 Barrier | 未开始（[证据契约已冻结](64-cl04-narrative-vm-evidence-contract.md)） | Runtime Owner | Architecture + QA | 三端 State Hash 0 差异；VM-01–VM-15；10k 生成序列；不可重放副作用必须显式 Barrier | Editor history、Project WAL、Preview transport 不计 | 实现可抛弃平台中立语义核 Spike |
 | CL-05 | 三端最小玩家和 Windows 本地构建贯通 | 未开始 | Build Owner | Release + Security | 三端固定路线和 Manifest；缺任一 M1 平台即停止 | Web dev build 不计 | 定义最小玩家输入/产物 |
 | CL-06 | Android 端直接 APK/AAB 构建可行 | 未开始 | Android Build Owner | Security + Product | 真机构建时间/空间/签名边界；失败采用 Windows 基线 | 无 | 先做威胁与 SDK 体积模型 |

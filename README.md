@@ -94,6 +94,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [CL-01 目标设备矩阵与预算冻结](docs/62-cl01-target-device-budget.md) | Windows/Android/Web 支持档位、帧时间、内存、容量预算与实体设备取证门 |
 | [S0 Claim / Evidence 登记表](docs/63-s0-claim-evidence-register.md) | CL-01–CL-12 的状态、Owner、阈值、证据、依赖与更新纪律 |
 | [CL-04 Narrative VM 确定性证据契约](docs/64-cl04-narrative-vm-evidence-contract.md) | Runtime State、Step/Effect/Save、回滚前进、快进、Barrier、State Hash 与三宿主通过门 |
+| [CL-03 Windows 编辑器壳选型证据契约](docs/65-cl03-windows-shell-evidence-contract.md) | Electron/Tauri 同切片、安全边界、WebView2 分发、WAL/更新故障、WIN-L 预算与 ADR 停止条件 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

@@ -126,15 +126,17 @@ Domain 层不能依赖浏览器、Electron、Capacitor 或具体 UI 框架。
 | 路线图 | 虚拟化图层；原型可用 React Flow | 快速验证交互 | 10k 节点需局部加载或自研渲染 |
 | 舞台渲染 | PixiJS WebGL/WebGPU + DOM UI | 2D 演出跨 WebView；DOM 更适合 CJK/无障碍 | WebGPU 不能作为首发唯一后端 |
 | 音频/视频 | Web Audio + HTML Media，平台桥补充 | 跨端一致、易于 Web 发布 | 后台音频、解码格式需逐平台处理 |
-| Windows 编辑器 | Electron 作为稳定基线 | Chromium/Node/自动更新和开发工具成熟 | 体积与内存较高；同时评估 Tauri v2 |
+| Windows 编辑器 | Electron 与 Tauri v2 候选，尚未选型 | 共用 Web UI，只通过版本化窄 Host 桥接文件、生命周期与更新 | 必须按 [CL-03](65-cl03-windows-shell-evidence-contract.md) 在 WIN-L 对照数据、安全、WAL 和更新回退硬门后形成 ADR |
 | 移动编辑器 | Capacitor 壳 + 同一 Web UI | 官方支持 iOS/Android/PWA 与原生插件 | 大文件、后台任务和键盘需实机验证 |
 | 浏览器编辑 | PWA + File System API/OPFS | 零安装、跨设备、离线 | Safari 文件 API 能力差异 |
-| Windows 玩家 | Tauri/WebView2 轻量壳 | 比把 Electron 随每个游戏发布更轻 | 需要工具链和 WebView 兼容测试 |
+| Windows 玩家 | 轻量壳候选；Tauri/WebView2 仅为首个验证对象 | 与编辑器共享 Runtime 语义，不默认复用编辑器特权 | 最终由 CL-05 决定，并复用 CL-03 的 WebView2 与安全证据，不能用空壳体积提前选型 |
 | 移动玩家 | Capacitor Build Adapter | 移动生态与签名流程成熟 | iOS 仍必须走 Xcode/macOS |
 | 本地索引 | SQLite；浏览器使用 OPFS/WASM 适配 | 搜索、引用和缓存，不作为源文件 | 必须可安全重建 |
 | 云构建（未来储备） | 队列 + 隔离 Windows/Linux/macOS Worker | 将来可支持任意设备发起目标构建 | 不属于 M1；账户、成本、签名和治理均暂不实施 |
 
 依据：
+
+- Windows 编辑器壳的同功能切片、安全边界、WebView2 分发变量、WIN-L 预算和停止条件见[《CL-03 Windows 编辑器壳选型证据契约》](65-cl03-windows-shell-evidence-contract.md)。
 
 - [Capacitor](https://capacitorjs.com/docs)以 Web 为中心并支持 iOS、Android 与 PWA。
 - [PixiJS](https://pixijs.download/dev/docs/rendering.html)提供 WebGL/WebGL2、WebGPU 和 Canvas 2D 渲染路径。

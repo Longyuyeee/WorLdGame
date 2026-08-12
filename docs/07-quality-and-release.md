@@ -2,6 +2,8 @@
 
 > 本文定义产品级质量目标和发布门禁；风险分级、审阅独立性、验证方法、供应链证明与 Release Assurance Bundle 见[工程审计与质量保证体系](14-engineering-audit-and-assurance.md)。
 
+> Windows 编辑器壳不得以空白窗口、开发机体感或框架默认配置过门；同功能切片、目标机预算、安全 Profile、WAL/更新故障注入和 ADR 规则见[《CL-03 Windows 编辑器壳选型证据契约》](65-cl03-windows-shell-evidence-contract.md)。
+
 ## 1. 质量目标
 
 视觉小说编辑器最严重的问题不是单次崩溃，而是：
