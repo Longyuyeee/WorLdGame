@@ -133,8 +133,10 @@ Route、Sequence、Script、Stage 的关系：
 ```text
 scene "序章 · 天台" @id(scn_rooftop)
 
-@background rooftop transition=fade duration=800ms @id(stmt_bg_rooftop)
-@show lin expression=smile position=center @id(stmt_show_lin)
+@background asset=bg.rooftop transition=fade duration=800ms @id(stmt_bg_rooftop)
+@show asset=char.lin.smile expression=smile position=center @id(stmt_show_lin)
+@audio asset=voice.lin.001 bus=voice loop=false @id(stmt_voice_lin_001)
+@audio asset=bgm.snow.promise bus=bgm loop=true fade=800ms @id(stmt_bgm_promise)
 
 lin: 如果明天真的下雪，你还会来这里吗？ @sid(stmt_01J...) @id(txt_01J...)
 

@@ -11,7 +11,7 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.29 Story Graph resource prediction UI prototype", () => {
+describe("WorLd Studio S0.30 typed resource manifest compiler UI prototype", () => {
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });

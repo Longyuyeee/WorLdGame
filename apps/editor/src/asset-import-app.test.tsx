@@ -13,7 +13,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.29 Story Graph resource prediction integration", () => {
+describe("S0.30 typed resource manifest compiler integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -161,6 +161,10 @@ describe("S0.29 Story Graph resource prediction integration", () => {
     await waitFor(() => expect(screen.getByText(/STORY PREDICTION PASS/)).toBeVisible(), { timeout: 5_000 });
     expect(screen.getByText(/分支公共预取 1.*回滚引用 1.*画廊临时引用 1/)).toBeVisible();
     expect(screen.getByText(/低内存后保留当前 1、回滚 0，最终驻留 0 B、任务 0/)).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "验证资源编译" }));
+    await waitFor(() => expect(screen.getByText(/RESOURCE COMPILER PASS/)).toBeVisible(), { timeout: 5_000 });
+    expect(screen.getByText(/3 场景 · 10 语句窗口 · 3 条类型化演出 · 2 个已验证 Asset/)).toBeVisible();
+    expect(screen.getByText(/转场依赖 2 · 分支公共预取 1 · 未从描述文字猜测资源/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
   }, 20_000);
 

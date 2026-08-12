@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  compileSceneResourceManifest,
   parseStory,
   patchDialogueText,
   projectStoryScene
@@ -109,5 +110,35 @@ describe("large script performance audit", () => {
     expect(prediction.resources).toContainEqual(expect.objectContaining({ assetId: "scene_asset_4999", role: "rollback" }));
     expect(prediction.resources).toContainEqual(expect.objectContaining({ assetId: "scene_asset_5001", role: "prefetch" }));
     expect(predictionMs).toBeLessThan(2_000);
+  });
+
+  it("compiles ten thousand typed scene resource documents within budget", () => {
+    const sceneCount = 10_000;
+    const scenes = Array.from({ length: sceneCount }, (_, index) => ({
+      id: `compiled_scene_${index}`,
+      title: `Compiled Scene ${index}`,
+      statements: [
+        { id: `compiled_bg_${index}`, kind: "direction" as const, command: "background" as const, summary: `asset=compiled_asset_${index}` },
+        { id: `compiled_end_${index}`, kind: "end" as const, endingName: "End" }
+      ]
+    }));
+    const project: StoryProject = { schemaVersion: 0, id: "compiler_benchmark", title: "Compiler Benchmark",
+      characters: [], scenes, entrySceneId: scenes[0]!.id };
+    const documents = Object.fromEntries(scenes.map((scene, index) => [scene.id, parseStory(
+      `scene "${scene.title}" @id(${scene.id})\n@background asset=compiled_asset_${index} transition=fade @id(compiled_bg_${index})\nend "End" @id(compiled_end_${index})\n`
+    )]));
+    const knownAssetIds = Array.from({ length: sceneCount }, (_, index) => `compiled_asset_${index}`);
+    const start = performance.now();
+    const result = compileSceneResourceManifest(project, documents, { knownAssetIds });
+    const compilationMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { sceneCount, documents: Object.keys(documents).length },
+      measurementsMs: { typedResourceManifestCompilation: Number(compilationMs.toFixed(2)) },
+      budgetsMs: { typedResourceManifestCompilation: 2_000 },
+      result: { ok: result.ok, manifestScenes: result.ok ? result.compilation.manifest.scenes.length : 0 } }, null, 2));
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.diagnostics[0]?.message);
+    expect(result.compilation.manifest.scenes).toHaveLength(sceneCount);
+    expect(result.compilation.timelines).toHaveLength(sceneCount);
+    expect(compilationMs).toBeLessThan(2_000);
   });
 });

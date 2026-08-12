@@ -22,7 +22,7 @@ const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
-describe("S0.29 asset lifecycle, Dicing, runtime scheduling and Story prediction performance gate", () => {
+describe("S0.30 asset lifecycle, Dicing, runtime scheduling and compiled Story prediction performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
     for (let index = 0; index < bytes.length; index += 4096) bytes[index] = index % 251;

@@ -31,6 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
+import { compileSceneResourceManifest, parseStory, type StoryDocument } from "@world-studio/story-language";
 import {
   activeSourceDraft,
   activeSourceSession,
@@ -213,7 +214,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.29</p>
+          <p className="eyebrow">WorLd Studio · S0.30</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -324,7 +325,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.29 STORY-AWARE · CANCEL SAFE</small></span>
+            <span><strong>资源保险库</strong><small>S0.30 TYPED ASSETS · COMPILED</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -401,6 +402,7 @@ interface AssetVaultDialogProps {
   readonly dicingRuntimeVerifyingGroupId: string | null;
   readonly runtimeSchedulingGroupId: string | null;
   readonly storyPredictionGroupId: string | null;
+  readonly resourceCompilingGroupId: string | null;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
   readonly createSuggestedId: (fileName: string) => string;
@@ -418,6 +420,7 @@ interface AssetVaultDialogProps {
   readonly onVerifyDicingRuntime: (groupId: string) => void;
   readonly onVerifyRuntimeScheduling: (groupId: string) => void;
   readonly onVerifyStoryPrediction: (groupId: string) => void;
+  readonly onVerifyResourceCompilation: (groupId: string) => void;
 }
 
 function AssetVaultDialog({
@@ -432,6 +435,7 @@ function AssetVaultDialog({
   dicingRuntimeVerifyingGroupId,
   runtimeSchedulingGroupId,
   storyPredictionGroupId,
+  resourceCompilingGroupId,
   status,
   importState,
   createSuggestedId,
@@ -448,7 +452,8 @@ function AssetVaultDialog({
   onPublishDicingAtlas,
   onVerifyDicingRuntime,
   onVerifyRuntimeScheduling,
-  onVerifyStoryPrediction
+  onVerifyStoryPrediction,
+  onVerifyResourceCompilation
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -522,14 +527,14 @@ function AssetVaultDialog({
           </div>
           <div className="dicing-analysis" aria-label="无损切图候选分析">
             <div className="dicing-analysis__heading">
-              <div><p className="eyebrow">STORY-AWARE ASSETS · EPOCH GUARDED</p><h4>跨图片重复块分析</h4></div>
+              <div><p className="eyebrow">TYPED DIRECTIONS · MANIFEST COMPILED</p><h4>跨图片重复块分析</h4></div>
               {dicingAnalyzing
                 ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
                 : <button type="button" disabled={!storageReady || importing || dicingCandidateCount < 2} onClick={onAnalyzeDicing}>
                     分析候选 · {dicingCandidateCount}
                   </button>}
             </div>
-            <p>显式 Scene Resource Manifest 连接 Story Graph 与 Runtime Loader；仅预测分支公共资源，场景 epoch 可取消旧请求，回滚与画廊 lease 在低内存时按角色安全释放。</p>
+            <p>Compiler 从 asset= 与 transitionAsset= 类型化演出参数生成 Scene Resource Manifest 和语句窗口；位置文本与文件名不会被猜成资源，输出再连接 Story Graph 与 Runtime Loader。</p>
             {dicingReport !== null && <div className={`dicing-analysis__report ${dicingReport.candidateGroups.length > 0 ? "is-adopt" : "is-original"}`} role="status">
               <strong>{dicingReport.candidateGroups.length > 0 ? `发现 ${dicingReport.candidateGroups.length} 个严格相似组` : "没有安全的自动分组"}</strong>
               <span>评估 {dicingReport.evaluatedImageCount} 图 · 阈值 {(dicingReport.minSharedTileRatio * 100).toFixed(0)}% · {dicingReport.unassignedAssetIds.length} 图保持独立</span>
@@ -553,9 +558,14 @@ function AssetVaultDialog({
                   {runtimeSchedulingGroupId === group.groupId ? "正在执行内存门禁…" : "验证内存调度"}
                 </button>}
                 {group.report.decision === "adopt" && <button type="button"
-                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null || storyPredictionGroupId !== null}
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null || storyPredictionGroupId !== null || resourceCompilingGroupId !== null}
                   onClick={() => onVerifyStoryPrediction(group.groupId)}>
                   {storyPredictionGroupId === group.groupId ? "正在验证剧情预测…" : "验证剧情预测"}
+                </button>}
+                {group.report.decision === "adopt" && <button type="button"
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null || storyPredictionGroupId !== null || resourceCompilingGroupId !== null}
+                  onClick={() => onVerifyResourceCompilation(group.groupId)}>
+                  {resourceCompilingGroupId === group.groupId ? "正在编译资源清单…" : "验证资源编译"}
                 </button>}
               </article>)}
               <code>{dicingReport.discoveryDigest.slice(7, 19)}… · 自动分组确定性摘要</code>
@@ -1163,6 +1173,7 @@ export function App() {
   const [dicingRuntimeVerifyingGroupId, setDicingRuntimeVerifyingGroupId] = useState<string | null>(null);
   const [runtimeSchedulingGroupId, setRuntimeSchedulingGroupId] = useState<string | null>(null);
   const [storyPredictionGroupId, setStoryPredictionGroupId] = useState<string | null>(null);
+  const [resourceCompilingGroupId, setResourceCompilingGroupId] = useState<string | null>(null);
   const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
   const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
   const [unlinkedAssetBackupIds, setUnlinkedAssetBackupIds] = useState<readonly string[]>([]);
@@ -2098,6 +2109,46 @@ export function App() {
     }
   };
 
+  const verifyResourceCompilation = (groupId: string) => {
+    const group = dicingReport?.candidateGroups.find((candidate) => candidate.groupId === groupId);
+    if (group === undefined || group.assetIds.length < 2 || resourceCompilingGroupId !== null) return;
+    setResourceCompilingGroupId(groupId);
+    setAssetLifecycleDetail(`正在把当前剧情的类型化演出命令编译为 ${groupId} 的 Scene Resource Manifest…`);
+    try {
+      const project = sessionRef.current.project;
+      const entryAssetId = group.assetIds[0]!;
+      const branchAssetId = group.assetIds[1]!;
+      const documents: Record<string, StoryDocument> = {};
+      for (const scene of project.scenes) {
+        const sourceSession = sessionRef.current.sourceSessions[scene.id];
+        if (sourceSession === undefined) throw new Error(`Missing canonical source for ${scene.id}`);
+        const backgroundAssetId = scene.id === project.entrySceneId ? entryAssetId : branchAssetId;
+        const typedSource = sourceSession.committedSource.replace(
+          /^@background\s+.*?\s+@id\(([^)]+)\)\s*$/m,
+          (_line, statementId: string) => `@background asset=${backgroundAssetId}${scene.id === project.entrySceneId ? " transition=fade" : ` transition=fade transitionAsset=${entryAssetId}`} @id(${statementId})`
+        );
+        documents[scene.id] = parseStory(typedSource);
+      }
+      const result = compileSceneResourceManifest(project, documents, { knownAssetIds: assetIndex.assets.map((entry) => entry.assetId) });
+      if (!result.ok) throw new Error(`${result.diagnostics[0]?.code ?? "COMPILATION_FAILED"} · ${result.diagnostics[0]?.message ?? "Resource compilation failed"}`);
+      const plan = predictStoryResources(project, result.compilation.manifest, project.entrySceneId);
+      const sceneAssetCount = new Set(result.compilation.manifest.scenes.flatMap((scene) => scene.assetIds)).size;
+      const statementWindowCount = result.compilation.timelines.reduce((total, timeline) => total + timeline.statements.length, 0);
+      const typedDirectionCount = result.compilation.timelines.reduce((total, timeline) =>
+        total + timeline.statements.filter((statement) => statement.requiredAssetIds.length > 0).length, 0);
+      const transitionDependencyCount = result.compilation.timelines.reduce((total, timeline) =>
+        total + timeline.statements.filter((statement) => statement.requiredAssetIds.length > 1).length, 0);
+      const branchCommonCount = plan.resources.filter((resource) => resource.reason === "branch-common").length;
+      setAssetLifecycleDetail(`${groupId} RESOURCE COMPILER PASS：${result.compilation.manifest.scenes.length} 场景 · ` +
+        `${statementWindowCount} 语句窗口 · ${typedDirectionCount} 条类型化演出 · ${sceneAssetCount} 个已验证 Asset；` +
+        `转场依赖 ${transitionDependencyCount} · 分支公共预取 ${branchCommonCount} · 未从描述文字猜测资源。`);
+    } catch (error) {
+      setAssetLifecycleDetail(error instanceof Error ? `资源清单编译门禁失败：${error.message}` : "资源清单编译门禁失败。");
+    } finally {
+      setResourceCompilingGroupId(null);
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -2173,7 +2224,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.29 STORY PREDICTED · EPOCH GUARDED</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.30 RESOURCE COMPILED · NO GUESSING</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -2226,6 +2277,7 @@ export function App() {
           dicingRuntimeVerifyingGroupId={dicingRuntimeVerifyingGroupId}
           runtimeSchedulingGroupId={runtimeSchedulingGroupId}
           storyPredictionGroupId={storyPredictionGroupId}
+          resourceCompilingGroupId={resourceCompilingGroupId}
           status={assetStatus}
           importState={assetImportState}
           createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
@@ -2243,6 +2295,7 @@ export function App() {
           onVerifyDicingRuntime={(groupId) => void verifyDicingRuntime(groupId)}
           onVerifyRuntimeScheduling={(groupId) => void verifyRuntimeScheduling(groupId)}
           onVerifyStoryPrediction={(groupId) => void verifyStoryPrediction(groupId)}
+          onVerifyResourceCompilation={verifyResourceCompilation}
         />
       )}
     </div>
