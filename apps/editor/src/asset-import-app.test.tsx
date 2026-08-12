@@ -13,7 +13,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.28 budgeted Dicing runtime scheduling integration", () => {
+describe("S0.29 Story Graph resource prediction integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -157,6 +157,10 @@ describe("S0.28 budgeted Dicing runtime scheduling integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "验证内存调度" }));
     await waitFor(() => expect(screen.getByText(/MEMORY SCHEDULER PASS/)).toBeVisible(), { timeout: 5_000 });
     expect(screen.getByText(/压力清理后驻留 0 B、任务 0/)).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "验证剧情预测" }));
+    await waitFor(() => expect(screen.getByText(/STORY PREDICTION PASS/)).toBeVisible(), { timeout: 5_000 });
+    expect(screen.getByText(/分支公共预取 1.*回滚引用 1.*画廊临时引用 1/)).toBeVisible();
+    expect(screen.getByText(/低内存后保留当前 1、回滚 0，最终驻留 0 B、任务 0/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
   }, 20_000);
 

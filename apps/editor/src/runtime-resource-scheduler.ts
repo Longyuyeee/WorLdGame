@@ -21,6 +21,8 @@ export interface RuntimeResourceLease<T> {
 }
 
 export interface RuntimeResourceSchedulerSnapshot {
+  readonly maxConcurrentLoads: number;
+  readonly maxResidentBytes: number;
   readonly activeLoads: number;
   readonly queuedLoads: number;
   readonly residentResources: number;
@@ -139,6 +141,8 @@ export class RuntimeResourceScheduler<T> {
     let referencedResources = 0;
     for (const resident of this.residents.values()) if (resident.references > 0) referencedResources += 1;
     return {
+      maxConcurrentLoads: this.options.maxConcurrentLoads,
+      maxResidentBytes: this.options.maxResidentBytes,
       activeLoads: this.activeLoads,
       queuedLoads: [...this.jobs.values()].filter((job) => job.state === "queued").length,
       residentResources: this.residents.size,
@@ -151,6 +155,10 @@ export class RuntimeResourceScheduler<T> {
       evictions: this.evictions,
       cancellations: this.cancellations
     };
+  }
+
+  isResident(key: string): boolean {
+    return this.residents.has(key);
   }
 
   private pump(): void {

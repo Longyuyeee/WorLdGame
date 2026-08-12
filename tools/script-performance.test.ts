@@ -4,6 +4,7 @@ import {
   patchDialogueText,
   projectStoryScene
 } from "@world-studio/story-language";
+import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
 
 const dialogueCount = 10_000;
 const budgets = {
@@ -78,5 +79,35 @@ describe("large script performance audit", () => {
     expect(totalMs).toBeLessThanOrEqual(budgets.totalMs);
 
     console.log(JSON.stringify(report, null, 2));
+  });
+
+  it("predicts resources across a 10k-scene Story Graph within budget", () => {
+    const sceneCount = 10_000;
+    const scenes = Array.from({ length: sceneCount }, (_, index) => ({
+      id: `scene_${index}`,
+      title: `Scene ${index}`,
+      statements: index >= sceneCount - 1 ? [{ id: `end_${index}`, kind: "end" as const, endingName: "End" }] : [{
+        id: `choice_${index}`,
+        kind: "choice" as const,
+        prompt: "Next",
+        options: [{ id: `option_${index}`, label: "Continue", targetSceneId: `scene_${index + 1}` }]
+      }]
+    }));
+    const project: StoryProject = { schemaVersion: 0, id: "prediction_benchmark", title: "Prediction Benchmark",
+      characters: [], scenes, entrySceneId: "scene_0" };
+    const manifest = { schemaVersion: 1 as const, scenes: scenes.map((scene, index) => ({
+      sceneId: scene.id, assetIds: [`scene_asset_${index}`, "shared_runtime_ui"]
+    })) };
+    const start = performance.now();
+    const prediction = predictStoryResources(project, manifest, "scene_5000", { rollbackSceneIds: ["scene_4999"] });
+    const predictionMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { sceneCount, manifestEntries: manifest.scenes.length },
+      measurementsMs: { storyGraphResourcePrediction: Number(predictionMs.toFixed(2)) },
+      budgetsMs: { storyGraphResourcePrediction: 2_000 },
+      result: { outgoingScenes: prediction.outgoingSceneIds.length, resources: prediction.resources.length } }, null, 2));
+    expect(prediction.resources).toContainEqual(expect.objectContaining({ assetId: "scene_asset_5000", role: "current" }));
+    expect(prediction.resources).toContainEqual(expect.objectContaining({ assetId: "scene_asset_4999", role: "rollback" }));
+    expect(prediction.resources).toContainEqual(expect.objectContaining({ assetId: "scene_asset_5001", role: "prefetch" }));
+    expect(predictionMs).toBeLessThan(2_000);
   });
 });

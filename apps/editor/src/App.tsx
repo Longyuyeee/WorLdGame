@@ -26,7 +26,9 @@ import {
   deriveRouteGraph,
   findScene,
   findStatement,
+  predictStoryResources,
   type Character,
+  type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
 import {
@@ -56,6 +58,7 @@ import { generateThumbnailInWorker } from "./thumbnail-client";
 import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analysis-client";
 import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
+import { StoryResourceCoordinator } from "./story-resource-coordinator";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -210,7 +213,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.28</p>
+          <p className="eyebrow">WorLd Studio · S0.29</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -321,7 +324,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.28 BUDGETED RUNTIME · LRU</small></span>
+            <span><strong>资源保险库</strong><small>S0.29 STORY-AWARE · CANCEL SAFE</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -397,6 +400,7 @@ interface AssetVaultDialogProps {
   readonly dicingPublishingGroupId: string | null;
   readonly dicingRuntimeVerifyingGroupId: string | null;
   readonly runtimeSchedulingGroupId: string | null;
+  readonly storyPredictionGroupId: string | null;
   readonly status: AssetVaultStatus;
   readonly importState: AssetImportViewState;
   readonly createSuggestedId: (fileName: string) => string;
@@ -413,6 +417,7 @@ interface AssetVaultDialogProps {
   readonly onPublishDicingAtlas: (groupId: string) => void;
   readonly onVerifyDicingRuntime: (groupId: string) => void;
   readonly onVerifyRuntimeScheduling: (groupId: string) => void;
+  readonly onVerifyStoryPrediction: (groupId: string) => void;
 }
 
 function AssetVaultDialog({
@@ -426,6 +431,7 @@ function AssetVaultDialog({
   dicingPublishingGroupId,
   dicingRuntimeVerifyingGroupId,
   runtimeSchedulingGroupId,
+  storyPredictionGroupId,
   status,
   importState,
   createSuggestedId,
@@ -441,7 +447,8 @@ function AssetVaultDialog({
   onCancelDicing,
   onPublishDicingAtlas,
   onVerifyDicingRuntime,
-  onVerifyRuntimeScheduling
+  onVerifyRuntimeScheduling,
+  onVerifyStoryPrediction
 }: AssetVaultDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [assetId, setAssetId] = useState("");
@@ -515,14 +522,14 @@ function AssetVaultDialog({
           </div>
           <div className="dicing-analysis" aria-label="无损切图候选分析">
             <div className="dicing-analysis__heading">
-              <div><p className="eyebrow">LOSSLESS DICING · BUDGETED RESIDENCY</p><h4>跨图片重复块分析</h4></div>
+              <div><p className="eyebrow">STORY-AWARE ASSETS · EPOCH GUARDED</p><h4>跨图片重复块分析</h4></div>
               {dicingAnalyzing
                 ? <button type="button" className="danger-button" onClick={onCancelDicing}>取消分析</button>
                 : <button type="button" disabled={!storageReady || importing || dicingCandidateCount < 2} onClick={onAnalyzeDicing}>
                     分析候选 · {dicingCandidateCount}
                   </button>}
             </div>
-            <p>Runtime Worker 校验 Atlas 与当前源身份；调度器按优先级、解码并发和 RGBA 驻留硬预算加载，引用保护、LRU 与低内存清理不会驱逐正在使用的画面。</p>
+            <p>显式 Scene Resource Manifest 连接 Story Graph 与 Runtime Loader；仅预测分支公共资源，场景 epoch 可取消旧请求，回滚与画廊 lease 在低内存时按角色安全释放。</p>
             {dicingReport !== null && <div className={`dicing-analysis__report ${dicingReport.candidateGroups.length > 0 ? "is-adopt" : "is-original"}`} role="status">
               <strong>{dicingReport.candidateGroups.length > 0 ? `发现 ${dicingReport.candidateGroups.length} 个严格相似组` : "没有安全的自动分组"}</strong>
               <span>评估 {dicingReport.evaluatedImageCount} 图 · 阈值 {(dicingReport.minSharedTileRatio * 100).toFixed(0)}% · {dicingReport.unassignedAssetIds.length} 图保持独立</span>
@@ -536,14 +543,19 @@ function AssetVaultDialog({
                   {dicingPublishingGroupId === group.groupId ? "正在编码复决策…" : "编码并复决策发布"}
                 </button>}
                 {group.report.decision === "adopt" && <button type="button"
-                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null}
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null || storyPredictionGroupId !== null}
                   onClick={() => onVerifyDicingRuntime(group.groupId)}>
                   {dicingRuntimeVerifyingGroupId === group.groupId ? "正在验证 Loader…" : "验证 Runtime Loader"}
                 </button>}
                 {group.report.decision === "adopt" && <button type="button"
-                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null}
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null || storyPredictionGroupId !== null}
                   onClick={() => onVerifyRuntimeScheduling(group.groupId)}>
                   {runtimeSchedulingGroupId === group.groupId ? "正在执行内存门禁…" : "验证内存调度"}
+                </button>}
+                {group.report.decision === "adopt" && <button type="button"
+                  disabled={dicingPublishingGroupId !== null || dicingRuntimeVerifyingGroupId !== null || runtimeSchedulingGroupId !== null || storyPredictionGroupId !== null}
+                  onClick={() => onVerifyStoryPrediction(group.groupId)}>
+                  {storyPredictionGroupId === group.groupId ? "正在验证剧情预测…" : "验证剧情预测"}
                 </button>}
               </article>)}
               <code>{dicingReport.discoveryDigest.slice(7, 19)}… · 自动分组确定性摘要</code>
@@ -1150,6 +1162,7 @@ export function App() {
   const [dicingPublishingGroupId, setDicingPublishingGroupId] = useState<string | null>(null);
   const [dicingRuntimeVerifyingGroupId, setDicingRuntimeVerifyingGroupId] = useState<string | null>(null);
   const [runtimeSchedulingGroupId, setRuntimeSchedulingGroupId] = useState<string | null>(null);
+  const [storyPredictionGroupId, setStoryPredictionGroupId] = useState<string | null>(null);
   const [assetBackupAuditReady, setAssetBackupAuditReady] = useState(false);
   const [linkedAssetBackupIds, setLinkedAssetBackupIds] = useState<readonly string[]>([]);
   const [unlinkedAssetBackupIds, setUnlinkedAssetBackupIds] = useState<readonly string[]>([]);
@@ -2005,6 +2018,86 @@ export function App() {
     }
   };
 
+  const verifyStoryPrediction = async (groupId: string) => {
+    const repository = assetRepositoryRef.current;
+    const group = dicingReport?.candidateGroups.find((candidate) => candidate.groupId === groupId);
+    if (repository === null || group === undefined || group.assetIds.length < 2 || storyPredictionGroupId !== null) return;
+    setStoryPredictionGroupId(groupId);
+    setAssetLifecycleDetail(`正在用显式 Scene Resource Manifest 验证 ${groupId} 的分支公共预取、回滚与画廊引用…`);
+    let coordinator: StoryResourceCoordinator<Awaited<ReturnType<typeof resolveDicingRuntimeImageInWorker>>> | null = null;
+    try {
+      const publication = await repository.loadDicingRuntimePublication(groupId);
+      if (publication === null) throw new AssetBlobError("DERIVATIVE_UNAVAILABLE", "read", groupId, "Runtime publication is unavailable");
+      const delivery = parseLosslessDicingPngDeliveryManifest(publication.deliveryManifestJson);
+      const project = sessionRef.current.project;
+      const entrySceneId = project.entrySceneId;
+      const firstAssetId = group.assetIds[0]!;
+      const branchAssetId = group.assetIds[1]!;
+      const resourceManifest: SceneResourceManifest = {
+        schemaVersion: 1,
+        scenes: project.scenes.map((scene) => ({
+          sceneId: scene.id,
+          assetIds: scene.id === entrySceneId ? [firstAssetId] : [branchAssetId]
+        }))
+      };
+      const targetById = new Map(group.assetIds.map((assetId) => {
+        const entry = assetIndex.assets.find((candidate) => candidate.assetId === assetId);
+        const image = delivery.layoutManifest.images.find((candidate) => candidate.assetId === assetId);
+        if (entry === undefined || image === undefined) throw new AssetBlobError("STALE_INDEX_REVISION", "read", assetId, "Story prediction target changed");
+        return [assetId, { entry, reservedBytes: image.width * image.height * 4 }] as const;
+      }));
+      const residentBudget = [...targetById.values()].reduce((total, target) => total + target.reservedBytes, 0);
+      const scheduler = new RuntimeResourceScheduler<Awaited<ReturnType<typeof resolveDicingRuntimeImageInWorker>>>({
+        maxConcurrentLoads: 2,
+        maxResidentBytes: residentBudget
+      });
+      coordinator = new StoryResourceCoordinator(scheduler);
+      const resolveDescriptor = (assetId: string) => {
+        const target = targetById.get(assetId);
+        if (target === undefined) throw new AssetBlobError("DERIVATIVE_UNAVAILABLE", "read", assetId, "Asset is absent from the verified prediction profile");
+        return { reservedBytes: target.reservedBytes, load: async (signal: AbortSignal) => {
+          const originalBytes = await repository.read(target.entry.source.digest);
+          if (signal.aborted) throw new AssetBlobError("CANCELLED", "read", assetId, "Story prediction was superseded");
+          if (originalBytes === null) throw new AssetBlobError("CORRUPT_BLOB", "read", target.entry.source.digest, "Current Original is missing");
+          const resolution = await resolveDicingRuntimeImageInWorker({
+            assetId,
+            originalMimeType: target.entry.source.mimeType,
+            originalBytes,
+            deliveryManifestJson: publication.deliveryManifestJson,
+            encodedPages: publication.encodedPages.map((page) => ({ pageId: page.pageId, bytes: page.bytes })),
+            maxDecodedPixels: target.reservedBytes / 4
+          });
+          return { value: resolution, byteLength: resolution.rgba.byteLength };
+        } };
+      };
+
+      const entryPlan = predictStoryResources(project, resourceManifest, entrySceneId);
+      const entryReport = await coordinator.transition(entryPlan, resolveDescriptor);
+      await coordinator.waitForIdle();
+      const branchCommonCount = entryPlan.resources.filter((item) => item.reason === "branch-common").length;
+      const galleryPlan = predictStoryResources(project, resourceManifest, entrySceneId, { galleryAssetIds: [branchAssetId] });
+      await coordinator.transition(galleryPlan, resolveDescriptor);
+      const galleryReferences = coordinator.snapshot().galleryReferences;
+      await coordinator.transition(entryPlan, resolveDescriptor);
+      await coordinator.waitForIdle();
+      const targetSceneId = entryPlan.outgoingSceneIds[0];
+      if (targetSceneId === undefined) throw new Error("Sample Story Graph has no outgoing scene");
+      const targetPlan = predictStoryResources(project, resourceManifest, targetSceneId, { rollbackSceneIds: [entrySceneId] });
+      await coordinator.transition(targetPlan, resolveDescriptor);
+      const beforePressure = coordinator.snapshot();
+      const afterPressure = coordinator.handleMemoryPressure();
+      const disposed = coordinator.dispose();
+      setAssetLifecycleDetail(`${groupId} STORY PREDICTION PASS：当前 ${targetSceneId} · 分支公共预取 ${branchCommonCount} · ` +
+        `入口预取任务 ${entryReport.scheduledPrefetches} · 回滚引用 ${beforePressure.rollbackReferences} · 画廊临时引用 ${galleryReferences}；` +
+        `低内存后保留当前 ${afterPressure.currentReferences}、回滚 ${afterPressure.rollbackReferences}，最终驻留 ${formatBytes(disposed.scheduler.residentBytes)}、任务 ${disposed.scheduler.activeLoads + disposed.scheduler.queuedLoads}。`);
+    } catch (error) {
+      coordinator?.dispose();
+      setAssetLifecycleDetail(error instanceof Error ? `剧情资源预测门禁失败：${error.message}` : "剧情资源预测门禁失败。");
+    } finally {
+      setStoryPredictionGroupId(null);
+    }
+  };
+
   if (persistence.status === "loading" || persistence.status === "migrating") {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
@@ -2080,7 +2173,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.28 MEMORY BOUNDED · PRESSURE SAFE</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.29 STORY PREDICTED · EPOCH GUARDED</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
@@ -2132,6 +2225,7 @@ export function App() {
           dicingPublishingGroupId={dicingPublishingGroupId}
           dicingRuntimeVerifyingGroupId={dicingRuntimeVerifyingGroupId}
           runtimeSchedulingGroupId={runtimeSchedulingGroupId}
+          storyPredictionGroupId={storyPredictionGroupId}
           status={assetStatus}
           importState={assetImportState}
           createSuggestedId={(fileName) => canonicalAssetId(fileName, ++assetFileSerial.current)}
@@ -2148,6 +2242,7 @@ export function App() {
           onPublishDicingAtlas={(groupId) => void publishDicingAtlas(groupId)}
           onVerifyDicingRuntime={(groupId) => void verifyDicingRuntime(groupId)}
           onVerifyRuntimeScheduling={(groupId) => void verifyRuntimeScheduling(groupId)}
+          onVerifyStoryPrediction={(groupId) => void verifyStoryPrediction(groupId)}
         />
       )}
     </div>
