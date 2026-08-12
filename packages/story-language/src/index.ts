@@ -1,5 +1,6 @@
 export * from "./formatter";
 export * from "./directive-patch";
+export * from "./directive-schema";
 export * from "./model";
 export * from "./patch";
 export * from "./parser";

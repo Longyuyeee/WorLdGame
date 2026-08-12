@@ -1,6 +1,13 @@
 import type { StoryStatement } from "@world-studio/story-core";
 import type { AssetIndex, AssetIndexEntry, BlobDigest } from "@world-studio/project-persistence";
-import { inspectDirectiveArguments } from "@world-studio/story-language";
+import {
+  MAX_STAGE_Z,
+  MIN_STAGE_Z,
+  SAFE_STAGE_SLOT,
+  directiveActionRequiresAsset,
+  inspectDirectiveArguments,
+  resolveDirectiveAction
+} from "@world-studio/story-language";
 
 export interface PreviewVisualLayerPlan {
   readonly statementId: string;
@@ -9,6 +16,8 @@ export interface PreviewVisualLayerPlan {
   readonly duration?: string;
   readonly expression?: string;
   readonly position?: string;
+  readonly slot?: string;
+  readonly z?: number;
 }
 
 export interface PreviewAudioLayerPlan {
@@ -18,12 +27,14 @@ export interface PreviewAudioLayerPlan {
   readonly loop: boolean;
   readonly volume: number;
   readonly fade?: string;
+  readonly playback: "playing" | "paused";
 }
 
 export interface PreviewStagePlan {
   readonly key: string;
+  readonly resourceKey: string;
   readonly background?: PreviewVisualLayerPlan;
-  readonly character?: PreviewVisualLayerPlan;
+  readonly characters: readonly PreviewVisualLayerPlan[];
   readonly audio: readonly PreviewAudioLayerPlan[];
   readonly diagnostics: readonly string[];
 }
@@ -31,7 +42,7 @@ export interface PreviewStagePlan {
 export interface LoadedPreviewMedia {
   readonly planKey: string;
   readonly background?: PreviewVisualLayerPlan & { readonly url: string };
-  readonly character?: PreviewVisualLayerPlan & { readonly url: string };
+  readonly characters: readonly (PreviewVisualLayerPlan & { readonly url: string })[];
   readonly audio: readonly (PreviewAudioLayerPlan & { readonly url: string })[];
   readonly errors: readonly string[];
   readonly objectUrls: readonly string[];
@@ -55,7 +66,7 @@ function optional(parameters: Readonly<Record<string, string>>, key: string): st
 
 interface MutableStageState {
   background?: PreviewVisualLayerPlan;
-  character?: PreviewVisualLayerPlan;
+  readonly characters: Map<string, PreviewVisualLayerPlan>;
   readonly audio: Map<PreviewAudioLayerPlan["bus"], PreviewAudioLayerPlan>;
   readonly diagnostics: string[];
 }
@@ -76,31 +87,73 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
       addDiagnostic(state, `${statement.id}: duplicate parameters are not executed`);
       return true;
     }
+    const action = resolveDirectiveAction(statement.command, inspected.parameters.action);
+    if (action === undefined) {
+      addDiagnostic(state, `${statement.id}: action is invalid for @${statement.command}`);
+      return true;
+    }
     const assetId = inspected.parameters.asset;
-    if (assetId === undefined) {
-      addDiagnostic(state, `${statement.id}: asset is required`);
+    if (directiveActionRequiresAsset(statement.command, action) && assetId === undefined) {
+      addDiagnostic(state, `${statement.id}: asset is required for action=${action}`);
       return true;
     }
     if (statement.command === "background") {
+      if (action === "clear") {
+        delete state.background;
+        return true;
+      }
       state.background = {
         statementId: statement.id,
-        assetId,
+        assetId: assetId!,
         ...(optional(inspected.parameters, "transition") === undefined ? {} : { transition: inspected.parameters.transition }),
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
       };
     } else if (statement.command === "show") {
-      state.character = {
+      const slot = inspected.parameters.slot ?? "primary";
+      if (!SAFE_STAGE_SLOT.test(slot)) {
+        addDiagnostic(state, `${statement.id}: slot must be a stable identifier`);
+        return true;
+      }
+      if (action === "hide") {
+        state.characters.delete(slot);
+        return true;
+      }
+      const zSource = inspected.parameters.z;
+      const z = zSource === undefined ? 0 : Number(zSource);
+      if (!Number.isInteger(z) || z < MIN_STAGE_Z || z > MAX_STAGE_Z) {
+        addDiagnostic(state, `${statement.id}: z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`);
+        return true;
+      }
+      state.characters.set(slot, {
         statementId: statement.id,
-        assetId,
+        assetId: assetId!,
+        slot,
+        z,
         ...(optional(inspected.parameters, "transition") === undefined ? {} : { transition: inspected.parameters.transition }),
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
         ...(optional(inspected.parameters, "expression") === undefined ? {} : { expression: inspected.parameters.expression }),
         ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position })
-      };
+      });
     } else {
       const bus = inspected.parameters.bus;
       if (bus === undefined || !AUDIO_BUSES.has(bus)) {
         addDiagnostic(state, `${statement.id}: a valid audio bus is required`);
+        return true;
+      }
+      if (action === "stop") {
+        state.audio.delete(bus as PreviewAudioLayerPlan["bus"]);
+        return true;
+      }
+      if (action === "pause" || action === "resume") {
+        const current = state.audio.get(bus as PreviewAudioLayerPlan["bus"]);
+        if (current === undefined) {
+          addDiagnostic(state, `${statement.id}: ${action} requires an active ${bus} layer`);
+          return true;
+        }
+        state.audio.set(bus as PreviewAudioLayerPlan["bus"], {
+          ...current,
+          playback: action === "pause" ? "paused" : "playing"
+        });
         return true;
       }
       const volumeSource = inspected.parameters.volume;
@@ -111,10 +164,11 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
       }
       state.audio.set(bus as PreviewAudioLayerPlan["bus"], {
         statementId: statement.id,
-        assetId,
+        assetId: assetId!,
         bus: bus as PreviewAudioLayerPlan["bus"],
         loop: inspected.parameters.loop === "true",
         volume,
+        playback: "playing",
         ...(optional(inspected.parameters, "fade") === undefined ? {} : { fade: inspected.parameters.fade })
       });
     }
@@ -122,24 +176,34 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
 }
 
 function snapshotStageState(state: MutableStageState): PreviewStagePlan {
+  const characters = [...state.characters.values()].sort((left, right) =>
+    (left.z ?? 0) - (right.z ?? 0) || (left.slot ?? "").localeCompare(right.slot ?? "")
+  );
   const audioLayers = [...state.audio.values()].sort((left, right) => left.bus.localeCompare(right.bus));
   const identity = {
     background: state.background ?? null,
-    character: state.character ?? null,
+    characters,
     audio: audioLayers,
+    diagnostics: state.diagnostics
+  };
+  const resourceIdentity = {
+    background: state.background ?? null,
+    characters,
+    audio: audioLayers.map(({ playback: _playback, ...layer }) => layer),
     diagnostics: state.diagnostics
   };
   return {
     key: JSON.stringify(identity),
+    resourceKey: JSON.stringify(resourceIdentity),
     ...(state.background === undefined ? {} : { background: state.background }),
-    ...(state.character === undefined ? {} : { character: state.character }),
+    characters,
     audio: audioLayers,
     diagnostics: [...state.diagnostics]
   };
 }
 
 export function compilePreviewStageTimeline(statements: readonly StoryStatement[]): readonly PreviewStagePlan[] {
-  const state: MutableStageState = { audio: new Map(), diagnostics: [] };
+  const state: MutableStageState = { characters: new Map(), audio: new Map(), diagnostics: [] };
   const timeline: PreviewStagePlan[] = [];
   let previous: PreviewStagePlan | undefined;
   for (const statement of statements) {
@@ -160,9 +224,9 @@ export function derivePreviewStagePlan(
   statements: readonly StoryStatement[],
   inclusiveIndex: number
 ): PreviewStagePlan {
-  if (statements.length === 0) return snapshotStageState({ audio: new Map(), diagnostics: [] });
+  if (statements.length === 0) return snapshotStageState({ characters: new Map(), audio: new Map(), diagnostics: [] });
   const index = Math.min(Math.max(inclusiveIndex, 0), statements.length - 1);
-  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ audio: new Map(), diagnostics: [] });
+  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ characters: new Map(), audio: new Map(), diagnostics: [] });
 }
 
 function compatible(entry: AssetIndexEntry, role: "background" | "character" | "audio"): boolean {
@@ -214,7 +278,11 @@ export async function loadPreviewMedia(
 
   try {
     const backgroundUrl = plan.background === undefined ? undefined : await load(plan.background, "background");
-    const characterUrl = plan.character === undefined ? undefined : await load(plan.character, "character");
+    const characters: Array<PreviewVisualLayerPlan & { readonly url: string }> = [];
+    for (const layer of plan.characters) {
+      const url = await load(layer, "character");
+      if (url !== undefined) characters.push({ ...layer, url });
+    }
     const audio: Array<PreviewAudioLayerPlan & { readonly url: string }> = [];
     for (const layer of plan.audio) {
       const url = await load(layer, "audio");
@@ -222,9 +290,9 @@ export async function loadPreviewMedia(
     }
     if (signal.aborted) throw abortError();
     return {
-      planKey: plan.key,
+      planKey: plan.resourceKey,
       ...(plan.background === undefined || backgroundUrl === undefined ? {} : { background: { ...plan.background, url: backgroundUrl } }),
-      ...(plan.character === undefined || characterUrl === undefined ? {} : { character: { ...plan.character, url: characterUrl } }),
+      characters,
       audio,
       errors,
       objectUrls: createdUrls

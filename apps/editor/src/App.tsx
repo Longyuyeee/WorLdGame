@@ -33,9 +33,15 @@ import {
   type StoryStatement
 } from "@world-studio/story-core";
 import {
+  MAX_STAGE_Z,
+  MIN_STAGE_Z,
+  SAFE_STAGE_SLOT,
   compileSceneResourceManifest,
+  directiveActionRequiresAsset,
+  directiveActionOptions,
   inspectDirectiveArguments,
   parseStory,
+  resolveDirectiveAction,
   type StoryDocument
 } from "@world-studio/story-language";
 import {
@@ -230,7 +236,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.32</p>
+          <p className="eyebrow">WorLd Studio · S0.33</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -341,7 +347,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.32 VERIFIED MEDIA · LIVE STAGE</small></span>
+            <span><strong>资源保险库</strong><small>S0.33 MULTI-LAYER · STAGE CONTROL</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -691,17 +697,23 @@ function DirectionInspector({
 }: DirectionInspectorProps) {
   const inspection = inspectDirectiveArguments(statement.summary);
   const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
+  const action = resolveDirectiveAction(statement.command, form.action);
+  const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
   const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
   const assetId = form.asset ?? "";
-  const assetKnown = compatibleAssets.some((entry) => entry.assetId === assetId);
+  const assetKnown = !assetRequired || compatibleAssets.some((entry) => entry.assetId === assetId);
   const transitionAsset = form.transitionAsset ?? "";
-  const transitionAssetKnown = transitionAsset.length === 0 || assetIndex.assets.some((entry) => entry.assetId === transitionAsset);
+  const transitionAssetKnown = !assetRequired || transitionAsset.length === 0 || assetIndex.assets.some((entry) => entry.assetId === transitionAsset);
   const duration = statement.command === "audio" ? (form.fade ?? "") : (form.duration ?? "");
-  const durationValid = duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
-  const volumeValid = statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
+  const durationValid = !assetRequired || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
+  const volumeValid = !assetRequired || statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
     (/^\d+(?:\.\d+)?$/.test(form.volume) && Number(form.volume) >= 0 && Number(form.volume) <= 1);
   const busValid = statement.command !== "audio" || ["voice", "bgm", "sfx", "ambient"].includes(form.bus ?? "");
-  const canApply = !disabled && inspection.duplicateKeys.length === 0 && assetKnown && busValid &&
+  const slot = form.slot ?? "primary";
+  const slotValid = statement.command !== "show" || SAFE_STAGE_SLOT.test(slot);
+  const z = form.z === undefined || form.z.length === 0 ? 0 : Number(form.z);
+  const zValid = !assetRequired || statement.command !== "show" || Number.isInteger(z) && z >= MIN_STAGE_Z && z <= MAX_STAGE_Z;
+  const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
     transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
@@ -709,10 +721,15 @@ function DirectionInspector({
     keys.map((key) => [key, (form[key] ?? "").trim() || null])
   );
   const keys = statement.command === "background"
-    ? ["asset", "transition", "transitionAsset", "duration"]
+    ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["asset", "expression", "position", "transition", "transitionAsset", "duration"]
-      : ["asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+      ? ["action", "asset", "slot", "z", "expression", "position", "transition", "transitionAsset", "duration"]
+      : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+  const inactiveResourcePatch = statement.command === "background"
+    ? { asset: null, transition: null, transitionAsset: null, duration: null }
+    : statement.command === "show"
+      ? { asset: null, z: null, expression: null, position: null, transition: null, transitionAsset: null, duration: null }
+      : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
     <form className="direction-inspector" onSubmit={(event) => {
@@ -722,7 +739,11 @@ function DirectionInspector({
         type: "patch-direction",
         commandId: createCommandId(),
         statementId: statement.id,
-        parameters: fieldPatch(keys),
+        parameters: {
+          ...fieldPatch(keys),
+          action: action ?? null,
+          ...(!assetRequired ? inactiveResourcePatch : {})
+        },
         removeLegacyPositional: inspection.positional.length > 0
       });
     }}>
@@ -745,7 +766,14 @@ function DirectionInspector({
         <p className="direction-error" role="alert">重复参数需要先在 Script 中处理：{inspection.duplicateKeys.join("、")}</p>
       )}
 
-      <div className="direction-field direction-field--wide">
+      <div className="direction-field">
+        <label htmlFor={`direction-action-${statement.id}`}>动作</label>
+        <select id={`direction-action-${statement.id}`} aria-label="演出动作" value={action ?? ""} disabled={disabled} onChange={(event) => setField("action", event.target.value)}>
+          {directiveActionOptions(statement.command).map((option) => <option key={option} value={option}>{option}</option>)}
+        </select>
+      </div>
+
+      {assetRequired && <div className="direction-field direction-field--wide">
         <label htmlFor={`direction-asset-${statement.id}`}>主资源</label>
         <input
           id={`direction-asset-${statement.id}`}
@@ -766,9 +794,9 @@ function DirectionInspector({
               ? `${compatibleAssets.length} 个兼容资源可选`
               : assetKnown ? "资源类型与索引均已验证" : "该 ID 不存在或资源类型不兼容"}
         </small>
-      </div>
+      </div>}
 
-      {statement.command !== "audio" && (
+      {statement.command !== "audio" && assetRequired && (
         <div className="direction-field">
           <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
           <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
@@ -777,25 +805,27 @@ function DirectionInspector({
         </div>
       )}
       {statement.command === "show" && <>
+        <div className="direction-field"><label htmlFor={`direction-slot-${statement.id}`}>角色槽位</label><input id={`direction-slot-${statement.id}`} aria-label="角色槽位" value={slot} disabled={disabled} placeholder="primary" onChange={(event) => setField("slot", event.target.value)} />{!slotValid && <small className="is-error">需为稳定标识符</small>}</div>
+        {assetRequired && <><div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>
         <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>
-        <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div>
+        <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div></>}
       </>}
       {statement.command === "audio" && <>
         <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
-        <div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
-        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div>
+        {assetRequired && <><div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
+        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div></>}
       </>}
-      <div className="direction-field">
+      {assetRequired && <div className="direction-field">
         <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : "时长"}</label>
         <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
         {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
-      </div>
-      <div className="direction-field direction-field--wide">
+      </div>}
+      {assetRequired && <div className="direction-field direction-field--wide">
         <label htmlFor={`direction-transition-asset-${statement.id}`}>过渡资源（可选）</label>
         <input id={`direction-transition-asset-${statement.id}`} aria-label="过渡资源" list={`transition-assets-${statement.id}`} value={transitionAsset} disabled={disabled} placeholder="可选 Asset ID" onChange={(event) => setField("transitionAsset", event.target.value)} />
         <datalist id={`transition-assets-${statement.id}`}>{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>
         {!transitionAssetKnown && <small className="is-error">过渡资源不在 Asset Index 中</small>}
-      </div>
+      </div>}
       <div className="direction-inspector__actions">
         <span>{inspection.duplicateKeys.length === 0 ? "未知参数保持原样" : "提交已锁定"}</span>
         <button type="submit" disabled={!canApply}>
@@ -1102,7 +1132,9 @@ type PreviewMediaViewState =
 
 function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & { readonly url: string } }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [status, setStatus] = useState<"starting" | "playing" | "blocked" | "error">("starting");
+  const [status, setStatus] = useState<"starting" | "playing" | "paused" | "blocked" | "error">(
+    layer.playback === "paused" ? "paused" : "starting"
+  );
   useEffect(() => {
     const audio = audioRef.current;
     return () => {
@@ -1111,16 +1143,27 @@ function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & 
       audio.removeAttribute("src");
     };
   }, [layer.url]);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio === null) return;
+    if (layer.playback === "paused") {
+      audio.pause();
+      setStatus("paused");
+      return;
+    }
+    audio.volume = layer.volume;
+    void audio.play().catch(() => setStatus("blocked"));
+  }, [layer.playback, layer.volume]);
   return <>
     <audio
       ref={audioRef}
       src={layer.url}
-      autoPlay
+      autoPlay={layer.playback === "playing"}
       loop={layer.loop}
       data-testid={`preview-audio-${layer.bus}`}
       onCanPlay={(event) => {
         event.currentTarget.volume = layer.volume;
-        void event.currentTarget.play().catch(() => setStatus("blocked"));
+        if (layer.playback === "playing") void event.currentTarget.play().catch(() => setStatus("blocked"));
       }}
       onPlay={() => setStatus("playing")}
       onError={() => setStatus("error")}
@@ -1128,15 +1171,15 @@ function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & 
     <button
       type="button"
       className={`stage-audio-chip stage-audio-chip--${status}`}
-      aria-label={`${layer.bus} 音轨${status === "playing" ? "播放中" : "启用播放"}`}
+      aria-label={`${layer.bus} 音轨${status === "playing" ? "播放中" : status === "paused" ? "已暂停" : "启用播放"}`}
       onClick={() => {
         const audio = audioRef.current;
-        if (audio === null || status === "playing") return;
+        if (audio === null || status === "playing" || layer.playback === "paused") return;
         audio.volume = layer.volume;
         void audio.play().catch(() => setStatus("blocked"));
       }}
     >
-      {layer.bus.toUpperCase()} · {status === "playing" ? "播放中" : status === "blocked" ? "点击启用" : status === "error" ? "重试播放" : "准备中"}
+      {layer.bus.toUpperCase()} · {status === "playing" ? "播放中" : status === "paused" ? "已暂停" : status === "blocked" ? "点击启用" : status === "error" ? "重试播放" : "准备中"}
     </button>
   </>;
 }
@@ -1183,19 +1226,20 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
   const [mediaView, setMediaView] = useState<PreviewMediaViewState>({
     status: "loading",
-    planKey: stagePlan.key
+    planKey: stagePlan.resourceKey
   });
 
   useEffect(() => {
     const controller = new AbortController();
     let owned: LoadedPreviewMedia | undefined;
-    const requiresRepository = stagePlan.background !== undefined || stagePlan.character !== undefined || stagePlan.audio.length > 0;
-    setMediaView({ status: "loading", planKey: stagePlan.key });
+    const requiresRepository = stagePlan.background !== undefined || stagePlan.characters.length > 0 || stagePlan.audio.length > 0;
+    setMediaView({ status: "loading", planKey: stagePlan.resourceKey });
     if (assetRepository === null && requiresRepository) {
       setMediaView({
         status: "ready",
         media: {
-          planKey: stagePlan.key,
+          planKey: stagePlan.resourceKey,
+          characters: [],
           audio: [],
           errors: [...stagePlan.diagnostics, "Preview Asset repository is unavailable"],
           objectUrls: []
@@ -1219,7 +1263,8 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
         setMediaView({
           status: "ready",
           media: {
-            planKey: stagePlan.key,
+            planKey: stagePlan.resourceKey,
+            characters: [],
             audio: [],
             errors: [...stagePlan.diagnostics, error instanceof Error ? error.message : "Preview media load failed"],
             objectUrls: []
@@ -1230,9 +1275,9 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
       controller.abort();
       if (owned !== undefined) releasePreviewMedia(owned, urlFactory);
     };
-  }, [assetIndex, assetRepository, stagePlan.key, urlFactory]);
+  }, [assetIndex, assetRepository, stagePlan.resourceKey, urlFactory]);
 
-  const loadedMedia = mediaView.status === "ready" && mediaView.media.planKey === stagePlan.key
+  const loadedMedia = mediaView.status === "ready" && mediaView.media.planKey === stagePlan.resourceKey
     ? mediaView.media
     : undefined;
 
@@ -1370,17 +1415,22 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
               style={{ animationDuration: loadedMedia.background.duration ?? "360ms" }}
             />
           )}
-          {loadedMedia?.character !== undefined && (
+          {loadedMedia?.characters.map((character) => (
             <img
-              className={`stage-media-character stage-media-character--${loadedMedia.character.position ?? "center"} stage-transition--${loadedMedia.character.transition ?? "none"}`}
-              data-testid="preview-character"
-              src={loadedMedia.character.url}
-              alt={`角色资源 ${loadedMedia.character.assetId}${loadedMedia.character.expression === undefined ? "" : ` · ${loadedMedia.character.expression}`}`}
-              style={{ animationDuration: loadedMedia.character.duration ?? "360ms" }}
+              key={character.slot}
+              className={`stage-media-character stage-media-character--${character.position ?? "center"} stage-transition--${character.transition ?? "none"}`}
+              data-testid={`preview-character-${character.slot}`}
+              data-stage-slot={character.slot}
+              src={character.url}
+              alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
+              style={{ animationDuration: character.duration ?? "360ms", zIndex: character.z ?? 0 }}
             />
-          )}
+          ))}
           <div className="stage-audio-stack" aria-live="polite">
-            {loadedMedia?.audio.map((layer) => <PreviewAudioLayer key={`${layer.bus}:${layer.statementId}:${layer.url}`} layer={layer} />)}
+            {loadedMedia?.audio.map((layer) => {
+              const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
+              return <PreviewAudioLayer key={`${layer.bus}:${layer.statementId}:${layer.url}`} layer={{ ...layer, playback }} />;
+            })}
           </div>
           {mediaView.status === "loading" && <div className="stage-media-loading" role="status">正在验证预览资源…</div>}
           {loadedMedia !== undefined && loadedMedia.errors.length > 0 && (
@@ -2423,6 +2473,8 @@ export function App() {
       const entryAssetId = group.assetIds[0]!;
       const branchAssetId = group.assetIds[1]!;
       const documents: Record<string, StoryDocument> = {};
+      let typedDirectionCount = 0;
+      let transitionDependencyCount = 0;
       for (const scene of project.scenes) {
         const sourceSession = sessionRef.current.sourceSessions[scene.id];
         if (sourceSession === undefined) throw new Error(`Missing canonical source for ${scene.id}`);
@@ -2431,6 +2483,8 @@ export function App() {
           /^@background\s+.*?\s+@id\(([^)]+)\)\s*$/m,
           (_line, statementId: string) => `@background asset=${backgroundAssetId}${scene.id === project.entrySceneId ? " transition=fade" : ` transition=fade transitionAsset=${entryAssetId}`} @id(${statementId})`
         );
+        typedDirectionCount += typedSource.match(/^@(background|show|audio)\b/gm)?.length ?? 0;
+        transitionDependencyCount += typedSource.match(/\btransitionAsset=/g)?.length ?? 0;
         documents[scene.id] = parseStory(typedSource);
       }
       const result = compileSceneResourceManifest(project, documents, { knownAssetIds: assetIndex.assets.map((entry) => entry.assetId) });
@@ -2438,10 +2492,6 @@ export function App() {
       const plan = predictStoryResources(project, result.compilation.manifest, project.entrySceneId);
       const sceneAssetCount = new Set(result.compilation.manifest.scenes.flatMap((scene) => scene.assetIds)).size;
       const statementWindowCount = result.compilation.timelines.reduce((total, timeline) => total + timeline.statements.length, 0);
-      const typedDirectionCount = result.compilation.timelines.reduce((total, timeline) =>
-        total + timeline.statements.filter((statement) => statement.requiredAssetIds.length > 0).length, 0);
-      const transitionDependencyCount = result.compilation.timelines.reduce((total, timeline) =>
-        total + timeline.statements.filter((statement) => statement.requiredAssetIds.length > 1).length, 0);
       const branchCommonCount = plan.resources.filter((resource) => resource.reason === "branch-common").length;
       setAssetLifecycleDetail(`${groupId} RESOURCE COMPILER PASS：${result.compilation.manifest.scenes.length} 场景 · ` +
         `${statementWindowCount} 语句窗口 · ${typedDirectionCount} 条类型化演出 · ${sceneAssetCount} 个已验证 Asset；` +
@@ -2528,7 +2578,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.32 VERIFIED MEDIA · CANCEL-SAFE STAGE</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.33 REVERSIBLE STAGE · BUS CONTROL</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

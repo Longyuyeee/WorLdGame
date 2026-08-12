@@ -1,5 +1,6 @@
 import type { EntityId } from "@world-studio/story-core";
 import { semanticSnapshot } from "./formatter";
+import { DIRECTIVE_PARAMETERS } from "./directive-schema";
 import type { DirectiveNode, StoryDocument } from "./model";
 import { parseStory } from "./parser";
 
@@ -42,12 +43,6 @@ export type DirectiveParameterPatchResult =
       readonly after: DirectiveArgumentInspection;
     }
   | { readonly ok: false; readonly error: DirectivePatchError };
-
-const EDITABLE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
-  background: ["asset", "transition", "transitionAsset", "duration"],
-  show: ["asset", "expression", "position", "transition", "transitionAsset", "duration"],
-  audio: ["asset", "bus", "loop", "volume", "fade", "transitionAsset"]
-};
 
 interface TokenSpan {
   readonly start: number;
@@ -111,7 +106,7 @@ export function inspectDirectiveArguments(argumentsRaw: string): DirectiveArgume
 }
 
 export function editableDirectiveParameters(command: DirectiveNode["command"]): readonly string[] {
-  return EDITABLE_PARAMETERS[command];
+  return DIRECTIVE_PARAMETERS[command];
 }
 
 function fail(code: DirectivePatchErrorCode, message: string): DirectiveParameterPatchResult {
@@ -159,7 +154,7 @@ export function patchDirectiveParameters(
   const target = targets[0];
   if (target === undefined) return fail("DIRECTIVE_PATCH_TARGET_NOT_FOUND", `Directive was not found: ${statementId}`);
 
-  const editable = new Set(EDITABLE_PARAMETERS[target.command]);
+  const editable = new Set(DIRECTIVE_PARAMETERS[target.command]);
   for (const [key, value] of Object.entries(patch.parameters)) {
     if (!editable.has(key)) {
       return fail("DIRECTIVE_PATCH_UNKNOWN_PARAMETER", `@${target.command} does not expose parameter ${key}`);

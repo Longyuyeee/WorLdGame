@@ -1,10 +1,19 @@
 import type { EntityId, SceneResourceManifest, StoryProject } from "@world-studio/story-core";
+import {
+  DIRECTIVE_PARAMETERS,
+  MAX_STAGE_Z,
+  MIN_STAGE_Z,
+  SAFE_STAGE_SLOT,
+  directiveActionRequiresAsset,
+  resolveDirectiveAction
+} from "./directive-schema";
 import type { DirectiveNode, StoryDocument, StorySyntaxNode } from "./model";
 
 export type ResourceManifestDiagnosticCode = "SOURCE_INVALID" | "MISSING_SCENE_DOCUMENT" | "UNEXPECTED_SCENE_DOCUMENT" |
   "SCENE_ID_MISMATCH" | "SCENE_STATEMENTS_MISMATCH" | "STATEMENT_SEMANTICS_MISMATCH" | "MISSING_STATEMENT_ID" | "UNTYPED_RESOURCE_REFERENCE" | "MALFORMED_PARAMETER" |
   "DUPLICATE_PARAMETER" | "UNKNOWN_RESOURCE_PARAMETER" | "MISSING_ASSET" | "INVALID_ASSET_ID" |
-  "UNKNOWN_ASSET" | "INVALID_AUDIO_BUS" | "INVALID_BOOLEAN" | "INVALID_DURATION" | "INVALID_VOLUME";
+  "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" |
+  "INVALID_AUDIO_BUS" | "INVALID_BOOLEAN" | "INVALID_DURATION" | "INVALID_VOLUME";
 
 export interface ResourceManifestDiagnostic {
   readonly code: ResourceManifestDiagnosticCode;
@@ -43,9 +52,9 @@ export interface ResourceManifestCompilerOptions {
 const SAFE_ASSET_ID = /^[A-Za-z][A-Za-z0-9._-]{0,127}$/;
 const AUDIO_BUSES = new Set(["voice", "bgm", "sfx", "ambient"]);
 const KNOWN_PARAMETERS: Record<DirectiveNode["command"], ReadonlySet<string>> = {
-  background: new Set(["asset", "transition", "transitionAsset", "duration"]),
-  show: new Set(["asset", "expression", "position", "transition", "transitionAsset", "duration"]),
-  audio: new Set(["asset", "bus", "loop", "volume", "fade", "transitionAsset"])
+  background: new Set(DIRECTIVE_PARAMETERS.background),
+  show: new Set(DIRECTIVE_PARAMETERS.show),
+  audio: new Set(DIRECTIVE_PARAMETERS.audio)
 };
 
 interface ParsedArguments {
@@ -121,6 +130,15 @@ export function compileSceneResourceManifest(
     const sceneAssets: string[] = [];
     const requiredByStatement = new Map<string, readonly string[]>();
     const orderedStatementIds: string[] = [];
+    let activeBackground: string | undefined;
+    const activeCharacters = new Map<string, string>();
+    const activeAudio = new Map<string, string>();
+    const currentAssets = (transient: readonly string[] = []): readonly string[] => {
+      const result = [activeBackground, ...[...activeCharacters.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, asset]) => asset),
+        ...[...activeAudio.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, asset]) => asset), ...transient]
+        .filter((value): value is string => value !== undefined);
+      return [...new Set(result)];
+    };
     for (const node of storyDocument.nodes) {
       const id = statementId(node);
       if (id !== undefined) {
@@ -135,18 +153,33 @@ export function compileSceneResourceManifest(
           message: `Statement ${id} changed semantic kind or directive command`, sceneId: scene.id, statementId: id, line: node.range.start.line });
         orderedStatementIds.push(id);
       }
-      if (node.kind !== "directive") continue;
+      if (node.kind !== "directive") {
+        if (id !== undefined) requiredByStatement.set(id, currentAssets());
+        continue;
+      }
       if (node.id === undefined) {
         diagnostics.push({ code: "MISSING_STATEMENT_ID", severity: "error", message: `@${node.command} requires @id(...) before resource compilation`,
           sceneId: scene.id, line: node.range.start.line });
         continue;
       }
       const parsed = parseArguments(node, scene.id, diagnostics);
+      const actionSource = parsed.parameters.get("action");
+      const action = resolveDirectiveAction(node.command, actionSource);
+      if (action === undefined) diagnostics.push({ code: "INVALID_ACTION", severity: "error",
+        message: `@${node.command} action is invalid: ${actionSource ?? ""}`, sceneId: scene.id,
+        statementId: node.id, line: node.range.start.line });
       const assetId = parsed.parameters.get("asset");
-      if (assetId === undefined) diagnostics.push({ code: "MISSING_ASSET", severity: "error", message: `@${node.command} requires asset=<stable Asset ID>`,
+      if (action !== undefined && directiveActionRequiresAsset(node.command, action) && assetId === undefined) diagnostics.push({ code: "MISSING_ASSET", severity: "error", message: `@${node.command} action=${action} requires asset=<stable Asset ID>`,
         sceneId: scene.id, statementId: node.id, line: node.range.start.line });
+      const slot = parsed.parameters.get("slot") ?? "primary";
+      if (node.command === "show" && !SAFE_STAGE_SLOT.test(slot)) diagnostics.push({ code: "INVALID_STAGE_SLOT", severity: "error",
+        message: "@show slot must be a stable stage identifier", sceneId: scene.id, statementId: node.id, line: node.range.start.line });
+      const z = parsed.parameters.get("z");
+      if (node.command === "show" && z !== undefined && (!/^-?\d+$/.test(z) || Number(z) < MIN_STAGE_Z || Number(z) > MAX_STAGE_Z)) diagnostics.push({ code: "INVALID_STAGE_Z", severity: "error",
+        message: `@show z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`, sceneId: scene.id, statementId: node.id, line: node.range.start.line });
+      let bus: string | undefined;
       if (node.command === "audio") {
-        const bus = parsed.parameters.get("bus");
+        bus = parsed.parameters.get("bus");
         if (bus === undefined || !AUDIO_BUSES.has(bus)) diagnostics.push({ code: "INVALID_AUDIO_BUS", severity: "error",
           message: "@audio requires bus=voice|bgm|sfx|ambient", sceneId: scene.id, statementId: node.id, line: node.range.start.line });
         const loop = parsed.parameters.get("loop");
@@ -161,7 +194,9 @@ export function compileSceneResourceManifest(
       const duration = parsed.parameters.get("duration") ?? parsed.parameters.get("fade");
       if (duration !== undefined && !/^\d+(?:\.\d+)?(?:ms|s)$/.test(duration)) diagnostics.push({ code: "INVALID_DURATION", severity: "error",
         message: "duration/fade must use an explicit ms or s unit", sceneId: scene.id, statementId: node.id, line: node.range.start.line });
-      const dependencies = [assetId, parsed.parameters.get("transitionAsset")].filter((value): value is string => value !== undefined);
+      const requiresAsset = action !== undefined && directiveActionRequiresAsset(node.command, action);
+      const dependencies = [requiresAsset ? assetId : undefined, requiresAsset ? parsed.parameters.get("transitionAsset") : undefined]
+        .filter((value): value is string => value !== undefined);
       const validDependencies: string[] = [];
       for (const dependency of dependencies) {
         if (!SAFE_ASSET_ID.test(dependency)) diagnostics.push({ code: "INVALID_ASSET_ID", severity: "error",
@@ -170,8 +205,22 @@ export function compileSceneResourceManifest(
           message: `Resource reference is absent from Asset Index: ${dependency}`, sceneId: scene.id, statementId: node.id, line: node.range.start.line });
         else if (!validDependencies.includes(dependency)) validDependencies.push(dependency);
       }
-      requiredByStatement.set(node.id, validDependencies);
       for (const dependency of validDependencies) if (!sceneAssets.includes(dependency)) sceneAssets.push(dependency);
+      const validPrimaryAsset = assetId !== undefined && validDependencies.includes(assetId) ? assetId : undefined;
+      if (action !== undefined) {
+        if (node.command === "background") {
+          if (action === "clear") activeBackground = undefined;
+          else if (validPrimaryAsset !== undefined) activeBackground = validPrimaryAsset;
+        } else if (node.command === "show" && SAFE_STAGE_SLOT.test(slot)) {
+          if (action === "hide") activeCharacters.delete(slot);
+          else if (validPrimaryAsset !== undefined) activeCharacters.set(slot, validPrimaryAsset);
+        } else if (node.command === "audio" && bus !== undefined && AUDIO_BUSES.has(bus)) {
+          if (action === "stop") activeAudio.delete(bus);
+          else if (action === "play" && validPrimaryAsset !== undefined) activeAudio.set(bus, validPrimaryAsset);
+        }
+      }
+      const transientDependencies = validDependencies.filter((dependency) => dependency !== validPrimaryAsset);
+      requiredByStatement.set(node.id, currentAssets(transientDependencies));
     }
     const projectedStatementIds = scene.statements.map((statement) => statement.id);
     if (orderedStatementIds.length !== projectedStatementIds.length || orderedStatementIds.some((id, index) => id !== projectedStatementIds[index])) {

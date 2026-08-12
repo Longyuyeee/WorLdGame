@@ -27,6 +27,16 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("1 项资源未执行")).toBeVisible();
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
   });
+  it("commits background clear without requiring or leaking resource-only fields", () => {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "clear" } });
+    expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("演出过渡")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "迁移旧描述并应用" }));
+    expect(screen.getByRole("button", { name: "选择演出：action=clear" })).toBeVisible();
+    expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+  });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });

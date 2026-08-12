@@ -25,11 +25,11 @@ describe("preview media runtime", () => {
   it("derives cumulative stage state and rewinds deterministically", () => {
     const dialoguePlan = derivePreviewStagePlan(statements, 1);
     expect(dialoguePlan).toMatchObject({ background: { assetId: "bg_gate" }, audio: [] });
-    expect(dialoguePlan.character).toBeUndefined();
+    expect(dialoguePlan.characters).toEqual([]);
     expect(derivePreviewStagePlan(statements, 4)).toMatchObject({
       background: { assetId: "bg_gate", transition: "fade" },
-      character: { assetId: "hero_smile", expression: "smile", position: "left" },
-      audio: [{ assetId: "theme", bus: "bgm", loop: true, volume: 0.6 }, { assetId: "voice_1", bus: "voice", loop: false, volume: 1 }]
+      characters: [{ assetId: "hero_smile", slot: "primary", z: 0, expression: "smile", position: "left" }],
+      audio: [{ assetId: "theme", bus: "bgm", loop: true, volume: 0.6, playback: "playing" }, { assetId: "voice_1", bus: "voice", loop: false, volume: 1, playback: "playing" }]
     });
     expect(derivePreviewStagePlan(statements, 1).key).toBe(derivePreviewStagePlan(statements, 0).key);
     const timeline = compilePreviewStageTimeline(statements);
@@ -44,8 +44,49 @@ describe("preview media runtime", () => {
     ], 2);
     expect(plan.audio).toEqual([]);
     expect(plan.background).toBeUndefined();
-    expect(plan.character).toBeUndefined();
+    expect(plan.characters).toEqual([]);
     expect(plan.diagnostics).toHaveLength(3);
+  });
+
+  it("replays multi-slot characters, background clear and audio transport actions reversibly", () => {
+    const controlled: readonly StoryStatement[] = [
+      { kind: "direction", id: "bg", command: "background", summary: "action=set asset=bg_gate" },
+      { kind: "direction", id: "left", command: "show", summary: "action=show asset=hero_smile slot=left z=2 position=left" },
+      { kind: "direction", id: "right", command: "show", summary: "action=show asset=friend slot=right z=1 position=right" },
+      { kind: "direction", id: "play", command: "audio", summary: "action=play asset=theme bus=bgm loop=true" },
+      { kind: "direction", id: "pause", command: "audio", summary: "action=pause bus=bgm" },
+      { kind: "direction", id: "resume", command: "audio", summary: "action=resume bus=bgm" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=left" },
+      { kind: "direction", id: "stop", command: "audio", summary: "action=stop bus=bgm" },
+      { kind: "direction", id: "clear", command: "background", summary: "action=clear" }
+    ];
+    expect(derivePreviewStagePlan(controlled, 3)).toMatchObject({
+      background: { assetId: "bg_gate" },
+      characters: [{ slot: "right", z: 1 }, { slot: "left", z: 2 }],
+      audio: [{ bus: "bgm", playback: "playing" }]
+    });
+    expect(derivePreviewStagePlan(controlled, 4).audio[0]?.playback).toBe("paused");
+    expect(derivePreviewStagePlan(controlled, 5).audio[0]?.playback).toBe("playing");
+    expect(derivePreviewStagePlan(controlled, 4).resourceKey).toBe(derivePreviewStagePlan(controlled, 3).resourceKey);
+    expect(derivePreviewStagePlan(controlled, 5).resourceKey).toBe(derivePreviewStagePlan(controlled, 3).resourceKey);
+    expect(derivePreviewStagePlan(controlled, 4).key).not.toBe(derivePreviewStagePlan(controlled, 3).key);
+    expect(derivePreviewStagePlan(controlled, 6).characters.map((layer) => layer.slot)).toEqual(["right"]);
+    expect(derivePreviewStagePlan(controlled, 7).audio).toEqual([]);
+    expect(derivePreviewStagePlan(controlled, 8).background).toBeUndefined();
+    expect(derivePreviewStagePlan(controlled, 3).characters).toHaveLength(2);
+  });
+
+  it("fails closed for invalid actions, slots, z-order and inactive audio controls", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "action", command: "background", summary: "action=hide" },
+      { kind: "direction", id: "slot", command: "show", summary: "asset=hero slot=bad/slot" },
+      { kind: "direction", id: "z", command: "show", summary: "asset=hero slot=hero z=101" },
+      { kind: "direction", id: "pause", command: "audio", summary: "action=pause bus=bgm" }
+    ], 3);
+    expect(plan.background).toBeUndefined();
+    expect(plan.characters).toEqual([]);
+    expect(plan.audio).toEqual([]);
+    expect(plan.diagnostics).toHaveLength(4);
   });
 
   it("loads verified indexed media, reports partial failures and releases every URL", async () => {
@@ -58,7 +99,7 @@ describe("preview media runtime", () => {
     let serial = 0;
     const urls: PreviewUrlFactory = { create: (_bytes, mime) => `blob:${mime}:${++serial}`, revoke: (url) => revoked.push(url) };
     const media = await loadPreviewMedia(derivePreviewStagePlan(statements, 4), index, { read: async (digest) => byDigest.get(digest) ?? null }, urls, new AbortController().signal);
-    expect(media).toMatchObject({ background: { url: "blob:image/png:1" }, character: { url: "blob:image/png:2" }, audio: [{ url: "blob:audio/wav:3" }] });
+    expect(media).toMatchObject({ background: { url: "blob:image/png:1" }, characters: [{ url: "blob:image/png:2" }], audio: [{ url: "blob:audio/wav:3" }] });
     expect(media.errors).toEqual(["voice: Asset Index is missing voice_1"]);
     releasePreviewMedia(media, urls);
     expect(revoked).toEqual(["blob:image/png:1", "blob:image/png:2", "blob:audio/wav:3"]);
@@ -89,7 +130,7 @@ describe("preview media runtime", () => {
     const urls: PreviewUrlFactory = { create: () => "blob:unexpected", revoke: () => undefined };
     const media = await loadPreviewMedia(derivePreviewStagePlan(statements, 2), index, { read: async () => null }, urls, new AbortController().signal);
     expect(media.background).toBeUndefined();
-    expect(media.character).toBeUndefined();
+    expect(media.characters).toEqual([]);
     expect(media.errors).toEqual(["bg: audio is incompatible with background", "show: verified Blob is missing for hero_smile"]);
   });
 
