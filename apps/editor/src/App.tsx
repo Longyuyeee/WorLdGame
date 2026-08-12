@@ -16,6 +16,7 @@ import {
   type ProjectBackup,
   type AssetImportInput,
   type AssetIndex,
+  type AssetIndexEntry,
   type AssetKind,
   type AssetLifecycleManifest,
   type LosslessDicingDiscoveryReport,
@@ -31,7 +32,12 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { compileSceneResourceManifest, parseStory, type StoryDocument } from "@world-studio/story-language";
+import {
+  compileSceneResourceManifest,
+  inspectDirectiveArguments,
+  parseStory,
+  type StoryDocument
+} from "@world-studio/story-language";
 import {
   activeSourceDraft,
   activeSourceSession,
@@ -214,7 +220,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.30</p>
+          <p className="eyebrow">WorLd Studio · S0.31</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -325,7 +331,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.30 TYPED ASSETS · COMPILED</small></span>
+            <span><strong>资源保险库</strong><small>S0.31 TYPED ASSETS · INSPECTOR</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -642,6 +648,152 @@ interface WriterViewProps extends CommonProps {
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: "stmt" | "txt") => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
+  readonly assetIndex: AssetIndex;
+}
+
+type DirectionForm = Record<string, string>;
+
+function compatibleDirectionAssets(
+  command: "background" | "show" | "audio",
+  assets: readonly AssetIndexEntry[]
+): readonly AssetIndexEntry[] {
+  return assets.filter((entry) => {
+    if (command === "background") return entry.kind === "background" || entry.kind === "cg";
+    if (command === "show") return entry.kind === "character";
+    return entry.kind === "audio";
+  });
+}
+
+interface DirectionInspectorProps {
+  readonly statement: Extract<StoryStatement, { readonly kind: "direction" }>;
+  readonly assetIndex: AssetIndex;
+  readonly disabled: boolean;
+  readonly createCommandId: () => string;
+  readonly dispatch: (action: StudioAction) => void;
+}
+
+function DirectionInspector({
+  statement,
+  assetIndex,
+  disabled,
+  createCommandId,
+  dispatch
+}: DirectionInspectorProps) {
+  const inspection = inspectDirectiveArguments(statement.summary);
+  const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
+  const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
+  const assetId = form.asset ?? "";
+  const assetKnown = compatibleAssets.some((entry) => entry.assetId === assetId);
+  const transitionAsset = form.transitionAsset ?? "";
+  const transitionAssetKnown = transitionAsset.length === 0 || assetIndex.assets.some((entry) => entry.assetId === transitionAsset);
+  const duration = statement.command === "audio" ? (form.fade ?? "") : (form.duration ?? "");
+  const durationValid = duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
+  const volumeValid = statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
+    (/^\d+(?:\.\d+)?$/.test(form.volume) && Number(form.volume) >= 0 && Number(form.volume) <= 1);
+  const busValid = statement.command !== "audio" || ["voice", "bgm", "sfx", "ambient"].includes(form.bus ?? "");
+  const canApply = !disabled && inspection.duplicateKeys.length === 0 && assetKnown && busValid &&
+    transitionAssetKnown && durationValid && volumeValid;
+
+  const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
+    keys.map((key) => [key, (form[key] ?? "").trim() || null])
+  );
+  const keys = statement.command === "background"
+    ? ["asset", "transition", "transitionAsset", "duration"]
+    : statement.command === "show"
+      ? ["asset", "expression", "position", "transition", "transitionAsset", "duration"]
+      : ["asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+
+  return (
+    <form className="direction-inspector" onSubmit={(event) => {
+      event.preventDefault();
+      if (!canApply) return;
+      dispatch({
+        type: "patch-direction",
+        commandId: createCommandId(),
+        statementId: statement.id,
+        parameters: fieldPatch(keys),
+        removeLegacyPositional: inspection.positional.length > 0
+      });
+    }}>
+      <div className="direction-inspector__hero">
+        <span className={`direction-command direction-command--${statement.command}`}>@{statement.command}</span>
+        <div>
+          <strong>图形化演出参数</strong>
+          <small>稳定 ID 局部提交 · Index r{assetIndex.indexRevision}</small>
+        </div>
+      </div>
+
+      {inspection.positional.length > 0 && (
+        <div className="migration-notice" role="status">
+          <strong>检测到旧式描述</strong>
+          <span>{inspection.positional.join(" ")}</span>
+          <small>应用时会明确迁移为类型化参数；未知 key=value 与插件元数据继续保留。</small>
+        </div>
+      )}
+      {inspection.duplicateKeys.length > 0 && (
+        <p className="direction-error" role="alert">重复参数需要先在 Script 中处理：{inspection.duplicateKeys.join("、")}</p>
+      )}
+
+      <div className="direction-field direction-field--wide">
+        <label htmlFor={`direction-asset-${statement.id}`}>主资源</label>
+        <input
+          id={`direction-asset-${statement.id}`}
+          aria-label="演出主资源"
+          list={`direction-assets-${statement.id}`}
+          value={assetId}
+          disabled={disabled}
+          placeholder={compatibleAssets.length === 0 ? "先导入兼容资源" : "选择或输入 Asset ID"}
+          onChange={(event) => setField("asset", event.target.value)}
+        />
+        <datalist id={`direction-assets-${statement.id}`}>
+          {compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName} · {entry.kind}</option>)}
+        </datalist>
+        <small className={assetId.length > 0 && !assetKnown ? "is-error" : ""}>
+          {compatibleAssets.length === 0
+            ? `Asset Index 中没有可用于 @${statement.command} 的资源`
+            : assetId.length === 0
+              ? `${compatibleAssets.length} 个兼容资源可选`
+              : assetKnown ? "资源类型与索引均已验证" : "该 ID 不存在或资源类型不兼容"}
+        </small>
+      </div>
+
+      {statement.command !== "audio" && (
+        <div className="direction-field">
+          <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
+          <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
+            <option value="">无</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option>
+          </select>
+        </div>
+      )}
+      {statement.command === "show" && <>
+        <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>
+        <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div>
+      </>}
+      {statement.command === "audio" && <>
+        <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
+        <div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
+        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div>
+      </>}
+      <div className="direction-field">
+        <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : "时长"}</label>
+        <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
+        {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
+      </div>
+      <div className="direction-field direction-field--wide">
+        <label htmlFor={`direction-transition-asset-${statement.id}`}>过渡资源（可选）</label>
+        <input id={`direction-transition-asset-${statement.id}`} aria-label="过渡资源" list={`transition-assets-${statement.id}`} value={transitionAsset} disabled={disabled} placeholder="可选 Asset ID" onChange={(event) => setField("transitionAsset", event.target.value)} />
+        <datalist id={`transition-assets-${statement.id}`}>{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>
+        {!transitionAssetKnown && <small className="is-error">过渡资源不在 Asset Index 中</small>}
+      </div>
+      <div className="direction-inspector__actions">
+        <span>{inspection.duplicateKeys.length === 0 ? "未知参数保持原样" : "提交已锁定"}</span>
+        <button type="submit" disabled={!canApply}>
+          {inspection.positional.length > 0 ? "迁移旧描述并应用" : "应用演出参数"}
+        </button>
+      </div>
+    </form>
+  );
 }
 
 function WriterView({
@@ -649,7 +801,8 @@ function WriterView({
   dispatch,
   createCommandId,
   createEntityId,
-  onInputDirtyChange
+  onInputDirtyChange,
+  assetIndex
 }: WriterViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -774,6 +927,15 @@ function WriterView({
                 text
               })
             }
+          />
+        ) : selected.kind === "direction" ? (
+          <DirectionInspector
+            key={`${selected.id}:${selected.summary}`}
+            statement={selected}
+            assetIndex={assetIndex}
+            disabled={pendingDraft}
+            createCommandId={createCommandId}
+            dispatch={dispatch}
           />
         ) : (
           <div className="readonly-step">{statementLabel(selected)}</div>
@@ -2215,7 +2377,7 @@ export function App() {
           onOpenAssets={() => setAssetPanelOpen(true)}
         />
         {mode === "writer" ? (
-          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} />
+          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
@@ -2224,7 +2386,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.30 RESOURCE COMPILED · NO GUESSING</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.31 GRAPHICAL DIRECTION · STABLE-ID PATCH</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

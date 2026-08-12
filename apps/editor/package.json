@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/editor",
-  "version": "0.0.0-s0.30",
+  "version": "0.0.0-s0.31",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
   "dependencies": {
     "@world-studio/project-persistence": "0.0.0-s0.28",
     "@world-studio/story-core": "0.0.0-s0.29",
-    "@world-studio/story-language": "0.0.0-s0.30",
+    "@world-studio/story-language": "0.0.0-s0.31",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   }

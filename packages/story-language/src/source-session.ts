@@ -1,4 +1,9 @@
 import type { EntityId } from "@world-studio/story-core";
+import {
+  patchDirectiveParameters,
+  type DirectiveParameterPatch,
+  type DirectivePatchErrorCode
+} from "./directive-patch";
 import { formatStory, semanticSnapshot } from "./formatter";
 import type { StoryDiagnostic, StoryDocument } from "./model";
 import { patchDialogueText, type DialoguePatchErrorCode } from "./patch";
@@ -35,6 +40,15 @@ export interface PatchDialogueSourceCommand {
   readonly text: string;
 }
 
+export interface PatchDirectiveSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.patch-directive";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+  readonly patch: DirectiveParameterPatch;
+}
+
 export interface InsertDialogueSourceCommand {
   readonly schemaVersion: 0;
   readonly kind: "script.insert-dialogue";
@@ -68,6 +82,7 @@ export type ScriptSourceCommand =
   | ReplaceScriptSourceCommand
   | FormatScriptSourceCommand
   | PatchDialogueSourceCommand
+  | PatchDirectiveSourceCommand
   | InsertDialogueSourceCommand
   | DeleteDialogueSourceCommand
   | MoveDialogueSourceCommand;
@@ -79,6 +94,7 @@ export type ScriptCommandErrorCode =
   | "DRAFT_PENDING"
   | "TOMBSTONED_ID_REUSE"
   | DialoguePatchErrorCode
+  | DirectivePatchErrorCode
   | StructuralPatchErrorCode;
 
 export interface ScriptCommandError {
@@ -239,6 +255,17 @@ function commandFingerprint(command: ScriptSourceCommand): string {
         command.baseRevision,
         command.statementId,
         command.text
+      ].join("\u0000");
+    case "script.patch-directive":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.statementId,
+        command.patch.removeLegacyPositional === true ? "remove-legacy" : "preserve-legacy",
+        ...Object.entries(command.patch.parameters)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .flatMap(([key, value]) => [key, value ?? "<delete>"])
       ].join("\u0000");
     case "script.insert-dialogue":
       return [
@@ -483,6 +510,24 @@ export function executeScriptSourceCommand(
         session.committedDocument,
         command.statementId,
         command.text
+      );
+      if (!patchResult.ok) {
+        return reject(session, {
+          category: "validation",
+          code: patchResult.error.code,
+          message: patchResult.error.message
+        });
+      }
+      nextSource = patchResult.source;
+      commandStatementIds = [command.statementId];
+      break;
+    }
+    case "script.patch-directive": {
+      const patchResult = patchDirectiveParameters(
+        session.committedSource,
+        session.committedDocument,
+        command.statementId,
+        command.patch
       );
       if (!patchResult.ok) {
         return reject(session, {

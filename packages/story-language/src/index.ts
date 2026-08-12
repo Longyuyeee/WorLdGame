@@ -1,4 +1,5 @@
 export * from "./formatter";
+export * from "./directive-patch";
 export * from "./model";
 export * from "./patch";
 export * from "./parser";

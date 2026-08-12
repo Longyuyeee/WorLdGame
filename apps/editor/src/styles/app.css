@@ -1380,6 +1380,144 @@ textarea[data-input-state="composing"] {
   line-height: 1.5;
 }
 
+.direction-inspector {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.direction-inspector__hero,
+.direction-inspector__actions,
+.migration-notice,
+.direction-error {
+  grid-column: 1 / -1;
+}
+
+.direction-inspector__hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--wg-color-semantic-visual) 28%, transparent);
+  border-radius: 12px;
+  background: linear-gradient(120deg, rgb(62 215 255 / 10%), rgb(170 92 255 / 8%));
+}
+
+.direction-inspector__hero div {
+  display: grid;
+  gap: 3px;
+}
+
+.direction-inspector__hero strong {
+  font-size: 12px;
+}
+
+.direction-inspector__hero small,
+.direction-field small,
+.migration-notice small {
+  color: var(--wg-color-text-muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.direction-command {
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: rgb(62 215 255 / 13%);
+  color: var(--wg-color-semantic-visual);
+  font: 700 10px "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: .04em;
+}
+
+.direction-command--show { color: #bd8cff; background: rgb(189 140 255 / 12%); }
+.direction-command--audio { color: #ffcc66; background: rgb(255 204 102 / 12%); }
+
+.migration-notice {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 204 102 / 24%);
+  border-radius: 10px;
+  background: rgb(255 204 102 / 7%);
+}
+
+.migration-notice strong { color: #ffcc66; font-size: 10px; }
+.migration-notice span { color: var(--wg-color-text-secondary); font-size: 11px; }
+
+.direction-error {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: rgb(255 95 114 / 10%);
+  color: #ff9aa8;
+  font-size: 10px;
+}
+
+.direction-field {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.direction-field--wide { grid-column: 1 / -1; }
+
+.direction-field label {
+  color: var(--wg-color-text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.direction-field input,
+.direction-field select {
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--wg-color-border-strong);
+  border-radius: 9px;
+  outline: 0;
+  background: var(--wg-color-bg-canvas);
+  color: var(--wg-color-text-primary);
+  font-size: 11px;
+  transition: border-color var(--wg-motion-duration-fast) ease, box-shadow var(--wg-motion-duration-fast) ease;
+}
+
+.direction-field input:focus,
+.direction-field select:focus {
+  border-color: var(--wg-color-semantic-visual);
+  box-shadow: 0 0 0 3px rgb(62 215 255 / 9%);
+}
+
+.direction-field .is-error { color: #ff9aa8; }
+
+.direction-inspector__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.direction-inspector__actions span {
+  color: var(--wg-color-text-muted);
+  font-size: 9px;
+}
+
+.direction-inspector__actions button {
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgb(62 215 255 / 38%);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgb(62 215 255 / 20%), rgb(170 92 255 / 22%));
+  color: white;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 800;
+  transition: transform var(--wg-motion-duration-fast) ease, filter var(--wg-motion-duration-fast) ease;
+}
+
+.direction-inspector__actions button:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.12); }
+.direction-inspector__actions button:disabled { cursor: not-allowed; filter: saturate(.2); opacity: .45; }
+
 .context-chip--draft {
   background: rgb(255 95 114 / 12%);
   color: #ff9aa8;
@@ -2312,6 +2450,20 @@ textarea[data-input-state="composing"] {
 }
 
 @media (max-width: 440px) {
+  .direction-inspector {
+    grid-template-columns: 1fr;
+  }
+
+  .direction-field,
+  .direction-field--wide {
+    grid-column: 1;
+  }
+
+  .direction-inspector__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .workspace-header .eyebrow,
   .context-chip {
     display: none;

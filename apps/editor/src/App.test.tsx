@@ -11,7 +11,15 @@ function selectFirstDialogue() {
   );
 }
 
-describe("WorLd Studio S0.30 typed resource manifest compiler UI prototype", () => {
+describe("WorLd Studio S0.31 graphical direction Inspector UI prototype", () => {
+  it("exposes a typed graphical Inspector for the selected direction without guessing legacy text", () => {
+    render(<App />);
+    expect(screen.getByText("图形化演出参数")).toBeVisible();
+    expect(screen.getByText("检测到旧式描述")).toBeVisible();
+    expect(screen.getByLabelText("演出主资源")).toHaveValue("");
+    expect(screen.getByRole("button", { name: "迁移旧描述并应用" })).toBeDisabled();
+    expect(screen.getByText(/Asset Index 中没有可用于 @background 的资源/)).toBeVisible();
+  });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });

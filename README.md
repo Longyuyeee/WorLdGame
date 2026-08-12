@@ -1,6 +1,6 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.30 类型化演出资源引用与 Scene Resource Manifest Compiler 已完成；全量、性能与真实浏览器审计已通过
+> 状态：S0.31 图形化演出 Inspector、类型匹配资源选择与稳定 ID Directive Patch 已完成；全量、性能与真实浏览器审计已通过
 > 文档基线：2026-08-10
 > 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；当前只实现有明确验收的 S0 代码原型，尚未宣称进入 M1 Stable 功能完成阶段。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
@@ -79,6 +79,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [S0.28 Runtime 资源调度与内存纪律审计](docs/47-s0-runtime-resource-scheduling.md) | 优先级队列、解码并发上限、请求合并、引用保护、LRU、低内存清理与取消语义 |
 | [S0.29 Story Graph 资源预测与切场景生命周期审计](docs/48-s0-story-resource-prediction.md) | 显式场景资源清单、分支公共预取、epoch 取消、两阶段切换、回滚/画廊引用与压力降级 |
 | [S0.30 类型化演出资源清单编译审计](docs/49-s0-typed-resource-manifest-compiler.md) | asset/transitionAsset、背景/立绘/语音/BGM、语句窗口、Asset Index 校验、语义漂移与禁止猜测 |
+| [S0.31 图形化演出 Inspector 与 Directive Patch 审计](docs/50-s0-graphical-direction-inspector.md) | 类型匹配资源选择、过渡/表情/位置/音轨参数、旧描述显式迁移、稳定 ID 局部事务与 Undo/Redo |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

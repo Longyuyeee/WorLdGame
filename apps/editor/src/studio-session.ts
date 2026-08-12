@@ -56,6 +56,13 @@ export type StudioAction =
       readonly text: string;
     }
   | {
+      readonly type: "patch-direction";
+      readonly commandId: EntityId;
+      readonly statementId: EntityId;
+      readonly parameters: Readonly<Record<string, string | null>>;
+      readonly removeLegacyPositional?: boolean;
+    }
+  | {
       readonly type: "insert-dialogue";
       readonly commandId: EntityId;
       readonly afterId: EntityId;
@@ -539,6 +546,20 @@ export function reduceStudioSession(
         baseRevision: currentSourceSession.revision,
         statementId: action.statementId,
         text: action.text
+      });
+    case "patch-direction":
+      return executeStructuralCommand(session, {
+        schemaVersion: 0,
+        kind: "script.patch-directive",
+        commandId: action.commandId,
+        baseRevision: currentSourceSession.revision,
+        statementId: action.statementId,
+        patch: {
+          parameters: action.parameters,
+          ...(action.removeLegacyPositional === undefined
+            ? {}
+            : { removeLegacyPositional: action.removeLegacyPositional })
+        }
       });
     case "insert-dialogue":
       return executeStructuralCommand(

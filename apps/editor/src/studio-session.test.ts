@@ -40,6 +40,36 @@ describe("S0.9 studio source projection and recovery session", () => {
     expect(activeSourceSession(edited).revision).toBe(1);
   });
 
+  it("patches a graphical direction through the same revision, projection and undo contract", () => {
+    const initial = createStudioSession();
+    const edited = reduceStudioSession(initial, {
+      type: "patch-direction",
+      commandId: "cmd_ui_direction",
+      statementId: "stmt_gate_bg",
+      parameters: {
+        asset: "bg_gate_evening",
+        transition: "fade",
+        transitionAsset: null,
+        duration: "400ms"
+      },
+      removeLegacyPositional: true
+    });
+
+    expect(activeSourceSession(edited).committedSource).toContain(
+      "@background asset=bg_gate_evening transition=fade duration=400ms @id(stmt_gate_bg)"
+    );
+    expect(edited.project.scenes[0]?.statements[0]).toEqual(expect.objectContaining({
+      id: "stmt_gate_bg",
+      command: "background",
+      summary: "asset=bg_gate_evening transition=fade duration=400ms"
+    }));
+    expect(activeSourceSession(edited).lastChange?.changedStatementIds).toEqual(["stmt_gate_bg"]);
+    expect(activeSourceSession(edited).revision).toBe(1);
+
+    const undone = reduceStudioSession(edited, { type: "undo" });
+    expect(activeSourceSession(undone).committedSource).toBe(activeSourceSession(initial).committedSource);
+  });
+
   it("keeps invalid Script input as a draft and protects Writer and Preview", () => {
     const initial = createStudioSession();
     const invalidSource = activeSourceDraft(initial).replace(
