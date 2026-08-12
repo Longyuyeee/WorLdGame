@@ -252,6 +252,34 @@ describe("S0.9 studio source projection and recovery session", () => {
     expect(activeSourceSession(undone).tombstones).toEqual([]);
   });
 
+  it("duplicates a direction losslessly and batch-patches cues in one Studio revision", () => {
+    const initial = createStudioSession();
+    const duplicated = reduceStudioSession(initial, {
+      type: "duplicate-direction",
+      commandId: "cmd_ui_duplicate_direction",
+      statementId: "stmt_gate_bg",
+      newStatementId: "stmt_gate_bg_copy"
+    });
+    expect(duplicated.selectedStatementId).toBe("stmt_gate_bg_copy");
+    expect(activeSourceSession(duplicated).revision).toBe(1);
+    expect(activeSourceSession(duplicated).committedSource).toContain(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg_copy)"
+    );
+
+    const batched = reduceStudioSession(duplicated, {
+      type: "patch-directions",
+      commandId: "cmd_ui_batch_direction",
+      statementIds: ["stmt_gate_bg", "stmt_gate_bg_copy"],
+      parameters: { transition: "fade", duration: "300ms" }
+    });
+    expect(activeSourceSession(batched).revision).toBe(2);
+    expect(activeSourceSession(batched).committedSource.match(/transition=fade/g)).toHaveLength(2);
+    expect(activeSourceSession(batched).committedSource.match(/duration=300ms/g)).toHaveLength(2);
+    const undone = reduceStudioSession(batched, { type: "undo" });
+    expect(activeSourceSession(undone).committedSource).not.toContain("transition=fade");
+    expect(undone.project.scenes[0]?.statements.some((item) => item.id === "stmt_gate_bg_copy")).toBe(true);
+  });
+
   it("keeps scene drafts isolated when switching between source sessions", () => {
     const initial = createStudioSession();
     const drafted = reduceStudioSession(initial, {

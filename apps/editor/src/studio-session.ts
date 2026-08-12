@@ -66,6 +66,12 @@ export type StudioAction =
       readonly removeLegacyPositional?: boolean;
     }
   | {
+      readonly type: "patch-directions";
+      readonly commandId: EntityId;
+      readonly statementIds: readonly EntityId[];
+      readonly parameters: Readonly<Record<string, string | null>>;
+    }
+  | {
       readonly type: "insert-dialogue";
       readonly commandId: EntityId;
       readonly afterId: EntityId;
@@ -81,6 +87,12 @@ export type StudioAction =
       readonly statementId: EntityId;
       readonly command: "background" | "show" | "audio";
       readonly parameters: Readonly<Record<string, string>>;
+    }
+  | {
+      readonly type: "duplicate-direction";
+      readonly commandId: EntityId;
+      readonly statementId: EntityId;
+      readonly newStatementId: EntityId;
     }
   | {
       readonly type: "delete-dialogue";
@@ -583,6 +595,15 @@ export function reduceStudioSession(
             : { removeLegacyPositional: action.removeLegacyPositional })
         }
       });
+    case "patch-directions":
+      return executeStructuralCommand(session, {
+        schemaVersion: 0,
+        kind: "script.patch-directives",
+        commandId: action.commandId,
+        baseRevision: currentSourceSession.revision,
+        statementIds: action.statementIds,
+        patch: { parameters: action.parameters }
+      });
     case "insert-dialogue":
       return executeStructuralCommand(
         session,
@@ -613,6 +634,19 @@ export function reduceStudioSession(
           parameters: action.parameters
         },
         action.statementId
+      );
+    case "duplicate-direction":
+      return executeStructuralCommand(
+        session,
+        {
+          schemaVersion: 0,
+          kind: "script.duplicate-directive",
+          commandId: action.commandId,
+          baseRevision: currentSourceSession.revision,
+          statementId: action.statementId,
+          newStatementId: action.newStatementId
+        },
+        action.newStatementId
       );
     case "delete-dialogue": {
       const scene = findScene(session.project, session.activeSceneId);

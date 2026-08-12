@@ -625,6 +625,54 @@ end "完成" @id(stmt_directive_end)
     }));
   });
 
+  it("duplicates and batch-patches directives as atomic source transactions", () => {
+    const batchSource = `scene "批量演出" @id(scn_batch_direction)
+@background action=clear custom=keep @id(stmt_batch_a)
+@background action=clear custom=keep @id(stmt_batch_b)
+end "完成" @id(stmt_batch_end)
+`;
+    const initial = createScriptSourceSession(batchSource);
+    const duplicated = executeScriptSourceCommand(initial, {
+      schemaVersion: 0,
+      kind: "script.duplicate-directive",
+      commandId: "cmd_duplicate_direction",
+      baseRevision: 0,
+      statementId: "stmt_batch_a",
+      newStatementId: "stmt_batch_copy"
+    });
+    expect(duplicated.result.status).toBe("committed");
+    expect(duplicated.session.revision).toBe(1);
+    expect(duplicated.session.committedSource).toContain("custom=keep @id(stmt_batch_copy)");
+
+    const patched = executeScriptSourceCommand(duplicated.session, {
+      schemaVersion: 0,
+      kind: "script.patch-directives",
+      commandId: "cmd_batch_direction",
+      baseRevision: 1,
+      statementIds: ["stmt_batch_copy", "stmt_batch_b", "stmt_batch_a"],
+      patch: { parameters: { transition: "fade", duration: "250ms" } }
+    });
+    expect(patched.result.status).toBe("committed");
+    if (patched.result.status !== "committed") throw new Error("Expected batch commit");
+    expect(patched.session.revision).toBe(2);
+    expect(patched.result.changeSet.changedStatementIds).toEqual(["stmt_batch_a", "stmt_batch_b", "stmt_batch_copy"]);
+    expect(patched.session.committedSource.match(/transition=fade/g)).toHaveLength(3);
+    expect(patched.session.history).toHaveLength(2);
+
+    const duplicateReplay = executeScriptSourceCommand(patched.session, {
+      schemaVersion: 0,
+      kind: "script.patch-directives",
+      commandId: "cmd_batch_direction",
+      baseRevision: 1,
+      statementIds: ["stmt_batch_a", "stmt_batch_copy", "stmt_batch_b"],
+      patch: { parameters: { duration: "250ms", transition: "fade" } }
+    });
+    expect(duplicateReplay.result.status).toBe("duplicate");
+    const undone = reduceScriptSourceSession(patched.session, { type: "undo" });
+    expect(undone.committedSource).not.toContain("transition=fade");
+    expect(undone.committedSource).toContain("stmt_batch_copy");
+  });
+
   it("preserves committed invariants across 200 deterministic mixed operations", () => {
     let session = createScriptSourceSession(initialSource);
 

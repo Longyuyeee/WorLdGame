@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   compileSceneResourceManifest,
   parseStory,
+  patchDirectiveBatch,
   patchDialogueText,
   projectStoryScene
 } from "@world-studio/story-language";
@@ -158,5 +159,29 @@ describe("large script performance audit", () => {
     expect(timeline).toHaveLength(statementCount);
     expect(timeline.at(-1)?.background?.assetId).toBe("background_9900");
     expect(compilationMs).toBeLessThan(2_000);
+  });
+
+  it("atomically patches the maximum 256 direction-cue batch within budget", () => {
+    const targetCount = 256;
+    const ids = Array.from({ length: targetCount }, (_, index) => `batch_perf_${index}`);
+    const source = [
+      'scene "批量性能" @id(scn_batch_perf)',
+      ...ids.map((id) => `@background action=clear @id(${id})`),
+      'end "完成" @id(stmt_batch_perf_end)',
+      ""
+    ].join("\n");
+    const document = parseStory(source);
+    const start = performance.now();
+    const result = patchDirectiveBatch(source, document, ids, { parameters: { transition: "fade", duration: "300ms" } });
+    const batchPatchMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { targetCount }, measurementsMs: {
+      maximumAtomicDirectiveBatchPatch: Number(batchPatchMs.toFixed(2)) }, budgetsMs: {
+      maximumAtomicDirectiveBatchPatch: 2_000 }, result: { ok: result.ok,
+      changedTargets: result.ok ? result.changedStatementIds.length : 0 } }, null, 2));
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.error.message);
+    expect(result.changedStatementIds).toHaveLength(targetCount);
+    expect(result.source.match(/transition=fade/g)).toHaveLength(targetCount);
+    expect(batchPatchMs).toBeLessThan(2_000);
   });
 });

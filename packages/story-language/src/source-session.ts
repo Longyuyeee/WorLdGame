@@ -1,5 +1,6 @@
 import type { EntityId } from "@world-studio/story-core";
 import {
+  patchDirectiveBatch,
   patchDirectiveParameters,
   type DirectiveParameterPatch,
   type DirectivePatchErrorCode
@@ -11,6 +12,7 @@ import { parseStory } from "./parser";
 import {
   deleteDirective,
   deleteDialogue,
+  duplicateDirective,
   insertDialogueAfter,
   insertDirectiveAfter,
   moveDirectiveAfter,
@@ -52,6 +54,15 @@ export interface PatchDirectiveSourceCommand {
   readonly patch: DirectiveParameterPatch;
 }
 
+export interface PatchDirectivesSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.patch-directives";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementIds: readonly EntityId[];
+  readonly patch: DirectiveParameterPatch;
+}
+
 export interface InsertDialogueSourceCommand {
   readonly schemaVersion: 0;
   readonly kind: "script.insert-dialogue";
@@ -73,6 +84,15 @@ export interface InsertDirectiveSourceCommand {
   readonly statementId: EntityId;
   readonly command: "background" | "show" | "audio";
   readonly parameters: Readonly<Record<string, string>>;
+}
+
+export interface DuplicateDirectiveSourceCommand {
+  readonly schemaVersion: 0;
+  readonly kind: "script.duplicate-directive";
+  readonly commandId: EntityId;
+  readonly baseRevision: number;
+  readonly statementId: EntityId;
+  readonly newStatementId: EntityId;
 }
 
 export interface DeleteDialogueSourceCommand {
@@ -114,8 +134,10 @@ export type ScriptSourceCommand =
   | FormatScriptSourceCommand
   | PatchDialogueSourceCommand
   | PatchDirectiveSourceCommand
+  | PatchDirectivesSourceCommand
   | InsertDialogueSourceCommand
   | InsertDirectiveSourceCommand
+  | DuplicateDirectiveSourceCommand
   | DeleteDialogueSourceCommand
   | MoveDialogueSourceCommand
   | DeleteDirectiveSourceCommand
@@ -301,6 +323,18 @@ function commandFingerprint(command: ScriptSourceCommand): string {
           .sort(([left], [right]) => left.localeCompare(right))
           .flatMap(([key, value]) => [key, value ?? "<delete>"])
       ].join("\u0000");
+    case "script.patch-directives":
+      return [
+        command.schemaVersion,
+        command.kind,
+        command.baseRevision,
+        command.statementIds.length,
+        ...[...command.statementIds].sort((left, right) => left.localeCompare(right)),
+        command.patch.removeLegacyPositional === true ? "remove-legacy" : "preserve-legacy",
+        ...Object.entries(command.patch.parameters)
+          .sort(([left], [right]) => left.localeCompare(right))
+          .flatMap(([key, value]) => [key, value ?? "<delete>"])
+      ].join("\u0000");
     case "script.insert-dialogue":
       return [
         command.schemaVersion,
@@ -324,6 +358,8 @@ function commandFingerprint(command: ScriptSourceCommand): string {
           .sort(([left], [right]) => left.localeCompare(right))
           .flatMap(([key, value]) => [key, value])
       ].join("\u0000");
+    case "script.duplicate-directive":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.newStatementId].join("\u0000");
     case "script.delete-dialogue":
       return [
         command.schemaVersion,
@@ -590,6 +626,24 @@ export function executeScriptSourceCommand(
       commandStatementIds = [command.statementId];
       break;
     }
+    case "script.patch-directives": {
+      const patchResult = patchDirectiveBatch(
+        session.committedSource,
+        session.committedDocument,
+        command.statementIds,
+        command.patch
+      );
+      if (!patchResult.ok) {
+        return reject(session, {
+          category: "validation",
+          code: patchResult.error.code,
+          message: patchResult.error.message
+        });
+      }
+      nextSource = patchResult.source;
+      commandStatementIds = patchResult.statementIds;
+      break;
+    }
     case "script.insert-dialogue": {
       const result = insertDialogueAfter(
         session.committedSource,
@@ -613,6 +667,19 @@ export function executeScriptSourceCommand(
         session.committedDocument,
         command
       );
+      if (!result.ok) {
+        return reject(session, {
+          category: "validation",
+          code: result.error.code,
+          message: result.error.message
+        });
+      }
+      nextSource = result.source;
+      commandStatementIds = result.affectedStatementIds;
+      break;
+    }
+    case "script.duplicate-directive": {
+      const result = duplicateDirective(session.committedSource, session.committedDocument, command);
       if (!result.ok) {
         return reject(session, {
           category: "validation",

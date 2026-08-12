@@ -45,6 +45,11 @@ export interface InsertDirectiveRequest {
   readonly parameters: Readonly<Record<string, string>>;
 }
 
+export interface DuplicateDirectiveRequest {
+  readonly statementId: EntityId;
+  readonly newStatementId: EntityId;
+}
+
 export interface DialogueTombstone {
   readonly kind: "dialogue";
   readonly statementId: EntityId;
@@ -290,6 +295,50 @@ export function insertDirectiveAfter(
   const separatorIndex = Math.max(0, insertIndex - 1);
   separators.splice(separatorIndex, 0, preferredSeparator(prepared.lines, separatorIndex));
   return verify(joinSource({ contents, separators }), [request.statementId], []);
+}
+
+export function duplicateDirective(
+  source: string,
+  storyDocument: StoryDocument,
+  request: DuplicateDirectiveRequest
+): StructuralPatchResult {
+  const prepared = prepare(source, storyDocument);
+  if ("ok" in prepared) return prepared;
+  if (!identifier.test(request.newStatementId)) {
+    return fail("STRUCTURAL_INVALID_IDENTIFIER", "Duplicated directive requires a valid new statement ID");
+  }
+  const target = prepared.parsedDocument.nodes.find(
+    (node): node is DirectiveNode => node.kind === "directive" && node.id === request.statementId
+  );
+  if (target === undefined) {
+    const exists = prepared.parsedDocument.nodes.some((node) => stableId(node) === request.statementId);
+    return fail(exists ? "STRUCTURAL_TARGET_NOT_DIRECTIVE" : "STRUCTURAL_TARGET_NOT_FOUND", `Duplicate target is not an editable directive: ${request.statementId}`);
+  }
+  const allIds = new Set<EntityId>();
+  for (const node of prepared.parsedDocument.nodes) {
+    const id = stableId(node);
+    if (id !== undefined) allIds.add(id);
+    if (node.kind === "dialogue" && node.textId !== undefined) allIds.add(node.textId);
+  }
+  if (allIds.has(request.newStatementId)) {
+    return fail("STRUCTURAL_DUPLICATE_ID", "Duplicated directive ID must be globally unique");
+  }
+  const targetIndex = lineIndex(target, prepared.lines);
+  if (targetIndex === undefined) return fail("STRUCTURAL_SOURCE_MISMATCH", "Duplicate target has no source line");
+  if (hasAdjacentComment(prepared.lines, targetIndex)) {
+    return fail("STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED", "Cannot duplicate a directive with an adjacent comment");
+  }
+  const rawLine = prepared.lines.contents[targetIndex] ?? "";
+  const idToken = `@id(${request.statementId})`;
+  if (rawLine.split(idToken).length !== 2) {
+    return fail("STRUCTURAL_SOURCE_MISMATCH", "Directive stable metadata is missing or ambiguous");
+  }
+  const duplicateLine = rawLine.replace(idToken, `@id(${request.newStatementId})`);
+  const contents = [...prepared.lines.contents];
+  const separators = [...prepared.lines.separators];
+  contents.splice(targetIndex + 1, 0, duplicateLine);
+  separators.splice(targetIndex, 0, preferredSeparator(prepared.lines, targetIndex));
+  return verify(joinSource({ contents, separators }), [request.newStatementId], []);
 }
 
 function findDirective(storyDocument: StoryDocument, statementId: EntityId): DirectiveNode | undefined {

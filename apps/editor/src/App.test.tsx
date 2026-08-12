@@ -95,6 +95,30 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("button", { name: /轨道步骤 3：action=clear/ })).toBeVisible();
     expect(screen.getByText("本地事务 · r2")).toBeVisible();
   });
+  it("duplicates a cue and applies one atomic batch parameter transaction", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
+    expect(screen.getAllByRole("button", { name: /轨道步骤 [12]：黄昏校门/ })).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "开始演出多选" }));
+    const originalCue = screen.getByRole("button", { name: "轨道步骤 1：黄昏校门 · 云层缓慢移动" });
+    expect(originalCue).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(originalCue);
+    expect(originalCue).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("form", { name: "批量演出参数" })).toBeVisible();
+    expect(screen.getByText("2 个 Cue · 单步撤销")).toBeVisible();
+    fireEvent.change(screen.getByLabelText("批量演出参数值"), { target: { value: "fade" } });
+    fireEvent.click(screen.getByRole("button", { name: "原子应用到 2 个 Cue" }));
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const source = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
+    expect(source.match(/transition=fade/g)).toHaveLength(2);
+    expect(source.match(/黄昏校门 · 云层缓慢移动/g)).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("transition=fade");
+  });
   it("surfaces the audited asset-vault contract and unavailable state without claiming content", () => {
     render(<App />);
     const vault = screen.getByRole("button", { name: "打开资源保险库" });

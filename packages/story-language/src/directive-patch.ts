@@ -12,7 +12,11 @@ export type DirectivePatchErrorCode =
   | "DIRECTIVE_PATCH_TARGET_AMBIGUOUS"
   | "DIRECTIVE_PATCH_UNKNOWN_PARAMETER"
   | "DIRECTIVE_PATCH_DUPLICATE_PARAMETER"
-  | "DIRECTIVE_PATCH_INVALID_VALUE";
+  | "DIRECTIVE_PATCH_INVALID_VALUE"
+  | "DIRECTIVE_PATCH_BATCH_EMPTY"
+  | "DIRECTIVE_PATCH_BATCH_LIMIT"
+  | "DIRECTIVE_PATCH_BATCH_DUPLICATE_TARGET"
+  | "DIRECTIVE_PATCH_BATCH_MIXED_COMMANDS";
 
 export interface DirectivePatchError {
   readonly code: DirectivePatchErrorCode;
@@ -43,6 +47,20 @@ export type DirectiveParameterPatchResult =
       readonly after: DirectiveArgumentInspection;
     }
   | { readonly ok: false; readonly error: DirectivePatchError };
+
+export type DirectiveBatchParameterPatchResult =
+  | {
+      readonly ok: true;
+      readonly changed: boolean;
+      readonly source: string;
+      readonly storyDocument: StoryDocument;
+      readonly statementIds: readonly EntityId[];
+      readonly changedStatementIds: readonly EntityId[];
+      readonly command: DirectiveNode["command"];
+    }
+  | { readonly ok: false; readonly error: DirectivePatchError };
+
+export const MAX_DIRECTIVE_BATCH_TARGETS = 256;
 
 interface TokenSpan {
   readonly start: number;
@@ -235,5 +253,50 @@ export function patchDirectiveParameters(
     command: target.command,
     before: inspectDirectiveArguments(target.argumentsRaw),
     after: inspectDirectiveArguments(nextTarget.argumentsRaw)
+  };
+}
+
+export function patchDirectiveBatch(
+  source: string,
+  storyDocument: StoryDocument,
+  statementIds: readonly EntityId[],
+  patch: DirectiveParameterPatch
+): DirectiveBatchParameterPatchResult {
+  if (statementIds.length === 0) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_EMPTY", message: "Directive batch requires at least one target" } };
+  }
+  if (statementIds.length > MAX_DIRECTIVE_BATCH_TARGETS) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_LIMIT", message: `Directive batch is limited to ${MAX_DIRECTIVE_BATCH_TARGETS} targets` } };
+  }
+  if (new Set(statementIds).size !== statementIds.length) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_DUPLICATE_TARGET", message: "Directive batch target IDs must be unique" } };
+  }
+  const orderedIds = [...statementIds].sort((left, right) => left.localeCompare(right));
+  let nextSource = source;
+  let nextDocument = storyDocument;
+  let command: DirectiveNode["command"] | undefined;
+  const changedStatementIds: EntityId[] = [];
+  for (const statementId of orderedIds) {
+    const result = patchDirectiveParameters(nextSource, nextDocument, statementId, patch);
+    if (!result.ok) return result;
+    if (command !== undefined && result.command !== command) {
+      return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_MIXED_COMMANDS", message: "Directive batch targets must use the same command" } };
+    }
+    command = result.command;
+    if (result.changed) changedStatementIds.push(statementId);
+    nextSource = result.source;
+    nextDocument = result.storyDocument;
+  }
+  if (command === undefined) {
+    return { ok: false, error: { code: "DIRECTIVE_PATCH_BATCH_EMPTY", message: "Directive batch requires at least one target" } };
+  }
+  return {
+    ok: true,
+    changed: nextSource !== source,
+    source: nextSource,
+    storyDocument: nextDocument,
+    statementIds: orderedIds,
+    changedStatementIds,
+    command
   };
 }

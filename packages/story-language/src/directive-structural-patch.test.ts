@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   deleteDirective,
+  duplicateDirective,
   moveDirectiveAfter,
   parseStory,
   projectStoryScene
@@ -28,6 +29,25 @@ describe("stable-ID directive structural patches", () => {
       rawLine: "@audio action=play asset=bgm_school bus=bgm @id(stmt_audio)",
       formerLine: 6
     })]);
+  });
+
+  it("duplicates the raw directive line losslessly except for its new stable ID", () => {
+    const legacy = source.replace(
+      "@background action=set asset=bg_gate @id(stmt_bg)",
+      "  @background  legacy words custom=future @plugin(lock)  @id(stmt_bg)"
+    ).replaceAll("\n", "\r\n");
+    const result = duplicateDirective(legacy, parseStory(legacy), {
+      statementId: "stmt_bg",
+      newStatementId: "stmt_bg_copy"
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.error.message);
+    expect(result.source).toContain(
+      "  @background  legacy words custom=future @plugin(lock)  @id(stmt_bg)\r\n" +
+      "  @background  legacy words custom=future @plugin(lock)  @id(stmt_bg_copy)\r\n"
+    );
+    expect(result.source.match(/\r\n/g)?.length).toBe((legacy.match(/\r\n/g)?.length ?? 0) + 1);
+    expect(result.affectedStatementIds).toEqual(["stmt_bg_copy"]);
   });
 
   it("moves after a choice as one atomic group and never crosses an end boundary", () => {
@@ -67,6 +87,15 @@ describe("stable-ID directive structural patches", () => {
     }));
     const commented = source.replace("@audio", "# 属主未冻结\n@audio");
     expect(deleteDirective(commented, parseStory(commented), "stmt_audio")).toEqual(expect.objectContaining({
+      ok: false, error: expect.objectContaining({ code: "STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED" })
+    }));
+    expect(duplicateDirective(source, document, { statementId: "stmt_line", newStatementId: "stmt_copy" })).toEqual(expect.objectContaining({
+      ok: false, error: expect.objectContaining({ code: "STRUCTURAL_TARGET_NOT_DIRECTIVE" })
+    }));
+    expect(duplicateDirective(source, document, { statementId: "stmt_bg", newStatementId: "stmt_audio" })).toEqual(expect.objectContaining({
+      ok: false, error: expect.objectContaining({ code: "STRUCTURAL_DUPLICATE_ID" })
+    }));
+    expect(duplicateDirective(commented, parseStory(commented), { statementId: "stmt_audio", newStatementId: "stmt_audio_copy" })).toEqual(expect.objectContaining({
       ok: false, error: expect.objectContaining({ code: "STRUCTURAL_COMMENT_OWNERSHIP_UNRESOLVED" })
     }));
   });

@@ -34,6 +34,7 @@ import {
 } from "@world-studio/story-core";
 import {
   MAX_STAGE_Z,
+  MAX_DIRECTIVE_BATCH_TARGETS,
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
   compileSceneResourceManifest,
@@ -236,7 +237,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.35</p>
+          <p className="eyebrow">WorLd Studio · S0.36</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -347,7 +348,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.35 STAGE CUE · SAFE EDIT</small></span>
+            <span><strong>资源保险库</strong><small>S0.36 STAGE CUE · ATOMIC BATCH</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -669,6 +670,24 @@ interface WriterViewProps extends CommonProps {
 
 type DirectionForm = Record<string, string>;
 type DirectionCommand = "background" | "show" | "audio";
+type BatchDirectionParameter = "transition" | "duration" | "transitionAsset" | "expression" | "position" | "loop" | "volume" | "fade";
+
+const BATCH_DIRECTION_PARAMETERS: Readonly<Record<DirectionCommand, readonly BatchDirectionParameter[]>> = {
+  background: ["transition", "duration", "transitionAsset"],
+  show: ["expression", "position", "transition", "duration", "transitionAsset"],
+  audio: ["loop", "volume", "fade", "transitionAsset"]
+};
+
+const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> = {
+  transition: "过渡",
+  duration: "时长",
+  transitionAsset: "过渡资源",
+  expression: "表情",
+  position: "位置",
+  loop: "循环",
+  volume: "音量",
+  fade: "淡入/淡出"
+};
 
 function compatibleDirectionAssets(
   command: "background" | "show" | "audio",
@@ -837,6 +856,71 @@ function DirectionInspector({
   );
 }
 
+interface BatchDirectionPanelProps {
+  readonly statements: readonly Extract<StoryStatement, { readonly kind: "direction" }>[];
+  readonly assetIndex: AssetIndex;
+  readonly disabled: boolean;
+  readonly createCommandId: () => string;
+  readonly dispatch: (action: StudioAction) => void;
+}
+
+function BatchDirectionPanel({ statements, assetIndex, disabled, createCommandId, dispatch }: BatchDirectionPanelProps) {
+  const command = statements[0]?.command;
+  const sameCommand = command !== undefined && statements.every((statement) => statement.command === command);
+  const withinLimit = statements.length <= MAX_DIRECTIVE_BATCH_TARGETS;
+  const parameters = command === undefined ? [] : BATCH_DIRECTION_PARAMETERS[command];
+  const [parameter, setParameter] = useState<BatchDirectionParameter>(parameters[0] ?? "transition");
+  const [mode, setMode] = useState<"set" | "remove">("set");
+  const [value, setValue] = useState("");
+  const tokenValid = /^[^\s=@()]+$/.test(value) && value.length <= 256;
+  const valueValid = mode === "remove" || (
+    parameter === "transition" ? ["fade", "dissolve", "slide"].includes(value) :
+      parameter === "position" ? ["left", "center", "right"].includes(value) :
+        parameter === "loop" ? ["true", "false"].includes(value) :
+          parameter === "duration" || parameter === "fade" ? /^\d+(?:\.\d+)?(?:ms|s)$/.test(value) :
+            parameter === "volume" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= 0 && Number(value) <= 1 :
+              parameter === "transitionAsset" ? assetIndex.assets.some((entry) => entry.assetId === value) : tokenValid
+  );
+  const canApply = !disabled && statements.length >= 2 && withinLimit && sameCommand && valueValid;
+  const changeParameter = (next: BatchDirectionParameter) => {
+    setParameter(next);
+    setValue("");
+  };
+
+  return (
+    <form className="batch-direction" aria-label="批量演出参数" onSubmit={(event) => {
+      event.preventDefault();
+      if (!canApply) return;
+      dispatch({
+        type: "patch-directions",
+        commandId: createCommandId(),
+        statementIds: statements.map((statement) => statement.id),
+        parameters: { [parameter]: mode === "remove" ? null : value }
+      });
+    }}>
+      <div className="batch-direction__heading">
+        <div><span className="eyebrow">ATOMIC BATCH</span><strong>{statements.length} 个 Cue · 单步撤销</strong></div>
+        <span className={sameCommand ? `direction-command direction-command--${command}` : "direction-command"}>{sameCommand ? `@${command}` : "类型不一致"}</span>
+      </div>
+      {!withinLimit ? (
+        <p className="direction-error" role="alert">单次最多修改 {MAX_DIRECTIVE_BATCH_TARGETS} 个 Cue；当前选择不会被部分修改。</p>
+      ) : !sameCommand ? (
+        <p className="direction-error" role="alert">批量参数只允许同一种演出类型；当前选择不会被部分修改。</p>
+      ) : statements.length < 2 ? (
+        <p className="batch-direction__hint">再选择至少一个 @{command} Cue 后才能批量提交。</p>
+      ) : (
+        <div className="batch-direction__fields">
+          <label><span>参数</span><select aria-label="批量演出参数名" value={parameter} disabled={disabled} onChange={(event) => changeParameter(event.target.value as BatchDirectionParameter)}>{parameters.map((item) => <option key={item} value={item}>{BATCH_PARAMETER_LABELS[item]}</option>)}</select></label>
+          <label><span>操作</span><select aria-label="批量演出参数操作" value={mode} disabled={disabled} onChange={(event) => setMode(event.target.value as "set" | "remove")}><option value="set">设置</option><option value="remove">移除</option></select></label>
+          {mode === "set" && <label className="batch-direction__value"><span>值</span>{parameter === "transition" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option></select> : parameter === "position" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select> : parameter === "loop" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="true">开启</option><option value="false">关闭</option></select> : <input aria-label="批量演出参数值" list={parameter === "transitionAsset" ? "batch-transition-assets" : undefined} value={value} disabled={disabled} placeholder={parameter === "duration" || parameter === "fade" ? "300ms / 0.5s" : parameter === "volume" ? "0–1" : "输入单 token"} onChange={(event) => setValue(event.target.value)} />}{parameter === "transitionAsset" && <datalist id="batch-transition-assets">{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>}</label>}
+          <button type="submit" disabled={!canApply}>原子应用到 {statements.length} 个 Cue</button>
+        </div>
+      )}
+      <small>{mode === "remove" ? "移除只影响所选参数，未知参数与原始排版保持不变。" : value.length > 0 && !valueValid ? "值未通过类型或资源索引校验。" : "任一目标失败则整批零写入。"}</small>
+    </form>
+  );
+}
+
 interface DirectionInsertPanelProps {
   readonly command: DirectionCommand;
   readonly afterId: string;
@@ -926,8 +1010,14 @@ function WriterView({
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
   const [draggedDirectionId, setDraggedDirectionId] = useState<string | null>(null);
-  const canMoveDirectionLeft = selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
-  const canMoveDirectionRight = selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
+  const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
+  const canMoveDirectionLeft = !multiSelectMode && selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
+  const canMoveDirectionRight = !multiSelectMode && selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
+  const selectedDirections = scene.statements.filter(
+    (statement): statement is Extract<StoryStatement, { readonly kind: "direction" }> =>
+      statement.kind === "direction" && selectedDirectionIds.includes(statement.id)
+  );
   const moveDirection = (statementId: string, afterId: string) => dispatch({
     type: "move-direction",
     commandId: createCommandId(),
@@ -939,6 +1029,24 @@ function WriterView({
     commandId: createCommandId(),
     statementId
   });
+  const toggleMultiSelect = () => {
+    const next = !multiSelectMode;
+    setMultiSelectMode(next);
+    setSelectedDirectionIds(next && selected.kind === "direction" ? [selected.id] : []);
+  };
+  const toggleDirectionSelection = (statementId: string) => {
+    setSelectedDirectionIds((current) => current.includes(statementId)
+      ? current.filter((item) => item !== statementId)
+      : [...current, statementId]);
+  };
+  useEffect(() => {
+    setMultiSelectMode(false);
+    setSelectedDirectionIds([]);
+  }, [scene.id]);
+  useEffect(() => {
+    const valid = new Set(scene.statements.filter((statement) => statement.kind === "direction").map((statement) => statement.id));
+    setSelectedDirectionIds((current) => current.filter((statementId) => valid.has(statementId)));
+  }, [scene.statements]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if (!event.altKey || pendingDraft) return;
@@ -1034,7 +1142,11 @@ function WriterView({
               <button type="button" aria-label="演出右移" disabled={!canMoveDirectionRight} onClick={() => {
                 if (selected.kind === "direction" && nextStatement !== undefined) moveDirection(selected.id, nextStatement.id);
               }}>→</button>
-              <button type="button" className="is-danger" aria-label="删除演出" disabled={selected.kind !== "direction" || pendingDraft} onClick={() => {
+              <button type="button" aria-label="复制演出" disabled={multiSelectMode || selected.kind !== "direction" || pendingDraft} onClick={() => {
+                if (selected.kind === "direction") dispatch({ type: "duplicate-direction", commandId: createCommandId(), statementId: selected.id, newStatementId: createEntityId("stmt") });
+              }}>复制</button>
+              <button type="button" aria-label={multiSelectMode ? "结束演出多选" : "开始演出多选"} aria-pressed={multiSelectMode} disabled={pendingDraft} onClick={toggleMultiSelect}>{multiSelectMode ? `${selectedDirectionIds.length} 已选` : "多选"}</button>
+              <button type="button" className="is-danger" aria-label="删除演出" disabled={multiSelectMode || selected.kind !== "direction" || pendingDraft} onClick={() => {
                 if (selected.kind === "direction") deleteDirection(selected.id);
               }}>删除</button>
             </div>
@@ -1054,12 +1166,16 @@ function WriterView({
                   <button
                     type="button"
                     key={statement.id}
-                    draggable={statement.kind === "direction" && !pendingDraft}
+                    draggable={statement.kind === "direction" && !pendingDraft && !multiSelectMode}
                     data-dragging={draggedDirectionId === statement.id ? "true" : undefined}
-                    className={statement.id === selected.id ? "stage-cue is-active" : "stage-cue"}
+                    className={`${statement.id === selected.id ? "stage-cue is-active" : "stage-cue"}${selectedDirectionIds.includes(statement.id) ? " is-batch-selected" : ""}`}
                     aria-label={`轨道步骤 ${index + 1}：${statementLabel(statement)}`}
+                    aria-pressed={multiSelectMode && statement.kind === "direction" ? selectedDirectionIds.includes(statement.id) : undefined}
                     aria-keyshortcuts={statement.kind === "direction" ? "Alt+ArrowLeft Alt+ArrowRight Delete" : undefined}
-                    onClick={() => dispatch({ type: "select-statement", statementId: statement.id })}
+                    onClick={() => {
+                      if (multiSelectMode && statement.kind === "direction") toggleDirectionSelection(statement.id);
+                      else dispatch({ type: "select-statement", statementId: statement.id });
+                    }}
                     onDragStart={(event) => {
                       if (statement.kind !== "direction" || pendingDraft) return;
                       setDraggedDirectionId(statement.id);
@@ -1103,6 +1219,15 @@ function WriterView({
           ))}
         </div>
       </section>
+
+      {multiSelectMode && <BatchDirectionPanel
+        key={`${scene.id}:${selectedDirectionIds.join(":")}`}
+        statements={selectedDirections}
+        assetIndex={assetIndex}
+        disabled={pendingDraft}
+        createCommandId={createCommandId}
+        dispatch={dispatch}
+      />}
 
       {insertCommand !== null && <DirectionInsertPanel
         key={`${insertCommand}:${selected.id}`}
@@ -1773,7 +1898,7 @@ export function App() {
   const dispatch = (action: StudioAction) => {
     baseDispatch(action);
     if ([
-      "edit-script", "patch-dialogue", "patch-direction", "insert-dialogue", "insert-direction", "delete-dialogue",
+      "edit-script", "patch-dialogue", "patch-direction", "patch-directions", "insert-dialogue", "insert-direction", "duplicate-direction", "delete-dialogue",
       "move-dialogue", "delete-direction", "move-direction", "format-script", "discard-draft", "undo", "redo"
     ].includes(action.type)) {
       editGeneration.current += 1;
@@ -2789,7 +2914,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.35 STAGE CUE · REVERSIBLE EDIT</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.36 STAGE CUE · ATOMIC BATCH</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

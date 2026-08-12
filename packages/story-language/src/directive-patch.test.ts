@@ -4,6 +4,7 @@ import {
   createScriptSourceSession,
   executeScriptSourceCommand,
   parseStory,
+  patchDirectiveBatch,
   patchDirectiveParameters,
   semanticSnapshot
 } from "./index";
@@ -106,5 +107,43 @@ describe("stable-ID local directive patch", () => {
     expect(reused).toEqual(expect.objectContaining({
       result: expect.objectContaining({ status: "rejected", error: expect.objectContaining({ code: "COMMAND_ID_REUSE" }) })
     }));
+  });
+
+  it("patches a same-command batch atomically with one deterministic result", () => {
+    const batchSource = source.replace(
+      "hero: Keep me @sid(stmt_text) @id(txt_text)",
+      "  @show asset=char_second @id(stmt_show_second)\r\nhero: Keep me @sid(stmt_text) @id(txt_text)"
+    );
+    const result = patchDirectiveBatch(
+      batchSource,
+      parseStory(batchSource),
+      ["stmt_show_second", "stmt_show"],
+      { parameters: { transition: "fade", duration: "300ms" } }
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.error.message);
+    expect(result.statementIds).toEqual(["stmt_show", "stmt_show_second"]);
+    expect(result.changedStatementIds).toEqual(["stmt_show", "stmt_show_second"]);
+    expect(result.source.match(/transition=fade/g)).toHaveLength(2);
+    expect(result.source.match(/duration=300ms/g)).toHaveLength(2);
+  });
+
+  it("rejects mixed, duplicate, empty, and partially invalid batches without exposing a partial source", () => {
+    const mixed = source.replace(
+      "hero: Keep me @sid(stmt_text) @id(txt_text)",
+      "@audio action=stop bus=bgm @id(stmt_audio)\r\nhero: Keep me @sid(stmt_text) @id(txt_text)"
+    );
+    const document = parseStory(mixed);
+    expect(patchDirectiveBatch(mixed, document, ["stmt_show", "stmt_audio"], { parameters: { transitionAsset: "mask" } }))
+      .toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "DIRECTIVE_PATCH_BATCH_MIXED_COMMANDS" }) }));
+    expect(patchDirectiveBatch(mixed, document, ["stmt_show", "stmt_show"], { parameters: { transition: "fade" } }))
+      .toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "DIRECTIVE_PATCH_BATCH_DUPLICATE_TARGET" }) }));
+    expect(patchDirectiveBatch(mixed, document, [], { parameters: { transition: "fade" } }))
+      .toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "DIRECTIVE_PATCH_BATCH_EMPTY" }) }));
+    expect(patchDirectiveBatch(mixed, document, Array.from({ length: 257 }, (_, index) => `stmt_${index}`), { parameters: { transition: "fade" } }))
+      .toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "DIRECTIVE_PATCH_BATCH_LIMIT" }) }));
+    expect(patchDirectiveBatch(mixed, document, ["stmt_show", "stmt_missing"], { parameters: { transition: "fade" } }))
+      .toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "DIRECTIVE_PATCH_TARGET_NOT_FOUND" }) }));
+    expect(mixed).not.toContain("transition=fade");
   });
 });
