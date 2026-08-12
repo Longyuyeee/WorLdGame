@@ -85,7 +85,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function canonicalRgbaDigest(width: number, height: number, rgba: Uint8Array): BlobDigest {
+export function createLosslessDicingRgbaDigest(width: number, height: number, rgba: Uint8Array): BlobDigest {
   const envelope = new Uint8Array(8 + rgba.byteLength);
   const view = new DataView(envelope.buffer);
   view.setUint32(0, width);
@@ -209,7 +209,7 @@ function packPlan(plan: LosslessDicingPlan, settings: NormalizedAtlasOptions): {
         height: placement.tile.height
       });
     }
-    return { pageId: page.pageId, width: page.usedWidth, height: page.usedHeight, rgbaDigest: canonicalRgbaDigest(page.usedWidth, page.usedHeight, rgba), rgba };
+    return { pageId: page.pageId, width: page.usedWidth, height: page.usedHeight, rgbaDigest: createLosslessDicingRgbaDigest(page.usedWidth, page.usedHeight, rgba), rgba };
   });
   tiles.sort((left, right) => left.tileDigest.localeCompare(right.tileDigest));
   return { pages, tiles };
@@ -317,7 +317,7 @@ function verifiedPages(manifest: LosslessDicingAtlasManifest, pages: readonly Lo
   for (const page of pages) {
     if (typeof page.pageId !== "string" || !Number.isSafeInteger(page.width) || !Number.isSafeInteger(page.height) ||
         page.width < 1 || page.height < 1 || !(page.rgba instanceof Uint8Array) || typeof page.rgbaDigest !== "string" ||
-        byId.has(page.pageId) || page.rgba.byteLength !== page.width * page.height * 4 || canonicalRgbaDigest(page.width, page.height, page.rgba) !== page.rgbaDigest) {
+        byId.has(page.pageId) || page.rgba.byteLength !== page.width * page.height * 4 || createLosslessDicingRgbaDigest(page.width, page.height, page.rgba) !== page.rgbaDigest) {
       return fail(page.pageId, "Atlas page bytes are missing, malformed or corrupt");
     }
     byId.set(page.pageId, page);
@@ -354,7 +354,7 @@ export function reconstructLosslessDicingAtlasImage(
       output.set(page.rgba.subarray(sourceOffset, sourceOffset + tile.width * 4), outputOffset);
     }
   }
-  if (canonicalRgbaDigest(image.width, image.height, output) !== image.sourceDigest) return fail(assetId, "Atlas reconstruction does not match the source digest");
+  if (createLosslessDicingRgbaDigest(image.width, image.height, output) !== image.sourceDigest) return fail(assetId, "Atlas reconstruction does not match the source digest");
   return output;
 }
 
@@ -393,7 +393,7 @@ export function resolveLosslessDicingRuntimeImage(
     const manifest = parseLosslessDicingAtlasManifest(JSON.stringify(artifact.manifest));
     const image = manifest.images.find((candidate) => candidate.assetId === original.assetId);
     if (image === undefined || image.width !== original.width || image.height !== original.height ||
-        image.sourceDigest !== canonicalRgbaDigest(original.width, original.height, original.rgba)) {
+        image.sourceDigest !== createLosslessDicingRgbaDigest(original.width, original.height, original.rgba)) {
       return { strategy: "original", rgba: original.rgba, reason: "source-mismatch" };
     }
     return { strategy: "atlas", rgba: reconstructLosslessDicingAtlasImage(manifest, artifact.pages, original.assetId),

@@ -13,7 +13,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("S0.26 encoded Dicing Atlas publication integration", () => {
+describe("S0.27 Dicing Runtime Loader integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
@@ -85,12 +85,17 @@ describe("S0.26 encoded Dicing Atlas publication integration", () => {
     class DicingWorker {
       private readonly listeners = new Map<string, (event: MessageEvent) => void>();
       addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
-      postMessage(request: { readonly id: number; readonly operation?: string }): void {
+      postMessage(request: { readonly id: number; readonly operation?: string; readonly assetId?: string }): void {
         if (request.operation === "build-atlas") {
           this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
             deliveryManifestJson: serializeLosslessDicingPngDeliveryManifest(deliveryManifest),
             pages: encodedAtlasPages.map((page) => ({ ...page, rgba: page.rgba.buffer.slice(0), encoded: page.encoded.buffer.slice(0) }))
           } } } as MessageEvent);
+          return;
+        }
+        if (request.assetId !== undefined) {
+          this.listeners.get("message")?.({ data: { id: request.id, ok: true, strategy: "atlas", width: 8, height: 8,
+            rgba: atlasRgba.buffer.slice(0), manifestDigest: atlasArtifact.manifest.manifestDigest } } as MessageEvent);
           return;
         }
         this.listeners.get("message")?.({ data: {
@@ -146,6 +151,9 @@ describe("S0.26 encoded Dicing Atlas publication integration", () => {
     fireEvent.click(publishButton);
     await waitFor(() => expect(screen.getByText(/已原子发布 Manifest 与 1 个无损 PNG Atlas Page/)).toBeVisible(), { timeout: 5_000 });
     expect(screen.getByText(/Original 保持受保护/)).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "验证 Runtime Loader" }));
+    await waitFor(() => expect(screen.getByText(/Runtime Loader PASS/)).toBeVisible(), { timeout: 5_000 });
+    expect(screen.getByText(/当前 Original 身份匹配/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
   }, 20_000);
 

@@ -134,6 +134,12 @@ export interface AssetDicingAtlasPublicationResult {
   readonly decision: LosslessDicingEncodedDecision;
 }
 
+export interface AssetDicingRuntimePublication {
+  readonly deliveryManifestJson: string;
+  readonly manifestDigest: BlobDigest;
+  readonly encodedPages: readonly { readonly pageId: string; readonly digest: BlobDigest; readonly bytes: Uint8Array }[];
+}
+
 export interface AssetBackupRestoreResult {
   readonly status: "none" | "aborted" | "completed";
   readonly index: AssetIndex;
@@ -915,6 +921,39 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       try { publicationTransaction?.abort(); } catch { /* Transaction already completed. */ }
       throw normalizeIndexedDbAssetError(error, "index", publication.groupId);
     }
+  }
+
+  async loadDicingRuntimePublication(groupId: string): Promise<AssetDicingRuntimePublication | null> {
+    if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$/.test(groupId)) {
+      throw new AssetBlobError("INVALID_ASSET", "read", groupId, "Dicing runtime group ID is invalid");
+    }
+    const lifecycle = await this.loadLifecycle();
+    const root = lifecycle.roots.find((candidate) => candidate.rootId === `build:dicing:${groupId}` && candidate.kind === "build");
+    if (root === undefined) return null;
+    const rootedNodes = root.digests.map((digest) => lifecycle.nodes.find((node) => node.digest === digest));
+    const manifestNodes = rootedNodes.filter((node) => node?.mimeType === "application/vnd.world-studio.dicing-delivery+json");
+    const pageNodes = rootedNodes.filter((node) => node?.mimeType === "image/png");
+    if (manifestNodes.length !== 1 || pageNodes.length < 1 || rootedNodes.some((node) => node === undefined)) {
+      throw new AssetBlobError("CORRUPT_BLOB", "read", groupId, "Dicing build root has an invalid lineage envelope");
+    }
+    const manifestNode = manifestNodes[0]!;
+    const manifestBytes = await this.read(manifestNode.digest);
+    if (manifestBytes === null) throw new AssetBlobError("CORRUPT_BLOB", "read", manifestNode.digest, "Dicing Delivery Manifest is missing");
+    const deliveryManifestJson = new TextDecoder("utf-8", { fatal: true }).decode(manifestBytes);
+    const manifest = parseLosslessDicingPngDeliveryManifest(deliveryManifestJson);
+    const pageNodeByDigest = new Map(pageNodes.map((node) => [node!.digest, node!]));
+    const encodedPages = [] as Array<{ pageId: string; digest: BlobDigest; bytes: Uint8Array }>;
+    for (const descriptor of manifest.pages) {
+      const node = pageNodeByDigest.get(descriptor.encodedDigest);
+      if (node === undefined || node.byteLength !== descriptor.encodedByteLength) {
+        throw new AssetBlobError("CORRUPT_BLOB", "read", descriptor.pageId, "Dicing PNG lineage does not match the Delivery Manifest");
+      }
+      const bytes = await this.read(descriptor.encodedDigest);
+      if (bytes === null) throw new AssetBlobError("CORRUPT_BLOB", "read", descriptor.encodedDigest, "Dicing PNG Page is missing");
+      encodedPages.push({ pageId: descriptor.pageId, digest: descriptor.encodedDigest, bytes });
+    }
+    if (encodedPages.length !== pageNodes.length) throw new AssetBlobError("CORRUPT_BLOB", "read", groupId, "Dicing build root contains undeclared PNG Pages");
+    return { deliveryManifestJson, manifestDigest: manifestNode.digest, encodedPages };
   }
 
   async planGarbageCollection(

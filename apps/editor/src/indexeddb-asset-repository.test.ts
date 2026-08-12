@@ -485,6 +485,11 @@ describe("IndexedDbAssetRepository", () => {
     expect(second.manifest.nodes.filter((node) => node.recipeName?.startsWith("dicing-atlas/"))).toHaveLength(artifact.pages.length + 1);
     expect(await assets.read(first.manifestDigest)).not.toBeNull();
     for (const digest of first.pageDigests) expect(await assets.read(digest)).not.toBeNull();
+    await expect(assets.loadDicingRuntimePublication("atlas-test")).resolves.toMatchObject({
+      manifestDigest: first.manifestDigest,
+      encodedPages: [{ pageId: "atlas-000" }]
+    });
+    await expect(assets.loadDicingRuntimePublication("missing-group")).resolves.toBeNull();
   });
 
   it("rolls back all Dicing outputs when a source changes before publication", async () => {
