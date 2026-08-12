@@ -1311,6 +1311,34 @@ button:disabled {
   background: rgb(255 91 113 / 14%);
 }
 
+.stage-track__window {
+  display: grid;
+  grid-template-columns: auto auto auto auto minmax(140px, 1fr);
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  border: 1px solid rgb(139 124 255 / 16%);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 3%);
+}
+
+.stage-track__window button {
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid rgb(139 124 255 / 24%);
+  border-radius: 8px;
+  background: rgb(139 124 255 / 8%);
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.stage-track__window button:hover:not(:disabled) { background: rgb(139 124 255 / 16%); }
+.stage-track__window output { color: #c8c1ff; font-size: 9px; font-weight: 850; white-space: nowrap; }
+.stage-track__window small { justify-self: end; color: var(--wg-color-text-muted); font-size: 8px; }
+
 .stage-track__scroll {
   display: grid;
   gap: 5px;
@@ -2877,6 +2905,24 @@ textarea[data-input-state="composing"] {
   .stage-track__actions button,
   .stage-track__insert button {
     min-height: 44px;
+  }
+
+  .stage-track__window {
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .stage-track__window button {
+    min-height: 44px;
+  }
+
+  .stage-track__window small {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    text-align: center;
+  }
+
+  .stage-track__window button[aria-label="定位当前演出步骤"] {
+    grid-column: 1 / -1;
   }
 
   .direction-insert__fields {

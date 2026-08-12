@@ -10,6 +10,7 @@ import {
 import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
 import { compilePreviewStageTimeline } from "../apps/editor/src/preview-media-runtime";
 import { selectStageDirectionLane, selectStageDirectionRange } from "../apps/editor/src/stage-selection";
+import { createStageWindow, moveStageWindow, revealStageIndex } from "../apps/editor/src/stage-window";
 
 const dialogueCount = 10_000;
 const budgets = {
@@ -216,5 +217,22 @@ describe("large script performance audit", () => {
     expect(lane.statementIds).toHaveLength(3_334);
     expect(range.statementIds).toHaveLength(3_334);
     expect(selectionMs).toBeLessThan(100);
+  });
+
+  it("navigates a bounded render window across ten thousand steps within budget", () => {
+    const statementCount = 10_000;
+    let window = createStageWindow(statementCount, 0);
+    const start = performance.now();
+    for (let index = 0; index < statementCount; index += 17) {
+      window = revealStageIndex(window, index);
+      if (window.hasNext && index % 51 === 0) window = moveStageWindow(window, 1);
+    }
+    const windowNavigationMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { statementCount, windowSize: window.size }, measurementsMs: {
+      largeSceneWindowNavigation: Number(windowNavigationMs.toFixed(2)) }, budgetsMs: {
+      largeSceneWindowNavigation: 100 }, result: {
+      finalStart: window.start, finalEnd: window.end, maximumRenderedStatements: window.size } }, null, 2));
+    expect(window.end - window.start).toBeLessThanOrEqual(64);
+    expect(windowNavigationMs).toBeLessThan(100);
   });
 });

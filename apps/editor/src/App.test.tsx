@@ -435,4 +435,18 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(stage).toHaveAttribute("data-preview-height", "1000");
     expect(screen.getByText("本地事务 · r0")).toBeVisible();
   });
+
+  it("shares one bounded render window between the stage track and statement cards", () => {
+    render(<App />);
+    expect(screen.getByRole("group", { name: "演出轨道可视窗口" })).toBeVisible();
+    expect(screen.getByText("步骤 1–4 / 4")).toBeVisible();
+    expect(screen.getByRole("button", { name: "上一段演出步骤" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "下一段演出步骤" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "定位当前演出步骤" })).toBeDisabled();
+    expect(screen.getByRole("region", { name: "图形化演出轨道" })).toHaveAttribute("data-window-size", "64");
+    expect(screen.getByRole("region", { name: "图形化演出轨道" })).toHaveAttribute("data-rendered-statements", "4");
+    expect(screen.getByLabelText("剧情步骤，当前显示 1 至 4，共 4 步")).toBeVisible();
+    expect(screen.getAllByRole("button", { name: /^选择/ })).toHaveLength(4);
+    expect(screen.getByText("窗口外选择仍保留 · 拖放仅限当前窗口")).toBeVisible();
+  });
 });

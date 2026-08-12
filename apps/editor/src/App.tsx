@@ -74,6 +74,7 @@ import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
 import { StoryResourceCoordinator } from "./story-resource-coordinator";
 import { selectStageDirectionLane, selectStageDirectionRange, type StageDirectionCommand } from "./stage-selection";
+import { createStageWindow, moveStageWindow, revealStageIndex } from "./stage-window";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
   MAX_PREVIEW_DIMENSION,
@@ -238,7 +239,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.38</p>
+          <p className="eyebrow">WorLd Studio · S0.39</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -349,7 +350,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.38 RANGE · LANE SELECTION</small></span>
+            <span><strong>资源保险库</strong><small>S0.39 TRACK · 64-STEP WINDOW</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -1057,6 +1058,10 @@ function WriterView({
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
   const [rangeAnchorId, setRangeAnchorId] = useState<string | null>(null);
   const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
+  const [stageWindowStart, setStageWindowStart] = useState(0);
+  const stageWindow = createStageWindow(scene.statements.length, stageWindowStart);
+  const visibleStatements = scene.statements.slice(stageWindow.start, stageWindow.end);
+  const selectedInStageWindow = selectedIndex >= stageWindow.start && selectedIndex < stageWindow.end;
   const canMoveDirectionLeft = !multiSelectMode && selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
   const canMoveDirectionRight = !multiSelectMode && selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
   const selectedDirections = scene.statements.filter(
@@ -1113,7 +1118,14 @@ function WriterView({
     setSelectedDirectionIds([]);
     setRangeAnchorId(null);
     setSelectionNotice(null);
+    setStageWindowStart(0);
   }, [scene.id]);
+  useEffect(() => {
+    setStageWindowStart((current) => revealStageIndex(
+      createStageWindow(scene.statements.length, current),
+      selectedIndex
+    ).start);
+  }, [scene.statements.length, selectedIndex]);
   useEffect(() => {
     const valid = new Set(scene.statements.filter((statement) => statement.kind === "direction").map((statement) => statement.id));
     setSelectedDirectionIds((current) => current.filter((statementId) => valid.has(statementId)));
@@ -1203,7 +1215,7 @@ function WriterView({
         </button>
       </div>
 
-      <section className="stage-track" aria-label="图形化演出轨道">
+      <section className="stage-track" aria-label="图形化演出轨道" data-window-size={stageWindow.size} data-rendered-statements={visibleStatements.length}>
         <div className="stage-track__heading">
           <div><span className="eyebrow">STAGE TRACK</span><strong>演出层级概览</strong></div>
           <div className="stage-track__tools">
@@ -1229,12 +1241,21 @@ function WriterView({
             </div>
           </div>
         </div>
+        <div className="stage-track__window" role="group" aria-label="演出轨道可视窗口">
+          <button type="button" aria-label="上一段演出步骤" disabled={!stageWindow.hasPrevious || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, -1).start)}>← 上一段</button>
+          <output aria-live="polite">步骤 {stageWindow.total === 0 ? 0 : stageWindow.start + 1}–{stageWindow.end} / {stageWindow.total}</output>
+          <button type="button" aria-label="下一段演出步骤" disabled={!stageWindow.hasNext || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, 1).start)}>下一段 →</button>
+          <button type="button" aria-label="定位当前演出步骤" disabled={selectedInStageWindow || draggedDirectionId !== null} onClick={() => setStageWindowStart(revealStageIndex(stageWindow, selectedIndex).start)}>定位当前</button>
+          <small>窗口外选择仍保留 · 拖放仅限当前窗口</small>
+        </div>
         <div className="stage-track__scroll">
           {(["background", "character", "audio", "story"] as const).map((lane) => (
             <div className={`stage-lane stage-lane--${lane}`} key={lane}>
               <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "audio" ? "AUDIO" : "STORY"}</span>
               <div className="stage-lane__steps">
-                {scene.statements.map((statement, index) => stageLane(statement) === lane ? (
+                {visibleStatements.map((statement, visibleIndex) => {
+                  const index = stageWindow.start + visibleIndex;
+                  return stageLane(statement) === lane ? (
                   <button
                     type="button"
                     key={statement.id}
@@ -1294,7 +1315,8 @@ function WriterView({
                   >
                     <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>
                   </button>
-                ) : <span className="stage-cue stage-cue--empty" aria-hidden="true" key={`${statement.id}:empty`} />)}
+                ) : <span className="stage-cue stage-cue--empty" aria-hidden="true" key={`${statement.id}:empty`} />;
+                })}
               </div>
             </div>
           ))}
@@ -1363,8 +1385,10 @@ function WriterView({
         onClose={() => setInsertCommand(null)}
       />}
 
-      <div className="statement-list" aria-label="剧情步骤">
-        {scene.statements.map((statement, index) => (
+      <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>
+        {visibleStatements.map((statement, visibleIndex) => {
+          const index = stageWindow.start + visibleIndex;
+          return (
           <button
             key={statement.id}
             className={
@@ -1379,7 +1403,8 @@ function WriterView({
             <span className="statement-kind">{statementKindLabel(statement)}</span>
             <span className="statement-copy">{statementLabel(statement)}</span>
           </button>
-        ))}
+        );
+        })}
       </div>
 
       <div className="inline-inspector">
@@ -3036,7 +3061,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.38 RANGE · LANE SELECTION</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.39 TRACK · 64-STEP WINDOW</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {
