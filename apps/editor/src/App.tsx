@@ -74,6 +74,7 @@ import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
 import { StoryResourceCoordinator } from "./story-resource-coordinator";
 import { selectStageDirectionLane, selectStageDirectionRange, type StageDirectionCommand } from "./stage-selection";
+import { createStageSearchIndex, searchStageIndex, type StageSearchMatch } from "./stage-search";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "./stage-window";
 import {
   DEFAULT_PREVIEW_VIEWPORT_ID,
@@ -239,7 +240,7 @@ function WorkspaceHeader({
       <div className="brand-lockup">
         <span className="brand-mark" aria-hidden="true">W</span>
         <div>
-          <p className="eyebrow">WorLd Studio · S0.39</p>
+          <p className="eyebrow">WorLd Studio · S0.40</p>
           <h1>{session.project.title}</h1>
         </div>
       </div>
@@ -350,7 +351,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets }:
         <button className="asset-vault-card" aria-label="打开资源保险库" onClick={onOpenAssets}>
           <div className="asset-vault-card__heading">
             <span className="asset-vault-card__mark" aria-hidden="true">◇</span>
-            <span><strong>资源保险库</strong><small>S0.39 TRACK · 64-STEP WINDOW</small></span>
+            <span><strong>资源保险库</strong><small>S0.40 SEARCH · STABLE-ID JUMP</small></span>
           </div>
           <div className="asset-vault-card__rules">
             <span>签名验证</span><span>预算闸门</span><span>SHA-256 去重</span>
@@ -1059,9 +1060,16 @@ function WriterView({
   const [rangeAnchorId, setRangeAnchorId] = useState<string | null>(null);
   const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
   const [stageWindowStart, setStageWindowStart] = useState(0);
+  const [stageSearchQuery, setStageSearchQuery] = useState("");
+  const [activeStageSearchResult, setActiveStageSearchResult] = useState(0);
+  const [pendingStageFocusId, setPendingStageFocusId] = useState<string | null>(null);
   const stageWindow = createStageWindow(scene.statements.length, stageWindowStart);
   const visibleStatements = scene.statements.slice(stageWindow.start, stageWindow.end);
   const selectedInStageWindow = selectedIndex >= stageWindow.start && selectedIndex < stageWindow.end;
+  const stageSearchIndex = useMemo(() => createStageSearchIndex(scene.statements), [scene.statements]);
+  const stageSearch = useMemo(() => searchStageIndex(stageSearchIndex, stageSearchQuery), [stageSearchIndex, stageSearchQuery]);
+  const resolvedStageSearchResult = Math.min(activeStageSearchResult, Math.max(0, stageSearch.matches.length - 1));
+  const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
   const canMoveDirectionLeft = !multiSelectMode && selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
   const canMoveDirectionRight = !multiSelectMode && selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
   const selectedDirections = scene.statements.filter(
@@ -1085,6 +1093,18 @@ function WriterView({
     commandId: createCommandId(),
     statementId
   });
+  const jumpToStageSearchMatch = (match: StageSearchMatch | undefined) => {
+    if (match === undefined || draggedDirectionId !== null) return;
+    setStageWindowStart(revealStageIndex(stageWindow, match.index).start);
+    setPendingStageFocusId(match.statementId);
+    dispatch({ type: "select-statement", statementId: match.statementId });
+  };
+  const cycleStageSearchResult = (direction: -1 | 1) => {
+    if (stageSearch.matches.length === 0 || draggedDirectionId !== null) return;
+    const next = (activeStageSearchResult + direction + stageSearch.matches.length) % stageSearch.matches.length;
+    setActiveStageSearchResult(next);
+    jumpToStageSearchMatch(stageSearch.matches[next]);
+  };
   const toggleMultiSelect = () => {
     const next = !multiSelectMode;
     setMultiSelectMode(next);
@@ -1119,7 +1139,13 @@ function WriterView({
     setRangeAnchorId(null);
     setSelectionNotice(null);
     setStageWindowStart(0);
+    setStageSearchQuery("");
+    setActiveStageSearchResult(0);
+    setPendingStageFocusId(null);
   }, [scene.id]);
+  useEffect(() => {
+    setActiveStageSearchResult(0);
+  }, [stageSearchQuery, stageSearch.totalMatches]);
   useEffect(() => {
     setStageWindowStart((current) => revealStageIndex(
       createStageWindow(scene.statements.length, current),
@@ -1131,6 +1157,14 @@ function WriterView({
     setSelectedDirectionIds((current) => current.filter((statementId) => valid.has(statementId)));
     setRangeAnchorId((current) => current !== null && valid.has(current) ? current : null);
   }, [scene.statements]);
+  useEffect(() => {
+    if (pendingStageFocusId === null) return;
+    const target = document.getElementById(`statement-card-${pendingStageFocusId}`);
+    if (target instanceof HTMLElement) {
+      target.focus();
+      setPendingStageFocusId(null);
+    }
+  }, [pendingStageFocusId, selected.id, stageWindow.start]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if (!event.altKey || pendingDraft) return;
@@ -1241,6 +1275,64 @@ function WriterView({
             </div>
           </div>
         </div>
+        <form className="stage-search" role="search" aria-label="搜索当前场景步骤" onSubmit={(event: FormEvent) => {
+          event.preventDefault();
+          jumpToStageSearchMatch(selectedSearchMatch);
+        }}>
+          <label htmlFor="stage-step-search">定位步骤</label>
+          <div className="stage-search__input">
+            <span aria-hidden="true">⌕</span>
+            <input
+              id="stage-step-search"
+              type="search"
+              value={stageSearchQuery}
+              placeholder="步骤号、Statement ID 或对白"
+              autoComplete="off"
+              aria-controls="stage-search-results"
+              aria-describedby="stage-search-status"
+              onChange={(event) => setStageSearchQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowDown") {
+                  event.preventDefault();
+                  cycleStageSearchResult(1);
+                } else if (event.key === "ArrowUp") {
+                  event.preventDefault();
+                  cycleStageSearchResult(-1);
+                } else if (event.key === "Escape") {
+                  setStageSearchQuery("");
+                }
+              }}
+            />
+          </div>
+          <output id="stage-search-status" aria-live="polite">
+            {stageSearch.query.length === 0 ? "输入后搜索已提交场景" : stageSearch.totalMatches === 0 ? "没有匹配步骤" : `${resolvedStageSearchResult + 1} / ${stageSearch.totalMatches} 项`}
+          </output>
+          <div className="stage-search__nav" aria-label="搜索结果导航">
+            <button type="button" aria-label="上一个搜索结果" disabled={stageSearch.matches.length === 0 || draggedDirectionId !== null} onClick={() => cycleStageSearchResult(-1)}>↑</button>
+            <button type="submit" disabled={selectedSearchMatch === undefined || draggedDirectionId !== null}>跳转</button>
+            <button type="button" aria-label="下一个搜索结果" disabled={stageSearch.matches.length === 0 || draggedDirectionId !== null} onClick={() => cycleStageSearchResult(1)}>↓</button>
+          </div>
+          {stageSearch.query.length > 0 && <div id="stage-search-results" className="stage-search__results" role="listbox" aria-label="当前场景搜索结果">
+            {stageSearch.matches.map((match, resultIndex) => (
+              <button
+                type="button"
+                role="option"
+                aria-selected={resultIndex === resolvedStageSearchResult}
+                disabled={draggedDirectionId !== null}
+                key={match.statementId}
+                onClick={() => {
+                  setActiveStageSearchResult(resultIndex);
+                  jumpToStageSearchMatch(match);
+                }}
+              >
+                <span>#{match.index + 1}</span><strong>{match.label}</strong><code>{match.statementId}</code>
+              </button>
+            ))}
+            {stageSearch.matches.length === 0 && <p>尝试输入 #65、stmt_… 或对白片段</p>}
+            {stageSearch.truncated && <p>仅展示前 {stageSearch.matches.length} 项，结果总数仍完整统计。</p>}
+          </div>}
+          {pendingDraft && <small>当前 Script 草稿尚未提交；搜索继续使用最后一次有效场景。</small>}
+        </form>
         <div className="stage-track__window" role="group" aria-label="演出轨道可视窗口">
           <button type="button" aria-label="上一段演出步骤" disabled={!stageWindow.hasPrevious || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, -1).start)}>← 上一段</button>
           <output aria-live="polite">步骤 {stageWindow.total === 0 ? 0 : stageWindow.start + 1}–{stageWindow.end} / {stageWindow.total}</output>
@@ -1390,6 +1482,7 @@ function WriterView({
           const index = stageWindow.start + visibleIndex;
           return (
           <button
+            id={`statement-card-${statement.id}`}
             key={statement.id}
             className={
               statement.id === session.selectedStatementId
@@ -3061,7 +3154,7 @@ export function App() {
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
       </main>
       <footer className="workspace-footer">
-        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.39 TRACK · 64-STEP WINDOW</span>
+        <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.40 SEARCH · STABLE-ID JUMP</span>
       </footer>
       {backupPanelOpen && (
         <div className="backup-overlay" role="presentation" onMouseDown={(event) => {

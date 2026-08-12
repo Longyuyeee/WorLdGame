@@ -12,6 +12,32 @@ function selectFirstDialogue() {
 }
 
 describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
+  it("searches committed scene steps by text and number without changing the project revision", () => {
+    render(<App />);
+    const search = screen.getByRole("searchbox", { name: "定位步骤" });
+    fireEvent.change(search, { target: { value: "广播站" } });
+    expect(screen.getByText("1 / 1 项")).toBeVisible();
+    const result = screen.getByRole("option", { name: /广播站的灯还亮着/ });
+    fireEvent.click(result);
+    const dialogueCard = screen.getByRole("button", { name: /选择对白：广播站的灯还亮着/ });
+    expect(dialogueCard).toHaveFocus();
+
+    fireEvent.change(search, { target: { value: "#4" } });
+    fireEvent.submit(screen.getByRole("search", { name: "搜索当前场景步骤" }));
+    expect(screen.getByRole("button", { name: /选择选择：先去哪里调查/ })).toHaveFocus();
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+  });
+
+  it("reports empty stage searches and exposes keyboard-sized result navigation", () => {
+    render(<App />);
+    const search = screen.getByRole("searchbox", { name: "定位步骤" });
+    fireEvent.change(search, { target: { value: "不存在的对白" } });
+    expect(screen.getByText("没有匹配步骤")).toBeVisible();
+    expect(screen.getByText(/尝试输入 #65/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "上一个搜索结果" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "下一个搜索结果" })).toBeDisabled();
+  });
+
   it("exposes a typed graphical Inspector for the selected direction without guessing legacy text", () => {
     render(<App />);
     expect(screen.getByText("图形化演出参数")).toBeVisible();
@@ -274,6 +300,8 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("错误草稿 · 未提交")).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    expect(screen.getByRole("searchbox", { name: "定位步骤" })).toHaveValue("");
+    expect(screen.getByText("当前 Script 草稿尚未提交；搜索继续使用最后一次有效场景。")).toBeVisible();
     selectFirstDialogue();
     expect(screen.getByLabelText("对白内容")).toBeDisabled();
     expect(

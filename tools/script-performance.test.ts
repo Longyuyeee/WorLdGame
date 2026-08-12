@@ -10,6 +10,7 @@ import {
 import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
 import { compilePreviewStageTimeline } from "../apps/editor/src/preview-media-runtime";
 import { selectStageDirectionLane, selectStageDirectionRange } from "../apps/editor/src/stage-selection";
+import { createStageSearchIndex, searchStageIndex } from "../apps/editor/src/stage-search";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "../apps/editor/src/stage-window";
 
 const dialogueCount = 10_000;
@@ -234,5 +235,35 @@ describe("large script performance audit", () => {
       finalStart: window.start, finalEnd: window.end, maximumRenderedStatements: window.size } }, null, 2));
     expect(window.end - window.start).toBeLessThanOrEqual(64);
     expect(windowNavigationMs).toBeLessThan(100);
+  });
+
+  it("indexes and searches ten thousand committed steps within the interactive budget", () => {
+    const statementCount = 10_000;
+    const statements = Array.from({ length: statementCount }, (_, index) => ({
+      id: `search_stmt_${index}`,
+      kind: "dialogue" as const,
+      speakerId: index % 2 === 0 ? "hero" : "friend",
+      textId: `search_text_${index}`,
+      text: index === 9_743 ? "雨后的天台藏着唯一的约定" : `校园对白 ${index}`
+    }));
+    const indexStart = performance.now();
+    const index = createStageSearchIndex(statements);
+    const indexingMs = performance.now() - indexStart;
+    const searchStart = performance.now();
+    const byText = searchStageIndex(index, "唯一的约定");
+    const byStableId = searchStageIndex(index, "SEARCH_STMT_9743");
+    const byStep = searchStageIndex(index, "#9744");
+    const searchMs = performance.now() - searchStart;
+    console.log(JSON.stringify({ status: "PASS", baseline: { statementCount }, measurementsMs: {
+      committedStageSearchIndexing: Number(indexingMs.toFixed(2)),
+      threeStageSearchQueries: Number(searchMs.toFixed(2)) }, budgetsMs: {
+      committedStageSearchIndexing: 300, threeStageSearchQueries: 100 }, result: {
+      textIndex: byText.matches[0]?.index, stableIdIndex: byStableId.matches[0]?.index,
+      stepIndex: byStep.matches[0]?.index, maximumMountedResults: 50 } }, null, 2));
+    expect(byText.matches[0]?.index).toBe(9_743);
+    expect(byStableId.matches[0]?.index).toBe(9_743);
+    expect(byStep.matches[0]?.index).toBe(9_743);
+    expect(indexingMs).toBeLessThan(300);
+    expect(searchMs).toBeLessThan(100);
   });
 });
