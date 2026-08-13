@@ -3,7 +3,7 @@
 > 日期：2026-08-14
 > 节点：N21
 > 对齐需求：`REQ-SEQ`、`REQ-SCRIPT`、`REQ-UX`；依赖 N11 Project Service 与 N20 Story Language P0
-> 状态：实现和本地完整门通过，等待 Draft PR Windows CI 与 20 分钟非程序用户实测
+> 状态：工程实现门通过；本地完整门与 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测
 
 ## 1. 审计结论与原有断点
 
@@ -51,3 +51,5 @@ SourceSession 新增统一 P0 insert/update/delete/move 与 P0 Batch 命令。Ba
 自动化测试证明需求路径可执行、可保存重开和不污染语义，但不能替代 N21 Acceptance 中“不了解脚本语法的测试者在 20 分钟内完成任务”。Draft PR CI 通过后仍需一名未参与实现的测试者按以下任务执行并记录开始/结束时间、阻塞点、求助次数和最终工程快照：创建对白 → 两选项 → 设置变量 → 条件进入两个结局 → 加入背景/BGM → 保存关闭重开。
 
 在真人任务通过前，N21 只能标记为“实现完成、产品验收待完成”，不得顺序进入 N22。N21 也不宣称完整 N41 Sequence、正式 Runtime Preview 或真实媒体渲染已完成；这些分别属于 N41、N30–N32 与 N22。
+
+远端工程验收证据：GitHub Actions run `31722738575`、Windows / Node 22 job `94523467459` 于 2026-08-14 通过，耗时 3 分 2 秒。该证据证明提交在远端 Windows 环境通过完整门，不等价于真人 20 分钟任务。
