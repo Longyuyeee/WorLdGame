@@ -206,6 +206,8 @@ const electronMain = await readFile(join(windowsShellRoot, "electron", "main.ts"
 const electronPreload = await readFile(join(windowsShellRoot, "electron", "preload.ts"), "utf8");
 const rendererSource = await readFile(join(windowsShellRoot, "src", "main.ts"), "utf8");
 const tauriMain = await readFile(join(windowsShellRoot, "src-tauri", "src", "main.rs"), "utf8");
+const electronStorageHost = await readFile(join(windowsShellRoot, "electron", "storage-host.ts"), "utf8");
+const tauriStorageHost = await readFile(join(windowsShellRoot, "src-tauri", "src", "storage.rs"), "utf8");
 for (const [setting, expected] of Object.entries({ contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, devTools: false })) {
   if (securityProfile.electron?.[setting] !== expected) violations.push(`Windows Electron security profile must set ${setting}=${expected}`);
 }
@@ -230,6 +232,15 @@ if (!tauriMain.includes('url.scheme() == "tauri"') || !tauriMain.includes('url.h
 if (securityProfile.electron?.absolutePathsExposed !== false || securityProfile.tauri?.absolutePathsExposed !== false ||
     securityProfile.electron?.genericFileApi !== false || securityProfile.tauri?.genericFileApi !== false) {
   violations.push("Windows hosts must not expose absolute paths or a generic filesystem API");
+}
+for (const [host, source] of [["Electron", electronStorageHost], ["Tauri", tauriStorageHost]]) {
+  if (!source.includes("GRANT_ROOT_REPARSE_REJECTED") || !source.includes("REPARSE_POINT_REJECTED")) {
+    violations.push(`Windows ${host} storage host must reject reparse roots and reparse path segments`);
+  }
+}
+if (securityProfile.electron?.grantRoot !== "native-only-canonical-directory" ||
+    securityProfile.tauri?.grantRoot !== "native-only-canonical-directory") {
+  violations.push("Windows project grant roots must remain native-only canonical directories");
 }
 
 if (violations.length > 0) {
@@ -257,6 +268,7 @@ if (violations.length > 0) {
           "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
           "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
           "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
+          "Windows project grant roots stay native-only and both hosts reject reparse roots and existing reparse path segments",
           "story-core has no runtime third-party dependency"
         ]
       },

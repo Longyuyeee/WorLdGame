@@ -31,6 +31,7 @@ struct StorageInner {
 
 pub struct StorageHost {
     root: PathBuf,
+    owns_root: bool,
     inner: Mutex<StorageInner>,
 }
 
@@ -44,6 +45,38 @@ impl StorageHost {
         fs::create_dir_all(&root).map_err(|error| format!("IO_FAILURE:create-root:{error}"))?;
         Ok(Self {
             root,
+            owns_root: true,
+            inner: Mutex::new(StorageInner {
+                active_lease: None,
+                next_fencing_token: 1,
+                next_temp_id: 1,
+            }),
+        })
+    }
+
+    pub fn create_granted(root: PathBuf) -> Result<Self, String> {
+        if !root.is_absolute() {
+            return Err("GRANT_ROOT_NOT_ABSOLUTE".into());
+        }
+        if root.parent().is_none() {
+            return Err("GRANT_VOLUME_ROOT_REJECTED".into());
+        }
+        let metadata = fs::metadata(&root).map_err(|error| match error.kind() {
+            ErrorKind::NotFound => "GRANT_ROOT_NOT_FOUND".into(),
+            _ => format!("GRANT_ROOT_IO_FAILURE:{error}"),
+        })?;
+        if !metadata.is_dir() {
+            return Err("GRANT_ROOT_NOT_DIRECTORY".into());
+        }
+        let canonical =
+            fs::canonicalize(&root).map_err(|error| format!("GRANT_ROOT_IO_FAILURE:{error}"))?;
+        let normalized = normalize_windows_path(&root);
+        if normalize_windows_path(&canonical) != normalized {
+            return Err("GRANT_ROOT_REPARSE_REJECTED".into());
+        }
+        Ok(Self {
+            root: canonical,
+            owns_root: false,
             inner: Mutex::new(StorageInner {
                 active_lease: None,
                 next_fencing_token: 1,
@@ -54,6 +87,7 @@ impl StorageHost {
 
     pub fn read(&self, logical_path: &str) -> Result<Option<String>, String> {
         let _inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+        assert_no_reparse_point(&self.root, logical_path)?;
         let target = resolve_store_path(&self.root, logical_path)?;
         match fs::read_to_string(target) {
             Ok(content) => Ok(Some(content)),
@@ -73,6 +107,7 @@ impl StorageHost {
         }
         let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
         assert_active_lease(&inner, lease)?;
+        assert_no_reparse_point(&self.root, logical_path)?;
         let target = resolve_store_path(&self.root, logical_path)?;
         let parent = target.parent().ok_or("INVALID_PATH")?;
         fs::create_dir_all(parent).map_err(|error| format!("IO_FAILURE:mkdir:{error}"))?;
@@ -108,6 +143,8 @@ impl StorageHost {
         }
         let inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
         assert_active_lease(&inner, lease)?;
+        assert_no_reparse_point(&self.root, source_path)?;
+        assert_no_reparse_point(&self.root, target_path)?;
         let source = resolve_store_path(&self.root, source_path)?;
         let target = resolve_store_path(&self.root, target_path)?;
         fs::create_dir_all(target.parent().ok_or("INVALID_PATH")?)
@@ -118,6 +155,7 @@ impl StorageHost {
     pub fn remove(&self, logical_path: &str, lease: &ProjectWriterLease) -> Result<(), String> {
         let inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
         assert_active_lease(&inner, lease)?;
+        assert_no_reparse_point(&self.root, logical_path)?;
         let target = resolve_store_path(&self.root, logical_path)?;
         match fs::remove_file(target) {
             Ok(()) => Ok(()),
@@ -127,6 +165,9 @@ impl StorageHost {
     }
 
     pub fn reset(&self) -> Result<(), String> {
+        if !self.owns_root {
+            return Err("GRANT_RESET_REJECTED".into());
+        }
         let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
         if self.root.exists() {
             fs::remove_dir_all(&self.root).map_err(|error| format!("IO_FAILURE:reset:{error}"))?;
@@ -198,12 +239,39 @@ impl StorageHost {
 
     pub fn cleanup(&self) -> Result<(), String> {
         let _inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        if self.root.exists() {
+        if self.owns_root && self.root.exists() {
             fs::remove_dir_all(&self.root)
                 .map_err(|error| format!("IO_FAILURE:cleanup:{error}"))?;
         }
         Ok(())
     }
+}
+
+fn normalize_windows_path(path: &Path) -> String {
+    let normalized = path.to_string_lossy().replace('/', "\\");
+    normalized
+        .strip_prefix(r"\\?\")
+        .unwrap_or(&normalized)
+        .trim_end_matches(['\\', '/'])
+        .to_ascii_lowercase()
+}
+
+fn assert_no_reparse_point(root: &Path, logical_path: &str) -> Result<(), String> {
+    let target = resolve_store_path(root, logical_path)?;
+    let relative = target.strip_prefix(root).map_err(|_| "INVALID_PATH")?;
+    let mut current = root.to_path_buf();
+    for component in relative.components() {
+        current.push(component);
+        match fs::symlink_metadata(&current) {
+            Ok(metadata) if metadata.file_type().is_symlink() => {
+                return Err("REPARSE_POINT_REJECTED".into())
+            }
+            Ok(_) => {}
+            Err(error) if error.kind() == ErrorKind::NotFound => break,
+            Err(error) => return Err(format!("IO_FAILURE:metadata:{error}")),
+        }
+    }
+    Ok(())
 }
 
 fn now_ms() -> Result<u64, String> {
@@ -309,6 +377,7 @@ fn move_replace(source: &Path, target: &Path) -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::os::windows::fs::symlink_dir;
 
     #[test]
     fn rejects_unsafe_paths() {
@@ -339,5 +408,57 @@ mod tests {
             Err("LEASE_LOST".into())
         );
         host.cleanup().expect("cleanup");
+    }
+
+    #[test]
+    fn granted_root_is_retained_and_cannot_be_reset() {
+        assert_eq!(
+            StorageHost::create_granted(PathBuf::from(r"C:\")).err(),
+            Some("GRANT_VOLUME_ROOT_REJECTED".into())
+        );
+        let root = std::env::temp_dir().join(format!("world-rust-grant-{}", now_ms().unwrap()));
+        fs::create_dir_all(&root).unwrap();
+        fs::write(root.join("project.json"), "granted").unwrap();
+        let host = StorageHost::create_granted(root.clone()).expect("grant");
+        assert_eq!(
+            host.read("project.json").unwrap().as_deref(),
+            Some("granted")
+        );
+        assert_eq!(host.reset(), Err("GRANT_RESET_REJECTED".into()));
+        host.cleanup().unwrap();
+        assert!(root.exists());
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn rejects_reparse_root_and_child() {
+        let stamp = now_ms().unwrap();
+        let root = std::env::temp_dir().join(format!("world-rust-grant-root-{stamp}"));
+        let outside = std::env::temp_dir().join(format!("world-rust-grant-outside-{stamp}"));
+        let alias = std::env::temp_dir().join(format!("world-rust-grant-alias-{stamp}"));
+        fs::create_dir_all(&root).unwrap();
+        fs::create_dir_all(&outside).unwrap();
+        fs::write(outside.join("secret.txt"), "outside").unwrap();
+        if let Err(error) = symlink_dir(&root, &alias) {
+            if error.raw_os_error() == Some(1314) {
+                let _ = fs::remove_dir_all(root);
+                let _ = fs::remove_dir_all(outside);
+                return;
+            }
+            panic!("create root symlink: {error}");
+        }
+        assert_eq!(
+            StorageHost::create_granted(alias.clone()).err(),
+            Some("GRANT_ROOT_REPARSE_REJECTED".into())
+        );
+        symlink_dir(&outside, root.join("linked")).expect("create child symlink");
+        let host = StorageHost::create_granted(root.clone()).expect("grant root");
+        assert_eq!(
+            host.read("linked/secret.txt"),
+            Err("REPARSE_POINT_REJECTED".into())
+        );
+        let _ = fs::remove_dir_all(alias);
+        let _ = fs::remove_dir_all(root);
+        let _ = fs::remove_dir_all(outside);
     }
 }
