@@ -16,10 +16,14 @@
     "test:vm-conformance": "vitest run packages/narrative-vm-spike/src/vm-spike09.test.ts --maxWorkers=1",
     "test:watch": "vitest",
     "audit:workspaces": "node tools/audit-workspaces.mjs",
+    "audit:requirements": "node tools/audit-requirements.mjs",
+    "audit:pr-traceability": "node tools/audit-pr-traceability.mjs",
+    "audit:goldens": "node tools/audit-golden-projects.mjs",
     "audit:architecture": "node tools/audit-architecture.mjs",
     "audit:script-performance": "vitest run --config vitest.performance.config.ts",
     "audit:asset-performance": "vitest run --config vitest.asset-performance.config.ts",
-    "check": "npm run audit:workspaces && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
+    "demo:empty-to-web": "node tools/run-empty-to-web-build.mjs",
+    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:pr-traceability && npm run audit:goldens && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
   },
   "engines": {
     "node": ">=22.12.0"

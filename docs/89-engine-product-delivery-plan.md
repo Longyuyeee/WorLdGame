@@ -117,6 +117,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N01 需求追踪与演示工程
 
+> 状态：通过。50 项 M1 追踪审计、七类 Golden Seed、PR 更新纪律、每周空目录演示、本地完整门和 Draft PR Windows CI 均完成。证据见[《N01 需求追踪与 Golden 基线审计》](92-n01-requirement-golden-baseline.md)。
+
 - **Goal**：所有 P0 和 27 条验收均有 owner、实现节点、测试和证据位置。
 - **Implementation**：
   1. 使用 `REQ-*` 和 `AC-*` 标识；

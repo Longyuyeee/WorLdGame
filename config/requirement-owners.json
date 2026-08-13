@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "testEntry": "npm run check",
+  "evidenceIndex": "docs/90-m1-requirement-traceability.md",
+  "groups": [
+    { "owner": "product-foundation", "requirements": ["USP-01", "USP-04", "REQ-PRJ", "REQ-SCRIPT", "AC-01", "AC-02", "AC-03", "AC-04", "AC-08", "AC-09"] },
+    { "owner": "editor-experience", "requirements": ["USP-02", "USP-06", "REQ-ROUTE", "REQ-SEQ", "REQ-STAGE", "REQ-UX", "AC-10", "AC-11", "AC-12", "AC-13", "AC-17"] },
+    { "owner": "compiler-runtime", "requirements": ["USP-03", "USP-09", "REQ-RUNTIME", "REQ-QA", "AC-05", "AC-06", "AC-07", "AC-15", "AC-16"] },
+    { "owner": "content-systems", "requirements": ["USP-08", "REQ-L10N", "REQ-GAL", "AC-18", "AC-19", "AC-20"] },
+    { "owner": "asset-optimization", "requirements": ["USP-07", "USP-10", "REQ-ASSET", "REQ-OPT", "AC-21", "AC-22", "AC-23"] },
+    { "owner": "build-release", "requirements": ["USP-05", "REQ-BUILD", "AC-14", "AC-24", "AC-25", "AC-26", "AC-27"] }
+  ]
+}
