@@ -143,25 +143,26 @@ end "结束"
     );
   });
 
-  it("rejects executable nodes the current StoryScene cannot represent", () => {
-    for (const line of [
-      "@weather.set kind=snow",
-      "label local_branch",
-      "set promised = true"
-    ]) {
-      const result = projectStoryScene(
-        parseStory(`scene "不支持节点" @id(scn_unsupported)\n${line}\n`)
-      );
-      expect(result).toEqual(
-        expect.objectContaining({
-          ok: false,
-          scene: null,
-          diagnostics: expect.arrayContaining([
-            expect.objectContaining({ code: "UNSUPPORTED_EXECUTABLE_NODE" })
-          ])
-        })
-      );
-    }
+  it("projects every N20 P0 node into the authoritative StoryScene", () => {
+    const result=projectStoryScene(parseStory(`scene "P0" @id(scene_p0)
+narrate "旁白" @sid(stmt_narrate) @id(text_narrate)
+label local_branch @id(stmt_label)
+set promised = true @id(stmt_set)
+if promised -> local_branch @id(stmt_if)
+jump local_branch @id(stmt_jump)
+call local_branch @id(stmt_call)
+return @id(stmt_return)
+wait 500ms @id(stmt_wait)
+end "Done" @id(stmt_end)
+`));
+    expect(result.ok).toBe(true);if(!result.ok)return;
+    expect(result.scene.statements.map((item)=>item.kind)).toEqual(["narration","label","set","condition","jump","call","return","wait","end"]);
+    expect(result.scene.statements.map((item)=>item.id)).toEqual(["stmt_narrate","stmt_label","stmt_set","stmt_if","stmt_jump","stmt_call","stmt_return","stmt_wait","stmt_end"]);
+  });
+
+  it("still rejects unknown executable plugin nodes", () => {
+    const result = projectStoryScene(parseStory(`scene "不支持节点" @id(scn_unsupported)\n@weather.set kind=snow\n`));
+    expect(result).toEqual(expect.objectContaining({ok:false,scene:null,diagnostics:expect.arrayContaining([expect.objectContaining({code:"UNSUPPORTED_EXECUTABLE_NODE"})])}));
   });
 
   it("rejects parser errors, multiple scene headers and orphan options", () => {

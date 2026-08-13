@@ -1280,9 +1280,14 @@ button:disabled {
 }
 
 .statement-toolbar {
+  flex-wrap: wrap;
   gap: 7px;
   margin-bottom: 12px;
 }
+
+.sequence-insert { display: grid; gap: 3px; color: var(--wg-color-text-muted); font-size: 9px; font-weight: 700; }
+.sequence-insert select { min-height: 34px; padding: 6px 9px; border: 1px solid var(--wg-color-border-subtle); border-radius: 9px; background: var(--wg-color-bg-surface-2); color: var(--wg-color-text-primary); }
+.statement-toolbar--legacy { padding-top: 8px; border-top: 1px solid var(--wg-color-border-subtle); }
 
 .statement-toolbar button,
 .script-toolbar button {
@@ -1786,6 +1791,8 @@ button:disabled {
   color: var(--wg-color-text-primary);
 }
 
+.statement-card[aria-pressed="true"] { outline: 2px solid var(--wg-color-semantic-choice); outline-offset: 1px; }
+
 .statement-card--dialogue {
   --statement-accent: var(--wg-color-semantic-dialogue);
 }
@@ -1797,6 +1804,15 @@ button:disabled {
 .statement-card--choice {
   --statement-accent: var(--wg-color-semantic-choice);
 }
+
+.statement-card--narration,
+.statement-card--label,
+.statement-card--jump,
+.statement-card--call,
+.statement-card--return,
+.statement-card--set,
+.statement-card--condition,
+.statement-card--wait { --statement-accent: var(--wg-color-semantic-condition); }
 
 .statement-card--end {
   --statement-accent: var(--wg-color-semantic-condition);
@@ -1836,6 +1852,15 @@ button:disabled {
   background: rgb(18 24 36 / 76%);
   box-shadow: 0 14px 40px rgb(0 0 0 / 18%);
 }
+
+.sequence-inspector { display: grid; gap: 12px; }
+.sequence-inspector label { display: grid; gap: 5px; color: var(--wg-color-text-secondary); font-size: 10px; font-weight: 700; }
+.sequence-inspector input,
+.sequence-inspector select,
+.sequence-inspector textarea { width: 100%; min-height: 36px; padding: 8px 10px; border: 1px solid var(--wg-color-border-subtle); border-radius: 8px; background: var(--wg-color-bg-canvas); color: var(--wg-color-text-primary); }
+.sequence-inspector fieldset { display: grid; grid-template-columns: 1fr minmax(150px, .7fr); gap: 10px; padding: 10px; border: 1px solid var(--wg-color-border-subtle); border-radius: 10px; }
+.sequence-inspector legend { padding: 0 6px; color: var(--wg-color-text-muted); font: 9px "IBM Plex Mono", Consolas, monospace; }
+.sequence-inspector button { justify-self: end; min-height: 36px; padding: 8px 14px; border: 0; border-radius: 9px; background: var(--wg-color-semantic-choice); color: #fff; font-weight: 800; }
 
 .inspector-label-row {
   justify-content: space-between;

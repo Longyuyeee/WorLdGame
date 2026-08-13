@@ -214,6 +214,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N21 最小 Writer/Sequence 编辑
 
+> 实施状态（2026-08-14）：代码和本地完整门完成，等待 Draft PR Windows CI 与 20 分钟非程序用户实测；证据见[《N21 最小 Writer/Sequence 编辑审计》](98-n21-writer-sequence.md)。
+
 - **Goal**：非程序用户能完成对白、选择、条件和基础演出。
 - **Implementation**：
   1. 语句卡覆盖 N20 全部 P0 类型；

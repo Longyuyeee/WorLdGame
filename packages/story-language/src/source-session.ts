@@ -10,6 +10,14 @@ import type { StoryDiagnostic, StoryDocument } from "./model";
 import { patchDialogueText, type DialoguePatchErrorCode } from "./patch";
 import { parseStory } from "./parser";
 import {
+  deleteP0Node,
+  insertP0Node,
+  moveP0Node,
+  updateP0Node,
+  type P0EditableNode,
+  type P0PatchErrorCode
+} from "./p0-patch";
+import {
   deleteDirective,
   deleteDialogue,
   duplicateDirective,
@@ -129,6 +137,13 @@ export interface MoveDialogueSourceCommand {
   readonly afterId: EntityId;
 }
 
+export interface InsertP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-insert"; readonly commandId: EntityId; readonly baseRevision: number; readonly afterId: EntityId | null; readonly node: P0EditableNode; }
+export interface UpdateP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-update"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; readonly patch: Readonly<Record<string, unknown>>; }
+export interface DeleteP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-delete"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; }
+export interface MoveP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-move"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; readonly afterId: EntityId; }
+export type P0BatchOperation = { readonly kind:"insert";readonly afterId:EntityId|null;readonly node:P0EditableNode }|{ readonly kind:"update";readonly statementId:EntityId;readonly patch:Readonly<Record<string,unknown>> }|{ readonly kind:"delete";readonly statementId:EntityId }|{ readonly kind:"move";readonly statementId:EntityId;readonly afterId:EntityId };
+export interface BatchP0SourceCommand { readonly schemaVersion:0;readonly kind:"script.p0-batch";readonly commandId:EntityId;readonly baseRevision:number;readonly operations:readonly P0BatchOperation[]; }
+
 export type ScriptSourceCommand =
   | ReplaceScriptSourceCommand
   | FormatScriptSourceCommand
@@ -141,7 +156,12 @@ export type ScriptSourceCommand =
   | DeleteDialogueSourceCommand
   | MoveDialogueSourceCommand
   | DeleteDirectiveSourceCommand
-  | MoveDirectiveSourceCommand;
+  | MoveDirectiveSourceCommand
+  | InsertP0SourceCommand
+  | UpdateP0SourceCommand
+  | DeleteP0SourceCommand
+  | MoveP0SourceCommand
+  | BatchP0SourceCommand;
 
 export type ScriptCommandErrorCode =
   | "EMPTY_COMMAND_ID"
@@ -151,7 +171,8 @@ export type ScriptCommandErrorCode =
   | "TOMBSTONED_ID_REUSE"
   | DialoguePatchErrorCode
   | DirectivePatchErrorCode
-  | StructuralPatchErrorCode;
+  | StructuralPatchErrorCode
+  | P0PatchErrorCode;
 
 export interface ScriptCommandError {
   readonly category: "validation" | "conflict";
@@ -379,6 +400,16 @@ function commandFingerprint(command: ScriptSourceCommand): string {
       ].join("\u0000");
     case "script.move-directive":
       return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.afterId].join("\u0000");
+    case "script.p0-insert":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.afterId ?? "<end>", JSON.stringify(command.node)].join("\u0000");
+    case "script.p0-update":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, JSON.stringify(command.patch)].join("\u0000");
+    case "script.p0-delete":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId].join("\u0000");
+    case "script.p0-move":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.afterId].join("\u0000");
+    case "script.p0-batch":
+      return [command.schemaVersion,command.kind,command.baseRevision,JSON.stringify(command.operations)].join("\u0000");
   }
 }
 
@@ -396,6 +427,7 @@ function dialogueTextMap(storyDocument: StoryDocument): ReadonlyMap<EntityId, st
     if (node.kind === "dialogue" && node.textId !== undefined) {
       result.set(node.textId, node.textRaw);
     }
+    if (node.kind === "narration" && node.textId !== undefined) result.set(node.textId, node.textRaw);
   }
   return result;
 }
@@ -415,10 +447,21 @@ function documentIds(storyDocument: StoryDocument): ReadonlySet<EntityId> {
         if (node.statementId !== undefined) result.add(node.statementId);
         if (node.textId !== undefined) result.add(node.textId);
         break;
+      case "narration":
+        if (node.statementId !== undefined) result.add(node.statementId);
+        if (node.textId !== undefined) result.add(node.textId);
+        break;
+      case "label":
+      case "jump":
+      case "call":
+      case "return":
+      case "set":
+      case "condition":
+      case "wait":
+        if (node.id !== undefined) result.add(node.id);
+        break;
       case "blank":
       case "comment":
-      case "label":
-      case "set":
       case "opaque":
         break;
     }
@@ -741,6 +784,39 @@ export function executeScriptSourceCommand(
       nextSource = result.source;
       commandStatementIds = result.affectedStatementIds;
       break;
+    }
+    case "script.p0-insert": {
+      const result = insertP0Node(session.committedSource, command.afterId, command.node);
+      if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedIds;
+      break;
+    }
+    case "script.p0-update": {
+      const result = updateP0Node(session.committedSource, command.statementId, command.patch);
+      if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedIds;
+      break;
+    }
+    case "script.p0-delete": {
+      const result = deleteP0Node(session.committedSource, command.statementId);
+      if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedIds;
+      break;
+    }
+    case "script.p0-move": {
+      const result = moveP0Node(session.committedSource, command.statementId, command.afterId);
+      if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedIds;
+      break;
+    }
+    case "script.p0-batch": {
+      let source=session.committedSource;const affected:string[]=[];
+      for(const operation of command.operations){const result=operation.kind==="insert"?insertP0Node(source,operation.afterId,operation.node):operation.kind==="update"?updateP0Node(source,operation.statementId,operation.patch):operation.kind==="delete"?deleteP0Node(source,operation.statementId):moveP0Node(source,operation.statementId,operation.afterId);if(!result.ok)return reject(session,{category:"validation",code:result.code,message:result.message});source=result.source;affected.push(...result.affectedIds);}
+      nextSource=source;commandStatementIds=[...new Set(affected)];break;
     }
   }
   const nextDocument = parseStory(nextSource);

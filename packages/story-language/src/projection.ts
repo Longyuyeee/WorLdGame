@@ -5,6 +5,7 @@ import type {
   StoryStatement
 } from "@world-studio/story-core";
 import type { SourceRange, StoryDocument, StorySyntaxNode } from "./model";
+import { parseTypedExpression } from "./expression";
 
 export type ProjectionDiagnosticCode =
   | "SOURCE_ERROR"
@@ -194,6 +195,17 @@ export function projectStoryScene(
           });
         }
         break;
+      case "narration":
+        if (node.statementId === undefined) {
+          diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Narration requires @sid(...)", node));
+        }
+        if (node.textId === undefined) {
+          diagnostics.push(projectionDiagnostic("MISSING_TEXT_ID", "Narration requires @id(...)", node));
+        }
+        if (node.statementId !== undefined && node.textId !== undefined) {
+          statements.push({ id: node.statementId, kind: "narration", textId: node.textId, text: decodeQuoted(node.textRaw) });
+        }
+        break;
       case "choice":
         if (node.id === undefined) {
           diagnostics.push(
@@ -243,7 +255,33 @@ export function projectStoryScene(
         }
         break;
       case "label":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Label requires @id(...)", node));
+        else statements.push({ id: node.id, kind: "label", name: node.name });
+        break;
+      case "jump":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Jump requires @id(...)", node));
+        else statements.push({ id: node.id, kind: "jump", targetLabel: node.targetLabel });
+        break;
+      case "call":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Call requires @id(...)", node));
+        else statements.push({ id: node.id, kind: "call", targetLabel: node.targetLabel });
+        break;
+      case "return":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Return requires @id(...)", node));
+        else statements.push({ id: node.id, kind: "return" });
+        break;
       case "set":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Set requires @id(...)", node));
+        else { const expression=parseTypedExpression(node.expressionRaw);const blocking=expression.issues.filter((item)=>item.code!=="UNKNOWN_VARIABLE");if(blocking.length>0)diagnostics.push(projectionDiagnostic("SOURCE_ERROR",`Invalid set expression: ${blocking[0]!.message}`,node));else statements.push({ id: node.id, kind: "set", variable: node.variable, expression: node.expressionRaw }); }
+        break;
+      case "condition":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Condition requires @id(...)", node));
+        else { const expression=parseTypedExpression(node.expressionRaw);const blocking=expression.issues.filter((item)=>item.code!=="UNKNOWN_VARIABLE");if(blocking.length>0||expression.valueType!=="boolean"&&expression.valueType!=="unknown")diagnostics.push(projectionDiagnostic("SOURCE_ERROR",blocking[0]?.message??"Condition expression must be boolean",node));else statements.push({ id: node.id, kind: "condition", expression: node.expressionRaw, targetLabel: node.targetLabel }); }
+        break;
+      case "wait":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Wait requires @id(...)", node));
+        else statements.push({ id: node.id, kind: "wait", duration: node.durationRaw });
+        break;
       case "opaque":
         diagnostics.push(
           projectionDiagnostic(

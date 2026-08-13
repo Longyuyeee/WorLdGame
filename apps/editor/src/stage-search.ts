@@ -34,6 +34,7 @@ function normalize(value: string): string {
 function statementLabel(statement: StoryStatement): string {
   switch (statement.kind) {
     case "dialogue":
+    case "narration":
       return statement.text;
     case "direction":
       return statement.summary;
@@ -41,6 +42,13 @@ function statementLabel(statement: StoryStatement): string {
       return statement.prompt;
     case "end":
       return `结局 · ${statement.endingName}`;
+    case "label": return `标签 · ${statement.name}`;
+    case "jump": return `跳转 · ${statement.targetLabel}`;
+    case "call": return `调用 · ${statement.targetLabel}`;
+    case "return": return "返回";
+    case "set": return `变量 · ${statement.variable} = ${statement.expression}`;
+    case "condition": return `条件 · ${statement.expression} → ${statement.targetLabel}`;
+    case "wait": return `等待 · ${statement.duration}`;
   }
 }
 
@@ -48,9 +56,17 @@ function relatedIds(statement: StoryStatement): readonly string[] {
   switch (statement.kind) {
     case "dialogue":
       return [statement.textId, statement.speakerId];
+    case "narration": return [statement.textId];
     case "choice":
       return statement.options.flatMap((option) => [option.id, option.targetSceneId]);
+    case "jump":
+    case "call":
+    case "condition": return [statement.targetLabel];
+    case "set": return [statement.variable];
     case "direction":
+    case "label":
+    case "return":
+    case "wait":
     case "end":
       return [];
   }
@@ -60,11 +76,19 @@ function searchableText(statement: StoryStatement, label: string): string {
   switch (statement.kind) {
     case "dialogue":
       return `${label} ${statement.speakerId}`;
+    case "narration": return label;
     case "direction":
       return `${label} ${statement.command}`;
     case "choice":
       return `${label} ${statement.options.map((option) => option.label).join(" ")}`;
     case "end":
+    case "label":
+    case "jump":
+    case "call":
+    case "return":
+    case "set":
+    case "condition":
+    case "wait":
       return label;
   }
 }
