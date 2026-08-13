@@ -1,0 +1,20 @@
+{
+  "sourceRevision": "fe1132430dbd8880671ba2e4b04453a9aa1d814c",
+  "seed": 305419896,
+  "instructions": ["call", "random", "wait", "random", "return", "end"],
+  "finalVariables": {"roll.a": 6, "roll.b": 10},
+  "finalPrng": {"algorithm": "xorshift32-v0", "state": 358294691, "draws": 2},
+  "finalLogicalClock": 120,
+  "waitIntents": [{"durationTicks": 120, "resumeAtTick": 120}],
+  "stateHashes": [
+    "d07ba8cc09dbd8025dbc54065eab9048baf0a63d2ec0805004084f67f4ed76b5",
+    "f904f2e719dd37f5423fddbaf3f15136f71ac4352d8f0dd91e6b26f1cfc7442c",
+    "6031f25ed71efcac72c47e065e0d46de4c229b21b8fc77af1b3bd927efca103c",
+    "10a58ad8583039f436a5dd22d5ab902ae0e6b3d8fece4247fcd06d576665348b",
+    "4f4d5f74decb77333ba63a26bfadad51c12ef3cd419bc1c902022065468e0fb3",
+    "8cfcf422e4cd189edf9b34eab49d0fbbca2a854b68c2607e486aa5345ff3c90e",
+    "4466b0f9ec1f33dd4bd90811ec074bcf7cbc2c1b9c689ebb42bbbb0de0383090"
+  ],
+  "recoveryCheckpointRevision": 3,
+  "recoveryResult": "canonical State round-trip preserved the remaining hash stream"
+}
