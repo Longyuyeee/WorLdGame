@@ -1,6 +1,7 @@
 import { stateHashV0 } from "./hash";
 import { canonicalStringify } from "./canonical";
 import { choiceRequestIdV0 } from "./input";
+import { barrierRequestIdV0, effectIdV0 } from "./effect";
 import type {
   ComparisonV0,
   ExternalInputV0,
@@ -10,7 +11,9 @@ import type {
   RuntimeStateV0,
   TransitionResultV0,
   VmDiagnostic,
-  VmScalarV0
+  VmScalarV0,
+  EffectIntentV0,
+  EmitInstructionV0
 } from "./types";
 import { MAX_CALL_STACK_DEPTH_V0, MAX_INPUT_RECEIPTS_V0 } from "./types";
 import { validateExternalInputV0, validateProgram, validateState } from "./validation";
@@ -55,7 +58,9 @@ export function createInitialStateV0(
     sceneState: { backgroundId: null, characters: {} },
     audioLogic: { tracks: {} },
     pendingRequests: [],
+    pendingEffects: [],
     nextInputSequence: 0,
+    nextEffectSequence: 0,
     inputReceipts: [],
     readSession: [],
     historyCursor: -1,
@@ -103,6 +108,37 @@ function nextXorshift32(state: number): number {
   return next >>> 0;
 }
 
+function createEffectIntent(
+  state: RuntimeStateV0,
+  instruction: EmitInstructionV0,
+  originatingRevision: number
+): EffectIntentV0 {
+  const operands = instruction.operands;
+  return {
+    effectId: effectIdV0(
+      state.executionId,
+      operands.descriptorId,
+      state.nextEffectSequence,
+      originatingRevision
+    ),
+    executionId: state.executionId,
+    originatingRevision,
+    logicalSequence: state.nextEffectSequence,
+    descriptorId: operands.descriptorId,
+    channel: operands.channel,
+    kind: operands.kind,
+    payload: { ...operands.payload },
+    policy: operands.policy,
+    awaitMode: operands.awaitMode,
+    cancellationScope: operands.cancellationScope,
+    replayKey: operands.replayKey,
+    compensation: operands.compensation === null ? null : {
+      kind: operands.compensation.kind,
+      payload: { ...operands.compensation.payload }
+    }
+  };
+}
+
 export function transitionV0(
   program: ProgramV0,
   state: RuntimeStateV0,
@@ -132,40 +168,113 @@ export function transitionV0(
         ? idempotent(state)
         : unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_ID_CONFLICT", "Input ID was already accepted with a different payload"));
     }
-    const pending = state.pendingRequests[0];
-    if (pending === undefined) {
-      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_UNEXPECTED", "No external input request is pending"));
-    }
-    if (input.logicalSequence !== pending.logicalSequence) {
-      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_OUT_OF_ORDER", "Input logical sequence does not match the pending request"));
-    }
-    if (input.executionId !== pending.executionId || input.requestId !== pending.requestId ||
-        input.expectedRevision !== pending.expectedRevision || input.choiceId !== pending.choiceId) {
-      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_MISMATCH", "Input execution, request, revision, or choice does not match"));
-    }
-    const selected = pending.options.find((option) => option.optionId === input.optionId);
-    if (selected === undefined) {
-      return unchanged(state, instructionDiagnostic(instruction, "VM_CHOICE_OPTION_INVALID", "Choice option is not present in the pending request"));
-    }
     if (state.inputReceipts.length >= MAX_INPUT_RECEIPTS_V0) {
       return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_RECEIPT_LIMIT", "Input receipt ledger reached its v0 limit"));
     }
     if (state.stateRevision === Number.MAX_SAFE_INTEGER) {
       return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "State revision overflow"));
     }
-    const nextState: RuntimeStateV0 = {
-      ...state,
-      ip: selected.targetIp,
-      stateRevision: state.stateRevision + 1,
-      stepId: pending.commitStepId,
-      pendingRequests: [],
-      inputReceipts: [...state.inputReceipts, { input, acceptedAtRevision: state.stateRevision + 1 }]
+    const acceptedAtRevision = state.stateRevision + 1;
+    const inputReceipts = [...state.inputReceipts, { input, acceptedAtRevision }];
+
+    if (input.kind === "choiceSelected") {
+      const pending = state.pendingRequests[0];
+      if (pending?.kind !== "choice") {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_UNEXPECTED", "No Choice request is pending"));
+      }
+      if (input.logicalSequence !== pending.logicalSequence) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_OUT_OF_ORDER", "Input logical sequence does not match the pending Choice request"));
+      }
+      if (input.executionId !== pending.executionId || input.requestId !== pending.requestId ||
+          input.expectedRevision !== pending.expectedRevision || input.choiceId !== pending.choiceId) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_MISMATCH", "Input execution, request, revision, or choice does not match"));
+      }
+      const selected = pending.options.find((option) => option.optionId === input.optionId);
+      if (selected === undefined) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_CHOICE_OPTION_INVALID", "Choice option is not present in the pending request"));
+      }
+      return {
+        nextState: {
+          ...state,
+          ip: selected.targetIp,
+          stateRevision: acceptedAtRevision,
+          stepId: pending.commitStepId,
+          pendingRequests: [],
+          inputReceipts
+        },
+        effects: [], checkpoint: null, wait: null, request: null, diagnostics: []
+      };
+    }
+
+    if (input.kind === "barrierApproved") {
+      const pending = state.pendingRequests[0];
+      if (pending?.kind !== "barrierApproval" || instruction.opcode !== "emit") {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_UNEXPECTED", "No Barrier approval request is pending"));
+      }
+      if (input.logicalSequence !== pending.logicalSequence) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_OUT_OF_ORDER", "Barrier approval sequence does not match"));
+      }
+      if (input.executionId !== pending.executionId || input.requestId !== pending.requestId ||
+          input.expectedRevision !== pending.expectedRevision || input.descriptorId !== pending.descriptorId) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_MISMATCH", "Barrier approval does not match the pending request"));
+      }
+      const effect = createEffectIntent(state, instruction, acceptedAtRevision);
+      const nextIp = instruction.operands.awaitMode === "awaited" ? instruction.ip : nextSequentialIp(program, instruction);
+      if (nextIp === null) return unchanged(state, instructionDiagnostic(instruction, "VM_FALLTHROUGH_PAST_END", "Detached Barrier has no successor"));
+      return {
+        nextState: {
+          ...state,
+          ip: nextIp,
+          stateRevision: acceptedAtRevision,
+          stepId: instruction.operands.issueStepId,
+          pendingRequests: [],
+          pendingEffects: instruction.operands.awaitMode === "awaited" ? [effect] : [],
+          nextEffectSequence: state.nextEffectSequence + 1,
+          inputReceipts
+        },
+        effects: [effect], checkpoint: null, wait: null, request: null, diagnostics: []
+      };
+    }
+
+    const pendingEffect = state.pendingEffects[0];
+    if (pendingEffect === undefined || instruction.opcode !== "emit") {
+      if (input.kind === "effectCompleted" && state.inputReceipts.some((receipt) =>
+        receipt.input.kind === "effectCancelled" && receipt.input.effectId === input.effectId)) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_EFFECT_CANCELLED", "Effect scope was already cancelled"));
+      }
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_UNEXPECTED", "No awaited Effect is pending"));
+    }
+    if (input.logicalSequence !== pendingEffect.logicalSequence) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_OUT_OF_ORDER", "Effect completion sequence does not match"));
+    }
+    const commonMatches = input.executionId === pendingEffect.executionId &&
+      input.effectId === pendingEffect.effectId && input.expectedRevision === state.stateRevision;
+    const specificMatches = input.kind === "effectCompleted"
+      ? input.replayKey === pendingEffect.replayKey
+      : input.cancellationScope === pendingEffect.cancellationScope;
+    if (!commonMatches || !specificMatches) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_EFFECT_MISMATCH", "Effect completion or cancellation token does not match"));
+    }
+    const successor = nextSequentialIp(program, instruction);
+    if (successor === null) return unchanged(state, instructionDiagnostic(instruction, "VM_FALLTHROUGH_PAST_END", "Awaited Effect has no successor"));
+    return {
+      nextState: {
+        ...state,
+        ip: successor,
+        stateRevision: acceptedAtRevision,
+        stepId: instruction.operands.completeStepId,
+        pendingEffects: [],
+        inputReceipts
+      },
+      effects: [], checkpoint: null, wait: null, request: null, diagnostics: []
     };
-    return { nextState, effects: [], checkpoint: null, wait: null, request: null, diagnostics: [] };
   }
 
   if (state.pendingRequests.length > 0) {
     return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_REQUIRED", "External input is required before execution can continue"));
+  }
+  if (state.pendingEffects.length > 0) {
+    return unchanged(state, instructionDiagnostic(instruction, "VM_EFFECT_REQUIRED", "Awaited Effect must complete or cancel before execution can continue"));
   }
   if (state.terminal.kind === "ended") {
     return unchanged(state, instructionDiagnostic(instruction, "VM_TERMINAL", "Program has already ended"));
@@ -183,7 +292,10 @@ export function transitionV0(
   let wait: TransitionResultV0["wait"] = null;
   let request: TransitionResultV0["request"] = null;
   let pendingRequests = state.pendingRequests;
+  let pendingEffects = state.pendingEffects;
   let nextInputSequence = state.nextInputSequence;
+  let nextEffectSequence = state.nextEffectSequence;
+  let effects: readonly EffectIntentV0[] = [];
   let terminal: RuntimeStateV0["terminal"] = state.terminal;
 
   if (instruction.opcode === "set") {
@@ -273,6 +385,41 @@ export function transitionV0(
     nextInputSequence += 1;
     stepId = instruction.operands.promptStepId;
     nextIp = instruction.ip;
+  } else if (instruction.opcode === "emit") {
+    if (nextEffectSequence === Number.MAX_SAFE_INTEGER) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "Effect logical sequence overflow"));
+    }
+    if (instruction.operands.policy === "barrier") {
+      if (nextInputSequence === Number.MAX_SAFE_INTEGER) {
+        return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "Input logical sequence overflow"));
+      }
+      const expectedRevision = state.stateRevision + 1;
+      request = {
+        requestId: barrierRequestIdV0(
+          state.executionId,
+          instruction.operands.descriptorId,
+          nextInputSequence,
+          expectedRevision
+        ),
+        executionId: state.executionId,
+        expectedRevision,
+        logicalSequence: nextInputSequence,
+        kind: "barrierApproval",
+        descriptorId: instruction.operands.descriptorId,
+        reason: instruction.operands.barrierReason as string
+      };
+      pendingRequests = [request];
+      nextInputSequence += 1;
+      stepId = instruction.operands.requestStepId;
+      nextIp = instruction.ip;
+    } else {
+      const effect = createEffectIntent(state, instruction, state.stateRevision + 1);
+      effects = [effect];
+      pendingEffects = instruction.operands.awaitMode === "awaited" ? [effect] : [];
+      nextEffectSequence += 1;
+      stepId = instruction.operands.issueStepId;
+      if (instruction.operands.awaitMode === "awaited") nextIp = instruction.ip;
+    }
   } else if (instruction.opcode === "checkpoint") {
     stepId = instruction.operands.stepId;
   } else if (instruction.opcode === "end") {
@@ -294,7 +441,9 @@ export function transitionV0(
     prng,
     logicalClock,
     pendingRequests,
+    pendingEffects,
     nextInputSequence,
+    nextEffectSequence,
     terminal
   };
   const checkpoint = instruction.opcode === "checkpoint" ? {
@@ -302,5 +451,5 @@ export function transitionV0(
     stateRevision: nextState.stateRevision,
     stateHash: stateHashV0(nextState)
   } : null;
-  return { nextState, effects: [], checkpoint, wait, request, diagnostics: [] };
+  return { nextState, effects, checkpoint, wait, request, diagnostics: [] };
 }

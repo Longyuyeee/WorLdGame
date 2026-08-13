@@ -105,12 +105,12 @@ describe("CL-04 narrative VM kernel spike 01", () => {
     expect(first.state.terminal).toEqual({ kind: "ended", endingId: "ending.good" });
     expect(first.hashes).toHaveLength(6);
     expect(first.hashes).toEqual([
-      "bd5f28462153c160516517f74300c58ce2c87ee4bd8c4a646498816098f1c031",
-      "1715a5a052b0d0b71d2a8e7c119daaccc9f53779623e72153edc9f569ca93f4d",
-      "c25dfae8885d7e54849c8486ae65b3c62b635359591d6fa33b281220a4a01101",
-      "280d81d7e5f80c66755a64bb80c8222b60907e05e1a927c0d93905111bec159b",
-      "a9b579cc79dbfa25c8e50cf9d56f94276dec2f8252a5cd87da865b404abff8f8",
-      "b2176a59a64dee1c8bba9bd049978cdfc92aa3f364f41dc663f7fdc48d2673b4"
+      "a7910905ef7a6b93f275afeee7c8059ad9ccf2ff3345c5176ed25a07828c87e9",
+      "4a4e2d491bc863463c9b8d6ce0110688e4341e861901b3e329d2a2c7e8cf9a26",
+      "106e528974f0ce245ddfe5179ad1a0f85e22a999c93e6437493cb46695944562",
+      "183c145f9475ed96eae9ea59858d3b7d559286888d41bd1b0ef40731500748b8",
+      "608093c18b0ba48e0b74a4921524d30c61474747a7275a941bde6304f01bd22b",
+      "30c940bafde23269fa43a46d1ee8a3f5691a9ffef2694d73b83a60179f67b57e"
     ]);
   });
 

@@ -1,7 +1,7 @@
 # CL-04 Narrative VM 确定性证据契约
 
 > 决策日期：2026-08-12
-> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[04](71-cl04-vm-history-spike-04.md) 已完成 VM-01–05 部分基础与 Choice/输入/History 前置语义；CL-04 进行中但未通过
+> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[05](72-cl04-vm-effect-barrier-spike-05.md) 已完成 VM-01–08 部分基础与 Choice/History/Effect 前置语义；CL-04 进行中但未通过
 > 风险：CL-04
 > 决策类型：S0 可抛弃 Spike 契约，不是 VM 产品实现
 
@@ -265,4 +265,4 @@ CL-04 只有同时满足以下条件才通过：
 
 ## 13. 当前审计结论
 
-现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md)–[04](71-cl04-vm-history-spike-04.md) 已提供 VM-01–05 部分基础、`call/return/random/wait/choice`、显式 execution、严格输入、完整边界 checkpoint 及 Back/Forward/Fork。Spike 04 的 Forward 是快照恢复，不证明 replay；它仍没有 Effect Ledger、正式 Save、Skip、10k 生成序列或三宿主一致性执行，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。
+现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md)–[05](72-cl04-vm-effect-barrier-spike-05.md) 已提供 VM-01–08 部分基础、严格输入、完整边界 checkpoint、Back/Forward/Fork、受控 Effect 完成/取消、pure/reversible ledger 与 Barrier 阻断。Forward 仍以快照恢复并返回 ledger intent，真实 Scheduler、正式 Save、Skip、10k 生成序列和三宿主一致性尚未完成，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。

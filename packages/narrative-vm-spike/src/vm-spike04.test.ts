@@ -10,6 +10,7 @@ import {
   forwardRuntimeHistoryV0,
   stateHashV0,
   validateRuntimeSessionV0,
+  type ChoiceSelectedInputV0,
   type ExternalInputV0,
   type HistoryCheckpointV0,
   type HistoryEntryV0,
@@ -54,9 +55,9 @@ const vm0405 = program([
   { ip: 50, opcode: "end", operands: { endingId: "ending.done" }, sourceStatementId: "stmt.end", stepBoundary: true, effectClass: "none", stopPoint: true }
 ]);
 
-function inputFor(session: RuntimeSessionV0, optionId: string, inputId: string): ExternalInputV0 {
+function inputFor(session: RuntimeSessionV0, optionId: string, inputId: string): ChoiceSelectedInputV0 {
   const request = session.state.pendingRequests[0];
-  if (request === undefined) throw new Error("expected a pending choice request");
+  if (request?.kind !== "choice") throw new Error("expected a pending choice request");
   return {
     schemaVersion: 0,
     kind: "choiceSelected",
@@ -68,6 +69,10 @@ function inputFor(session: RuntimeSessionV0, optionId: string, inputId: string):
     choiceId: request.choiceId,
     optionId
   };
+}
+
+function optionId(input: ExternalInputV0 | null | undefined): string | undefined {
+  return input?.kind === "choiceSelected" ? input.optionId : undefined;
 }
 
 function waitingSession(): RuntimeSessionV0 {
@@ -108,7 +113,7 @@ describe("CL-04 narrative VM kernel spike 04", () => {
     const forwarded = forwardRuntimeHistoryV0(vm0405, backed.session);
     expect(forwarded.diagnostics).toEqual([]);
     expect(stateHashV0(forwarded.session.state)).toBe(committedHash);
-    expect(forwarded.session.state.inputReceipts[0]?.input.optionId).toBe("left");
+    expect(optionId(forwarded.session.state.inputReceipts[0]?.input)).toBe("left");
   });
 
   it("requires Forward instead of accepting the same recorded input again", () => {
@@ -131,7 +136,7 @@ describe("CL-04 narrative VM kernel spike 04", () => {
     expect(forked.diagnostics).toEqual([]);
     expect(forked.session.entries).toHaveLength(2);
     expect(forked.session.checkpoints).toHaveLength(3);
-    expect(forked.session.entries[1]?.input?.optionId).toBe("right");
+    expect(optionId(forked.session.entries[1]?.input)).toBe("right");
     expect(forked.session.state.ip).toBe(30);
     expect(forked.session.state.inputReceipts.map((item) => item.input.inputId)).toEqual(["input.vm05.right"]);
     expect(forked.session.inputTombstones.map((item) => item.inputId)).toEqual([
@@ -171,7 +176,7 @@ describe("CL-04 narrative VM kernel spike 04", () => {
     const invalid = { ...inputFor(backed, "right", "input.vm05.invalid"), optionId: "missing" };
     const blocked = advanceRuntimeHistoryV0(vm0405, backed, invalid);
     expect(blocked.session).toBe(backed);
-    expect(blocked.session.entries[1]?.input?.optionId).toBe("left");
+    expect(optionId(blocked.session.entries[1]?.input)).toBe("left");
     expect(blocked.diagnostics[0]?.code).toBe("VM_CHOICE_OPTION_INVALID");
   });
 
@@ -258,7 +263,9 @@ describe("CL-04 narrative VM kernel spike 04", () => {
         afterHash: after.stateHash,
         beforeCheckpointId: before.checkpointId,
         afterCheckpointId: after.checkpointId,
-        input: null
+        input: null,
+        effects: [],
+        barrier: null
       });
       checkpoints.push(after);
     }
@@ -293,10 +300,10 @@ describe("CL-04 narrative VM kernel spike 04", () => {
       ...left.checkpoints.map((item) => item.stateHash),
       forked.checkpoints[2]?.stateHash
     ]).toEqual([
-      "c32759bd59a1eb1b36fc858aa4d46a3c70070876756488df9dbedec8b59f9316",
-      "cb920f082a4254de5e5d6eb72606fcc4dade57085eaa4d627b747690378de403",
-      "e33b8eebe4e400ee2a8299e2e0862698cc8e42ce71fb9a6613c0490f9d9bcbb9",
-      "cb1fbf40a9847042086146052803e75e11670f7281f27e46b514cfb177be5d23"
+      "c91f7bf26534f1edc3abd2770d3fa4307deed1c286983bca7d73f96383832d41",
+      "23171701d005fdbabb20f5da57c40133593039b8a63489c68ed026973db32dcf",
+      "c1582debec37850e6c10906cf51534012f5dbdd5da05d3d62815ec5857402f51",
+      "2b40ce774c487429793f46f85ea3f53c1bdc014681826aad8b6cebdf340869a6"
     ]);
   });
 });

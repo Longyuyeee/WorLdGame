@@ -8,7 +8,7 @@ import {
   stateHashV0,
   transitionV0,
   validateProgram,
-  type ExternalInputV0,
+  type ChoiceSelectedInputV0,
   type InstructionV0,
   type ProgramV0,
   type RuntimeStateV0
@@ -50,9 +50,9 @@ const vmChoice = program([
   { ip: 50, opcode: "end", operands: { endingId: "ending.done" }, sourceStatementId: "stmt.end", stepBoundary: true, effectClass: "none", stopPoint: true }
 ]);
 
-function selectedInput(state: RuntimeStateV0, optionId: string, inputId = "input.route.1"): ExternalInputV0 {
+function selectedInput(state: RuntimeStateV0, optionId: string, inputId = "input.route.1"): ChoiceSelectedInputV0 {
   const request = state.pendingRequests[0];
-  if (request === undefined) throw new Error("expected pending choice request");
+  if (request?.kind !== "choice") throw new Error("expected pending choice request");
   return {
     schemaVersion: 0,
     kind: "choiceSelected",
@@ -128,7 +128,7 @@ describe("CL-04 narrative VM kernel spike 03", () => {
     const waiting = transitionV0(vmChoice, createInitialStateV0(vmChoice, { executionId: "execution.choice.reject" })).nextState;
     const valid = selectedInput(waiting, "left");
     expect(transitionV0(vmChoice, waiting).diagnostics[0]?.code).toBe("VM_INPUT_REQUIRED");
-    const cases: Array<[ExternalInputV0, string]> = [
+    const cases: Array<[ChoiceSelectedInputV0, string]> = [
       [{ ...valid, expectedRevision: valid.expectedRevision - 1 }, "VM_INPUT_MISMATCH"],
       [{ ...valid, executionId: "execution.foreign" }, "VM_INPUT_MISMATCH"],
       [{ ...valid, requestId: "request.foreign" }, "VM_INPUT_MISMATCH"],
@@ -236,12 +236,12 @@ describe("CL-04 narrative VM kernel spike 03", () => {
     }
     expect(state.variables).toEqual({ route: "left" });
     expect(hashes).toEqual([
-      "a572d02813a7987312a603185652bd66cf2141fb8bd9877452926aec8ef1a28c",
-      "a55fe13e26e42bd0af740dd1ba9b9af59a192e46d201a3d53152ada5766d5f70",
-      "14d36d8a920f505dff30b9b6c601a42b324615233e0af120c9d28601c8f9b5eb",
-      "75e292555aa56297e0e5f7fc00f094bd49e184297bd6c5275e8093c5f819edec",
-      "860a5967df7e0516d8f2f92863ee838a72189a334762c1ed0d94efb64c056ea1",
-      "34c09fd07b128e5870d3012b87dc5b6acb101932ec8831ebadd7f07689ac4abb"
+      "e813ee27bdec31aa0744c7bcf22d2f847f84bdd7fc508a4842170fcb73a55228",
+      "ce4c60d4f1050ea66dd7a5af68a9ae008bae3517be4ba00897ad402d91f9bb8b",
+      "7add85cc6e900b18a14a7919896ed20909ed908ff8e731491ab26bf4297e0d12",
+      "f497a47b41fe1931d027a27fe0a1a244f6e5fcdfa851909fca5a98f01ce57ab9",
+      "cfc59489d195932fb824bfabc7173c79b1dae0ee66bd3de4b1d1b5bb4a8df696",
+      "0ae43f75148dc82e9110c182a5a1e707a5ec0a9a6b30bb54e72e7c1ea449175f"
     ]);
   });
 });

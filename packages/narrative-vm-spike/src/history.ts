@@ -1,9 +1,13 @@
 import { canonicalStringify } from "./canonical";
 import { choiceRequestIdV0 } from "./input";
+import { barrierRequestIdV0, effectIdV0 } from "./effect";
 import { stateHashV0 } from "./hash";
 import { transitionV0 } from "./transition";
 import { MAX_HISTORY_ENTRIES_V0, MAX_INPUT_RECEIPTS_V0 } from "./types";
 import type {
+  BarrierRecordV0,
+  EffectCancellationV0,
+  EffectIntentV0,
   ExternalInputV0,
   HistoryCheckpointV0,
   HistoryEntryV0,
@@ -48,7 +52,19 @@ function diagnostic(state: unknown, code: VmDiagnostic["code"], detail: string):
 }
 
 function failed(session: RuntimeSessionV0, code: VmDiagnostic["code"], detail: string): HistoryResultV0 {
-  return { session, diagnostics: [diagnostic(session.state, code, detail)] };
+  return { session, effects: [], cancellations: [], diagnostics: [diagnostic(session.state, code, detail)] };
+}
+
+function cancellationDirectives(
+  state: RuntimeStateV0,
+  reason: EffectCancellationV0["reason"]
+): readonly EffectCancellationV0[] {
+  return state.pendingEffects.map((effect) => ({
+    effectId: effect.effectId,
+    executionId: effect.executionId,
+    cancellationScope: effect.cancellationScope,
+    reason
+  }));
 }
 
 function sameInput(left: ExternalInputV0 | null, right: ExternalInputV0): boolean {
@@ -73,12 +89,17 @@ export function validateRuntimeSessionV0(program: ProgramV0, session: RuntimeSes
     const tombstoneIds = new Set<string>();
     for (const input of session.inputTombstones) {
       if (!validateExternalInputV0(input) || input.executionId !== session.executionId ||
-          input.requestId !== choiceRequestIdV0(
+          (input.kind === "choiceSelected" && input.requestId !== choiceRequestIdV0(
             input.executionId,
             input.choiceId,
             input.logicalSequence,
             input.expectedRevision
-          ) || tombstoneIds.has(input.inputId)) {
+          )) || (input.kind === "barrierApproved" && input.requestId !== barrierRequestIdV0(
+            input.executionId,
+            input.descriptorId,
+            input.logicalSequence,
+            input.expectedRevision
+          )) || tombstoneIds.has(input.inputId)) {
         return [diagnostic(candidateState, "VM_HISTORY_INVALID", "Input tombstone ledger is malformed or contains duplicate IDs")];
       }
       tombstoneIds.add(input.inputId);
@@ -104,7 +125,7 @@ export function validateRuntimeSessionV0(program: ProgramV0, session: RuntimeSes
       const after = session.checkpoints[index + 1];
       if (!plainRecord(rawEntry) || !exactKeys(rawEntry, [
         "historyIndex", "stepId", "sourceStatementId", "beforeHash", "afterHash",
-        "beforeCheckpointId", "afterCheckpointId", "input"
+        "beforeCheckpointId", "afterCheckpointId", "input", "effects", "barrier"
       ])) {
         return [diagnostic(session.state, "VM_HISTORY_INVALID", "History entry has an invalid schema")];
       }
@@ -114,29 +135,44 @@ export function validateRuntimeSessionV0(program: ProgramV0, session: RuntimeSes
           entry.stepId !== after.state.stepId ||
           entry.beforeHash !== before.stateHash || entry.afterHash !== after.stateHash ||
           entry.beforeCheckpointId !== before.checkpointId || entry.afterCheckpointId !== after.checkpointId ||
+          !Array.isArray(entry.effects) ||
+          entry.effects.some((effect) => !plainRecord(effect) || effect.executionId !== session.executionId) ||
+          (entry.barrier !== null && (!plainRecord(entry.barrier) || !exactKeys(entry.barrier, [
+            "effectId", "descriptorId", "reason", "committedAtRevision"
+          ]) || !SAFE_ID.test(entry.barrier.effectId) || !SAFE_ID.test(entry.barrier.descriptorId) ||
+            typeof entry.barrier.reason !== "string" || !Number.isSafeInteger(entry.barrier.committedAtRevision) ||
+            !entry.effects.some((effect) => effect.effectId === entry.barrier?.effectId && effect.policy === "barrier"))) ||
+          (entry.barrier === null && entry.effects.some((effect) => effect.policy === "barrier")) ||
           (entry.input !== null && (!validateExternalInputV0(entry.input) ||
-            entry.input.executionId !== session.executionId || entry.input.requestId !== choiceRequestIdV0(
+            entry.input.executionId !== session.executionId ||
+            (entry.input.kind === "choiceSelected" && entry.input.requestId !== choiceRequestIdV0(
               entry.input.executionId,
               entry.input.choiceId,
               entry.input.logicalSequence,
               entry.input.expectedRevision
-            )))) {
+            ))))) {
         return [diagnostic(session.state, "VM_HISTORY_INVALID", "History entry is malformed or breaks the checkpoint chain")];
       }
       if (entry.input !== null) {
-        const pending = before.state.pendingRequests[0];
         const receipt = after.state.inputReceipts.find(
           (item: InputReceiptV0) => item.input.inputId === entry.input?.inputId
         );
-        if (pending === undefined || pending.requestId !== entry.input.requestId ||
-            pending.executionId !== entry.input.executionId || pending.expectedRevision !== entry.input.expectedRevision ||
-            pending.logicalSequence !== entry.input.logicalSequence || pending.choiceId !== entry.input.choiceId ||
-            !pending.options.some((option: { readonly optionId: string; readonly targetIp: number }) =>
-              option.optionId === entry.input?.optionId && option.targetIp === after.state.ip) ||
-            after.state.stateRevision !== before.state.stateRevision + 1 ||
+        const replay = transitionV0(program, before.state, entry.input);
+        const replayState = { ...replay.nextState, historyCursor: index };
+        if (replay.diagnostics.length > 0 || after.state.stateRevision !== before.state.stateRevision + 1 ||
             receipt === undefined || canonicalStringify(receipt.input) !== canonicalStringify(entry.input) ||
+            canonicalStringify(replayState) !== canonicalStringify(after.state) ||
+            canonicalStringify(replay.effects) !== canonicalStringify(entry.effects) ||
             !session.inputTombstones.some((input) => canonicalStringify(input) === canonicalStringify(entry.input))) {
           return [diagnostic(session.state, "VM_HISTORY_INVALID", "History input is not present in its after-checkpoint receipt ledger")];
+        }
+      } else if (entry.effects.length > 0) {
+        const replay = transitionV0(program, before.state);
+        const replayState = { ...replay.nextState, historyCursor: index };
+        if (replay.diagnostics.length > 0 ||
+            canonicalStringify(replayState) !== canonicalStringify(after.state) ||
+            canonicalStringify(replay.effects) !== canonicalStringify(entry.effects)) {
+          return [diagnostic(session.state, "VM_HISTORY_INVALID", "History Effect ledger does not replay to its checkpoint")];
         }
       }
     }
@@ -184,7 +220,8 @@ function recordBoundary(
   session: RuntimeSessionV0,
   rawAfter: RuntimeStateV0,
   instruction: InstructionV0,
-  input: ExternalInputV0 | null
+  input: ExternalInputV0 | null,
+  effects: readonly EffectIntentV0[]
 ): HistoryResultV0 {
   if (session.entries.length >= MAX_HISTORY_ENTRIES_V0) {
     return failed(session, "VM_HISTORY_LIMIT", "Runtime History reached its v0 entry limit");
@@ -208,7 +245,14 @@ function recordBoundary(
     afterHash: after.stateHash,
     beforeCheckpointId: before.checkpointId,
     afterCheckpointId: after.checkpointId,
-    input: input === null ? null : canonicalClone(input)
+    input: input === null ? null : canonicalClone(input),
+    effects: canonicalClone(effects),
+    barrier: effects[0]?.policy === "barrier" && instruction.opcode === "emit" ? {
+      effectId: effects[0].effectId,
+      descriptorId: effects[0].descriptorId,
+      reason: instruction.operands.barrierReason as string,
+      committedAtRevision: rawAfter.stateRevision
+    } satisfies BarrierRecordV0 : null
   };
   const nextSession: RuntimeSessionV0 = {
     ...session,
@@ -218,7 +262,9 @@ function recordBoundary(
     inputTombstones: input === null ? session.inputTombstones : [...session.inputTombstones, canonicalClone(input)]
   };
   const diagnostics = validateRuntimeSessionV0(program, nextSession);
-  return diagnostics.length === 0 ? { session: nextSession, diagnostics: [] } : { session, diagnostics };
+  return diagnostics.length === 0
+    ? { session: nextSession, effects: canonicalClone(effects), cancellations: [], diagnostics: [] }
+    : { session, effects: [], cancellations: [], diagnostics };
 }
 
 function preserveForkOnFailure(
@@ -226,7 +272,9 @@ function preserveForkOnFailure(
   forked: boolean,
   result: HistoryResultV0
 ): HistoryResultV0 {
-  return forked && result.diagnostics.length > 0 ? { session: original, diagnostics: result.diagnostics } : result;
+  return forked && result.diagnostics.length > 0
+    ? { session: original, effects: [], cancellations: [], diagnostics: result.diagnostics }
+    : result;
 }
 
 export function advanceRuntimeHistoryV0(
@@ -235,7 +283,7 @@ export function advanceRuntimeHistoryV0(
   input?: ExternalInputV0
 ): HistoryResultV0 {
   const sessionDiagnostics = validateRuntimeSessionV0(program, session);
-  if (sessionDiagnostics.length > 0) return { session, diagnostics: sessionDiagnostics };
+  if (sessionDiagnostics.length > 0) return { session, effects: [], cancellations: [], diagnostics: sessionDiagnostics };
   if (input !== undefined && !validateExternalInputV0(input)) {
     return failed(session, "VM_INPUT_MISMATCH", "External History input schema is invalid");
   }
@@ -251,7 +299,7 @@ export function advanceRuntimeHistoryV0(
     const tombstone = session.inputTombstones.find((item) => item.inputId === input.inputId);
     if (tombstone !== undefined) {
       return canonicalStringify(tombstone) === canonicalStringify(input)
-        ? { session, diagnostics: [] }
+        ? { session, effects: [], cancellations: [], diagnostics: [] }
         : failed(session, "VM_INPUT_ID_CONFLICT", "Input ID was already accepted with a different payload in this execution");
     }
   }
@@ -262,13 +310,16 @@ export function advanceRuntimeHistoryV0(
     const instruction = program.instructions.find((item) => item.ip === startingState.ip);
     if (instruction === undefined) return failed(session, "VM_HISTORY_INVALID", "History State IP has no instruction");
     const result = transitionV0(program, startingState, input);
-    if (result.diagnostics.length > 0) return { session, diagnostics: result.diagnostics };
-    if (result.nextState === startingState) return { session, diagnostics: [] };
-    return preserveForkOnFailure(
+    if (result.diagnostics.length > 0) return { session, effects: [], cancellations: [], diagnostics: result.diagnostics };
+    if (result.nextState === startingState) return { session, effects: [], cancellations: [], diagnostics: [] };
+    const recorded = preserveForkOnFailure(
       session,
       hasForward,
-      recordBoundary(program, working, result.nextState, instruction, input)
+      recordBoundary(program, working, result.nextState, instruction, input, result.effects)
     );
+    return hasForward && recorded.diagnostics.length === 0
+      ? { ...recorded, cancellations: cancellationDirectives(session.state, "fork") }
+      : recorded;
   }
 
   let state = startingState;
@@ -276,7 +327,7 @@ export function advanceRuntimeHistoryV0(
     const instruction = program.instructions.find((item) => item.ip === state.ip);
     if (instruction === undefined) return failed(session, "VM_HISTORY_INVALID", "History State IP has no instruction");
     const result = transitionV0(program, state);
-    if (result.diagnostics.length > 0) return { session, diagnostics: result.diagnostics };
+    if (result.diagnostics.length > 0) return { session, effects: [], cancellations: [], diagnostics: result.diagnostics };
     if (result.wait !== null) {
       return failed(session, "VM_HISTORY_WAIT_REQUIRED", "Synchronous History advance cannot consume a wait intent");
     }
@@ -285,7 +336,7 @@ export function advanceRuntimeHistoryV0(
       return preserveForkOnFailure(
         session,
         hasForward,
-        recordBoundary(program, working, state, instruction, null)
+        recordBoundary(program, working, state, instruction, null, result.effects)
       );
     }
   }
@@ -294,20 +345,59 @@ export function advanceRuntimeHistoryV0(
 
 export function backRuntimeHistoryV0(program: ProgramV0, session: RuntimeSessionV0): HistoryResultV0 {
   const diagnostics = validateRuntimeSessionV0(program, session);
-  if (diagnostics.length > 0) return { session, diagnostics };
+  if (diagnostics.length > 0) return { session, effects: [], cancellations: [], diagnostics };
   if (session.state.historyCursor < 0) return failed(session, "VM_HISTORY_AT_START", "Runtime History is already at its root");
+  const currentEntry = session.entries[session.state.historyCursor];
+  if (currentEntry?.barrier !== null && currentEntry?.barrier !== undefined) {
+    return failed(
+      session,
+      "VM_BARRIER_BLOCKED",
+      `Cannot cross committed Barrier ${currentEntry.barrier.descriptorId}: ${currentEntry.barrier.reason}`
+    );
+  }
   const target = session.checkpoints[session.state.historyCursor];
   if (target === undefined) return failed(session, "VM_HISTORY_INVALID", "Back target checkpoint is missing");
-  return { session: { ...session, state: canonicalClone(target.state) }, diagnostics: [] };
+  const compensationEffects = (currentEntry?.effects ?? []).flatMap((effect): EffectIntentV0[] => {
+    if (effect.policy !== "reversible" || effect.compensation === null) return [];
+    const compensationId = effectIdV0(
+      effect.executionId,
+      "compensation",
+      effect.logicalSequence,
+      effect.originatingRevision
+    );
+    return [{
+      ...effect,
+      effectId: compensationId,
+      kind: effect.compensation.kind,
+      payload: effect.compensation.payload,
+      policy: "pure",
+      awaitMode: "detached",
+      replayKey: compensationId,
+      compensation: null
+    }];
+  });
+  return {
+    session: { ...session, state: canonicalClone(target.state) },
+    effects: compensationEffects,
+    cancellations: cancellationDirectives(session.state, "back"),
+    diagnostics: []
+  };
 }
 
 export function forwardRuntimeHistoryV0(program: ProgramV0, session: RuntimeSessionV0): HistoryResultV0 {
   const diagnostics = validateRuntimeSessionV0(program, session);
-  if (diagnostics.length > 0) return { session, diagnostics };
+  if (diagnostics.length > 0) return { session, effects: [], cancellations: [], diagnostics };
   if (session.state.historyCursor >= session.entries.length - 1) {
     return failed(session, "VM_HISTORY_AT_END", "Runtime History has no recorded forward step");
   }
   const target = session.checkpoints[session.state.historyCursor + 2];
   if (target === undefined) return failed(session, "VM_HISTORY_INVALID", "Forward target checkpoint is missing");
-  return { session: { ...session, state: canonicalClone(target.state) }, diagnostics: [] };
+  const nextEntry = session.entries[session.state.historyCursor + 1];
+  const replayEffects = (nextEntry?.effects ?? []).filter((effect) => effect.policy !== "barrier");
+  return {
+    session: { ...session, state: canonicalClone(target.state) },
+    effects: canonicalClone(replayEffects),
+    cancellations: cancellationDirectives(session.state, "forward"),
+    diagnostics: []
+  };
 }
