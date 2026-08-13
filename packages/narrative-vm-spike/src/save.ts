@@ -20,7 +20,7 @@ import type {
 } from "./types";
 import { validateProgram } from "./validation";
 
-export const RUNTIME_VERSION_V0 = "cl04-spike.8" as const;
+export const RUNTIME_VERSION_V0 = "cl04-spike.9" as const;
 export const MAX_RUNTIME_SAVE_CHARACTERS_V0 = 16 * 1024 * 1024;
 const META_REFERENCE = /^meta\.[0-9a-f]{64}$/;
 const SHA256 = /^[0-9a-f]{64}$/;

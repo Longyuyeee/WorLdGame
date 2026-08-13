@@ -299,7 +299,7 @@ export interface RuntimeSaveBodyV0 {
   readonly irVersion: 0;
   readonly projectId: string;
   readonly buildId: string;
-  readonly runtimeVersion: "cl04-spike.8";
+  readonly runtimeVersion: "cl04-spike.9";
   readonly opcodeRegistryDigest: string;
   readonly metaProgress: {
     readonly schemaVersion: 0;

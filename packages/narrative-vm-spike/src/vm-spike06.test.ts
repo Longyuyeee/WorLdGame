@@ -324,7 +324,7 @@ describe("CL-04 narrative VM kernel spike 06", () => {
     });
     const loaded = loadRuntimeSaveV0(historyProgram, root, serializeRuntimeSaveV0(save));
     expect([save.integrityDigest, stateHashV0(loaded.session.state)]).toEqual([
-      "7c5de4166c9a7a871ff66bea4ae0f5130132950ab13631d16ca5a518351cedd1",
+      "0a66fabd29fecf80f74d50d4b8f545ed3029226e9c5317bb7d07df3172331540",
       "b671c801332477e0710afbf583f88d84ecfb64c57dcc17aaa83d12cecf716274"
     ]);
   });
