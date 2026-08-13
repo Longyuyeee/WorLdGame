@@ -3,7 +3,7 @@
 > 日期：2026-08-13
 > 节点：N10
 > 对齐需求：`REQ-PRJ`、`REQ-SCRIPT`、`REQ-ASSET`、`REQ-L10N`、`REQ-GAL` 的权威工程前置
-> 状态：实现与定点测试通过；等待完整本地门、推送和 Draft PR Windows CI
+> 状态：通过（本地与 Draft PR Windows CI 均通过）
 
 ## 1. 审计结论
 
@@ -65,7 +65,7 @@ npm.cmd run audit:architecture
 - 架构审计覆盖 57 个 portable 文件，Domain 零平台/运行时依赖，PASS；
 - 脚本性能 9 tests、资产性能 4 tests，PASS；最终完整门总耗时 67.2 秒。
 
-推送和 Draft PR Windows CI 结果在节点收口时补入。
+远端验收：Draft PR #25 的 GitHub Actions run `31711987340` 在 `windows-latest` / Node `22.12.0` 上通过，作业 `94487023563` 总耗时 2 分 50 秒；干净 `npm ci`、新 workspace 链接、PR 追踪门、全部测试、10 workspace 构建、架构和性能审计均成功。
 
 ## 6. Acceptance / Stop Conditions 对齐
 
@@ -84,4 +84,4 @@ npm.cmd run audit:architecture
 
 N10 不证明新建/打开/最近项目 UI、OS 目录授权、事务命令、导入导出、Compiler、Runtime 或正式 Build 已完成。现有 `ProjectSnapshot` 仍用于原型会话恢复，后续 N11/N12 必须让宿主直接持久化 Canonical Project 文件并把 Session 状态降为可重建派生数据。
 
-N10 全部门通过后进入 N11：Project Service 与事务命令。
+N10 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N11：Project Service 与事务命令。

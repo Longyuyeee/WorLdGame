@@ -20,7 +20,7 @@
 
 ## 2. 产品支柱
 
-最近通过节点：`N01`；当前节点：`N10` 验收中。正式 `project-domain`、`.world` v1 多文件格式、七类 S0 Golden 迁移和任意工程 Editor Session 适配已实现，等待完整本地门与 Draft PR Windows CI；证据见[《N10 Canonical Project Schema 审计》](93-n10-canonical-project-schema.md)。
+最近通过节点：`N10`。正式 `project-domain`、`.world` v1 多文件格式、七类 S0 Golden 迁移、任意工程 Editor Session 适配和 Draft PR Windows CI 均已通过；证据见[《N10 Canonical Project Schema 审计》](93-n10-canonical-project-schema.md)。下一节点为 `N11`。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
