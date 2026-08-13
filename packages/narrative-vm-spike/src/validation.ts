@@ -82,7 +82,7 @@ function validateInstruction(instruction: InstructionV0, knownIps: ReadonlySet<n
       !safeInteger(values.targetIp) || !knownIps.has(values.targetIp))) {
     diagnostics.push(invalidProgram("jump target must be the only operand and reference an instruction", instruction));
   } else if (opcode === "jumpIf") {
-    const condition = values.condition as Record<string, unknown> | undefined;
+    const condition = plainRecord(values.condition) ? values.condition : undefined;
     const validOperator = condition !== undefined &&
       ["eq", "ne", "lt", "lte", "gt", "gte"].includes(String(condition.operator));
     if (!exactKeys(values, ["condition", "trueIp", "falseIp"]) || condition === undefined ||
@@ -147,6 +147,16 @@ export function validateProgram(program: ProgramV0): readonly VmDiagnostic[] {
 }
 
 export function validateState(program: ProgramV0, state: RuntimeStateV0): readonly VmDiagnostic[] {
+  const record = state as unknown as Record<string, unknown>;
+  if (!plainRecord(state as unknown) || !plainRecord(record.prng) || !plainRecord(record.sceneState) ||
+      !plainRecord(record.audioLogic) || !plainRecord(record.terminal)) {
+    return [{
+      code: "VM_INVALID_STATE",
+      ip: safeInteger(record.ip) ? record.ip : null,
+      sourceStatementId: null,
+      detail: "State and nested state headers must be plain records"
+    }];
+  }
   const instruction = program.instructions.find((candidate) => candidate.ip === state.ip);
   const fail = (detail: string): readonly VmDiagnostic[] => [{
     code: "VM_INVALID_STATE",

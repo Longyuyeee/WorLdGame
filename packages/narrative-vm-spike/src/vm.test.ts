@@ -126,6 +126,10 @@ describe("CL-04 narrative VM kernel spike 01", () => {
     expect(result.nextState).toBe(malformed);
     expect(result.diagnostics[0]?.code).toBe("VM_INVALID_STATE");
     expect(stateHashV0(initial)).toBe(before);
+
+    const nullPrng = { ...initial, prng: null } as unknown as RuntimeStateV0;
+    expect(() => transitionV0(vm01, nullPrng)).not.toThrow();
+    expect(transitionV0(vm01, nullPrng).diagnostics[0]?.code).toBe("VM_INVALID_STATE");
   });
 
   it("emits a checkpoint bound to the exact post-transition state hash", () => {
@@ -170,6 +174,11 @@ describe("CL-04 narrative VM kernel spike 01", () => {
       "VM_INVALID_PROGRAM"
     ]);
     expect(() => createInitialStateV0(malformed as unknown as ProgramV0)).toThrow(VmProgramValidationError);
+
+    const nullCondition = structuredClone(vm01) as unknown as { instructions: Array<Record<string, unknown>> };
+    (nullCondition.instructions[2] as { operands: { condition: null } }).operands.condition = null;
+    expect(() => validateProgram(nullCondition as unknown as ProgramV0)).not.toThrow();
+    expect(validateProgram(nullCondition as unknown as ProgramV0)[0]?.code).toBe("VM_INVALID_PROGRAM");
   });
 
   it("rejects non-terminal fallthrough and repeated execution after end", () => {
