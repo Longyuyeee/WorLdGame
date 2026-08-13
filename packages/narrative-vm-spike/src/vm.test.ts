@@ -101,7 +101,7 @@ describe("CL-04 narrative VM kernel spike 01", () => {
     expect(second.hashes).toEqual(first.hashes);
     expect(first.state.variables).toEqual({ score: 3 });
     expect(first.state.stateRevision).toBe(5);
-    expect(first.state.stepId).toBe("step.result");
+    expect(first.state.stepId).toBe("ending.good");
     expect(first.state.terminal).toEqual({ kind: "ended", endingId: "ending.good" });
     expect(first.hashes).toHaveLength(6);
     expect(first.hashes).toEqual([
@@ -110,7 +110,7 @@ describe("CL-04 narrative VM kernel spike 01", () => {
       "c25dfae8885d7e54849c8486ae65b3c62b635359591d6fa33b281220a4a01101",
       "280d81d7e5f80c66755a64bb80c8222b60907e05e1a927c0d93905111bec159b",
       "a9b579cc79dbfa25c8e50cf9d56f94276dec2f8252a5cd87da865b404abff8f8",
-      "0defcdb3d32b378cadb1967ae42383f559dbd1be1802fda539c68c73f387482b"
+      "b2176a59a64dee1c8bba9bd049978cdfc92aa3f364f41dc663f7fdc48d2673b4"
     ]);
   });
 

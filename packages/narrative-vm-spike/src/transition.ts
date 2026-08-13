@@ -157,7 +157,7 @@ export function transitionV0(
       ...state,
       ip: selected.targetIp,
       stateRevision: state.stateRevision + 1,
-      stepId: pending.choiceId,
+      stepId: pending.commitStepId,
       pendingRequests: [],
       inputReceipts: [...state.inputReceipts, { input, acceptedAtRevision: state.stateRevision + 1 }]
     };
@@ -266,16 +266,18 @@ export function transitionV0(
       logicalSequence: nextInputSequence,
       kind: "choice",
       choiceId: instruction.operands.choiceId,
+      commitStepId: instruction.operands.commitStepId,
       options: instruction.operands.options.map((option) => ({ ...option }))
     };
     pendingRequests = [request];
     nextInputSequence += 1;
-    stepId = instruction.operands.choiceId;
+    stepId = instruction.operands.promptStepId;
     nextIp = instruction.ip;
   } else if (instruction.opcode === "checkpoint") {
     stepId = instruction.operands.stepId;
   } else if (instruction.opcode === "end") {
     nextIp = instruction.ip;
+    stepId = instruction.operands.endingId;
     terminal = { kind: "ended", endingId: instruction.operands.endingId };
   }
 

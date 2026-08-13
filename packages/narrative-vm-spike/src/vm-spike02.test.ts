@@ -140,7 +140,7 @@ describe("CL-04 narrative VM kernel spike 02", () => {
       "cb07c5b42f18913da5f3149d23144ff1af1a1d97413dceade406e069b4d82a4e",
       "cd050fdba5696c5056b2a5c8dd02ffa83e01aca908c9a1b23e25cafc3c933b0d",
       "bf7d32d171a5ed38f5f526115209831871ae3ac4955ef2ab214ba94e234ca942",
-      "a4021799a6cd81895c295783275e37ef4d7a84d5fc5b0f8e94005b11f21516f1"
+      "238dcf5f6b21eff403040601dffef443f383e8ffe6bd445fe73bb7f8b81eaa33"
     ]);
   });
 

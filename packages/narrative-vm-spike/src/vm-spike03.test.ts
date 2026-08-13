@@ -34,6 +34,8 @@ const vmChoice = program([
     opcode: "choice",
     operands: {
       choiceId: "choice.route",
+      promptStepId: "step.choice.route.prompt",
+      commitStepId: "step.choice.route.commit",
       options: [{ optionId: "left", targetIp: 10 }, { optionId: "right", targetIp: 30 }]
     },
     sourceStatementId: "stmt.choice",
@@ -104,7 +106,7 @@ describe("CL-04 narrative VM kernel spike 03", () => {
     const accepted = transitionV0(vmChoice, waiting, input);
     expect(accepted.diagnostics).toEqual([]);
     expect(accepted.nextState.ip).toBe(10);
-    expect(accepted.nextState.stepId).toBe("choice.route");
+    expect(accepted.nextState.stepId).toBe("step.choice.route.commit");
     expect(accepted.nextState.pendingRequests).toEqual([]);
     expect(accepted.nextState.inputReceipts).toEqual([{ input, acceptedAtRevision: 2 }]);
   });
@@ -154,7 +156,12 @@ describe("CL-04 narrative VM kernel spike 03", () => {
       {
         ip: 0,
         opcode: "choice",
-        operands: { choiceId: "choice.loop", options: [{ optionId: "again", targetIp: 0 }] },
+        operands: {
+          choiceId: "choice.loop",
+          promptStepId: "step.choice.loop.prompt",
+          commitStepId: "step.choice.loop.commit",
+          options: [{ optionId: "again", targetIp: 0 }]
+        },
         sourceStatementId: "stmt.loop",
         stepBoundary: true,
         effectClass: "none",
@@ -230,11 +237,11 @@ describe("CL-04 narrative VM kernel spike 03", () => {
     expect(state.variables).toEqual({ route: "left" });
     expect(hashes).toEqual([
       "a572d02813a7987312a603185652bd66cf2141fb8bd9877452926aec8ef1a28c",
-      "8d2080ca2f583e9ba32a09c34828fa4344cad163b578a0e910417559ee4a1381",
-      "9947358b457e8c587429707ec71fe05074bfd60f991442fb4f35753c1df1ffdd",
-      "f9257c51365dba147a1f86dfb5bb6a6cc4ad59448380fe73a1d6808974b2ac4d",
-      "51fea99e707da11b0372f1175128ec25c9f09bd05a208027307ec71b006e912e",
-      "8d1453291608cbb765c0537d5c1fd28b3351b523748f26ade8f4163a24d68328"
+      "a55fe13e26e42bd0af740dd1ba9b9af59a192e46d201a3d53152ada5766d5f70",
+      "14d36d8a920f505dff30b9b6c601a42b324615233e0af120c9d28601c8f9b5eb",
+      "75e292555aa56297e0e5f7fc00f094bd49e184297bd6c5275e8093c5f819edec",
+      "860a5967df7e0516d8f2f92863ee838a72189a334762c1ed0d94efb64c056ea1",
+      "34c09fd07b128e5870d3012b87dc5b6acb101932ec8831ebadd7f07689ac4abb"
     ]);
   });
 });
