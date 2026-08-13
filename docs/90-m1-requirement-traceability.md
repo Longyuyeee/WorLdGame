@@ -20,7 +20,7 @@
 
 ## 2. 产品支柱
 
-最近通过节点：`N01`。50 项唯一 owner、七类 Golden Seed、统一测试入口/证据索引、PR 追踪更新门和 Draft PR Windows CI 均已通过；证据见[《N01 需求追踪与 Golden 基线审计》](92-n01-requirement-golden-baseline.md)。下一节点为 `N10`。N00/N01 是共同工程前置，不改变任何 `REQ-*` 或 `AC-*` 的产品完成状态。
+最近通过节点：`N10`。正式 `project-domain`、`.world` v1 多文件格式、七类 S0 Golden 迁移、任意工程 Editor Session 适配和 Draft PR Windows CI 均已通过；证据见[《N10 Canonical Project Schema 审计》](93-n10-canonical-project-schema.md)。下一节点为 `N11`。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -39,7 +39,7 @@
 
 | REQ | P0 范围摘要 | 主节点 | 依赖 | 当前状态 | 当前缺口 | 通过证据 |
 |---|---|---|---|---|---|---|
-| REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | 固定项目；无通用文件生命周期 | Project E2E、Recovery Golden、双端任务 |
+| REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N10 通用 Schema/编辑器适配实现中；尚无 N11–N13 文件生命周期 | Project E2E、Recovery Golden、双端任务 |
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N11/N20 | 实现中 | 块类型与工作流不全 | Branching/Media E2E |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N10/N11 | 实现中 | 编辑器能力和通用工程不全 | 100k/round-trip/external edit Golden |

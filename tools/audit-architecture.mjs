@@ -5,6 +5,7 @@ import process from "node:process";
 const repoRoot = process.cwd();
 const auditedRoots = [
   join(repoRoot, "packages", "narrative-vm-spike", "src"),
+  join(repoRoot, "packages", "project-domain", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
   join(repoRoot, "packages", "project-persistence", "src")
@@ -125,6 +126,12 @@ if (
 const persistencePackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "project-persistence", "package.json"), "utf8")
 );
+const projectDomainPackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "project-domain", "package.json"), "utf8")
+);
+if (projectDomainPackage.dependencies !== undefined) {
+  violations.push("project-domain must not declare runtime dependencies in N10");
+}
 if (persistencePackage.dependencies !== undefined) {
   violations.push("project-persistence must not declare runtime dependencies in S0.9");
 }
@@ -159,6 +166,9 @@ if (editorPackage.dependencies?.["@world-studio/story-language"] === undefined) 
 }
 if (editorPackage.dependencies?.["@world-studio/project-persistence"] === undefined) {
   violations.push("editor must declare its project-persistence boundary explicitly");
+}
+if (editorPackage.dependencies?.["@world-studio/project-domain"] === undefined) {
+  violations.push("editor must declare its canonical project-domain boundary explicitly");
 }
 if (editorPackage.dependencies?.["@world-studio/project-persistence-node"] !== undefined) {
   violations.push("web editor must not bundle the Node filesystem adapter");
@@ -274,7 +284,8 @@ if (violations.length > 0) {
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
-          "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+    "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+    "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the portable core and depends only on project-persistence",
           "editor declares the story-core dependency explicitly",
           "editor declares the story-language dependency explicitly",

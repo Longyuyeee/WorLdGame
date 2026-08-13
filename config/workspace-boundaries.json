@@ -8,6 +8,7 @@
       "stability": "prototype",
       "owner": "Editor Owner",
       "allowedWorkspaceDependencies": [
+        "@world-studio/project-domain",
         "@world-studio/project-persistence",
         "@world-studio/story-core",
         "@world-studio/story-language"
@@ -50,6 +51,14 @@
       "allowedWorkspaceDependencies": []
     },
     {
+      "path": "packages/project-domain",
+      "packageName": "@world-studio/project-domain",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Domain Owner",
+      "allowedWorkspaceDependencies": []
+    },
+    {
       "path": "packages/project-persistence",
       "packageName": "@world-studio/project-persistence",
       "kind": "portable-candidate",
@@ -83,7 +92,6 @@
     }
   ],
   "plannedProductBoundaries": [
-    { "path": "packages/project-domain", "packageName": "@world-studio/project-domain", "firstNode": "N10" },
     { "path": "packages/project-compiler", "packageName": "@world-studio/project-compiler", "firstNode": "N30" },
     { "path": "packages/runtime", "packageName": "@world-studio/runtime", "firstNode": "N31" },
     { "path": "packages/build-core", "packageName": "@world-studio/build-core", "firstNode": "N83" },
