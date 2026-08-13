@@ -187,7 +187,8 @@ function validateInstruction(instruction: InstructionV0, knownIps: ReadonlySet<n
   const mustBeBoundary = opcode === "checkpoint" || opcode === "choice" || opcode === "emit" || opcode === "end";
   const mustStop = opcode === "choice" || opcode === "end" ||
     (opcode === "emit" && (values.awaitMode === "awaited" || values.policy === "barrier"));
-  if (instruction.stepBoundary !== mustBeBoundary || instruction.stopPoint !== mustStop) {
+  const stopFlagInvalid = mustStop ? !instruction.stopPoint : opcode !== "checkpoint" && instruction.stopPoint;
+  if (instruction.stepBoundary !== mustBeBoundary || stopFlagInvalid) {
     diagnostics.push(invalidProgram("Spike boundary flags do not match opcode semantics", instruction));
   }
   return diagnostics;
