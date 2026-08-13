@@ -2,6 +2,7 @@ import type {
   ChoiceNode,
   ChoiceOptionNode,
   EndNode,
+  NarrationNode,
   SceneNode,
   SourceRange,
   StoryDiagnostic,
@@ -78,6 +79,8 @@ function parseNamedMetadata(input: string, name: "id" | "sid"): ParsedMetadata {
 function parseMetadata(input: string): ParsedMetadata {
   return parseNamedMetadata(input, "id");
 }
+
+function statementMetadata(input:string):{readonly id?:string;readonly statementId?:string;readonly content:string;readonly malformed:boolean}{const text=parseNamedMetadata(input,"id"),statement=parseNamedMetadata(text.trailingMetadata,"sid");return {...(text.id===undefined?{}:{id:text.id}),...(statement.id===undefined?{}:{statementId:statement.id}),content:statement.trailingMetadata,malformed:text.malformedId||statement.malformedId};}
 
 function splitDialogueMetadata(input: string): {
   readonly textRaw: string;
@@ -237,6 +240,10 @@ export function parseStory(source: string): StoryDocument {
       if (command !== undefined && knownDirectives.has(command)) {
         registerId(metadata.id, range);
       }
+    } else if (trimmed.startsWith("narrate ")) {
+      const quoted=parseQuoted(trimmed.slice(8));
+      if(quoted===undefined){diagnostics.push(diagnostic("MALFORMED_NARRATION","Narration requires a closed quoted string",range));node={kind:"opaque",raw:line,reason:"unrecognized-syntax",range};}
+      else {const metadata=statementMetadata(quoted.rest);if(metadata.malformed)diagnostics.push(diagnostic("MALFORMED_ID","Narration contains malformed metadata",range));node={kind:"narration",textRaw:quoted.raw,...(metadata.statementId===undefined?{}:{statementId:metadata.statementId}),...(metadata.id===undefined?{}:{textId:metadata.id}),trailingMetadata:metadata.content,range} satisfies NarrationNode;registerId(metadata.statementId,range);registerId(metadata.id,range);}
     } else if (trimmed.startsWith("choice ")) {
       const parsed = parseQuotedNode<ChoiceNode>("choice", trimmed.slice(7), range, diagnostics);
       node = parsed ?? { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };
@@ -246,15 +253,22 @@ export function parseStory(source: string): StoryDocument {
       node = parsed ?? { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };
       registerId(parsed?.id, range);
     } else if (trimmed.startsWith("label ")) {
-      const name = trimmed.slice(6).trim();
+      const metadata=parseMetadata(trimmed.slice(6));const name = metadata.trailingMetadata;
       if (!identifier.test(name)) {
         diagnostics.push(diagnostic("MALFORMED_LABEL", "Label requires a valid name", range));
       }
       node = identifier.test(name)
-        ? { kind: "label", name, range }
+        ? { kind: "label", name, ...(metadata.id===undefined?{}:{id:metadata.id}), trailingMetadata:"", range }
         : { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };
+      registerId(metadata.id,range);
+    } else if (trimmed.startsWith("jump ")||trimmed.startsWith("call ")) {
+      const kind=trimmed.startsWith("jump ")?"jump" as const:"call" as const;const metadata=parseMetadata(trimmed.slice(kind.length+1));const targetLabel=metadata.trailingMetadata;
+      if(!identifier.test(targetLabel))diagnostics.push(diagnostic("MALFORMED_FLOW",`${kind} requires a valid label`,range));
+      node=identifier.test(targetLabel)?{kind,targetLabel,...(metadata.id===undefined?{}:{id:metadata.id}),trailingMetadata:"",range}:{kind:"opaque",raw:line,reason:"unrecognized-syntax",range};registerId(metadata.id,range);
+    } else if (trimmed==="return"||trimmed.startsWith("return ")) {
+      const metadata=parseMetadata(trimmed.slice(6));if(metadata.trailingMetadata!==""||metadata.malformedId)diagnostics.push(diagnostic("MALFORMED_FLOW","return accepts only @id metadata",range));node={kind:"return",...(metadata.id===undefined?{}:{id:metadata.id}),trailingMetadata:metadata.trailingMetadata,range};registerId(metadata.id,range);
     } else if (trimmed.startsWith("set ")) {
-      const setMatch = trimmed.match(/^set\s+([A-Za-z_][A-Za-z0-9_.-]*)\s*=\s*(.+)$/);
+      const metadata=parseMetadata(trimmed.slice(4));const setMatch = metadata.trailingMetadata.match(/^([A-Za-z_][A-Za-z0-9_.-]*)\s*=\s*(.+)$/);
       const variable = setMatch?.[1];
       const expressionRaw = setMatch?.[2];
       if (variable === undefined || expressionRaw === undefined) {
@@ -264,8 +278,13 @@ export function parseStory(source: string): StoryDocument {
       }
       node =
         variable !== undefined && expressionRaw !== undefined
-          ? { kind: "set", variable, expressionRaw, range }
+          ? { kind: "set", variable, expressionRaw, ...(metadata.id===undefined?{}:{id:metadata.id}), trailingMetadata:"", range }
           : { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };
+      registerId(metadata.id,range);
+    } else if(trimmed.startsWith("if ")){
+      const metadata=parseMetadata(trimmed.slice(3));const match=metadata.trailingMetadata.match(/^(.+?)\s*->\s*([A-Za-z_][A-Za-z0-9_.-]*)$/);if(match===null)diagnostics.push(diagnostic("MALFORMED_CONDITION","if requires expression -> label",range));node=match===null?{kind:"opaque",raw:line,reason:"unrecognized-syntax",range}:{kind:"condition",expressionRaw:match[1]!,targetLabel:match[2]!,...(metadata.id===undefined?{}:{id:metadata.id}),trailingMetadata:"",range};registerId(metadata.id,range);
+    } else if(trimmed.startsWith("wait ")){
+      const metadata=parseMetadata(trimmed.slice(5));const durationRaw=metadata.trailingMetadata;if(!/^\d+(?:\.\d+)?(?:ms|s)$/.test(durationRaw))diagnostics.push(diagnostic("MALFORMED_WAIT","wait requires a non-negative ms or s duration",range));node=/^\d+(?:\.\d+)?(?:ms|s)$/.test(durationRaw)?{kind:"wait",durationRaw,...(metadata.id===undefined?{}:{id:metadata.id}),trailingMetadata:"",range}:{kind:"opaque",raw:line,reason:"unrecognized-syntax",range};registerId(metadata.id,range);
     } else if (trimmed.startsWith("end ")) {
       const parsed = parseQuotedNode<EndNode>("end", trimmed.slice(4), range, diagnostics);
       node = parsed ?? { kind: "opaque", raw: line, reason: "unrecognized-syntax", range };
