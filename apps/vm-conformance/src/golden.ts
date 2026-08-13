@@ -38,3 +38,21 @@ export const SPIKE11_NODE_GOLDEN_V0 = {
     "12f2c4a732aec00a822b9157df33de6c9376a28f571ef7089c0ea2f6f0484312"
   ]
 } as const;
+
+export const SPIKE12_NODE_GOLDEN_V0 = {
+  schemaVersion: 0,
+  corpusId: "corpus.generated.spike12.v0",
+  seedCount: 10_000,
+  replayExecutions: 20_000,
+  chunkCount: 40,
+  scenarioCounts: {
+    "nested-condition": 1667,
+    "call-return": 1667,
+    random: 1667,
+    "effect-cancellation": 1667,
+    "save-load": 1666,
+    "choice-back-forward": 1666
+  },
+  failedSeeds: [],
+  outcomeDigest: "770920d96fdcb3388c3f7aead30ee45385ec9cd0c435960a6981b5cb6c92e048"
+} as const;

@@ -1,5 +1,5 @@
 import type { WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0 } from "./golden";
+import { SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0 } from "./golden";
 
 const status = document.querySelector<HTMLParagraphElement>("#status");
 const output = document.querySelector<HTMLPreElement>("#result");
@@ -8,19 +8,19 @@ status.dataset.userAgent = navigator.userAgent;
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), {
   type: "module",
-  name: "world-vm-conformance-spike11"
+  name: "world-vm-conformance-spike12"
 });
 const request: WorkerRequestV0 = {
   protocolVersion: 0,
   kind: "runHostConformance",
-  requestId: "request.spike11.web-worker"
+  requestId: "request.spike12.web-worker"
 };
 
 const deadline = window.setTimeout(() => {
   worker.terminate();
   status.dataset.status = "failed";
-  status.textContent = "FAIL：Web Worker 超过 10 秒期限";
-}, 10_000);
+  status.textContent = "FAIL：Web Worker 超过 180 秒期限";
+}, 180_000);
 
 worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
   window.clearTimeout(deadline);
@@ -39,14 +39,15 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
   const matchesSpike11 = response.spike11.suiteDigest === SPIKE11_NODE_GOLDEN_V0.suiteDigest &&
     response.spike11.recordDigests.length === SPIKE11_NODE_GOLDEN_V0.recordDigests.length &&
     response.spike11.recordDigests.every((digest, index) => digest === SPIKE11_NODE_GOLDEN_V0.recordDigests[index]);
-  if (!matchesSpike10 || !matchesSpike11) {
+  const matchesSpike12 = JSON.stringify(response.spike12) === JSON.stringify(SPIKE12_NODE_GOLDEN_V0);
+  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12) {
     status.dataset.status = "failed";
-    status.textContent = "FAIL：Web Worker 逐步 Hash 流与 Node Golden 不一致";
+    status.textContent = "FAIL：Web Worker 结果与 Node Golden 不一致";
     output.textContent = JSON.stringify(response, null, 2);
     return;
   }
   status.dataset.status = "passed";
-  status.textContent = "PASS：真实 Web Worker 的 12 条基础记录与 16 条 History/Scheduler/Save 记录均和 Node Golden 零差异";
+  status.textContent = "PASS：真实 Web Worker 的 28 条宿主记录与 10,000 种子 / 20,000 次重放均和 Node Golden 零差异";
   output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 
