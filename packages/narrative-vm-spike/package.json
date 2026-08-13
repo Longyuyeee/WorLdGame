@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/narrative-vm-spike",
-  "version": "0.0.0-cl04-spike.8",
+  "version": "0.0.0-cl04-spike.9",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",

@@ -105,6 +105,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [CL-04 Narrative VM Runtime Save Spike 06 审计](docs/73-cl04-vm-runtime-save-spike-06.md) | canonical Save envelope、VM-11/12、完整性、版本/Build/Opcode 拒绝、pending Effect rehydrate 与诚实限制 |
 | [CL-04 Narrative VM Skip / Auto Spike 07 审计](docs/74-cl04-vm-skip-auto-spike-07.md) | Normal/Auto、5–40/Instant、Skip Read/All、Hold/Toggle、停止边界、VM-09/10 固定 Hash 与诚实限制 |
 | [CL-04 Narrative VM Meta Progress Spike 08 审计](docs/75-cl04-vm-meta-progress-spike-08.md) | 已读/CG/结局只增集合、独立 Hash、内容寻址 Save 引用、Back/Load 不回退与 VM-13 |
+| [CL-04 Narrative VM 生成属性语料 Spike 09 审计](docs/76-cl04-vm-generated-properties-spike-09.md) | VM-14/15、10k 固定生成序列、批处理上限、剧情结果 Hash 与诚实性能边界 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛
