@@ -3,7 +3,7 @@
 > 日期：2026-08-13
 > 节点：N00
 > 对齐需求：R0 仓库治理、全部 `REQ-*`/`AC-*` 的共同工程前置
-> 状态：本地验收通过；等待 Draft PR CI 与审阅
+> 状态：通过（本地与 Draft PR Windows CI 均通过）
 
 ## 1. 节点目标
 
@@ -108,6 +108,8 @@ npm.cmd run check
 
 首次远端运行暴露并保留了两项跨环境问题：VM 重负载文件与其余测试并行时，VM-14 10k 循环在共享 Runner 上超过 Vitest 通用 5 秒单测超时；GitHub Windows Runner 的临时目录经过 junction，导致授权根测试在进入用例前被生产安全检查拒绝。修正方式没有减少 10k 规模、删除断言、提高单测超时或放宽重解析点检查：普通测试与 VM 重负载门改为分阶段运行；测试辅助函数先规范化系统临时目录，再创建授权根，显式 junction 拒绝用例保持不变。N31 正式 Runtime 仍需独立性能预算和 CI 历史证明。
 
+远端验收：Draft PR #23 的 GitHub Actions run `31708751792` 在 `windows-latest` / Node `22.12.0` 上通过，作业 `94475915357` 总耗时 3 分 2 秒；Checkout、锁定依赖安装、完整 `npm run check` 与收尾步骤全部成功。
+
 ## 5. 需求对齐
 
 | 计划要求 | 结果 | 证据 |
@@ -117,7 +119,7 @@ npm.cmd run check
 | 目标产品包边界明确 | 通过 | 7 个 `plannedProductBoundaries` 和 `firstNode` |
 | Owner 与允许依赖明确 | 通过 | 9/9 workspace 全量登记 |
 | 干净环境一条命令验证 | 通过 | `npm ci` + `npm run check` |
-| PR 自动检查 | 待远端确认 | `product-baseline` workflow |
+| PR 自动检查 | 通过 | `product-baseline` workflow，run `31708751792` |
 
 ## 6. 不证明
 
@@ -133,4 +135,4 @@ N00 不证明：
 
 ## 7. 下一节点
 
-N00 的远端 CI 通过并完成审阅后进入 N10：Canonical Project Schema。N10 必须先建立通用 `project-domain`，再迁移固定样例；不得直接在 `apps/editor` 中继续增加硬编码字段。
+N00 已通过实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N10：Canonical Project Schema。N10 必须先建立通用 `project-domain`，再迁移固定样例；不得直接在 `apps/editor` 中继续增加硬编码字段。
