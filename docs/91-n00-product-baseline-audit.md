@@ -98,14 +98,15 @@ npm.cmd run check
 
 - workspace audit：9 个当前 workspace、7 个计划边界，PASS；
 - typecheck：PASS；
-- 常规测试：63 files / 420 tests，全部 PASS；
+- 普通测试：62 files / 415 tests，4 Workers，全部 PASS；
+- VM 确定性与 10k 语料门：1 file / 5 tests，1 Worker，全部 PASS；
 - 9 个 workspace build：PASS；
 - architecture audit：51 个 portable files、3 个 Node adapter files，PASS；
 - script performance：9 tests，PASS；
 - asset performance：4 tests，PASS；
-- 最终复跑总耗时：46.1 秒。
+- 修正后完整复跑总耗时：73.1 秒。
 
-此前开发状态快照记录的 VM-14/corpus 超时在本次锁定依赖和当前机器完整复跑中没有复现。该事实只证明 N00 基线当前绿色，不撤销既有超时证据；N31 正式 Runtime 仍需稳定性能门和 CI 历史证明。
+首次远端运行暴露并保留了两项跨环境问题：VM 重负载文件与其余测试并行时，VM-14 10k 循环在共享 Runner 上超过 Vitest 通用 5 秒单测超时；GitHub Windows Runner 的临时目录经过 junction，导致授权根测试在进入用例前被生产安全检查拒绝。修正方式没有减少 10k 规模、删除断言、提高单测超时或放宽重解析点检查：普通测试与 VM 重负载门改为分阶段运行；测试辅助函数先规范化系统临时目录，再创建授权根，显式 junction 拒绝用例保持不变。N31 正式 Runtime 仍需独立性能预算和 CI 历史证明。
 
 ## 5. 需求对齐
 

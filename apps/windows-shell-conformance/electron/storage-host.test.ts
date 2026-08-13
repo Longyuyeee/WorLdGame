@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdtemp, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, parse } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -8,7 +8,12 @@ import { ElectronStorageHost } from "./storage-host";
 const roots: string[] = [];
 
 async function temporaryRoot(prefix: string): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  // GitHub's Windows runner may expose its temporary directory through a
+  // junction. Grant roots must be canonical, so canonicalize the ambient temp
+  // directory before creating the test root. The reparse-root test below still
+  // passes an explicit junction and verifies that production rejects it.
+  const canonicalTempDirectory = await realpath(tmpdir());
+  const root = await mkdtemp(join(canonicalTempDirectory, prefix));
   roots.push(root);
   return root;
 }
