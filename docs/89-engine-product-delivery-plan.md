@@ -198,7 +198,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N20 Story Language P0
 
-> 实施状态（2026-08-14）：代码和本地针对性门完成，等待 Draft PR Windows CI；证据见[《N20 Story Language P0 审计》](97-n20-story-language-p0.md)。
+> 状态：通过。P0 CST/AST、安全表达式、语言服务、通用 Patch、100k 增量门、本地完整门、推送与 Draft PR #29 Windows CI 均完成；证据见[《N20 Story Language P0 审计》](97-n20-story-language-p0.md)。
 
 - **Goal**：脚本能够表达 M1 最小可玩故事。
 - **Scope**：Dialogue、Narration、Choice、Label、Jump、Call/Return、Set、Condition、Wait、End、Background、Character、Audio。
