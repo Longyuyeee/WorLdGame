@@ -1,0 +1,5 @@
+npm.cmd run typecheck
+npm.cmd exec vitest run -- packages/narrative-vm-spike/src/vm.test.ts packages/narrative-vm-spike/src/vm-spike02.test.ts packages/narrative-vm-spike/src/vm-spike03.test.ts packages/narrative-vm-spike/src/vm-spike04.test.ts packages/narrative-vm-spike/src/vm-spike05.test.ts packages/narrative-vm-spike/src/vm-spike06.test.ts
+npm.cmd run audit:architecture
+npm.cmd run check
+git diff --check

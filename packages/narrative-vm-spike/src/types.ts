@@ -245,7 +245,7 @@ export interface EffectCancellationV0 {
   readonly effectId: string;
   readonly executionId: string;
   readonly cancellationScope: string;
-  readonly reason: "back" | "forward" | "fork";
+  readonly reason: "back" | "forward" | "fork" | "load";
 }
 
 export interface BarrierRecordV0 {
@@ -292,6 +292,28 @@ export interface RuntimeSessionV0 {
   readonly entries: readonly HistoryEntryV0[];
   readonly checkpoints: readonly HistoryCheckpointV0[];
   readonly inputTombstones: readonly ExternalInputV0[];
+}
+
+export interface RuntimeSaveBodyV0 {
+  readonly saveSchemaVersion: 0;
+  readonly irVersion: 0;
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly runtimeVersion: "cl04-spike.6";
+  readonly opcodeRegistryDigest: string;
+  readonly metaProgress: {
+    readonly schemaVersion: 0;
+    readonly referenceId: string | null;
+  };
+  readonly session: RuntimeSessionV0;
+}
+
+export interface RuntimeSaveV0 extends RuntimeSaveBodyV0 {
+  readonly integrityDigest: string;
+}
+
+export interface RuntimeSaveOptionsV0 {
+  readonly metaProgressReferenceId?: string | null;
 }
 
 export interface RuntimeStateV0 {
@@ -355,6 +377,11 @@ export type VmDiagnosticCode =
   | "VM_EFFECT_MISMATCH"
   | "VM_EFFECT_CANCELLED"
   | "VM_BARRIER_BLOCKED"
+  | "VM_SAVE_INVALID"
+  | "VM_SAVE_INTEGRITY"
+  | "VM_SAVE_FUTURE_VERSION"
+  | "VM_SAVE_INCOMPATIBLE"
+  | "VM_SAVE_OPCODE_MISSING"
   | "VM_HISTORY_INVALID"
   | "VM_HISTORY_AT_START"
   | "VM_HISTORY_AT_END"
@@ -392,5 +419,12 @@ export interface HistoryResultV0 {
   readonly session: RuntimeSessionV0;
   readonly effects: readonly EffectIntentV0[];
   readonly cancellations: readonly EffectCancellationV0[];
+  readonly diagnostics: readonly VmDiagnostic[];
+}
+
+export interface RuntimeSaveLoadResultV0 {
+  readonly session: RuntimeSessionV0;
+  readonly cancellations: readonly EffectCancellationV0[];
+  readonly effects: readonly EffectIntentV0[];
   readonly diagnostics: readonly VmDiagnostic[];
 }
