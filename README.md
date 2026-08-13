@@ -103,6 +103,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [CL-04 Narrative VM History、Back/Forward 与 Fork Spike 04 审计](docs/71-cl04-vm-history-spike-04.md) | 独立 Runtime Session、完整边界 checkpoint、VM-04/05、原子分叉、输入 tombstone 与诚实限制 |
 | [CL-04 Narrative VM Effect、取消与 Barrier Spike 05 审计](docs/72-cl04-vm-effect-barrier-spike-05.md) | 确定 Effect token/hash、严格完成与 scope 取消、pure/reversible ledger、Barrier 许可和 Back 阻断 |
 | [CL-04 Narrative VM Runtime Save Spike 06 审计](docs/73-cl04-vm-runtime-save-spike-06.md) | canonical Save envelope、VM-11/12、完整性、版本/Build/Opcode 拒绝、pending Effect rehydrate 与诚实限制 |
+| [CL-04 Narrative VM Skip / Auto Spike 07 审计](docs/74-cl04-vm-skip-auto-spike-07.md) | Normal/Auto、5–40/Instant、Skip Read/All、Hold/Toggle、停止边界、VM-09/10 固定 Hash 与诚实限制 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

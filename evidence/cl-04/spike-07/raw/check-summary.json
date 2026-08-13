@@ -1,0 +1,27 @@
+{
+  "sourceRevision": "f44b01fa2f2d881f2d8c82daf62d76e0f75fd66c",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 56,
+    "tests": 393,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 7,
+    "tests": 70,
+    "failed": 0,
+    "spike07Tests": 9,
+    "fixedVm09StateHashes": 1
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 46,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "note": "Observed on one Node development host. This is not wall-clock pacing, UI, History integration, 10k generated VM sequences, or cross-host evidence."
+}

@@ -1,7 +1,7 @@
 # CL-04 Narrative VM 确定性证据契约
 
 > 决策日期：2026-08-12
-> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[06](73-cl04-vm-runtime-save-spike-06.md) 已完成 VM-01–08/11–12 部分基础与 History/Effect/Save 前置语义；CL-04 进行中但未通过
+> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[07](74-cl04-vm-skip-auto-spike-07.md) 已完成 VM-01–12 部分基础与 History/Effect/Save/Skip 前置语义；CL-04 进行中但未通过
 > 风险：CL-04
 > 决策类型：S0 可抛弃 Spike 契约，不是 VM 产品实现
 
@@ -265,4 +265,4 @@ CL-04 只有同时满足以下条件才通过：
 
 ## 13. 当前审计结论
 
-现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md)–[06](73-cl04-vm-runtime-save-spike-06.md) 已提供 VM-01–08/11–12 部分基础、Back/Forward/Fork、受控 Effect/Barrier 与 canonical Runtime Save。Save 仍是单 Node 内存协议，只有 identity migration；真实 Scheduler/持久化、Skip、Meta Progress、10k 生成序列和三宿主一致性尚未完成，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。
+现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md)–[07](74-cl04-vm-skip-auto-spike-07.md) 已提供 VM-01–12 部分基础、Back/Forward/Fork、受控 Effect/Barrier、canonical Runtime Save 与外部 Skip/Auto 调度。Save 仍是单 Node 内存协议，Scheduler 尚未与 Runtime History/真实时钟集成；Meta Progress、10k 生成序列和三宿主一致性尚未完成，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。

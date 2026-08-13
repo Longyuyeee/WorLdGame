@@ -26,7 +26,7 @@
 | 技术架构 | 已定义 Domain/Compiler/Runtime/Host 分层、工程格式、平台桥、存储、构建与安全边界 | 候选架构，须由 CL Spike 和 ADR 冻结 |
 | 质量与审计 | 已定义风险等级、测试矩阵、发布门、供应链证据、Claim/Evidence 登记和纠偏纪律 | 治理有效，生产证据仍缺失 |
 | 目标设备预算 | 已冻结 WIN-L、AND-L、AND-R 与 Web 的启动、内存、容量和帧时间预算 | CL-01 有条件通过；实体设备未登记 |
-| Narrative VM 契约 | 已冻结 State、Step、Effect、Save、History、Barrier、State Hash 与 VM-01–VM-15 | CL-04 进行中；Spike 01–06 完成 VM-01–08/11–12 部分基础及 History/Effect/Save 前置语义，尚未通过 |
+| Narrative VM 契约 | 已冻结 State、Step、Effect、Save、History、Barrier、State Hash 与 VM-01–VM-15 | CL-04 进行中；Spike 01–07 完成 VM-01–12 部分基础及 History/Effect/Save/Skip 前置语义，尚未通过 |
 | Windows 壳契约 | 已冻结 Electron/Tauri 同切片、WS-01–WS-18、安全、WAL、更新、签名与 WIN-L 比较门 | CL-03 尚未实现或选型 |
 
 ## 3. 已实现的 S0.41 Web 证据原型
@@ -75,10 +75,10 @@
 |---|---:|
 | 应用 | 1（`@world-studio/editor` Web 原型） |
 | 可移植/适配包 | 5（新增可抛弃 narrative-vm-spike；其余为 story-core、story-language、project-persistence、project-persistence-node） |
-| TypeScript/TSX/MJS 源文件 | 135 |
+| TypeScript/TSX/MJS 源文件 | 137 |
 | 测试文件 | 54（含独立性能审计文件） |
-| 全仓常规测试 | 55 files / 384 tests（`63382f6`） |
-| `docs/*.md` | 75（含本快照、CL-02 契约与 CL-04 Spike 01–06 审计） |
+| 全仓常规测试 | 56 files / 393 tests（`f44b01f`） |
+| `docs/*.md` | 76（含本快照、CL-02 契约与 CL-04 Spike 01–07 审计） |
 
 数量只用于仓库盘点。正式进度只由需求映射、目标平台原始证据、ADR 和阶段门决定。
 
@@ -88,7 +88,7 @@
 |---|---|---|
 | Windows 完整编辑器 | 没有 Electron/Tauri 产品壳；未选型 | 两个可抛弃 Spike 在 WIN-L 通过 CL-03 并形成 ADR |
 | Android 完整编辑器 | 没有可安装 Android 编辑壳；浏览器窄屏不计 | AND-L/AND-R 真机完成 IME、文件、后台恢复、内存与核心任务 |
-| Narrative VM | Spike 01–06 已实现 VM-01–08/11–12 部分基础、History、受控 Effect/Barrier 与 canonical Save；Skip/Meta、真实 Scheduler/存储、跨版本迁移、三宿主仍未实现 | VM-01–VM-15、10k 生成序列、三宿主 State/Effect/Save Hash 零差异 |
+| Narrative VM | Spike 01–07 已实现 VM-01–12 部分基础、History、受控 Effect/Barrier、canonical Save 与外部 Skip/Auto；Meta、History+Scheduler、真实时钟/存储、跨版本迁移、三宿主仍未实现 | VM-01–VM-15、10k 生成序列、三宿主 State/Effect/Save Hash 零差异 |
 | Web/Windows/Android 玩家 | 没有三端最小可安装/运行产物 | 同一固定路线、Manifest、存档和 State Hash 贯通 |
 | Windows 本地三端构建 | 尚无完整构建链和签名产物 | 可追溯生成 Web/Windows/Android，失败和回退可诊断 |
 | Android 端直接打包 | 尚未验证，不能承诺 | 真机验证；失败则明确采用 Windows 本地 Android 构建基线 |
@@ -106,7 +106,7 @@
 | CL-01 设备与预算 | 有条件通过 | 预算与降级原则已冻结 | 登记 WIN-L、AND-L、AND-R 并跑基础基线 |
 | CL-02 Android 编辑壳 | 未开始；契约已冻结 | 候选、私有工作区/SAF、AI-01–AI-10、AS-01–AS-19 与真机硬门已冻结 | 安装工具链，登记 AND-L/AND-R 并准备两个可抛弃 Spike |
 | CL-03 Windows 编辑壳 | 未开始；契约已冻结 | 同切片、安全 Profile、WS-01–WS-18 和停止条件 | 准备 Electron/Tauri Spike 与 WIN-L |
-| CL-04 Narrative VM | 进行中；契约已冻结 | Spike 01–06 完成 VM-01–08/11–12 部分基础、History/Effect/Barrier、canonical Save、完整性与 fail-closed 加载 | Spike 07 冻结 Skip/Auto 调度与选择/输入/错误/资源/Stop Point/Barrier 停止边界，并执行 VM-09/10 |
+| CL-04 Narrative VM | 进行中；契约已冻结 | Spike 01–07 完成 VM-01–12 部分基础、History/Effect/Barrier、canonical Save、Skip/Auto 与 VM-09/10 | Spike 08 冻结独立 Meta Progress 单调合并、独立 Hash 与 Back/Load 不回退语义，并执行 VM-13 |
 | CL-05–CL-12 | 未开始 | Claim、Owner、阈值和依赖已登记 | 按 Wave B–E 顺序推进，不能用 Web 原型自动过门 |
 
 状态的唯一权威明细仍是[《S0 Claim / Evidence 登记表》](63-s0-claim-evidence-register.md)。
@@ -120,7 +120,7 @@
 5. **执行 D1**：CL-11 至少 5 名目标创作者，修复 Severity 0/1。
 6. **S0 收口评审**：全部 Claim 为通过、替代或经审计批准的取消后，才由产品负责人决定是否进入 M1 正式产品编码。
 
-CL-02、CL-03、CL-04 的证据契约均已冻结，CL-04 Spike 01–06 已在独立堆叠风险分支形成可复现证据。当前代码工作只能继续已冻结契约下的可抛弃 Spike；目标设备未登记前，CL-02/03 只允许环境准备和探索测量，不能继续增加 Web 编辑器功能或宣布任一 Claim 通过。
+CL-02、CL-03、CL-04 的证据契约均已冻结，CL-04 Spike 01–07 已在独立堆叠风险分支形成可复现证据。当前代码工作只能继续已冻结契约下的可抛弃 Spike；目标设备未登记前，CL-02/03 只允许环境准备和探索测量，不能继续增加 Web 编辑器功能或宣布任一 Claim 通过。
 
 ## 7. 本快照审计范围
 
