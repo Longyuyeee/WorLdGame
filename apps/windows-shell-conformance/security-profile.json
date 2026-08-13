@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 0,
+  "electron": { "contextIsolation": true, "sandbox": true, "nodeIntegration": false, "webSecurity": true, "devTools": false, "permissions": "deny-all", "navigation": "deny-all", "newWindows": "deny-all", "networkRequests": "deny-http-https", "bridge": ["WindowsHostV0.submitConformance"] },
+  "tauri": { "remoteContent": false, "navigation": "allow-tauri-scheme-or-exact-tauri.localhost-only", "shellPlugin": false, "filesystemPlugin": false, "processPlugin": false, "commands": ["submit_conformance"], "windowLabels": ["main"], "payloadLimitBytes": 2000000, "bridge": ["WindowsHostV0.submitConformance"] }
+}

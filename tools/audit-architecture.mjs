@@ -200,6 +200,33 @@ for (const path of vmCliFiles) {
   }
 }
 
+const windowsShellRoot = join(repoRoot, "apps", "windows-shell-conformance");
+const securityProfile = JSON.parse(await readFile(join(windowsShellRoot, "security-profile.json"), "utf8"));
+const electronMain = await readFile(join(windowsShellRoot, "electron", "main.ts"), "utf8");
+const electronPreload = await readFile(join(windowsShellRoot, "electron", "preload.ts"), "utf8");
+const rendererSource = await readFile(join(windowsShellRoot, "src", "main.ts"), "utf8");
+const tauriMain = await readFile(join(windowsShellRoot, "src-tauri", "src", "main.rs"), "utf8");
+for (const [setting, expected] of Object.entries({ contextIsolation: true, sandbox: true, nodeIntegration: false, webSecurity: true, devTools: false })) {
+  if (securityProfile.electron?.[setting] !== expected) violations.push(`Windows Electron security profile must set ${setting}=${expected}`);
+}
+for (const forbidden of ["shell.openExternal", "nodeIntegration: true", "sandbox: false", "contextIsolation: false", "webSecurity: false"]) {
+  if (electronMain.includes(forbidden)) violations.push(`Windows Electron host contains forbidden setting ${forbidden}`);
+}
+if (!electronMain.includes('urls: ["http://*/*", "https://*/*"]')) {
+  violations.push("Windows Electron host must deny shared-page HTTP and HTTPS requests");
+}
+for (const [path, source] of [["electron/preload.ts", electronPreload], ["src/main.ts", rendererSource]]) {
+  for (const dependency of ["node:fs", "node:path", "node:process", "electron/main"]) {
+    if (source.includes(dependency)) violations.push(`Windows shell ${path} imports forbidden privileged dependency ${dependency}`);
+  }
+}
+if (securityProfile.tauri?.commands?.join(",") !== "submit_conformance") {
+  violations.push("Windows Tauri host must expose only submit_conformance in this slice");
+}
+if (!tauriMain.includes('url.scheme() == "tauri"') || !tauriMain.includes('url.host_str() == Some("tauri.localhost")')) {
+  violations.push("Windows Tauri host must deny navigation outside the application scheme");
+}
+
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;
@@ -223,6 +250,8 @@ if (violations.length > 0) {
           "web editor does not bundle the Node filesystem adapter",
           "VM Web Worker conformance Harness depends only on the portable narrative VM and imports no shell or Node adapter",
           "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
+          "Windows Electron host keeps isolation and sandboxing enabled with a one-method preload bridge",
+          "Windows Tauri host exposes one payload-limited command and no privileged plugin",
           "story-core has no runtime third-party dependency"
         ]
       },
