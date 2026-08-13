@@ -127,7 +127,7 @@ Domain 层不能依赖浏览器、Electron、Capacitor 或具体 UI 框架。
 | 舞台渲染 | PixiJS WebGL/WebGPU + DOM UI | 2D 演出跨 WebView；DOM 更适合 CJK/无障碍 | WebGPU 不能作为首发唯一后端 |
 | 音频/视频 | Web Audio + HTML Media，平台桥补充 | 跨端一致、易于 Web 发布 | 后台音频、解码格式需逐平台处理 |
 | Windows 编辑器 | Electron 与 Tauri v2 候选，尚未选型 | 共用 Web UI，只通过版本化窄 Host 桥接文件、生命周期与更新 | 必须按 [CL-03](65-cl03-windows-shell-evidence-contract.md) 在 WIN-L 对照数据、安全、WAL 和更新回退硬门后形成 ADR |
-| 移动编辑器 | Capacitor 壳 + 同一 Web UI | 官方支持 iOS/Android/PWA 与原生插件 | 大文件、后台任务和键盘需实机验证 |
+| Android 编辑器 | Capacitor 与最小 Kotlin/AndroidX WebView 壳候选，尚未选型 | 共用 Web UI，只通过版本化窄 Host 桥接私有工作区、SAF 和生命周期 | 必须按 [CL-02](67-cl02-android-editor-shell-evidence-contract.md) 在 AND-L/AND-R 通过 IME、数据恢复、安全、PSS 与容量硬门后形成 ADR |
 | 浏览器编辑 | PWA + File System API/OPFS | 零安装、跨设备、离线 | Safari 文件 API 能力差异 |
 | Windows 玩家 | 轻量壳候选；Tauri/WebView2 仅为首个验证对象 | 与编辑器共享 Runtime 语义，不默认复用编辑器特权 | 最终由 CL-05 决定，并复用 CL-03 的 WebView2 与安全证据，不能用空壳体积提前选型 |
 | 移动玩家 | Capacitor Build Adapter | 移动生态与签名流程成熟 | iOS 仍必须走 Xcode/macOS |
@@ -137,6 +137,7 @@ Domain 层不能依赖浏览器、Electron、Capacitor 或具体 UI 框架。
 依据：
 
 - Windows 编辑器壳的同功能切片、安全边界、WebView2 分发变量、WIN-L 预算和停止条件见[《CL-03 Windows 编辑器壳选型证据契约》](65-cl03-windows-shell-evidence-contract.md)。
+- Android 编辑器壳的数据所有权、SAF、IME、进程死亡、WebView 安全与真机门见[《CL-02 Android 编辑壳可靠性证据契约》](67-cl02-android-editor-shell-evidence-contract.md)。
 
 - [Capacitor](https://capacitorjs.com/docs)以 Web 为中心并支持 iOS、Android 与 PWA。
 - [PixiJS](https://pixijs.download/dev/docs/rendering.html)提供 WebGL/WebGL2、WebGPU 和 Canvas 2D 渲染路径。
@@ -440,7 +441,7 @@ flowchart LR
 4. PixiJS + DOM 混合缩放、截图和输入；
 5. 保存/回滚跨 Web、Windows、Android 一致性；
 6. Electron 与 Tauri v2 的启动、内存、文件和自动更新比较；
-7. Capacitor 大工程导入/导出与后台上传；
+7. Capacitor/最小 Android WebView 壳的大工程导入/导出、进程死亡与持久任务恢复对照；
 8. Windows 本地 Web/Windows/Android 最小构建链；另行验证 Android 端直接生成 APK/AAB 的可行性；
 9. 插件 Worker 沙箱和未知命令往返保存；
 10. OPFS 配额、崩溃恢复和用户目录同步；

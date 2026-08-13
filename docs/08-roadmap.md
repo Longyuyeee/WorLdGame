@@ -119,7 +119,7 @@ D1 执行包见[《D1 发现与原型计划》](15-d1-discovery-and-prototype-pl
 - PixiJS + DOM；
 - 保存/回滚；
 - Electron/Tauri 对比；
-- Capacitor；
+- Capacitor/最小 Android WebView 壳对照，按 CL-02 取证后选型；
 - Windows 本地 Web/Windows/Android 最小构建；
 - Android 端直接生成 APK/AAB 的可行性验证，不通过时采用 Windows 本地构建基线；
 - OPFS 恢复；

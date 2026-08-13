@@ -66,7 +66,7 @@ WorLd Studio 的产品定位、现代多彩视觉方向、Windows/Android 完整
 | ID | 必须回答的问题 | 当前状态 | 通过证据 | 失败时的最低替代 |
 |---|---|---|---|---|
 | CL-01 | 目标设备与容量、内存、帧时间预算是什么 | 有条件通过 | [能力档位与预算已冻结](62-cl01-target-device-budget.md)；仍须登记低档 Windows、低档 Android、主流 Android 实体设备并跑基线 | 降低默认资源 Profile，不删除平台 |
-| CL-02 | Android 编辑壳、文件、IME、选区、撤销、后台恢复是否可靠 | 未开始 | 真机完成写作、导入、保存、杀进程恢复和内存压力矩阵 | 更换壳/编辑器组件；仍失败则阻断 M1 |
+| CL-02 | Android 编辑壳、文件、IME、选区、撤销、后台恢复是否可靠 | 未开始；[证据契约已冻结](67-cl02-android-editor-shell-evidence-contract.md) | AI-01–AI-10、AS-01–AS-19、AND-L/AND-R 原始数据及安全/数据/内存硬门 | 更换壳/编辑器组件；两候选受限复测后仍失败则阻断 M1，不降级为只读端 |
 | CL-03 | Electron 与 Tauri 哪个满足 Windows 文件、更新、内存、隔离和调试要求 | 未开始；[证据契约已冻结](65-cl03-windows-shell-evidence-contract.md) | WS-01–WS-18、WIN-L 原始数据、安全/数据/更新硬门与 ADR | 只在硬门后评分；两者仍失败则阻断 M1，不降低 Windows 完整编辑目标 |
 | CL-04 | Narrative VM 能否确定性回滚、前进、快进、取消异步 Effect 和跨 Barrier 重放 | 未开始；[证据契约已冻结](64-cl04-narrative-vm-evidence-contract.md) | VM-01–VM-15、10k 生成序列、三宿主剧情 Hash 0 差异 | 缩小 Effect 集或增加显式不可逆 Barrier，不伪造回滚 |
 | CL-05 | Web/Windows/Android 最小玩家和 Windows 本地构建链能否贯通 | 未开始 | 三端可安装/运行产物、相同固定路线 State Hash、Manifest 和失败日志 | 替换壳或工具链；任一 M1 平台缺失则阻断 M1 |

@@ -4,6 +4,8 @@
 
 > Windows 编辑器壳不得以空白窗口、开发机体感或框架默认配置过门；同功能切片、目标机预算、安全 Profile、WAL/更新故障注入和 ADR 规则见[《CL-03 Windows 编辑器壳选型证据契约》](65-cl03-windows-shell-evidence-contract.md)。
 
+> Android 编辑器壳不得以浏览器窄屏、Emulator 或框架默认插件过门；真机 IME/选区、私有工作区/SAF、进程死亡、WebView 桥接、PSS 和停止条件见[《CL-02 Android 编辑壳可靠性证据契约》](67-cl02-android-editor-shell-evidence-contract.md)。
+
 ## 1. 质量目标
 
 视觉小说编辑器最严重的问题不是单次崩溃，而是：
