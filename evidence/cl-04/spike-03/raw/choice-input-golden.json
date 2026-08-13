@@ -1,0 +1,20 @@
+{
+  "sourceRevision": "d57f1f701d628dcf8d41fe1ee0849103a3f5db07",
+  "executionId": "execution.choice.golden",
+  "choiceId": "choice.route",
+  "requestId": "request.24bd2dbc9afcf8579b745e7012f88cc6bbc77eb73e770a7ed008e24afec222e5",
+  "logicalSequence": 0,
+  "expectedRevision": 1,
+  "selectedOptionId": "left",
+  "stateHashes": [
+    "a572d02813a7987312a603185652bd66cf2141fb8bd9877452926aec8ef1a28c",
+    "8d2080ca2f583e9ba32a09c34828fa4344cad163b578a0e910417559ee4a1381",
+    "9947358b457e8c587429707ec71fe05074bfd60f991442fb4f35753c1df1ffdd",
+    "f9257c51365dba147a1f86dfb5bb6a6cc4ad59448380fe73a1d6808974b2ac4d",
+    "51fea99e707da11b0372f1175128ec25c9f09bd05a208027307ec71b006e912e",
+    "8d1453291608cbb765c0537d5c1fd28b3351b523748f26ade8f4163a24d68328"
+  ],
+  "finalVariables": {"route": "left"},
+  "idempotentReplay": "same inputId and payload returned the identical State object",
+  "recovery": "canonical waiting State accepted the same matching input"
+}

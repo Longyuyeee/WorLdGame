@@ -40,7 +40,7 @@ const vm0203 = program([
 ]);
 
 function run(target: ProgramV0, seed: number, restoredAtRevision?: number) {
-  let state = createInitialStateV0(target, seed);
+  let state = createInitialStateV0(target, { executionId: "execution.vm0203", prngSeed: seed });
   const hashes = [stateHashV0(state)];
   const waits: Array<NonNullable<ReturnType<typeof transitionV0>["wait"]>> = [];
   for (let count = 0; count < 32 && state.terminal.kind === "running"; count += 1) {
@@ -73,7 +73,7 @@ describe("CL-04 narrative VM kernel spike 02", () => {
       { ip: 50, opcode: "set", operands: { variableId: "nested", value: true }, sourceStatementId: "stmt.set", ...metadata },
       { ip: 60, opcode: "return", operands: {}, sourceStatementId: "stmt.return.inner", ...metadata }
     ]);
-    let state = createInitialStateV0(nested);
+    let state = createInitialStateV0(nested, { executionId: "execution.vm02.nested" });
     state = transitionV0(nested, state).nextState;
     expect(state.callStack).toEqual([10]);
     state = transitionV0(nested, state).nextState;
@@ -95,7 +95,7 @@ describe("CL-04 narrative VM kernel spike 02", () => {
       { ip: 0, opcode: "call", operands: { targetIp: 0 }, sourceStatementId: "stmt.recursive", ...metadata },
       { ip: 10, opcode: "end", operands: { endingId: "ending.unreachable" }, sourceStatementId: "stmt.end", stepBoundary: true, effectClass: "none", stopPoint: true }
     ]);
-    let state = createInitialStateV0(recursive);
+    let state = createInitialStateV0(recursive, { executionId: "execution.vm02.recursive" });
     for (let count = 0; count < MAX_CALL_STACK_DEPTH_V0; count += 1) {
       state = transitionV0(recursive, state).nextState;
     }
@@ -111,7 +111,7 @@ describe("CL-04 narrative VM kernel spike 02", () => {
     const target = program([
       { ip: 0, opcode: "return", operands: {}, sourceStatementId: "stmt.return", ...metadata }
     ]);
-    const state = createInitialStateV0(target);
+    const state = createInitialStateV0(target, { executionId: "execution.vm02.return" });
     const result = transitionV0(target, state);
     expect(result.nextState).toBe(state);
     expect(result.diagnostics[0]?.code).toBe("VM_CALL_STACK_UNDERFLOW");
@@ -119,7 +119,7 @@ describe("CL-04 narrative VM kernel spike 02", () => {
 
   it("rejects restored states whose call stack exceeds the VM-02 limit", () => {
     const oversized = {
-      ...createInitialStateV0(vm0203),
+      ...createInitialStateV0(vm0203, { executionId: "execution.vm0203" }),
       callStack: Array.from({ length: MAX_CALL_STACK_DEPTH_V0 + 1 }, () => 10)
     };
     const result = transitionV0(vm0203, oversized);
@@ -134,13 +134,13 @@ describe("CL-04 narrative VM kernel spike 02", () => {
     expect(result.state.logicalClock).toBe(120);
     expect(result.waits).toEqual([{ durationTicks: 120, resumeAtTick: 120 }]);
     expect(result.hashes).toEqual([
-      "d07ba8cc09dbd8025dbc54065eab9048baf0a63d2ec0805004084f67f4ed76b5",
-      "f904f2e719dd37f5423fddbaf3f15136f71ac4352d8f0dd91e6b26f1cfc7442c",
-      "6031f25ed71efcac72c47e065e0d46de4c229b21b8fc77af1b3bd927efca103c",
-      "10a58ad8583039f436a5dd22d5ab902ae0e6b3d8fece4247fcd06d576665348b",
-      "4f4d5f74decb77333ba63a26bfadad51c12ef3cd419bc1c902022065468e0fb3",
-      "8cfcf422e4cd189edf9b34eab49d0fbbca2a854b68c2607e486aa5345ff3c90e",
-      "4466b0f9ec1f33dd4bd90811ec074bcf7cbc2c1b9c689ebb42bbbb0de0383090"
+      "f88d7edbafc5c3bd89d1e5253ebb76e35b8c96344242dbec5a3b0f5025812b88",
+      "01032c70b907f18eebefa1d3fc841c463ac48c6e4f0fb56c9ab696ce4351bea8",
+      "d531b7cf0278f784a8c92770e1b5349783ae99b9ae80820a8c6d2be828945094",
+      "cb07c5b42f18913da5f3149d23144ff1af1a1d97413dceade406e069b4d82a4e",
+      "cd050fdba5696c5056b2a5c8dd02ffa83e01aca908c9a1b23e25cafc3c933b0d",
+      "bf7d32d171a5ed38f5f526115209831871ae3ac4955ef2ab214ba94e234ca942",
+      "a4021799a6cd81895c295783275e37ef4d7a84d5fc5b0f8e94005b11f21516f1"
     ]);
   });
 
@@ -152,7 +152,7 @@ describe("CL-04 narrative VM kernel spike 02", () => {
   });
 
   it("rejects zero seeds, invalid random ranges, waits, and unknown return operands", () => {
-    expect(() => createInitialStateV0(vm0203, 0)).toThrow("non-zero unsigned 32-bit");
+    expect(() => createInitialStateV0(vm0203, { executionId: "execution.vm0203", prngSeed: 0 })).toThrow("non-zero unsigned 32-bit");
     const malformed = structuredClone(vm0203) as unknown as { instructions: Array<Record<string, unknown>> };
     (malformed.instructions[2] as { operands: { min: number; max: number } }).operands = { min: 4, max: 3 };
     (malformed.instructions[3] as { operands: { durationTicks: number } }).operands.durationTicks = 0;
@@ -165,13 +165,13 @@ describe("CL-04 narrative VM kernel spike 02", () => {
   });
 
   it("fails closed when logical ticks or PRNG draw count would overflow", () => {
-    const waitState = { ...createInitialStateV0(vm0203), ip: 30, logicalClock: Number.MAX_SAFE_INTEGER - 100 };
+    const waitState = { ...createInitialStateV0(vm0203, { executionId: "execution.vm0203" }), ip: 30, logicalClock: Number.MAX_SAFE_INTEGER - 100 };
     const waitResult = transitionV0(vm0203, waitState);
     expect(waitResult.nextState).toBe(waitState);
     expect(waitResult.diagnostics[0]?.code).toBe("VM_INTEGER_OVERFLOW");
 
     const randomState = {
-      ...createInitialStateV0(vm0203),
+      ...createInitialStateV0(vm0203, { executionId: "execution.vm0203" }),
       ip: 20,
       prng: { algorithm: "xorshift32-v0" as const, state: 1, draws: Number.MAX_SAFE_INTEGER }
     };

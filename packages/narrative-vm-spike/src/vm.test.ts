@@ -68,7 +68,7 @@ const vm01 = program([
 ]);
 
 function runToEnd(target: ProgramV0): { readonly state: RuntimeStateV0; readonly hashes: readonly string[] } {
-  let state = createInitialStateV0(target);
+  let state = createInitialStateV0(target, { executionId: "execution.vm01" });
   const hashes = [stateHashV0(state)];
   for (let count = 0; count < 32 && state.terminal.kind === "running"; count += 1) {
     const result = transitionV0(target, state);
@@ -105,17 +105,17 @@ describe("CL-04 narrative VM kernel spike 01", () => {
     expect(first.state.terminal).toEqual({ kind: "ended", endingId: "ending.good" });
     expect(first.hashes).toHaveLength(6);
     expect(first.hashes).toEqual([
-      "1b41e727c29cd533de36bc0f83fa02d3661b3b723f70b5ba010be904cc74275a",
-      "83a28830c9160691cabab345ed4a7893c114fe2ce5d35d28fd62eb7ab384e1b8",
-      "cfa7a9b727928eb8e3a3f01c65e1fcc66bea92c4783eaa9238cc0fe8e3862864",
-      "0e176e92a42aa19eb3b07cb7c694b8cc15f25286e344f04b89d417a34cbd2df0",
-      "68075ee2f92af2cf4a9b57809cf5c0b0f3e06a758ec94a357be92b911ac41c9a",
-      "1f55885b9389fcf0adb8acb43bc76b15d78cdc3a0833e11a7a21dbcb847474ba"
+      "bd5f28462153c160516517f74300c58ce2c87ee4bd8c4a646498816098f1c031",
+      "1715a5a052b0d0b71d2a8e7c119daaccc9f53779623e72153edc9f569ca93f4d",
+      "c25dfae8885d7e54849c8486ae65b3c62b635359591d6fa33b281220a4a01101",
+      "280d81d7e5f80c66755a64bb80c8222b60907e05e1a927c0d93905111bec159b",
+      "a9b579cc79dbfa25c8e50cf9d56f94276dec2f8252a5cd87da865b404abff8f8",
+      "0defcdb3d32b378cadb1967ae42383f559dbd1be1802fda539c68c73f387482b"
     ]);
   });
 
   it("keeps malformed or extended Runtime State fail-closed and unchanged", () => {
-    const initial = createInitialStateV0(vm01);
+    const initial = createInitialStateV0(vm01, { executionId: "execution.vm01" });
     const malformed = {
       ...initial,
       variables: { score: 1.5 },
@@ -133,7 +133,7 @@ describe("CL-04 narrative VM kernel spike 01", () => {
   });
 
   it("emits a checkpoint bound to the exact post-transition state hash", () => {
-    let state = createInitialStateV0(vm01);
+    let state = createInitialStateV0(vm01, { executionId: "execution.vm01" });
     state = transitionV0(vm01, state).nextState;
     state = transitionV0(vm01, state).nextState;
     state = transitionV0(vm01, state).nextState;
@@ -150,7 +150,7 @@ describe("CL-04 narrative VM kernel spike 01", () => {
       instruction({ ip: 0, opcode: "add", operands: { variableId: "missing", value: 1 }, sourceStatementId: "stmt.add", ...metadata }),
       instruction({ ip: 1, opcode: "end", operands: { endingId: "ending.end" }, sourceStatementId: "stmt.end", stepBoundary: true, effectClass: "none", stopPoint: true })
     ]);
-    const state = createInitialStateV0(target);
+    const state = createInitialStateV0(target, { executionId: "execution.vm01" });
     const before = stateHashV0(state);
     const result = transitionV0(target, state);
     expect(result.nextState).toBe(state);
@@ -173,7 +173,10 @@ describe("CL-04 narrative VM kernel spike 01", () => {
       "VM_INVALID_PROGRAM",
       "VM_INVALID_PROGRAM"
     ]);
-    expect(() => createInitialStateV0(malformed as unknown as ProgramV0)).toThrow(VmProgramValidationError);
+    expect(() => createInitialStateV0(
+      malformed as unknown as ProgramV0,
+      { executionId: "execution.vm01" }
+    )).toThrow(VmProgramValidationError);
 
     const nullCondition = structuredClone(vm01) as unknown as { instructions: Array<Record<string, unknown>> };
     (nullCondition.instructions[2] as { operands: { condition: null } }).operands.condition = null;
@@ -185,7 +188,7 @@ describe("CL-04 narrative VM kernel spike 01", () => {
     const fallthrough = program([
       instruction({ ip: 0, opcode: "set", operands: { variableId: "x", value: 1 }, sourceStatementId: "stmt.set", ...metadata })
     ]);
-    const blocked = transitionV0(fallthrough, createInitialStateV0(fallthrough));
+    const blocked = transitionV0(fallthrough, createInitialStateV0(fallthrough, { executionId: "execution.vm01" }));
     expect(blocked.diagnostics[0]?.code).toBe("VM_FALLTHROUGH_PAST_END");
     expect(blocked.nextState.stateRevision).toBe(0);
 
