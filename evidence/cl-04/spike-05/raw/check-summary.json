@@ -1,0 +1,28 @@
+{
+  "sourceRevision": "40b575a794cdf24a04e46dea13938f0a95952630",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 54,
+    "tests": 373,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 5,
+    "tests": 50,
+    "failed": 0,
+    "spike05Tests": 11,
+    "fixedStateHashes": 4,
+    "fixedEffectIntentHashes": 2
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 44,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "note": "Observed on one Node development host with controlled scalar Effect descriptors. This is not a real platform Scheduler, formal Save, cross-host, or production safety result."
+}

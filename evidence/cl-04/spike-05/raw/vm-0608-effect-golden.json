@@ -1,0 +1,20 @@
+{
+  "sourceRevision": "40b575a794cdf24a04e46dea13938f0a95952630",
+  "opcodeRegistryDigest": "adae10dd7002a520ed48a0b90c16e817d5b6273bb45027ea985e8070ba8ab342",
+  "stateHashes": {
+    "awaitedInitial": "a4dba01529ada47dc4bcc22f9d5b3d84055753f5276ffb03a4e21bf71563ba85",
+    "awaitedIssued": "27bbce3bcc31b459da99eac6094bf98a496f527446df11a7032fb321cdcb2808",
+    "awaitedCompleted": "1a2f50cf42093e26241636f82288e2e2b46f6193ef2546eb66501b80c0cd08b5",
+    "reversibleDetachedIssued": "3c5f10116bb31e5974e3ffb303a3f4ca0b7d09038097773766c654eeda27d9f4"
+  },
+  "effectIntentHashes": {
+    "pureAwaited": "3fb83d631209467b53f8e1abcab94702b36086aeb89ac8bf6b48d9061a3b4917",
+    "reversibleDetached": "4b88eb97b1134f7b7fb525142fc399f23b2aeeb272471477b4fe8ecb8566ff69"
+  },
+  "semantics": {
+    "completion": "strict execution/effect/revision/sequence/replayKey match",
+    "cancellation": "strict execution/effect/revision/sequence/scope match plus Scheduler cancellation directives",
+    "reversibleBack": "deterministic compensation intent",
+    "barrierBack": "VM_BARRIER_BLOCKED with descriptor and reason"
+  }
+}
