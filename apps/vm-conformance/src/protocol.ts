@@ -1,9 +1,9 @@
-import type { ConformanceResultV0, GeneratedCorpusSummaryV0, Spike11ConformanceResultV0 } from "@world-studio/narrative-vm-spike";
+import type { ConformanceResultV0, GeneratedCorpusSummaryV0, Spike11ConformanceResultV0, Spike13ConformanceResultV0 } from "@world-studio/narrative-vm-spike";
 
 export interface WorkerRequestV0 {
   readonly protocolVersion: 0;
   readonly kind: "runHostConformance";
-  readonly requestId: "request.spike12.web-worker";
+  readonly requestId: "request.spike13.web-worker";
 }
 
 export interface WorkerResponseV0 {
@@ -15,4 +15,5 @@ export interface WorkerResponseV0 {
   readonly spike11: Spike11ConformanceResultV0;
   readonly spike12: GeneratedCorpusSummaryV0;
   readonly spike12ElapsedMilliseconds: number;
+  readonly spike13: Spike13ConformanceResultV0;
 }

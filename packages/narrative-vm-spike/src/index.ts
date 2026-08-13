@@ -1,5 +1,6 @@
 export * from "./canonical";
 export * from "./conformance";
+export * from "./conformance-spike13";
 export * from "./effect";
 export * from "./generated-corpus";
 export * from "./hash";

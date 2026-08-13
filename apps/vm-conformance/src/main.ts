@@ -1,5 +1,5 @@
 import type { WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0 } from "./golden";
+import { SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
 
 const status = document.querySelector<HTMLParagraphElement>("#status");
 const output = document.querySelector<HTMLPreElement>("#result");
@@ -8,12 +8,12 @@ status.dataset.userAgent = navigator.userAgent;
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), {
   type: "module",
-  name: "world-vm-conformance-spike12"
+  name: "world-vm-conformance-spike13"
 });
 const request: WorkerRequestV0 = {
   protocolVersion: 0,
   kind: "runHostConformance",
-  requestId: "request.spike12.web-worker"
+  requestId: "request.spike13.web-worker"
 };
 
 const deadline = window.setTimeout(() => {
@@ -40,14 +40,17 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
     response.spike11.recordDigests.length === SPIKE11_NODE_GOLDEN_V0.recordDigests.length &&
     response.spike11.recordDigests.every((digest, index) => digest === SPIKE11_NODE_GOLDEN_V0.recordDigests[index]);
   const matchesSpike12 = JSON.stringify(response.spike12) === JSON.stringify(SPIKE12_NODE_GOLDEN_V0);
-  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12) {
+  const matchesSpike13 = response.spike13.suiteDigest === SPIKE13_NODE_GOLDEN_V0.suiteDigest &&
+    response.spike13.records.length === SPIKE13_NODE_GOLDEN_V0.recordCount &&
+    response.spike13.recordDigests.length === SPIKE13_NODE_GOLDEN_V0.recordCount;
+  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12 || !matchesSpike13) {
     status.dataset.status = "failed";
     status.textContent = "FAIL：Web Worker 结果与 Node Golden 不一致";
     output.textContent = JSON.stringify(response, null, 2);
     return;
   }
   status.dataset.status = "passed";
-  status.textContent = "PASS：真实 Web Worker 的 28 条宿主记录与 10,000 种子 / 20,000 次重放均和 Node Golden 零差异";
+  status.textContent = "PASS：真实 Web Worker 的 50 条宿主记录与 10,000 种子 / 20,000 次重放均和 Node Golden 零差异";
   output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 
