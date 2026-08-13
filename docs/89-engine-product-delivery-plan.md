@@ -150,6 +150,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N11 Project Service 与事务命令
 
+> 状态：验收中。统一 Project Service、全实体事务命令、ChangeSet、Revision 冲突、批处理、Undo/Redo、提交版本保存门和 SourceSession 适配已实现；等待完整本地门与 Draft PR Windows CI。证据见[《N11 Project Service 与事务命令审计》](94-n11-project-service.md)。
+
 - **Goal**：所有视图通过同一命令修改项目，不直接写文件或维护第二份数据。
 - **Implementation**：
   1. 定义 Create/Rename/Delete/Move Chapter/Scene/Character/Variable/Asset 命令；
