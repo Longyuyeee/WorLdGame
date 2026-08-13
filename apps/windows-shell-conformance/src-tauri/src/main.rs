@@ -1,5 +1,9 @@
+mod storage;
+
 use serde_json::{json, Value};
-use tauri::{AppHandle, WebviewWindow};
+use std::io::Write;
+use storage::{ProjectWriterLease, StorageHost};
+use tauri::{State, WebviewWindow};
 
 fn pointer_eq(payload: &Value, pointer: &str, expected: &Value) -> bool {
     payload
@@ -8,7 +12,7 @@ fn pointer_eq(payload: &Value, pointer: &str, expected: &Value) -> bool {
 }
 
 fn payload_matches(payload: &Value) -> bool {
-    pointer_eq(payload, "/schemaVersion", &json!(0))
+    pointer_eq(payload, "/schemaVersion", &json!(1))
         && pointer_eq(
             payload,
             "/observation/bundleId",
@@ -83,40 +87,158 @@ fn payload_matches(payload: &Value) -> bool {
         && pointer_eq(payload, "/report/exitCode", &json!(0))
 }
 
+fn storage_matches(payload: &Value) -> bool {
+    let Some(storage) = payload.get("storage") else {
+        return false;
+    };
+    let Some(result_digest) = storage.get("resultDigest").and_then(Value::as_str) else {
+        return false;
+    };
+    pointer_eq(storage, "/schemaVersion", &json!(0))
+        && pointer_eq(storage, "/walBoundaryCount", &json!(7))
+        && pointer_eq(storage, "/recoveryRuns", &json!(7))
+        && pointer_eq(storage, "/oldSnapshotRecoveries", &json!(4))
+        && pointer_eq(storage, "/newSnapshotRecoveries", &json!(3))
+        && pointer_eq(storage, "/corruptRecoveries", &json!(0))
+        && pointer_eq(storage, "/backupRevisions", &json!([1]))
+        && pointer_eq(storage, "/secondOwnerHeld", &json!(true))
+        && pointer_eq(storage, "/staleWriterRejected", &json!(true))
+        && pointer_eq(storage, "/fencingTokenAdvanced", &json!(true))
+        && pointer_eq(storage, "/traversalRejected", &json!(true))
+        && result_digest == "69ffefe97f9c90c52d2e5795937fc5c5258e7cc281b05c1f9264f3ee1a40d73c"
+}
+
+fn assert_main_window(window: &WebviewWindow) -> Result<(), String> {
+    if window.label() != "main" {
+        return Err("INVALID_SENDER".into());
+    }
+    Ok(())
+}
+
 #[tauri::command]
-fn submit_conformance(app: AppHandle, window: WebviewWindow, payload: Value) -> Result<(), String> {
+fn project_read(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    path: String,
+) -> Result<Option<String>, String> {
+    assert_main_window(&window)?;
+    state.read(&path)
+}
+
+#[tauri::command]
+fn project_write(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    path: String,
+    content: String,
+    lease: ProjectWriterLease,
+) -> Result<(), String> {
+    assert_main_window(&window)?;
+    state.write(&path, &content, &lease)
+}
+
+#[tauri::command]
+fn project_replace(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    source_path: String,
+    target_path: String,
+    lease: ProjectWriterLease,
+) -> Result<(), String> {
+    assert_main_window(&window)?;
+    state.replace(&source_path, &target_path, &lease)
+}
+
+#[tauri::command]
+fn project_remove(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    path: String,
+    lease: ProjectWriterLease,
+) -> Result<(), String> {
+    assert_main_window(&window)?;
+    state.remove(&path, &lease)
+}
+
+#[tauri::command]
+fn project_reset(window: WebviewWindow, state: State<StorageHost>) -> Result<(), String> {
+    assert_main_window(&window)?;
+    state.reset()
+}
+
+#[tauri::command]
+fn lease_acquire(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    owner_id: String,
+    ttl_ms: u64,
+) -> Result<Value, String> {
+    assert_main_window(&window)?;
+    state.acquire(&owner_id, ttl_ms)
+}
+
+#[tauri::command]
+fn lease_renew(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    lease: ProjectWriterLease,
+    ttl_ms: u64,
+) -> Result<Value, String> {
+    assert_main_window(&window)?;
+    state.renew(&lease, ttl_ms)
+}
+
+#[tauri::command]
+fn lease_release(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    lease: ProjectWriterLease,
+) -> Result<bool, String> {
+    assert_main_window(&window)?;
+    state.release(&lease)
+}
+
+#[tauri::command]
+fn submit_evidence(
+    window: WebviewWindow,
+    state: State<StorageHost>,
+    payload: Value,
+) -> Result<(), String> {
     if window.label() != "main" {
         println!(
             "{}",
             json!({"schemaVersion":0,"status":"invalid-sender","exitCode":64})
         );
-        app.exit(64);
-        return Ok(());
+        let _ = std::io::stdout().flush();
+        std::process::exit(64);
     }
     let encoded = serde_json::to_vec(&payload).map_err(|_| "invalid payload")?;
     if encoded.len() > 2_000_000
         || payload.get("observation").is_none()
         || payload.get("report").is_none()
+        || payload.get("storage").is_none()
     {
         println!(
             "{}",
             json!({"schemaVersion":0,"status":"invalid-payload","exitCode":64})
         );
-        app.exit(64);
-        return Ok(());
+        let _ = state.cleanup();
+        let _ = std::io::stdout().flush();
+        std::process::exit(64);
     }
-    let valid = payload_matches(&payload);
+    let valid = payload_matches(&payload) && storage_matches(&payload);
     let report = if valid {
-        json!({"schemaVersion":0,"hostId":"host.windows.tauri-webview2","status":"match","exitCode":0})
+        json!({"schemaVersion":1,"hostId":"host.windows.tauri-webview2","status":"match","exitCode":0})
     } else {
-        json!({"schemaVersion":0,"hostId":"host.windows.tauri-webview2","status":"difference","exitCode":2})
+        json!({"schemaVersion":1,"hostId":"host.windows.tauri-webview2","status":"difference","exitCode":2})
     };
     println!(
         "{}",
-        json!({"observation": payload.get("observation"), "report": report})
+        json!({"observation": payload.get("observation"), "storage": payload.get("storage"), "report": report})
     );
-    app.exit(if valid { 0 } else { 2 });
-    Ok(())
+    let _ = state.cleanup();
+    let _ = std::io::stdout().flush();
+    std::process::exit(if valid { 0 } else { 2 });
 }
 
 #[cfg(test)]
@@ -125,7 +247,7 @@ mod tests {
 
     fn valid_payload() -> Value {
         json!({
-            "schemaVersion": 0,
+            "schemaVersion": 1,
             "observation": {
                 "bundleId": "bundle.cl04.spike14.v0",
                 "hostId": "host.windows.tauri-webview2",
@@ -157,7 +279,7 @@ mod tests {
 
     #[test]
     fn rejects_missing_observation() {
-        assert!(!payload_matches(&json!({"schemaVersion": 0})));
+        assert!(!payload_matches(&json!({"schemaVersion": 1})));
     }
 
     #[test]
@@ -169,7 +291,25 @@ mod tests {
 }
 
 fn main() {
+    if std::env::args().any(|argument| argument == "--inject-invalid-payload") {
+        println!(
+            "{}",
+            json!({"schemaVersion":1,"status":"invalid-payload","exitCode":64})
+        );
+        let _ = std::io::stdout().flush();
+        std::process::exit(64);
+    }
+    if std::env::args().any(|argument| argument == "--inject-difference") {
+        println!(
+            "{}",
+            json!({"schemaVersion":1,"status":"difference","exitCode":2})
+        );
+        let _ = std::io::stdout().flush();
+        std::process::exit(2);
+    }
+    let storage = StorageHost::create().expect("create Tauri storage host");
     tauri::Builder::default()
+        .manage(storage)
         .plugin(
             tauri::plugin::Builder::<tauri::Wry>::new("navigation-guard")
                 .on_navigation(|_webview, url| {
@@ -177,7 +317,17 @@ fn main() {
                 })
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![submit_conformance])
+        .invoke_handler(tauri::generate_handler![
+            project_read,
+            project_write,
+            project_replace,
+            project_remove,
+            project_reset,
+            lease_acquire,
+            lease_renew,
+            lease_release,
+            submit_evidence
+        ])
         .run(tauri::generate_context!())
         .expect("Tauri conformance host failed");
 }
