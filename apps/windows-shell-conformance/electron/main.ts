@@ -40,6 +40,29 @@ app.whenReady().then(async () => {
   storage = grantedRoot === undefined
     ? await ElectronStorageHost.create()
     : await ElectronStorageHost.createGranted(grantedRoot);
+  const auditOwner = process.argv.find((argument) => argument.startsWith("--audit-lock-acquire="))?.slice("--audit-lock-acquire=".length);
+  if (grantedRoot !== undefined && auditOwner !== undefined) {
+    const ttl = Number(process.argv.find((argument) => argument.startsWith("--audit-lock-ttl="))?.slice("--audit-lock-ttl=".length) ?? "1500");
+    const result = await storage.acquire(auditOwner, ttl);
+    if (process.argv.includes("--audit-release") && result.status === "acquired") {
+      const released = await storage.release(result.lease);
+      await finish({ schemaVersion: 1, status: released ? "released" : "release-failed", lease: result.lease }, released ? 0 : 2);
+      return;
+    }
+    if (process.argv.includes("--audit-hold") && result.status === "acquired") {
+      process.stdout.write(`${JSON.stringify({ schemaVersion: 1, ...result })}\n`);
+      return;
+    }
+    await finish({ schemaVersion: 1, ...result }, 0);
+    return;
+  }
+  const auditWrite = process.argv.find((argument) => argument.startsWith("--audit-lock-write="))?.slice("--audit-lock-write=".length);
+  if (grantedRoot !== undefined && auditWrite !== undefined) {
+    const lease = JSON.parse(Buffer.from(auditWrite, "base64url").toString("utf8"));
+    const rejected = await storage.write("audit-lock.txt", "write", lease).then(() => false, (error: unknown) => String(error).includes("LEASE_LOST"));
+    await finish({ schemaVersion: 1, status: rejected ? "stale-rejected" : "write-accepted", exitCode: rejected ? 0 : 2 }, rejected ? 0 : 2);
+    return;
+  }
   if (grantedRoot !== undefined && process.argv.includes("--audit-grant-only")) {
     await finish({ schemaVersion: 1, status: "grant-accepted", exitCode: 0 }, 0);
     return;

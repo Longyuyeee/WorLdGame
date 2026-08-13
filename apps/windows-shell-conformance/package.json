@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/windows-shell-conformance",
-  "version": "0.0.0-cl03-spike.3",
+  "version": "0.0.0-cl03-spike.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,8 @@
     "install:electron-runtime": "install-electron",
     "run:electron": "electron dist/electron/main.mjs",
     "build:tauri": "npm run build:web && tauri build --no-bundle",
-    "audit:grant": "node ../../tools/run-cl03-windows-grant-audit.mjs"
+    "audit:grant": "node ../../tools/run-cl03-windows-grant-audit.mjs",
+    "audit:lock": "node ../../tools/run-cl03-windows-lock-audit.mjs"
   },
   "dependencies": {
     "@world-studio/project-persistence": "0.0.0-s0.35",
