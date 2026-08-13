@@ -27,7 +27,7 @@
 | 质量与审计 | 已定义风险等级、测试矩阵、发布门、供应链证据、Claim/Evidence 登记和纠偏纪律 | 治理有效，生产证据仍缺失 |
 | 目标设备预算 | 已冻结 WIN-L、AND-L、AND-R 与 Web 的启动、内存、容量和帧时间预算 | CL-01 有条件通过；实体设备未登记 |
 | Narrative VM 契约 | 已冻结 State、Step、Effect、Save、History、Barrier、State Hash 与 VM-01–VM-15 | CL-04 进行中；Spike 01–14 完成 10k、Node/Web Worker 对照及平台可执行 Bundle 协议，尚未通过 |
-| Windows 壳契约 | Spike 01–04 已完成双壳 VM/WAL、grant/junction 和持久租约；Spike 05 完成原子目录 CAS 与双壳 48 PID 同步竞争探索 | CL-03 仍未选型；kill-during-CAS、handle-relative TOCTOU、系统 picker、WAL 强杀、更新、签名与 WIN-L 尚未证明 |
+| Windows 壳契约 | Spike 01–05 已完成双壳 VM/WAL、grant/junction、持久租约与同步 CAS；Spike 06 完成带 PID/nonce marker 的活 owner 保护和 CAS holder 强杀恢复探索 | CL-03 仍未选型；PID 创建时间绑定、时钟/掉电、handle-relative TOCTOU、系统 picker、WAL 强杀、更新、签名与 WIN-L 尚未证明 |
 
 ## 3. 已实现的 S0.41 Web 证据原型
 
@@ -77,8 +77,8 @@
 | 可移植/适配包 | 5（新增可抛弃 narrative-vm-spike；其余为 story-core、story-language、project-persistence、project-persistence-node） |
 | TypeScript/TSX/MJS 源文件 | 166 |
 | 测试文件 | 65（含独立性能审计文件） |
-| 全仓常规测试 | 63 files / 420 tests；当前 419 passed / 1 timed out（既有 VM-14 10k 在 4 workers 下超过 5 秒；`13fb28b`） |
-| `docs/*.md` | 88（新增 CL-03 Windows 壳探索 Spike 05 审计） |
+| 全仓常规测试 | 63 files / 420 tests；当前 418 passed / 2 timed out（既有 VM-14 10k 与 corpus 超时；隔离复跑 corpus 通过、VM-14 仍超时；`eadd13a`） |
+| `docs/*.md` | 89（新增 CL-03 Windows 壳探索 Spike 06 审计） |
 
 数量只用于仓库盘点。正式进度只由需求映射、目标平台原始证据、ADR 和阶段门决定。
 
@@ -86,7 +86,7 @@
 
 | 能力 | 当前事实 | 进入 M1 前的必要结果 |
 |---|---|---|
-| Windows 完整编辑器 | Electron/Tauri 已完成同源 VM、app-private WAL、原生 grant/junction、持久租约与原子目录 CAS 探索；尚无最终系统 picker、CAS 强杀恢复且未选型 | 两个候选完成 handle-relative 系统工程、可恢复原生锁/CAS、真实 WAL 强杀恢复及安装更新，在 WIN-L 通过 CL-03 并形成 ADR |
+| Windows 完整编辑器 | Electron/Tauri 已完成同源 VM、app-private WAL、原生 grant/junction、持久租约、原子 CAS 与 holder 强杀恢复探索；尚无最终系统 picker、PID 创建时间绑定且未选型 | 两个候选完成 handle-relative 系统工程、PID 重用安全的原生锁/CAS、真实 WAL 强杀恢复及安装更新，在 WIN-L 通过 CL-03 并形成 ADR |
 | Android 完整编辑器 | 没有可安装 Android 编辑壳；浏览器窄屏不计 | AND-L/AND-R 真机完成 IME、文件、后台恢复、内存与核心任务 |
 | Narrative VM | Spike 01–14 已实现 VM-01–15、10k、Node/Web Worker 对照及内容寻址 Bundle/差异报告/退出码；真实存储、迁移、Windows/Android 壳仍未实现 | VM-01–VM-15、10k 生成序列、三宿主 State/Effect/Save Hash 零差异 |
 | Web/Windows/Android 玩家 | 没有三端最小可安装/运行产物 | 同一固定路线、Manifest、存档和 State Hash 贯通 |
@@ -105,7 +105,7 @@
 |---|---|---|---|
 | CL-01 设备与预算 | 有条件通过 | 预算与降级原则已冻结 | 登记 WIN-L、AND-L、AND-R 并跑基础基线 |
 | CL-02 Android 编辑壳 | 未开始；契约已冻结 | 候选、私有工作区/SAF、AI-01–AI-10、AS-01–AS-19 与真机硬门已冻结 | 安装工具链，登记 AND-L/AND-R 并准备两个可抛弃 Spike |
-| CL-03 Windows 编辑壳 | 进行中；探索 Spike 01–05 部分通过 | 双壳 VM/WAL/grant/junction 成立；双壳各 3 轮 × 8 PID 同步 acquire 均唯一获胜，旧 token 拒绝保持成立 | 关闭 kill-during-CAS、时钟与锁损坏，再做 WAL 七阶段强杀、安装更新和 WIN-L；暂不选型 |
+| CL-03 Windows 编辑壳 | 进行中；探索 Spike 01–06 部分通过 | 双壳 VM/WAL/grant/junction 成立；CAS 活 owner 不误删，holder 强杀后双壳各 8 PID 恢复均唯一获胜且零 residue | 绑定 PID 创建时间并关闭时钟/损坏/掉电，再做 WAL 七阶段强杀、安装更新和 WIN-L；暂不选型 |
 | CL-04 Narrative VM | 进行中；契约已冻结 | Spike 01–14 完成 10k、50 条 Node/Web Worker 记录及内容寻址 Bundle/差异报告/退出码 | 按 CL-03/CL-02 契约接入 Windows/Android 自执行 Observation |
 | CL-05–CL-12 | 未开始 | Claim、Owner、阈值和依赖已登记 | 按 Wave B–E 顺序推进，不能用 Web 原型自动过门 |
 
@@ -120,7 +120,7 @@
 5. **执行 D1**：CL-11 至少 5 名目标创作者，修复 Severity 0/1。
 6. **S0 收口评审**：全部 Claim 为通过、替代或经审计批准的取消后，才由产品负责人决定是否进入 M1 正式产品编码。
 
-CL-02、CL-03、CL-04 的证据契约均已冻结，CL-04 Spike 01–14 与 CL-03 探索 Spike 01–05 已形成可复现证据。当前代码工作只能继续已冻结契约下的可抛弃 Spike；目标设备未登记前，CL-02/03 只允许环境准备和探索测量，不能继续增加 Web 编辑器功能或宣布任一 Claim 通过。当前全仓 `check` 还受既有 VM-14 并发超时阻断，不得省略该红项。
+CL-02、CL-03、CL-04 的证据契约均已冻结，CL-04 Spike 01–14 与 CL-03 探索 Spike 01–06 已形成可复现证据。当前代码工作只能继续已冻结契约下的可抛弃 Spike；目标设备未登记前，CL-02/03 只允许环境准备和探索测量，不能继续增加 Web 编辑器功能或宣布任一 Claim 通过。当前全仓 `check` 受既有 VM-14 与 corpus 超时阻断，且 VM-14 隔离复跑仍超时，不得省略或弱化该红项。
 
 ## 7. 本快照审计范围
 
