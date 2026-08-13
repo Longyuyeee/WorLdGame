@@ -1,8 +1,8 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 状态：S0.41 已冻结为 Web 技术证据原型；当前执行 S0 收口纠偏，D1、S0、M1 均未通过，不再横向增加编辑器功能
-> 文档基线：2026-08-12
-> 当前阶段边界：产品负责人已于 2026-08-11 批准继续开发并取消 Figma 工作流；已完成的 S0 代码原型现已冻结，后续只关闭登记风险，尚未进入 M1 Stable 产品编码阶段。
+> 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
+> 文档基线：2026-08-13
+> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；下一硬门是从空项目完成五分钟可玩切片。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -97,6 +97,9 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [CL-03 Windows 编辑器壳选型证据契约](docs/65-cl03-windows-shell-evidence-contract.md) | Electron/Tauri 同切片、安全边界、WebView2 分发、WAL/更新故障、WIN-L 预算与 ADR 停止条件 |
 | [CL-04 Narrative VM 确定性证据契约](docs/64-cl04-narrative-vm-evidence-contract.md) | Runtime State、Step/Effect/Save、回滚前进、快进、Barrier、State Hash 与三宿主通过门 |
 | [当前开发状态快照](docs/66-current-development-status.md) | 已完成设计与 Web 原型、尚未证明的 M1 能力、CL 阶段门、工程规模与修正后开发顺序 |
+| [产品落地能力审计](docs/88-product-delivery-audit.md) | 特色功能、P0 模块、27 条 M1 验收与当前代码的逐项差距 |
+| [游戏引擎产品落地开发计划](docs/89-engine-product-delivery-plan.md) | 从通用工程、创作闭环、Compiler/Runtime 到三端构建、验收作品和 Stable 发布的节点计划 |
+| [M1 需求与验收追踪矩阵](docs/90-m1-requirement-traceability.md) | USP、P0、AC-01–AC-27 的节点、状态、阻塞项和完成证据权威表 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |
@@ -114,7 +117,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 
 S0 的可抛弃代码原型已获批准，用于完成下列证据；以下条件全部满足后，才允许把候选方案冻结为 M1 正式工程：
 
-当前执行顺序、冻结范围和剩余风险以[《S0 收口与方向纠偏审计》](docs/61-s0-closure-course-correction.md)为准。`f16f34d` 是产品代码冻结基线；S0 收口前不得新增横向功能或使用 M1 完成口径。
+当前执行顺序以[《游戏引擎产品落地开发计划》](docs/89-engine-product-delivery-plan.md)为准，功能状态以[《M1 需求与验收追踪矩阵》](docs/90-m1-requirement-traceability.md)为准。《S0 收口与方向纠偏审计》和 CL-01–CL-12 继续保留为技术证据，但不再要求先关闭全部平台风险才开始产品纵向开发。
 
 - 产品定位和首要用户已确认；
 - P0 范围已冻结；
