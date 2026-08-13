@@ -98,6 +98,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [CL-04 Narrative VM 确定性证据契约](docs/64-cl04-narrative-vm-evidence-contract.md) | Runtime State、Step/Effect/Save、回滚前进、快进、Barrier、State Hash 与三宿主通过门 |
 | [当前开发状态快照](docs/66-current-development-status.md) | 已完成设计与 Web 原型、尚未证明的 M1 能力、CL 阶段门、工程规模与修正后开发顺序 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
+| [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [调研来源](docs/sources.md) | 官方文档、源码仓库、演示与社区反馈 |
 
 ## 开发启动门槛

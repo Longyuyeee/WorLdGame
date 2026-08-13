@@ -1,7 +1,7 @@
 # CL-04 Narrative VM 确定性证据契约
 
 > 决策日期：2026-08-12
-> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md) 已完成 VM-01 基础，CL-04 进行中但未通过
+> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md) 已完成 VM-01 基础，[Spike 02](69-cl04-vm-kernel-spike-02.md) 已完成 VM-02 与 VM-03 部分基础；CL-04 进行中但未通过
 > 风险：CL-04
 > 决策类型：S0 可抛弃 Spike 契约，不是 VM 产品实现
 
@@ -265,4 +265,4 @@ CL-04 只有同时满足以下条件才通过：
 
 ## 13. 当前审计结论
 
-现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md) 另行提供版本化 Runtime State、六个纯 Opcode、拒绝式 IR/State 校验与 canonical State Hash 的 VM-01 基础证据。它仍没有 Runtime Save、可执行 PRNG、调用栈 Opcode、Effect Ledger、History/Skip 或三宿主一致性执行，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。
+现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md) 提供版本化 Runtime State、六个纯 Opcode、拒绝式 IR/State 校验与 canonical State Hash 的 VM-01 基础证据，[Spike 02](69-cl04-vm-kernel-spike-02.md) 增加 `call/return/random/wait`、64 层调用栈、版本化 PRNG、逻辑 tick 与 VM-02/03 部分 Golden。它仍没有正式 Runtime Save、Choice/外部输入、Effect Ledger、History/Skip、10k 生成序列或三宿主一致性执行，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。

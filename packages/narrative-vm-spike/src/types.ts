@@ -1,5 +1,7 @@
 export type VmScalarV0 = null | boolean | number | string;
 
+export const MAX_CALL_STACK_DEPTH_V0 = 64;
+
 export type ComparisonOperatorV0 = "eq" | "ne" | "lt" | "lte" | "gt" | "gte";
 
 export interface ComparisonV0 {
@@ -46,6 +48,30 @@ export interface JumpIfInstructionV0 extends InstructionBaseV0 {
   };
 }
 
+export interface CallInstructionV0 extends InstructionBaseV0 {
+  readonly opcode: "call";
+  readonly operands: { readonly targetIp: number };
+}
+
+export interface ReturnInstructionV0 extends InstructionBaseV0 {
+  readonly opcode: "return";
+  readonly operands: Readonly<Record<string, never>>;
+}
+
+export interface RandomInstructionV0 extends InstructionBaseV0 {
+  readonly opcode: "random";
+  readonly operands: {
+    readonly variableId: string;
+    readonly min: number;
+    readonly max: number;
+  };
+}
+
+export interface WaitInstructionV0 extends InstructionBaseV0 {
+  readonly opcode: "wait";
+  readonly operands: { readonly durationTicks: number };
+}
+
 export interface CheckpointInstructionV0 extends InstructionBaseV0 {
   readonly opcode: "checkpoint";
   readonly operands: { readonly stepId: string };
@@ -61,6 +87,10 @@ export type InstructionV0 =
   | AddInstructionV0
   | JumpInstructionV0
   | JumpIfInstructionV0
+  | CallInstructionV0
+  | ReturnInstructionV0
+  | RandomInstructionV0
+  | WaitInstructionV0
   | CheckpointInstructionV0
   | EndInstructionV0;
 
@@ -122,7 +152,10 @@ export type VmDiagnosticCode =
   | "VM_FALLTHROUGH_PAST_END"
   | "VM_VARIABLE_MISSING"
   | "VM_TYPE_MISMATCH"
-  | "VM_INTEGER_OVERFLOW";
+  | "VM_INTEGER_OVERFLOW"
+  | "VM_CALL_STACK_OVERFLOW"
+  | "VM_CALL_STACK_UNDERFLOW"
+  | "VM_RANDOM_RANGE_INVALID";
 
 export interface VmDiagnostic {
   readonly code: VmDiagnosticCode;
@@ -141,6 +174,9 @@ export interface TransitionResultV0 {
   readonly nextState: RuntimeStateV0;
   readonly effects: readonly never[];
   readonly checkpoint: VmCheckpointV0 | null;
-  readonly wait: null;
+  readonly wait: {
+    readonly durationTicks: number;
+    readonly resumeAtTick: number;
+  } | null;
   readonly diagnostics: readonly VmDiagnostic[];
 }

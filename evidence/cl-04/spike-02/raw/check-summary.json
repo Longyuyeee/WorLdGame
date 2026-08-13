@@ -1,0 +1,33 @@
+{
+  "sourceRevision": "fe1132430dbd8880671ba2e4b04453a9aa1d814c",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 51,
+    "tests": 340,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 2,
+    "tests": 17,
+    "failed": 0,
+    "spike02Tests": 9,
+    "goldenStateHashes": 7
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 41,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {
+    "status": "PASS",
+    "tests": 9
+  },
+  "assetPerformance": {
+    "status": "PASS",
+    "tests": 4
+  },
+  "note": "Observed on one Node development host. Timings and hashes are not cross-host CL-04 evidence."
+}
