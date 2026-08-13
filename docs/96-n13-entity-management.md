@@ -3,7 +3,7 @@
 > 日期：2026-08-13
 > 节点：N13
 > 对齐需求：`REQ-PRJ`、`REQ-SEQ`、`REQ-SCRIPT`；为 N20、N21、N40 和 AC-02/03 提供故事骨架
-> 状态：代码完成，等待 Draft PR Windows CI 终审
+> 状态：通过（本地完整门与 Draft PR Windows CI 均通过）
 
 ## 1. 节点目标
 
@@ -55,6 +55,8 @@ npm exec -- tsc -b packages/project-domain apps/editor
 
 完整 `npm run check` 通过：常规 76 个测试文件/463 个测试、重型 VM 5 个测试、10 个 Workspace 构建，以及 Workspace、50 项需求、PR 追踪、7 类 Golden、架构和两类性能门全部成功。
 
+远端证据：Draft PR #28 首轮 Windows / Node 22 全量检查 run `31717787727`、job `94506790906` 成功，耗时 3 分 9 秒。
+
 ## 5. 诚实边界与下一节点
 
 - 当前引用分析覆盖 Canonical JSON 的结构化 `*Id/*Ids` 字段；脚本文本中的变量表达式引用需要 N20 Story Language AST，不能在 N13 用字符串猜测。
@@ -63,4 +65,4 @@ npm exec -- tsc -b packages/project-domain apps/editor
 - 变量已经类型化建模，但条件、赋值语法、引用补全和运行时状态属于 N20/N30/N31。
 - Android 真机触控、SAF 和进程恢复仍属于 N91/N92；响应式 Web 测试不冒充真机证据。
 
-N13 终审通过后按顺序进入 N20：Story Language P0。
+N13 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点按顺序进入 N20：Story Language P0。
