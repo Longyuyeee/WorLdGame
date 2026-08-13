@@ -56,3 +56,8 @@ export const SPIKE12_NODE_GOLDEN_V0 = {
   failedSeeds: [],
   outcomeDigest: "770920d96fdcb3388c3f7aead30ee45385ec9cd0c435960a6981b5cb6c92e048"
 } as const;
+
+export const SPIKE13_NODE_GOLDEN_V0 = {
+  recordCount: 22,
+  suiteDigest: "fdf3b8dcc83f57f29b45a27f275c48254dbe4e3c208d788d196eb4fb7c74fb26"
+} as const;

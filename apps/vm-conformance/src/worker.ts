@@ -7,6 +7,7 @@ import {
   executeGeneratedCorpusChunkV0,
   executeConformanceCorpusV0,
   executeSpike11ConformanceSuiteV0,
+  executeSpike13ConformanceSuiteV0,
   summarizeGeneratedCorpusV0
 } from "@world-studio/narrative-vm-spike";
 import type { WorkerRequestV0, WorkerResponseV0 } from "./protocol";
@@ -16,7 +17,7 @@ const scope = self as DedicatedWorkerGlobalScope;
 scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0>) => {
   const request = event.data;
   if (request.protocolVersion !== 0 || request.kind !== "runHostConformance" ||
-      request.requestId !== "request.spike12.web-worker") {
+      request.requestId !== "request.spike13.web-worker") {
     throw new TypeError("Web Worker conformance request is invalid");
   }
   const started = performance.now();
@@ -37,7 +38,8 @@ scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0>) =
     result: executeConformanceCorpusV0(createSpike10ConformanceCorpusV0()),
     spike11: executeSpike11ConformanceSuiteV0(),
     spike12,
-    spike12ElapsedMilliseconds: performance.now() - started
+    spike12ElapsedMilliseconds: performance.now() - started,
+    spike13: executeSpike13ConformanceSuiteV0()
   };
   scope.postMessage(response);
 });

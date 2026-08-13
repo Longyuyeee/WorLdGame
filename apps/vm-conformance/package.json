@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/vm-conformance-harness",
-  "version": "0.0.0-cl04-spike.12",
+  "version": "0.0.0-cl04-spike.13",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
-    "@world-studio/narrative-vm-spike": "0.0.0-cl04-spike.12"
+    "@world-studio/narrative-vm-spike": "0.0.0-cl04-spike.13"
   },
   "devDependencies": {
     "vite": "8.2.1"
