@@ -7,13 +7,24 @@ use std::{
     os::windows::ffi::OsStrExt,
     path::{Path, PathBuf},
     sync::Mutex,
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 use windows_sys::Win32::Storage::FileSystem::{
     MoveFileExW, MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH,
 };
 
 const MAX_CONTENT_BYTES: usize = 2_000_000;
+const CAS_WAIT_TIMEOUT: Duration = Duration::from_secs(5);
+
+struct CasGuard {
+    path: PathBuf,
+}
+
+impl Drop for CasGuard {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir(&self.path);
+    }
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -107,32 +118,27 @@ impl StorageHost {
             return Err("PAYLOAD_TOO_LARGE".into());
         }
         assert_public_path(logical_path)?;
-        let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        self.refresh_lease_from_disk(&mut inner)?;
-        assert_active_lease(&inner, lease)?;
-        assert_no_reparse_point(&self.root, logical_path)?;
-        let target = resolve_store_path(&self.root, logical_path)?;
-        let parent = target.parent().ok_or("INVALID_PATH")?;
-        fs::create_dir_all(parent).map_err(|error| format!("IO_FAILURE:mkdir:{error}"))?;
-        let temporary = target.with_extension(format!("world-write-{}", inner.next_temp_id));
-        inner.next_temp_id += 1;
-        let result = (|| {
-            let mut file = OpenOptions::new()
-                .create_new(true)
-                .write(true)
-                .open(&temporary)
-                .map_err(|error| format!("IO_FAILURE:create-temp:{error}"))?;
-            file.write_all(content.as_bytes())
-                .map_err(|error| format!("IO_FAILURE:write:{error}"))?;
-            file.sync_all()
-                .map_err(|error| format!("IO_FAILURE:sync:{error}"))?;
-            drop(file);
-            move_replace(&temporary, &target)
-        })();
-        if result.is_err() {
-            let _ = fs::remove_file(&temporary);
-        }
-        result
+        self.with_cas_guard(|| {
+            let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+            self.refresh_lease_from_disk(&mut inner)?;
+            assert_active_lease(&inner, lease)?;
+            assert_no_reparse_point(&self.root, logical_path)?;
+            let target = resolve_store_path(&self.root, logical_path)?;
+            let parent = target.parent().ok_or("INVALID_PATH")?;
+            fs::create_dir_all(parent).map_err(|error| format!("IO_FAILURE:mkdir:{error}"))?;
+            let temporary = target.with_extension(format!("world-write-{}", inner.next_temp_id));
+            inner.next_temp_id += 1;
+            let result = (|| {
+                let mut file = OpenOptions::new().create_new(true).write(true).open(&temporary)
+                    .map_err(|error| format!("IO_FAILURE:create-temp:{error}"))?;
+                file.write_all(content.as_bytes()).map_err(|error| format!("IO_FAILURE:write:{error}"))?;
+                file.sync_all().map_err(|error| format!("IO_FAILURE:sync:{error}"))?;
+                drop(file);
+                move_replace(&temporary, &target)
+            })();
+            if result.is_err() { let _ = fs::remove_file(&temporary); }
+            result
+        })
     }
 
     pub fn replace(
@@ -146,30 +152,33 @@ impl StorageHost {
         }
         assert_public_path(source_path)?;
         assert_public_path(target_path)?;
-        let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        self.refresh_lease_from_disk(&mut inner)?;
-        assert_active_lease(&inner, lease)?;
-        assert_no_reparse_point(&self.root, source_path)?;
-        assert_no_reparse_point(&self.root, target_path)?;
-        let source = resolve_store_path(&self.root, source_path)?;
-        let target = resolve_store_path(&self.root, target_path)?;
-        fs::create_dir_all(target.parent().ok_or("INVALID_PATH")?)
-            .map_err(|error| format!("IO_FAILURE:mkdir:{error}"))?;
-        move_replace(&source, &target)
+        self.with_cas_guard(|| {
+            let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+            self.refresh_lease_from_disk(&mut inner)?;
+            assert_active_lease(&inner, lease)?;
+            assert_no_reparse_point(&self.root, source_path)?;
+            assert_no_reparse_point(&self.root, target_path)?;
+            let source = resolve_store_path(&self.root, source_path)?;
+            let target = resolve_store_path(&self.root, target_path)?;
+            fs::create_dir_all(target.parent().ok_or("INVALID_PATH")?).map_err(|error| format!("IO_FAILURE:mkdir:{error}"))?;
+            move_replace(&source, &target)
+        })
     }
 
     pub fn remove(&self, logical_path: &str, lease: &ProjectWriterLease) -> Result<(), String> {
         assert_public_path(logical_path)?;
-        let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        self.refresh_lease_from_disk(&mut inner)?;
-        assert_active_lease(&inner, lease)?;
-        assert_no_reparse_point(&self.root, logical_path)?;
-        let target = resolve_store_path(&self.root, logical_path)?;
-        match fs::remove_file(target) {
-            Ok(()) => Ok(()),
-            Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
-            Err(error) => Err(format!("IO_FAILURE:remove:{logical_path}:{error}")),
-        }
+        self.with_cas_guard(|| {
+            let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+            self.refresh_lease_from_disk(&mut inner)?;
+            assert_active_lease(&inner, lease)?;
+            assert_no_reparse_point(&self.root, logical_path)?;
+            let target = resolve_store_path(&self.root, logical_path)?;
+            match fs::remove_file(target) {
+                Ok(()) => Ok(()),
+                Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),
+                Err(error) => Err(format!("IO_FAILURE:remove:{logical_path}:{error}")),
+            }
+        })
     }
 
     pub fn reset(&self) -> Result<(), String> {
@@ -188,74 +197,59 @@ impl StorageHost {
     pub fn acquire(&self, owner_id: &str, ttl_ms: u64) -> Result<Value, String> {
         assert_owner(owner_id)?;
         assert_ttl(ttl_ms)?;
-        let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        let now = now_ms()?;
-        self.refresh_lease_from_disk(&mut inner)?;
-        if let Some(active) = &inner.active_lease {
-            if active.expires_at_ms > now && active.owner_id != owner_id {
-                return Ok(json!({"status":"held","holderExpiresAtMs":active.expires_at_ms}));
+        self.with_cas_guard(|| {
+            let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+            let now = now_ms()?;
+            self.refresh_lease_from_disk(&mut inner)?;
+            if let Some(active) = &inner.active_lease {
+                if active.expires_at_ms > now && active.owner_id != owner_id {
+                    return Ok(json!({"status":"held","holderExpiresAtMs":active.expires_at_ms}));
+                }
+                if active.expires_at_ms > now && active.owner_id == owner_id {
+                    let renewed = ProjectWriterLease { expires_at_ms: now + ttl_ms, ..active.clone() };
+                    self.persist_lease(&renewed)?;
+                    inner.active_lease = Some(renewed.clone());
+                    return Ok(json!({"status":"acquired","lease":renewed}));
+                }
             }
-            if active.expires_at_ms > now && active.owner_id == owner_id {
-                let renewed = ProjectWriterLease {
-                    expires_at_ms: now + ttl_ms,
-                    ..active.clone()
-                };
-                self.persist_lease(&renewed)?;
-                inner.active_lease = Some(renewed.clone());
-                return Ok(json!({"status":"acquired","lease":renewed}));
-            }
-        }
-        let next_token = self.read_next_fencing_token(&inner)?;
-        let lease = ProjectWriterLease {
-            owner_id: owner_id.into(),
-            fencing_token: next_token,
-            expires_at_ms: now + ttl_ms,
-        };
-        inner.next_fencing_token = next_token + 1;
-        self.persist_next_fencing_token(inner.next_fencing_token)?;
-        self.persist_lease(&lease)?;
-        inner.active_lease = Some(lease.clone());
-        Ok(json!({"status":"acquired","lease":lease}))
+            let next_token = self.read_next_fencing_token(&inner)?;
+            let lease = ProjectWriterLease { owner_id: owner_id.into(), fencing_token: next_token, expires_at_ms: now + ttl_ms };
+            inner.next_fencing_token = next_token + 1;
+            self.persist_next_fencing_token(inner.next_fencing_token)?;
+            self.persist_lease(&lease)?;
+            inner.active_lease = Some(lease.clone());
+            Ok(json!({"status":"acquired","lease":lease}))
+        })
     }
 
     pub fn renew(&self, lease: &ProjectWriterLease, ttl_ms: u64) -> Result<Value, String> {
         assert_ttl(ttl_ms)?;
-        let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        let now = now_ms()?;
-        self.refresh_lease_from_disk(&mut inner)?;
-        let matches = inner
-            .active_lease
-            .as_ref()
-            .is_some_and(|active| active.expires_at_ms > now && lease_matches(active, lease));
-        if !matches {
-            return Ok(json!({"status":"lost"}));
-        }
-        let renewed = ProjectWriterLease {
-            expires_at_ms: now + ttl_ms,
-            ..lease.clone()
-        };
-        self.persist_lease(&renewed)?;
-        inner.active_lease = Some(renewed.clone());
-        Ok(json!({"status":"renewed","lease":renewed}))
+        self.with_cas_guard(|| {
+            let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+            let now = now_ms()?;
+            self.refresh_lease_from_disk(&mut inner)?;
+            let matches = inner.active_lease.as_ref().is_some_and(|active| active.expires_at_ms > now && lease_matches(active, lease));
+            if !matches { return Ok(json!({"status":"lost"})); }
+            let renewed = ProjectWriterLease { expires_at_ms: now + ttl_ms, ..lease.clone() };
+            self.persist_lease(&renewed)?;
+            inner.active_lease = Some(renewed.clone());
+            Ok(json!({"status":"renewed","lease":renewed}))
+        })
     }
 
     pub fn release(&self, lease: &ProjectWriterLease) -> Result<bool, String> {
-        let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
-        self.refresh_lease_from_disk(&mut inner)?;
-        if !inner
-            .active_lease
-            .as_ref()
-            .is_some_and(|active| lease_matches(active, lease))
-        {
-            return Ok(false);
-        }
-        inner.active_lease = None;
-        match fs::remove_file(self.lease_path()) {
-            Ok(()) => {}
-            Err(error) if error.kind() == ErrorKind::NotFound => {}
-            Err(error) => return Err(format!("LOCK_IO_FAILURE:release:{error}")),
-        }
-        Ok(true)
+        self.with_cas_guard(|| {
+            let mut inner = self.inner.lock().map_err(|_| "LOCK_POISONED")?;
+            self.refresh_lease_from_disk(&mut inner)?;
+            if !inner.active_lease.as_ref().is_some_and(|active| lease_matches(active, lease)) { return Ok(false); }
+            inner.active_lease = None;
+            match fs::remove_file(self.lease_path()) {
+                Ok(()) => {}
+                Err(error) if error.kind() == ErrorKind::NotFound => {}
+                Err(error) => return Err(format!("LOCK_IO_FAILURE:release:{error}")),
+            }
+            Ok(true)
+        })
     }
 
     pub fn cleanup(&self) -> Result<(), String> {
@@ -277,6 +271,28 @@ impl StorageHost {
 
     fn token_path(&self) -> PathBuf {
         self.lock_directory().join("next-token.txt")
+    }
+
+    fn cas_guard_path(&self) -> PathBuf {
+        self.lock_directory().join("cas.guard")
+    }
+
+    fn with_cas_guard<T>(&self, action: impl FnOnce() -> Result<T, String>) -> Result<T, String> {
+        assert_no_reparse_point(&self.root, ".world-lock/cas.guard")?;
+        fs::create_dir_all(self.lock_directory()).map_err(|error| format!("LOCK_IO_FAILURE:mkdir:{error}"))?;
+        let started = Instant::now();
+        loop {
+            match fs::create_dir(self.cas_guard_path()) {
+                Ok(()) => break,
+                Err(error) if error.kind() == ErrorKind::AlreadyExists => {
+                    if started.elapsed() >= CAS_WAIT_TIMEOUT { return Err("CAS_GUARD_TIMEOUT".into()); }
+                    std::thread::sleep(Duration::from_millis(5));
+                }
+                Err(error) => return Err(format!("LOCK_IO_FAILURE:cas-guard:{error}")),
+            }
+        }
+        let _guard = CasGuard { path: self.cas_guard_path() };
+        action()
     }
 
     fn refresh_lease_from_disk(&self, inner: &mut StorageInner) -> Result<(), String> {

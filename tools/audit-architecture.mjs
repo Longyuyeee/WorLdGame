@@ -242,11 +242,15 @@ if (securityProfile.electron?.grantRoot !== "native-only-canonical-directory" ||
     securityProfile.tauri?.grantRoot !== "native-only-canonical-directory") {
   violations.push("Windows project grant roots must remain native-only canonical directories");
 }
-if (securityProfile.electron?.writerCoordination !== "persistent-fenced-lease-spike" ||
-    securityProfile.tauri?.writerCoordination !== "persistent-fenced-lease-spike" ||
+if (securityProfile.electron?.writerCoordination !== "atomic-directory-cas-fenced-lease-spike" ||
+    securityProfile.tauri?.writerCoordination !== "atomic-directory-cas-fenced-lease-spike" ||
     JSON.stringify(securityProfile.electron?.reservedPaths) !== '[".world-lock"]' ||
     JSON.stringify(securityProfile.tauri?.reservedPaths) !== '[".world-lock"]') {
   violations.push("Windows hosts must persist fenced leases under a renderer-inaccessible reserved path");
+}
+if (!electronStorageHost.includes("withCasGuard") || !electronStorageHost.includes("CAS_GUARD_TIMEOUT") ||
+    !tauriStorageHost.includes("with_cas_guard") || !tauriStorageHost.includes("CAS_GUARD_TIMEOUT")) {
+  violations.push("Windows hosts must serialize lease mutation and fenced writes with a cross-PID CAS guard");
 }
 
 if (violations.length > 0) {

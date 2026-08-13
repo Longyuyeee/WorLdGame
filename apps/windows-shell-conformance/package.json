@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/windows-shell-conformance",
-  "version": "0.0.0-cl03-spike.4",
+  "version": "0.0.0-cl03-spike.5",
   "private": true,
   "type": "module",
   "scripts": {

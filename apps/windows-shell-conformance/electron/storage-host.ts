@@ -1,4 +1,4 @@
-import { lstat, mkdtemp, mkdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
+import { lstat, mkdtemp, mkdir, readFile, realpath, rename, rm, rmdir, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, parse, resolve } from "node:path";
 import {
@@ -10,6 +10,7 @@ import {
 import { NodeProjectFileStore } from "@world-studio/project-persistence-node";
 
 const OWNER = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+const CAS_WAIT_TIMEOUT_MS = 5_000;
 
 function leaseMatches(left: ProjectWriterLease, right: ProjectWriterLease): boolean {
   return left.ownerId === right.ownerId &&
@@ -76,10 +77,12 @@ export class ElectronStorageHost {
     if (content.length > 2_000_000) return Promise.reject(new Error("PAYLOAD_TOO_LARGE"));
     return this.queue(async () => {
       this.assertPublicPath(path);
-      await this.refreshLeaseFromDisk();
-      this.assertActiveLease(parseLease(lease));
-      await this.assertNoReparsePoint(path);
-      await this.store.write(path, content);
+      await this.withCasGuard(async () => {
+        await this.refreshLeaseFromDisk();
+        this.assertActiveLease(parseLease(lease));
+        await this.assertNoReparsePoint(path);
+        await this.store.write(path, content);
+      });
     });
   }
 
@@ -87,21 +90,25 @@ export class ElectronStorageHost {
     return this.queue(async () => {
       this.assertPublicPath(sourcePath);
       this.assertPublicPath(targetPath);
-      await this.refreshLeaseFromDisk();
-      this.assertActiveLease(parseLease(lease));
-      await this.assertNoReparsePoint(sourcePath);
-      await this.assertNoReparsePoint(targetPath);
-      await this.store.replace(sourcePath, targetPath);
+      await this.withCasGuard(async () => {
+        await this.refreshLeaseFromDisk();
+        this.assertActiveLease(parseLease(lease));
+        await this.assertNoReparsePoint(sourcePath);
+        await this.assertNoReparsePoint(targetPath);
+        await this.store.replace(sourcePath, targetPath);
+      });
     });
   }
 
   remove(path: string, lease: unknown): Promise<void> {
     return this.queue(async () => {
       this.assertPublicPath(path);
-      await this.refreshLeaseFromDisk();
-      this.assertActiveLease(parseLease(lease));
-      await this.assertNoReparsePoint(path);
-      await this.store.remove(path);
+      await this.withCasGuard(async () => {
+        await this.refreshLeaseFromDisk();
+        this.assertActiveLease(parseLease(lease));
+        await this.assertNoReparsePoint(path);
+        await this.store.remove(path);
+      });
     });
   }
 
@@ -119,19 +126,21 @@ export class ElectronStorageHost {
     return this.queueResult(async () => {
       if (!OWNER.test(ownerId)) throw new Error("INVALID_OWNER");
       assertTtl(ttlMs);
-      const now = Date.now();
-      await this.refreshLeaseFromDisk();
-      if (this.activeLease !== null && this.activeLease.expiresAtMs > now && this.activeLease.ownerId !== ownerId) {
-        return { status: "held", holderExpiresAtMs: this.activeLease.expiresAtMs };
-      }
-      const nextToken = await this.readNextFencingToken();
-      const lease = this.activeLease !== null && this.activeLease.ownerId === ownerId && this.activeLease.expiresAtMs > now
-        ? { ...this.activeLease, expiresAtMs: now + ttlMs }
-        : { ownerId, fencingToken: nextToken, expiresAtMs: now + ttlMs };
-      this.activeLease = lease;
-      if (lease.fencingToken === nextToken) await this.persistNextFencingToken(nextToken + 1);
-      await this.persistLease(lease);
-      return { status: "acquired", lease };
+      return this.withCasGuard(async () => {
+        const now = Date.now();
+        await this.refreshLeaseFromDisk();
+        if (this.activeLease !== null && this.activeLease.expiresAtMs > now && this.activeLease.ownerId !== ownerId) {
+          return { status: "held", holderExpiresAtMs: this.activeLease.expiresAtMs };
+        }
+        const nextToken = await this.readNextFencingToken();
+        const lease = this.activeLease !== null && this.activeLease.ownerId === ownerId && this.activeLease.expiresAtMs > now
+          ? { ...this.activeLease, expiresAtMs: now + ttlMs }
+          : { ownerId, fencingToken: nextToken, expiresAtMs: now + ttlMs };
+        this.activeLease = lease;
+        if (lease.fencingToken === nextToken) await this.persistNextFencingToken(nextToken + 1);
+        await this.persistLease(lease);
+        return { status: "acquired", lease };
+      });
     });
   }
 
@@ -139,26 +148,28 @@ export class ElectronStorageHost {
     return this.queueResult(async () => {
       assertTtl(ttlMs);
       const lease = parseLease(value);
-      const now = Date.now();
-      await this.refreshLeaseFromDisk();
-      if (this.activeLease === null || this.activeLease.expiresAtMs <= now || !leaseMatches(this.activeLease, lease)) {
-        return { status: "lost" };
-      }
-      const renewed = { ...lease, expiresAtMs: now + ttlMs };
-      this.activeLease = renewed;
-      await this.persistLease(renewed);
-      return { status: "renewed", lease: renewed };
+      return this.withCasGuard(async () => {
+        const now = Date.now();
+        await this.refreshLeaseFromDisk();
+        if (this.activeLease === null || this.activeLease.expiresAtMs <= now || !leaseMatches(this.activeLease, lease)) return { status: "lost" };
+        const renewed = { ...lease, expiresAtMs: now + ttlMs };
+        this.activeLease = renewed;
+        await this.persistLease(renewed);
+        return { status: "renewed", lease: renewed };
+      });
     });
   }
 
   release(value: unknown): Promise<boolean> {
     return this.queueResult(async () => {
       const lease = parseLease(value);
-      await this.refreshLeaseFromDisk();
-      if (this.activeLease === null || !leaseMatches(this.activeLease, lease)) return false;
-      this.activeLease = null;
-      await rm(this.leasePath, { force: true });
-      return true;
+      return this.withCasGuard(async () => {
+        await this.refreshLeaseFromDisk();
+        if (this.activeLease === null || !leaseMatches(this.activeLease, lease)) return false;
+        this.activeLease = null;
+        await rm(this.leasePath, { force: true });
+        return true;
+      });
     });
   }
 
@@ -183,6 +194,28 @@ export class ElectronStorageHost {
   private get lockDirectory(): string { return join(this.rootDirectory, ".world-lock"); }
   private get leasePath(): string { return join(this.lockDirectory, "lease.json"); }
   private get tokenPath(): string { return join(this.lockDirectory, "next-token.txt"); }
+  private get casGuardPath(): string { return join(this.lockDirectory, "cas.guard"); }
+
+  private async withCasGuard<T>(action: () => Promise<T>): Promise<T> {
+    await this.assertNoReparsePoint(".world-lock/cas.guard");
+    await mkdir(this.lockDirectory, { recursive: true });
+    const started = Date.now();
+    while (true) {
+      try {
+        await mkdir(this.casGuardPath);
+        break;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+        if (Date.now() - started >= CAS_WAIT_TIMEOUT_MS) throw new Error("CAS_GUARD_TIMEOUT");
+        await new Promise((resolveWait) => setTimeout(resolveWait, 5));
+      }
+    }
+    try {
+      return await action();
+    } finally {
+      await rmdir(this.casGuardPath);
+    }
+  }
 
   private async refreshLeaseFromDisk(): Promise<void> {
     await this.assertNoReparsePoint(".world-lock/lease.json");
