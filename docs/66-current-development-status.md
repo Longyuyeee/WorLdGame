@@ -6,7 +6,7 @@
 >
 > 本轮输入基线：`e916f1590f8f50123a7685416b0b3a4ac70412ae`
 >
-> 当前阶段：S0 收口 / Wave A；D1、S0、M1 均未通过
+> 当前阶段：产品落地主线 R0；D1、S0、M1 均未通过
 >
 > 发布状态：Draft PR #1；没有可对外发布的编辑器或玩家安装包
 
@@ -107,20 +107,25 @@
 | CL-02 Android 编辑壳 | 未开始；契约已冻结 | 候选、私有工作区/SAF、AI-01–AI-10、AS-01–AS-19 与真机硬门已冻结 | 安装工具链，登记 AND-L/AND-R 并准备两个可抛弃 Spike |
 | CL-03 Windows 编辑壳 | 进行中；探索 Spike 01–06 部分通过 | 双壳 VM/WAL/grant/junction 成立；CAS 活 owner 不误删，holder 强杀后双壳各 8 PID 恢复均唯一获胜且零 residue | 绑定 PID 创建时间并关闭时钟/损坏/掉电，再做 WAL 七阶段强杀、安装更新和 WIN-L；暂不选型 |
 | CL-04 Narrative VM | 进行中；契约已冻结 | Spike 01–14 完成 10k、50 条 Node/Web Worker 记录及内容寻址 Bundle/差异报告/退出码 | 按 CL-03/CL-02 契约接入 Windows/Android 自执行 Observation |
-| CL-05–CL-12 | 未开始 | Claim、Owner、阈值和依赖已登记 | 按 Wave B–E 顺序推进，不能用 Web 原型自动过门 |
+| CL-05–CL-12 | 未开始 | Claim、Owner、阈值和依赖已登记 | 在对应产品节点进入集成前按需启动，不能用 Web 原型自动过门 |
 
 状态的唯一权威明细仍是[《S0 Claim / Evidence 登记表》](63-s0-claim-evidence-register.md)。
 
-## 6. 修正后的开发顺序
+## 6. 产品落地主线（2026-08-13 修订）
 
-1. **补齐设备**：登记 WIN-L、AND-L、AND-R；在此之前目标机 Claim 只能准备环境，不能通过。
-2. **关闭平台与发布风险**：CL-02、CL-03、CL-05、CL-06、CL-12。
-3. **实现最小确定性 VM**：CL-04，并驱动同一 Web/Windows/Android 固定路线。
-4. **验证规模与资源**：CL-07、CL-08、CL-09、CL-10。
-5. **执行 D1**：CL-11 至少 5 名目标创作者，修复 Severity 0/1。
-6. **S0 收口评审**：全部 Claim 为通过、替代或经审计批准的取消后，才由产品负责人决定是否进入 M1 正式产品编码。
+产品负责人确认最终目标是能够实际制作和发布游戏的完整引擎。此前“先关闭全部平台风险再进入产品编码”的顺序停止执行，调整为：
 
-CL-02、CL-03、CL-04 的证据契约均已冻结，CL-04 Spike 01–14 与 CL-03 探索 Spike 01–06 已形成可复现证据。当前代码工作只能继续已冻结契约下的可抛弃 Spike；目标设备未登记前，CL-02/03 只允许环境准备和探索测量，不能继续增加 Web 编辑器功能或宣布任一 Claim 通过。当前全仓 `check` 受既有 VM-14 与 corpus 超时阻断，且 VM-14 隔离复跑仍超时，不得省略或弱化该红项。
+1. **通用工程载体**：移除固定“黄昏广播”项目假设，完成 Canonical Project、项目命令、新建/打开/导入/导出和场景/角色/变量管理；
+2. **五分钟创作闭环**：从空项目完成对白、选择、条件、基础演出、真实资源预览、保存和重开；
+3. **正式 Compiler/Runtime**：Editor Preview 不再遍历语句数组，统一通过 Compiler 和正式 Narrative Runtime；
+4. **专业生产能力**：补齐 Route、Sequence、Script、Stage、七工作模式、Gal 配置、QA、本地化和自动附加页面；
+5. **资源与三端产物**：将 Dicing/Optimization 接入正式构建，生成 Web、Windows、Android 玩家；
+6. **双端创作与验收作品**：Windows/Android 完整编辑，制作 20–30 分钟 Benchmark Episode；
+7. **M1 Stable**：27 条纵向验收、设备、安装、升级、签名、供应链和 Release Assurance 全通过。
+
+详细审计见[《产品落地能力审计》](88-product-delivery-audit.md)，节点计划见[《游戏引擎产品落地开发计划》](89-engine-product-delivery-plan.md)，功能状态以[《M1 需求与验收追踪矩阵》](90-m1-requirement-traceability.md)为唯一权威。
+
+CL-02、CL-03、CL-04 证据继续保留，但在对应产品节点产生明确阻塞前，不再新增独立 Spike。现有 VM-14 与 corpus 超时仍是红项，不得删除或弱化；它们在 N31 正式 Runtime 收敛时关闭。
 
 ## 7. 本快照审计范围
 
