@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/project-domain",
-  "version": "0.3.0-n12",
+  "version": "0.4.0-n13",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",

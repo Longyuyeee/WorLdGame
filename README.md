@@ -105,6 +105,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N10 Canonical Project Schema 审计](docs/93-n10-canonical-project-schema.md) | 正式 project-domain、`.world` v1 多文件格式、稳定 ID、未知字段保留、S0/Golden 迁移和双工程 round-trip |
 | [N11 Project Service 与事务命令审计](docs/94-n11-project-service.md) | 全实体事务命令、Revision/ChangeSet、批处理、Undo/Redo、引用冲突、提交保存门和 SourceSession 适配 |
 | [N12 项目首页与文件生命周期审计](docs/95-n12-project-lifecycle.md) | 真实项目入口、Web/Windows 目录、最近引用、确定性 ZIP、外部变更与冲突边界 |
+| [N13 章节、场景、角色和变量管理审计](docs/96-n13-entity-management.md) | 故事骨架管理、类型化实体、引用分析/迁移、非拖拽排序、真实保存重开 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |
