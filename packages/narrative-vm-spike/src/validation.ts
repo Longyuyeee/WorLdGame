@@ -131,7 +131,9 @@ function validateInstruction(instruction: InstructionV0, knownIps: ReadonlySet<n
       optionIds.add(option.optionId);
       return false;
     });
-    if (!exactKeys(values, ["choiceId", "options"]) || !safeId(values.choiceId) ||
+    if (!exactKeys(values, ["choiceId", "promptStepId", "commitStepId", "options"]) ||
+        !safeId(values.choiceId) || !safeId(values.promptStepId) || !safeId(values.commitStepId) ||
+        values.promptStepId === values.commitStepId ||
         options.length < 1 || options.length > 64 || malformedOption) {
       diagnostics.push(invalidProgram("choice requires 1..64 unique canonical options with valid targets", instruction));
     }
@@ -172,11 +174,12 @@ export function validateExternalInputV0(input: unknown): input is ExternalInputV
 
 function validPendingRequest(request: unknown, state: RuntimeStateV0, program: ProgramV0): request is PendingRequestV0 {
   if (!plainRecord(request) || !exactKeys(request, [
-    "requestId", "executionId", "expectedRevision", "logicalSequence", "kind", "choiceId", "options"
+    "requestId", "executionId", "expectedRevision", "logicalSequence", "kind", "choiceId", "commitStepId", "options"
   ]) || !safeId(request.requestId) || request.executionId !== state.executionId ||
       request.expectedRevision !== state.stateRevision || !safeInteger(request.logicalSequence) ||
       request.logicalSequence < 0 || request.logicalSequence >= state.nextInputSequence ||
-      request.kind !== "choice" || !safeId(request.choiceId) || !Array.isArray(request.options) ||
+      request.kind !== "choice" || !safeId(request.choiceId) || !safeId(request.commitStepId) ||
+      !Array.isArray(request.options) ||
       request.options.length < 1 || request.options.length > 64 || request.requestId !== choiceRequestIdV0(
         request.executionId,
         request.choiceId,
@@ -189,6 +192,7 @@ function validPendingRequest(request: unknown, state: RuntimeStateV0, program: P
     safeId(option.optionId) && !ids.has(option.optionId) && ids.add(option.optionId) &&
     safeInteger(option.targetIp) && program.instructions.some((item) => item.ip === option.targetIp));
   return validOptions && instruction?.opcode === "choice" && instruction.operands.choiceId === request.choiceId &&
+    instruction.operands.commitStepId === request.commitStepId && state.stepId === instruction.operands.promptStepId &&
     canonicalStringify(instruction.operands.options) === canonicalStringify(request.options);
 }
 

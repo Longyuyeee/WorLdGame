@@ -2,6 +2,7 @@ export type VmScalarV0 = null | boolean | number | string;
 
 export const MAX_CALL_STACK_DEPTH_V0 = 64;
 export const MAX_INPUT_RECEIPTS_V0 = 1024;
+export const MAX_HISTORY_ENTRIES_V0 = 256;
 
 export type ComparisonOperatorV0 = "eq" | "ne" | "lt" | "lte" | "gt" | "gte";
 
@@ -77,6 +78,8 @@ export interface ChoiceInstructionV0 extends InstructionBaseV0 {
   readonly opcode: "choice";
   readonly operands: {
     readonly choiceId: string;
+    readonly promptStepId: string;
+    readonly commitStepId: string;
     readonly options: readonly {
       readonly optionId: string;
       readonly targetIp: number;
@@ -124,6 +127,7 @@ export interface PendingRequestV0 {
   readonly logicalSequence: number;
   readonly kind: "choice";
   readonly choiceId: string;
+  readonly commitStepId: string;
   readonly options: readonly {
     readonly optionId: string;
     readonly targetIp: number;
@@ -152,6 +156,33 @@ export interface InitialStateOptionsV0 {
 export interface InputReceiptV0 {
   readonly input: ExternalInputV0;
   readonly acceptedAtRevision: number;
+}
+
+export interface HistoryCheckpointV0 {
+  readonly checkpointId: string;
+  readonly stateHash: string;
+  readonly state: RuntimeStateV0;
+}
+
+export interface HistoryEntryV0 {
+  readonly historyIndex: number;
+  readonly stepId: string;
+  readonly sourceStatementId: string;
+  readonly beforeHash: string;
+  readonly afterHash: string;
+  readonly beforeCheckpointId: string;
+  readonly afterCheckpointId: string;
+  readonly input: ExternalInputV0 | null;
+}
+
+export interface RuntimeSessionV0 {
+  readonly schemaVersion: 0;
+  readonly buildId: string;
+  readonly executionId: string;
+  readonly state: RuntimeStateV0;
+  readonly entries: readonly HistoryEntryV0[];
+  readonly checkpoints: readonly HistoryCheckpointV0[];
+  readonly inputTombstones: readonly ExternalInputV0[];
 }
 
 export interface RuntimeStateV0 {
@@ -208,7 +239,14 @@ export type VmDiagnosticCode =
   | "VM_INPUT_OUT_OF_ORDER"
   | "VM_INPUT_ID_CONFLICT"
   | "VM_CHOICE_OPTION_INVALID"
-  | "VM_INPUT_RECEIPT_LIMIT";
+  | "VM_INPUT_RECEIPT_LIMIT"
+  | "VM_HISTORY_INVALID"
+  | "VM_HISTORY_AT_START"
+  | "VM_HISTORY_AT_END"
+  | "VM_HISTORY_FORWARD_REQUIRED"
+  | "VM_HISTORY_LIMIT"
+  | "VM_HISTORY_NO_BOUNDARY"
+  | "VM_HISTORY_WAIT_REQUIRED";
 
 export interface VmDiagnostic {
   readonly code: VmDiagnosticCode;
@@ -232,5 +270,10 @@ export interface TransitionResultV0 {
     readonly resumeAtTick: number;
   } | null;
   readonly request: PendingRequestV0 | null;
+  readonly diagnostics: readonly VmDiagnostic[];
+}
+
+export interface HistoryResultV0 {
+  readonly session: RuntimeSessionV0;
   readonly diagnostics: readonly VmDiagnostic[];
 }
