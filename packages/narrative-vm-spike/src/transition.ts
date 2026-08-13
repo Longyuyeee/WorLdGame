@@ -8,6 +8,7 @@ import type {
   VmDiagnostic,
   VmScalarV0
 } from "./types";
+import { MAX_CALL_STACK_DEPTH_V0 } from "./types";
 import { validateProgram, validateState } from "./validation";
 
 const DEFAULT_PRNG_SEED = 0x6d2b79f5;
@@ -25,8 +26,8 @@ export class VmProgramValidationError extends Error {
 export function createInitialStateV0(program: ProgramV0, prngSeed = DEFAULT_PRNG_SEED): RuntimeStateV0 {
   const diagnostics = validateProgram(program);
   if (diagnostics.length > 0) throw new VmProgramValidationError(diagnostics);
-  if (!Number.isSafeInteger(prngSeed) || prngSeed < 0 || prngSeed > 0xffff_ffff) {
-    throw new RangeError("PRNG seed must be an unsigned 32-bit integer");
+  if (!Number.isSafeInteger(prngSeed) || prngSeed < 1 || prngSeed > 0xffff_ffff) {
+    throw new RangeError("PRNG seed must be a non-zero unsigned 32-bit integer");
   }
   return {
     schemaVersion: 0,
@@ -75,6 +76,14 @@ function compare(left: VmScalarV0, condition: ComparisonV0): boolean | "type-mis
   return left >= right;
 }
 
+function nextXorshift32(state: number): number {
+  let next = state >>> 0;
+  next ^= next << 13;
+  next ^= next >>> 17;
+  next ^= next << 5;
+  return next >>> 0;
+}
+
 export function transitionV0(program: ProgramV0, state: RuntimeStateV0): TransitionResultV0 {
   const programDiagnostics = validateProgram(program);
   if (programDiagnostics.length > 0) {
@@ -99,6 +108,10 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
   let nextIp = nextSequentialIp(program, instruction);
   let variables = state.variables;
   let stepId = state.stepId;
+  let callStack = state.callStack;
+  let prng = state.prng;
+  let logicalClock = state.logicalClock;
+  let wait: TransitionResultV0["wait"] = null;
   let terminal: RuntimeStateV0["terminal"] = state.terminal;
 
   if (instruction.opcode === "set") {
@@ -128,6 +141,41 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
       return unchanged(state, instructionDiagnostic(instruction, "VM_TYPE_MISMATCH", "ordered comparison requires integers"));
     }
     nextIp = matches ? instruction.operands.trueIp : instruction.operands.falseIp;
+  } else if (instruction.opcode === "call") {
+    if (nextIp === null) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_FALLTHROUGH_PAST_END", "call has no return IP"));
+    }
+    if (callStack.length >= MAX_CALL_STACK_DEPTH_V0) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_CALL_STACK_OVERFLOW", "call stack reached its v0 limit"));
+    }
+    callStack = [...callStack, nextIp];
+    nextIp = instruction.operands.targetIp;
+  } else if (instruction.opcode === "return") {
+    const returnIp = callStack[callStack.length - 1];
+    if (returnIp === undefined) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_CALL_STACK_UNDERFLOW", "return requires a call frame"));
+    }
+    callStack = callStack.slice(0, -1);
+    nextIp = returnIp;
+  } else if (instruction.opcode === "random") {
+    const span = instruction.operands.max - instruction.operands.min + 1;
+    if (!Number.isSafeInteger(span) || span < 1 || span > 0x1_0000_0000) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_RANDOM_RANGE_INVALID", "random range is not representable"));
+    }
+    if (prng.draws === Number.MAX_SAFE_INTEGER) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "PRNG draw count overflow"));
+    }
+    const nextRandom = nextXorshift32(prng.state);
+    const value = instruction.operands.min + (nextRandom % span);
+    variables = { ...variables, [instruction.operands.variableId]: value };
+    prng = { ...prng, state: nextRandom, draws: prng.draws + 1 };
+  } else if (instruction.opcode === "wait") {
+    const resumeAtTick = logicalClock + instruction.operands.durationTicks;
+    if (!Number.isSafeInteger(resumeAtTick)) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "logical clock overflow"));
+    }
+    logicalClock = resumeAtTick;
+    wait = { durationTicks: instruction.operands.durationTicks, resumeAtTick };
   } else if (instruction.opcode === "checkpoint") {
     stepId = instruction.operands.stepId;
   } else if (instruction.opcode === "end") {
@@ -143,7 +191,10 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
     ip: nextIp,
     stateRevision: state.stateRevision + 1,
     stepId,
+    callStack,
     variables,
+    prng,
+    logicalClock,
     terminal
   };
   const checkpoint = instruction.opcode === "checkpoint" ? {
@@ -151,5 +202,5 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
     stateRevision: nextState.stateRevision,
     stateHash: stateHashV0(nextState)
   } : null;
-  return { nextState, effects: [], checkpoint, wait: null, diagnostics: [] };
+  return { nextState, effects: [], checkpoint, wait, diagnostics: [] };
 }

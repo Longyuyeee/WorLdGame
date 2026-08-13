@@ -1,9 +1,12 @@
 import { canonicalBytes, canonicalStringify } from "./canonical";
 import { sha256Hex } from "./sha256";
+import { MAX_CALL_STACK_DEPTH_V0 } from "./types";
 import type { InstructionV0, ProgramV0, RuntimeStateV0, VmDiagnostic } from "./types";
 
 const SAFE_ID = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
-const SUPPORTED_OPCODES = ["add", "checkpoint", "end", "jump", "jumpIf", "set"] as const;
+const SUPPORTED_OPCODES = [
+  "add", "call", "checkpoint", "end", "jump", "jumpIf", "random", "return", "set", "wait"
+] as const;
 
 export const SPIKE_OPCODE_REGISTRY_DIGEST_V0 = sha256Hex(canonicalBytes({
   irVersion: 0,
@@ -92,6 +95,24 @@ function validateInstruction(instruction: InstructionV0, knownIps: ReadonlySet<n
         !safeInteger(values.falseIp) || !knownIps.has(values.trueIp) || !knownIps.has(values.falseIp)) {
       diagnostics.push(invalidProgram("jumpIf condition and targets must be canonical", instruction));
     }
+  } else if (opcode === "call" && (!exactKeys(values, ["targetIp"]) ||
+      !safeInteger(values.targetIp) || !knownIps.has(values.targetIp) ||
+      ![...knownIps].some((ip) => ip > instruction.ip))) {
+    diagnostics.push(invalidProgram("call requires a valid target and sequential return IP", instruction));
+  } else if (opcode === "return" && !exactKeys(values, [])) {
+    diagnostics.push(invalidProgram("return does not accept operands", instruction));
+  } else if (opcode === "random") {
+    const span = typeof values.min === "number" && typeof values.max === "number"
+      ? values.max - values.min + 1
+      : Number.NaN;
+    if (!exactKeys(values, ["variableId", "min", "max"]) || !safeId(values.variableId) ||
+        !safeInteger(values.min) || !safeInteger(values.max) || values.min > values.max ||
+        !safeInteger(span) || span < 1 || span > 0x1_0000_0000) {
+      diagnostics.push(invalidProgram("random requires a safe inclusive integer range no wider than 2^32", instruction));
+    }
+  } else if (opcode === "wait" && (!exactKeys(values, ["durationTicks"]) ||
+      !safeInteger(values.durationTicks) || values.durationTicks < 1)) {
+    diagnostics.push(invalidProgram("wait durationTicks must be a positive safe integer", instruction));
   } else if (opcode === "checkpoint" && (!exactKeys(values, ["stepId"]) || !safeId(values.stepId))) {
     diagnostics.push(invalidProgram("checkpoint requires only a safe stepId", instruction));
   } else if (opcode === "end" && (!exactKeys(values, ["endingId"]) || !safeId(values.endingId))) {
@@ -168,15 +189,21 @@ export function validateState(program: ProgramV0, state: RuntimeStateV0): readon
       !safeInteger(state.stateRevision) || state.stateRevision < 0 || !safeInteger(state.logicalClock) ||
       state.logicalClock < 0 || !safeInteger(state.historyCursor) ||
       state.prng.algorithm !== "xorshift32-v0" || !safeInteger(state.prng.state) ||
-      state.prng.state < 0 || state.prng.state > 0xffff_ffff || !safeInteger(state.prng.draws) ||
+      state.prng.state < 1 || state.prng.state > 0xffff_ffff || !safeInteger(state.prng.draws) ||
       state.prng.draws < 0) {
     return fail("State header, cursor, clock, or PRNG is invalid");
   }
   if (!exactKeys(state as unknown as Record<string, unknown>, [
     "schemaVersion", "buildId", "ip", "stateRevision", "stepId", "callStack", "variables", "prng",
     "logicalClock", "sceneState", "audioLogic", "pendingRequests", "readSession", "historyCursor", "terminal"
-  ]) || !plainRecord(state.variables) || Object.entries(state.variables).some(([key, value]) =>
+  ]) || !exactKeys(state.prng as unknown as Record<string, unknown>, ["algorithm", "state", "draws"]) ||
+    !exactKeys(state.sceneState as unknown as Record<string, unknown>, ["backgroundId", "characters"]) ||
+    !exactKeys(state.audioLogic as unknown as Record<string, unknown>, ["tracks"]) ||
+    !exactKeys(state.terminal as unknown as Record<string, unknown>,
+      state.terminal.kind === "running" ? ["kind"] : ["kind", "endingId"]) ||
+    !plainRecord(state.variables) || Object.entries(state.variables).some(([key, value]) =>
     !safeId(key) || !validateScalar(value)) || !Array.isArray(state.callStack) ||
+    state.callStack.length > MAX_CALL_STACK_DEPTH_V0 ||
     state.callStack.some((ip) => !safeInteger(ip) || !program.instructions.some((item) => item.ip === ip)) ||
     (state.stepId !== null && !safeId(state.stepId)) || !Array.isArray(state.pendingRequests) ||
     state.pendingRequests.length !== 0 || !Array.isArray(state.readSession) ||
