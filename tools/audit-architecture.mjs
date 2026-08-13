@@ -185,6 +185,21 @@ for (const path of vmHarnessFiles) {
   }
 }
 
+const vmCliRoot = join(repoRoot, "apps", "vm-conformance-cli");
+const vmCliPackage = JSON.parse(await readFile(join(vmCliRoot, "package.json"), "utf8"));
+const vmCliDependencies = Object.keys(vmCliPackage.dependencies ?? {});
+if (vmCliDependencies.length !== 1 || vmCliDependencies[0] !== "@world-studio/narrative-vm-spike") {
+  violations.push("VM conformance CLI may depend only on narrative-vm-spike");
+}
+const vmCliFiles = (await collectFiles(join(vmCliRoot, "src"))).filter((path) => extname(path) === ".ts");
+for (const path of vmCliFiles) {
+  const source = await readFile(path, "utf8");
+  for (const dependency of ["react", "react-dom", "electron", "@capacitor", "@tauri-apps", "node:worker_threads"]) {
+    const importPattern = new RegExp(`from\\s+["']${dependency.replaceAll("-", "\\-")}`);
+    if (importPattern.test(source)) violations.push(`${relative(repoRoot, path)} imports forbidden UI or shell dependency ${dependency}`);
+  }
+}
+
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;
@@ -207,6 +222,7 @@ if (violations.length > 0) {
           "editor declares the project-persistence dependency explicitly",
           "web editor does not bundle the Node filesystem adapter",
           "VM Web Worker conformance Harness depends only on the portable narrative VM and imports no shell or Node adapter",
+          "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
           "story-core has no runtime third-party dependency"
         ]
       },
