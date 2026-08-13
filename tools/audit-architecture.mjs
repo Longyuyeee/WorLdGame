@@ -220,11 +220,16 @@ for (const [path, source] of [["electron/preload.ts", electronPreload], ["src/ma
     if (source.includes(dependency)) violations.push(`Windows shell ${path} imports forbidden privileged dependency ${dependency}`);
   }
 }
-if (securityProfile.tauri?.commands?.join(",") !== "submit_conformance") {
-  violations.push("Windows Tauri host must expose only submit_conformance in this slice");
+const expectedWindowsCommands = "project_read,project_write,project_replace,project_remove,project_reset,lease_acquire,lease_renew,lease_release,submit_evidence";
+if (securityProfile.tauri?.commands?.join(",") !== expectedWindowsCommands) {
+  violations.push("Windows Tauri host commands must match the frozen WindowsHostV1 storage bridge");
 }
 if (!tauriMain.includes('url.scheme() == "tauri"') || !tauriMain.includes('url.host_str() == Some("tauri.localhost")')) {
   violations.push("Windows Tauri host must deny navigation outside the application scheme");
+}
+if (securityProfile.electron?.absolutePathsExposed !== false || securityProfile.tauri?.absolutePathsExposed !== false ||
+    securityProfile.electron?.genericFileApi !== false || securityProfile.tauri?.genericFileApi !== false) {
+  violations.push("Windows hosts must not expose absolute paths or a generic filesystem API");
 }
 
 if (violations.length > 0) {
@@ -250,8 +255,8 @@ if (violations.length > 0) {
           "web editor does not bundle the Node filesystem adapter",
           "VM Web Worker conformance Harness depends only on the portable narrative VM and imports no shell or Node adapter",
           "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
-          "Windows Electron host keeps isolation and sandboxing enabled with a one-method preload bridge",
-          "Windows Tauri host exposes one payload-limited command and no privileged plugin",
+          "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
+          "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
           "story-core has no runtime third-party dependency"
         ]
       },
