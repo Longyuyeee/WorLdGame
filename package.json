@@ -13,10 +13,11 @@
     "typecheck": "tsc -b",
     "test": "vitest run --maxWorkers=4",
     "test:watch": "vitest",
+    "audit:workspaces": "node tools/audit-workspaces.mjs",
     "audit:architecture": "node tools/audit-architecture.mjs",
     "audit:script-performance": "vitest run --config vitest.performance.config.ts",
     "audit:asset-performance": "vitest run --config vitest.asset-performance.config.ts",
-    "check": "npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
+    "check": "npm run audit:workspaces && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
   },
   "engines": {
     "node": ">=22.12.0"
