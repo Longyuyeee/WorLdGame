@@ -164,6 +164,27 @@ if (editorPackage.dependencies?.["@world-studio/project-persistence-node"] !== u
   violations.push("web editor must not bundle the Node filesystem adapter");
 }
 
+const vmHarnessRoot = join(repoRoot, "apps", "vm-conformance");
+const vmHarnessPackage = JSON.parse(
+  await readFile(join(vmHarnessRoot, "package.json"), "utf8")
+);
+const vmHarnessDependencies = Object.keys(vmHarnessPackage.dependencies ?? {});
+if (vmHarnessDependencies.length !== 1 ||
+    vmHarnessDependencies[0] !== "@world-studio/narrative-vm-spike") {
+  violations.push("VM conformance Harness may depend only on narrative-vm-spike");
+}
+const vmHarnessFiles = (await collectFiles(join(vmHarnessRoot, "src")))
+  .filter((path) => extname(path) === ".ts");
+for (const path of vmHarnessFiles) {
+  const source = await readFile(path, "utf8");
+  for (const dependency of ["electron", "@capacitor", "@tauri-apps", "node:fs", "node:path", "node:process", "node:worker_threads"]) {
+    const importPattern = new RegExp(`from\\s+["']${dependency.replaceAll("-", "\\-")}`);
+    if (importPattern.test(source)) {
+      violations.push(`${relative(repoRoot, path)} imports forbidden shell or Node dependency ${dependency}`);
+    }
+  }
+}
+
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;
@@ -185,6 +206,7 @@ if (violations.length > 0) {
           "editor declares the story-language dependency explicitly",
           "editor declares the project-persistence dependency explicitly",
           "web editor does not bundle the Node filesystem adapter",
+          "VM Web Worker conformance Harness depends only on the portable narrative VM and imports no shell or Node adapter",
           "story-core has no runtime third-party dependency"
         ]
       },
