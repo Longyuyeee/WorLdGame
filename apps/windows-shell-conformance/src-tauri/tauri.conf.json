@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "WorLd Windows Shell Conformance",
+  "version": "0.0.1",
+  "identifier": "com.worldstudio.windows-conformance",
+  "build": { "frontendDist": "../dist/web" },
+  "app": {
+    "security": { "csp": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src ipc: http://ipc.localhost" },
+    "windows": [{ "label": "main", "title": "WorLd Windows Shell Conformance", "visible": false, "width": 800, "height": 600 }]
+  },
+  "bundle": { "active": false }
+}

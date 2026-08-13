@@ -1,0 +1,23 @@
+{
+  "name": "@world-studio/windows-shell-conformance",
+  "version": "0.0.0-cl03-spike.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:web": "vite build --config vite.web.config.ts",
+    "build:electron": "vite build --config vite.electron-main.config.ts && vite build --config vite.electron-preload.config.ts",
+    "build": "tsc -b && npm run build:web && npm run build:electron",
+    "install:electron-runtime": "install-electron",
+    "run:electron": "electron dist/electron/main.mjs",
+    "build:tauri": "npm run build:web && tauri build --no-bundle"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.11.1",
+    "@world-studio/narrative-vm-spike": "0.0.0-cl04-spike.14"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4",
+    "electron": "43.4.0",
+    "vite": "8.2.1"
+  }
+}

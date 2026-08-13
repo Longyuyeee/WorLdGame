@@ -8,6 +8,7 @@
     { "path": "./packages/project-persistence-node" },
     { "path": "./apps/editor" },
     { "path": "./apps/vm-conformance" },
-    { "path": "./apps/vm-conformance-cli" }
+    { "path": "./apps/vm-conformance-cli" },
+    { "path": "./apps/windows-shell-conformance" }
   ]
 }
