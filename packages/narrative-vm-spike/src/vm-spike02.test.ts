@@ -134,13 +134,13 @@ describe("CL-04 narrative VM kernel spike 02", () => {
     expect(result.state.logicalClock).toBe(120);
     expect(result.waits).toEqual([{ durationTicks: 120, resumeAtTick: 120 }]);
     expect(result.hashes).toEqual([
-      "f88d7edbafc5c3bd89d1e5253ebb76e35b8c96344242dbec5a3b0f5025812b88",
-      "01032c70b907f18eebefa1d3fc841c463ac48c6e4f0fb56c9ab696ce4351bea8",
-      "d531b7cf0278f784a8c92770e1b5349783ae99b9ae80820a8c6d2be828945094",
-      "cb07c5b42f18913da5f3149d23144ff1af1a1d97413dceade406e069b4d82a4e",
-      "cd050fdba5696c5056b2a5c8dd02ffa83e01aca908c9a1b23e25cafc3c933b0d",
-      "bf7d32d171a5ed38f5f526115209831871ae3ac4955ef2ab214ba94e234ca942",
-      "238dcf5f6b21eff403040601dffef443f383e8ffe6bd445fe73bb7f8b81eaa33"
+      "70c139bea2e84ff689001d3cee9c296fe0f1a0ca466241408e4bdb1ffa68e171",
+      "e01ca5989a93b642fea1544a1b37883376c733359e53b2b0000cd9f9b91e914e",
+      "5567ecec568dc82a3b0d7b585b9e76ac704a30f875bbf1413c3fcd84c794bb6c",
+      "cbed8cfab00199bff41202816e49fe18fc8558a1cd73eedf4ed0af3ffdfd7272",
+      "849c9ac92027bfbd74df4f8fcda60c3b6350fa678f51eea9f5cbdc7ceef10e4f",
+      "25f5e86903de42f5f1317938332be9a76545dfb78265b9abf57be6161529e0c9",
+      "56e88be8fc06263e5d5551f6c790b7978c267f8f5e29396722904eb949d8f4c6"
     ]);
   });
 

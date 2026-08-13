@@ -16,7 +16,7 @@ interface InstructionBaseV0 {
   readonly ip: number;
   readonly sourceStatementId: string;
   readonly stepBoundary: boolean;
-  readonly effectClass: "none";
+  readonly effectClass: "none" | EffectPolicyV0;
   readonly stopPoint: boolean;
 }
 
@@ -87,6 +87,33 @@ export interface ChoiceInstructionV0 extends InstructionBaseV0 {
   };
 }
 
+export type EffectPolicyV0 = "pure" | "reversible" | "barrier";
+export type EffectAwaitModeV0 = "detached" | "awaited";
+
+export interface EffectCompensationV0 {
+  readonly kind: string;
+  readonly payload: Readonly<Record<string, VmScalarV0>>;
+}
+
+export interface EmitInstructionV0 extends InstructionBaseV0 {
+  readonly opcode: "emit";
+  readonly operands: {
+    readonly descriptorId: string;
+    readonly requestStepId: string | null;
+    readonly issueStepId: string;
+    readonly completeStepId: string;
+    readonly channel: string;
+    readonly kind: string;
+    readonly payload: Readonly<Record<string, VmScalarV0>>;
+    readonly policy: EffectPolicyV0;
+    readonly awaitMode: EffectAwaitModeV0;
+    readonly cancellationScope: string;
+    readonly replayKey: string;
+    readonly compensation: EffectCompensationV0 | null;
+    readonly barrierReason: string | null;
+  };
+}
+
 export interface CheckpointInstructionV0 extends InstructionBaseV0 {
   readonly opcode: "checkpoint";
   readonly operands: { readonly stepId: string };
@@ -107,6 +134,7 @@ export type InstructionV0 =
   | RandomInstructionV0
   | WaitInstructionV0
   | ChoiceInstructionV0
+  | EmitInstructionV0
   | CheckpointInstructionV0
   | EndInstructionV0;
 
@@ -120,7 +148,7 @@ export interface ProgramV0 {
   readonly opcodeRegistryDigest: string;
 }
 
-export interface PendingRequestV0 {
+export interface PendingChoiceRequestV0 {
   readonly requestId: string;
   readonly executionId: string;
   readonly expectedRevision: number;
@@ -134,6 +162,18 @@ export interface PendingRequestV0 {
   }[];
 }
 
+export interface PendingBarrierRequestV0 {
+  readonly requestId: string;
+  readonly executionId: string;
+  readonly expectedRevision: number;
+  readonly logicalSequence: number;
+  readonly kind: "barrierApproval";
+  readonly descriptorId: string;
+  readonly reason: string;
+}
+
+export type PendingRequestV0 = PendingChoiceRequestV0 | PendingBarrierRequestV0;
+
 export interface ChoiceSelectedInputV0 {
   readonly schemaVersion: 0;
   readonly kind: "choiceSelected";
@@ -146,7 +186,74 @@ export interface ChoiceSelectedInputV0 {
   readonly optionId: string;
 }
 
-export type ExternalInputV0 = ChoiceSelectedInputV0;
+export interface BarrierApprovedInputV0 {
+  readonly schemaVersion: 0;
+  readonly kind: "barrierApproved";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly requestId: string;
+  readonly expectedRevision: number;
+  readonly logicalSequence: number;
+  readonly descriptorId: string;
+}
+
+export interface EffectCompletedInputV0 {
+  readonly schemaVersion: 0;
+  readonly kind: "effectCompleted";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly effectId: string;
+  readonly expectedRevision: number;
+  readonly logicalSequence: number;
+  readonly replayKey: string;
+}
+
+export interface EffectCancelledInputV0 {
+  readonly schemaVersion: 0;
+  readonly kind: "effectCancelled";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly effectId: string;
+  readonly expectedRevision: number;
+  readonly logicalSequence: number;
+  readonly cancellationScope: string;
+}
+
+export type ExternalInputV0 =
+  | ChoiceSelectedInputV0
+  | BarrierApprovedInputV0
+  | EffectCompletedInputV0
+  | EffectCancelledInputV0;
+
+export interface EffectIntentV0 {
+  readonly effectId: string;
+  readonly executionId: string;
+  readonly originatingRevision: number;
+  readonly logicalSequence: number;
+  readonly descriptorId: string;
+  readonly channel: string;
+  readonly kind: string;
+  readonly payload: Readonly<Record<string, VmScalarV0>>;
+  readonly policy: EffectPolicyV0;
+  readonly awaitMode: EffectAwaitModeV0;
+  readonly cancellationScope: string;
+  readonly replayKey: string;
+  readonly compensation: EffectCompensationV0 | null;
+}
+
+export interface EffectCancellationV0 {
+  readonly effectId: string;
+  readonly executionId: string;
+  readonly cancellationScope: string;
+  readonly reason: "back" | "forward" | "fork";
+}
+
+export interface BarrierRecordV0 {
+  readonly effectId: string;
+  readonly descriptorId: string;
+  readonly reason: string;
+  readonly committedAtRevision: number;
+}
 
 export interface InitialStateOptionsV0 {
   readonly executionId: string;
@@ -173,6 +280,8 @@ export interface HistoryEntryV0 {
   readonly beforeCheckpointId: string;
   readonly afterCheckpointId: string;
   readonly input: ExternalInputV0 | null;
+  readonly effects: readonly EffectIntentV0[];
+  readonly barrier: BarrierRecordV0 | null;
 }
 
 export interface RuntimeSessionV0 {
@@ -213,7 +322,9 @@ export interface RuntimeStateV0 {
     }>>;
   };
   readonly pendingRequests: readonly PendingRequestV0[];
+  readonly pendingEffects: readonly EffectIntentV0[];
   readonly nextInputSequence: number;
+  readonly nextEffectSequence: number;
   readonly inputReceipts: readonly InputReceiptV0[];
   readonly readSession: readonly string[];
   readonly historyCursor: number;
@@ -240,6 +351,10 @@ export type VmDiagnosticCode =
   | "VM_INPUT_ID_CONFLICT"
   | "VM_CHOICE_OPTION_INVALID"
   | "VM_INPUT_RECEIPT_LIMIT"
+  | "VM_EFFECT_REQUIRED"
+  | "VM_EFFECT_MISMATCH"
+  | "VM_EFFECT_CANCELLED"
+  | "VM_BARRIER_BLOCKED"
   | "VM_HISTORY_INVALID"
   | "VM_HISTORY_AT_START"
   | "VM_HISTORY_AT_END"
@@ -263,7 +378,7 @@ export interface VmCheckpointV0 {
 
 export interface TransitionResultV0 {
   readonly nextState: RuntimeStateV0;
-  readonly effects: readonly never[];
+  readonly effects: readonly EffectIntentV0[];
   readonly checkpoint: VmCheckpointV0 | null;
   readonly wait: {
     readonly durationTicks: number;
@@ -275,5 +390,7 @@ export interface TransitionResultV0 {
 
 export interface HistoryResultV0 {
   readonly session: RuntimeSessionV0;
+  readonly effects: readonly EffectIntentV0[];
+  readonly cancellations: readonly EffectCancellationV0[];
   readonly diagnostics: readonly VmDiagnostic[];
 }
