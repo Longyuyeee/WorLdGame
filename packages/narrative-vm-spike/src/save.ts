@@ -1,11 +1,18 @@
 import { canonicalBytes, canonicalStringify, utf8Encode } from "./canonical";
 import { validateRuntimeSessionV0 } from "./history";
+import {
+  mergeReferencedMetaProgressV0,
+  metaProgressReferenceIdV0,
+  validateMetaProgressV0
+} from "./meta-progress";
 import { sha256Hex } from "./sha256";
 import type {
   EffectCancellationV0,
+  MetaProgressV0,
   ProgramV0,
   RuntimeSaveBodyV0,
   RuntimeSaveLoadResultV0,
+  RuntimeSaveMetaLoadResultV0,
   RuntimeSaveOptionsV0,
   RuntimeSaveV0,
   RuntimeSessionV0,
@@ -13,9 +20,9 @@ import type {
 } from "./types";
 import { validateProgram } from "./validation";
 
-export const RUNTIME_VERSION_V0 = "cl04-spike.7" as const;
+export const RUNTIME_VERSION_V0 = "cl04-spike.8" as const;
 export const MAX_RUNTIME_SAVE_CHARACTERS_V0 = 16 * 1024 * 1024;
-const SAFE_ID = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
+const META_REFERENCE = /^meta\.[0-9a-f]{64}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 const SAVE_DOMAIN = utf8Encode("WORLd-VM-SAVE\0v0\0");
 
@@ -52,7 +59,13 @@ function failed(
   code: VmDiagnostic["code"],
   detail: string
 ): RuntimeSaveLoadResultV0 {
-  return { session: current, cancellations: [], effects: [], diagnostics: [diagnostic(code, detail)] };
+  return {
+    session: current,
+    cancellations: [],
+    effects: [],
+    metaProgressReferenceId: null,
+    diagnostics: [diagnostic(code, detail)]
+  };
 }
 
 function cancellationDirectives(session: RuntimeSessionV0): readonly EffectCancellationV0[] {
@@ -85,10 +98,12 @@ export function createRuntimeSaveV0(
   if (validateProgram(program).length > 0 || validateRuntimeSessionV0(program, session).length > 0) {
     throw new TypeError("Runtime Save requires a valid Program and Runtime Session");
   }
-  const referenceId = options.metaProgressReferenceId ?? null;
-  if (referenceId !== null && !SAFE_ID.test(referenceId)) {
-    throw new TypeError("Meta Progress reference ID must be null or a canonical VM identifier");
+  const metaProgress = options.metaProgress ?? null;
+  if (metaProgress !== null && (validateMetaProgressV0(metaProgress).length > 0 ||
+      metaProgress.projectId !== program.projectId)) {
+    throw new TypeError("Meta Progress must be valid and belong to the Runtime Save project");
   }
+  const referenceId = metaProgress === null ? null : metaProgressReferenceIdV0(metaProgress);
   const body: RuntimeSaveBodyV0 = {
     saveSchemaVersion: 0,
     irVersion: program.irVersion,
@@ -170,7 +185,7 @@ export function loadRuntimeSaveV0(
   }
   if (!plainRecord(migrated.metaProgress) || !exactKeys(migrated.metaProgress, ["schemaVersion", "referenceId"]) ||
       migrated.metaProgress.schemaVersion !== 0 ||
-      (migrated.metaProgress.referenceId !== null && !SAFE_ID.test(migrated.metaProgress.referenceId))) {
+      (migrated.metaProgress.referenceId !== null && !META_REFERENCE.test(migrated.metaProgress.referenceId))) {
     return failed(current, "VM_SAVE_INVALID", "Runtime Save Meta Progress reference is invalid");
   }
   if (validateRuntimeSessionV0(program, migrated.session).length > 0) {
@@ -180,6 +195,58 @@ export function loadRuntimeSaveV0(
     session: clone(migrated.session),
     cancellations: cancellationDirectives(current),
     effects: clone(migrated.session.state.pendingEffects),
+    metaProgressReferenceId: migrated.metaProgress.referenceId,
     diagnostics: []
   };
+}
+
+export function loadRuntimeSaveWithMetaProgressV0(
+  program: ProgramV0,
+  currentSession: RuntimeSessionV0,
+  currentMetaProgress: MetaProgressV0,
+  serialized: string,
+  referencedMetaProgress: MetaProgressV0 | null
+): RuntimeSaveMetaLoadResultV0 {
+  if (validateMetaProgressV0(currentMetaProgress).length > 0 ||
+      currentMetaProgress.projectId !== program.projectId) {
+    return {
+      session: currentSession,
+      cancellations: [],
+      effects: [],
+      metaProgressReferenceId: null,
+      metaProgress: currentMetaProgress,
+      diagnostics: [diagnostic("VM_META_PROGRESS_INVALID", "Current Meta Progress is invalid or belongs to another project")]
+    };
+  }
+  const loaded = loadRuntimeSaveV0(program, currentSession, serialized);
+  if (loaded.diagnostics.length > 0) return { ...loaded, metaProgress: currentMetaProgress };
+  if (loaded.metaProgressReferenceId === null) {
+    return { ...loaded, metaProgress: currentMetaProgress };
+  }
+  if (referencedMetaProgress === null) {
+    return {
+      session: currentSession,
+      cancellations: [],
+      effects: [],
+      metaProgressReferenceId: null,
+      metaProgress: currentMetaProgress,
+      diagnostics: [diagnostic("VM_META_PROGRESS_INVALID", "Runtime Save Meta Progress snapshot is unavailable")]
+    };
+  }
+  const merged = mergeReferencedMetaProgressV0(
+    currentMetaProgress,
+    referencedMetaProgress,
+    loaded.metaProgressReferenceId
+  );
+  if (merged.diagnostics.length > 0) {
+    return {
+      session: currentSession,
+      cancellations: [],
+      effects: [],
+      metaProgressReferenceId: null,
+      metaProgress: currentMetaProgress,
+      diagnostics: merged.diagnostics
+    };
+  }
+  return { ...loaded, metaProgress: merged.progress };
 }

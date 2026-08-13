@@ -6,11 +6,13 @@ import {
   backRuntimeHistoryV0,
   canonicalStringify,
   createInitialStateV0,
+  createMetaProgressV0,
   createRuntimeSaveV0,
   createRuntimeSessionV0,
   forwardRuntimeHistoryV0,
   loadRuntimeSaveV0,
   migrateRuntimeSaveV0,
+  metaProgressReferenceIdV0,
   runtimeSaveIntegrityDigestV0,
   serializeRuntimeSaveV0,
   stateHashV0,
@@ -166,15 +168,20 @@ describe("CL-04 narrative VM kernel spike 06", () => {
       waiting,
       choiceInput(waiting, "left", "input.vm11.left")
     ).session;
+    const metaProgress = createMetaProgressV0(historyProgram.projectId, "progress.local.main");
     const save = createRuntimeSaveV0(historyProgram, committed, {
-      metaProgressReferenceId: "meta.profile.main"
+      metaProgress
     });
     const loaded = withCurrent(save);
     expect(loaded.diagnostics).toEqual([]);
     expect(loaded.session).not.toBe(save.session);
     expect(loaded.session.state.historyCursor).toBe(committed.state.historyCursor);
     expect(stateHashV0(loaded.session.state)).toBe(stateHashV0(committed.state));
-    expect(save.metaProgress).toEqual({ schemaVersion: 0, referenceId: "meta.profile.main" });
+    expect(save.metaProgress).toEqual({
+      schemaVersion: 0,
+      referenceId: metaProgressReferenceIdV0(metaProgress)
+    });
+    expect(loaded.metaProgressReferenceId).toBe(metaProgressReferenceIdV0(metaProgress));
 
     const backed = backRuntimeHistoryV0(historyProgram, loaded.session);
     const forwarded = forwardRuntimeHistoryV0(historyProgram, backed.session);
@@ -290,11 +297,11 @@ describe("CL-04 narrative VM kernel spike 06", () => {
     expect(serializeRuntimeSaveV0(save)).toBe(before);
   });
 
-  it("rejects invalid Meta Progress references at creation and load", () => {
+  it("rejects incompatible Meta Progress snapshots at creation and malformed references at load", () => {
     const session = historySession("execution.saved.meta");
     expect(() => createRuntimeSaveV0(historyProgram, session, {
-      metaProgressReferenceId: "bad reference"
-    })).toThrow("Meta Progress reference");
+      metaProgress: createMetaProgressV0("project.foreign", "progress.local.main")
+    })).toThrow("Meta Progress");
     const save = createRuntimeSaveV0(historyProgram, session);
     const malformed = resign({
       ...save,
@@ -311,12 +318,13 @@ describe("CL-04 narrative VM kernel spike 06", () => {
       waiting,
       choiceInput(waiting, "right", "input.vm11.golden.right")
     ).session;
+    const metaProgress = createMetaProgressV0(historyProgram.projectId, "progress.golden");
     const save = createRuntimeSaveV0(historyProgram, committed, {
-      metaProgressReferenceId: "meta.golden"
+      metaProgress
     });
     const loaded = loadRuntimeSaveV0(historyProgram, root, serializeRuntimeSaveV0(save));
     expect([save.integrityDigest, stateHashV0(loaded.session.state)]).toEqual([
-      "2cad5c2b9220479cbb2e136553d36699028d966db8989e32bfd79815b0bb0d5c",
+      "7c5de4166c9a7a871ff66bea4ae0f5130132950ab13631d16ca5a518351cedd1",
       "b671c801332477e0710afbf583f88d84ecfb64c57dcc17aaa83d12cecf716274"
     ]);
   });

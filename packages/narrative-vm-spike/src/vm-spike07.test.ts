@@ -239,13 +239,13 @@ describe("CL-04 narrative VM kernel spike 07", () => {
     expect(rejected.nextState).toBe(state);
   });
 
-  it("binds new saves to Spike 07 and rejects a correctly re-signed Spike 06 runtime envelope", () => {
+  it("binds new saves to Spike 08 and rejects a correctly re-signed Spike 07 runtime envelope", () => {
     const state = createInitialStateV0(vm09, { executionId: "execution.version", prngSeed: 123 });
     const session = createRuntimeSessionV0(vm09, state);
     const save = createRuntimeSaveV0(vm09, session);
-    expect(save.runtimeVersion).toBe("cl04-spike.7");
+    expect(save.runtimeVersion).toBe("cl04-spike.8");
     const { integrityDigest: _digest, ...currentBody } = save;
-    const oldBody = { ...currentBody, runtimeVersion: "cl04-spike.6" } as unknown as RuntimeSaveBodyV0;
+    const oldBody = { ...currentBody, runtimeVersion: "cl04-spike.7" } as unknown as RuntimeSaveBodyV0;
     const old = { ...oldBody, integrityDigest: runtimeSaveIntegrityDigestV0(oldBody) };
     const loaded = loadRuntimeSaveV0(vm09, session, canonicalStringify(old));
     expect(loaded.session).toBe(session);

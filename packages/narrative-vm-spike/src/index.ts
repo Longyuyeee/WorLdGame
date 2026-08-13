@@ -3,6 +3,7 @@ export * from "./effect";
 export * from "./hash";
 export * from "./history";
 export * from "./input";
+export * from "./meta-progress";
 export * from "./save";
 export * from "./scheduler";
 export * from "./sha256";
