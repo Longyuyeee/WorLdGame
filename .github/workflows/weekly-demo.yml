@@ -1,0 +1,26 @@
+name: weekly-empty-to-web-demo
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 18 * * 1"
+
+jobs:
+  demo:
+    name: Empty directory to Web editor shell
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Use Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.12.0
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Audit requirements and Golden seeds
+        run: npm run audit:requirements && npm run audit:goldens
+      - name: Run empty-directory demo
+        run: npm run demo:empty-to-web

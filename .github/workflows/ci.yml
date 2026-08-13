@@ -15,9 +15,13 @@ jobs:
     name: Windows / Node 22 / full check
     runs-on: windows-latest
     timeout-minutes: 30
+    env:
+      WORLD_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Use Node.js
         uses: actions/setup-node@v5
         with:
