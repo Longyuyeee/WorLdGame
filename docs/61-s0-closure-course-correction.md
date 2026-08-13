@@ -68,7 +68,7 @@ WorLd Studio 的产品定位、现代多彩视觉方向、Windows/Android 完整
 | CL-01 | 目标设备与容量、内存、帧时间预算是什么 | 有条件通过 | [能力档位与预算已冻结](62-cl01-target-device-budget.md)；仍须登记低档 Windows、低档 Android、主流 Android 实体设备并跑基线 | 降低默认资源 Profile，不删除平台 |
 | CL-02 | Android 编辑壳、文件、IME、选区、撤销、后台恢复是否可靠 | 未开始；[证据契约已冻结](67-cl02-android-editor-shell-evidence-contract.md) | AI-01–AI-10、AS-01–AS-19、AND-L/AND-R 原始数据及安全/数据/内存硬门 | 更换壳/编辑器组件；两候选受限复测后仍失败则阻断 M1，不降级为只读端 |
 | CL-03 | Electron 与 Tauri 哪个满足 Windows 文件、更新、内存、隔离和调试要求 | 未开始；[证据契约已冻结](65-cl03-windows-shell-evidence-contract.md) | WS-01–WS-18、WIN-L 原始数据、安全/数据/更新硬门与 ADR | 只在硬门后评分；两者仍失败则阻断 M1，不降低 Windows 完整编辑目标 |
-| CL-04 | Narrative VM 能否确定性回滚、前进、快进、取消异步 Effect 和跨 Barrier 重放 | 进行中；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[10](77-cl04-vm-web-worker-conformance-spike-10.md) 已形成 VM-01–15 Node 基础、10k 语料与 Node/Web Worker 基础 Trace | 仍须 History/Scheduler/Save 跨宿主、真实时钟/存储、Windows/Android 剧情 Hash 0 差异与独立审阅 | 缩小 Effect 集或增加显式不可逆 Barrier，不伪造回滚 |
+| CL-04 | Narrative VM 能否确定性回滚、前进、快进、取消异步 Effect 和跨 Barrier 重放 | 进行中；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[11](78-cl04-vm-history-save-conformance-spike-11.md) 已形成 VM-01–15 Node 基础、10k 语料及 Node/Web Worker 基础/History/Scheduler/Save Trace | 仍须 10k 与 Effect/Barrier/Meta/Skip 跨宿主、真实存储、Windows/Android 剧情 Hash 0 差异与独立审阅 | 缩小 Effect 集或增加显式不可逆 Barrier，不伪造回滚 |
 | CL-05 | Web/Windows/Android 最小玩家和 Windows 本地构建链能否贯通 | 未开始 | 三端可安装/运行产物、相同固定路线 State Hash、Manifest 和失败日志 | 替换壳或工具链；任一 M1 平台缺失则阻断 M1 |
 | CL-06 | Android 端直接生成 APK/AAB 是否可行 | 未开始 | 真机完成受支持工程构建、签名边界与资源预算 | 明确采用 Windows 本地 Android 构建基线 |
 | CL-07 | Pixi + DOM 在 DPR、输入命中、截图和可中断动效上是否一致 | 未开始 | 三类目标设备视觉/输入 Golden 与 Reduced Motion 结果 | 调整渲染边界或统一关键层技术 |
