@@ -3,7 +3,7 @@
 > 日期：2026-08-13
 > 节点：N11
 > 对齐需求：`REQ-PRJ`、`REQ-SEQ`、`REQ-SCRIPT`；为 N13、N21 和 AC-02/03/04 提供统一写入前置
-> 状态：实现与定点测试通过；等待完整本地门、推送和 Draft PR Windows CI
+> 状态：通过（本地与 Draft PR Windows CI 均通过）
 
 ## 1. 节点目标与原有问题
 
@@ -81,7 +81,9 @@ npm.cmd exec -- vitest run packages/project-domain/src/project-service.test.ts a
 npm.cmd run check
 ```
 
-结果：workspace/需求/PR 追踪/Golden 审计通过；TypeScript 通过；普通测试 67 files / 440 tests、VM 重负载 1 file / 5 tests 全部通过；10 workspace 构建通过；架构审计覆盖 58 个 portable 文件；脚本性能 9 tests、资产性能 4 tests 通过；总耗时 63 秒。推送和 Draft PR Windows CI 结果在节点收口时补入。
+结果：workspace/需求/PR 追踪/Golden 审计通过；TypeScript 通过；普通测试 67 files / 440 tests、VM 重负载 1 file / 5 tests 全部通过；10 workspace 构建通过；架构审计覆盖 58 个 portable 文件；脚本性能 9 tests、资产性能 4 tests 通过；总耗时 63 秒。
+
+远端验收：Draft PR #26 的 GitHub Actions run `31713637992` 在 `windows-latest` / Node `22.12.0` 上通过，作业 `94492692905` 总耗时 2 分 59 秒；干净依赖安装、PR 追踪、类型、全部测试/构建、架构与性能门均成功。
 
 ## 6. Acceptance / Stop Conditions 对齐
 
@@ -99,4 +101,4 @@ npm.cmd run check
 
 N11 不证明项目首页、真实目录打开、最近项目、导入导出、崩溃恢复 UI 或章节/实体管理界面已经完成。它证明的是这些界面将要调用的统一语义事务内核。
 
-N11 全部门通过后进入 N12：项目首页与文件生命周期。
+N11 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N12：项目首页与文件生命周期。

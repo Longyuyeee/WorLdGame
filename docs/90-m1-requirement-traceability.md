@@ -20,7 +20,7 @@
 
 ## 2. 产品支柱
 
-最近通过节点：`N10`；当前节点：`N11` 验收中。统一 Project Service、事务命令、ChangeSet、Undo/Redo、Revision/引用冲突和 SourceSession 命令适配已实现，等待完整本地门与 Draft PR Windows CI；证据见[《N11 Project Service 与事务命令审计》](94-n11-project-service.md)。
+最近通过节点：`N11`。统一 Project Service、事务命令、ChangeSet、Undo/Redo、Revision/引用冲突、SourceSession 命令适配和 Draft PR Windows CI 均已通过；证据见[《N11 Project Service 与事务命令审计》](94-n11-project-service.md)。下一节点为 `N12`。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
