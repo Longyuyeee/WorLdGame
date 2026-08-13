@@ -53,8 +53,8 @@
 
 ### 3.1 源文件
 
-- \`world.project.json\`
-- \`story/**/*.world\`
+- `world.project.json`
+- `story/**/*.world`
 - 角色和资源清单
 - 本地化表
 - UI 主题/组件声明
@@ -63,12 +63,15 @@
 
 ### 3.2 可删除并重建
 
-- \`.world/cache\`
+- `.world/cache`
 - 缩略图
 - 搜索索引
 - 编译 IR
 - 流程图边索引
-- \`dist\`
+- Gallery/Replay/Music/Ending Catalog
+- Dicing/Delta Atlas、平台纹理和重建 Manifest
+- 多分辨率画廊缩略图
+- `dist`
 
 编辑器不得把唯一数据只放在缓存数据库。
 
@@ -85,7 +88,7 @@
 
 ### 4.2 文本 ID
 
-每条面向玩家的文本都有 \`textId\`，用于：
+每条面向玩家的文本都有 `textId`，用于：
 
 - 本地化；
 - 配音；
@@ -95,7 +98,19 @@
 - 截图上下文；
 - 分析与 QA。
 
-修改原文不改变 \`textId\`，但目标语言状态变为“源文已更新/需复审”。
+修改原文不改变 `textId`，但目标语言状态变为“源文已更新/需复审”。
+
+### 4.3 S0 稳定 ID 文本映射
+
+- 场景、选择语句、选项、演出语句和结局使用 `@id(...)` 表达各自实体/语句 ID；
+- 对白同时具有语句身份和玩家文本身份：`@sid(statementId)` 用于执行顺序、回滚和 Source Map，`@id(textId)` 用于本地化、配音、历史和已读状态；
+- Formatter、移动和改名必须同时保留两类 ID；复制对白时两者都生成新值；
+- 缺少必要 ID 时可以容错打开源文件，但不得无提示投影为 Canonical `StoryScene`；
+- 此映射仍是 S0 v0 候选，需通过大型工程、迁移和存档验证后才能冻结。
+
+局部修改必须以稳定 ID 定位 CST 节点，只替换目标字段；不得通过重新生成整个场景脚本覆盖注释、Opaque Node、未知参数、换行风格或用户分段。源文本与解析文档不一致时必须进入冲突，而不是按旧行号继续写入。
+
+结构修改同样使用稳定 ID。Delete 必须产生 Tombstone，活动 Tombstone 的 `statementId/textId` 禁止被新实体复用；Undo 恢复实体时撤销对应活动 Tombstone，Redo 再建立。注释归属规则未冻结时，直接相邻注释的 Delete/Move/插入切分必须拒绝，不能猜测。
 
 ## 5. Canonical Model
 
@@ -109,33 +124,35 @@ Route、Sequence、Script、Stage 的关系：
 - Stage 模拟执行 AST 后投影视觉状态；
 - Layout Sidecar 只保存位置、分组、折叠和视口，不保存剧情边。
 
-因此，删除 \`layout.json\` 只会丢失图的位置，不会丢失剧情。
+因此，删除 `layout.json` 只会丢失图的位置，不会丢失剧情。
 
 ## 6. 脚本语法草案
 
 下面只用于验证可读性与 AST 能力，不是最终冻结语法。
 
-\`\`\`text
+```text
 scene "序章 · 天台" @id(scn_rooftop)
 
-@background rooftop transition=fade duration=800ms
-@show lin expression=smile position=center
+@background asset=bg.rooftop transition=fade duration=800ms @id(stmt_bg_rooftop)
+@show asset=char.lin.smile expression=smile position=center @id(stmt_show_lin)
+@audio asset=voice.lin.001 bus=voice loop=false @id(stmt_voice_lin_001)
+@audio asset=bgm.snow.promise bus=bgm loop=true fade=800ms @id(stmt_bgm_promise)
 
-lin: 如果明天真的下雪，你还会来这里吗？ @id(txt_01J...)
+lin: 如果明天真的下雪，你还会来这里吗？ @sid(stmt_01J...) @id(txt_01J...)
 
 choice "要怎么回答？" @id(choice_01J...)
   "我答应你，一定会来。" -> promise @id(opt_01J...)
   "你是不是有事瞒着我？" -> ask_truth @id(opt_01K...)
 
 label promise
-lin: 那就说好了。雪停之前，谁都不许失约。 @id(txt_01K...)
-end "约定之雪"
+lin: 那就说好了。雪停之前，谁都不许失约。 @sid(stmt_01K...) @id(txt_01K...)
+end "约定之雪" @id(stmt_end_promise)
 
 label ask_truth
 set asked_the_truth = true
-lin: 等雪落下的时候，我会把一切告诉你。 @id(txt_01M...)
-end "未寄出的真相"
-\`\`\`
+lin: 等雪落下的时候，我会把一切告诉你。 @sid(stmt_01M...) @id(txt_01M...)
+end "未寄出的真相" @id(stmt_end_truth)
+```
 
 ## 7. 语法原则
 
@@ -143,7 +160,7 @@ end "未寄出的真相"
 
 - 普通对白占据最简语法；
 - 角色名、文本和选项易读；
-- 演出命令使用 \`@\` 前缀；
+- 演出命令使用 `@` 前缀；
 - 标签、跳转和条件明确；
 - 元数据 ID 由编辑器弱显示/折叠。
 
@@ -157,14 +174,14 @@ end "未寄出的真相"
 - 纯函数；
 - 明确注册的有副作用命令。
 
-禁止默认 \`eval\`，避免工程脚本获得文件、网络或进程权限。
+禁止默认 `eval`，避免工程脚本获得文件、网络或进程权限。
 
 ### 7.3 插件命令
 
-\`\`\`text
+```text
 @inventory.add item=pocket_watch count=1
 @weather.set kind=snow intensity=0.7
-\`\`\`
+```
 
 插件声明：
 
@@ -223,7 +240,7 @@ end "未寄出的真相"
 
 示例语义：
 
-\`\`\`json
+```json
 {
   "formatVersion": 1,
   "sceneId": "scn_rooftop",
@@ -235,7 +252,7 @@ end "未寄出的真相"
     "route_warm": { "title": "约定路线", "collapsed": false }
   }
 }
-\`\`\`
+```
 
 位置冲突不应阻塞剧情文件合并；可以选择本地布局、远端布局或自动重排。
 
@@ -254,9 +271,25 @@ end "未寄出的真相"
 - 许可证、作者和来源（可选但推荐）；
 - 每平台变体；
 - 导入器与导入设置；
+- 优化策略：auto/original/lossless-dicing/delta/platform；
+- 相似资源组、章节/加载范围和平台内存预算；
 - 依赖插件。
 
 剧情只引用 asset ID，不引用文件绝对路径。
+
+派生资源记录源 asset ID、输入哈希、算法/参数版本、Atlas 块映射和输出哈希。剧情、画廊和路线图不得直接引用派生文件路径，因此删除整个缓存后仍能从源工程完整重建。
+
+### 11.1 自动内容目录
+
+编译产物包含可版本化、可重建的目录：
+
+- `story-graph`：节点、连接、条件摘要、结局、可达性和剧透等级；
+- `gallery-catalog`：CG 组、差分、缩略图、解锁条件和排序覆盖；
+- `replay-catalog`：入口 `stepId`、初始状态策略和退出行为；
+- `music-catalog`：音频 asset ID、标题、作者、循环点和解锁；
+- `ending-catalog`：结局 ID、路线、显示信息和达成状态。
+
+自动目录来源于脚本与资源清单，手工配置只允许覆盖展示元数据，不复制剧情逻辑。
 
 ## 12. 本地化格式
 
