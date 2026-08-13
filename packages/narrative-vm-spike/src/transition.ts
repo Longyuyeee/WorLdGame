@@ -1,6 +1,10 @@
 import { stateHashV0 } from "./hash";
+import { canonicalStringify } from "./canonical";
+import { choiceRequestIdV0 } from "./input";
 import type {
   ComparisonV0,
+  ExternalInputV0,
+  InitialStateOptionsV0,
   InstructionV0,
   ProgramV0,
   RuntimeStateV0,
@@ -8,8 +12,8 @@ import type {
   VmDiagnostic,
   VmScalarV0
 } from "./types";
-import { MAX_CALL_STACK_DEPTH_V0 } from "./types";
-import { validateProgram, validateState } from "./validation";
+import { MAX_CALL_STACK_DEPTH_V0, MAX_INPUT_RECEIPTS_V0 } from "./types";
+import { validateExternalInputV0, validateProgram, validateState } from "./validation";
 
 const DEFAULT_PRNG_SEED = 0x6d2b79f5;
 
@@ -23,15 +27,24 @@ export class VmProgramValidationError extends Error {
   }
 }
 
-export function createInitialStateV0(program: ProgramV0, prngSeed = DEFAULT_PRNG_SEED): RuntimeStateV0 {
+export function createInitialStateV0(
+  program: ProgramV0,
+  options: InitialStateOptionsV0
+): RuntimeStateV0 {
+  const prngSeed = options.prngSeed ?? DEFAULT_PRNG_SEED;
+  const executionId = options.executionId;
   const diagnostics = validateProgram(program);
   if (diagnostics.length > 0) throw new VmProgramValidationError(diagnostics);
   if (!Number.isSafeInteger(prngSeed) || prngSeed < 1 || prngSeed > 0xffff_ffff) {
     throw new RangeError("PRNG seed must be a non-zero unsigned 32-bit integer");
   }
+  if (!/^[A-Za-z][A-Za-z0-9._:-]{0,127}$/.test(executionId)) {
+    throw new TypeError("Execution ID must be a canonical VM identifier");
+  }
   return {
     schemaVersion: 0,
     buildId: program.buildId,
+    executionId,
     ip: program.entryIp,
     stateRevision: 0,
     stepId: null,
@@ -42,6 +55,8 @@ export function createInitialStateV0(program: ProgramV0, prngSeed = DEFAULT_PRNG
     sceneState: { backgroundId: null, characters: {} },
     audioLogic: { tracks: {} },
     pendingRequests: [],
+    nextInputSequence: 0,
+    inputReceipts: [],
     readSession: [],
     historyCursor: -1,
     terminal: { kind: "running" }
@@ -49,7 +64,11 @@ export function createInitialStateV0(program: ProgramV0, prngSeed = DEFAULT_PRNG
 }
 
 function unchanged(state: RuntimeStateV0, diagnostic: VmDiagnostic): TransitionResultV0 {
-  return { nextState: state, effects: [], checkpoint: null, wait: null, diagnostics: [diagnostic] };
+  return { nextState: state, effects: [], checkpoint: null, wait: null, request: null, diagnostics: [diagnostic] };
+}
+
+function idempotent(state: RuntimeStateV0): TransitionResultV0 {
+  return { nextState: state, effects: [], checkpoint: null, wait: null, request: null, diagnostics: [] };
 }
 
 function instructionDiagnostic(
@@ -84,7 +103,11 @@ function nextXorshift32(state: number): number {
   return next >>> 0;
 }
 
-export function transitionV0(program: ProgramV0, state: RuntimeStateV0): TransitionResultV0 {
+export function transitionV0(
+  program: ProgramV0,
+  state: RuntimeStateV0,
+  input?: ExternalInputV0
+): TransitionResultV0 {
   const programDiagnostics = validateProgram(program);
   if (programDiagnostics.length > 0) {
     return unchanged(state, {
@@ -98,6 +121,52 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
   if (stateDiagnostics.length > 0) return unchanged(state, stateDiagnostics[0] as VmDiagnostic);
 
   const instruction = program.instructions.find((candidate) => candidate.ip === state.ip) as InstructionV0;
+
+  if (input !== undefined) {
+    if (!validateExternalInputV0(input)) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_MISMATCH", "External input schema is invalid"));
+    }
+    const prior = state.inputReceipts.find((receipt) => receipt.input.inputId === input.inputId);
+    if (prior !== undefined) {
+      return canonicalStringify(prior.input) === canonicalStringify(input)
+        ? idempotent(state)
+        : unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_ID_CONFLICT", "Input ID was already accepted with a different payload"));
+    }
+    const pending = state.pendingRequests[0];
+    if (pending === undefined) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_UNEXPECTED", "No external input request is pending"));
+    }
+    if (input.logicalSequence !== pending.logicalSequence) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_OUT_OF_ORDER", "Input logical sequence does not match the pending request"));
+    }
+    if (input.executionId !== pending.executionId || input.requestId !== pending.requestId ||
+        input.expectedRevision !== pending.expectedRevision || input.choiceId !== pending.choiceId) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_MISMATCH", "Input execution, request, revision, or choice does not match"));
+    }
+    const selected = pending.options.find((option) => option.optionId === input.optionId);
+    if (selected === undefined) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_CHOICE_OPTION_INVALID", "Choice option is not present in the pending request"));
+    }
+    if (state.inputReceipts.length >= MAX_INPUT_RECEIPTS_V0) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_RECEIPT_LIMIT", "Input receipt ledger reached its v0 limit"));
+    }
+    if (state.stateRevision === Number.MAX_SAFE_INTEGER) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "State revision overflow"));
+    }
+    const nextState: RuntimeStateV0 = {
+      ...state,
+      ip: selected.targetIp,
+      stateRevision: state.stateRevision + 1,
+      stepId: pending.choiceId,
+      pendingRequests: [],
+      inputReceipts: [...state.inputReceipts, { input, acceptedAtRevision: state.stateRevision + 1 }]
+    };
+    return { nextState, effects: [], checkpoint: null, wait: null, request: null, diagnostics: [] };
+  }
+
+  if (state.pendingRequests.length > 0) {
+    return unchanged(state, instructionDiagnostic(instruction, "VM_INPUT_REQUIRED", "External input is required before execution can continue"));
+  }
   if (state.terminal.kind === "ended") {
     return unchanged(state, instructionDiagnostic(instruction, "VM_TERMINAL", "Program has already ended"));
   }
@@ -112,6 +181,9 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
   let prng = state.prng;
   let logicalClock = state.logicalClock;
   let wait: TransitionResultV0["wait"] = null;
+  let request: TransitionResultV0["request"] = null;
+  let pendingRequests = state.pendingRequests;
+  let nextInputSequence = state.nextInputSequence;
   let terminal: RuntimeStateV0["terminal"] = state.terminal;
 
   if (instruction.opcode === "set") {
@@ -176,6 +248,30 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
     }
     logicalClock = resumeAtTick;
     wait = { durationTicks: instruction.operands.durationTicks, resumeAtTick };
+  } else if (instruction.opcode === "choice") {
+    if (nextInputSequence === Number.MAX_SAFE_INTEGER) {
+      return unchanged(state, instructionDiagnostic(instruction, "VM_INTEGER_OVERFLOW", "Input logical sequence overflow"));
+    }
+    const expectedRevision = state.stateRevision + 1;
+    const requestId = choiceRequestIdV0(
+      state.executionId,
+      instruction.operands.choiceId,
+      nextInputSequence,
+      expectedRevision
+    );
+    request = {
+      requestId,
+      executionId: state.executionId,
+      expectedRevision,
+      logicalSequence: nextInputSequence,
+      kind: "choice",
+      choiceId: instruction.operands.choiceId,
+      options: instruction.operands.options.map((option) => ({ ...option }))
+    };
+    pendingRequests = [request];
+    nextInputSequence += 1;
+    stepId = instruction.operands.choiceId;
+    nextIp = instruction.ip;
   } else if (instruction.opcode === "checkpoint") {
     stepId = instruction.operands.stepId;
   } else if (instruction.opcode === "end") {
@@ -195,6 +291,8 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
     variables,
     prng,
     logicalClock,
+    pendingRequests,
+    nextInputSequence,
     terminal
   };
   const checkpoint = instruction.opcode === "checkpoint" ? {
@@ -202,5 +300,5 @@ export function transitionV0(program: ProgramV0, state: RuntimeStateV0): Transit
     stateRevision: nextState.stateRevision,
     stateHash: stateHashV0(nextState)
   } : null;
-  return { nextState, effects: [], checkpoint, wait, diagnostics: [] };
+  return { nextState, effects: [], checkpoint, wait, request, diagnostics: [] };
 }

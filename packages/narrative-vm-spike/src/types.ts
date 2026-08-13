@@ -1,6 +1,7 @@
 export type VmScalarV0 = null | boolean | number | string;
 
 export const MAX_CALL_STACK_DEPTH_V0 = 64;
+export const MAX_INPUT_RECEIPTS_V0 = 1024;
 
 export type ComparisonOperatorV0 = "eq" | "ne" | "lt" | "lte" | "gt" | "gte";
 
@@ -72,6 +73,17 @@ export interface WaitInstructionV0 extends InstructionBaseV0 {
   readonly operands: { readonly durationTicks: number };
 }
 
+export interface ChoiceInstructionV0 extends InstructionBaseV0 {
+  readonly opcode: "choice";
+  readonly operands: {
+    readonly choiceId: string;
+    readonly options: readonly {
+      readonly optionId: string;
+      readonly targetIp: number;
+    }[];
+  };
+}
+
 export interface CheckpointInstructionV0 extends InstructionBaseV0 {
   readonly opcode: "checkpoint";
   readonly operands: { readonly stepId: string };
@@ -91,6 +103,7 @@ export type InstructionV0 =
   | ReturnInstructionV0
   | RandomInstructionV0
   | WaitInstructionV0
+  | ChoiceInstructionV0
   | CheckpointInstructionV0
   | EndInstructionV0;
 
@@ -107,13 +120,44 @@ export interface ProgramV0 {
 export interface PendingRequestV0 {
   readonly requestId: string;
   readonly executionId: string;
-  readonly originatingRevision: number;
-  readonly kind: string;
+  readonly expectedRevision: number;
+  readonly logicalSequence: number;
+  readonly kind: "choice";
+  readonly choiceId: string;
+  readonly options: readonly {
+    readonly optionId: string;
+    readonly targetIp: number;
+  }[];
+}
+
+export interface ChoiceSelectedInputV0 {
+  readonly schemaVersion: 0;
+  readonly kind: "choiceSelected";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly requestId: string;
+  readonly expectedRevision: number;
+  readonly logicalSequence: number;
+  readonly choiceId: string;
+  readonly optionId: string;
+}
+
+export type ExternalInputV0 = ChoiceSelectedInputV0;
+
+export interface InitialStateOptionsV0 {
+  readonly executionId: string;
+  readonly prngSeed?: number;
+}
+
+export interface InputReceiptV0 {
+  readonly input: ExternalInputV0;
+  readonly acceptedAtRevision: number;
 }
 
 export interface RuntimeStateV0 {
   readonly schemaVersion: 0;
   readonly buildId: string;
+  readonly executionId: string;
   readonly ip: number;
   readonly stateRevision: number;
   readonly stepId: string | null;
@@ -138,6 +182,8 @@ export interface RuntimeStateV0 {
     }>>;
   };
   readonly pendingRequests: readonly PendingRequestV0[];
+  readonly nextInputSequence: number;
+  readonly inputReceipts: readonly InputReceiptV0[];
   readonly readSession: readonly string[];
   readonly historyCursor: number;
   readonly terminal:
@@ -155,7 +201,14 @@ export type VmDiagnosticCode =
   | "VM_INTEGER_OVERFLOW"
   | "VM_CALL_STACK_OVERFLOW"
   | "VM_CALL_STACK_UNDERFLOW"
-  | "VM_RANDOM_RANGE_INVALID";
+  | "VM_RANDOM_RANGE_INVALID"
+  | "VM_INPUT_REQUIRED"
+  | "VM_INPUT_UNEXPECTED"
+  | "VM_INPUT_MISMATCH"
+  | "VM_INPUT_OUT_OF_ORDER"
+  | "VM_INPUT_ID_CONFLICT"
+  | "VM_CHOICE_OPTION_INVALID"
+  | "VM_INPUT_RECEIPT_LIMIT";
 
 export interface VmDiagnostic {
   readonly code: VmDiagnosticCode;
@@ -178,5 +231,6 @@ export interface TransitionResultV0 {
     readonly durationTicks: number;
     readonly resumeAtTick: number;
   } | null;
+  readonly request: PendingRequestV0 | null;
   readonly diagnostics: readonly VmDiagnostic[];
 }

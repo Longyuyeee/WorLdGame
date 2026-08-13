@@ -1,11 +1,19 @@
 import { canonicalBytes, canonicalStringify } from "./canonical";
+import { choiceRequestIdV0 } from "./input";
 import { sha256Hex } from "./sha256";
-import { MAX_CALL_STACK_DEPTH_V0 } from "./types";
-import type { InstructionV0, ProgramV0, RuntimeStateV0, VmDiagnostic } from "./types";
+import { MAX_CALL_STACK_DEPTH_V0, MAX_INPUT_RECEIPTS_V0 } from "./types";
+import type {
+  ExternalInputV0,
+  InstructionV0,
+  PendingRequestV0,
+  ProgramV0,
+  RuntimeStateV0,
+  VmDiagnostic
+} from "./types";
 
 const SAFE_ID = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
 const SUPPORTED_OPCODES = [
-  "add", "call", "checkpoint", "end", "jump", "jumpIf", "random", "return", "set", "wait"
+  "add", "call", "checkpoint", "choice", "end", "jump", "jumpIf", "random", "return", "set", "wait"
 ] as const;
 
 export const SPIKE_OPCODE_REGISTRY_DIGEST_V0 = sha256Hex(canonicalBytes({
@@ -113,17 +121,75 @@ function validateInstruction(instruction: InstructionV0, knownIps: ReadonlySet<n
   } else if (opcode === "wait" && (!exactKeys(values, ["durationTicks"]) ||
       !safeInteger(values.durationTicks) || values.durationTicks < 1)) {
     diagnostics.push(invalidProgram("wait durationTicks must be a positive safe integer", instruction));
+  } else if (opcode === "choice") {
+    const options = Array.isArray(values.options) ? values.options : [];
+    const optionIds = new Set<string>();
+    const malformedOption = options.some((option) => {
+      if (!plainRecord(option) || !exactKeys(option, ["optionId", "targetIp"]) ||
+          !safeId(option.optionId) || !safeInteger(option.targetIp) || !knownIps.has(option.targetIp) ||
+          optionIds.has(option.optionId)) return true;
+      optionIds.add(option.optionId);
+      return false;
+    });
+    if (!exactKeys(values, ["choiceId", "options"]) || !safeId(values.choiceId) ||
+        options.length < 1 || options.length > 64 || malformedOption) {
+      diagnostics.push(invalidProgram("choice requires 1..64 unique canonical options with valid targets", instruction));
+    }
   } else if (opcode === "checkpoint" && (!exactKeys(values, ["stepId"]) || !safeId(values.stepId))) {
     diagnostics.push(invalidProgram("checkpoint requires only a safe stepId", instruction));
   } else if (opcode === "end" && (!exactKeys(values, ["endingId"]) || !safeId(values.endingId))) {
     diagnostics.push(invalidProgram("end requires only a safe endingId", instruction));
   }
 
-  const mustBeBoundary = opcode === "checkpoint" || opcode === "end";
-  if (instruction.stepBoundary !== mustBeBoundary || (instruction.stopPoint && opcode !== "end")) {
+  const mustBeBoundary = opcode === "checkpoint" || opcode === "choice" || opcode === "end";
+  const mustStop = opcode === "choice" || opcode === "end";
+  if (instruction.stepBoundary !== mustBeBoundary || instruction.stopPoint !== mustStop) {
     diagnostics.push(invalidProgram("Spike boundary flags do not match opcode semantics", instruction));
   }
   return diagnostics;
+}
+
+function validInputRecord(input: unknown): input is ExternalInputV0 {
+  if (!plainRecord(input) || !exactKeys(input, [
+    "schemaVersion", "kind", "inputId", "executionId", "requestId", "expectedRevision",
+    "logicalSequence", "choiceId", "optionId"
+  ])) return false;
+  return input.schemaVersion === 0 && input.kind === "choiceSelected" && safeId(input.inputId) &&
+    safeId(input.executionId) && safeId(input.requestId) && safeInteger(input.expectedRevision) &&
+    input.expectedRevision >= 0 && safeInteger(input.logicalSequence) && input.logicalSequence >= 0 &&
+    safeId(input.choiceId) && safeId(input.optionId);
+}
+
+export function validateExternalInputV0(input: unknown): input is ExternalInputV0 {
+  if (!validInputRecord(input)) return false;
+  try {
+    canonicalStringify(input);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function validPendingRequest(request: unknown, state: RuntimeStateV0, program: ProgramV0): request is PendingRequestV0 {
+  if (!plainRecord(request) || !exactKeys(request, [
+    "requestId", "executionId", "expectedRevision", "logicalSequence", "kind", "choiceId", "options"
+  ]) || !safeId(request.requestId) || request.executionId !== state.executionId ||
+      request.expectedRevision !== state.stateRevision || !safeInteger(request.logicalSequence) ||
+      request.logicalSequence < 0 || request.logicalSequence >= state.nextInputSequence ||
+      request.kind !== "choice" || !safeId(request.choiceId) || !Array.isArray(request.options) ||
+      request.options.length < 1 || request.options.length > 64 || request.requestId !== choiceRequestIdV0(
+        request.executionId,
+        request.choiceId,
+        request.logicalSequence,
+        request.expectedRevision
+      )) return false;
+  const ids = new Set<string>();
+  const instruction = program.instructions.find((item) => item.ip === state.ip);
+  const validOptions = request.options.every((option) => plainRecord(option) && exactKeys(option, ["optionId", "targetIp"]) &&
+    safeId(option.optionId) && !ids.has(option.optionId) && ids.add(option.optionId) &&
+    safeInteger(option.targetIp) && program.instructions.some((item) => item.ip === option.targetIp));
+  return validOptions && instruction?.opcode === "choice" && instruction.operands.choiceId === request.choiceId &&
+    canonicalStringify(instruction.operands.options) === canonicalStringify(request.options);
 }
 
 export function validateProgram(program: ProgramV0): readonly VmDiagnostic[] {
@@ -185,17 +251,20 @@ export function validateState(program: ProgramV0, state: RuntimeStateV0): readon
     sourceStatementId: instruction?.sourceStatementId ?? null,
     detail
   }];
-  if (state.schemaVersion !== 0 || state.buildId !== program.buildId || instruction === undefined ||
+  if (state.schemaVersion !== 0 || state.buildId !== program.buildId || !safeId(state.executionId) ||
+      instruction === undefined ||
       !safeInteger(state.stateRevision) || state.stateRevision < 0 || !safeInteger(state.logicalClock) ||
-      state.logicalClock < 0 || !safeInteger(state.historyCursor) ||
+      state.logicalClock < 0 || !safeInteger(state.historyCursor) || !safeInteger(state.nextInputSequence) ||
+      state.nextInputSequence < 0 ||
       state.prng.algorithm !== "xorshift32-v0" || !safeInteger(state.prng.state) ||
       state.prng.state < 1 || state.prng.state > 0xffff_ffff || !safeInteger(state.prng.draws) ||
       state.prng.draws < 0) {
     return fail("State header, cursor, clock, or PRNG is invalid");
   }
   if (!exactKeys(state as unknown as Record<string, unknown>, [
-    "schemaVersion", "buildId", "ip", "stateRevision", "stepId", "callStack", "variables", "prng",
-    "logicalClock", "sceneState", "audioLogic", "pendingRequests", "readSession", "historyCursor", "terminal"
+    "schemaVersion", "buildId", "executionId", "ip", "stateRevision", "stepId", "callStack", "variables", "prng",
+    "logicalClock", "sceneState", "audioLogic", "pendingRequests", "nextInputSequence", "inputReceipts",
+    "readSession", "historyCursor", "terminal"
   ]) || !exactKeys(state.prng as unknown as Record<string, unknown>, ["algorithm", "state", "draws"]) ||
     !exactKeys(state.sceneState as unknown as Record<string, unknown>, ["backgroundId", "characters"]) ||
     !exactKeys(state.audioLogic as unknown as Record<string, unknown>, ["tracks"]) ||
@@ -206,7 +275,24 @@ export function validateState(program: ProgramV0, state: RuntimeStateV0): readon
     state.callStack.length > MAX_CALL_STACK_DEPTH_V0 ||
     state.callStack.some((ip) => !safeInteger(ip) || !program.instructions.some((item) => item.ip === ip)) ||
     (state.stepId !== null && !safeId(state.stepId)) || !Array.isArray(state.pendingRequests) ||
-    state.pendingRequests.length !== 0 || !Array.isArray(state.readSession) ||
+    state.pendingRequests.length > 1 || state.pendingRequests.some((request) =>
+      !validPendingRequest(request, state, program)) || !Array.isArray(state.inputReceipts) ||
+    (state.pendingRequests.length > 0 && state.terminal.kind !== "running") ||
+    state.inputReceipts.length > MAX_INPUT_RECEIPTS_V0 || state.inputReceipts.some((receipt) =>
+      !plainRecord(receipt) || !exactKeys(receipt, ["input", "acceptedAtRevision"]) ||
+      !validateExternalInputV0(receipt.input) || receipt.input.executionId !== state.executionId ||
+      receipt.input.requestId !== choiceRequestIdV0(
+        receipt.input.executionId,
+        receipt.input.choiceId,
+        receipt.input.logicalSequence,
+        receipt.input.expectedRevision
+      ) ||
+      receipt.input.logicalSequence >= state.nextInputSequence ||
+      !safeInteger(receipt.acceptedAtRevision) || receipt.acceptedAtRevision < 1 ||
+      receipt.acceptedAtRevision > state.stateRevision ||
+      receipt.input.expectedRevision >= receipt.acceptedAtRevision) ||
+    new Set(state.inputReceipts.map((receipt) => receipt.input.inputId)).size !== state.inputReceipts.length ||
+    !Array.isArray(state.readSession) ||
     state.readSession.some((id) => !safeId(id)) || !plainRecord(state.sceneState.characters) ||
     !plainRecord(state.audioLogic.tracks) ||
     (state.terminal.kind !== "running" && (state.terminal.kind !== "ended" || !safeId(state.terminal.endingId)))) {
