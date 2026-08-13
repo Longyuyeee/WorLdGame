@@ -40,12 +40,23 @@ app.whenReady().then(async () => {
   storage = grantedRoot === undefined
     ? await ElectronStorageHost.create()
     : await ElectronStorageHost.createGranted(grantedRoot);
+  if (grantedRoot !== undefined && process.argv.includes("--audit-hold-cas")) {
+    await storage.auditHoldCasGuard();
+    return;
+  }
   const auditOwner = process.argv.find((argument) => argument.startsWith("--audit-lock-acquire="))?.slice("--audit-lock-acquire=".length);
   if (grantedRoot !== undefined && auditOwner !== undefined) {
     const startAt = Number(process.argv.find((argument) => argument.startsWith("--audit-start-at="))?.slice("--audit-start-at=".length) ?? "0");
     if (Number.isFinite(startAt) && startAt > Date.now()) await new Promise((resolveWait) => setTimeout(resolveWait, startAt - Date.now()));
     const ttl = Number(process.argv.find((argument) => argument.startsWith("--audit-lock-ttl="))?.slice("--audit-lock-ttl=".length) ?? "1500");
-    const result = await storage.acquire(auditOwner, ttl);
+    const result = await storage.acquire(auditOwner, ttl).catch(async (error: unknown) => {
+      if (String(error).includes("CAS_GUARD_TIMEOUT")) {
+        await finish({ schemaVersion: 1, status: "cas-busy", exitCode: 0 }, 0);
+        return null;
+      }
+      throw error;
+    });
+    if (result === null) return;
     if (process.argv.includes("--audit-release") && result.status === "acquired") {
       const released = await storage.release(result.lease);
       await finish({ schemaVersion: 1, status: released ? "released" : "release-failed", lease: result.lease }, released ? 0 : 2);
