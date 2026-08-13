@@ -1,7 +1,7 @@
 # CL-04 Narrative VM 确定性证据契约
 
 > 决策日期：2026-08-12
-> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[09](76-cl04-vm-generated-properties-spike-09.md) 已完成 VM-01–15 的 Node 基础与 History/Effect/Save/Skip/Meta/10k 生成语料前置语义；CL-04 进行中但未通过
+> 状态：证据契约已冻结；[Spike 01](68-cl04-vm-kernel-spike-01.md)–[10](77-cl04-vm-web-worker-conformance-spike-10.md) 已完成 VM-01–15 Node 基础、10k 语料与 Node/Web Worker 基础 Trace；CL-04 进行中但未通过
 > 风险：CL-04
 > 决策类型：S0 可抛弃 Spike 契约，不是 VM 产品实现
 
@@ -265,4 +265,4 @@ CL-04 只有同时满足以下条件才通过：
 
 ## 13. 当前审计结论
 
-现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md)–[09](76-cl04-vm-generated-properties-spike-09.md) 已提供 VM-01–15 的 Node 基础、Back/Forward/Fork、受控 Effect/Barrier、canonical Runtime Save、外部 Skip/Auto、独立 Meta Progress 与 10k 固定生成语料。Save/Meta 仍是单 Node 内存协议，Scheduler 尚未与 Runtime History/真实时钟集成；Web Worker、Windows、Android 相同 Hash 与独立审阅尚未完成，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。
+现有编辑代码提供编辑事务、Preview 播放按钮、资源调度和项目恢复候选证据；独立 `narrative-vm-spike` 的 [Spike 01](68-cl04-vm-kernel-spike-01.md)–[10](77-cl04-vm-web-worker-conformance-spike-10.md) 已提供 VM-01–15 Node 基础、Back/Forward/Fork、受控 Effect/Barrier、canonical Runtime Save、外部 Skip/Auto、独立 Meta Progress、10k 固定生成语料与一条 Node/Web Worker 基础 Trace。当前跨宿主 Corpus 尚未覆盖 Runtime History/Save、10k 语料、Windows/Android 壳或真机；独立审阅也未完成，因此 CL-04 只能标记“进行中”，不得视为正式 VM 或通过。
