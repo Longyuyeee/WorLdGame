@@ -17,6 +17,12 @@ export interface DialogueStatement extends StatementBase {
   readonly text: string;
 }
 
+export interface NarrationStatement extends StatementBase {
+  readonly kind: "narration";
+  readonly textId: EntityId;
+  readonly text: string;
+}
+
 export interface DirectionStatement extends StatementBase {
   readonly kind: "direction";
   readonly command: "background" | "show" | "audio";
@@ -40,10 +46,26 @@ export interface EndStatement extends StatementBase {
   readonly endingName: string;
 }
 
+export interface LabelStatement extends StatementBase { readonly kind: "label"; readonly name: string; }
+export interface JumpStatement extends StatementBase { readonly kind: "jump"; readonly targetLabel: string; }
+export interface CallStatement extends StatementBase { readonly kind: "call"; readonly targetLabel: string; }
+export interface ReturnStatement extends StatementBase { readonly kind: "return"; }
+export interface SetStatement extends StatementBase { readonly kind: "set"; readonly variable: string; readonly expression: string; }
+export interface ConditionStatement extends StatementBase { readonly kind: "condition"; readonly expression: string; readonly targetLabel: string; }
+export interface WaitStatement extends StatementBase { readonly kind: "wait"; readonly duration: string; }
+
 export type StoryStatement =
   | DialogueStatement
+  | NarrationStatement
   | DirectionStatement
   | ChoiceStatement
+  | LabelStatement
+  | JumpStatement
+  | CallStatement
+  | ReturnStatement
+  | SetStatement
+  | ConditionStatement
+  | WaitStatement
   | EndStatement;
 
 export interface StoryScene {
@@ -134,6 +156,9 @@ export function validateStoryProject(project: StoryProject): readonly ProjectDia
     for (const statement of scene.statements) {
       registerId(statement.id, statement.id);
       if (statement.kind === "dialogue") {
+        registerId(statement.textId, statement.id);
+      }
+      if (statement.kind === "narration") {
         registerId(statement.textId, statement.id);
       }
       if (statement.kind === "choice") {

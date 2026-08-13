@@ -14,7 +14,9 @@ import {
   projectStoryScene,
   reduceScriptSourceSession,
   restoreScriptSourceSession,
-  type ScriptSourceSession
+  type ScriptSourceSession,
+  type P0EditableNode,
+  type P0BatchOperation
 } from "@world-studio/story-language";
 import {
   CURRENT_PROJECT_SCHEMA_VERSION,
@@ -119,6 +121,11 @@ export type StudioAction =
       readonly statementId: EntityId;
       readonly afterId: EntityId;
     }
+  | { readonly type: "p0-insert"; readonly commandId: EntityId; readonly afterId: EntityId | null; readonly node: P0EditableNode }
+  | { readonly type: "p0-update"; readonly commandId: EntityId; readonly statementId: EntityId; readonly patch: Readonly<Record<string, unknown>> }
+  | { readonly type: "p0-delete"; readonly commandId: EntityId; readonly statementId: EntityId }
+  | { readonly type: "p0-move"; readonly commandId: EntityId; readonly statementId: EntityId; readonly afterId: EntityId }
+  | { readonly type: "p0-batch"; readonly commandId: EntityId; readonly operations: readonly P0BatchOperation[]; readonly selectedStatementId?: EntityId }
   | { readonly type: "format-script"; readonly commandId: EntityId }
   | { readonly type: "discard-draft" }
   | { readonly type: "undo" }
@@ -498,6 +505,11 @@ function executeStructuralCommand(
       }
     };
   }
+  const projection=projectStoryScene(execution.session.committedDocument);
+  if(!projection.ok)return{...session,notice:{tone:"error",title:"操作未执行",detail:projection.diagnostics[0]?.message??"类型化语义验证失败"}};
+  const candidateProject:StoryProject={...session.project,scenes:session.project.scenes.map((scene)=>scene.id===session.activeSceneId?projection.scene:scene)};
+  const projectDiagnostics=validateStoryProject(candidateProject);
+  if(projectDiagnostics.length>0)return{...session,notice:{tone:"error",title:"操作未执行",detail:projectDiagnostics[0]!.message}};
   return withActiveSource(session, execution.session, {
     ...(selectedStatementId === undefined ? {} : { selectedStatementId }),
     notice: {
@@ -737,6 +749,20 @@ export function reduceStudioSession(
         },
         action.statementId
       );
+    case "p0-insert":
+      return executeStructuralCommand(session, { schemaVersion: 0, kind: "script.p0-insert", commandId: action.commandId, baseRevision: currentSourceSession.revision, afterId: action.afterId, node: action.node }, action.node.kind === "dialogue" || action.node.kind === "narration" ? action.node.statementId : action.node.id);
+    case "p0-update":
+      return executeStructuralCommand(session, { schemaVersion: 0, kind: "script.p0-update", commandId: action.commandId, baseRevision: currentSourceSession.revision, statementId: action.statementId, patch: action.patch }, action.statementId);
+    case "p0-delete": {
+      const activeScene = findScene(session.project, session.activeSceneId);
+      const targetIndex = activeScene.statements.findIndex((item) => item.id === action.statementId);
+      const fallback = activeScene.statements[targetIndex + 1] ?? activeScene.statements[targetIndex - 1];
+      return executeStructuralCommand(session, { schemaVersion: 0, kind: "script.p0-delete", commandId: action.commandId, baseRevision: currentSourceSession.revision, statementId: action.statementId }, fallback?.id);
+    }
+    case "p0-move":
+      return executeStructuralCommand(session, { schemaVersion: 0, kind: "script.p0-move", commandId: action.commandId, baseRevision: currentSourceSession.revision, statementId: action.statementId, afterId: action.afterId }, action.statementId);
+    case "p0-batch":
+      return executeStructuralCommand(session,{schemaVersion:0,kind:"script.p0-batch",commandId:action.commandId,baseRevision:currentSourceSession.revision,operations:action.operations},action.selectedStatementId);
     case "format-script": {
       if (hasPendingDraft(session)) {
         return {

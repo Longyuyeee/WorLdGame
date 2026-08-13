@@ -4,6 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
+> 当前审计：[N21 工程门后开发情况审计](99-current-development-status-audit.md)。N21 真人产品门与 N00–N21 Draft PR 集成完成前，不进入 N22。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -213,6 +214,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Acceptance**：Branching Golden Project parse → edit → format → parse Hash 不变。
 
 ### N21 最小 Writer/Sequence 编辑
+
+> 实施状态（2026-08-14）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。通过前不进入 N22；证据见[《N21 最小 Writer/Sequence 编辑审计》](98-n21-writer-sequence.md)。
 
 - **Goal**：非程序用户能完成对白、选择、条件和基础演出。
 - **Implementation**：

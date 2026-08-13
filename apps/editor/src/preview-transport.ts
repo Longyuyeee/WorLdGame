@@ -76,9 +76,20 @@ export function previewTransportBarrier(
 function baseStepDelayMs(statement: StoryStatement): number {
   switch (statement.kind) {
     case "dialogue":
+    case "narration":
       return Math.min(5_000, Math.max(1_200, 900 + [...statement.text].length * 55));
     case "direction":
       return 1_800;
+    case "wait": {
+      const milliseconds = /ms$/i.test(statement.duration) ? Number.parseFloat(statement.duration) : Number.parseFloat(statement.duration) * 1_000;
+      return Number.isFinite(milliseconds) ? Math.max(0, milliseconds) : 0;
+    }
+    case "label":
+    case "jump":
+    case "call":
+    case "return":
+    case "set":
+    case "condition":
     case "choice":
     case "end":
       return 0;

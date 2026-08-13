@@ -109,6 +109,7 @@ import {
   type PreviewAudioLayerPlan,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
+import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -182,6 +183,7 @@ const modeLabels: Record<StudioMode, string> = {
 function statementLabel(statement: StoryStatement): string {
   switch (statement.kind) {
     case "dialogue":
+    case "narration":
       return statement.text;
     case "direction":
       return statement.summary;
@@ -189,6 +191,13 @@ function statementLabel(statement: StoryStatement): string {
       return statement.prompt;
     case "end":
       return `结局 · ${statement.endingName}`;
+    case "label": return statement.name;
+    case "jump":
+    case "call": return statement.targetLabel;
+    case "return": return "返回";
+    case "set": return `${statement.variable} = ${statement.expression}`;
+    case "condition": return `${statement.expression} → ${statement.targetLabel}`;
+    case "wait": return statement.duration;
   }
 }
 
@@ -196,12 +205,20 @@ function statementKindLabel(statement: StoryStatement): string {
   switch (statement.kind) {
     case "dialogue":
       return "对白";
+    case "narration": return "旁白";
     case "direction":
       return "演出";
     case "choice":
       return "选择";
     case "end":
       return "结局";
+    case "label": return "标签";
+    case "jump": return "跳转";
+    case "call": return "调用";
+    case "return": return "返回";
+    case "set": return "变量";
+    case "condition": return "条件";
+    case "wait": return "等待";
   }
 }
 
@@ -733,7 +750,7 @@ function AssetVaultDialog({
 
 interface WriterViewProps extends CommonProps {
   readonly createCommandId: () => string;
-  readonly createEntityId: (prefix: "stmt" | "txt") => string;
+  readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
   readonly requestedFocusStatementId: string | null;
@@ -1107,6 +1124,33 @@ function stageLane(statement: StoryStatement): "background" | "character" | "aud
   return statement.command === "background" ? "background" : statement.command === "show" ? "character" : "audio";
 }
 
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetIds:readonly string[];readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+function SequenceInspector({statement,disabled,targetIds,variableIds,createCommandId,dispatch}:SequenceInspectorProps){
+  if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
+  const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),value=(name:string)=>String(data.get(name)??"").trim();let patch:Readonly<Record<string,unknown>>={};
+    if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
+    else if(statement.kind==="choice"){const operations=[{kind:"update" as const,statementId:statement.id,patch:{promptRaw:JSON.stringify(value("prompt"))}},...statement.options.map((option)=>({kind:"update" as const,statementId:option.id,patch:{labelRaw:JSON.stringify(value(`label:${option.id}`)),targetLabel:value(`target:${option.id}`)}}))];dispatch({type:"p0-batch",commandId:createCommandId(),operations,selectedStatementId:statement.id});return;}
+    else if(statement.kind==="label")patch={name:value("name")};
+    else if(statement.kind==="jump"||statement.kind==="call")patch={targetLabel:value("target")};
+    else if(statement.kind==="set")patch={variable:value("variable"),expressionRaw:value("expression")};
+    else if(statement.kind==="condition")patch={expressionRaw:value("expression"),targetLabel:value("target")};
+    else if(statement.kind==="wait")patch={durationRaw:value("duration")};
+    else patch={nameRaw:JSON.stringify(value("ending"))};
+    dispatch({type:"p0-update",commandId:createCommandId(),statementId:statement.id,patch});
+  };
+  return <form key={`${statement.id}:${statementLabel(statement)}`} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
+    {statement.kind==="narration"&&<label><span>旁白文本</span><textarea name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
+    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option)=><fieldset key={option.id}><legend>{option.id}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>目标稳定 ID</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label></fieldset>)}</>}
+    {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
+    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label>}
+    {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
+    {statement.kind==="condition"&&<><label><span>条件表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label></>}
+    {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
+    {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
+    <button type="submit" disabled={disabled}>应用类型化参数</button><small>字段按 AST 类型提交，不解析卡片显示文本。</small>
+  </form>;
+}
+
 function WriterView({
   session,
   dispatch,
@@ -1134,6 +1178,11 @@ function WriterView({
   const [stageSearchQuery, setStageSearchQuery] = useState("");
   const [activeStageSearchResult, setActiveStageSearchResult] = useState(0);
   const [pendingStageFocusId, setPendingStageFocusId] = useState<string | null>(null);
+  const [sequenceInsertKind,setSequenceInsertKind]=useState<SequenceInsertKind>("dialogue");
+  const [sequenceMultiSelect,setSequenceMultiSelect]=useState(false);
+  const [sequenceSelectedIds,setSequenceSelectedIds]=useState<readonly string[]>([]);
+  const [sequenceRangeAnchor,setSequenceRangeAnchor]=useState<string|null>(null);
+  const [collapsedStatementIds,setCollapsedStatementIds]=useState<readonly string[]>([]);
   const stageWindow = createStageWindow(scene.statements.length, stageWindowStart);
   const visibleStatements = scene.statements.slice(stageWindow.start, stageWindow.end);
   const selectedInStageWindow = selectedIndex >= stageWindow.start && selectedIndex < stageWindow.end;
@@ -1141,6 +1190,17 @@ function WriterView({
   const stageSearch = useMemo(() => searchStageIndex(stageSearchIndex, stageSearchQuery), [stageSearchIndex, stageSearchQuery]);
   const resolvedStageSearchResult = Math.min(activeStageSearchResult, Math.max(0, stageSearch.matches.length - 1));
   const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
+  const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
+  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[]),assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
+  const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
+  const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
+  const insertPlan=(plan:ReturnType<typeof createSequenceInsertPlan>)=>{const first=plan[0]?.node,selectedStatementId=first===undefined?undefined:first.kind==="dialogue"||first.kind==="narration"?first.statementId:first.id;dispatch({type:"p0-batch",commandId:createCommandId(),operations:plan.map((step)=>({kind:"insert" as const,afterId:step.afterId,node:step.node})),...(selectedStatementId===undefined?{}:{selectedStatementId})});};
+  const choiceChildren=(statement:StoryStatement)=>statement.kind==="choice"?statement.options.map((item)=>item.id):[];
+  const duplicateSelected=()=>insertPlan(duplicateSequencePlan(selected,insertionAnchor,createEntityId));
+  const deleteSelected=()=>{const ids=scene.statements.filter((item)=>selectedSequenceIds.includes(item.id)).flatMap((item)=>[item.id,...choiceChildren(item)]);dispatch({type:"p0-batch",commandId:createCommandId(),operations:ids.map((statementId)=>({kind:"delete" as const,statementId}))});setSequenceSelectedIds([]);};
+  const moveStatement=(statement:StoryStatement,direction:-1|1)=>{const afterId=sequenceMoveAfterId(scene.statements,scene.id,statement.id,direction);if(afterId===undefined)return;const operations=[{kind:"move" as const,statementId:statement.id,afterId}];if(statement.kind==="choice"){let anchor=statement.id;for(const option of statement.options){operations.push({kind:"move" as const,statementId:option.id,afterId:anchor});anchor=option.id;}}dispatch({type:"p0-batch",commandId:createCommandId(),operations,selectedStatementId:statement.id});};
+  const moveSelected=(direction:-1|1)=>moveStatement(selected,direction);
   const canMoveDirectionLeft = !multiSelectMode && selected.kind === "direction" && selectedIndex > 0 && !pendingDraft;
   const canMoveDirectionRight = !multiSelectMode && selected.kind === "direction" && nextStatement !== undefined && nextStatement.kind !== "end" && !pendingDraft;
   const selectedDirections = scene.statements.filter(
@@ -1213,6 +1273,7 @@ function WriterView({
     setStageSearchQuery("");
     setActiveStageSearchResult(0);
     setPendingStageFocusId(null);
+    setSequenceMultiSelect(false);setSequenceSelectedIds([]);setSequenceRangeAnchor(null);setCollapsedStatementIds([]);
   }, [scene.id]);
   useEffect(() => {
     setActiveStageSearchResult(0);
@@ -1253,6 +1314,7 @@ function WriterView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,insertionAnchor,session.project,assetIndex]);
 
   return (
     <section className="authoring-panel view-enter" aria-labelledby="writer-heading">
@@ -1265,6 +1327,18 @@ function WriterView({
       </div>
 
       <div className="statement-toolbar" aria-label="对白结构工具">
+        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['audio','音频']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
+        <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
+        <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
+        <button type="button" aria-label="语句下移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
+        <button type="button" aria-pressed={sequenceMultiSelect} disabled={pendingDraft} onClick={()=>{const next=!sequenceMultiSelect;setSequenceMultiSelect(next);setSequenceSelectedIds(next?[selected.id]:[]);setSequenceRangeAnchor(next?selected.id:null);}}>{sequenceMultiSelect?`${sequenceSelectedIds.length} 已选`:'多选'}</button>
+        <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>[...new Set([...current,...selectedSequenceIds])])}>折叠</button>
+        <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>current.filter((id)=>!selectedSequenceIds.includes(id)))}>展开</button>
+        <button type="button" className="danger-button" disabled={pendingDraft||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
+      </div>
+
+      <div className="statement-toolbar statement-toolbar--legacy" aria-label="对白快捷工具">
         <button
           disabled={selected.kind !== "dialogue" || pendingDraft}
           onClick={() => {
@@ -1566,12 +1640,16 @@ function WriterView({
                 ? `statement-card statement-card--${statement.kind} is-active`
                 : `statement-card statement-card--${statement.kind}`
             }
-            onClick={() => dispatch({ type: "select-statement", statementId: statement.id })}
+            onClick={(event) => {dispatch({ type: "select-statement", statementId: statement.id });if(sequenceMultiSelect){if(event.shiftKey&&sequenceRangeAnchor!==null)setSequenceSelectedIds(sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id));else{setSequenceRangeAnchor(statement.id);setSequenceSelectedIds((current)=>current.includes(statement.id)?current.filter((id)=>id!==statement.id):[...current,statement.id]);}}}}
+            aria-pressed={sequenceMultiSelect?sequenceSelectedIds.includes(statement.id):undefined}
             aria-label={`选择${statementKindLabel(statement)}：${statementLabel(statement)}`}
+            aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
+            onKeyDown={(event)=>{if(pendingDraft)return;if(sequenceMultiSelect&&event.shiftKey&&(event.key===" "||event.key==="Enter")){event.preventDefault();const ids=sequenceRangeAnchor===null?[statement.id]:sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id);setSequenceSelectedIds(ids);return;}if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowUp"){event.preventDefault();moveStatement(statement,-1);}else if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowDown"){event.preventDefault();moveStatement(statement,1);}else if(event.key==="Delete"){event.preventDefault();deleteSelected();}}}
+            onDoubleClick={()=>setCollapsedStatementIds((current)=>current.includes(statement.id)?current.filter((id)=>id!==statement.id):[...current,statement.id])}
           >
             <span className="statement-order">{String(index + 1).padStart(2, "0")}</span>
             <span className="statement-kind">{statementKindLabel(statement)}</span>
-            <span className="statement-copy">{statementLabel(statement)}</span>
+            <span className="statement-copy">{collapsedStatementIds.includes(statement.id)?"已折叠":statementLabel(statement)}</span>
           </button>
         );
         })}
@@ -1582,7 +1660,7 @@ function WriterView({
           {selected.kind === "dialogue" ? (
             <label htmlFor="dialogue-editor">对白内容</label>
           ) : (
-            <span className="inspector-title">当前步骤（只读）</span>
+            <span className="inspector-title">当前步骤 · 类型化参数</span>
           )}
           <code>{selected.id}</code>
         </div>
@@ -1611,9 +1689,7 @@ function WriterView({
             createCommandId={createCommandId}
             dispatch={dispatch}
           />
-        ) : (
-          <div className="readonly-step">{statementLabel(selected)}</div>
-        )}
+        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} variableIds={sequenceReferences.variableIds} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
           Writer 不直接修改模型；每次编辑都通过稳定 ID Patch 写回权威脚本，再重新投影。
         </p>
@@ -2239,13 +2315,13 @@ export function App({ initialProject }: AppProps = {}) {
     }
   };
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
-  const createEntityId = (prefix: "stmt" | "txt") => {
+  const createEntityId = (prefix: string) => {
     const used = new Set<string>();
     for (const scene of sessionRef.current.project.scenes) {
       used.add(scene.id);
       for (const statement of scene.statements) {
         used.add(statement.id);
-        if (statement.kind === "dialogue") used.add(statement.textId);
+        if (statement.kind === "dialogue" || statement.kind === "narration") used.add(statement.textId);
         if (statement.kind === "choice") for (const option of statement.options) used.add(option.id);
       }
     }

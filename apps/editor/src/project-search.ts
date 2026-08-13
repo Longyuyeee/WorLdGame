@@ -53,19 +53,30 @@ function normalize(value: string): string {
 
 function label(statement: StoryStatement): string {
   if (statement.kind === "dialogue") return statement.text;
+  if (statement.kind === "narration") return statement.text;
   if (statement.kind === "direction") return statement.summary;
   if (statement.kind === "choice") return statement.prompt;
-  return `结局 · ${statement.endingName}`;
+  if (statement.kind === "end") return `结局 · ${statement.endingName}`;
+  if (statement.kind === "label") return `标签 · ${statement.name}`;
+  if (statement.kind === "jump" || statement.kind === "call") return `${statement.kind === "jump" ? "跳转" : "调用"} · ${statement.targetLabel}`;
+  if (statement.kind === "return") return "返回";
+  if (statement.kind === "set") return `变量 · ${statement.variable} = ${statement.expression}`;
+  if (statement.kind === "condition") return `条件 · ${statement.expression} → ${statement.targetLabel}`;
+  return `等待 · ${statement.duration}`;
 }
 
 function relatedIds(statement: StoryStatement): readonly string[] {
   if (statement.kind === "dialogue") return [statement.textId, statement.speakerId];
+  if (statement.kind === "narration") return [statement.textId];
   if (statement.kind === "choice") return statement.options.flatMap((option) => [option.id, option.targetSceneId]);
+  if (statement.kind === "jump" || statement.kind === "call" || statement.kind === "condition") return [statement.targetLabel];
+  if (statement.kind === "set") return [statement.variable];
   return [];
 }
 
 function text(statement: StoryStatement, displayLabel: string): string {
   if (statement.kind === "dialogue") return `${displayLabel} ${statement.speakerId}`;
+  if (statement.kind === "narration") return displayLabel;
   if (statement.kind === "direction") return `${displayLabel} ${statement.command}`;
   if (statement.kind === "choice") return `${displayLabel} ${statement.options.map((option) => option.label).join(" ")}`;
   return displayLabel;
