@@ -1,6 +1,7 @@
 export * from "./canonical";
 export * from "./conformance";
 export * from "./effect";
+export * from "./generated-corpus";
 export * from "./hash";
 export * from "./history";
 export * from "./input";
