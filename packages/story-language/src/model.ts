@@ -47,6 +47,14 @@ export interface DialogueNode extends SyntaxNodeBase {
   readonly trailingMetadata: string;
 }
 
+export interface NarrationNode extends SyntaxNodeBase {
+  readonly kind: "narration";
+  readonly statementId?: EntityId;
+  readonly textRaw: string;
+  readonly textId?: EntityId;
+  readonly trailingMetadata: string;
+}
+
 export interface ChoiceNode extends SyntaxNodeBase {
   readonly kind: "choice";
   readonly promptRaw: string;
@@ -65,13 +73,23 @@ export interface ChoiceOptionNode extends SyntaxNodeBase {
 export interface LabelNode extends SyntaxNodeBase {
   readonly kind: "label";
   readonly name: string;
+  readonly id?: EntityId;
+  readonly trailingMetadata: string;
 }
 
 export interface SetNode extends SyntaxNodeBase {
   readonly kind: "set";
   readonly variable: string;
   readonly expressionRaw: string;
+  readonly id?: EntityId;
+  readonly trailingMetadata: string;
 }
+
+export interface JumpNode extends SyntaxNodeBase { readonly kind:"jump";readonly targetLabel:string;readonly id?:EntityId;readonly trailingMetadata:string; }
+export interface CallNode extends SyntaxNodeBase { readonly kind:"call";readonly targetLabel:string;readonly id?:EntityId;readonly trailingMetadata:string; }
+export interface ReturnNode extends SyntaxNodeBase { readonly kind:"return";readonly id?:EntityId;readonly trailingMetadata:string; }
+export interface ConditionNode extends SyntaxNodeBase { readonly kind:"condition";readonly expressionRaw:string;readonly targetLabel:string;readonly id?:EntityId;readonly trailingMetadata:string; }
+export interface WaitNode extends SyntaxNodeBase { readonly kind:"wait";readonly durationRaw:string;readonly id?:EntityId;readonly trailingMetadata:string; }
 
 export interface EndNode extends SyntaxNodeBase {
   readonly kind: "end";
@@ -92,10 +110,16 @@ export type StorySyntaxNode =
   | SceneNode
   | DirectiveNode
   | DialogueNode
+  | NarrationNode
   | ChoiceNode
   | ChoiceOptionNode
   | LabelNode
   | SetNode
+  | JumpNode
+  | CallNode
+  | ReturnNode
+  | ConditionNode
+  | WaitNode
   | EndNode
   | OpaqueNode;
 
@@ -108,6 +132,10 @@ export type StoryDiagnosticCode =
   | "MALFORMED_DIRECTIVE"
   | "MALFORMED_LABEL"
   | "MALFORMED_SET"
+  | "MALFORMED_NARRATION"
+  | "MALFORMED_FLOW"
+  | "MALFORMED_CONDITION"
+  | "MALFORMED_WAIT"
   | "MALFORMED_ID"
   | "DUPLICATE_ID"
   | "UNRECOGNIZED_SYNTAX";

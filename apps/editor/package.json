@@ -11,7 +11,7 @@
     "@world-studio/project-domain": "0.4.0-n13",
     "@world-studio/project-persistence": "0.0.0-s0.35",
     "@world-studio/story-core": "0.0.0-s0.29",
-    "@world-studio/story-language": "0.0.0-s0.37",
+    "@world-studio/story-language": "0.1.0-n20",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   }

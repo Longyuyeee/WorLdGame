@@ -20,7 +20,7 @@
 
 ## 2. 产品支柱
 
-最近通过节点：`N13`。章节/场景/角色/变量管理、引用迁移、实体搜索和真实 Workspace 保存重开已通过本地完整门与 Draft PR #28 Windows CI；证据见[《N13 章节、场景、角色和变量管理审计》](96-n13-entity-management.md)。下一节点为 `N20`。
+最近通过节点：`N20`。P0 脚本语义、安全表达式、语言服务、通用 Patch、Branching Golden、1,000 次改写与 100k 增量门已通过本地完整门及 Draft PR #29 Windows CI；证据见[《N20 Story Language P0 审计》](97-n20-story-language-p0.md)。下一节点为 `N21`。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -42,7 +42,7 @@
 | REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N10–N13 已通过；仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | Project E2E、Recovery Golden、双端任务 |
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N11/N20 | 实现中 | 块类型与工作流不全 | Branching/Media E2E |
-| REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N10/N11 | 实现中 | 编辑器能力和通用工程不全 | 100k/round-trip/external edit Golden |
+| REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | 基础轨道，无镜头/关键帧/UI 模板 | Media Golden、视觉 Golden、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 仅三模式，未用户验证 | D1 任务报告、交互性能、可访问性审计 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 缺完整类型、引用 UI、平台变体 | Asset/Dicing Golden、三端构建报告 |

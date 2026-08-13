@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/story-language",
-  "version": "0.0.0-s0.37",
+  "version": "0.1.0-n20",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",

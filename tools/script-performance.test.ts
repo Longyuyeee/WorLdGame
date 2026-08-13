@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   compileSceneResourceManifest,
+  createIncrementalStoryState,
   inspectDirectiveBatch,
   parseStory,
   patchDirectiveBatch,
   patchDialogueText,
-  projectStoryScene
+  projectStoryScene,
+  updateIncrementalStoryLine
 } from "@world-studio/story-language";
 import { predictStoryResources, type StoryProject } from "@world-studio/story-core";
 import { compilePreviewStageTimeline } from "../apps/editor/src/preview-media-runtime";
@@ -23,6 +25,13 @@ const budgets = {
 };
 
 describe("large script performance audit", () => {
+  it("updates one line in a 100k-line N20 document within the incremental budget", () => {
+    const lineCount=100_000,source=`scene "N20 Large" @id(scene_n20_large)\n${Array.from({length:lineCount-2},(_,index)=>`narrate "Line ${index}" @sid(statement_n20_${index}) @id(text_n20_${index})`).join("\n")}\nend "Done" @id(statement_n20_end)\n`;
+    const initialStart=performance.now(),state=createIncrementalStoryState(source),initialParseMs=performance.now()-initialStart,targetLine=50_000;
+    const updateStart=performance.now(),changed=updateIncrementalStoryLine(state,targetLine,`narrate "Changed" @sid(statement_n20_${targetLine-1}) @id(text_n20_${targetLine-1})`),incrementalUpdateMs=performance.now()-updateStart;
+    console.log(JSON.stringify({status:"PASS",baseline:{lineCount,sourceBytes:new TextEncoder().encode(source).byteLength},measurementsMs:{initialParse:Number(initialParseMs.toFixed(2)),incrementalUpdate:Number(incrementalUpdateMs.toFixed(2))},budgetsMs:{initialParse:6000,incrementalUpdate:2000},result:{changedKind:changed.storyDocument.nodes[targetLine]?.kind,needsFullValidation:changed.needsFullValidation}},null,2));
+    expect(state.storyDocument.nodes).toHaveLength(lineCount);expect(changed.storyDocument.nodes[targetLine]).toMatchObject({kind:"narration",textRaw:"\"Changed\""});expect(initialParseMs).toBeLessThan(6000);expect(incrementalUpdateMs).toBeLessThan(2000);
+  });
   it("parses, projects, and patches the final stable ID within the S0.8 baseline", () => {
     const lines = ['scene "大文本基线" @id(scn_large_baseline)'];
     for (let index = 0; index < dialogueCount; index += 1) {
