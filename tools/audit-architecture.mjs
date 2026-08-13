@@ -140,11 +140,11 @@ const nodePersistencePackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "project-persistence-node", "package.json"), "utf8")
 );
 const nodePersistenceDependencies = Object.keys(nodePersistencePackage.dependencies ?? {});
-if (
-  nodePersistenceDependencies.length !== 1 ||
-  nodePersistenceDependencies[0] !== "@world-studio/project-persistence"
-) {
-  violations.push("project-persistence-node may depend only on project-persistence in S0.10");
+if (JSON.stringify(nodePersistenceDependencies.sort()) !== JSON.stringify([
+  "@world-studio/project-domain",
+  "@world-studio/project-persistence"
+])) {
+  violations.push("project-persistence-node may depend only on project-domain and project-persistence through N12");
 }
 
 const editorPackage = JSON.parse(
@@ -284,9 +284,9 @@ if (violations.length > 0) {
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
-    "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
-    "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
-          "project-persistence-node is isolated from the portable core and depends only on project-persistence",
+          "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
+          "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+          "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
           "editor declares the story-core dependency explicitly",
           "editor declares the story-language dependency explicitly",
           "editor declares the project-persistence dependency explicitly",

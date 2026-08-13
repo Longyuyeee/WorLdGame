@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
-    "@world-studio/project-domain": "0.2.0-n11",
+    "@world-studio/project-domain": "0.3.0-n12",
     "@world-studio/project-persistence": "0.0.0-s0.35",
     "@world-studio/story-core": "0.0.0-s0.29",
     "@world-studio/story-language": "0.0.0-s0.37",

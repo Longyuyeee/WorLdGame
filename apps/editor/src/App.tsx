@@ -45,11 +45,13 @@ import {
   resolveDirectiveAction,
   type StoryDocument
 } from "@world-studio/story-language";
+import type { CanonicalProject } from "@world-studio/project-domain";
 import {
   activeSourceDraft,
   activeSourceSession,
   createProjectSnapshot,
   createStudioSession,
+  createStudioSessionFromCanonical,
   hasPendingDraft,
   reduceStudioSession,
   restoreStudioSession,
@@ -2141,8 +2143,10 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   );
 }
 
-export function App() {
-  const [session, baseDispatch] = useReducer(reduceStudioSession, undefined, createStudioSession);
+export interface AppProps { readonly initialProject?: CanonicalProject; }
+export function App({ initialProject }: AppProps = {}) {
+  const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
+  const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const [mode, setMode] = useState<StudioMode>("writer");
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
@@ -2260,8 +2264,8 @@ export function App() {
     if (!storageAvailable) return;
     let cancelled = false;
     let heartbeat: ReturnType<typeof setInterval> | undefined;
-    const store = new IndexedDbProjectFileStore(globalThis.indexedDB, "prj_twilight_broadcast");
-    const assetRepository = new IndexedDbAssetRepository(globalThis.indexedDB, "prj_twilight_broadcast");
+    const store = new IndexedDbProjectFileStore(globalThis.indexedDB, projectStorageId);
+    const assetRepository = new IndexedDbAssetRepository(globalThis.indexedDB, projectStorageId);
     setPersistence({ status: "loading", revision: storageRevision.current });
     setAssetStatus("loading");
 
@@ -2413,7 +2417,7 @@ export function App() {
             "项目已恢复，但备份索引需要检查。";
         }
         if (cancelled) return;
-        const restored = restoreStudioSession(snapshot);
+        const restored = restoreStudioSession(snapshot, sessionRef.current.project);
         persistedSnapshotRef.current = snapshot;
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
@@ -2486,7 +2490,7 @@ export function App() {
       assetImportAbortRef.current?.abort();
       assetImportAbortRef.current = null;
     };
-  }, [storageAvailable, leaseRetry]);
+  }, [storageAvailable, leaseRetry, projectStorageId]);
 
   const handleBlockingStoreFailure = (
     error: unknown,
@@ -2677,7 +2681,7 @@ export function App() {
         setAssetIndex(committed.index);
         setAssetLifecycle(committed.manifest);
       }
-      const restored = restoreStudioSession(result.snapshot);
+      const restored = restoreStudioSession(result.snapshot, sessionRef.current.project);
       persistedSnapshotRef.current = result.snapshot;
       storageRevision.current = result.snapshot.storageRevision;
       editGeneration.current += 1;

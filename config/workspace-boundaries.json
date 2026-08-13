@@ -72,7 +72,7 @@
       "kind": "adapter",
       "stability": "candidate",
       "owner": "Persistence Owner",
-      "allowedWorkspaceDependencies": ["@world-studio/project-persistence"]
+      "allowedWorkspaceDependencies": ["@world-studio/project-domain", "@world-studio/project-persistence"]
     },
     {
       "path": "packages/story-core",
