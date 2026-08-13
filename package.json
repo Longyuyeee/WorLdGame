@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
-    "build": "npm run build --workspace @world-studio/narrative-vm-spike && npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor && npm run build --workspace @world-studio/vm-conformance-harness && npm run build --workspace @world-studio/vm-conformance-cli && npm run build --workspace @world-studio/windows-shell-conformance",
+    "build": "npm run build --workspace @world-studio/narrative-vm-spike && npm run build --workspace @world-studio/project-domain && npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor && npm run build --workspace @world-studio/vm-conformance-harness && npm run build --workspace @world-studio/vm-conformance-cli && npm run build --workspace @world-studio/windows-shell-conformance",
     "typecheck": "tsc -b",
     "test": "npm run test:parallel && npm run test:vm-conformance",
     "test:parallel": "vitest run --maxWorkers=4 --exclude packages/narrative-vm-spike/src/vm-spike09.test.ts",

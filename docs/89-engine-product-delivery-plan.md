@@ -133,6 +133,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N10 Canonical Project Schema
 
+> 状态：验收中。正式 `project-domain`、`.world` v1 多文件格式、S0 迁移、七类 Golden 迁移测试和任意工程 Editor Session 适配已实现；等待完整本地门与 Draft PR Windows CI。证据见[《N10 Canonical Project Schema 审计》](93-n10-canonical-project-schema.md)。
+
 - **Goal**：移除 `campusStoryProject` 固定假设，定义任意项目的权威数据边界。
 - **Scope**：Project、Chapter、Scene、Character、Variable、Asset、Localization、Settings、UI、Plugin、Test Route、稳定 ID 和版本。
 - **Implementation**：

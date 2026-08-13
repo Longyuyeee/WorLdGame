@@ -20,6 +20,8 @@ import {
   CURRENT_PROJECT_SCHEMA_VERSION,
   type ProjectSnapshot
 } from "@world-studio/project-persistence";
+import type { CanonicalProject } from "@world-studio/project-domain";
+import { projectCanonicalForEditor } from "./canonical-project-adapter";
 
 export type StudioMode = "writer" | "script" | "flow";
 
@@ -155,16 +157,17 @@ function projectScene(sourceSession: ScriptSourceSession): StoryScene {
 }
 
 function buildProject(
+  baseProject: StoryProject,
   sourceSessions: Readonly<Record<EntityId, ScriptSourceSession>>
 ): StoryProject {
-  const scenes = campusStoryProject.scenes.map((scene) => {
+  const scenes = baseProject.scenes.map((scene) => {
     const sourceSession = sourceSessions[scene.id];
     if (sourceSession === undefined) {
       throw new Error(`Missing source session for scene: ${scene.id}`);
     }
     return projectScene(sourceSession);
   });
-  const project: StoryProject = { ...campusStoryProject, scenes };
+  const project: StoryProject = { ...baseProject, scenes };
   const projectDiagnostics = validateStoryProject(project);
   if (projectDiagnostics.length > 0) {
     throw new Error(`Projected project failed validation: ${projectDiagnostics[0]?.code}`);
@@ -181,16 +184,25 @@ function firstStatementId(scene: StoryScene): EntityId {
 }
 
 export function createStudioSession(): StudioSession {
+  return createStudioSessionFromProject(campusStoryProject, campusStorySources);
+}
+
+export function createStudioSessionFromCanonical(project: CanonicalProject): StudioSession {
+  const projected = projectCanonicalForEditor(project);
+  return createStudioSessionFromProject(projected.project, projected.sources);
+}
+
+export function createStudioSessionFromProject(baseProject: StoryProject, sources: Readonly<Record<EntityId, string>>): StudioSession {
   const sourceSessions = Object.fromEntries(
-    campusStoryProject.scenes.map((scene) => {
-      const source = campusStorySources[scene.id];
+    baseProject.scenes.map((scene) => {
+      const source = sources[scene.id];
       if (source === undefined) {
         throw new Error(`Missing canonical sample source: ${scene.id}`);
       }
       return [scene.id, createScriptSourceSession(source)];
     })
   );
-  const project = buildProject(sourceSessions);
+  const project = buildProject(baseProject, sourceSessions);
   const entry = findScene(project, project.entrySceneId);
   return {
     project,
@@ -246,13 +258,13 @@ export function createProjectSnapshot(
   };
 }
 
-export function restoreStudioSession(snapshot: ProjectSnapshot): StudioSession {
-  if (snapshot.projectId !== campusStoryProject.id || snapshot.title !== campusStoryProject.title ||
-      snapshot.entrySceneId !== campusStoryProject.entrySceneId ||
-      snapshot.scenes.length !== campusStoryProject.scenes.length) {
+export function restoreStudioSession(snapshot: ProjectSnapshot, baseProject: StoryProject = campusStoryProject): StudioSession {
+  if (snapshot.projectId !== baseProject.id || snapshot.title !== baseProject.title ||
+      snapshot.entrySceneId !== baseProject.entrySceneId ||
+      snapshot.scenes.length !== baseProject.scenes.length) {
     throw new Error("Stored snapshot does not match the current prototype project");
   }
-  const sourceSessions = Object.fromEntries(campusStoryProject.scenes.map((scene) => {
+  const sourceSessions = Object.fromEntries(baseProject.scenes.map((scene) => {
     const persisted = snapshot.scenes.find((item) => item.sceneId === scene.id);
     if (persisted === undefined) throw new Error(`Stored scene is missing: ${scene.id}`);
     return [scene.id, restoreScriptSourceSession({
@@ -263,7 +275,7 @@ export function restoreStudioSession(snapshot: ProjectSnapshot): StudioSession {
       tombstones: persisted.tombstones
     })];
   }));
-  const project = buildProject(sourceSessions);
+  const project = buildProject(baseProject, sourceSessions);
   const entry = findScene(project, project.entrySceneId);
   const sourceDrafts = Object.fromEntries(snapshot.scenes.map((scene) => [
     scene.sceneId,
@@ -318,7 +330,7 @@ function withActiveSource(
     ...session.sourceSessions,
     [session.activeSceneId]: sourceSession
   };
-  const project = buildProject(sourceSessions);
+  const project = buildProject(session.project, sourceSessions);
   const activeScene = findScene(project, session.activeSceneId);
   const requestedSelection = options.selectedStatementId ?? session.selectedStatementId;
   const selectedIndex = activeScene.statements.findIndex(
