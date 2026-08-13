@@ -103,6 +103,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N00 产品主线与仓库基线审计](docs/91-n00-product-baseline-audit.md) | Workspace 分类、owner/依赖白名单、计划产品边界、干净环境 CI 与完整检查证据 |
 | [N01 需求追踪与 Golden 基线审计](docs/92-n01-requirement-golden-baseline.md) | 50 项 M1 owner/节点/证据机器门、七类 Golden Seed、PR 追踪纪律与每周空目录演示 |
 | [N10 Canonical Project Schema 审计](docs/93-n10-canonical-project-schema.md) | 正式 project-domain、`.world` v1 多文件格式、稳定 ID、未知字段保留、S0/Golden 迁移和双工程 round-trip |
+| [N11 Project Service 与事务命令审计](docs/94-n11-project-service.md) | 全实体事务命令、Revision/ChangeSet、批处理、Undo/Redo、引用冲突、提交保存门和 SourceSession 适配 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |
