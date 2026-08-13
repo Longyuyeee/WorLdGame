@@ -1,0 +1,13 @@
+{
+  "sourceRevision": "1c3bf1e53f76ac253fc6ad5788e69814dfb94d61",
+  "runtimeVersion": "cl04-spike.8",
+  "metaProgressSchemaVersion": 0,
+  "metaProgressDomain": "WORLd-VM-META-PROGRESS\\0v0\\0",
+  "metaProgressHash": "7f3ef6562bef4d6a3e24ac796dfe7df7b5c935147d75e8ec7c356c2613be920b",
+  "metaProgressReferenceId": "meta.7f3ef6562bef4d6a3e24ac796dfe7df7b5c935147d75e8ec7c356c2613be920b",
+  "runtimeSaveIntegrityDigest": "7c5de4166c9a7a871ff66bea4ae0f5130132950ab13631d16ca5a518351cedd1",
+  "restoredStateHash": "b671c801332477e0710afbf583f88d84ecfb64c57dcc17aaa83d12cecf716274",
+  "domains": ["readTextIds", "unlockedCgIds", "reachedEndingIds"],
+  "mergeProperties": ["commutative", "associative", "idempotent"],
+  "loadPolicy": "validate referenced snapshot, union with current Meta, then atomically expose Session intents"
+}

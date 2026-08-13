@@ -299,7 +299,7 @@ export interface RuntimeSaveBodyV0 {
   readonly irVersion: 0;
   readonly projectId: string;
   readonly buildId: string;
-  readonly runtimeVersion: "cl04-spike.7";
+  readonly runtimeVersion: "cl04-spike.8";
   readonly opcodeRegistryDigest: string;
   readonly metaProgress: {
     readonly schemaVersion: 0;
@@ -313,7 +313,30 @@ export interface RuntimeSaveV0 extends RuntimeSaveBodyV0 {
 }
 
 export interface RuntimeSaveOptionsV0 {
-  readonly metaProgressReferenceId?: string | null;
+  readonly metaProgress?: MetaProgressV0 | null;
+}
+
+export interface MetaProgressV0 {
+  readonly schemaVersion: 0;
+  readonly projectId: string;
+  readonly progressScopeId: string;
+  readonly readTextIds: readonly string[];
+  readonly unlockedCgIds: readonly string[];
+  readonly reachedEndingIds: readonly string[];
+}
+
+export type MetaProgressEventKindV0 = "textRead" | "cgUnlocked" | "endingReached";
+
+export interface MetaProgressEventV0 {
+  readonly schemaVersion: 0;
+  readonly kind: MetaProgressEventKindV0;
+  readonly entityId: string;
+}
+
+export interface MetaProgressResultV0 {
+  readonly progress: MetaProgressV0;
+  readonly changed: boolean;
+  readonly diagnostics: readonly VmDiagnostic[];
 }
 
 export interface RuntimeStateV0 {
@@ -382,6 +405,8 @@ export type VmDiagnosticCode =
   | "VM_SAVE_FUTURE_VERSION"
   | "VM_SAVE_INCOMPATIBLE"
   | "VM_SAVE_OPCODE_MISSING"
+  | "VM_META_PROGRESS_INVALID"
+  | "VM_META_PROGRESS_INCOMPATIBLE"
   | "VM_SCHEDULER_INVALID"
   | "VM_HISTORY_INVALID"
   | "VM_HISTORY_AT_START"
@@ -427,7 +452,12 @@ export interface RuntimeSaveLoadResultV0 {
   readonly session: RuntimeSessionV0;
   readonly cancellations: readonly EffectCancellationV0[];
   readonly effects: readonly EffectIntentV0[];
+  readonly metaProgressReferenceId: string | null;
   readonly diagnostics: readonly VmDiagnostic[];
+}
+
+export interface RuntimeSaveMetaLoadResultV0 extends RuntimeSaveLoadResultV0 {
+  readonly metaProgress: MetaProgressV0;
 }
 
 export type RuntimeRunModeV0 = "normal" | "auto" | "skipRead" | "skipAll";
