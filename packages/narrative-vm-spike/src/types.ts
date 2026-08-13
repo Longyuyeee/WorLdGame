@@ -299,7 +299,7 @@ export interface RuntimeSaveBodyV0 {
   readonly irVersion: 0;
   readonly projectId: string;
   readonly buildId: string;
-  readonly runtimeVersion: "cl04-spike.6";
+  readonly runtimeVersion: "cl04-spike.7";
   readonly opcodeRegistryDigest: string;
   readonly metaProgress: {
     readonly schemaVersion: 0;
@@ -382,6 +382,7 @@ export type VmDiagnosticCode =
   | "VM_SAVE_FUTURE_VERSION"
   | "VM_SAVE_INCOMPATIBLE"
   | "VM_SAVE_OPCODE_MISSING"
+  | "VM_SCHEDULER_INVALID"
   | "VM_HISTORY_INVALID"
   | "VM_HISTORY_AT_START"
   | "VM_HISTORY_AT_END"
@@ -427,4 +428,46 @@ export interface RuntimeSaveLoadResultV0 {
   readonly cancellations: readonly EffectCancellationV0[];
   readonly effects: readonly EffectIntentV0[];
   readonly diagnostics: readonly VmDiagnostic[];
+}
+
+export type RuntimeRunModeV0 = "normal" | "auto" | "skipRead" | "skipAll";
+export type RuntimeSkipActivationV0 = "hold" | "toggle" | null;
+export type RuntimeSpeedV0 = "normal" | 5 | 10 | 20 | 40 | "instant";
+
+export interface RuntimeSchedulePolicyV0 {
+  readonly schemaVersion: 0;
+  readonly mode: RuntimeRunModeV0;
+  readonly skipActivation: RuntimeSkipActivationV0;
+  readonly speed: RuntimeSpeedV0;
+  readonly readStepIds: readonly string[];
+  readonly unavailableEffectDescriptorIds: readonly string[];
+  readonly instantInstructionBudget: number;
+  readonly autoTiming: {
+    readonly baseDelayTicks: number;
+    readonly ticksPerReadableUnit: number;
+    readonly voiceDurationTicks: number;
+    readonly voiceTailTicks: number;
+    readonly readableUnits: number;
+  };
+}
+
+export type RuntimeScheduleStopReasonV0 =
+  | "budget"
+  | "storyBoundary"
+  | "unreadBoundary"
+  | "stopPoint"
+  | "input"
+  | "effect"
+  | "resourceUnavailable"
+  | "diagnostic"
+  | "terminal";
+
+export interface RuntimeScheduleResultV0 {
+  readonly nextState: RuntimeStateV0;
+  readonly effects: readonly EffectIntentV0[];
+  readonly waits: readonly NonNullable<TransitionResultV0["wait"]>[];
+  readonly diagnostics: readonly VmDiagnostic[];
+  readonly stopReason: RuntimeScheduleStopReasonV0;
+  readonly executedInstructions: number;
+  readonly autoAdvanceDelayTicks: number | null;
 }

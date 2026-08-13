@@ -13,7 +13,7 @@ import type {
 } from "./types";
 import { validateProgram } from "./validation";
 
-export const RUNTIME_VERSION_V0 = "cl04-spike.6" as const;
+export const RUNTIME_VERSION_V0 = "cl04-spike.7" as const;
 export const MAX_RUNTIME_SAVE_CHARACTERS_V0 = 16 * 1024 * 1024;
 const SAFE_ID = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
 const SHA256 = /^[0-9a-f]{64}$/;
