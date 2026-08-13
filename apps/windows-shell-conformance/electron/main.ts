@@ -42,6 +42,8 @@ app.whenReady().then(async () => {
     : await ElectronStorageHost.createGranted(grantedRoot);
   const auditOwner = process.argv.find((argument) => argument.startsWith("--audit-lock-acquire="))?.slice("--audit-lock-acquire=".length);
   if (grantedRoot !== undefined && auditOwner !== undefined) {
+    const startAt = Number(process.argv.find((argument) => argument.startsWith("--audit-start-at="))?.slice("--audit-start-at=".length) ?? "0");
+    if (Number.isFinite(startAt) && startAt > Date.now()) await new Promise((resolveWait) => setTimeout(resolveWait, startAt - Date.now()));
     const ttl = Number(process.argv.find((argument) => argument.startsWith("--audit-lock-ttl="))?.slice("--audit-lock-ttl=".length) ?? "1500");
     const result = await storage.acquire(auditOwner, ttl);
     if (process.argv.includes("--audit-release") && result.status === "acquired") {

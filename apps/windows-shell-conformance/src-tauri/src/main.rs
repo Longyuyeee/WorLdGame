@@ -319,6 +319,12 @@ fn main() {
     if let Some(owner_id) = std::env::args().find_map(|argument| {
         argument.strip_prefix("--audit-lock-acquire=").map(str::to_owned)
     }) {
+        let start_at = std::env::args()
+            .find_map(|argument| argument.strip_prefix("--audit-start-at=").and_then(|value| value.parse::<u64>().ok()))
+            .unwrap_or(0);
+        let current = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
+            .map(|duration| duration.as_millis() as u64).unwrap_or(0);
+        if start_at > current { std::thread::sleep(std::time::Duration::from_millis(start_at - current)); }
         let ttl_ms = std::env::args()
             .find_map(|argument| argument.strip_prefix("--audit-lock-ttl=").and_then(|value| value.parse::<u64>().ok()))
             .unwrap_or(1500);

@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import process from "node:process";
@@ -39,6 +39,52 @@ async function waitForLine(running, timeoutMs = 5000) {
     parsed = parseLine(running.output());
   }
   return parsed;
+}
+
+function acquisition(result, host) {
+  return host === "electron" ? result : result.result;
+}
+
+async function auditSimultaneousTakeover(host, executable, prefix) {
+  const rounds = [];
+  for (let round = 0; round < 3; round += 1) {
+    const root = await mkdtemp(join(tmpdir(), `world-cl03-${host}-cas-${round}-`));
+    try {
+      const startAt = Date.now() + 1500;
+      const contenders = Array.from({ length: 8 }, (_, index) => launch(executable, [
+        ...prefix,
+        `--project-root=${root}`,
+        `--audit-lock-acquire=cas-${round}-${index}`,
+        "--audit-lock-ttl=60000",
+        `--audit-start-at=${startAt}`
+      ]));
+      const outputs = await Promise.all(contenders.map((contender) => contender.exited));
+      const results = outputs.map((output) => {
+        const parsed = parseLine(output.stdout);
+        if (parsed === null) throw new Error(`LOCK_AUDIT_CAS_OUTPUT:${output.stderr}`);
+        return acquisition(parsed, host);
+      });
+      const winners = results.filter((result) => result.status === "acquired");
+      const held = results.filter((result) => result.status === "held");
+      const nextToken = Number(await readFile(join(root, ".world-lock", "next-token.txt"), "utf8"));
+      const guardRemoved = await access(join(root, ".world-lock", "cas.guard")).then(() => false, () => true);
+      rounds.push({
+        exactlyOneWinner: winners.length === 1,
+        allOthersHeld: held.length === 7,
+        tokenAdvancedOnce: winners.length === 1 && nextToken === winners[0].lease.fencingToken + 1,
+        guardRemoved
+      });
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+  return {
+    rounds: rounds.length,
+    exactlyOneWinnerEveryRound: rounds.every((round) => round.exactlyOneWinner),
+    allOthersHeldEveryRound: rounds.every((round) => round.allOthersHeld),
+    tokenAdvancedOnceEveryRound: rounds.every((round) => round.tokenAdvancedOnce),
+    guardRemovedEveryRound: rounds.every((round) => round.guardRemoved)
+  };
 }
 
 async function auditHost(host, executable, prefix) {
@@ -93,8 +139,9 @@ async function auditHost(host, executable, prefix) {
   }
 }
 
-const electronResult = await auditHost("electron", electron, [electronMain]);
-const tauriResult = await auditHost("tauri", tauri, []);
-const passed = Object.values(electronResult).every(Boolean) && Object.values(tauriResult).every(Boolean);
+const electronResult = { ...(await auditHost("electron", electron, [electronMain])), simultaneous: await auditSimultaneousTakeover("electron", electron, [electronMain]) };
+const tauriResult = { ...(await auditHost("tauri", tauri, [])), simultaneous: await auditSimultaneousTakeover("tauri", tauri, []) };
+const hostPassed = (result) => Object.entries(result).every(([key, value]) => key === "simultaneous" ? Object.entries(value).every(([field, fieldValue]) => field === "rounds" ? fieldValue === 3 : fieldValue === true) : value === true);
+const passed = hostPassed(electronResult) && hostPassed(tauriResult);
 process.stdout.write(`${JSON.stringify({ schemaVersion: 0, electron: electronResult, tauri: tauriResult, status: passed ? "PASS" : "FAIL" })}\n`);
 if (!passed) process.exitCode = 1;
