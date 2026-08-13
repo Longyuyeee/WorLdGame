@@ -1,0 +1,10 @@
+{
+  "name": "@world-studio/narrative-vm-spike",
+  "version": "0.0.0-cl04-spike.1",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -b"
+  }
+}

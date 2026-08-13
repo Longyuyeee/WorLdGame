@@ -4,6 +4,7 @@ import process from "node:process";
 
 const repoRoot = process.cwd();
 const auditedRoots = [
+  join(repoRoot, "packages", "narrative-vm-spike", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
   join(repoRoot, "packages", "project-persistence", "src")
@@ -25,6 +26,7 @@ const forbiddenImports = [
   "electron",
   "@capacitor",
   "@tauri-apps",
+  "node:crypto",
   "node:fs",
   "node:path",
   "node:process"
@@ -37,6 +39,13 @@ const forbiddenGlobalPatterns = new Map([
   ["indexedDB", /\bindexedDB\b/]
 ]);
 const violations = [];
+
+const vmForbiddenGlobals = new Map([
+  ["Math.random", /\bMath\.random\s*\(/],
+  ["Date", /\b(?:new\s+Date|Date\.now)\s*\(/],
+  ["performance.now", /\bperformance\.now\s*\(/],
+  ["crypto randomness", /\bcrypto\.getRandomValues\s*\(/]
+]);
 
 const coreFiles = (
   await Promise.all(auditedRoots.map((root) => collectFiles(root)))
@@ -63,6 +72,16 @@ for (const path of coreFiles) {
   }
 }
 
+const vmFiles = coreFiles.filter((path) => path.includes(`${join("packages", "narrative-vm-spike", "src")}`));
+for (const path of vmFiles) {
+  const source = await readFile(path, "utf8");
+  for (const [globalName, globalPattern] of vmForbiddenGlobals) {
+    if (globalPattern.test(source)) {
+      violations.push(`${relative(repoRoot, path)} references nondeterministic global ${globalName}`);
+    }
+  }
+}
+
 for (const path of nodeAdapterFiles) {
   const source = await readFile(path, "utf8");
   for (const dependency of ["react", "react-dom", "electron", "@capacitor", "@tauri-apps"]) {
@@ -81,6 +100,13 @@ for (const path of nodeAdapterFiles) {
 const corePackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "story-core", "package.json"), "utf8")
 );
+
+const vmPackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "narrative-vm-spike", "package.json"), "utf8")
+);
+if (vmPackage.dependencies !== undefined) {
+  violations.push("narrative-vm-spike must not declare runtime dependencies in CL-04");
+}
 if (corePackage.dependencies !== undefined) {
   violations.push("story-core must not declare runtime dependencies in S0.1");
 }
@@ -149,6 +175,7 @@ if (violations.length > 0) {
         auditedPortableFiles: coreFiles.length,
         auditedNodeAdapterFiles: nodeAdapterFiles.length,
         guarantees: [
+          "narrative-vm-spike has no UI, DOM, platform-shell, filesystem, process, crypto-provider, wall-clock, or ambient-random dependency",
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
