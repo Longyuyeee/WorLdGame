@@ -3,7 +3,7 @@
 > 日期：2026-08-13
 > 节点：N12
 > 对齐需求：`REQ-PRJ`、`USP-04`、`AC-08`；为 N13、N20、N90、N91 提供真实工程入口
-> 状态：代码完成，等待 Draft PR Windows CI 终审
+> 状态：通过（本地完整门与 Draft PR Windows CI 均通过）
 
 ## 1. 目标与纠偏
 
@@ -47,6 +47,8 @@ npm exec -- tsc -b packages/project-domain packages/project-persistence-node app
 
 针对性结果：7 个测试文件、16 个测试全部通过，类型检查通过。完整 `npm run check` 同样通过：常规 74 个测试文件/456 个测试、重型 VM 5 个测试、10 个 Workspace 构建以及 Workspace、需求、PR 追踪、Golden、架构和两类性能门全部成功。
 
+远端证据：Draft PR #27 首轮 Windows / Node 22 全量检查 run `31716088540`、job `94501081190` 成功，耗时 2 分 51 秒。
+
 用户任务 A：新建 → 写入多文件工程 → 关闭会话 → 从相同 Workspace 重开；项目 ID 不等于固定样例，语义 Hash 保持一致。
 
 用户任务 B：导出完整 ZIP → 清空原 Workspace → 在另一 Workspace 离线导入 → 重开；语义 Hash 保持一致。
@@ -61,4 +63,4 @@ npm exec -- tsc -b packages/project-domain packages/project-persistence-node app
 - 恢复状态字段与既有 WAL 能力可显示，但真实强杀恢复矩阵仍是 AC-09/N90/N91，N12 不把它标为通过。
 - ZIP 当前仅写入无压缩条目以保持无依赖和确定性；它是可下载、可离线导入的交换格式，不是发布包。
 
-N12 终审通过后按顺序进入 N13：章节、场景、角色和变量管理。
+N12 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点按顺序进入 N13：章节、场景、角色和变量管理。

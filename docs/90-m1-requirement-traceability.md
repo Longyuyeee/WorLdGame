@@ -20,7 +20,7 @@
 
 ## 2. 产品支柱
 
-最近通过节点：`N11`。`N12` 的真实项目首页、Web/Windows 目录基础链、离线 ZIP、最近引用和外部冲突代码已完成本地门，正在等待 Draft PR Windows CI；证据见[《N12 项目首页与文件生命周期审计》](95-n12-project-lifecycle.md)。终审后下一节点为 `N13`。
+最近通过节点：`N12`。真实项目首页、Web/Windows 目录基础链、离线 ZIP、最近引用、外部变更和冲突边界已通过本地完整门与 Draft PR #27 Windows CI；证据见[《N12 项目首页与文件生命周期审计》](95-n12-project-lifecycle.md)。下一节点为 `N13`。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -39,7 +39,7 @@
 
 | REQ | P0 范围摘要 | 主节点 | 依赖 | 当前状态 | 当前缺口 | 通过证据 |
 |---|---|---|---|---|---|---|
-| REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N10/N11 已通过；N12 文件生命周期本地门完成；仍缺 N13 管理 UI、Android SAF、正式壳与强杀恢复 | Project E2E、Recovery Golden、双端任务 |
+| REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N10–N12 已通过；仍缺 N13 管理 UI、Android SAF、正式壳与强杀恢复 | Project E2E、Recovery Golden、双端任务 |
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N11/N20 | 实现中 | 块类型与工作流不全 | Branching/Media E2E |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N10/N11 | 实现中 | 编辑器能力和通用工程不全 | 100k/round-trip/external edit Golden |
@@ -64,7 +64,7 @@
 | AC-05 | 任意语句预览和变量 | N32/N60 | 未开始 | Compiler/Runtime | Debugger E2E |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 未开始 | Story QA | QA Golden 报告 |
 | AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 未开始 | 三端 Player | State/Save Hash 0 差异 |
-| AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web/Windows 基础链本地测试通过；尚待 Draft PR CI 与正式壳设备证据 | 离线导出导入 E2E |
+| AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web/Windows 基础链与远端 Windows CI 通过；尚待正式壳/设备证据 | 离线导出导入 E2E |
 | AC-09 | 崩溃恢复到自动保存 | N12/N90/N91 | 实现中 | 正式宿主未贯通 | 真实强杀恢复矩阵 |
 | AC-10 | 键盘完整操作、手机替代拖拽 | N21/N43/N91 | 实现中 | 完整任务和 Android | 键盘/触屏任务报告 |
 | AC-11 | 七模式修改同一语句 | N43 | 未开始 | 仅三模式 | 七模式 E2E |
