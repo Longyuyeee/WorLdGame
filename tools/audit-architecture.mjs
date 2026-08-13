@@ -242,8 +242,10 @@ if (securityProfile.electron?.grantRoot !== "native-only-canonical-directory" ||
     securityProfile.tauri?.grantRoot !== "native-only-canonical-directory") {
   violations.push("Windows project grant roots must remain native-only canonical directories");
 }
-if (securityProfile.electron?.writerCoordination !== "atomic-directory-cas-fenced-lease-spike" ||
-    securityProfile.tauri?.writerCoordination !== "atomic-directory-cas-fenced-lease-spike" ||
+if (securityProfile.electron?.writerCoordination !== "identified-atomic-cas-fenced-lease-spike" ||
+    securityProfile.tauri?.writerCoordination !== "identified-atomic-cas-fenced-lease-spike" ||
+    securityProfile.electron?.casRecovery !== "minimum-age-and-dead-pid-quarantine" ||
+    securityProfile.tauri?.casRecovery !== "minimum-age-and-dead-pid-quarantine" ||
     JSON.stringify(securityProfile.electron?.reservedPaths) !== '[".world-lock"]' ||
     JSON.stringify(securityProfile.tauri?.reservedPaths) !== '[".world-lock"]') {
   violations.push("Windows hosts must persist fenced leases under a renderer-inaccessible reserved path");
@@ -251,6 +253,10 @@ if (securityProfile.electron?.writerCoordination !== "atomic-directory-cas-fence
 if (!electronStorageHost.includes("withCasGuard") || !electronStorageHost.includes("CAS_GUARD_TIMEOUT") ||
     !tauriStorageHost.includes("with_cas_guard") || !tauriStorageHost.includes("CAS_GUARD_TIMEOUT")) {
   violations.push("Windows hosts must serialize lease mutation and fenced writes with a cross-PID CAS guard");
+}
+if (!electronStorageHost.includes("tryQuarantineStaleGuard") || !electronStorageHost.includes("releaseOwnedCasGuard") ||
+    !tauriStorageHost.includes("try_quarantine_stale_guard") || !tauriStorageHost.includes("process_is_alive")) {
+  violations.push("Windows hosts must identify CAS owners and atomically quarantine only confirmed stale guards");
 }
 
 if (violations.length > 0) {
