@@ -1,7 +1,8 @@
-import { mkdtemp, mkdir, rm } from "node:fs/promises";
+import { lstat, mkdtemp, mkdir, realpath, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { isAbsolute, join, parse, resolve } from "node:path";
 import {
+  assertProjectStorePath,
   type ProjectWriterLease,
   type WriterLeaseAcquisition,
   type WriterLeaseRenewal
@@ -32,29 +33,49 @@ function parseLease(value: unknown): ProjectWriterLease {
 
 export class ElectronStorageHost {
   private readonly rootDirectory: string;
+  private readonly ownsRoot: boolean;
   private store: NodeProjectFileStore;
   private activeLease: ProjectWriterLease | null = null;
   private nextFencingToken = 1;
   private operationTail: Promise<void> = Promise.resolve();
 
-  private constructor(rootDirectory: string) {
+  private constructor(rootDirectory: string, ownsRoot: boolean) {
     this.rootDirectory = rootDirectory;
+    this.ownsRoot = ownsRoot;
     this.store = new NodeProjectFileStore({ rootDirectory });
   }
 
   static async create(): Promise<ElectronStorageHost> {
     const root = await mkdtemp(join(tmpdir(), "world-cl03-electron-"));
-    return new ElectronStorageHost(root);
+    return new ElectronStorageHost(await realpath(root), true);
+  }
+
+  static async createGranted(rootDirectory: string): Promise<ElectronStorageHost> {
+    if (!isAbsolute(rootDirectory)) throw new Error("GRANT_ROOT_NOT_ABSOLUTE");
+    const resolved = resolve(rootDirectory);
+    if (parse(resolved).root === resolved) throw new Error("GRANT_VOLUME_ROOT_REJECTED");
+    const metadata = await stat(resolved).catch(() => null);
+    if (metadata === null) throw new Error("GRANT_ROOT_NOT_FOUND");
+    if (!metadata.isDirectory()) throw new Error("GRANT_ROOT_NOT_DIRECTORY");
+    const canonical = await realpath(resolved);
+    if (canonical.toLocaleLowerCase() !== resolved.toLocaleLowerCase()) {
+      throw new Error("GRANT_ROOT_REPARSE_REJECTED");
+    }
+    return new ElectronStorageHost(canonical, false);
   }
 
   read(path: string): Promise<string | null> {
-    return this.operationTail.then(() => this.store.read(path));
+    return this.operationTail.then(async () => {
+      await this.assertNoReparsePoint(path);
+      return this.store.read(path);
+    });
   }
 
   write(path: string, content: string, lease: unknown): Promise<void> {
     if (content.length > 2_000_000) return Promise.reject(new Error("PAYLOAD_TOO_LARGE"));
     return this.queue(async () => {
       this.assertActiveLease(parseLease(lease));
+      await this.assertNoReparsePoint(path);
       await this.store.write(path, content);
     });
   }
@@ -62,6 +83,8 @@ export class ElectronStorageHost {
   replace(sourcePath: string, targetPath: string, lease: unknown): Promise<void> {
     return this.queue(async () => {
       this.assertActiveLease(parseLease(lease));
+      await this.assertNoReparsePoint(sourcePath);
+      await this.assertNoReparsePoint(targetPath);
       await this.store.replace(sourcePath, targetPath);
     });
   }
@@ -69,12 +92,14 @@ export class ElectronStorageHost {
   remove(path: string, lease: unknown): Promise<void> {
     return this.queue(async () => {
       this.assertActiveLease(parseLease(lease));
+      await this.assertNoReparsePoint(path);
       await this.store.remove(path);
     });
   }
 
   reset(): Promise<void> {
     return this.queue(async () => {
+      if (!this.ownsRoot) throw new Error("GRANT_RESET_REJECTED");
       await rm(this.rootDirectory, { recursive: true, force: true });
       await mkdir(this.rootDirectory, { recursive: true });
       this.store = new NodeProjectFileStore({ rootDirectory: this.rootDirectory });
@@ -123,12 +148,26 @@ export class ElectronStorageHost {
 
   async cleanup(): Promise<void> {
     await this.operationTail.catch(() => undefined);
-    await rm(this.rootDirectory, { recursive: true, force: true });
+    if (this.ownsRoot) await rm(this.rootDirectory, { recursive: true, force: true });
   }
 
   private assertActiveLease(lease: ProjectWriterLease): void {
     if (this.activeLease === null || this.activeLease.expiresAtMs <= Date.now() || !leaseMatches(this.activeLease, lease)) {
       throw new Error("LEASE_LOST");
+    }
+  }
+
+  private async assertNoReparsePoint(logicalPath: string): Promise<void> {
+    assertProjectStorePath(logicalPath, "read");
+    let current = this.rootDirectory;
+    for (const segment of logicalPath.split("/")) {
+      current = join(current, segment);
+      const metadata = await lstat(current).catch((error: NodeJS.ErrnoException) => {
+        if (error.code === "ENOENT") return null;
+        throw error;
+      });
+      if (metadata === null) break;
+      if (metadata.isSymbolicLink()) throw new Error("REPARSE_POINT_REJECTED");
     }
   }
 

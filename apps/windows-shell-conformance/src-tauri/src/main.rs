@@ -307,7 +307,36 @@ fn main() {
         let _ = std::io::stdout().flush();
         std::process::exit(2);
     }
-    let storage = StorageHost::create().expect("create Tauri storage host");
+    let granted_root = std::env::args().find_map(|argument| {
+        argument
+            .strip_prefix("--project-root=")
+            .map(std::path::PathBuf::from)
+    });
+    let storage = match granted_root {
+        Some(root) => StorageHost::create_granted(root).expect("create granted Tauri storage host"),
+        None => StorageHost::create().expect("create Tauri storage host"),
+    };
+    if let Some(logical_path) = std::env::args()
+        .find_map(|argument| argument.strip_prefix("--audit-read=").map(str::to_owned))
+    {
+        let rejected = storage
+            .read(&logical_path)
+            .is_err_and(|error| error == "REPARSE_POINT_REJECTED");
+        println!(
+            "{}",
+            json!({"schemaVersion":1,"status":if rejected {"reparse-rejected"} else {"reparse-followed"},"exitCode":if rejected {0} else {2}})
+        );
+        let _ = std::io::stdout().flush();
+        std::process::exit(if rejected { 0 } else { 2 });
+    }
+    if std::env::args().any(|argument| argument == "--audit-grant-only") {
+        println!(
+            "{}",
+            json!({"schemaVersion":1,"status":"grant-accepted","exitCode":0})
+        );
+        let _ = std::io::stdout().flush();
+        std::process::exit(0);
+    }
     tauri::Builder::default()
         .manage(storage)
         .plugin(

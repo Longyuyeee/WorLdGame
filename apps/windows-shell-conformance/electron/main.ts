@@ -36,7 +36,20 @@ function storageMatches(value: unknown): boolean {
 }
 
 app.whenReady().then(async () => {
-  storage = await ElectronStorageHost.create();
+  const grantedRoot = process.argv.find((argument) => argument.startsWith("--project-root="))?.slice("--project-root=".length);
+  storage = grantedRoot === undefined
+    ? await ElectronStorageHost.create()
+    : await ElectronStorageHost.createGranted(grantedRoot);
+  if (grantedRoot !== undefined && process.argv.includes("--audit-grant-only")) {
+    await finish({ schemaVersion: 1, status: "grant-accepted", exitCode: 0 }, 0);
+    return;
+  }
+  const auditRead = process.argv.find((argument) => argument.startsWith("--audit-read="))?.slice("--audit-read=".length);
+  if (grantedRoot !== undefined && auditRead !== undefined) {
+    const rejected = await storage.read(auditRead).then(() => false, (error: unknown) => String(error).includes("REPARSE_POINT_REJECTED"));
+    await finish({ schemaVersion: 1, status: rejected ? "reparse-rejected" : "reparse-followed", exitCode: rejected ? 0 : 2 }, rejected ? 0 : 2);
+    return;
+  }
   session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   session.defaultSession.setPermissionCheckHandler(() => false);
   session.defaultSession.webRequest.onBeforeRequest(
