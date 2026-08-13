@@ -3,7 +3,7 @@
 > 日期：2026-08-13
 > 节点：N01
 > 对齐需求：全部 10 个 USP、13 个 P0 `REQ-*`、`AC-01`–`AC-27`
-> 状态：本地实现与定点验收通过；等待 Draft PR Windows CI
+> 状态：通过（本地与 Draft PR Windows CI 均通过）
 
 ## 1. 节点目标
 
@@ -63,7 +63,9 @@ npm.cmd run demo:empty-to-web
 npm.cmd run check
 ```
 
-结果：需求/PR 追踪/Golden/workspace 四类机器审计通过；TypeScript 通过；普通测试 62 files / 415 tests、VM 重负载 1 file / 5 tests 全部通过；9 个 workspace 构建通过；架构审计通过；脚本性能 9 tests、资产性能 4 tests 通过；总耗时 53.7 秒。Draft PR Windows CI 结果在推送后补入本文件。
+结果：需求/PR 追踪/Golden/workspace 四类机器审计通过；TypeScript 通过；普通测试 62 files / 415 tests、VM 重负载 1 file / 5 tests 全部通过；9 个 workspace 构建通过；架构审计通过；脚本性能 9 tests、资产性能 4 tests 通过；总耗时 53.7 秒。
+
+远端验收：Draft PR #24 的 GitHub Actions run `31710252299` 在 `windows-latest` / Node `22.12.0` 上通过，作业 `94481036654` 总耗时 2 分 55 秒；PR base SHA 模式下的追踪矩阵更新门、Golden/需求审计、测试、构建和性能门全部成功。每周定时 Workflow 已推送；首次计划调度只能在分支合并后由 GitHub 触发，不用一次手动运行冒充周期历史。
 
 ## 5. 需求对齐
 
@@ -72,8 +74,8 @@ npm.cmd run check
 | 所有 P0/AC 有 owner 和节点 | 通过 | 追踪矩阵 + owner 注册表 + 需求审计 |
 | 七类 Golden Project | 通过（S0 Seed） | `fixtures/projects/*` + Golden 审计 |
 | 源、IR、State、Build 证据位置 | 通过（分阶段） | 源/Manifest Hash 已锁；N30/N31/N80 pending 槽被机器约束 |
-| 每周空目录演示 | 本地通过，待远端调度生效 | weekly workflow + `demo:empty-to-web` |
-| 功能 PR 更新追踪矩阵 | 已实现，待 PR 环境验证 | base SHA diff 门 |
+| 每周空目录演示 | 通过（调度定义与本地演示） | weekly workflow + `demo:empty-to-web`；周期历史待合并后积累 |
+| 功能 PR 更新追踪矩阵 | 通过 | PR #24 base SHA diff 门 |
 | 通过状态必须有证据链接 | 通过 | 需求审计规则；当前没有产品项被标记“通过” |
 
 ## 6. 不证明
@@ -82,4 +84,4 @@ N01 不证明七类工程已经采用未来 Canonical Schema，也不证明正�
 
 ## 7. 下一节点
 
-N01 本地与远端门全部通过后进入 N10：Canonical Project Schema。N10 将建立正式 `project-domain`，把七类 S0 Seed 迁移为通用 Schema，并以两个结构不同工程的 load/save/reload 语义 Hash 作为验收核心。
+N01 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N10：Canonical Project Schema。N10 将建立正式 `project-domain`，把七类 S0 Seed 迁移为通用 Schema，并以两个结构不同工程的 load/save/reload 语义 Hash 作为验收核心。
