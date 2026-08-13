@@ -20,6 +20,8 @@
 
 ## 2. 产品支柱
 
+最近通过节点：`N00`，实现、自审、本地完整门、推送与 Draft PR Windows CI 均完成；证据见[《N00 产品主线与仓库基线审计》](91-n00-product-baseline-audit.md)。下一节点为 `N10`。N00 是共同工程前置，不改变任何 `REQ-*` 或 `AC-*` 的产品完成状态。
+
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
 | USP-01 | One Story, Many Views | N40–N43 | 实现中 | 固定样例 Writer/Script/Flow/Preview | 任意工程四视图+Preview+Debugger 同源 E2E |

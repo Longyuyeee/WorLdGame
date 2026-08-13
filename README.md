@@ -100,6 +100,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [产品落地能力审计](docs/88-product-delivery-audit.md) | 特色功能、P0 模块、27 条 M1 验收与当前代码的逐项差距 |
 | [游戏引擎产品落地开发计划](docs/89-engine-product-delivery-plan.md) | 从通用工程、创作闭环、Compiler/Runtime 到三端构建、验收作品和 Stable 发布的节点计划 |
 | [M1 需求与验收追踪矩阵](docs/90-m1-requirement-traceability.md) | USP、P0、AC-01–AC-27 的节点、状态、阻塞项和完成证据权威表 |
+| [N00 产品主线与仓库基线审计](docs/91-n00-product-baseline-audit.md) | Workspace 分类、owner/依赖白名单、计划产品边界、干净环境 CI 与完整检查证据 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |
