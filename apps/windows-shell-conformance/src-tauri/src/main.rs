@@ -316,6 +316,36 @@ fn main() {
         Some(root) => StorageHost::create_granted(root).expect("create granted Tauri storage host"),
         None => StorageHost::create().expect("create Tauri storage host"),
     };
+    if let Some(owner_id) = std::env::args().find_map(|argument| {
+        argument.strip_prefix("--audit-lock-acquire=").map(str::to_owned)
+    }) {
+        let ttl_ms = std::env::args()
+            .find_map(|argument| argument.strip_prefix("--audit-lock-ttl=").and_then(|value| value.parse::<u64>().ok()))
+            .unwrap_or(1500);
+        let result = storage.acquire(&owner_id, ttl_ms).expect("audit lock acquire");
+        if std::env::args().any(|argument| argument == "--audit-release") && result["status"] == "acquired" {
+            let lease: ProjectWriterLease = serde_json::from_value(result["lease"].clone()).expect("audit release lease");
+            let released = storage.release(&lease).expect("audit release");
+            println!("{}", json!({"schemaVersion":1,"status":if released {"released"} else {"release-failed"},"lease":lease}));
+            let _ = std::io::stdout().flush();
+            std::process::exit(if released { 0 } else { 2 });
+        }
+        println!("{}", json!({"schemaVersion":1,"status":result["status"],"result":result}));
+        let _ = std::io::stdout().flush();
+        if std::env::args().any(|argument| argument == "--audit-hold") && result["status"] == "acquired" {
+            loop { std::thread::park(); }
+        }
+        std::process::exit(0);
+    }
+    if let Some(encoded) = std::env::args().find_map(|argument| {
+        argument.strip_prefix("--audit-lock-write=").map(str::to_owned)
+    }) {
+        let lease: ProjectWriterLease = serde_json::from_str(&encoded).expect("audit lease json");
+        let rejected = storage.write("audit-lock.txt", "write", &lease).is_err_and(|error| error == "LEASE_LOST");
+        println!("{}", json!({"schemaVersion":1,"status":if rejected {"stale-rejected"} else {"write-accepted"},"exitCode":if rejected {0} else {2}}));
+        let _ = std::io::stdout().flush();
+        std::process::exit(if rejected { 0 } else { 2 });
+    }
     if let Some(logical_path) = std::env::args()
         .find_map(|argument| argument.strip_prefix("--audit-read=").map(str::to_owned))
     {

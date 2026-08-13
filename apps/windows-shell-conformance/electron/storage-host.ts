@@ -1,4 +1,4 @@
-import { lstat, mkdtemp, mkdir, realpath, rm, stat } from "node:fs/promises";
+import { lstat, mkdtemp, mkdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, parse, resolve } from "node:path";
 import {
@@ -66,6 +66,7 @@ export class ElectronStorageHost {
 
   read(path: string): Promise<string | null> {
     return this.operationTail.then(async () => {
+      this.assertPublicPath(path);
       await this.assertNoReparsePoint(path);
       return this.store.read(path);
     });
@@ -74,6 +75,8 @@ export class ElectronStorageHost {
   write(path: string, content: string, lease: unknown): Promise<void> {
     if (content.length > 2_000_000) return Promise.reject(new Error("PAYLOAD_TOO_LARGE"));
     return this.queue(async () => {
+      this.assertPublicPath(path);
+      await this.refreshLeaseFromDisk();
       this.assertActiveLease(parseLease(lease));
       await this.assertNoReparsePoint(path);
       await this.store.write(path, content);
@@ -82,6 +85,9 @@ export class ElectronStorageHost {
 
   replace(sourcePath: string, targetPath: string, lease: unknown): Promise<void> {
     return this.queue(async () => {
+      this.assertPublicPath(sourcePath);
+      this.assertPublicPath(targetPath);
+      await this.refreshLeaseFromDisk();
       this.assertActiveLease(parseLease(lease));
       await this.assertNoReparsePoint(sourcePath);
       await this.assertNoReparsePoint(targetPath);
@@ -91,6 +97,8 @@ export class ElectronStorageHost {
 
   remove(path: string, lease: unknown): Promise<void> {
     return this.queue(async () => {
+      this.assertPublicPath(path);
+      await this.refreshLeaseFromDisk();
       this.assertActiveLease(parseLease(lease));
       await this.assertNoReparsePoint(path);
       await this.store.remove(path);
@@ -108,40 +116,48 @@ export class ElectronStorageHost {
   }
 
   acquire(ownerId: string, ttlMs: number): Promise<WriterLeaseAcquisition> {
-    return this.queueResult(() => {
+    return this.queueResult(async () => {
       if (!OWNER.test(ownerId)) throw new Error("INVALID_OWNER");
       assertTtl(ttlMs);
       const now = Date.now();
+      await this.refreshLeaseFromDisk();
       if (this.activeLease !== null && this.activeLease.expiresAtMs > now && this.activeLease.ownerId !== ownerId) {
         return { status: "held", holderExpiresAtMs: this.activeLease.expiresAtMs };
       }
+      const nextToken = await this.readNextFencingToken();
       const lease = this.activeLease !== null && this.activeLease.ownerId === ownerId && this.activeLease.expiresAtMs > now
         ? { ...this.activeLease, expiresAtMs: now + ttlMs }
-        : { ownerId, fencingToken: this.nextFencingToken++, expiresAtMs: now + ttlMs };
+        : { ownerId, fencingToken: nextToken, expiresAtMs: now + ttlMs };
       this.activeLease = lease;
+      if (lease.fencingToken === nextToken) await this.persistNextFencingToken(nextToken + 1);
+      await this.persistLease(lease);
       return { status: "acquired", lease };
     });
   }
 
   renew(value: unknown, ttlMs: number): Promise<WriterLeaseRenewal> {
-    return this.queueResult(() => {
+    return this.queueResult(async () => {
       assertTtl(ttlMs);
       const lease = parseLease(value);
       const now = Date.now();
+      await this.refreshLeaseFromDisk();
       if (this.activeLease === null || this.activeLease.expiresAtMs <= now || !leaseMatches(this.activeLease, lease)) {
         return { status: "lost" };
       }
       const renewed = { ...lease, expiresAtMs: now + ttlMs };
       this.activeLease = renewed;
+      await this.persistLease(renewed);
       return { status: "renewed", lease: renewed };
     });
   }
 
   release(value: unknown): Promise<boolean> {
-    return this.queueResult(() => {
+    return this.queueResult(async () => {
       const lease = parseLease(value);
+      await this.refreshLeaseFromDisk();
       if (this.activeLease === null || !leaseMatches(this.activeLease, lease)) return false;
       this.activeLease = null;
+      await rm(this.leasePath, { force: true });
       return true;
     });
   }
@@ -155,6 +171,60 @@ export class ElectronStorageHost {
     if (this.activeLease === null || this.activeLease.expiresAtMs <= Date.now() || !leaseMatches(this.activeLease, lease)) {
       throw new Error("LEASE_LOST");
     }
+  }
+
+  private assertPublicPath(logicalPath: string): void {
+    assertProjectStorePath(logicalPath, "read");
+    if (logicalPath === ".world-lock" || logicalPath.startsWith(".world-lock/")) {
+      throw new Error("RESERVED_PATH");
+    }
+  }
+
+  private get lockDirectory(): string { return join(this.rootDirectory, ".world-lock"); }
+  private get leasePath(): string { return join(this.lockDirectory, "lease.json"); }
+  private get tokenPath(): string { return join(this.lockDirectory, "next-token.txt"); }
+
+  private async refreshLeaseFromDisk(): Promise<void> {
+    await this.assertNoReparsePoint(".world-lock/lease.json");
+    const encoded = await readFile(this.leasePath, "utf8").catch((error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT") return null;
+      throw error;
+    });
+    this.activeLease = encoded === null ? null : parseLease(JSON.parse(encoded));
+  }
+
+  private async readNextFencingToken(): Promise<number> {
+    await this.assertNoReparsePoint(".world-lock/next-token.txt");
+    const encoded = await readFile(this.tokenPath, "utf8").catch((error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT") return null;
+      throw error;
+    });
+    if (encoded === null) return this.nextFencingToken;
+    const token = Number(encoded);
+    if (!Number.isSafeInteger(token) || token < 1) throw new Error("LOCK_STATE_CORRUPT");
+    return token;
+  }
+
+  private async persistNextFencingToken(token: number): Promise<void> {
+    await this.assertNoReparsePoint(".world-lock/next-token.txt");
+    await mkdir(this.lockDirectory, { recursive: true });
+    await this.atomicWrite(this.tokenPath, String(token));
+    this.nextFencingToken = token;
+  }
+
+  private async persistLease(lease: ProjectWriterLease): Promise<void> {
+    await this.assertNoReparsePoint(".world-lock/lease.json");
+    await mkdir(this.lockDirectory, { recursive: true });
+    await this.atomicWrite(this.leasePath, JSON.stringify(lease));
+  }
+
+  private async atomicWrite(target: string, content: string): Promise<void> {
+    const temporary = `${target}.${process.pid}.${Date.now()}.tmp`;
+    await writeFile(temporary, content, { encoding: "utf8", flag: "wx" });
+    await rename(temporary, target).catch(async (error) => {
+      await rm(temporary, { force: true });
+      throw error;
+    });
   }
 
   private async assertNoReparsePoint(logicalPath: string): Promise<void> {
@@ -177,8 +247,8 @@ export class ElectronStorageHost {
     return result;
   }
 
-  private queueResult<T>(action: () => T): Promise<T> {
+  private queueResult<T>(action: () => T | Promise<T>): Promise<T> {
     let result!: T;
-    return this.queue(async () => { result = action(); }).then(() => result);
+    return this.queue(async () => { result = await action(); }).then(() => result);
   }
 }

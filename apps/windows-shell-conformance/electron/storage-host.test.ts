@@ -18,6 +18,25 @@ afterEach(async () => {
 });
 
 describe("Electron native project grant", () => {
+  it("coordinates two host instances and reserves persistent lock state", async () => {
+    const root = await temporaryRoot("world-grant-lock-");
+    const firstHost = await ElectronStorageHost.createGranted(root);
+    const secondHost = await ElectronStorageHost.createGranted(root);
+    const first = await firstHost.acquire("owner-a", 60_000);
+    expect(first.status).toBe("acquired");
+    if (first.status !== "acquired") throw new Error("expected lease");
+    await expect(secondHost.acquire("owner-b", 60_000)).resolves.toMatchObject({ status: "held" });
+    await expect(firstHost.read(".world-lock/lease.json")).rejects.toThrow("RESERVED_PATH");
+    await expect(firstHost.release(first.lease)).resolves.toBe(true);
+    const second = await secondHost.acquire("owner-b", 60_000);
+    expect(second.status).toBe("acquired");
+    if (second.status !== "acquired") throw new Error("expected second lease");
+    expect(second.lease.fencingToken).toBeGreaterThan(first.lease.fencingToken);
+    await expect(firstHost.write("stale.txt", "stale", first.lease)).rejects.toThrow("LEASE_LOST");
+    await firstHost.cleanup();
+    await secondHost.cleanup();
+  });
+
   it("accepts an explicit canonical directory without exposing or owning it", async () => {
     const root = await temporaryRoot("world-grant-electron-");
     await writeFile(join(root, "project.json"), "granted", "utf8");

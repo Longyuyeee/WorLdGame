@@ -242,6 +242,12 @@ if (securityProfile.electron?.grantRoot !== "native-only-canonical-directory" ||
     securityProfile.tauri?.grantRoot !== "native-only-canonical-directory") {
   violations.push("Windows project grant roots must remain native-only canonical directories");
 }
+if (securityProfile.electron?.writerCoordination !== "persistent-fenced-lease-spike" ||
+    securityProfile.tauri?.writerCoordination !== "persistent-fenced-lease-spike" ||
+    JSON.stringify(securityProfile.electron?.reservedPaths) !== '[".world-lock"]' ||
+    JSON.stringify(securityProfile.tauri?.reservedPaths) !== '[".world-lock"]') {
+  violations.push("Windows hosts must persist fenced leases under a renderer-inaccessible reserved path");
+}
 
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
