@@ -20,7 +20,7 @@ async function expectStorageRevision(revision: number): Promise<void> {
 describe("S0.12 autosave integration", () => {
   it("debounces committed input and rotates the previous verified snapshot", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
-    render(<App />);
+    render(<App autosaveDebounceMs={10} />);
     await screen.findByRole("button", { name: "保存到本机" });
     selectFirstDialogue();
 

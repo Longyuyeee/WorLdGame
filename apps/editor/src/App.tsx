@@ -2354,8 +2354,9 @@ export interface AppProps {
   readonly initialProject?: CanonicalProject;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
+  readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, onProjectChange, onProjectSave }: AppProps = {}) {
+export function App({ initialProject, onProjectChange, onProjectSave, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
@@ -2848,9 +2849,9 @@ export function App({ initialProject, onProjectChange, onProjectSave }: AppProps
 
   useEffect(() => {
     if (inputDirty || persistence.status !== "dirty" || autosaveSuspended.current) return;
-    const timer = setTimeout(() => saveToLocal("auto"), AUTOSAVE_DEBOUNCE_MS);
+    const timer = setTimeout(() => saveToLocal("auto"), autosaveDebounceMs);
     return () => clearTimeout(timer);
-  }, [editVersion, inputDirty, persistence.status]);
+  }, [autosaveDebounceMs, editVersion, inputDirty, persistence.status]);
 
   const openBackups = () => {
     const store = storeRef.current;
