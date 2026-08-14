@@ -1,8 +1,8 @@
 # N22 Stage 几何与安全区审计
 
-> 日期：2026-08-14  
-> 分支：`agent/n22-stage-media`  
-> 节点状态：实现中；本文件只验收 N22 第一切片，不宣称 N22 通过  
+> 日期：2026-08-14
+> 分支：`agent/n22-stage-media`
+> 节点状态：实现中；本文件只验收 N22 第一切片，不宣称 N22 通过
 > 前置基线：`agent/m1-integration-n21` / Draft PR #32 / Authoritative
 
 ## 1. 需求对齐
