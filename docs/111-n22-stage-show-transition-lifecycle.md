@@ -29,6 +29,8 @@ Preview 时间线新增 `entering` 瞬时标记，并在处理下一条语句前
 
 本机完整门首轮被外层 120 秒窗口终止；第二轮的 89/89、540/540 常规测试通过，但既有 10,000-seed VM corpus 在固定 90 秒门分别于 103.8 秒、93.2 秒和停止本工程 Vite 后的 98.7 秒超时。该文件与本切片无代码依赖，历史审计也记录本机约 106 秒、远端约 72 秒的差异；因此没有放宽门限，也不把本地结果写成全绿，最终裁决交给 Draft PR #33 的 Windows `product-baseline`。
 
+实现提交 `908edb0` 推送后，Draft PR #33 的 Windows / Node 22 `product-baseline` run `31787057050` 在 3m16s 内完整通过，远端冻结 VM 门与全仓检查均为绿色。本机三次超时继续作为性能环境差异保留，不反向改写为本地全绿。
+
 ## 4. 边界与下一步
 
 本切片证明的是编辑器 Preview 中基础 Show/Move 的单语句生命周期与角色层作用域，不证明 Pixi/WebGL、复杂关键帧、镜头、正式 Runtime 或三端一致性。`RA-N21-001` 继续阻断 N21 Product Acceptance、N23、M1 Stable 与 Public Release。
