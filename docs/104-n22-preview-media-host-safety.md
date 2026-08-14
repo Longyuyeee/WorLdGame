@@ -32,7 +32,7 @@
 
 ## 4. 未完成与阻断
 
-- 正式 Canvas/Pixi 渲染宿主及 Canvas 与 DOM 文本/UI 的职责边界尚未冻结；
+- Canvas/Pixi 与 DOM 文本/UI 的职责边界已由[第四切片审计](105-n22-render-host-boundary.md)冻结；当前后端仍为 DOM Media，Canvas/Pixi 高性能后端尚未实现；
 - 尚未生成可审查的视觉 Golden；
 - Media Golden Project 仍缺“导入真实媒体 → 保存重开 → Preview 播放 → 错误资源隔离”的完整产品验收；
 - N21 真人门、N23、M1 Stable 与 Public Release 继续被 `RA-N21-001` 阻断。

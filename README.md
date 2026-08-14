@@ -114,6 +114,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N22 Stage 几何与安全区审计](docs/102-n22-stage-geometry-safe-area.md) | 角色 X/Y、缩放、旋转、锚点、层级、安全区与 N22 剩余阻断 |
 | [N22 Stage DPR 与触摸选择审计](docs/103-n22-stage-dpr-touch-selection.md) | 设计像素/DPR 安全映射、触摸命中、键盘等价选择、跨视图同步与剩余 Golden 阻断 |
 | [N22 Preview 媒体宿主安全审计](docs/104-n22-preview-media-host-safety.md) | 快速切场景 generation 隔离、解码失败分层回退、Object URL 释放矩阵与剩余宿主/Golden 阻断 |
+| [N22 Render Host 边界审计](docs/105-n22-render-host-boundary.md) | Render Frame v1、视觉层与 DOM Overlay 分离、背景/角色平面、负 z 修复及 Canvas/Pixi 后端边界 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

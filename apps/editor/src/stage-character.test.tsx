@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { PreviewStageCharacter } from "./App";
+import { PreviewStageCharacter, PreviewVisualHost } from "./preview-visual-host";
 
 const character = {
   statementId: "stmt_show_hero",
@@ -75,5 +75,39 @@ describe("Preview Stage character interaction", () => {
     );
     expect(screen.getByRole("button")).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button")).toHaveClass("is-selected");
+  });
+
+  it("keeps negative character z-order inside a plane above the background", () => {
+    render(
+      <div data-stage-surface="design-pixels">
+        <PreviewVisualHost
+          frame={{
+            contractVersion: 1,
+            backend: "dom-media-v1",
+            status: "ready",
+            generation: 3,
+            planKey: "scene",
+            background: { statementId: "bg", assetId: "school", url: "blob:bg" },
+            characters: [{ ...character, z: -100 }],
+            errorCount: 0
+          }}
+          designWidth={1920}
+          designHeight={1080}
+          selectedStatementId="stmt_show_hero"
+          onSelect={() => undefined}
+          onStagePoint={() => undefined}
+          onRuntimeError={() => undefined}
+        />
+      </div>
+    );
+    const host = screen.getByTestId("preview-visual-host");
+    const backgroundPlane = host.querySelector(".stage-background-plane");
+    const characterPlane = host.querySelector(".stage-character-plane");
+    expect(host).toHaveAttribute("data-render-contract", "1");
+    expect(host).toHaveAttribute("data-render-backend", "dom-media-v1");
+    expect(backgroundPlane).not.toBeNull();
+    expect(characterPlane).not.toBeNull();
+    expect(backgroundPlane?.nextElementSibling).toBe(characterPlane);
+    expect(screen.getByRole("button", { name: /选择 Stage 角色/ })).toHaveStyle({ zIndex: -100 });
   });
 });

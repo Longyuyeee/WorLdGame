@@ -113,20 +113,20 @@ import {
   derivePreviewStagePlan,
   loadPreviewMedia,
   releasePreviewMedia,
-  resolvePreviewCharacterGeometry,
   type LoadedPreviewMedia,
   type PreviewAudioLayerPlan,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
 import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
-import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
+import { createStageSurfaceMetrics, type StageDesignPoint } from "./stage-surface";
 import {
   createPreviewMediaHostState,
   previewMediaErrorCount,
-  previewMediaLayerFailed,
   reducePreviewMediaHost,
   type PreviewMediaRole
 } from "./preview-media-host";
+import { createPreviewRenderFrame } from "./preview-render-host";
+import { PreviewVisualHost } from "./preview-visual-host";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1949,74 +1949,6 @@ function PreviewAudioLayer({
   </>;
 }
 
-type LoadedPreviewCharacter = LoadedPreviewMedia["characters"][number];
-
-interface PreviewStageCharacterProps {
-  readonly character: LoadedPreviewCharacter;
-  readonly selected: boolean;
-  readonly designWidth: number;
-  readonly designHeight: number;
-  readonly onSelect: (statementId: string) => void;
-  readonly onStagePoint: (point: StageDesignPoint) => void;
-  readonly onDecodeError: () => void;
-}
-
-export function PreviewStageCharacter({
-  character,
-  selected,
-  designWidth,
-  designHeight,
-  onSelect,
-  onStagePoint,
-  onDecodeError
-}: PreviewStageCharacterProps) {
-  const geometry = resolvePreviewCharacterGeometry(character);
-  const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
-  return <button
-    type="button"
-    className={`stage-media-character stage-transition--${character.transition ?? "none"}${selected ? " is-selected" : ""}`}
-    data-testid={`preview-character-${character.slot}`}
-    data-stage-slot={character.slot}
-    data-stage-x={geometry.x}
-    data-stage-y={geometry.y}
-    data-stage-scale={geometry.scale}
-    data-stage-rotation={geometry.rotation}
-    data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
-    aria-label={label}
-    aria-pressed={selected}
-    onPointerDown={(event) => {
-      const stage = event.currentTarget.closest<HTMLElement>("[data-stage-surface]");
-      if (stage === null) return;
-      const point = mapClientPointToStage(
-        event.clientX,
-        event.clientY,
-        stage.getBoundingClientRect(),
-        designWidth,
-        designHeight
-      );
-      if (point !== null) onStagePoint(point);
-    }}
-    onClick={() => onSelect(character.statementId)}
-    style={{
-      animationDuration: character.duration ?? "360ms",
-      zIndex: character.z ?? 0,
-      left: `${geometry.x}%`,
-      top: `${geometry.y}%`,
-      right: "auto",
-      bottom: "auto",
-      transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
-      transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`
-    }}
-  >
-    <img
-      src={character.url}
-      alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
-      draggable={false}
-      onError={onDecodeError}
-    />
-  </button>;
-}
-
 function browserDevicePixelRatio(): number {
   return typeof window === "undefined" ? 1 : window.devicePixelRatio;
 }
@@ -2146,12 +2078,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     planKey: stagePlan.resourceKey,
     error: { role, statementId: layer.statementId, assetId: layer.assetId, code: "decode-failed" }
   });
-  const backgroundFailed = loadedMedia?.background !== undefined && previewMediaLayerFailed(
-    mediaView,
-    "background",
-    loadedMedia.background.statementId,
-    loadedMedia.background.assetId
-  );
+  const renderFrame = createPreviewRenderFrame(mediaView, stagePlan.resourceKey);
   const mediaErrorCount = previewMediaErrorCount(mediaView);
 
   useEffect(() => {
@@ -2290,39 +2217,15 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
             </span>
           </div>
           {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
-          {loadedMedia?.background === undefined || backgroundFailed ? (
-            <div className="stage-sky" aria-hidden="true">
-              <span className="sun" /><span className="school-building" />
-              <span className="character-silhouette character-silhouette--left" />
-              <span className="character-silhouette character-silhouette--right" />
-            </div>
-          ) : (
-            <img
-              className={`stage-media-background stage-transition--${loadedMedia.background.transition ?? "none"}`}
-              data-testid="preview-background"
-              src={loadedMedia.background.url}
-              alt={`背景资源 ${loadedMedia.background.assetId}`}
-              style={{ animationDuration: loadedMedia.background.duration ?? "360ms" }}
-              onError={() => reportRuntimeMediaError("background", loadedMedia.background!)}
-            />
-          )}
-          {loadedMedia?.characters.filter((character) => !previewMediaLayerFailed(
-            mediaView,
-            "character",
-            character.statementId,
-            character.assetId
-          )).map((character) => {
-            return <PreviewStageCharacter
-              key={character.slot}
-              character={character}
-              selected={session.selectedStatementId === character.statementId}
-              designWidth={viewport.width}
-              designHeight={viewport.height}
-              onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
-              onStagePoint={setLastStagePoint}
-              onDecodeError={() => reportRuntimeMediaError("character", character)}
-            />;
-          })}
+          <PreviewVisualHost
+            frame={renderFrame}
+            designWidth={viewport.width}
+            designHeight={viewport.height}
+            selectedStatementId={session.selectedStatementId}
+            onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
+            onStagePoint={setLastStagePoint}
+            onRuntimeError={reportRuntimeMediaError}
+          />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
               const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;

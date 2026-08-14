@@ -2439,6 +2439,28 @@ textarea[data-input-state="composing"] {
   inset: 5% 8%;
 }
 
+.stage-visual-host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stage-background-plane,
+.stage-character-plane {
+  position: absolute;
+  inset: 0;
+}
+
+.stage-background-plane {
+  z-index: 1;
+}
+
+.stage-character-plane {
+  z-index: 2;
+  pointer-events: none;
+}
+
 .stage-sky {
   position: absolute;
   inset: 0;
@@ -2450,7 +2472,6 @@ textarea[data-input-state="composing"] {
 .stage-media-background {
   position: absolute;
   inset: 0;
-  z-index: 1;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -2471,6 +2492,7 @@ textarea[data-input-state="composing"] {
   cursor: pointer;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
 }
 
 .stage-media-character img {

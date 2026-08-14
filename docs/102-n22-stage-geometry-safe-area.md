@@ -39,7 +39,7 @@
 - DPR/画布像素映射、触摸命中与精确数值编辑替代路径已由[第二切片审计](103-n22-stage-dpr-touch-selection.md)补齐；自由拖拽留在正式 Stage 操控切片；
 - 尚未生成可审查的视觉 Golden 快照；
 - Media Golden Project 仍未形成“导入真实媒体 → 保存重开 → Preview 播放”的完整产品验收证据；
-- 错误解码与场景切换矩阵已由[第三切片审计](104-n22-preview-media-host-safety.md)补齐；Pixi/Canvas 与 DOM 文本/UI 的正式渲染宿主边界仍待后续 N22 切片；
+- 错误解码与场景切换矩阵已由[第三切片审计](104-n22-preview-media-host-safety.md)补齐，Renderer 与 DOM Overlay 边界已由[第四切片审计](105-n22-render-host-boundary.md)冻结；Canvas/Pixi 高性能后端仍未实现；
 - N21 真人门、N23、M1 Stable 与 Public Release 继续被 `RA-N21-001` 阻断。
 
 因此本轮只能登记为 N22 实现进展，不得标记 N22、N21 或 M1 通过。
