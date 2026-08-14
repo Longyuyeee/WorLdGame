@@ -232,7 +232,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 ### N22 最小 Stage 与媒体预览
 
 > 准入状态（2026-08-14）：`RA-N21-001` 已接受真人暂不可用的单节点风险；建立指定权威集成基线后可开始工程实现。该例外不关闭 N21 真人门，不替代 Draft PR 集成，也不允许通过 N23。
-> 实施状态（2026-08-14）：已进入 N22；前五切片补齐角色几何同源链、安全区、DPR、触摸/键盘选择、媒体 generation 隔离、错误回退、Object URL 释放矩阵、Render Frame v1 与 DOM Overlay 边界，以及真实 PNG/WAV Media Golden 的检查、导入、保存重开、Preview 和释放机器链。当前后端明确为 `dom-media-v1`，不宣称 Canvas/Pixi 已实现。N22 仍未通过，剩余浏览器交互和像素视觉 Golden 验收见[N22 Media Golden 运行链审计](106-n22-media-golden-runtime.md)。
+> 实施状态（2026-08-14）：N22 工程验收候选已形成；前六切片补齐角色几何同源链、安全区、DPR、触摸/键盘选择、媒体 generation 隔离、错误回退、Object URL 释放矩阵、Render Frame v1 与 DOM Overlay 边界、真实 PNG/WAV Media Golden 机器链，以及真实浏览器导入、保存、全量重开、即时重挂载、16:9/9:16 视觉证据。重开过程中发现并修复 writer lease 卸载泄漏和 Strict Mode 旧 cleanup 清除新租约的竞态。当前后端明确为 `dom-media-v1`，不宣称 Canvas/Pixi 已实现；证据见[N22 浏览器 Media 与视觉 Golden 审计](107-n22-browser-media-visual-golden.md)。即使 N22 工程门完成，`RA-N21-001` 仍阻断 N21 Product Acceptance、N23、M1 Stable 与 Public Release。
 
 - **Goal**：创作者看到真实资源驱动的基础舞台结果。
 - **Implementation**：

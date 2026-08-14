@@ -2464,7 +2464,10 @@ export function App({ initialProject }: AppProps = {}) {
         Date.now(),
         WRITER_LEASE_TTL_MS
       );
-      if (cancelled) return;
+      if (cancelled) {
+        if (acquisition.status === "acquired") await store.release(acquisition.lease).catch(() => false);
+        return;
+      }
       if (acquisition.status === "held") {
         setPersistence({
           status: "conflict",
@@ -2653,12 +2656,18 @@ export function App({ initialProject }: AppProps = {}) {
       if (heartbeat !== undefined) clearInterval(heartbeat);
       globalThis.removeEventListener("pagehide", releaseOnPageHide);
       globalThis.removeEventListener("pageshow", reacquireAfterPageShow);
+      const activeLease = leaseRef.current;
+      if (activeLease !== null) markBrowserWriterLeaseOwnerHandoff(activeLease.ownerId);
+      leaseRef.current = null;
       if (storeRef.current === store) storeRef.current = null;
       store.activateWriterLease(null);
       if (assetRepositoryRef.current === assetRepository) assetRepositoryRef.current = null;
       assetRepository.activateWriterLease(null);
       assetImportAbortRef.current?.abort();
       assetImportAbortRef.current = null;
+      dicingAnalysisAbortRef.current?.abort();
+      dicingAnalysisAbortRef.current = null;
+      if (activeLease !== null) void store.release(activeLease).catch(() => false);
     };
   }, [storageAvailable, leaseRetry, projectStorageId]);
 

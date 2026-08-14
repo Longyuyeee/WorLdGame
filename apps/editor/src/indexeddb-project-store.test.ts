@@ -92,6 +92,24 @@ describe("IndexedDbProjectFileStore writer lease", () => {
     expect(secondResult.lease.fencingToken).toBe(firstResult.lease.fencingToken + 1);
   });
 
+  it("does not let a stale same-owner cleanup release a newer lease generation", async () => {
+    const { first, second } = stores(() => 5_000);
+    const initial = await first.acquire("owner_remount", 5_000, 100);
+    expect(initial.status).toBe("acquired");
+    if (initial.status !== "acquired") return;
+
+    const remounted = await second.acquire("owner_remount", 5_000, 100);
+    expect(remounted.status).toBe("acquired");
+    if (remounted.status !== "acquired") return;
+    expect(remounted.lease.expiresAtMs).toBe(initial.lease.expiresAtMs + 1);
+    await expect(first.release(initial.lease)).resolves.toBe(false);
+    await expect(first.acquire("owner_competing", 5_000, 100)).resolves.toEqual({
+      status: "held",
+      holderExpiresAtMs: remounted.lease.expiresAtMs
+    });
+    await expect(second.release(remounted.lease)).resolves.toBe(true);
+  });
+
   it("rejects invalid or overflowing lease clocks before opening a transaction", async () => {
     const { first } = stores(() => 0);
     await expect(first.acquire("owner_first", Number.MAX_SAFE_INTEGER, 1)).rejects.toMatchObject({

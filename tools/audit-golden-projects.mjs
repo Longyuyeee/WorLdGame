@@ -56,6 +56,62 @@ function validateMediaFixture(fixture, project, evidence, label) {
   }
 }
 
+async function validateMediaBrowserEvidence(fixture, registryEvidence, label) {
+  const evidencePath = join(root, "evidence", "n22", "media-golden-browser.json");
+  const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
+  if (browserEvidence.schemaVersion !== 1 || browserEvidence.status !== "pass" ||
+      browserEvidence.scope !== "materialize-import-edit-save-full-reload-immediate-remount-preview-visual" ||
+      browserEvidence.fixtureHash !== digest(fixture) || !/^[a-f0-9]{40}$/u.test(browserEvidence.sourceBaseRevision ?? "") ||
+      browserEvidence.environment?.viewportWidth !== 1280 || browserEvidence.environment?.viewportHeight !== 720 ||
+      browserEvidence.environment?.devicePixelRatio !== 2) violations.push(`${label} browser evidence identity, environment, or scope is stale`);
+  const flow = browserEvidence.productFlow;
+  if (flow?.materializedPayloads !== 3 || flow?.assetIndexRevision !== 3 || flow?.savedStorageRevision < 1 ||
+      flow?.savedStatementCount !== 4 || flow?.fullReloadRecentProjectReopen !== "pass" ||
+      flow?.structureToContentImmediateReopen !== "pass" || flow?.writerLeaseConflictAfterFix !== false ||
+      JSON.stringify(flow?.importedAssetIds) !== JSON.stringify(["media_sunset", "media_actor_sprite", "media_theme"])) {
+    violations.push(`${label} browser product flow is incomplete`);
+  }
+  if (browserEvidence.media?.background?.blobUrl !== true || browserEvidence.media?.background?.complete !== true ||
+      browserEvidence.media?.character?.blobUrl !== true || browserEvidence.media?.character?.complete !== true ||
+      browserEvidence.media?.audio?.blobUrl !== true || browserEvidence.media?.audio?.readyState < 1 ||
+      browserEvidence.media?.audio?.errorCode !== null || browserEvidence.media?.runtimeErrorCount !== 0 ||
+      browserEvidence.media?.pageWarningOrErrorCount !== 0) violations.push(`${label} browser media decode evidence failed`);
+  const landscape = browserEvidence.viewports?.landscape16x9;
+  const portrait = browserEvidence.viewports?.portrait9x16;
+  if (landscape?.profile !== "landscape-16-9" || Math.abs(landscape?.measuredRatio - 16 / 9) > 0.0001 ||
+      landscape?.overflowX !== 0 || landscape?.overflowY !== 0 || landscape?.pixelWidth !== 3840 || landscape?.pixelHeight !== 2160 ||
+      portrait?.profile !== "portrait-9-16" || Math.abs(portrait?.measuredRatio - 9 / 16) > 0.0001 ||
+      portrait?.overflowX !== 0 || portrait?.overflowY !== 0 || portrait?.pixelWidth !== 2160 || portrait?.pixelHeight !== 3840 ||
+      browserEvidence.viewports?.motionSettleMs < 300) violations.push(`${label} browser viewport evidence failed`);
+  if (!Array.isArray(browserEvidence.screenshots) || browserEvidence.screenshots.length !== 2) {
+    violations.push(`${label} browser visual evidence must contain two viewport screenshots`);
+  } else {
+    const expectedScreenshots = new Map([
+      ["evidence/n22/media-golden-browser-workspace.png", "landscape-16-9"],
+      ["evidence/n22/media-golden-browser-workspace-9x16.png", "portrait-9-16"]
+    ]);
+    for (const screenshot of browserEvidence.screenshots) {
+      if (expectedScreenshots.get(screenshot.path) !== screenshot.profile) {
+        violations.push(`${label} browser screenshot path or profile is invalid: ${screenshot.path}`);
+        continue;
+      }
+      expectedScreenshots.delete(screenshot.path);
+      const bytes = await readFile(join(root, screenshot.path));
+      const hash = createHash("sha256").update(bytes).digest("hex");
+      if (screenshot.width !== 1280 || screenshot.height !== 720 || bytes.byteLength !== screenshot.byteLength || hash !== screenshot.sha256) {
+        violations.push(`${label} browser screenshot is stale: ${screenshot.path}`);
+      }
+    }
+    if (expectedScreenshots.size !== 0) violations.push(`${label} browser visual evidence is missing a required viewport`);
+  }
+  const browserEvidenceHash = digest(browserEvidence);
+  if (registryEvidence.n22BrowserEvidence?.status !== "verified" ||
+      registryEvidence.n22BrowserEvidence?.path !== "evidence/n22/media-golden-browser.json" ||
+      registryEvidence.n22BrowserEvidence?.hash !== browserEvidenceHash) {
+    violations.push(`${label} browser evidence registration is stale; expected ${browserEvidenceHash}`);
+  }
+}
+
 function validateProject(project, label) {
   if (project.schemaVersion !== 0 || typeof project.id !== "string" || typeof project.title !== "string") violations.push(`${label} is not an S0 story project`);
   if (!Array.isArray(project.characters) || !Array.isArray(project.scenes) || project.scenes.length === 0) violations.push(`${label} must contain characters and at least one scene`);
@@ -126,6 +182,7 @@ for (const entry of registry.projects ?? []) {
     if (entry.category === "Media") {
       const fixture = JSON.parse(await readFile(join(root, entry.path, "media-golden.json"), "utf8"));
       validateMediaFixture(fixture, project, evidence, entry.id);
+      await validateMediaBrowserEvidence(fixture, evidence, entry.id);
     }
   } catch (error) {
     violations.push(`${entry.id} fixture cannot be read: ${error instanceof Error ? error.message : String(error)}`);

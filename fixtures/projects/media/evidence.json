@@ -8,6 +8,11 @@
     "test": "apps/editor/src/media-golden.test.ts",
     "scope": "inspect-import-save-reopen-preview-release"
   },
+  "n22BrowserEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/media-golden-browser.json",
+    "hash": "5ce66095bd0510caacfd2aa996797161836b8213867dbd3f6f1b4ac84475b04b"
+  },
   "expectedIrHash": {
     "status": "pending",
     "targetNode": "N30",

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-14T13:27:42+08:00",
+  "sourceBaseRevision": "aafd841aabeaf184d1beb24eaad01d2e9600594a",
+  "fixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Codex In-app Browser",
+    "viewportWidth": 1280,
+    "viewportHeight": 720,
+    "devicePixelRatio": 2
+  },
+  "productFlow": {
+    "projectReference": "project-814108fd-b092-48c8-a448-e630442f6670",
+    "materializedPayloads": 3,
+    "importedAssetIds": [
+      "media_sunset",
+      "media_actor_sprite",
+      "media_theme"
+    ],
+    "assetIndexRevision": 3,
+    "savedStorageRevision": 3,
+    "savedStatementCount": 4,
+    "fullReloadRecentProjectReopen": "pass",
+    "structureToContentImmediateReopen": "pass",
+    "writerLeaseConflictAfterFix": false
+  },
+  "media": {
+    "background": {
+      "assetId": "media_sunset",
+      "blobUrl": true,
+      "complete": true,
+      "naturalWidth": 16,
+      "naturalHeight": 9
+    },
+    "character": {
+      "assetId": "media_actor_sprite",
+      "blobUrl": true,
+      "complete": true,
+      "naturalWidth": 4,
+      "naturalHeight": 8
+    },
+    "audio": {
+      "assetId": "media_theme",
+      "blobUrl": true,
+      "readyState": 4,
+      "errorCode": null
+    },
+    "runtimeErrorCount": 0,
+    "pageWarningOrErrorCount": 0
+  },
+  "viewports": {
+    "landscape16x9": {
+      "profile": "landscape-16-9",
+      "designWidth": 1920,
+      "designHeight": 1080,
+      "cssWidth": 334,
+      "cssHeight": 187.875,
+      "measuredRatio": 1.7777777777777777,
+      "overflowX": 0,
+      "overflowY": 0,
+      "pixelWidth": 3840,
+      "pixelHeight": 2160,
+      "resolutionLimited": false
+    },
+    "portrait9x16": {
+      "profile": "portrait-9-16",
+      "designWidth": 1080,
+      "designHeight": 1920,
+      "cssWidth": 240,
+      "cssHeight": 426.6640625,
+      "measuredRatio": 0.562503433248494,
+      "overflowX": 0,
+      "overflowY": 0,
+      "pixelWidth": 2160,
+      "pixelHeight": 3840
+    },
+    "motionSettleMs": 700
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n22/media-golden-browser-workspace.png",
+      "profile": "landscape-16-9",
+      "width": 1280,
+      "height": 720,
+      "byteLength": 68155,
+      "sha256": "f903e3832ef04bbc185fb9a7a9bb07e6dd3865c00dc321c5207b038b4b3578bd"
+    },
+    {
+      "path": "evidence/n22/media-golden-browser-workspace-9x16.png",
+      "profile": "portrait-9-16",
+      "width": 1280,
+      "height": 720,
+      "byteLength": 72177,
+      "sha256": "24d0d053308d6fd47e4169533d4f86fad5a6fa815aa1d1a65be6ec5a27cf8d20"
+    }
+  ],
+  "status": "pass",
+  "scope": "materialize-import-edit-save-full-reload-immediate-remount-preview-visual"
+}
