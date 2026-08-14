@@ -31,9 +31,10 @@ function readyHost() {
 
 describe("Preview render host contract", () => {
   it("freezes the backend boundary and keeps overlays outside visual planes", () => {
-    expect(PREVIEW_RENDER_HOST_CONTRACT_VERSION).toBe(1);
+    expect(PREVIEW_RENDER_HOST_CONTRACT_VERSION).toBe(2);
     expect(PREVIEW_RENDER_HOST_CAPABILITIES).toEqual({
-      backend: "dom-media-v1",
+      backend: "canvas-2d-v1",
+      fallbackBackend: "dom-media-v1",
       coordinateSpace: "design-pixels",
       visualPlanes: ["background", "character"],
       overlayOwner: "react-dom",
@@ -46,8 +47,8 @@ describe("Preview render host contract", () => {
       status: "loading", planKey: "scene-b", characters: [], errorCount: 0
     });
     expect(createPreviewRenderFrame(readyHost(), "scene-a")).toMatchObject({
-      contractVersion: 1,
-      backend: "dom-media-v1",
+      contractVersion: 2,
+      backend: "canvas-2d-v1",
       status: "ready",
       generation: 1,
       background: { assetId: "school" },

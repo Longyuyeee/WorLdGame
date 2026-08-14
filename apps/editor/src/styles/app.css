@@ -2446,6 +2446,41 @@ textarea[data-input-state="composing"] {
   pointer-events: none;
 }
 
+.stage-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.stage-canvas-hit-plane {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stage-canvas-hit-proxy {
+  position: absolute;
+  width: min(46%, 220px);
+  height: 90%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+
+.stage-canvas-hit-proxy:focus-visible,
+.stage-canvas-hit-proxy.is-selected {
+  outline: 2px solid rgb(98 215 255 / 92%);
+  outline-offset: 3px;
+  box-shadow: 0 0 18px rgb(98 215 255 / 20%);
+}
+
 .stage-background-plane,
 .stage-character-plane {
   position: absolute;

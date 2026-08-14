@@ -82,7 +82,7 @@ describe("Preview Stage character interaction", () => {
       <div data-stage-surface="design-pixels">
         <PreviewVisualHost
           frame={{
-            contractVersion: 1,
+            contractVersion: 2,
             backend: "dom-media-v1",
             status: "ready",
             generation: 3,
@@ -103,7 +103,7 @@ describe("Preview Stage character interaction", () => {
     const host = screen.getByTestId("preview-visual-host");
     const backgroundPlane = host.querySelector(".stage-background-plane");
     const characterPlane = host.querySelector(".stage-character-plane");
-    expect(host).toHaveAttribute("data-render-contract", "1");
+    expect(host).toHaveAttribute("data-render-contract", "2");
     expect(host).toHaveAttribute("data-render-backend", "dom-media-v1");
     expect(backgroundPlane).not.toBeNull();
     expect(characterPlane).not.toBeNull();

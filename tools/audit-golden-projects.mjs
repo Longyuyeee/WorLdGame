@@ -112,6 +112,65 @@ async function validateMediaBrowserEvidence(fixture, registryEvidence, label) {
   }
 }
 
+async function validateCanvasBrowserEvidence(fixture, registryEvidence, label) {
+  const evidencePath = join(root, "evidence", "n22", "canvas-2d-browser.json");
+  const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
+  if (browserEvidence.schemaVersion !== 1 || browserEvidence.status !== "pass" ||
+      browserEvidence.scope !== "canvas-2d-dom-overlay-fallback-dpr-visual" ||
+      browserEvidence.fixtureHash !== digest(fixture) || !/^[a-f0-9]{40}$/u.test(browserEvidence.sourceBaseRevision ?? "") ||
+      browserEvidence.environment?.viewportWidth !== 1280 || browserEvidence.environment?.viewportHeight !== 720 ||
+      browserEvidence.environment?.devicePixelRatio !== 2) {
+    violations.push(`${label} Canvas browser evidence identity, environment, or scope is stale`);
+  }
+  const contract = browserEvidence.renderContract;
+  if (contract?.version !== 2 || contract?.primaryBackend !== "canvas-2d-v1" || contract?.fallbackBackend !== "dom-media-v1" ||
+      contract?.coordinateSpace !== "design-pixels" || contract?.overlayOwner !== "react-dom" ||
+      contract?.visualCanvasCount !== 1 || contract?.domMediaImageCount !== 0 || contract?.accessibleHitProxyCount !== 1 ||
+      contract?.selectedProxyPressed !== true || contract?.status !== "ready") {
+    violations.push(`${label} Canvas render contract or DOM separation evidence failed`);
+  }
+  const flow = browserEvidence.productFlow;
+  if (flow?.assetIndexRevision !== 3 || flow?.savedStorageRevision < 1 || flow?.selectedStep !== 2 ||
+      flow?.backgroundAssetId !== "media_sunset" || flow?.characterAssetId !== "media_actor_sprite" ||
+      flow?.runtimeErrorCount !== 0) violations.push(`${label} Canvas product flow is incomplete`);
+  const landscape = browserEvidence.viewports?.landscape16x9;
+  const portrait = browserEvidence.viewports?.portrait9x16;
+  if (landscape?.profile !== "landscape-16-9" || Math.abs(landscape?.measuredRatio - 16 / 9) > 0.0001 ||
+      landscape?.overflowX !== 0 || landscape?.overflowY !== 0 ||
+      landscape?.canvasPixelWidth !== 3840 || landscape?.canvasPixelHeight !== 2160 ||
+      portrait?.profile !== "portrait-9-16" || Math.abs(portrait?.measuredRatio - 9 / 16) > 0.0001 ||
+      portrait?.overflowX !== 0 || portrait?.overflowY !== 0 ||
+      portrait?.canvasPixelWidth !== 2160 || portrait?.canvasPixelHeight !== 3840 ||
+      browserEvidence.viewports?.motionSettleMs < 300) violations.push(`${label} Canvas viewport evidence failed`);
+  const expectedScreenshots = new Map([
+    ["evidence/n22/canvas-2d-browser-workspace.png", "landscape-16-9"],
+    ["evidence/n22/canvas-2d-browser-workspace-9x16.png", "portrait-9-16"]
+  ]);
+  if (!Array.isArray(browserEvidence.screenshots) || browserEvidence.screenshots.length !== expectedScreenshots.size) {
+    violations.push(`${label} Canvas visual evidence must contain two viewport screenshots`);
+  } else {
+    for (const screenshot of browserEvidence.screenshots) {
+      if (expectedScreenshots.get(screenshot.path) !== screenshot.profile) {
+        violations.push(`${label} Canvas screenshot path or profile is invalid: ${screenshot.path}`);
+        continue;
+      }
+      expectedScreenshots.delete(screenshot.path);
+      const bytes = await readFile(join(root, screenshot.path));
+      const hash = createHash("sha256").update(bytes).digest("hex");
+      if (screenshot.width !== 1280 || screenshot.height !== 720 || bytes.byteLength !== screenshot.byteLength || hash !== screenshot.sha256) {
+        violations.push(`${label} Canvas screenshot is stale: ${screenshot.path}`);
+      }
+    }
+    if (expectedScreenshots.size !== 0) violations.push(`${label} Canvas visual evidence is missing a required viewport`);
+  }
+  const evidenceHash = digest(browserEvidence);
+  if (registryEvidence.n22CanvasEvidence?.status !== "verified" ||
+      registryEvidence.n22CanvasEvidence?.path !== "evidence/n22/canvas-2d-browser.json" ||
+      registryEvidence.n22CanvasEvidence?.hash !== evidenceHash) {
+    violations.push(`${label} Canvas evidence registration is stale; expected ${evidenceHash}`);
+  }
+}
+
 function validateProject(project, label) {
   if (project.schemaVersion !== 0 || typeof project.id !== "string" || typeof project.title !== "string") violations.push(`${label} is not an S0 story project`);
   if (!Array.isArray(project.characters) || !Array.isArray(project.scenes) || project.scenes.length === 0) violations.push(`${label} must contain characters and at least one scene`);
@@ -183,6 +242,7 @@ for (const entry of registry.projects ?? []) {
       const fixture = JSON.parse(await readFile(join(root, entry.path, "media-golden.json"), "utf8"));
       validateMediaFixture(fixture, project, evidence, entry.id);
       await validateMediaBrowserEvidence(fixture, evidence, entry.id);
+      await validateCanvasBrowserEvidence(fixture, evidence, entry.id);
     }
   } catch (error) {
     violations.push(`${entry.id} fixture cannot be read: ${error instanceof Error ? error.message : String(error)}`);

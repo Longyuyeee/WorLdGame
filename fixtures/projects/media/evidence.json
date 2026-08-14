@@ -13,6 +13,11 @@
     "path": "evidence/n22/media-golden-browser.json",
     "hash": "5ce66095bd0510caacfd2aa996797161836b8213867dbd3f6f1b4ac84475b04b"
   },
+  "n22CanvasEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/canvas-2d-browser.json",
+    "hash": "dc6a0e771704412b9aa735b97b027975eb1db4f7f9d8c0cb5afe2ff95d9878a8"
+  },
   "expectedIrHash": {
     "status": "pending",
     "targetNode": "N30",

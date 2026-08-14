@@ -44,7 +44,7 @@
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | N21 本地/远端工程门完成；仍缺真人任务、N41 完整 Sequence 与 Stage 跨视图联动 | Branching/Media E2E |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
-| REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 已有真实 Blob 预览、角色几何、安全区、DPR、输入等价、媒体错误隔离、Render Host v1、真实 PNG/WAV Media Golden 运行链，以及浏览器导入/保存重开和 16:9/9:16 视觉证据；Canvas/Pixi 高性能后端、镜头/关键帧/UI 模板与 Runtime 同步归后续节点 | N42 正式 Stage、AC-13 |
+| REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 已有真实 Blob 预览、角色几何、安全区、DPR、输入等价、媒体错误隔离、Render Host v2、Canvas 2D 场景层与 DOM Overlay/命中代理分离、DOM 安全回退、真实 PNG/WAV Media Golden 运行链，以及浏览器导入/保存重开和 16:9/9:16 Canvas 视觉证据；Pixi/WebGL 高性能后端、镜头/关键帧/UI 模板与 Runtime 同步归后续节点 | N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 仅三模式，未用户验证 | D1 任务报告、交互性能、可访问性审计 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 缺完整类型、引用 UI、平台变体 | Asset/Dicing Golden、三端构建报告 |
 | REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | VM 与 Editor/Player 分离 | VM Golden、三宿主 State Hash、玩家 E2E |

@@ -5,10 +5,13 @@ import {
   type PreviewMediaHostState
 } from "./preview-media-host";
 
-export const PREVIEW_RENDER_HOST_CONTRACT_VERSION = 1;
+export const PREVIEW_RENDER_HOST_CONTRACT_VERSION = 2;
+
+export type PreviewRenderBackend = "canvas-2d-v1" | "dom-media-v1";
 
 export const PREVIEW_RENDER_HOST_CAPABILITIES = Object.freeze({
-  backend: "dom-media-v1",
+  backend: "canvas-2d-v1" as const,
+  fallbackBackend: "dom-media-v1" as const,
   coordinateSpace: "design-pixels",
   visualPlanes: ["background", "character"] as const,
   overlayOwner: "react-dom",
@@ -17,7 +20,7 @@ export const PREVIEW_RENDER_HOST_CAPABILITIES = Object.freeze({
 
 export interface PreviewRenderFrame {
   readonly contractVersion: typeof PREVIEW_RENDER_HOST_CONTRACT_VERSION;
-  readonly backend: typeof PREVIEW_RENDER_HOST_CAPABILITIES.backend;
+  readonly backend: PreviewRenderBackend;
   readonly status: "loading" | "ready";
   readonly generation: number;
   readonly planKey: string;

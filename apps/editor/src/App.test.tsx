@@ -493,7 +493,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(stage).toHaveAttribute("data-stage-pixel-width", "1920");
     expect(stage).toHaveAttribute("data-stage-pixel-height", "1080");
     expect(stage).toHaveAttribute("data-stage-resolution-limited", "false");
-    expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-contract", "1");
+    expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-contract", "2");
     expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-backend", "dom-media-v1");
     expect(stage.style.getPropertyValue("--preview-aspect")).toBe("1920 / 1080");
     expect(screen.getByTestId("preview-safe-area")).toBeInTheDocument();

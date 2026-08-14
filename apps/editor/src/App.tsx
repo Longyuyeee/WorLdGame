@@ -126,7 +126,7 @@ import {
   type PreviewMediaRole
 } from "./preview-media-host";
 import { createPreviewRenderFrame } from "./preview-render-host";
-import { PreviewVisualHost } from "./preview-visual-host";
+import { PreviewCanvasHost } from "./preview-canvas-host";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -2217,10 +2217,12 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
             </span>
           </div>
           {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
-          <PreviewVisualHost
+          <PreviewCanvasHost
             frame={renderFrame}
             designWidth={viewport.width}
             designHeight={viewport.height}
+            pixelWidth={stageSurface.pixelWidth}
+            pixelHeight={stageSurface.pixelHeight}
             selectedStatementId={session.selectedStatementId}
             onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
             onStagePoint={setLastStagePoint}
