@@ -32,7 +32,7 @@
 | 架构门 | 65 个 portable 模块、4 个 Node adapter | 最近完整门通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
 | Editor bundle | 593.28 kB，gzip 168.62 kB | 构建成功，存在体积警告；相对上一 N22 切片增加 4.38 kB minified / 1.10 kB gzip |
-| GitHub CI | PR #23–#32 最近 Windows CI 均成功；PR #33 等待本轮推送后复验 | 本地候选门通过 |
+| GitHub CI | PR #23–#33 最近 Windows CI 均成功；PR #33 `product-baseline` run `31778064111` 通过 | 候选分支工程门通过 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
 

@@ -40,6 +40,8 @@
 
 本轮完整门结果：89 个常规测试文件、531 项常规测试、5 项 VM 重型测试全部通过；10 个 workspace 构建、65 个 portable 文件/4 个 Node adapter 架构门、10 项脚本性能门与 4 项资源性能门通过。Editor 主包为 593.28 kB（gzip 168.62 kB），相对上一切片增加 4.38 kB（gzip 1.10 kB），仍保留现有大 chunk 警告并归入后续代码分割审计。
 
+实现提交 `6e65bb9` 已推送至 Draft PR #33；GitHub `product-baseline` run `31778064111` 在 Windows / Node 22 上通过。
+
 ## 4. 审计边界
 
 本切片只证明编辑器 Preview 的基础角色平移和确定性语义。它不证明复杂曲线/多关键帧、摄像机、正式 Player Runtime、三端一致性或生产发布能力。`RA-N21-001` 继续阻断 N21 Product Acceptance、N23、M1 Stable 与 Public Release。
