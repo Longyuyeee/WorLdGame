@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "authorityBranch": "agent/m1-integration-n21",
   "baseRef": "origin/main",
-  "status": "candidate",
+  "status": "authoritative",
   "integratedThrough": "N21",
-  "pullRequest": null,
+  "pullRequest": 32,
   "requiredAncestors": [
     { "node": "N00", "commit": "58b52bbba38270d19d143d0cc4a13a3805ecba9a", "evidence": "docs/91-n00-product-baseline-audit.md" },
     { "node": "N01", "commit": "e74153910c64f6af671e1354bd6b908c5a3e4f34", "evidence": "docs/92-n01-requirement-golden-baseline.md" },
@@ -19,6 +19,6 @@
   "unresolvedGates": [
     "N21 non-programmer product validation",
     "N00-N21 integration into main",
-    "Local VM and Dicing performance budgets on the current workstation"
+    "Local VM corpus performance budget on the current workstation"
   ]
 }

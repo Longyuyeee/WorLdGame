@@ -2,7 +2,7 @@
 
 > 日期：2026-08-14
 > 分支：`agent/m1-integration-n21`
-> 基线状态：Candidate；完成面向 `main` 的整合 PR 与远端 Windows 全检查后才可提升为 Authoritative
+> 基线状态：Authoritative；整合 Draft PR #32，远端 Windows 全检查已通过
 > 集成范围：N00、N01、N10、N11、N12、N13、N20、N21、`RA-N21-001`
 > 结构化登记：`config/delivery-baseline.json`
 
@@ -61,3 +61,4 @@ Candidate 提升为 Authoritative 时必须回填整合 PR 编号、远端 CI �
 - 未修改 VM 指令语义、批量上限、最终 State hash 或 5 秒测试门槛；针对性 VM-14 复验为 110 毫秒，冻结 State hash 继续通过；
 - 本机完整 VM 文件仍因 10,000-seed corpus 约 106 秒超过 90 秒而为 RED；该项在首轮远端 CI 为 71.786 秒并已通过。不得把本机结果描述成全绿，修复提交仍必须由 PR #32 的远端完整检查重新裁决。
 - 修复后的本地独立审计：typecheck PASS；常规测试 82/82 文件、497/497 测试 PASS；10 个 workspace build PASS；Architecture PASS；Script Performance 10/10 PASS；Asset Performance 4/4 PASS；Delivery Baseline 与策略 4/4 PASS。完整根级检查仍因上述本机 corpus 红项而不得登记为 PASS。
+- 修复提交 `e75ce69b6161e026e31a8dac3e074a2323ebe306` 的 GitHub Actions run `31765547145`、job `94660586579` 于 3 分 20 秒完成并全绿；PR #32 因而满足 Authoritative 提升条件。该结论只关闭指定基线阻断，不代表已经合并 `main`，也不改变 N21 真人验收、N23、M1 Stable 和公开发布的阻断状态。
