@@ -1,4 +1,4 @@
-import { transitionV0 } from "./transition";
+import { transitionPrevalidatedV0 } from "./transition";
 import type {
   InstructionV0,
   ProgramV0,
@@ -150,7 +150,7 @@ export function scheduleRuntimeBatchV0(
         executedInstructions: count, autoAdvanceDelayTicks: null
       };
     }
-    const result = transitionV0(program, current);
+    const result = transitionPrevalidatedV0(program, current);
     if (result.diagnostics.length > 0) {
       return {
         nextState: current, effects, waits, diagnostics: result.diagnostics, stopReason: "diagnostic",

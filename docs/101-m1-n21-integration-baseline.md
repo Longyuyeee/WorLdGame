@@ -50,3 +50,14 @@ npm.cmd run audit:delivery-baseline-policy
 ```
 
 Candidate 提升为 Authoritative 时必须回填整合 PR 编号、远端 CI 结果和最终提交；只创建本地分支不能完成本节点。
+
+## 6. PR #32 首轮 CI 与性能纠偏
+
+- 整合 Draft PR：`#32`，目标分支为 `main`；首轮 GitHub Actions run `31764034234`、job `94656118694`；
+- 交付基线审计、82/82 个测试文件和 497/497 项常规测试均通过；10,000-seed corpus 在远端耗时 71.786 秒，通过冻结的 90 秒门槛；
+- 唯一失败为 VM-14 10k loop：远端耗时 8.332 秒，本地复现为 7.928 秒，超过冻结的 5 秒门槛；
+- 根因是 `scheduleRuntimeBatchV0` 已在批次入口校验 Program/State 后，批次内每条指令仍通过公共 `transitionV0` 重复执行完整校验；两次 10k loop 因而产生约 40,000 次冗余校验；
+- 经 Product Owner 明确批准，修复为：公共 `transitionV0` 保留完整边界校验，批次调度器仅在入口校验一次，批次内部使用不从包入口导出的预校验转换路径；
+- 未修改 VM 指令语义、批量上限、最终 State hash 或 5 秒测试门槛；针对性 VM-14 复验为 110 毫秒，冻结 State hash 继续通过；
+- 本机完整 VM 文件仍因 10,000-seed corpus 约 106 秒超过 90 秒而为 RED；该项在首轮远端 CI 为 71.786 秒并已通过。不得把本机结果描述成全绿，修复提交仍必须由 PR #32 的远端完整检查重新裁决。
+- 修复后的本地独立审计：typecheck PASS；常规测试 82/82 文件、497/497 测试 PASS；10 个 workspace build PASS；Architecture PASS；Script Performance 10/10 PASS；Asset Performance 4/4 PASS；Delivery Baseline 与策略 4/4 PASS。完整根级检查仍因上述本机 corpus 红项而不得登记为 PASS。

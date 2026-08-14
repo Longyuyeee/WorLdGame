@@ -156,6 +156,22 @@ export function transitionV0(
   const stateDiagnostics = validateState(program, state);
   if (stateDiagnostics.length > 0) return unchanged(state, stateDiagnostics[0] as VmDiagnostic);
 
+  return transitionPrevalidatedV0(program, state, input);
+}
+
+/**
+ * Executes one transition after the caller has validated the program and state.
+ *
+ * This is intentionally not re-exported from the package entry point. The batch
+ * scheduler validates at its trust boundary, then uses this path while every
+ * intermediate state is produced by the transition kernel itself.
+ */
+export function transitionPrevalidatedV0(
+  program: ProgramV0,
+  state: RuntimeStateV0,
+  input?: ExternalInputV0
+): TransitionResultV0 {
+
   const instruction = program.instructions.find((candidate) => candidate.ip === state.ip) as InstructionV0;
 
   if (input !== undefined) {
