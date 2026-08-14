@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { resolvePreviewCharacterGeometry, type LoadedPreviewMedia } from "./preview-media-runtime";
+import {
+  resolvePreviewCharacterGeometry,
+  type LoadedPreviewMedia,
+  type PreviewCharacterGeometry
+} from "./preview-media-runtime";
 import type { PreviewMediaRole } from "./preview-media-host";
 import { PREVIEW_RENDER_HOST_CAPABILITIES, type PreviewRenderFrame } from "./preview-render-host";
 import { PreviewVisualHost } from "./preview-visual-host";
@@ -33,6 +37,16 @@ export function resolvePreviewCanvasCharacterRect(
   designHeight: number
 ): PreviewCanvasCharacterRect {
   const geometry = resolvePreviewCharacterGeometry(character);
+  return resolveCanvasCharacterRect(geometry, imageWidth, imageHeight, designWidth, designHeight);
+}
+
+function resolveCanvasCharacterRect(
+  geometry: PreviewCharacterGeometry,
+  imageWidth: number,
+  imageHeight: number,
+  designWidth: number,
+  designHeight: number
+): PreviewCanvasCharacterRect {
   const safeWidth = Math.max(1, imageWidth);
   const safeHeight = Math.max(1, imageHeight);
   const fit = Math.min(designWidth * 0.46 / safeWidth, designHeight * 0.9 / safeHeight);
@@ -44,6 +58,31 @@ export function resolvePreviewCanvasCharacterRect(
     offsetX: -geometry.anchorX * width,
     offsetY: -geometry.anchorY * height
   };
+}
+
+function interpolateGeometry(
+  from: PreviewCharacterGeometry,
+  to: PreviewCharacterGeometry,
+  progress: number
+): PreviewCharacterGeometry {
+  const value = Math.min(1, Math.max(0, progress));
+  const interpolate = (start: number, end: number) => start + (end - start) * value;
+  return {
+    x: interpolate(from.x, to.x),
+    y: interpolate(from.y, to.y),
+    scale: interpolate(from.scale, to.scale),
+    rotation: interpolate(from.rotation, to.rotation),
+    anchorX: interpolate(from.anchorX, to.anchorX),
+    anchorY: interpolate(from.anchorY, to.anchorY)
+  };
+}
+
+export function previewCanvasDurationMs(source: string | undefined): number {
+  if (source === undefined) return 300;
+  const match = /^(\d+(?:\.\d+)?)(ms|s)$/u.exec(source);
+  if (match === null) return 300;
+  const milliseconds = Number(match[1]) * (match[2] === "s" ? 1000 : 1);
+  return Math.min(10_000, Math.max(0, milliseconds));
 }
 
 function drawCover(
@@ -76,7 +115,8 @@ export function drawPreviewCanvasFrame(
   designHeight: number,
   pixelWidth: number,
   pixelHeight: number,
-  selectedStatementId: string
+  selectedStatementId: string,
+  movementProgress = 1
 ): void {
   context.setTransform(pixelWidth / designWidth, 0, 0, pixelHeight / designHeight, 0, 0);
   context.clearRect(0, 0, designWidth, designHeight);
@@ -93,8 +133,11 @@ export function drawPreviewCanvasFrame(
   for (const character of frame.characters) {
     const image = images.characters.get(character.statementId);
     if (image === undefined) continue;
-    const geometry = resolvePreviewCharacterGeometry(character);
-    const rect = resolvePreviewCanvasCharacterRect(character, image.width, image.height, designWidth, designHeight);
+    const targetGeometry = resolvePreviewCharacterGeometry(character);
+    const geometry = character.movementFrom === undefined
+      ? targetGeometry
+      : interpolateGeometry(character.movementFrom, targetGeometry, movementProgress);
+    const rect = resolveCanvasCharacterRect(geometry, image.width, image.height, designWidth, designHeight);
     context.save();
     context.translate(designWidth * geometry.x / 100, designHeight * geometry.y / 100);
     context.rotate(geometry.rotation * Math.PI / 180);
@@ -129,10 +172,11 @@ export function PreviewCanvasHitProxy({
   onStagePoint
 }: PreviewCanvasHitProxyProps) {
   const geometry = resolvePreviewCharacterGeometry(character);
+  const movementFrom = character.movementFrom;
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-canvas-hit-proxy${selected ? " is-selected" : ""}`}
+    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
@@ -150,8 +194,14 @@ export function PreviewCanvasHitProxy({
       zIndex: character.z ?? 0,
       left: `${geometry.x}%`,
       top: `${geometry.y}%`,
-      transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) rotate(${geometry.rotation}deg)`
-    }}
+      transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) rotate(${geometry.rotation}deg)`,
+      animationDuration: character.duration ?? "300ms",
+      ...(movementFrom === undefined ? {} : {
+        "--stage-move-from-left": `${movementFrom.x}%`,
+        "--stage-move-from-top": `${movementFrom.y}%`,
+        "--stage-move-from-transform": `translate(${-movementFrom.anchorX * 100}%, ${-movementFrom.anchorY * 100}%) rotate(${movementFrom.rotation}deg)`
+      })
+    } as CSSProperties}
   />;
 }
 
@@ -207,7 +257,10 @@ export function PreviewCanvasHost({
   const runtimeErrorRef = useRef(onRuntimeError);
   runtimeErrorRef.current = onRuntimeError;
   const [fallback, setFallback] = useState(false);
-  const activeTransition = [...frame.characters].reverse().find((item) => item.transition !== undefined) ?? frame.background;
+  const hasAuthoredMovement = frame.characters.some((item) => item.movementFrom !== undefined);
+  const activeTransition = hasAuthoredMovement
+    ? undefined
+    : [...frame.characters].reverse().find((item) => item.transition !== undefined) ?? frame.background;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -225,6 +278,9 @@ export function PreviewCanvasHost({
     }
     const controller = new AbortController();
     const characterImages = new Map<string, PreviewCanvasImage>();
+    const imageTasks: Promise<void>[] = [];
+    let animationFrame = 0;
+    let movementProgress = frame.characters.some((character) => character.movementFrom !== undefined) ? 0 : 1;
     let backgroundImage: PreviewCanvasImage | undefined;
     const draw = () => {
       if (controller.signal.aborted) return;
@@ -236,32 +292,57 @@ export function PreviewCanvasHost({
         designHeight,
         pixelWidth,
         pixelHeight,
-        selectedStatementId
+        selectedStatementId,
+        movementProgress
       );
     };
     draw();
     if (frame.background !== undefined) {
       const layer = frame.background;
-      void loadCanvasImage(layer.url, controller.signal).then((image) => {
+      imageTasks.push(loadCanvasImage(layer.url, controller.signal).then((image) => {
         backgroundImage = image;
         draw();
       }).catch((error: unknown) => {
         if (!controller.signal.aborted && !(error instanceof DOMException && error.name === "AbortError")) {
           runtimeErrorRef.current("background", layer);
         }
-      });
+      }));
     }
     for (const character of frame.characters) {
-      void loadCanvasImage(character.url, controller.signal).then((image) => {
+      imageTasks.push(loadCanvasImage(character.url, controller.signal).then((image) => {
         characterImages.set(character.statementId, image);
         draw();
       }).catch((error: unknown) => {
         if (!controller.signal.aborted && !(error instanceof DOMException && error.name === "AbortError")) {
           runtimeErrorRef.current("character", character);
         }
-      });
+      }));
     }
-    return () => controller.abort();
+    void Promise.allSettled(imageTasks).then(() => {
+      if (controller.signal.aborted || movementProgress === 1) return;
+      const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+      const duration = Math.max(...frame.characters
+        .filter((character) => character.movementFrom !== undefined)
+        .map((character) => previewCanvasDurationMs(character.duration)));
+      if (reducedMotion || duration === 0) {
+        movementProgress = 1;
+        draw();
+        return;
+      }
+      let startedAt: number | undefined;
+      const animate = (timestamp: number) => {
+        if (controller.signal.aborted) return;
+        startedAt ??= timestamp;
+        movementProgress = Math.min(1, (timestamp - startedAt) / duration);
+        draw();
+        if (movementProgress < 1) animationFrame = window.requestAnimationFrame(animate);
+      };
+      animationFrame = window.requestAnimationFrame(animate);
+    });
+    return () => {
+      controller.abort();
+      if (animationFrame !== 0) window.cancelAnimationFrame(animationFrame);
+    };
   }, [designHeight, designWidth, frame.generation, frame.planKey, pixelHeight, pixelWidth, selectedStatementId]);
 
   if (fallback) return <PreviewVisualHost

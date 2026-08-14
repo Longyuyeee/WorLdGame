@@ -45,6 +45,7 @@ import {
   MIN_STAGE_ROTATION,
   MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
+  STAGE_MOVE_GEOMETRY_PARAMETERS,
   compileSceneResourceManifest,
   directiveActionRequiresAsset,
   directiveActionOptions,
@@ -837,21 +838,24 @@ function DirectionInspector({
   const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
   const action = resolveDirectiveAction(statement.command, form.action);
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
+  const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
+  const visualTransitionActive = (statement.command === "background" && action === "set") || characterGeometryActive;
+  const durationActive = visualTransitionActive || statement.command === "audio" && action === "play";
   const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
   const assetId = form.asset ?? "";
   const assetKnown = !assetRequired || compatibleAssets.some((entry) => entry.assetId === assetId);
   const transitionAsset = form.transitionAsset ?? "";
   const transitionAssetKnown = !assetRequired || transitionAsset.length === 0 || assetIndex.assets.some((entry) => entry.assetId === transitionAsset);
   const duration = statement.command === "audio" ? (form.fade ?? "") : (form.duration ?? "");
-  const durationValid = !assetRequired || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
+  const durationValid = !durationActive || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const volumeValid = !assetRequired || statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
     (/^\d+(?:\.\d+)?$/.test(form.volume) && Number(form.volume) >= 0 && Number(form.volume) <= 1);
   const busValid = statement.command !== "audio" || ["voice", "bgm", "sfx", "ambient"].includes(form.bus ?? "");
   const slot = form.slot ?? "primary";
   const slotValid = statement.command !== "show" || SAFE_STAGE_SLOT.test(slot);
   const z = form.z === undefined || form.z.length === 0 ? 0 : Number(form.z);
-  const zValid = !assetRequired || statement.command !== "show" || Number.isInteger(z) && z >= MIN_STAGE_Z && z <= MAX_STAGE_Z;
-  const geometryValid = !assetRequired || statement.command !== "show" || [
+  const zValid = !characterGeometryActive || Number.isInteger(z) && z >= MIN_STAGE_Z && z <= MAX_STAGE_Z;
+  const geometryValid = !characterGeometryActive || [
     validOptionalStageNumber(form, "x", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
     validOptionalStageNumber(form, "y", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
     validOptionalStageNumber(form, "scale", MIN_STAGE_SCALE, MAX_STAGE_SCALE),
@@ -859,8 +863,9 @@ function DirectionInspector({
     validOptionalStageNumber(form, "anchorX", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR),
     validOptionalStageNumber(form, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
   ].every(Boolean);
+  const moveHasGeometry = action !== "move" || STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => (form[key] ?? "").trim().length > 0);
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
-    geometryValid && transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && moveHasGeometry && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -874,7 +879,9 @@ function DirectionInspector({
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transition: null, transitionAsset: null, duration: null }
     : statement.command === "show"
-      ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
+      ? action === "move"
+        ? { asset: null, expression: null, transitionAsset: null }
+        : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
       : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
@@ -942,7 +949,7 @@ function DirectionInspector({
         </small>
       </div>}
 
-      {statement.command !== "audio" && assetRequired && (
+      {visualTransitionActive && (
         <div className="direction-field">
           <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
           <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
@@ -952,10 +959,10 @@ function DirectionInspector({
       )}
       {statement.command === "show" && <>
         <div className="direction-field"><label htmlFor={`direction-slot-${statement.id}`}>角色槽位</label><input id={`direction-slot-${statement.id}`} aria-label="角色槽位" value={slot} disabled={disabled} placeholder="primary" onChange={(event) => setField("slot", event.target.value)} />{!slotValid && <small className="is-error">需为稳定标识符</small>}</div>
-        {assetRequired && <><div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>
-        <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>
-        <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div></>}
-        {assetRequired && <div className="direction-geometry" aria-label="角色舞台几何">
+        {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>}
+        {assetRequired && <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>}
+        {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div>}
+        {characterGeometryActive && <div className="direction-geometry" aria-label="角色舞台几何">
           <div className="direction-field"><label htmlFor={`direction-x-${statement.id}`}>X（%）</label><input id={`direction-x-${statement.id}`} aria-label="角色水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.x ?? ""} disabled={disabled} placeholder="50" onChange={(event) => setField("x", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-y-${statement.id}`}>Y（%）</label><input id={`direction-y-${statement.id}`} aria-label="角色垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.y ?? ""} disabled={disabled} placeholder="100" onChange={(event) => setField("y", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-scale-${statement.id}`}>缩放</label><input id={`direction-scale-${statement.id}`} aria-label="角色缩放" type="number" min={MIN_STAGE_SCALE} max={MAX_STAGE_SCALE} step="0.01" value={form.scale ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("scale", event.target.value)} /></div>
@@ -964,13 +971,14 @@ function DirectionInspector({
           <div className="direction-field"><label htmlFor={`direction-anchor-y-${statement.id}`}>锚点 Y</label><input id={`direction-anchor-y-${statement.id}`} aria-label="角色垂直锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorY ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("anchorY", event.target.value)} /></div>
           {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
         </div>}
+        {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
       </>}
       {statement.command === "audio" && <>
         <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
         {assetRequired && <><div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
         <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div></>}
       </>}
-      {assetRequired && <div className="direction-field">
+      {durationActive && <div className="direction-field">
         <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : "时长"}</label>
         <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
         {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
@@ -1119,14 +1127,18 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [asset, setAsset] = useState("");
   const [slot, setSlot] = useState("primary");
   const [z, setZ] = useState("0");
+  const [x, setX] = useState("50");
+  const [y, setY] = useState("100");
   const [bus, setBus] = useState("bgm");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
+  const moveActive = command === "show" && action === "move";
   const assetValid = !assetRequired || compatibleAssets.some((entry) => entry.assetId === asset);
   const slotValid = command !== "show" || SAFE_STAGE_SLOT.test(slot);
   const zNumber = Number(z);
   const zValid = command !== "show" || !assetRequired || Number.isInteger(zNumber) && zNumber >= MIN_STAGE_Z && zNumber <= MAX_STAGE_Z;
-  const canSubmit = !disabled && assetValid && slotValid && zValid;
+  const moveGeometryValid = !moveActive || [x, y].every((value) => /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT);
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid;
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : "音频";
 
   return (
@@ -1138,6 +1150,12 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       if (command === "show") {
         parameters.slot = slot;
         if (assetRequired) parameters.z = z;
+        if (moveActive) {
+          parameters.x = x;
+          parameters.y = y;
+          parameters.transition = "slide";
+          parameters.duration = "300ms";
+        }
       }
       if (command === "audio") {
         parameters.bus = bus;
@@ -1159,11 +1177,13 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {assetRequired && <label className="direction-insert__asset"><span>资源</span><input aria-label="新增演出资源" list={`insert-assets-${command}`} value={asset} disabled={disabled} placeholder={compatibleAssets.length === 0 ? "请先导入兼容资源" : "选择 Asset ID"} onChange={(event) => setAsset(event.target.value)} /><datalist id={`insert-assets-${command}`}>{compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist></label>}
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
+        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
       </div>
       {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
+      {!moveGeometryValid && <small className="is-error">移动位置必须在 0–100 之间</small>}
       <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
     </form>
   );

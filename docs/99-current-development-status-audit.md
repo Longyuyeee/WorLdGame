@@ -1,9 +1,9 @@
 # 当前开发情况审计（N21 工程门后）
 
 > 审计日期：2026-08-14
-> 代码基线：`c9038b19709e1400f4b3f1ad6bbd1d1a1117e7b9`
-> 审计分支：`agent/n21-writer-sequence`
-> 当前 PR：Draft PR #30
+> 本轮实现基线：`e04f5d5a543a49815a491a9bdc9835ab1990482d`
+> 审计分支：`agent/n22-stage-media`
+> 当前 PR：Draft PR #33
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
 > 权威边界：本文件是审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。2026-08-14 后续批准的 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)不修改 N21 未通过事实；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative，G2 已关闭。
 
@@ -16,7 +16,7 @@
 - 源项目能否落地：**能，在当前候选分支上可完成真实创建、编辑和持久化**；
 - 可玩游戏能否落地：**不能，Compiler → Runtime → Player → Build 链尚未建立**；
 - M1 是否完成：**不能，27 条发布验收仍为 `0/27` 完整通过**；
-- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；当前已在 `RA-N21-001` 边界内形成 N22 工程验收候选，Stage/媒体前七切片、Canvas 2D 后端及真实浏览器 Media/视觉 Golden 已完成**；
+- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；当前已在 `RA-N21-001` 边界内形成 N22 工程验收候选，Stage/媒体前八切片、Canvas 2D 后端、基础 Move 过渡及真实浏览器 Media/视觉 Golden 已完成**；
 - GitHub 是否已集成：**指定集成分支与 Draft PR #32 已建立且远端全检通过，但 N00–N21 与例外仍未进入 `main`**。
 
 ## 2. 审计证据基线
@@ -26,13 +26,13 @@
 | Workspace 边界 | 10 个 workspace；6 个计划产品边界 | 审计通过 |
 | 需求登记 | 50 条：10 USP、13 P0 模块、27 AC；6 个 owner | 审计通过 |
 | Golden Project | 7 类：Benchmark、Branching、CJK、Media、Recovery、Size、Tiny | 审计通过 |
-| 常规测试 | 89 个测试文件、524 项测试 | 最近完整门通过 |
+| 常规测试 | 89 个测试文件、531 项测试 | 最近完整门通过 |
 | VM 重型门 | 5 项 | 最近完整门通过 |
 | 构建 | 10 个 workspace | 最近完整门通过 |
 | 架构门 | 65 个 portable 模块、4 个 Node adapter | 最近完整门通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
-| Editor bundle | 588.90 kB，gzip 167.52 kB | 构建成功，存在体积警告；Canvas 后端新增约 14.58 kB minified / 4.29 kB gzip |
-| GitHub CI | PR #23–#30 最近 Windows CI 均成功 | 候选分支工程门通过 |
+| Editor bundle | 593.28 kB，gzip 168.62 kB | 构建成功，存在体积警告；相对上一 N22 切片增加 4.38 kB minified / 1.10 kB gzip |
+| GitHub CI | PR #23–#32 最近 Windows CI 均成功；PR #33 等待本轮推送后复验 | 本地候选门通过 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
 
@@ -48,7 +48,7 @@
 | N13 | 工程通过 | 章节/场景/角色/变量、引用迁移、保存重开 | 七工作区统一实体体验待后续节点 |
 | N20 | 通过 | 完整 P0 Story Language、语言服务、稳定 ID Patch、100k 门 | 正式编辑器与 Runtime 接入待 N41/N30+ |
 | N21 | 工程通过，产品验收中 | 完整 P0 卡片、类型化 Inspector、批量事务、键盘/触屏等价 | 真实非程序用户 20 分钟任务未执行 |
-| N22 | 工程验收候选 | 真实 Blob 预览；角色几何、安全区、DPR、输入等价、媒体隔离；Render Host v2；Canvas 2D 场景层与 React DOM Overlay/命中代理分离；DOM 安全回退；真实 PNG/WAV Media Golden 机器链；浏览器真实导入、保存、全量/即时重开及 16:9/9:16 Canvas 视觉证据；writer lease 重开竞态已修复 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 能力归后续节点；不得关闭 N21 或通过 N23 |
+| N22 | 工程验收候选 | 真实 Blob 预览；角色几何、安全区、DPR、输入等价、媒体隔离；Render Host v2；Canvas 2D 场景层与 React DOM Overlay/命中代理分离；DOM 安全回退；资源无关的 Move 槽位继承、Canvas 插值与时间线回退；真实 PNG/WAV Media Golden 机器链；浏览器真实导入、保存、全量/即时重开及 16:9/9:16/Move 视觉证据；writer lease 重开竞态已修复 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 能力归后续节点；不得关闭 N21 或通过 N23 |
 | N23 | 未开始 | 无 | 被 N22 阻塞；目标为五分钟可玩纵向切片 |
 | N30 及以后 | 未开始或仅有前置 Spike | 已有算法证据可复用 | 正式 Compiler、Runtime、Player、QA、构建与发布均未贯通 |
 
@@ -63,7 +63,7 @@
 | 内容实体 | 章节、场景、角色、类型化变量、稳定 ID 引用迁移 | 字体、本地化、Gal 等完整产品模块未完成 |
 | Story Language | P0 语句、解析、诊断、补全、定义/引用、重构、增量处理 | 仍未编译为正式 Runtime IR |
 | Writer/Sequence | 全 P0 卡片、类型化 Inspector、增删复制排序、批量、折叠、保存重开 | N21 真人任务未通过；完整专业 Sequence 待 N41 |
-| 资源/Stage | 真实 Blob 导入与释放、BG/多角色/四路音频状态预览、角色几何、安全区、DPR、输入等价、错误回退、Render Host v1、真实 PNG/WAV Media Golden 运行链、浏览器导入/重开与双尺寸视觉基线 | 当前 DOM Media 后端不是正式高性能 Runtime；Canvas/Pixi、镜头、关键帧和模板归后续节点 |
+| 资源/Stage | 真实 Blob 导入与释放、BG/多角色/四路音频状态预览、角色几何、安全区、DPR、输入等价、错误回退、Render Host v2、Canvas 2D 场景层、基础 Move 过渡、真实 PNG/WAV Media Golden 运行链、浏览器导入/重开与视觉基线 | Canvas 2D 仍是编辑器 Preview 后端；Pixi/WebGL、镜头、复杂关键帧、模板和正式 Runtime 归后续节点 |
 | Route | Choice 的简单派生图 | 完整节点/边、诊断、布局、局部加载未完成 |
 | Runtime | Narrative VM Spike 有确定性证据 | 与 Editor/Compiler/Player 隔离，不是产品 Runtime |
 | Player 与 Build | 无 | Web/Windows/Android 可玩包、签名、安装、升级、发布均无 |

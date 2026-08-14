@@ -2481,6 +2481,18 @@ textarea[data-input-state="composing"] {
   box-shadow: 0 0 18px rgb(98 215 255 / 20%);
 }
 
+.stage-canvas-hit-proxy--moving {
+  animation: stage-canvas-hit-move 300ms linear both;
+}
+
+@keyframes stage-canvas-hit-move {
+  from {
+    left: var(--stage-move-from-left);
+    top: var(--stage-move-from-top);
+    transform: var(--stage-move-from-transform);
+  }
+}
+
 .stage-background-plane,
 .stage-character-plane {
   position: absolute;

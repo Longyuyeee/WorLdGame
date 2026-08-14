@@ -77,6 +77,46 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(controlled, 3).characters).toHaveLength(2);
   });
 
+  it("moves an active slot without replacing its resource and rewinds to the authored geometry", () => {
+    const movement: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero x=20 y=100 expression=smile" },
+      { kind: "direction", id: "move", command: "show", summary: "action=move slot=hero x=80 scale=1.5 rotation=12 duration=600ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "arrived" }
+    ];
+    const before = derivePreviewStagePlan(movement, 0).characters[0]!;
+    const moved = derivePreviewStagePlan(movement, 1).characters[0]!;
+    expect(before).toMatchObject({ statementId: "show", assetId: "hero", x: 20, expression: "smile" });
+    expect(before.movementFrom).toBeUndefined();
+    expect(moved).toMatchObject({
+      statementId: "move",
+      assetId: "hero",
+      x: 80,
+      y: 100,
+      scale: 1.5,
+      rotation: 12,
+      expression: "smile",
+      transition: "slide",
+      duration: "600ms",
+      movementFrom: { x: 20, y: 100, scale: 1, rotation: 0, anchorX: 0.5, anchorY: 1 }
+    });
+    const timeline = compilePreviewStageTimeline(movement);
+    expect(timeline[2]).toBe(timeline[1]);
+    expect(derivePreviewStagePlan(movement, 0).characters[0]).toEqual(before);
+  });
+
+  it("does not execute empty moves or moves targeting inactive slots", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "missing", command: "show", summary: "action=move slot=hero x=80" },
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },
+      { kind: "direction", id: "empty", command: "show", summary: "action=move slot=hero duration=300ms" }
+    ], 2);
+    expect(plan.characters).toEqual([expect.objectContaining({ statementId: "show", assetId: "hero" })]);
+    expect(plan.diagnostics).toEqual([
+      "missing: move requires an active hero slot",
+      "empty: move requires at least one Stage geometry parameter"
+    ]);
+  });
+
   it("freezes production Stage geometry and keeps position presets backward compatible", () => {
     const plan = derivePreviewStagePlan([
       { kind: "direction", id: "left", command: "show", summary: "asset=hero slot=hero position=left x=27.5 y=91 scale=1.25 rotation=-8 anchorX=0.4 anchorY=0.95" }

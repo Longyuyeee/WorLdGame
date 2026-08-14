@@ -171,6 +171,53 @@ async function validateCanvasBrowserEvidence(fixture, registryEvidence, label) {
   }
 }
 
+async function validateMoveBrowserEvidence(fixture, registryEvidence, label) {
+  const evidencePath = join(root, "evidence", "n22", "move-browser.json");
+  const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
+  if (browserEvidence.schemaVersion !== 1 || browserEvidence.status !== "pass" ||
+      browserEvidence.scope !== "graphical-insert-move-forward-interpolation-rewind" ||
+      browserEvidence.fixtureHash !== digest(fixture) || !/^[a-f0-9]{40}$/u.test(browserEvidence.sourceBaseRevision ?? "") ||
+      browserEvidence.environment?.viewportWidth !== 1280 || browserEvidence.environment?.viewportHeight !== 720 ||
+      browserEvidence.environment?.devicePixelRatio !== 2 || browserEvidence.environment?.prefersReducedMotion !== false) {
+    violations.push(`${label} Move browser evidence identity, environment, or scope is stale`);
+  }
+  const flow = browserEvidence.productFlow;
+  if (flow?.assetIndexRevision !== 3 || flow?.savedStorageRevision < 1 || flow?.insertedStatementCount !== 5 ||
+      flow?.insertedDirection !== "action=move slot=actor x=80 y=90 transition=slide duration=300ms" ||
+      flow?.renderBackend !== "canvas-2d-v1" || flow?.runtimeErrorCount !== 0) {
+    violations.push(`${label} Move browser product flow is incomplete`);
+  }
+  const movement = browserEvidence.movement;
+  const horizontalIntermediate = movement?.intermediate?.computedLeftPx > movement?.before?.computedLeftPx &&
+    movement?.intermediate?.computedLeftPx < movement?.final?.computedLeftPx;
+  const verticalIntermediate = movement?.intermediate?.computedTopPx < movement?.before?.computedTopPx &&
+    movement?.intermediate?.computedTopPx > movement?.final?.computedTopPx;
+  if (movement?.slot !== "actor" || movement?.before?.xPercent !== 50 || movement?.before?.yPercent !== 100 ||
+      movement?.final?.xPercent !== 80 || movement?.final?.yPercent !== 90 || !horizontalIntermediate || !verticalIntermediate ||
+      movement?.intermediate?.animationName !== "stage-canvas-hit-move" ||
+      movement?.intermediate?.animationDurationMs !== 300 || movement?.intermediate?.animationPlayState !== "running" ||
+      movement?.backRestoresPriorGeometry !== true || movement?.forwardInterpolatesGeometry !== true) {
+    violations.push(`${label} Move interpolation or rewind evidence failed`);
+  }
+  if (!Array.isArray(browserEvidence.screenshots) || browserEvidence.screenshots.length !== 1) {
+    violations.push(`${label} Move visual evidence must contain one screenshot`);
+  } else {
+    const screenshot = browserEvidence.screenshots[0];
+    const bytes = await readFile(join(root, screenshot.path));
+    const hash = createHash("sha256").update(bytes).digest("hex");
+    if (screenshot.path !== "evidence/n22/move-browser-workspace.png" || screenshot.width !== 1280 ||
+        screenshot.height !== 720 || bytes.byteLength !== screenshot.byteLength || hash !== screenshot.sha256) {
+      violations.push(`${label} Move browser screenshot is stale`);
+    }
+  }
+  const evidenceHash = digest(browserEvidence);
+  if (registryEvidence.n22MoveEvidence?.status !== "verified" ||
+      registryEvidence.n22MoveEvidence?.path !== "evidence/n22/move-browser.json" ||
+      registryEvidence.n22MoveEvidence?.hash !== evidenceHash) {
+    violations.push(`${label} Move evidence registration is stale; expected ${evidenceHash}`);
+  }
+}
+
 function validateProject(project, label) {
   if (project.schemaVersion !== 0 || typeof project.id !== "string" || typeof project.title !== "string") violations.push(`${label} is not an S0 story project`);
   if (!Array.isArray(project.characters) || !Array.isArray(project.scenes) || project.scenes.length === 0) violations.push(`${label} must contain characters and at least one scene`);
@@ -243,6 +290,7 @@ for (const entry of registry.projects ?? []) {
       validateMediaFixture(fixture, project, evidence, entry.id);
       await validateMediaBrowserEvidence(fixture, evidence, entry.id);
       await validateCanvasBrowserEvidence(fixture, evidence, entry.id);
+      await validateMoveBrowserEvidence(fixture, evidence, entry.id);
     }
   } catch (error) {
     violations.push(`${entry.id} fixture cannot be read: ${error instanceof Error ? error.message : String(error)}`);

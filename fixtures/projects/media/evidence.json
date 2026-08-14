@@ -18,6 +18,11 @@
     "path": "evidence/n22/canvas-2d-browser.json",
     "hash": "dc6a0e771704412b9aa735b97b027975eb1db4f7f9d8c0cb5afe2ff95d9878a8"
   },
+  "n22MoveEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/move-browser.json",
+    "hash": "0f43f9a23c377aaafa122d811c3678b47fd03bc352d0c328c9e2f85021ab4a67"
+  },
   "expectedIrHash": {
     "status": "pending",
     "targetNode": "N30",

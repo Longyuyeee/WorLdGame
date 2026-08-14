@@ -12,6 +12,7 @@ import {
   MIN_STAGE_ROTATION,
   MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
+  STAGE_MOVE_GEOMETRY_PARAMETERS,
   directiveActionRequiresAsset,
   inspectDirectiveArguments,
   resolveDirectiveAction
@@ -32,6 +33,7 @@ export interface PreviewVisualLayerPlan {
   readonly rotation?: number;
   readonly anchorX?: number;
   readonly anchorY?: number;
+  readonly movementFrom?: PreviewCharacterGeometry;
 }
 
 export interface PreviewAudioLayerPlan {
@@ -154,8 +156,17 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         state.characters.delete(slot);
         return true;
       }
+      const current = state.characters.get(slot);
+      if (action === "move" && current === undefined) {
+        addDiagnostic(state, `${statement.id}: move requires an active ${slot} slot`);
+        return true;
+      }
+      if (action === "move" && !STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => inspected.parameters[key] !== undefined)) {
+        addDiagnostic(state, `${statement.id}: move requires at least one Stage geometry parameter`);
+        return true;
+      }
       const zSource = inspected.parameters.z;
-      const z = zSource === undefined ? 0 : Number(zSource);
+      const z = zSource === undefined ? (action === "move" ? current?.z ?? 0 : 0) : Number(zSource);
       if (!Number.isInteger(z) || z < MIN_STAGE_Z || z > MAX_STAGE_Z) {
         addDiagnostic(state, `${statement.id}: z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`);
         return true;
@@ -171,6 +182,24 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
       const invalidGeometry = Object.entries(geometry).find(([, value]) => value === "invalid");
       if (invalidGeometry !== undefined) {
         addDiagnostic(state, `${statement.id}: ${invalidGeometry[0]} is outside the frozen Stage geometry range`);
+        return true;
+      }
+      if (action === "move") {
+        state.characters.set(slot, {
+          ...current!,
+          statementId: statement.id,
+          z,
+          movementFrom: resolvePreviewCharacterGeometry(current!),
+          transition: optional(inspected.parameters, "transition") ?? "slide",
+          ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
+          ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position }),
+          ...(typeof geometry.x === "number" ? { x: geometry.x } : {}),
+          ...(typeof geometry.y === "number" ? { y: geometry.y } : {}),
+          ...(typeof geometry.scale === "number" ? { scale: geometry.scale } : {}),
+          ...(typeof geometry.rotation === "number" ? { rotation: geometry.rotation } : {}),
+          ...(typeof geometry.anchorX === "number" ? { anchorX: geometry.anchorX } : {}),
+          ...(typeof geometry.anchorY === "number" ? { anchorY: geometry.anchorY } : {})
+        });
         return true;
       }
       state.characters.set(slot, {

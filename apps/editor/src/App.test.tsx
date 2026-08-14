@@ -90,6 +90,31 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("button", { name: "应用演出参数" })).toBeDisabled();
   });
 
+  it("converts an existing Show cue into a resource-free Move without dropping geometry controls", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    const source = String((scriptEditor as HTMLTextAreaElement).value);
+    fireEvent.change(scriptEditor, { target: { value: source.replace(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
+      "@show action=show asset=asset_missing slot=hero x=20 expression=smile @id(stmt_gate_bg)"
+    ) } });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "move" } });
+    expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("角色表情")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
+    fireEvent.change(screen.getByLabelText("角色水平位置"), { target: { value: "80" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用演出参数" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const movedSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
+    const movedLine = movedSource.split(/\r?\n/u).find((line) => line.includes("@id(stmt_gate_bg)"));
+    expect(movedLine).toContain("@show action=move slot=hero x=80");
+    expect(movedLine).not.toContain("asset=");
+    expect(movedLine).not.toContain("expression=");
+  });
+
   it("fails closed to the visual placeholder when a legacy direction has no executable Asset ID", async () => {
     render(<App />);
     expect(await screen.findByText("安全占位")).toBeVisible();
@@ -126,6 +151,24 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getAllByText("action=stop bus=bgm").length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: "撤销" }));
     expect(screen.queryAllByText("action=stop bus=bgm")).toHaveLength(0);
+  });
+  it("inserts a resource-free bounded Move cue from the graphical Stage track", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));
+    fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "move" } });
+    expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("新增移动水平位置")).toHaveValue(50);
+    expect(screen.getByLabelText("新增移动垂直位置")).toHaveValue(100);
+    fireEvent.change(screen.getByLabelText("新增移动水平位置"), { target: { value: "101" } });
+    expect(screen.getByRole("button", { name: "插入演出" })).toBeDisabled();
+    expect(screen.getByText("移动位置必须在 0–100 之间")).toBeVisible();
+    fireEvent.change(screen.getByLabelText("新增移动水平位置"), { target: { value: "80" } });
+    fireEvent.change(screen.getByLabelText("新增移动垂直位置"), { target: { value: "90" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
+      "@show action=move slot=primary x=80 y=90 transition=slide duration=300ms"
+    );
   });
   it("reorders and deletes direction cues through accessible track controls", () => {
     render(<App />);

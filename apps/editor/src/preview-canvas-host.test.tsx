@@ -4,6 +4,7 @@ import {
   PreviewCanvasHitProxy,
   PreviewCanvasHost,
   drawPreviewCanvasFrame,
+  previewCanvasDurationMs,
   resolvePreviewCanvasCharacterRect,
   type PreviewCanvasImageSet
 } from "./preview-canvas-host";
@@ -73,12 +74,37 @@ describe("Preview Canvas host", () => {
     expect(context.shadowColor).toBe("rgba(98, 215, 255, 0.85)");
   });
 
+  it("interpolates authored move geometry and bounds animation duration", () => {
+    const translate = vi.fn();
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate, rotate: vi.fn(), restore: vi.fn(),
+      fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const movedFrame: PreviewRenderFrame = {
+      ...frame,
+      background: undefined,
+      characters: [{ ...character, x: 75, movementFrom: { x: 25, y: 75, scale: 1.2, rotation: 10, anchorX: 0.5, anchorY: 1 } }]
+    };
+    drawPreviewCanvasFrame(context, movedFrame, {
+      characters: new Map([["stmt_hero", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "stmt_hero", 0.5);
+    expect(translate).toHaveBeenCalledWith(960, 810);
+    expect(previewCanvasDurationMs("600ms")).toBe(600);
+    expect(previewCanvasDurationMs("0.5s")).toBe(500);
+    expect(previewCanvasDurationMs("999s")).toBe(10_000);
+    expect(previewCanvasDurationMs("invalid")).toBe(300);
+  });
+
   it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {
     const onSelect = vi.fn();
     const onStagePoint = vi.fn();
+    const movingCharacter = { ...character, duration: "600ms", movementFrom: {
+      x: 10, y: 75, scale: 1.2, rotation: 0, anchorX: 0.5, anchorY: 1
+    } } as const;
     render(<div data-stage-surface="design-pixels">
       <PreviewCanvasHitProxy
-        character={character}
+        character={movingCharacter}
         selected
         designWidth={1920}
         designHeight={1080}
@@ -98,6 +124,9 @@ describe("Preview Canvas host", () => {
     expect(onSelect).toHaveBeenCalledWith("stmt_hero");
     expect(target).toHaveAttribute("aria-pressed", "true");
     expect(target).toHaveStyle({ zIndex: 4 });
+    expect(target).toHaveClass("stage-canvas-hit-proxy--moving");
+    expect(target.style.animationDuration).toBe("600ms");
+    expect(target.style.getPropertyValue("--stage-move-from-left")).toBe("10%");
   });
 
   it("falls back to the DOM media host when Canvas 2D is unavailable", async () => {

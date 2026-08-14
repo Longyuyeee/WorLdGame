@@ -1,6 +1,8 @@
 import type { EntityId } from "@world-studio/story-core";
 import {
   DIRECTIVE_PARAMETERS,
+  STAGE_MOVE_GEOMETRY_PARAMETERS,
+  directiveActionParameters,
   MAX_STAGE_Z,
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
@@ -219,9 +221,13 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
   if (requiresAsset && request.parameters.asset === undefined) {
     return `@${request.command} action=${action} requires asset`;
   }
-  if (!requiresAsset) {
-    const controlKeys = new Set(request.command === "background" ? ["action"] : request.command === "show" ? ["action", "slot"] : ["action", "bus"]);
-    if (Object.keys(request.parameters).some((key) => !controlKeys.has(key))) return `@${request.command} action=${action} contains resource-only parameters`;
+  const actionKeys = new Set(directiveActionParameters(request.command, action));
+  if (Object.keys(request.parameters).some((key) => !actionKeys.has(key))) {
+    return `@${request.command} action=${action} contains parameters that are not valid for this action`;
+  }
+  if (request.command === "show" && action === "move" &&
+      !STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => request.parameters[key] !== undefined)) {
+    return "@show action=move requires at least one Stage geometry parameter";
   }
   if (request.command === "show") {
     const slot = request.parameters.slot ?? "primary";
