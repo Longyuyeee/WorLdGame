@@ -31,7 +31,7 @@
 
 ## 4. 审计边界与剩余阻断
 
-- DOM Stage 仍是 Editor Preview；正式 Canvas/Pixi 渲染宿主、错误解码/切场景矩阵仍未完成；
+- 错误解码/切场景矩阵已由[第三切片审计](104-n22-preview-media-host-safety.md)补齐；DOM Stage 仍是 Editor Preview，正式 Canvas/Pixi 渲染宿主尚未完成；
 - 尚未生成可审查的视觉 Golden；
 - Media Golden Project 仍缺“导入真实媒体 → 保存重开 → Preview 播放”的完整产品验收；
 - N21 真人门、N23、M1 Stable 与 Public Release 继续被 `RA-N21-001` 阻断。

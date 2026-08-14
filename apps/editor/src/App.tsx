@@ -120,6 +120,13 @@ import {
 } from "./preview-media-runtime";
 import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
 import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
+import {
+  createPreviewMediaHostState,
+  previewMediaErrorCount,
+  previewMediaLayerFailed,
+  reducePreviewMediaHost,
+  type PreviewMediaRole
+} from "./preview-media-host";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1879,11 +1886,13 @@ interface PreviewPanelProps extends CommonProps {
   readonly assetRepository: IndexedDbAssetRepository | null;
 }
 
-type PreviewMediaViewState =
-  | { readonly status: "loading"; readonly planKey: string }
-  | { readonly status: "ready"; readonly media: LoadedPreviewMedia };
-
-function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & { readonly url: string } }) {
+function PreviewAudioLayer({
+  layer,
+  onDecodeError
+}: {
+  readonly layer: PreviewAudioLayerPlan & { readonly url: string };
+  readonly onDecodeError: () => void;
+}) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [status, setStatus] = useState<"starting" | "playing" | "paused" | "blocked" | "error">(
     layer.playback === "paused" ? "paused" : "starting"
@@ -1919,7 +1928,10 @@ function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & 
         if (layer.playback === "playing") void event.currentTarget.play().catch(() => setStatus("blocked"));
       }}
       onPlay={() => setStatus("playing")}
-      onError={() => setStatus("error")}
+      onError={() => {
+        setStatus("error");
+        onDecodeError();
+      }}
     />
     <button
       type="button"
@@ -1946,6 +1958,7 @@ interface PreviewStageCharacterProps {
   readonly designHeight: number;
   readonly onSelect: (statementId: string) => void;
   readonly onStagePoint: (point: StageDesignPoint) => void;
+  readonly onDecodeError: () => void;
 }
 
 export function PreviewStageCharacter({
@@ -1954,7 +1967,8 @@ export function PreviewStageCharacter({
   designWidth,
   designHeight,
   onSelect,
-  onStagePoint
+  onStagePoint,
+  onDecodeError
 }: PreviewStageCharacterProps) {
   const geometry = resolvePreviewCharacterGeometry(character);
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
@@ -1998,6 +2012,7 @@ export function PreviewStageCharacter({
       src={character.url}
       alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
       draggable={false}
+      onError={onDecodeError}
     />
   </button>;
 }
@@ -2064,19 +2079,25 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   const stageTimeline = useMemo(() => compilePreviewStageTimeline(scene.statements), [scene.statements]);
   const stagePlan = stageTimeline[session.previewIndex] ?? derivePreviewStagePlan([], 0);
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
-  const [mediaView, setMediaView] = useState<PreviewMediaViewState>({
-    status: "loading",
-    planKey: stagePlan.resourceKey
-  });
+  const [mediaView, mediaViewDispatch] = useReducer(
+    reducePreviewMediaHost,
+    stagePlan.resourceKey,
+    createPreviewMediaHostState
+  );
+  const mediaGenerationRef = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
+    const generation = mediaGenerationRef.current + 1;
+    mediaGenerationRef.current = generation;
     let owned: LoadedPreviewMedia | undefined;
     const requiresRepository = stagePlan.background !== undefined || stagePlan.characters.length > 0 || stagePlan.audio.length > 0;
-    setMediaView({ status: "loading", planKey: stagePlan.resourceKey });
+    mediaViewDispatch({ type: "begin", generation, planKey: stagePlan.resourceKey });
     if (assetRepository === null && requiresRepository) {
-      setMediaView({
-        status: "ready",
+      mediaViewDispatch({
+        type: "ready",
+        generation,
+        planKey: stagePlan.resourceKey,
         media: {
           planKey: stagePlan.resourceKey,
           characters: [],
@@ -2090,25 +2111,21 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     const reader = assetRepository ?? { read: async () => null };
     void loadPreviewMedia(stagePlan, assetIndex, reader, urlFactory, controller.signal)
       .then((media) => {
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || generation !== mediaGenerationRef.current) {
           releasePreviewMedia(media, urlFactory);
           return;
         }
         owned = media;
-        setMediaView({ status: "ready", media });
+        mediaViewDispatch({ type: "ready", generation, planKey: stagePlan.resourceKey, media });
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
         if (controller.signal.aborted) return;
-        setMediaView({
-          status: "ready",
-          media: {
-            planKey: stagePlan.resourceKey,
-            characters: [],
-            audio: [],
-            errors: [...stagePlan.diagnostics, error instanceof Error ? error.message : "Preview media load failed"],
-            objectUrls: []
-          }
+        mediaViewDispatch({
+          type: "failed",
+          generation,
+          planKey: stagePlan.resourceKey,
+          errors: [...stagePlan.diagnostics, error instanceof Error ? error.message : "Preview media load failed"]
         });
       });
     return () => {
@@ -2117,9 +2134,25 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     };
   }, [assetIndex, assetRepository, stagePlan.resourceKey, urlFactory]);
 
-  const loadedMedia = mediaView.status === "ready" && mediaView.media.planKey === stagePlan.resourceKey
+  const loadedMedia = mediaView.status === "ready" && mediaView.planKey === stagePlan.resourceKey && mediaView.media.planKey === stagePlan.resourceKey
     ? mediaView.media
     : undefined;
+  const reportRuntimeMediaError = (
+    role: PreviewMediaRole,
+    layer: { readonly statementId: string; readonly assetId: string }
+  ) => mediaViewDispatch({
+    type: "runtime-error",
+    generation: mediaView.generation,
+    planKey: stagePlan.resourceKey,
+    error: { role, statementId: layer.statementId, assetId: layer.assetId, code: "decode-failed" }
+  });
+  const backgroundFailed = loadedMedia?.background !== undefined && previewMediaLayerFailed(
+    mediaView,
+    "background",
+    loadedMedia.background.statementId,
+    loadedMedia.background.assetId
+  );
+  const mediaErrorCount = previewMediaErrorCount(mediaView);
 
   useEffect(() => {
     if (previousTransportSceneId.current === session.activeSceneId) return;
@@ -2257,7 +2290,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
             </span>
           </div>
           {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
-          {loadedMedia?.background === undefined ? (
+          {loadedMedia?.background === undefined || backgroundFailed ? (
             <div className="stage-sky" aria-hidden="true">
               <span className="sun" /><span className="school-building" />
               <span className="character-silhouette character-silhouette--left" />
@@ -2270,9 +2303,15 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
               src={loadedMedia.background.url}
               alt={`背景资源 ${loadedMedia.background.assetId}`}
               style={{ animationDuration: loadedMedia.background.duration ?? "360ms" }}
+              onError={() => reportRuntimeMediaError("background", loadedMedia.background!)}
             />
           )}
-          {loadedMedia?.characters.map((character) => {
+          {loadedMedia?.characters.filter((character) => !previewMediaLayerFailed(
+            mediaView,
+            "character",
+            character.statementId,
+            character.assetId
+          )).map((character) => {
             return <PreviewStageCharacter
               key={character.slot}
               character={character}
@@ -2281,18 +2320,23 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
               designHeight={viewport.height}
               onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
               onStagePoint={setLastStagePoint}
+              onDecodeError={() => reportRuntimeMediaError("character", character)}
             />;
           })}
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
               const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
-              return <PreviewAudioLayer key={`${layer.bus}:${layer.statementId}:${layer.url}`} layer={{ ...layer, playback }} />;
+              return <PreviewAudioLayer
+                key={`${layer.bus}:${layer.statementId}:${layer.url}`}
+                layer={{ ...layer, playback }}
+                onDecodeError={() => reportRuntimeMediaError("audio", layer)}
+              />;
             })}
           </div>
           {mediaView.status === "loading" && <div className="stage-media-loading" role="status">正在验证预览资源…</div>}
-          {loadedMedia !== undefined && loadedMedia.errors.length > 0 && (
-            <div className="stage-media-errors" role="status">
-              <strong>安全占位</strong><span>{loadedMedia.errors.length} 项资源未执行</span>
+          {loadedMedia !== undefined && mediaErrorCount > 0 && (
+            <div className="stage-media-errors" role="status" data-runtime-errors={mediaView.runtimeErrors.length}>
+              <strong>安全占位</strong><span>{mediaErrorCount} 项资源未执行</span>
             </div>
           )}
           <div className="stage-content" key={statement.id} data-testid="preview-step">

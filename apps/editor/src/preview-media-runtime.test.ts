@@ -175,4 +175,62 @@ describe("preview media runtime", () => {
     await expect(loading).rejects.toMatchObject({ name: "AbortError" });
     expect(created).toBe(0);
   });
+
+  it("revokes URLs already created when a later layer is cancelled", async () => {
+    const bytes = new Uint8Array([11]);
+    const index: AssetIndex = {
+      ...createAssetIndex(),
+      assets: [entry("bg_gate", "cg", bytes), entry("hero_smile", "character", bytes)]
+    };
+    const controller = new AbortController();
+    let finishSecond!: (value: Uint8Array) => void;
+    let signalSecondStarted!: () => void;
+    const secondStarted = new Promise<void>((resolve) => { signalSecondStarted = resolve; });
+    let reads = 0;
+    const revoked: string[] = [];
+    const loading = loadPreviewMedia(
+      derivePreviewStagePlan(statements, 2),
+      index,
+      {
+        read: async () => {
+          reads += 1;
+          if (reads === 1) return bytes;
+          signalSecondStarted();
+          return new Promise<Uint8Array>((resolve) => { finishSecond = resolve; });
+        }
+      },
+      { create: () => "blob:partial", revoke: (url) => revoked.push(url) },
+      controller.signal
+    );
+    await secondStarted;
+    controller.abort();
+    finishSecond(bytes);
+
+    await expect(loading).rejects.toMatchObject({ name: "AbortError" });
+    expect(revoked).toEqual(["blob:partial"]);
+  });
+
+  it("revokes earlier URLs when a later verified Blob read fails", async () => {
+    const bytes = new Uint8Array([12]);
+    const index: AssetIndex = {
+      ...createAssetIndex(),
+      assets: [entry("bg_gate", "cg", bytes), entry("hero_smile", "character", bytes)]
+    };
+    let reads = 0;
+    const revoked: string[] = [];
+    const loading = loadPreviewMedia(
+      derivePreviewStagePlan(statements, 2),
+      index,
+      { read: async () => {
+        reads += 1;
+        if (reads === 1) return bytes;
+        throw new Error("verified storage read failed");
+      } },
+      { create: () => "blob:before-failure", revoke: (url) => revoked.push(url) },
+      new AbortController().signal
+    );
+
+    await expect(loading).rejects.toThrow("verified storage read failed");
+    expect(revoked).toEqual(["blob:before-failure"]);
+  });
 });

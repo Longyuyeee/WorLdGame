@@ -20,6 +20,7 @@ describe("Preview Stage character interaction", () => {
   it("exposes one pointer and keyboard operable selection target", () => {
     const onSelect = vi.fn();
     const onStagePoint = vi.fn();
+    const onDecodeError = vi.fn();
     render(
       <div data-stage-surface="design-pixels">
         <PreviewStageCharacter
@@ -29,6 +30,7 @@ describe("Preview Stage character interaction", () => {
           designHeight={1080}
           onSelect={onSelect}
           onStagePoint={onStagePoint}
+          onDecodeError={onDecodeError}
         />
       </div>
     );
@@ -48,9 +50,11 @@ describe("Preview Stage character interaction", () => {
 
     fireEvent.pointerDown(target, { pointerType: "touch", clientX: 490, clientY: 290 });
     fireEvent.click(target);
+    fireEvent.error(screen.getByRole("img", { name: "角色资源 asset_hero · smile" }));
 
     expect(onStagePoint).toHaveBeenCalledWith({ x: 960, y: 540 });
     expect(onSelect).toHaveBeenCalledWith("stmt_show_hero");
+    expect(onDecodeError).toHaveBeenCalledOnce();
     expect(target).toHaveAttribute("aria-pressed", "false");
     expect(target).toHaveAttribute("data-stage-x", "25");
   });
@@ -65,6 +69,7 @@ describe("Preview Stage character interaction", () => {
           designHeight={1080}
           onSelect={() => undefined}
           onStagePoint={() => undefined}
+          onDecodeError={() => undefined}
         />
       </div>
     );
