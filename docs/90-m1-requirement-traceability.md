@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍位于串联 Draft PR，尚未进入 `main`；详见[当前开发情况审计](99-current-development-status-audit.md)。N21 真人门和权威分支集成均完成前，不进入 N22。
+> 集成边界：当前 N00–N21 能力仍位于串联 Draft PR，尚未进入 `main`；详见[当前开发情况审计](99-current-development-status-audit.md)。Product Owner 已批准 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)，只移除 N22 的真人前置阻断；N21 状态、Draft PR 集成要求和 N23/M1 阻断均不变。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近通过节点：`N20`。N21 的完整 P0 卡片、类型化 Inspector、原子批量事务、输入等价和保存重开已通过本地完整门及 Draft PR #30 Windows CI，正在等待 20 分钟非程序用户实测；证据见[《N21 最小 Writer/Sequence 编辑审计》](98-n21-writer-sequence.md)。产品验收前不进入 N22。
+最近通过节点：`N20`。N21 的完整 P0 卡片、类型化 Inspector、原子批量事务、输入等价和保存重开已通过本地完整门及 Draft PR #30 Windows CI，正在等待 20 分钟非程序用户实测；证据见[《N21 最小 Writer/Sequence 编辑审计》](98-n21-writer-sequence.md)。`RA-N21-001` 在 2026-09-14 或进入 N23 验收前到期，只允许 N22 工程实现；N21 仍为验收中。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|

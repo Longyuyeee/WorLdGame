@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N21 工程门后开发情况审计](99-current-development-status-audit.md)。N21 真人产品门与 N00–N21 Draft PR 集成完成前，不进入 N22。
+> 当前审计：[N21 工程门后开发情况审计](99-current-development-status-audit.md)。Product Owner 已批准 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)，只移除 N22 的真人前置阻断；Draft PR 集成仍须独立完成，N21 仍为“验收中”，N23 验收、M1 Stable 和公开发布继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -215,7 +215,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N21 最小 Writer/Sequence 编辑
 
-> 实施状态（2026-08-14）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。通过前不进入 N22；证据见[《N21 最小 Writer/Sequence 编辑审计》](98-n21-writer-sequence.md)。
+> 实施状态（2026-08-14）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。`RA-N21-001` 临时允许 N22 工程实现，但 N21 不得标记为通过，N23 验收前必须关闭例外；证据见[《N21 最小 Writer/Sequence 编辑审计》](98-n21-writer-sequence.md)与[风险接受记录](100-n21-human-validation-risk-acceptance.md)。
 
 - **Goal**：非程序用户能完成对白、选择、条件和基础演出。
 - **Implementation**：
@@ -230,6 +230,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Acceptance**：不了解脚本语法的测试者能在 20 分钟内完成任务。
 
 ### N22 最小 Stage 与媒体预览
+
+> 准入状态（2026-08-14）：`RA-N21-001` 已接受真人暂不可用的单节点风险；建立指定权威集成基线后可开始工程实现。该例外不关闭 N21 真人门，不替代 Draft PR 集成，也不允许通过 N23。
 
 - **Goal**：创作者看到真实资源驱动的基础舞台结果。
 - **Implementation**：

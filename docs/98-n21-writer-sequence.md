@@ -53,3 +53,7 @@ SourceSession 新增统一 P0 insert/update/delete/move 与 P0 Batch 命令。Ba
 在真人任务通过前，N21 只能标记为“实现完成、产品验收待完成”，不得顺序进入 N22。N21 也不宣称完整 N41 Sequence、正式 Runtime Preview 或真实媒体渲染已完成；这些分别属于 N41、N30–N32 与 N22。
 
 远端工程验收证据：GitHub Actions run `31722738575`、Windows / Node 22 job `94523467459` 于 2026-08-14 通过，耗时 3 分 2 秒。该证据证明提交在远端 Windows 环境通过完整门，不等价于真人 20 分钟任务。
+
+## 7. 后续临时例外
+
+2026-08-14，Product Owner 因当前无法获得合格真人参与者，批准 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)。该例外只允许 N22 工程实现，不改变本文件的验收事实：N21 仍未通过，自动化或代理操作仍不能冒充真人证据，N23 验收、M1 Stable 与公开发布继续阻断。例外在 2026-09-14 或进入 N23 验收前到期，以先到者为准。
