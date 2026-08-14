@@ -250,13 +250,19 @@ export function compileSceneResourceManifest(
       }
       for (const dependency of validDependencies) if (!sceneAssets.includes(dependency)) sceneAssets.push(dependency);
       const validPrimaryAsset = assetId !== undefined && validDependencies.includes(assetId) ? assetId : undefined;
+      let exitingCharacterAsset: string | undefined;
       if (action !== undefined) {
         if (node.command === "background") {
           if (action === "clear") activeBackground = undefined;
           else if (validPrimaryAsset !== undefined) activeBackground = validPrimaryAsset;
         } else if (node.command === "show" && SAFE_STAGE_SLOT.test(slot)) {
-          if (action === "hide") activeCharacters.delete(slot);
-          else if (action === "move" && !activeCharacters.has(slot)) diagnostics.push({ code: "MISSING_STAGE_TARGET", severity: "error",
+          if (action === "hide") {
+            exitingCharacterAsset = activeCharacters.get(slot);
+            if (exitingCharacterAsset === undefined) diagnostics.push({ code: "MISSING_STAGE_TARGET", severity: "error",
+              message: `@show action=hide requires an active slot: ${slot}`, sceneId: scene.id,
+              statementId: node.id, line: node.range.start.line });
+            else activeCharacters.delete(slot);
+          } else if (action === "move" && !activeCharacters.has(slot)) diagnostics.push({ code: "MISSING_STAGE_TARGET", severity: "error",
             message: `@show action=move requires an active slot: ${slot}`, sceneId: scene.id,
             statementId: node.id, line: node.range.start.line });
           else if (validPrimaryAsset !== undefined) activeCharacters.set(slot, validPrimaryAsset);
@@ -265,7 +271,10 @@ export function compileSceneResourceManifest(
           else if (action === "play" && validPrimaryAsset !== undefined) activeAudio.set(bus, validPrimaryAsset);
         }
       }
-      const transientDependencies = validDependencies.filter((dependency) => dependency !== validPrimaryAsset);
+      const transientDependencies = [
+        ...validDependencies.filter((dependency) => dependency !== validPrimaryAsset),
+        ...(exitingCharacterAsset === undefined ? [] : [exitingCharacterAsset])
+      ];
       requiredByStatement.set(node.id, currentAssets(transientDependencies));
     }
     const projectedStatementIds = scene.statements.map((statement) => statement.id);

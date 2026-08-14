@@ -218,6 +218,51 @@ async function validateMoveBrowserEvidence(fixture, registryEvidence, label) {
   }
 }
 
+async function validateHideBrowserEvidence(fixture, registryEvidence, label) {
+  const evidencePath = join(root, "evidence", "n22", "hide-browser.json");
+  const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
+  if (browserEvidence.schemaVersion !== 1 || browserEvidence.status !== "pass" ||
+      browserEvidence.scope !== "graphical-insert-hide-exit-fade-rewind" ||
+      browserEvidence.fixtureHash !== digest(fixture) || !/^[a-f0-9]{40}$/u.test(browserEvidence.sourceBaseRevision ?? "") ||
+      browserEvidence.environment?.viewportWidth !== 1280 || browserEvidence.environment?.viewportHeight !== 720 ||
+      browserEvidence.environment?.devicePixelRatio !== 2) {
+    violations.push(`${label} Hide browser evidence identity, environment, or scope is stale`);
+  }
+  const flow = browserEvidence.productFlow;
+  if (flow?.assetIndexRevision !== 3 || flow?.savedStorageRevision < 1 || flow?.insertedStatementCount !== 6 ||
+      flow?.insertedDirection !== "action=hide slot=actor transition=fade duration=300ms" ||
+      flow?.renderBackend !== "canvas-2d-v1" || flow?.runtimeErrorCount !== 0) {
+    violations.push(`${label} Hide browser product flow is incomplete`);
+  }
+  const exit = browserEvidence.exitTransition;
+  if (exit?.slot !== "actor" || !(exit?.intermediateOpacity > 0 && exit?.intermediateOpacity < 1) ||
+      exit?.finalOpacity !== 0 || exit?.animationName !== "stage-media-exit" ||
+      exit?.animationDurationMs !== 300 || exit?.animationPlayStateAtSample !== "running" ||
+      exit?.exitProxyDisabled !== true || exit?.exitProxyAriaHidden !== true ||
+      exit?.backRestoresCharacter?.opacity !== 1 || exit?.backRestoresCharacter?.disabled !== false ||
+      exit?.backRestoresCharacter?.xPercent !== 80 || exit?.backRestoresCharacter?.yPercent !== 90 ||
+      exit?.forwardRestoresExitState !== true) {
+    violations.push(`${label} Hide fade, accessibility, or rewind evidence failed`);
+  }
+  if (!Array.isArray(browserEvidence.screenshots) || browserEvidence.screenshots.length !== 1) {
+    violations.push(`${label} Hide visual evidence must contain one screenshot`);
+  } else {
+    const screenshot = browserEvidence.screenshots[0];
+    const bytes = await readFile(join(root, screenshot.path));
+    const hash = createHash("sha256").update(bytes).digest("hex");
+    if (screenshot.path !== "evidence/n22/hide-browser-workspace.png" || screenshot.width !== 1280 ||
+        screenshot.height !== 720 || bytes.byteLength !== screenshot.byteLength || hash !== screenshot.sha256) {
+      violations.push(`${label} Hide browser screenshot is stale`);
+    }
+  }
+  const evidenceHash = digest(browserEvidence);
+  if (registryEvidence.n22HideEvidence?.status !== "verified" ||
+      registryEvidence.n22HideEvidence?.path !== "evidence/n22/hide-browser.json" ||
+      registryEvidence.n22HideEvidence?.hash !== evidenceHash) {
+    violations.push(`${label} Hide evidence registration is stale; expected ${evidenceHash}`);
+  }
+}
+
 function validateProject(project, label) {
   if (project.schemaVersion !== 0 || typeof project.id !== "string" || typeof project.title !== "string") violations.push(`${label} is not an S0 story project`);
   if (!Array.isArray(project.characters) || !Array.isArray(project.scenes) || project.scenes.length === 0) violations.push(`${label} must contain characters and at least one scene`);
@@ -291,6 +336,7 @@ for (const entry of registry.projects ?? []) {
       await validateMediaBrowserEvidence(fixture, evidence, entry.id);
       await validateCanvasBrowserEvidence(fixture, evidence, entry.id);
       await validateMoveBrowserEvidence(fixture, evidence, entry.id);
+      await validateHideBrowserEvidence(fixture, evidence, entry.id);
     }
   } catch (error) {
     violations.push(`${entry.id} fixture cannot be read: ${error instanceof Error ? error.message : String(error)}`);

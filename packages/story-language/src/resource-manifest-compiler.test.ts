@@ -43,7 +43,7 @@ describe("S0.30 typed direction resource manifest compiler", () => {
 @audio action=play asset=theme bus=bgm @id(play)
 @audio action=pause bus=bgm @id(pause)
 @audio action=resume bus=bgm @id(resume)
-@show action=hide slot=left @id(hide_left)
+@show action=hide slot=left transition=fade duration=450ms @id(hide_left)
 @audio action=stop bus=bgm @id(stop)
 @background action=clear @id(clear)
 end "done" @id(end)
@@ -56,8 +56,25 @@ end "done" @id(end)
     expect(result.compilation.manifest.scenes[0]?.assetIds).toEqual(["bg", "hero", "theme"]);
     expect(result.compilation.timelines[0]?.statements.map((statement) => statement.requiredAssetIds)).toEqual([
       ["bg"], ["bg", "hero"], ["bg", "hero"], ["bg", "hero", "theme"], ["bg", "hero", "theme"],
-      ["bg", "hero", "theme"], ["bg", "theme"], ["bg"], [], []
+      ["bg", "hero", "theme"], ["bg", "theme", "hero"], ["bg"], [], []
     ]);
+  });
+
+  it("fails closed when hide targets an inactive slot or carries a resource", () => {
+    const document = parseStory(`scene "invalid hide" @id(scn_hide)
+@show action=hide slot=missing transition=fade duration=300ms @id(missing)
+@show action=show asset=hero slot=hero @id(show)
+@show action=hide slot=hero asset=stale @id(resource)
+end "done" @id(end)
+`);
+    const projected = projectStoryScene(document);
+    if (!projected.ok) throw new Error(projected.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [projected.scene] }, { scn_hide: document }, { knownAssetIds: ["hero"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid hide compilation");
+    expect(result.diagnostics.map((item) => item.code)).toEqual(expect.arrayContaining([
+      "MISSING_STAGE_TARGET", "INVALID_ACTION_PARAMETER"
+    ]));
   });
 
   it("fails closed when move has no geometry, carries a resource, or targets an inactive slot", () => {

@@ -839,7 +839,8 @@ function DirectionInspector({
   const action = resolveDirectiveAction(statement.command, form.action);
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
   const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
-  const visualTransitionActive = (statement.command === "background" && action === "set") || characterGeometryActive;
+  const visualTransitionActive = (statement.command === "background" && action === "set") ||
+    statement.command === "show" && (characterGeometryActive || action === "hide");
   const durationActive = visualTransitionActive || statement.command === "audio" && action === "play";
   const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
   const assetId = form.asset ?? "";
@@ -881,7 +882,9 @@ function DirectionInspector({
     : statement.command === "show"
       ? action === "move"
         ? { asset: null, expression: null, transitionAsset: null }
-        : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
+        : action === "hide"
+          ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transitionAsset: null }
+          : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
       : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
@@ -1154,6 +1157,9 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
           parameters.x = x;
           parameters.y = y;
           parameters.transition = "slide";
+          parameters.duration = "300ms";
+        } else if (action === "hide") {
+          parameters.transition = "fade";
           parameters.duration = "300ms";
         }
       }

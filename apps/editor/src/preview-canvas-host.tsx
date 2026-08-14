@@ -139,6 +139,7 @@ export function drawPreviewCanvasFrame(
       : interpolateGeometry(character.movementFrom, targetGeometry, movementProgress);
     const rect = resolveCanvasCharacterRect(geometry, image.width, image.height, designWidth, designHeight);
     context.save();
+    context.globalAlpha = character.exiting === true ? 1 - Math.min(1, Math.max(0, movementProgress)) : 1;
     context.translate(designWidth * geometry.x / 100, designHeight * geometry.y / 100);
     context.rotate(geometry.rotation * Math.PI / 180);
     if (selectedStatementId === character.statementId) {
@@ -176,13 +177,16 @@ export function PreviewCanvasHitProxy({
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${selected ? " is-selected" : ""}`}
+    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${character.exiting === true ? " stage-canvas-hit-proxy--exiting" : ""}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
     data-stage-y={geometry.y}
     aria-label={label}
     aria-pressed={selected}
+    aria-hidden={character.exiting === true ? true : undefined}
+    tabIndex={character.exiting === true ? -1 : undefined}
+    disabled={character.exiting === true}
     onPointerDown={(event) => {
       const stage = event.currentTarget.closest<HTMLElement>("[data-stage-surface]");
       if (stage === null) return;
@@ -257,8 +261,8 @@ export function PreviewCanvasHost({
   const runtimeErrorRef = useRef(onRuntimeError);
   runtimeErrorRef.current = onRuntimeError;
   const [fallback, setFallback] = useState(false);
-  const hasAuthoredMovement = frame.characters.some((item) => item.movementFrom !== undefined);
-  const activeTransition = hasAuthoredMovement
+  const hasAuthoredCharacterAnimation = frame.characters.some((item) => item.movementFrom !== undefined || item.exiting === true);
+  const activeTransition = hasAuthoredCharacterAnimation
     ? undefined
     : [...frame.characters].reverse().find((item) => item.transition !== undefined) ?? frame.background;
 
@@ -280,7 +284,7 @@ export function PreviewCanvasHost({
     const characterImages = new Map<string, PreviewCanvasImage>();
     const imageTasks: Promise<void>[] = [];
     let animationFrame = 0;
-    let movementProgress = frame.characters.some((character) => character.movementFrom !== undefined) ? 0 : 1;
+    let movementProgress = frame.characters.some((character) => character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
     let backgroundImage: PreviewCanvasImage | undefined;
     const draw = () => {
       if (controller.signal.aborted) return;
@@ -322,7 +326,7 @@ export function PreviewCanvasHost({
       if (controller.signal.aborted || movementProgress === 1) return;
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
       const duration = Math.max(...frame.characters
-        .filter((character) => character.movementFrom !== undefined)
+        .filter((character) => character.movementFrom !== undefined || character.exiting === true)
         .map((character) => previewCanvasDurationMs(character.duration)));
       if (reducedMotion || duration === 0) {
         movementProgress = 1;

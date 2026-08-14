@@ -29,7 +29,7 @@ export function PreviewStageCharacter({
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-media-character stage-transition--${character.transition ?? "none"}${selected ? " is-selected" : ""}`}
+    className={`stage-media-character stage-transition--${character.transition ?? "none"}${character.exiting === true ? " stage-media-character--exiting" : ""}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
@@ -39,6 +39,9 @@ export function PreviewStageCharacter({
     data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
     aria-label={label}
     aria-pressed={selected}
+    aria-hidden={character.exiting === true ? true : undefined}
+    tabIndex={character.exiting === true ? -1 : undefined}
+    disabled={character.exiting === true}
     onPointerDown={(event) => {
       const stage = event.currentTarget.closest<HTMLElement>("[data-stage-surface]");
       if (stage === null) return;

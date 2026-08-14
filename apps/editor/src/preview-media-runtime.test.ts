@@ -57,7 +57,7 @@ describe("preview media runtime", () => {
       { kind: "direction", id: "play", command: "audio", summary: "action=play asset=theme bus=bgm loop=true" },
       { kind: "direction", id: "pause", command: "audio", summary: "action=pause bus=bgm" },
       { kind: "direction", id: "resume", command: "audio", summary: "action=resume bus=bgm" },
-      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=left" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=left transition=fade duration=450ms" },
       { kind: "direction", id: "stop", command: "audio", summary: "action=stop bus=bgm" },
       { kind: "direction", id: "clear", command: "background", summary: "action=clear" }
     ];
@@ -71,10 +71,41 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(controlled, 4).resourceKey).toBe(derivePreviewStagePlan(controlled, 3).resourceKey);
     expect(derivePreviewStagePlan(controlled, 5).resourceKey).toBe(derivePreviewStagePlan(controlled, 3).resourceKey);
     expect(derivePreviewStagePlan(controlled, 4).key).not.toBe(derivePreviewStagePlan(controlled, 3).key);
-    expect(derivePreviewStagePlan(controlled, 6).characters.map((layer) => layer.slot)).toEqual(["right"]);
+    expect(derivePreviewStagePlan(controlled, 6).characters).toEqual([
+      expect.objectContaining({ slot: "right" }),
+      expect.objectContaining({ statementId: "hide", slot: "left", assetId: "hero_smile", exiting: true, transition: "fade", duration: "450ms" })
+    ]);
     expect(derivePreviewStagePlan(controlled, 7).audio).toEqual([]);
+    expect(derivePreviewStagePlan(controlled, 7).characters.map((layer) => layer.slot)).toEqual(["right"]);
     expect(derivePreviewStagePlan(controlled, 8).background).toBeUndefined();
     expect(derivePreviewStagePlan(controlled, 3).characters).toHaveLength(2);
+  });
+
+  it("keeps a hidden slot for one exit frame, then removes it and rewinds deterministically", () => {
+    const hiding: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero x=20 expression=smile" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=hero duration=600ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "gone" }
+    ];
+    expect(derivePreviewStagePlan(hiding, 1).characters).toEqual([
+      expect.objectContaining({ statementId: "hide", assetId: "hero", slot: "hero", x: 20, expression: "smile", exiting: true, transition: "fade", duration: "600ms" })
+    ]);
+    expect(derivePreviewStagePlan(hiding, 2).characters).toEqual([]);
+    expect(derivePreviewStagePlan(hiding, 0).characters).toEqual([
+      expect.objectContaining({ statementId: "show", assetId: "hero" })
+    ]);
+    expect(derivePreviewStagePlan(hiding, 0).characters[0]?.exiting).toBeUndefined();
+    const missing = derivePreviewStagePlan([
+      { kind: "direction", id: "missing", command: "show", summary: "action=hide slot=hero" }
+    ], 0);
+    expect(missing.characters).toEqual([]);
+    expect(missing.diagnostics).toEqual(["missing: hide requires an active hero slot"]);
+    const resourceBearing = derivePreviewStagePlan([
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=hero asset=stale" }
+    ], 1);
+    expect(resourceBearing.characters).toEqual([expect.objectContaining({ statementId: "show", assetId: "hero" })]);
+    expect(resourceBearing.diagnostics).toEqual(["hide: action=hide does not accept asset"]);
   });
 
   it("moves an active slot without replacing its resource and rewinds to the authored geometry", () => {
@@ -108,11 +139,13 @@ describe("preview media runtime", () => {
     const plan = derivePreviewStagePlan([
       { kind: "direction", id: "missing", command: "show", summary: "action=move slot=hero x=80" },
       { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },
+      { kind: "direction", id: "resource", command: "show", summary: "action=move slot=hero asset=stale x=80" },
       { kind: "direction", id: "empty", command: "show", summary: "action=move slot=hero duration=300ms" }
-    ], 2);
+    ], 3);
     expect(plan.characters).toEqual([expect.objectContaining({ statementId: "show", assetId: "hero" })]);
     expect(plan.diagnostics).toEqual([
       "missing: move requires an active hero slot",
+      "resource: action=move does not accept asset",
       "empty: move requires at least one Stage geometry parameter"
     ]);
   });

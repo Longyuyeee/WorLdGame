@@ -109,4 +109,20 @@ describe("stable-ID directive insertion", () => {
       })).toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "STRUCTURAL_INVALID_DIRECTIVE" }) }));
     }
   });
+
+  it("inserts a resource-free hide with an explicit exit transition", () => {
+    const hidden = insertDirectiveAfter(source, parseStory(source), {
+      afterId: "stmt_bg",
+      statementId: "stmt_hide_fade",
+      command: "show",
+      parameters: { action: "hide", slot: "hero", transition: "fade", duration: "450ms" }
+    });
+    expect(hidden.ok).toBe(true);
+    if (!hidden.ok) throw new Error(hidden.error.message);
+    expect(hidden.source).toContain("@show action=hide slot=hero transition=fade duration=450ms @id(stmt_hide_fade)");
+    expect(insertDirectiveAfter(source, parseStory(source), {
+      afterId: "stmt_bg", statementId: "stmt_hide_asset", command: "show",
+      parameters: { action: "hide", slot: "hero", asset: "hero_smile" }
+    })).toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "STRUCTURAL_INVALID_DIRECTIVE" }) }));
+  });
 });

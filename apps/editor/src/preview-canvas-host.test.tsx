@@ -96,6 +96,20 @@ describe("Preview Canvas host", () => {
     expect(previewCanvasDurationMs("invalid")).toBe(300);
   });
 
+  it("fades an exiting character while retaining its final authored geometry", () => {
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), restore: vi.fn(),
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const exiting = { ...character, statementId: "stmt_hide", exiting: true, duration: "450ms" } as const;
+    drawPreviewCanvasFrame(context, { ...frame, background: undefined, characters: [exiting] }, {
+      characters: new Map([["stmt_hide", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "stmt_hide", 0.5);
+    expect(context.globalAlpha).toBe(0.5);
+    expect(context.translate).toHaveBeenCalledWith(480, 810);
+  });
+
   it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {
     const onSelect = vi.fn();
     const onStagePoint = vi.fn();
@@ -127,6 +141,23 @@ describe("Preview Canvas host", () => {
     expect(target).toHaveClass("stage-canvas-hit-proxy--moving");
     expect(target.style.animationDuration).toBe("600ms");
     expect(target.style.getPropertyValue("--stage-move-from-left")).toBe("10%");
+  });
+
+  it("makes an exiting Canvas hit proxy inert while its visual fades", () => {
+    render(<PreviewCanvasHitProxy
+      character={{ ...character, statementId: "stmt_hide", exiting: true, transition: "fade", duration: "450ms" }}
+      selected={false}
+      designWidth={1920}
+      designHeight={1080}
+      onSelect={() => undefined}
+      onStagePoint={() => undefined}
+    />);
+    const target = screen.getByTestId("preview-character-primary");
+    expect(target).toBeDisabled();
+    expect(target).toHaveAttribute("aria-hidden", "true");
+    expect(target).toHaveAttribute("tabindex", "-1");
+    expect(target).toHaveClass("stage-canvas-hit-proxy--exiting");
+    expect(target.style.animationDuration).toBe("450ms");
   });
 
   it("falls back to the DOM media host when Canvas 2D is unavailable", async () => {

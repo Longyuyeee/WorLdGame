@@ -56,7 +56,7 @@ export function directiveActionParameters(
   if (command === "show") {
     if (action === "show") return DIRECTIVE_PARAMETERS.show;
     if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "transition", "duration"];
-    return ["action", "slot"];
+    return ["action", "slot", "transition", "duration"];
   }
   return action === "play" ? DIRECTIVE_PARAMETERS.audio : ["action", "bus"];
 }

@@ -2485,12 +2485,25 @@ textarea[data-input-state="composing"] {
   animation: stage-canvas-hit-move 300ms linear both;
 }
 
+.stage-canvas-hit-proxy--exiting,
+.stage-media-character--exiting {
+  pointer-events: none;
+  animation-name: stage-media-exit;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+
 @keyframes stage-canvas-hit-move {
   from {
     left: var(--stage-move-from-left);
     top: var(--stage-move-from-top);
     transform: var(--stage-move-from-transform);
   }
+}
+
+@keyframes stage-media-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .stage-background-plane,
@@ -2571,6 +2584,13 @@ textarea[data-input-state="composing"] {
 
 .stage-transition--slide {
   animation: stage-media-slide 360ms cubic-bezier(.2, .85, .25, 1) both;
+}
+
+.stage-transition--fade.stage-media-character--exiting,
+.stage-transition--dissolve.stage-media-character--exiting,
+.stage-transition--slide.stage-media-character--exiting {
+  animation-name: stage-media-exit;
+  animation-timing-function: ease;
 }
 
 .stage-audio-stack {

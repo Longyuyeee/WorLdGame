@@ -170,6 +170,19 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       "@show action=move slot=primary x=80 y=90 transition=slide duration=300ms"
     );
   });
+  it("inserts a resource-free Hide cue with the frozen fade default", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));
+    fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "hide" } });
+    expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("新增移动水平位置")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("新增角色槽位"), { target: { value: "hero" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
+      "@show action=hide slot=hero transition=fade duration=300ms"
+    );
+  });
   it("reorders and deletes direction cues through accessible track controls", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "演出右移" }));
