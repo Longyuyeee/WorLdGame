@@ -123,6 +123,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N22 Stage Show 单语句生命周期审计](docs/111-n22-stage-show-transition-lifecycle.md) | 角色层 Show 入场、下一语句沉降、回退与浏览器证据 |
 | [开发暂停与换机接续审计](docs/112-development-handoff-2026-08-14.md) | N22 候选时点的分支、证据、CI 与接续边界历史快照 |
 | [N22 最小 Stage 与媒体预览退出条件审计](docs/113-n22-exit-condition-audit.md) | 逐项需求对齐、真实 WAV 播放补证、工程门结论与 N23 阻断 |
+| [N21 真人产品验收执行包](docs/114-n21-human-validation-execution-kit.md) | 冻结 20 分钟任务、参与者/主持人边界、结构化证据、通过失败与风险关闭规则 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

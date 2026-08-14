@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "N21-HV-01",
+  "protocolHash": "53a7f9e85b3c273867dec6373a4e93a42fd502f041008157b874d29615ebf5ee",
+  "sourceBaseRevision": "b86de83dbed2654d3b12b1095077694ac837807a",
+  "status": "pending-participant",
+  "participant": {
+    "pseudonymousId": null,
+    "consentRecorded": null,
+    "hasNotContributedCodeOrDesign": null,
+    "unfamiliarWithStoryScriptSyntax": null
+  },
+  "session": {
+    "startedAt": null,
+    "endedAt": null,
+    "durationSeconds": null,
+    "inputDevices": [],
+    "helpRequestCount": null,
+    "blockers": [],
+    "misoperations": [],
+    "facilitatorOperatedEditor": null
+  },
+  "tasks": [
+    { "id": "T01", "status": "not-run", "notes": null },
+    { "id": "T02", "status": "not-run", "notes": null },
+    { "id": "T03", "status": "not-run", "notes": null },
+    { "id": "T04", "status": "not-run", "notes": null },
+    { "id": "T05", "status": "not-run", "notes": null },
+    { "id": "T06", "status": "not-run", "notes": null },
+    { "id": "T07", "status": "not-run", "notes": null }
+  ],
+  "saveCloseReopen": {
+    "status": "not-run",
+    "textPreserved": null,
+    "orderPreserved": null,
+    "selectionPreserved": null,
+    "inspectorDataPreserved": null,
+    "stableIdsPreserved": null
+  },
+  "artifacts": {
+    "finalProjectSnapshot": null,
+    "observationLog": null
+  },
+  "decision": {
+    "recordedBy": null,
+    "recordedAt": null,
+    "reason": "No eligible non-programmer participant has executed the frozen task."
+  }
+}

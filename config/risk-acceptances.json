@@ -33,7 +33,10 @@
       ],
       "remediationPlan": "Recruit an eligible participant and execute the frozen N21 task without developer operation or coaching.",
       "verificationMethod": "Record start/end time, input device, assistance count, blockers and final project snapshot; then save, close and reopen to verify text, stable IDs, order, selection and Inspector data.",
-      "evidencePath": "docs/100-n21-human-validation-risk-acceptance.md"
+      "evidencePath": "docs/100-n21-human-validation-risk-acceptance.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json"
     }
   ]
 }

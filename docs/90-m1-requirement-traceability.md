@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；N22 的受限工程门已通过，但它不跨越 N21 产品门，也不改变顺序状态。N21 的完整 P0 卡片、类型化 Inspector、原子批量事务、输入等价和保存重开已通过本地完整门及 Draft PR #30 Windows CI，仍等待 20 分钟非程序用户实测。N22 退出证据见[《N22 最小 Stage 与媒体预览退出条件审计》](113-n22-exit-condition-audit.md)。`RA-N21-001` 在 2026-09-14 或进入 N23 验收前到期；N21 仍为验收中，N23 仍被阻断。
+最近按产品顺序通过的节点仍是 `N20`；N22 的受限工程门已通过，但它不跨越 N21 产品门，也不改变顺序状态。N21 工程门已绿，真人任务已冻结为 [`N21-HV-01`](114-n21-human-validation-execution-kit.md)，权威记录仍为 `pending-participant`。`RA-N21-001` 在 2026-09-14 或进入 N23 前到期；N21 仍为验收中，N23 仍被阻断。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -42,7 +42,7 @@
 |---|---|---|---|---|---|---|
 | REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N10–N13 已通过；仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | Project E2E、Recovery Golden、双端任务 |
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
-| REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | N21 本地/远端工程门完成；仍缺真人任务、N41 完整 Sequence 与 Stage 跨视图联动 | Branching/Media E2E |
+| REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | N21 本地/远端工程门完成；`N21-HV-01` 已冻结但仍为 `pending-participant`；仍缺真人结果、N41 完整 Sequence 与 Stage 跨视图联动 | [N21 真人执行包](114-n21-human-validation-execution-kit.md)、Branching/Media E2E |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 仅三模式，未用户验证 | D1 任务报告、交互性能、可访问性审计 |

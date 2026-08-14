@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "N21-HV-01",
+  "frozenAt": "2026-08-14T22:00:00+08:00",
+  "deliveryNode": "N21",
+  "timeLimitSeconds": 1200,
+  "participantEligibility": {
+    "mustNotHaveContributedCodeOrDesign": true,
+    "mustBeUnfamiliarWithStoryScriptSyntax": true,
+    "mustProvideRecordedConsent": true,
+    "repositoryMustNotContainDirectPersonalData": true
+  },
+  "facilitatorRules": {
+    "mayReadTaskPrompts": true,
+    "mayRecordQuestionsAndBlockers": true,
+    "mayOperateEditor": false,
+    "mayExplainScriptSyntaxOrExactControls": false
+  },
+  "startingCondition": {
+    "blankProject": true,
+    "sampleProjectClosed": true,
+    "contentEditorNotPreconfigured": true,
+    "timerStartsBeforeFirstProjectAction": true
+  },
+  "tasks": [
+    { "id": "T01", "instruction": "创建一个新的空白故事工程并进入 Writer。" },
+    { "id": "T02", "instruction": "创建至少一条对白。" },
+    { "id": "T03", "instruction": "加入一个包含两个选项的选择。" },
+    { "id": "T04", "instruction": "创建并设置一个变量。" },
+    { "id": "T05", "instruction": "使用条件让故事能够到达两个不同结局。" },
+    { "id": "T06", "instruction": "为故事加入一个背景和一条 BGM 演出指令。" },
+    { "id": "T07", "instruction": "保存工程，关闭后重新打开，确认文本、排序、选择、Inspector 数据和稳定 ID 没有丢失。" }
+  ],
+  "requiredCapture": [
+    "pseudonymousParticipantId",
+    "startedAt",
+    "endedAt",
+    "inputDevices",
+    "helpRequestCount",
+    "blockers",
+    "misoperations",
+    "taskResults",
+    "saveCloseReopenResult",
+    "finalProjectSnapshot",
+    "observationLog"
+  ],
+  "passCriteria": {
+    "eligibleParticipant": true,
+    "allTasksPass": true,
+    "durationAtMostSeconds": 1200,
+    "facilitatorOperatedEditor": false,
+    "saveCloseReopenPass": true,
+    "requiredArtifactsHashed": true
+  }
+}

@@ -50,6 +50,8 @@
 
 证据完成后将结构化例外改为 `closed`，更新 N21 审计和 M1 追踪矩阵；没有证据不得仅因日期到期自动关闭。
 
+2026-08-14，补充冻结的 [`N21-HV-01` 真人产品验收执行包](114-n21-human-validation-execution-kit.md)、机器协议和 `pending-participant` 权威记录。`npm run audit:n21-human-validation` 只验证“待执行状态真实、关闭规则完整”，不把待执行状态解释为真人证据。真人运行完成前，本例外继续 active。
+
 ## 6. 自动审计
 
 ```powershell
