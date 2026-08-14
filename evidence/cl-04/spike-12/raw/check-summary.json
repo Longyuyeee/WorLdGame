@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "regularTests": {"files": 60, "tests": 412, "failed": 0},
+  "workspaceBuild": "PASS",
+  "architectureAudit": {"status": "PASS", "portableFiles": 49, "nodeAdapterFiles": 3},
+  "scriptPerformance": {"files": 1, "tests": 9, "failed": 0},
+  "assetPerformance": {"files": 1, "tests": 4, "failed": 0}
+}

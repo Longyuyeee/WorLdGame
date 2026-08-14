@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "projects": [
+    { "id": "tiny", "category": "Tiny", "owner": "product-foundation", "path": "fixtures/projects/tiny" },
+    { "id": "branching", "category": "Branching", "owner": "compiler-runtime", "path": "fixtures/projects/branching" },
+    { "id": "media", "category": "Media", "owner": "editor-experience", "path": "fixtures/projects/media" },
+    { "id": "cjk", "category": "CJK", "owner": "content-systems", "path": "fixtures/projects/cjk" },
+    { "id": "recovery", "category": "Recovery", "owner": "product-foundation", "path": "fixtures/projects/recovery" },
+    { "id": "size", "category": "Size", "owner": "asset-optimization", "path": "fixtures/projects/size" },
+    { "id": "benchmark", "category": "Benchmark", "owner": "build-release", "path": "fixtures/projects/benchmark" }
+  ]
+}

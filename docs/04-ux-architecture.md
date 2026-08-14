@@ -8,10 +8,29 @@
 4. **错误就在内容旁边**：诊断可点击、可解释、可快速修复。
 5. **高级能力逐步出现**：新手只看到必要字段，专家可展开全部参数。
 6. **预览永远可到达**：任何编辑视图最多一次操作进入当前上下文预览。
+7. **多彩但不嘈杂**：高饱和色只表达语义和重点，内容区保持专业可读性。
+8. **动效解释关系**：动画用于空间、因果、状态和直接操控，不用持续装饰干扰写作。
+9. **模式适配任务**：不同岗位使用不同工作区布局，但始终编辑同一语义对象。
+
+### 1.1 视觉语言
+
+- 默认使用低饱和深色中性底，配合语义高亮色、有限渐变和局部辉光；
+- 对话、角色、画面、音频、选择、逻辑和诊断拥有跨视图一致的色彩身份；
+- 使用缩略图、头像、波形、轨迹、曲线和状态徽标强化图形化表达；
+- 保持中央内容优先，大面积毛玻璃和装饰光效不能损害文字可读性；
+- 中日韩真实文本、长角色名、窄屏和 200% 缩放必须进入设计稿验证。
+
+### 1.2 动效语言
+
+- 微交互 80–160 ms，卡片/排序 140–220 ms，面板 180–280 ms，模式切换 240–400 ms；
+- 动画可被输入打断，保存、撤销和切换不等待动画结束；
+- 当前运行语句在所有视图同步高亮；节点连接、变量传播和构建阶段展示真实因果；
+- 提供完整、简化、减少动效三级体验，并尊重系统偏好；
+- 拖动期间优先保持 60 FPS，低性能设备允许自动降低模糊、阴影和非关键特效。
 
 ## 2. 信息架构
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     Home["首页 / 最近项目"] --> Workspace["项目工作区"]
     Workspace --> Story["故事"]
@@ -28,10 +47,13 @@ flowchart TD
     Assets --> Media["图像 / 音频 / 视频 / 字体"]
     QA --> Debugger["运行调试器"]
     QA --> Solver["路线与状态检查"]
-    Build --> Targets["Web / Windows / Android / iOS"]
-\`\`\`
+    Build --> Targets["M1: Web / Windows / Android"]
+    Build -. "未来愿景" .-> FutureTarget["iOS"]
+```
 
 ## 3. 桌面工作区
+
+桌面端提供七种任务工作区，可在顶栏快速切换：Writer、Director、Flow、Production、Debug & QA、Mobile Focus 预览和 Quick Start。切换模式时保持当前场景、语句、选中对象和预览状态。
 
 ### 3.1 默认布局
 
@@ -45,7 +67,21 @@ flowchart TD
 
 面板允许调整、停靠和保存布局，但中央主编辑器始终保持最大视觉优先级。
 
-### 3.2 上下文同步
+### 3.2 工作模式布局
+
+| 模式 | 中央主区 | 默认辅区 |
+|---|---|---|
+| Writer | Script/对白流 | 角色、术语、预览 |
+| Director | Stage + Sequence 时间线 | Inspector、波形、曲线 |
+| Flow | Route Map | 条件、变量、覆盖 |
+| Production | 批量表格 | 过滤、状态、审阅 |
+| Debug & QA | 运行预览 | 变量、调用栈、诊断 |
+| Mobile Focus | 当前移动任务模拟 | 设备、安全区、触控检查 |
+| Quick Start | 模板化 Sequence | 分步引导、常用预设 |
+
+Beginner 布局隐藏低频参数但保留进入方式；Pro 布局默认展示轨道、ID、诊断、资源状态和批量命令。两者切换不改变工程内容。
+
+### 3.3 上下文同步
 
 当用户选择一条对白时：
 
@@ -110,7 +146,7 @@ flowchart TD
 
 ## 6. 四视图工作流
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     Route["Route Map\n组织跨场景路线"] --> Sequence["Sequence\n编排场景内容"]
     Sequence --> Stage["Stage\n调整视觉演出"]
@@ -118,7 +154,7 @@ flowchart LR
     Stage --> Preview["Live Preview\n从当前语句运行"]
     Preview --> Debug["Debugger / QA"]
     Debug --> Route
-\`\`\`
+```
 
 ### 6.1 Route Map
 
@@ -165,7 +201,7 @@ Stage 是某个运行时状态的视觉投影：
 
 ### 7.1 新手首个短篇
 
-\`\`\`mermaid
+```mermaid
 sequenceDiagram
     actor Creator as 创作者
     participant Home as 新建向导
@@ -178,7 +214,7 @@ sequenceDiagram
     Editor-->>Creator: 实时显示路线和错误
     Creator->>Preview: 从当前对白试玩
     Creator->>Build: 生成 Web 分享链接/包
-\`\`\`
+```
 
 ### 7.2 手机继续编辑
 
@@ -187,8 +223,8 @@ sequenceDiagram
 3. 进入写作模式，定位上次语句；
 4. 修改台词或替换资源；
 5. 点击预览，保持当前上下文运行；
-6. 自动保存本地，联网后增量同步；
-7. 如需发布，提交云构建任务。
+6. 自动保存本地，并显示快照、备份和工程导出状态；
+7. 如需发布，导出工程或构建配置，在 Windows 本地生成 Web、Windows 或 Android 产物；M1 不要求账户或云构建。
 
 ### 7.3 本地化与配音
 

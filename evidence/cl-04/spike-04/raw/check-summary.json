@@ -1,0 +1,27 @@
+{
+  "sourceRevision": "6d8f61dfc75ba6ddf5ab8f239bb5775963b9d2bc",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 53,
+    "tests": 362,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 4,
+    "tests": 39,
+    "failed": 0,
+    "spike04Tests": 11,
+    "historyGoldenStateHashes": 4
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 43,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "note": "Observed on one Node development host. Forward restores a recorded full checkpoint; this is not replay, Effect, Save compatibility, capacity, or cross-host CL-04 evidence."
+}

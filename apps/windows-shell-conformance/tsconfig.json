@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": { "composite": true, "noEmit": true, "types": ["node"] },
+  "references": [{ "path": "../../packages/narrative-vm-spike" }],
+  "include": ["src", "electron", "vite.*.config.ts"]
+}

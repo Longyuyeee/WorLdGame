@@ -1,0 +1,28 @@
+{
+  "sourceRevision": "63382f6a3dcaea18eda40cfc3f47b2565fb8e726",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 55,
+    "tests": 384,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 6,
+    "tests": 61,
+    "failed": 0,
+    "spike06Tests": 11,
+    "fixedSaveDigests": 1,
+    "fixedRestoredStateHashes": 1
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 45,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "note": "Observed on one Node development host using in-memory canonical strings. This is not storage atomicity, authenticity, encryption, historical migration, or cross-host evidence."
+}

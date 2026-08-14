@@ -1,0 +1,213 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  buildLosslessDicingAtlas,
+  createBlobDigest,
+  createLosslessDicingPngDeliveryManifest,
+  serializeLosslessDicingPngDeliveryManifest,
+  type LosslessDicingAtlasArtifact
+} from "@world-studio/project-persistence";
+import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analysis-client";
+
+afterEach(() => vi.unstubAllGlobals());
+
+const input = { assetId: "cg_dicing", mimeType: "image/png", bytes: new Uint8Array([1, 2, 3]) };
+const secondInput = { assetId: "cg_dicing_b", mimeType: "image/png", bytes: new Uint8Array([4, 5, 6]) };
+
+function encodedArtifact(built: LosslessDicingAtlasArtifact) {
+  const pages = built.pages.map((page) => {
+    const encoded = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3, 4]);
+    return { ...page, rgba: page.rgba.buffer.slice(0), encoded: encoded.buffer.slice(0), encodedBytes: encoded };
+  });
+  const manifest = createLosslessDicingPngDeliveryManifest(built.manifest, pages.map((page) => ({
+    pageId: page.pageId, width: page.width, height: page.height, rgbaDigest: page.rgbaDigest,
+    encodedDigest: createBlobDigest(page.encodedBytes), encodedByteLength: page.encodedBytes.byteLength, mimeType: "image/png" as const
+  })));
+  return { deliveryManifestJson: serializeLosslessDicingPngDeliveryManifest(manifest),
+    pages: pages.map(({ encodedBytes: _encodedBytes, ...page }) => page) };
+}
+
+describe("isolated Dicing analysis client", () => {
+  it("fails closed without an isolated Worker", async () => {
+    vi.stubGlobal("Worker", undefined);
+    await expect(analyzeDicingInWorker([input])).rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
+  });
+
+  it("terminates an active Worker when cancelled", async () => {
+    let terminated = false;
+    class WaitingWorker {
+      addEventListener(): void { /* waits */ }
+      postMessage(): void { /* waits */ }
+      terminate(): void { terminated = true; }
+    }
+    vi.stubGlobal("Worker", WaitingWorker);
+    const controller = new AbortController();
+    const pending = analyzeDicingInWorker([input], 64, controller.signal);
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ code: "CANCELLED" });
+    expect(terminated).toBe(true);
+  });
+
+  it("accepts only a correlated, reconstruction-verified report", async () => {
+    class SuccessfulWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: {
+          id: request.id,
+          ok: true,
+          report: {
+            schemaVersion: 1,
+            algorithm: "lossless-rgba-dicing-discovery/v1",
+            evaluatedImageCount: 2,
+            minSharedTileRatio: 0.35,
+            candidateGroups: [{
+              groupId: "dicing-test",
+              assetIds: ["cg_dicing", "cg_dicing_b"],
+              minimumPairSimilarity: 0.8,
+              report: {
+                schemaVersion: 1,
+                algorithm: "lossless-rgba-dicing/v1",
+                cellSize: 64,
+                imageCount: 2,
+                duplicateDecodedImageCount: 0,
+                placementCount: 4,
+                uniqueTileCount: 1,
+                repeatedPlacementCount: 3,
+                zeroTileCount: 0,
+                originalRgbaBytes: 65536,
+                uniqueTileBytes: 16384,
+                estimatedManifestBytes: 288,
+                estimatedDicedBytes: 16672,
+                netSavingsBytes: 48864,
+                netSavingsRatio: 0.745,
+                decision: "adopt",
+                reason: "net-savings",
+                reconstructionVerified: true,
+                sourceDigests: [`sha256:${"b".repeat(64)}`, `sha256:${"c".repeat(64)}`],
+                planDigest: `sha256:${"a".repeat(64)}`
+              }
+            }],
+            unassignedAssetIds: [],
+            discoveryDigest: `sha256:${"d".repeat(64)}`
+          }
+        } } as MessageEvent);
+      }
+      terminate(): void { /* completed */ }
+    }
+    vi.stubGlobal("Worker", SuccessfulWorker);
+    await expect(analyzeDicingInWorker([input, secondInput])).resolves.toMatchObject({ candidateGroups: [{ report: { decision: "adopt", reconstructionVerified: true } }] });
+  });
+
+  it("rejects a verified-looking report that substitutes another asset ID", async () => {
+    class SubstitutingWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: {
+          id: request.id,
+          ok: true,
+          report: {
+            schemaVersion: 1,
+            algorithm: "lossless-rgba-dicing-discovery/v1",
+            evaluatedImageCount: 1,
+            minSharedTileRatio: 0.35,
+            candidateGroups: [],
+            unassignedAssetIds: ["substituted_asset"],
+            discoveryDigest: `sha256:${"d".repeat(64)}`
+          }
+        } } as MessageEvent);
+      }
+      terminate(): void { /* rejected */ }
+    }
+    vi.stubGlobal("Worker", SubstitutingWorker);
+    await expect(analyzeDicingInWorker([input])).rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
+  });
+
+  it("rejects duplicate request asset IDs before starting a Worker", async () => {
+    await expect(analyzeDicingInWorker([input, input])).rejects.toMatchObject({ code: "RESOURCE_LIMIT" });
+  });
+
+  it("accepts only a self-consistent Atlas artifact for the selected Asset IDs", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: input.assetId, width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    class AtlasWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: {
+          id: request.id,
+          ok: true,
+          artifact: encodedArtifact(built)
+        } } as MessageEvent);
+      }
+      terminate(): void { /* completed */ }
+    }
+    vi.stubGlobal("Worker", AtlasWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], built.manifest.sourcePlanDigest, 8)).resolves.toMatchObject({
+      pages: [{ pageId: "atlas-000" }],
+      decision: { decision: "original", reason: "no-encoded-net-savings" }
+    });
+  });
+
+  it("rejects encoded Atlas bytes that do not match the Delivery Manifest", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: input.assetId, width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    const response = encodedArtifact(built);
+    const encoded = new Uint8Array(response.pages[0]!.encoded as ArrayBuffer);
+    encoded[9] = 99;
+    class CorruptEncodedWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: response } } as MessageEvent);
+      }
+      terminate(): void { /* rejected */ }
+    }
+    vi.stubGlobal("Worker", CorruptEncodedWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], built.manifest.sourcePlanDigest, 8))
+      .rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
+  });
+
+  it("rejects an Atlas artifact built from a different analysis plan", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: input.assetId, width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    class StalePlanWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
+          ...encodedArtifact(built)
+        } } } as MessageEvent);
+      }
+      terminate(): void { /* rejected */ }
+    }
+    vi.stubGlobal("Worker", StalePlanWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], `sha256:${"f".repeat(64)}`, 8))
+      .rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
+  });
+
+  it("rejects an Atlas artifact that substitutes another Asset ID", async () => {
+    const rgba = new Uint8Array(8 * 8 * 4).fill(255);
+    const built = buildLosslessDicingAtlas([{ assetId: "substituted", width: 8, height: 8, rgba }], {
+      cellSize: 8, padding: 2, maxAtlasSize: 32
+    });
+    class SubstitutingAtlasWorker {
+      private readonly listeners = new Map<string, (event: MessageEvent) => void>();
+      addEventListener(type: string, listener: (event: MessageEvent) => void): void { this.listeners.set(type, listener); }
+      postMessage(request: { readonly id: number }): void {
+        this.listeners.get("message")?.({ data: { id: request.id, ok: true, artifact: {
+          ...encodedArtifact(built)
+        } } } as MessageEvent);
+      }
+      terminate(): void { /* rejected */ }
+    }
+    vi.stubGlobal("Worker", SubstitutingAtlasWorker);
+    await expect(buildDicingAtlasInWorker([input], [input.assetId], built.manifest.sourcePlanDigest, 8)).rejects.toMatchObject({ code: "DERIVATIVE_UNAVAILABLE" });
+  });
+});

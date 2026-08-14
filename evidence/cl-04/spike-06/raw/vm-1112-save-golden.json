@@ -1,0 +1,19 @@
+{
+  "sourceRevision": "63382f6a3dcaea18eda40cfc3f47b2565fb8e726",
+  "saveSchemaVersion": 0,
+  "runtimeVersion": "cl04-spike.6",
+  "opcodeRegistryDigest": "adae10dd7002a520ed48a0b90c16e817d5b6273bb45027ea985e8070ba8ab342",
+  "saveIntegrityDigest": "0a3d2ec3834369b33ec6c4d1e7aa3b64188776b28d38c328198c1980c132f586",
+  "restoredStateHash": "b671c801332477e0710afbf583f88d84ecfb64c57dcc17aaa83d12cecf716274",
+  "loadOrder": [
+    "validate current Session",
+    "enforce serialized size and canonical encoding",
+    "recognize schema version",
+    "verify domain-separated integrity digest",
+    "validate project/build/IR/runtime/opcode/meta/session",
+    "cancel superseded pending Effects",
+    "rehydrate loaded pending Effects",
+    "atomically adopt loaded Session"
+  ],
+  "migration": "v0 identity clone only; unknown historical and future versions reject"
+}

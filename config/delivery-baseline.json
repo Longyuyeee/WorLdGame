@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "authorityBranch": "agent/m1-integration-n21",
+  "baseRef": "origin/main",
+  "status": "authoritative",
+  "integratedThrough": "N21",
+  "pullRequest": 32,
+  "requiredAncestors": [
+    { "node": "N00", "commit": "58b52bbba38270d19d143d0cc4a13a3805ecba9a", "evidence": "docs/91-n00-product-baseline-audit.md" },
+    { "node": "N01", "commit": "e74153910c64f6af671e1354bd6b908c5a3e4f34", "evidence": "docs/92-n01-requirement-golden-baseline.md" },
+    { "node": "N10", "commit": "20d1864dba56eee1de8a97052e08da060e8f7db0", "evidence": "docs/93-n10-canonical-project-schema.md" },
+    { "node": "N11", "commit": "89e9ab626299d34875a2fab0aa541df0b58a67bc", "evidence": "docs/94-n11-project-service.md" },
+    { "node": "N12", "commit": "9be24f731aa3712456ec84ab411223f835d8cc06", "evidence": "docs/95-n12-project-lifecycle.md" },
+    { "node": "N13", "commit": "a0a72038d725bc8bfce29847dabdb462f635b62c", "evidence": "docs/96-n13-entity-management.md" },
+    { "node": "N20", "commit": "43d066a362cf6e7741e8b27ec3189dc444ce17ff", "evidence": "docs/97-n20-story-language-p0.md" },
+    { "node": "N21", "commit": "67bfe55833f89e7413982e33e250d9fd6f235687", "evidence": "docs/98-n21-writer-sequence.md" },
+    { "node": "RA-N21-001", "commit": "2862cc75e81f247b9dcac2ae74586b875875e2d7", "evidence": "docs/100-n21-human-validation-risk-acceptance.md" }
+  ],
+  "unresolvedGates": [
+    "N21 non-programmer product validation",
+    "N00-N21 integration into main",
+    "Local VM corpus performance budget on the current workstation"
+  ]
+}

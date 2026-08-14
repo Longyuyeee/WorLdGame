@@ -1,0 +1,33 @@
+name: product-baseline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: product-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Windows / Node 22 / full check
+    runs-on: windows-latest
+    timeout-minutes: 30
+    env:
+      WORLD_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.12.0
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify workspace and product baseline
+        run: npm run check
