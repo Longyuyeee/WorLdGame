@@ -50,6 +50,8 @@
 
 首次并行全门中，既有 `autosave-app.test.tsx` 在 5 秒等待窗口内停留于“保存中…”并超时；该测试隔离单 worker 通过，随后未经代码变更重跑完整门 537/537 通过。审计将其登记为并行负载时序波动，不把首次失败隐藏，也不归因于 Hide 功能。
 
+实现提交 `304eebe` 已推送至 Draft PR #33；GitHub `product-baseline` run `31781567127` 在 Windows / Node 22 上通过。
+
 ## 4. 审计边界
 
 本切片证明的是 Editor Preview 的基础角色退出过渡。Show 当前已有 Preview 级入场过渡，但复杂曲线、多关键帧、摄像机、正式 Player Runtime、三端一致性和生产发布仍未完成。`RA-N21-001` 继续阻断 N21 Product Acceptance、N23、M1 Stable 与 Public Release。
