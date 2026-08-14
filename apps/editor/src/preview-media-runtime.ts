@@ -36,6 +36,7 @@ export interface PreviewVisualLayerPlan {
   readonly anchorX?: number;
   readonly anchorY?: number;
   readonly movementFrom?: PreviewCharacterGeometry;
+  readonly entering?: boolean;
   readonly exiting?: boolean;
 }
 
@@ -231,6 +232,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         assetId: assetId!,
         slot,
         z,
+        ...(optional(inspected.parameters, "transition") === undefined ? {} : { entering: true }),
         ...(typeof geometry.x === "number" ? { x: geometry.x } : {}),
         ...(typeof geometry.y === "number" ? { y: geometry.y } : {}),
         ...(typeof geometry.scale === "number" ? { scale: geometry.scale } : {}),
@@ -283,6 +285,17 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
     return true;
 }
 
+function settleCharacterTransitions(state: MutableStageState): boolean {
+  let changed = false;
+  for (const [slot, layer] of state.characters) {
+    if (layer.entering !== true && layer.movementFrom === undefined) continue;
+    const { entering: _entering, movementFrom: _movementFrom, ...settled } = layer;
+    state.characters.set(slot, settled);
+    changed = true;
+  }
+  return changed;
+}
+
 function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   const characters = [...state.characters.values(), ...state.exitingCharacters.values()].sort((left, right) =>
     (left.z ?? 0) - (right.z ?? 0) || (left.slot ?? "").localeCompare(right.slot ?? "")
@@ -327,10 +340,11 @@ export function compilePreviewStageTimeline(statements: readonly StoryStatement[
   const timeline: PreviewStagePlan[] = [];
   let previous: PreviewStagePlan | undefined;
   for (const statement of statements) {
+    const settledCharacterTransition = settleCharacterTransitions(state);
     const clearedExit = state.exitingCharacters.size > 0;
     state.exitingCharacters.clear();
     const changed = applyDirection(statement, state);
-    if (!changed && !clearedExit && previous !== undefined) {
+    if (!changed && !settledCharacterTransition && !clearedExit && previous !== undefined) {
       timeline.push(previous);
       continue;
     }

@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-14T16:30:00+08:00",
+  "sourceBaseRevision": "f874570c5bb32bccbca816293dbcec4ad87247bc",
+  "fixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Codex In-app Browser",
+    "viewportWidth": 1265,
+    "viewportHeight": 712,
+    "devicePixelRatio": 2
+  },
+  "productFlow": {
+    "projectReference": "project-adf7ebe2-d041-448a-951e-176d0810fd0f",
+    "assetIndexRevision": 1,
+    "insertedStatementCount": 2,
+    "assetId": "hero_transition",
+    "transition": "slide",
+    "duration": "2s",
+    "renderBackend": "canvas-2d-v1"
+  },
+  "transitionLifecycle": {
+    "designPixelWidth": 3840,
+    "designPixelHeight": 2160,
+    "showFrame": {
+      "canvasClass": "stage-canvas",
+      "characterClasses": [
+        "stage-canvas-hit-proxy--entering",
+        "stage-transition--slide"
+      ]
+    },
+    "nextFrame": {
+      "step": "2 / 2",
+      "characterClass": "stage-canvas-hit-proxy"
+    },
+    "rewindFrame": {
+      "canvasClass": "stage-canvas",
+      "characterClasses": [
+        "stage-canvas-hit-proxy--entering",
+        "stage-transition--slide"
+      ]
+    }
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n22/show-transition-browser.jpg",
+      "width": 1265,
+      "height": 712,
+      "byteLength": 64490,
+      "sha256": "1b1f3e12c5b0b1f67419e15229934f995828cf9967036a0e1e29c274bc5659e5"
+    }
+  ],
+  "status": "pass",
+  "scope": "show-character-layer-single-statement-settle-rewind"
+}

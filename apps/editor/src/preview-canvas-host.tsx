@@ -134,12 +134,16 @@ export function drawPreviewCanvasFrame(
     const image = images.characters.get(character.statementId);
     if (image === undefined) continue;
     const targetGeometry = resolvePreviewCharacterGeometry(character);
-    const geometry = character.movementFrom === undefined
+    let geometry = character.movementFrom === undefined
       ? targetGeometry
       : interpolateGeometry(character.movementFrom, targetGeometry, movementProgress);
+    if (character.entering === true && character.transition === "slide") {
+      geometry = { ...geometry, x: geometry.x + 7 * (1 - Math.min(1, Math.max(0, movementProgress))) };
+    }
     const rect = resolveCanvasCharacterRect(geometry, image.width, image.height, designWidth, designHeight);
     context.save();
-    context.globalAlpha = character.exiting === true ? 1 - Math.min(1, Math.max(0, movementProgress)) : 1;
+    const boundedProgress = Math.min(1, Math.max(0, movementProgress));
+    context.globalAlpha = character.exiting === true ? 1 - boundedProgress : character.entering === true ? boundedProgress : 1;
     context.translate(designWidth * geometry.x / 100, designHeight * geometry.y / 100);
     context.rotate(geometry.rotation * Math.PI / 180);
     if (selectedStatementId === character.statementId) {
@@ -177,7 +181,7 @@ export function PreviewCanvasHitProxy({
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${character.exiting === true ? " stage-canvas-hit-proxy--exiting" : ""}${selected ? " is-selected" : ""}`}
+    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${character.entering === true ? ` stage-canvas-hit-proxy--entering stage-transition--${character.transition ?? "fade"}` : ""}${character.exiting === true ? " stage-canvas-hit-proxy--exiting" : ""}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
@@ -261,10 +265,7 @@ export function PreviewCanvasHost({
   const runtimeErrorRef = useRef(onRuntimeError);
   runtimeErrorRef.current = onRuntimeError;
   const [fallback, setFallback] = useState(false);
-  const hasAuthoredCharacterAnimation = frame.characters.some((item) => item.movementFrom !== undefined || item.exiting === true);
-  const activeTransition = hasAuthoredCharacterAnimation
-    ? undefined
-    : [...frame.characters].reverse().find((item) => item.transition !== undefined) ?? frame.background;
+  const activeTransition = frame.background?.statementId === selectedStatementId ? frame.background : undefined;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -284,7 +285,7 @@ export function PreviewCanvasHost({
     const characterImages = new Map<string, PreviewCanvasImage>();
     const imageTasks: Promise<void>[] = [];
     let animationFrame = 0;
-    let movementProgress = frame.characters.some((character) => character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
+    let movementProgress = frame.characters.some((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
     let backgroundImage: PreviewCanvasImage | undefined;
     const draw = () => {
       if (controller.signal.aborted) return;
@@ -326,7 +327,7 @@ export function PreviewCanvasHost({
       if (controller.signal.aborted || movementProgress === 1) return;
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
       const duration = Math.max(...frame.characters
-        .filter((character) => character.movementFrom !== undefined || character.exiting === true)
+        .filter((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true)
         .map((character) => previewCanvasDurationMs(character.duration)));
       if (reducedMotion || duration === 0) {
         movementProgress = 1;

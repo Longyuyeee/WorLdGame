@@ -263,6 +263,51 @@ async function validateHideBrowserEvidence(fixture, registryEvidence, label) {
   }
 }
 
+async function validateShowTransitionBrowserEvidence(fixture, registryEvidence, label) {
+  const evidencePath = join(root, "evidence", "n22", "show-transition-browser.json");
+  const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
+  if (browserEvidence.schemaVersion !== 1 || browserEvidence.status !== "pass" ||
+      browserEvidence.scope !== "show-character-layer-single-statement-settle-rewind" ||
+      browserEvidence.fixtureHash !== digest(fixture) || !/^[a-f0-9]{40}$/u.test(browserEvidence.sourceBaseRevision ?? "") ||
+      browserEvidence.environment?.viewportWidth !== 1265 || browserEvidence.environment?.viewportHeight !== 712 ||
+      browserEvidence.environment?.devicePixelRatio !== 2) {
+    violations.push(`${label} Show transition browser evidence identity, environment, or scope is stale`);
+  }
+  const flow = browserEvidence.productFlow;
+  if (flow?.assetIndexRevision !== 1 || flow?.insertedStatementCount !== 2 || flow?.assetId !== "hero_transition" ||
+      flow?.transition !== "slide" || flow?.duration !== "2s" || flow?.renderBackend !== "canvas-2d-v1") {
+    violations.push(`${label} Show transition product flow is incomplete`);
+  }
+  const lifecycle = browserEvidence.transitionLifecycle;
+  const showClasses = lifecycle?.showFrame?.characterClasses ?? [];
+  const rewindClasses = lifecycle?.rewindFrame?.characterClasses ?? [];
+  if (lifecycle?.designPixelWidth !== 3840 || lifecycle?.designPixelHeight !== 2160 ||
+      lifecycle?.showFrame?.canvasClass !== "stage-canvas" ||
+      !showClasses.includes("stage-canvas-hit-proxy--entering") || !showClasses.includes("stage-transition--slide") ||
+      lifecycle?.nextFrame?.step !== "2 / 2" || lifecycle?.nextFrame?.characterClass !== "stage-canvas-hit-proxy" ||
+      lifecycle?.rewindFrame?.canvasClass !== "stage-canvas" ||
+      !rewindClasses.includes("stage-canvas-hit-proxy--entering") || !rewindClasses.includes("stage-transition--slide")) {
+    violations.push(`${label} Show transition scope, settlement, or rewind evidence failed`);
+  }
+  if (!Array.isArray(browserEvidence.screenshots) || browserEvidence.screenshots.length !== 1) {
+    violations.push(`${label} Show transition visual evidence must contain one screenshot`);
+  } else {
+    const screenshot = browserEvidence.screenshots[0];
+    const bytes = await readFile(join(root, screenshot.path));
+    const hash = createHash("sha256").update(bytes).digest("hex");
+    if (screenshot.path !== "evidence/n22/show-transition-browser.jpg" || screenshot.width !== 1265 ||
+        screenshot.height !== 712 || bytes.byteLength !== screenshot.byteLength || hash !== screenshot.sha256) {
+      violations.push(`${label} Show transition browser screenshot is stale`);
+    }
+  }
+  const evidenceHash = digest(browserEvidence);
+  if (registryEvidence.n22ShowTransitionEvidence?.status !== "verified" ||
+      registryEvidence.n22ShowTransitionEvidence?.path !== "evidence/n22/show-transition-browser.json" ||
+      registryEvidence.n22ShowTransitionEvidence?.hash !== evidenceHash) {
+    violations.push(`${label} Show transition evidence registration is stale; expected ${evidenceHash}`);
+  }
+}
+
 function validateProject(project, label) {
   if (project.schemaVersion !== 0 || typeof project.id !== "string" || typeof project.title !== "string") violations.push(`${label} is not an S0 story project`);
   if (!Array.isArray(project.characters) || !Array.isArray(project.scenes) || project.scenes.length === 0) violations.push(`${label} must contain characters and at least one scene`);
@@ -337,6 +382,7 @@ for (const entry of registry.projects ?? []) {
       await validateCanvasBrowserEvidence(fixture, evidence, entry.id);
       await validateMoveBrowserEvidence(fixture, evidence, entry.id);
       await validateHideBrowserEvidence(fixture, evidence, entry.id);
+      await validateShowTransitionBrowserEvidence(fixture, evidence, entry.id);
     }
   } catch (error) {
     violations.push(`${entry.id} fixture cannot be read: ${error instanceof Error ? error.message : String(error)}`);

@@ -26,10 +26,12 @@ export function PreviewStageCharacter({
   onDecodeError
 }: PreviewStageCharacterProps) {
   const geometry = resolvePreviewCharacterGeometry(character);
+  const movementFrom = character.movementFrom;
+  const hasTransition = character.entering === true || movementFrom !== undefined;
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-media-character stage-transition--${character.transition ?? "none"}${character.exiting === true ? " stage-media-character--exiting" : ""}${selected ? " is-selected" : ""}`}
+    className={`stage-media-character${hasTransition ? ` stage-transition--${character.transition ?? "slide"}` : ""}${character.entering === true ? " stage-media-character--entering" : ""}${movementFrom === undefined ? "" : " stage-media-character--moving"}${character.exiting === true ? " stage-media-character--exiting" : ""}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
@@ -63,8 +65,13 @@ export function PreviewStageCharacter({
       right: "auto",
       bottom: "auto",
       transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
-      transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`
-    }}
+      transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`,
+      ...(movementFrom === undefined ? {} : {
+        "--stage-move-from-left": `${movementFrom.x}%`,
+        "--stage-move-from-top": `${movementFrom.y}%`,
+        "--stage-move-from-transform": `translate(${-movementFrom.anchorX * 100}%, ${-movementFrom.anchorY * 100}%) scale(${movementFrom.scale}) rotate(${movementFrom.rotation}deg)`
+      })
+    } as CSSProperties}
   >
     <img
       src={character.url}

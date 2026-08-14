@@ -110,6 +110,20 @@ describe("Preview Canvas host", () => {
     expect(context.translate).toHaveBeenCalledWith(480, 810);
   });
 
+  it("animates an entering character without applying its transition to the whole Canvas", () => {
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), restore: vi.fn(),
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const entering = { ...character, entering: true, transition: "slide", duration: "450ms" } as const;
+    drawPreviewCanvasFrame(context, { ...frame, background: undefined, characters: [entering] }, {
+      characters: new Map([["stmt_hero", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "stmt_hero", 0.5);
+    expect(context.globalAlpha).toBe(0.5);
+    expect(context.translate).toHaveBeenCalledWith(547.2, 810);
+  });
+
   it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {
     const onSelect = vi.fn();
     const onStagePoint = vi.fn();
@@ -157,6 +171,21 @@ describe("Preview Canvas host", () => {
     expect(target).toHaveAttribute("aria-hidden", "true");
     expect(target).toHaveAttribute("tabindex", "-1");
     expect(target).toHaveClass("stage-canvas-hit-proxy--exiting");
+    expect(target.style.animationDuration).toBe("450ms");
+  });
+
+  it("keeps an entering Canvas hit proxy interactive and scoped to the character layer", () => {
+    render(<PreviewCanvasHitProxy
+      character={{ ...character, entering: true, transition: "fade", duration: "450ms" }}
+      selected={false}
+      designWidth={1920}
+      designHeight={1080}
+      onSelect={() => undefined}
+      onStagePoint={() => undefined}
+    />);
+    const target = screen.getByTestId("preview-character-primary");
+    expect(target).toBeEnabled();
+    expect(target).toHaveClass("stage-canvas-hit-proxy--entering", "stage-transition--fade");
     expect(target.style.animationDuration).toBe("450ms");
   });
 

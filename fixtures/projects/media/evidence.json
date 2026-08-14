@@ -28,6 +28,11 @@
     "path": "evidence/n22/hide-browser.json",
     "hash": "237ba171928434028d01bf4d7994256406537878e4a265e2dc22e8567d64e72d"
   },
+  "n22ShowTransitionEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/show-transition-browser.json",
+    "hash": "bfc31717994c9f4ebf14b2892f019065fd8eb99e27ca2f5a2651b9edbdcf2c09"
+  },
   "expectedIrHash": {
     "status": "pending",
     "targetNode": "N30",

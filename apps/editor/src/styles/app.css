@@ -2485,6 +2485,10 @@ textarea[data-input-state="composing"] {
   animation: stage-canvas-hit-move 300ms linear both;
 }
 
+.stage-canvas-hit-proxy--entering {
+  pointer-events: auto;
+}
+
 .stage-canvas-hit-proxy--exiting,
 .stage-media-character--exiting {
   pointer-events: none;
@@ -2584,6 +2588,13 @@ textarea[data-input-state="composing"] {
 
 .stage-transition--slide {
   animation: stage-media-slide 360ms cubic-bezier(.2, .85, .25, 1) both;
+}
+
+.stage-transition--fade.stage-media-character--moving,
+.stage-transition--dissolve.stage-media-character--moving,
+.stage-transition--slide.stage-media-character--moving {
+  animation-name: stage-canvas-hit-move;
+  animation-timing-function: linear;
 }
 
 .stage-transition--fade.stage-media-character--exiting,

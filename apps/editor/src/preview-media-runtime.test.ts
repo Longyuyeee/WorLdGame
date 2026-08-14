@@ -131,8 +131,24 @@ describe("preview media runtime", () => {
       movementFrom: { x: 20, y: 100, scale: 1, rotation: 0, anchorX: 0.5, anchorY: 1 }
     });
     const timeline = compilePreviewStageTimeline(movement);
-    expect(timeline[2]).toBe(timeline[1]);
+    expect(timeline[2]).not.toBe(timeline[1]);
+    expect(timeline[2]?.characters[0]).toMatchObject({ statementId: "move", assetId: "hero", x: 80, scale: 1.5 });
+    expect(timeline[2]?.characters[0]?.movementFrom).toBeUndefined();
     expect(derivePreviewStagePlan(movement, 0).characters[0]).toEqual(before);
+  });
+
+  it("scopes Show entry transitions to their authored statement and restores them on rewind", () => {
+    const entering: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero transition=fade duration=400ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "ready" }
+    ];
+    expect(derivePreviewStagePlan(entering, 0).characters[0]).toMatchObject({
+      statementId: "show", assetId: "hero", entering: true, transition: "fade", duration: "400ms"
+    });
+    const settled = derivePreviewStagePlan(entering, 1).characters[0]!;
+    expect(settled).toMatchObject({ statementId: "show", assetId: "hero", transition: "fade", duration: "400ms" });
+    expect(settled.entering).toBeUndefined();
+    expect(derivePreviewStagePlan(entering, 0).characters[0]?.entering).toBe(true);
   });
 
   it("does not execute empty moves or moves targeting inactive slots", () => {
