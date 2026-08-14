@@ -22,6 +22,10 @@ const INDEX_ENTRIES = 2_000;
 const MP3_FRAME_BYTES = 417;
 const MP3_FRAMES = Math.floor(HASH_BYTES / MP3_FRAME_BYTES);
 
+function performanceStatus(...withinBudget: readonly boolean[]): "PASS" | "FAIL" {
+  return withinBudget.every(Boolean) ? "PASS" : "FAIL";
+}
+
 describe("S0.30 asset lifecycle, Dicing, runtime scheduling and compiled Story prediction performance gate", () => {
   it("inspects and hashes a production-sized source chunk and round-trips a large index within budget", () => {
     const bytes = new Uint8Array(HASH_BYTES);
@@ -55,7 +59,7 @@ describe("S0.30 asset lifecycle, Dicing, runtime scheduling and compiled Story p
     const totalMs = inspectionMs + hashMs + indexRoundtripMs;
 
     console.log(JSON.stringify({
-      status: "PASS",
+      status: performanceStatus(inspectionMs < 3_000, hashMs < 5_000, indexRoundtripMs < 2_000, totalMs < 10_000),
       baseline: { inspectionBytes: mp3.byteLength, hashBytes: HASH_BYTES, indexEntries: INDEX_ENTRIES, serializedBytes: serialized.length },
       measurementsMs: {
         mediaInspection: Number(inspectionMs.toFixed(2)),
@@ -108,7 +112,7 @@ describe("S0.30 asset lifecycle, Dicing, runtime scheduling and compiled Story p
     const derivativeMs = performance.now() - derivativeStart;
 
     console.log(JSON.stringify({
-      status: "PASS",
+      status: performanceStatus(lifecycleMs < 2_000, derivativeMs < 2_000),
       baseline: { lifecycleNodes: parsed.nodes.length, blobInventory: 5_500, unreachable: orphans.length },
       measurementsMs: {
         lifecycleRoundtripReachabilityAndPlan: Number(lifecycleMs.toFixed(2)),
@@ -149,7 +153,7 @@ describe("S0.30 asset lifecycle, Dicing, runtime scheduling and compiled Story p
     const totalMs = dicingMs + atlasMs;
 
     console.log(JSON.stringify({
-      status: "PASS",
+      status: performanceStatus(dicingMs < 3_000, atlasMs < 3_000, totalMs < 5_000),
       baseline: { images: sources.length, width, height, rgbaBytes: rgba.byteLength * sources.length, cellSize: 64 },
       measurementsMs: {
         groupingAnalysisAndReconstruction: Number(dicingMs.toFixed(2)),
@@ -187,7 +191,7 @@ describe("S0.30 asset lifecycle, Dicing, runtime scheduling and compiled Story p
     const schedulingMs = performance.now() - start;
 
     console.log(JSON.stringify({
-      status: "PASS",
+      status: performanceStatus(schedulingMs < 2_000),
       baseline: { resourceCount, resourceBytes, residentBudget, maxConcurrentLoads: 4 },
       measurementsMs: { schedulingAndPressureCleanup: Number(schedulingMs.toFixed(2)) },
       budgetsMs: { schedulingAndPressureCleanup: 2_000 },

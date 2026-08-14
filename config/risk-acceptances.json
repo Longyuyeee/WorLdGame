@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "currentDeliveryNode": "N21",
+  "exceptions": [
+    {
+      "id": "RA-N21-001",
+      "status": "active",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "REQ-SEQ human usability evidence"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "automated interaction coverage cannot measure comprehension or assistance demand"
+      ],
+      "reason": "No eligible non-programmer participant is currently available; the Product Owner explicitly approved a temporary exception on 2026-08-14.",
+      "compensatingControls": [
+        "Keep N21 in product acceptance rather than passed",
+        "Retain the automated complete P0 authoring, save-close-reopen, keyboard and touch-equivalence gates",
+        "Limit the exception to N22 engineering implementation",
+        "Block N23 acceptance, M1 Stable and public release until the human task evidence is recorded"
+      ],
+      "owner": "editor-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-14T00:00:00+08:00",
+      "expiresAt": "2026-09-14T00:00:00+08:00",
+      "maximumDeliveryNode": "N22",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit an eligible participant and execute the frozen N21 task without developer operation or coaching.",
+      "verificationMethod": "Record start/end time, input device, assistance count, blockers and final project snapshot; then save, close and reopen to verify text, stable IDs, order, selection and Inspector data.",
+      "evidencePath": "docs/100-n21-human-validation-risk-acceptance.md"
+    }
+  ]
+}
