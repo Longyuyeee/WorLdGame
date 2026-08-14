@@ -108,13 +108,21 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N13 章节、场景、角色和变量管理审计](docs/96-n13-entity-management.md) | 故事骨架管理、类型化实体、引用分析/迁移、非拖拽排序、真实保存重开 |
 | [N20 Story Language P0 审计](docs/97-n20-story-language-p0.md) | 完整 P0 CST/AST、安全表达式、语言服务、通用稳定 ID Patch 与 100k 增量门 |
 | [N21 最小 Writer/Sequence 编辑审计](docs/98-n21-writer-sequence.md) | 全部 P0 卡片、类型化 Inspector、原子批量事务、键盘/触屏等价与用户任务门 |
-| [当前开发情况审计（N21 工程门后）](docs/99-current-development-status-audit.md) | 当前真实能力、P0 缺口、`0/27` 验收、Draft PR 集成风险与进入 N22 前的严格门禁 |
+| [当前开发情况审计（N22 工程门后）](docs/99-current-development-status-audit.md) | 当前真实能力、P0 缺口、`0/27` 验收、Draft PR 集成风险与 N23 严格门禁 |
 | [N21 真人验收临时风险接受](docs/100-n21-human-validation-risk-acceptance.md) | 真人暂不可用时的单节点例外、补偿控制、自动到期与 N23/M1 发布阻断 |
 | [M1 N21 指定集成基线](docs/101-m1-n21-integration-baseline.md) | N00–N21 冻结祖先链、指定权威分支、整合 PR 和 N22 分支准入 |
 | [N22 Stage 几何与安全区审计](docs/102-n22-stage-geometry-safe-area.md) | 角色 X/Y、缩放、旋转、锚点、层级、安全区与 N22 剩余阻断 |
 | [N22 Stage DPR 与触摸选择审计](docs/103-n22-stage-dpr-touch-selection.md) | 设计像素/DPR 安全映射、触摸命中、键盘等价选择、跨视图同步与剩余 Golden 阻断 |
 | [N22 Preview 媒体宿主安全审计](docs/104-n22-preview-media-host-safety.md) | 快速切场景 generation 隔离、解码失败分层回退、Object URL 释放矩阵与剩余宿主/Golden 阻断 |
 | [N22 Render Host 边界审计](docs/105-n22-render-host-boundary.md) | Render Frame v1、视觉层与 DOM Overlay 分离、背景/角色平面、负 z 修复及 Canvas/Pixi 后端边界 |
+| [N22 Media Golden Runtime 审计](docs/106-n22-media-golden-runtime.md) | 真实 PNG/WAV 物化、检查、导入、保存重开、预览加载与 URL 释放 |
+| [N22 浏览器 Media 与视觉 Golden 审计](docs/107-n22-browser-media-visual-golden.md) | 浏览器真实导入、保存重开、16:9/9:16 媒体与视觉证据 |
+| [N22 Canvas 2D 渲染后端审计](docs/108-n22-canvas-render-backend.md) | Canvas 主后端、DOM Overlay/命中代理分离与安全回退 |
+| [N22 Stage Move 基础过渡审计](docs/109-n22-stage-move-transition.md) | Move 槽位继承、插值、沉降、回退与浏览器证据 |
+| [N22 Stage Hide 基础退出过渡审计](docs/110-n22-stage-hide-transition.md) | Hide/Fade 退出、无障碍失活、回退与视觉证据 |
+| [N22 Stage Show 单语句生命周期审计](docs/111-n22-stage-show-transition-lifecycle.md) | 角色层 Show 入场、下一语句沉降、回退与浏览器证据 |
+| [开发暂停与换机接续审计](docs/112-development-handoff-2026-08-14.md) | N22 候选时点的分支、证据、CI 与接续边界历史快照 |
+| [N22 最小 Stage 与媒体预览退出条件审计](docs/113-n22-exit-condition-audit.md) | 逐项需求对齐、真实 WAV 播放补证、工程门结论与 N23 阻断 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

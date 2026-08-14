@@ -112,6 +112,48 @@ async function validateMediaBrowserEvidence(fixture, registryEvidence, label) {
   }
 }
 
+async function validateAudioPlaybackBrowserEvidence(fixture, registryEvidence, label) {
+  const evidencePath = join(root, "evidence", "n22", "audio-playback-browser.json");
+  const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
+  if (browserEvidence.schemaVersion !== 1 || browserEvidence.status !== "pass" ||
+      browserEvidence.scope !== "independent-import-directive-save-reopen-actual-audio-playback" ||
+      browserEvidence.fixtureHash !== digest(fixture) || !/^[a-f0-9]{40}$/u.test(browserEvidence.sourceBaseRevision ?? "")) {
+    violations.push(`${label} audio playback browser evidence identity or scope is stale`);
+  }
+  const flow = browserEvidence.productFlow;
+  if (flow?.projectName !== "N22 Exit Audio Audit" || flow?.importedAssetId !== "media_theme" ||
+      flow?.assetIndexRevision !== 1 || flow?.savedStorageRevision < 1 || flow?.savedStatementCount !== 2 ||
+      flow?.directive !== "action=play asset=media_theme bus=bgm loop=true volume=1" ||
+      flow?.fullReloadRecentProjectReopen !== "pass") {
+    violations.push(`${label} audio playback product flow is incomplete`);
+  }
+  const asset = browserEvidence.asset;
+  if (asset?.fileName !== "media_theme.wav" || asset?.mimeType !== "audio/wav" || asset?.byteLength !== 1644 ||
+      asset?.sha256 !== "5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423" ||
+      asset?.inspection !== "pass") {
+    violations.push(`${label} audio playback asset identity is stale`);
+  }
+  const playback = browserEvidence.playback;
+  if (playback?.testId !== "preview-audio-bgm" || playback?.blobUrl !== true || playback?.readyState < 2 ||
+      playback?.paused !== false || playback?.ended !== false || playback?.errorCode !== null ||
+      playback?.loop !== true || playback?.volume !== 1 || playback?.timeAdvanced !== true ||
+      !(playback?.secondCurrentTime > playback?.firstCurrentTime) || playback?.sampleIntervalMs < 100) {
+    violations.push(`${label} actual audio playback evidence failed`);
+  }
+  if (browserEvidence.ui?.accessibleName !== "bgm 音轨播放中" || browserEvidence.ui?.visibleText !== "BGM · 播放中" ||
+      browserEvidence.ui?.autoplayFallback !== "click-to-enable" ||
+      browserEvidence.automatedConstraint?.test !== "apps/editor/src/preview-audio-layer.test.tsx" ||
+      browserEvidence.automatedConstraint?.cases?.length !== 3) {
+    violations.push(`${label} audio playback UI or automated constraint evidence is incomplete`);
+  }
+  const evidenceHash = digest(browserEvidence);
+  if (registryEvidence.n22AudioPlaybackEvidence?.status !== "verified" ||
+      registryEvidence.n22AudioPlaybackEvidence?.path !== "evidence/n22/audio-playback-browser.json" ||
+      registryEvidence.n22AudioPlaybackEvidence?.hash !== evidenceHash) {
+    violations.push(`${label} audio playback evidence registration is stale; expected ${evidenceHash}`);
+  }
+}
+
 async function validateCanvasBrowserEvidence(fixture, registryEvidence, label) {
   const evidencePath = join(root, "evidence", "n22", "canvas-2d-browser.json");
   const browserEvidence = JSON.parse(await readFile(evidencePath, "utf8"));
@@ -379,6 +421,7 @@ for (const entry of registry.projects ?? []) {
       const fixture = JSON.parse(await readFile(join(root, entry.path, "media-golden.json"), "utf8"));
       validateMediaFixture(fixture, project, evidence, entry.id);
       await validateMediaBrowserEvidence(fixture, evidence, entry.id);
+      await validateAudioPlaybackBrowserEvidence(fixture, evidence, entry.id);
       await validateCanvasBrowserEvidence(fixture, evidence, entry.id);
       await validateMoveBrowserEvidence(fixture, evidence, entry.id);
       await validateHideBrowserEvidence(fixture, evidence, entry.id);

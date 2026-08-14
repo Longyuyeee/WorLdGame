@@ -5,6 +5,7 @@
 > 接续分支：`agent/n22-stage-media`
 > 已验证代码/审计基线：`bc7835fdbaf8cdc4058510354bb990fe93238520`
 > Draft PR：[#33](https://github.com/Longyuyeee/WorLdGame/pull/33)
+> 后续状态：接续开发已完成 N22 退出条件审计；权威后续记录见 [`113-n22-exit-condition-audit.md`](113-n22-exit-condition-audit.md)。本文件保留为换机时点历史快照。
 
 ## 1. 暂停点结论
 
