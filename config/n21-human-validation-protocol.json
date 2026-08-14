@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocolId": "N21-HV-01",
-  "frozenAt": "2026-08-14T22:00:00+08:00",
+  "frozenAt": "2026-08-15T01:30:00+08:00",
   "deliveryNode": "N21",
   "timeLimitSeconds": 1200,
   "prerequisite": {
@@ -29,7 +29,7 @@
   },
   "tasks": [
     { "id": "T01", "instruction": "创建一个新的空白故事工程并进入 Writer。" },
-    { "id": "T02", "instruction": "创建至少一条对白。" },
+    { "id": "T02", "instruction": "创建至少一名角色，并加入至少一条由该角色说出的对白。" },
     { "id": "T03", "instruction": "加入一个包含两个选项的选择。" },
     { "id": "T04", "instruction": "创建并设置一个变量。" },
     { "id": "T05", "instruction": "使用条件让故事能够到达两个不同结局。" },

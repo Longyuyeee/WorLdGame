@@ -1278,6 +1278,13 @@ function WriterView({
   const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
   const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const sequenceInsertRequirement = sequenceInsertKind === "dialogue" && sequenceReferences.characterIds.length === 0
+    ? "插入对白前，请先返回项目结构创建至少一名角色。"
+    : (sequenceInsertKind === "set" || sequenceInsertKind === "condition") && sequenceReferences.variableIds.length === 0
+      ? "插入变量语句前，请先返回项目结构创建至少一个变量。"
+      : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && sequenceReferences.assetIds.length === 0
+        ? "插入演出语句前，请先打开资源保险库导入资源。"
+        : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
   const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
@@ -1400,7 +1407,7 @@ function WriterView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,insertionAnchor,session.project,assetIndex]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   return (
     <section className="authoring-panel view-enter" aria-labelledby="writer-heading">
@@ -1414,7 +1421,7 @@ function WriterView({
 
       <div className="statement-toolbar" aria-label="对白结构工具">
         <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['audio','音频']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
+        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
         <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
         <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
         <button type="button" aria-label="语句下移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
@@ -1423,6 +1430,7 @@ function WriterView({
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>current.filter((id)=>!selectedSequenceIds.includes(id)))}>展开</button>
         <button type="button" className="danger-button" disabled={pendingDraft||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
       </div>
+      {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}</p>}
 
       <div className="statement-toolbar statement-toolbar--legacy" aria-label="对白快捷工具">
         <button

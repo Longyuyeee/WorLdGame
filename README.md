@@ -127,6 +127,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [可运行流程审计与验收顺序纠正](docs/115-playable-flow-order-correction.md) | 真实代码断点、最小可运行流程、N21/N23 重排、逐节点完成定义与剩余缺口 |
 | [N23-E2 空工程可运行闭环审计](docs/116-n23-e2-blank-project-flow-audit.md) | 空工程创作、Canonical 保存桥、资源演出、关闭重开、双路线 Golden 与下一阻断 |
 | [N23-E3 自包含资源工程 ZIP 审计](docs/117-n23-e3-portable-resource-bundle-audit.md) | Canonical 文档、Asset Index 与源 Blob 同包迁移、原子恢复、新工作区运行重开与诚实边界 |
+| [N21 真人验收就绪预演审计](docs/118-n21-human-readiness-rehearsal-audit.md) | 空工程 T02 非法引用阻断、角色/变量/资源前置门、协议重对齐与 pending 真人边界 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

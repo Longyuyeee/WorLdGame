@@ -1287,6 +1287,7 @@ button:disabled {
 
 .sequence-insert { display: grid; gap: 3px; color: var(--wg-color-text-muted); font-size: 9px; font-weight: 700; }
 .sequence-insert select { min-height: 34px; padding: 6px 9px; border: 1px solid var(--wg-color-border-subtle); border-radius: 9px; background: var(--wg-color-bg-surface-2); color: var(--wg-color-text-primary); }
+.sequence-insert-requirement { margin: -5px 0 12px; padding: 8px 10px; border-left: 2px solid var(--wg-color-status-warning); color: var(--wg-color-status-warning); font-size: 10px; }
 .statement-toolbar--legacy { padding-top: 8px; border-top: 1px solid var(--wg-color-border-subtle); }
 
 .statement-toolbar button,

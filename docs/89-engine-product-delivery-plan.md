@@ -215,7 +215,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N21 最小 Writer/Sequence 编辑
 
-> 实施状态（2026-08-15）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。真人任务已冻结为机器可校验的 [`N21-HV-01` 执行包](114-n21-human-validation-execution-kit.md)，权威记录仍为 `pending-participant`。旧 `RA-N21-001` 已关闭，`RA-N21-002` 只允许 N23 可运行纵向切片工程继续，不把 N21 标记为通过。
+> 实施状态（2026-08-15）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。主持人预演发现并修复了空工程对白非法角色引用，T02 已与角色前置需求对齐，详见 [N21 真人验收就绪预演审计](118-n21-human-readiness-rehearsal-audit.md)；权威记录仍为 `pending-participant`。旧 `RA-N21-001` 已关闭，`RA-N21-002` 不把 N21 标记为通过。
 
 - **Goal**：非程序用户能完成对白、选择、条件和基础演出。
 - **Implementation**：
