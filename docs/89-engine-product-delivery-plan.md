@@ -232,7 +232,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 ### N22 最小 Stage 与媒体预览
 
 > 准入状态（2026-08-14）：`RA-N21-001` 已接受真人暂不可用的单节点风险；建立指定权威集成基线后可开始工程实现。该例外不关闭 N21 真人门，不替代 Draft PR 集成，也不允许通过 N23。
-> 实施状态（2026-08-14）：已进入 N22，第一切片补齐角色 X/Y、缩放、旋转、锚点、层级的类型化 Inspector/Script/Preview 同源链，以及横竖屏安全区显示；N22 仍未通过，剩余 DPR、触摸命中、视觉 Golden 与 Media Golden 完整验收见[《N22 Stage 几何与安全区审计》](102-n22-stage-geometry-safe-area.md)。
+> 实施状态（2026-08-14）：已进入 N22；前两切片补齐角色 X/Y、缩放、旋转、锚点、层级的类型化 Inspector/Script/Preview 同源链、横竖屏安全区、DPR 安全映射，以及 Stage 对象的触摸/键盘等价选择和跨视图同步。N22 仍未通过，剩余正式渲染宿主边界、错误场景矩阵、视觉 Golden 与 Media Golden 完整验收见[第一切片](102-n22-stage-geometry-safe-area.md)和[第二切片](103-n22-stage-dpr-touch-selection.md)。
 
 - **Goal**：创作者看到真实资源驱动的基础舞台结果。
 - **Implementation**：

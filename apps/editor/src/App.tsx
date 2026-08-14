@@ -119,6 +119,7 @@ import {
   type PreviewUrlFactory
 } from "./preview-media-runtime";
 import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
+import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1936,12 +1937,97 @@ function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & 
   </>;
 }
 
+type LoadedPreviewCharacter = LoadedPreviewMedia["characters"][number];
+
+interface PreviewStageCharacterProps {
+  readonly character: LoadedPreviewCharacter;
+  readonly selected: boolean;
+  readonly designWidth: number;
+  readonly designHeight: number;
+  readonly onSelect: (statementId: string) => void;
+  readonly onStagePoint: (point: StageDesignPoint) => void;
+}
+
+export function PreviewStageCharacter({
+  character,
+  selected,
+  designWidth,
+  designHeight,
+  onSelect,
+  onStagePoint
+}: PreviewStageCharacterProps) {
+  const geometry = resolvePreviewCharacterGeometry(character);
+  const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
+  return <button
+    type="button"
+    className={`stage-media-character stage-transition--${character.transition ?? "none"}${selected ? " is-selected" : ""}`}
+    data-testid={`preview-character-${character.slot}`}
+    data-stage-slot={character.slot}
+    data-stage-x={geometry.x}
+    data-stage-y={geometry.y}
+    data-stage-scale={geometry.scale}
+    data-stage-rotation={geometry.rotation}
+    data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
+    aria-label={label}
+    aria-pressed={selected}
+    onPointerDown={(event) => {
+      const stage = event.currentTarget.closest<HTMLElement>("[data-stage-surface]");
+      if (stage === null) return;
+      const point = mapClientPointToStage(
+        event.clientX,
+        event.clientY,
+        stage.getBoundingClientRect(),
+        designWidth,
+        designHeight
+      );
+      if (point !== null) onStagePoint(point);
+    }}
+    onClick={() => onSelect(character.statementId)}
+    style={{
+      animationDuration: character.duration ?? "360ms",
+      zIndex: character.z ?? 0,
+      left: `${geometry.x}%`,
+      top: `${geometry.y}%`,
+      right: "auto",
+      bottom: "auto",
+      transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
+      transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`
+    }}
+  >
+    <img
+      src={character.url}
+      alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
+      draggable={false}
+    />
+  </button>;
+}
+
+function browserDevicePixelRatio(): number {
+  return typeof window === "undefined" ? 1 : window.devicePixelRatio;
+}
+
+function useDevicePixelRatio(): number {
+  const [ratio, setRatio] = useState(browserDevicePixelRatio);
+  useEffect(() => {
+    const update = () => setRatio(browserDevicePixelRatio());
+    window.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("resize", update);
+    };
+  }, []);
+  return ratio;
+}
+
 function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository }: PreviewPanelProps) {
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
   const [showSafeArea, setShowSafeArea] = useState(true);
+  const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
+  const devicePixelRatio = useDevicePixelRatio();
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
     undefined,
@@ -1956,6 +2042,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     height: customViewport.height,
     orientation: customViewport.width >= customViewport.height ? "landscape" as const : "portrait" as const
   } : selectedPreset;
+  const stageSurface = createStageSurfaceMetrics(viewport.width, viewport.height, devicePixelRatio);
   const scene = findScene(session.project, session.activeSceneId);
   const statement = scene.statements[session.previewIndex];
   if (statement === undefined) throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
@@ -2151,9 +2238,24 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           data-preview-profile={viewport.id}
           data-preview-width={viewport.width}
           data-preview-height={viewport.height}
+          data-stage-surface="design-pixels"
+          data-stage-dpr={stageSurface.effectiveDpr}
+          data-stage-requested-dpr={stageSurface.requestedDpr}
+          data-stage-pixel-width={stageSurface.pixelWidth}
+          data-stage-pixel-height={stageSurface.pixelHeight}
+          data-stage-resolution-limited={stageSurface.resolutionLimited}
           style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
         >
-          <div className="stage-chrome"><span>{scene.title}</span><span>{viewport.ratioLabel} · Balanced</span></div>
+          <div className="stage-chrome">
+            <span>{scene.title}</span>
+            <span className="stage-chrome__metrics">
+              <span>{viewport.ratioLabel} · Balanced</span>
+              <small>
+                DPR {stageSurface.effectiveDpr.toFixed(2)}
+                {lastStagePoint === null ? "" : ` · ${Math.round(lastStagePoint.x)},${Math.round(lastStagePoint.y)}`}
+              </small>
+            </span>
+          </div>
           {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
           {loadedMedia?.background === undefined ? (
             <div className="stage-sky" aria-hidden="true">
@@ -2171,29 +2273,14 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
             />
           )}
           {loadedMedia?.characters.map((character) => {
-            const geometry = resolvePreviewCharacterGeometry(character);
-            return <img
+            return <PreviewStageCharacter
               key={character.slot}
-              className={`stage-media-character stage-transition--${character.transition ?? "none"}`}
-              data-testid={`preview-character-${character.slot}`}
-              data-stage-slot={character.slot}
-              data-stage-x={geometry.x}
-              data-stage-y={geometry.y}
-              data-stage-scale={geometry.scale}
-              data-stage-rotation={geometry.rotation}
-              data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
-              src={character.url}
-              alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
-              style={{
-                animationDuration: character.duration ?? "360ms",
-                zIndex: character.z ?? 0,
-                left: `${geometry.x}%`,
-                top: `${geometry.y}%`,
-                right: "auto",
-                bottom: "auto",
-                transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
-                transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`
-              }}
+              character={character}
+              selected={session.selectedStatementId === character.statementId}
+              designWidth={viewport.width}
+              designHeight={viewport.height}
+              onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
+              onStagePoint={setLastStagePoint}
             />;
           })}
           <div className="stage-audio-stack" aria-live="polite">

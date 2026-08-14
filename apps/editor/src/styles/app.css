@@ -2414,6 +2414,17 @@ textarea[data-input-state="composing"] {
   font-size: 9px;
 }
 
+.stage-chrome__metrics {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+}
+
+.stage-chrome__metrics small {
+  color: rgb(98 215 255 / 78%);
+  font-size: 8px;
+}
+
 .stage-safe-area {
   position: absolute;
   inset: 5%;
@@ -2451,9 +2462,37 @@ textarea[data-input-state="composing"] {
   bottom: 0;
   width: min(46%, 220px);
   max-height: 90%;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stage-media-character img {
+  display: block;
+  width: 100%;
+  max-height: inherit;
   object-fit: contain;
   object-position: bottom;
   filter: drop-shadow(0 18px 20px rgb(0 0 0 / 38%));
+  pointer-events: none;
+  transition: filter var(--wg-motion-duration-fast) ease;
+}
+
+.stage-media-character:hover img,
+.stage-media-character.is-selected img {
+  filter: drop-shadow(0 18px 20px rgb(0 0 0 / 38%)) drop-shadow(0 0 9px rgb(98 215 255 / 68%));
+}
+
+.stage-media-character:focus-visible {
+  outline: 2px solid rgb(98 215 255 / 92%);
+  outline-offset: 4px;
+  border-radius: 12px;
 }
 
 .stage-transition--fade,
