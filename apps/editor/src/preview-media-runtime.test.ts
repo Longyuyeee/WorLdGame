@@ -6,6 +6,7 @@ import {
   compilePreviewStageTimeline,
   loadPreviewMedia,
   releasePreviewMedia,
+  resolvePreviewCharacterGeometry,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
 
@@ -74,6 +75,32 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(controlled, 7).audio).toEqual([]);
     expect(derivePreviewStagePlan(controlled, 8).background).toBeUndefined();
     expect(derivePreviewStagePlan(controlled, 3).characters).toHaveLength(2);
+  });
+
+  it("freezes production Stage geometry and keeps position presets backward compatible", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "left", command: "show", summary: "asset=hero slot=hero position=left x=27.5 y=91 scale=1.25 rotation=-8 anchorX=0.4 anchorY=0.95" }
+    ], 0);
+    expect(plan.characters[0]).toMatchObject({
+      x: 27.5, y: 91, scale: 1.25, rotation: -8, anchorX: 0.4, anchorY: 0.95
+    });
+    expect(resolvePreviewCharacterGeometry(plan.characters[0]!)).toEqual({
+      x: 27.5, y: 91, scale: 1.25, rotation: -8, anchorX: 0.4, anchorY: 0.95
+    });
+    expect(resolvePreviewCharacterGeometry({ statementId: "legacy", assetId: "hero", position: "right" }))
+      .toEqual({ x: 80, y: 100, scale: 1, rotation: 0, anchorX: 0.5, anchorY: 1 });
+  });
+
+  it("fails closed when any Stage geometry parameter is outside its frozen range", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "bad-scale", command: "show", summary: "asset=hero scale=4.1" },
+      { kind: "direction", id: "bad-anchor", command: "show", summary: "asset=hero anchorX=-0.1" }
+    ], 1);
+    expect(plan.characters).toEqual([]);
+    expect(plan.diagnostics).toEqual([
+      "bad-scale: scale is outside the frozen Stage geometry range",
+      "bad-anchor: anchorX is outside the frozen Stage geometry range"
+    ]);
   });
 
   it("fails closed for invalid actions, slots, z-order and inactive audio controls", () => {

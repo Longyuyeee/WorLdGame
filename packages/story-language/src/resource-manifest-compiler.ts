@@ -1,7 +1,15 @@
 import type { EntityId, SceneResourceManifest, StoryProject } from "@world-studio/story-core";
 import {
   DIRECTIVE_PARAMETERS,
+  MAX_STAGE_ANCHOR,
+  MAX_STAGE_PERCENT,
+  MAX_STAGE_ROTATION,
+  MAX_STAGE_SCALE,
   MAX_STAGE_Z,
+  MIN_STAGE_ANCHOR,
+  MIN_STAGE_PERCENT,
+  MIN_STAGE_ROTATION,
+  MIN_STAGE_SCALE,
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
   directiveActionRequiresAsset,
@@ -12,7 +20,7 @@ import type { DirectiveNode, StoryDocument, StorySyntaxNode } from "./model";
 export type ResourceManifestDiagnosticCode = "SOURCE_INVALID" | "MISSING_SCENE_DOCUMENT" | "UNEXPECTED_SCENE_DOCUMENT" |
   "SCENE_ID_MISMATCH" | "SCENE_STATEMENTS_MISMATCH" | "STATEMENT_SEMANTICS_MISMATCH" | "MISSING_STATEMENT_ID" | "UNTYPED_RESOURCE_REFERENCE" | "MALFORMED_PARAMETER" |
   "DUPLICATE_PARAMETER" | "UNKNOWN_RESOURCE_PARAMETER" | "MISSING_ASSET" | "INVALID_ASSET_ID" |
-  "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" |
+  "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" | "INVALID_STAGE_GEOMETRY" |
   "INVALID_AUDIO_BUS" | "INVALID_BOOLEAN" | "INVALID_DURATION" | "INVALID_VOLUME";
 
 export interface ResourceManifestDiagnostic {
@@ -177,6 +185,24 @@ export function compileSceneResourceManifest(
       const z = parsed.parameters.get("z");
       if (node.command === "show" && z !== undefined && (!/^-?\d+$/.test(z) || Number(z) < MIN_STAGE_Z || Number(z) > MAX_STAGE_Z)) diagnostics.push({ code: "INVALID_STAGE_Z", severity: "error",
         message: `@show z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`, sceneId: scene.id, statementId: node.id, line: node.range.start.line });
+      if (node.command === "show") {
+        const geometryBounds = {
+          x: [MIN_STAGE_PERCENT, MAX_STAGE_PERCENT],
+          y: [MIN_STAGE_PERCENT, MAX_STAGE_PERCENT],
+          scale: [MIN_STAGE_SCALE, MAX_STAGE_SCALE],
+          rotation: [MIN_STAGE_ROTATION, MAX_STAGE_ROTATION],
+          anchorX: [MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR],
+          anchorY: [MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR]
+        } as const;
+        for (const [parameter, [minimum, maximum]] of Object.entries(geometryBounds)) {
+          const source = parsed.parameters.get(parameter);
+          if (source !== undefined && (!/^-?\d+(?:\.\d+)?$/.test(source) || Number(source) < minimum || Number(source) > maximum)) {
+            diagnostics.push({ code: "INVALID_STAGE_GEOMETRY", severity: "error",
+              message: `@show ${parameter} must be a number from ${minimum} to ${maximum}`, sceneId: scene.id,
+              statementId: node.id, line: node.range.start.line });
+          }
+        }
+      }
       let bus: string | undefined;
       if (node.command === "audio") {
         bus = parsed.parameters.get("bus");

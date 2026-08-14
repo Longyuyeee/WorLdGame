@@ -71,6 +71,25 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText(/Asset Index 中没有可用于 @background 的资源/)).toBeVisible();
   });
 
+  it("exposes bounded character geometry without requiring Script syntax", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    const source = String((scriptEditor as HTMLTextAreaElement).value);
+    fireEvent.change(scriptEditor, { target: { value: source.replace(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
+      "@show action=show asset=asset_missing slot=primary @id(stmt_gate_bg)"
+    ) } });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
+    expect(screen.getByLabelText("角色水平位置")).toHaveAttribute("min", "0");
+    expect(screen.getByLabelText("角色缩放")).toHaveAttribute("max", "4");
+    fireEvent.change(screen.getByLabelText("角色水平锚点"), { target: { value: "1.1" } });
+    expect(screen.getByText(/位置 0–100/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "应用演出参数" })).toBeDisabled();
+  });
+
   it("fails closed to the visual placeholder when a legacy direction has no executable Asset ID", async () => {
     render(<App />);
     expect(await screen.findByText("安全占位")).toBeVisible();
@@ -471,6 +490,9 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(stage).toHaveAttribute("data-preview-width", "1920");
     expect(stage).toHaveAttribute("data-preview-height", "1080");
     expect(stage.style.getPropertyValue("--preview-aspect")).toBe("1920 / 1080");
+    expect(screen.getByTestId("preview-safe-area")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("安全区"));
+    expect(screen.queryByTestId("preview-safe-area")).not.toBeInTheDocument();
 
     fireEvent.change(profile, { target: { value: "portrait-9-16" } });
     expect(profile).toHaveValue("portrait-9-16");

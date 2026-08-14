@@ -73,6 +73,27 @@ end "done" @id(end)
     expect(result.diagnostics.map((item) => item.code)).toEqual(expect.arrayContaining(["INVALID_ACTION", "INVALID_STAGE_SLOT", "INVALID_STAGE_Z"]));
   });
 
+  it("accepts bounded Stage geometry and rejects values outside production ranges", () => {
+    const valid = parseStory(`scene "valid geometry" @id(scn_geometry)
+@show asset=hero slot=primary x=27.5 y=91 scale=1.25 rotation=-8 anchorX=0.4 anchorY=0.95 @id(show)
+end "done" @id(end)
+`);
+    const validScene = projectStoryScene(valid);
+    if (!validScene.ok) throw new Error(validScene.diagnostics[0]?.message);
+    expect(compileSceneResourceManifest({ ...campusStoryProject, scenes: [validScene.scene] }, { scn_geometry: valid }, { knownAssetIds: ["hero"] }).ok).toBe(true);
+
+    const invalid = parseStory(`scene "invalid geometry" @id(scn_geometry)
+@show asset=hero x=101 scale=0 rotation=361 anchorY=1.1 @id(show)
+end "done" @id(end)
+`);
+    const invalidScene = projectStoryScene(invalid);
+    if (!invalidScene.ok) throw new Error(invalidScene.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [invalidScene.scene] }, { scn_geometry: invalid }, { knownAssetIds: ["hero"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid Stage geometry");
+    expect(result.diagnostics.filter((item) => item.code === "INVALID_STAGE_GEOMETRY")).toHaveLength(4);
+  });
+
   it("fails closed for positional text, missing assets, invalid buses, duplicates and unknown Asset Index entries", () => {
     const broken = { ...documents, scn_school_gate: parseStory(`scene "gate" @id(scn_school_gate)\n@audio old_name asset=missing asset=again bus=music loop=yes volume=2 fade=fast @id(stmt_gate_bg)\n@audio asset=voice bus=music loop=yes @id(stmt_gate_audio)\n`) };
     const result = compileSceneResourceManifest(compiledProject, broken, { knownAssetIds: ["voice"] });

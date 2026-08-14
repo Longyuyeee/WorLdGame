@@ -34,8 +34,16 @@ import {
 } from "@world-studio/story-core";
 import {
   MAX_STAGE_Z,
+  MAX_STAGE_ANCHOR,
+  MAX_STAGE_PERCENT,
+  MAX_STAGE_ROTATION,
+  MAX_STAGE_SCALE,
   MAX_DIRECTIVE_BATCH_TARGETS,
   MIN_STAGE_Z,
+  MIN_STAGE_ANCHOR,
+  MIN_STAGE_PERCENT,
+  MIN_STAGE_ROTATION,
+  MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
   compileSceneResourceManifest,
   directiveActionRequiresAsset,
@@ -105,6 +113,7 @@ import {
   derivePreviewStagePlan,
   loadPreviewMedia,
   releasePreviewMedia,
+  resolvePreviewCharacterGeometry,
   type LoadedPreviewMedia,
   type PreviewAudioLayerPlan,
   type PreviewUrlFactory
@@ -759,11 +768,11 @@ interface WriterViewProps extends CommonProps {
 
 type DirectionForm = Record<string, string>;
 type DirectionCommand = "background" | "show" | "audio";
-type BatchDirectionParameter = "transition" | "duration" | "transitionAsset" | "expression" | "position" | "loop" | "volume" | "fade";
+type BatchDirectionParameter = "transition" | "duration" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
 
 const BATCH_DIRECTION_PARAMETERS: Readonly<Record<DirectionCommand, readonly BatchDirectionParameter[]>> = {
   background: ["transition", "duration", "transitionAsset"],
-  show: ["expression", "position", "transition", "duration", "transitionAsset"],
+  show: ["expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "duration", "transitionAsset"],
   audio: ["loop", "volume", "fade", "transitionAsset"]
 };
 
@@ -773,6 +782,12 @@ const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> 
   transitionAsset: "过渡资源",
   expression: "表情",
   position: "位置",
+  x: "水平位置",
+  y: "垂直位置",
+  scale: "缩放",
+  rotation: "旋转",
+  anchorX: "水平锚点",
+  anchorY: "垂直锚点",
   loop: "循环",
   volume: "音量",
   fade: "淡入/淡出"
@@ -787,6 +802,12 @@ function compatibleDirectionAssets(
     if (command === "show") return entry.kind === "character";
     return entry.kind === "audio";
   });
+}
+
+function validOptionalStageNumber(form: DirectionForm, key: string, minimum: number, maximum: number): boolean {
+  const source = form[key];
+  return source === undefined || source.length === 0 ||
+    /^-?\d+(?:\.\d+)?$/.test(source) && Number(source) >= minimum && Number(source) <= maximum;
 }
 
 interface DirectionInspectorProps {
@@ -822,8 +843,16 @@ function DirectionInspector({
   const slotValid = statement.command !== "show" || SAFE_STAGE_SLOT.test(slot);
   const z = form.z === undefined || form.z.length === 0 ? 0 : Number(form.z);
   const zValid = !assetRequired || statement.command !== "show" || Number.isInteger(z) && z >= MIN_STAGE_Z && z <= MAX_STAGE_Z;
+  const geometryValid = !assetRequired || statement.command !== "show" || [
+    validOptionalStageNumber(form, "x", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+    validOptionalStageNumber(form, "y", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+    validOptionalStageNumber(form, "scale", MIN_STAGE_SCALE, MAX_STAGE_SCALE),
+    validOptionalStageNumber(form, "rotation", MIN_STAGE_ROTATION, MAX_STAGE_ROTATION),
+    validOptionalStageNumber(form, "anchorX", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR),
+    validOptionalStageNumber(form, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
+  ].every(Boolean);
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
-    transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -832,12 +861,12 @@ function DirectionInspector({
   const keys = statement.command === "background"
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["action", "asset", "slot", "z", "expression", "position", "transition", "transitionAsset", "duration"]
+      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration"]
       : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transition: null, transitionAsset: null, duration: null }
     : statement.command === "show"
-      ? { asset: null, z: null, expression: null, position: null, transition: null, transitionAsset: null, duration: null }
+      ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
       : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
@@ -918,6 +947,15 @@ function DirectionInspector({
         {assetRequired && <><div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>
         <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>
         <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div></>}
+        {assetRequired && <div className="direction-geometry" aria-label="角色舞台几何">
+          <div className="direction-field"><label htmlFor={`direction-x-${statement.id}`}>X（%）</label><input id={`direction-x-${statement.id}`} aria-label="角色水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.x ?? ""} disabled={disabled} placeholder="50" onChange={(event) => setField("x", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-y-${statement.id}`}>Y（%）</label><input id={`direction-y-${statement.id}`} aria-label="角色垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.y ?? ""} disabled={disabled} placeholder="100" onChange={(event) => setField("y", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-scale-${statement.id}`}>缩放</label><input id={`direction-scale-${statement.id}`} aria-label="角色缩放" type="number" min={MIN_STAGE_SCALE} max={MAX_STAGE_SCALE} step="0.01" value={form.scale ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("scale", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-rotation-${statement.id}`}>旋转（°）</label><input id={`direction-rotation-${statement.id}`} aria-label="角色旋转" type="number" min={MIN_STAGE_ROTATION} max={MAX_STAGE_ROTATION} step="0.1" value={form.rotation ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("rotation", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-anchor-x-${statement.id}`}>锚点 X</label><input id={`direction-anchor-x-${statement.id}`} aria-label="角色水平锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorX ?? ""} disabled={disabled} placeholder="0.5" onChange={(event) => setField("anchorX", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-anchor-y-${statement.id}`}>锚点 Y</label><input id={`direction-anchor-y-${statement.id}`} aria-label="角色垂直锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorY ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("anchorY", event.target.value)} /></div>
+          {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
+        </div>}
       </>}
       {statement.command === "audio" && <>
         <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
@@ -974,6 +1012,10 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
   const valueValid = mode === "remove" || (
     parameter === "transition" ? ["fade", "dissolve", "slide"].includes(value) :
       parameter === "position" ? ["left", "center", "right"].includes(value) :
+        parameter === "x" || parameter === "y" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT :
+          parameter === "scale" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_SCALE && Number(value) <= MAX_STAGE_SCALE :
+            parameter === "rotation" ? /^-?\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_ROTATION && Number(value) <= MAX_STAGE_ROTATION :
+              parameter === "anchorX" || parameter === "anchorY" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_ANCHOR && Number(value) <= MAX_STAGE_ANCHOR :
         parameter === "loop" ? ["true", "false"].includes(value) :
           parameter === "duration" || parameter === "fade" ? /^\d+(?:\.\d+)?(?:ms|s)$/.test(value) :
             parameter === "volume" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= 0 && Number(value) <= 1 :
@@ -1899,6 +1941,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
+  const [showSafeArea, setShowSafeArea] = useState(true);
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
     undefined,
@@ -2065,6 +2108,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <option value="custom">自定义 · 精确尺寸</option>
         </select>
         <span>{viewport.width} × {viewport.height}</span>
+        <label className="preview-safe-toggle"><input type="checkbox" checked={showSafeArea} onChange={(event) => setShowSafeArea(event.target.checked)} />安全区</label>
       </div>
       {viewportProfileId === "custom" && (
         <div className="preview-custom-size" aria-label="自定义预览尺寸">
@@ -2110,6 +2154,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
         >
           <div className="stage-chrome"><span>{scene.title}</span><span>{viewport.ratioLabel} · Balanced</span></div>
+          {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
           {loadedMedia?.background === undefined ? (
             <div className="stage-sky" aria-hidden="true">
               <span className="sun" /><span className="school-building" />
@@ -2125,17 +2170,32 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
               style={{ animationDuration: loadedMedia.background.duration ?? "360ms" }}
             />
           )}
-          {loadedMedia?.characters.map((character) => (
-            <img
+          {loadedMedia?.characters.map((character) => {
+            const geometry = resolvePreviewCharacterGeometry(character);
+            return <img
               key={character.slot}
-              className={`stage-media-character stage-media-character--${character.position ?? "center"} stage-transition--${character.transition ?? "none"}`}
+              className={`stage-media-character stage-transition--${character.transition ?? "none"}`}
               data-testid={`preview-character-${character.slot}`}
               data-stage-slot={character.slot}
+              data-stage-x={geometry.x}
+              data-stage-y={geometry.y}
+              data-stage-scale={geometry.scale}
+              data-stage-rotation={geometry.rotation}
+              data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
               src={character.url}
               alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
-              style={{ animationDuration: character.duration ?? "360ms", zIndex: character.z ?? 0 }}
-            />
-          ))}
+              style={{
+                animationDuration: character.duration ?? "360ms",
+                zIndex: character.z ?? 0,
+                left: `${geometry.x}%`,
+                top: `${geometry.y}%`,
+                right: "auto",
+                bottom: "auto",
+                transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
+                transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`
+              }}
+            />;
+          })}
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
               const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;

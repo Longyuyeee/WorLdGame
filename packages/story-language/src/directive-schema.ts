@@ -7,7 +7,7 @@ export type DirectiveAction = BackgroundAction | CharacterAction | AudioAction;
 
 export const DIRECTIVE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
   background: ["action", "asset", "transition", "transitionAsset", "duration"],
-  show: ["action", "asset", "slot", "z", "expression", "position", "transition", "transitionAsset", "duration"],
+  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration"],
   audio: ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"]
 };
 
@@ -47,3 +47,11 @@ export function directiveActionOptions(command: DirectiveNode["command"]): reado
 export const SAFE_STAGE_SLOT = /^[A-Za-z][A-Za-z0-9._-]{0,63}$/;
 export const MIN_STAGE_Z = -100;
 export const MAX_STAGE_Z = 100;
+export const MIN_STAGE_PERCENT = 0;
+export const MAX_STAGE_PERCENT = 100;
+export const MIN_STAGE_SCALE = 0.1;
+export const MAX_STAGE_SCALE = 4;
+export const MIN_STAGE_ROTATION = -360;
+export const MAX_STAGE_ROTATION = 360;
+export const MIN_STAGE_ANCHOR = 0;
+export const MAX_STAGE_ANCHOR = 1;
