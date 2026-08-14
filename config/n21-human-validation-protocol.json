@@ -4,6 +4,11 @@
   "frozenAt": "2026-08-14T22:00:00+08:00",
   "deliveryNode": "N21",
   "timeLimitSeconds": 1200,
+  "prerequisite": {
+    "deliveryNode": "N23",
+    "requireRunnableEditorFlow": true,
+    "instruction": "Only begin human acceptance after the editor can execute a route from the entry scene through a choice to an ending."
+  },
   "participantEligibility": {
     "mustNotHaveContributedCodeOrDesign": true,
     "mustBeUnfamiliarWithStoryScriptSyntax": true,
@@ -29,7 +34,8 @@
     { "id": "T04", "instruction": "创建并设置一个变量。" },
     { "id": "T05", "instruction": "使用条件让故事能够到达两个不同结局。" },
     { "id": "T06", "instruction": "为故事加入一个背景和一条 BGM 演出指令。" },
-    { "id": "T07", "instruction": "保存工程，关闭后重新打开，确认文本、排序、选择、Inspector 数据和稳定 ID 没有丢失。" }
+    { "id": "T07", "instruction": "保存工程，关闭后重新打开，确认文本、排序、选择、Inspector 数据和稳定 ID 没有丢失。" },
+    { "id": "T08", "instruction": "启动完整流程试玩，选择一条路线并到达对应结局。" }
   ],
   "requiredCapture": [
     "pseudonymousParticipantId",

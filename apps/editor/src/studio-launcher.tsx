@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createProject, createProjectTemplate, exportLifecycleProject, importLifecycleProject, openProject, rememberRecent, saveProject, type ProjectLifecycleSession, type ProjectWorkspace, type RecentProject } from "@world-studio/project-domain";
+import { createProject, exportLifecycleProject, importLifecycleProject, openProject, rememberRecent, saveProject, type ProjectLifecycleSession, type ProjectWorkspace, type RecentProject } from "@world-studio/project-domain";
+import { campusStoryProject } from "@world-studio/story-core";
 import { App } from "./App";
 import { BrowserRecentProjectStore, loadDirectoryHandle, saveDirectoryHandle } from "./browser-project-registry";
 import { BrowserDirectoryProjectWorkspace, createOpfsProjectWorkspace, pickBrowserDirectoryWorkspace, type BrowserProjectPicker } from "./browser-project-workspace";
 import { ProjectHome, type ProjectHomeActions } from "./project-home";
 import { ProjectEntityManager } from "./project-entity-manager";
+import { projectCanonicalFromStory } from "./canonical-project-adapter";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -30,7 +32,7 @@ export function StudioLauncher() {
       return finish(workspace,await openProject(workspace));
     },
     openExample: async () => {
-      const workspace = await opfsWorkspace(); const project = createProjectTemplate("广播站示例工程", entropy());
+      const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openProject(workspace));
     },
     importArchive: async (file) => {

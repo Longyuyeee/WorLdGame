@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocolId": "N21-HV-01",
-  "protocolHash": "53a7f9e85b3c273867dec6373a4e93a42fd502f041008157b874d29615ebf5ee",
+  "protocolHash": "fe0149cfca03cfa6c4fe147e38c070fd9026aba7ea264b1ee2c07faf0be248e3",
   "sourceBaseRevision": "b86de83dbed2654d3b12b1095077694ac837807a",
   "status": "pending-participant",
   "participant": {
@@ -27,7 +27,8 @@
     { "id": "T04", "status": "not-run", "notes": null },
     { "id": "T05", "status": "not-run", "notes": null },
     { "id": "T06", "status": "not-run", "notes": null },
-    { "id": "T07", "status": "not-run", "notes": null }
+    { "id": "T07", "status": "not-run", "notes": null },
+    { "id": "T08", "status": "not-run", "notes": null }
   ],
   "saveCloseReopen": {
     "status": "not-run",

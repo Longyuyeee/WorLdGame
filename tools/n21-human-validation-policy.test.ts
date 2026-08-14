@@ -1,18 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { validateN21HumanValidation } from "./n21-human-validation-policy.mjs";
 
-const taskIds = ["T01", "T02", "T03", "T04", "T05", "T06", "T07"];
+const taskIds = ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08"];
 
 function protocol() {
   return {
     schemaVersion: 1, protocolId: "N21-HV-01", deliveryNode: "N21", timeLimitSeconds: 1200,
+    prerequisite: { deliveryNode: "N23", requireRunnableEditorFlow: true },
     tasks: taskIds.map((id) => ({ id })),
     facilitatorRules: { mayOperateEditor: false, mayExplainScriptSyntaxOrExactControls: false }
   };
 }
 
 function risk(status = "active") {
-  return { exceptions: [{ id: "RA-N21-001", status }] };
+  return { exceptions: [{ id: "RA-N21-002", status }] };
 }
 
 function pending() {
@@ -75,7 +76,7 @@ describe("N21 human validation policy", () => {
   it("accepts a complete passing record only with the exception closed", () => {
     expect(validateN21HumanValidation(protocol(), completed(), risk("closed"))).toEqual([]);
     expect(validateN21HumanValidation(protocol(), completed(), risk())).toContain(
-      "N21 pass requires RA-N21-001 to be closed in the same change"
+      "N21 pass requires RA-N21-002 to be closed in the same change"
     );
   });
 

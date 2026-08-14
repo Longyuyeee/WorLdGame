@@ -128,6 +128,13 @@ import {
 import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
+import {
+  advancePlayablePreview,
+  createIdlePlayablePreviewState,
+  selectPlayableChoice,
+  startPlayablePreview,
+  type PlayablePreviewState
+} from "./playable-preview-runtime";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1943,6 +1950,8 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     undefined,
     createPreviewTransportState
   );
+  const [playable, setPlayable] = useState<PlayablePreviewState>(createIdlePlayablePreviewState);
+  const playableActive = playable.status !== "idle";
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -1953,26 +1962,28 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     orientation: customViewport.width >= customViewport.height ? "landscape" as const : "portrait" as const
   } : selectedPreset;
   const stageSurface = createStageSurfaceMetrics(viewport.width, viewport.height, devicePixelRatio);
-  const scene = findScene(session.project, session.activeSceneId);
-  const statement = scene.statements[session.previewIndex];
-  if (statement === undefined) throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
+  const previewSceneId = playableActive && playable.sceneId !== null ? playable.sceneId : session.activeSceneId;
+  const previewIndex = playableActive ? playable.statementIndex : session.previewIndex;
+  const scene = findScene(session.project, previewSceneId);
+  const statement = scene.statements[previewIndex];
+  if (statement === undefined) throw new Error(`Preview index is outside scene: ${previewIndex}`);
   const speaker = statement.kind === "dialogue"
     ? findCharacter(session.project.characters, statement.speakerId)
     : undefined;
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
   const showBufferedNotice = inputDirty && session.notice.tone !== "error";
-  const transportBlocked = pendingDraft || inputDirty;
+  const transportBlocked = pendingDraft || inputDirty || playableActive;
   const transportBarrier = previewTransportBarrier(
     statement,
-    session.previewIndex,
+    previewIndex,
     scene.statements.length,
     transportBlocked
   );
   const speedProfile = findPreviewSpeedProfile(transport.speedId);
   const previousTransportSceneId = useRef(session.activeSceneId);
   const stageTimeline = useMemo(() => compilePreviewStageTimeline(scene.statements), [scene.statements]);
-  const stagePlan = stageTimeline[session.previewIndex] ?? derivePreviewStagePlan([], 0);
+  const stagePlan = stageTimeline[previewIndex] ?? derivePreviewStagePlan([], 0);
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
   const [mediaView, mediaViewDispatch] = useReducer(
     reducePreviewMediaHost,
@@ -2051,6 +2062,22 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   }, [session.activeSceneId]);
 
   useEffect(() => {
+    if (!playableActive || playable.sceneId === null) return;
+    if (session.activeSceneId !== playable.sceneId) {
+      dispatch({ type: "select-scene", sceneId: playable.sceneId });
+      return;
+    }
+    if (session.selectedStatementId !== statement.id) {
+      dispatch({ type: "select-statement", statementId: statement.id });
+    }
+  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.selectedStatementId, statement.id]);
+
+  useEffect(() => {
+    if (!playableActive || transport.mode !== "playing") return;
+    transportDispatch({ type: "pause", reason: "manual" });
+  }, [playableActive, transport.mode]);
+
+  useEffect(() => {
     if (!transportBlocked && transport.stopReason === "blocked") {
       transportDispatch({ type: "reset" });
     }
@@ -2076,6 +2103,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   ]);
 
   const togglePlayback = () => {
+    if (playableActive) return;
     if (transport.mode === "playing") {
       transportDispatch({ type: "pause", reason: "manual" });
       return;
@@ -2088,13 +2116,31 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   };
 
   const stepPreview = (direction: -1 | 1) => {
+    if (playableActive) return;
     transportDispatch({ type: "pause", reason: "manual-step" });
     dispatch({ type: "step-preview", direction });
   };
 
-  const transportStatus = transport.mode === "playing"
-    ? `运行中 · ${speedProfile.label}`
-    : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
+  const beginPlayablePreview = () => {
+    transportDispatch({ type: "reset" });
+    setPlayable(startPlayablePreview(session.project));
+  };
+
+  const exitPlayablePreview = () => setPlayable(createIdlePlayablePreviewState());
+
+  const playableStatus = playable.status === "waiting-choice"
+    ? `请选择路线 · 已经过 ${playable.visitedSceneIds.length} 个场景`
+    : playable.status === "ended"
+      ? `流程完成：${playable.endingName ?? "未命名结局"}`
+      : playable.status === "error"
+        ? `流程中止：${playable.error ?? "未知错误"}`
+        : `试玩中 · ${scene.title} · ${playable.visitedStatementIds.length} 个节点`;
+
+  const transportStatus = playableActive
+    ? "完整流程试玩接管中"
+    : transport.mode === "playing"
+      ? `运行中 · ${speedProfile.label}`
+      : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
   return (
     <aside className="preview-panel" aria-labelledby="preview-heading">
       <div className="panel-heading">
@@ -2216,18 +2262,41 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
                 <p>{statement.text}</p>
               </div>
             )}
+            {statement.kind === "narration" && <div className="stage-note"><span>旁白</span><strong>{statement.text}</strong></div>}
             {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
+            {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
-              <div className="choice-preview"><strong>{statement.prompt}</strong>{statement.options.map((option) => <span key={option.id}>{option.label}</span>)}</div>
+              <div className="choice-preview">
+                <strong>{statement.prompt}</strong>
+                {statement.options.map((option) => playable.status === "waiting-choice"
+                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectPlayableChoice(session.project, playable, option.id))} aria-label={`选择路线：${option.label}`}>{option.label}</button>
+                  : <span key={option.id}>{option.label}</span>)}
+              </div>
             )}
             {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
           </div>
         </div>
       </div>
+      <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
+        <div>
+          <strong>完整流程试玩</strong>
+          <small>{playableActive ? playableStatus : "从入口场景执行脚本、选择路线并到达结局"}</small>
+        </div>
+        {!playableActive && (
+          <button type="button" onClick={beginPlayablePreview} disabled={pendingDraft || inputDirty}>试玩完整流程</button>
+        )}
+        {playable.status === "presenting" && (
+          <button type="button" onClick={() => setPlayable(advancePlayablePreview(session.project, playable))}>继续剧情</button>
+        )}
+        {(playable.status === "ended" || playable.status === "error") && (
+          <button type="button" onClick={beginPlayablePreview}>重新试玩</button>
+        )}
+        {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
+      </div>
       <div className="preview-transport">
-        <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={session.previewIndex === 0}>←</button>
-        <div><strong>{session.previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
-        <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={session.previewIndex === scene.statements.length - 1}>→</button>
+        <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
+        <div><strong>{previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
+        <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={playableActive || previewIndex === scene.statements.length - 1}>→</button>
       </div>
       <div className="preview-playback" aria-label="预览运行控制">
         <button

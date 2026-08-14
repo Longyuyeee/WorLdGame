@@ -1,23 +1,23 @@
 # 当前开发情况审计（N22 工程门后）
 
-> 审计日期：2026-08-14
-> 本轮实现基线：`e04f5d5a543a49815a491a9bdc9835ab1990482d`
+> 审计日期：2026-08-15
+> 本轮实现基线：`4abfdbe039d8ae9d7259f59ac2508b4a79daaa0d`（变更前基线）
 > 审计分支：`agent/n22-stage-media`
 > 当前 PR：Draft PR #33
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
-> 权威边界：本文件是审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。2026-08-14 后续批准的 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)不修改 N21 未通过事实；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative，G2 已关闭。
-> 换机接续：开发现已暂停，恢复步骤与精确交接点见[开发暂停与换机接续审计](112-development-handoff-2026-08-14.md)。
+> 权威边界：本文件是当前审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。验收顺序已按[可运行流程审计与验收顺序纠正](115-playable-flow-order-correction.md)更新：`RA-N21-001` 关闭，`RA-N21-002` 仅允许 N23 可运行纵向切片工程实现，不改变 N21/N23 产品未通过事实。
 
 ## 1. 执行结论
 
 当前代码已经具备一个可实际使用的“源项目创作开发版”：创作者可以新建或打开任意受支持工程，管理章节、场景、角色和变量，编辑完整 P0 故事语言与 Writer/Sequence 卡片，并保存、关闭、重开、导入和导出工程。
 
-当前代码还不是能够落地交付游戏的完整引擎。它不能把源工程编译为正式 Runtime IR，不能在正式 Player 中运行，也不能生成 Web、Windows、Android 可玩产物或编辑器安装包。因此必须同时保留以下判定：
+当前代码已能在编辑器中执行最小故事流程：从入口开始、逐步显示、选择路线、跨场景并到达结局；项目首页的示例入口也已物化为真实三场景双路线工程。它仍不是能够落地交付游戏的完整引擎：尚无正式 Runtime IR/Player、存档恢复和 Web/Windows/Android 可玩产物。因此必须同时保留以下判定：
 
 - 源项目能否落地：**能，在当前候选分支上可完成真实创建、编辑和持久化**；
-- 可玩游戏能否落地：**不能，Compiler → Runtime → Player → Build 链尚未建立**；
+- 编辑器内流程能否运行：**能，真实浏览器已完成两条路线并到达两个结局**；
+- 可发布游戏能否落地：**不能，Compiler → Runtime → Player → Build 链尚未建立**；
 - M1 是否完成：**不能，27 条发布验收仍为 `0/27` 完整通过**；
-- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；N22 已在 `RA-N21-001` 边界内完成工程验收，真实 WAV 播放态与时间前进证据已补齐；N23 仍未获准开始**；
+- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；N22 工程验收通过；N23-E1 可运行流程为工程候选，下一步是从空工程创作、保存重开和两路线运行闭环**；
 - GitHub 是否已集成：**指定集成分支与 Draft PR #32 已建立且远端全检通过，但 N00–N21 与例外仍未进入 `main`**。
 
 ## 2. 审计证据基线
@@ -27,12 +27,12 @@
 | Workspace 边界 | 10 个 workspace；6 个计划产品边界 | 审计通过 |
 | 需求登记 | 50 条：10 USP、13 P0 模块、27 AC；6 个 owner | 审计通过 |
 | Golden Project | 7 类：Benchmark、Branching、CJK、Media、Recovery、Size、Tiny | 审计通过 |
-| 常规测试 | 90 个测试文件、543 项测试 | 本轮完整门常规部分通过 |
+| 常规测试 | 92 个测试文件、550 项测试 | 本轮完整门常规部分通过 |
 | VM 重型门 | 5 项 | 最近完整门通过 |
 | 构建 | 10 个 workspace | 最近完整门通过 |
 | 架构门 | 65 个 portable 模块、4 个 Node adapter | 最近完整门通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
-| Editor bundle | 595.61 kB，gzip 169.07 kB | 构建成功，仍存在超过 500 kB 的体积警告 |
+| Editor bundle | 602.99 kB，gzip 172.03 kB | 构建成功，仍存在超过 500 kB 的体积警告 |
 | GitHub CI | PR #23–#33 最近 Windows CI 均成功；当前基线 `bc7835f` 的 `product-baseline` run `31787551479` 通过 | 候选分支工程门通过 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
@@ -49,8 +49,8 @@
 | N13 | 工程通过 | 章节/场景/角色/变量、引用迁移、保存重开 | 七工作区统一实体体验待后续节点 |
 | N20 | 通过 | 完整 P0 Story Language、语言服务、稳定 ID Patch、100k 门 | 正式编辑器与 Runtime 接入待 N41/N30+ |
 | N21 | 工程通过，产品验收中 | 完整 P0 卡片、类型化 Inspector、批量事务、键盘/触屏等价；`N21-HV-01` 协议与防伪证据门已冻结 | 权威记录为 `pending-participant`，真实非程序用户 20 分钟任务仍未执行 |
-| N22 | 工程验收通过 | 原候选能力全部保留；新增独立空工程 WAV 导入、`@audio` 编辑、保存重开、Blob `readyState=4`、`paused=false`、时间前进、自动播放回退与组件回归约束 | 只通过受限 N22 工程门；Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 归后续节点；不得关闭 N21 或启动 N23 |
-| N23 | 未开始 | 无 | N22 工程门已关闭，但仍被 N21 真人产品门与 `RA-N21-001` 阻断；目标为五分钟可玩纵向切片 |
+| N22 | 工程验收通过 | 原候选能力全部保留；真实媒体、舞台、播放态、过渡和浏览器证据完整 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 归后续节点 |
+| N23 | E1 工程候选 | 编辑器执行入口、叙事节点、选择、变量/条件、跳转、调用/返回、跨场景、两个结局；示例入口与浏览器证据已接通 | E2 从空工程创作/保存重开 Golden、五分钟内容量、两名独立验收者与正式产品门仍缺失 |
 | N30 及以后 | 未开始或仅有前置 Spike | 已有算法证据可复用 | 正式 Compiler、Runtime、Player、QA、构建与发布均未贯通 |
 
 “工程通过”表示当前候选提交的自动化证据成立；只有节点产物、用户任务、远端门和集成状态同时满足，才可宣告产品节点通过。
@@ -66,7 +66,7 @@
 | Writer/Sequence | 全 P0 卡片、类型化 Inspector、增删复制排序、批量、折叠、保存重开 | N21 真人任务未通过；完整专业 Sequence 待 N41 |
 | 资源/Stage | 真实 Blob 导入与释放、BG/多角色/四路音频状态预览、角色几何、安全区、DPR、输入等价、错误回退、Render Host v2、Canvas 2D 场景层、基础 Move、Hide/Fade 与角色层 Show 单语句过渡、真实 PNG/WAV Media Golden 运行链、浏览器导入/重开与视觉基线 | Canvas 2D 仍是编辑器 Preview 后端；Pixi/WebGL、镜头、复杂关键帧、模板和正式 Runtime 归后续节点 |
 | Route | Choice 的简单派生图 | 完整节点/边、诊断、布局、局部加载未完成 |
-| Runtime | Narrative VM Spike 有确定性证据 | 与 Editor/Compiler/Player 隔离，不是产品 Runtime |
+| Runtime | Editor Playable Preview 可运行最小控制流；Narrative VM Spike 有确定性证据 | 两者尚未收敛为 N31 正式共享 Runtime/Player |
 | Player 与 Build | 无 | Web/Windows/Android 可玩包、签名、安装、升级、发布均无 |
 
 ## 5. P0 需求对齐

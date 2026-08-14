@@ -2832,13 +2832,89 @@ textarea[data-input-state="composing"] {
   text-align: center;
 }
 
-.choice-preview span {
+.choice-preview span,
+.choice-preview button {
   padding: 8px 10px;
   border: 1px solid rgb(85 217 138 / 34%);
   border-radius: 8px;
   background: rgb(85 217 138 / 9%);
+  color: var(--wg-color-text-primary);
+  font: inherit;
   font-size: 10px;
   text-align: center;
+}
+
+.choice-preview button {
+  cursor: pointer;
+  transition: border-color var(--wg-motion-duration-fast) ease, background var(--wg-motion-duration-fast) ease;
+}
+
+.choice-preview button:hover,
+.choice-preview button:focus-visible {
+  border-color: rgb(85 217 138 / 72%);
+  background: rgb(85 217 138 / 18%);
+  outline: none;
+}
+
+.playable-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgb(85 217 138 / 28%);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgb(85 217 138 / 10%), rgb(62 215 255 / 7%));
+}
+
+.playable-preview > div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.playable-preview strong {
+  font-size: 10px;
+}
+
+.playable-preview small {
+  overflow: hidden;
+  color: var(--wg-color-text-muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playable-preview button {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgb(85 217 138 / 38%);
+  border-radius: 8px;
+  background: rgb(85 217 138 / 14%);
+  color: var(--wg-color-text-primary);
+  cursor: pointer;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.playable-preview button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.playable-preview__secondary {
+  border-color: var(--wg-color-border-subtle) !important;
+  background: rgb(8 10 16 / 56%) !important;
+}
+
+.playable-preview--ended {
+  border-color: rgb(62 215 255 / 42%);
+}
+
+.playable-preview--error {
+  border-color: rgb(255 95 114 / 42%);
+  background: rgb(255 95 114 / 8%);
 }
 
 .preview-transport {

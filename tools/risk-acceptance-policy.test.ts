@@ -4,9 +4,9 @@ import { validateRiskAcceptanceRegistry } from "./risk-acceptance-policy.mjs";
 function registry(overrides: Record<string, unknown> = {}) {
   return {
     schemaVersion: 1,
-    currentDeliveryNode: "N21",
-    exceptions: [{
-      id: "RA-N21-001",
+    currentDeliveryNode: "N23",
+    exceptions: [{ id: "RA-N21-001", status: "closed", failedControls: ["human task"], impact: ["usability risk"], reason: "superseded", compensatingControls: ["bounded work"], owner: "editor-experience", approver: "Product Owner", approvedAt: "2026-08-14T00:00:00+08:00", expiresAt: "2026-09-14T00:00:00+08:00", maximumDeliveryNode: "N22", blockedGates: ["N21 Product Acceptance", "N23 Acceptance", "M1 Stable", "Public Release"], remediationPlan: "superseded", verificationMethod: "record evidence", evidencePath: "docs/100-n21-human-validation-risk-acceptance.md" }, {
+      id: "RA-N21-002",
       status: "active",
       failedControls: ["human task"],
       impact: ["usability risk"],
@@ -16,7 +16,7 @@ function registry(overrides: Record<string, unknown> = {}) {
       approver: "Product Owner",
       approvedAt: "2026-08-14T00:00:00+08:00",
       expiresAt: "2026-09-14T00:00:00+08:00",
-      maximumDeliveryNode: "N22",
+      maximumDeliveryNode: "N23",
       blockedGates: ["N21 Product Acceptance", "N23 Acceptance", "M1 Stable", "Public Release"],
       remediationPlan: "run the task",
       verificationMethod: "record evidence",
@@ -34,22 +34,22 @@ describe("risk acceptance policy", () => {
   });
 
   it("fails after the time expiry", () => {
-    expect(validateRiskAcceptanceRegistry(registry(), new Date("2026-09-14T00:00:00+08:00"))).toContain("RA-N21-001: active exception has expired");
+    expect(validateRiskAcceptanceRegistry(registry(), new Date("2026-09-14T00:00:00+08:00"))).toContain("RA-N21-002: active exception has expired");
   });
 
-  it("fails when delivery advances beyond N22", () => {
-    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N23" }), now)).toContain("RA-N21-001: current delivery node exceeds the accepted maximum");
+  it("fails when delivery advances beyond N23", () => {
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N30" }), now)).toContain("RA-N21-002: current delivery node exceeds the accepted maximum");
   });
 
   it("fails when Stable is no longer blocked", () => {
     const value = registry();
-    value.exceptions[0]!.blockedGates = value.exceptions[0]!.blockedGates.filter((gate) => gate !== "M1 Stable");
-    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-001: active N21 exception must block M1 Stable");
+    value.exceptions[1]!.blockedGates = value.exceptions[1]!.blockedGates.filter((gate) => gate !== "M1 Stable");
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-002: active N21 exception must block M1 Stable");
   });
 
   it("fails when the expiry is not later than approval", () => {
     const value = registry();
-    value.exceptions[0]!.expiresAt = value.exceptions[0]!.approvedAt;
-    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-001: expiresAt must be later than approvedAt");
+    value.exceptions[1]!.expiresAt = value.exceptions[1]!.approvedAt;
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-002: expiresAt must be later than approvedAt");
   });
 });

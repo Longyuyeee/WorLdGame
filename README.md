@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；下一硬门是从空项目完成五分钟可玩切片。
+> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；当前先完成可运行流程及从空项目创作闭环，再进行真人验收和五分钟可玩切片验收。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -124,6 +124,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [开发暂停与换机接续审计](docs/112-development-handoff-2026-08-14.md) | N22 候选时点的分支、证据、CI 与接续边界历史快照 |
 | [N22 最小 Stage 与媒体预览退出条件审计](docs/113-n22-exit-condition-audit.md) | 逐项需求对齐、真实 WAV 播放补证、工程门结论与 N23 阻断 |
 | [N21 真人产品验收执行包](docs/114-n21-human-validation-execution-kit.md) | 冻结 20 分钟任务、参与者/主持人边界、结构化证据、通过失败与风险关闭规则 |
+| [可运行流程审计与验收顺序纠正](docs/115-playable-flow-order-correction.md) | 真实代码断点、最小可运行流程、N21/N23 重排、逐节点完成定义与剩余缺口 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

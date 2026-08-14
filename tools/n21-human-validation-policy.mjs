@@ -1,4 +1,4 @@
-const expectedTaskIds = Object.freeze(["T01", "T02", "T03", "T04", "T05", "T06", "T07"]);
+const expectedTaskIds = Object.freeze(["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08"]);
 const completedStatuses = new Set(["pass", "fail"]);
 
 function validTimestamp(value) {
@@ -13,11 +13,14 @@ function validArtifact(value) {
 
 export function validateN21HumanValidation(protocol, record, riskRegistry) {
   const violations = [];
-  const exception = riskRegistry?.exceptions?.find((entry) => entry?.id === "RA-N21-001");
+  const exception = riskRegistry?.exceptions?.find((entry) => entry?.id === "RA-N21-002");
   if (protocol?.schemaVersion !== 1 || protocol?.protocolId !== "N21-HV-01" || protocol?.deliveryNode !== "N21") {
     violations.push("N21 human protocol identity is invalid");
   }
   if (protocol?.timeLimitSeconds !== 1200) violations.push("N21 human protocol must retain the 20-minute limit");
+  if (protocol?.prerequisite?.deliveryNode !== "N23" || protocol?.prerequisite?.requireRunnableEditorFlow !== true) {
+    violations.push("N21 human protocol requires the N23 runnable editor flow");
+  }
   if (JSON.stringify(protocol?.tasks?.map((task) => task?.id)) !== JSON.stringify(expectedTaskIds)) {
     violations.push("N21 human protocol task order is stale");
   }
@@ -38,7 +41,7 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
   }
 
   if (record.status === "pending-participant") {
-    if (exception?.status !== "active") violations.push("pending N21 human evidence requires RA-N21-001 to remain active");
+    if (exception?.status !== "active") violations.push("pending N21 human evidence requires RA-N21-002 to remain active");
     if (record.participant?.pseudonymousId !== null || record.participant?.consentRecorded !== null ||
         record.session?.startedAt !== null || record.session?.endedAt !== null || record.session?.durationSeconds !== null ||
         record.session?.helpRequestCount !== null || record.session?.facilitatorOperatedEditor !== null ||
@@ -85,7 +88,7 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
           .every((field) => record.saveCloseReopen?.[field] === true)) {
       violations.push("N21 pass requires all tasks and save-close-reopen checks to pass");
     }
-    if (exception?.status !== "closed") violations.push("N21 pass requires RA-N21-001 to be closed in the same change");
+    if (exception?.status !== "closed") violations.push("N21 pass requires RA-N21-002 to be closed in the same change");
   } else if (!record.tasks.some((task) => task.status === "fail") && record.saveCloseReopen?.status !== "fail") {
     violations.push("N21 fail requires at least one failed task or persistence check");
   }

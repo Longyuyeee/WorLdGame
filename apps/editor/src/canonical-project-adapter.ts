@@ -1,4 +1,4 @@
-import type { CanonicalProject, JsonObject } from "@world-studio/project-domain";
+import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import type { Character, StoryProject, StoryStatement } from "@world-studio/story-core";
 
 function character(value: JsonObject): Character {
@@ -34,5 +34,44 @@ export function projectCanonicalForEditor(project: CanonicalProject): { readonly
   return {
     project: { schemaVersion: 0, id: project.manifest.projectId, title: project.manifest.title, entrySceneId: project.manifest.entrySceneId, characters: project.characters.characters.map(character), scenes },
     sources: Object.fromEntries(scenes.map((scene) => [scene.id, `scene ${quote(scene.title)} @id(${scene.id})\n${scene.statements.map(sourceLine).join("\n")}\n`]))
+  };
+}
+
+export function projectCanonicalFromStory(project: StoryProject, durableEntropy: string): CanonicalProject {
+  const template = createProjectTemplate(project.title, durableEntropy);
+  const scenePaths = project.scenes.map((scene) => `scenes/${scene.id}.json`);
+  return {
+    ...template,
+    manifest: {
+      ...template.manifest,
+      title: project.title,
+      entrySceneId: project.entrySceneId
+    },
+    chapters: [{
+      ...template.chapters[0]!,
+      title: "Main",
+      scenePaths
+    }],
+    scenes: project.scenes.map((scene) => ({
+      schemaVersion: 1,
+      id: scene.id,
+      title: scene.title,
+      scriptPath: `scripts/${scene.id}.json`,
+      layoutPath: `layouts/${scene.id}.json`
+    })),
+    characters: {
+      schemaVersion: 1,
+      characters: project.characters.map((item) => ({ ...item }))
+    },
+    scripts: Object.fromEntries(project.scenes.map((scene) => [scene.id, {
+      schemaVersion: 1,
+      sceneId: scene.id,
+      statements: scene.statements.map((item) => ({ ...item })) as readonly JsonObject[]
+    }])),
+    layouts: Object.fromEntries(project.scenes.map((scene) => [scene.id, {
+      schemaVersion: 1,
+      sceneId: scene.id,
+      nodes: []
+    }]))
   };
 }

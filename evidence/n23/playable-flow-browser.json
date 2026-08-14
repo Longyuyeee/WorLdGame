@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "N23-E1-PLAYABLE-FLOW-BROWSER-01",
+  "capturedAt": "2026-08-15T00:03:00+08:00",
+  "sourceBaseRevision": "4abfdbe039d8ae9d7259f59ac2508b4a79daaa0d",
+  "branch": "agent/n22-stage-media",
+  "url": "http://127.0.0.1:5174/",
+  "browser": "Codex in-app Browser",
+  "project": {
+    "entryAction": "打开示例工程",
+    "title": "黄昏广播",
+    "sceneCount": 3,
+    "characterCount": 2,
+    "entrySceneId": "scn_school_gate"
+  },
+  "checks": [
+    {
+      "route": ["scn_school_gate", "scn_broadcast_room"],
+      "choice": "去广播室",
+      "ending": "留在电波里的名字",
+      "result": "pass"
+    },
+    {
+      "route": ["scn_school_gate", "scn_rooftop"],
+      "choice": "去天台",
+      "ending": "晚风知道答案",
+      "result": "pass"
+    }
+  ],
+  "observedUi": [
+    "完整流程试玩",
+    "请选择路线",
+    "选择路线：去广播室",
+    "选择路线：去天台",
+    "流程完成：留在电波里的名字",
+    "流程完成：晚风知道答案",
+    "完整流程试玩接管中"
+  ],
+  "result": "pass",
+  "scope": "证明项目首页的真实示例工程可在编辑器内从入口经过选择跨场景到达两个结局；不替代从空工程创作 Golden、真人验收、五分钟内容验收或正式 Player Runtime。"
+}
