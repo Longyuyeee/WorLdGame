@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N21 工程门后开发情况审计](99-current-development-status-audit.md)。Product Owner 已批准 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)，只移除 N22 的真人前置阻断；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative，N22 工程实现可以从该分支开始，但 N21 仍未通过且 N23/M1/发布继续阻断。
+> 当前审计：[N21 工程门后开发情况审计](99-current-development-status-audit.md)。旧 `RA-N21-001` 已关闭；[`RA-N21-002`](115-playable-flow-order-correction.md)仅允许推进到 N23 可运行纵向切片，不改变 N21/N23/M1/发布仍被阻断的事实。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -215,7 +215,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N21 最小 Writer/Sequence 编辑
 
-> 实施状态（2026-08-14）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。真人任务已冻结为机器可校验的 [`N21-HV-01` 执行包](114-n21-human-validation-execution-kit.md)，权威记录仍为 `pending-participant`。`RA-N21-001` 临时允许 N22 工程实现，但 N21 不得标记为通过，N23 前必须关闭例外。
+> 实施状态（2026-08-15）：工程实现门通过；本地完整门和 Draft PR #30 Windows CI 完成，等待 20 分钟非程序用户实测。真人任务已冻结为机器可校验的 [`N21-HV-01` 执行包](114-n21-human-validation-execution-kit.md)，权威记录仍为 `pending-participant`。旧 `RA-N21-001` 已关闭，`RA-N21-002` 只允许 N23 可运行纵向切片工程继续，不把 N21 标记为通过。
 
 - **Goal**：非程序用户能完成对白、选择、条件和基础演出。
 - **Implementation**：
@@ -231,8 +231,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N22 最小 Stage 与媒体预览
 
-> 准入状态（2026-08-14）：`RA-N21-001` 已接受真人暂不可用的单节点风险；建立指定权威集成基线后可开始工程实现。该例外不关闭 N21 真人门，不替代 Draft PR 集成，也不允许通过 N23。
-> 实施状态（2026-08-14）：N22 工程验收通过。前十切片及真实 PNG/WAV Media Golden 已覆盖计划中的最小 Stage/Preview 边界；退出审计又补齐真实 WAV `paused=false`、播放时间前进、重开后继续播放和自动播放受限回退证据，并以组件测试与 Golden 登记审计固化。当前主后端为 `canvas-2d-v1`，不宣称 Pixi/WebGL、复杂关键帧或正式 Player Runtime 已实现；完整对齐见[N22 退出条件审计](113-n22-exit-condition-audit.md)。`RA-N21-001` 仍阻断 N21 Product Acceptance、N23、M1 Stable 与 Public Release。
+> 准入状态（2026-08-15）：旧 `RA-N21-001` 已关闭；`RA-N21-002` 在指定权威集成基线上允许推进 N23 可运行纵向切片，但不关闭 N21 真人门，不替代 Draft PR 集成，也不允许通过 N23。
+> 实施状态（2026-08-15）：N22 工程验收通过。前十切片及真实 PNG/WAV Media Golden 已覆盖计划中的最小 Stage/Preview 边界；退出审计又补齐真实 WAV `paused=false`、播放时间前进、重开后继续播放和自动播放受限回退证据，并以组件测试与 Golden 登记审计固化。当前主后端为 `canvas-2d-v1`，不宣称 Pixi/WebGL、复杂关键帧或正式 Player Runtime 已实现；完整对齐见[N22 退出条件审计](113-n22-exit-condition-audit.md)。`RA-N21-002` 仍阻断 N21/N23 Product Acceptance、M1 Stable 与 Public Release。
 
 - **Goal**：创作者看到真实资源驱动的基础舞台结果。
 - **Implementation**：
@@ -247,6 +247,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Acceptance**：Media Golden Project 在 Preview 中正确显示和播放，不使用 CSS 假素材替代导入资源。
 
 ### N23 五分钟可玩切片 Gate
+
+> 实施状态（2026-08-15）：E1 编辑器内可运行流程和 E2 空工程创作/保存重开/双路线工程门已贯通，详见 [N23-E2 空工程可运行闭环审计](116-n23-e2-blank-project-flow-audit.md)。N23 产品验收仍未通过；下一门是 E3 资源 Blob 随工程 ZIP 自包含，随后才是五分钟内容量和两名独立验收者。
 
 - **Goal**：第一次证明引擎主体，而不是局部组件。
 - **Required artifact**：从空工程制作的 5 分钟、3 场景、2 角色、2 结局作品。

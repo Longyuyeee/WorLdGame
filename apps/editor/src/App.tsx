@@ -55,6 +55,7 @@ import {
   type StoryDocument
 } from "@world-studio/story-language";
 import type { CanonicalProject } from "@world-studio/project-domain";
+import type { StoryProject } from "@world-studio/story-core";
 import {
   activeSourceDraft,
   activeSourceSession,
@@ -778,6 +779,7 @@ interface WriterViewProps extends CommonProps {
   readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
+  readonly variableIds: readonly string[];
   readonly requestedFocusStatementId: string | null;
   readonly onRequestedFocusHandled: () => void;
 }
@@ -1241,6 +1243,7 @@ function WriterView({
   createEntityId,
   onInputDirtyChange,
   assetIndex,
+  variableIds,
   requestedFocusStatementId,
   onRequestedFocusHandled
 }: WriterViewProps) {
@@ -1274,7 +1277,7 @@ function WriterView({
   const resolvedStageSearchResult = Math.min(activeStageSearchResult, Math.max(0, stageSearch.matches.length - 1));
   const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
-  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[]),assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
   const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
@@ -2347,10 +2350,17 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   );
 }
 
-export interface AppProps { readonly initialProject?: CanonicalProject; }
-export function App({ initialProject }: AppProps = {}) {
+export interface AppProps {
+  readonly initialProject?: CanonicalProject;
+  readonly onProjectChange?: (project: StoryProject) => void;
+  readonly onProjectSave?: (project: StoryProject) => Promise<void>;
+}
+export function App({ initialProject, onProjectChange, onProjectSave }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
+  const lifecycleHosted = initialProject !== undefined;
+  const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
+    typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("writer");
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
@@ -2396,10 +2406,18 @@ export function App({ initialProject }: AppProps = {}) {
   const editGeneration = useRef(0);
   const sessionRef = useRef(session);
   sessionRef.current = session;
+  const onProjectChangeRef = useRef(onProjectChange);
+  const onProjectSaveRef = useRef(onProjectSave);
+  onProjectChangeRef.current = onProjectChange;
+  onProjectSaveRef.current = onProjectSave;
   const [editVersion, setEditVersion] = useState(0);
   const [backupPanelOpen, setBackupPanelOpen] = useState(false);
   const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
   const [backupsLoading, setBackupsLoading] = useState(false);
+
+  useEffect(() => {
+    if (lifecycleHosted) onProjectChangeRef.current?.(session.project);
+  }, [lifecycleHosted, session.project]);
 
   useEffect(() => {
     if (!backupPanelOpen) return;
@@ -2745,6 +2763,7 @@ export function App({ initialProject }: AppProps = {}) {
     if (store === null || inputDirty || saveInFlight.current ||
         (reason === "auto" && autosaveSuspended.current)) return;
     const currentSnapshot = persistedSnapshotRef.current;
+    const projectAtSaveStart = sessionRef.current.project;
     if (currentSnapshot !== null && assetRepository === null) {
       setPersistence((current) => ({
         status: "degraded",
@@ -2787,6 +2806,7 @@ export function App({ initialProject }: AppProps = {}) {
         nowMs
       });
     }).then(async () => {
+      await onProjectSaveRef.current?.(projectAtSaveStart);
       persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
       let verifiedBackups = backups;
@@ -3443,7 +3463,7 @@ export function App({ initialProject }: AppProps = {}) {
           }}
         />
         {mode === "writer" ? (
-          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
+          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (

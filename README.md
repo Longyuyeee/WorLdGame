@@ -125,6 +125,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N22 最小 Stage 与媒体预览退出条件审计](docs/113-n22-exit-condition-audit.md) | 逐项需求对齐、真实 WAV 播放补证、工程门结论与 N23 阻断 |
 | [N21 真人产品验收执行包](docs/114-n21-human-validation-execution-kit.md) | 冻结 20 分钟任务、参与者/主持人边界、结构化证据、通过失败与风险关闭规则 |
 | [可运行流程审计与验收顺序纠正](docs/115-playable-flow-order-correction.md) | 真实代码断点、最小可运行流程、N21/N23 重排、逐节点完成定义与剩余缺口 |
+| [N23-E2 空工程可运行闭环审计](docs/116-n23-e2-blank-project-flow-audit.md) | 空工程创作、Canonical 保存桥、资源演出、关闭重开、双路线 Golden 与下一阻断 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

@@ -75,3 +75,25 @@ export function projectCanonicalFromStory(project: StoryProject, durableEntropy:
     }]))
   };
 }
+
+export function projectCanonicalWithStory(base: CanonicalProject, story: StoryProject): CanonicalProject {
+  const baseCharacters = new Map(base.characters.characters.map((item) => [String(item.id), item]));
+  return {
+    ...base,
+    manifest: {
+      ...base.manifest,
+      title: story.title,
+      entrySceneId: story.entrySceneId
+    },
+    characters: {
+      ...base.characters,
+      characters: story.characters.map((item) => ({ ...baseCharacters.get(item.id), ...item }))
+    },
+    scripts: Object.fromEntries(story.scenes.map((scene) => [scene.id, {
+      ...(base.scripts[scene.id] ?? {}),
+      schemaVersion: 1,
+      sceneId: scene.id,
+      statements: scene.statements.map((item) => ({ ...item })) as readonly JsonObject[]
+    }]))
+  };
+}

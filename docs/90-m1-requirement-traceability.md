@@ -40,14 +40,14 @@
 
 | REQ | P0 范围摘要 | 主节点 | 依赖 | 当前状态 | 当前缺口 | 通过证据 |
 |---|---|---|---|---|---|---|
-| REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N10–N13 已通过；仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | Project E2E、Recovery Golden、双端任务 |
+| REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N23-E2 已证明空工程内容写回 Canonical、保存重开和文档 ZIP round-trip；资源 Blob 尚未随 ZIP 自包含，仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | [N23-E2 审计](116-n23-e2-blank-project-flow-audit.md)、Project E2E、Recovery Golden、双端任务 |
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
-| REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | N21 本地/远端工程门完成；`N21-HV-01` 已冻结但仍为 `pending-participant`；仍缺真人结果、N41 完整 Sequence 与 Stage 跨视图联动 | [N21 真人执行包](114-n21-human-validation-execution-kit.md)、Branching/Media E2E |
+| REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | N23-E2 已证明 Writer 从空工程创建选择、变量、条件、演出和双结局并保存重开；`N21-HV-01` 仍为 `pending-participant`，N41 完整 Sequence 与 Stage 跨视图联动未完成 | [N23-E2 审计](116-n23-e2-blank-project-flow-audit.md)、[N21 真人执行包](114-n21-human-validation-execution-kit.md) |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 仅三模式，未用户验证 | D1 任务报告、交互性能、可访问性审计 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 缺完整类型、引用 UI、平台变体 | Asset/Dicing Golden、三端构建报告 |
-| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | VM 与 Editor/Player 分离 | VM Golden、三宿主 State Hash、玩家 E2E |
+| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | Editor 验证运行时已从空工程跑通资源、变量、条件、选择、跨场景和双结局；正式 VM 与 Editor/Player 仍分离 | [N23-E2 审计](116-n23-e2-blank-project-flow-audit.md)、VM Golden、三宿主 State Hash、玩家 E2E |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 未开始 | 仅稳定 `textId` | CJK Golden、三端语言切换 |
 | REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 未开始 | 无产品模块 | QA Golden、Debugger E2E |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 未开始 | 无正式 Player/Build | 三端 Artifact Manifest、安装/签名报告 |

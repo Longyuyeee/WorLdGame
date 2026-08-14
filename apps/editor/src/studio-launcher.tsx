@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createProject, exportLifecycleProject, importLifecycleProject, openProject, rememberRecent, saveProject, type ProjectLifecycleSession, type ProjectWorkspace, type RecentProject } from "@world-studio/project-domain";
+import { createProject, exportLifecycleProject, importLifecycleProject, markProjectDirty, openProject, rememberRecent, saveLifecycleProject, saveProject, type ProjectLifecycleSession, type ProjectWorkspace, type RecentProject } from "@world-studio/project-domain";
 import { campusStoryProject } from "@world-studio/story-core";
 import { App } from "./App";
 import { BrowserRecentProjectStore, loadDirectoryHandle, saveDirectoryHandle } from "./browser-project-registry";
 import { BrowserDirectoryProjectWorkspace, createOpfsProjectWorkspace, pickBrowserDirectoryWorkspace, type BrowserProjectPicker } from "./browser-project-workspace";
 import { ProjectHome, type ProjectHomeActions } from "./project-home";
 import { ProjectEntityManager } from "./project-entity-manager";
-import { projectCanonicalFromStory } from "./canonical-project-adapter";
+import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -43,6 +43,6 @@ export function StudioLauncher() {
       const archive = exportLifecycleProject(session); const url = URL.createObjectURL(new Blob([archive as Uint8Array<ArrayBuffer>], { type: "application/zip" })); const link = document.createElement("a"); link.href = url; link.download = `${session.title.replace(/[^a-z0-9_-]+/gi, "-") || "world-project"}.zip`; link.click(); URL.revokeObjectURL(url);
     }
   };
-  if(editing?.session.project){if(editing.view==="structure")return <><button className="project-home-return" onClick={()=>setEditing(null)}>返回项目首页</button><ProjectEntityManager session={editing.session} workspace={editing.workspace} onSession={(session)=>setEditing({...editing,session})} onOpenEditor={(project)=>setEditing({...editing,session:{...editing.session,project},view:"content"})}/></>;return <><button className="project-home-return" onClick={()=>setEditing({...editing,view:"structure"})}>返回项目结构</button><App initialProject={editing.session.project}/></>;}
+  if(editing?.session.project){if(editing.view==="structure")return <><button className="project-home-return" onClick={()=>setEditing(null)}>返回项目首页</button><ProjectEntityManager session={editing.session} workspace={editing.workspace} onSession={(session)=>setEditing({...editing,session})} onOpenEditor={(project)=>setEditing({...editing,session:{...editing.session,project},view:"content"})}/></>;return <><button className="project-home-return" onClick={()=>setEditing({...editing,view:"structure"})}>返回项目结构</button><App initialProject={editing.session.project} onProjectChange={(story)=>setEditing((current)=>{if(current===null||current.session.project===null)return current;return {...current,session:markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story))};})} onProjectSave={async(story)=>{const current=editing;if(current.session.project===null)return;const dirty=markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story));const saved=await saveLifecycleProject(current.workspace,dirty);setEditing((latest)=>latest===null?latest:{...latest,session:saved});}}/></>;}
   return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId);if(workspace===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,view:"structure"});}} />;
 }
