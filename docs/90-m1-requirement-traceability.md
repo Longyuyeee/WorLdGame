@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍位于串联 Draft PR，尚未进入 `main`；详见[当前开发情况审计](99-current-development-status-audit.md)。Product Owner 已批准 [RA-N21-001](100-n21-human-validation-risk-acceptance.md)，只移除 N22 的真人前置阻断；N21 状态、Draft PR 集成要求和 N23/M1 阻断均不变。
+> 集成边界：当前 N00–N21 能力仍未进入 `main`；串联 Draft PR 正在收敛到 [M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)。该基线成为 Authoritative 前不得开始 N22；`RA-N21-001`、N21 状态和 N23/M1 阻断均不变。
 
 ## 1. 状态和证据规则
 

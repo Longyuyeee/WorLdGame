@@ -59,6 +59,8 @@ npm.cmd run audit:risk-acceptance-policy
 
 该审计只证明例外边界仍被机器执行，不证明 N21 真人产品门已经完成。
 
+N22 的另一项独立前置是建立 [M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)。本例外不替代该基线的整合 PR、远端 CI 或祖先链审计。
+
 ## 7. 本地验证记录
 
 - 风险登记审计：PASS；

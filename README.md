@@ -110,6 +110,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N21 最小 Writer/Sequence 编辑审计](docs/98-n21-writer-sequence.md) | 全部 P0 卡片、类型化 Inspector、原子批量事务、键盘/触屏等价与用户任务门 |
 | [当前开发情况审计（N21 工程门后）](docs/99-current-development-status-audit.md) | 当前真实能力、P0 缺口、`0/27` 验收、Draft PR 集成风险与进入 N22 前的严格门禁 |
 | [N21 真人验收临时风险接受](docs/100-n21-human-validation-risk-acceptance.md) | 真人暂不可用时的单节点例外、补偿控制、自动到期与 N23/M1 发布阻断 |
+| [M1 N21 指定集成基线](docs/101-m1-n21-integration-baseline.md) | N00–N21 冻结祖先链、指定权威分支、整合 PR 和 N22 分支准入 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |
