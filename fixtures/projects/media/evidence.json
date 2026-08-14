@@ -1,1 +1,27 @@
-{"schemaVersion":1,"projectId":"golden_media","sourceSemanticHash":"0a85ede503cce0ba5eaa174195c9b13b1cdc4fbe19f3634289a50efe62cf8486","expectedIrHash":{"status":"pending","targetNode":"N30","value":null},"expectedStateHash":{"status":"pending","targetNode":"N31","value":null},"buildManifestHash":"090c6e36066e9729f1e55ad2fbf2af207e9378d9d46a7057869abfca973638a9","formalBuildArtifactHash":{"status":"pending","targetNode":"N80","value":null}}
+{
+  "schemaVersion": 1,
+  "projectId": "golden_media",
+  "sourceSemanticHash": "966ff96a38c5fce54ffc75ccad96365e9accbcc79f98ec2b3c18a0e3e7fb5992",
+  "mediaFixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "n22MediaRuntimeEvidence": {
+    "status": "verified",
+    "test": "apps/editor/src/media-golden.test.ts",
+    "scope": "inspect-import-save-reopen-preview-release"
+  },
+  "expectedIrHash": {
+    "status": "pending",
+    "targetNode": "N30",
+    "value": null
+  },
+  "expectedStateHash": {
+    "status": "pending",
+    "targetNode": "N31",
+    "value": null
+  },
+  "buildManifestHash": "090c6e36066e9729f1e55ad2fbf2af207e9378d9d46a7057869abfca973638a9",
+  "formalBuildArtifactHash": {
+    "status": "pending",
+    "targetNode": "N80",
+    "value": null
+  }
+}

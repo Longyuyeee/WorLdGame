@@ -19,6 +19,43 @@ function digest(value) {
   return createHash("sha256").update(JSON.stringify(canonical(value))).digest("hex");
 }
 
+function validateMediaFixture(fixture, project, evidence, label) {
+  if (fixture.schemaVersion !== 1 || fixture.projectId !== project.id || !Array.isArray(fixture.assets)) {
+    violations.push(`${label} media fixture must use schemaVersion 1 and match the project ID`);
+    return;
+  }
+  const referencedAssets = new Set(project.scenes.flatMap((scene) => scene.statements)
+    .filter((statement) => statement.kind === "direction")
+    .map((statement) => /(?:^|\s)asset=([^\s]+)/u.exec(statement.summary ?? "")?.[1])
+    .filter((assetId) => assetId !== undefined));
+  const assetIds = new Set();
+  for (const asset of fixture.assets) {
+    if (typeof asset.assetId !== "string" || assetIds.has(asset.assetId)) violations.push(`${label} media fixture contains an invalid or duplicate asset ID`);
+    assetIds.add(asset.assetId);
+    if (!/^(?:cg|character|audio)$/u.test(asset.kind ?? "") || typeof asset.mimeType !== "string" || typeof asset.base64 !== "string") {
+      violations.push(`${label} media fixture asset ${asset.assetId ?? "<missing>"} has invalid metadata`);
+      continue;
+    }
+    const bytes = Buffer.from(asset.base64, "base64");
+    const byteHash = createHash("sha256").update(bytes).digest("hex");
+    if (bytes.toString("base64") !== asset.base64 || bytes.byteLength !== asset.byteLength || byteHash !== asset.sha256) {
+      violations.push(`${label} media fixture asset ${asset.assetId} has stale bytes, length, or SHA-256`);
+    }
+  }
+  if ([...referencedAssets].some((assetId) => !assetIds.has(assetId))) violations.push(`${label} media fixture does not cover every typed asset directive`);
+  if (fixture.expectedStage?.backgroundAssetId !== "media_sunset" ||
+      JSON.stringify(fixture.expectedStage?.characterAssetIds) !== JSON.stringify(["media_actor_sprite"]) ||
+      JSON.stringify(fixture.expectedStage?.audioAssetIds) !== JSON.stringify(["media_theme"]) ||
+      fixture.expectedStage?.diagnosticCount !== 0) violations.push(`${label} media fixture expected Stage contract is stale`);
+  const fixtureHash = digest(fixture);
+  if (evidence.mediaFixtureHash !== fixtureHash) violations.push(`${label} media fixture hash is stale; expected ${fixtureHash}`);
+  if (evidence.n22MediaRuntimeEvidence?.status !== "verified" ||
+      evidence.n22MediaRuntimeEvidence?.test !== "apps/editor/src/media-golden.test.ts" ||
+      evidence.n22MediaRuntimeEvidence?.scope !== "inspect-import-save-reopen-preview-release") {
+    violations.push(`${label} must register the bounded N22 Media Runtime evidence`);
+  }
+}
+
 function validateProject(project, label) {
   if (project.schemaVersion !== 0 || typeof project.id !== "string" || typeof project.title !== "string") violations.push(`${label} is not an S0 story project`);
   if (!Array.isArray(project.characters) || !Array.isArray(project.scenes) || project.scenes.length === 0) violations.push(`${label} must contain characters and at least one scene`);
@@ -86,6 +123,10 @@ for (const entry of registry.projects ?? []) {
     }
     if (evidence.buildManifestHash !== manifestHash) violations.push(`${entry.id} build manifest hash is stale; expected ${manifestHash}`);
     if (manifest.schemaVersion !== 1 || manifest.projectId !== project.id || manifest.status !== "editor-shell-baseline" || manifest.formalBuildNode !== "N80") violations.push(`${entry.id} build manifest overclaims the N01 baseline`);
+    if (entry.category === "Media") {
+      const fixture = JSON.parse(await readFile(join(root, entry.path, "media-golden.json"), "utf8"));
+      validateMediaFixture(fixture, project, evidence, entry.id);
+    }
   } catch (error) {
     violations.push(`${entry.id} fixture cannot be read: ${error instanceof Error ? error.message : String(error)}`);
   }
