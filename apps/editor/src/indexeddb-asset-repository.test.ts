@@ -93,6 +93,37 @@ describe("IndexedDbAssetRepository", () => {
     expect(Array.from(await reopened.read(createBlobDigest(bytes)) ?? [])).toEqual(Array.from(bytes));
   });
 
+  it("atomically restores a verified portable Asset Index and Blob inventory", async () => {
+    const { indexedDb, assets, lease } = await writableRepository();
+    const background = new TextEncoder().encode("portable background bytes");
+    const audio = new TextEncoder().encode("portable audio bytes");
+    const backgroundDigest = createBlobDigest(background);
+    const audioDigest = createBlobDigest(audio);
+    const index = { schemaVersion: 1 as const, indexRevision: 2, assets: [
+      { assetId: "portable_background", kind: "background" as const, displayName: "Portable Background", source: { digest: backgroundDigest, byteLength: background.byteLength, mimeType: "image/png" }, tags: [] },
+      { assetId: "portable_theme", kind: "audio" as const, displayName: "Portable Theme", source: { digest: audioDigest, byteLength: audio.byteLength, mimeType: "audio/wav" }, tags: [] }
+    ] };
+    const result = await assets.replaceFromPortableBundle(index, new Map([[backgroundDigest, background], [audioDigest, audio]]));
+    expect(result).toMatchObject({ createdBlobCount: 2, existingBlobCount: 0, index });
+    const reopened = new IndexedDbAssetRepository(indexedDb, "asset_repository_test", { now: () => 1_000 });
+    reopened.activateWriterLease(lease);
+    await expect(reopened.loadIndex()).resolves.toEqual(index);
+    await expect(reopened.audit()).resolves.toMatchObject({ status: "pass", assetCount: 2, uniqueBlobCount: 2 });
+    await expect(reopened.replaceFromPortableBundle(index, new Map([[backgroundDigest, background], [audioDigest, audio]]))).resolves.toMatchObject({ createdBlobCount: 0, existingBlobCount: 2 });
+  });
+
+  it("rejects an invalid portable inventory without publishing a partial index", async () => {
+    const { assets } = await writableRepository();
+    const bytes = new TextEncoder().encode("portable bytes");
+    const digest = createBlobDigest(bytes);
+    const index = { schemaVersion: 1 as const, indexRevision: 1, assets: [
+      { assetId: "portable_asset", kind: "other" as const, displayName: "Portable Asset", source: { digest, byteLength: bytes.byteLength, mimeType: "application/octet-stream" }, tags: [] }
+    ] };
+    await expect(assets.replaceFromPortableBundle(index, new Map([[digest, new Uint8Array(bytes.byteLength)]]))).rejects.toMatchObject({ code: "CORRUPT_BLOB" });
+    await expect(assets.loadIndex()).resolves.toMatchObject({ indexRevision: 0, assets: [] });
+    await expect(assets.list()).resolves.toEqual([]);
+  });
+
   it("aborts both Blob and Index when cancellation arrives between their publication phases", async () => {
     const { assets } = await writableRepository();
     const controller = new AbortController();

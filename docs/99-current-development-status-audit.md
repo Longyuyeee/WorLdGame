@@ -1,7 +1,7 @@
-# 当前开发情况审计（N22 工程门后）
+# 当前开发情况审计（N23-E3 工程门后）
 
 > 审计日期：2026-08-15
-> 本轮实现基线：`4abfdbe039d8ae9d7259f59ac2508b4a79daaa0d`（变更前基线）
+> 本轮实现基线：`444233de05568ad0ea47a688ee5176ec8a92604c`（变更前基线）
 > 审计分支：`agent/n22-stage-media`
 > 当前 PR：Draft PR #33
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
@@ -17,7 +17,7 @@
 - 编辑器内流程能否运行：**能，真实浏览器已完成两条路线并到达两个结局**；
 - 可发布游戏能否落地：**不能，Compiler → Runtime → Player → Build 链尚未建立**；
 - M1 是否完成：**不能，27 条发布验收仍为 `0/27` 完整通过**；
-- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；N22 工程验收通过；N23-E1/E2 工程门已贯通，下一步是让资源随工程 ZIP 自包含交付，再进入五分钟内容量与真人验收**；
+- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；N22 工程验收通过；N23-E1/E2/E3 工程门已贯通，下一步是 N21 真人任务和 N23 五分钟内容量/两名独立验收者**；
 - GitHub 是否已集成：**指定集成分支与 Draft PR #32 已建立且远端全检通过，但 N00–N21 与例外仍未进入 `main`**。
 
 ## 2. 审计证据基线
@@ -27,12 +27,12 @@
 | Workspace 边界 | 10 个 workspace；6 个计划产品边界 | 审计通过 |
 | 需求登记 | 50 条：10 USP、13 P0 模块、27 AC；6 个 owner | 审计通过 |
 | Golden Project | 7 类：Benchmark、Branching、CJK、Media、Recovery、Size、Tiny | 审计通过 |
-| 常规测试 | 94 个测试文件、553 项测试 | 本轮完整门常规部分通过 |
+| 常规测试 | 94 个测试文件、559 项测试 | 本轮完整门常规部分通过 |
 | VM 重型门 | 5 项 | 最近完整门通过 |
 | 构建 | 10 个 workspace | 最近完整门通过 |
 | 架构门 | 65 个 portable 模块、4 个 Node adapter | 最近完整门通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
-| Editor bundle | 604.50 kB，gzip 172.44 kB | 构建成功，仍存在超过 500 kB 的体积警告 |
+| Editor bundle | 609.81 kB，gzip 174.07 kB | 构建成功，仍存在超过 500 kB 的体积警告 |
 | GitHub CI | PR #23–#33 最近 Windows CI 均成功；当前基线 `bc7835f` 的 `product-baseline` run `31787551479` 通过 | 候选分支工程门通过 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
@@ -50,7 +50,7 @@
 | N20 | 通过 | 完整 P0 Story Language、语言服务、稳定 ID Patch、100k 门 | 正式编辑器与 Runtime 接入待 N41/N30+ |
 | N21 | 工程通过，产品验收中 | 完整 P0 卡片、类型化 Inspector、批量事务、键盘/触屏等价；`N21-HV-01` 协议与防伪证据门已冻结 | 权威记录为 `pending-participant`，真实非程序用户 20 分钟任务仍未执行 |
 | N22 | 工程验收通过 | 原候选能力全部保留；真实媒体、舞台、播放态、过渡和浏览器证据完整 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 归后续节点 |
-| N23 | E1/E2 工程候选 | 从空工程建立 3 场景、2 角色、变量、条件、选择、背景/音频和双结局；内容保存写回 Canonical Project，关闭重开后资源引用和双路线仍可运行 | 资源 Blob 尚未随 ZIP 自包含；五分钟内容量、两名独立验收者与正式产品门仍缺失 |
+| N23 | E1/E2/E3 工程候选 | 从空工程建立 3 场景、2 角色、变量、条件、选择、背景/音频和双结局；Canonical 文档、Asset Index 与源 Blob 随 ZIP 迁移，新工作区导入、运行和重载均通过 | 五分钟内容量、两名独立验收者与正式产品门仍缺失 |
 | N30 及以后 | 未开始或仅有前置 Spike | 已有算法证据可复用 | 正式 Compiler、Runtime、Player、QA、构建与发布均未贯通 |
 
 “工程通过”表示当前候选提交的自动化证据成立；只有节点产物、用户任务、远端门和集成状态同时满足，才可宣告产品节点通过。
@@ -60,7 +60,7 @@
 | 能力 | 当前分支可用 | 产品边界 |
 |---|---|---|
 | 项目入口 | 新建、打开、最近、示例、导入、导出 | 正式 Windows/Android 壳未完成 |
-| 本地源工程 | Canonical 源文件、确定性 ZIP、File System Access/OPFS、Node 目录适配；Writer 内容已写回同一生命周期工程 | 资源 Blob 尚未嵌入 ZIP；移动 SAF 与安装产品未完成 |
+| 本地源工程 | Canonical 源文件、Asset Index 与源 Blob 的确定性自包含 ZIP、File System Access/OPFS、Node 目录适配；Writer 内容已写回同一生命周期工程 | 派生资源按可重建缓存排除；移动 SAF 与安装产品未完成 |
 | 内容实体 | 章节、场景、角色、类型化变量、稳定 ID 引用迁移 | 字体、本地化、Gal 等完整产品模块未完成 |
 | Story Language | P0 语句、解析、诊断、补全、定义/引用、重构、增量处理 | 仍未编译为正式 Runtime IR |
 | Writer/Sequence | 全 P0 卡片、类型化 Inspector、增删复制排序、批量、折叠、保存重开 | N21 真人任务未通过；完整专业 Sequence 待 N41 |
@@ -73,13 +73,13 @@
 
 | P0 模块 | 审计判定 | 关键缺口 |
 |---|---|---|
-| REQ-PRJ | 局部可用 | Android SAF、正式壳、七工作区恢复与发布验收 |
+| REQ-PRJ | 局部可用 | 自包含资源 ZIP 已通过；仍缺 Android SAF、正式壳、七工作区恢复与发布验收 |
 | REQ-ROUTE | 隔离原型 | 完整 Route 语义、诊断、布局、跨视图入口 |
 | REQ-SEQ | 局部可用 | N21 真人门、N41 完整 Sequence 与 Stage/Script 联动 |
 | REQ-SCRIPT | 局部可用 | 正式代码编辑器呈现、全视图集成、外部编辑 E2E |
 | REQ-STAGE | 局部可用 | N42 正式高性能渲染宿主、镜头、复杂关键帧、UI 模板、正式 Runtime 与三端同步 |
 | REQ-UX | 局部可用 | 七模式、Beginner/Pro、真机与非程序用户验收 |
-| REQ-ASSET | 局部可用 | 视频/字体、引用 UI、平台变体、构建报告接入 |
+| REQ-ASSET | 局部可用 | 源 Blob/Index 迁移已通过；仍缺视频/字体、引用 UI、平台变体、构建报告接入 |
 | REQ-RUNTIME | 隔离原型 | 正式 IR/Compiler、Editor Preview、Player 状态链 |
 | REQ-L10N | 未实现 | 导入导出、状态、CJK/Ruby、字体和语音映射 |
 | REQ-QA | 未实现 | Debugger、Story Solver、断点/单步、源位置跳转 |

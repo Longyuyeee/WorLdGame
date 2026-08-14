@@ -96,6 +96,13 @@ export interface IndexedDbAssetImportResult extends AssetImportResult {
   readonly lifecycle: AssetLifecycleManifest;
 }
 
+export interface PortableAssetBundleImportResult {
+  readonly index: AssetIndex;
+  readonly lifecycle: AssetLifecycleManifest;
+  readonly createdBlobCount: number;
+  readonly existingBlobCount: number;
+}
+
 export interface AssetBackupReconciliationResult {
   readonly manifest: AssetLifecycleManifest;
   readonly linkedRecordIds: readonly string[];
@@ -332,6 +339,67 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       throw normalizeIndexedDbAssetError(error, "index", input.assetId, options.signal);
     } finally {
       options.signal?.removeEventListener("abort", cancelTransaction);
+    }
+  }
+
+  async replaceFromPortableBundle(
+    targetIndex: AssetIndex,
+    blobs: ReadonlyMap<BlobDigest, Uint8Array>,
+    expectedIndexRevision = 0
+  ): Promise<PortableAssetBundleImportResult> {
+    const index = parseAssetIndex(serializeAssetIndex(targetIndex));
+    const expectedDigests = new Set(index.assets.map((entry) => entry.source.digest));
+    if (expectedDigests.size !== blobs.size) {
+      throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Portable bundle Blob inventory does not match its Asset Index");
+    }
+    for (const entry of index.assets) {
+      const bytes = blobs.get(entry.source.digest);
+      if (bytes === undefined || bytes.byteLength !== entry.source.byteLength || createBlobDigest(bytes) !== entry.source.digest) {
+        throw new AssetBlobError("CORRUPT_BLOB", "put", entry.source.digest, `Portable bundle Blob failed verification for ${entry.assetId}`);
+      }
+    }
+    const database = await this.database;
+    const transaction = database.transaction(
+        [PROJECT_FILE_STORE_NAME, ASSET_BLOB_STORE_NAME, ASSET_INDEX_STORE_NAME, ASSET_LIFECYCLE_STORE_NAME],
+        "readwrite",
+        { durability: "strict" }
+    );
+    try {
+      await this.assertActiveLease(transaction.objectStore(PROJECT_FILE_STORE_NAME), "index", this.projectId);
+      const indexStore = transaction.objectStore(ASSET_INDEX_STORE_NAME);
+      const currentSource = await indexedDbRequestResult(indexStore.get(this.projectId));
+      const currentIndex = currentSource === undefined ? createAssetIndex() : typeof currentSource === "string"
+        ? parseAssetIndex(currentSource)
+        : (() => { throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Stored asset index is invalid"); })();
+      const exactExistingIndex = serializeAssetIndex(currentIndex) === serializeAssetIndex(index);
+      if (currentIndex.indexRevision !== expectedIndexRevision && !exactExistingIndex) {
+        throw new AssetBlobError("STALE_INDEX_REVISION", "index", this.projectId, `Expected empty import target r${expectedIndexRevision}, current r${currentIndex.indexRevision}`);
+      }
+      const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
+      let createdBlobCount = 0;
+      let existingBlobCount = 0;
+      for (const [digest, bytes] of blobs) {
+        const key = this.blobKey(digest);
+        const existingValue = await indexedDbRequestResult(blobStore.get(key));
+        if (existingValue === undefined) {
+          blobStore.put(bytes.slice(), key);
+          createdBlobCount += 1;
+        } else {
+          const existing = storedBytes(existingValue);
+          if (existing === null || createBlobDigest(existing) !== digest) {
+            throw new AssetBlobError("CORRUPT_BLOB", "put", digest, "Existing IndexedDB blob failed SHA-256 verification");
+          }
+          existingBlobCount += 1;
+        }
+      }
+      const lifecycle = createAssetLifecycleManifest(index, this.now());
+      indexStore.put(serializeAssetIndex(index), this.projectId);
+      transaction.objectStore(ASSET_LIFECYCLE_STORE_NAME).put(serializeAssetLifecycleManifest(lifecycle), this.projectId);
+      await indexedDbTransactionDone(transaction);
+      return { index, lifecycle, createdBlobCount, existingBlobCount };
+    } catch (error) {
+      try { transaction.abort(); } catch { /* Transaction already completed. */ }
+      throw normalizeIndexedDbAssetError(error, "index", this.projectId);
     }
   }
 
