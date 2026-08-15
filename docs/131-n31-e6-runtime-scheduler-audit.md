@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`1aae507e52009701a799fafcfb9d449ed82cb61f`
 > 审计分支：`agent/n31-runtime-e6`
-> 交付状态：实现、定向测试与文档对齐已完成；真实 Worker、本地完整门、Draft PR 与远端 Windows / Node 22 CI 待本轮后续回填
+> 交付状态：实现头 `132db0d303d8c6c86646edbeefd05dc7d98fa4b4`；Draft PR #41；本地完整门、真实 Worker 及远端 Windows / Node 22 CI 均通过
 > 节点判定：N31 Engineering E6 候选；N31 Product Acceptance、N32、M1 Stable 与发布仍被 `RA-N21-003` 阻断
 
 ## 1. 需求边界
@@ -51,7 +51,7 @@ Runtime 定向门现为 37 项，其中 E6 六项覆盖：
 5. 资源不可用回滚该 Effect，并分别停止 Stop Point、Choice、awaited Effect 与 Barrier；
 6. 非 canonical policy、负 counter 与损坏 Scheduler Session 失败关闭且不修改 History。
 
-本地完整 `npm run check` 已通过：98 个并行文件/625 项、存储 1 项、重型 VM 5 项、12 workspace 构建、80 个 portable 文件/4 个 Node adapter、Script 10 项和 Asset 4 项性能门。GitHub Draft PR 与远端 `product-baseline` 将在实现提交后按顺序回填；没有最新远端绿色头前，本文件不把 E6 记为交付完成。
+本地完整 `npm run check` 已通过：98 个并行文件/625 项、存储 1 项、重型 VM 5 项、12 workspace 构建、80 个 portable 文件/4 个 Node adapter、Script 10 项和 Asset 4 项性能门。实现头 `132db0d303d8c6c86646edbeefd05dc7d98fa4b4` 的远端 `product-baseline` run `31889416350`、job `95023356519` 已通过 Windows / Node 22 完整门，用时 3 分 46 秒。
 
 ## 5. 需求与下一顺序
 
