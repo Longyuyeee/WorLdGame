@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`72e93f39c95850457f2d2b9b2d390f0d24216da0`
 > 审计分支：`agent/n31-runtime-e4`
-> 交付状态：本地实现、完整门与真实 Worker 向量通过；实现提交、Draft PR 与远端 CI 待交付阶段回填
+> 交付状态：实现头 `205b711e8b80730e72767f11f4cc1bf5d3b1513d`；Draft PR #39；本地完整门与真实 Worker 向量通过，远端 CI 待回填
 > 节点判定：N31 Engineering E4 候选；N31 Product Acceptance、N32、M1 Stable 与发布仍被 `RA-N21-003` 阻断
 
 ## 1. 需求边界
