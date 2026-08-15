@@ -5,4 +5,5 @@ export * from "./hash";
 export * from "./history";
 export * from "./runtime";
 export * from "./save";
+export * from "./scheduler";
 export * from "./types";

@@ -1,6 +1,6 @@
 import type { RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 
-export const RUNTIME_VERSION = "0.5.0" as const;
+export const RUNTIME_VERSION = "0.6.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
 export const RUNTIME_SAVE_SCHEMA_VERSION = 1 as const;
 export const MAX_RUNTIME_SAVE_BYTES = 16 * 1024 * 1024;
@@ -249,6 +249,7 @@ export type RuntimeDiagnosticCode =
   | "RUNTIME_HISTORY_FORWARD_REQUIRED"
   | "RUNTIME_HISTORY_LIMIT"
   | "RUNTIME_BARRIER_BLOCKED"
+  | "RUNTIME_SCHEDULER_INVALID"
   | "RUNTIME_BUDGET_EXCEEDED"
   | "RUNTIME_TERMINAL";
 
@@ -349,4 +350,51 @@ export interface RuntimeHistoryResultV1 {
   readonly diagnostics: readonly RuntimeDiagnosticV1[];
   readonly reconciliationRequired: boolean;
   readonly barrierBlock: RuntimeBarrierRecordV1 | null;
+}
+
+export type RuntimeRunModeV1 = "normal" | "auto" | "skipRead" | "skipAll";
+export type RuntimeSkipActivationV1 = "hold" | "toggle" | null;
+export type RuntimeSpeedV1 = "normal" | 5 | 10 | 20 | 40 | "instant";
+
+export interface RuntimeSchedulePolicyV1 {
+  readonly schemaVersion: 1;
+  readonly mode: RuntimeRunModeV1;
+  readonly skipActivation: RuntimeSkipActivationV1;
+  readonly speed: RuntimeSpeedV1;
+  readonly stopInstructionIds: readonly string[];
+  readonly unavailableEffectDescriptorIds: readonly string[];
+  readonly instantInstructionBudget: number;
+  readonly autoTiming: {
+    readonly baseDelayMilliseconds: number;
+    readonly millisecondsPerReadableUnit: number;
+    readonly readableUnits: number;
+    readonly voiceDurationMilliseconds: number;
+    readonly voiceTailMilliseconds: number;
+  };
+}
+
+export interface RuntimeSchedulerSessionV1 {
+  readonly schemaVersion: 1;
+  readonly runtimeVersion: typeof RUNTIME_VERSION;
+  readonly history: RuntimeHistorySessionV1;
+  readonly baseCheckpointId: string;
+  readonly workingState: RuntimeStateV1;
+  readonly accumulatedInstructions: number;
+}
+
+export type RuntimeScheduleStopReasonV1 = "budget" | "storyBoundary" | "unreadBoundary" | "stopPoint" | "input" | "effect" | "barrier" | "resourceUnavailable" | "diagnostic" | "terminal" | "history";
+
+export type CreateRuntimeSchedulerResultV1 =
+  | { readonly ok: true; readonly session: RuntimeSchedulerSessionV1 }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
+
+export interface RuntimeScheduleResultV1 {
+  readonly session: RuntimeSchedulerSessionV1;
+  readonly state: RuntimeStateV1;
+  readonly events: readonly RuntimeEventV1[];
+  readonly effects: readonly RuntimeEffectIntentV1[];
+  readonly diagnostics: readonly RuntimeDiagnosticV1[];
+  readonly stopReason: RuntimeScheduleStopReasonV1;
+  readonly executedInstructions: number;
+  readonly autoAdvanceDelayMilliseconds: number | null;
 }
