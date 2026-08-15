@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`2e95be762bb1f5ecbb4f1dfdb49adfb5a3addb87`
 > 审计分支：`agent/n30-project-compiler-e2`
-> 交付记录：Draft PR #35；实现头 `1125b68`；远端 `product-baseline` run `31876049419` 运行中
+> 交付记录：Draft PR #35；实现头 `1125b68`；交付头 `4c2ab3c` 的远端 `product-baseline` run `31876073223` 通过
 > 节点判定：N30 工程退出条件候选；N30 Product Acceptance 与 N31 Engineering 仍由 `RA-N21-002` 阻断
 
 ## 1. 执行结论
@@ -69,7 +69,7 @@ Runtime IR 版本保持 `1.0.0`，因为指令语义没有变化；Compiler 版�
 | 场景/资源增量失效 | 工程候选完成 | 单场景编辑、纯资源变化、损坏缓存拒绝测试 |
 | Debug/Release | 工程候选完成 | Source Map 发布差异和公共 Runtime Artifact 等价测试 |
 | licenses/SBOM 输入 | 工程候选完成 | `release-inputs.json` 组件和 Asset license 表 |
-| 跨机器复验 | 待本分支远端 CI | 本地完整门通过后由 GitHub Windows / Node 22 重算 |
+| 跨机器复验 | 工程候选完成 | GitHub Windows / Node 22 run `31876073223` 通过 |
 
 本地完整门已通过：Compiler 20/20，常规并行测试 97 个文件/588 项，串行存储测试 1 项，VM 重型门 5/5，11 个 workspace 构建、架构门、Script/Asset 性能门均通过。Editor 仍有既存的单 chunk 超过 500 kB 警告，不影响本轮门禁判定，也未被误记为已解决。
 
