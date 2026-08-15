@@ -3,6 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`2e95be762bb1f5ecbb4f1dfdb49adfb5a3addb87`
 > 审计分支：`agent/n30-project-compiler-e2`
+> 交付记录：Draft PR #35；实现头 `1125b68`；远端 `product-baseline` run `31876049419` 运行中
 > 节点判定：N30 工程退出条件候选；N30 Product Acceptance 与 N31 Engineering 仍由 `RA-N21-002` 阻断
 
 ## 1. 执行结论
