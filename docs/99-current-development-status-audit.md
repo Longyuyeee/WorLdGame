@@ -1,11 +1,13 @@
 # 当前开发情况审计（N31-E10 Formal VM Parity 候选）
 
+> 最新综合快照：请优先阅读 [当前开发情况综合审计（2026-08-16）](136-current-development-audit-2026-08-16.md)。本文件保留 N31-E10 节点形成过程与细项证据。
+
 > 审计日期：2026-08-16
 > 本轮审计基线：`d426fbe1608477e640b08e0c61818df3b4e6cbe9`（N31-E9 最终远端绿色头）
 > 审计分支：`agent/n31-runtime-e10-formal-vm-parity`
 > 当前 PR：Draft PR #45（基于 `agent/n31-runtime-e9-exit-audit`）；实现提交 `fefd974b5f95684f591fe61118ea8e5da8705447` 已通过首轮远端完整门；本轮关闭 VM-02/03/07/08/12/15 正式对齐，不宣告 N31 出口通过
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
-> 权威边界：本文件是当前审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。`RA-N21-001/002` 已关闭，`RA-N21-003` 仅允许工程候选推进至 N31，不改变 N21/N23/N30/N31 产品未通过事实，也不授权 N32。
+> 权威边界：本文件是 N31-E10 节点快照；最新综合审计见 [docs/136](136-current-development-audit-2026-08-16.md)，节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。`RA-N21-001/002` 已关闭，`RA-N21-003` 仅允许工程候选推进至 N31，不改变 N21/N23/N30/N31 产品未通过事实，也不授权 N32。
 
 ## 1. 执行结论
 
