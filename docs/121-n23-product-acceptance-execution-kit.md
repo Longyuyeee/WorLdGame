@@ -9,6 +9,8 @@
 > 权威记录：[`evidence/n23/product-acceptance.json`](../evidence/n23/product-acceptance.json)
 >
 > 产品入口：项目首页“打开五分钟验收工程”
+>
+> 启动入口：仓库根目录 `start-n23-acceptance.cmd`
 
 ## 1. 审计结论
 
@@ -21,11 +23,12 @@ N23-E1–E5 已形成可操作对象，但此前只有一句“两名非实现�
 必须严格按以下顺序执行：
 
 1. `npm.cmd run audit:n23-content` 必须通过，确认验收对象仍满足五分钟内容量门；
-2. 先完成 [`N21-HV-01`](114-n21-human-validation-execution-kit.md)，权威记录状态为 `pass`；
-3. 再由两名不同参与者分别完整执行本协议；
-4. 若两人全部通过且 Severity 0/1 为 0，在同一变更中关闭 `RA-N21-002`；
-5. 运行 N21、N23、风险例外和全仓检查，提交、推送并等待 CI；
-6. 只有上述证据全部成立，才允许把 N23 标记为“通过”并进入 N30。
+2. `npm.cmd run audit:n23-acceptance-launcher` 必须通过；主持人双击 `start-n23-acceptance.cmd` 并确认 `http://127.0.0.1:43123/` 可打开；
+3. 先完成 [`N21-HV-01`](114-n21-human-validation-execution-kit.md)，权威记录状态为 `pass`；
+4. 再由两名不同参与者分别完整执行本协议；
+5. 若两人全部通过且 Severity 0/1 为 0，在同一变更中关闭 `RA-N21-002`；
+6. 运行 N21、N23、风险例外和全仓检查，提交、推送并等待 CI；
+7. 只有上述证据全部成立，才允许把 N23 标记为“通过”并进入 N30。
 
 N21 参与者可以同时成为 N23 的其中一名参与者，但必须满足两个协议各自资格，并分别保留记录。N23 的两名参与者之间必须使用不同匿名编号。
 
@@ -67,6 +70,7 @@ N21 参与者可以同时成为 N23 的其中一名参与者，但必须满足�
 ```powershell
 npm.cmd run audit:n21-human-validation
 npm.cmd run audit:n23-content
+npm.cmd run audit:n23-acceptance-launcher
 npm.cmd run audit:n23-product-acceptance
 npm.cmd run audit:risk-acceptance-policy
 npm.cmd run check

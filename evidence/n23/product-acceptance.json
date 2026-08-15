@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "protocolId": "N23-PA-01",
-  "protocolHash": "21b49260a88841c9e9f3864245e090814a4aa77a351d43b81567f88b0747aa70",
-  "sourceBaseRevision": "763e9cd9c118523eb0abcd50eb70eba1a8c4313f",
+  "protocolHash": "fd6132b4178b5ae3e2d28613176b8336ee30f18298b03254bbd7f003e8de457d",
+  "sourceBaseRevision": "597244a280ab2a04a44d94e249b452cb651caf20",
   "status": "pending-participants",
   "participants": [
     {

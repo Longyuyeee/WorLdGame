@@ -53,6 +53,7 @@
       "compensatingControls": [
         "Keep N21 in product acceptance rather than passed",
         "Limit work to the N23 editor and independent-playable vertical slice with automated executable evidence",
+        "Provide the fixed localhost N23 acceptance launcher so participants do not need workspace or Vite knowledge",
         "Require N21-HV-01 to include playing a route to an ending and N23-PA-01 to cover both routes in editor and standalone HTML with two distinct participants",
         "Block N21 Product Acceptance, N23 Acceptance, M1 Stable and Public Release until human evidence is recorded"
       ],

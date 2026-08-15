@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E6 工程/验收就绪门已完成；`RA-N21-002` 不改变 N21/N23 产品验收与 M1 仍被阻断。
+> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程/验收就绪门已完成；`RA-N21-002` 不改变 N21/N23 产品验收与 M1 仍被阻断。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；N22 与 N23-E1–E6 工程/验收就绪门已通过，但它们不跨越 N21 产品门，不能登记 N23 产品通过。五分钟作品两条路线分别达到 366/370 秒机器下限；N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。`RA-N21-002` 在 2026-09-14 到期并持续阻断 N21/N23 产品验收、M1 Stable 与发布。
+最近按产品顺序通过的节点仍是 `N20`；N22 与 N23-E1–E7 工程/验收就绪门已通过，但它们不跨越 N21 产品门，不能登记 N23 产品通过。固定 localhost 验收入口已通过生产构建 HTTP 烟测；N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。`RA-N21-002` 在 2026-09-14 到期并持续阻断 N21/N23 产品验收、M1 Stable 与发布。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -45,7 +45,7 @@
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | 空工程非法角色/变量/资源占位插入已由 N21 就绪预演修复；`N21-HV-01` 仍为 `pending-participant`，N41 完整 Sequence 与 Stage 跨视图联动未完成 | [N21 就绪预演](118-n21-human-readiness-rehearsal-audit.md)、[N21 真人执行包](114-n21-human-validation-execution-kit.md) |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
-| REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 仅三模式；N21 `0/1`、N23 `0/2`，两套协议已冻结但尚无真人结果 | [N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告、交互性能、可访问性审计 |
+| REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
 | REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | Editor 与独立 HTML 已用同一五分钟作品自动跑通变量、条件、选择、跨场景和双结局；N23 双参与者复验待执行，正式 VM、Runtime State 与共享 Editor/Player 仍未建立 | [N23-E5 审计](120-n23-e5-five-minute-content-audit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、VM Golden、三宿主 State Hash、玩家 E2E |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 未开始 | 仅稳定 `textId` | CJK Golden、三端语言切换 |

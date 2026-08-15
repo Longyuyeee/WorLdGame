@@ -12,7 +12,8 @@ function protocol() {
     schemaVersion: 1, protocolId: "N23-PA-01", deliveryNode: "N23", minimumParticipants: 2,
     prerequisite: {
       contentGatePath: "config/n23-content-gate.json", projectPath: "fixtures/projects/benchmark/project.s0.json",
-      requiredContentGateStatus: "PASS", productEntryLabel: "打开五分钟验收工程", requiredN21Status: "pass"
+      requiredContentGateStatus: "PASS", productEntryLabel: "打开五分钟验收工程",
+      launcherPath: "start-n23-acceptance.cmd", launcherUrl: "http://127.0.0.1:43123/", requiredN21Status: "pass"
     },
     facilitatorRules: { mayOperateEditor: false, mayCoachExactControls: false },
     tasks: taskIds.map((id) => ({ id })), routes: routes.map((route) => ({ ...route }))

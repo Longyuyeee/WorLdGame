@@ -43,6 +43,8 @@ export function validateN23ProductAcceptance(protocol, record, riskRegistry, n21
       protocol?.prerequisite?.projectPath !== "fixtures/projects/benchmark/project.s0.json" ||
       protocol?.prerequisite?.requiredContentGateStatus !== "PASS" ||
       protocol?.prerequisite?.productEntryLabel !== "打开五分钟验收工程" ||
+      protocol?.prerequisite?.launcherPath !== "start-n23-acceptance.cmd" ||
+      protocol?.prerequisite?.launcherUrl !== "http://127.0.0.1:43123/" ||
       protocol?.prerequisite?.requiredN21Status !== "pass") {
     violations.push("N23 product acceptance prerequisites are stale");
   }

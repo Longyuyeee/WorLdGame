@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
+    "acceptance:n23": "node tools/start-n23-acceptance.mjs",
     "build": "npm run build --workspace @world-studio/narrative-vm-spike && npm run build --workspace @world-studio/project-domain && npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor && npm run build --workspace @world-studio/vm-conformance-harness && npm run build --workspace @world-studio/vm-conformance-cli && npm run build --workspace @world-studio/windows-shell-conformance",
     "typecheck": "tsc -b",
     "test": "npm run test:parallel && npm run test:storage-conformance && npm run test:vm-conformance",
@@ -21,6 +22,7 @@
     "audit:risk-acceptances": "node tools/audit-risk-acceptances.mjs",
     "audit:n21-human-validation": "node tools/audit-n21-human-validation.mjs",
     "audit:n23-product-acceptance": "node tools/audit-n23-product-acceptance.mjs",
+    "audit:n23-acceptance-launcher": "node tools/audit-n23-acceptance-launcher.mjs",
     "audit:risk-acceptance-policy": "vitest run --config vitest.governance.config.ts",
     "audit:delivery-baseline": "node tools/audit-delivery-baseline.mjs",
     "audit:delivery-baseline-policy": "vitest run --config vitest.delivery-baseline.config.ts",
