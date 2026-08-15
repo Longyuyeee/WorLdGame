@@ -8,6 +8,8 @@ export const deliveryNodeOrder = Object.freeze([
 const requiredBlockedGates = Object.freeze([
   "N21 Product Acceptance",
   "N23 Acceptance",
+  "N30 Product Acceptance",
+  "N31 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -54,7 +56,7 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       for (const gate of requiredBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N23") violations.push(`${prefix}: active N21 exception may not extend beyond N23`);
+      if (exception.maximumDeliveryNode !== "N30") violations.push(`${prefix}: active N21 exception may not extend beyond N30`);
       if (prefix !== "RA-N21-002") violations.push(`${prefix}: only the approved RA-N21-002 exception may be active`);
     }
   }

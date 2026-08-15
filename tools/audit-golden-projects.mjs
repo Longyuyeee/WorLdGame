@@ -411,7 +411,17 @@ for (const entry of registry.projects ?? []) {
     const projectHash = digest(project);
     const manifestHash = digest(manifest);
     if (evidence.schemaVersion !== 1 || evidence.projectId !== project.id || evidence.sourceSemanticHash !== projectHash) violations.push(`${entry.id} source semantic hash is stale; expected ${projectHash}`);
-    for (const [field, targetNode] of [["expectedIrHash", "N30"], ["expectedStateHash", "N31"], ["formalBuildArtifactHash", "N80"]]) {
+    const compilerGolden = new Set(["tiny", "branching", "media", "cjk"]).has(entry.id);
+    if (compilerGolden) {
+      const slot = evidence.expectedIrHash;
+      if (slot?.status !== "verified" || slot?.targetNode !== "N30" || !/^[0-9a-f]{64}$/.test(slot?.value ?? "")) {
+        violations.push(`${entry.id} expectedIrHash must contain the verified N30 compiler hash`);
+      }
+    } else {
+      const slot = evidence.expectedIrHash;
+      if (slot?.status !== "pending" || slot?.targetNode !== "N30" || slot?.value !== null) violations.push(`${entry.id} expectedIrHash must remain an explicit N30 pending slot`);
+    }
+    for (const [field, targetNode] of [["expectedStateHash", "N31"], ["formalBuildArtifactHash", "N80"]]) {
       const slot = evidence[field];
       if (slot?.status !== "pending" || slot?.targetNode !== targetNode || slot?.value !== null) violations.push(`${entry.id} ${field} must remain an explicit ${targetNode} pending slot`);
     }

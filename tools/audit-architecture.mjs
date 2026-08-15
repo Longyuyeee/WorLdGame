@@ -6,6 +6,7 @@ const repoRoot = process.cwd();
 const auditedRoots = [
   join(repoRoot, "packages", "narrative-vm-spike", "src"),
   join(repoRoot, "packages", "project-domain", "src"),
+  join(repoRoot, "packages", "project-compiler", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
   join(repoRoot, "packages", "project-persistence", "src")
@@ -129,6 +130,16 @@ const persistencePackage = JSON.parse(
 const projectDomainPackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "project-domain", "package.json"), "utf8")
 );
+const projectCompilerPackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "project-compiler", "package.json"), "utf8")
+);
+const projectCompilerDependencies = Object.keys(projectCompilerPackage.dependencies ?? {}).sort();
+if (JSON.stringify(projectCompilerDependencies) !== JSON.stringify([
+  "@world-studio/project-domain",
+  "@world-studio/story-language"
+])) {
+  violations.push("project-compiler may depend only on project-domain and story-language in N30");
+}
 if (projectDomainPackage.dependencies !== undefined) {
   violations.push("project-domain must not declare runtime dependencies in N10");
 }
@@ -284,6 +295,7 @@ if (violations.length > 0) {
           "story-core has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
+          "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",

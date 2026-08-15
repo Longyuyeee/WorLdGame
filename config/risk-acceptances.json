@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentDeliveryNode": "N23",
+  "currentDeliveryNode": "N30",
   "exceptions": [
     {
       "id": "RA-N21-001",
@@ -43,34 +43,38 @@
       "status": "active",
       "failedControls": [
         "N21 non-programmer 20-minute product task",
-        "N23 runnable vertical-slice prerequisite"
+        "N23 product acceptance by two non-implementers",
+        "N30 engineering start before the deferred human acceptance gates"
       ],
       "impact": [
         "Writer/Sequence usability defects may remain undiscovered",
-        "the independent playable slice is not yet a formal Compiler, Player Runtime or release candidate"
+        "the N30 compiler remains an engineering candidate and no formal Player Runtime or release candidate exists"
       ],
-      "reason": "The Product Owner clarified on 2026-08-14 that human acceptance is not meaningful before the software can execute one complete playable flow. Engineering may therefore build and verify the bounded N23 runnable slice before asking a participant to validate it.",
+      "reason": "The Product Owner clarified on 2026-08-14 that human acceptance is not meaningful before the software can execute one complete playable flow, then repeatedly instructed sequential core-engine development on 2026-08-15 because no participant could yet test the product. Engineering may therefore build and verify the bounded N30 compiler candidate while all deferred product gates remain blocked.",
       "compensatingControls": [
         "Keep N21 in product acceptance rather than passed",
-        "Limit work to the N23 editor and independent-playable vertical slice with automated executable evidence",
+        "Limit the extension to N30 Project Compiler engineering; N31 Runtime and every later node remain blocked",
+        "Keep the compiler portable and prohibit dependencies on the VM spike, editor, browser, filesystem or platform shell",
         "Provide the fixed localhost N23 acceptance launcher so participants do not need workspace or Vite knowledge",
         "Require N21-HV-01 to include playing a route to an ending and N23-PA-01 to cover both routes in editor and standalone HTML with two distinct participants",
-        "Block N21 Product Acceptance, N23 Acceptance, M1 Stable and Public Release until human evidence is recorded"
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Engineering, M1 Stable and Public Release until human evidence is recorded"
       ],
       "owner": "editor-experience",
       "approver": "Product Owner",
       "approvedAt": "2026-08-14T23:50:00+08:00",
       "expiresAt": "2026-09-14T23:50:00+08:00",
-      "maximumDeliveryNode": "N23",
+      "maximumDeliveryNode": "N30",
       "blockedGates": [
         "N21 Product Acceptance",
         "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Engineering",
         "M1 Stable",
         "Public Release"
       ],
-      "remediationPlan": "Finish the bounded runnable slice, then recruit an eligible participant and execute the frozen author-and-play task without developer operation or coaching.",
-      "verificationMethod": "Record authoring, save-close-reopen, route selection and reached-ending evidence with hashed project and observation artifacts.",
-      "evidencePath": "docs/115-playable-flow-order-correction.md",
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before any N31 work.",
+      "verificationMethod": "Keep N21/N23 records pending, audit the portable N30 dependency boundary, and verify deterministic Tiny/Branching/Media/CJK IR hashes plus failure diagnostics; human evidence still requires authoring, save-close-reopen, route selection and reached-ending artifacts.",
+      "evidencePath": "docs/123-n30-e1-project-compiler-audit.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",

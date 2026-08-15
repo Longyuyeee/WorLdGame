@@ -5,4 +5,5 @@ export * from "./project-archive";
 export * from "./project-lifecycle";
 export * from "./project-entities";
 export * from "./stable-id";
+export * from "./sha256";
 export * from "./types";
