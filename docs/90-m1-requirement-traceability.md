@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选，N31-E1 Runtime 为未集成工程切片；`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
+> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选，N31-E1/E2 Runtime 为未集成工程切片；`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
 
 ## 1. 状态和证据规则
 
@@ -47,7 +47,7 @@
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
-| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | N31-E1 正式 Runtime 已消费 N30 IR，建立版本化 State、变量/游标/调用栈、控制流、Choice 防陈旧输入、逻辑 Wait、停点与结局；Save/History/Effect/PRNG/Meta/调度、State Hash 和共享 Editor/Player 仍未建立 | [N31-E1 审计](126-n31-e1-runtime-kernel-audit.md)、VM Golden、三宿主 State Hash、玩家 E2E |
+| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | N31-E1/E2 已消费 N30 IR，建立版本化 State、控制流/Choice/Wait/结局、canonical SHA-256 State Hash、确定 PRNG 与 Scene/Audio/Meta State；Node/真实 Web Worker 正式固定向量零差异。Save/History/Effect/Barrier/调度、正式 10k Corpus 和共享 Editor/Player 仍未建立 | [N31-E1 审计](126-n31-e1-runtime-kernel-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、三宿主 State/Save Hash、玩家 E2E |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
 | REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler 已有语句级 CFG/SCC、不可达/无交互循环诊断与 Statement Source Map；Debugger/Solver 和产品呈现未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden、Debugger E2E |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N23 已有确定性单文件离线试玩候选；两名参与者的实际下载/离线运行证据待补，无正式 Player/PWA、资源构建、安装、签名或发布材料 | [N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、三端 Artifact Manifest、安装/签名报告 |
@@ -75,7 +75,7 @@
 | AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | 玩家未接入 | 玩家输入向量和 State Hash |
 | AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | 玩家未接入 | History Golden |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | 图语义不全 | Branching Golden |
-| AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已从可达剧情生成四类 Catalog 候选；解锁状态、覆盖配置、隔离 Replay 与 Player UI 待 N31/N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、Catalog 和玩家 E2E |
+| AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog，Runtime E2 已记录 Gallery Asset 与 Ending 的单调 Meta 状态；覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 待 N31/N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、Catalog 和玩家 E2E |
 | AC-19 | Gal 配置中心覆盖 P0 | N51 | 未开始 | Settings Schema/UI | 配置追踪全覆盖 |
 | AC-20 | 自动页和状态三端一致 | N62/N92 | 未开始 | AC-18、三端 Player | Catalog/Meta Hash 0 差异 |
 | AC-21 | Optimization 显示联合预算 | N71 | 未开始 | 真机/构建数据 | Center 报告 |

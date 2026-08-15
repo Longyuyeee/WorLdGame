@@ -1,7 +1,9 @@
 import type { RuntimeInstructionV1, RuntimeSceneV1 } from "@world-studio/project-compiler";
 import {
+  DEFAULT_PRNG_SEED,
   DEFAULT_INSTRUCTION_BUDGET,
   MAX_CALL_STACK_DEPTH,
+  MAX_META_PROGRESS_IDS_PER_DOMAIN,
   RUNTIME_STATE_SCHEMA_VERSION,
   RUNTIME_VERSION,
   type CreateRuntimeOptionsV1,
@@ -13,22 +15,36 @@ import {
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
   type RuntimeProgramV1,
+  type RuntimeRandomDrawRequestV1,
+  type RuntimeRandomDrawResultV1,
   type RuntimeRunOptionsV1,
   type RuntimeRunResultV1,
   type RuntimeScalar,
   type RuntimeStateV1
 } from "./types";
+import { canonicalRuntimeStringify } from "./canonical";
 
 const supportedOpcodes = new Set([
   "dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"
 ]);
+const canonicalId = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
 
 function diagnostic(code: RuntimeDiagnosticCode, message: string, cursor?: RuntimeCursorV1, instructionId?: string): RuntimeDiagnosticV1 {
   return { code, message, sceneId: cursor?.sceneId ?? null, instructionId: instructionId ?? null };
 }
 
 function finiteScalar(value: unknown): value is RuntimeScalar {
-  return value === null || typeof value === "boolean" || typeof value === "string" || (typeof value === "number" && Number.isFinite(value));
+  return value === null || typeof value === "boolean" || typeof value === "string" || (typeof value === "number" && Number.isSafeInteger(value));
+}
+
+function sortedUniqueIds(value: unknown): value is readonly string[] {
+  return Array.isArray(value) && value.length <= MAX_META_PROGRESS_IDS_PER_DOMAIN && value.every((item) => typeof item === "string" && canonicalId.test(item)) && value.every((item, index) => index === 0 || String(value[index - 1]) < item);
+}
+
+function validRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  if (value === null || Array.isArray(value) || typeof value !== "object") return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }
 
 function scenesById(program: RuntimeProgramV1): Map<string, RuntimeSceneV1> {
@@ -68,18 +84,35 @@ function validateState(program: RuntimeProgramV1, state: RuntimeStateV1): readon
   if (state.callStack.length > MAX_CALL_STACK_DEPTH || Object.values(state.variables).some((value) => !finiteScalar(value))) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State contains an invalid stack or variable value", state.cursor)];
   }
+  if (state.prng.algorithm !== "xorshift32-v1" || !Number.isInteger(state.prng.state) || state.prng.state < 1 || state.prng.state > 0xffff_ffff || !Number.isSafeInteger(state.prng.draws) || state.prng.draws < 0) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State PRNG is invalid", state.cursor)];
+  }
+  const meta = state.metaProgress;
+  if (meta.schemaVersion !== 1 || meta.projectId !== state.projectId || !canonicalId.test(meta.progressScopeId) || !sortedUniqueIds(meta.readTextIds) || !sortedUniqueIds(meta.unlockedGalleryAssetIds) || !sortedUniqueIds(meta.reachedEndingIds)) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Meta Progress is invalid", state.cursor)];
+  }
+  if (!validRecord(state.sceneState.characters) || Object.entries(state.sceneState.characters).some(([slot, character]) => !canonicalId.test(slot) || !canonicalId.test(character.assetId) || (character.expression !== null && !canonicalId.test(character.expression)))) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Scene State is invalid", state.cursor)];
+  }
+  if (state.sceneState.backgroundAssetId !== null && !canonicalId.test(state.sceneState.backgroundAssetId)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime background asset is invalid", state.cursor)];
+  if (!validRecord(state.audioState.tracks) || Object.entries(state.audioState.tracks).some(([bus, track]) => !canonicalId.test(bus) || !canonicalId.test(track.assetId) || !["playing", "paused"].includes(track.status) || typeof track.loop !== "boolean" || !Number.isSafeInteger(track.volumePermille) || track.volumePermille < 0 || track.volumePermille > 1000)) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Audio State is invalid", state.cursor)];
+  }
   const scenes = scenesById(program);
   const cursors = [state.cursor, ...state.callStack];
   if (cursors.some((cursor) => !scenes.has(cursor.sceneId) || !Number.isSafeInteger(cursor.instructionIndex) || cursor.instructionIndex < 0)) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State contains an invalid cursor", state.cursor)];
   }
+  try { canonicalRuntimeStringify(state); } catch { return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State is not canonically serializable", state.cursor)]; }
   return [];
 }
 
 export function createRuntimeState(program: RuntimeProgramV1, options: CreateRuntimeOptionsV1): CreateRuntimeResultV1 {
   const diagnostics = validateProgram(program);
   if (diagnostics.length > 0) return { ok: false, diagnostics };
-  if (options.buildId.length === 0 || options.executionId.length === 0 || Object.values(options.initialVariables ?? {}).some((value) => !finiteScalar(value))) {
+  const prngSeed = options.prngSeed ?? DEFAULT_PRNG_SEED;
+  const progressScopeId = options.progressScopeId ?? options.executionId;
+  if (options.buildId.length === 0 || options.buildId.length > 256 || !canonicalId.test(options.executionId) || !canonicalId.test(progressScopeId) || !Number.isInteger(prngSeed) || prngSeed < 1 || prngSeed > 0xffff_ffff || Object.values(options.initialVariables ?? {}).some((value) => !finiteScalar(value))) {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_INVALID_STATE", "Build, execution, and initial variables must be valid")] };
   }
   return {
@@ -95,11 +128,72 @@ export function createRuntimeState(program: RuntimeProgramV1, options: CreateRun
       cursor: { sceneId: program.entrySceneId, instructionIndex: 0 },
       callStack: [],
       variables: { ...(options.initialVariables ?? {}) },
+      prng: { algorithm: "xorshift32-v1", state: prngSeed, draws: 0 },
       logicalTimeMilliseconds: 0,
+      sceneState: { backgroundAssetId: null, characters: {} },
+      audioState: { tracks: {} },
+      metaProgress: { schemaVersion: 1, projectId: program.projectId, progressScopeId, readTextIds: [], unlockedGalleryAssetIds: [], reachedEndingIds: [] },
       pendingChoice: null,
       terminal: { kind: "running" }
     }
   };
+}
+
+function nextPrng(state: number): number {
+  let value = state >>> 0;
+  value ^= value << 13; value ^= value >>> 17; value ^= value << 5;
+  return value >>> 0;
+}
+
+export function drawRuntimeRandom(state: RuntimeStateV1, request: RuntimeRandomDrawRequestV1): RuntimeRandomDrawResultV1 {
+  if (request.expectedStateRevision !== state.stateRevision) return { ok: false, state, diagnostics: [diagnostic("RUNTIME_INPUT_STALE", "Random draw targets a stale state revision", state.cursor)] };
+  if (state.prng.algorithm !== "xorshift32-v1" || !Number.isInteger(state.prng.state) || state.prng.state < 1 || state.prng.state > 0xffff_ffff || !Number.isSafeInteger(state.prng.draws) || state.prng.draws < 0) return { ok: false, state, diagnostics: [diagnostic("RUNTIME_INVALID_STATE", "Random draw requires a valid PRNG State", state.cursor)] };
+  if (!Number.isSafeInteger(request.minimum) || !Number.isSafeInteger(request.maximum) || request.minimum > request.maximum) return { ok: false, state, diagnostics: [diagnostic("RUNTIME_INVALID_STATE", "Random draw bounds must be ordered safe integers", state.cursor)] };
+  const width = request.maximum - request.minimum + 1;
+  if (!Number.isSafeInteger(width) || width < 1 || width > 0x1_0000_0000) return { ok: false, state, diagnostics: [diagnostic("RUNTIME_INVALID_STATE", "Random draw range must contain at most 2^32 integers", state.cursor)] };
+  const acceptanceLimit = Math.floor(0x1_0000_0000 / width) * width;
+  let next = state.prng.state, draws = 0;
+  do { next = nextPrng(next); draws += 1; } while (next >= acceptanceLimit);
+  const value = request.minimum + (next % width);
+  return { ok: true, value, state: { ...state, stateRevision: state.stateRevision + 1, prng: { ...state.prng, state: next, draws: state.prng.draws + draws } } };
+}
+
+function addMonotonicId(values: readonly string[], id: string): readonly string[] {
+  return values.includes(id) ? values : [...values, id].sort();
+}
+
+function directionState(state: RuntimeStateV1, command: string, parameters: Readonly<Record<string, unknown>>): Partial<RuntimeStateV1> | undefined {
+  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : "play";
+  if (command === "background") {
+    if (action === "clear") return { sceneState: { ...state.sceneState, backgroundAssetId: null } };
+    if (action !== "set" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset)) return undefined;
+    return { sceneState: { ...state.sceneState, backgroundAssetId: parameters.asset }, metaProgress: { ...state.metaProgress, unlockedGalleryAssetIds: addMonotonicId(state.metaProgress.unlockedGalleryAssetIds, parameters.asset) } };
+  }
+  if (command === "show") {
+    const slotValue = parameters.slot ?? parameters.character ?? parameters.asset;
+    if (typeof slotValue !== "string" || !canonicalId.test(slotValue)) return undefined;
+    if (action === "hide") { const characters = { ...state.sceneState.characters }; delete characters[slotValue]; return { sceneState: { ...state.sceneState, characters } }; }
+    if (action === "move") return {};
+    if (action !== "show" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset) || (parameters.expression !== undefined && (typeof parameters.expression !== "string" || !canonicalId.test(parameters.expression)))) return undefined;
+    return { sceneState: { ...state.sceneState, characters: { ...state.sceneState.characters, [slotValue]: { assetId: parameters.asset, expression: typeof parameters.expression === "string" ? parameters.expression : null } } }, metaProgress: { ...state.metaProgress, unlockedGalleryAssetIds: addMonotonicId(state.metaProgress.unlockedGalleryAssetIds, parameters.asset) } };
+  }
+  if (command === "audio") {
+    const bus = typeof parameters.bus === "string" ? parameters.bus : "sfx";
+    if (!canonicalId.test(bus)) return undefined;
+    const tracks = { ...state.audioState.tracks };
+    if (action === "stop") { delete tracks[bus]; return { audioState: { tracks } }; }
+    const current = tracks[bus];
+    if (action === "pause" || action === "resume") {
+      if (current === undefined) return undefined;
+      tracks[bus] = { ...current, status: action === "pause" ? "paused" : "playing" };
+      return { audioState: { tracks } };
+    }
+    const volume = parameters.volumePermille ?? 1000;
+    if (action !== "play" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset) || !Number.isSafeInteger(volume) || (volume as number) < 0 || (volume as number) > 1000 || (parameters.loop !== undefined && typeof parameters.loop !== "boolean")) return undefined;
+    tracks[bus] = { assetId: parameters.asset, status: "playing", loop: parameters.loop === true, volumePermille: volume as number };
+    return { audioState: { tracks } };
+  }
+  return undefined;
 }
 
 function stringOperand(instruction: RuntimeInstructionV1, name: string): string | undefined {
@@ -211,7 +305,9 @@ function applyChoice(program: RuntimeProgramV1, state: RuntimeStateV1, input: Ru
 export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeStateV1, options: RuntimeRunOptionsV1 = {}): RuntimeRunResultV1 {
   const programDiagnostics = validateProgram(program);
   if (programDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: programDiagnostics };
-  const stateDiagnostics = validateState(program, initialState);
+  let stateDiagnostics: readonly RuntimeDiagnosticV1[];
+  try { stateDiagnostics = validateState(program, initialState); }
+  catch { stateDiagnostics = [diagnostic("RUNTIME_INVALID_STATE", "Runtime State structure is missing or malformed")]; }
   if (stateDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: stateDiagnostics };
   if (initialState.terminal.kind === "ended") return failure(initialState, "RUNTIME_TERMINAL", "Runtime has already ended");
   let state = initialState;
@@ -244,17 +340,22 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
     if (instruction.opcode === "dialogue") {
       const speakerId = stringOperand(instruction, "speakerId"), textId = stringOperand(instruction, "textId"), text = stringOperand(instruction, "text");
       if (speakerId === undefined || textId === undefined || text === undefined) return failure(state, "RUNTIME_INVALID_IR", "Dialogue operands are malformed", instruction, executed);
-      return advance({ kind: "dialogue", instructionId: instruction.instructionId, speakerId, textId, text })!;
+      if (!canonicalId.test(textId)) return failure(state, "RUNTIME_INVALID_IR", "Dialogue text ID is invalid", instruction, executed);
+      return advance({ kind: "dialogue", instructionId: instruction.instructionId, speakerId, textId, text }, { metaProgress: { ...state.metaProgress, readTextIds: addMonotonicId(state.metaProgress.readTextIds, textId) } })!;
     }
     if (instruction.opcode === "narration") {
       const textId = stringOperand(instruction, "textId"), text = stringOperand(instruction, "text");
       if (textId === undefined || text === undefined) return failure(state, "RUNTIME_INVALID_IR", "Narration operands are malformed", instruction, executed);
-      return advance({ kind: "narration", instructionId: instruction.instructionId, textId, text })!;
+      if (!canonicalId.test(textId)) return failure(state, "RUNTIME_INVALID_IR", "Narration text ID is invalid", instruction, executed);
+      return advance({ kind: "narration", instructionId: instruction.instructionId, textId, text }, { metaProgress: { ...state.metaProgress, readTextIds: addMonotonicId(state.metaProgress.readTextIds, textId) } })!;
     }
     if (instruction.opcode === "direction") {
       const command = stringOperand(instruction, "command"), parameters = operands.parameters;
       if (command === undefined || parameters === null || Array.isArray(parameters) || typeof parameters !== "object") return failure(state, "RUNTIME_INVALID_IR", "Direction operands are malformed", instruction, executed);
-      return advance({ kind: "direction", instructionId: instruction.instructionId, command, parameters: parameters as Readonly<Record<string, unknown>> })!;
+      const directionParameters = parameters as Readonly<Record<string, unknown>>;
+      const extra = directionState(state, command, directionParameters);
+      if (extra === undefined) return failure(state, "RUNTIME_INVALID_IR", "Direction command, action, or logical parameters are malformed", instruction, executed);
+      return advance({ kind: "direction", instructionId: instruction.instructionId, command, parameters: directionParameters }, extra)!;
     }
     if (instruction.opcode === "choice") {
       const prompt = stringOperand(instruction, "prompt"), choices = choiceOptions(instruction);
@@ -307,7 +408,8 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
     if (instruction.opcode === "end") {
       const endingId = stringOperand(instruction, "endingId"), name = stringOperand(instruction, "name");
       if (endingId === undefined || name === undefined) return failure(state, "RUNTIME_INVALID_IR", "Ending operands are malformed", instruction, executed);
-      state = { ...state, stateRevision: state.stateRevision + 1, terminal: { kind: "ended", endingId, name } };
+      if (!canonicalId.test(endingId)) return failure(state, "RUNTIME_INVALID_IR", "Ending ID is invalid", instruction, executed);
+      state = { ...state, stateRevision: state.stateRevision + 1, terminal: { kind: "ended", endingId, name }, metaProgress: { ...state.metaProgress, reachedEndingIds: addMonotonicId(state.metaProgress.reachedEndingIds, endingId) } };
       return { state, event: { kind: "ending", instructionId: instruction.instructionId, endingId, name }, executedInstructions: executed + 1, diagnostics: [] };
     }
   }

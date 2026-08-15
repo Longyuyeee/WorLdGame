@@ -20,7 +20,7 @@
       "kind": "conformance",
       "stability": "experimental",
       "owner": "Runtime Verification Owner",
-      "allowedWorkspaceDependencies": ["@world-studio/narrative-vm-spike"]
+      "allowedWorkspaceDependencies": ["@world-studio/narrative-vm-spike", "@world-studio/runtime"]
     },
     {
       "path": "apps/vm-conformance-cli",

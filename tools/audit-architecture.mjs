@@ -198,9 +198,8 @@ const vmHarnessPackage = JSON.parse(
   await readFile(join(vmHarnessRoot, "package.json"), "utf8")
 );
 const vmHarnessDependencies = Object.keys(vmHarnessPackage.dependencies ?? {});
-if (vmHarnessDependencies.length !== 1 ||
-    vmHarnessDependencies[0] !== "@world-studio/narrative-vm-spike") {
-  violations.push("VM conformance Harness may depend only on narrative-vm-spike");
+if (JSON.stringify(vmHarnessDependencies.sort()) !== JSON.stringify(["@world-studio/narrative-vm-spike", "@world-studio/runtime"])) {
+  violations.push("VM conformance Harness may depend only on narrative-vm-spike and formal runtime");
 }
 const vmHarnessFiles = (await collectFiles(join(vmHarnessRoot, "src")))
   .filter((path) => extname(path) === ".ts");
@@ -312,7 +311,7 @@ if (violations.length > 0) {
           "editor declares the story-language dependency explicitly",
           "editor declares the project-persistence dependency explicitly",
           "web editor does not bundle the Node filesystem adapter",
-          "VM Web Worker conformance Harness depends only on the portable narrative VM and imports no shell or Node adapter",
+          "VM Web Worker conformance Harness depends only on the portable Spike and formal Runtime and imports no shell or Node adapter",
           "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
           "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
           "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",
