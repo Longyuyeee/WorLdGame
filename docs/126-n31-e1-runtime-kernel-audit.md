@@ -3,6 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`94bd565635cf15935c9dac1813cd758a9d101315`
 > 审计分支：`agent/n31-runtime-e1`
+> 交付记录：Draft PR #36；实现头 `98c49bf`；远端 `product-baseline` run `31877417186` 运行中
 > 节点判定：N31 Engineering E1 候选；N31 Product Acceptance、N32、M1 Stable 与发布仍被阻断
 
 ## 1. 准入与风险边界
