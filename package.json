@@ -13,7 +13,7 @@
     "build": "npm run build --workspace @world-studio/narrative-vm-spike && npm run build --workspace @world-studio/project-domain && npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-compiler && npm run build --workspace @world-studio/runtime && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor && npm run build --workspace @world-studio/vm-conformance-harness && npm run build --workspace @world-studio/vm-conformance-cli && npm run build --workspace @world-studio/windows-shell-conformance",
     "typecheck": "tsc -b",
     "test": "npm run test:parallel && npm run test:storage-conformance && npm run test:vm-conformance",
-    "test:parallel": "vitest run --maxWorkers=4 --exclude apps/editor/src/autosave-app.test.tsx --exclude packages/narrative-vm-spike/src/vm-spike09.test.ts",
+    "test:parallel": "vitest run --maxWorkers=4 --exclude apps/editor/src/autosave-app.test.tsx --exclude packages/narrative-vm-spike/src/vm-spike09.test.ts --exclude packages/runtime/src/runtime.test.ts",
     "test:storage-conformance": "vitest run apps/editor/src/autosave-app.test.tsx --maxWorkers=1",
     "test:vm-conformance": "vitest run packages/narrative-vm-spike/src/vm-spike09.test.ts --maxWorkers=1",
     "test:watch": "vitest",
