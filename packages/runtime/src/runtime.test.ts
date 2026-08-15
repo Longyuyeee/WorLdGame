@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, runRuntime, runtimeHistorySessionHashV1, runtimeStateHashV1, validateRuntimeHistorySessionV1, type RuntimeChoiceInputV1, type RuntimeHistorySessionV1, type RuntimeStateV1 } from "./index";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, runRuntime, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, type RuntimeChoiceInputV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -113,7 +113,7 @@ describe("N31-E2 deterministic state foundations", () => {
     const left = start(story, "build", { alpha: 1, beta: 2 });
     const right = start(story, "build", { beta: 2, alpha: 1 });
     expect(runtimeStateHashV1(left)).toBe(runtimeStateHashV1(right));
-    expect(runtimeStateHashV1(left)).toBe("a896ffbf427a43c26e8ec9396021bc7c38c52d3ab9d67c3683f8448525d107b1");
+    expect(runtimeStateHashV1(left)).toBe("78aacc0af3e9a6506e611d7b03a720b78974db44502d55fd67c0e1a5dee2655f");
     expect(runtimeStateHashV1({ ...left, logicalTimeMilliseconds: 1 })).not.toBe(runtimeStateHashV1(left));
   });
 
@@ -181,26 +181,32 @@ describe("N31-E2 deterministic state foundations", () => {
   it("freezes the Node host conformance vector consumed by the Web Worker harness", () => {
     expect(executeRuntimeConformanceV1()).toEqual({
       schemaVersion: 1,
-      runtimeVersion: "0.5.0",
-      initialStateHash: "a896ffbf427a43c26e8ec9396021bc7c38c52d3ab9d67c3683f8448525d107b1",
+      runtimeVersion: "0.6.0",
+      initialStateHash: "78aacc0af3e9a6506e611d7b03a720b78974db44502d55fd67c0e1a5dee2655f",
       randomValue: 13,
-      randomStateHash: "dc0ceb8b3aa961458d4022ec33bc37d180e505471e83055771e6d974bd621eed",
-      endingStateHash: "9f85866867cb8cadee5781bb8fec369f46a681be43dd8a4df89eda43a3be7ec5",
+      randomStateHash: "665d97b3e8252d2901fee615ebf39e21eb7465d27d10b2af5c24429b041b2978",
+      endingStateHash: "36587b7f9e4f95a51575e1d5270c43f7b045347b0084ae2e1d8e35db76383700",
       reachedEndingIds: ["done"],
       effectIntentHash: "ae85cfea2908822b25f52c60fa4a602f2f36b7a204ae157023d91a7103268992",
-      effectIssuedStateHash: "6b4228f4fb64221822e102ddcaa71aad1c53ed987a8adeefdfa09b676fabe08c",
-      effectCompletedStateHash: "427811dba37b8664e7d9b3300d6f6e05d4a147dd207a59b583cd3c6dd081d886",
+      effectIssuedStateHash: "9b3637dfae72873e2ad30cdb17b7075883352c1d1b8a4ea98c276402b3f8ca61",
+      effectCompletedStateHash: "6d67b6cc6dfc4dee3fd5387cf8a522491a06dd849d7d61ca1f0609208a6e2855",
       barrierRequestId: "barrier.62b95f219800e9bad704d050252bddea054d18c84cd27a5f41e84498d19d3eaf",
-      barrierCommittedStateHash: "2ba4b47cb9e52d0dab9ff224c49ed40dd74848f3e41cc12f81ef7a8373691dd0",
-      saveArtifactHash: "7d07a19cf7625f1cc165845742b2a60864738ae5679d0e4df6ca1c3f89493680",
+      barrierCommittedStateHash: "521c60c7cc0f1f33530fe95aac2617b4b520293af9ad198110296601fbdf85b7",
+      saveArtifactHash: "16a362a9def60c478121d4195475876f0beddc0397bb9f0e8a838b1372d2a094",
       rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
-      rehydratedStateHash: "6b4228f4fb64221822e102ddcaa71aad1c53ed987a8adeefdfa09b676fabe08c",
-      historyBackStateHash: "5475e655dbdfdd18c838f85151473a839e190f7bda0dab74243bf3ae9337fb7a",
-      historyForwardStateHash: "58d4a8b6bbca607226c05127ea7514f98008a7e9317ac4ee3199cf7ed87cc99f",
-      historyForkStateHash: "ff93d34ff22204a6fa489ae7a31bb8d4a696c2e2a6ab81460717f1c0c7cea88c",
-      historySessionHash: "5eb97952d5ea84edf7030fb069b4ba5885ef53f4c9c314868418ccecb4635b69",
+      rehydratedStateHash: "9b3637dfae72873e2ad30cdb17b7075883352c1d1b8a4ea98c276402b3f8ca61",
+      historyBackStateHash: "b2a3ce524981f87eb687356bcddd18ad6a3c0276cad29b6975605e0229537aab",
+      historyForwardStateHash: "4753549ffbaf6c03b97c55894b1731e4dc095603d7b30417e6cf5c7e09db4d58",
+      historyForkStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
+      historySessionHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
       historyTombstoneInputId: "input-history-left",
-      historyBarrierCode: "RUNTIME_BARRIER_BLOCKED"
+      historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
+      schedulerFinalStateHash: "4817233c4c9113e2d35b1aae0d33600d1210d44e6accd1bccc2abc29d308f0e4",
+      schedulerNormalHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
+      schedulerInstantHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
+      schedulerAutoDelayMilliseconds: 90,
+      schedulerYieldAccumulatedInstructions: 1,
+      schedulerBarrierStopReason: "barrier"
     });
   });
 });
@@ -464,5 +470,142 @@ describe("N31-E5 canonical Runtime History", () => {
     const malformed = { ...advanced.session, checkpoints: [{ checkpointId: "missing-state" }] } as unknown as RuntimeHistorySessionV1;
     expect(() => validateRuntimeHistorySessionV1(story, malformed)).not.toThrow();
     expect(validateRuntimeHistorySessionV1(story, malformed)[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
+  });
+});
+
+describe("N31-E6 deterministic Runtime scheduling", () => {
+  function policy(overrides: Partial<RuntimeSchedulePolicyV1> = {}): RuntimeSchedulePolicyV1 {
+    return {
+      schemaVersion: 1,
+      mode: "normal",
+      skipActivation: null,
+      speed: "normal",
+      stopInstructionIds: [],
+      unavailableEffectDescriptorIds: [],
+      instantInstructionBudget: 256,
+      autoTiming: { baseDelayMilliseconds: 20, millisecondsPerReadableUnit: 3, readableUnits: 10, voiceDurationMilliseconds: 0, voiceTailMilliseconds: 10 },
+      ...overrides
+    };
+  }
+
+  function scheduler(story: RuntimeStoryIrV1, state: RuntimeStateV1 = start(story, "build-scheduler")): RuntimeSchedulerSessionV1 {
+    const history = createRuntimeHistorySessionV1(story, state);
+    if (history.diagnostics.length > 0) throw new Error(JSON.stringify(history.diagnostics));
+    const created = createRuntimeSchedulerSessionV1(story, history.session);
+    if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));
+    return created.session;
+  }
+
+  function toTerminal(story: RuntimeStoryIrV1, initial: RuntimeSchedulerSessionV1, schedule: RuntimeSchedulePolicyV1): { readonly session: RuntimeSchedulerSessionV1; readonly results: readonly RuntimeScheduleResultV1[] } {
+    let session = initial;
+    const results: RuntimeScheduleResultV1[] = [];
+    for (let batch = 0; batch < 64 && session.workingState.terminal.kind === "running"; batch += 1) {
+      const result = scheduleRuntimeBatchV1(story, session, schedule);
+      expect(result.diagnostics).toEqual([]);
+      expect(result.executedInstructions).toBeGreaterThan(0);
+      results.push(result);
+      session = result.session;
+    }
+    expect(session.workingState.terminal.kind).toBe("ended");
+    return { session, results };
+  }
+
+  function scheduleStory(): RuntimeStoryIrV1 {
+    return program([
+      { instructionId: "schedule-set-one", opcode: "set", operands: { variableId: "score", expressionAst: { kind: "literal", value: 1 } } },
+      { instructionId: "schedule-read", opcode: "narration", operands: { textId: "text_read", text: "Read" } },
+      { instructionId: "schedule-add", opcode: "set", operands: { variableId: "score", expressionAst: { kind: "binary", operator: "+", left: { kind: "identifier", name: "score" }, right: { kind: "literal", value: 2 } } } },
+      { instructionId: "schedule-wait", opcode: "wait", operands: { durationMilliseconds: 30 } },
+      { instructionId: "schedule-unread", opcode: "narration", operands: { textId: "text_unread", text: "Unread" } },
+      { instructionId: "schedule-end", opcode: "end", operands: { endingId: "schedule_done", name: "Done" } }
+    ]);
+  }
+
+  it("executes Normal, 5/10/20/40, and Instant through identical State and History boundaries", () => {
+    const story = scheduleStory(), initial = start(story, "build-scheduler", { score: 0 });
+    const normal = toTerminal(story, scheduler(story, initial), policy());
+    for (const speed of [5, 10, 20, 40, "instant"] as const) {
+      const skipped = toTerminal(story, scheduler(story, initial), policy({ mode: "skipAll", skipActivation: "toggle", speed, instantInstructionBudget: 3 }));
+      expect(runtimeStateHashV1(skipped.session.workingState)).toBe(runtimeStateHashV1(normal.session.workingState));
+      expect(skipped.session.history.entries).toHaveLength(normal.session.history.entries.length);
+      expect(skipped.session.workingState.variables.score).toBe(3);
+      expect(skipped.session.workingState.logicalTimeMilliseconds).toBe(30);
+    }
+    const held = toTerminal(story, scheduler(story, initial), policy({ mode: "skipAll", skipActivation: "hold", speed: 20 }));
+    const toggled = toTerminal(story, scheduler(story, initial), policy({ mode: "skipAll", skipActivation: "toggle", speed: 20 }));
+    expect(runtimeHistorySessionHashV1(held.session.history)).toBe(runtimeHistorySessionHashV1(toggled.session.history));
+    expect(normal.session.history.entries).toHaveLength(4);
+  });
+
+  it("yields Instant inside internal instructions and commits one atomic History step at the visible boundary", () => {
+    const story = program([
+      { instructionId: "yield-label-a", opcode: "label", operands: { name: "a" } },
+      { instructionId: "yield-set", opcode: "set", operands: { variableId: "score", expressionAst: { kind: "literal", value: 7 } } },
+      { instructionId: "yield-label-b", opcode: "label", operands: { name: "b" } },
+      { instructionId: "yield-line", opcode: "narration", operands: { textId: "yield_text", text: "Yield" } }
+    ]);
+    let session = scheduler(story, start(story, "build-scheduler", { score: 0 }));
+    for (let batch = 0; batch < 3; batch += 1) {
+      const yielded = scheduleRuntimeBatchV1(story, session, policy({ mode: "skipAll", skipActivation: "hold", speed: "instant", instantInstructionBudget: 1 }));
+      expect(yielded.stopReason).toBe("budget");
+      expect(yielded.session.history.entries).toHaveLength(0);
+      expect(validateRuntimeSchedulerSessionV1(story, yielded.session)).toEqual([]);
+      session = yielded.session;
+    }
+    const visible = scheduleRuntimeBatchV1(story, session, policy({ mode: "skipAll", skipActivation: "hold", speed: "instant", instantInstructionBudget: 1 }));
+    expect(visible.events).toEqual([{ kind: "narration", instructionId: "yield-line", textId: "yield_text", text: "Yield" }]);
+    expect(visible.session.history.entries).toHaveLength(1);
+    expect(visible.session.history.entries[0]?.executedInstructions).toBe(4);
+    expect(visible.session.workingState.variables.score).toBe(7);
+  });
+
+  it("stops Skip Read after the first unread text without changing scheduling-independent State", () => {
+    const story = scheduleStory();
+    const base = start(story, "build-scheduler", { score: 0 });
+    const readState = { ...base, metaProgress: { ...base.metaProgress, readTextIds: ["text_read"] } };
+    const skipped = scheduleRuntimeBatchV1(story, scheduler(story, readState), policy({ mode: "skipRead", skipActivation: "toggle", speed: "instant" }));
+    expect(skipped.stopReason).toBe("unreadBoundary");
+    expect(skipped.events.map((event) => event.instructionId)).toEqual(["schedule-read", "schedule-wait", "schedule-unread"]);
+    let normalSession = scheduler(story, readState);
+    for (let index = 0; index < 3; index += 1) normalSession = scheduleRuntimeBatchV1(story, normalSession, policy()).session;
+    expect(runtimeStateHashV1(skipped.state)).toBe(runtimeStateHashV1(normalSession.workingState));
+  });
+
+  it("computes Auto delay outside State and matches Normal at the same boundary", () => {
+    const story = scheduleStory(), initial = scheduler(story, start(story, "build-scheduler", { score: 0 }));
+    const normal = scheduleRuntimeBatchV1(story, initial, policy());
+    const auto = scheduleRuntimeBatchV1(story, initial, policy({ mode: "auto", autoTiming: { baseDelayMilliseconds: 20, millisecondsPerReadableUnit: 3, readableUnits: 10, voiceDurationMilliseconds: 80, voiceTailMilliseconds: 10 } }));
+    expect(auto.stopReason).toBe("storyBoundary");
+    expect(auto.autoAdvanceDelayMilliseconds).toBe(90);
+    expect(runtimeStateHashV1(auto.state)).toBe(runtimeStateHashV1(normal.state));
+  });
+
+  it("rolls back an unavailable Effect step and stops on configured points, Choice, awaited Effect, and Barrier", () => {
+    const unavailableStory = program([{ instructionId: "unavailable-effect", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_missing" } } }]);
+    const unavailableSession = scheduler(unavailableStory);
+    const unavailable = scheduleRuntimeBatchV1(unavailableStory, unavailableSession, policy({ mode: "skipAll", skipActivation: "toggle", speed: 20, unavailableEffectDescriptorIds: ["unavailable-effect"] }));
+    expect(unavailable).toMatchObject({ stopReason: "resourceUnavailable", executedInstructions: 0, effects: [] });
+    expect(unavailable.session).toBe(unavailableSession);
+
+    const stopStory = program([{ instructionId: "manual-stop", opcode: "narration", operands: { textId: "stop_text", text: "Stop" } }]);
+    expect(scheduleRuntimeBatchV1(stopStory, scheduler(stopStory), policy({ mode: "skipAll", skipActivation: "toggle", speed: 20, stopInstructionIds: ["manual-stop"] }))).toMatchObject({ stopReason: "stopPoint", events: [{ instructionId: "manual-stop" }] });
+
+    const choiceStory = program([{ instructionId: "schedule-choice", opcode: "choice", operands: { prompt: "Choose", options: [{ optionId: "stay", label: "Stay", targetSceneId: "main" }] } }]);
+    expect(scheduleRuntimeBatchV1(choiceStory, scheduler(choiceStory), policy({ mode: "skipAll", skipActivation: "toggle", speed: 20 })).stopReason).toBe("input");
+    const awaitedStory = program([{ instructionId: "schedule-effect", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_effect", awaitMode: "awaited" } } }]);
+    expect(scheduleRuntimeBatchV1(awaitedStory, scheduler(awaitedStory), policy({ mode: "skipAll", skipActivation: "toggle", speed: 20 })).stopReason).toBe("effect");
+    const barrierStory = program([{ instructionId: "schedule-barrier", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_barrier", effectPolicy: "barrier", barrierReason: "Confirm" } } }]);
+    expect(scheduleRuntimeBatchV1(barrierStory, scheduler(barrierStory), policy({ mode: "skipAll", skipActivation: "toggle", speed: 20 })).stopReason).toBe("barrier");
+  });
+
+  it("rejects malformed policy and Scheduler Session without mutating History", () => {
+    const story = scheduleStory(), initial = scheduler(story, start(story, "build-scheduler", { score: 0 }));
+    const invalidPolicy = { ...policy(), instantInstructionBudget: 0 };
+    const rejected = scheduleRuntimeBatchV1(story, initial, invalidPolicy);
+    expect(rejected.diagnostics[0]?.code).toBe("RUNTIME_SCHEDULER_INVALID");
+    expect(rejected.session).toBe(initial);
+    const malformed = { ...initial, accumulatedInstructions: -1 };
+    expect(validateRuntimeSchedulerSessionV1(story, malformed)[0]?.code).toBe("RUNTIME_SCHEDULER_INVALID");
+    expect(scheduleRuntimeBatchV1(story, malformed, policy()).session).toBe(malformed);
   });
 });

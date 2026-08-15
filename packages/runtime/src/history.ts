@@ -16,6 +16,7 @@ import {
   type RuntimeInputReceiptV1,
   type RuntimeProgramV1,
   type RuntimeRunOptionsV1,
+  type RuntimeRunResultV1,
   type RuntimeStateV1
 } from "./types";
 
@@ -150,6 +151,22 @@ export function advanceRuntimeHistoryV1(program: RuntimeProgramV1, session: Runt
   for (const input of truncated) if (!tombstones.some((item) => item.inputId === input.inputId)) tombstones.push(input);
   const unsigned: Omit<RuntimeHistoryEntryV1, "entryId"> = { historyIndex: session.cursor, beforeCheckpointId: session.checkpoints[session.cursor]!.checkpointId, afterCheckpointId: after.checkpointId, input: options.input ?? null, event: executed.event, effects: executed.effects, executedInstructions: executed.executedInstructions, barriers: executed.state.barrierLedger.slice(state.barrierLedger.length) };
   const next: RuntimeHistorySessionV1 = { ...session, cursor: session.cursor + 1, checkpoints: [...session.checkpoints.slice(0, session.cursor + 1), after], entries: [...keptEntries, makeEntry(unsigned)], inputTombstones: tombstones };
+  return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, barrierBlock: null };
+}
+
+/** Commits one already-executed observable Runtime step. Scheduler is its only production caller. */
+export function commitRuntimeHistoryStepV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, executed: RuntimeRunResultV1, executedInstructions = executed.executedInstructions): RuntimeHistoryResultV1 {
+  const validation = validateRuntimeHistorySessionV1(program, session);
+  if (validation.length > 0) return result(session, validation);
+  const before = session.checkpoints[session.cursor]!.state;
+  if (session.cursor !== session.entries.length) return result(session, [diagnostic("RUNTIME_HISTORY_FORWARD_REQUIRED", "Scheduler cannot commit across recorded future History", before)]);
+  if (executed.diagnostics.length > 0 || executed.event === null && executed.barrierRequest === null) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "History commit requires one successful observable Runtime step", before)]);
+  const stateDiagnostics = validateRuntimeStateV1(program, executed.state);
+  if (stateDiagnostics.length > 0 || executed.state.projectId !== before.projectId || executed.state.buildId !== before.buildId || executed.state.executionId !== before.executionId || !Number.isSafeInteger(executedInstructions) || executedInstructions < 1) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "Executed History step State, identity, or instruction count is invalid", before)]);
+  if (session.cursor >= MAX_RUNTIME_HISTORY_ENTRIES) return result(session, [diagnostic("RUNTIME_HISTORY_LIMIT", `History is limited to ${MAX_RUNTIME_HISTORY_ENTRIES} entries`, before)]);
+  const after = checkpoint(executed.state);
+  const unsigned: Omit<RuntimeHistoryEntryV1, "entryId"> = { historyIndex: session.cursor, beforeCheckpointId: session.checkpoints[session.cursor]!.checkpointId, afterCheckpointId: after.checkpointId, input: null, event: executed.event, effects: executed.effects, executedInstructions, barriers: executed.state.barrierLedger.slice(before.barrierLedger.length) };
+  const next: RuntimeHistorySessionV1 = { ...session, cursor: session.cursor + 1, checkpoints: [...session.checkpoints, after], entries: [...session.entries, makeEntry(unsigned)] };
   return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, barrierBlock: null };
 }
 

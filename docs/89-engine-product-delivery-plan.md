@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-15）：E1–E5 工程切片已形成候选。`@world-studio/runtime` 直接消费 Runtime IR v1，已有版本化确定 State、控制流/Choice、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical Save/Load，以及独立 canonical History Session、Back/Forward、成功分支原子截断、input tombstone 和 Barrier Back 阻断；正式 Node/真实浏览器 Worker 固定向量零差异。Auto/Skip、Source Map 完整诊断与 10k 正式 Runtime Corpus 仍待后续 N31，Save migration、History 存档封装、玩家存档槽和宿主协调仍归后续产品节点。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)、[E3](128-n31-e3-runtime-effect-barrier-audit.md)、[E4](129-n31-e4-runtime-save-load-audit.md)与 [E5 审计](130-n31-e5-runtime-history-audit.md)。
+> 实施状态（2026-08-15）：E1–E6 工程切片已形成候选。`@world-studio/runtime` 直接消费 Runtime IR v1，已有版本化确定 State、控制流/Choice、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical Save/Load/History，以及 Back/Forward、成功分支原子截断、input tombstone、Barrier Back 阻断和 Normal/Auto/Skip Read/Skip All/Instant 确定调度；Scheduler 在指令预算处保留独立 transient State，只在可见边界原子写 History。正式 Node/真实浏览器 Worker 固定向量零差异。Source Map 完整诊断与 10k 正式 Runtime Corpus 仍待后续 N31，Save migration、History 存档封装、玩家存档槽、真实计时/语音/媒体策略和宿主协调仍归后续产品节点。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)、[E3](128-n31-e3-runtime-effect-barrier-audit.md)、[E4](129-n31-e4-runtime-save-load-audit.md)、[E5](130-n31-e5-runtime-history-audit.md)与 [E6 审计](131-n31-e6-runtime-scheduler-audit.md)。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：

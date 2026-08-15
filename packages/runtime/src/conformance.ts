@@ -1,13 +1,14 @@
 import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "./hash";
 import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, createRuntimeHistorySessionV1, forwardRuntimeHistoryV1 } from "./history";
 import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
+import { createRuntimeSchedulerSessionV1, scheduleRuntimeBatchV1 } from "./scheduler";
 import { createRuntimeSaveV1, loadRuntimeSaveV1 } from "./save";
 import { runtimeEffectIntentHashV1 } from "./effect";
-import type { RuntimeProgramV1 } from "./types";
+import type { RuntimeProgramV1, RuntimeSchedulePolicyV1, RuntimeSchedulerSessionV1 } from "./types";
 
 export interface RuntimeConformanceResultV1 {
   readonly schemaVersion: 1;
-  readonly runtimeVersion: "0.5.0";
+  readonly runtimeVersion: "0.6.0";
   readonly initialStateHash: string;
   readonly randomValue: number;
   readonly randomStateHash: string;
@@ -27,6 +28,12 @@ export interface RuntimeConformanceResultV1 {
   readonly historySessionHash: string;
   readonly historyTombstoneInputId: string;
   readonly historyBarrierCode: "RUNTIME_BARRIER_BLOCKED";
+  readonly schedulerFinalStateHash: string;
+  readonly schedulerNormalHistoryHash: string;
+  readonly schedulerInstantHistoryHash: string;
+  readonly schedulerAutoDelayMilliseconds: number;
+  readonly schedulerYieldAccumulatedInstructions: number;
+  readonly schedulerBarrierStopReason: "barrier";
 }
 
 export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
@@ -88,9 +95,42 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   const barrierHistoryCommit = advanceRuntimeHistoryV1(barrierProgram, barrierHistoryRequest.session, { input: { schemaVersion: 1, kind: "barrierApproved", inputId: "input-history-barrier", executionId: barrierHistoryRequest.state.executionId, expectedStateRevision: barrierHistoryRequest.state.stateRevision, logicalSequence: barrierPending.logicalSequence, requestId: barrierPending.requestId, descriptorId: barrierPending.descriptorId } });
   const barrierHistoryBack = backRuntimeHistoryV1(barrierProgram, barrierHistoryCommit.session);
   if (barrierHistoryBack.diagnostics[0]?.code !== "RUNTIME_BARRIER_BLOCKED") throw new TypeError("Runtime History Barrier block failed");
+  const schedulerProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-scheduler", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [
+    { instructionId: "scheduler-set", opcode: "set", operands: { variableId: "score", expressionAst: { kind: "literal", value: 1 } } },
+    { instructionId: "scheduler-one", opcode: "narration", operands: { textId: "scheduler_one", text: "One" } },
+    { instructionId: "scheduler-add", opcode: "set", operands: { variableId: "score", expressionAst: { kind: "binary", operator: "+", left: { kind: "identifier", name: "score" }, right: { kind: "literal", value: 2 } } } },
+    { instructionId: "scheduler-wait", opcode: "wait", operands: { durationMilliseconds: 30 } },
+    { instructionId: "scheduler-two", opcode: "narration", operands: { textId: "scheduler_two", text: "Two" } },
+    { instructionId: "scheduler-end", opcode: "end", operands: { endingId: "scheduler_done", name: "Done" } }
+  ] }] };
+  const schedulerCreated = createRuntimeState(schedulerProgram, { buildId: "build-scheduler", executionId: "execution-scheduler", initialVariables: { score: 0 } });
+  if (!schedulerCreated.ok) throw new TypeError("Runtime Scheduler conformance setup failed");
+  const schedulerHistory = createRuntimeHistorySessionV1(schedulerProgram, schedulerCreated.state);
+  const schedulerInitial = createRuntimeSchedulerSessionV1(schedulerProgram, schedulerHistory.session);
+  if (!schedulerInitial.ok) throw new TypeError("Runtime Scheduler Session setup failed");
+  const normalPolicy: RuntimeSchedulePolicyV1 = { schemaVersion: 1, mode: "normal", skipActivation: null, speed: "normal", stopInstructionIds: [], unavailableEffectDescriptorIds: [], instantInstructionBudget: 256, autoTiming: { baseDelayMilliseconds: 20, millisecondsPerReadableUnit: 3, readableUnits: 10, voiceDurationMilliseconds: 0, voiceTailMilliseconds: 10 } };
+  const runSchedule = (initial: RuntimeSchedulerSessionV1, policy: RuntimeSchedulePolicyV1): RuntimeSchedulerSessionV1 => {
+    let session = initial;
+    for (let batch = 0; batch < 64 && session.workingState.terminal.kind === "running"; batch += 1) {
+      const scheduled = scheduleRuntimeBatchV1(schedulerProgram, session, policy);
+      if (scheduled.diagnostics.length > 0 || scheduled.executedInstructions === 0) throw new TypeError("Runtime Scheduler conformance execution failed");
+      session = scheduled.session;
+    }
+    if (session.workingState.terminal.kind !== "ended") throw new TypeError("Runtime Scheduler conformance did not terminate");
+    return session;
+  };
+  const schedulerNormal = runSchedule(schedulerInitial.session, normalPolicy);
+  const instantPolicy: RuntimeSchedulePolicyV1 = { ...normalPolicy, mode: "skipAll", skipActivation: "toggle", speed: "instant", instantInstructionBudget: 1 };
+  const schedulerInstant = runSchedule(schedulerInitial.session, instantPolicy);
+  const schedulerYield = scheduleRuntimeBatchV1(schedulerProgram, schedulerInitial.session, instantPolicy);
+  const autoResult = scheduleRuntimeBatchV1(schedulerProgram, schedulerInitial.session, { ...normalPolicy, mode: "auto", autoTiming: { ...normalPolicy.autoTiming, voiceDurationMilliseconds: 80 } });
+  const schedulerBarrierInitial = createRuntimeSchedulerSessionV1(barrierProgram, barrierHistoryInitial.session);
+  if (!schedulerBarrierInitial.ok) throw new TypeError("Runtime Scheduler Barrier setup failed");
+  const schedulerBarrier = scheduleRuntimeBatchV1(barrierProgram, schedulerBarrierInitial.session, { ...normalPolicy, mode: "skipAll", skipActivation: "toggle", speed: 20 });
+  if (schedulerBarrier.stopReason !== "barrier") throw new TypeError("Runtime Scheduler Barrier stop failed");
   return {
     schemaVersion: 1,
-    runtimeVersion: "0.5.0",
+    runtimeVersion: "0.6.0",
     initialStateHash: runtimeStateHashV1(created.state),
     randomValue: drawn.value,
     randomStateHash: runtimeStateHashV1(drawn.state),
@@ -109,6 +149,12 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     historyForkStateHash: runtimeStateHashV1(historyFork.state),
     historySessionHash: runtimeHistorySessionHashV1(historyFork.session),
     historyTombstoneInputId: historyFork.session.inputTombstones[0]?.inputId ?? "",
-    historyBarrierCode: "RUNTIME_BARRIER_BLOCKED"
+    historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
+    schedulerFinalStateHash: runtimeStateHashV1(schedulerNormal.workingState),
+    schedulerNormalHistoryHash: runtimeHistorySessionHashV1(schedulerNormal.history),
+    schedulerInstantHistoryHash: runtimeHistorySessionHashV1(schedulerInstant.history),
+    schedulerAutoDelayMilliseconds: autoResult.autoAdvanceDelayMilliseconds ?? -1,
+    schedulerYieldAccumulatedInstructions: schedulerYield.session.accumulatedInstructions,
+    schedulerBarrierStopReason: "barrier"
   };
 }
