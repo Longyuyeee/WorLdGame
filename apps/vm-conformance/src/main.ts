@@ -1,22 +1,22 @@
-import type { RuntimeE2WorkerRequestV1, RuntimeE2WorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { RUNTIME_E2_NODE_GOLDEN_V1, SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
+import type { RuntimeWorkerRequestV1, RuntimeWorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
+import { RUNTIME_NODE_GOLDEN_V1, SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
 
 const status = document.querySelector<HTMLParagraphElement>("#status");
 const output = document.querySelector<HTMLPreElement>("#result");
 if (status === null || output === null) throw new TypeError("Conformance Harness DOM is incomplete");
 status.dataset.userAgent = navigator.userAgent;
-status.dataset.runtimeE2 = "running";
+status.dataset.runtime = "running";
 
 const runtimeWorker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "world-runtime-e2-conformance" });
-const runtimeRequest: RuntimeE2WorkerRequestV1 = { protocolVersion: 1, kind: "runRuntimeE2Conformance", requestId: "request.runtime-e2.web-worker" };
-runtimeWorker.addEventListener("message", (event: MessageEvent<RuntimeE2WorkerResponseV1>) => {
+const runtimeRequest: RuntimeWorkerRequestV1 = { protocolVersion: 1, kind: "runRuntimeConformance", requestId: "request.runtime-v1.web-worker" };
+runtimeWorker.addEventListener("message", (event: MessageEvent<RuntimeWorkerResponseV1>) => {
   runtimeWorker.terminate();
   const response = event.data;
-  const matches = response.protocolVersion === 1 && response.kind === "runtimeE2ConformanceResult" && response.requestId === runtimeRequest.requestId && response.host === "web-worker" && JSON.stringify(response.result) === JSON.stringify(RUNTIME_E2_NODE_GOLDEN_V1);
-  status.dataset.runtimeE2 = matches ? "passed" : "failed";
+  const matches = response.protocolVersion === 1 && response.kind === "runtimeConformanceResult" && response.requestId === runtimeRequest.requestId && response.host === "web-worker" && JSON.stringify(response.result) === JSON.stringify(RUNTIME_NODE_GOLDEN_V1);
+  status.dataset.runtime = matches ? "passed" : "failed";
   if (!matches) output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
-runtimeWorker.addEventListener("error", () => { runtimeWorker.terminate(); status.dataset.runtimeE2 = "failed"; }, { once: true });
+runtimeWorker.addEventListener("error", () => { runtimeWorker.terminate(); status.dataset.runtime = "failed"; }, { once: true });
 runtimeWorker.postMessage(runtimeRequest);
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), {
@@ -56,8 +56,8 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
   const matchesSpike13 = response.spike13.suiteDigest === SPIKE13_NODE_GOLDEN_V0.suiteDigest &&
     response.spike13.records.length === SPIKE13_NODE_GOLDEN_V0.recordCount &&
     response.spike13.recordDigests.length === SPIKE13_NODE_GOLDEN_V0.recordCount;
-  const matchesRuntimeE2 = JSON.stringify(response.runtimeE2) === JSON.stringify(RUNTIME_E2_NODE_GOLDEN_V1);
-  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12 || !matchesSpike13 || !matchesRuntimeE2) {
+  const matchesRuntime = JSON.stringify(response.runtime) === JSON.stringify(RUNTIME_NODE_GOLDEN_V1);
+  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12 || !matchesSpike13 || !matchesRuntime) {
     status.dataset.status = "failed";
     status.textContent = "FAIL：Web Worker 结果与 Node Golden 不一致";
     output.textContent = JSON.stringify(response, null, 2);

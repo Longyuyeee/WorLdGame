@@ -3,17 +3,19 @@ import {
   DEFAULT_PRNG_SEED,
   DEFAULT_INSTRUCTION_BUDGET,
   MAX_CALL_STACK_DEPTH,
+  MAX_INPUT_RECEIPTS,
   MAX_META_PROGRESS_IDS_PER_DOMAIN,
   RUNTIME_STATE_SCHEMA_VERSION,
   RUNTIME_VERSION,
   type CreateRuntimeOptionsV1,
   type CreateRuntimeResultV1,
-  type RuntimeChoiceInputV1,
   type RuntimeChoiceOptionV1,
   type RuntimeCursorV1,
   type RuntimeDiagnosticCode,
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
+  type RuntimeEffectIntentV1,
+  type RuntimeInputV1,
   type RuntimeProgramV1,
   type RuntimeRandomDrawRequestV1,
   type RuntimeRandomDrawResultV1,
@@ -23,6 +25,7 @@ import {
   type RuntimeStateV1
 } from "./types";
 import { canonicalRuntimeStringify } from "./canonical";
+import { runtimeBarrierRequestIdV1, runtimeChoiceRequestIdV1, runtimeEffectIdV1 } from "./effect";
 
 const supportedOpcodes = new Set([
   "dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"
@@ -45,6 +48,10 @@ function validRecord(value: unknown): value is Readonly<Record<string, unknown>>
   if (value === null || Array.isArray(value) || typeof value !== "object") return false;
   const prototype = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
+}
+
+function validEffectState(effect: RuntimeEffectIntentV1): boolean {
+  return canonicalId.test(effect.effectId) && canonicalId.test(effect.executionId) && Number.isSafeInteger(effect.originatingRevision) && effect.originatingRevision > 0 && Number.isSafeInteger(effect.logicalSequence) && effect.logicalSequence >= 0 && canonicalId.test(effect.descriptorId) && canonicalId.test(effect.channel) && canonicalId.test(effect.kind) && validRecord(effect.payload) && Object.values(effect.payload).every(finiteScalar) && ["pure", "reversible", "barrier"].includes(effect.policy) && ["detached", "awaited"].includes(effect.awaitMode) && canonicalId.test(effect.cancellationScope) && canonicalId.test(effect.replayKey) && (effect.policy === "reversible" ? effect.compensation !== null && canonicalId.test(effect.compensation.kind) && Object.values(effect.compensation.payload).every(finiteScalar) : effect.compensation === null);
 }
 
 function scenesById(program: RuntimeProgramV1): Map<string, RuntimeSceneV1> {
@@ -81,6 +88,18 @@ function validateState(program: RuntimeProgramV1, state: RuntimeStateV1): readon
   if (!Number.isSafeInteger(state.stateRevision) || state.stateRevision < 0 || !Number.isSafeInteger(state.logicalTimeMilliseconds) || state.logicalTimeMilliseconds < 0) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State counters must be non-negative safe integers", state.cursor)];
   }
+  if (!Number.isSafeInteger(state.nextEffectSequence) || state.nextEffectSequence < 0 || !Number.isSafeInteger(state.nextInputSequence) || state.nextInputSequence < 0 || state.inputReceipts.length > MAX_INPUT_RECEIPTS) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Effect/Input counters or receipt ledger are invalid", state.cursor)];
+  }
+  if ((state.pendingEffect !== null && (!validEffectState(state.pendingEffect) || state.pendingEffect.awaitMode !== "awaited" || state.pendingEffect.policy === "barrier")) || (state.pendingBarrier !== null && (!canonicalId.test(state.pendingBarrier.requestId) || state.pendingBarrier.executionId !== state.executionId || !Number.isSafeInteger(state.pendingBarrier.expectedStateRevision) || !Number.isSafeInteger(state.pendingBarrier.logicalSequence) || !canonicalId.test(state.pendingBarrier.instructionId) || !canonicalId.test(state.pendingBarrier.descriptorId) || state.pendingBarrier.reason.length === 0)) || [state.pendingChoice, state.pendingEffect, state.pendingBarrier].filter((item) => item !== null).length > 1) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime pending input or Effect State is invalid", state.cursor)];
+  }
+  const receiptIds = new Set<string>();
+  for (const receipt of state.inputReceipts) {
+    if (!Number.isSafeInteger(receipt.acceptedAtRevision) || receipt.acceptedAtRevision < 1 || receipt.acceptedAtRevision > state.stateRevision || receiptIds.has(receipt.input.inputId)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime input receipt ledger is invalid", state.cursor)];
+    receiptIds.add(receipt.input.inputId);
+  }
+  if (state.barrierLedger.some((record) => !canonicalId.test(record.effectId) || !canonicalId.test(record.descriptorId) || record.reason.length === 0 || !Number.isSafeInteger(record.committedAtRevision) || record.committedAtRevision < 1 || record.committedAtRevision > state.stateRevision)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Barrier ledger is invalid", state.cursor)];
   if (state.callStack.length > MAX_CALL_STACK_DEPTH || Object.values(state.variables).some((value) => !finiteScalar(value))) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State contains an invalid stack or variable value", state.cursor)];
   }
@@ -134,6 +153,12 @@ export function createRuntimeState(program: RuntimeProgramV1, options: CreateRun
       audioState: { tracks: {} },
       metaProgress: { schemaVersion: 1, projectId: program.projectId, progressScopeId, readTextIds: [], unlockedGalleryAssetIds: [], reachedEndingIds: [] },
       pendingChoice: null,
+      pendingEffect: null,
+      pendingBarrier: null,
+      nextEffectSequence: 0,
+      nextInputSequence: 0,
+      inputReceipts: [],
+      barrierLedger: [],
       terminal: { kind: "running" }
     }
   };
@@ -194,6 +219,43 @@ function directionState(state: RuntimeStateV1, command: string, parameters: Read
     return { audioState: { tracks } };
   }
   return undefined;
+}
+
+function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV1, command: string, parameters: Readonly<Record<string, unknown>>, originatingRevision: number): RuntimeEffectIntentV1 | undefined {
+  const policy = parameters.effectPolicy ?? "pure";
+  const awaitMode = parameters.awaitMode ?? "detached";
+  const descriptorId = parameters.descriptorId ?? instruction.instructionId;
+  const channel = parameters.channel ?? command;
+  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : "play";
+  const cancellationScope = parameters.cancellationScope ?? `scope.${state.cursor.sceneId}`;
+  const replayKey = parameters.replayKey ?? `replay.${instruction.instructionId}`;
+  if (!["pure", "reversible", "barrier"].includes(String(policy)) || !["detached", "awaited"].includes(String(awaitMode)) || typeof descriptorId !== "string" || typeof channel !== "string" || typeof cancellationScope !== "string" || typeof replayKey !== "string" || !canonicalId.test(descriptorId) || !canonicalId.test(channel) || !canonicalId.test(cancellationScope) || !canonicalId.test(replayKey)) return undefined;
+  if (policy === "barrier" && (awaitMode !== "detached" || typeof parameters.barrierReason !== "string" || parameters.barrierReason.length === 0)) return undefined;
+  const compensationKind = parameters.compensationKind;
+  if (policy === "reversible" && (typeof compensationKind !== "string" || !canonicalId.test(compensationKind))) return undefined;
+  if (policy !== "reversible" && compensationKind !== undefined) return undefined;
+  const metadata = new Set(["effectPolicy", "awaitMode", "descriptorId", "channel", "cancellationScope", "replayKey", "compensationKind", "barrierReason"]);
+  const payload: Record<string, RuntimeScalar> = {};
+  for (const [key, value] of Object.entries(parameters)) {
+    if (metadata.has(key)) continue;
+    if (!finiteScalar(value)) return undefined;
+    payload[key] = value;
+  }
+  return {
+    effectId: runtimeEffectIdV1(state.executionId, descriptorId, state.nextEffectSequence, originatingRevision),
+    executionId: state.executionId,
+    originatingRevision,
+    logicalSequence: state.nextEffectSequence,
+    descriptorId,
+    channel,
+    kind: `${command}.${action}`,
+    payload,
+    policy: policy as RuntimeEffectIntentV1["policy"],
+    awaitMode: awaitMode as RuntimeEffectIntentV1["awaitMode"],
+    cancellationScope,
+    replayKey,
+    compensation: policy === "reversible" ? { kind: compensationKind as string, payload: {} } : null
+  };
 }
 
 function stringOperand(instruction: RuntimeInstructionV1, name: string): string | undefined {
@@ -275,7 +337,11 @@ function evaluate(node: ExpressionNode, variables: Readonly<Record<string, Runti
 }
 
 function failure(state: RuntimeStateV1, code: RuntimeDiagnosticCode, message: string, instruction?: RuntimeInstructionV1, executedInstructions = 0): RuntimeRunResultV1 {
-  return { state, event: null, executedInstructions, diagnostics: [diagnostic(code, message, state.cursor, instruction?.instructionId)] };
+  return { state, event: null, executedInstructions, diagnostics: [diagnostic(code, message, state.cursor, instruction?.instructionId)], effects: [], barrierRequest: null };
+}
+
+function success(state: RuntimeStateV1, event: RuntimeEventV1 | null, executedInstructions: number, effects: readonly RuntimeEffectIntentV1[] = [], barrierRequest: RuntimeStateV1["pendingBarrier"] = null): RuntimeRunResultV1 {
+  return { state, event, executedInstructions, diagnostics: [], effects, barrierRequest };
 }
 
 function choiceOptions(instruction: RuntimeInstructionV1): readonly RuntimeChoiceOptionV1[] | undefined {
@@ -291,37 +357,85 @@ function choiceOptions(instruction: RuntimeInstructionV1): readonly RuntimeChoic
   return options.length > 0 ? options : undefined;
 }
 
-function applyChoice(program: RuntimeProgramV1, state: RuntimeStateV1, input: RuntimeChoiceInputV1): RuntimeStateV1 | RuntimeDiagnosticV1 {
-  const pending = state.pendingChoice;
-  if (pending === null) return diagnostic("RUNTIME_CHOICE_MISMATCH", "No choice is pending", state.cursor);
-  if (input.expectedStateRevision !== state.stateRevision) return diagnostic("RUNTIME_INPUT_STALE", "Choice input targets a stale state revision", state.cursor, pending.instructionId);
-  if (input.instructionId !== pending.instructionId) return diagnostic("RUNTIME_CHOICE_MISMATCH", "Choice input targets a different instruction", state.cursor, pending.instructionId);
-  const option = pending.options.find((item) => item.optionId === input.optionId);
-  if (option === undefined) return diagnostic("RUNTIME_CHOICE_MISMATCH", `Unknown choice option: ${input.optionId}`, state.cursor, pending.instructionId);
-  if (!scenesById(program).has(option.targetSceneId)) return diagnostic("RUNTIME_MISSING_SCENE", `Choice target scene does not exist: ${option.targetSceneId}`, state.cursor, pending.instructionId);
-  return { ...state, stateRevision: state.stateRevision + 1, cursor: { sceneId: option.targetSceneId, instructionIndex: 0 }, pendingChoice: null };
+function validInput(input: RuntimeInputV1): boolean {
+  const common = input.schemaVersion === 1 && canonicalId.test(input.inputId) && canonicalId.test(input.executionId) && Number.isSafeInteger(input.expectedStateRevision) && input.expectedStateRevision >= 0 && Number.isSafeInteger(input.logicalSequence) && input.logicalSequence >= 0;
+  if (!common) return false;
+  if (input.kind === "choiceSelected") return canonicalId.test(input.requestId) && canonicalId.test(input.instructionId) && canonicalId.test(input.optionId);
+  if (input.kind === "barrierApproved") return canonicalId.test(input.requestId) && canonicalId.test(input.descriptorId);
+  if (input.kind === "effectCompleted") return canonicalId.test(input.effectId) && canonicalId.test(input.replayKey);
+  return input.kind === "effectCancelled" && canonicalId.test(input.effectId) && canonicalId.test(input.cancellationScope);
+}
+
+function instructionAt(program: RuntimeProgramV1, state: RuntimeStateV1): RuntimeInstructionV1 | undefined {
+  return scenesById(program).get(state.cursor.sceneId)?.instructions[state.cursor.instructionIndex];
+}
+
+type AppliedInput = { readonly kind: "continue"; readonly state: RuntimeStateV1 } | { readonly kind: "return"; readonly result: RuntimeRunResultV1 };
+
+function applyInput(program: RuntimeProgramV1, state: RuntimeStateV1, input: RuntimeInputV1): AppliedInput {
+  if (!validInput(input)) return { kind: "return", result: failure(state, "RUNTIME_INPUT_MISMATCH", "External input schema is invalid") };
+  const prior = state.inputReceipts.find((receipt) => receipt.input.inputId === input.inputId);
+  if (prior !== undefined) return canonicalRuntimeStringify(prior.input) === canonicalRuntimeStringify(input)
+    ? { kind: "return", result: success(state, null, 0) }
+    : { kind: "return", result: failure(state, "RUNTIME_INPUT_ID_CONFLICT", "Input ID was already accepted with a different payload") };
+  if (state.inputReceipts.length >= MAX_INPUT_RECEIPTS) return { kind: "return", result: failure(state, "RUNTIME_INPUT_RECEIPT_LIMIT", "Input receipt ledger reached its limit") };
+  if (input.kind === "effectCompleted" && state.pendingEffect === null && state.inputReceipts.some((receipt) => receipt.input.kind === "effectCancelled" && receipt.input.effectId === input.effectId)) return { kind: "return", result: failure(state, "RUNTIME_EFFECT_CANCELLED", "Effect scope was already cancelled") };
+  if (input.executionId !== state.executionId || input.expectedStateRevision !== state.stateRevision) return { kind: "return", result: failure(state, "RUNTIME_INPUT_STALE", "Input execution or revision does not match current State") };
+  const acceptedAtRevision = state.stateRevision + 1;
+  const inputReceipts = [...state.inputReceipts, { input, acceptedAtRevision }];
+
+  if (input.kind === "choiceSelected") {
+    const pending = state.pendingChoice;
+    if (pending === null) return { kind: "return", result: failure(state, "RUNTIME_INPUT_UNEXPECTED", "No Choice request is pending") };
+    if (input.logicalSequence !== pending.logicalSequence) return { kind: "return", result: failure(state, "RUNTIME_INPUT_OUT_OF_ORDER", "Choice sequence does not match") };
+    if (input.requestId !== pending.requestId || input.instructionId !== pending.instructionId || input.expectedStateRevision !== pending.expectedStateRevision) return { kind: "return", result: failure(state, "RUNTIME_INPUT_MISMATCH", "Choice token does not match pending request") };
+    const option = pending.options.find((item) => item.optionId === input.optionId);
+    if (option === undefined) return { kind: "return", result: failure(state, "RUNTIME_CHOICE_MISMATCH", `Unknown choice option: ${input.optionId}`) };
+    if (!scenesById(program).has(option.targetSceneId)) return { kind: "return", result: failure(state, "RUNTIME_MISSING_SCENE", `Choice target scene does not exist: ${option.targetSceneId}`) };
+    return { kind: "continue", state: { ...state, stateRevision: acceptedAtRevision, cursor: { sceneId: option.targetSceneId, instructionIndex: 0 }, pendingChoice: null, inputReceipts } };
+  }
+
+  if (input.kind === "barrierApproved") {
+    const pending = state.pendingBarrier;
+    const instruction = instructionAt(program, state);
+    if (pending === null || instruction?.opcode !== "direction") return { kind: "return", result: failure(state, "RUNTIME_INPUT_UNEXPECTED", "No Barrier approval request is pending") };
+    if (input.logicalSequence !== pending.logicalSequence) return { kind: "return", result: failure(state, "RUNTIME_INPUT_OUT_OF_ORDER", "Barrier sequence does not match") };
+    if (input.requestId !== pending.requestId || input.descriptorId !== pending.descriptorId || input.expectedStateRevision !== pending.expectedStateRevision) return { kind: "return", result: failure(state, "RUNTIME_INPUT_MISMATCH", "Barrier approval token does not match") };
+    const command = stringOperand(instruction, "command"), parameters = instruction.operands.parameters;
+    if (command === undefined || !validRecord(parameters)) return { kind: "return", result: failure(state, "RUNTIME_INVALID_IR", "Barrier direction is malformed", instruction) };
+    const effect = directionEffect(state, instruction, command, parameters, acceptedAtRevision), extra = directionState(state, command, parameters);
+    if (effect === undefined || effect.policy !== "barrier" || extra === undefined) return { kind: "return", result: failure(state, "RUNTIME_INVALID_IR", "Barrier Effect metadata is malformed", instruction) };
+    const nextState: RuntimeStateV1 = { ...state, ...extra, stateRevision: acceptedAtRevision, cursor: nextCursor(state.cursor), pendingBarrier: null, nextEffectSequence: state.nextEffectSequence + 1, inputReceipts, barrierLedger: [...state.barrierLedger, { effectId: effect.effectId, descriptorId: effect.descriptorId, reason: pending.reason, committedAtRevision: acceptedAtRevision }] };
+    return { kind: "return", result: success(nextState, { kind: "direction", instructionId: instruction.instructionId, command, parameters }, 0, [effect]) };
+  }
+
+  const pendingEffect = state.pendingEffect;
+  if (pendingEffect === null) {
+    return { kind: "return", result: failure(state, "RUNTIME_INPUT_UNEXPECTED", "No awaited Effect is pending") };
+  }
+  if (input.logicalSequence !== pendingEffect.logicalSequence) return { kind: "return", result: failure(state, "RUNTIME_INPUT_OUT_OF_ORDER", "Effect sequence does not match") };
+  const tokenMatches = input.effectId === pendingEffect.effectId && (input.kind === "effectCompleted" ? input.replayKey === pendingEffect.replayKey : input.cancellationScope === pendingEffect.cancellationScope);
+  if (!tokenMatches) return { kind: "return", result: failure(state, "RUNTIME_INPUT_MISMATCH", "Effect completion or cancellation token does not match") };
+  const instruction = instructionAt(program, state), command = instruction === undefined ? undefined : stringOperand(instruction, "command"), parameters = instruction?.operands.parameters;
+  if (instruction?.opcode !== "direction" || command === undefined || !validRecord(parameters)) return { kind: "return", result: failure(state, "RUNTIME_INVALID_IR", "Pending Effect direction is malformed", instruction) };
+  const extra = input.kind === "effectCompleted" ? directionState(state, command, parameters) : {};
+  if (extra === undefined) return { kind: "return", result: failure(state, "RUNTIME_INVALID_IR", "Pending Effect logical State is malformed", instruction) };
+  return { kind: "continue", state: { ...state, ...extra, stateRevision: acceptedAtRevision, cursor: nextCursor(state.cursor), pendingEffect: null, inputReceipts } };
 }
 
 export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeStateV1, options: RuntimeRunOptionsV1 = {}): RuntimeRunResultV1 {
   const programDiagnostics = validateProgram(program);
-  if (programDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: programDiagnostics };
+  if (programDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: programDiagnostics, effects: [], barrierRequest: null };
   let stateDiagnostics: readonly RuntimeDiagnosticV1[];
   try { stateDiagnostics = validateState(program, initialState); }
   catch { stateDiagnostics = [diagnostic("RUNTIME_INVALID_STATE", "Runtime State structure is missing or malformed")]; }
-  if (stateDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: stateDiagnostics };
-  if (initialState.terminal.kind === "ended") return failure(initialState, "RUNTIME_TERMINAL", "Runtime has already ended");
+  if (stateDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: stateDiagnostics, effects: [], barrierRequest: null };
   let state = initialState;
-  if (state.pendingChoice !== null) {
-    if (options.input === undefined) {
-      const pending = state.pendingChoice;
-      return { state, event: { kind: "choice", instructionId: pending.instructionId, prompt: pending.prompt, options: pending.options }, executedInstructions: 0, diagnostics: [] };
-    }
-    const selected = applyChoice(program, state, options.input);
-    if ("code" in selected) return { state, event: null, executedInstructions: 0, diagnostics: [selected] };
-    state = selected;
-  } else if (options.input !== undefined) {
-    return failure(state, "RUNTIME_CHOICE_MISMATCH", "Choice input was supplied when no choice is pending");
-  }
+  if (options.input !== undefined) { const applied = applyInput(program, state, options.input); if (applied.kind === "return") return applied.result; state = applied.state; }
+  if (state.terminal.kind === "ended") return failure(state, "RUNTIME_TERMINAL", "Runtime has already ended");
+  if (state.pendingChoice !== null) { const pending = state.pendingChoice; return success(state, { kind: "choice", instructionId: pending.instructionId, prompt: pending.prompt, options: pending.options }, 0); }
+  if (state.pendingBarrier !== null) return success(state, null, 0, [], state.pendingBarrier);
+  if (state.pendingEffect !== null) return failure(state, "RUNTIME_EFFECT_REQUIRED", "Awaited Effect must complete or cancel before execution can continue");
 
   const budget = options.instructionBudget ?? DEFAULT_INSTRUCTION_BUDGET;
   if (!Number.isSafeInteger(budget) || budget < 1) return failure(state, "RUNTIME_INVALID_STATE", "Instruction budget must be a positive safe integer");
@@ -334,7 +448,7 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
     const operands = instruction.operands;
     const advance = (event: RuntimeEventV1 | null = null, extra: Partial<RuntimeStateV1> = {}): RuntimeRunResultV1 | undefined => {
       state = { ...state, ...extra, stateRevision: state.stateRevision + 1, cursor: nextCursor(state.cursor) };
-      return event === null ? undefined : { state, event, executedInstructions: executed + 1, diagnostics: [] };
+      return event === null ? undefined : success(state, event, executed + 1);
     };
     if (instruction.opcode === "label") { advance(); continue; }
     if (instruction.opcode === "dialogue") {
@@ -354,15 +468,30 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
       if (command === undefined || parameters === null || Array.isArray(parameters) || typeof parameters !== "object") return failure(state, "RUNTIME_INVALID_IR", "Direction operands are malformed", instruction, executed);
       const directionParameters = parameters as Readonly<Record<string, unknown>>;
       const extra = directionState(state, command, directionParameters);
-      if (extra === undefined) return failure(state, "RUNTIME_INVALID_IR", "Direction command, action, or logical parameters are malformed", instruction, executed);
-      return advance({ kind: "direction", instructionId: instruction.instructionId, command, parameters: directionParameters }, extra)!;
+      const effect = directionEffect(state, instruction, command, directionParameters, state.stateRevision + 1);
+      if (extra === undefined || effect === undefined) return failure(state, "RUNTIME_INVALID_IR", "Direction command, action, Effect, or logical parameters are malformed", instruction, executed);
+      if (state.nextEffectSequence === Number.MAX_SAFE_INTEGER) return failure(state, "RUNTIME_INVALID_STATE", "Effect logical sequence overflow", instruction, executed);
+      if (effect.policy === "barrier") {
+        if (state.nextInputSequence === Number.MAX_SAFE_INTEGER) return failure(state, "RUNTIME_INVALID_STATE", "Input logical sequence overflow", instruction, executed);
+        const expectedStateRevision = state.stateRevision + 1;
+        const pendingBarrier = { requestId: runtimeBarrierRequestIdV1(state.executionId, effect.descriptorId, state.nextInputSequence, expectedStateRevision), executionId: state.executionId, expectedStateRevision, logicalSequence: state.nextInputSequence, instructionId: instruction.instructionId, descriptorId: effect.descriptorId, reason: String(directionParameters.barrierReason) };
+        state = { ...state, stateRevision: expectedStateRevision, pendingBarrier, nextInputSequence: state.nextInputSequence + 1 };
+        return success(state, null, executed + 1, [], pendingBarrier);
+      }
+      if (effect.awaitMode === "awaited") {
+        state = { ...state, stateRevision: state.stateRevision + 1, pendingEffect: effect, nextEffectSequence: state.nextEffectSequence + 1 };
+        return success(state, { kind: "direction", instructionId: instruction.instructionId, command, parameters: directionParameters }, executed + 1, [effect]);
+      }
+      state = { ...state, ...extra, stateRevision: state.stateRevision + 1, cursor: nextCursor(state.cursor), nextEffectSequence: state.nextEffectSequence + 1 };
+      return success(state, { kind: "direction", instructionId: instruction.instructionId, command, parameters: directionParameters }, executed + 1, [effect]);
     }
     if (instruction.opcode === "choice") {
       const prompt = stringOperand(instruction, "prompt"), choices = choiceOptions(instruction);
       if (prompt === undefined || choices === undefined) return failure(state, "RUNTIME_INVALID_IR", "Choice operands are malformed", instruction, executed);
-      const pendingChoice = { instructionId: instruction.instructionId, sceneId: state.cursor.sceneId, instructionIndex: state.cursor.instructionIndex, prompt, options: choices };
-      state = { ...state, stateRevision: state.stateRevision + 1, pendingChoice };
-      return { state, event: { kind: "choice", instructionId: instruction.instructionId, prompt, options: choices }, executedInstructions: executed + 1, diagnostics: [] };
+      const expectedStateRevision = state.stateRevision + 1;
+      const pendingChoice = { requestId: runtimeChoiceRequestIdV1(state.executionId, instruction.instructionId, state.nextInputSequence, expectedStateRevision), expectedStateRevision, logicalSequence: state.nextInputSequence, instructionId: instruction.instructionId, sceneId: state.cursor.sceneId, instructionIndex: state.cursor.instructionIndex, prompt, options: choices };
+      state = { ...state, stateRevision: expectedStateRevision, pendingChoice, nextInputSequence: state.nextInputSequence + 1 };
+      return success(state, { kind: "choice", instructionId: instruction.instructionId, prompt, options: choices }, executed + 1);
     }
     if (instruction.opcode === "jump" || instruction.opcode === "call") {
       const targetLabel = stringOperand(instruction, "targetLabel"), target = targetLabel === undefined ? undefined : labelCursor(scene, targetLabel);
@@ -410,7 +539,7 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
       if (endingId === undefined || name === undefined) return failure(state, "RUNTIME_INVALID_IR", "Ending operands are malformed", instruction, executed);
       if (!canonicalId.test(endingId)) return failure(state, "RUNTIME_INVALID_IR", "Ending ID is invalid", instruction, executed);
       state = { ...state, stateRevision: state.stateRevision + 1, terminal: { kind: "ended", endingId, name }, metaProgress: { ...state.metaProgress, reachedEndingIds: addMonotonicId(state.metaProgress.reachedEndingIds, endingId) } };
-      return { state, event: { kind: "ending", instructionId: instruction.instructionId, endingId, name }, executedInstructions: executed + 1, diagnostics: [] };
+      return success(state, { kind: "ending", instructionId: instruction.instructionId, endingId, name }, executed + 1);
     }
   }
   return failure(state, "RUNTIME_BUDGET_EXCEEDED", `No observable stop was reached within ${budget} instructions`, undefined, budget);
