@@ -3,6 +3,8 @@
 > 审计日期：2026-08-15
 > 审计基线：`7c3b9bd67ad5f1923d286e2c6ee7c292719bc947`（N31-E8 最终远端绿色头）
 > 审计分支：`agent/n31-runtime-e9-exit-audit`
+> 审计提交：`1da47ad856ec800d7d8edc3ab6f7d7fb0025e499`
+> 交付入口：Draft PR #44（基于 `agent/n31-runtime-e8`）
 > 审计范围：N31 Goal、7 项 Implementation、Tests、Acceptance 与 VM-01–VM-15 正式迁移
 > 出口判定：**未通过（fail closed）**；保持 N31 Engineering 候选，不进入 N32
 
@@ -52,6 +54,8 @@ E1–E8 已经形成可移植的正式 `@world-studio/runtime` 候选，但不�
 ## 4. 现有证据仍然有效
 
 E9 不否定 E1–E8 已通过的工程证据：Runtime 43 项、正式 10,000-seed/20,000-replay corpus、Source Map 诊断、Node/真实浏览器 Worker Golden、本地完整门与 E8 最终 Windows / Node 22 CI 仍然有效。E8 最终证据头 `7c3b9bd67ad5f1923d286e2c6ee7c292719bc947` 的 run `31892269100` attempt 2、job `95030754155` 绿色通过。
+
+E9 审计提交 `1da47ad856ec800d7d8edc3ab6f7d7fb0025e499` 已推送至 Draft PR #44；`product-baseline` run `31893152467`、job `95032331627` 在 Windows / Node 22 绿色通过，用时 4 分 56 秒。该结果只证明 E9 文档与既有 E1–E8 基线稳定，不改变本审计的 fail-closed 出口判定。
 
 但这些证据不能替代缺失的 VM-11/13/14/15 正式契约。`apps/vm-conformance` 同时运行 Spike 与正式 Runtime，也不代表正式 Runtime 自动继承 Spike 的测试覆盖。
 
