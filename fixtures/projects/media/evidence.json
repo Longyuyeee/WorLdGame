@@ -39,9 +39,9 @@
     "hash": "bfc31717994c9f4ebf14b2892f019065fd8eb99e27ca2f5a2651b9edbdcf2c09"
   },
   "expectedIrHash": {
-    "status": "pending",
+    "status": "verified",
     "targetNode": "N30",
-    "value": null
+    "value": "0a19dec5b213ab50758bdcd1a3483b5db59cd43cd500218339315101d7469c6d"
   },
   "expectedStateHash": {
     "status": "pending",

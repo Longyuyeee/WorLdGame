@@ -4,7 +4,7 @@ import { validateRiskAcceptanceRegistry } from "./risk-acceptance-policy.mjs";
 function registry(overrides: Record<string, unknown> = {}) {
   return {
     schemaVersion: 1,
-    currentDeliveryNode: "N23",
+    currentDeliveryNode: "N30",
     exceptions: [{ id: "RA-N21-001", status: "closed", failedControls: ["human task"], impact: ["usability risk"], reason: "superseded", compensatingControls: ["bounded work"], owner: "editor-experience", approver: "Product Owner", approvedAt: "2026-08-14T00:00:00+08:00", expiresAt: "2026-09-14T00:00:00+08:00", maximumDeliveryNode: "N22", blockedGates: ["N21 Product Acceptance", "N23 Acceptance", "M1 Stable", "Public Release"], remediationPlan: "superseded", verificationMethod: "record evidence", evidencePath: "docs/100-n21-human-validation-risk-acceptance.md" }, {
       id: "RA-N21-002",
       status: "active",
@@ -16,8 +16,8 @@ function registry(overrides: Record<string, unknown> = {}) {
       approver: "Product Owner",
       approvedAt: "2026-08-14T00:00:00+08:00",
       expiresAt: "2026-09-14T00:00:00+08:00",
-      maximumDeliveryNode: "N23",
-      blockedGates: ["N21 Product Acceptance", "N23 Acceptance", "M1 Stable", "Public Release"],
+      maximumDeliveryNode: "N30",
+      blockedGates: ["N21 Product Acceptance", "N23 Acceptance", "N30 Product Acceptance", "N31 Engineering", "M1 Stable", "Public Release"],
       remediationPlan: "run the task",
       verificationMethod: "record evidence",
       evidencePath: "docs/100-n21-human-validation-risk-acceptance.md"
@@ -37,8 +37,8 @@ describe("risk acceptance policy", () => {
     expect(validateRiskAcceptanceRegistry(registry(), new Date("2026-09-14T00:00:00+08:00"))).toContain("RA-N21-002: active exception has expired");
   });
 
-  it("fails when delivery advances beyond N23", () => {
-    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N30" }), now)).toContain("RA-N21-002: current delivery node exceeds the accepted maximum");
+  it("fails when delivery advances beyond N30", () => {
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N31" }), now)).toContain("RA-N21-002: current delivery node exceeds the accepted maximum");
   });
 
   it("fails when Stable is no longer blocked", () => {

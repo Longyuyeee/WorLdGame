@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N21 工程门后开发情况审计](99-current-development-status-audit.md)。旧 `RA-N21-001` 已关闭；[`RA-N21-002`](115-playable-flow-order-correction.md)仅允许推进到 N23 可运行纵向切片，不改变 N21/N23/M1/发布仍被阻断的事实。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
+> 当前审计：[当前开发情况审计](99-current-development-status-audit.md)。旧 `RA-N21-001` 已关闭；[`RA-N21-002`](123-n30-e1-project-compiler-audit.md)仅把工程候选上限扩至 N30 Compiler，不改变 N21/N23/M1/发布仍被阻断的事实，也不授权 N31。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -248,7 +248,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N23 五分钟可玩切片 Gate
 
-> 实施状态（2026-08-15）：E1 可运行流程、E2 空工程创作闭环、E3 自包含资源 ZIP、E4 独立离线试玩 HTML、E5 五分钟内容量、E6 双参与者协议与 E7 一键验收启动器已贯通，详见 [N23 产品验收执行包](121-n23-product-acceptance-execution-kit.md)及 [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)。真人状态仍为 N21 `0/1`、N23 `0/2`，N23 产品验收未通过；不得提前进入 N30/N31/N50。
+> 实施状态（2026-08-15）：E1 可运行流程、E2 空工程创作闭环、E3 自包含资源 ZIP、E4 独立离线试玩 HTML、E5 五分钟内容量、E6 双参与者协议与 E7 一键验收启动器已贯通，详见 [N23 产品验收执行包](121-n23-product-acceptance-execution-kit.md)及 [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)。真人状态仍为 N21 `0/1`、N23 `0/2`，N23 产品验收未通过；风险例外仅允许继续 N30 Compiler 工程候选，N31/N50 仍被阻断。
 
 - **Goal**：第一次证明引擎主体，而不是局部组件。
 - **Required artifact**：从空工程制作的 5 分钟、3 场景、2 角色、2 结局作品。
@@ -259,6 +259,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 ## 8. R3：正式 Compiler 与 Runtime
 
 ### N30 Project Compiler
+
+> 实施状态（2026-08-15）：E1 最小内核已形成工程候选。独立 portable package、Runtime IR v1、五文件 Artifact 集、P0 lowering、基础结构/资源诊断、确定性 Hash 和 Tiny/Branching/Media/CJK IR Golden 已建立；场景级缓存、完整 CFG、剩余 Catalog、licenses/SBOM 与跨机器复验仍待 E2，故 N30 不标记为整体验收通过。详见 [N30-E1 审计](123-n30-e1-project-compiler-audit.md)。
 
 - **Goal**：将权威工程确定性编译为玩家可执行数据。
 - **Implementation**：

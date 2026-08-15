@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/narrative-vm-spike" },
     { "path": "./packages/project-domain" },
+    { "path": "./packages/project-compiler" },
     { "path": "./packages/story-core" },
     { "path": "./packages/story-language" },
     { "path": "./packages/project-persistence" },
