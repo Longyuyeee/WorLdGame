@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[当前开发情况审计](99-current-development-status-audit.md)。旧 `RA-N21-001` 已关闭；[`RA-N21-002`](123-n30-e1-project-compiler-audit.md)仅把工程候选上限扩至 N30 Compiler，不改变 N21/N23/M1/发布仍被阻断的事实，也不授权 N31。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
+> 当前审计：[当前开发情况审计](99-current-development-status-audit.md)。`RA-N21-001/002` 已关闭；[`RA-N21-003`](126-n31-e1-runtime-kernel-audit.md)只授权 N31 正式 Runtime 工程候选，不改变 N21/N23/N30/N31 产品验收与 M1/发布仍被阻断的事实，也不授权 N32。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -275,6 +275,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Acceptance**：Tiny/Branching/Media/CJK 工程均生成稳定 IR。
 
 ### N31 正式 Narrative Runtime
+
+> 实施状态（2026-08-15）：E1 最小正式内核实现中。新增 `@world-studio/runtime` portable candidate，直接消费 Runtime IR v1，建立版本化 State、场景/指令游标、变量、调用栈、逻辑时间、Choice 输入防陈旧校验、可观察停点、结局和指令预算；不依赖实验 VM Spike。Save/Load、History、Effect/Barrier、PRNG/Meta Progress、Auto/Skip、State Hash 与 Node/Web Worker 一致性仍待后续 N31 切片。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [N31-E1 审计](126-n31-e1-runtime-kernel-audit.md)。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：

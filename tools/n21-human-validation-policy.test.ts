@@ -76,7 +76,7 @@ describe("N21 human validation policy", () => {
   it("accepts a complete passing record only with the exception closed", () => {
     expect(validateN21HumanValidation(protocol(), completed(), risk("closed"))).toEqual([]);
     expect(validateN21HumanValidation(protocol(), completed(), risk())).toContain(
-      "N21 pass requires RA-N21-002 to be closed in the same change"
+      "N21 pass requires every RA-N21 exception to be closed in the same change"
     );
   });
 

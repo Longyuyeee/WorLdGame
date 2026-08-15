@@ -13,7 +13,7 @@ function validArtifact(value) {
 
 export function validateN21HumanValidation(protocol, record, riskRegistry) {
   const violations = [];
-  const exception = riskRegistry?.exceptions?.find((entry) => entry?.id === "RA-N21-002");
+  const activeException = riskRegistry?.exceptions?.find((entry) => entry?.status === "active" && entry?.id?.startsWith("RA-N21-"));
   if (protocol?.schemaVersion !== 1 || protocol?.protocolId !== "N21-HV-01" || protocol?.deliveryNode !== "N21") {
     violations.push("N21 human protocol identity is invalid");
   }
@@ -41,7 +41,7 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
   }
 
   if (record.status === "pending-participant") {
-    if (exception?.status !== "active") violations.push("pending N21 human evidence requires RA-N21-002 to remain active");
+    if (activeException === undefined) violations.push("pending N21 human evidence requires an active RA-N21 exception");
     if (record.participant?.pseudonymousId !== null || record.participant?.consentRecorded !== null ||
         record.session?.startedAt !== null || record.session?.endedAt !== null || record.session?.durationSeconds !== null ||
         record.session?.helpRequestCount !== null || record.session?.facilitatorOperatedEditor !== null ||
@@ -88,7 +88,7 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
           .every((field) => record.saveCloseReopen?.[field] === true)) {
       violations.push("N21 pass requires all tasks and save-close-reopen checks to pass");
     }
-    if (exception?.status !== "closed") violations.push("N21 pass requires RA-N21-002 to be closed in the same change");
+    if (activeException !== undefined) violations.push("N21 pass requires every RA-N21 exception to be closed in the same change");
   } else if (!record.tasks.some((task) => task.status === "fail") && record.saveCloseReopen?.status !== "fail") {
     violations.push("N21 fail requires at least one failed task or persistence check");
   }

@@ -62,6 +62,6 @@ if (violations.length > 0) {
     protocolHash,
     participants: `${completedParticipants}/${protocol.minimumParticipants}`,
     productEntryLabel: protocol.prerequisite.productEntryLabel,
-    blockedGates: riskRegistry.exceptions.find((entry) => entry.id === "RA-N21-002")?.blockedGates ?? []
+    blockedGates: riskRegistry.exceptions.find((entry) => entry.status === "active" && entry.id.startsWith("RA-N21-"))?.blockedGates ?? []
   }, null, 2));
 }

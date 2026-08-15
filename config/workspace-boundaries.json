@@ -86,6 +86,14 @@
       "allowedWorkspaceDependencies": ["@world-studio/project-domain", "@world-studio/project-persistence"]
     },
     {
+      "path": "packages/runtime",
+      "packageName": "@world-studio/runtime",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Runtime Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/project-compiler", "@world-studio/project-domain"]
+    },
+    {
       "path": "packages/story-core",
       "packageName": "@world-studio/story-core",
       "kind": "portable-candidate",
@@ -103,7 +111,6 @@
     }
   ],
   "plannedProductBoundaries": [
-    { "path": "packages/runtime", "packageName": "@world-studio/runtime", "firstNode": "N31" },
     { "path": "packages/build-core", "packageName": "@world-studio/build-core", "firstNode": "N83" },
     { "path": "apps/player-web", "packageName": "@world-studio/player-web", "firstNode": "N80" },
     { "path": "apps/player-windows", "packageName": "@world-studio/player-windows", "firstNode": "N81" },

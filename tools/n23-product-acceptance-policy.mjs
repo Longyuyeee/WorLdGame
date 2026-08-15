@@ -35,7 +35,7 @@ function pendingParticipantIsEmpty(participant) {
 
 export function validateN23ProductAcceptance(protocol, record, riskRegistry, n21Record) {
   const violations = [];
-  const exception = riskRegistry?.exceptions?.find((entry) => entry?.id === "RA-N21-002");
+  const activeException = riskRegistry?.exceptions?.find((entry) => entry?.status === "active" && entry?.id?.startsWith("RA-N21-"));
   if (protocol?.schemaVersion !== 1 || protocol?.protocolId !== "N23-PA-01" || protocol?.deliveryNode !== "N23") {
     violations.push("N23 product acceptance protocol identity is invalid");
   }
@@ -82,7 +82,7 @@ export function validateN23ProductAcceptance(protocol, record, riskRegistry, n21
   }
 
   if (record.status === "pending-participants") {
-    if (exception?.status !== "active") violations.push("pending N23 product evidence requires RA-N21-002 to remain active");
+    if (activeException === undefined) violations.push("pending N23 product evidence requires an active RA-N21 exception");
     if (!record.participants.every(pendingParticipantIsEmpty) || record.decision !== null) {
       violations.push("pending N23 product evidence must not contain fabricated completion data");
     }
@@ -140,7 +140,7 @@ export function validateN23ProductAcceptance(protocol, record, riskRegistry, n21
       violations.push("N23 pass requires zero Severity 0 or 1 findings");
     }
     if (n21Record?.status !== "pass") violations.push("N23 pass requires the N21 human validation record to pass first");
-    if (exception?.status !== "closed") violations.push("N23 pass requires RA-N21-002 to be closed in the same change");
+    if (activeException !== undefined) violations.push("N23 pass requires every RA-N21 exception to be closed in the same change");
   } else {
     const hasFailure = record.participants.some((participant) => participant.tasks.some((task) => task.status === "fail") ||
       participant.editorRoutes.some((route) => route.status === "fail") || participant.standaloneRoutes.some((route) => route.status === "fail") ||
