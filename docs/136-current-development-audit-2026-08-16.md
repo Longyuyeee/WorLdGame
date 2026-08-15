@@ -4,6 +4,7 @@
 > 代码基线：`1572796418dcd365a900199b8bb8291330b5212c`（N31-E10 最终远端绿色头）
 > 审计分支：`agent/current-development-audit-2026-08-16`
 > 上游交付：Draft PR #45，基于 `agent/n31-runtime-e9-exit-audit`
+> 本审计交付：Draft PR #46，基于 `agent/n31-runtime-e10-formal-vm-parity`；审计提交 `9c68d55a4b0817c60ff516b7382a48af9f683e52`
 > 审计范围：真实代码、工作区边界、需求矩阵、产品闭环、自动化证据、GitHub 集成状态和后续顺序
 > 权威边界：需求状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准，执行顺序仍以 [游戏引擎产品落地开发计划](89-engine-product-delivery-plan.md)为准。本文件是面向当前决策的综合快照，不用自动化通过替代真人验收或发布验收。
 
@@ -112,6 +113,8 @@
 | Editor 生产包 | 636.67 kB，gzip 183.52 kB；构建通过但存在大于 500 kB 警告 |
 
 同一基线已经由 Draft PR #45 的 `product-baseline` run `31894928407`、job `95036669462` 在 Windows / Node 22 上通过。自动化说明当前候选可重复构建和回归，不证明真人易用性、三端设备兼容、正式安装或发布质量。
+
+本审计文档提交 `9c68d55a4b0817c60ff516b7382a48af9f683e52` 又由 Draft PR #46 的 `product-baseline` run `31896050807`、job `95039421206` 复验通过，完整 Windows / Node 22 job 用时 4 分 12 秒。这证明新增审计与入口更新没有破坏工程基线；仍不改变任何产品门状态。
 
 ## 6. GitHub 集成审计
 
