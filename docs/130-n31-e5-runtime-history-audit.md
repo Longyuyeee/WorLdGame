@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`f0f94aed57157c21ad2163c36e1466814ed8697c`
 > 审计分支：`agent/n31-runtime-e5`
-> 交付状态：实现、定向测试、真实 Worker 与本地完整门已完成；Draft PR 与远端 Windows / Node 22 CI 待本轮后续回填
+> 交付状态：实现头 `e25c556ed101b4f3394d1909a1469b61777ea3db`；Draft PR #40；本地完整门、真实 Worker 及远端 Windows / Node 22 CI 均通过
 > 节点判定：N31 Engineering E5 候选；N31 Product Acceptance、N32、M1 Stable 与发布仍被 `RA-N21-003` 阻断
 
 ## 1. 需求边界
@@ -50,7 +50,7 @@ Runtime 定向门现为 31 项，其中 E5 五项覆盖：
 4. Barrier Back 阻断并返回准确 reason；
 5. checkpoint/entry Hash 篡改和结构损坏拒绝且不抛异常。
 
-本地完整 `npm run check` 已通过：98 个并行文件/619 项、存储 1 项、重型 VM 5 项、12 workspace 构建、79 个 portable 文件/4 个 Node adapter、Script 10 项和 Asset 4 项性能门。GitHub Draft PR 与远端 `product-baseline` 证据将在实现提交后按顺序回填；没有最终远端绿色头前，本文件不把 E5 记为交付完成。
+本地完整 `npm run check` 已通过：98 个并行文件/619 项、存储 1 项、重型 VM 5 项、12 workspace 构建、79 个 portable 文件/4 个 Node adapter、Script 10 项和 Asset 4 项性能门。实现头 `e25c556ed101b4f3394d1909a1469b61777ea3db` 的远端 `product-baseline` run `31888437653`、job `95021012493` 已通过 Windows / Node 22 完整门，用时 4 分 4 秒。
 
 ## 5. 需求与下一顺序
 
