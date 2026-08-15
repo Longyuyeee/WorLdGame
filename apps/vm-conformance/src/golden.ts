@@ -61,7 +61,26 @@ export const SPIKE13_NODE_GOLDEN_V0 = {
   recordCount: 22,
   suiteDigest: "fdf3b8dcc83f57f29b45a27f275c48254dbe4e3c208d788d196eb4fb7c74fb26"
 } as const;
-import type { RuntimeConformanceResultV1 } from "@world-studio/runtime";
+import type { RuntimeConformanceResultV1, RuntimeGeneratedCorpusSummaryV1 } from "@world-studio/runtime";
+
+export const RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1: RuntimeGeneratedCorpusSummaryV1 = {
+  schemaVersion: 1,
+  corpusId: "corpus.generated.runtime.v1",
+  seedCount: 10_000,
+  replayExecutions: 20_000,
+  chunkCount: 40,
+  scenarioCounts: {
+    "control-flow": 1429,
+    random: 1429,
+    "effect-cancellation": 1429,
+    "save-load": 1429,
+    "choice-history": 1428,
+    "scheduler-equivalence": 1428,
+    "diagnostic-rollback": 1428
+  },
+  failedSeeds: [],
+  outcomeDigest: "e12b72f81c47339604540876d77eda0d0f5dc624462a20ec1dd35f8c9322a125"
+};
 
 export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   schemaVersion: 1,

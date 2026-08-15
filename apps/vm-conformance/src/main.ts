@@ -1,5 +1,5 @@
 import type { RuntimeWorkerRequestV1, RuntimeWorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { RUNTIME_NODE_GOLDEN_V1, SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
+import { RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1, RUNTIME_NODE_GOLDEN_V1, SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
 
 const status = document.querySelector<HTMLParagraphElement>("#status");
 const output = document.querySelector<HTMLPreElement>("#result");
@@ -57,14 +57,15 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
     response.spike13.records.length === SPIKE13_NODE_GOLDEN_V0.recordCount &&
     response.spike13.recordDigests.length === SPIKE13_NODE_GOLDEN_V0.recordCount;
   const matchesRuntime = JSON.stringify(response.runtime) === JSON.stringify(RUNTIME_NODE_GOLDEN_V1);
-  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12 || !matchesSpike13 || !matchesRuntime) {
+  const matchesRuntimeCorpus = JSON.stringify(response.runtimeCorpus) === JSON.stringify(RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1);
+  if (!matchesSpike10 || !matchesSpike11 || !matchesSpike12 || !matchesSpike13 || !matchesRuntime || !matchesRuntimeCorpus) {
     status.dataset.status = "failed";
     status.textContent = "FAIL：Web Worker 结果与 Node Golden 不一致";
     output.textContent = JSON.stringify(response, null, 2);
     return;
   }
   status.dataset.status = "passed";
-  status.textContent = "PASS：正式 Runtime State / Effect / Save / History / Scheduler 固定向量与既有 10,000 种子 VM Corpus 均和 Node Golden 零差异";
+  status.textContent = "PASS：正式 Runtime 固定向量与 10,000 种子 Runtime Corpus 均和 Node Golden 零差异";
   output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 

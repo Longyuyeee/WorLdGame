@@ -11,7 +11,13 @@ import {
   summarizeGeneratedCorpusV0
 } from "@world-studio/narrative-vm-spike";
 import type { RuntimeWorkerRequestV1, RuntimeWorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { executeRuntimeConformanceV1 } from "@world-studio/runtime";
+import {
+  RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1,
+  RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1,
+  executeRuntimeConformanceV1,
+  executeRuntimeGeneratedCorpusChunkV1,
+  summarizeRuntimeGeneratedCorpusV1
+} from "@world-studio/runtime";
 
 const scope = self as DedicatedWorkerGlobalScope;
 
@@ -36,6 +42,16 @@ scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0 | R
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
   }
   const spike12 = summarizeGeneratedCorpusV0(chunks);
+  const runtimeCorpusStarted = performance.now();
+  const runtimeChunks = [];
+  for (let start = 0; start < RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1; start += RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1) {
+    runtimeChunks.push(executeRuntimeGeneratedCorpusChunkV1(
+      start,
+      Math.min(start + RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1)
+    ));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
+  const runtimeCorpus = summarizeRuntimeGeneratedCorpusV1(runtimeChunks);
   const response: WorkerResponseV0 = {
     protocolVersion: 0,
     kind: "hostConformanceResult",
@@ -46,7 +62,9 @@ scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0 | R
     spike12,
     spike12ElapsedMilliseconds: performance.now() - started,
     spike13: executeSpike13ConformanceSuiteV0(),
-    runtime: executeRuntimeConformanceV1()
+    runtime: executeRuntimeConformanceV1(),
+    runtimeCorpus,
+    runtimeCorpusElapsedMilliseconds: performance.now() - runtimeCorpusStarted
   };
   scope.postMessage(response);
 });
