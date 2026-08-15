@@ -1,11 +1,12 @@
 import { runtimeStateHashV1 } from "./hash";
 import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
+import { createRuntimeSaveV1, loadRuntimeSaveV1 } from "./save";
 import { runtimeEffectIntentHashV1 } from "./effect";
 import type { RuntimeProgramV1 } from "./types";
 
 export interface RuntimeConformanceResultV1 {
   readonly schemaVersion: 1;
-  readonly runtimeVersion: "0.3.0";
+  readonly runtimeVersion: "0.4.0";
   readonly initialStateHash: string;
   readonly randomValue: number;
   readonly randomStateHash: string;
@@ -16,6 +17,9 @@ export interface RuntimeConformanceResultV1 {
   readonly effectCompletedStateHash: string;
   readonly barrierRequestId: string;
   readonly barrierCommittedStateHash: string;
+  readonly saveArtifactHash: string;
+  readonly rehydratedEffectId: string;
+  readonly rehydratedStateHash: string;
 }
 
 export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
@@ -40,6 +44,10 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   if (!effectCreated.ok) throw new TypeError("Runtime Effect conformance setup failed");
   const issued = runRuntime(effectProgram, effectCreated.state), effect = issued.state.pendingEffect;
   if (effect === null) throw new TypeError("Runtime Effect conformance issue failed");
+  const saved = createRuntimeSaveV1(effectProgram, issued.state);
+  if (!saved.ok) throw new TypeError("Runtime Save conformance creation failed");
+  const loaded = loadRuntimeSaveV1(effectProgram, saved.serialized, { expectedBuildId: issued.state.buildId });
+  if (!loaded.ok || loaded.rehydration.kind !== "effect") throw new TypeError("Runtime Save conformance rehydration failed");
   const completed = runRuntime(effectProgram, issued.state, { input: { schemaVersion: 1, kind: "effectCompleted", inputId: "input-effect", executionId: issued.state.executionId, expectedStateRevision: issued.state.stateRevision, logicalSequence: effect.logicalSequence, effectId: effect.effectId, replayKey: effect.replayKey } });
   const barrierProgram: RuntimeProgramV1 = { ...effectProgram, projectId: "runtime-barrier", scenes: [{ sceneId: "main", instructions: [
     { instructionId: "barrier", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_barrier", effectPolicy: "barrier", barrierReason: "Irreversible conformance operation." } } },
@@ -52,7 +60,7 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   const committed = runRuntime(barrierProgram, requested.state, { input: { schemaVersion: 1, kind: "barrierApproved", inputId: "input-barrier", executionId: requested.state.executionId, expectedStateRevision: requested.state.stateRevision, logicalSequence: request.logicalSequence, requestId: request.requestId, descriptorId: request.descriptorId } });
   return {
     schemaVersion: 1,
-    runtimeVersion: "0.3.0",
+    runtimeVersion: "0.4.0",
     initialStateHash: runtimeStateHashV1(created.state),
     randomValue: drawn.value,
     randomStateHash: runtimeStateHashV1(drawn.state),
@@ -62,6 +70,9 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     effectIssuedStateHash: runtimeStateHashV1(issued.state),
     effectCompletedStateHash: runtimeStateHashV1(completed.state),
     barrierRequestId: request.requestId,
-    barrierCommittedStateHash: runtimeStateHashV1(committed.state)
+    barrierCommittedStateHash: runtimeStateHashV1(committed.state),
+    saveArtifactHash: saved.artifactHash,
+    rehydratedEffectId: loaded.rehydration.intent.effectId,
+    rehydratedStateHash: runtimeStateHashV1(loaded.state)
   };
 }

@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-15）：E1–E3 工程切片已形成候选。`@world-studio/runtime` 直接消费 Runtime IR v1，已有版本化确定 State、控制流/Choice、PRNG、Scene/Audio/Meta，以及由现有 Direction IR 产生的 pure/reversible/barrier Effect Intent、awaited/detached、completion/cancel receipt 和 Barrier 显式批准。正式 Node/真实浏览器 Worker 固定向量零差异。Save/Load、History/Back/Forward、Auto/Skip、Source Map 完整诊断与 10k 正式 Runtime Corpus 仍待后续 N31。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)与 [E3 审计](128-n31-e3-runtime-effect-barrier-audit.md)。
+> 实施状态（2026-08-15）：E1–E4 工程切片已形成候选。`@world-studio/runtime` 直接消费 Runtime IR v1，已有版本化确定 State、控制流/Choice、PRNG、Scene/Audio/Meta、Effect/Barrier，以及 canonical Save/Load、版本/Build/State Hash 校验和 pending Effect 无副作用恢复；正式 Node/真实浏览器 Worker 固定向量零差异。History/Back/Forward、Auto/Skip、Source Map 完整诊断与 10k 正式 Runtime Corpus 仍待后续 N31，Save migration 和玩家存档槽仍归后续产品节点。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)、[E3](128-n31-e3-runtime-effect-barrier-audit.md)与 [E4 审计](129-n31-e4-runtime-save-load-audit.md)。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：

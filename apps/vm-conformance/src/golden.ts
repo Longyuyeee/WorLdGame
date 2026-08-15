@@ -65,15 +65,18 @@ import type { RuntimeConformanceResultV1 } from "@world-studio/runtime";
 
 export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   schemaVersion: 1,
-  runtimeVersion: "0.3.0",
-  initialStateHash: "c6ba738888cc9e25cdaf9055d26a4e53c52159ec69371406dd887dbc402df4d0",
+  runtimeVersion: "0.4.0",
+  initialStateHash: "f8083d9d5464cfcd27cff37832c9fa83b1470c16577e17835f7eeb6cb2376fd3",
   randomValue: 13,
-  randomStateHash: "d51fb997ee2deefaad557f41de7ea06bf3d3b95a88a0ce6aef9a9aae8cb52eda",
-  endingStateHash: "8e0e2e92f8e54558e5ceba2f0992ed46e9ce5c193cc98ba33d93940686390591",
+  randomStateHash: "a59b6ec18a772545bf7aca0f5e9ae97f8750179db81d3abf507cf85d52ca1eb1",
+  endingStateHash: "16f6a395a646cf86fa19fdbc0b5c76b5d8ae15987bdff326b08dd20581c40288",
   reachedEndingIds: ["done"],
   effectIntentHash: "ae85cfea2908822b25f52c60fa4a602f2f36b7a204ae157023d91a7103268992",
-  effectIssuedStateHash: "d687d89e8913e454d35fa2464e918880763fb28c436d4922aa55398a29624781",
-  effectCompletedStateHash: "a96de6a2a1d5b61f23345b02a0fea9b7496ff55de38a585f483d01137b1d9f3d",
+  effectIssuedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d",
+  effectCompletedStateHash: "53653863beb0714f6178925d3d3ccbe64e393bf1533aa0723da567ce20f921f3",
   barrierRequestId: "barrier.62b95f219800e9bad704d050252bddea054d18c84cd27a5f41e84498d19d3eaf",
-  barrierCommittedStateHash: "317c0f4a087b63b6e5806132cd55417ac760966d00778173564fa289d2d2167d"
+  barrierCommittedStateHash: "a4589c26cb8e7812d94792b41cee08c8d6afe14cc33cb54e3e03d410d6bb27bb",
+  saveArtifactHash: "de61426116b0cf29c17d8141597cd5aa21e03a8f31eafc70ae9da92036061576",
+  rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
+  rehydratedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d"
 };
