@@ -31,6 +31,7 @@ const supportedOpcodes = new Set([
   "dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"
 ]);
 const canonicalId = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
+const runtimeStateKeys = ["audioState", "barrierLedger", "buildId", "callStack", "cursor", "executionId", "inputReceipts", "irVersion", "logicalTimeMilliseconds", "metaProgress", "nextEffectSequence", "nextInputSequence", "pendingBarrier", "pendingChoice", "pendingEffect", "prng", "projectId", "runtimeVersion", "sceneState", "schemaVersion", "stateRevision", "terminal", "variables"] as const;
 
 function diagnostic(code: RuntimeDiagnosticCode, message: string, cursor?: RuntimeCursorV1, instructionId?: string): RuntimeDiagnosticV1 {
   return { code, message, sceneId: cursor?.sceneId ?? null, instructionId: instructionId ?? null };
@@ -50,6 +51,11 @@ function validRecord(value: unknown): value is Readonly<Record<string, unknown>>
   return prototype === Object.prototype || prototype === null;
 }
 
+function exactRecordKeys(value: Readonly<Record<string, unknown>>, expected: readonly string[]): boolean {
+  const keys = Object.keys(value).sort();
+  return keys.length === expected.length && keys.every((key, index) => key === expected[index]);
+}
+
 function validEffectState(effect: RuntimeEffectIntentV1): boolean {
   return canonicalId.test(effect.effectId) && canonicalId.test(effect.executionId) && Number.isSafeInteger(effect.originatingRevision) && effect.originatingRevision > 0 && Number.isSafeInteger(effect.logicalSequence) && effect.logicalSequence >= 0 && canonicalId.test(effect.descriptorId) && canonicalId.test(effect.channel) && canonicalId.test(effect.kind) && validRecord(effect.payload) && Object.values(effect.payload).every(finiteScalar) && ["pure", "reversible", "barrier"].includes(effect.policy) && ["detached", "awaited"].includes(effect.awaitMode) && canonicalId.test(effect.cancellationScope) && canonicalId.test(effect.replayKey) && (effect.policy === "reversible" ? effect.compensation !== null && canonicalId.test(effect.compensation.kind) && Object.values(effect.compensation.payload).every(finiteScalar) : effect.compensation === null);
 }
@@ -58,7 +64,7 @@ function scenesById(program: RuntimeProgramV1): Map<string, RuntimeSceneV1> {
   return new Map(program.scenes.map((scene) => [scene.sceneId, scene]));
 }
 
-function validateProgram(program: RuntimeProgramV1): readonly RuntimeDiagnosticV1[] {
+export function validateRuntimeProgramV1(program: RuntimeProgramV1): readonly RuntimeDiagnosticV1[] {
   if (program.schemaVersion !== 1 || program.irVersion !== "1.0.0") {
     return [diagnostic("RUNTIME_INCOMPATIBLE_IR", `Expected Runtime IR 1.0.0/schema 1, received ${String(program.irVersion)}/schema ${String(program.schemaVersion)}`)];
   }
@@ -81,9 +87,13 @@ function validateProgram(program: RuntimeProgramV1): readonly RuntimeDiagnosticV
   return [];
 }
 
-function validateState(program: RuntimeProgramV1, state: RuntimeStateV1): readonly RuntimeDiagnosticV1[] {
+export function validateRuntimeStateV1(program: RuntimeProgramV1, state: RuntimeStateV1): readonly RuntimeDiagnosticV1[] {
+  if (!validRecord(state) || !exactRecordKeys(state, runtimeStateKeys)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State schema members are missing or unknown")];
   if (state.schemaVersion !== RUNTIME_STATE_SCHEMA_VERSION || state.runtimeVersion !== RUNTIME_VERSION || state.irVersion !== program.irVersion || state.projectId !== program.projectId) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State identity or version does not match the program", state.cursor)];
+  }
+  if (state.buildId.length === 0 || state.buildId.length > 256 || !canonicalId.test(state.executionId)) {
+    return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State Build or execution identity is invalid", state.cursor)];
   }
   if (!Number.isSafeInteger(state.stateRevision) || state.stateRevision < 0 || !Number.isSafeInteger(state.logicalTimeMilliseconds) || state.logicalTimeMilliseconds < 0) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State counters must be non-negative safe integers", state.cursor)];
@@ -91,12 +101,13 @@ function validateState(program: RuntimeProgramV1, state: RuntimeStateV1): readon
   if (!Number.isSafeInteger(state.nextEffectSequence) || state.nextEffectSequence < 0 || !Number.isSafeInteger(state.nextInputSequence) || state.nextInputSequence < 0 || state.inputReceipts.length > MAX_INPUT_RECEIPTS) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Effect/Input counters or receipt ledger are invalid", state.cursor)];
   }
-  if ((state.pendingEffect !== null && (!validEffectState(state.pendingEffect) || state.pendingEffect.awaitMode !== "awaited" || state.pendingEffect.policy === "barrier")) || (state.pendingBarrier !== null && (!canonicalId.test(state.pendingBarrier.requestId) || state.pendingBarrier.executionId !== state.executionId || !Number.isSafeInteger(state.pendingBarrier.expectedStateRevision) || !Number.isSafeInteger(state.pendingBarrier.logicalSequence) || !canonicalId.test(state.pendingBarrier.instructionId) || !canonicalId.test(state.pendingBarrier.descriptorId) || state.pendingBarrier.reason.length === 0)) || [state.pendingChoice, state.pendingEffect, state.pendingBarrier].filter((item) => item !== null).length > 1) {
+  const pendingChoiceInvalid = state.pendingChoice !== null && (!canonicalId.test(state.pendingChoice.requestId) || state.pendingChoice.expectedStateRevision !== state.stateRevision || !Number.isSafeInteger(state.pendingChoice.logicalSequence) || state.pendingChoice.logicalSequence < 0 || !canonicalId.test(state.pendingChoice.instructionId) || state.pendingChoice.sceneId !== state.cursor.sceneId || state.pendingChoice.instructionIndex !== state.cursor.instructionIndex || state.pendingChoice.options.length === 0 || state.pendingChoice.options.some((option) => !canonicalId.test(option.optionId) || !canonicalId.test(option.targetSceneId)) || new Set(state.pendingChoice.options.map((option) => option.optionId)).size !== state.pendingChoice.options.length);
+  if (pendingChoiceInvalid || (state.pendingEffect !== null && (!validEffectState(state.pendingEffect) || state.pendingEffect.executionId !== state.executionId || state.pendingEffect.originatingRevision !== state.stateRevision || state.pendingEffect.awaitMode !== "awaited" || state.pendingEffect.policy === "barrier")) || (state.pendingBarrier !== null && (!canonicalId.test(state.pendingBarrier.requestId) || state.pendingBarrier.executionId !== state.executionId || state.pendingBarrier.expectedStateRevision !== state.stateRevision || !Number.isSafeInteger(state.pendingBarrier.logicalSequence) || state.pendingBarrier.logicalSequence < 0 || !canonicalId.test(state.pendingBarrier.instructionId) || !canonicalId.test(state.pendingBarrier.descriptorId) || state.pendingBarrier.reason.length === 0)) || [state.pendingChoice, state.pendingEffect, state.pendingBarrier].filter((item) => item !== null).length > 1 || (state.terminal.kind === "ended" && [state.pendingChoice, state.pendingEffect, state.pendingBarrier].some((item) => item !== null))) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime pending input or Effect State is invalid", state.cursor)];
   }
   const receiptIds = new Set<string>();
   for (const receipt of state.inputReceipts) {
-    if (!Number.isSafeInteger(receipt.acceptedAtRevision) || receipt.acceptedAtRevision < 1 || receipt.acceptedAtRevision > state.stateRevision || receiptIds.has(receipt.input.inputId)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime input receipt ledger is invalid", state.cursor)];
+    if (!validInput(receipt.input) || receipt.input.executionId !== state.executionId || !Number.isSafeInteger(receipt.acceptedAtRevision) || receipt.acceptedAtRevision < 1 || receipt.acceptedAtRevision > state.stateRevision || receiptIds.has(receipt.input.inputId)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime input receipt ledger is invalid", state.cursor)];
     receiptIds.add(receipt.input.inputId);
   }
   if (state.barrierLedger.some((record) => !canonicalId.test(record.effectId) || !canonicalId.test(record.descriptorId) || record.reason.length === 0 || !Number.isSafeInteger(record.committedAtRevision) || record.committedAtRevision < 1 || record.committedAtRevision > state.stateRevision)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Barrier ledger is invalid", state.cursor)];
@@ -118,6 +129,7 @@ function validateState(program: RuntimeProgramV1, state: RuntimeStateV1): readon
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Audio State is invalid", state.cursor)];
   }
   const scenes = scenesById(program);
+  if (state.pendingChoice?.options.some((option) => !scenes.has(option.targetSceneId)) === true) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime Choice State targets a missing scene", state.cursor)];
   const cursors = [state.cursor, ...state.callStack];
   if (cursors.some((cursor) => !scenes.has(cursor.sceneId) || !Number.isSafeInteger(cursor.instructionIndex) || cursor.instructionIndex < 0)) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State contains an invalid cursor", state.cursor)];
@@ -127,7 +139,7 @@ function validateState(program: RuntimeProgramV1, state: RuntimeStateV1): readon
 }
 
 export function createRuntimeState(program: RuntimeProgramV1, options: CreateRuntimeOptionsV1): CreateRuntimeResultV1 {
-  const diagnostics = validateProgram(program);
+  const diagnostics = validateRuntimeProgramV1(program);
   if (diagnostics.length > 0) return { ok: false, diagnostics };
   const prngSeed = options.prngSeed ?? DEFAULT_PRNG_SEED;
   const progressScopeId = options.progressScopeId ?? options.executionId;
@@ -357,13 +369,15 @@ function choiceOptions(instruction: RuntimeInstructionV1): readonly RuntimeChoic
   return options.length > 0 ? options : undefined;
 }
 
-function validInput(input: RuntimeInputV1): boolean {
-  const common = input.schemaVersion === 1 && canonicalId.test(input.inputId) && canonicalId.test(input.executionId) && Number.isSafeInteger(input.expectedStateRevision) && input.expectedStateRevision >= 0 && Number.isSafeInteger(input.logicalSequence) && input.logicalSequence >= 0;
+function validInput(input: unknown): input is RuntimeInputV1 {
+  if (!validRecord(input)) return false;
+  const candidate = input as unknown as RuntimeInputV1;
+  const common = candidate.schemaVersion === 1 && typeof candidate.inputId === "string" && canonicalId.test(candidate.inputId) && typeof candidate.executionId === "string" && canonicalId.test(candidate.executionId) && Number.isSafeInteger(candidate.expectedStateRevision) && candidate.expectedStateRevision >= 0 && Number.isSafeInteger(candidate.logicalSequence) && candidate.logicalSequence >= 0;
   if (!common) return false;
-  if (input.kind === "choiceSelected") return canonicalId.test(input.requestId) && canonicalId.test(input.instructionId) && canonicalId.test(input.optionId);
-  if (input.kind === "barrierApproved") return canonicalId.test(input.requestId) && canonicalId.test(input.descriptorId);
-  if (input.kind === "effectCompleted") return canonicalId.test(input.effectId) && canonicalId.test(input.replayKey);
-  return input.kind === "effectCancelled" && canonicalId.test(input.effectId) && canonicalId.test(input.cancellationScope);
+  if (candidate.kind === "choiceSelected") return typeof candidate.requestId === "string" && canonicalId.test(candidate.requestId) && typeof candidate.instructionId === "string" && canonicalId.test(candidate.instructionId) && typeof candidate.optionId === "string" && canonicalId.test(candidate.optionId);
+  if (candidate.kind === "barrierApproved") return typeof candidate.requestId === "string" && canonicalId.test(candidate.requestId) && typeof candidate.descriptorId === "string" && canonicalId.test(candidate.descriptorId);
+  if (candidate.kind === "effectCompleted") return typeof candidate.effectId === "string" && canonicalId.test(candidate.effectId) && typeof candidate.replayKey === "string" && canonicalId.test(candidate.replayKey);
+  return candidate.kind === "effectCancelled" && typeof candidate.effectId === "string" && canonicalId.test(candidate.effectId) && typeof candidate.cancellationScope === "string" && canonicalId.test(candidate.cancellationScope);
 }
 
 function instructionAt(program: RuntimeProgramV1, state: RuntimeStateV1): RuntimeInstructionV1 | undefined {
@@ -424,10 +438,10 @@ function applyInput(program: RuntimeProgramV1, state: RuntimeStateV1, input: Run
 }
 
 export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeStateV1, options: RuntimeRunOptionsV1 = {}): RuntimeRunResultV1 {
-  const programDiagnostics = validateProgram(program);
+  const programDiagnostics = validateRuntimeProgramV1(program);
   if (programDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: programDiagnostics, effects: [], barrierRequest: null };
   let stateDiagnostics: readonly RuntimeDiagnosticV1[];
-  try { stateDiagnostics = validateState(program, initialState); }
+  try { stateDiagnostics = validateRuntimeStateV1(program, initialState); }
   catch { stateDiagnostics = [diagnostic("RUNTIME_INVALID_STATE", "Runtime State structure is missing or malformed")]; }
   if (stateDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: stateDiagnostics, effects: [], barrierRequest: null };
   let state = initialState;

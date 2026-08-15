@@ -1,7 +1,9 @@
 import type { RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 
-export const RUNTIME_VERSION = "0.3.0" as const;
+export const RUNTIME_VERSION = "0.4.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
+export const RUNTIME_SAVE_SCHEMA_VERSION = 1 as const;
+export const MAX_RUNTIME_SAVE_BYTES = 16 * 1024 * 1024;
 export const MAX_CALL_STACK_DEPTH = 64;
 export const MAX_META_PROGRESS_IDS_PER_DOMAIN = 100_000;
 export const DEFAULT_INSTRUCTION_BUDGET = 1024;
@@ -236,6 +238,10 @@ export type RuntimeDiagnosticCode =
   | "RUNTIME_EFFECT_REQUIRED"
   | "RUNTIME_EFFECT_CANCELLED"
   | "RUNTIME_BARRIER_REQUIRED"
+  | "RUNTIME_SAVE_INVALID"
+  | "RUNTIME_SAVE_INCOMPATIBLE"
+  | "RUNTIME_SAVE_BUILD_MISMATCH"
+  | "RUNTIME_SAVE_HASH_MISMATCH"
   | "RUNTIME_BUDGET_EXCEEDED"
   | "RUNTIME_TERMINAL";
 
@@ -265,3 +271,34 @@ export interface RuntimeRunResultV1 {
 }
 
 export type RuntimeProgramV1 = RuntimeStoryIrV1;
+
+export interface RuntimeSaveV1 {
+  readonly schemaVersion: typeof RUNTIME_SAVE_SCHEMA_VERSION;
+  readonly format: "world.runtime-save";
+  readonly runtimeVersion: typeof RUNTIME_VERSION;
+  readonly irVersion: "1.0.0";
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly stateRevision: number;
+  readonly stateHash: string;
+  readonly state: RuntimeStateV1;
+}
+
+export type RuntimeRehydrationV1 =
+  | { readonly kind: "ready" }
+  | { readonly kind: "choice"; readonly request: RuntimePendingChoiceV1 }
+  | { readonly kind: "effect"; readonly intent: RuntimeEffectIntentV1 }
+  | { readonly kind: "barrier"; readonly request: RuntimePendingBarrierV1 }
+  | { readonly kind: "terminal"; readonly terminal: Extract<RuntimeStateV1["terminal"], { readonly kind: "ended" }> };
+
+export type CreateRuntimeSaveResultV1 =
+  | { readonly ok: true; readonly save: RuntimeSaveV1; readonly serialized: string; readonly artifactHash: string }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
+
+export interface LoadRuntimeSaveOptionsV1 {
+  readonly expectedBuildId: string;
+}
+
+export type LoadRuntimeSaveResultV1 =
+  | { readonly ok: true; readonly save: RuntimeSaveV1; readonly state: RuntimeStateV1; readonly rehydration: RuntimeRehydrationV1; readonly artifactHash: string }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };

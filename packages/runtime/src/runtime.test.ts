@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { canonicalRuntimeStringify, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, runRuntime, runtimeStateHashV1, type RuntimeChoiceInputV1, type RuntimeStateV1 } from "./index";
+import { canonicalRuntimeStringify, createRuntimeSaveV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, loadRuntimeSaveV1, runRuntime, runtimeStateHashV1, type RuntimeChoiceInputV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -113,7 +113,7 @@ describe("N31-E2 deterministic state foundations", () => {
     const left = start(story, "build", { alpha: 1, beta: 2 });
     const right = start(story, "build", { beta: 2, alpha: 1 });
     expect(runtimeStateHashV1(left)).toBe(runtimeStateHashV1(right));
-    expect(runtimeStateHashV1(left)).toBe("c6ba738888cc9e25cdaf9055d26a4e53c52159ec69371406dd887dbc402df4d0");
+    expect(runtimeStateHashV1(left)).toBe("f8083d9d5464cfcd27cff37832c9fa83b1470c16577e17835f7eeb6cb2376fd3");
     expect(runtimeStateHashV1({ ...left, logicalTimeMilliseconds: 1 })).not.toBe(runtimeStateHashV1(left));
   });
 
@@ -181,17 +181,20 @@ describe("N31-E2 deterministic state foundations", () => {
   it("freezes the Node host conformance vector consumed by the Web Worker harness", () => {
     expect(executeRuntimeConformanceV1()).toEqual({
       schemaVersion: 1,
-      runtimeVersion: "0.3.0",
-      initialStateHash: "c6ba738888cc9e25cdaf9055d26a4e53c52159ec69371406dd887dbc402df4d0",
+      runtimeVersion: "0.4.0",
+      initialStateHash: "f8083d9d5464cfcd27cff37832c9fa83b1470c16577e17835f7eeb6cb2376fd3",
       randomValue: 13,
-      randomStateHash: "d51fb997ee2deefaad557f41de7ea06bf3d3b95a88a0ce6aef9a9aae8cb52eda",
-      endingStateHash: "8e0e2e92f8e54558e5ceba2f0992ed46e9ce5c193cc98ba33d93940686390591",
+      randomStateHash: "a59b6ec18a772545bf7aca0f5e9ae97f8750179db81d3abf507cf85d52ca1eb1",
+      endingStateHash: "16f6a395a646cf86fa19fdbc0b5c76b5d8ae15987bdff326b08dd20581c40288",
       reachedEndingIds: ["done"],
       effectIntentHash: "ae85cfea2908822b25f52c60fa4a602f2f36b7a204ae157023d91a7103268992",
-      effectIssuedStateHash: "d687d89e8913e454d35fa2464e918880763fb28c436d4922aa55398a29624781",
-      effectCompletedStateHash: "a96de6a2a1d5b61f23345b02a0fea9b7496ff55de38a585f483d01137b1d9f3d",
+      effectIssuedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d",
+      effectCompletedStateHash: "53653863beb0714f6178925d3d3ccbe64e393bf1533aa0723da567ce20f921f3",
       barrierRequestId: "barrier.62b95f219800e9bad704d050252bddea054d18c84cd27a5f41e84498d19d3eaf",
-      barrierCommittedStateHash: "317c0f4a087b63b6e5806132cd55417ac760966d00778173564fa289d2d2167d"
+      barrierCommittedStateHash: "a4589c26cb8e7812d94792b41cee08c8d6afe14cc33cb54e3e03d410d6bb27bb",
+      saveArtifactHash: "de61426116b0cf29c17d8141597cd5aa21e03a8f31eafc70ae9da92036061576",
+      rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
+      rehydratedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d"
     });
   });
 });
@@ -291,5 +294,81 @@ describe("N31-E3 formal Effect and Barrier protocol", () => {
     expect(runRuntime(malformedStory, start(malformedStory)).diagnostics[0]?.code).toBe("RUNTIME_INVALID_IR");
     const reversibleStory = effectStory({ effectPolicy: "reversible", compensationKind: "background.restore" });
     expect(runRuntime(reversibleStory, start(reversibleStory)).effects[0]?.compensation).toEqual({ kind: "background.restore", payload: {} });
+  });
+});
+
+describe("N31-E4 canonical Runtime Save and rehydration", () => {
+  function awaitedStory(): RuntimeStoryIrV1 {
+    return program([
+      { instructionId: "save-effect", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_saved", awaitMode: "awaited", replayKey: "replay.saved", cancellationScope: "scope.saved" } } },
+      { instructionId: "save-end", opcode: "end", operands: { endingId: "saved_done", name: "Saved" } }
+    ]);
+  }
+
+  function save(story: RuntimeStoryIrV1, state: RuntimeStateV1) {
+    const result = createRuntimeSaveV1(story, state);
+    if (!result.ok) throw new Error(JSON.stringify(result.diagnostics));
+    return result;
+  }
+
+  it("round-trips one canonical Save with stable State and artifact hashes", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const state = start(story, "build-save", { beta: 2, alpha: 1 });
+    const created = save(story, state), repeated = save(story, state);
+    expect(created.serialized).toBe(repeated.serialized);
+    expect(created.artifactHash).toBe(repeated.artifactHash);
+    expect(created.save.stateHash).toBe(runtimeStateHashV1(state));
+    const loaded = loadRuntimeSaveV1(story, created.serialized, { expectedBuildId: "build-save" });
+    expect(loaded).toMatchObject({ ok: true, state, rehydration: { kind: "ready" }, artifactHash: created.artifactHash });
+  });
+
+  it("rehydrates the exact pending Effect without replaying it and accepts its completion", () => {
+    const story = awaitedStory(), waiting = runRuntime(story, start(story, "build-save")).state;
+    const effect = waiting.pendingEffect;
+    if (effect === null) throw new Error("effect is not pending");
+    const loaded = loadRuntimeSaveV1(story, save(story, waiting).serialized, { expectedBuildId: "build-save" });
+    if (!loaded.ok || loaded.rehydration.kind !== "effect") throw new Error("effect did not rehydrate");
+    expect(loaded.rehydration.intent).toEqual(effect);
+    expect(runtimeStateHashV1(loaded.state)).toBe(runtimeStateHashV1(waiting));
+    const completed = runRuntime(story, loaded.state, { input: { schemaVersion: 1, kind: "effectCompleted", inputId: "input-after-load", executionId: loaded.state.executionId, expectedStateRevision: loaded.state.stateRevision, logicalSequence: effect.logicalSequence, effectId: effect.effectId, replayKey: effect.replayKey } });
+    expect(completed.effects).toEqual([]);
+    expect(completed.event).toMatchObject({ kind: "ending", endingId: "saved_done" });
+    expect(completed.state.sceneState.backgroundAssetId).toBe("bg_saved");
+  });
+
+  it("rejects a validly encoded but tampered State by its frozen State Hash", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const created = save(story, start(story, "build-save"));
+    const parsed = JSON.parse(created.serialized) as { state: RuntimeStateV1 };
+    parsed.state = { ...parsed.state, logicalTimeMilliseconds: 1 };
+    expect(loadRuntimeSaveV1(story, canonicalRuntimeStringify(parsed), { expectedBuildId: "build-save" })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_HASH_MISMATCH" }] });
+  });
+
+  it("rejects future Save versions and a different Build before exposing State", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const created = save(story, start(story, "build-save"));
+    const future = { ...(JSON.parse(created.serialized) as Record<string, unknown>), schemaVersion: 2 };
+    expect(loadRuntimeSaveV1(story, canonicalRuntimeStringify(future), { expectedBuildId: "build-save" })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_INCOMPATIBLE" }] });
+    expect(loadRuntimeSaveV1(story, created.serialized, { expectedBuildId: "build-other" })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_BUILD_MISMATCH" }] });
+  });
+
+  it("rejects noncanonical JSON and structurally corrupt State without throwing", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const created = save(story, start(story, "build-save"));
+    expect(loadRuntimeSaveV1(story, `${created.serialized}\n`, { expectedBuildId: "build-save" })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_INVALID" }] });
+    const corrupt = JSON.parse(created.serialized) as { state: Record<string, unknown> };
+    corrupt.state = { schemaVersion: 1 };
+    expect(() => loadRuntimeSaveV1(story, canonicalRuntimeStringify(corrupt), { expectedBuildId: "build-save" })).not.toThrow();
+    const result = loadRuntimeSaveV1(story, canonicalRuntimeStringify(corrupt), { expectedBuildId: "build-save" });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("corrupt Save loaded");
+    expect(result.diagnostics[0]?.code).toBe("RUNTIME_SAVE_INVALID");
+    const unknown = JSON.parse(created.serialized) as { state: RuntimeStateV1 & { futureMember?: number }; stateHash: string };
+    unknown.state.futureMember = 1;
+    unknown.stateHash = runtimeStateHashV1(unknown.state);
+    const unknownResult = loadRuntimeSaveV1(story, canonicalRuntimeStringify(unknown), { expectedBuildId: "build-save" });
+    expect(unknownResult.ok).toBe(false);
+    if (unknownResult.ok) throw new Error("unknown State member loaded");
+    expect(unknownResult.diagnostics[0]?.code).toBe("RUNTIME_SAVE_INVALID");
   });
 });

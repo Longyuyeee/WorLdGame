@@ -1,9 +1,9 @@
-# 当前开发情况审计（N31-E3 Runtime Effect/Barrier 候选）
+# 当前开发情况审计（N31-E4 Runtime Save/Load 候选）
 
 > 审计日期：2026-08-15
-> 本轮实现基线：`a9ee6185223ad77d6c112b042c4e041e6597732b`（N31-E2 最终远端绿色头）
-> 审计分支：`agent/n31-runtime-e3`
-> 当前 PR：Draft PR #38（基于 N31-E2 分支）；实现头 `271d869`；首轮交付头 `56019ebf9c48933f8e33c053293bacdc2aaebe6b`
+> 本轮实现基线：`72e93f39c95850457f2d2b9b2d390f0d24216da0`（N31-E3 最终远端绿色头）
+> 审计分支：`agent/n31-runtime-e4`
+> 当前 PR：待推送后创建（基于 N31-E3 分支）；实现头与远端证据待交付阶段回填
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
 > 权威边界：本文件是当前审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。`RA-N21-001/002` 已关闭，`RA-N21-003` 仅允许工程候选推进至 N31，不改变 N21/N23/N30/N31 产品未通过事实，也不授权 N32。
 
@@ -11,16 +11,16 @@
 
 当前代码已经具备一个可实际使用的“源项目创作开发版”：创作者可以新建或打开任意受支持工程，管理章节、场景、角色和变量，编辑完整 P0 故事语言与 Writer/Sequence 卡片，并保存、关闭、重开、导入和导出工程。
 
-当前代码已能在编辑器中执行最小故事流程并构建独立 HTML。N30-E1/E2 形成 portable Compiler；N31-E1–E3 又建立不依赖 Spike 的正式 Runtime 执行、确定状态和 Effect/Barrier 宿主协议，已能从 Direction IR 产生确定 Effect Intent、等待/取消异步工作、拒绝迟到输入，并在明确批准前阻止不可逆 Effect。它仍不是完整游戏引擎：正式 Runtime 尚缺 Save/History、Auto/Skip 与正式大规模 Corpus，Editor/Player 也尚未接入，更没有资源构建和三端发布包。
+当前代码已能在编辑器中执行最小故事流程并构建独立 HTML。N30-E1/E2 形成 portable Compiler；N31-E1–E4 又建立不依赖 Spike 的正式 Runtime 执行、确定状态、Effect/Barrier 和 canonical Save/Load，已能严格拒绝不兼容 Build、未来/损坏 Save，并无副作用恢复 pending Effect。它仍不是完整游戏引擎：正式 Runtime 尚缺 History/Back、Auto/Skip 与正式大规模 Corpus，Editor/Player 也尚未接入，更没有玩家存档槽、资源构建和三端发布包。
 
 - 源项目能否落地：**能，在当前候选分支上可完成真实创建、编辑和持久化**；
 - 编辑器内流程能否运行：**能，真实浏览器已完成两条路线并到达两个结局**；
 - 独立试玩项目能否落地：**能，当前故事可下载为自包含离线 HTML 并运行到结局**；
 - 正式编译数据能否落地：**能，N30-E1/E2 四类 Golden 已产生稳定 IR，Compiler 工程出口条件已形成候选；但 N30 Product Acceptance 仍被真人门阻断**；
-- 正式 Runtime 数据流能否落地：**局部能，N31-E1–E3 已执行真实 Compiler IR、形成可哈希确定状态，并实现 Effect/Barrier 协议；但存档、历史、调度和完整宿主接入未完成**；
+- 正式 Runtime 数据流能否落地：**局部能，N31-E1–E4 已执行真实 Compiler IR、形成可哈希确定状态，并实现 Effect/Barrier 与 canonical Save/Load；但 History/Back、调度、玩家槽位和完整宿主接入未完成**；
 - 可发布游戏能否落地：**不能，Runtime → Player → Build 链仍未贯通**；
 - M1 是否完成：**不能，27 条发布验收仍为 `0/27` 完整通过**；
-- 当前执行位置：**N20 已通过；N21 真人 0/1；N22 工程门通过；N23 真人 0/2；N30-E1/E2 为工程出口候选；N31-E1–E3 为工程候选，N32 被阻断**；
+- 当前执行位置：**N20 已通过；N21 真人 0/1；N22 工程门通过；N23 真人 0/2；N30-E1/E2 为工程出口候选；N31-E1–E4 为工程候选，N32 被阻断**；
 - GitHub 是否已集成：**指定集成分支与 Draft PR #32 已建立且远端全检通过，但 N00–N21 与例外仍未进入 `main`**。
 
 ## 2. 审计证据基线
@@ -33,14 +33,14 @@
 | N23 内容量门 | 2 条路线：366/370 秒；各 27 可读节点；Wait 贡献 0 秒 | 审计通过 |
 | N23 产品验收门 | `N23-PA-01`；2 个参与者槽位、6 个任务、编辑器/独立 HTML 各 2 条路线 | 协议通过，真人记录 `pending-participants`（0/2） |
 | N23 验收启动门 | Windows 双击入口、固定 `127.0.0.1:43123`、生产 HTML/JS/CSS HTTP 拉取 | 烟测通过；不等同 Windows 安装包 |
-| 常规测试 | 98 个并行测试文件、609 项测试；另有 1 项串行存储测试 | 本轮完整门通过 |
+| 常规测试 | 98 个并行测试文件、614 项测试；另有 1 项串行存储测试 | 本轮完整门通过 |
 | VM 重型门 | 5 项 | 最近完整门通过 |
-| N31 Runtime 定向门 | 21 项 | 本轮通过；真实浏览器 Worker 正式向量 `data-runtime=passed` |
+| N31 Runtime 定向门 | 26 项 | 本轮通过；真实浏览器 Worker 正式向量 `data-runtime=passed` |
 | 构建 | 12 个 workspace | 本轮完整门通过 |
-| 架构门 | 77 个 portable 模块、4 个 Node adapter | 本轮通过 |
+| 架构门 | 78 个 portable 模块、4 个 Node adapter | 本轮通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
 | Editor bundle | 636.67 kB，gzip 183.52 kB | 构建成功，五分钟源随产品入口进入 bundle；仍存在超过 500 kB 的体积警告 |
-| GitHub CI | Draft PR #38 首轮交付头 `56019ebf9c48933f8e33c053293bacdc2aaebe6b` 的 `product-baseline` run `31886139025` 通过 | 远端 Windows / Node 22 完整门通过 |
+| GitHub CI | N31-E3 最终头 `72e93f39c95850457f2d2b9b2d390f0d24216da0` 的 `product-baseline` run `31886404690` 通过；E4 远端门待交付阶段执行 | 当前实现的本地完整门通过，远端待验 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
 
@@ -59,7 +59,7 @@
 | N22 | 工程验收通过 | 原候选能力全部保留；真实媒体、舞台、播放态、过渡和浏览器证据完整 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 归后续节点 |
 | N23 | E1–E7 工程/验收就绪候选 | 五分钟作品可打开、编辑、保存、重开、运行和导出；双参与者协议已冻结；生产验收环境可双击启动并经 HTTP 烟测 | 权威记录仍为 `pending-participants`（0/2），两名非实现者尚未执行 |
 | N30 | E1/E2 工程退出候选 | portable Compiler、Runtime IR v1、语句 CFG/SCC、双 Hash 场景缓存、六文件 Debug/五文件 Release、完整 Catalog、发布输入、四类 IR Golden | 本地与远端完整门通过；N21/N23 产品门仍阻断 N30 Product Acceptance |
-| N31 | E1–E3 工程候选 | 正式 Runtime、确定 State、PRNG、Scene/Audio/Meta、Effect Intent、await/cancel receipt、Barrier 批准与跨 Worker 向量 | 仍缺 Save/History、Auto/Skip、正式 10k Corpus 与 Editor/Player 接入；Product Acceptance 被阻断 |
+| N31 | E1–E4 工程候选 | 正式 Runtime、确定 State、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical Save/Load、严格身份/Hash 拒绝、pending Effect 恢复与跨 Worker 向量 | 仍缺 History/Back、Auto/Skip、Save migration、正式 10k Corpus 与 Editor/Player 接入；Product Acceptance 被阻断 |
 | N32 及以后 | 未开始或仅有前置 Spike | 已有 VM/平台算法证据可复用 | `RA-N21-003` 明确阻断正式接入、Player、QA、构建与发布 |
 
 “工程通过”表示当前候选提交的自动化证据成立；只有节点产物、用户任务、远端门和集成状态同时满足，才可宣告产品节点通过。
@@ -71,11 +71,11 @@
 | 项目入口 | 新建、打开、最近、示例、导入、导出 | 正式 Windows/Android 壳未完成 |
 | 本地源工程 | Canonical 源文件、Asset Index 与源 Blob 的确定性自包含 ZIP、File System Access/OPFS、Node 目录适配；Writer 内容已写回同一生命周期工程 | 派生资源按可重建缓存排除；移动 SAF 与安装产品未完成 |
 | 内容实体 | 章节、场景、角色、类型化变量、稳定 ID 引用迁移 | 字体、本地化、Gal 等完整产品模块未完成 |
-| Story Language | P0 语句、解析、诊断、补全、定义/引用、重构、增量处理；N30 已编译为 Runtime IR v1，N31-E1–E3 正式 Runtime 已消费基础语义、维护确定状态并形成 Effect/Barrier 协议 | Save/History、调度、完整宿主协议及 Editor 接入仍缺 |
+| Story Language | P0 语句、解析、诊断、补全、定义/引用、重构、增量处理；N30 已编译为 Runtime IR v1，N31-E1–E4 正式 Runtime 已消费基础语义、维护确定状态并形成 Effect/Barrier 与 Save 协议 | History/Back、调度、完整宿主协议及 Editor 接入仍缺 |
 | Writer/Sequence | 全 P0 卡片、类型化 Inspector、增删复制排序、批量、折叠、保存重开 | N21 真人任务未通过；完整专业 Sequence 待 N41 |
 | 资源/Stage | 真实 Blob 导入与释放、BG/多角色/四路音频状态预览、角色几何、安全区、DPR、输入等价、错误回退、Render Host v2、Canvas 2D 场景层、基础 Move、Hide/Fade 与角色层 Show 单语句过渡、真实 PNG/WAV Media Golden 运行链、浏览器导入/重开与视觉基线 | Canvas 2D 仍是编辑器 Preview 后端；Pixi/WebGL、镜头、复杂关键帧、模板和正式 Runtime 归后续节点 |
 | Route | Choice 的简单派生图 | 完整节点/边、诊断、布局、局部加载未完成 |
-| Compiler/Runtime | N30 Compiler 已产出稳定 IR；N31-E1–E3 正式 Runtime 已执行控制流、Choice、Wait、结局，维护可哈希 PRNG/Scene/Audio/Meta State，并处理 Effect Intent、await/cancel receipt 与 Barrier 批准；Editor Playable Preview 与独立 HTML 仍可运行原最小控制流 | 正式 Runtime 尚无 Save/History/调度，Editor/Player 未接入；不能把 E3 或 VM Spike 当完整 Runtime |
+| Compiler/Runtime | N30 Compiler 已产出稳定 IR；N31-E1–E4 正式 Runtime 已执行控制流、Choice、Wait、结局，维护可哈希 State，处理 Effect/Barrier，并 canonical 保存/加载及恢复 pending Effect；Editor Playable Preview 与独立 HTML 仍可运行原最小控制流 | 正式 Runtime 尚无 History/Back/调度，Editor/Player 与玩家存档槽未接入；不能把 E4 或 VM Spike 当完整 Runtime |
 | Player 与 Build | N23 单文件离线试玩候选可下载、确定性生成并运行双路线 | 正式 Web/PWA、Windows/Android 可玩包、资源构建、签名、安装、升级和发布均无 |
 
 ## 5. P0 需求对齐
@@ -89,7 +89,7 @@
 | REQ-STAGE | 局部可用 | N42 正式高性能渲染宿主、镜头、复杂关键帧、UI 模板、正式 Runtime 与三端同步 |
 | REQ-UX | 局部可用 | 七模式、Beginner/Pro、真机与非程序用户验收 |
 | REQ-ASSET | 局部可用 | 源 Blob/Index 迁移已通过；仍缺视频/字体、引用 UI、平台变体、构建报告接入 |
-| REQ-RUNTIME | 工程候选 | N31-E1–E3 已贯通 Compiler IR、确定状态、Effect/Barrier 与跨 Worker Hash；仍缺 Save/History、调度与共享 Editor Preview/Player |
+| REQ-RUNTIME | 工程候选 | N31-E1–E4 已贯通 Compiler IR、确定状态、Effect/Barrier、canonical Save/Load 与跨 Worker Hash；仍缺 History/Back、调度、migration、玩家槽位与共享 Editor Preview/Player |
 | REQ-L10N | 局部实现 | 已有稳定 Localization Catalog/CJK IR；仍缺导入导出、状态、运行切换、Ruby、字体和语音映射 |
 | REQ-QA | 局部实现 | 已有编译期 CFG/SCC 诊断/Source Map；仍缺 Debugger、Story Solver、断点/单步、源码 UI 跳转 |
 | REQ-BUILD | 隔离原型 | 已有单文件试玩候选；仍缺正式 Player、资源构建、三端打包、签名、校验和发布材料 |
@@ -100,7 +100,7 @@
 
 ## 6. GitHub 交付与集成审计
 
-当前 N31-E3 分支以 N31-E2 最终远端绿色头 `a9ee6185223ad77d6c112b042c4e041e6597732b` 为直接基线。N00–N21 对应 Draft PR #23–#30，例外与指定集成基线对应 #31–#32，N22/N23 工程链对应 #33，N30-E1/E2 对应 #34–#35，N31-E1–E3 对应 #36–#38；这些开发链仍没有进入默认分支。
+当前 N31-E4 分支以 N31-E3 最终远端绿色头 `72e93f39c95850457f2d2b9b2d390f0d24216da0` 为直接基线。N00–N21 对应 Draft PR #23–#30，例外与指定集成基线对应 #31–#32，N22/N23 工程链对应 #33，N30-E1/E2 对应 #34–#35，N31-E1–E3 对应 #36–#38；E4 PR 待创建。这些开发链仍没有进入默认分支。
 
 | PR | 节点 | 基线关系 | 状态 |
 |---:|---|---|---|
@@ -119,7 +119,8 @@
 | #35 | N30-E2 | 基于 #34 分支 | Draft、实现头 `1125b68`；审计头 `63e0886` CI 绿 |
 | #36 | N31-E1 | 基于 #35 分支 | Draft、实现头 `98c49bf`；交付头 `d33d240` CI 绿 |
 | #37 | N31-E2 | 基于 #36 分支 | Draft、实现头 `8465ae9`；最终头 `a9ee618` 的 run `31885355335` CI 绿 |
-| #38 | N31-E3 | 基于 #37 分支 | Draft、实现头 `271d869`；首轮交付头 `56019eb` 的 run `31886139025` CI 绿 |
+| #38 | N31-E3 | 基于 #37 分支 | Draft、实现头 `271d869`；最终头 `72e93f3` 的 run `31886404690` CI 绿 |
+| 待创建 | N31-E4 | 基于 #38 分支 | 本地实现与完整门通过；待推送、Draft PR 与远端 CI |
 
 这形成四项现实风险：
 
@@ -155,5 +156,5 @@
 1. 不把 N21 工程绿色误报为产品通过；
 2. `RA-N21-003` 生效期间只允许完成 N31 Runtime 工程候选；不新增无关平台 Spike，不进入 N32；
 3. N21 人类创作门保持未完成；指定集成基线已成为 Authoritative 并关闭 G2，但不得把它误报为 `main` 已合并；
-4. N31 严格按 E1 基础执行 → State/PRNG/Hash → Effect → Save/History → 调度/跨 Worker 的顺序迁移；真人资源一旦可用仍优先执行 N21、再执行 N23，两门通过并关闭例外前不进入 N32；
+4. N31 已按 E1 基础执行 → E2 State/PRNG/Hash → E3 Effect → E4 Save 顺序推进；下一步严格执行 E5 History/Back，再执行调度与正式 Corpus，真人资源一旦可用仍优先执行 N21、再执行 N23，两门通过并关闭例外前不进入 N32；
 5. 每一步都必须同时更新需求状态、自动化证据、人工验收和 GitHub 集成事实。

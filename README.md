@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1/E2 已形成正式 Compiler 工程退出候选，N31-E1–E3 已建立不依赖 Spike 的正式 Runtime、确定状态及 Effect/Barrier 宿主协议；真人产品验收、N31 产品退出与 N32 仍被阻断。
+> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1/E2 已形成正式 Compiler 工程退出候选，N31-E1–E4 已建立不依赖 Spike 的正式 Runtime、确定状态、Effect/Barrier 宿主协议及 canonical Save/Load；真人产品验收、N31 产品退出与 N32 仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -138,6 +138,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N31-E1 正式 Runtime 最小内核审计](docs/126-n31-e1-runtime-kernel-audit.md) | Compiler IR 消费、版本化 State、确定控制流、停点事件、受限例外与后续缺口 |
 | [N31-E2 Runtime 确定状态基础审计](docs/127-n31-e2-runtime-deterministic-state-audit.md) | canonical State Hash、确定 PRNG、Scene/Audio/Meta State、Node/真实 Web Worker 固定向量 |
 | [N31-E3 Runtime Effect/Barrier 审计](docs/128-n31-e3-runtime-effect-barrier-audit.md) | Effect Intent、awaited/detached、completion/cancel receipt、Barrier 批准、Node/真实 Web Worker 向量 |
+| [N31-E4 Runtime Save/Load 审计](docs/129-n31-e4-runtime-save-load-audit.md) | canonical Save、版本/Build/State Hash 拒绝、pending Effect 无副作用恢复、Node/真实 Web Worker 向量 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

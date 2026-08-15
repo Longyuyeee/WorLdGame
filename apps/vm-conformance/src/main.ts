@@ -7,7 +7,7 @@ if (status === null || output === null) throw new TypeError("Conformance Harness
 status.dataset.userAgent = navigator.userAgent;
 status.dataset.runtime = "running";
 
-const runtimeWorker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "world-runtime-e2-conformance" });
+const runtimeWorker = new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "world-runtime-v1-conformance" });
 const runtimeRequest: RuntimeWorkerRequestV1 = { protocolVersion: 1, kind: "runRuntimeConformance", requestId: "request.runtime-v1.web-worker" };
 runtimeWorker.addEventListener("message", (event: MessageEvent<RuntimeWorkerResponseV1>) => {
   runtimeWorker.terminate();
@@ -64,7 +64,7 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
     return;
   }
   status.dataset.status = "passed";
-  status.textContent = "PASS：正式 Runtime E2 State Hash / PRNG 与既有 10,000 种子 VM Corpus 均和 Node Golden 零差异";
+  status.textContent = "PASS：正式 Runtime State / Effect / Save 固定向量与既有 10,000 种子 VM Corpus 均和 Node Golden 零差异";
   output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 
