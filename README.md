@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1 已建立正式 Compiler 最小内核；真人产品验收与 N31 Runtime 仍被阻断。
+> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1/E2 已形成正式 Compiler 工程退出候选；真人产品验收与 N31 Runtime 仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -133,6 +133,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N23 双参与者产品验收执行包](docs/121-n23-product-acceptance-execution-kit.md) | 两名非实现者、编辑器/独立 HTML 双路线、Severity 与哈希证据门 |
 | [N23-E7 一键验收启动器审计](docs/122-n23-e7-acceptance-launcher-audit.md) | Windows 双击启动、锁定依赖、生产构建、固定本地 origin 与真实 HTTP 烟测 |
 | [N30-E1 Project Compiler 最小内核审计](docs/123-n30-e1-project-compiler-audit.md) | 正式 portable Compiler、Runtime IR v1、Source Map/Catalog、结构诊断、确定性 Golden Hash 与 N31 阻断 |
+| [N30-E2 Project Compiler 工程退出审计](docs/124-n30-e2-compiler-completion-audit.md) | 语句级 CFG/SCC、场景增量缓存、完整 Catalog、Debug/Release、发布输入和 N30 工程退出边界 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

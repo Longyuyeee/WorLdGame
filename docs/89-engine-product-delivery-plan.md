@@ -260,7 +260,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N30 Project Compiler
 
-> 实施状态（2026-08-15）：E1 最小内核已形成工程候选。独立 portable package、Runtime IR v1、五文件 Artifact 集、P0 lowering、基础结构/资源诊断、确定性 Hash 和 Tiny/Branching/Media/CJK IR Golden 已建立；场景级缓存、完整 CFG、剩余 Catalog、licenses/SBOM 与跨机器复验仍待 E2，故 N30 不标记为整体验收通过。详见 [N30-E1 审计](123-n30-e1-project-compiler-audit.md)。
+> 实施状态（2026-08-15）：E1 最小内核与 E2 工程退出切片已形成完整工程候选。独立 portable package、Runtime IR v1、语句级 CFG/SCC 诊断、双 Hash 场景缓存、完整 Catalog、Debug/Release Artifact 差异、licenses/SBOM 输入和 Tiny/Branching/Media/CJK IR Golden 均已建立；等待本分支远端跨机器复验。`RA-N21-002` 仍阻断 N30 Product Acceptance 与 N31 Engineering，故不把工程候选登记为产品通过。详见 [E1 审计](123-n30-e1-project-compiler-audit.md)与 [E2 审计](124-n30-e2-compiler-completion-audit.md)。
 
 - **Goal**：将权威工程确定性编译为玩家可执行数据。
 - **Implementation**：

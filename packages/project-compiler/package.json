@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/project-compiler",
-  "version": "0.1.0-n30",
+  "version": "0.2.0-n30",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
