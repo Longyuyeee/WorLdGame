@@ -57,6 +57,8 @@ npm.cmd run demo:empty-to-web
 - 空目录演示：Tiny 源工程进入临时目录，Web 编辑器壳构建成功，校验 7 个产物后清理，PASS；
 - 正式项目 Web Build：明确为 `pending N80`，没有计入 N01 产品完成度。
 
+> 2026-08-15 演进说明：N23-E4 已将同一命令升级为真实独立单文件试玩构建，并在临时环境执行 Branching Golden 两条路线到结局；它仍是 N23 工程候选，正式 N80 Build 状态不变。见 [N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)。
+
 完整门：
 
 ```powershell

@@ -22,7 +22,7 @@ const source = [
 describe("stable-ID local directive patch", () => {
   it("patches typed fields while preserving comments, unknown parameters, metadata and CRLF", () => {
     const result = patchDirectiveParameters(source, parseStory(source), "stmt_show", {
-      parameters: { asset: "char_new", expression: "smile", position: "left" },
+      parameters: { asset: "char_new", expression: "smile", position: "left", x: "27.5", y: "91", scale: "1.25", rotation: "-8", anchorX: "0.4", anchorY: "0.95" },
       removeLegacyPositional: true
     });
     expect(result.ok).toBe(true);
@@ -33,6 +33,8 @@ describe("stable-ID local directive patch", () => {
     expect(result.source).toContain("asset=char_new");
     expect(result.source).toContain("expression=smile");
     expect(result.source).toContain("position=left");
+    expect(result.source).toContain("x=27.5");
+    expect(result.source).toContain("anchorY=0.95");
     expect(result.source).not.toContain("old pose");
     expect(result.source.match(/\r\n/g)?.length).toBe(source.match(/\r\n/g)?.length);
     expect(result.after.positional).toEqual([]);

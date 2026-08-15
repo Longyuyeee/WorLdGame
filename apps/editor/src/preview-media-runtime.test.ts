@@ -6,6 +6,7 @@ import {
   compilePreviewStageTimeline,
   loadPreviewMedia,
   releasePreviewMedia,
+  resolvePreviewCharacterGeometry,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
 
@@ -56,7 +57,7 @@ describe("preview media runtime", () => {
       { kind: "direction", id: "play", command: "audio", summary: "action=play asset=theme bus=bgm loop=true" },
       { kind: "direction", id: "pause", command: "audio", summary: "action=pause bus=bgm" },
       { kind: "direction", id: "resume", command: "audio", summary: "action=resume bus=bgm" },
-      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=left" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=left transition=fade duration=450ms" },
       { kind: "direction", id: "stop", command: "audio", summary: "action=stop bus=bgm" },
       { kind: "direction", id: "clear", command: "background", summary: "action=clear" }
     ];
@@ -70,10 +71,125 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(controlled, 4).resourceKey).toBe(derivePreviewStagePlan(controlled, 3).resourceKey);
     expect(derivePreviewStagePlan(controlled, 5).resourceKey).toBe(derivePreviewStagePlan(controlled, 3).resourceKey);
     expect(derivePreviewStagePlan(controlled, 4).key).not.toBe(derivePreviewStagePlan(controlled, 3).key);
-    expect(derivePreviewStagePlan(controlled, 6).characters.map((layer) => layer.slot)).toEqual(["right"]);
+    expect(derivePreviewStagePlan(controlled, 6).characters).toEqual([
+      expect.objectContaining({ slot: "right" }),
+      expect.objectContaining({ statementId: "hide", slot: "left", assetId: "hero_smile", exiting: true, transition: "fade", duration: "450ms" })
+    ]);
     expect(derivePreviewStagePlan(controlled, 7).audio).toEqual([]);
+    expect(derivePreviewStagePlan(controlled, 7).characters.map((layer) => layer.slot)).toEqual(["right"]);
     expect(derivePreviewStagePlan(controlled, 8).background).toBeUndefined();
     expect(derivePreviewStagePlan(controlled, 3).characters).toHaveLength(2);
+  });
+
+  it("keeps a hidden slot for one exit frame, then removes it and rewinds deterministically", () => {
+    const hiding: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero x=20 expression=smile" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=hero duration=600ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "gone" }
+    ];
+    expect(derivePreviewStagePlan(hiding, 1).characters).toEqual([
+      expect.objectContaining({ statementId: "hide", assetId: "hero", slot: "hero", x: 20, expression: "smile", exiting: true, transition: "fade", duration: "600ms" })
+    ]);
+    expect(derivePreviewStagePlan(hiding, 2).characters).toEqual([]);
+    expect(derivePreviewStagePlan(hiding, 0).characters).toEqual([
+      expect.objectContaining({ statementId: "show", assetId: "hero" })
+    ]);
+    expect(derivePreviewStagePlan(hiding, 0).characters[0]?.exiting).toBeUndefined();
+    const missing = derivePreviewStagePlan([
+      { kind: "direction", id: "missing", command: "show", summary: "action=hide slot=hero" }
+    ], 0);
+    expect(missing.characters).toEqual([]);
+    expect(missing.diagnostics).toEqual(["missing: hide requires an active hero slot"]);
+    const resourceBearing = derivePreviewStagePlan([
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },
+      { kind: "direction", id: "hide", command: "show", summary: "action=hide slot=hero asset=stale" }
+    ], 1);
+    expect(resourceBearing.characters).toEqual([expect.objectContaining({ statementId: "show", assetId: "hero" })]);
+    expect(resourceBearing.diagnostics).toEqual(["hide: action=hide does not accept asset"]);
+  });
+
+  it("moves an active slot without replacing its resource and rewinds to the authored geometry", () => {
+    const movement: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero x=20 y=100 expression=smile" },
+      { kind: "direction", id: "move", command: "show", summary: "action=move slot=hero x=80 scale=1.5 rotation=12 duration=600ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "arrived" }
+    ];
+    const before = derivePreviewStagePlan(movement, 0).characters[0]!;
+    const moved = derivePreviewStagePlan(movement, 1).characters[0]!;
+    expect(before).toMatchObject({ statementId: "show", assetId: "hero", x: 20, expression: "smile" });
+    expect(before.movementFrom).toBeUndefined();
+    expect(moved).toMatchObject({
+      statementId: "move",
+      assetId: "hero",
+      x: 80,
+      y: 100,
+      scale: 1.5,
+      rotation: 12,
+      expression: "smile",
+      transition: "slide",
+      duration: "600ms",
+      movementFrom: { x: 20, y: 100, scale: 1, rotation: 0, anchorX: 0.5, anchorY: 1 }
+    });
+    const timeline = compilePreviewStageTimeline(movement);
+    expect(timeline[2]).not.toBe(timeline[1]);
+    expect(timeline[2]?.characters[0]).toMatchObject({ statementId: "move", assetId: "hero", x: 80, scale: 1.5 });
+    expect(timeline[2]?.characters[0]?.movementFrom).toBeUndefined();
+    expect(derivePreviewStagePlan(movement, 0).characters[0]).toEqual(before);
+  });
+
+  it("scopes Show entry transitions to their authored statement and restores them on rewind", () => {
+    const entering: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero transition=fade duration=400ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "ready" }
+    ];
+    expect(derivePreviewStagePlan(entering, 0).characters[0]).toMatchObject({
+      statementId: "show", assetId: "hero", entering: true, transition: "fade", duration: "400ms"
+    });
+    const settled = derivePreviewStagePlan(entering, 1).characters[0]!;
+    expect(settled).toMatchObject({ statementId: "show", assetId: "hero", transition: "fade", duration: "400ms" });
+    expect(settled.entering).toBeUndefined();
+    expect(derivePreviewStagePlan(entering, 0).characters[0]?.entering).toBe(true);
+  });
+
+  it("does not execute empty moves or moves targeting inactive slots", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "missing", command: "show", summary: "action=move slot=hero x=80" },
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },
+      { kind: "direction", id: "resource", command: "show", summary: "action=move slot=hero asset=stale x=80" },
+      { kind: "direction", id: "empty", command: "show", summary: "action=move slot=hero duration=300ms" }
+    ], 3);
+    expect(plan.characters).toEqual([expect.objectContaining({ statementId: "show", assetId: "hero" })]);
+    expect(plan.diagnostics).toEqual([
+      "missing: move requires an active hero slot",
+      "resource: action=move does not accept asset",
+      "empty: move requires at least one Stage geometry parameter"
+    ]);
+  });
+
+  it("freezes production Stage geometry and keeps position presets backward compatible", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "left", command: "show", summary: "asset=hero slot=hero position=left x=27.5 y=91 scale=1.25 rotation=-8 anchorX=0.4 anchorY=0.95" }
+    ], 0);
+    expect(plan.characters[0]).toMatchObject({
+      x: 27.5, y: 91, scale: 1.25, rotation: -8, anchorX: 0.4, anchorY: 0.95
+    });
+    expect(resolvePreviewCharacterGeometry(plan.characters[0]!)).toEqual({
+      x: 27.5, y: 91, scale: 1.25, rotation: -8, anchorX: 0.4, anchorY: 0.95
+    });
+    expect(resolvePreviewCharacterGeometry({ statementId: "legacy", assetId: "hero", position: "right" }))
+      .toEqual({ x: 80, y: 100, scale: 1, rotation: 0, anchorX: 0.5, anchorY: 1 });
+  });
+
+  it("fails closed when any Stage geometry parameter is outside its frozen range", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "bad-scale", command: "show", summary: "asset=hero scale=4.1" },
+      { kind: "direction", id: "bad-anchor", command: "show", summary: "asset=hero anchorX=-0.1" }
+    ], 1);
+    expect(plan.characters).toEqual([]);
+    expect(plan.diagnostics).toEqual([
+      "bad-scale: scale is outside the frozen Stage geometry range",
+      "bad-anchor: anchorX is outside the frozen Stage geometry range"
+    ]);
   });
 
   it("fails closed for invalid actions, slots, z-order and inactive audio controls", () => {
@@ -147,5 +263,63 @@ describe("preview media runtime", () => {
     finish(bytes);
     await expect(loading).rejects.toMatchObject({ name: "AbortError" });
     expect(created).toBe(0);
+  });
+
+  it("revokes URLs already created when a later layer is cancelled", async () => {
+    const bytes = new Uint8Array([11]);
+    const index: AssetIndex = {
+      ...createAssetIndex(),
+      assets: [entry("bg_gate", "cg", bytes), entry("hero_smile", "character", bytes)]
+    };
+    const controller = new AbortController();
+    let finishSecond!: (value: Uint8Array) => void;
+    let signalSecondStarted!: () => void;
+    const secondStarted = new Promise<void>((resolve) => { signalSecondStarted = resolve; });
+    let reads = 0;
+    const revoked: string[] = [];
+    const loading = loadPreviewMedia(
+      derivePreviewStagePlan(statements, 2),
+      index,
+      {
+        read: async () => {
+          reads += 1;
+          if (reads === 1) return bytes;
+          signalSecondStarted();
+          return new Promise<Uint8Array>((resolve) => { finishSecond = resolve; });
+        }
+      },
+      { create: () => "blob:partial", revoke: (url) => revoked.push(url) },
+      controller.signal
+    );
+    await secondStarted;
+    controller.abort();
+    finishSecond(bytes);
+
+    await expect(loading).rejects.toMatchObject({ name: "AbortError" });
+    expect(revoked).toEqual(["blob:partial"]);
+  });
+
+  it("revokes earlier URLs when a later verified Blob read fails", async () => {
+    const bytes = new Uint8Array([12]);
+    const index: AssetIndex = {
+      ...createAssetIndex(),
+      assets: [entry("bg_gate", "cg", bytes), entry("hero_smile", "character", bytes)]
+    };
+    let reads = 0;
+    const revoked: string[] = [];
+    const loading = loadPreviewMedia(
+      derivePreviewStagePlan(statements, 2),
+      index,
+      { read: async () => {
+        reads += 1;
+        if (reads === 1) return bytes;
+        throw new Error("verified storage read failed");
+      } },
+      { create: () => "blob:before-failure", revoke: (url) => revoked.push(url) },
+      new AbortController().signal
+    );
+
+    await expect(loading).rejects.toThrow("verified storage read failed");
+    expect(revoked).toEqual(["blob:before-failure"]);
   });
 });

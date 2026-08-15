@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "deliveryNode": "N23-E5",
+  "status": "engineering-pass",
+  "recordedAt": "2026-08-15T15:39:00+08:00",
+  "sourceProject": "fixtures/projects/benchmark/project.s0.json",
+  "sourceSemanticHash": "d3792762eac1e246748e95bf664117b03e5df8ada8bc4917d1203270d075f64f",
+  "contentGate": "config/n23-content-gate.json",
+  "readingModel": {
+    "cjkCharactersPerMinute": 240,
+    "latinWordsPerMinute": 180,
+    "minimumRouteSeconds": 300,
+    "maximumWaitContributionSeconds": 10
+  },
+  "routes": [
+    { "optionId": "benchmark_board", "ending": "驶向仍可抵达的清晨", "estimatedSeconds": 366, "readableStatements": 27, "waitContributionSeconds": 0, "executedVisibleSteps": 30 },
+    { "optionId": "benchmark_stay", "ending": "雨停以后重新出发", "estimatedSeconds": 370, "readableStatements": 27, "waitContributionSeconds": 0, "executedVisibleSteps": 30 }
+  ],
+  "artifact": {
+    "projectDigest": "a68e67b58218dbebb9ecf1a4b29e9cfefe6f93ca5992bdee420ba88bdf274aa0",
+    "bytes": 22677,
+    "sha256": "f04bcc3681356e627c4cb675ef3451c56aaf7810f94e4aff02ecd647166f46e1",
+    "routeExecution": "passed"
+  },
+  "productEntry": "项目首页 / 打开五分钟验收工程",
+  "humanAcceptance": "pending-two-non-implementers",
+  "blockedGates": ["N21 Product Acceptance", "N23 Acceptance", "M1 Stable", "Public Release"]
+}

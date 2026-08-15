@@ -1,9 +1,19 @@
 import type { EntityId, SceneResourceManifest, StoryProject } from "@world-studio/story-core";
 import {
   DIRECTIVE_PARAMETERS,
+  MAX_STAGE_ANCHOR,
+  MAX_STAGE_PERCENT,
+  MAX_STAGE_ROTATION,
+  MAX_STAGE_SCALE,
   MAX_STAGE_Z,
+  MIN_STAGE_ANCHOR,
+  MIN_STAGE_PERCENT,
+  MIN_STAGE_ROTATION,
+  MIN_STAGE_SCALE,
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
+  STAGE_MOVE_GEOMETRY_PARAMETERS,
+  directiveActionParameters,
   directiveActionRequiresAsset,
   resolveDirectiveAction
 } from "./directive-schema";
@@ -12,7 +22,8 @@ import type { DirectiveNode, StoryDocument, StorySyntaxNode } from "./model";
 export type ResourceManifestDiagnosticCode = "SOURCE_INVALID" | "MISSING_SCENE_DOCUMENT" | "UNEXPECTED_SCENE_DOCUMENT" |
   "SCENE_ID_MISMATCH" | "SCENE_STATEMENTS_MISMATCH" | "STATEMENT_SEMANTICS_MISMATCH" | "MISSING_STATEMENT_ID" | "UNTYPED_RESOURCE_REFERENCE" | "MALFORMED_PARAMETER" |
   "DUPLICATE_PARAMETER" | "UNKNOWN_RESOURCE_PARAMETER" | "MISSING_ASSET" | "INVALID_ASSET_ID" |
-  "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" |
+  "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_ACTION_PARAMETER" | "EMPTY_STAGE_MOVE" | "MISSING_STAGE_TARGET" |
+  "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" | "INVALID_STAGE_GEOMETRY" |
   "INVALID_AUDIO_BUS" | "INVALID_BOOLEAN" | "INVALID_DURATION" | "INVALID_VOLUME";
 
 export interface ResourceManifestDiagnostic {
@@ -168,6 +179,20 @@ export function compileSceneResourceManifest(
       if (action === undefined) diagnostics.push({ code: "INVALID_ACTION", severity: "error",
         message: `@${node.command} action is invalid: ${actionSource ?? ""}`, sceneId: scene.id,
         statementId: node.id, line: node.range.start.line });
+      if (action !== undefined) {
+        const actionParameters = new Set(directiveActionParameters(node.command, action));
+        const standardParameters = new Set(DIRECTIVE_PARAMETERS[node.command]);
+        const invalidParameters = [...parsed.parameters.keys()].filter((key) => standardParameters.has(key) && !actionParameters.has(key));
+        if (invalidParameters.length > 0) diagnostics.push({ code: "INVALID_ACTION_PARAMETER", severity: "error",
+          message: `@${node.command} action=${action} does not accept: ${invalidParameters.join(", ")}`, sceneId: scene.id,
+          statementId: node.id, line: node.range.start.line });
+        if (node.command === "show" && action === "move" &&
+            !STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => parsed.parameters.has(key))) {
+          diagnostics.push({ code: "EMPTY_STAGE_MOVE", severity: "error",
+            message: "@show action=move requires at least one Stage geometry parameter", sceneId: scene.id,
+            statementId: node.id, line: node.range.start.line });
+        }
+      }
       const assetId = parsed.parameters.get("asset");
       if (action !== undefined && directiveActionRequiresAsset(node.command, action) && assetId === undefined) diagnostics.push({ code: "MISSING_ASSET", severity: "error", message: `@${node.command} action=${action} requires asset=<stable Asset ID>`,
         sceneId: scene.id, statementId: node.id, line: node.range.start.line });
@@ -177,6 +202,24 @@ export function compileSceneResourceManifest(
       const z = parsed.parameters.get("z");
       if (node.command === "show" && z !== undefined && (!/^-?\d+$/.test(z) || Number(z) < MIN_STAGE_Z || Number(z) > MAX_STAGE_Z)) diagnostics.push({ code: "INVALID_STAGE_Z", severity: "error",
         message: `@show z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`, sceneId: scene.id, statementId: node.id, line: node.range.start.line });
+      if (node.command === "show") {
+        const geometryBounds = {
+          x: [MIN_STAGE_PERCENT, MAX_STAGE_PERCENT],
+          y: [MIN_STAGE_PERCENT, MAX_STAGE_PERCENT],
+          scale: [MIN_STAGE_SCALE, MAX_STAGE_SCALE],
+          rotation: [MIN_STAGE_ROTATION, MAX_STAGE_ROTATION],
+          anchorX: [MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR],
+          anchorY: [MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR]
+        } as const;
+        for (const [parameter, [minimum, maximum]] of Object.entries(geometryBounds)) {
+          const source = parsed.parameters.get(parameter);
+          if (source !== undefined && (!/^-?\d+(?:\.\d+)?$/.test(source) || Number(source) < minimum || Number(source) > maximum)) {
+            diagnostics.push({ code: "INVALID_STAGE_GEOMETRY", severity: "error",
+              message: `@show ${parameter} must be a number from ${minimum} to ${maximum}`, sceneId: scene.id,
+              statementId: node.id, line: node.range.start.line });
+          }
+        }
+      }
       let bus: string | undefined;
       if (node.command === "audio") {
         bus = parsed.parameters.get("bus");
@@ -207,19 +250,31 @@ export function compileSceneResourceManifest(
       }
       for (const dependency of validDependencies) if (!sceneAssets.includes(dependency)) sceneAssets.push(dependency);
       const validPrimaryAsset = assetId !== undefined && validDependencies.includes(assetId) ? assetId : undefined;
+      let exitingCharacterAsset: string | undefined;
       if (action !== undefined) {
         if (node.command === "background") {
           if (action === "clear") activeBackground = undefined;
           else if (validPrimaryAsset !== undefined) activeBackground = validPrimaryAsset;
         } else if (node.command === "show" && SAFE_STAGE_SLOT.test(slot)) {
-          if (action === "hide") activeCharacters.delete(slot);
+          if (action === "hide") {
+            exitingCharacterAsset = activeCharacters.get(slot);
+            if (exitingCharacterAsset === undefined) diagnostics.push({ code: "MISSING_STAGE_TARGET", severity: "error",
+              message: `@show action=hide requires an active slot: ${slot}`, sceneId: scene.id,
+              statementId: node.id, line: node.range.start.line });
+            else activeCharacters.delete(slot);
+          } else if (action === "move" && !activeCharacters.has(slot)) diagnostics.push({ code: "MISSING_STAGE_TARGET", severity: "error",
+            message: `@show action=move requires an active slot: ${slot}`, sceneId: scene.id,
+            statementId: node.id, line: node.range.start.line });
           else if (validPrimaryAsset !== undefined) activeCharacters.set(slot, validPrimaryAsset);
         } else if (node.command === "audio" && bus !== undefined && AUDIO_BUSES.has(bus)) {
           if (action === "stop") activeAudio.delete(bus);
           else if (action === "play" && validPrimaryAsset !== undefined) activeAudio.set(bus, validPrimaryAsset);
         }
       }
-      const transientDependencies = validDependencies.filter((dependency) => dependency !== validPrimaryAsset);
+      const transientDependencies = [
+        ...validDependencies.filter((dependency) => dependency !== validPrimaryAsset),
+        ...(exitingCharacterAsset === undefined ? [] : [exitingCharacterAsset])
+      ];
       requiredByStatement.set(node.id, currentAssets(transientDependencies));
     }
     const projectedStatementIds = scene.statements.map((statement) => statement.id);

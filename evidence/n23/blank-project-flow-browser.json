@@ -1,0 +1,56 @@
+{
+  "evidenceId": "N23-E2-BROWSER-2026-08-15",
+  "date": "2026-08-15",
+  "branch": "agent/n22-stage-media",
+  "baseCommit": "8f32b8fbc6f134dd1dde3d4c5c3b4719503381a0",
+  "applicationUrl": "http://127.0.0.1:5174/",
+  "project": {
+    "id": "project-dcb5e3b2-5289-43c8-b9d5-2b2028e51e20",
+    "title": "N23 Blank Flow Audit",
+    "source": "created-from-empty-project-home",
+    "sceneCount": 3,
+    "characterCount": 2,
+    "variableCount": 1,
+    "entryStepCountAfterReopen": 8,
+    "storageRevisionAfterReopen": 6
+  },
+  "story": {
+    "scenes": ["入口", "晨光路线", "星空路线"],
+    "characters": ["阿澄", "小夜"],
+    "variable": "variable_462f5590a2ec4ab7",
+    "features": ["dialogue", "set", "condition", "label", "choice", "background", "audio", "two-endings"],
+    "endings": ["晨光抵达", "星空抵达"]
+  },
+  "assets": [
+    {
+      "assetId": "n23_background",
+      "kind": "background",
+      "format": "PNG",
+      "inspection": "PASS",
+      "sha256": "978b8e7cdec4"
+    },
+    {
+      "assetId": "n23_theme",
+      "kind": "audio",
+      "format": "WAV",
+      "inspection": "PASS",
+      "sha256": "5f5d65d220fa"
+    }
+  ],
+  "reopenAssertions": [
+    "entry scene restored with 8 statements",
+    "asset index restored with 2 entries at revision 2",
+    "background and audio stable IDs remained referenced",
+    "full flow crossed resource, variable and condition nodes",
+    "morning route ended at 晨光抵达",
+    "stars route ended at 星空抵达"
+  ],
+  "automatedGoldenSemanticHash": "56c361a9b16d1fd532e280f4f21ee5e131d9bdaef7765365c6d88d4f3d7cb0e1",
+  "result": "engineering-pass",
+  "exclusions": [
+    "not a five-minute content-volume acceptance",
+    "not validated by two independent non-implementers",
+    "asset blobs are not yet embedded in exported project ZIP",
+    "not a formal shared Player Runtime or distributable build"
+  ]
+}

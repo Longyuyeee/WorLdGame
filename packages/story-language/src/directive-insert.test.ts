@@ -88,4 +88,41 @@ describe("stable-ID directive insertion", () => {
     expect(first.session.committedSource).toContain("@show action=hide slot=left @id(stmt_hide)");
     expect(executeScriptSourceCommand(first.session, command).result.status).toBe("duplicate");
   });
+
+  it("inserts a resource-free move with bounded geometry and rejects empty or asset-bearing moves", () => {
+    const moved = insertDirectiveAfter(source, parseStory(source), {
+      afterId: "stmt_bg",
+      statementId: "stmt_move",
+      command: "show",
+      parameters: { action: "move", slot: "hero", x: "80", y: "95", transition: "slide", duration: "300ms" }
+    });
+    expect(moved.ok).toBe(true);
+    if (!moved.ok) throw new Error(moved.error.message);
+    expect(moved.source).toContain("@show action=move slot=hero x=80 y=95 transition=slide duration=300ms @id(stmt_move)");
+
+    for (const parameters of [
+      { action: "move", slot: "hero" },
+      { action: "move", slot: "hero", asset: "hero_smile", x: "80" }
+    ]) {
+      expect(insertDirectiveAfter(source, parseStory(source), {
+        afterId: "stmt_bg", statementId: "stmt_invalid_move", command: "show", parameters
+      })).toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "STRUCTURAL_INVALID_DIRECTIVE" }) }));
+    }
+  });
+
+  it("inserts a resource-free hide with an explicit exit transition", () => {
+    const hidden = insertDirectiveAfter(source, parseStory(source), {
+      afterId: "stmt_bg",
+      statementId: "stmt_hide_fade",
+      command: "show",
+      parameters: { action: "hide", slot: "hero", transition: "fade", duration: "450ms" }
+    });
+    expect(hidden.ok).toBe(true);
+    if (!hidden.ok) throw new Error(hidden.error.message);
+    expect(hidden.source).toContain("@show action=hide slot=hero transition=fade duration=450ms @id(stmt_hide_fade)");
+    expect(insertDirectiveAfter(source, parseStory(source), {
+      afterId: "stmt_bg", statementId: "stmt_hide_asset", command: "show",
+      parameters: { action: "hide", slot: "hero", asset: "hero_smile" }
+    })).toEqual(expect.objectContaining({ ok: false, error: expect.objectContaining({ code: "STRUCTURAL_INVALID_DIRECTIVE" }) }));
+  });
 });

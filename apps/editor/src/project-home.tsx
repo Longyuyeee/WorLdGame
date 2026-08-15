@@ -1,13 +1,20 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { ProjectLifecycleSession, RecentProject } from "@world-studio/project-domain";
 
+export interface ProjectArchiveDownload {
+  readonly href: string;
+  readonly filename: string;
+  readonly byteLength: number;
+  readonly dispose: () => void;
+}
 export interface ProjectHomeActions {
   readonly create: (title: string) => Promise<ProjectLifecycleSession>;
   readonly openDirectory: () => Promise<ProjectLifecycleSession>;
   readonly openRecent: (item: RecentProject) => Promise<ProjectLifecycleSession>;
   readonly openExample: () => Promise<ProjectLifecycleSession>;
+  readonly openN23Benchmark: () => Promise<ProjectLifecycleSession>;
   readonly importArchive: (file: File) => Promise<ProjectLifecycleSession>;
-  readonly exportArchive: (session: ProjectLifecycleSession) => Promise<void>;
+  readonly exportArchive: (session: ProjectLifecycleSession) => Promise<ProjectArchiveDownload>;
 }
 
 export function ProjectHome({ recent, actions, onEnter }: {
@@ -19,10 +26,20 @@ export function ProjectHome({ recent, actions, onEnter }: {
   const [selected, setSelected] = useState<ProjectLifecycleSession | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [download, setDownload] = useState<ProjectArchiveDownload | null>(null);
+  useEffect(() => () => download?.dispose(), [download]);
   const run = async (action: () => Promise<ProjectLifecycleSession>) => {
     setBusy(true);
     setError(null);
+    setDownload(null);
     try { setSelected(await action()); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
+    finally { setBusy(false); }
+  };
+  const prepareExport = async (action: () => Promise<ProjectArchiveDownload>) => {
+    setBusy(true);
+    setError(null);
+    try { setDownload(await action()); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
   };
@@ -46,6 +63,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
       <div className="project-home__actions">
         <button disabled={busy} onClick={() => void run(actions.openDirectory)}>打开工程目录</button>
         <button disabled={busy} onClick={() => void run(actions.openExample)}>打开示例工程</button>
+        <button disabled={busy} onClick={() => void run(actions.openN23Benchmark)}>打开五分钟验收工程</button>
         <label className="button-like">导入工程 ZIP<input aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={(event) => { const file = event.target.files?.[0]; if (file) void run(() => actions.importArchive(file)); }} /></label>
       </div>
     </section>
@@ -66,7 +84,8 @@ export function ProjectHome({ recent, actions, onEnter }: {
       </dl>
       <div className="project-home__actions">
         <button disabled={selected.access !== "editable" || selected.project === null} onClick={() => onEnter(selected)}>进入编辑器</button>
-        <button disabled={selected.project === null} onClick={() => void actions.exportArchive(selected)}>导出 ZIP</button>
+        <button disabled={busy || selected.project === null} onClick={() => void prepareExport(() => actions.exportArchive(selected))}>准备导出 ZIP</button>
+        {download ? <a className="button-like" href={download.href} download={download.filename}>下载工程 ZIP · {(download.byteLength / 1024).toFixed(1)} KiB</a> : null}
       </div>
     </section> : null}
     {busy ? <p role="status">正在验证工程…</p> : null}

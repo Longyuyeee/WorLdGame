@@ -1,9 +1,20 @@
 import type { StoryStatement } from "@world-studio/story-core";
 import type { AssetIndex, AssetIndexEntry, BlobDigest } from "@world-studio/project-persistence";
 import {
+  DIRECTIVE_PARAMETERS,
   MAX_STAGE_Z,
+  MAX_STAGE_ANCHOR,
+  MAX_STAGE_PERCENT,
+  MAX_STAGE_ROTATION,
+  MAX_STAGE_SCALE,
   MIN_STAGE_Z,
+  MIN_STAGE_ANCHOR,
+  MIN_STAGE_PERCENT,
+  MIN_STAGE_ROTATION,
+  MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
+  STAGE_MOVE_GEOMETRY_PARAMETERS,
+  directiveActionParameters,
   directiveActionRequiresAsset,
   inspectDirectiveArguments,
   resolveDirectiveAction
@@ -18,6 +29,15 @@ export interface PreviewVisualLayerPlan {
   readonly position?: string;
   readonly slot?: string;
   readonly z?: number;
+  readonly x?: number;
+  readonly y?: number;
+  readonly scale?: number;
+  readonly rotation?: number;
+  readonly anchorX?: number;
+  readonly anchorY?: number;
+  readonly movementFrom?: PreviewCharacterGeometry;
+  readonly entering?: boolean;
+  readonly exiting?: boolean;
 }
 
 export interface PreviewAudioLayerPlan {
@@ -37,6 +57,15 @@ export interface PreviewStagePlan {
   readonly characters: readonly PreviewVisualLayerPlan[];
   readonly audio: readonly PreviewAudioLayerPlan[];
   readonly diagnostics: readonly string[];
+}
+
+export interface PreviewCharacterGeometry {
+  readonly x: number;
+  readonly y: number;
+  readonly scale: number;
+  readonly rotation: number;
+  readonly anchorX: number;
+  readonly anchorY: number;
 }
 
 export interface LoadedPreviewMedia {
@@ -67,6 +96,7 @@ function optional(parameters: Readonly<Record<string, string>>, key: string): st
 interface MutableStageState {
   background?: PreviewVisualLayerPlan;
   readonly characters: Map<string, PreviewVisualLayerPlan>;
+  readonly exitingCharacters: Map<string, PreviewVisualLayerPlan>;
   readonly audio: Map<PreviewAudioLayerPlan["bus"], PreviewAudioLayerPlan>;
   readonly diagnostics: string[];
 }
@@ -74,6 +104,19 @@ interface MutableStageState {
 function addDiagnostic(state: MutableStageState, message: string): void {
   if (state.diagnostics.length < 100) state.diagnostics.push(message);
   else if (state.diagnostics.length === 100) state.diagnostics.push("Additional Preview diagnostics were capped at 100");
+}
+
+function optionalBoundedNumber(
+  parameters: Readonly<Record<string, string>>,
+  key: string,
+  minimum: number,
+  maximum: number
+): number | undefined | "invalid" {
+  const source = optional(parameters, key);
+  if (source === undefined) return undefined;
+  if (!/^-?\d+(?:\.\d+)?$/.test(source)) return "invalid";
+  const value = Number(source);
+  return value >= minimum && value <= maximum ? value : "invalid";
 }
 
 function applyDirection(statement: StoryStatement, state: MutableStageState): boolean {
@@ -90,6 +133,14 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
     const action = resolveDirectiveAction(statement.command, inspected.parameters.action);
     if (action === undefined) {
       addDiagnostic(state, `${statement.id}: action is invalid for @${statement.command}`);
+      return true;
+    }
+    const standardParameters = new Set(DIRECTIVE_PARAMETERS[statement.command]);
+    const actionParameters = new Set(directiveActionParameters(statement.command, action));
+    const invalidActionParameters = Object.keys(inspected.parameters)
+      .filter((key) => standardParameters.has(key) && !actionParameters.has(key));
+    if (invalidActionParameters.length > 0) {
+      addDiagnostic(state, `${statement.id}: action=${action} does not accept ${invalidActionParameters.join(", ")}`);
       return true;
     }
     const assetId = inspected.parameters.asset;
@@ -115,13 +166,65 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         return true;
       }
       if (action === "hide") {
+        const current = state.characters.get(slot);
+        if (current === undefined) {
+          addDiagnostic(state, `${statement.id}: hide requires an active ${slot} slot`);
+          return true;
+        }
         state.characters.delete(slot);
+        state.exitingCharacters.set(slot, {
+          ...current,
+          statementId: statement.id,
+          exiting: true,
+          transition: optional(inspected.parameters, "transition") ?? "fade",
+          ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
+        });
+        return true;
+      }
+      const current = state.characters.get(slot);
+      if (action === "move" && current === undefined) {
+        addDiagnostic(state, `${statement.id}: move requires an active ${slot} slot`);
+        return true;
+      }
+      if (action === "move" && !STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => inspected.parameters[key] !== undefined)) {
+        addDiagnostic(state, `${statement.id}: move requires at least one Stage geometry parameter`);
         return true;
       }
       const zSource = inspected.parameters.z;
-      const z = zSource === undefined ? 0 : Number(zSource);
+      const z = zSource === undefined ? (action === "move" ? current?.z ?? 0 : 0) : Number(zSource);
       if (!Number.isInteger(z) || z < MIN_STAGE_Z || z > MAX_STAGE_Z) {
         addDiagnostic(state, `${statement.id}: z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`);
+        return true;
+      }
+      const geometry = {
+        x: optionalBoundedNumber(inspected.parameters, "x", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+        y: optionalBoundedNumber(inspected.parameters, "y", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+        scale: optionalBoundedNumber(inspected.parameters, "scale", MIN_STAGE_SCALE, MAX_STAGE_SCALE),
+        rotation: optionalBoundedNumber(inspected.parameters, "rotation", MIN_STAGE_ROTATION, MAX_STAGE_ROTATION),
+        anchorX: optionalBoundedNumber(inspected.parameters, "anchorX", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR),
+        anchorY: optionalBoundedNumber(inspected.parameters, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
+      } as const;
+      const invalidGeometry = Object.entries(geometry).find(([, value]) => value === "invalid");
+      if (invalidGeometry !== undefined) {
+        addDiagnostic(state, `${statement.id}: ${invalidGeometry[0]} is outside the frozen Stage geometry range`);
+        return true;
+      }
+      if (action === "move") {
+        state.characters.set(slot, {
+          ...current!,
+          statementId: statement.id,
+          z,
+          movementFrom: resolvePreviewCharacterGeometry(current!),
+          transition: optional(inspected.parameters, "transition") ?? "slide",
+          ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
+          ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position }),
+          ...(typeof geometry.x === "number" ? { x: geometry.x } : {}),
+          ...(typeof geometry.y === "number" ? { y: geometry.y } : {}),
+          ...(typeof geometry.scale === "number" ? { scale: geometry.scale } : {}),
+          ...(typeof geometry.rotation === "number" ? { rotation: geometry.rotation } : {}),
+          ...(typeof geometry.anchorX === "number" ? { anchorX: geometry.anchorX } : {}),
+          ...(typeof geometry.anchorY === "number" ? { anchorY: geometry.anchorY } : {})
+        });
         return true;
       }
       state.characters.set(slot, {
@@ -129,6 +232,13 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         assetId: assetId!,
         slot,
         z,
+        ...(optional(inspected.parameters, "transition") === undefined ? {} : { entering: true }),
+        ...(typeof geometry.x === "number" ? { x: geometry.x } : {}),
+        ...(typeof geometry.y === "number" ? { y: geometry.y } : {}),
+        ...(typeof geometry.scale === "number" ? { scale: geometry.scale } : {}),
+        ...(typeof geometry.rotation === "number" ? { rotation: geometry.rotation } : {}),
+        ...(typeof geometry.anchorX === "number" ? { anchorX: geometry.anchorX } : {}),
+        ...(typeof geometry.anchorY === "number" ? { anchorY: geometry.anchorY } : {}),
         ...(optional(inspected.parameters, "transition") === undefined ? {} : { transition: inspected.parameters.transition }),
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
         ...(optional(inspected.parameters, "expression") === undefined ? {} : { expression: inspected.parameters.expression }),
@@ -175,8 +285,19 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
     return true;
 }
 
+function settleCharacterTransitions(state: MutableStageState): boolean {
+  let changed = false;
+  for (const [slot, layer] of state.characters) {
+    if (layer.entering !== true && layer.movementFrom === undefined) continue;
+    const { entering: _entering, movementFrom: _movementFrom, ...settled } = layer;
+    state.characters.set(slot, settled);
+    changed = true;
+  }
+  return changed;
+}
+
 function snapshotStageState(state: MutableStageState): PreviewStagePlan {
-  const characters = [...state.characters.values()].sort((left, right) =>
+  const characters = [...state.characters.values(), ...state.exitingCharacters.values()].sort((left, right) =>
     (left.z ?? 0) - (right.z ?? 0) || (left.slot ?? "").localeCompare(right.slot ?? "")
   );
   const audioLayers = [...state.audio.values()].sort((left, right) => left.bus.localeCompare(right.bus));
@@ -202,13 +323,28 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   };
 }
 
+export function resolvePreviewCharacterGeometry(layer: PreviewVisualLayerPlan): PreviewCharacterGeometry {
+  const defaultX = layer.position === "left" ? 20 : layer.position === "right" ? 80 : 50;
+  return {
+    x: layer.x ?? defaultX,
+    y: layer.y ?? 100,
+    scale: layer.scale ?? 1,
+    rotation: layer.rotation ?? 0,
+    anchorX: layer.anchorX ?? 0.5,
+    anchorY: layer.anchorY ?? 1
+  };
+}
+
 export function compilePreviewStageTimeline(statements: readonly StoryStatement[]): readonly PreviewStagePlan[] {
-  const state: MutableStageState = { characters: new Map(), audio: new Map(), diagnostics: [] };
+  const state: MutableStageState = { characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] };
   const timeline: PreviewStagePlan[] = [];
   let previous: PreviewStagePlan | undefined;
   for (const statement of statements) {
+    const settledCharacterTransition = settleCharacterTransitions(state);
+    const clearedExit = state.exitingCharacters.size > 0;
+    state.exitingCharacters.clear();
     const changed = applyDirection(statement, state);
-    if (!changed && previous !== undefined) {
+    if (!changed && !settledCharacterTransition && !clearedExit && previous !== undefined) {
       timeline.push(previous);
       continue;
     }
@@ -224,9 +360,9 @@ export function derivePreviewStagePlan(
   statements: readonly StoryStatement[],
   inclusiveIndex: number
 ): PreviewStagePlan {
-  if (statements.length === 0) return snapshotStageState({ characters: new Map(), audio: new Map(), diagnostics: [] });
+  if (statements.length === 0) return snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] });
   const index = Math.min(Math.max(inclusiveIndex, 0), statements.length - 1);
-  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ characters: new Map(), audio: new Map(), diagnostics: [] });
+  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] });
 }
 
 function compatible(entry: AssetIndexEntry, role: "background" | "character" | "audio"): boolean {

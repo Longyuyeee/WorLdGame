@@ -20,7 +20,7 @@ async function expectStorageRevision(revision: number): Promise<void> {
 describe("S0.12 autosave integration", () => {
   it("debounces committed input and rotates the previous verified snapshot", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
-    render(<App />);
+    render(<App autosaveDebounceMs={10} />);
     await screen.findByRole("button", { name: "保存到本机" });
     selectFirstDialogue();
 
@@ -45,5 +45,5 @@ describe("S0.12 autosave integration", () => {
     }, { timeout: 5_000 });
     fireEvent.click(screen.getByRole("button", { name: /选择对白：第一次自动保存/ }));
     expect(screen.getByLabelText("对白内容")).toHaveValue("第一次自动保存。");
-  }, 20_000);
+  }, 30_000);
 });

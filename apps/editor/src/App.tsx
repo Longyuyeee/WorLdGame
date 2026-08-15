@@ -34,9 +34,18 @@ import {
 } from "@world-studio/story-core";
 import {
   MAX_STAGE_Z,
+  MAX_STAGE_ANCHOR,
+  MAX_STAGE_PERCENT,
+  MAX_STAGE_ROTATION,
+  MAX_STAGE_SCALE,
   MAX_DIRECTIVE_BATCH_TARGETS,
   MIN_STAGE_Z,
+  MIN_STAGE_ANCHOR,
+  MIN_STAGE_PERCENT,
+  MIN_STAGE_ROTATION,
+  MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
+  STAGE_MOVE_GEOMETRY_PARAMETERS,
   compileSceneResourceManifest,
   directiveActionRequiresAsset,
   directiveActionOptions,
@@ -46,6 +55,7 @@ import {
   type StoryDocument
 } from "@world-studio/story-language";
 import type { CanonicalProject } from "@world-studio/project-domain";
+import type { StoryProject } from "@world-studio/story-core";
 import {
   activeSourceDraft,
   activeSourceSession,
@@ -106,10 +116,27 @@ import {
   loadPreviewMedia,
   releasePreviewMedia,
   type LoadedPreviewMedia,
-  type PreviewAudioLayerPlan,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
 import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
+import { createStageSurfaceMetrics, type StageDesignPoint } from "./stage-surface";
+import {
+  createPreviewMediaHostState,
+  previewMediaErrorCount,
+  reducePreviewMediaHost,
+  type PreviewMediaRole
+} from "./preview-media-host";
+import { createPreviewRenderFrame } from "./preview-render-host";
+import { PreviewCanvasHost } from "./preview-canvas-host";
+import { PreviewAudioLayer } from "./preview-audio-layer";
+import {
+  advancePlayablePreview,
+  createIdlePlayablePreviewState,
+  selectPlayableChoice,
+  startPlayablePreview,
+  type PlayablePreviewState
+} from "./playable-preview-runtime";
+import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -753,17 +780,18 @@ interface WriterViewProps extends CommonProps {
   readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
+  readonly variableIds: readonly string[];
   readonly requestedFocusStatementId: string | null;
   readonly onRequestedFocusHandled: () => void;
 }
 
 type DirectionForm = Record<string, string>;
 type DirectionCommand = "background" | "show" | "audio";
-type BatchDirectionParameter = "transition" | "duration" | "transitionAsset" | "expression" | "position" | "loop" | "volume" | "fade";
+type BatchDirectionParameter = "transition" | "duration" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
 
 const BATCH_DIRECTION_PARAMETERS: Readonly<Record<DirectionCommand, readonly BatchDirectionParameter[]>> = {
   background: ["transition", "duration", "transitionAsset"],
-  show: ["expression", "position", "transition", "duration", "transitionAsset"],
+  show: ["expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "duration", "transitionAsset"],
   audio: ["loop", "volume", "fade", "transitionAsset"]
 };
 
@@ -773,6 +801,12 @@ const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> 
   transitionAsset: "过渡资源",
   expression: "表情",
   position: "位置",
+  x: "水平位置",
+  y: "垂直位置",
+  scale: "缩放",
+  rotation: "旋转",
+  anchorX: "水平锚点",
+  anchorY: "垂直锚点",
   loop: "循环",
   volume: "音量",
   fade: "淡入/淡出"
@@ -787,6 +821,12 @@ function compatibleDirectionAssets(
     if (command === "show") return entry.kind === "character";
     return entry.kind === "audio";
   });
+}
+
+function validOptionalStageNumber(form: DirectionForm, key: string, minimum: number, maximum: number): boolean {
+  const source = form[key];
+  return source === undefined || source.length === 0 ||
+    /^-?\d+(?:\.\d+)?$/.test(source) && Number(source) >= minimum && Number(source) <= maximum;
 }
 
 interface DirectionInspectorProps {
@@ -808,22 +848,35 @@ function DirectionInspector({
   const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
   const action = resolveDirectiveAction(statement.command, form.action);
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
+  const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
+  const visualTransitionActive = (statement.command === "background" && action === "set") ||
+    statement.command === "show" && (characterGeometryActive || action === "hide");
+  const durationActive = visualTransitionActive || statement.command === "audio" && action === "play";
   const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
   const assetId = form.asset ?? "";
   const assetKnown = !assetRequired || compatibleAssets.some((entry) => entry.assetId === assetId);
   const transitionAsset = form.transitionAsset ?? "";
   const transitionAssetKnown = !assetRequired || transitionAsset.length === 0 || assetIndex.assets.some((entry) => entry.assetId === transitionAsset);
   const duration = statement.command === "audio" ? (form.fade ?? "") : (form.duration ?? "");
-  const durationValid = !assetRequired || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
+  const durationValid = !durationActive || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const volumeValid = !assetRequired || statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
     (/^\d+(?:\.\d+)?$/.test(form.volume) && Number(form.volume) >= 0 && Number(form.volume) <= 1);
   const busValid = statement.command !== "audio" || ["voice", "bgm", "sfx", "ambient"].includes(form.bus ?? "");
   const slot = form.slot ?? "primary";
   const slotValid = statement.command !== "show" || SAFE_STAGE_SLOT.test(slot);
   const z = form.z === undefined || form.z.length === 0 ? 0 : Number(form.z);
-  const zValid = !assetRequired || statement.command !== "show" || Number.isInteger(z) && z >= MIN_STAGE_Z && z <= MAX_STAGE_Z;
+  const zValid = !characterGeometryActive || Number.isInteger(z) && z >= MIN_STAGE_Z && z <= MAX_STAGE_Z;
+  const geometryValid = !characterGeometryActive || [
+    validOptionalStageNumber(form, "x", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+    validOptionalStageNumber(form, "y", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+    validOptionalStageNumber(form, "scale", MIN_STAGE_SCALE, MAX_STAGE_SCALE),
+    validOptionalStageNumber(form, "rotation", MIN_STAGE_ROTATION, MAX_STAGE_ROTATION),
+    validOptionalStageNumber(form, "anchorX", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR),
+    validOptionalStageNumber(form, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
+  ].every(Boolean);
+  const moveHasGeometry = action !== "move" || STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => (form[key] ?? "").trim().length > 0);
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
-    transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && moveHasGeometry && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -832,12 +885,16 @@ function DirectionInspector({
   const keys = statement.command === "background"
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["action", "asset", "slot", "z", "expression", "position", "transition", "transitionAsset", "duration"]
+      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration"]
       : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transition: null, transitionAsset: null, duration: null }
     : statement.command === "show"
-      ? { asset: null, z: null, expression: null, position: null, transition: null, transitionAsset: null, duration: null }
+      ? action === "move"
+        ? { asset: null, expression: null, transitionAsset: null }
+        : action === "hide"
+          ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transitionAsset: null }
+          : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
       : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
@@ -905,7 +962,7 @@ function DirectionInspector({
         </small>
       </div>}
 
-      {statement.command !== "audio" && assetRequired && (
+      {visualTransitionActive && (
         <div className="direction-field">
           <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
           <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
@@ -915,16 +972,26 @@ function DirectionInspector({
       )}
       {statement.command === "show" && <>
         <div className="direction-field"><label htmlFor={`direction-slot-${statement.id}`}>角色槽位</label><input id={`direction-slot-${statement.id}`} aria-label="角色槽位" value={slot} disabled={disabled} placeholder="primary" onChange={(event) => setField("slot", event.target.value)} />{!slotValid && <small className="is-error">需为稳定标识符</small>}</div>
-        {assetRequired && <><div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>
-        <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>
-        <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div></>}
+        {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>}
+        {assetRequired && <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>}
+        {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div>}
+        {characterGeometryActive && <div className="direction-geometry" aria-label="角色舞台几何">
+          <div className="direction-field"><label htmlFor={`direction-x-${statement.id}`}>X（%）</label><input id={`direction-x-${statement.id}`} aria-label="角色水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.x ?? ""} disabled={disabled} placeholder="50" onChange={(event) => setField("x", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-y-${statement.id}`}>Y（%）</label><input id={`direction-y-${statement.id}`} aria-label="角色垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.y ?? ""} disabled={disabled} placeholder="100" onChange={(event) => setField("y", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-scale-${statement.id}`}>缩放</label><input id={`direction-scale-${statement.id}`} aria-label="角色缩放" type="number" min={MIN_STAGE_SCALE} max={MAX_STAGE_SCALE} step="0.01" value={form.scale ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("scale", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-rotation-${statement.id}`}>旋转（°）</label><input id={`direction-rotation-${statement.id}`} aria-label="角色旋转" type="number" min={MIN_STAGE_ROTATION} max={MAX_STAGE_ROTATION} step="0.1" value={form.rotation ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("rotation", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-anchor-x-${statement.id}`}>锚点 X</label><input id={`direction-anchor-x-${statement.id}`} aria-label="角色水平锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorX ?? ""} disabled={disabled} placeholder="0.5" onChange={(event) => setField("anchorX", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`direction-anchor-y-${statement.id}`}>锚点 Y</label><input id={`direction-anchor-y-${statement.id}`} aria-label="角色垂直锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorY ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("anchorY", event.target.value)} /></div>
+          {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
+        </div>}
+        {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
       </>}
       {statement.command === "audio" && <>
         <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
         {assetRequired && <><div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
         <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div></>}
       </>}
-      {assetRequired && <div className="direction-field">
+      {durationActive && <div className="direction-field">
         <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : "时长"}</label>
         <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
         {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
@@ -974,6 +1041,10 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
   const valueValid = mode === "remove" || (
     parameter === "transition" ? ["fade", "dissolve", "slide"].includes(value) :
       parameter === "position" ? ["left", "center", "right"].includes(value) :
+        parameter === "x" || parameter === "y" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT :
+          parameter === "scale" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_SCALE && Number(value) <= MAX_STAGE_SCALE :
+            parameter === "rotation" ? /^-?\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_ROTATION && Number(value) <= MAX_STAGE_ROTATION :
+              parameter === "anchorX" || parameter === "anchorY" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_ANCHOR && Number(value) <= MAX_STAGE_ANCHOR :
         parameter === "loop" ? ["true", "false"].includes(value) :
           parameter === "duration" || parameter === "fade" ? /^\d+(?:\.\d+)?(?:ms|s)$/.test(value) :
             parameter === "volume" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= 0 && Number(value) <= 1 :
@@ -1069,14 +1140,18 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [asset, setAsset] = useState("");
   const [slot, setSlot] = useState("primary");
   const [z, setZ] = useState("0");
+  const [x, setX] = useState("50");
+  const [y, setY] = useState("100");
   const [bus, setBus] = useState("bgm");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
+  const moveActive = command === "show" && action === "move";
   const assetValid = !assetRequired || compatibleAssets.some((entry) => entry.assetId === asset);
   const slotValid = command !== "show" || SAFE_STAGE_SLOT.test(slot);
   const zNumber = Number(z);
   const zValid = command !== "show" || !assetRequired || Number.isInteger(zNumber) && zNumber >= MIN_STAGE_Z && zNumber <= MAX_STAGE_Z;
-  const canSubmit = !disabled && assetValid && slotValid && zValid;
+  const moveGeometryValid = !moveActive || [x, y].every((value) => /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT);
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid;
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : "音频";
 
   return (
@@ -1088,6 +1163,15 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       if (command === "show") {
         parameters.slot = slot;
         if (assetRequired) parameters.z = z;
+        if (moveActive) {
+          parameters.x = x;
+          parameters.y = y;
+          parameters.transition = "slide";
+          parameters.duration = "300ms";
+        } else if (action === "hide") {
+          parameters.transition = "fade";
+          parameters.duration = "300ms";
+        }
       }
       if (command === "audio") {
         parameters.bus = bus;
@@ -1109,11 +1193,13 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {assetRequired && <label className="direction-insert__asset"><span>资源</span><input aria-label="新增演出资源" list={`insert-assets-${command}`} value={asset} disabled={disabled} placeholder={compatibleAssets.length === 0 ? "请先导入兼容资源" : "选择 Asset ID"} onChange={(event) => setAsset(event.target.value)} /><datalist id={`insert-assets-${command}`}>{compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist></label>}
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
+        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
       </div>
       {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
+      {!moveGeometryValid && <small className="is-error">移动位置必须在 0–100 之间</small>}
       <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
     </form>
   );
@@ -1158,6 +1244,7 @@ function WriterView({
   createEntityId,
   onInputDirtyChange,
   assetIndex,
+  variableIds,
   requestedFocusStatementId,
   onRequestedFocusHandled
 }: WriterViewProps) {
@@ -1191,7 +1278,14 @@ function WriterView({
   const resolvedStageSearchResult = Math.min(activeStageSearchResult, Math.max(0, stageSearch.matches.length - 1));
   const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
-  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[]),assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const sequenceInsertRequirement = sequenceInsertKind === "dialogue" && sequenceReferences.characterIds.length === 0
+    ? "插入对白前，请先返回项目结构创建至少一名角色。"
+    : (sequenceInsertKind === "set" || sequenceInsertKind === "condition") && sequenceReferences.variableIds.length === 0
+      ? "插入变量语句前，请先返回项目结构创建至少一个变量。"
+      : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && sequenceReferences.assetIds.length === 0
+        ? "插入演出语句前，请先打开资源保险库导入资源。"
+        : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
   const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
@@ -1314,7 +1408,7 @@ function WriterView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,insertionAnchor,session.project,assetIndex]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   return (
     <section className="authoring-panel view-enter" aria-labelledby="writer-heading">
@@ -1328,7 +1422,7 @@ function WriterView({
 
       <div className="statement-toolbar" aria-label="对白结构工具">
         <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['audio','音频']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
+        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
         <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
         <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
         <button type="button" aria-label="语句下移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
@@ -1337,6 +1431,7 @@ function WriterView({
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>current.filter((id)=>!selectedSequenceIds.includes(id)))}>展开</button>
         <button type="button" className="danger-button" disabled={pendingDraft||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
       </div>
+      {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}</p>}
 
       <div className="statement-toolbar statement-toolbar--legacy" aria-label="对白快捷工具">
         <button
@@ -1836,62 +1931,22 @@ interface PreviewPanelProps extends CommonProps {
   readonly assetRepository: IndexedDbAssetRepository | null;
 }
 
-type PreviewMediaViewState =
-  | { readonly status: "loading"; readonly planKey: string }
-  | { readonly status: "ready"; readonly media: LoadedPreviewMedia };
+function browserDevicePixelRatio(): number {
+  return typeof window === "undefined" ? 1 : window.devicePixelRatio;
+}
 
-function PreviewAudioLayer({ layer }: { readonly layer: PreviewAudioLayerPlan & { readonly url: string } }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [status, setStatus] = useState<"starting" | "playing" | "paused" | "blocked" | "error">(
-    layer.playback === "paused" ? "paused" : "starting"
-  );
+function useDevicePixelRatio(): number {
+  const [ratio, setRatio] = useState(browserDevicePixelRatio);
   useEffect(() => {
-    const audio = audioRef.current;
+    const update = () => setRatio(browserDevicePixelRatio());
+    window.addEventListener("resize", update);
+    window.visualViewport?.addEventListener("resize", update);
     return () => {
-      if (audio === null) return;
-      audio.pause();
-      audio.removeAttribute("src");
+      window.removeEventListener("resize", update);
+      window.visualViewport?.removeEventListener("resize", update);
     };
-  }, [layer.url]);
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (audio === null) return;
-    if (layer.playback === "paused") {
-      audio.pause();
-      setStatus("paused");
-      return;
-    }
-    audio.volume = layer.volume;
-    void audio.play().catch(() => setStatus("blocked"));
-  }, [layer.playback, layer.volume]);
-  return <>
-    <audio
-      ref={audioRef}
-      src={layer.url}
-      autoPlay={layer.playback === "playing"}
-      loop={layer.loop}
-      data-testid={`preview-audio-${layer.bus}`}
-      onCanPlay={(event) => {
-        event.currentTarget.volume = layer.volume;
-        if (layer.playback === "playing") void event.currentTarget.play().catch(() => setStatus("blocked"));
-      }}
-      onPlay={() => setStatus("playing")}
-      onError={() => setStatus("error")}
-    />
-    <button
-      type="button"
-      className={`stage-audio-chip stage-audio-chip--${status}`}
-      aria-label={`${layer.bus} 音轨${status === "playing" ? "播放中" : status === "paused" ? "已暂停" : "启用播放"}`}
-      onClick={() => {
-        const audio = audioRef.current;
-        if (audio === null || status === "playing" || layer.playback === "paused") return;
-        audio.volume = layer.volume;
-        void audio.play().catch(() => setStatus("blocked"));
-      }}
-    >
-      {layer.bus.toUpperCase()} · {status === "playing" ? "播放中" : status === "paused" ? "已暂停" : status === "blocked" ? "点击启用" : status === "error" ? "重试播放" : "准备中"}
-    </button>
-  </>;
+  }, []);
+  return ratio;
 }
 
 function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository }: PreviewPanelProps) {
@@ -1899,11 +1954,18 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
+  const [showSafeArea, setShowSafeArea] = useState(true);
+  const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
+  const devicePixelRatio = useDevicePixelRatio();
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
     undefined,
     createPreviewTransportState
   );
+  const [playable, setPlayable] = useState<PlayablePreviewState>(createIdlePlayablePreviewState);
+  const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
+  const [webBuildError, setWebBuildError] = useState<string | null>(null);
+  const playableActive = playable.status !== "idle";
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -1913,40 +1975,51 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     height: customViewport.height,
     orientation: customViewport.width >= customViewport.height ? "landscape" as const : "portrait" as const
   } : selectedPreset;
-  const scene = findScene(session.project, session.activeSceneId);
-  const statement = scene.statements[session.previewIndex];
-  if (statement === undefined) throw new Error(`Preview index is outside scene: ${session.previewIndex}`);
+  const stageSurface = createStageSurfaceMetrics(viewport.width, viewport.height, devicePixelRatio);
+  const previewSceneId = playableActive && playable.sceneId !== null ? playable.sceneId : session.activeSceneId;
+  const previewIndex = playableActive ? playable.statementIndex : session.previewIndex;
+  const scene = findScene(session.project, previewSceneId);
+  const statement = scene.statements[previewIndex];
+  if (statement === undefined) throw new Error(`Preview index is outside scene: ${previewIndex}`);
   const speaker = statement.kind === "dialogue"
     ? findCharacter(session.project.characters, statement.speakerId)
     : undefined;
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
   const showBufferedNotice = inputDirty && session.notice.tone !== "error";
-  const transportBlocked = pendingDraft || inputDirty;
+  const transportBlocked = pendingDraft || inputDirty || playableActive;
   const transportBarrier = previewTransportBarrier(
     statement,
-    session.previewIndex,
+    previewIndex,
     scene.statements.length,
     transportBlocked
   );
   const speedProfile = findPreviewSpeedProfile(transport.speedId);
   const previousTransportSceneId = useRef(session.activeSceneId);
   const stageTimeline = useMemo(() => compilePreviewStageTimeline(scene.statements), [scene.statements]);
-  const stagePlan = stageTimeline[session.previewIndex] ?? derivePreviewStagePlan([], 0);
+  const stagePlan = stageTimeline[previewIndex] ?? derivePreviewStagePlan([], 0);
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
-  const [mediaView, setMediaView] = useState<PreviewMediaViewState>({
-    status: "loading",
-    planKey: stagePlan.resourceKey
-  });
+  const [mediaView, mediaViewDispatch] = useReducer(
+    reducePreviewMediaHost,
+    stagePlan.resourceKey,
+    createPreviewMediaHostState
+  );
+  const mediaGenerationRef = useRef(0);
+
+  useEffect(() => () => webBuild?.dispose(), [webBuild]);
 
   useEffect(() => {
     const controller = new AbortController();
+    const generation = mediaGenerationRef.current + 1;
+    mediaGenerationRef.current = generation;
     let owned: LoadedPreviewMedia | undefined;
     const requiresRepository = stagePlan.background !== undefined || stagePlan.characters.length > 0 || stagePlan.audio.length > 0;
-    setMediaView({ status: "loading", planKey: stagePlan.resourceKey });
+    mediaViewDispatch({ type: "begin", generation, planKey: stagePlan.resourceKey });
     if (assetRepository === null && requiresRepository) {
-      setMediaView({
-        status: "ready",
+      mediaViewDispatch({
+        type: "ready",
+        generation,
+        planKey: stagePlan.resourceKey,
         media: {
           planKey: stagePlan.resourceKey,
           characters: [],
@@ -1960,25 +2033,21 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     const reader = assetRepository ?? { read: async () => null };
     void loadPreviewMedia(stagePlan, assetIndex, reader, urlFactory, controller.signal)
       .then((media) => {
-        if (controller.signal.aborted) {
+        if (controller.signal.aborted || generation !== mediaGenerationRef.current) {
           releasePreviewMedia(media, urlFactory);
           return;
         }
         owned = media;
-        setMediaView({ status: "ready", media });
+        mediaViewDispatch({ type: "ready", generation, planKey: stagePlan.resourceKey, media });
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
         if (controller.signal.aborted) return;
-        setMediaView({
-          status: "ready",
-          media: {
-            planKey: stagePlan.resourceKey,
-            characters: [],
-            audio: [],
-            errors: [...stagePlan.diagnostics, error instanceof Error ? error.message : "Preview media load failed"],
-            objectUrls: []
-          }
+        mediaViewDispatch({
+          type: "failed",
+          generation,
+          planKey: stagePlan.resourceKey,
+          errors: [...stagePlan.diagnostics, error instanceof Error ? error.message : "Preview media load failed"]
         });
       });
     return () => {
@@ -1987,15 +2056,42 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     };
   }, [assetIndex, assetRepository, stagePlan.resourceKey, urlFactory]);
 
-  const loadedMedia = mediaView.status === "ready" && mediaView.media.planKey === stagePlan.resourceKey
+  const loadedMedia = mediaView.status === "ready" && mediaView.planKey === stagePlan.resourceKey && mediaView.media.planKey === stagePlan.resourceKey
     ? mediaView.media
     : undefined;
+  const reportRuntimeMediaError = (
+    role: PreviewMediaRole,
+    layer: { readonly statementId: string; readonly assetId: string }
+  ) => mediaViewDispatch({
+    type: "runtime-error",
+    generation: mediaView.generation,
+    planKey: stagePlan.resourceKey,
+    error: { role, statementId: layer.statementId, assetId: layer.assetId, code: "decode-failed" }
+  });
+  const renderFrame = createPreviewRenderFrame(mediaView, stagePlan.resourceKey);
+  const mediaErrorCount = previewMediaErrorCount(mediaView);
 
   useEffect(() => {
     if (previousTransportSceneId.current === session.activeSceneId) return;
     previousTransportSceneId.current = session.activeSceneId;
     transportDispatch({ type: "reset" });
   }, [session.activeSceneId]);
+
+  useEffect(() => {
+    if (!playableActive || playable.sceneId === null) return;
+    if (session.activeSceneId !== playable.sceneId) {
+      dispatch({ type: "select-scene", sceneId: playable.sceneId });
+      return;
+    }
+    if (session.selectedStatementId !== statement.id) {
+      dispatch({ type: "select-statement", statementId: statement.id });
+    }
+  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.selectedStatementId, statement.id]);
+
+  useEffect(() => {
+    if (!playableActive || transport.mode !== "playing") return;
+    transportDispatch({ type: "pause", reason: "manual" });
+  }, [playableActive, transport.mode]);
 
   useEffect(() => {
     if (!transportBlocked && transport.stopReason === "blocked") {
@@ -2023,6 +2119,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   ]);
 
   const togglePlayback = () => {
+    if (playableActive) return;
     if (transport.mode === "playing") {
       transportDispatch({ type: "pause", reason: "manual" });
       return;
@@ -2035,13 +2132,38 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   };
 
   const stepPreview = (direction: -1 | 1) => {
+    if (playableActive) return;
     transportDispatch({ type: "pause", reason: "manual-step" });
     dispatch({ type: "step-preview", direction });
   };
 
-  const transportStatus = transport.mode === "playing"
-    ? `运行中 · ${speedProfile.label}`
-    : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
+  const beginPlayablePreview = () => {
+    transportDispatch({ type: "reset" });
+    setPlayable(startPlayablePreview(session.project));
+  };
+
+  const exitPlayablePreview = () => setPlayable(createIdlePlayablePreviewState());
+
+  const preparePlayableWeb = () => {
+    webBuild?.dispose();
+    setWebBuildError(null);
+    try { setWebBuild(createPlayableWebDownload(session.project)); }
+    catch (error) { setWebBuild(null); setWebBuildError(error instanceof Error ? error.message : String(error)); }
+  };
+
+  const playableStatus = playable.status === "waiting-choice"
+    ? `请选择路线 · 已经过 ${playable.visitedSceneIds.length} 个场景`
+    : playable.status === "ended"
+      ? `流程完成：${playable.endingName ?? "未命名结局"}`
+      : playable.status === "error"
+        ? `流程中止：${playable.error ?? "未知错误"}`
+        : `试玩中 · ${scene.title} · ${playable.visitedStatementIds.length} 个节点`;
+
+  const transportStatus = playableActive
+    ? "完整流程试玩接管中"
+    : transport.mode === "playing"
+      ? `运行中 · ${speedProfile.label}`
+      : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
   return (
     <aside className="preview-panel" aria-labelledby="preview-heading">
       <div className="panel-heading">
@@ -2065,6 +2187,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <option value="custom">自定义 · 精确尺寸</option>
         </select>
         <span>{viewport.width} × {viewport.height}</span>
+        <label className="preview-safe-toggle"><input type="checkbox" checked={showSafeArea} onChange={(event) => setShowSafeArea(event.target.checked)} />安全区</label>
       </div>
       {viewportProfileId === "custom" && (
         <div className="preview-custom-size" aria-label="自定义预览尺寸">
@@ -2107,45 +2230,50 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           data-preview-profile={viewport.id}
           data-preview-width={viewport.width}
           data-preview-height={viewport.height}
+          data-stage-surface="design-pixels"
+          data-stage-dpr={stageSurface.effectiveDpr}
+          data-stage-requested-dpr={stageSurface.requestedDpr}
+          data-stage-pixel-width={stageSurface.pixelWidth}
+          data-stage-pixel-height={stageSurface.pixelHeight}
+          data-stage-resolution-limited={stageSurface.resolutionLimited}
           style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
         >
-          <div className="stage-chrome"><span>{scene.title}</span><span>{viewport.ratioLabel} · Balanced</span></div>
-          {loadedMedia?.background === undefined ? (
-            <div className="stage-sky" aria-hidden="true">
-              <span className="sun" /><span className="school-building" />
-              <span className="character-silhouette character-silhouette--left" />
-              <span className="character-silhouette character-silhouette--right" />
-            </div>
-          ) : (
-            <img
-              className={`stage-media-background stage-transition--${loadedMedia.background.transition ?? "none"}`}
-              data-testid="preview-background"
-              src={loadedMedia.background.url}
-              alt={`背景资源 ${loadedMedia.background.assetId}`}
-              style={{ animationDuration: loadedMedia.background.duration ?? "360ms" }}
-            />
-          )}
-          {loadedMedia?.characters.map((character) => (
-            <img
-              key={character.slot}
-              className={`stage-media-character stage-media-character--${character.position ?? "center"} stage-transition--${character.transition ?? "none"}`}
-              data-testid={`preview-character-${character.slot}`}
-              data-stage-slot={character.slot}
-              src={character.url}
-              alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
-              style={{ animationDuration: character.duration ?? "360ms", zIndex: character.z ?? 0 }}
-            />
-          ))}
+          <div className="stage-chrome">
+            <span>{scene.title}</span>
+            <span className="stage-chrome__metrics">
+              <span>{viewport.ratioLabel} · Balanced</span>
+              <small>
+                DPR {stageSurface.effectiveDpr.toFixed(2)}
+                {lastStagePoint === null ? "" : ` · ${Math.round(lastStagePoint.x)},${Math.round(lastStagePoint.y)}`}
+              </small>
+            </span>
+          </div>
+          {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
+          <PreviewCanvasHost
+            frame={renderFrame}
+            designWidth={viewport.width}
+            designHeight={viewport.height}
+            pixelWidth={stageSurface.pixelWidth}
+            pixelHeight={stageSurface.pixelHeight}
+            selectedStatementId={session.selectedStatementId}
+            onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
+            onStagePoint={setLastStagePoint}
+            onRuntimeError={reportRuntimeMediaError}
+          />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
               const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
-              return <PreviewAudioLayer key={`${layer.bus}:${layer.statementId}:${layer.url}`} layer={{ ...layer, playback }} />;
+              return <PreviewAudioLayer
+                key={`${layer.bus}:${layer.statementId}:${layer.url}`}
+                layer={{ ...layer, playback }}
+                onDecodeError={() => reportRuntimeMediaError("audio", layer)}
+              />;
             })}
           </div>
           {mediaView.status === "loading" && <div className="stage-media-loading" role="status">正在验证预览资源…</div>}
-          {loadedMedia !== undefined && loadedMedia.errors.length > 0 && (
-            <div className="stage-media-errors" role="status">
-              <strong>安全占位</strong><span>{loadedMedia.errors.length} 项资源未执行</span>
+          {loadedMedia !== undefined && mediaErrorCount > 0 && (
+            <div className="stage-media-errors" role="status" data-runtime-errors={mediaView.runtimeErrors.length}>
+              <strong>安全占位</strong><span>{mediaErrorCount} 项资源未执行</span>
             </div>
           )}
           <div className="stage-content" key={statement.id} data-testid="preview-step">
@@ -2157,18 +2285,47 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
                 <p>{statement.text}</p>
               </div>
             )}
+            {statement.kind === "narration" && <div className="stage-note"><span>旁白</span><strong>{statement.text}</strong></div>}
             {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
+            {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
-              <div className="choice-preview"><strong>{statement.prompt}</strong>{statement.options.map((option) => <span key={option.id}>{option.label}</span>)}</div>
+              <div className="choice-preview">
+                <strong>{statement.prompt}</strong>
+                {statement.options.map((option) => playable.status === "waiting-choice"
+                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectPlayableChoice(session.project, playable, option.id))} aria-label={`选择路线：${option.label}`}>{option.label}</button>
+                  : <span key={option.id}>{option.label}</span>)}
+              </div>
             )}
             {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
           </div>
         </div>
       </div>
+      <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
+        <div>
+          <strong>完整流程试玩</strong>
+          <small>{playableActive ? playableStatus : "从入口场景执行脚本、选择路线并到达结局"}</small>
+        </div>
+        {!playableActive && (
+          <button type="button" onClick={beginPlayablePreview} disabled={pendingDraft || inputDirty}>试玩完整流程</button>
+        )}
+        {playable.status === "presenting" && (
+          <button type="button" onClick={() => setPlayable(advancePlayablePreview(session.project, playable))}>继续剧情</button>
+        )}
+        {(playable.status === "ended" || playable.status === "error") && (
+          <button type="button" onClick={beginPlayablePreview}>重新试玩</button>
+        )}
+        {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
+      </div>
+      <div className="playable-web-export" aria-label="独立试玩导出">
+        <div><strong>独立试玩产物</strong><small>生成无需编辑器和网络即可运行的单文件 HTML</small></div>
+        <button type="button" onClick={preparePlayableWeb} disabled={pendingDraft || inputDirty}>构建试玩 HTML</button>
+        {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
+        {webBuildError && <p role="alert">{webBuildError}</p>}
+      </div>
       <div className="preview-transport">
-        <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={session.previewIndex === 0}>←</button>
-        <div><strong>{session.previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
-        <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={session.previewIndex === scene.statements.length - 1}>→</button>
+        <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
+        <div><strong>{previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
+        <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={playableActive || previewIndex === scene.statements.length - 1}>→</button>
       </div>
       <div className="preview-playback" aria-label="预览运行控制">
         <button
@@ -2219,10 +2376,18 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   );
 }
 
-export interface AppProps { readonly initialProject?: CanonicalProject; }
-export function App({ initialProject }: AppProps = {}) {
+export interface AppProps {
+  readonly initialProject?: CanonicalProject;
+  readonly onProjectChange?: (project: StoryProject) => void;
+  readonly onProjectSave?: (project: StoryProject) => Promise<void>;
+  readonly autosaveDebounceMs?: number;
+}
+export function App({ initialProject, onProjectChange, onProjectSave, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
+  const lifecycleHosted = initialProject !== undefined;
+  const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
+    typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("writer");
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
@@ -2268,10 +2433,18 @@ export function App({ initialProject }: AppProps = {}) {
   const editGeneration = useRef(0);
   const sessionRef = useRef(session);
   sessionRef.current = session;
+  const onProjectChangeRef = useRef(onProjectChange);
+  const onProjectSaveRef = useRef(onProjectSave);
+  onProjectChangeRef.current = onProjectChange;
+  onProjectSaveRef.current = onProjectSave;
   const [editVersion, setEditVersion] = useState(0);
   const [backupPanelOpen, setBackupPanelOpen] = useState(false);
   const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
   const [backupsLoading, setBackupsLoading] = useState(false);
+
+  useEffect(() => {
+    if (lifecycleHosted) onProjectChangeRef.current?.(session.project);
+  }, [lifecycleHosted, session.project]);
 
   useEffect(() => {
     if (!backupPanelOpen) return;
@@ -2370,7 +2543,10 @@ export function App({ initialProject }: AppProps = {}) {
         Date.now(),
         WRITER_LEASE_TTL_MS
       );
-      if (cancelled) return;
+      if (cancelled) {
+        if (acquisition.status === "acquired") await store.release(acquisition.lease).catch(() => false);
+        return;
+      }
       if (acquisition.status === "held") {
         setPersistence({
           status: "conflict",
@@ -2559,12 +2735,18 @@ export function App({ initialProject }: AppProps = {}) {
       if (heartbeat !== undefined) clearInterval(heartbeat);
       globalThis.removeEventListener("pagehide", releaseOnPageHide);
       globalThis.removeEventListener("pageshow", reacquireAfterPageShow);
+      const activeLease = leaseRef.current;
+      if (activeLease !== null) markBrowserWriterLeaseOwnerHandoff(activeLease.ownerId);
+      leaseRef.current = null;
       if (storeRef.current === store) storeRef.current = null;
       store.activateWriterLease(null);
       if (assetRepositoryRef.current === assetRepository) assetRepositoryRef.current = null;
       assetRepository.activateWriterLease(null);
       assetImportAbortRef.current?.abort();
       assetImportAbortRef.current = null;
+      dicingAnalysisAbortRef.current?.abort();
+      dicingAnalysisAbortRef.current = null;
+      if (activeLease !== null) void store.release(activeLease).catch(() => false);
     };
   }, [storageAvailable, leaseRetry, projectStorageId]);
 
@@ -2608,6 +2790,7 @@ export function App({ initialProject }: AppProps = {}) {
     if (store === null || inputDirty || saveInFlight.current ||
         (reason === "auto" && autosaveSuspended.current)) return;
     const currentSnapshot = persistedSnapshotRef.current;
+    const projectAtSaveStart = sessionRef.current.project;
     if (currentSnapshot !== null && assetRepository === null) {
       setPersistence((current) => ({
         status: "degraded",
@@ -2650,6 +2833,7 @@ export function App({ initialProject }: AppProps = {}) {
         nowMs
       });
     }).then(async () => {
+      await onProjectSaveRef.current?.(projectAtSaveStart);
       persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
       let verifiedBackups = backups;
@@ -2691,9 +2875,9 @@ export function App({ initialProject }: AppProps = {}) {
 
   useEffect(() => {
     if (inputDirty || persistence.status !== "dirty" || autosaveSuspended.current) return;
-    const timer = setTimeout(() => saveToLocal("auto"), AUTOSAVE_DEBOUNCE_MS);
+    const timer = setTimeout(() => saveToLocal("auto"), autosaveDebounceMs);
     return () => clearTimeout(timer);
-  }, [editVersion, inputDirty, persistence.status]);
+  }, [autosaveDebounceMs, editVersion, inputDirty, persistence.status]);
 
   const openBackups = () => {
     const store = storeRef.current;
@@ -3306,7 +3490,7 @@ export function App({ initialProject }: AppProps = {}) {
           }}
         />
         {mode === "writer" ? (
-          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
+          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-14T14:41:25+08:00",
+  "sourceBaseRevision": "e04f5d5a543a49815a491a9bdc9835ab1990482d",
+  "fixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Codex In-app Browser",
+    "viewportWidth": 1280,
+    "viewportHeight": 720,
+    "devicePixelRatio": 2,
+    "prefersReducedMotion": false
+  },
+  "productFlow": {
+    "projectReference": "project-814108fd-b092-48c8-a448-e630442f6670",
+    "assetIndexRevision": 3,
+    "savedStorageRevision": 3,
+    "insertedStatementCount": 5,
+    "insertedDirection": "action=move slot=actor x=80 y=90 transition=slide duration=300ms",
+    "renderBackend": "canvas-2d-v1",
+    "runtimeErrorCount": 0
+  },
+  "movement": {
+    "slot": "actor",
+    "before": {
+      "xPercent": 50,
+      "yPercent": 100,
+      "computedLeftPx": 166,
+      "computedTopPx": 185.875
+    },
+    "intermediate": {
+      "computedLeftPx": 240.461,
+      "computedTopPx": 171.977,
+      "animationName": "stage-canvas-hit-move",
+      "animationDurationMs": 300,
+      "animationPlayState": "running"
+    },
+    "final": {
+      "xPercent": 80,
+      "yPercent": 90,
+      "computedLeftPx": 265.594,
+      "computedTopPx": 167.281
+    },
+    "backRestoresPriorGeometry": true,
+    "forwardInterpolatesGeometry": true
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n22/move-browser-workspace.png",
+      "width": 1280,
+      "height": 720,
+      "byteLength": 69519,
+      "sha256": "d7adaa108a7fef6d412a9ccc47e0eb0e87e2543598faa9a93148300304fc1084"
+    }
+  ],
+  "status": "pass",
+  "scope": "graphical-insert-move-forward-interpolation-rewind"
+}

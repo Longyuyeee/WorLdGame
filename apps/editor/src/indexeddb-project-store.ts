@@ -180,7 +180,7 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
         ownerId,
         fencingToken,
         expiresAtMs: sameLiveOwner
-          ? Math.max(holder.expiresAtMs, nowMs + ttlMs)
+          ? Math.max(holder.expiresAtMs + 1, nowMs + ttlMs)
           : nowMs + ttlMs
       };
       const next: WriterLeaseState = {
@@ -226,7 +226,8 @@ export class IndexedDbProjectFileStore implements ProjectFileStore, ProjectWrite
       const store = transaction.objectStore(STORE_NAME);
       const state = readWriterLeaseState(await indexedDbRequestResult(store.get(this.leaseKey())));
       if (state.holder?.ownerId !== lease.ownerId ||
-          state.holder.fencingToken !== lease.fencingToken) {
+          state.holder.fencingToken !== lease.fencingToken ||
+          state.holder.expiresAtMs !== lease.expiresAtMs) {
         await indexedDbTransactionDone(transaction);
         return false;
       }

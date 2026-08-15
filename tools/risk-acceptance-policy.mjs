@@ -54,9 +54,14 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       for (const gate of requiredBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N22") violations.push(`${prefix}: active N21 exception may not extend beyond N22`);
-      if (prefix !== "RA-N21-001") violations.push(`${prefix}: only the approved RA-N21-001 exception may be active`);
+      if (exception.maximumDeliveryNode !== "N23") violations.push(`${prefix}: active N21 exception may not extend beyond N23`);
+      if (prefix !== "RA-N21-002") violations.push(`${prefix}: only the approved RA-N21-002 exception may be active`);
     }
+  }
+  const orderCorrection = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-002");
+  const superseded = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-001");
+  if (orderCorrection?.status === "active" && superseded?.status !== "closed") {
+    violations.push("RA-N21-002 requires the superseded RA-N21-001 exception to be closed");
   }
   return violations;
 }

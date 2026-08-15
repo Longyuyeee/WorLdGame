@@ -35,14 +35,15 @@ describe("S0.30 typed direction resource manifest compiler", () => {
     expect(result.compilation.diagnostics).toContainEqual(expect.objectContaining({ code: "UNKNOWN_RESOURCE_PARAMETER", severity: "warning" }));
   });
 
-  it("compiles cumulative resource windows for set, show, hide, pause, resume, stop and clear", () => {
+  it("compiles cumulative resource windows for set, show, move, hide, pause, resume, stop and clear", () => {
     const document = parseStory(`scene "controls" @id(scn_controls)
 @background action=set asset=bg @id(bg)
 @show action=show asset=hero slot=left z=2 @id(show_left)
+@show action=move slot=left x=80 duration=300ms @id(move_left)
 @audio action=play asset=theme bus=bgm @id(play)
 @audio action=pause bus=bgm @id(pause)
 @audio action=resume bus=bgm @id(resume)
-@show action=hide slot=left @id(hide_left)
+@show action=hide slot=left transition=fade duration=450ms @id(hide_left)
 @audio action=stop bus=bgm @id(stop)
 @background action=clear @id(clear)
 end "done" @id(end)
@@ -54,9 +55,44 @@ end "done" @id(end)
     if (!result.ok) throw new Error(result.diagnostics[0]?.message);
     expect(result.compilation.manifest.scenes[0]?.assetIds).toEqual(["bg", "hero", "theme"]);
     expect(result.compilation.timelines[0]?.statements.map((statement) => statement.requiredAssetIds)).toEqual([
-      ["bg"], ["bg", "hero"], ["bg", "hero", "theme"], ["bg", "hero", "theme"],
-      ["bg", "hero", "theme"], ["bg", "theme"], ["bg"], [], []
+      ["bg"], ["bg", "hero"], ["bg", "hero"], ["bg", "hero", "theme"], ["bg", "hero", "theme"],
+      ["bg", "hero", "theme"], ["bg", "theme", "hero"], ["bg"], [], []
     ]);
+  });
+
+  it("fails closed when hide targets an inactive slot or carries a resource", () => {
+    const document = parseStory(`scene "invalid hide" @id(scn_hide)
+@show action=hide slot=missing transition=fade duration=300ms @id(missing)
+@show action=show asset=hero slot=hero @id(show)
+@show action=hide slot=hero asset=stale @id(resource)
+end "done" @id(end)
+`);
+    const projected = projectStoryScene(document);
+    if (!projected.ok) throw new Error(projected.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [projected.scene] }, { scn_hide: document }, { knownAssetIds: ["hero"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid hide compilation");
+    expect(result.diagnostics.map((item) => item.code)).toEqual(expect.arrayContaining([
+      "MISSING_STAGE_TARGET", "INVALID_ACTION_PARAMETER"
+    ]));
+  });
+
+  it("fails closed when move has no geometry, carries a resource, or targets an inactive slot", () => {
+    const document = parseStory(`scene "invalid move" @id(scn_move)
+@show action=move slot=missing x=80 @id(missing)
+@show action=show asset=hero slot=hero @id(show)
+@show action=move slot=hero asset=stale @id(resource)
+@show action=move slot=hero @id(empty)
+end "done" @id(end)
+`);
+    const projected = projectStoryScene(document);
+    if (!projected.ok) throw new Error(projected.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [projected.scene] }, { scn_move: document }, { knownAssetIds: ["hero"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid move compilation");
+    expect(result.diagnostics.map((item) => item.code)).toEqual(expect.arrayContaining([
+      "MISSING_STAGE_TARGET", "INVALID_ACTION_PARAMETER", "EMPTY_STAGE_MOVE"
+    ]));
   });
 
   it("rejects invalid action, slot and z-order values", () => {
@@ -71,6 +107,27 @@ end "done" @id(end)
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("Expected compilation failure");
     expect(result.diagnostics.map((item) => item.code)).toEqual(expect.arrayContaining(["INVALID_ACTION", "INVALID_STAGE_SLOT", "INVALID_STAGE_Z"]));
+  });
+
+  it("accepts bounded Stage geometry and rejects values outside production ranges", () => {
+    const valid = parseStory(`scene "valid geometry" @id(scn_geometry)
+@show asset=hero slot=primary x=27.5 y=91 scale=1.25 rotation=-8 anchorX=0.4 anchorY=0.95 @id(show)
+end "done" @id(end)
+`);
+    const validScene = projectStoryScene(valid);
+    if (!validScene.ok) throw new Error(validScene.diagnostics[0]?.message);
+    expect(compileSceneResourceManifest({ ...campusStoryProject, scenes: [validScene.scene] }, { scn_geometry: valid }, { knownAssetIds: ["hero"] }).ok).toBe(true);
+
+    const invalid = parseStory(`scene "invalid geometry" @id(scn_geometry)
+@show asset=hero x=101 scale=0 rotation=361 anchorY=1.1 @id(show)
+end "done" @id(end)
+`);
+    const invalidScene = projectStoryScene(invalid);
+    if (!invalidScene.ok) throw new Error(invalidScene.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [invalidScene.scene] }, { scn_geometry: invalid }, { knownAssetIds: ["hero"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid Stage geometry");
+    expect(result.diagnostics.filter((item) => item.code === "INVALID_STAGE_GEOMETRY")).toHaveLength(4);
   });
 
   it("fails closed for positional text, missing assets, invalid buses, duplicates and unknown Asset Index entries", () => {
