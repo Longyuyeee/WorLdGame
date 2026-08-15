@@ -136,6 +136,7 @@ import {
   startPlayablePreview,
   type PlayablePreviewState
 } from "./playable-preview-runtime";
+import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1962,6 +1963,8 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     createPreviewTransportState
   );
   const [playable, setPlayable] = useState<PlayablePreviewState>(createIdlePlayablePreviewState);
+  const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
+  const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
@@ -2002,6 +2005,8 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     createPreviewMediaHostState
   );
   const mediaGenerationRef = useRef(0);
+
+  useEffect(() => () => webBuild?.dispose(), [webBuild]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -2138,6 +2143,13 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   };
 
   const exitPlayablePreview = () => setPlayable(createIdlePlayablePreviewState());
+
+  const preparePlayableWeb = () => {
+    webBuild?.dispose();
+    setWebBuildError(null);
+    try { setWebBuild(createPlayableWebDownload(session.project)); }
+    catch (error) { setWebBuild(null); setWebBuildError(error instanceof Error ? error.message : String(error)); }
+  };
 
   const playableStatus = playable.status === "waiting-choice"
     ? `请选择路线 · 已经过 ${playable.visitedSceneIds.length} 个场景`
@@ -2303,6 +2315,12 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <button type="button" onClick={beginPlayablePreview}>重新试玩</button>
         )}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
+      </div>
+      <div className="playable-web-export" aria-label="独立试玩导出">
+        <div><strong>独立试玩产物</strong><small>生成无需编辑器和网络即可运行的单文件 HTML</small></div>
+        <button type="button" onClick={preparePlayableWeb} disabled={pendingDraft || inputDirty}>构建试玩 HTML</button>
+        {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
+        {webBuildError && <p role="alert">{webBuildError}</p>}
       </div>
       <div className="preview-transport">
         <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>

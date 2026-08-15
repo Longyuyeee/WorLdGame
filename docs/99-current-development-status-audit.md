@@ -1,7 +1,7 @@
-# 当前开发情况审计（N23-E3 工程门后）
+# 当前开发情况审计（N23-E4 工程门后）
 
 > 审计日期：2026-08-15
-> 本轮实现基线：`444233de05568ad0ea47a688ee5176ec8a92604c`（变更前基线）
+> 本轮实现基线：`c1cc285b0e17bbcaea3066dd2d37710b551deb69`（变更前基线）
 > 审计分支：`agent/n22-stage-media`
 > 当前 PR：Draft PR #33
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
@@ -11,13 +11,14 @@
 
 当前代码已经具备一个可实际使用的“源项目创作开发版”：创作者可以新建或打开任意受支持工程，管理章节、场景、角色和变量，编辑完整 P0 故事语言与 Writer/Sequence 卡片，并保存、关闭、重开、导入和导出工程。
 
-当前代码已能在编辑器中执行最小故事流程：从入口开始、逐步显示、选择路线、跨场景并到达结局；项目首页的示例入口也已物化为真实三场景双路线工程。它仍不是能够落地交付游戏的完整引擎：尚无正式 Runtime IR/Player、存档恢复和 Web/Windows/Android 可玩产物。因此必须同时保留以下判定：
+当前代码已能在编辑器中执行最小故事流程，并把当前故事构建为一个无需编辑器、账户、服务器和网络的独立单文件 HTML。Branching Golden 已从空临时目录确定性生成产物，并在可执行 DOM 环境分别选择两条路线到达两个结局。它仍不是完整游戏引擎：尚无正式 Runtime IR、共享 Runtime/Player、存档恢复、资源构建和 Web/Windows/Android 发布包。因此必须同时保留以下判定：
 
 - 源项目能否落地：**能，在当前候选分支上可完成真实创建、编辑和持久化**；
 - 编辑器内流程能否运行：**能，真实浏览器已完成两条路线并到达两个结局**；
-- 可发布游戏能否落地：**不能，Compiler → Runtime → Player → Build 链尚未建立**；
+- 独立试玩项目能否落地：**能，当前故事可下载为自包含离线 HTML 并运行到结局**；
+- 可发布游戏能否落地：**不能，正式 Compiler → Runtime → Player → Build 链尚未建立**；
 - M1 是否完成：**不能，27 条发布验收仍为 `0/27` 完整通过**；
-- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；N22 工程验收通过；N23-E1/E2/E3 工程门已贯通，下一步是 N21 真人任务和 N23 五分钟内容量/两名独立验收者**；
+- 当前执行位置：**N20 已通过；N21 工程门通过但真人产品门待完成；N22 工程验收通过；N23-E1/E2/E3/E4 工程门已贯通，下一产品门是 N21 真人任务和 N23 五分钟内容量/两名独立验收者**；
 - GitHub 是否已集成：**指定集成分支与 Draft PR #32 已建立且远端全检通过，但 N00–N21 与例外仍未进入 `main`**。
 
 ## 2. 审计证据基线
@@ -27,13 +28,13 @@
 | Workspace 边界 | 10 个 workspace；6 个计划产品边界 | 审计通过 |
 | 需求登记 | 50 条：10 USP、13 P0 模块、27 AC；6 个 owner | 审计通过 |
 | Golden Project | 7 类：Benchmark、Branching、CJK、Media、Recovery、Size、Tiny | 审计通过 |
-| 常规测试 | 94 个测试文件、560 项测试 | 本轮完整门常规部分通过 |
+| 常规测试 | 95 个测试文件、566 项测试 | 本轮完整门常规部分通过 |
 | VM 重型门 | 5 项 | 最近完整门通过 |
 | 构建 | 10 个 workspace | 最近完整门通过 |
 | 架构门 | 65 个 portable 模块、4 个 Node adapter | 最近完整门通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
-| Editor bundle | 610.32 kB，gzip 174.22 kB | 构建成功，仍存在超过 500 kB 的体积警告 |
-| GitHub CI | PR #23–#33 最近 Windows CI 均成功；当前基线 `bc7835f` 的 `product-baseline` run `31787551479` 通过 | 候选分支工程门通过 |
+| Editor bundle | 621.41 kB，gzip 178.01 kB | 构建成功，仍存在超过 500 kB 的体积警告 |
+| GitHub CI | PR #23–#33 最近 Windows CI 均成功；变更前基线 `c1cc285` 的 `product-baseline` run `31824200986` 通过 | 本轮提交后的远端结果在推送后回填 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
 
@@ -50,7 +51,7 @@
 | N20 | 通过 | 完整 P0 Story Language、语言服务、稳定 ID Patch、100k 门 | 正式编辑器与 Runtime 接入待 N41/N30+ |
 | N21 | 工程通过，产品验收中 | 完整 P0 卡片、类型化 Inspector、批量事务、键盘/触屏等价；主持人预演已修复空工程非法角色/变量/资源引用插入，协议与数据模型重新对齐 | 权威记录仍为 `pending-participant`，真实非程序用户 20 分钟 T01–T08 尚未执行 |
 | N22 | 工程验收通过 | 原候选能力全部保留；真实媒体、舞台、播放态、过渡和浏览器证据完整 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 归后续节点 |
-| N23 | E1/E2/E3 工程候选 | 从空工程建立 3 场景、2 角色、变量、条件、选择、背景/音频和双结局；Canonical 文档、Asset Index 与源 Blob 随 ZIP 迁移，新工作区导入、运行和重载均通过 | 五分钟内容量、两名独立验收者与正式产品门仍缺失 |
+| N23 | E1/E2/E3/E4 工程候选 | 从空工程建立 3 场景、2 角色、变量、条件、选择、背景/音频和双结局；工程 ZIP 可迁移；当前故事可构建为自包含离线 HTML 并独立运行 | 五分钟内容量、两名独立验收者与正式产品门仍缺失 |
 | N30 及以后 | 未开始或仅有前置 Spike | 已有算法证据可复用 | 正式 Compiler、Runtime、Player、QA、构建与发布均未贯通 |
 
 “工程通过”表示当前候选提交的自动化证据成立；只有节点产物、用户任务、远端门和集成状态同时满足，才可宣告产品节点通过。
@@ -66,8 +67,8 @@
 | Writer/Sequence | 全 P0 卡片、类型化 Inspector、增删复制排序、批量、折叠、保存重开 | N21 真人任务未通过；完整专业 Sequence 待 N41 |
 | 资源/Stage | 真实 Blob 导入与释放、BG/多角色/四路音频状态预览、角色几何、安全区、DPR、输入等价、错误回退、Render Host v2、Canvas 2D 场景层、基础 Move、Hide/Fade 与角色层 Show 单语句过渡、真实 PNG/WAV Media Golden 运行链、浏览器导入/重开与视觉基线 | Canvas 2D 仍是编辑器 Preview 后端；Pixi/WebGL、镜头、复杂关键帧、模板和正式 Runtime 归后续节点 |
 | Route | Choice 的简单派生图 | 完整节点/边、诊断、布局、局部加载未完成 |
-| Runtime | Editor Playable Preview 可运行最小控制流；Narrative VM Spike 有确定性证据 | 两者尚未收敛为 N31 正式共享 Runtime/Player |
-| Player 与 Build | 无 | Web/Windows/Android 可玩包、签名、安装、升级、发布均无 |
+| Runtime | Editor Playable Preview 与独立 HTML 可运行最小控制流；Narrative VM Spike 有确定性证据 | 尚未收敛为 N31 正式共享 Runtime/Player，也无存档/历史 |
+| Player 与 Build | N23 单文件离线试玩候选可下载、确定性生成并运行双路线 | 正式 Web/PWA、Windows/Android 可玩包、资源构建、签名、安装、升级和发布均无 |
 
 ## 5. P0 需求对齐
 
@@ -80,10 +81,10 @@
 | REQ-STAGE | 局部可用 | N42 正式高性能渲染宿主、镜头、复杂关键帧、UI 模板、正式 Runtime 与三端同步 |
 | REQ-UX | 局部可用 | 七模式、Beginner/Pro、真机与非程序用户验收 |
 | REQ-ASSET | 局部可用 | 源 Blob/Index 迁移已通过；仍缺视频/字体、引用 UI、平台变体、构建报告接入 |
-| REQ-RUNTIME | 隔离原型 | 正式 IR/Compiler、Editor Preview、Player 状态链 |
+| REQ-RUNTIME | 工程候选 | 正式 IR/Compiler、共享 Editor Preview/Player、Save/History 状态链 |
 | REQ-L10N | 未实现 | 导入导出、状态、CJK/Ruby、字体和语音映射 |
 | REQ-QA | 未实现 | Debugger、Story Solver、断点/单步、源位置跳转 |
-| REQ-BUILD | 未实现 | 正式 Player、三端打包、签名、校验、发布材料 |
+| REQ-BUILD | 隔离原型 | 已有单文件试玩候选；仍缺正式 Player、资源构建、三端打包、签名、校验和发布材料 |
 | REQ-GAL | 未实现 | 配置中心、继承/撤销/预览、自动附加页 |
 | REQ-OPT | 隔离原型 | Optimization Center、设备测量、构建变体和可解释回退 |
 
@@ -139,7 +140,7 @@
 ## 8. 本轮审计决定
 
 1. 不把 N21 工程绿色误报为产品通过；
-2. `RA-N21-002` 生效期间只允许完成 N23 可运行纵向切片，不新增与当前纵向切片无关的平台 Spike；
+2. `RA-N21-002` 生效期间只允许完成 N23 可运行纵向切片；E4 独立试玩产物已关闭“只能在编辑器内运行”的缺口，不新增无关平台 Spike；
 3. N21 人类创作门保持未完成；指定集成基线已成为 Authoritative 并关闭 G2，但不得把它误报为 `main` 已合并；
 4. 下一阶段仍以“从空工程到可玩切片”的最短纵向路径为唯一优先级；
 5. 每一步都必须同时更新需求状态、自动化证据、人工验收和 GitHub 集成事实。
