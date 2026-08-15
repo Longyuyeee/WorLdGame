@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 本轮实现基线：`a9ee6185223ad77d6c112b042c4e041e6597732b`（N31-E2 最终远端绿色头）
 > 审计分支：`agent/n31-runtime-e3`
-> 当前 PR：Draft PR #38（基于 N31-E2 分支）；实现头 `271d869`
+> 当前 PR：Draft PR #38（基于 N31-E2 分支）；实现头 `271d869`；首轮交付头 `56019ebf9c48933f8e33c053293bacdc2aaebe6b`
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
 > 权威边界：本文件是当前审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。`RA-N21-001/002` 已关闭，`RA-N21-003` 仅允许工程候选推进至 N31，不改变 N21/N23/N30/N31 产品未通过事实，也不授权 N32。
 
@@ -17,10 +17,10 @@
 - 编辑器内流程能否运行：**能，真实浏览器已完成两条路线并到达两个结局**；
 - 独立试玩项目能否落地：**能，当前故事可下载为自包含离线 HTML 并运行到结局**；
 - 正式编译数据能否落地：**能，N30-E1/E2 四类 Golden 已产生稳定 IR，Compiler 工程出口条件已形成候选；但 N30 Product Acceptance 仍被真人门阻断**；
-- 正式 Runtime 数据流能否落地：**局部能，N31-E1/E2 已执行真实 Compiler IR并形成可哈希确定状态；但 Effect、存档、历史和完整宿主协议未完成**；
+- 正式 Runtime 数据流能否落地：**局部能，N31-E1–E3 已执行真实 Compiler IR、形成可哈希确定状态，并实现 Effect/Barrier 协议；但存档、历史、调度和完整宿主接入未完成**；
 - 可发布游戏能否落地：**不能，Runtime → Player → Build 链仍未贯通**；
 - M1 是否完成：**不能，27 条发布验收仍为 `0/27` 完整通过**；
-- 当前执行位置：**N20 已通过；N21 真人 0/1；N22 工程门通过；N23 真人 0/2；N30-E1/E2 为工程出口候选；N31-E1/E2 为工程切片，N32 被阻断**；
+- 当前执行位置：**N20 已通过；N21 真人 0/1；N22 工程门通过；N23 真人 0/2；N30-E1/E2 为工程出口候选；N31-E1–E3 为工程候选，N32 被阻断**；
 - GitHub 是否已集成：**指定集成分支与 Draft PR #32 已建立且远端全检通过，但 N00–N21 与例外仍未进入 `main`**。
 
 ## 2. 审计证据基线
@@ -40,7 +40,7 @@
 | 架构门 | 77 个 portable 模块、4 个 Node adapter | 本轮通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
 | Editor bundle | 636.67 kB，gzip 183.52 kB | 构建成功，五分钟源随产品入口进入 bundle；仍存在超过 500 kB 的体积警告 |
-| GitHub CI | PR #23–#35 最近 Windows CI 均成功；Draft PR #36 交付头 `d33d240` 的 `product-baseline` run `31877445116` 通过 | 远端 Windows / Node 22 完整门通过 |
+| GitHub CI | Draft PR #38 首轮交付头 `56019ebf9c48933f8e33c053293bacdc2aaebe6b` 的 `product-baseline` run `31886139025` 通过 | 远端 Windows / Node 22 完整门通过 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
 
@@ -71,11 +71,11 @@
 | 项目入口 | 新建、打开、最近、示例、导入、导出 | 正式 Windows/Android 壳未完成 |
 | 本地源工程 | Canonical 源文件、Asset Index 与源 Blob 的确定性自包含 ZIP、File System Access/OPFS、Node 目录适配；Writer 内容已写回同一生命周期工程 | 派生资源按可重建缓存排除；移动 SAF 与安装产品未完成 |
 | 内容实体 | 章节、场景、角色、类型化变量、稳定 ID 引用迁移 | 字体、本地化、Gal 等完整产品模块未完成 |
-| Story Language | P0 语句、解析、诊断、补全、定义/引用、重构、增量处理；N30 已编译为 Runtime IR v1，N31-E1/E2 正式 Runtime 已消费基础语义并维护确定状态 | Effect/Save/History、完整宿主协议及 Editor 接入仍缺 |
+| Story Language | P0 语句、解析、诊断、补全、定义/引用、重构、增量处理；N30 已编译为 Runtime IR v1，N31-E1–E3 正式 Runtime 已消费基础语义、维护确定状态并形成 Effect/Barrier 协议 | Save/History、调度、完整宿主协议及 Editor 接入仍缺 |
 | Writer/Sequence | 全 P0 卡片、类型化 Inspector、增删复制排序、批量、折叠、保存重开 | N21 真人任务未通过；完整专业 Sequence 待 N41 |
 | 资源/Stage | 真实 Blob 导入与释放、BG/多角色/四路音频状态预览、角色几何、安全区、DPR、输入等价、错误回退、Render Host v2、Canvas 2D 场景层、基础 Move、Hide/Fade 与角色层 Show 单语句过渡、真实 PNG/WAV Media Golden 运行链、浏览器导入/重开与视觉基线 | Canvas 2D 仍是编辑器 Preview 后端；Pixi/WebGL、镜头、复杂关键帧、模板和正式 Runtime 归后续节点 |
 | Route | Choice 的简单派生图 | 完整节点/边、诊断、布局、局部加载未完成 |
-| Compiler/Runtime | N30 Compiler 已产出稳定 IR；N31-E1/E2 正式 Runtime 已执行控制流、Choice、Wait、结局并维护可哈希 PRNG/Scene/Audio/Meta State；Editor Playable Preview 与独立 HTML 仍可运行原最小控制流 | 正式 Runtime尚无 Effect/Save/History/调度，Editor/Player 未接入；不能把 E2 或 VM Spike 当完整 Runtime |
+| Compiler/Runtime | N30 Compiler 已产出稳定 IR；N31-E1–E3 正式 Runtime 已执行控制流、Choice、Wait、结局，维护可哈希 PRNG/Scene/Audio/Meta State，并处理 Effect Intent、await/cancel receipt 与 Barrier 批准；Editor Playable Preview 与独立 HTML 仍可运行原最小控制流 | 正式 Runtime 尚无 Save/History/调度，Editor/Player 未接入；不能把 E3 或 VM Spike 当完整 Runtime |
 | Player 与 Build | N23 单文件离线试玩候选可下载、确定性生成并运行双路线 | 正式 Web/PWA、Windows/Android 可玩包、资源构建、签名、安装、升级和发布均无 |
 
 ## 5. P0 需求对齐
@@ -100,7 +100,7 @@
 
 ## 6. GitHub 交付与集成审计
 
-当前 N31-E2 分支以 N31-E1 远端绿色头 `4c371274` 为直接基线。N00–N21 对应 Draft PR #23–#30，例外与指定集成基线对应 #31–#32，N22/N23 工程链对应 #33，N30-E1/E2 对应 #34–#35，N31-E1/E2 对应 #36–#37；N31-E2 最终远端 CI 将在交付头产生后回填。这些开发链仍没有进入默认分支。
+当前 N31-E3 分支以 N31-E2 最终远端绿色头 `a9ee6185223ad77d6c112b042c4e041e6597732b` 为直接基线。N00–N21 对应 Draft PR #23–#30，例外与指定集成基线对应 #31–#32，N22/N23 工程链对应 #33，N30-E1/E2 对应 #34–#35，N31-E1–E3 对应 #36–#38；这些开发链仍没有进入默认分支。
 
 | PR | 节点 | 基线关系 | 状态 |
 |---:|---|---|---|
@@ -118,8 +118,8 @@
 | #34 | N30-E1 | 基于 #33 分支 | Draft、实现头 `7793b67` CI 绿 |
 | #35 | N30-E2 | 基于 #34 分支 | Draft、实现头 `1125b68`；审计头 `63e0886` CI 绿 |
 | #36 | N31-E1 | 基于 #35 分支 | Draft、实现头 `98c49bf`；交付头 `d33d240` CI 绿 |
-| #37 | N31-E2 | 基于 #36 分支 | Draft、实现头 `8465ae9`；交付头 `c5ff7c2` 的 run `31885206553` CI 绿 |
-| #38 | N31-E3 | 基于 #37 分支 | Draft、实现头 `271d869`；最终远端 CI 待回填 |
+| #37 | N31-E2 | 基于 #36 分支 | Draft、实现头 `8465ae9`；最终头 `a9ee618` 的 run `31885355335` CI 绿 |
+| #38 | N31-E3 | 基于 #37 分支 | Draft、实现头 `271d869`；首轮交付头 `56019eb` 的 run `31886139025` CI 绿 |
 
 这形成四项现实风险：
 
