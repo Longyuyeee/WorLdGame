@@ -41,6 +41,6 @@ if (violations.length > 0) {
     recordStatus: record.status,
     protocolId: protocol.protocolId,
     protocolHash,
-    blockedGates: riskRegistry.exceptions.find((entry) => entry.id === "RA-N21-002")?.blockedGates ?? []
+    blockedGates: riskRegistry.exceptions.find((entry) => entry.status === "active" && entry.id.startsWith("RA-N21-"))?.blockedGates ?? []
   }, null, 2));
 }

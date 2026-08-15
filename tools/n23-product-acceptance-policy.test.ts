@@ -94,7 +94,7 @@ describe("N23 product acceptance policy", () => {
     expect(validateN23ProductAcceptance(protocol(), completed(), risk("closed"), { status: "pass" })).toEqual([]);
     const violations = validateN23ProductAcceptance(protocol(), completed(), risk(), { status: "pending-participant" });
     expect(violations).toContain("N23 pass requires the N21 human validation record to pass first");
-    expect(violations).toContain("N23 pass requires RA-N21-002 to be closed in the same change");
+    expect(violations).toContain("N23 pass requires every RA-N21 exception to be closed in the same change");
   });
 
   it("rejects duplicate participants and Severity 1 on a pass", () => {

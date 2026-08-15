@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentDeliveryNode": "N30",
+  "currentDeliveryNode": "N31",
   "exceptions": [
     {
       "id": "RA-N21-001",
@@ -40,7 +40,7 @@
     },
     {
       "id": "RA-N21-002",
-      "status": "active",
+      "status": "closed",
       "failedControls": [
         "N21 non-programmer 20-minute product task",
         "N23 product acceptance by two non-implementers",
@@ -75,6 +75,50 @@
       "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before any N31 work.",
       "verificationMethod": "Keep N21/N23 records pending, audit the portable N30 dependency boundary, and verify deterministic Tiny/Branching/Media/CJK IR hashes plus failure diagnostics; human evidence still requires authoring, save-close-reopen, route selection and reached-ending artifacts.",
       "evidencePath": "docs/124-n30-e2-compiler-completion-audit.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-003",
+      "status": "active",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N31 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "the formal Runtime may encode assumptions not yet challenged by non-implementer product use"
+      ],
+      "reason": "After N30 completed local and cross-machine verification, the Product Owner again explicitly instructed sequential development with audit, push, and requirement alignment on 2026-08-15 despite the documented human-resource blocker. This authorizes only the bounded N31 formal Runtime engineering candidate while every deferred product gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, and N30 in product acceptance rather than passed",
+        "Limit the extension to N31 formal Runtime engineering; N32 Editor integration and every later node remain blocked",
+        "Create a new portable runtime package that consumes N30 Runtime IR and never imports the experimental VM Spike, editor, filesystem, browser, or platform shell",
+        "Migrate behavior through fixed vectors and explicit version rejection instead of renaming or publishing the Spike package",
+        "Keep N21-HV-01 and N23-PA-01 records pending and require both before closing the exception",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Engineering, M1 Stable, and Public Release until human evidence is recorded"
+      ],
+      "owner": "compiler-runtime",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-15T17:20:00+08:00",
+      "expiresAt": "2026-09-14T23:50:00+08:00",
+      "maximumDeliveryNode": "N31",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N32 or any product acceptance declaration.",
+      "verificationMethod": "Keep human records pending; audit the formal Runtime dependency boundary; execute Compiler-IR fixed vectors, deterministic transition equality, malformed/future version rejection, and bounded-loop tests; do not treat these as usability evidence.",
+      "evidencePath": "docs/126-n31-e1-runtime-kernel-audit.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",

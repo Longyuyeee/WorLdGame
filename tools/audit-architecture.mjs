@@ -7,6 +7,7 @@ const auditedRoots = [
   join(repoRoot, "packages", "narrative-vm-spike", "src"),
   join(repoRoot, "packages", "project-domain", "src"),
   join(repoRoot, "packages", "project-compiler", "src"),
+  join(repoRoot, "packages", "runtime", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
   join(repoRoot, "packages", "project-persistence", "src")
@@ -74,7 +75,7 @@ for (const path of coreFiles) {
   }
 }
 
-const vmFiles = coreFiles.filter((path) => path.includes(`${join("packages", "narrative-vm-spike", "src")}`));
+const vmFiles = coreFiles.filter((path) => path.includes(`${join("packages", "narrative-vm-spike", "src")}`) || path.includes(`${join("packages", "runtime", "src")}`));
 for (const path of vmFiles) {
   const source = await readFile(path, "utf8");
   for (const [globalName, globalPattern] of vmForbiddenGlobals) {
@@ -133,12 +134,19 @@ const projectDomainPackage = JSON.parse(
 const projectCompilerPackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "project-compiler", "package.json"), "utf8")
 );
+const runtimePackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "runtime", "package.json"), "utf8")
+);
 const projectCompilerDependencies = Object.keys(projectCompilerPackage.dependencies ?? {}).sort();
 if (JSON.stringify(projectCompilerDependencies) !== JSON.stringify([
   "@world-studio/project-domain",
   "@world-studio/story-language"
 ])) {
   violations.push("project-compiler may depend only on project-domain and story-language in N30");
+}
+const runtimeDependencies = Object.keys(runtimePackage.dependencies ?? {}).sort();
+if (JSON.stringify(runtimeDependencies) !== JSON.stringify(["@world-studio/project-compiler"])) {
+  violations.push("runtime may depend only on project-compiler in N31");
 }
 if (projectDomainPackage.dependencies !== undefined) {
   violations.push("project-domain must not declare runtime dependencies in N10");
@@ -296,6 +304,7 @@ if (violations.length > 0) {
           "story-language has no UI, DOM, platform-shell, filesystem, or process dependency",
           "story-language depends only on story-core",
           "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
+          "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",

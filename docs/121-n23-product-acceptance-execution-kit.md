@@ -26,7 +26,7 @@ N23-E1–E5 已形成可操作对象，但此前只有一句“两名非实现�
 2. `npm.cmd run audit:n23-acceptance-launcher` 必须通过；主持人双击 `start-n23-acceptance.cmd` 并确认 `http://127.0.0.1:43123/` 可打开；
 3. 先完成 [`N21-HV-01`](114-n21-human-validation-execution-kit.md)，权威记录状态为 `pass`；
 4. 再由两名不同参与者分别完整执行本协议；
-5. 若两人全部通过且 Severity 0/1 为 0，在同一变更中关闭 `RA-N21-002`；
+5. 若两人全部通过且 Severity 0/1 为 0，在同一变更中关闭全部 active `RA-N21-*` 例外；
 6. 运行 N21、N23、风险例外和全仓检查，提交、推送并等待 CI；
 7. 只有上述证据全部成立，才允许把 N23 标记为“通过”、关闭例外并进入 N31；N30 工程候选在例外下也不得宣称产品通过。
 
@@ -76,7 +76,7 @@ npm.cmd run audit:risk-acceptance-policy
 npm.cmd run check
 ```
 
-审计器会验证协议哈希、两个参与者的独立身份、任务与路线顺序、准确结局、时间一致性、主持人边界、Severity、三个产物路径与哈希，并在 `pass` 时强制要求 N21 已通过及 `RA-N21-002` 同步关闭。
+审计器会验证协议哈希、两个参与者的独立身份、任务与路线顺序、准确结局、时间一致性、主持人边界、Severity、三个产物路径与哈希，并在 `pass` 时强制要求 N21 已通过及全部 active `RA-N21-*` 例外同步关闭。
 
 当前合法输出是 `PASS`、`recordStatus: pending-participants`、`participants: 0/2`。这里的 `PASS` 仅表示待验收记录真实且协议未漂移，产品状态仍是未通过。
 
