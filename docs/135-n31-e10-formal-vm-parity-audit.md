@@ -3,6 +3,8 @@
 > 审计日期：2026-08-16
 > 审计基线：`d426fbe1608477e640b08e0c61818df3b4e6cbe9`（N31-E9 最终远端绿色头）
 > 审计分支：`agent/n31-runtime-e10-formal-vm-parity`
+> 实现提交：`fefd974b5f95684f591fe61118ea8e5da8705447`
+> 交付入口：Draft PR #45（基于 `agent/n31-runtime-e9-exit-audit`）
 > 审计范围：VM-02、VM-03、VM-07、VM-08、VM-12、VM-15 的正式 Runtime 契约、Node 固定向量与真实浏览器 Worker Golden
 > 节点判定：**E10 Engineering 通过候选**；N31 Engineering 仍未通过，继续阻断 N32
 
@@ -47,6 +49,7 @@ Outcome 只能在没有 pending Choice、awaited Effect 或 Barrier 的静止点
 - 生产预览真实模块 Worker：`data-runtime=passed`；
 - 完整 Worker 门：`data-status=passed`，正式 Runtime、Source Map 诊断、10,000-seed/20,000-replay Runtime Corpus 与 Node Golden 零差异；
 - `formalVmParity` 15 个字段进入 `RuntimeConformanceResultV1` 和浏览器 Node Golden，包含错误码、固定随机序列、State/Outcome/Reconciliation Hash。
+- 实现提交 `fefd974b5f95684f591fe61118ea8e5da8705447` 的 GitHub `product-baseline` run `31894673980`、job `95036043639` 在 Windows / Node 22 绿色通过，用时 4 分 49 秒。
 
 开发服务器的 HMR WebSocket 受浏览器连接层限制，因此浏览器验收使用刚构建的 production `dist` preview；验收页面与 Worker 均来自同一 E10 工作树构建产物，不使用外部服务或旧缓存。
 
