@@ -1,11 +1,12 @@
 import type { RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 
-export const RUNTIME_VERSION = "0.2.0" as const;
+export const RUNTIME_VERSION = "0.3.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
 export const MAX_CALL_STACK_DEPTH = 64;
 export const MAX_META_PROGRESS_IDS_PER_DOMAIN = 100_000;
 export const DEFAULT_INSTRUCTION_BUDGET = 1024;
 export const DEFAULT_PRNG_SEED = 0x6d2b79f5;
+export const MAX_INPUT_RECEIPTS = 10_000;
 
 export type RuntimeScalar = null | boolean | number | string;
 
@@ -21,11 +22,55 @@ export interface RuntimeChoiceOptionV1 {
 }
 
 export interface RuntimePendingChoiceV1 {
+  readonly requestId: string;
+  readonly expectedStateRevision: number;
+  readonly logicalSequence: number;
   readonly instructionId: string;
   readonly sceneId: string;
   readonly instructionIndex: number;
   readonly prompt: string;
   readonly options: readonly RuntimeChoiceOptionV1[];
+}
+
+export type RuntimeEffectPolicyV1 = "pure" | "reversible" | "barrier";
+export type RuntimeEffectAwaitModeV1 = "detached" | "awaited";
+
+export interface RuntimeEffectCompensationV1 {
+  readonly kind: string;
+  readonly payload: Readonly<Record<string, RuntimeScalar>>;
+}
+
+export interface RuntimeEffectIntentV1 {
+  readonly effectId: string;
+  readonly executionId: string;
+  readonly originatingRevision: number;
+  readonly logicalSequence: number;
+  readonly descriptorId: string;
+  readonly channel: string;
+  readonly kind: string;
+  readonly payload: Readonly<Record<string, RuntimeScalar>>;
+  readonly policy: RuntimeEffectPolicyV1;
+  readonly awaitMode: RuntimeEffectAwaitModeV1;
+  readonly cancellationScope: string;
+  readonly replayKey: string;
+  readonly compensation: RuntimeEffectCompensationV1 | null;
+}
+
+export interface RuntimePendingBarrierV1 {
+  readonly requestId: string;
+  readonly executionId: string;
+  readonly expectedStateRevision: number;
+  readonly logicalSequence: number;
+  readonly instructionId: string;
+  readonly descriptorId: string;
+  readonly reason: string;
+}
+
+export interface RuntimeBarrierRecordV1 {
+  readonly effectId: string;
+  readonly descriptorId: string;
+  readonly reason: string;
+  readonly committedAtRevision: number;
 }
 
 export interface RuntimePrngStateV1 {
@@ -81,6 +126,12 @@ export interface RuntimeStateV1 {
   readonly audioState: RuntimeAudioStateV1;
   readonly metaProgress: RuntimeMetaProgressV1;
   readonly pendingChoice: RuntimePendingChoiceV1 | null;
+  readonly pendingEffect: RuntimeEffectIntentV1 | null;
+  readonly pendingBarrier: RuntimePendingBarrierV1 | null;
+  readonly nextEffectSequence: number;
+  readonly nextInputSequence: number;
+  readonly inputReceipts: readonly RuntimeInputReceiptV1[];
+  readonly barrierLedger: readonly RuntimeBarrierRecordV1[];
   readonly terminal: { readonly kind: "running" } | { readonly kind: "ended"; readonly endingId: string; readonly name: string };
 }
 
@@ -103,13 +154,56 @@ export type RuntimeRandomDrawResultV1 =
   | { readonly ok: false; readonly state: RuntimeStateV1; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
 
 export interface RuntimeChoiceInputV1 {
+  readonly schemaVersion: 1;
   readonly kind: "choiceSelected";
+  readonly inputId: string;
+  readonly executionId: string;
   readonly expectedStateRevision: number;
+  readonly logicalSequence: number;
+  readonly requestId: string;
   readonly instructionId: string;
   readonly optionId: string;
 }
 
-export type RuntimeInputV1 = RuntimeChoiceInputV1;
+export interface RuntimeEffectCompletedInputV1 {
+  readonly schemaVersion: 1;
+  readonly kind: "effectCompleted";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly expectedStateRevision: number;
+  readonly logicalSequence: number;
+  readonly effectId: string;
+  readonly replayKey: string;
+}
+
+export interface RuntimeEffectCancelledInputV1 {
+  readonly schemaVersion: 1;
+  readonly kind: "effectCancelled";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly expectedStateRevision: number;
+  readonly logicalSequence: number;
+  readonly effectId: string;
+  readonly cancellationScope: string;
+}
+
+export interface RuntimeBarrierApprovedInputV1 {
+  readonly schemaVersion: 1;
+  readonly kind: "barrierApproved";
+  readonly inputId: string;
+  readonly executionId: string;
+  readonly expectedStateRevision: number;
+  readonly logicalSequence: number;
+  readonly requestId: string;
+  readonly descriptorId: string;
+}
+
+export type RuntimeInputV1 = RuntimeChoiceInputV1 | RuntimeEffectCompletedInputV1 | RuntimeEffectCancelledInputV1 | RuntimeBarrierApprovedInputV1;
+
+export interface RuntimeInputReceiptV1 {
+  readonly input: RuntimeInputV1;
+  readonly acceptedAtRevision: number;
+}
 
 export type RuntimeEventV1 =
   | { readonly kind: "dialogue"; readonly instructionId: string; readonly speakerId: string; readonly textId: string; readonly text: string }
@@ -134,6 +228,14 @@ export type RuntimeDiagnosticCode =
   | "RUNTIME_CHOICE_REQUIRED"
   | "RUNTIME_CHOICE_MISMATCH"
   | "RUNTIME_INPUT_STALE"
+  | "RUNTIME_INPUT_UNEXPECTED"
+  | "RUNTIME_INPUT_OUT_OF_ORDER"
+  | "RUNTIME_INPUT_MISMATCH"
+  | "RUNTIME_INPUT_ID_CONFLICT"
+  | "RUNTIME_INPUT_RECEIPT_LIMIT"
+  | "RUNTIME_EFFECT_REQUIRED"
+  | "RUNTIME_EFFECT_CANCELLED"
+  | "RUNTIME_BARRIER_REQUIRED"
   | "RUNTIME_BUDGET_EXCEEDED"
   | "RUNTIME_TERMINAL";
 
@@ -158,6 +260,8 @@ export interface RuntimeRunResultV1 {
   readonly event: RuntimeEventV1 | null;
   readonly executedInstructions: number;
   readonly diagnostics: readonly RuntimeDiagnosticV1[];
+  readonly effects: readonly RuntimeEffectIntentV1[];
+  readonly barrierRequest: RuntimePendingBarrierV1 | null;
 }
 
 export type RuntimeProgramV1 = RuntimeStoryIrV1;

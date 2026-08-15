@@ -10,15 +10,15 @@ import {
   executeSpike13ConformanceSuiteV0,
   summarizeGeneratedCorpusV0
 } from "@world-studio/narrative-vm-spike";
-import type { RuntimeE2WorkerRequestV1, RuntimeE2WorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { executeRuntimeE2ConformanceV1 } from "@world-studio/runtime";
+import type { RuntimeWorkerRequestV1, RuntimeWorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
+import { executeRuntimeConformanceV1 } from "@world-studio/runtime";
 
 const scope = self as DedicatedWorkerGlobalScope;
 
-scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0 | RuntimeE2WorkerRequestV1>) => {
+scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0 | RuntimeWorkerRequestV1>) => {
   const request = event.data;
-  if (request.protocolVersion === 1 && request.kind === "runRuntimeE2Conformance" && request.requestId === "request.runtime-e2.web-worker") {
-    const response: RuntimeE2WorkerResponseV1 = { protocolVersion: 1, kind: "runtimeE2ConformanceResult", requestId: request.requestId, host: "web-worker", result: executeRuntimeE2ConformanceV1() };
+  if (request.protocolVersion === 1 && request.kind === "runRuntimeConformance" && request.requestId === "request.runtime-v1.web-worker") {
+    const response: RuntimeWorkerResponseV1 = { protocolVersion: 1, kind: "runtimeConformanceResult", requestId: request.requestId, host: "web-worker", result: executeRuntimeConformanceV1() };
     scope.postMessage(response);
     return;
   }
@@ -46,7 +46,7 @@ scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0 | R
     spike12,
     spike12ElapsedMilliseconds: performance.now() - started,
     spike13: executeSpike13ConformanceSuiteV0(),
-    runtimeE2: executeRuntimeE2ConformanceV1()
+    runtime: executeRuntimeConformanceV1()
   };
   scope.postMessage(response);
 });

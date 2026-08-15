@@ -1,9 +1,9 @@
-# 当前开发情况审计（N31-E2 Runtime 确定状态基础候选）
+# 当前开发情况审计（N31-E3 Runtime Effect/Barrier 候选）
 
 > 审计日期：2026-08-15
-> 本轮实现基线：`4c3712749773e7dd265edffbb327cdf9c57ad44b`（N31-E1 远端绿色头）
-> 审计分支：`agent/n31-runtime-e2`
-> 当前 PR：Draft PR #37（基于 N31-E1 分支）；实现头 `8465ae9`
+> 本轮实现基线：`a9ee6185223ad77d6c112b042c4e041e6597732b`（N31-E2 最终远端绿色头）
+> 审计分支：`agent/n31-runtime-e3`
+> 当前 PR：待创建（将基于 N31-E2 分支）
 > 审计范围：仓库实现、自动化门、需求追踪、交付节点、Golden Project 与 GitHub 集成状态
 > 权威边界：本文件是当前审计快照；节点状态仍以 [M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)为准。`RA-N21-001/002` 已关闭，`RA-N21-003` 仅允许工程候选推进至 N31，不改变 N21/N23/N30/N31 产品未通过事实，也不授权 N32。
 
@@ -11,7 +11,7 @@
 
 当前代码已经具备一个可实际使用的“源项目创作开发版”：创作者可以新建或打开任意受支持工程，管理章节、场景、角色和变量，编辑完整 P0 故事语言与 Writer/Sequence 卡片，并保存、关闭、重开、导入和导出工程。
 
-当前代码已能在编辑器中执行最小故事流程，并把当前故事构建为独立单文件 HTML。N30-E1/E2 形成独立 portable Project Compiler；N31-E1/E2 又建立不依赖 Spike 的正式 Runtime 执行与确定状态基础，已能消费 IR、执行 Choice/表现/结局、维护演出/Meta 状态并跨 Node/真实 Web Worker 产生相同 State Hash。它仍不是完整游戏引擎：正式 Runtime 尚缺 Effect/Barrier、Save/History、Auto/Skip 与正式大规模 Corpus，Editor/Player 也尚未接入，更没有资源构建和三端发布包。因此必须同时保留以下判定：
+当前代码已能在编辑器中执行最小故事流程并构建独立 HTML。N30-E1/E2 形成 portable Compiler；N31-E1–E3 又建立不依赖 Spike 的正式 Runtime 执行、确定状态和 Effect/Barrier 宿主协议，已能从 Direction IR 产生确定 Effect Intent、等待/取消异步工作、拒绝迟到输入，并在明确批准前阻止不可逆 Effect。它仍不是完整游戏引擎：正式 Runtime 尚缺 Save/History、Auto/Skip 与正式大规模 Corpus，Editor/Player 也尚未接入，更没有资源构建和三端发布包。
 
 - 源项目能否落地：**能，在当前候选分支上可完成真实创建、编辑和持久化**；
 - 编辑器内流程能否运行：**能，真实浏览器已完成两条路线并到达两个结局**；
@@ -33,11 +33,11 @@
 | N23 内容量门 | 2 条路线：366/370 秒；各 27 可读节点；Wait 贡献 0 秒 | 审计通过 |
 | N23 产品验收门 | `N23-PA-01`；2 个参与者槽位、6 个任务、编辑器/独立 HTML 各 2 条路线 | 协议通过，真人记录 `pending-participants`（0/2） |
 | N23 验收启动门 | Windows 双击入口、固定 `127.0.0.1:43123`、生产 HTML/JS/CSS HTTP 拉取 | 烟测通过；不等同 Windows 安装包 |
-| 常规测试 | 98 个并行测试文件、603 项测试；另有 1 项串行存储测试 | 本轮完整门通过 |
+| 常规测试 | 98 个并行测试文件、609 项测试；另有 1 项串行存储测试 | 本轮完整门通过 |
 | VM 重型门 | 5 项 | 最近完整门通过 |
-| N31 Runtime 定向门 | 15 项 | 本轮通过；真实浏览器 Worker E2 向量 `data-runtime-e2=passed` |
+| N31 Runtime 定向门 | 21 项 | 本轮通过；真实浏览器 Worker 正式向量 `data-runtime=passed` |
 | 构建 | 12 个 workspace | 本轮完整门通过 |
-| 架构门 | 76 个 portable 模块、4 个 Node adapter | 本轮通过 |
+| 架构门 | 77 个 portable 模块、4 个 Node adapter | 本轮通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
 | Editor bundle | 636.67 kB，gzip 183.52 kB | 构建成功，五分钟源随产品入口进入 bundle；仍存在超过 500 kB 的体积警告 |
 | GitHub CI | PR #23–#35 最近 Windows CI 均成功；Draft PR #36 交付头 `d33d240` 的 `product-baseline` run `31877445116` 通过 | 远端 Windows / Node 22 完整门通过 |
@@ -59,7 +59,7 @@
 | N22 | 工程验收通过 | 原候选能力全部保留；真实媒体、舞台、播放态、过渡和浏览器证据完整 | Pixi/WebGL、复杂镜头/关键帧/模板与正式 Runtime 归后续节点 |
 | N23 | E1–E7 工程/验收就绪候选 | 五分钟作品可打开、编辑、保存、重开、运行和导出；双参与者协议已冻结；生产验收环境可双击启动并经 HTTP 烟测 | 权威记录仍为 `pending-participants`（0/2），两名非实现者尚未执行 |
 | N30 | E1/E2 工程退出候选 | portable Compiler、Runtime IR v1、语句 CFG/SCC、双 Hash 场景缓存、六文件 Debug/五文件 Release、完整 Catalog、发布输入、四类 IR Golden | 本地与远端完整门通过；N21/N23 产品门仍阻断 N30 Product Acceptance |
-| N31 | E1/E2 工程候选 | 正式 portable Runtime、版本化执行、State Hash、确定 PRNG、Scene/Audio/Meta State、Node/真实 Worker 固定向量 | 仍缺 Effect/Barrier、Save/History、Auto/Skip、正式 10k Corpus 与 Editor/Player 接入；Product Acceptance 被阻断 |
+| N31 | E1–E3 工程候选 | 正式 Runtime、确定 State、PRNG、Scene/Audio/Meta、Effect Intent、await/cancel receipt、Barrier 批准与跨 Worker 向量 | 仍缺 Save/History、Auto/Skip、正式 10k Corpus 与 Editor/Player 接入；Product Acceptance 被阻断 |
 | N32 及以后 | 未开始或仅有前置 Spike | 已有 VM/平台算法证据可复用 | `RA-N21-003` 明确阻断正式接入、Player、QA、构建与发布 |
 
 “工程通过”表示当前候选提交的自动化证据成立；只有节点产物、用户任务、远端门和集成状态同时满足，才可宣告产品节点通过。
@@ -89,7 +89,7 @@
 | REQ-STAGE | 局部可用 | N42 正式高性能渲染宿主、镜头、复杂关键帧、UI 模板、正式 Runtime 与三端同步 |
 | REQ-UX | 局部可用 | 七模式、Beginner/Pro、真机与非程序用户验收 |
 | REQ-ASSET | 局部可用 | 源 Blob/Index 迁移已通过；仍缺视频/字体、引用 UI、平台变体、构建报告接入 |
-| REQ-RUNTIME | 工程候选 | N31-E1/E2 已贯通 Compiler IR、版本化执行、确定状态与跨 Worker Hash；仍缺 Effect/Barrier、Save/History、调度与共享 Editor Preview/Player |
+| REQ-RUNTIME | 工程候选 | N31-E1–E3 已贯通 Compiler IR、确定状态、Effect/Barrier 与跨 Worker Hash；仍缺 Save/History、调度与共享 Editor Preview/Player |
 | REQ-L10N | 局部实现 | 已有稳定 Localization Catalog/CJK IR；仍缺导入导出、状态、运行切换、Ruby、字体和语音映射 |
 | REQ-QA | 局部实现 | 已有编译期 CFG/SCC 诊断/Source Map；仍缺 Debugger、Story Solver、断点/单步、源码 UI 跳转 |
 | REQ-BUILD | 隔离原型 | 已有单文件试玩候选；仍缺正式 Player、资源构建、三端打包、签名、校验和发布材料 |

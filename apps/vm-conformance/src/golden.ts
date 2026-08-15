@@ -61,14 +61,19 @@ export const SPIKE13_NODE_GOLDEN_V0 = {
   recordCount: 22,
   suiteDigest: "fdf3b8dcc83f57f29b45a27f275c48254dbe4e3c208d788d196eb4fb7c74fb26"
 } as const;
-import type { RuntimeE2ConformanceResultV1 } from "@world-studio/runtime";
+import type { RuntimeConformanceResultV1 } from "@world-studio/runtime";
 
-export const RUNTIME_E2_NODE_GOLDEN_V1: RuntimeE2ConformanceResultV1 = {
+export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   schemaVersion: 1,
-  runtimeVersion: "0.2.0",
-  initialStateHash: "9b16cbbcf8c3567c9d764f6d6852a5f7856e1aa53cd4d4d2a3d2efa1ded12360",
+  runtimeVersion: "0.3.0",
+  initialStateHash: "c6ba738888cc9e25cdaf9055d26a4e53c52159ec69371406dd887dbc402df4d0",
   randomValue: 13,
-  randomStateHash: "a9718fe0a1adaf8e907fb568b4e20e5464aa6deb98024d76fc57912bc4eab84c",
-  endingStateHash: "8b0d261ca7074c9d95f9ddf5f54a634e45e3dc3811aa03e8a3cc02b185f40b28",
-  reachedEndingIds: ["done"]
+  randomStateHash: "d51fb997ee2deefaad557f41de7ea06bf3d3b95a88a0ce6aef9a9aae8cb52eda",
+  endingStateHash: "8e0e2e92f8e54558e5ceba2f0992ed46e9ce5c193cc98ba33d93940686390591",
+  reachedEndingIds: ["done"],
+  effectIntentHash: "ae85cfea2908822b25f52c60fa4a602f2f36b7a204ae157023d91a7103268992",
+  effectIssuedStateHash: "d687d89e8913e454d35fa2464e918880763fb28c436d4922aa55398a29624781",
+  effectCompletedStateHash: "a96de6a2a1d5b61f23345b02a0fea9b7496ff55de38a585f483d01137b1d9f3d",
+  barrierRequestId: "barrier.62b95f219800e9bad704d050252bddea054d18c84cd27a5f41e84498d19d3eaf",
+  barrierCommittedStateHash: "317c0f4a087b63b6e5806132cd55417ac760966d00778173564fa289d2d2167d"
 };

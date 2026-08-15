@@ -25,7 +25,7 @@ Runtime 数值在 E2 收紧为 safe integer，以确保所有可执行变量和 
 
 ## 3. Node / Web Worker 固定向量
 
-`executeRuntimeE2ConformanceV1()` 冻结同一初始 State、一次 PRNG 抽样和结局 State：
+E2 交付时的 `executeRuntimeE2ConformanceV1()`（E3 起演进为 `executeRuntimeConformanceV1()`）冻结同一初始 State、一次 PRNG 抽样和结局 State：
 
 | 向量 | Golden |
 |---|---|
@@ -34,7 +34,7 @@ Runtime 数值在 E2 收紧为 safe integer，以确保所有可执行变量和 
 | Random State | `a9718fe0a1adaf8e907fb568b4e20e5464aa6deb98024d76fc57912bc4eab84c` |
 | Ending State | `8b0d261ca7074c9d95f9ddf5f54a634e45e3dc3811aa03e8a3cc02b185f40b28` |
 
-Node 定向测试直接断言完整结果。现有 `apps/vm-conformance` 增加独立快速请求，在真实 `new Worker(..., { type: "module" })` 中调用同一正式函数并与 Node Golden 比较；本地浏览器实测得到 `data-runtime-e2=passed`。旧 Spike 10k 套件仍保留为并行的独立请求，正式 Runtime 的 10k Corpus 仍属于后续 N31，不以 Spike 数量冒充正式覆盖。
+Node 定向测试直接断言完整结果。现有 `apps/vm-conformance` 增加独立快速请求，在真实 `new Worker(..., { type: "module" })` 中调用同一正式函数并与 Node Golden 比较；E2 交付时本地浏览器实测得到 `data-runtime-e2=passed`（E3 起属性统一为 `data-runtime`）。旧 Spike 10k 套件仍保留为并行的独立请求，正式 Runtime 的 10k Corpus 仍属于后续 N31，不以 Spike 数量冒充正式覆盖。
 
 ## 4. 自动化证据与诚实缺口
 

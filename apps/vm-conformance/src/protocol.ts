@@ -1,5 +1,5 @@
 import type { ConformanceResultV0, GeneratedCorpusSummaryV0, Spike11ConformanceResultV0, Spike13ConformanceResultV0 } from "@world-studio/narrative-vm-spike";
-import type { RuntimeE2ConformanceResultV1 } from "@world-studio/runtime";
+import type { RuntimeConformanceResultV1 } from "@world-studio/runtime";
 
 export interface WorkerRequestV0 {
   readonly protocolVersion: 0;
@@ -17,19 +17,19 @@ export interface WorkerResponseV0 {
   readonly spike12: GeneratedCorpusSummaryV0;
   readonly spike12ElapsedMilliseconds: number;
   readonly spike13: Spike13ConformanceResultV0;
-  readonly runtimeE2: RuntimeE2ConformanceResultV1;
+  readonly runtime: RuntimeConformanceResultV1;
 }
 
-export interface RuntimeE2WorkerRequestV1 {
+export interface RuntimeWorkerRequestV1 {
   readonly protocolVersion: 1;
-  readonly kind: "runRuntimeE2Conformance";
-  readonly requestId: "request.runtime-e2.web-worker";
+  readonly kind: "runRuntimeConformance";
+  readonly requestId: "request.runtime-v1.web-worker";
 }
 
-export interface RuntimeE2WorkerResponseV1 {
+export interface RuntimeWorkerResponseV1 {
   readonly protocolVersion: 1;
-  readonly kind: "runtimeE2ConformanceResult";
-  readonly requestId: RuntimeE2WorkerRequestV1["requestId"];
+  readonly kind: "runtimeConformanceResult";
+  readonly requestId: RuntimeWorkerRequestV1["requestId"];
   readonly host: "web-worker";
-  readonly result: RuntimeE2ConformanceResultV1;
+  readonly result: RuntimeConformanceResultV1;
 }
