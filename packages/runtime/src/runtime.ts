@@ -60,6 +60,11 @@ function validEffectState(effect: RuntimeEffectIntentV1): boolean {
   return canonicalId.test(effect.effectId) && canonicalId.test(effect.executionId) && Number.isSafeInteger(effect.originatingRevision) && effect.originatingRevision > 0 && Number.isSafeInteger(effect.logicalSequence) && effect.logicalSequence >= 0 && canonicalId.test(effect.descriptorId) && canonicalId.test(effect.channel) && canonicalId.test(effect.kind) && validRecord(effect.payload) && Object.values(effect.payload).every(finiteScalar) && ["pure", "reversible", "barrier"].includes(effect.policy) && ["detached", "awaited"].includes(effect.awaitMode) && canonicalId.test(effect.cancellationScope) && canonicalId.test(effect.replayKey) && (effect.policy === "reversible" ? effect.compensation !== null && canonicalId.test(effect.compensation.kind) && Object.values(effect.compensation.payload).every(finiteScalar) : effect.compensation === null);
 }
 
+export function validateRuntimeEffectIntentV1(effect: RuntimeEffectIntentV1): boolean {
+  try { return validEffectState(effect); }
+  catch { return false; }
+}
+
 function scenesById(program: RuntimeProgramV1): Map<string, RuntimeSceneV1> {
   return new Map(program.scenes.map((scene) => [scene.sceneId, scene]));
 }

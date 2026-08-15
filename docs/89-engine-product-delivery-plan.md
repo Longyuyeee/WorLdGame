@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-15）：E1–E8 工程切片已形成候选；[E9 出口审计](134-n31-e9-runtime-engineering-exit-audit.md)按 fail-closed 判定 **未通过**。`@world-studio/runtime` 已有确定 State、控制流/Choice、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical State Save、History、Back/Forward、确定 Scheduler、正式 10k-seed Corpus 和 Source Map 诊断，但逐项回查 VM-01–VM-15 后只有 6 项完整、6 项部分、3 项未对齐。VM-11 Session Save、VM-13 Meta 不随剧情回滚、VM-14 10k-step 有界批处理和 VM-15 Story Outcome Hash 是直接出口阻断项；VM-02/03/07/08/12 仍需补完整正式向量。后续严格按 E10 Formal VM parity → E11 Runtime Session Save → E12 Monotonic Meta boundary → E13 Bounded 10k-step → E14 出口复审推进。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。
+> 实施状态（2026-08-16）：E1–E10 工程切片已形成候选；[E9 出口审计](134-n31-e9-runtime-engineering-exit-audit.md)的 fail-closed 判定仍有效，[E10](135-n31-e10-formal-vm-parity-audit.md)已补齐 VM-02/03/07/08/12/15 正式向量、quiescent Story Outcome Hash、History compensation/replay plan 和真实 Worker Golden，VM-01–VM-15 更新为完整 12、部分 0、未对齐 3。当前只剩 VM-11 Session Save、VM-13 Meta 不随剧情回滚、VM-14 10k-step 有界批处理阻断工程出口。后续严格按 E11 Runtime Session Save → E12 Monotonic Meta boundary → E13 Bounded 10k-step → E14 出口复审推进。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：
@@ -289,7 +289,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
   7. 移除正式包对 Spike Harness 的依赖。
 - **Tests**：固定向量、10k corpus、损坏/未来 Save、异步竞态、Barrier、分支截断。
 - **Acceptance**：同一 IR/输入在 Node 与 Web Worker State Hash 零差异，全套测试在预算内稳定通过。
-- **Exit audit**：E9 未通过；以 [N31-E9 审计](134-n31-e9-runtime-engineering-exit-audit.md)的 VM 矩阵和 E10–E14 修复顺序为准，未复审通过前不得登记 N31 Engineering 出口。
+- **Exit audit**：E9 未通过；E10 已将矩阵推进至完整 12/15，继续以 [N31-E9](134-n31-e9-runtime-engineering-exit-audit.md)与 [N31-E10](135-n31-e10-formal-vm-parity-audit.md)证据及 E11–E14 修复顺序为准，未复审通过前不得登记 N31 Engineering 出口。
 
 ### N32 Editor Preview 接入正式 Runtime
 

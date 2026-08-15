@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, mapRuntimeDiagnosticsV1, runRuntime, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, mapRuntimeDiagnosticsV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -211,7 +211,25 @@ describe("N31-E2 deterministic state foundations", () => {
       sourceDiagnosticStatus: "instruction",
       sourceDiagnosticInstructionIndex: 0,
       sourceDiagnosticStatementId: "source_statement",
-      sourceDiagnosticStatementIndex: 3
+      sourceDiagnosticStatementIndex: 3,
+      formalVmParity: {
+        schemaVersion: 1,
+        recursiveOverflowCode: "RUNTIME_CALL_STACK_OVERFLOW",
+        recursiveStateHash: "7cdd7cb813eeedd8a6bfb69b81f7995885cd75377683cf8c63cdfc34c25104e7",
+        randomContinuationValues: [17, -18, -7, -36, 38],
+        randomContinuationStateHash: "4138275f03eefb8daed5b5730112892e1b89bb87050c1216d5335df847cf5718",
+        sceneLateCompletionCode: "RUNTIME_EFFECT_CANCELLED",
+        sceneStateHash: "0d648a00f4e50677178ebde1e5d3d8325a5ae5499fa50cceca771adf239d15c8",
+        backReconciliationHash: "11413e5f17dea82dcecf7976d3d6feb1b76c344359135150ab42bfcce2d782e9",
+        forwardReconciliationHash: "1d8055958bd8632a97c5739a84097f750800895f3cebf487dd147cdbc50659ae",
+        compensationKind: "background.restore",
+        replayDescriptorId: "reversible-bg",
+        futureOpcodeCode: "RUNTIME_INVALID_IR",
+        activeSessionStateHash: "17b3209f3890990a7805317e1869d662d142143bfe8427d054c66c090f4f52f3",
+        storyOutcomeHash: "85d860f97ece840d43272dcb89673dd602e3dfed94c0043a9ca73b748cd737c3",
+        purePresentationOutcomeHash: "85d860f97ece840d43272dcb89673dd602e3dfed94c0043a9ca73b748cd737c3",
+        pendingOutcomeCode: "RUNTIME_OUTCOME_NOT_QUIESCENT"
+      }
     });
   });
 });
@@ -472,6 +490,8 @@ describe("N31-E5 canonical Runtime History", () => {
     expect(validateRuntimeHistorySessionV1(story, checkpointTamper)[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
     const entryTamper = { ...advanced.session, entries: [{ ...advanced.session.entries[0]!, executedInstructions: 99 }] };
     expect(backRuntimeHistoryV1(story, entryTamper).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
+    const effectTamper = { ...advanced.session, entries: [{ ...advanced.session.entries[0]!, effects: [{ policy: "reversible", compensation: null }] }] } as unknown as RuntimeHistorySessionV1;
+    expect(backRuntimeHistoryV1(story, effectTamper).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
     const malformed = { ...advanced.session, checkpoints: [{ checkpointId: "missing-state" }] } as unknown as RuntimeHistorySessionV1;
     expect(() => validateRuntimeHistorySessionV1(story, malformed)).not.toThrow();
     expect(validateRuntimeHistorySessionV1(story, malformed)[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
@@ -702,5 +722,115 @@ describe("N31-E8 structured Runtime Source Map diagnostics", () => {
     expect(mapRuntimeDiagnosticsV1(story, sourceMap, [wrongIndex])).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_DIAGNOSTIC_INVALID" }] });
     const unknown = { ...forged, sceneId: "branch_start", extra: true } as unknown as RuntimeDiagnosticV1;
     expect(mapRuntimeDiagnosticsV1(story, sourceMap, [unknown])).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_DIAGNOSTIC_INVALID" }] });
+  });
+});
+
+describe("N31-E10 formal VM parity and Story Outcome", () => {
+  it("freezes VM-02 recursive call overflow without mutating beyond the 64-frame limit", () => {
+    const story = program([
+      { instructionId: "recursive-label", opcode: "label", operands: { name: "recursive" } },
+      { instructionId: "recursive-call", opcode: "call", operands: { targetLabel: "recursive" } }
+    ]);
+    const initial = start(story);
+    const first = runRuntime(story, initial, { instructionBudget: 256 });
+    const replay = runRuntime(story, initial, { instructionBudget: 256 });
+    expect(first.diagnostics[0]?.code).toBe("RUNTIME_CALL_STACK_OVERFLOW");
+    expect(first.state.callStack).toHaveLength(64);
+    expect(first).toEqual(replay);
+  });
+
+  it("freezes VM-03 PRNG continuation across canonical Save and Load", () => {
+    const story = program([{ instructionId: "random-end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    let boundary = start(story);
+    for (let index = 0; index < 3; index += 1) {
+      const drawn = drawRuntimeRandom(boundary, { expectedStateRevision: boundary.stateRevision, minimum: -50, maximum: 50 });
+      if (!drawn.ok) throw new Error(JSON.stringify(drawn.diagnostics));
+      boundary = drawn.state;
+    }
+    const saved = createRuntimeSaveV1(story, boundary);
+    if (!saved.ok) throw new Error(JSON.stringify(saved.diagnostics));
+    const loaded = loadRuntimeSaveV1(story, saved.serialized, { expectedBuildId: boundary.buildId });
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.diagnostics));
+    const continueFrom = (initial: RuntimeStateV1) => {
+      const values: number[] = [];
+      let state = initial;
+      for (let index = 0; index < 5; index += 1) {
+        const drawn = drawRuntimeRandom(state, { expectedStateRevision: state.stateRevision, minimum: -50, maximum: 50 });
+        if (!drawn.ok) throw new Error(JSON.stringify(drawn.diagnostics));
+        values.push(drawn.value);
+        state = drawn.state;
+      }
+      return { values, state };
+    };
+    const live = continueFrom(boundary), restored = continueFrom(loaded.state);
+    expect(restored.values).toEqual(live.values);
+    expect(runtimeStateHashV1(restored.state)).toBe(runtimeStateHashV1(live.state));
+  });
+
+  it("freezes VM-07 cancellation across a scene transition and rejects the late completion", () => {
+    const story: RuntimeStoryIrV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-test", entrySceneId: "main", scenes: [
+      { sceneId: "main", instructions: [
+        { instructionId: "old-effect", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_old", awaitMode: "awaited", cancellationScope: "scope.old", replayKey: "replay.old" } } },
+        { instructionId: "scene-choice", opcode: "choice", operands: { prompt: "Continue", options: [{ optionId: "fresh", label: "Fresh", targetSceneId: "fresh" }] } }
+      ] },
+      { sceneId: "fresh", instructions: [{ instructionId: "fresh-line", opcode: "narration", operands: { textId: "fresh_text", text: "Fresh" } }] }
+    ] };
+    const issued = runRuntime(story, start(story)), effect = issued.state.pendingEffect;
+    if (effect === null) throw new Error("effect is not pending");
+    const cancelled = runRuntime(story, issued.state, { input: { schemaVersion: 1, kind: "effectCancelled", inputId: "input-cancel-old", executionId: issued.state.executionId, expectedStateRevision: issued.state.stateRevision, logicalSequence: effect.logicalSequence, effectId: effect.effectId, cancellationScope: effect.cancellationScope } });
+    const entered = runRuntime(story, cancelled.state, { input: select(cancelled.state, "fresh", "input-enter-fresh") });
+    expect(entered.state.cursor.sceneId).toBe("fresh");
+    const beforeLateHash = runtimeStateHashV1(entered.state);
+    const late = runRuntime(story, entered.state, { input: { schemaVersion: 1, kind: "effectCompleted", inputId: "input-late-old", executionId: entered.state.executionId, expectedStateRevision: entered.state.stateRevision, logicalSequence: effect.logicalSequence, effectId: effect.effectId, replayKey: effect.replayKey } });
+    expect(late.diagnostics[0]?.code).toBe("RUNTIME_EFFECT_CANCELLED");
+    expect(runtimeStateHashV1(late.state)).toBe(beforeLateHash);
+  });
+
+  it("freezes VM-08 compensation, replay, and Barrier reconciliation paths", () => {
+    const story = program([
+      { instructionId: "reversible-bg", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_reversible", effectPolicy: "reversible", compensationKind: "background.restore", replayKey: "replay.reversible" } } },
+      { instructionId: "reversible-end", opcode: "end", operands: { endingId: "done", name: "Done" } }
+    ]);
+    const initial = createRuntimeHistorySessionV1(story, start(story));
+    const advanced = advanceRuntimeHistoryV1(story, initial.session);
+    const back = backRuntimeHistoryV1(story, advanced.session);
+    expect(back.reconciliationPlan).toMatchObject({ direction: "back", replayEffects: [], compensations: [{ descriptorId: "reversible-bg", replayKey: "replay.reversible", compensation: { kind: "background.restore", payload: {} } }] });
+    expect(runtimeHistoryReconciliationPlanHashV1(back.reconciliationPlan!)).toHaveLength(64);
+    const forward = forwardRuntimeHistoryV1(story, back.session);
+    expect(forward.reconciliationPlan).toMatchObject({ direction: "forward", compensations: [], replayEffects: [{ descriptorId: "reversible-bg", policy: "reversible" }] });
+    expect(forward.reconciliationPlan?.restoreCheckpointId).toBe(advanced.session.checkpoints[1]?.checkpointId);
+  });
+
+  it("freezes VM-12 future Opcode rejection without replacing the active Session", () => {
+    const story = program([{ instructionId: "safe-line", opcode: "narration", operands: { textId: "safe_text", text: "Safe" } }]);
+    const active = runRuntime(story, start(story)).state;
+    const saved = createRuntimeSaveV1(story, active);
+    if (!saved.ok) throw new Error(JSON.stringify(saved.diagnostics));
+    const future = { ...story, scenes: [{ ...story.scenes[0]!, instructions: [{ instructionId: "future-opcode", opcode: "futureOpcode", operands: {} }] }] } as unknown as RuntimeStoryIrV1;
+    const beforeHash = runtimeStateHashV1(active), beforeSave = saved.serialized;
+    const rejected = loadRuntimeSaveV1(future, saved.serialized, { expectedBuildId: active.buildId });
+    expect(rejected).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_INVALID_IR" }] });
+    expect(runtimeStateHashV1(active)).toBe(beforeHash);
+    expect(saved.serialized).toBe(beforeSave);
+  });
+
+  it("freezes VM-15 Story Outcome and ignores detached pure presentation", () => {
+    const base = program([
+      { instructionId: "outcome-set", opcode: "set", operands: { variableId: "route", expressionAst: { kind: "literal", value: "left" } } },
+      { instructionId: "outcome-end", opcode: "end", operands: { endingId: "outcome_done", name: "Done" } }
+    ]);
+    const withPresentation = program([
+      base.scenes[0]!.instructions[0]!,
+      { instructionId: "pure-presentation", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_pure", effectPolicy: "pure", awaitMode: "detached" } } },
+      base.scenes[0]!.instructions[1]!
+    ]);
+    const baseEnded = runRuntime(base, start(base, "build-outcome", { route: "" })).state;
+    const presented = runRuntime(withPresentation, start(withPresentation, "build-outcome", { route: "" }));
+    const presentedEnded = runRuntime(withPresentation, presented.state).state;
+    const baseOutcome = createRuntimeStoryOutcomeV1(base, baseEnded), presentationOutcome = createRuntimeStoryOutcomeV1(withPresentation, presentedEnded);
+    expect(baseOutcome.ok && presentationOutcome.ok && presentationOutcome.outcomeHash).toBe(baseOutcome.ok ? baseOutcome.outcomeHash : "unreachable");
+    expect(presentedEnded.sceneState.backgroundAssetId).toBe("bg_pure");
+    const pending = runRuntime(program([{ instructionId: "pending-choice", opcode: "choice", operands: { prompt: "Wait", options: [{ optionId: "stay", label: "Stay", targetSceneId: "main" }] } }]), start(program([{ instructionId: "pending-choice", opcode: "choice", operands: { prompt: "Wait", options: [{ optionId: "stay", label: "Stay", targetSceneId: "main" }] } }]))).state;
+    expect(createRuntimeStoryOutcomeV1(program([{ instructionId: "pending-choice", opcode: "choice", operands: { prompt: "Wait", options: [{ optionId: "stay", label: "Stay", targetSceneId: "main" }] } }]), pending)).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_OUTCOME_NOT_QUIESCENT" }] });
   });
 });

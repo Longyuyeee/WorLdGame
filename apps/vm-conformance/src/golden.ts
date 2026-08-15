@@ -114,5 +114,23 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   sourceDiagnosticStatus: "instruction",
   sourceDiagnosticInstructionIndex: 0,
   sourceDiagnosticStatementId: "source_statement",
-  sourceDiagnosticStatementIndex: 3
+  sourceDiagnosticStatementIndex: 3,
+  formalVmParity: {
+    schemaVersion: 1,
+    recursiveOverflowCode: "RUNTIME_CALL_STACK_OVERFLOW",
+    recursiveStateHash: "7cdd7cb813eeedd8a6bfb69b81f7995885cd75377683cf8c63cdfc34c25104e7",
+    randomContinuationValues: [17, -18, -7, -36, 38],
+    randomContinuationStateHash: "4138275f03eefb8daed5b5730112892e1b89bb87050c1216d5335df847cf5718",
+    sceneLateCompletionCode: "RUNTIME_EFFECT_CANCELLED",
+    sceneStateHash: "0d648a00f4e50677178ebde1e5d3d8325a5ae5499fa50cceca771adf239d15c8",
+    backReconciliationHash: "11413e5f17dea82dcecf7976d3d6feb1b76c344359135150ab42bfcce2d782e9",
+    forwardReconciliationHash: "1d8055958bd8632a97c5739a84097f750800895f3cebf487dd147cdbc50659ae",
+    compensationKind: "background.restore",
+    replayDescriptorId: "reversible-bg",
+    futureOpcodeCode: "RUNTIME_INVALID_IR",
+    activeSessionStateHash: "17b3209f3890990a7805317e1869d662d142143bfe8427d054c66c090f4f52f3",
+    storyOutcomeHash: "85d860f97ece840d43272dcb89673dd602e3dfed94c0043a9ca73b748cd737c3",
+    purePresentationOutcomeHash: "85d860f97ece840d43272dcb89673dd602e3dfed94c0043a9ca73b748cd737c3",
+    pendingOutcomeCode: "RUNTIME_OUTCOME_NOT_QUIESCENT"
+  }
 };

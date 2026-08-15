@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1/E2 已形成正式 Compiler 工程退出候选，N31-E1–E8 已建立正式 Runtime 候选，但 E9 逐项出口审计未通过，必须先按 E10–E14 关闭 VM-01–VM-15 正式迁移缺口；真人产品验收、N31 产品退出与 N32 仍被阻断。
+> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1/E2 已形成正式 Compiler 工程退出候选，N31-E1–E10 已建立正式 Runtime 候选并把 VM 矩阵推进至完整 12/15，但 E9 出口审计仍未关闭的 VM-11/13/14 必须按 E11–E14 完成；真人产品验收、N31 产品退出与 N32 仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -144,6 +144,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N31-E7 正式 Runtime Generated Corpus 审计](docs/132-n31-e7-runtime-generated-corpus-audit.md) | 10,000 seeds、20,000 次重放、七类场景、0 failures 与 Node/真实 Worker 同摘要 |
 | [N31-E8 Runtime Source Map 诊断审计](docs/133-n31-e8-runtime-source-map-diagnostics-audit.md) | fail-closed Source Map、Diagnostic → Statement ID/Index 与跨 Worker 固定向量 |
 | [N31-E9 Runtime Engineering 出口审计](docs/134-n31-e9-runtime-engineering-exit-audit.md) | VM-01–VM-15 逐项矩阵、出口未通过判定，以及 E10–E14 修复顺序 |
+| [N31-E10 正式 VM Parity 审计](docs/135-n31-e10-formal-vm-parity-audit.md) | VM-02/03/07/08/12/15 正式向量、Story Outcome Hash、History reconciliation 与真实 Worker Golden |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |

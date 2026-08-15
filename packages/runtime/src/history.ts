@@ -1,6 +1,6 @@
 import { canonicalRuntimeBytes, canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { runtimeStateHashV1 } from "./hash";
-import { runRuntime, validateRuntimeStateV1 } from "./runtime";
+import { runRuntime, validateRuntimeEffectIntentV1, validateRuntimeStateV1 } from "./runtime";
 import { sha256Hex } from "./sha256";
 import {
   MAX_RUNTIME_HISTORY_ENTRIES,
@@ -11,6 +11,7 @@ import {
   type RuntimeHistoryCheckpointV1,
   type RuntimeHistoryEntryV1,
   type RuntimeHistoryResultV1,
+  type RuntimeHistoryReconciliationPlanV1,
   type RuntimeHistorySessionV1,
   type RuntimeInputV1,
   type RuntimeInputReceiptV1,
@@ -54,8 +55,8 @@ function makeEntry(entry: Omit<RuntimeHistoryEntryV1, "entryId">): RuntimeHistor
   return { entryId: entryId(entry), ...entry };
 }
 
-function result(session: RuntimeHistorySessionV1, diagnostics: readonly RuntimeDiagnosticV1[] = [], reconciliationRequired = false, barrierBlock: RuntimeBarrierRecordV1 | null = null): RuntimeHistoryResultV1 {
-  return { session, state: session.checkpoints[session.cursor]!.state, event: null, effects: [], diagnostics, reconciliationRequired, barrierBlock };
+function result(session: RuntimeHistorySessionV1, diagnostics: readonly RuntimeDiagnosticV1[] = [], reconciliationPlan: RuntimeHistoryReconciliationPlanV1 | null = null, barrierBlock: RuntimeBarrierRecordV1 | null = null): RuntimeHistoryResultV1 {
+  return { session, state: session.checkpoints[session.cursor]!.state, event: null, effects: [], diagnostics, reconciliationRequired: reconciliationPlan !== null, reconciliationPlan, barrierBlock };
 }
 
 function sameInput(left: RuntimeInputV1, right: RuntimeInputV1): boolean {
@@ -102,6 +103,7 @@ function validateRuntimeHistorySessionUnsafe(program: RuntimeProgramV1, session:
     if (typedItem.historyIndex !== index || typedItem.beforeCheckpointId !== before.checkpointId || typedItem.afterCheckpointId !== after.checkpointId || !Number.isSafeInteger(typedItem.executedInstructions) || typedItem.executedInstructions < 0) return invalid(`History entry ${index} chain is invalid`);
     const { entryId: actualId, ...unsigned } = typedItem;
     if (actualId !== entryId(unsigned)) return invalid(`History entry ${index} hash is invalid`);
+    if (!Array.isArray(typedItem.effects) || typedItem.effects.some((effect) => !validateRuntimeEffectIntentV1(effect) || effect.executionId !== session.executionId || effect.originatingRevision < before.state.stateRevision || effect.originatingRevision > after.state.stateRevision)) return invalid(`History entry ${index} Effect ledger is invalid`);
     const expectedBarriers = after.state.barrierLedger.slice(before.state.barrierLedger.length);
     if (canonicalRuntimeStringify(typedItem.barriers) !== canonicalRuntimeStringify(expectedBarriers)) return invalid(`History entry ${index} Barrier delta is invalid`);
     if (typedItem.input !== null) {
@@ -151,7 +153,7 @@ export function advanceRuntimeHistoryV1(program: RuntimeProgramV1, session: Runt
   for (const input of truncated) if (!tombstones.some((item) => item.inputId === input.inputId)) tombstones.push(input);
   const unsigned: Omit<RuntimeHistoryEntryV1, "entryId"> = { historyIndex: session.cursor, beforeCheckpointId: session.checkpoints[session.cursor]!.checkpointId, afterCheckpointId: after.checkpointId, input: options.input ?? null, event: executed.event, effects: executed.effects, executedInstructions: executed.executedInstructions, barriers: executed.state.barrierLedger.slice(state.barrierLedger.length) };
   const next: RuntimeHistorySessionV1 = { ...session, cursor: session.cursor + 1, checkpoints: [...session.checkpoints.slice(0, session.cursor + 1), after], entries: [...keptEntries, makeEntry(unsigned)], inputTombstones: tombstones };
-  return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, barrierBlock: null };
+  return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, reconciliationPlan: null, barrierBlock: null };
 }
 
 /** Commits one already-executed observable Runtime step. Scheduler is its only production caller. */
@@ -167,7 +169,7 @@ export function commitRuntimeHistoryStepV1(program: RuntimeProgramV1, session: R
   const after = checkpoint(executed.state);
   const unsigned: Omit<RuntimeHistoryEntryV1, "entryId"> = { historyIndex: session.cursor, beforeCheckpointId: session.checkpoints[session.cursor]!.checkpointId, afterCheckpointId: after.checkpointId, input: null, event: executed.event, effects: executed.effects, executedInstructions, barriers: executed.state.barrierLedger.slice(before.barrierLedger.length) };
   const next: RuntimeHistorySessionV1 = { ...session, cursor: session.cursor + 1, checkpoints: [...session.checkpoints, after], entries: [...session.entries, makeEntry(unsigned)] };
-  return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, barrierBlock: null };
+  return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, reconciliationPlan: null, barrierBlock: null };
 }
 
 export function backRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1): RuntimeHistoryResultV1 {
@@ -178,8 +180,18 @@ export function backRuntimeHistoryV1(program: RuntimeProgramV1, session: Runtime
   if (current.pendingEffect !== null) return result(session, [diagnostic("RUNTIME_EFFECT_REQUIRED", `Pending awaited Effect ${current.pendingEffect.effectId} must complete or cancel before Back`, current)]);
   const crossed = session.entries[session.cursor - 1]!;
   const barrier = crossed.barriers.at(-1) ?? null;
-  if (barrier !== null) return result(session, [diagnostic("RUNTIME_BARRIER_BLOCKED", `Back cannot cross committed Barrier ${barrier.descriptorId}: ${barrier.reason}`, current)], false, barrier);
-  return result({ ...session, cursor: session.cursor - 1 }, [], true);
+  if (barrier !== null) return result(session, [diagnostic("RUNTIME_BARRIER_BLOCKED", `Back cannot cross committed Barrier ${barrier.descriptorId}: ${barrier.reason}`, current)], null, barrier);
+  const target = session.checkpoints[session.cursor - 1]!;
+  const plan: RuntimeHistoryReconciliationPlanV1 = {
+    schemaVersion: 1,
+    direction: "back",
+    fromCheckpointId: session.checkpoints[session.cursor]!.checkpointId,
+    toCheckpointId: target.checkpointId,
+    restoreCheckpointId: target.checkpointId,
+    compensations: crossed.effects.filter((effect) => effect.policy === "reversible" && effect.compensation !== null).reverse().map((effect) => ({ effectId: effect.effectId, descriptorId: effect.descriptorId, channel: effect.channel, replayKey: effect.replayKey, compensation: effect.compensation! })),
+    replayEffects: []
+  };
+  return result({ ...session, cursor: session.cursor - 1 }, [], plan);
 }
 
 export function forwardRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1): RuntimeHistoryResultV1 {
@@ -187,5 +199,16 @@ export function forwardRuntimeHistoryV1(program: RuntimeProgramV1, session: Runt
   if (validation.length > 0) return result(session, validation);
   const current = session.checkpoints[session.cursor]!.state;
   if (session.cursor === session.entries.length) return result(session, [diagnostic("RUNTIME_HISTORY_AT_END", "History is already at its latest checkpoint", current)]);
-  return result({ ...session, cursor: session.cursor + 1 }, [], true);
+  const crossed = session.entries[session.cursor]!;
+  const target = session.checkpoints[session.cursor + 1]!;
+  const plan: RuntimeHistoryReconciliationPlanV1 = {
+    schemaVersion: 1,
+    direction: "forward",
+    fromCheckpointId: session.checkpoints[session.cursor]!.checkpointId,
+    toCheckpointId: target.checkpointId,
+    restoreCheckpointId: target.checkpointId,
+    compensations: [],
+    replayEffects: crossed.effects.filter((effect) => effect.policy !== "barrier")
+  };
+  return result({ ...session, cursor: session.cursor + 1 }, [], plan);
 }
