@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { createRuntimeState, runRuntime, type RuntimeStateV1 } from "./index";
+import { canonicalRuntimeStringify, createRuntimeState, drawRuntimeRandom, executeRuntimeE2ConformanceV1, runRuntime, runtimeStateHashV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -98,5 +98,89 @@ describe("N31-E1 formal narrative runtime", () => {
     const result = runRuntime(story, state);
     expect(result.state).toBe(state);
     expect(result.diagnostics[0]?.code).toBe("RUNTIME_INVALID_STATE");
+  });
+});
+
+describe("N31-E2 deterministic state foundations", () => {
+  it("produces a frozen canonical State Hash independent of record insertion order", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const left = start(story, "build", { alpha: 1, beta: 2 });
+    const right = start(story, "build", { beta: 2, alpha: 1 });
+    expect(runtimeStateHashV1(left)).toBe(runtimeStateHashV1(right));
+    expect(runtimeStateHashV1(left)).toBe("9b16cbbcf8c3567c9d764f6d6852a5f7856e1aa53cd4d4d2a3d2efa1ded12360");
+    expect(runtimeStateHashV1({ ...left, logicalTimeMilliseconds: 1 })).not.toBe(runtimeStateHashV1(left));
+  });
+
+  it("uses canonical Unicode, key ordering, and safe-integer rules", () => {
+    expect(canonicalRuntimeStringify({ z: 1, a: "世界" })).toBe('{"a":"世界","z":1}');
+    expect(() => canonicalRuntimeStringify({ value: 0.5 })).toThrow("safe integers");
+    expect(() => canonicalRuntimeStringify({ value: "e\u0301" })).toThrow("Unicode NFC");
+  });
+
+  it("draws a revision-safe deterministic PRNG vector without environment randomness", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const initial = start(story);
+    const first = drawRuntimeRandom(initial, { expectedStateRevision: 0, minimum: 10, maximum: 99 });
+    expect(first).toMatchObject({ ok: true, value: 13, state: { stateRevision: 1, prng: { algorithm: "xorshift32-v1", state: 1085196063, draws: 1 } } });
+    if (!first.ok) throw new Error("draw failed");
+    const stale = drawRuntimeRandom(first.state, { expectedStateRevision: 0, minimum: 10, maximum: 99 });
+    expect(stale).toMatchObject({ ok: false, state: first.state, diagnostics: [{ code: "RUNTIME_INPUT_STALE" }] });
+  });
+
+  it("reduces background, character, and audio directions into logical State", () => {
+    const story = program([
+      { instructionId: "bg", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_gate" } } },
+      { instructionId: "show", opcode: "direction", operands: { command: "show", parameters: { action: "show", asset: "char_aya", slot: "aya", expression: "smile" } } },
+      { instructionId: "audio", opcode: "direction", operands: { command: "audio", parameters: { action: "play", asset: "bgm_theme", bus: "bgm", loop: true, volumePermille: 750 } } },
+      { instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }
+    ]);
+    const background = runRuntime(story, start(story));
+    expect(background.state.sceneState.backgroundAssetId).toBe("bg_gate");
+    const character = runRuntime(story, background.state);
+    expect(character.state.sceneState.characters.aya).toEqual({ assetId: "char_aya", expression: "smile" });
+    const audio = runRuntime(story, character.state);
+    expect(audio.state.audioState.tracks.bgm).toEqual({ assetId: "bgm_theme", status: "playing", loop: true, volumePermille: 750 });
+    expect(audio.state.metaProgress.unlockedGalleryAssetIds).toEqual(["bg_gate", "char_aya"]);
+  });
+
+  it("records read text and reached endings as sorted monotonic Meta Progress", () => {
+    const story = program([
+      { instructionId: "line", opcode: "narration", operands: { textId: "text_z", text: "Line" } },
+      { instructionId: "line-again", opcode: "narration", operands: { textId: "text_z", text: "Line" } },
+      { instructionId: "end", opcode: "end", operands: { endingId: "ending_a", name: "Done" } }
+    ]);
+    const once = runRuntime(story, start(story));
+    const twice = runRuntime(story, once.state);
+    const ended = runRuntime(story, twice.state);
+    expect(ended.state.metaProgress).toMatchObject({ readTextIds: ["text_z"], reachedEndingIds: ["ending_a"] });
+  });
+
+  it("rejects corrupt PRNG, Scene, Audio, Meta, and noncanonical State without mutation", () => {
+    const story = program([{ instructionId: "end", opcode: "end", operands: { endingId: "done", name: "Done" } }]);
+    const initial = start(story);
+    const corruptions: RuntimeStateV1[] = [
+      { ...initial, prng: { ...initial.prng, state: 0 } },
+      { ...initial, sceneState: { ...initial.sceneState, backgroundAssetId: "bad id" } },
+      { ...initial, audioState: { tracks: { bgm: { assetId: "audio", status: "playing", loop: false, volumePermille: 1001 } } } },
+      { ...initial, metaProgress: { ...initial.metaProgress, readTextIds: ["z", "a"] } },
+      { ...initial, variables: { bad: 0.5 } }
+    ];
+    for (const state of corruptions) {
+      const result = runRuntime(story, state);
+      expect(result.state).toBe(state);
+      expect(result.diagnostics[0]?.code).toBe("RUNTIME_INVALID_STATE");
+    }
+  });
+
+  it("freezes the Node host conformance vector consumed by the Web Worker harness", () => {
+    expect(executeRuntimeE2ConformanceV1()).toEqual({
+      schemaVersion: 1,
+      runtimeVersion: "0.2.0",
+      initialStateHash: "9b16cbbcf8c3567c9d764f6d6852a5f7856e1aa53cd4d4d2a3d2efa1ded12360",
+      randomValue: 13,
+      randomStateHash: "a9718fe0a1adaf8e907fb568b4e20e5464aa6deb98024d76fc57912bc4eab84c",
+      endingStateHash: "8b0d261ca7074c9d95f9ddf5f54a634e45e3dc3811aa03e8a3cc02b185f40b28",
+      reachedEndingIds: ["done"]
+    });
   });
 });

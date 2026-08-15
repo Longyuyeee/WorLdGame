@@ -61,3 +61,14 @@ export const SPIKE13_NODE_GOLDEN_V0 = {
   recordCount: 22,
   suiteDigest: "fdf3b8dcc83f57f29b45a27f275c48254dbe4e3c208d788d196eb4fb7c74fb26"
 } as const;
+import type { RuntimeE2ConformanceResultV1 } from "@world-studio/runtime";
+
+export const RUNTIME_E2_NODE_GOLDEN_V1: RuntimeE2ConformanceResultV1 = {
+  schemaVersion: 1,
+  runtimeVersion: "0.2.0",
+  initialStateHash: "9b16cbbcf8c3567c9d764f6d6852a5f7856e1aa53cd4d4d2a3d2efa1ded12360",
+  randomValue: 13,
+  randomStateHash: "a9718fe0a1adaf8e907fb568b4e20e5464aa6deb98024d76fc57912bc4eab84c",
+  endingStateHash: "8b0d261ca7074c9d95f9ddf5f54a634e45e3dc3811aa03e8a3cc02b185f40b28",
+  reachedEndingIds: ["done"]
+};

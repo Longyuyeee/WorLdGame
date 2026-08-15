@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-15）：E1 最小正式内核实现中。新增 `@world-studio/runtime` portable candidate，直接消费 Runtime IR v1，建立版本化 State、场景/指令游标、变量、调用栈、逻辑时间、Choice 输入防陈旧校验、可观察停点、结局和指令预算；不依赖实验 VM Spike。Save/Load、History、Effect/Barrier、PRNG/Meta Progress、Auto/Skip、State Hash 与 Node/Web Worker 一致性仍待后续 N31 切片。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [N31-E1 审计](126-n31-e1-runtime-kernel-audit.md)。
+> 实施状态（2026-08-15）：E1/E2 工程切片已形成候选。`@world-studio/runtime` 直接消费 Runtime IR v1，已有版本化 State、控制流、Choice 输入、逻辑时间、规范 State Hash、revision-safe xorshift32 PRNG、Scene/Audio/Meta Progress，并以同一正式向量在 Node 测试和真实浏览器模块 Web Worker 中取得零差异。Save/Load、History、Effect/Barrier、Auto/Skip、Source Map 完整诊断与 10k 正式 Runtime Corpus 仍待后续 N31 切片。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [N31-E1 审计](126-n31-e1-runtime-kernel-audit.md)与 [N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：

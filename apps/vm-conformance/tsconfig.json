@@ -6,7 +6,8 @@
     "lib": ["ES2022", "DOM", "WebWorker"]
   },
   "references": [
-    { "path": "../../packages/narrative-vm-spike" }
+    { "path": "../../packages/narrative-vm-spike" },
+    { "path": "../../packages/runtime" }
   ],
   "include": ["src"]
 }
