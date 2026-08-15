@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { canonicalRuntimeStringify, createRuntimeSaveV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, loadRuntimeSaveV1, runRuntime, runtimeStateHashV1, type RuntimeChoiceInputV1, type RuntimeStateV1 } from "./index";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, runRuntime, runtimeHistorySessionHashV1, runtimeStateHashV1, validateRuntimeHistorySessionV1, type RuntimeChoiceInputV1, type RuntimeHistorySessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -113,7 +113,7 @@ describe("N31-E2 deterministic state foundations", () => {
     const left = start(story, "build", { alpha: 1, beta: 2 });
     const right = start(story, "build", { beta: 2, alpha: 1 });
     expect(runtimeStateHashV1(left)).toBe(runtimeStateHashV1(right));
-    expect(runtimeStateHashV1(left)).toBe("f8083d9d5464cfcd27cff37832c9fa83b1470c16577e17835f7eeb6cb2376fd3");
+    expect(runtimeStateHashV1(left)).toBe("a896ffbf427a43c26e8ec9396021bc7c38c52d3ab9d67c3683f8448525d107b1");
     expect(runtimeStateHashV1({ ...left, logicalTimeMilliseconds: 1 })).not.toBe(runtimeStateHashV1(left));
   });
 
@@ -181,20 +181,26 @@ describe("N31-E2 deterministic state foundations", () => {
   it("freezes the Node host conformance vector consumed by the Web Worker harness", () => {
     expect(executeRuntimeConformanceV1()).toEqual({
       schemaVersion: 1,
-      runtimeVersion: "0.4.0",
-      initialStateHash: "f8083d9d5464cfcd27cff37832c9fa83b1470c16577e17835f7eeb6cb2376fd3",
+      runtimeVersion: "0.5.0",
+      initialStateHash: "a896ffbf427a43c26e8ec9396021bc7c38c52d3ab9d67c3683f8448525d107b1",
       randomValue: 13,
-      randomStateHash: "a59b6ec18a772545bf7aca0f5e9ae97f8750179db81d3abf507cf85d52ca1eb1",
-      endingStateHash: "16f6a395a646cf86fa19fdbc0b5c76b5d8ae15987bdff326b08dd20581c40288",
+      randomStateHash: "dc0ceb8b3aa961458d4022ec33bc37d180e505471e83055771e6d974bd621eed",
+      endingStateHash: "9f85866867cb8cadee5781bb8fec369f46a681be43dd8a4df89eda43a3be7ec5",
       reachedEndingIds: ["done"],
       effectIntentHash: "ae85cfea2908822b25f52c60fa4a602f2f36b7a204ae157023d91a7103268992",
-      effectIssuedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d",
-      effectCompletedStateHash: "53653863beb0714f6178925d3d3ccbe64e393bf1533aa0723da567ce20f921f3",
+      effectIssuedStateHash: "6b4228f4fb64221822e102ddcaa71aad1c53ed987a8adeefdfa09b676fabe08c",
+      effectCompletedStateHash: "427811dba37b8664e7d9b3300d6f6e05d4a147dd207a59b583cd3c6dd081d886",
       barrierRequestId: "barrier.62b95f219800e9bad704d050252bddea054d18c84cd27a5f41e84498d19d3eaf",
-      barrierCommittedStateHash: "a4589c26cb8e7812d94792b41cee08c8d6afe14cc33cb54e3e03d410d6bb27bb",
-      saveArtifactHash: "de61426116b0cf29c17d8141597cd5aa21e03a8f31eafc70ae9da92036061576",
+      barrierCommittedStateHash: "2ba4b47cb9e52d0dab9ff224c49ed40dd74848f3e41cc12f81ef7a8373691dd0",
+      saveArtifactHash: "7d07a19cf7625f1cc165845742b2a60864738ae5679d0e4df6ca1c3f89493680",
       rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
-      rehydratedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d"
+      rehydratedStateHash: "6b4228f4fb64221822e102ddcaa71aad1c53ed987a8adeefdfa09b676fabe08c",
+      historyBackStateHash: "5475e655dbdfdd18c838f85151473a839e190f7bda0dab74243bf3ae9337fb7a",
+      historyForwardStateHash: "58d4a8b6bbca607226c05127ea7514f98008a7e9317ac4ee3199cf7ed87cc99f",
+      historyForkStateHash: "ff93d34ff22204a6fa489ae7a31bb8d4a696c2e2a6ab81460717f1c0c7cea88c",
+      historySessionHash: "5eb97952d5ea84edf7030fb069b4ba5885ef53f4c9c314868418ccecb4635b69",
+      historyTombstoneInputId: "input-history-left",
+      historyBarrierCode: "RUNTIME_BARRIER_BLOCKED"
     });
   });
 });
@@ -370,5 +376,93 @@ describe("N31-E4 canonical Runtime Save and rehydration", () => {
     expect(unknownResult.ok).toBe(false);
     if (unknownResult.ok) throw new Error("unknown State member loaded");
     expect(unknownResult.diagnostics[0]?.code).toBe("RUNTIME_SAVE_INVALID");
+  });
+});
+
+describe("N31-E5 canonical Runtime History", () => {
+  function history(story: RuntimeStoryIrV1, state: RuntimeStateV1 = start(story, "build-history")): RuntimeHistorySessionV1 {
+    const created = createRuntimeHistorySessionV1(story, state);
+    expect(created.diagnostics).toEqual([]);
+    return created.session;
+  }
+
+  it("builds a canonical checkpoint chain and restores exact State hashes with Back and Forward", () => {
+    const { story, buildId } = branching();
+    let session = history(story, start(story, buildId));
+    const choice = advanceRuntimeHistoryV1(story, session);
+    expect(choice.event).toMatchObject({ kind: "choice" });
+    session = choice.session;
+    const beforeChoiceHash = runtimeStateHashV1(choice.state);
+    const left = advanceRuntimeHistoryV1(story, session, { input: select(choice.state, "branch_left_option", "input-history-left") });
+    expect(left.event).toMatchObject({ kind: "dialogue", text: "The quiet route." });
+    expect(validateRuntimeHistorySessionV1(story, left.session)).toEqual([]);
+    const sessionHash = runtimeHistorySessionHashV1(left.session);
+    expect(sessionHash).toHaveLength(64);
+    const back = backRuntimeHistoryV1(story, left.session);
+    expect(back.diagnostics).toEqual([]);
+    expect(back.reconciliationRequired).toBe(true);
+    expect(runtimeStateHashV1(back.state)).toBe(beforeChoiceHash);
+    const forward = forwardRuntimeHistoryV1(story, back.session);
+    expect(runtimeStateHashV1(forward.state)).toBe(runtimeStateHashV1(left.state));
+    expect(runtimeHistorySessionHashV1(forward.session)).toBe(sessionHash);
+  });
+
+  it("requires Forward for recorded input and atomically truncates it for a changed branch", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const oldInput = select(waiting.state, "branch_left_option", "input-history-left");
+    const left = advanceRuntimeHistoryV1(story, waiting.session, { input: oldInput });
+    const back = backRuntimeHistoryV1(story, left.session);
+    expect(advanceRuntimeHistoryV1(story, back.session).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_FORWARD_REQUIRED");
+    expect(advanceRuntimeHistoryV1(story, back.session, { input: oldInput }).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_FORWARD_REQUIRED");
+    const invalid = advanceRuntimeHistoryV1(story, back.session, { input: select(back.state, "missing-option", "input-history-invalid") });
+    expect(invalid.diagnostics[0]?.code).toBe("RUNTIME_CHOICE_MISMATCH");
+    expect(invalid.session).toBe(back.session);
+    const rightInput = select(back.state, "branch_right_option", "input-history-right");
+    const right = advanceRuntimeHistoryV1(story, back.session, { input: rightInput });
+    expect(right.event).toMatchObject({ kind: "dialogue", text: "The bright route." });
+    expect(right.session.entries).toHaveLength(2);
+    expect(right.session.inputTombstones).toEqual([oldInput]);
+    expect(advanceRuntimeHistoryV1(story, right.session, { input: rightInput }).session).toBe(right.session);
+    expect(forwardRuntimeHistoryV1(story, right.session).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_AT_END");
+  });
+
+  it("rejects a conflicting reused tombstone ID without mutating the branched Session", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const left = advanceRuntimeHistoryV1(story, waiting.session, { input: select(waiting.state, "branch_left_option", "input-reused") });
+    const back = backRuntimeHistoryV1(story, left.session);
+    const right = advanceRuntimeHistoryV1(story, back.session, { input: select(back.state, "branch_right_option", "input-right") });
+    const rewound = backRuntimeHistoryV1(story, right.session);
+    const conflict = advanceRuntimeHistoryV1(story, rewound.session, { input: select(rewound.state, "branch_right_option", "input-reused") });
+    expect(conflict.diagnostics[0]?.code).toBe("RUNTIME_INPUT_ID_CONFLICT");
+    expect(conflict.session).toBe(rewound.session);
+  });
+
+  it("blocks Back across a committed Barrier and exposes its exact reason", () => {
+    const story = program([
+      { instructionId: "history-barrier", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_barrier", effectPolicy: "barrier", barrierReason: "External publish cannot be reversed." } } },
+      { instructionId: "history-end", opcode: "end", operands: { endingId: "done", name: "Done" } }
+    ]);
+    const requested = advanceRuntimeHistoryV1(story, history(story));
+    const pending = requested.state.pendingBarrier;
+    if (pending === null) throw new Error("barrier is not pending");
+    const committed = advanceRuntimeHistoryV1(story, requested.session, { input: { schemaVersion: 1, kind: "barrierApproved", inputId: "input-history-barrier", executionId: requested.state.executionId, expectedStateRevision: requested.state.stateRevision, logicalSequence: pending.logicalSequence, requestId: pending.requestId, descriptorId: pending.descriptorId } });
+    const blocked = backRuntimeHistoryV1(story, committed.session);
+    expect(blocked.diagnostics[0]).toMatchObject({ code: "RUNTIME_BARRIER_BLOCKED", message: expect.stringContaining("External publish cannot be reversed.") });
+    expect(blocked.barrierBlock).toMatchObject({ descriptorId: "history-barrier", reason: "External publish cannot be reversed." });
+    expect(blocked.session).toBe(committed.session);
+  });
+
+  it("rejects checkpoint and entry tampering before navigation", () => {
+    const story = program([{ instructionId: "history-line", opcode: "narration", operands: { textId: "history_text", text: "History" } }]);
+    const advanced = advanceRuntimeHistoryV1(story, history(story));
+    const checkpointTamper = { ...advanced.session, checkpoints: [advanced.session.checkpoints[0]!, { ...advanced.session.checkpoints[1]!, stateHash: "0".repeat(64) }] };
+    expect(validateRuntimeHistorySessionV1(story, checkpointTamper)[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
+    const entryTamper = { ...advanced.session, entries: [{ ...advanced.session.entries[0]!, executedInstructions: 99 }] };
+    expect(backRuntimeHistoryV1(story, entryTamper).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
+    const malformed = { ...advanced.session, checkpoints: [{ checkpointId: "missing-state" }] } as unknown as RuntimeHistorySessionV1;
+    expect(() => validateRuntimeHistorySessionV1(story, malformed)).not.toThrow();
+    expect(validateRuntimeHistorySessionV1(story, malformed)[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
   });
 });
