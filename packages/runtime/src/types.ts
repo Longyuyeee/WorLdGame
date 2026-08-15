@@ -1,4 +1,4 @@
-import type { RuntimeStoryIrV1 } from "@world-studio/project-compiler";
+import type { RuntimeSourceMapV1 as CompilerRuntimeSourceMapV1, RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 
 export const RUNTIME_VERSION = "0.6.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
@@ -216,49 +216,40 @@ export type RuntimeEventV1 =
   | { readonly kind: "wait"; readonly instructionId: string; readonly durationMilliseconds: number }
   | { readonly kind: "ending"; readonly instructionId: string; readonly endingId: string; readonly name: string };
 
-export type RuntimeDiagnosticCode =
-  | "RUNTIME_INVALID_IR"
-  | "RUNTIME_INCOMPATIBLE_IR"
-  | "RUNTIME_INVALID_STATE"
-  | "RUNTIME_MISSING_SCENE"
-  | "RUNTIME_FALLTHROUGH"
-  | "RUNTIME_MISSING_LABEL"
-  | "RUNTIME_CALL_STACK_OVERFLOW"
-  | "RUNTIME_CALL_STACK_UNDERFLOW"
-  | "RUNTIME_VARIABLE_MISSING"
-  | "RUNTIME_EXPRESSION_INVALID"
-  | "RUNTIME_TYPE_MISMATCH"
-  | "RUNTIME_CHOICE_REQUIRED"
-  | "RUNTIME_CHOICE_MISMATCH"
-  | "RUNTIME_INPUT_STALE"
-  | "RUNTIME_INPUT_UNEXPECTED"
-  | "RUNTIME_INPUT_OUT_OF_ORDER"
-  | "RUNTIME_INPUT_MISMATCH"
-  | "RUNTIME_INPUT_ID_CONFLICT"
-  | "RUNTIME_INPUT_RECEIPT_LIMIT"
-  | "RUNTIME_EFFECT_REQUIRED"
-  | "RUNTIME_EFFECT_CANCELLED"
-  | "RUNTIME_BARRIER_REQUIRED"
-  | "RUNTIME_SAVE_INVALID"
-  | "RUNTIME_SAVE_INCOMPATIBLE"
-  | "RUNTIME_SAVE_BUILD_MISMATCH"
-  | "RUNTIME_SAVE_HASH_MISMATCH"
-  | "RUNTIME_HISTORY_INVALID"
-  | "RUNTIME_HISTORY_AT_START"
-  | "RUNTIME_HISTORY_AT_END"
-  | "RUNTIME_HISTORY_FORWARD_REQUIRED"
-  | "RUNTIME_HISTORY_LIMIT"
-  | "RUNTIME_BARRIER_BLOCKED"
-  | "RUNTIME_SCHEDULER_INVALID"
-  | "RUNTIME_BUDGET_EXCEEDED"
-  | "RUNTIME_TERMINAL";
+export const RUNTIME_DIAGNOSTIC_CODES = [
+  "RUNTIME_INVALID_IR", "RUNTIME_INCOMPATIBLE_IR", "RUNTIME_INVALID_STATE", "RUNTIME_MISSING_SCENE",
+  "RUNTIME_FALLTHROUGH", "RUNTIME_MISSING_LABEL", "RUNTIME_CALL_STACK_OVERFLOW", "RUNTIME_CALL_STACK_UNDERFLOW",
+  "RUNTIME_VARIABLE_MISSING", "RUNTIME_EXPRESSION_INVALID", "RUNTIME_TYPE_MISMATCH", "RUNTIME_CHOICE_REQUIRED",
+  "RUNTIME_CHOICE_MISMATCH", "RUNTIME_INPUT_STALE", "RUNTIME_INPUT_UNEXPECTED", "RUNTIME_INPUT_OUT_OF_ORDER",
+  "RUNTIME_INPUT_MISMATCH", "RUNTIME_INPUT_ID_CONFLICT", "RUNTIME_INPUT_RECEIPT_LIMIT", "RUNTIME_EFFECT_REQUIRED",
+  "RUNTIME_EFFECT_CANCELLED", "RUNTIME_BARRIER_REQUIRED", "RUNTIME_SAVE_INVALID", "RUNTIME_SAVE_INCOMPATIBLE",
+  "RUNTIME_SAVE_BUILD_MISMATCH", "RUNTIME_SAVE_HASH_MISMATCH", "RUNTIME_HISTORY_INVALID", "RUNTIME_HISTORY_AT_START",
+  "RUNTIME_HISTORY_AT_END", "RUNTIME_HISTORY_FORWARD_REQUIRED", "RUNTIME_HISTORY_LIMIT", "RUNTIME_BARRIER_BLOCKED",
+  "RUNTIME_SCHEDULER_INVALID", "RUNTIME_SOURCE_MAP_INVALID", "RUNTIME_DIAGNOSTIC_INVALID", "RUNTIME_BUDGET_EXCEEDED",
+  "RUNTIME_TERMINAL"
+] as const;
+
+export type RuntimeDiagnosticCode = typeof RUNTIME_DIAGNOSTIC_CODES[number];
 
 export interface RuntimeDiagnosticV1 {
   readonly code: RuntimeDiagnosticCode;
   readonly message: string;
   readonly sceneId: string | null;
+  readonly instructionIndex: number | null;
   readonly instructionId: string | null;
 }
+
+export type RuntimeSourceMapV1 = CompilerRuntimeSourceMapV1;
+
+export interface RuntimeSourceDiagnosticV1 extends RuntimeDiagnosticV1 {
+  readonly sourceMapStatus: "instruction" | "cursor" | "unmapped";
+  readonly statementId: string | null;
+  readonly statementIndex: number | null;
+}
+
+export type MapRuntimeDiagnosticsResultV1 =
+  | { readonly ok: true; readonly diagnostics: readonly RuntimeSourceDiagnosticV1[] }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
 
 export type CreateRuntimeResultV1 =
   | { readonly ok: true; readonly state: RuntimeStateV1 }

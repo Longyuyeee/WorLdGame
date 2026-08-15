@@ -34,7 +34,7 @@ const canonicalId = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
 const runtimeStateKeys = ["audioState", "barrierLedger", "buildId", "callStack", "cursor", "executionId", "inputReceipts", "irVersion", "logicalTimeMilliseconds", "metaProgress", "nextEffectSequence", "nextInputSequence", "pendingBarrier", "pendingChoice", "pendingEffect", "prng", "projectId", "runtimeVersion", "sceneState", "schemaVersion", "stateRevision", "terminal", "variables"] as const;
 
 function diagnostic(code: RuntimeDiagnosticCode, message: string, cursor?: RuntimeCursorV1, instructionId?: string): RuntimeDiagnosticV1 {
-  return { code, message, sceneId: cursor?.sceneId ?? null, instructionId: instructionId ?? null };
+  return { code, message, sceneId: cursor?.sceneId ?? null, instructionIndex: cursor?.instructionIndex ?? null, instructionId: instructionId ?? null };
 }
 
 function finiteScalar(value: unknown): value is RuntimeScalar {

@@ -1,15 +1,15 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { compileProject, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
+import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, runRuntime, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, type RuntimeChoiceInputV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeState, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, mapRuntimeDiagnosticsV1, runRuntime, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
-function branching(): { readonly story: RuntimeStoryIrV1; readonly buildId: string } {
+function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
   const result = compileProject(loadProject(migrateS0Project(source).files));
   if (!result.ok) throw new Error(JSON.stringify(result.diagnostics));
-  return { story: result.artifacts.story, buildId: result.artifacts.manifest.buildId };
+  return { story: result.artifacts.story, sourceMap: result.artifacts.sourceMap, buildId: result.artifacts.manifest.buildId };
 }
 
 function start(story: RuntimeStoryIrV1, buildId = "build-test", variables: Readonly<Record<string, boolean | number | string | null>> = {}): RuntimeStateV1 {
@@ -206,7 +206,12 @@ describe("N31-E2 deterministic state foundations", () => {
       schedulerInstantHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
       schedulerAutoDelayMilliseconds: 90,
       schedulerYieldAccumulatedInstructions: 1,
-      schedulerBarrierStopReason: "barrier"
+      schedulerBarrierStopReason: "barrier",
+      sourceDiagnosticCode: "RUNTIME_VARIABLE_MISSING",
+      sourceDiagnosticStatus: "instruction",
+      sourceDiagnosticInstructionIndex: 0,
+      sourceDiagnosticStatementId: "source_statement",
+      sourceDiagnosticStatementIndex: 3
     });
   });
 });
@@ -643,5 +648,59 @@ describe("N31-E7 formal Runtime generated corpus", () => {
     expect(() => summarizeRuntimeGeneratedCorpusV1([{ ...first, seedStart: 1 }])).toThrow("non-contiguous");
     expect(() => summarizeRuntimeGeneratedCorpusV1([{ ...first, scenarioCounts: { ...first.scenarioCounts, random: 1 } }])).toThrow("invalid");
     expect(() => summarizeRuntimeGeneratedCorpusV1([{ ...first, outcomes: ["FAILED"] }])).toThrow("invalid");
+  });
+});
+
+describe("N31-E8 structured Runtime Source Map diagnostics", () => {
+  it("maps an instruction failure to the exact Compiler Statement ID", () => {
+    const { story, sourceMap, buildId } = branching();
+    const firstScene = story.scenes[0]!;
+    const malformed: RuntimeStoryIrV1 = { ...story, scenes: [{ ...firstScene, instructions: [{ ...firstScene.instructions[0]!, operands: {} }, ...firstScene.instructions.slice(1)] }, ...story.scenes.slice(1)] };
+    const failed = runRuntime(malformed, start(malformed, buildId));
+    expect(failed.diagnostics[0]?.code).toBe("RUNTIME_INVALID_IR");
+    const mapped = mapRuntimeDiagnosticsV1(malformed, sourceMap, failed.diagnostics);
+    expect(mapped).toEqual({ ok: true, diagnostics: [{
+      ...failed.diagnostics[0],
+      sourceMapStatus: "instruction",
+      statementId: "branch_prompt",
+      statementIndex: 0
+    }] });
+  });
+
+  it("uses a valid Runtime cursor as fallback and leaves global diagnostics unmapped", () => {
+    const { story, sourceMap, buildId } = branching();
+    const initial = createRuntimeHistorySessionV1(story, start(story, buildId));
+    const atStart = backRuntimeHistoryV1(story, initial.session);
+    const cursorMapped = mapRuntimeDiagnosticsV1(story, sourceMap, atStart.diagnostics);
+    expect(cursorMapped).toMatchObject({ ok: true, diagnostics: [{ code: "RUNTIME_HISTORY_AT_START", sourceMapStatus: "cursor", statementId: "branch_prompt", statementIndex: 0 }] });
+
+    const invalidSave = loadRuntimeSaveV1(story, "{}", { expectedBuildId: buildId });
+    if (invalidSave.ok) throw new Error("Malformed Save unexpectedly loaded");
+    expect(mapRuntimeDiagnosticsV1(story, sourceMap, invalidSave.diagnostics)).toMatchObject({ ok: true, diagnostics: [{ code: "RUNTIME_SAVE_INVALID", sourceMapStatus: "unmapped", statementId: null, statementIndex: null }] });
+  });
+
+  it("rejects incomplete, duplicate, misowned, noncanonical, and reordered Source Maps", () => {
+    const { story, sourceMap } = branching();
+    const first = sourceMap.entries[0]!;
+    const firstInLeft = sourceMap.entries[1]!;
+    const secondInLeft = sourceMap.entries[2]!;
+    const cases: RuntimeSourceMapV1[] = [
+      { ...sourceMap, entries: sourceMap.entries.slice(1) },
+      { ...sourceMap, entries: [first, first, ...sourceMap.entries.slice(2)] },
+      { ...sourceMap, entries: [{ ...first, sceneId: "branch_left" }, ...sourceMap.entries.slice(1)] },
+      { ...sourceMap, entries: [{ ...first, statementId: "bad id" }, ...sourceMap.entries.slice(1)] },
+      { ...sourceMap, entries: [first, firstInLeft, { ...secondInLeft, statementIndex: firstInLeft.statementIndex }, ...sourceMap.entries.slice(3)] }
+    ];
+    for (const candidate of cases) expect(validateRuntimeSourceMapV1(story, candidate)[0]?.code).toBe("RUNTIME_SOURCE_MAP_INVALID");
+  });
+
+  it("rejects forged Diagnostic locations and unknown schema members", () => {
+    const { story, sourceMap } = branching();
+    const forged: RuntimeDiagnosticV1 = { code: "RUNTIME_TYPE_MISMATCH", message: "forged", sceneId: "branch_left", instructionIndex: 0, instructionId: "branch_prompt" };
+    expect(mapRuntimeDiagnosticsV1(story, sourceMap, [forged])).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_DIAGNOSTIC_INVALID" }] });
+    const wrongIndex = { ...forged, sceneId: "branch_start", instructionIndex: 1 };
+    expect(mapRuntimeDiagnosticsV1(story, sourceMap, [wrongIndex])).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_DIAGNOSTIC_INVALID" }] });
+    const unknown = { ...forged, sceneId: "branch_start", extra: true } as unknown as RuntimeDiagnosticV1;
+    expect(mapRuntimeDiagnosticsV1(story, sourceMap, [unknown])).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_DIAGNOSTIC_INVALID" }] });
   });
 });

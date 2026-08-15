@@ -20,7 +20,7 @@ const stateHashPattern = /^[0-9a-f]{64}$/u;
 const saveKeys = ["buildId", "format", "irVersion", "projectId", "runtimeVersion", "schemaVersion", "state", "stateHash", "stateRevision"] as const;
 
 function diagnostic(code: RuntimeDiagnosticCode, message: string): RuntimeDiagnosticV1 {
-  return { code, message, sceneId: null, instructionId: null };
+  return { code, message, sceneId: null, instructionIndex: null, instructionId: null };
 }
 
 function plainRecord(value: unknown): value is Record<string, unknown> {

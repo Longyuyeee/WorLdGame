@@ -20,7 +20,7 @@ const policyKeys = ["autoTiming", "instantInstructionBudget", "mode", "schemaVer
 const timingKeys = ["baseDelayMilliseconds", "millisecondsPerReadableUnit", "readableUnits", "voiceDurationMilliseconds", "voiceTailMilliseconds"];
 
 function diagnostic(message: string, state?: RuntimeStateV1): RuntimeDiagnosticV1 {
-  return { code: "RUNTIME_SCHEDULER_INVALID", message, sceneId: state?.cursor.sceneId ?? null, instructionId: null };
+  return { code: "RUNTIME_SCHEDULER_INVALID", message, sceneId: state?.cursor.sceneId ?? null, instructionIndex: state?.cursor.instructionIndex ?? null, instructionId: null };
 }
 
 function record(value: unknown): value is Readonly<Record<string, unknown>> {
@@ -75,7 +75,7 @@ function output(session: RuntimeSchedulerSessionV1, stopReason: RuntimeScheduleS
 export function createRuntimeSchedulerSessionV1(program: RuntimeProgramV1, history: RuntimeSchedulerSessionV1["history"]): CreateRuntimeSchedulerResultV1 {
   const diagnostics = validateRuntimeHistorySessionV1(program, history);
   if (diagnostics.length > 0) return { ok: false, diagnostics };
-  if (history.cursor !== history.entries.length) return { ok: false, diagnostics: [{ code: "RUNTIME_HISTORY_FORWARD_REQUIRED", message: "Scheduler requires History at its latest checkpoint", sceneId: history.checkpoints[history.cursor]!.state.cursor.sceneId, instructionId: null }] };
+  if (history.cursor !== history.entries.length) return { ok: false, diagnostics: [{ code: "RUNTIME_HISTORY_FORWARD_REQUIRED", message: "Scheduler requires History at its latest checkpoint", sceneId: history.checkpoints[history.cursor]!.state.cursor.sceneId, instructionIndex: history.checkpoints[history.cursor]!.state.cursor.instructionIndex, instructionId: null }] };
   const checkpoint = history.checkpoints[history.cursor]!;
   return { ok: true, session: { schemaVersion: 1, runtimeVersion: RUNTIME_VERSION, history, baseCheckpointId: checkpoint.checkpointId, workingState: checkpoint.state, accumulatedInstructions: 0 } };
 }

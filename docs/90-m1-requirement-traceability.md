@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选，N31-E1–E7 Runtime 为未集成工程切片；`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
+> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选，N31-E1–E8 Runtime 为未集成工程切片；`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
 
 ## 1. 状态和证据规则
 
@@ -47,9 +47,9 @@
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
-| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | N31-E1–E7 已建立版本化 State、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical Save/Load/History、严格身份/Hash 校验、Back/Forward、分支截断、tombstone、Barrier 阻断及确定 Scheduler；正式 Runtime 10,000-seed Corpus 以 20,000 次重放覆盖七类场景并在 Node/真实 Worker 得到同一摘要。Save migration、玩家槽、完整 Source Map 诊断、真实媒体策略和共享 Editor/Player 仍未建立 | [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)、[E3](128-n31-e3-runtime-effect-barrier-audit.md)、[E4](129-n31-e4-runtime-save-load-audit.md)、[E5](130-n31-e5-runtime-history-audit.md)、[E6](131-n31-e6-runtime-scheduler-audit.md)、[E7](132-n31-e7-runtime-generated-corpus-audit.md)、三宿主 State/Save/History Hash、玩家 E2E |
+| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | N31-E1–E8 已建立版本化 State、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical Save/Load/History、严格身份/Hash 校验、Back/Forward、分支截断、tombstone、Barrier 阻断、确定 Scheduler，以及 Runtime Diagnostic → Compiler Statement ID 的 fail-closed Source Map 映射；正式 Runtime 10,000-seed Corpus 以 20,000 次重放覆盖七类场景并在 Node/真实 Worker 得到同一摘要。Save migration、玩家槽、真实媒体策略和共享 Editor/Player 呈现仍未建立 | [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)、[E3](128-n31-e3-runtime-effect-barrier-audit.md)、[E4](129-n31-e4-runtime-save-load-audit.md)、[E5](130-n31-e5-runtime-history-audit.md)、[E6](131-n31-e6-runtime-scheduler-audit.md)、[E7](132-n31-e7-runtime-generated-corpus-audit.md)、[E8](133-n31-e8-runtime-source-map-diagnostics-audit.md)、三宿主 State/Save/History/Diagnostic Golden、玩家 E2E |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
-| REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler 已有语句级 CFG/SCC、不可达/无交互循环诊断与 Statement Source Map；Debugger/Solver 和产品呈现未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden、Debugger E2E |
+| REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler 已有语句级 CFG/SCC、不可达/无交互循环诊断与 Statement Source Map；N31-E8 已将结构化 Runtime Diagnostic 精确映射回 Statement ID/Index，并拒绝残缺、重复、错属、乱序 Source Map 与伪造诊断位置；Debugger/Solver 和产品呈现未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、QA Golden、Debugger E2E |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N23 已有确定性单文件离线试玩候选；两名参与者的实际下载/离线运行证据待补，无正式 Player/PWA、资源构建、安装、签名或发布材料 | [N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、三端 Artifact Manifest、安装/签名报告 |
 | REQ-GAL | 可搜索设置、继承/撤销/预览、完整 Gal P0、附加页模板、六类音量、三平台 Profile | N51/N52/N62 | N10/N31/N50 | 未开始 | 只有规格 | Settings Schema/E2E、三端配置 Golden |
 | REQ-OPT | 联合预算、Profile、去重、报告、依赖、加载调度、稳定性诊断、可解释回退 | N71/N72/N102 | N70/N83 | 实现中 | 算法分散，无 Center/真机 | Optimization Golden、三端性能报告 |
@@ -62,7 +62,7 @@
 | AC-02 | 两端编辑对白/角色/选择/条件 | N91/N92 | 未开始 | N13/N21 | 双端任务 E2E |
 | AC-03 | Route/Sequence/Script/Stage 同源 | N40–N43 | 实现中 | 通用 Project、完整视图 | ChangeSet/Hash 对照 |
 | AC-04 | 任一视图修改 500 ms 同步 | N43 | 实现中 | 视图不全 | P95 测量和 E2E |
-| AC-05 | 任意语句预览和变量 | N32/N60 | 未开始 | Compiler/Runtime | Debugger E2E |
+| AC-05 | 任意语句预览和变量 | N32/N60 | 未开始 | N31-E8 已建立 Runtime Diagnostic → Statement 的后端定位契约；仍缺 N32 任意入口预览与 N60 Debugger/变量检查 UI，且 `RA-N21-003` 不授权进入 N32 | [N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、Debugger E2E |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 实现中 | N30 Compiler 已拒绝不可达结局、无出口、无交互闭环和缺失资源；仍缺 N60 产品 QA 呈现、抑制与 Solver | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden 报告 |
 | AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 实现中 | N31-E5 已冻结正式 State/Save/History Hash、Back/Forward 与 Barrier 阻断并通过 Node/浏览器 Worker；Save 尚未封装 History Session，三端 Player、设备与存档槽仍缺 | [N31-E4](129-n31-e4-runtime-save-load-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、三端 State/Save/History Hash 0 差异 |
 | AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web 新工作区资源自包含导入、运行和重载已通过；尚待正式 Windows/Android 壳、断网设备和远端 CI 证据 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、离线导出导入 E2E |

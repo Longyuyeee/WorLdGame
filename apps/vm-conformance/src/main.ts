@@ -65,7 +65,7 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
     return;
   }
   status.dataset.status = "passed";
-  status.textContent = "PASS：正式 Runtime 固定向量与 10,000 种子 Runtime Corpus 均和 Node Golden 零差异";
+  status.textContent = "PASS：正式 Runtime、Source Map 诊断与 10,000 种子 Runtime Corpus 均和 Node Golden 零差异";
   output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 
