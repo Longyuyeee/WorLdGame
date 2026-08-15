@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, type S0Project } from "@world-studio/project-domain";
 import { canonicalJson } from "./canonical-json";
-import { compileProject } from "./compiler";
+import { compileProject, compileProjectIncremental } from "./compiler";
 
 const fixtureNames = ["tiny", "branching", "media", "cjk"] as const;
 
@@ -25,7 +25,7 @@ function replaceScript(project: CanonicalProject, sceneId: string, statements: r
   };
 }
 
-describe("project compiler N30-E1", () => {
+describe("project compiler N30-E1/E2", () => {
   it.each(fixtureNames)("compiles the %s golden project deterministically", (name) => {
     const project = loadFixture(name);
     const first = compileProject(project, "debug");
@@ -38,6 +38,7 @@ describe("project compiler N30-E1", () => {
       "asset-manifest.json",
       "catalogs.json",
       "manifest.json",
+      "release-inputs.json",
       "source-map.json",
       "story.ir.json"
     ]);
@@ -63,10 +64,10 @@ describe("project compiler N30-E1", () => {
       }];
     }));
     expect(outputs).toEqual({
-      tiny: { buildId: "0ab204f9004acff380ba2732ff71a5c9bd619efae02f83b8c70398cb489dcad4", storyIrHash: "19ed7a308c9762e34765601b3ce090a662bcce5436f4f3d36805783b91b6eb55" },
-      branching: { buildId: "b541e641fba584650bf09f7bca1ccbd80e4cec037229102137482fa4ea4daf9e", storyIrHash: "b845ba6270cb506366a7f3000c1823c67db769809bb76d0b53bbce0321266e7c" },
-      media: { buildId: "741b24f0507e7fef07c99cfee3650690da29eed743c48715d537eb9a53d1f488", storyIrHash: "0a19dec5b213ab50758bdcd1a3483b5db59cd43cd500218339315101d7469c6d" },
-      cjk: { buildId: "07776de7a22a636be8be31a3d5c78b05b8498715d3df0dc94933019b5b714d45", storyIrHash: "2dbe1079fefb2c8258510738583bf0d96824c2464cfa140d5ee803e608c03d3b" }
+      tiny: { buildId: "fc5f19f50068912baf2cf75fa6f18fa595087a07bf76387cb5815cc87760dd42", storyIrHash: "19ed7a308c9762e34765601b3ce090a662bcce5436f4f3d36805783b91b6eb55" },
+      branching: { buildId: "73ee4352a05d6a7a352639c39b1b6ddfdd5f9ab6b781c200a43b73099991336f", storyIrHash: "b845ba6270cb506366a7f3000c1823c67db769809bb76d0b53bbce0321266e7c" },
+      media: { buildId: "9bbf574327121021cc3e2a6478565b65149ef21a4e26ff2b1723e9a04be7e68b", storyIrHash: "0a19dec5b213ab50758bdcd1a3483b5db59cd43cd500218339315101d7469c6d" },
+      cjk: { buildId: "e458aee78288fdfdd84527754c6fe5e6e1d05cffc09cd44407d0e34999bebc30", storyIrHash: "2dbe1079fefb2c8258510738583bf0d96824c2464cfa140d5ee803e608c03d3b" }
     });
   });
 
@@ -129,7 +130,10 @@ describe("project compiler N30-E1", () => {
       "MISSING_TARGET_SCENE",
       "MISSING_VARIABLE",
       "MISSING_VARIABLE",
-      "NO_REACHABLE_ENDING"
+      "NO_REACHABLE_ENDING",
+      "UNREACHABLE_STATEMENT",
+      "UNREACHABLE_STATEMENT",
+      "UNREACHABLE_STATEMENT"
     ]);
   });
 
@@ -178,8 +182,109 @@ describe("project compiler N30-E1", () => {
     expect(debug.ok && release.ok).toBe(true);
     if (!debug.ok || !release.ok) return;
     expect(debug.artifacts.manifest.buildId).not.toBe(release.artifacts.manifest.buildId);
-    expect(debug.artifacts.manifest.artifacts).toEqual(release.artifacts.manifest.artifacts);
+    expect(debug.artifacts.manifest.debugSymbols).toBe(true);
+    expect(release.artifacts.manifest.debugSymbols).toBe(false);
+    expect(debug.artifacts.files["source-map.json"]).toBeDefined();
+    expect(release.artifacts.files["source-map.json"]).toBeUndefined();
+    expect(release.artifacts.manifest.artifacts).toEqual(Object.fromEntries(
+      Object.entries(debug.artifacts.manifest.artifacts).filter(([path]) => path !== "source-map.json")
+    ));
     expect(debug.artifacts.story).toEqual(release.artifacts.story);
+  });
+
+  it("rejects a closed non-interactive loop and proves the following ending is unreachable", () => {
+    const project = loadFixture("tiny");
+    const result = compileProject(replaceScript(project, "tiny_start", [
+      { id: "loop_label", kind: "label", name: "loop" },
+      { id: "loop_jump", kind: "jump", targetLabel: "loop" },
+      { id: "unreachable_end", kind: "end", endingName: "Never" }
+    ]));
+    expect(result.ok).toBe(false);
+    expect(result.diagnostics.map((item) => item.code)).toEqual([
+      "NON_INTERACTIVE_LOOP",
+      "NO_REACHABLE_ENDING",
+      "SCENE_NO_EXIT",
+      "UNREACHABLE_STATEMENT"
+    ]);
+    expect(result.diagnostics.at(-1)).toEqual(expect.objectContaining({ statementId: "unreachable_end" }));
+  });
+
+  it("accepts a conditional loop that has a reachable ending path", () => {
+    const project = loadFixture("tiny");
+    const withVariable: CanonicalProject = { ...project, variables: { ...project.variables, variables: [{ id: "done", type: "boolean" }] } };
+    const result = compileProject(replaceScript(withVariable, "tiny_start", [
+      { id: "loop_label", kind: "label", name: "loop" },
+      { id: "loop_condition", kind: "condition", expression: "!done", targetLabel: "loop" },
+      { id: "reachable_end", kind: "end", endingName: "Done" }
+    ]));
+    expect(result.ok).toBe(true);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it("reuses unchanged scene compilation and invalidates only the edited scene", () => {
+    const project = loadFixture("branching");
+    const first = compileProjectIncremental(project);
+    expect(first.ok).toBe(true);
+    expect(first.stats.compiledSceneIds).toEqual(["branch_left", "branch_right", "branch_start"]);
+    const second = compileProjectIncremental(project, { previousCache: first.cache });
+    expect(second.stats).toEqual({
+      compiledSceneIds: [],
+      reusedSceneIds: ["branch_left", "branch_right", "branch_start"],
+      removedSceneIds: [],
+      resourceCatalogChanged: false
+    });
+    const changedStatements = project.scripts.branch_left!.statements.map((statement) => statement.id === "branch_left_line" ? { ...statement, text: "The quiet route!" } : statement);
+    const third = compileProjectIncremental(replaceScript(project, "branch_left", changedStatements), { previousCache: second.cache });
+    expect(third.stats.compiledSceneIds).toEqual(["branch_left"]);
+    expect(third.stats.reusedSceneIds).toEqual(["branch_right", "branch_start"]);
+    expect(third.stats.resourceCatalogChanged).toBe(false);
+  });
+
+  it("invalidates only resource catalogs when unreferenced asset metadata changes", () => {
+    const project = loadFixture("media");
+    const first = compileProjectIncremental(project);
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    const assets = project.assets.assets.map((asset) => asset.assetId === "media_sunset" ? { ...asset, displayName: "Renamed Sunset" } : asset);
+    const changed = compileProjectIncremental({ ...project, assets: { ...project.assets, assets } }, { previousCache: first.cache });
+    expect(changed.ok).toBe(true);
+    if (!changed.ok) return;
+    expect(changed.stats.compiledSceneIds).toEqual([]);
+    expect(changed.stats.reusedSceneIds).toEqual(["media_stage"]);
+    expect(changed.stats.resourceCatalogChanged).toBe(true);
+    expect(changed.artifacts.manifest.artifacts["story.ir.json"]).toBe(first.artifacts.manifest.artifacts["story.ir.json"]);
+    expect(changed.artifacts.manifest.artifacts["asset-manifest.json"]).not.toBe(first.artifacts.manifest.artifacts["asset-manifest.json"]);
+  });
+
+  it("rejects a corrupted scene cache entry and recompiles that scene", () => {
+    const project = loadFixture("branching");
+    const first = compileProjectIncremental(project);
+    const original = first.cache.scenes.branch_left!;
+    const corrupted = {
+      ...first.cache,
+      scenes: {
+        ...first.cache.scenes,
+        branch_left: { ...original, scene: { ...original.scene, instructions: [] } }
+      }
+    };
+    const second = compileProjectIncremental(project, { previousCache: corrupted });
+    expect(second.stats.compiledSceneIds).toEqual(["branch_left"]);
+    expect(second.stats.reusedSceneIds).toEqual(["branch_right", "branch_start"]);
+  });
+
+  it("derives Gallery, Music, Replay, and license/SBOM inputs from real references", () => {
+    const project = loadFixture("media");
+    const result = compileProject(project);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.catalogs.gallery.map((item) => item.assetId)).toEqual(["media_actor_sprite", "media_sunset"]);
+    expect(result.artifacts.catalogs.music.map((item) => item.assetId)).toEqual(["media_theme"]);
+    expect(result.artifacts.catalogs.replay).toEqual([{ replayId: "media_stage", title: "Stage", sceneId: "media_stage", endingIds: ["media_end"] }]);
+    expect(result.artifacts.releaseInputs.components.map((item) => item.name)).toEqual([
+      "@world-studio/project-compiler", "@world-studio/project-domain", "@world-studio/story-language"
+    ]);
+    expect(result.artifacts.releaseInputs.assetLicenses).toHaveLength(3);
+    expect(result.artifacts.files["asset-manifest.json"]).not.toContain("base64");
   });
 });
 

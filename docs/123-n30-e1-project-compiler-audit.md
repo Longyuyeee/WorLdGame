@@ -72,3 +72,5 @@ git diff --check
 通过并取得远端 CI 后，N30 的下一工程切片只能是 E2：补齐 CFG/循环诊断、场景级依赖缓存、剩余 Catalog、Debug/Release 实质差异和发布元数据输入。除非 N21-HV-01 与 N23-PA-01 已完成并关闭 `RA-N21-002`，不得创建 N31 正式 Runtime 分支。
 
 远端验证：Draft PR #34 的实现头 `7793b67` 已通过 GitHub `product-baseline` Windows / Node 22 全检，run `31875065060`。随后只有本段与当前状态表的结果回填发生变化；最新 head 仍由同一门复核。
+
+> 后续状态：E1 留下的 CFG、增量缓存、剩余 Catalog、Profile 和发布输入已由 [N30-E2 工程退出审计](124-n30-e2-compiler-completion-audit.md)继续处理；本文件保留 E1 当时的真实边界与 Hash。

@@ -74,7 +74,7 @@
       ],
       "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before any N31 work.",
       "verificationMethod": "Keep N21/N23 records pending, audit the portable N30 dependency boundary, and verify deterministic Tiny/Branching/Media/CJK IR hashes plus failure diagnostics; human evidence still requires authoring, save-close-reopen, route selection and reached-ending artifacts.",
-      "evidencePath": "docs/123-n30-e1-project-compiler-audit.md",
+      "evidencePath": "docs/124-n30-e2-compiler-completion-audit.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",
