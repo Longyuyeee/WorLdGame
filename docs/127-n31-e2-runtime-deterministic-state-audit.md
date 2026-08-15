@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`4c3712749773e7dd265edffbb327cdf9c57ad44b`
 > 审计分支：`agent/n31-runtime-e2`
-> 交付状态：实现头 `8465ae9`；Draft PR #37；本地完整门通过，最终远端 CI 待交付头推送后回填
+> 交付状态：实现头 `8465ae9`；交付头 `c5ff7c2`；Draft PR #37；`product-baseline` run `31885206553` 绿色通过
 > 节点判定：N31 Engineering E2 候选；N31 Product Acceptance、N32、M1 Stable 与发布继续被 `RA-N21-003` 阻断
 
 ## 1. 需求与边界
@@ -38,7 +38,7 @@ Node 定向测试直接断言完整结果。现有 `apps/vm-conformance` 增加�
 
 ## 4. 自动化证据与诚实缺口
 
-E2 定向门共 15 项：E1 八项回归，加上规范 Hash、Unicode/数值拒绝、PRNG stale-safe 固定向量、Scene/Audio 折叠、Meta 单调集合、五类损坏 State 和 Node Conformance Golden。完整 `npm run check` 已通过：98 个并行测试文件/603 项、1 项串行存储、5 项重型 VM、12 workspace 构建、76 个 portable 文件/4 个 Node adapter，以及 Script/Asset 性能门；远端 Windows / Node 22 CI 尚待交付步骤回填。
+E2 定向门共 15 项：E1 八项回归，加上规范 Hash、Unicode/数值拒绝、PRNG stale-safe 固定向量、Scene/Audio 折叠、Meta 单调集合、五类损坏 State 和 Node Conformance Golden。完整 `npm run check` 已通过：98 个并行测试文件/603 项、1 项串行存储、5 项重型 VM、12 workspace 构建、76 个 portable 文件/4 个 Node adapter，以及 Script/Asset 性能门；交付头 `c5ff7c2` 的远端 Windows / Node 22 run `31885206553` 同样通过。
 
 REQ-RUNTIME 保持“实现中”。AC-07 仍缺 Save/History 与三端 Player，AC-15/16 仍缺调度和历史，AC-18 只新增 Gallery/Ending Meta 内核而无玩家 UI。因此 M1 仍为 `0/27`，N21 `0/1` 与 N23 `0/2` 不变。
 
