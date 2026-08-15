@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`72e93f39c95850457f2d2b9b2d390f0d24216da0`
 > 审计分支：`agent/n31-runtime-e4`
-> 交付状态：实现头 `205b711e8b80730e72767f11f4cc1bf5d3b1513d`；Draft PR #39；本地完整门与真实 Worker 向量通过，远端 CI 待回填
+> 交付状态：实现头 `205b711e8b80730e72767f11f4cc1bf5d3b1513d`；首轮交付头 `6eb741b8f0ab90e4ff6c7387cfd9a86799b1e403`；Draft PR #39；本地完整门、真实 Worker 向量及远端 CI 均通过
 > 节点判定：N31 Engineering E4 候选；N31 Product Acceptance、N32、M1 Stable 与发布仍被 `RA-N21-003` 阻断
 
 ## 1. 需求边界
@@ -41,7 +41,7 @@ Node 定向测试冻结完整对象；Windows Chrome 151 的真实模块 Worker 
 
 ## 4. 自动化与需求判定
 
-Runtime 定向门 26 项通过，其中 E4 五项覆盖 deterministic round-trip、pending Effect 恢复后完成、State 篡改、未来版本/Build 漂移、非 canonical 与结构损坏拒绝。完整 `npm run check` 通过：98 个并行文件/614 项、存储 1 项、重型 VM 5 项、12 workspace 构建、78 个 portable 文件/4 个 Node adapter，以及 Script 10 项和 Asset 4 项性能门。
+Runtime 定向门 26 项通过，其中 E4 五项覆盖 deterministic round-trip、pending Effect 恢复后完成、State 篡改、未来版本/Build 漂移、非 canonical 与结构损坏拒绝。完整 `npm run check` 通过：98 个并行文件/614 项、存储 1 项、重型 VM 5 项、12 workspace 构建、78 个 portable 文件/4 个 Node adapter，以及 Script 10 项和 Asset 4 项性能门。首轮交付头 `6eb741b8f0ab90e4ff6c7387cfd9a86799b1e403` 的远端 `product-baseline` run `31887290302` 已通过 Windows / Node 22 完整门，job `95018355252` 用时 3 分 7 秒。
 
 REQ-RUNTIME 和 AC-07 提升为更强的“实现中”证据，但 AC-07 仍缺 History/Back、三端 Player 与设备证据；M1 仍为 `0/27`，N21 `0/1`、N23 `0/2` 不变。
 
