@@ -53,7 +53,7 @@
       "compensatingControls": [
         "Keep N21 in product acceptance rather than passed",
         "Limit work to the N23 editor and independent-playable vertical slice with automated executable evidence",
-        "Require the human protocol to include playing a route to an ending",
+        "Require N21-HV-01 to include playing a route to an ending and N23-PA-01 to cover both routes in editor and standalone HTML with two distinct participants",
         "Block N21 Product Acceptance, N23 Acceptance, M1 Stable and Public Release until human evidence is recorded"
       ],
       "owner": "editor-experience",
@@ -72,7 +72,9 @@
       "evidencePath": "docs/115-playable-flow-order-correction.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
-      "recordPath": "evidence/n21/human-validation.json"
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
     }
   ]
 }

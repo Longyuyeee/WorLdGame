@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "N23-PA-01",
+  "protocolHash": "21b49260a88841c9e9f3864245e090814a4aa77a351d43b81567f88b0747aa70",
+  "sourceBaseRevision": "763e9cd9c118523eb0abcd50eb70eba1a8c4313f",
+  "status": "pending-participants",
+  "participants": [
+    {
+      "slotId": "participant-slot-01",
+      "pseudonymousId": null,
+      "consentRecorded": null,
+      "hasNotContributedCodeOrDesign": null,
+      "session": {
+        "startedAt": null,
+        "endedAt": null,
+        "durationSeconds": null,
+        "inputDevices": [],
+        "helpRequestCount": null,
+        "blockers": [],
+        "misoperations": [],
+        "facilitatorOperatedEditor": null
+      },
+      "tasks": [
+        { "id": "P01", "status": "not-run", "notes": null },
+        { "id": "P02", "status": "not-run", "notes": null },
+        { "id": "P03", "status": "not-run", "notes": null },
+        { "id": "P04", "status": "not-run", "notes": null },
+        { "id": "P05", "status": "not-run", "notes": null },
+        { "id": "P06", "status": "not-run", "notes": null }
+      ],
+      "editorRoutes": [
+        { "id": "benchmark_board", "status": "not-run", "reachedEnding": null },
+        { "id": "benchmark_stay", "status": "not-run", "reachedEnding": null }
+      ],
+      "standaloneRoutes": [
+        { "id": "benchmark_board", "status": "not-run", "reachedEnding": null },
+        { "id": "benchmark_stay", "status": "not-run", "reachedEnding": null }
+      ],
+      "findings": [],
+      "artifacts": { "observationLog": null, "editedProjectSnapshot": null, "standaloneHtml": null }
+    },
+    {
+      "slotId": "participant-slot-02",
+      "pseudonymousId": null,
+      "consentRecorded": null,
+      "hasNotContributedCodeOrDesign": null,
+      "session": {
+        "startedAt": null,
+        "endedAt": null,
+        "durationSeconds": null,
+        "inputDevices": [],
+        "helpRequestCount": null,
+        "blockers": [],
+        "misoperations": [],
+        "facilitatorOperatedEditor": null
+      },
+      "tasks": [
+        { "id": "P01", "status": "not-run", "notes": null },
+        { "id": "P02", "status": "not-run", "notes": null },
+        { "id": "P03", "status": "not-run", "notes": null },
+        { "id": "P04", "status": "not-run", "notes": null },
+        { "id": "P05", "status": "not-run", "notes": null },
+        { "id": "P06", "status": "not-run", "notes": null }
+      ],
+      "editorRoutes": [
+        { "id": "benchmark_board", "status": "not-run", "reachedEnding": null },
+        { "id": "benchmark_stay", "status": "not-run", "reachedEnding": null }
+      ],
+      "standaloneRoutes": [
+        { "id": "benchmark_board", "status": "not-run", "reachedEnding": null },
+        { "id": "benchmark_stay", "status": "not-run", "reachedEnding": null }
+      ],
+      "findings": [],
+      "artifacts": { "observationLog": null, "editedProjectSnapshot": null, "standaloneHtml": null }
+    }
+  ],
+  "decision": null,
+  "pendingReason": "等待两名未参与实现的真实参与者分别完成编辑器与独立 HTML 验收；当前记录不代表产品通过。"
+}

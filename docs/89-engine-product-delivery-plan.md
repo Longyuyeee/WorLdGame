@@ -248,12 +248,12 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N23 五分钟可玩切片 Gate
 
-> 实施状态（2026-08-15）：E1 可运行流程、E2 空工程创作闭环、E3 自包含资源 ZIP、E4 独立离线试玩 HTML 与 E5 五分钟内容量工程门已贯通，详见 [N23-E5 审计](120-n23-e5-five-minute-content-audit.md)。两名非实现者验收仍缺，N23 产品验收未通过；正式 Compiler/Runtime/Player 仍按 N30/N31/N50 推进。
+> 实施状态（2026-08-15）：E1 可运行流程、E2 空工程创作闭环、E3 自包含资源 ZIP、E4 独立离线试玩 HTML、E5 五分钟内容量与 E6 双参与者验收就绪门已贯通，详见 [N23-E5 审计](120-n23-e5-five-minute-content-audit.md)及 [N23 产品验收执行包](121-n23-product-acceptance-execution-kit.md)。真人状态仍为 N21 `0/1`、N23 `0/2`，N23 产品验收未通过；不得提前进入 N30/N31/N50。
 
 - **Goal**：第一次证明引擎主体，而不是局部组件。
 - **Required artifact**：从空工程制作的 5 分钟、3 场景、2 角色、2 结局作品。
 - **Required flow**：新建 → 资源导入 → 角色/变量 → 对白/选择/条件 → 演出 → 保存 → 关闭重开 → 预览完整路线。
-- **Acceptance**：两名非实现者按任务脚本完成；Severity 0/1 为 0；工程不包含硬编码样例引用。
+- **Acceptance**：先完成 N21，再由两名不同的非实现者各自按 `N23-PA-01` 完成编辑、保存重开、编辑器双路线、独立 HTML 构建与双路线；Severity 0/1 为 0；哈希证据有效；工程不包含硬编码样例引用。
 - **Gate**：N23 未通过，不进入 R4/R6/R7 的功能扩展。
 
 ## 8. R3：正式 Compiler 与 Runtime
@@ -524,7 +524,7 @@ M1 只有同时满足以下条件才能标记 Stable：
 6. N20：补齐 Story Language P0；
 7. N21：最小 Writer/Sequence；
 8. N22：真实资源 Stage/Preview；
-9. N23：五分钟可玩切片 Gate；
+9. N23：五分钟可玩切片工程门 → N21 单参与者验收 → N23 双参与者产品验收；
 10. N30–N32：正式 Compiler/Runtime/Preview。
 
 在 N23 通过前，CL-02/03/04 只维护已有证据，不继续新增探索 Spike。

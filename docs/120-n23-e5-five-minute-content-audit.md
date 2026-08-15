@@ -51,7 +51,7 @@
 - N23 Required Artifact 的“5 分钟、3 场景、2 角色、2 结局”内容量工程部分已满足；
 - N23 Required Flow 的现有 E1–E4 能力由同一作品复验，未新增平台包装；
 - `REQ-RUNTIME` 与 `REQ-BUILD` 仍只登记工程候选，不登记正式通过；
-- 两名非实现者、真实完成时长、Severity 0/1 为 0 仍未获得；
+- 两名非实现者、真实完成时长、Severity 0/1 为 0 仍未获得；任务与证据口径已由 [`N23-PA-01`](121-n23-product-acceptance-execution-kit.md)冻结，权威状态为 `pending-participants`、`0/2`；
 - N21 真人记录仍为 `pending-participant`，`RA-N21-002` 继续阻断 N21/N23/M1/发布；
 - 正式 Compiler/Runtime/Player 仍不得在 N23 产品门通过前宣告开始或完成。
 
