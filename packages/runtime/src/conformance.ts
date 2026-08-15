@@ -1,10 +1,11 @@
-import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "./hash";
+import { runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeStateHashV1 } from "./hash";
 import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, createRuntimeHistorySessionV1, forwardRuntimeHistoryV1 } from "./history";
 import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
 import { createRuntimeSchedulerSessionV1, scheduleRuntimeBatchV1 } from "./scheduler";
 import { createRuntimeSaveV1, loadRuntimeSaveV1 } from "./save";
 import { runtimeEffectIntentHashV1 } from "./effect";
 import { mapRuntimeDiagnosticsV1 } from "./source-map";
+import { createRuntimeStoryOutcomeV1 } from "./outcome";
 import type { RuntimeProgramV1, RuntimeSchedulePolicyV1, RuntimeSchedulerSessionV1, RuntimeSourceMapV1 } from "./types";
 
 export interface RuntimeConformanceResultV1 {
@@ -40,6 +41,137 @@ export interface RuntimeConformanceResultV1 {
   readonly sourceDiagnosticInstructionIndex: 0;
   readonly sourceDiagnosticStatementId: "source_statement";
   readonly sourceDiagnosticStatementIndex: 3;
+  readonly formalVmParity: RuntimeFormalVmParityResultV1;
+}
+
+export interface RuntimeFormalVmParityResultV1 {
+  readonly schemaVersion: 1;
+  readonly recursiveOverflowCode: "RUNTIME_CALL_STACK_OVERFLOW";
+  readonly recursiveStateHash: string;
+  readonly randomContinuationValues: readonly number[];
+  readonly randomContinuationStateHash: string;
+  readonly sceneLateCompletionCode: "RUNTIME_EFFECT_CANCELLED";
+  readonly sceneStateHash: string;
+  readonly backReconciliationHash: string;
+  readonly forwardReconciliationHash: string;
+  readonly compensationKind: string;
+  readonly replayDescriptorId: string;
+  readonly futureOpcodeCode: "RUNTIME_INVALID_IR";
+  readonly activeSessionStateHash: string;
+  readonly storyOutcomeHash: string;
+  readonly purePresentationOutcomeHash: string;
+  readonly pendingOutcomeCode: "RUNTIME_OUTCOME_NOT_QUIESCENT";
+}
+
+export function executeRuntimeFormalVmParityV1(): RuntimeFormalVmParityResultV1 {
+  const create = (program: RuntimeProgramV1, buildId: string, executionId: string, initialVariables: Readonly<Record<string, number | string>> = {}) => {
+    const created = createRuntimeState(program, { buildId, executionId, initialVariables });
+    if (!created.ok) throw new TypeError(`Formal VM parity setup failed: ${JSON.stringify(created.diagnostics)}`);
+    return created.state;
+  };
+
+  const recursiveProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm02", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [
+    { instructionId: "recursive-label", opcode: "label", operands: { name: "recursive" } },
+    { instructionId: "recursive-call", opcode: "call", operands: { targetLabel: "recursive" } }
+  ] }] };
+  const recursive = runRuntime(recursiveProgram, create(recursiveProgram, "build-vm02", "execution-vm02"), { instructionBudget: 256 });
+  if (recursive.diagnostics[0]?.code !== "RUNTIME_CALL_STACK_OVERFLOW" || recursive.state.callStack.length !== 64) throw new TypeError("VM-02 recursive overflow conformance failed");
+
+  const randomProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm03", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [{ instructionId: "random-end", opcode: "end", operands: { endingId: "done", name: "Done" } }] }] };
+  let randomBoundary = create(randomProgram, "build-vm03", "execution-vm03");
+  for (let index = 0; index < 3; index += 1) {
+    const drawn = drawRuntimeRandom(randomBoundary, { expectedStateRevision: randomBoundary.stateRevision, minimum: -50, maximum: 50 });
+    if (!drawn.ok) throw new TypeError("VM-03 pre-Save draw failed");
+    randomBoundary = drawn.state;
+  }
+  const randomSave = createRuntimeSaveV1(randomProgram, randomBoundary);
+  if (!randomSave.ok) throw new TypeError("VM-03 Save failed");
+  const randomLoaded = loadRuntimeSaveV1(randomProgram, randomSave.serialized, { expectedBuildId: randomBoundary.buildId });
+  if (!randomLoaded.ok) throw new TypeError("VM-03 Load failed");
+  const continueRandom = (initial: typeof randomBoundary) => {
+    let state = initial;
+    const values: number[] = [];
+    for (let index = 0; index < 5; index += 1) {
+      const drawn = drawRuntimeRandom(state, { expectedStateRevision: state.stateRevision, minimum: -50, maximum: 50 });
+      if (!drawn.ok) throw new TypeError("VM-03 continuation draw failed");
+      values.push(drawn.value); state = drawn.state;
+    }
+    return { state, values };
+  };
+  const liveRandom = continueRandom(randomBoundary), loadedRandom = continueRandom(randomLoaded.state);
+  if (JSON.stringify(liveRandom.values) !== JSON.stringify(loadedRandom.values) || runtimeStateHashV1(liveRandom.state) !== runtimeStateHashV1(loadedRandom.state)) throw new TypeError("VM-03 Save/Load continuation differs");
+
+  const cancellationProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm07", entrySceneId: "main", scenes: [
+    { sceneId: "main", instructions: [
+      { instructionId: "old-effect", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_old", awaitMode: "awaited", cancellationScope: "scope.old", replayKey: "replay.old" } } },
+      { instructionId: "scene-choice", opcode: "choice", operands: { prompt: "Continue", options: [{ optionId: "fresh", label: "Fresh", targetSceneId: "fresh" }] } }
+    ] },
+    { sceneId: "fresh", instructions: [{ instructionId: "fresh-line", opcode: "narration", operands: { textId: "fresh_text", text: "Fresh" } }] }
+  ] };
+  const issued = runRuntime(cancellationProgram, create(cancellationProgram, "build-vm07", "execution-vm07")), oldEffect = issued.state.pendingEffect;
+  if (oldEffect === null) throw new TypeError("VM-07 Effect issue failed");
+  const cancelled = runRuntime(cancellationProgram, issued.state, { input: { schemaVersion: 1, kind: "effectCancelled", inputId: "input-cancel-old", executionId: issued.state.executionId, expectedStateRevision: issued.state.stateRevision, logicalSequence: oldEffect.logicalSequence, effectId: oldEffect.effectId, cancellationScope: oldEffect.cancellationScope } });
+  const choice = cancelled.state.pendingChoice;
+  if (choice === null) throw new TypeError("VM-07 scene Choice failed");
+  const entered = runRuntime(cancellationProgram, cancelled.state, { input: { schemaVersion: 1, kind: "choiceSelected", inputId: "input-enter-fresh", executionId: cancelled.state.executionId, expectedStateRevision: cancelled.state.stateRevision, logicalSequence: choice.logicalSequence, requestId: choice.requestId, instructionId: choice.instructionId, optionId: "fresh" } });
+  const sceneStateHash = runtimeStateHashV1(entered.state);
+  const late = runRuntime(cancellationProgram, entered.state, { input: { schemaVersion: 1, kind: "effectCompleted", inputId: "input-late-old", executionId: entered.state.executionId, expectedStateRevision: entered.state.stateRevision, logicalSequence: oldEffect.logicalSequence, effectId: oldEffect.effectId, replayKey: oldEffect.replayKey } });
+  if (late.diagnostics[0]?.code !== "RUNTIME_EFFECT_CANCELLED" || runtimeStateHashV1(late.state) !== sceneStateHash) throw new TypeError("VM-07 late completion polluted the new scene");
+
+  const reversibleProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm08", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [
+    { instructionId: "reversible-bg", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_reversible", effectPolicy: "reversible", compensationKind: "background.restore", replayKey: "replay.reversible" } } },
+    { instructionId: "reversible-end", opcode: "end", operands: { endingId: "done", name: "Done" } }
+  ] }] };
+  const reversibleHistory = createRuntimeHistorySessionV1(reversibleProgram, create(reversibleProgram, "build-vm08", "execution-vm08"));
+  const reversibleAdvanced = advanceRuntimeHistoryV1(reversibleProgram, reversibleHistory.session);
+  const reversibleBack = backRuntimeHistoryV1(reversibleProgram, reversibleAdvanced.session);
+  if (reversibleBack.reconciliationPlan === null || reversibleBack.reconciliationPlan.compensations[0]?.compensation.kind !== "background.restore") throw new TypeError("VM-08 compensation plan failed");
+  const reversibleForward = forwardRuntimeHistoryV1(reversibleProgram, reversibleBack.session);
+  if (reversibleForward.reconciliationPlan === null || reversibleForward.reconciliationPlan.replayEffects[0]?.descriptorId !== "reversible-bg") throw new TypeError("VM-08 replay plan failed");
+
+  const safeProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm12", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [{ instructionId: "safe-line", opcode: "narration", operands: { textId: "safe_text", text: "Safe" } }] }] };
+  const activeState = runRuntime(safeProgram, create(safeProgram, "build-vm12", "execution-vm12")).state;
+  const activeSave = createRuntimeSaveV1(safeProgram, activeState);
+  if (!activeSave.ok) throw new TypeError("VM-12 active Save failed");
+  const futureProgram = { ...safeProgram, scenes: [{ ...safeProgram.scenes[0]!, instructions: [{ instructionId: "future-opcode", opcode: "futureOpcode", operands: {} }] }] } as unknown as RuntimeProgramV1;
+  const futureLoad = loadRuntimeSaveV1(futureProgram, activeSave.serialized, { expectedBuildId: activeState.buildId });
+  if (futureLoad.ok || futureLoad.diagnostics[0]?.code !== "RUNTIME_INVALID_IR") throw new TypeError("VM-12 future Opcode did not fail closed");
+
+  const outcomeProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm15", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [
+    { instructionId: "outcome-set", opcode: "set", operands: { variableId: "route", expressionAst: { kind: "literal", value: "left" } } },
+    { instructionId: "outcome-end", opcode: "end", operands: { endingId: "outcome_done", name: "Done" } }
+  ] }] };
+  const presentationProgram: RuntimeProgramV1 = { ...outcomeProgram, scenes: [{ sceneId: "main", instructions: [outcomeProgram.scenes[0]!.instructions[0]!,
+    { instructionId: "pure-presentation", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_pure", effectPolicy: "pure", awaitMode: "detached" } } },
+    outcomeProgram.scenes[0]!.instructions[1]!
+  ] }] };
+  const outcomeEnded = runRuntime(outcomeProgram, create(outcomeProgram, "build-vm15", "execution-vm15", { route: "" })).state;
+  const presentationStep = runRuntime(presentationProgram, create(presentationProgram, "build-vm15", "execution-vm15", { route: "" }));
+  const presentationEnded = runRuntime(presentationProgram, presentationStep.state).state;
+  const storyOutcome = createRuntimeStoryOutcomeV1(outcomeProgram, outcomeEnded), presentationOutcome = createRuntimeStoryOutcomeV1(presentationProgram, presentationEnded);
+  if (!storyOutcome.ok || !presentationOutcome.ok || storyOutcome.outcomeHash !== presentationOutcome.outcomeHash) throw new TypeError("VM-15 pure presentation changed Story Outcome");
+  const pendingProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm15-pending", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [{ instructionId: "pending-choice", opcode: "choice", operands: { prompt: "Wait", options: [{ optionId: "stay", label: "Stay", targetSceneId: "main" }] } }] }] };
+  const pendingOutcome = createRuntimeStoryOutcomeV1(pendingProgram, runRuntime(pendingProgram, create(pendingProgram, "build-vm15-pending", "execution-vm15-pending")).state);
+  if (pendingOutcome.ok || pendingOutcome.diagnostics[0]?.code !== "RUNTIME_OUTCOME_NOT_QUIESCENT") throw new TypeError("VM-15 non-quiescent Outcome did not fail closed");
+
+  return {
+    schemaVersion: 1,
+    recursiveOverflowCode: "RUNTIME_CALL_STACK_OVERFLOW",
+    recursiveStateHash: runtimeStateHashV1(recursive.state),
+    randomContinuationValues: liveRandom.values,
+    randomContinuationStateHash: runtimeStateHashV1(liveRandom.state),
+    sceneLateCompletionCode: "RUNTIME_EFFECT_CANCELLED",
+    sceneStateHash,
+    backReconciliationHash: runtimeHistoryReconciliationPlanHashV1(reversibleBack.reconciliationPlan),
+    forwardReconciliationHash: runtimeHistoryReconciliationPlanHashV1(reversibleForward.reconciliationPlan),
+    compensationKind: reversibleBack.reconciliationPlan.compensations[0]!.compensation.kind,
+    replayDescriptorId: reversibleForward.reconciliationPlan.replayEffects[0]!.descriptorId,
+    futureOpcodeCode: "RUNTIME_INVALID_IR",
+    activeSessionStateHash: runtimeStateHashV1(activeState),
+    storyOutcomeHash: storyOutcome.outcomeHash,
+    purePresentationOutcomeHash: presentationOutcome.outcomeHash,
+    pendingOutcomeCode: "RUNTIME_OUTCOME_NOT_QUIESCENT"
+  };
 }
 
 export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
@@ -181,6 +313,7 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     sourceDiagnosticStatus: "instruction",
     sourceDiagnosticInstructionIndex: 0,
     sourceDiagnosticStatementId: "source_statement",
-    sourceDiagnosticStatementIndex: 3
+    sourceDiagnosticStatementIndex: 3,
+    formalVmParity: executeRuntimeFormalVmParityV1()
   };
 }

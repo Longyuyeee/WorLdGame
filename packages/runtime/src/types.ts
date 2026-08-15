@@ -226,7 +226,7 @@ export const RUNTIME_DIAGNOSTIC_CODES = [
   "RUNTIME_SAVE_BUILD_MISMATCH", "RUNTIME_SAVE_HASH_MISMATCH", "RUNTIME_HISTORY_INVALID", "RUNTIME_HISTORY_AT_START",
   "RUNTIME_HISTORY_AT_END", "RUNTIME_HISTORY_FORWARD_REQUIRED", "RUNTIME_HISTORY_LIMIT", "RUNTIME_BARRIER_BLOCKED",
   "RUNTIME_SCHEDULER_INVALID", "RUNTIME_SOURCE_MAP_INVALID", "RUNTIME_DIAGNOSTIC_INVALID", "RUNTIME_BUDGET_EXCEEDED",
-  "RUNTIME_TERMINAL"
+  "RUNTIME_OUTCOME_NOT_QUIESCENT", "RUNTIME_TERMINAL"
 ] as const;
 
 export type RuntimeDiagnosticCode = typeof RUNTIME_DIAGNOSTIC_CODES[number];
@@ -333,6 +333,24 @@ export interface RuntimeHistorySessionV1 {
   readonly inputTombstones: readonly RuntimeInputV1[];
 }
 
+export interface RuntimeEffectCompensationPlanV1 {
+  readonly effectId: string;
+  readonly descriptorId: string;
+  readonly channel: string;
+  readonly replayKey: string;
+  readonly compensation: RuntimeEffectCompensationV1;
+}
+
+export interface RuntimeHistoryReconciliationPlanV1 {
+  readonly schemaVersion: 1;
+  readonly direction: "back" | "forward";
+  readonly fromCheckpointId: string;
+  readonly toCheckpointId: string;
+  readonly restoreCheckpointId: string;
+  readonly compensations: readonly RuntimeEffectCompensationPlanV1[];
+  readonly replayEffects: readonly RuntimeEffectIntentV1[];
+}
+
 export interface RuntimeHistoryResultV1 {
   readonly session: RuntimeHistorySessionV1;
   readonly state: RuntimeStateV1;
@@ -340,8 +358,27 @@ export interface RuntimeHistoryResultV1 {
   readonly effects: readonly RuntimeEffectIntentV1[];
   readonly diagnostics: readonly RuntimeDiagnosticV1[];
   readonly reconciliationRequired: boolean;
+  readonly reconciliationPlan: RuntimeHistoryReconciliationPlanV1 | null;
   readonly barrierBlock: RuntimeBarrierRecordV1 | null;
 }
+
+export interface RuntimeStoryOutcomeV1 {
+  readonly schemaVersion: 1;
+  readonly irVersion: "1.0.0";
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly position:
+    | { readonly kind: "running"; readonly sceneId: string; readonly instructionId: string }
+    | { readonly kind: "ended"; readonly endingId: string };
+  readonly callStack: readonly { readonly sceneId: string; readonly instructionId: string }[];
+  readonly variables: Readonly<Record<string, RuntimeScalar>>;
+  readonly prng: RuntimePrngStateV1;
+  readonly logicalTimeMilliseconds: number;
+}
+
+export type RuntimeStoryOutcomeResultV1 =
+  | { readonly ok: true; readonly outcome: RuntimeStoryOutcomeV1; readonly outcomeHash: string }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
 
 export type RuntimeRunModeV1 = "normal" | "auto" | "skipRead" | "skipAll";
 export type RuntimeSkipActivationV1 = "hold" | "toggle" | null;
