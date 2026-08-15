@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[当前开发情况审计](99-current-development-status-audit.md)。`RA-N21-001/002` 已关闭；[`RA-N21-003`](126-n31-e1-runtime-kernel-audit.md)只授权 N31 正式 Runtime 工程候选，不改变 N21/N23/N30/N31 产品验收与 M1/发布仍被阻断的事实，也不授权 N32。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
+> 当前审计：[当前开发情况综合审计（2026-08-16）](136-current-development-audit-2026-08-16.md)。`RA-N21-001/002` 已关闭；[`RA-N21-003`](126-n31-e1-runtime-kernel-audit.md)只授权 N31 正式 Runtime 工程候选，不改变 N21/N23/N30/N31 产品验收与 M1/发布仍被阻断的事实，也不授权 N32。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义

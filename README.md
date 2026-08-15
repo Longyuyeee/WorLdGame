@@ -145,6 +145,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N31-E8 Runtime Source Map 诊断审计](docs/133-n31-e8-runtime-source-map-diagnostics-audit.md) | fail-closed Source Map、Diagnostic → Statement ID/Index 与跨 Worker 固定向量 |
 | [N31-E9 Runtime Engineering 出口审计](docs/134-n31-e9-runtime-engineering-exit-audit.md) | VM-01–VM-15 逐项矩阵、出口未通过判定，以及 E10–E14 修复顺序 |
 | [N31-E10 正式 VM Parity 审计](docs/135-n31-e10-formal-vm-parity-audit.md) | VM-02/03/07/08/12/15 正式向量、Story Outcome Hash、History reconciliation 与真实 Worker Golden |
+| [当前开发情况综合审计（2026-08-16）](docs/136-current-development-audit-2026-08-16.md) | 当前真实代码、可运行闭环、需求门、正式引擎缺口、GitHub 集成风险与 E11–E14 严格顺序 |
 | [CL-04 Narrative VM 语义核 Spike 01 审计](docs/68-cl04-vm-kernel-spike-01.md) | 六个纯 Opcode、精确 IR/State、canonical SHA-256、VM-01 Golden、证据包与诚实缺口 |
 | [CL-04 Narrative VM 调用、随机与逻辑等待 Spike 02 审计](docs/69-cl04-vm-kernel-spike-02.md) | call/return、64 层调用栈、xorshift32、逻辑 tick、VM-02/03 Golden 与恢复边界 |
 | [CL-04 Narrative VM Choice 与外部输入 Spike 03 审计](docs/70-cl04-vm-choice-input-spike-03.md) | 显式 execution、确定请求 token、严格输入匹配、幂等 receipt、恢复校验与 Save/History 顺序 |
