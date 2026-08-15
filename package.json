@@ -25,11 +25,12 @@
     "audit:delivery-baseline-policy": "vitest run --config vitest.delivery-baseline.config.ts",
     "audit:pr-traceability": "node tools/audit-pr-traceability.mjs",
     "audit:goldens": "node tools/audit-golden-projects.mjs",
+    "audit:n23-content": "node tools/audit-n23-content.mjs",
     "audit:architecture": "node tools/audit-architecture.mjs",
     "audit:script-performance": "vitest run --config vitest.performance.config.ts",
     "audit:asset-performance": "vitest run --config vitest.asset-performance.config.ts",
     "demo:empty-to-web": "node tools/run-empty-to-web-build.mjs",
-    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
+    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
   },
   "engines": {
     "node": ">=22.12.0"

@@ -29,11 +29,17 @@ function playRoute(html, optionId) {
   const dom = new JSDOM(html, { runScripts: "dangerously", url: "https://offline.world.invalid/" });
   const document = dom.window.document;
   const status = document.querySelector("#status");
+  let visibleSteps = 0;
+  while (status?.dataset.state === "presenting" && visibleSteps < 1000) {
+    const next = document.querySelector("#next");
+    if (!(next instanceof dom.window.HTMLButtonElement)) throw new Error("Playable continue control is missing before choice");
+    next.click();
+    visibleSteps += 1;
+  }
   if (status?.dataset.state !== "waiting-choice") throw new Error(`Expected waiting-choice, received ${status?.dataset.state ?? "missing"}`);
   const option = document.querySelector(`[data-option-id="${optionId}"]`);
   if (!(option instanceof dom.window.HTMLButtonElement)) throw new Error(`Playable option is missing: ${optionId}`);
   option.click();
-  let visibleSteps = 0;
   while (status.dataset.state === "presenting" && visibleSteps < 1000) {
     const next = document.querySelector("#next");
     if (!(next instanceof dom.window.HTMLButtonElement)) throw new Error("Playable continue control is missing");
@@ -53,7 +59,7 @@ try {
   await mkdir(sourceDirectory, { recursive: true });
   await mkdir(outputDirectory, { recursive: true });
   const sourceProjectPath = join(sourceDirectory, "project.s0.json");
-  await cp(join(root, "fixtures", "projects", "branching", "project.s0.json"), sourceProjectPath);
+  await cp(join(root, "fixtures", "projects", "benchmark", "project.s0.json"), sourceProjectPath);
 
   await build({
     root,
@@ -73,13 +79,13 @@ try {
   await writeFile(join(outputDirectory, "index.html"), first.html, "utf8");
 
   const firstChoice = project.scenes.flatMap((scene) => scene.statements).find((statement) => statement.kind === "choice");
-  if (firstChoice === undefined) throw new Error("Branching Golden does not expose a choice for route verification");
+  if (firstChoice === undefined) throw new Error("N23 Benchmark does not expose a choice for route verification");
   const routes = firstChoice.options.map((option) => playRoute(first.html, option.id));
   const artifacts = await artifactInventory(outputDirectory);
   const manifest = {
     schemaVersion: 2,
     status: "n23-independent-playable-candidate",
-    sourceProject: "fixtures/projects/branching/project.s0.json",
+    sourceProject: "fixtures/projects/benchmark/project.s0.json",
     projectDigest: first.projectDigest,
     execution: { status: "PASS", routes },
     formalCompilerRuntimePlayer: { status: "pending", targetNodes: ["N30", "N31", "N50", "N80"] },

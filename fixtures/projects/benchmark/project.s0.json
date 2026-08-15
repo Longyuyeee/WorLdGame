@@ -1,1 +1,88 @@
-{"schemaVersion":0,"id":"golden_benchmark","title":"Benchmark Episode Seed","entrySceneId":"benchmark_opening","characters":[{"id":"benchmark_aya","displayName":"Aya","color":"#7C3AED"},{"id":"benchmark_ren","displayName":"Ren","color":"#DB2777"}],"scenes":[{"id":"benchmark_opening","title":"Opening","statements":[{"id":"benchmark_bg","kind":"direction","command":"background","summary":"City platform at dusk"},{"id":"benchmark_bgm","kind":"direction","command":"audio","summary":"BGM: last train"},{"id":"benchmark_line","kind":"dialogue","speakerId":"benchmark_aya","textId":"benchmark_text","text":"The final train divides every promise."},{"id":"benchmark_choice","kind":"choice","prompt":"Board the train?","options":[{"id":"benchmark_board","label":"Board","targetSceneId":"benchmark_departure"},{"id":"benchmark_stay","label":"Stay","targetSceneId":"benchmark_platform"}]}]},{"id":"benchmark_departure","title":"Departure","statements":[{"id":"benchmark_departure_line","kind":"dialogue","speakerId":"benchmark_ren","textId":"benchmark_departure_text","text":"We chose the moving horizon."},{"id":"benchmark_departure_end","kind":"end","endingName":"Departure"}]},{"id":"benchmark_platform","title":"Platform","statements":[{"id":"benchmark_platform_line","kind":"dialogue","speakerId":"benchmark_ren","textId":"benchmark_platform_text","text":"We chose the city lights."},{"id":"benchmark_platform_end","kind":"end","endingName":"Platform"}]}]}
+{
+  "schemaVersion": 0,
+  "id": "golden_benchmark",
+  "title": "末班电车前的五分钟",
+  "entrySceneId": "benchmark_opening",
+  "characters": [
+    { "id": "benchmark_aya", "displayName": "绫", "color": "#7C3AED" },
+    { "id": "benchmark_ren", "displayName": "任", "color": "#DB2777" }
+  ],
+  "scenes": [
+    {
+      "id": "benchmark_opening",
+      "title": "雨夜站台",
+      "statements": [
+        { "id": "benchmark_bg", "kind": "direction", "command": "background", "summary": "雨夜的旧城站台，电子钟停在二十三点五十五分，远处轨道泛着潮湿的银光" },
+        { "id": "benchmark_bgm", "kind": "direction", "command": "audio", "summary": "低声的钢琴与雨声交织，末班车进站广播从很远的地方传来" },
+        { "id": "benchmark_opening_narration", "kind": "narration", "textId": "benchmark_opening_narration_text", "text": "雨水沿着站棚边缘落成一面透明的帘。电子钟还有五分钟跳到午夜，而那趟只在旧时刻表上存在的列车，正从废弃的北线缓慢接近。" },
+        { "id": "benchmark_opening_01", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_01_text", "text": "你果然来了。我还以为那封没有寄件人的信，只会把我一个人骗到这座已经停运三年的站台。" },
+        { "id": "benchmark_opening_02", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_02_text", "text": "信里写着我们的暗号，还夹着毕业那天丢失的半张车票。除了你，没有人知道我们把约定藏在检票口第三块砖下面。" },
+        { "id": "benchmark_opening_03", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_03_text", "text": "我刚才找过了，砖下面只剩这台旧录音机。磁带上标着今天的日期，可外壳的划痕和我们十年前用过的那台一模一样。" },
+        { "id": "benchmark_opening_04", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_04_text", "text": "先别按播放。北线没有供电，信号灯却一盏接一盏亮了起来。如果录音来自过去，我们听见它的同时，也许过去正在听见我们。" },
+        { "id": "benchmark_opening_05", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_05_text", "text": "这些年我一直想知道，你那天为什么没有上车。后来我把问题写了很多遍，又每次都在发送之前删掉，好像沉默久了就能变成答案。" },
+        { "id": "benchmark_opening_06", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_06_text", "text": "因为父亲在站外倒下了。我追着救护车离开，手机也摔进雨水里。等我回来，列车和你都已经不见，站台只剩被风吹散的广播。" },
+        { "id": "benchmark_opening_07", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_07_text", "text": "原来我记了十年的背影，根本不是你选择离开的证据。我们都把不知道的部分补成了最伤人的解释，然后把它当成事实活了下去。" },
+        { "id": "benchmark_opening_08", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_08_text", "text": "录音机开始转了。里面是两个孩子的声音，他们说等长大以后，要在末班车开走之前决定，是去看海，还是留下守住这座城。" },
+        { "id": "benchmark_opening_09", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_09_text", "text": "那是我们。可最后这一段我从没听过：如果两个人错过，就让其中一个在十年后的同一天重放磁带，把没有说完的话交还给对方。" },
+        { "id": "benchmark_opening_10", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_10_text", "text": "轨道上的灯越来越近，车窗里却没有乘客。它也许真的能带人回到那场雨，也许只是给迟到的人一次把真相说出口的机会。" },
+        { "id": "benchmark_opening_11", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_11_text", "text": "如果上车，我们可能找回当年的选择，也可能失去现在拥有的一切。如果留下，列车会再次消失，而我们必须接受有些时间永远不能重来。" },
+        { "id": "benchmark_opening_12", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_12_text", "text": "我不想再替你决定，也不想用愧疚逼你原谅。无论你选哪一条路，我都会把那天发生的事完整说完，然后承担属于我的那一部分。" },
+        { "id": "benchmark_opening_13", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_13_text", "text": "广播开始倒数了。我们曾经把未来想成只有一个正确答案，现在才明白，真正重要的是这一次我们终于站在同一场雨里做决定。" },
+        { "id": "benchmark_set", "kind": "set", "variable": "promise_state", "expression": "\"unanswered\"" },
+        { "id": "benchmark_condition", "kind": "condition", "expression": "promise_state == \"unanswered\"", "targetLabel": "benchmark_decision" },
+        { "id": "benchmark_decision_label", "kind": "label", "name": "benchmark_decision" },
+        {
+          "id": "benchmark_choice",
+          "kind": "choice",
+          "prompt": "末班电车即将关门。你们要一起登车寻找过去，还是留在站台面对现在？",
+          "options": [
+            { "id": "benchmark_board", "label": "登上列车，回到约定开始的地方", "targetSceneId": "benchmark_departure" },
+            { "id": "benchmark_stay", "label": "留在站台，把迟到的话说给现在", "targetSceneId": "benchmark_platform" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "benchmark_departure",
+      "title": "驶向旧夏天",
+      "statements": [
+        { "id": "benchmark_departure_bg", "kind": "direction", "command": "background", "summary": "空无一人的旧式车厢，窗外的雨夜逐渐倒流成十年前的盛夏黄昏" },
+        { "id": "benchmark_departure_01", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_departure_01_text", "text": "车门在身后合上了，站台却没有远去。你看窗外，每一扇亮起的窗都像一段被保存下来的记忆，正按照相反的顺序经过我们。" },
+        { "id": "benchmark_departure_02", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_departure_02_text", "text": "我看见毕业典礼后的教室，看见你把两张车票压进书里。那时的我只顾着害怕告别，从来没有问过你是不是也一样不安。" },
+        { "id": "benchmark_departure_03", "kind": "narration", "textId": "benchmark_departure_03_text", "text": "列车穿过没有灯光的隧道，车轮声变成心跳。再次亮起时，两个年轻的身影正站在十年前的检票口，争论未来究竟应该通向哪里。" },
+        { "id": "benchmark_departure_04", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_departure_04_text", "text": "我很想冲过去告诉他们，别把一次错过解释成背叛。可车窗像水面一样把手推了回来，看来这趟列车不能修改已经发生的事情。" },
+        { "id": "benchmark_departure_05", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_departure_05_text", "text": "也许它不是带我们改变过去，而是让我们终于看清过去。你离开站台以后，我也没有立刻上车，我等到最后一秒才因为害怕而逃进去。" },
+        { "id": "benchmark_departure_06", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_departure_06_text", "text": "所以我们都没有做出想象中那么坚定的选择。一个人追着救护车，一个人躲进列车，两个人都以为对方比自己更勇敢，也更绝情。" },
+        { "id": "benchmark_departure_07", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_departure_07_text", "text": "磁带里的孩子还在笑。他们不知道未来会有误会、病痛和漫长沉默，只相信写下约定就一定能做到。奇怪的是，我现在并不想责怪他们天真。" },
+        { "id": "benchmark_departure_08", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_departure_08_text", "text": "因为那份天真确实把我们带回来了。不是回到十年前，而是回到还能诚实说话的位置。过去没有被改写，但它终于不再只有一种解释。" },
+        { "id": "benchmark_departure_09", "kind": "narration", "textId": "benchmark_departure_09_text", "text": "列车越过河桥，城市的灯倒映在水中。远处出现清晨的海岸线，车厢广播提醒乘客：抵达终点前，每个人只能带走一句真正想说的话。" },
+        { "id": "benchmark_departure_10", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_departure_10_text", "text": "那我想带走的是：我没有原谅一个想象中的你，我只是终于认识了真实的你。那些失去的年份很重，但不应该继续替我们决定明天。" },
+        { "id": "benchmark_departure_11", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_departure_11_text", "text": "我想带走的是：对不起我迟到了十年，也谢谢你还愿意听完。等列车停下，我们不必兑现少年时全部的计划，只从一起看一次日出开始。" },
+        { "id": "benchmark_departure_12", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_departure_12_text", "text": "海面已经亮了。原来所谓回到约定开始的地方，不是回到某一年某一天，而是两个人都愿意重新承认：未来仍然可以共同书写。" },
+        { "id": "benchmark_departure_13", "kind": "narration", "textId": "benchmark_departure_13_text", "text": "末班电车在晨光里停靠。车门外没有旧日站牌，只有一条通向海边的新路。绫和任并肩下车，把那张拼完整的车票留在了座位上。" },
+        { "id": "benchmark_departure_end", "kind": "end", "endingName": "驶向仍可抵达的清晨" }
+      ]
+    },
+    {
+      "id": "benchmark_platform",
+      "title": "留在雨停以后",
+      "statements": [
+        { "id": "benchmark_platform_bg", "kind": "direction", "command": "background", "summary": "末班电车驶过却没有停靠，站台灯光逐盏熄灭，东方天空开始泛白" },
+        { "id": "benchmark_platform_01", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_01_text", "text": "列车过去了。刚才有一瞬间，我看见车窗里坐着十年前的我们。他们没有回头，大概因为属于他们的路本来就应该继续向前。" },
+        { "id": "benchmark_platform_02", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_platform_02_text", "text": "谢谢你选择留下。我不是害怕那趟车，只是不想再把希望寄托在改写过去上。能改变的东西都在这里，在我们接下来愿意说出的每句话里。" },
+        { "id": "benchmark_platform_03", "kind": "narration", "textId": "benchmark_platform_03_text", "text": "轨道重新归于黑暗，录音机却还在转动。磁带空白的尾端传出细小电流声，像是在等待两个人为这个迟到了十年的故事录下新的结尾。" },
+        { "id": "benchmark_platform_04", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_04_text", "text": "那就从我先说。毕业后的第一年，我每天都去新城市的车站等同一班车，明知你不可能出现。后来我停止等待，却一直没有停止生气。" },
+        { "id": "benchmark_platform_05", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_platform_05_text", "text": "父亲康复后，我去找过你留下的地址，但信被退回了。我把退信锁进抽屉，告诉自己不打扰才是体谅，其实只是害怕面对你的答案。" },
+        { "id": "benchmark_platform_06", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_06_text", "text": "我们都很擅长替沉默取一个好听的名字。我的叫作不再依赖，你的叫作尊重选择。可它们真正的名字，也许一直都只是害怕被拒绝。" },
+        { "id": "benchmark_platform_07", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_platform_07_text", "text": "那今晚就不要再美化它了。我害怕你恨我，害怕解释听起来像借口，也害怕知道你已经过得很好，所以宁愿让误会继续替我承担后果。" },
+        { "id": "benchmark_platform_08", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_08_text", "text": "我确实恨过你，也因为这份恨错过很多善意。但现在听见真相，我没有突然轻松，只觉得那些年的自己终于可以坐下来，不必继续追赶一辆不存在的车。" },
+        { "id": "benchmark_platform_09", "kind": "narration", "textId": "benchmark_platform_09_text", "text": "雨势渐渐变小。任按下录音键，把父亲住院、退回的信和每一次来到旧站外却没有走进来的夜晚，按照真实顺序慢慢讲完。" },
+        { "id": "benchmark_platform_10", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_platform_10_text", "text": "这就是全部了，没有命运安排，也没有浪漫秘密，只有一个年轻人连续做错了很多次决定。你不必现在原谅我，我只希望你终于拥有完整事实。" },
+        { "id": "benchmark_platform_11", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_11_text", "text": "我也把自己的部分录进去。不是为了审判谁，而是提醒未来的我们：如果再次害怕，就在沉默变成故事以前开口，不要等下一趟幽灵列车。" },
+        { "id": "benchmark_platform_12", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_platform_12_text", "text": "天快亮了，旧站外那家通宵面馆应该还在。我们可以先去吃一碗热面，然后交换现在的地址。至于以后，不需要在今晚一次决定完。" },
+        { "id": "benchmark_platform_13", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_13_text", "text": "好。留下不是拒绝远方，而是承认我们真正站立的地方。等雨停以后，我们从这座城出发，用现在的脚步慢慢走，而不是追赶过去。" },
+        { "id": "benchmark_platform_end", "kind": "end", "endingName": "雨停以后重新出发" }
+      ]
+    }
+  ]
+}

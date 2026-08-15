@@ -10,6 +10,7 @@ import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonica
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
+import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -37,6 +38,10 @@ export function StudioLauncher() {
     openExample: async () => {
       const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openProject(workspace));
+    },
+    openN23Benchmark: async () => {
+      const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(loadN23BenchmarkProject(), entropy());
+      await workspace.writeFiles(saveProject(project), null); return finish(workspace, await openProject(workspace));
     },
     importArchive: async (file) => {
       const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = await opfsWorkspace();
