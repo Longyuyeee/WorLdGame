@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-15）：E1–E8 工程切片已形成候选。`@world-studio/runtime` 直接消费 Runtime IR v1，已有版本化确定 State、控制流/Choice、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical Save/Load/History，以及 Back/Forward、成功分支原子截断、input tombstone、Barrier Back 阻断和 Normal/Auto/Skip Read/Skip All/Instant 确定调度；Scheduler 在指令预算处保留独立 transient State，只在可见边界原子写 History。E7 建立独立于 Spike 的正式 10,000-seed Runtime Corpus，以 20,000 次确定重放覆盖七类场景，并在 Node 与真实浏览器 Worker 得到相同摘要。E8 建立 fail-closed Source Map 校验与 Runtime Diagnostic → Compiler Statement ID/Index 映射，显式区分 instruction、cursor fallback 与 unmapped，并将结果冻结进 Node/Worker Golden。Save migration、History 存档封装、玩家存档槽、真实计时/语音/媒体策略和宿主协调仍归后续产品节点。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。详见 [E1](126-n31-e1-runtime-kernel-audit.md)、[E2](127-n31-e2-runtime-deterministic-state-audit.md)、[E3](128-n31-e3-runtime-effect-barrier-audit.md)、[E4](129-n31-e4-runtime-save-load-audit.md)、[E5](130-n31-e5-runtime-history-audit.md)、[E6](131-n31-e6-runtime-scheduler-audit.md)、[E7](132-n31-e7-runtime-generated-corpus-audit.md)与 [E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)。下一步只执行 E9 N31 Engineering 出口审计，不提前进入 N32。
+> 实施状态（2026-08-15）：E1–E8 工程切片已形成候选；[E9 出口审计](134-n31-e9-runtime-engineering-exit-audit.md)按 fail-closed 判定 **未通过**。`@world-studio/runtime` 已有确定 State、控制流/Choice、PRNG、Scene/Audio/Meta、Effect/Barrier、canonical State Save、History、Back/Forward、确定 Scheduler、正式 10k-seed Corpus 和 Source Map 诊断，但逐项回查 VM-01–VM-15 后只有 6 项完整、6 项部分、3 项未对齐。VM-11 Session Save、VM-13 Meta 不随剧情回滚、VM-14 10k-step 有界批处理和 VM-15 Story Outcome Hash 是直接出口阻断项；VM-02/03/07/08/12 仍需补完整正式向量。后续严格按 E10 Formal VM parity → E11 Runtime Session Save → E12 Monotonic Meta boundary → E13 Bounded 10k-step → E14 出口复审推进。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：
@@ -289,6 +289,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
   7. 移除正式包对 Spike Harness 的依赖。
 - **Tests**：固定向量、10k corpus、损坏/未来 Save、异步竞态、Barrier、分支截断。
 - **Acceptance**：同一 IR/输入在 Node 与 Web Worker State Hash 零差异，全套测试在预算内稳定通过。
+- **Exit audit**：E9 未通过；以 [N31-E9 审计](134-n31-e9-runtime-engineering-exit-audit.md)的 VM 矩阵和 E10–E14 修复顺序为准，未复审通过前不得登记 N31 Engineering 出口。
 
 ### N32 Editor Preview 接入正式 Runtime
 
