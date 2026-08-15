@@ -109,5 +109,10 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   schedulerInstantHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
   schedulerAutoDelayMilliseconds: 90,
   schedulerYieldAccumulatedInstructions: 1,
-  schedulerBarrierStopReason: "barrier"
+  schedulerBarrierStopReason: "barrier",
+  sourceDiagnosticCode: "RUNTIME_VARIABLE_MISSING",
+  sourceDiagnosticStatus: "instruction",
+  sourceDiagnosticInstructionIndex: 0,
+  sourceDiagnosticStatementId: "source_statement",
+  sourceDiagnosticStatementIndex: 3
 };

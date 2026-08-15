@@ -26,7 +26,7 @@ const checkpointKeys = ["checkpointId", "state", "stateHash"];
 const entryKeys = ["afterCheckpointId", "barriers", "beforeCheckpointId", "effects", "entryId", "event", "executedInstructions", "historyIndex", "input"];
 
 function diagnostic(code: RuntimeDiagnosticCode, message: string, state?: RuntimeStateV1): RuntimeDiagnosticV1 {
-  return { code, message, sceneId: state?.cursor.sceneId ?? null, instructionId: null };
+  return { code, message, sceneId: state?.cursor.sceneId ?? null, instructionIndex: state?.cursor.instructionIndex ?? null, instructionId: null };
 }
 
 function record(value: unknown): value is Readonly<Record<string, unknown>> {

@@ -4,7 +4,8 @@ import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
 import { createRuntimeSchedulerSessionV1, scheduleRuntimeBatchV1 } from "./scheduler";
 import { createRuntimeSaveV1, loadRuntimeSaveV1 } from "./save";
 import { runtimeEffectIntentHashV1 } from "./effect";
-import type { RuntimeProgramV1, RuntimeSchedulePolicyV1, RuntimeSchedulerSessionV1 } from "./types";
+import { mapRuntimeDiagnosticsV1 } from "./source-map";
+import type { RuntimeProgramV1, RuntimeSchedulePolicyV1, RuntimeSchedulerSessionV1, RuntimeSourceMapV1 } from "./types";
 
 export interface RuntimeConformanceResultV1 {
   readonly schemaVersion: 1;
@@ -34,6 +35,11 @@ export interface RuntimeConformanceResultV1 {
   readonly schedulerAutoDelayMilliseconds: number;
   readonly schedulerYieldAccumulatedInstructions: number;
   readonly schedulerBarrierStopReason: "barrier";
+  readonly sourceDiagnosticCode: "RUNTIME_VARIABLE_MISSING";
+  readonly sourceDiagnosticStatus: "instruction";
+  readonly sourceDiagnosticInstructionIndex: 0;
+  readonly sourceDiagnosticStatementId: "source_statement";
+  readonly sourceDiagnosticStatementIndex: 3;
 }
 
 export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
@@ -128,6 +134,21 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   if (!schedulerBarrierInitial.ok) throw new TypeError("Runtime Scheduler Barrier setup failed");
   const schedulerBarrier = scheduleRuntimeBatchV1(barrierProgram, schedulerBarrierInitial.session, { ...normalPolicy, mode: "skipAll", skipActivation: "toggle", speed: 20 });
   if (schedulerBarrier.stopReason !== "barrier") throw new TypeError("Runtime Scheduler Barrier stop failed");
+  const sourceProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-source", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [
+    { instructionId: "source-set", opcode: "set", operands: { variableId: "missing", expressionAst: { kind: "literal", value: 1 } } },
+    { instructionId: "source-end", opcode: "end", operands: { endingId: "done", name: "Done" } }
+  ] }] };
+  const sourceMap: RuntimeSourceMapV1 = { schemaVersion: 1, irVersion: "1.0.0", entries: [
+    { instructionId: "source-set", sceneId: "main", statementId: "source_statement", statementIndex: 3 },
+    { instructionId: "source-end", sceneId: "main", statementId: "source_ending", statementIndex: 4 }
+  ] };
+  const sourceCreated = createRuntimeState(sourceProgram, { buildId: "build-source", executionId: "execution-source" });
+  if (!sourceCreated.ok) throw new TypeError("Runtime Source Diagnostic conformance setup failed");
+  const sourceFailed = runRuntime(sourceProgram, sourceCreated.state);
+  const sourceMapped = mapRuntimeDiagnosticsV1(sourceProgram, sourceMap, sourceFailed.diagnostics);
+  if (!sourceMapped.ok || sourceMapped.diagnostics[0]?.code !== "RUNTIME_VARIABLE_MISSING" || sourceMapped.diagnostics[0].sourceMapStatus !== "instruction" || sourceMapped.diagnostics[0].instructionIndex !== 0 || sourceMapped.diagnostics[0].statementId !== "source_statement" || sourceMapped.diagnostics[0].statementIndex !== 3) {
+    throw new TypeError("Runtime Source Diagnostic conformance mapping failed");
+  }
   return {
     schemaVersion: 1,
     runtimeVersion: "0.6.0",
@@ -155,6 +176,11 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     schedulerInstantHistoryHash: runtimeHistorySessionHashV1(schedulerInstant.history),
     schedulerAutoDelayMilliseconds: autoResult.autoAdvanceDelayMilliseconds ?? -1,
     schedulerYieldAccumulatedInstructions: schedulerYield.session.accumulatedInstructions,
-    schedulerBarrierStopReason: "barrier"
+    schedulerBarrierStopReason: "barrier",
+    sourceDiagnosticCode: "RUNTIME_VARIABLE_MISSING",
+    sourceDiagnosticStatus: "instruction",
+    sourceDiagnosticInstructionIndex: 0,
+    sourceDiagnosticStatementId: "source_statement",
+    sourceDiagnosticStatementIndex: 3
   };
 }
