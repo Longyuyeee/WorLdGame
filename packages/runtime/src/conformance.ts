@@ -1,4 +1,5 @@
-import { runtimeStateHashV1 } from "./hash";
+import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "./hash";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, createRuntimeHistorySessionV1, forwardRuntimeHistoryV1 } from "./history";
 import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
 import { createRuntimeSaveV1, loadRuntimeSaveV1 } from "./save";
 import { runtimeEffectIntentHashV1 } from "./effect";
@@ -6,7 +7,7 @@ import type { RuntimeProgramV1 } from "./types";
 
 export interface RuntimeConformanceResultV1 {
   readonly schemaVersion: 1;
-  readonly runtimeVersion: "0.4.0";
+  readonly runtimeVersion: "0.5.0";
   readonly initialStateHash: string;
   readonly randomValue: number;
   readonly randomStateHash: string;
@@ -20,6 +21,12 @@ export interface RuntimeConformanceResultV1 {
   readonly saveArtifactHash: string;
   readonly rehydratedEffectId: string;
   readonly rehydratedStateHash: string;
+  readonly historyBackStateHash: string;
+  readonly historyForwardStateHash: string;
+  readonly historyForkStateHash: string;
+  readonly historySessionHash: string;
+  readonly historyTombstoneInputId: string;
+  readonly historyBarrierCode: "RUNTIME_BARRIER_BLOCKED";
 }
 
 export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
@@ -58,9 +65,32 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   const requested = runRuntime(barrierProgram, barrierCreated.state), request = requested.barrierRequest;
   if (request === null) throw new TypeError("Runtime Barrier conformance request failed");
   const committed = runRuntime(barrierProgram, requested.state, { input: { schemaVersion: 1, kind: "barrierApproved", inputId: "input-barrier", executionId: requested.state.executionId, expectedStateRevision: requested.state.stateRevision, logicalSequence: request.logicalSequence, requestId: request.requestId, descriptorId: request.descriptorId } });
+  const historyProgram: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-history", entrySceneId: "main", scenes: [
+    { sceneId: "main", instructions: [{ instructionId: "history-choice", opcode: "choice", operands: { prompt: "Route", options: [{ optionId: "left", label: "Left", targetSceneId: "left" }, { optionId: "right", label: "Right", targetSceneId: "right" }] } }] },
+    { sceneId: "left", instructions: [{ instructionId: "history-left", opcode: "narration", operands: { textId: "history_left", text: "Left" } }] },
+    { sceneId: "right", instructions: [{ instructionId: "history-right", opcode: "narration", operands: { textId: "history_right", text: "Right" } }] }
+  ] };
+  const historyCreated = createRuntimeState(historyProgram, { buildId: "build-history", executionId: "execution-history" });
+  if (!historyCreated.ok) throw new TypeError("Runtime History conformance setup failed");
+  const historyInitial = createRuntimeHistorySessionV1(historyProgram, historyCreated.state);
+  const historyChoice = advanceRuntimeHistoryV1(historyProgram, historyInitial.session), choice = historyChoice.state.pendingChoice;
+  if (choice === null) throw new TypeError("Runtime History conformance choice failed");
+  const leftInput = { schemaVersion: 1 as const, kind: "choiceSelected" as const, inputId: "input-history-left", executionId: historyChoice.state.executionId, expectedStateRevision: historyChoice.state.stateRevision, logicalSequence: choice.logicalSequence, requestId: choice.requestId, instructionId: choice.instructionId, optionId: "left" };
+  const historyLeft = advanceRuntimeHistoryV1(historyProgram, historyChoice.session, { input: leftInput });
+  const historyBack = backRuntimeHistoryV1(historyProgram, historyLeft.session);
+  const historyForward = forwardRuntimeHistoryV1(historyProgram, historyBack.session);
+  const historyRewound = backRuntimeHistoryV1(historyProgram, historyForward.session);
+  const rightInput = { ...leftInput, inputId: "input-history-right", optionId: "right" };
+  const historyFork = advanceRuntimeHistoryV1(historyProgram, historyRewound.session, { input: rightInput });
+  const barrierHistoryInitial = createRuntimeHistorySessionV1(barrierProgram, barrierCreated.state);
+  const barrierHistoryRequest = advanceRuntimeHistoryV1(barrierProgram, barrierHistoryInitial.session), barrierPending = barrierHistoryRequest.state.pendingBarrier;
+  if (barrierPending === null) throw new TypeError("Runtime History Barrier request failed");
+  const barrierHistoryCommit = advanceRuntimeHistoryV1(barrierProgram, barrierHistoryRequest.session, { input: { schemaVersion: 1, kind: "barrierApproved", inputId: "input-history-barrier", executionId: barrierHistoryRequest.state.executionId, expectedStateRevision: barrierHistoryRequest.state.stateRevision, logicalSequence: barrierPending.logicalSequence, requestId: barrierPending.requestId, descriptorId: barrierPending.descriptorId } });
+  const barrierHistoryBack = backRuntimeHistoryV1(barrierProgram, barrierHistoryCommit.session);
+  if (barrierHistoryBack.diagnostics[0]?.code !== "RUNTIME_BARRIER_BLOCKED") throw new TypeError("Runtime History Barrier block failed");
   return {
     schemaVersion: 1,
-    runtimeVersion: "0.4.0",
+    runtimeVersion: "0.5.0",
     initialStateHash: runtimeStateHashV1(created.state),
     randomValue: drawn.value,
     randomStateHash: runtimeStateHashV1(drawn.state),
@@ -73,6 +103,12 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     barrierCommittedStateHash: runtimeStateHashV1(committed.state),
     saveArtifactHash: saved.artifactHash,
     rehydratedEffectId: loaded.rehydration.intent.effectId,
-    rehydratedStateHash: runtimeStateHashV1(loaded.state)
+    rehydratedStateHash: runtimeStateHashV1(loaded.state),
+    historyBackStateHash: runtimeStateHashV1(historyBack.state),
+    historyForwardStateHash: runtimeStateHashV1(historyForward.state),
+    historyForkStateHash: runtimeStateHashV1(historyFork.state),
+    historySessionHash: runtimeHistorySessionHashV1(historyFork.session),
+    historyTombstoneInputId: historyFork.session.inputTombstones[0]?.inputId ?? "",
+    historyBarrierCode: "RUNTIME_BARRIER_BLOCKED"
   };
 }

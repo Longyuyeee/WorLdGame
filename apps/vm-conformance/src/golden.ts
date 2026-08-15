@@ -65,18 +65,24 @@ import type { RuntimeConformanceResultV1 } from "@world-studio/runtime";
 
 export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   schemaVersion: 1,
-  runtimeVersion: "0.4.0",
-  initialStateHash: "f8083d9d5464cfcd27cff37832c9fa83b1470c16577e17835f7eeb6cb2376fd3",
+  runtimeVersion: "0.5.0",
+  initialStateHash: "a896ffbf427a43c26e8ec9396021bc7c38c52d3ab9d67c3683f8448525d107b1",
   randomValue: 13,
-  randomStateHash: "a59b6ec18a772545bf7aca0f5e9ae97f8750179db81d3abf507cf85d52ca1eb1",
-  endingStateHash: "16f6a395a646cf86fa19fdbc0b5c76b5d8ae15987bdff326b08dd20581c40288",
+  randomStateHash: "dc0ceb8b3aa961458d4022ec33bc37d180e505471e83055771e6d974bd621eed",
+  endingStateHash: "9f85866867cb8cadee5781bb8fec369f46a681be43dd8a4df89eda43a3be7ec5",
   reachedEndingIds: ["done"],
   effectIntentHash: "ae85cfea2908822b25f52c60fa4a602f2f36b7a204ae157023d91a7103268992",
-  effectIssuedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d",
-  effectCompletedStateHash: "53653863beb0714f6178925d3d3ccbe64e393bf1533aa0723da567ce20f921f3",
+  effectIssuedStateHash: "6b4228f4fb64221822e102ddcaa71aad1c53ed987a8adeefdfa09b676fabe08c",
+  effectCompletedStateHash: "427811dba37b8664e7d9b3300d6f6e05d4a147dd207a59b583cd3c6dd081d886",
   barrierRequestId: "barrier.62b95f219800e9bad704d050252bddea054d18c84cd27a5f41e84498d19d3eaf",
-  barrierCommittedStateHash: "a4589c26cb8e7812d94792b41cee08c8d6afe14cc33cb54e3e03d410d6bb27bb",
-  saveArtifactHash: "de61426116b0cf29c17d8141597cd5aa21e03a8f31eafc70ae9da92036061576",
+  barrierCommittedStateHash: "2ba4b47cb9e52d0dab9ff224c49ed40dd74848f3e41cc12f81ef7a8373691dd0",
+  saveArtifactHash: "7d07a19cf7625f1cc165845742b2a60864738ae5679d0e4df6ca1c3f89493680",
   rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
-  rehydratedStateHash: "bceafdd28b3058ab515b3267c71ee8faf83b9a3c587483d15083861b21215a0d"
+  rehydratedStateHash: "6b4228f4fb64221822e102ddcaa71aad1c53ed987a8adeefdfa09b676fabe08c",
+  historyBackStateHash: "5475e655dbdfdd18c838f85151473a839e190f7bda0dab74243bf3ae9337fb7a",
+  historyForwardStateHash: "58d4a8b6bbca607226c05127ea7514f98008a7e9317ac4ee3199cf7ed87cc99f",
+  historyForkStateHash: "ff93d34ff22204a6fa489ae7a31bb8d4a696c2e2a6ab81460717f1c0c7cea88c",
+  historySessionHash: "5eb97952d5ea84edf7030fb069b4ba5885ef53f4c9c314868418ccecb4635b69",
+  historyTombstoneInputId: "input-history-left",
+  historyBarrierCode: "RUNTIME_BARRIER_BLOCKED"
 };

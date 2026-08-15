@@ -1,6 +1,6 @@
 import type { RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 
-export const RUNTIME_VERSION = "0.4.0" as const;
+export const RUNTIME_VERSION = "0.5.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
 export const RUNTIME_SAVE_SCHEMA_VERSION = 1 as const;
 export const MAX_RUNTIME_SAVE_BYTES = 16 * 1024 * 1024;
@@ -9,6 +9,7 @@ export const MAX_META_PROGRESS_IDS_PER_DOMAIN = 100_000;
 export const DEFAULT_INSTRUCTION_BUDGET = 1024;
 export const DEFAULT_PRNG_SEED = 0x6d2b79f5;
 export const MAX_INPUT_RECEIPTS = 10_000;
+export const MAX_RUNTIME_HISTORY_ENTRIES = 10_000;
 
 export type RuntimeScalar = null | boolean | number | string;
 
@@ -242,6 +243,12 @@ export type RuntimeDiagnosticCode =
   | "RUNTIME_SAVE_INCOMPATIBLE"
   | "RUNTIME_SAVE_BUILD_MISMATCH"
   | "RUNTIME_SAVE_HASH_MISMATCH"
+  | "RUNTIME_HISTORY_INVALID"
+  | "RUNTIME_HISTORY_AT_START"
+  | "RUNTIME_HISTORY_AT_END"
+  | "RUNTIME_HISTORY_FORWARD_REQUIRED"
+  | "RUNTIME_HISTORY_LIMIT"
+  | "RUNTIME_BARRIER_BLOCKED"
   | "RUNTIME_BUDGET_EXCEEDED"
   | "RUNTIME_TERMINAL";
 
@@ -302,3 +309,44 @@ export interface LoadRuntimeSaveOptionsV1 {
 export type LoadRuntimeSaveResultV1 =
   | { readonly ok: true; readonly save: RuntimeSaveV1; readonly state: RuntimeStateV1; readonly rehydration: RuntimeRehydrationV1; readonly artifactHash: string }
   | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
+
+export interface RuntimeHistoryCheckpointV1 {
+  readonly checkpointId: string;
+  readonly stateHash: string;
+  readonly state: RuntimeStateV1;
+}
+
+export interface RuntimeHistoryEntryV1 {
+  readonly entryId: string;
+  readonly historyIndex: number;
+  readonly beforeCheckpointId: string;
+  readonly afterCheckpointId: string;
+  readonly input: RuntimeInputV1 | null;
+  readonly event: RuntimeEventV1 | null;
+  readonly effects: readonly RuntimeEffectIntentV1[];
+  readonly executedInstructions: number;
+  readonly barriers: readonly RuntimeBarrierRecordV1[];
+}
+
+export interface RuntimeHistorySessionV1 {
+  readonly schemaVersion: 1;
+  readonly runtimeVersion: typeof RUNTIME_VERSION;
+  readonly irVersion: "1.0.0";
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly executionId: string;
+  readonly cursor: number;
+  readonly checkpoints: readonly RuntimeHistoryCheckpointV1[];
+  readonly entries: readonly RuntimeHistoryEntryV1[];
+  readonly inputTombstones: readonly RuntimeInputV1[];
+}
+
+export interface RuntimeHistoryResultV1 {
+  readonly session: RuntimeHistorySessionV1;
+  readonly state: RuntimeStateV1;
+  readonly event: RuntimeEventV1 | null;
+  readonly effects: readonly RuntimeEffectIntentV1[];
+  readonly diagnostics: readonly RuntimeDiagnosticV1[];
+  readonly reconciliationRequired: boolean;
+  readonly barrierBlock: RuntimeBarrierRecordV1 | null;
+}

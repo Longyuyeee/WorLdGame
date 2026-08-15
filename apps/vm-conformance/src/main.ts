@@ -64,7 +64,7 @@ worker.addEventListener("message", (event: MessageEvent<WorkerResponseV0>) => {
     return;
   }
   status.dataset.status = "passed";
-  status.textContent = "PASS：正式 Runtime State / Effect / Save 固定向量与既有 10,000 种子 VM Corpus 均和 Node Golden 零差异";
+  status.textContent = "PASS：正式 Runtime State / Effect / Save / History 固定向量与既有 10,000 种子 VM Corpus 均和 Node Golden 零差异";
   output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 
