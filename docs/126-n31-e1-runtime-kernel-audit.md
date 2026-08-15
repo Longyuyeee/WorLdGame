@@ -3,7 +3,7 @@
 > 审计日期：2026-08-15
 > 变更前基线：`94bd565635cf15935c9dac1813cd758a9d101315`
 > 审计分支：`agent/n31-runtime-e1`
-> 交付记录：Draft PR #36；实现头 `98c49bf`；远端 `product-baseline` run `31877417186` 运行中
+> 交付记录：Draft PR #36；实现头 `98c49bf`；交付头 `d33d240` 的远端 `product-baseline` run `31877445116` 通过
 > 节点判定：N31 Engineering E1 候选；N31 Product Acceptance、N32、M1 Stable 与发布仍被阻断
 
 ## 1. 准入与风险边界
@@ -43,7 +43,7 @@ E1 新建 `@world-studio/runtime`，而不是改名或发布 `@world-studio/narr
 7. 未知未来 Opcode 在创建 State 前拒绝；
 8. 篡改的 State 身份拒绝且不发生迁移猜测。
 
-当前定向结果为 Runtime 8/8、workspace 12 个/计划边界 4 个、portable 文件 72 个、风险策略 19/19。本地完整仓库门通过：常规测试 98 个文件/596 项，串行存储 1 项、VM 重型门 5 项、12 workspace 构建、架构及 Script/Asset 性能门均通过；远端 Windows / Node 22 结果在交付后回填。
+当前定向结果为 Runtime 8/8、workspace 12 个/计划边界 4 个、portable 文件 72 个、风险策略 19/19。本地完整仓库门通过：常规测试 98 个文件/596 项，串行存储 1 项、VM 重型门 5 项、12 workspace 构建、架构及 Script/Asset 性能门均通过；远端 Windows / Node 22 run `31877445116` 同样通过。
 
 ## 5. 需求对齐与诚实缺口
 

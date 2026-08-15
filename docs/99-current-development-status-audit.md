@@ -40,7 +40,7 @@
 | 架构门 | 72 个 portable 模块、4 个 Node adapter | 本轮通过 |
 | 性能门 | Script 10 项、Asset 4 项 | 最近完整门通过 |
 | Editor bundle | 636.67 kB，gzip 183.52 kB | 构建成功，五分钟源随产品入口进入 bundle；仍存在超过 500 kB 的体积警告 |
-| GitHub CI | PR #23–#35 最近 Windows CI 均成功；Draft PR #36 实现头 `98c49bf` 的 `product-baseline` run `31877417186` 运行中 | 等待远端 Windows / Node 22 完整门 |
+| GitHub CI | PR #23–#35 最近 Windows CI 均成功；Draft PR #36 交付头 `d33d240` 的 `product-baseline` run `31877445116` 通过 | 远端 Windows / Node 22 完整门通过 |
 
 这些数据只证明工程候选的可重复性，不把孤立测试、Spike 或构建成功换算为产品完成比例。
 
@@ -117,7 +117,7 @@
 | #33 | N22 | 基于 #32 | Draft、CI 绿 |
 | #34 | N30-E1 | 基于 #33 分支 | Draft、实现头 `7793b67` CI 绿 |
 | #35 | N30-E2 | 基于 #34 分支 | Draft、实现头 `1125b68`；审计头 `63e0886` CI 绿 |
-| #36 | N31-E1 | 基于 #35 分支 | Draft、实现头 `98c49bf` CI 运行中 |
+| #36 | N31-E1 | 基于 #35 分支 | Draft、实现头 `98c49bf`；交付头 `d33d240` CI 绿 |
 
 这形成四项现实风险：
 
