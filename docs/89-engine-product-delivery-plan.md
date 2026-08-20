@@ -295,6 +295,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 准入状态（2026-08-20）：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)已通过，集中 Draft PR #51 的 Windows / Node 22 完整门绿色；`RA-N21-004` 只允许本节点 Engineering。N32 Product Acceptance、N40 及以后仍被阻断。
 
+> E1 实施状态（2026-08-20）：Editor 的“完整流程试玩”已停止直接遍历 `StoryStatement`，改为从 Canonical Project 调用 N30 Project Compiler，再由 N31 Runtime 执行 IR；Choice、结局与当前语句定位来自 Runtime Event/State 和 Source Map。校园默认项目已迁移为编译器可接受的类型化演出命令；旧式描述仅保留为显式兼容输入测试。两条生产浏览器路线和编译失败关闭均通过，详见 [N32-E1 审计](142-n32-e1-formal-editor-preview-audit.md)。Run from Scene/Statement、状态检查器、Back/Forward/Over、热更新与共享 Player Host 仍属于 E2+，不得把 E1 记为 N32 完成。
+
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：
   1. Preview 只消费 Compiler 输出，不直接遍历 StoryStatement；

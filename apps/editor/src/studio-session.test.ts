@@ -59,6 +59,7 @@ describe("S0.9 studio source projection and recovery session", () => {
       commandId: "cmd_ui_direction",
       statementId: "stmt_gate_bg",
       parameters: {
+        action: "set",
         asset: "bg_gate_evening",
         transition: "fade",
         transitionAsset: null,
@@ -68,12 +69,12 @@ describe("S0.9 studio source projection and recovery session", () => {
     });
 
     expect(activeSourceSession(edited).committedSource).toContain(
-      "@background asset=bg_gate_evening transition=fade duration=400ms @id(stmt_gate_bg)"
+      "@background action=set asset=bg_gate_evening transition=fade duration=400ms @id(stmt_gate_bg)"
     );
     expect(edited.project.scenes[0]?.statements[0]).toEqual(expect.objectContaining({
       id: "stmt_gate_bg",
       command: "background",
-      summary: "asset=bg_gate_evening transition=fade duration=400ms"
+      summary: "action=set asset=bg_gate_evening transition=fade duration=400ms"
     }));
     expect(activeSourceSession(edited).lastChange?.changedStatementIds).toEqual(["stmt_gate_bg"]);
     expect(activeSourceSession(edited).revision).toBe(1);
@@ -275,18 +276,19 @@ describe("S0.9 studio source projection and recovery session", () => {
     expect(duplicated.selectedStatementId).toBe("stmt_gate_bg_copy");
     expect(activeSourceSession(duplicated).revision).toBe(1);
     expect(activeSourceSession(duplicated).committedSource).toContain(
-      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg_copy)"
+      "@background action=clear @id(stmt_gate_bg_copy)"
     );
 
     const batched = reduceStudioSession(duplicated, {
       type: "patch-directions",
       commandId: "cmd_ui_batch_direction",
       statementIds: ["stmt_gate_bg", "stmt_gate_bg_copy"],
-      parameters: { transition: "fade", duration: "300ms" }
+      parameters: { action: "set", asset: "bg_gate_evening", transition: "fade", duration: "300ms" }
     });
     expect(activeSourceSession(batched).revision).toBe(2);
     expect(activeSourceSession(batched).committedSource.match(/transition=fade/g)).toHaveLength(2);
     expect(activeSourceSession(batched).committedSource.match(/duration=300ms/g)).toHaveLength(2);
+    expect(activeSourceSession(batched).committedSource.match(/asset=bg_gate_evening/g)).toHaveLength(2);
     const undone = reduceStudioSession(batched, { type: "undo" });
     expect(activeSourceSession(undone).committedSource).not.toContain("transition=fade");
     expect(undone.project.scenes[0]?.statements.some((item) => item.id === "stmt_gate_bg_copy")).toBe(true);

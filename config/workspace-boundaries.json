@@ -8,8 +8,10 @@
       "stability": "prototype",
       "owner": "Editor Owner",
       "allowedWorkspaceDependencies": [
+        "@world-studio/project-compiler",
         "@world-studio/project-domain",
         "@world-studio/project-persistence",
+        "@world-studio/runtime",
         "@world-studio/story-core",
         "@world-studio/story-language"
       ]
