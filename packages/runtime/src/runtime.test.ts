@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -220,6 +220,19 @@ describe("N31-E2 deterministic state foundations", () => {
       sourceDiagnosticInstructionIndex: 0,
       sourceDiagnosticStatementId: "source_statement",
       sourceDiagnosticStatementIndex: 3,
+      boundedTenThousand: {
+        schemaVersion: 1,
+        iterationCount: 10_000,
+        instructionBudget: 128,
+        batchCount: 235,
+        budgetYieldCount: 234,
+        maximumBatchInstructions: 128,
+        totalExecutedInstructions: 30_002,
+        finalCounter: 10_000,
+        finalStateHash: "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
+        finalOutcomeHash: "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
+        finalHistoryHash: "28207f6823e05033e702e80911d81f6be5bf293232d72afa2f13839a8eabe6de"
+      },
       formalVmParity: {
         schemaVersion: 1,
         recursiveOverflowCode: "RUNTIME_CALL_STACK_OVERFLOW",
@@ -670,6 +683,27 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     expect(rejectedSession).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_META_PROGRESS_INCOMPATIBLE" }] });
     expect("state" in rejected).toBe(false);
     expect("state" in rejectedSession).toBe(false);
+  });
+});
+
+describe("N31-E13 bounded 10,000-step conformance", () => {
+  it("yields at 128 instructions and freezes the final State, Outcome, and History", () => {
+    const first = executeRuntimeBoundedTenThousandV1();
+    const second = executeRuntimeBoundedTenThousandV1();
+    expect(second).toEqual(first);
+    expect(first).toEqual({
+      schemaVersion: 1,
+      iterationCount: 10_000,
+      instructionBudget: 128,
+      batchCount: 235,
+      budgetYieldCount: 234,
+      maximumBatchInstructions: 128,
+      totalExecutedInstructions: 30_002,
+      finalCounter: 10_000,
+      finalStateHash: "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
+      finalOutcomeHash: "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
+      finalHistoryHash: "28207f6823e05033e702e80911d81f6be5bf293232d72afa2f13839a8eabe6de"
+    });
   });
 });
 

@@ -50,7 +50,22 @@ export interface RuntimeConformanceResultV1 {
   readonly sourceDiagnosticInstructionIndex: 0;
   readonly sourceDiagnosticStatementId: "source_statement";
   readonly sourceDiagnosticStatementIndex: 3;
+  readonly boundedTenThousand: RuntimeBoundedTenThousandResultV1;
   readonly formalVmParity: RuntimeFormalVmParityResultV1;
+}
+
+export interface RuntimeBoundedTenThousandResultV1 {
+  readonly schemaVersion: 1;
+  readonly iterationCount: 10_000;
+  readonly instructionBudget: 128;
+  readonly batchCount: number;
+  readonly budgetYieldCount: number;
+  readonly maximumBatchInstructions: number;
+  readonly totalExecutedInstructions: number;
+  readonly finalCounter: 10_000;
+  readonly finalStateHash: string;
+  readonly finalOutcomeHash: string;
+  readonly finalHistoryHash: string;
 }
 
 export interface RuntimeFormalVmParityResultV1 {
@@ -180,6 +195,50 @@ export function executeRuntimeFormalVmParityV1(): RuntimeFormalVmParityResultV1 
     storyOutcomeHash: storyOutcome.outcomeHash,
     purePresentationOutcomeHash: presentationOutcome.outcomeHash,
     pendingOutcomeCode: "RUNTIME_OUTCOME_NOT_QUIESCENT"
+  };
+}
+
+export function executeRuntimeBoundedTenThousandV1(): RuntimeBoundedTenThousandResultV1 {
+  const program: RuntimeProgramV1 = { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-vm14", entrySceneId: "main", scenes: [{ sceneId: "main", instructions: [
+    { instructionId: "vm14-init", opcode: "set", operands: { variableId: "counter", expressionAst: { kind: "literal", value: 0 } } },
+    { instructionId: "vm14-loop", opcode: "label", operands: { name: "loop" } },
+    { instructionId: "vm14-increment", opcode: "set", operands: { variableId: "counter", expressionAst: { kind: "binary", operator: "+", left: { kind: "identifier", name: "counter" }, right: { kind: "literal", value: 1 } } } },
+    { instructionId: "vm14-condition", opcode: "condition", operands: { targetLabel: "loop", expressionAst: { kind: "binary", operator: "<", left: { kind: "identifier", name: "counter" }, right: { kind: "literal", value: 10_000 } } } },
+    { instructionId: "vm14-end", opcode: "end", operands: { endingId: "ending.vm14.complete", name: "Complete" } }
+  ] }] };
+  const created = createRuntimeState(program, { buildId: "build-vm14", executionId: "execution-vm14", initialVariables: { counter: 0 } });
+  if (!created.ok) throw new TypeError("VM-14 bounded conformance setup failed");
+  const history = createRuntimeHistorySessionV1(program, created.state);
+  const scheduled = createRuntimeSchedulerSessionV1(program, history.session);
+  if (!scheduled.ok) throw new TypeError("VM-14 bounded Scheduler setup failed");
+  const policy: RuntimeSchedulePolicyV1 = { schemaVersion: 1, mode: "skipAll", skipActivation: "toggle", speed: "instant", stopInstructionIds: [], unavailableEffectDescriptorIds: [], instantInstructionBudget: 128, autoTiming: { baseDelayMilliseconds: 0, millisecondsPerReadableUnit: 0, readableUnits: 0, voiceDurationMilliseconds: 0, voiceTailMilliseconds: 0 } };
+  let session = scheduled.session;
+  let batchCount = 0, budgetYieldCount = 0, maximumBatchInstructions = 0, totalExecutedInstructions = 0;
+  while (session.workingState.terminal.kind === "running" && batchCount < 256) {
+    const batch = scheduleRuntimeBatchV1(program, session, policy);
+    if (batch.diagnostics.length > 0 || batch.executedInstructions < 1 || batch.executedInstructions > policy.instantInstructionBudget) throw new TypeError("VM-14 bounded batch failed");
+    if (batch.stopReason === "budget") budgetYieldCount += 1;
+    maximumBatchInstructions = Math.max(maximumBatchInstructions, batch.executedInstructions);
+    totalExecutedInstructions += batch.executedInstructions;
+    batchCount += 1;
+    session = batch.session;
+  }
+  const counter = session.workingState.variables.counter;
+  const outcome = createRuntimeStoryOutcomeV1(program, session.workingState);
+  const committedInstructions = session.history.entries[0]?.executedInstructions;
+  if (session.workingState.terminal.kind !== "ended" || counter !== 10_000 || !outcome.ok || session.history.entries.length !== 1 || committedInstructions !== totalExecutedInstructions || session.accumulatedInstructions !== 0) throw new TypeError("VM-14 bounded conformance did not terminate canonically");
+  return {
+    schemaVersion: 1,
+    iterationCount: 10_000,
+    instructionBudget: 128,
+    batchCount,
+    budgetYieldCount,
+    maximumBatchInstructions,
+    totalExecutedInstructions,
+    finalCounter: 10_000,
+    finalStateHash: runtimeStateHashV1(session.workingState),
+    finalOutcomeHash: outcome.outcomeHash,
+    finalHistoryHash: runtimeHistorySessionHashV1(session.history)
   };
 }
 
@@ -346,6 +405,7 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     sourceDiagnosticInstructionIndex: 0,
     sourceDiagnosticStatementId: "source_statement",
     sourceDiagnosticStatementIndex: 3,
+    boundedTenThousand: executeRuntimeBoundedTenThousandV1(),
     formalVmParity: executeRuntimeFormalVmParityV1()
   };
 }
