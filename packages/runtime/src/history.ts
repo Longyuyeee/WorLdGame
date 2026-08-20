@@ -1,5 +1,6 @@
 import { canonicalRuntimeBytes, canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { runtimeStateHashV1 } from "./hash";
+import { mergeRuntimeMetaProgressV1 } from "./meta-progress";
 import { runRuntime, validateRuntimeEffectIntentV1, validateRuntimeStateV1 } from "./runtime";
 import { sha256Hex } from "./sha256";
 import {
@@ -53,6 +54,33 @@ function entryId(entry: Omit<RuntimeHistoryEntryV1, "entryId">): string {
 
 function makeEntry(entry: Omit<RuntimeHistoryEntryV1, "entryId">): RuntimeHistoryEntryV1 {
   return { entryId: entryId(entry), ...entry };
+}
+
+function rechainEntries(checkpoints: readonly RuntimeHistoryCheckpointV1[], entries: readonly RuntimeHistoryEntryV1[]): readonly RuntimeHistoryEntryV1[] {
+  return entries.map((entry, index) => {
+    const unsigned: Omit<RuntimeHistoryEntryV1, "entryId"> = {
+      historyIndex: index,
+      beforeCheckpointId: checkpoints[index]!.checkpointId,
+      afterCheckpointId: checkpoints[index + 1]!.checkpointId,
+      input: entry.input,
+      event: entry.event,
+      effects: entry.effects,
+      executedInstructions: entry.executedInstructions,
+      barriers: entry.barriers
+    };
+    return makeEntry(unsigned);
+  });
+}
+
+function rebaseMetaProgressAtCursor(session: RuntimeHistorySessionV1, incoming: RuntimeStateV1["metaProgress"]): RuntimeHistoryResultV1 {
+  const active = session.checkpoints[session.cursor]!;
+  const merged = mergeRuntimeMetaProgressV1(active.state.metaProgress, incoming);
+  if (!merged.ok) return result(session, merged.diagnostics);
+  if (!merged.changed) return result(session);
+  const nextCheckpoint = checkpoint({ ...active.state, metaProgress: merged.progress });
+  const checkpoints = session.checkpoints.map((item, index) => index === session.cursor ? nextCheckpoint : item);
+  const next = { ...session, checkpoints, entries: rechainEntries(checkpoints, session.entries) };
+  return result(next);
 }
 
 function result(session: RuntimeHistorySessionV1, diagnostics: readonly RuntimeDiagnosticV1[] = [], reconciliationPlan: RuntimeHistoryReconciliationPlanV1 | null = null, barrierBlock: RuntimeBarrierRecordV1 | null = null): RuntimeHistoryResultV1 {
@@ -128,6 +156,12 @@ export function validateRuntimeHistorySessionV1(program: RuntimeProgramV1, sessi
   catch { return [diagnostic("RUNTIME_HISTORY_INVALID", "History Session contains malformed or noncanonical data")]; }
 }
 
+export function mergeRuntimeHistoryMetaProgressV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, incoming: RuntimeStateV1["metaProgress"]): RuntimeHistoryResultV1 {
+  const validation = validateRuntimeHistorySessionV1(program, session);
+  if (validation.length > 0) return result(session, validation);
+  return rebaseMetaProgressAtCursor(session, incoming);
+}
+
 export function advanceRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, options: RuntimeRunOptionsV1 = {}): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
@@ -191,7 +225,9 @@ export function backRuntimeHistoryV1(program: RuntimeProgramV1, session: Runtime
     compensations: crossed.effects.filter((effect) => effect.policy === "reversible" && effect.compensation !== null).reverse().map((effect) => ({ effectId: effect.effectId, descriptorId: effect.descriptorId, channel: effect.channel, replayKey: effect.replayKey, compensation: effect.compensation! })),
     replayEffects: []
   };
-  return result({ ...session, cursor: session.cursor - 1 }, [], plan);
+  const moved = rebaseMetaProgressAtCursor({ ...session, cursor: session.cursor - 1 }, current.metaProgress);
+  if (moved.diagnostics.length > 0) return moved;
+  return result(moved.session, [], { ...plan, toCheckpointId: moved.session.checkpoints[moved.session.cursor]!.checkpointId, restoreCheckpointId: moved.session.checkpoints[moved.session.cursor]!.checkpointId });
 }
 
 export function forwardRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1): RuntimeHistoryResultV1 {
@@ -210,5 +246,7 @@ export function forwardRuntimeHistoryV1(program: RuntimeProgramV1, session: Runt
     compensations: [],
     replayEffects: crossed.effects.filter((effect) => effect.policy !== "barrier")
   };
-  return result({ ...session, cursor: session.cursor + 1 }, [], plan);
+  const moved = rebaseMetaProgressAtCursor({ ...session, cursor: session.cursor + 1 }, current.metaProgress);
+  if (moved.diagnostics.length > 0) return moved;
+  return result(moved.session, [], { ...plan, toCheckpointId: moved.session.checkpoints[moved.session.cursor]!.checkpointId, restoreCheckpointId: moved.session.checkpoints[moved.session.cursor]!.checkpointId });
 }

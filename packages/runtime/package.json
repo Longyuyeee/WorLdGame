@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/runtime",
-  "version": "0.10.0-n31",
+  "version": "0.11.0-n31",
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",

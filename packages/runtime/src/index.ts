@@ -4,6 +4,7 @@ export * from "./effect";
 export * from "./generated-corpus";
 export * from "./hash";
 export * from "./history";
+export * from "./meta-progress";
 export * from "./outcome";
 export * from "./runtime";
 export * from "./save";

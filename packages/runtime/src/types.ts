@@ -227,6 +227,7 @@ export const RUNTIME_DIAGNOSTIC_CODES = [
   "RUNTIME_EFFECT_CANCELLED", "RUNTIME_BARRIER_REQUIRED", "RUNTIME_SAVE_INVALID", "RUNTIME_SAVE_INCOMPATIBLE",
   "RUNTIME_SAVE_BUILD_MISMATCH", "RUNTIME_SAVE_HASH_MISMATCH", "RUNTIME_HISTORY_INVALID", "RUNTIME_HISTORY_AT_START",
   "RUNTIME_HISTORY_AT_END", "RUNTIME_HISTORY_FORWARD_REQUIRED", "RUNTIME_HISTORY_LIMIT", "RUNTIME_BARRIER_BLOCKED",
+  "RUNTIME_META_PROGRESS_INVALID", "RUNTIME_META_PROGRESS_INCOMPATIBLE",
   "RUNTIME_SCHEDULER_INVALID", "RUNTIME_SOURCE_MAP_INVALID", "RUNTIME_DIAGNOSTIC_INVALID", "RUNTIME_BUDGET_EXCEEDED",
   "RUNTIME_OUTCOME_NOT_QUIESCENT", "RUNTIME_TERMINAL"
 ] as const;
@@ -298,6 +299,7 @@ export type CreateRuntimeSaveResultV1 =
 
 export interface LoadRuntimeSaveOptionsV1 {
   readonly expectedBuildId: string;
+  readonly currentMetaProgress?: RuntimeMetaProgressV1;
 }
 
 export type LoadRuntimeSaveResultV1 =
@@ -354,11 +356,16 @@ export type CreateRuntimeSessionSaveResultV1 =
 
 export interface LoadRuntimeSessionSaveOptionsV1 {
   readonly expectedBuildId: string;
+  readonly currentMetaProgress?: RuntimeMetaProgressV1;
 }
 
 export type LoadRuntimeSessionSaveResultV1 =
   | { readonly ok: true; readonly save: RuntimeSessionSaveV1; readonly session: RuntimeHistorySessionV1; readonly state: RuntimeStateV1; readonly rehydration: RuntimeRehydrationV1; readonly artifactHash: string }
   | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
+
+export type MergeRuntimeMetaProgressResultV1 =
+  | { readonly ok: true; readonly progress: RuntimeMetaProgressV1; readonly changed: boolean; readonly hash: string }
+  | { readonly ok: false; readonly progress: RuntimeMetaProgressV1; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
 
 export interface RuntimeEffectCompensationPlanV1 {
   readonly effectId: string;

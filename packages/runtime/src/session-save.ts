@@ -1,6 +1,6 @@
 import { canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { runtimeHistorySessionHashV1, runtimeSessionSaveArtifactHashV1 } from "./hash";
-import { validateRuntimeHistorySessionV1 } from "./history";
+import { mergeRuntimeHistoryMetaProgressV1, validateRuntimeHistorySessionV1 } from "./history";
 import { validateRuntimeProgramV1 } from "./runtime";
 import {
   MAX_RUNTIME_SESSION_SAVE_BYTES,
@@ -108,10 +108,16 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
     if (runtimeHistorySessionHashV1(history) !== parsed.historyHash) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Session Save History Hash verification failed")] };
     }
-    const state = history.checkpoints[history.cursor]?.state;
+    let loadedHistory = history;
+    if (options.currentMetaProgress !== undefined) {
+      const merged = mergeRuntimeHistoryMetaProgressV1(program, history, options.currentMetaProgress);
+      if (merged.diagnostics.length > 0) return { ok: false, diagnostics: merged.diagnostics };
+      loadedHistory = merged.session;
+    }
+    const state = loadedHistory.checkpoints[loadedHistory.cursor]?.state;
     if (state === undefined) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save cursor has no matching checkpoint")] };
     const save = parsed as unknown as RuntimeSessionSaveV1;
-    return { ok: true, save, session: history, state, rehydration: rehydration(state), artifactHash: runtimeSessionSaveArtifactHashV1(save) };
+    return { ok: true, save, session: loadedHistory, state, rehydration: rehydration(state), artifactHash: runtimeSessionSaveArtifactHashV1(save) };
   } catch {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save contains a structurally invalid Runtime History Session")] };
   }
