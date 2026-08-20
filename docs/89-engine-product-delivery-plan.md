@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-20）：E1–E13 工程切片已形成候选；E11/E12 已分别关闭 VM-11/13。[E13](139-n31-e13-bounded-10k-step-audit.md)新增正式 10,000 次单流程循环，按 128 指令有界让步并冻结 235 批、30,002 指令以及 State/Outcome/History Hash；本地 Node、真实浏览器完整 Worker 门和 Draft PR #49 Windows / Node 22 完整门均通过，VM-14 正式关闭。本机 Node 25 的既有 Spike 10,000-seed 性能差异继续保留，不据此放宽门槛。下一步严格执行 E14 出口复审。`RA-N21-003` 只授权 N31 Engineering，N31 Product Acceptance 与 N32 继续阻断。
+> 实施状态（2026-08-20）：E1–E14 已形成 N31 Engineering 出口候选。[E14 复审](140-n31-e14-runtime-engineering-exit-reaudit.md)逐项得到 VM-01–VM-15 `完整 15 / 部分 0 / 未对齐 0`；E13 最终 Windows / Node 22 全仓门、真实浏览器 Worker、类型、构建、架构和性能证据成立。本机 Node 25 完整 check 因既有 10,000-seed 107.871 秒超过 90 秒而保持红色，不放宽门槛；E14 独立远端门取得前只登记候选，不登记最终 Engineering 通过。`RA-N21-003` 继续阻断 N31 Product Acceptance、N32、M1 与发布。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：
@@ -289,7 +289,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
   7. 移除正式包对 Spike Harness 的依赖。
 - **Tests**：固定向量、10k corpus、损坏/未来 Save、异步竞态、Barrier、分支截断。
 - **Acceptance**：同一 IR/输入在 Node 与 Web Worker State Hash 零差异，全套测试在预算内稳定通过。
-- **Exit audit**：E9 未通过；E10–E13 已关闭 E9 发现的正式契约缺口，VM-11/13/14 均取得远端权威门绿色；E14 复审仍未完成。继续以 [N31-E9](134-n31-e9-runtime-engineering-exit-audit.md)至 [N31-E13](139-n31-e13-bounded-10k-step-audit.md)证据为准，E14 通过前不得登记 N31 Engineering 出口。
+- **Exit audit**：E14 本地复审形成 Engineering 出口候选，VM-01–VM-15 已全部对齐；E14 独立 Windows / Node 22 完整门仍待取得。最终判定以 [N31-E14](140-n31-e14-runtime-engineering-exit-reaudit.md)为准；即使 Engineering 通过，也不等于 Product Acceptance 或获准进入 N32。
 
 ### N32 Editor Preview 接入正式 Runtime
 

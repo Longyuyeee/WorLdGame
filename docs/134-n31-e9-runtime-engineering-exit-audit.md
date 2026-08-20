@@ -1,5 +1,7 @@
 # N31-E9 正式 Runtime Engineering 出口审计
 
+> 后续节点更新：E9 发现的缺口已由 E10–E13 逐项修复；最新出口判定见 [N31-E14 Runtime Engineering 出口复审](140-n31-e14-runtime-engineering-exit-reaudit.md)。本文件保留 E9 fail-closed 基线。
+
 > 审计日期：2026-08-15
 > 审计基线：`7c3b9bd67ad5f1923d286e2c6ee7c292719bc947`（N31-E8 最终远端绿色头）
 > 审计分支：`agent/n31-runtime-e9-exit-audit`
