@@ -3,6 +3,7 @@
 > 审计日期：2026-08-20  
 > 起始基线：`6430789faa1d8ee75d78e2adb4ed4cee448b9e6b`（`agent/current-development-audit-2026-08-16`）  
 > 开发分支：`agent/n31-runtime-e11-session-save`  
+> 交付：Draft PR #47；实现提交 `2e3f62bd78f79f6406e0c86e7ea28d3891ca57f1`；Windows / Node 22 `product-baseline` run `32341186865`、job `96340464971` 通过（5 分 31 秒）  
 > 节点边界：只关闭 VM-11 的正式 Session Save 实现缺口；不宣告 N31 Engineering、N31 Product Acceptance、M1 Stable 或任一平台发布通过。
 
 ## 1. 目标与修复前差异
@@ -49,13 +50,13 @@
 
 本机当前默认 Node 为 `v25.2.1`，而权威 CI 固定 Node `22.12.0`。完整 Runtime 串行门第一次得到 `49 passed / 3 timed out`：超时项为 Node conformance、Scheduler 组合和既有 10,000-seed 双重重放；前两项在负载恢复后分别于 301 ms 和 189 ms 真实通过。10,000-seed 双重重放实际执行约 134.9 秒，但测试冻结上限为 90 秒，仍应记为性能门失败，不能通过提高阈值掩盖。
 
-真实浏览器的正式 Runtime 快速门通过，但包含 Spike 与完整 10,000-seed corpus 的总门超过冻结的 180 秒，得到 `data-status=failed`。这不改变 E11 的 Node/Worker 功能一致性结论，但意味着本节点在 Node 22 远端完整门绿色前只能称为“实现与本地功能审计候选”。
+真实浏览器的正式 Runtime 快速门通过，但包含 Spike 与完整 10,000-seed corpus 的总门超过冻结的 180 秒，得到 `data-status=failed`。权威 Windows / Node 22 完整门随后在 GitHub Actions 用 5 分 31 秒通过，证明 E11 语义、固定 Golden 和仓库基线在支持版本上成立；本机 Node 25 的时限差异仍作为性能环境事实保留，不据此放宽产品门。
 
 测试过程中还发现 Runtime 包升版后 VM Conformance 仍精确依赖旧版本，导致 npm 尝试从公共 registry 获取私有包。已同步 workspace 版本并重新执行 `npm install`，本地 workspace 链恢复；该差异已实际修正。
 
 ## 4. 需求与出口审计
 
-- VM-11：正式实现已补齐，功能与真实浏览器 Runtime Golden 通过；远端完整门待取得后登记最终关闭；
+- VM-11：正式实现、真实浏览器 Runtime Golden 与 Windows / Node 22 完整门均通过，登记为关闭；
 - VM-13：仍未对齐，Back 仍可能回退 checkpoint 内的 Meta Progress；
 - VM-14：仍未对齐，尚无单次 10,000-step 正式向量；
 - N31 Engineering：仍未通过；即使远端 E11 绿色，也必须完成 E12、E13、E14；
@@ -65,7 +66,7 @@
 
 ## 5. 下一步
 
-1. 推送 E11 候选并在获得 PR 授权后运行 Windows / Node 22 完整远端门；远端未绿不得把 E11 记为最终关闭；
-2. 远端绿色后进入 N31-E12 Monotonic Meta boundary；
+1. E11 已在 Draft PR #47 取得 Windows / Node 22 完整远端门绿色；
+2. 进入 N31-E12 Monotonic Meta boundary；
 3. 再按 E13 Bounded 10k-step、E14 Engineering exit re-audit 推进；
 4. 不进入 N32，不把自动化证据替代真人验收。
