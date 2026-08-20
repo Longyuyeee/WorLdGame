@@ -3,7 +3,9 @@ import type { RuntimeSourceMapV1 as CompilerRuntimeSourceMapV1, RuntimeStoryIrV1
 export const RUNTIME_VERSION = "0.6.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
 export const RUNTIME_SAVE_SCHEMA_VERSION = 1 as const;
+export const RUNTIME_SESSION_SAVE_SCHEMA_VERSION = 1 as const;
 export const MAX_RUNTIME_SAVE_BYTES = 16 * 1024 * 1024;
+export const MAX_RUNTIME_SESSION_SAVE_BYTES = 64 * 1024 * 1024;
 export const MAX_CALL_STACK_DEPTH = 64;
 export const MAX_META_PROGRESS_IDS_PER_DOMAIN = 100_000;
 export const DEFAULT_INSTRUCTION_BUDGET = 1024;
@@ -332,6 +334,31 @@ export interface RuntimeHistorySessionV1 {
   readonly entries: readonly RuntimeHistoryEntryV1[];
   readonly inputTombstones: readonly RuntimeInputV1[];
 }
+
+export interface RuntimeSessionSaveV1 {
+  readonly schemaVersion: typeof RUNTIME_SESSION_SAVE_SCHEMA_VERSION;
+  readonly format: "world.runtime-session-save";
+  readonly runtimeVersion: typeof RUNTIME_VERSION;
+  readonly irVersion: "1.0.0";
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly executionId: string;
+  readonly cursor: number;
+  readonly historyHash: string;
+  readonly history: RuntimeHistorySessionV1;
+}
+
+export type CreateRuntimeSessionSaveResultV1 =
+  | { readonly ok: true; readonly save: RuntimeSessionSaveV1; readonly serialized: string; readonly artifactHash: string }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
+
+export interface LoadRuntimeSessionSaveOptionsV1 {
+  readonly expectedBuildId: string;
+}
+
+export type LoadRuntimeSessionSaveResultV1 =
+  | { readonly ok: true; readonly save: RuntimeSessionSaveV1; readonly session: RuntimeHistorySessionV1; readonly state: RuntimeStateV1; readonly rehydration: RuntimeRehydrationV1; readonly artifactHash: string }
+  | { readonly ok: false; readonly diagnostics: readonly RuntimeDiagnosticV1[] };
 
 export interface RuntimeEffectCompensationPlanV1 {
   readonly effectId: string;

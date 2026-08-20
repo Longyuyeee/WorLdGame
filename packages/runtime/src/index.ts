@@ -7,6 +7,7 @@ export * from "./history";
 export * from "./outcome";
 export * from "./runtime";
 export * from "./save";
+export * from "./session-save";
 export * from "./scheduler";
 export * from "./source-map";
 export * from "./types";
