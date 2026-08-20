@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。`RA-N21-001/002/003` 已关闭；`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31/N32 产品验收与 M1/发布仍被阻断的事实，也不授权 N40 及以后。N31 集中集成候选正在建立，现有 Draft PR 不等于已合入 `main`。
+> 当前审计：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。`RA-N21-001/002/003` 已关闭；`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31/N32 产品验收与 M1/发布仍被阻断的事实，也不授权 N40 及以后。N31 集中基线已在 Draft PR #51 经 Windows / Node 22 完整门成为 Authoritative，但仍未合入 `main`。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -293,7 +293,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N32 Editor Preview 接入正式 Runtime
 
-> 准入状态（2026-08-20）：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)正在建立集中集成候选；`RA-N21-004` 只允许本节点 Engineering。集中 Draft PR 与最终 Windows / Node 22 门未完成前仍不开始实现。
+> 准入状态（2026-08-20）：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)已通过，集中 Draft PR #51 的 Windows / Node 22 完整门绿色；`RA-N21-004` 只允许本节点 Engineering。N32 Product Acceptance、N40 及以后仍被阻断。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：

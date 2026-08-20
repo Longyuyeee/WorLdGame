@@ -1,6 +1,6 @@
 # 当前开发情况审计（N31 Engineering 已通过，产品门阻断）
 
-> 最新节点审计：N31 Engineering 已通过；[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)正在建立集中集成候选与 `RA-N21-004`。新例外只允许 N32 Editor Preview Engineering，N31/N32 Product Acceptance、N40 及以后、M1 与发布仍被阻断。请优先阅读该检查点与 [N31-E14 Runtime Engineering 出口复审](140-n31-e14-runtime-engineering-exit-reaudit.md)；本文件其余章节保留 N31-E10 形成过程与细项证据。
+> 最新节点审计：N31 Engineering 已通过；[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)已在 Draft PR #51 远端完整门绿色后建立 Authoritative 集中基线与 `RA-N21-004`。新例外只允许 N32 Editor Preview Engineering，N31/N32 Product Acceptance、N40 及以后、M1 与发布仍被阻断；Authoritative 不表示已合入 `main`。本文件其余章节保留 N31-E10 形成过程与细项证据。
 
 > 审计日期：2026-08-16
 > 本轮审计基线：`d426fbe1608477e640b08e0c61818df3b4e6cbe9`（N31-E9 最终远端绿色头）

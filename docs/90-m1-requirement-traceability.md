@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N31 集中集成候选正在 [N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)建立。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选；N31-E1–E14 已通过未集成的 Engineering 出口，证据为 Draft PR #50 run `32349504993` / job `96365349584`。`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31 产品验收，也持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N31 集中基线已在 Draft PR #51 的 Windows / Node 22 完整门（run `32352341550` / job `96374022660`）绿色后成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选；N31-E1–E14 已通过未集成的 Engineering 出口。`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31 产品验收，也持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
