@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-14T21:37:00+08:00",
+  "sourceBaseRevision": "15eb54b0d499889abe867cc8e001aef4b000aa74",
+  "fixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Codex In-app Browser",
+    "url": "http://127.0.0.1:5174/"
+  },
+  "productFlow": {
+    "projectReference": "project-ea998a13-0d6e-4ac5-ac92-64af428a5385",
+    "projectName": "N22 Exit Audio Audit",
+    "importedAssetId": "media_theme",
+    "assetIndexRevision": 1,
+    "savedStorageRevision": 2,
+    "savedStatementCount": 2,
+    "directive": "action=play asset=media_theme bus=bgm loop=true volume=1",
+    "fullReloadRecentProjectReopen": "pass"
+  },
+  "asset": {
+    "fileName": "media_theme.wav",
+    "mimeType": "audio/wav",
+    "byteLength": 1644,
+    "sha256": "5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+    "inspection": "pass"
+  },
+  "playback": {
+    "testId": "preview-audio-bgm",
+    "blobUrl": true,
+    "readyState": 4,
+    "paused": false,
+    "ended": false,
+    "errorCode": null,
+    "loop": true,
+    "volume": 1,
+    "duration": 0.1,
+    "firstCurrentTime": 0.014045,
+    "secondCurrentTime": 0.042476,
+    "timeAdvanced": true,
+    "sampleIntervalMs": 250
+  },
+  "ui": {
+    "accessibleName": "bgm 音轨播放中",
+    "visibleText": "BGM · 播放中",
+    "autoplayFallback": "click-to-enable"
+  },
+  "automatedConstraint": {
+    "test": "apps/editor/src/preview-audio-layer.test.tsx",
+    "cases": [
+      "Blob-backed playing state",
+      "autoplay blocked user-gesture retry",
+      "paused state and decode error"
+    ]
+  },
+  "status": "pass",
+  "scope": "independent-import-directive-save-reopen-actual-audio-playback"
+}

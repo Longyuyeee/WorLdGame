@@ -1,0 +1,25 @@
+{
+  "sourceRevision": "45aad835239395f52294a9d8d11b807d66afe470",
+  "runtimeVersion": "cl04-spike.9",
+  "vm14": {
+    "loopSteps": 10000,
+    "maximumBatchSteps": 128,
+    "finalCounter": 10000,
+    "stateRevision": 20002,
+    "stateHash": "273dde1820c0d67dad879061e5a505b3c8af8582a59ece686eac84082bc5dc84"
+  },
+  "vm15": {
+    "storyOutcomeDomain": "WORLd-VM-STORY-OUTCOME\\0v0\\0",
+    "storyOutcomeHash": "34bcf067d7e841b82fb95eb4eafa8100e705675b6f90ab8d90275e81a9c91f93",
+    "pendingStatePolicy": "reject"
+  },
+  "generatedCorpus": {
+    "seedRange": [0, 9999],
+    "sequenceCount": 10000,
+    "executionsPerSeed": 2,
+    "scenarioFamilies": ["nested-condition", "call-return", "random", "effect-cancellation", "save-load", "choice-back-forward"],
+    "digest": "770920d96fdcb3388c3f7aead30ee45385ec9cd0c435960a6981b5cb6c92e048",
+    "failedSeeds": []
+  },
+  "runtimeSaveIntegrityDigest": "0a66fabd29fecf80f74d50d4b8f545ed3029226e9c5317bb7d07df3172331540"
+}

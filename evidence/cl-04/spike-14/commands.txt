@@ -1,0 +1,7 @@
+npm.cmd exec vitest run packages/narrative-vm-spike/src/vm-spike14.test.ts
+npm.cmd run build --workspace @world-studio/vm-conformance-cli
+node apps/vm-conformance-cli/dist/cli.mjs --bundle
+node apps/vm-conformance-cli/dist/cli.mjs --run host.node.reference
+node apps/vm-conformance-cli/dist/cli.mjs --compare-stdin
+npm.cmd run check
+git diff --check

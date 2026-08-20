@@ -16,6 +16,11 @@
 - [设置表参考](https://madnesslabo.net/utage/?page_id=249)
 - [UI 修改基础](https://madnesslabo.net/utage/?page_id=1101)
 - [编辑器用户设置与多人项目约定](https://madnesslabo.net/utage/?page_id=12230)
+- [Dicing 原理、容量与内存说明](https://madnesslabo.net/utage/?page_id=8819)
+- [Dicing Converter、分组建议与加载注意事项](https://madnesslabo.net/utage/?page_id=8849)
+- [宴 3 Dicing 功能说明](https://madnesslabo.net/utage/?page_id=8546)
+- [宴图形对象与 Dicing 适用性](https://madnesslabo.net/utage/?page_id=8810)
+- [资源构建、自动导入与平台压缩注意事项](https://madnesslabo.net/utage/?page_id=9355)
 
 ## Yarn Spinner
 
@@ -83,12 +88,86 @@
 
 - [Capacitor 官方文档](https://capacitorjs.com/docs)
 - [Tauri v2 前置条件与移动目标](https://v2.tauri.app/start/prerequisites/)
+- [Electron 安全指南](https://www.electronjs.org/docs/latest/tutorial/security)
+- [Electron 进程模型](https://www.electronjs.org/docs/latest/tutorial/process-model)
+- [Electron autoUpdater API](https://www.electronjs.org/docs/latest/api/auto-updater/)
+- [Electron 应用更新指南](https://www.electronjs.org/docs/latest/tutorial/updates)
+- [Electron 分发概览](https://www.electronjs.org/docs/latest/tutorial/distribution-overview)
+- [Electron 支持版本时间线](https://www.electronjs.org/docs/latest/tutorial/electron-timelines)
+- [Tauri v2 Capabilities](https://v2.tauri.app/security/capabilities/)
+- [Tauri v2 Permissions](https://v2.tauri.app/security/permissions/)
+- [Tauri v2 Runtime Authority](https://v2.tauri.app/security/runtime-authority/)
+- [Tauri v2 Scopes](https://v2.tauri.app/security/scope/)
+- [Tauri v2 进程模型](https://v2.tauri.app/concept/process-model/)
+- [Tauri v2 Windows Installer](https://v2.tauri.app/distribute/windows-installer/)
+- [Tauri v2 Windows 代码签名](https://v2.tauri.app/distribute/sign/windows/)
+- [Microsoft WebView2 Evergreen 与 Fixed Version 分发模式](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/evergreen-vs-fixed-version)
+- [Microsoft WebView2 概览](https://learn.microsoft.com/en-us/microsoft-edge/webview2/)
 - [PixiJS 渲染概览](https://pixijs.download/dev/docs/rendering.html)
+- [PixiJS Assets、缓存、后台加载与压缩纹理](https://pixijs.com/8.x/guides/components/assets)
+- [PixiJS GPU 资源回收、显式释放与对象池建议](https://pixijs.com/8.x/guides/concepts/garbage-collection)
+- [Khronos KTX2 与 Basis Universal](https://www.khronos.org/ktx/)
+- [KTX 2.0 官方规范](https://registry.khronos.org/KTX/specs/2.0/ktxspec.v2.html)
+- [Android App Bundle 纹理压缩格式定向](https://developer.android.com/guide/playcore/asset-delivery/texture-compression)
+- [Google Play Asset Delivery](https://developer.android.com/guide/playcore/asset-delivery)
+- [MDN HTTP 压缩、Brotli/gzip 与重复压缩注意事项](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Compression)
 - [MDN File System API 与 OPFS](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API)
+- [Node.js File System 官方文档](https://nodejs.org/download/release/latest-v22.x/docs/api/fs.html)
+- [Android App-specific Storage 官方指南](https://developer.android.com/training/data-storage/app-specific)
+- [Android Storage Access Framework 官方指南](https://developer.android.com/training/data-storage/shared/documents-files)
+- [Android Activity 生命周期](https://developer.android.com/guide/components/activities/activity-lifecycle)
+- [Android 进程与应用生命周期](https://developer.android.com/guide/components/activities/process-lifecycle)
+- [Android 保存 UI State](https://developer.android.com/topic/libraries/architecture/views/saving-states-views)
+- [Android 键盘输入指南](https://developer.android.com/develop/ui/views/touch-and-input/keyboard-input)
+- [Android IME 组合文本语义](https://developer.android.com/develop/ui/views/touch-and-input/creating-input-method)
+- [Android WebView 应用指南](https://developer.android.com/develop/ui/views/layout/webapps/webview)
+- [Android WebView 原生 API Bridge 安全指南](https://developer.android.com/develop/ui/views/layout/webapps/native-api-access-jsbridge)
+- [Android WebView 不安全文件包含风险](https://developer.android.com/privacy-and-security/risks/webview-unsafe-file-inclusion)
+- [Android 应用内存管理](https://developer.android.com/topic/performance/memory)
+- [Android 后台任务概览](https://developer.android.com/develop/background-work/background-tasks)
+- [Android AtomicFile 官方 API](https://developer.android.com/reference/android/util/AtomicFile)
+- [Android ActivityManager 内存能力 API](https://developer.android.com/reference/android/app/ActivityManager)
+- [Android Slow Rendering 与 16 ms / Frozen Frame 指标](https://developer.android.com/topic/performance/vitals/render)
+- [Google Play Target API Level Policy](https://support.google.com/googleplay/android-developer/answer/11926878)
+- [Windows 10 Home/Pro 生命周期](https://learn.microsoft.com/en-us/lifecycle/products/windows-10-home-and-pro)
+- [Core Web Vitals 阈值方法](https://web.dev/articles/defining-core-web-vitals-thresholds)
 - [GitHub Actions 托管运行器](https://github.com/features/actions)
 - [Apple Xcode 系统要求](https://developer.apple.com/xcode/system-requirements)
 - [Live2D Cubism 平台支持](https://docs.live2d.com/en/cubism-sdk-manual/platform/)
 - [Live2D Cubism Core 与许可说明](https://docs.live2d.com/en/cubism-sdk-manual/cubism-core/)
+
+## 工程质量、安全与供应链审计
+
+- [ISO/IEC 25010:2023 产品质量模型](https://www.iso.org/standard/78176.html)
+- [NIST SP 800-218：Secure Software Development Framework 1.1](https://www.nist.gov/publications/secure-software-development-framework-ssdf-version-11-recommendations-mitigating-risk)
+- [NIST SSDF 项目与版本动态](https://csrc.nist.gov/projects/ssdf)
+- [OWASP Application Security Verification Standard 5.0.0](https://owasp.org/www-project-application-security-verification-standard/)
+- [OWASP Mobile Application Security Verification Standard 2.1.0](https://github.com/OWASP/masvs/releases/tag/v2.1.0)
+- [OWASP Thick Client Application Security Verification Standard](https://owasp.org/TCASVS/)
+- [W3C Web Content Accessibility Guidelines 2.2](https://www.w3.org/TR/WCAG22/)
+- [SLSA 1.2 规范](https://slsa.dev/spec/v1.2/)
+- [SLSA 1.2 Build Track 等级](https://slsa.dev/spec/v1.2/build-track-basics)
+- [SPDX 规范与当前版本](https://spdx.dev/use/specifications/)
+- [The Update Framework](https://theupdateframework.io/)
+- [Sigstore 与 Cosign 签名模型](https://docs.sigstore.dev/)
+- [Reproducible Builds 定义](https://reproducible-builds.org/docs/definition/)
+- [OpenSSF Scorecard](https://openssf.org/scorecard/)
+- [CISA Secure by Design 原则](https://www.cisa.gov/news-events/news/applying-secure-design-thinking-events-news)
+- [OpenTelemetry 规范](https://opentelemetry.io/docs/specs/otel/)
+- [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12)
+- [RFC 9457：HTTP API Problem Details](https://www.rfc-editor.org/rfc/rfc9457.html)
+- [Microsoft Threat Modeling Tool 与 STRIDE](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool)
+
+## 商业成品表现参照
+
+- [《月姬 -A piece of blue glass moon-》英文官方网站](https://tsukihime-en.com/)：官方将进化后的画面、动画和音乐列为重制表现重点，并列出多语言与平台规格。
+- [《月姬 -A piece of blue glass moon-》TYPE-MOON 产品页](https://typemoon.com/products/tsukihime/)
+- [《魔法使之夜》英文官方网站](https://mahoyo-en.com/)
+- [《魔法使之夜》Steam 产品页](https://store.steampowered.com/app/2052410/)：用于核验全语音和 Full HD 重制信息。
+- [《ATRI -My Dear Moments-》官方网站](https://atri-mdm.com/)
+- [《ATRI -My Dear Moments-》官方英文故事页](https://atri-mdm.com/en/story/)
+
+这些作品只用于建立演出、音画、UI、本地化与发行完整性的评价维度，不意味着复制其美术风格、界面、素材或内容。
 
 ## 社区痛点样本
 

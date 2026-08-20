@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "deliveryNode": "N23-E5",
+  "projectPath": "fixtures/projects/benchmark/project.s0.json",
+  "minimumRouteSeconds": 300,
+  "minimumScenes": 3,
+  "minimumCharacters": 2,
+  "minimumEndings": 2,
+  "expectedRouteCount": 2,
+  "minimumReadableStatementsPerRoute": 20,
+  "maximumWaitContributionSeconds": 10,
+  "readingModel": {
+    "cjkCharactersPerMinute": 240,
+    "latinWordsPerMinute": 180,
+    "minimumVisibleStatementSeconds": 1.5,
+    "choiceSeconds": 5,
+    "directionSeconds": 1,
+    "endingSeconds": 3
+  },
+  "requiredStatementKinds": ["dialogue", "narration", "direction", "set", "condition", "label", "choice", "end"],
+  "requiredDirectionCommands": ["background", "audio"]
+}

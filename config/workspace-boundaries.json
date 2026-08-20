@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "workspaces": [
+    {
+      "path": "apps/editor",
+      "packageName": "@world-studio/editor",
+      "kind": "product",
+      "stability": "prototype",
+      "owner": "Editor Owner",
+      "allowedWorkspaceDependencies": [
+        "@world-studio/project-domain",
+        "@world-studio/project-persistence",
+        "@world-studio/story-core",
+        "@world-studio/story-language"
+      ]
+    },
+    {
+      "path": "apps/vm-conformance",
+      "packageName": "@world-studio/vm-conformance-harness",
+      "kind": "conformance",
+      "stability": "experimental",
+      "owner": "Runtime Verification Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/narrative-vm-spike", "@world-studio/runtime"]
+    },
+    {
+      "path": "apps/vm-conformance-cli",
+      "packageName": "@world-studio/vm-conformance-cli",
+      "kind": "conformance",
+      "stability": "experimental",
+      "owner": "Runtime Verification Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/narrative-vm-spike"]
+    },
+    {
+      "path": "apps/windows-shell-conformance",
+      "packageName": "@world-studio/windows-shell-conformance",
+      "kind": "conformance",
+      "stability": "experimental",
+      "owner": "Windows Platform Owner",
+      "allowedWorkspaceDependencies": [
+        "@world-studio/narrative-vm-spike",
+        "@world-studio/project-persistence",
+        "@world-studio/project-persistence-node"
+      ]
+    },
+    {
+      "path": "packages/narrative-vm-spike",
+      "packageName": "@world-studio/narrative-vm-spike",
+      "kind": "spike",
+      "stability": "experimental",
+      "owner": "Runtime Verification Owner",
+      "allowedWorkspaceDependencies": []
+    },
+    {
+      "path": "packages/project-domain",
+      "packageName": "@world-studio/project-domain",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Domain Owner",
+      "allowedWorkspaceDependencies": []
+    },
+    {
+      "path": "packages/project-compiler",
+      "packageName": "@world-studio/project-compiler",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Compiler Owner",
+      "allowedWorkspaceDependencies": [
+        "@world-studio/project-domain",
+        "@world-studio/story-language"
+      ]
+    },
+    {
+      "path": "packages/project-persistence",
+      "packageName": "@world-studio/project-persistence",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Persistence Owner",
+      "allowedWorkspaceDependencies": []
+    },
+    {
+      "path": "packages/project-persistence-node",
+      "packageName": "@world-studio/project-persistence-node",
+      "kind": "adapter",
+      "stability": "candidate",
+      "owner": "Persistence Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/project-domain", "@world-studio/project-persistence"]
+    },
+    {
+      "path": "packages/runtime",
+      "packageName": "@world-studio/runtime",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Runtime Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/project-compiler", "@world-studio/project-domain"]
+    },
+    {
+      "path": "packages/story-core",
+      "packageName": "@world-studio/story-core",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Domain Owner",
+      "allowedWorkspaceDependencies": []
+    },
+    {
+      "path": "packages/story-language",
+      "packageName": "@world-studio/story-language",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Language Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/story-core"]
+    }
+  ],
+  "plannedProductBoundaries": [
+    { "path": "packages/build-core", "packageName": "@world-studio/build-core", "firstNode": "N83" },
+    { "path": "apps/player-web", "packageName": "@world-studio/player-web", "firstNode": "N80" },
+    { "path": "apps/player-windows", "packageName": "@world-studio/player-windows", "firstNode": "N81" },
+    { "path": "apps/player-android", "packageName": "@world-studio/player-android", "firstNode": "N82" }
+  ]
+}

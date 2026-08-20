@@ -1,0 +1,29 @@
+{
+  "sourceRevision": "45aad835239395f52294a9d8d11b807d66afe470",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 58,
+    "tests": 406,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 9,
+    "tests": 83,
+    "failed": 0,
+    "spike09Tests": 4,
+    "generatedSequences": 10000,
+    "repeatedExecutions": 20000
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 47,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "observedTargetedDurationSeconds": 55.53,
+  "note": "Observed on one Node development host. This is a deterministic generated corpus, not complete fuzz, browser scheduling, target-device performance, or cross-host evidence."
+}

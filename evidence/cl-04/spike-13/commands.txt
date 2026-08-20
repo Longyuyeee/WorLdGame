@@ -1,0 +1,5 @@
+npm.cmd exec vitest run packages/narrative-vm-spike/src/vm-spike13.test.ts
+npm.cmd run build --workspace @world-studio/vm-conformance-harness
+Browser: require Spike 10-13 50 records plus Spike 12 summary equal to Node Golden
+npm.cmd run check
+git diff --check

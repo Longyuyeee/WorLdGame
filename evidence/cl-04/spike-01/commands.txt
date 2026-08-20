@@ -1,0 +1,6 @@
+npm.cmd install --package-lock-only --ignore-scripts
+npm.cmd run typecheck
+npm.cmd test -- --run packages/narrative-vm-spike/src/vm.test.ts
+npm.cmd run audit:architecture
+npm.cmd run check
+git diff --check

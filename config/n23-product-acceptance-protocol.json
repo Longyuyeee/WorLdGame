@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "N23-PA-01",
+  "deliveryNode": "N23",
+  "minimumParticipants": 2,
+  "prerequisite": {
+    "contentGatePath": "config/n23-content-gate.json",
+    "requiredContentGateStatus": "PASS",
+    "projectPath": "fixtures/projects/benchmark/project.s0.json",
+    "productEntryLabel": "打开五分钟验收工程",
+    "launcherPath": "start-n23-acceptance.cmd",
+    "launcherUrl": "http://127.0.0.1:43123/",
+    "requiredN21Status": "pass"
+  },
+  "participantEligibility": {
+    "mustNotHaveContributedCodeOrDesign": true,
+    "requiresConsent": true,
+    "participantsMustBeDistinct": true,
+    "prohibitDirectPersonalInformation": true
+  },
+  "facilitatorRules": {
+    "mayOperateEditor": false,
+    "mayCoachExactControls": false,
+    "mayReadTaskGoals": true,
+    "mayRecordObservations": true
+  },
+  "tasks": [
+    { "id": "P01", "goal": "从项目首页使用可见入口打开五分钟验收工程，并进入编辑器" },
+    { "id": "P02", "goal": "确认工程至少包含三个场景、两名角色和两个不同结局" },
+    { "id": "P03", "goal": "在 Writer 或 Sequence 中独立修改一处叙事文本，保存、关闭并重开确认修改保留" },
+    { "id": "P04", "goal": "在编辑器完整流程试玩中分别运行两条选择路线并到达各自结局" },
+    { "id": "P05", "goal": "从当前工程构建并下载独立试玩 HTML" },
+    { "id": "P06", "goal": "脱离编辑器打开独立 HTML，分别运行两条路线并到达各自结局" }
+  ],
+  "routes": [
+    { "id": "benchmark_board", "expectedEnding": "驶向仍可抵达的清晨" },
+    { "id": "benchmark_stay", "expectedEnding": "雨停以后重新出发" }
+  ],
+  "severityDefinitions": {
+    "0": "崩溃、数据损坏、安全问题或无法完成全部验收流程",
+    "1": "核心流程无合理绕行、结局错误或独立产物不可运行",
+    "2": "存在可绕行的重要体验问题",
+    "3": "不阻断任务的轻微体验问题"
+  },
+  "passCriteria": {
+    "allParticipantsEligible": true,
+    "allTasksPass": true,
+    "allEditorRoutesPass": true,
+    "allStandaloneRoutesPass": true,
+    "maximumSeverity0Findings": 0,
+    "maximumSeverity1Findings": 0,
+    "facilitatorOperatedEditor": false,
+    "requiresHashedArtifacts": true
+  }
+}

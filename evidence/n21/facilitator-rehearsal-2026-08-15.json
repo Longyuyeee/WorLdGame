@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "auditId": "N21-FACILITATOR-REHEARSAL-01",
+  "date": "2026-08-15",
+  "sourceBaseRevision": "83ccdd966a85874151c0d14a721093d194a62e34",
+  "status": "failed-readiness-preflight",
+  "notHumanAcceptanceEvidence": true,
+  "project": {
+    "title": "N21 主持人预演",
+    "workspaceReference": "project-32a93439-b896-42e9-8e54-38f5b159ac28",
+    "startedFromBlankProject": true
+  },
+  "observations": [
+    {
+      "task": "T01",
+      "status": "pass",
+      "observation": "从项目首页创建空工程，经项目结构页进入 Writer。"
+    },
+    {
+      "task": "T02",
+      "status": "blocked",
+      "observation": "空工程没有角色；Writer 尝试插入对白时提交 speakerId=character_missing 并被权威模型拒绝。"
+    }
+  ],
+  "remediation": {
+    "status": "verified-in-browser",
+    "changes": [
+      "没有角色时禁用对白插入并显示返回项目结构创建角色的中文提示。",
+      "没有变量时禁用 set/condition，没有资源时禁用背景/角色演出/音频插入。",
+      "T02 修订为创建角色并加入引用该角色的对白。"
+    ],
+    "postFixObservation": "创建角色小岚和字符串变量 route、保存并返回 Writer 后，对白按钮恢复可用；对白提交到 revision 2，Preview 显示小岚和正确文本。"
+  },
+  "decision": "T02 阻断已修复并通过主持人预演；T03–T08 未在本记录中冒充真人验收，N21 继续 pending-participant。"
+}

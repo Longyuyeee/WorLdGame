@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-08-13T10:23:00+08:00",
+  "sourceRevision": "6d8f61dfc75ba6ddf5ab8f239bb5775963b9d2bc",
+  "sourceTree": "1f45056f0a94849174c76f90fd64efcc389e69ad",
+  "os": {
+    "caption": "Microsoft Windows 11 家庭版 中文版",
+    "version": "10.0.26200",
+    "build": "26200"
+  },
+  "runtime": {
+    "node": "25.2.1",
+    "npm": "11.6.2",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  },
+  "package": {
+    "name": "@world-studio/narrative-vm-spike",
+    "version": "0.0.0-cl04-spike.4"
+  },
+  "schemas": {
+    "irVersion": 0,
+    "runtimeStateSchemaVersion": 0,
+    "runtimeSessionSchemaVersion": 0,
+    "externalInputSchemaVersion": 0,
+    "opcodeRegistryDigest": "edd46eacfb5f5040a0042bc2c63598a3e589f9d48fcc30c7f50fe08908992975",
+    "historyEntryLimit": 256,
+    "inputTombstoneLimit": 1024
+  },
+  "hostClassification": "Node development host only; not Web/Windows-shell/Android evidence"
+}

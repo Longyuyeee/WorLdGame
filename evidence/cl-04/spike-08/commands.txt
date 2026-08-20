@@ -1,0 +1,4 @@
+npm.cmd exec -- vitest run packages/narrative-vm-spike/src/vm.test.ts packages/narrative-vm-spike/src/vm-spike02.test.ts packages/narrative-vm-spike/src/vm-spike03.test.ts packages/narrative-vm-spike/src/vm-spike04.test.ts packages/narrative-vm-spike/src/vm-spike05.test.ts packages/narrative-vm-spike/src/vm-spike06.test.ts packages/narrative-vm-spike/src/vm-spike07.test.ts packages/narrative-vm-spike/src/vm-spike08.test.ts
+npm.cmd exec -- tsc -p packages/narrative-vm-spike/tsconfig.json --noEmit
+npm.cmd run check
+git diff --check

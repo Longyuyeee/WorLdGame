@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-08-13T12:42:00+08:00",
+  "sourceRevision": "cd95acbd14177a336ec5bb31a37c2f1ad822e6b5",
+  "sourceTree": "f0153a8da11cacedbcefbb8200450249264f4255",
+  "os": {"caption": "Microsoft Windows 11 家庭版 中文版", "version": "10.0.26200", "build": "26200"},
+  "nodeHost": {"node": "25.2.1", "npm": "11.6.2", "typescript": "7.0.2", "vitest": "4.1.10"},
+  "webWorkerHost": {
+    "kind": "real browser module Web Worker",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+    "harness": "@world-studio/vm-conformance-harness@0.0.0-cl04-spike.12"
+  },
+  "runtimePackage": "@world-studio/narrative-vm-spike@0.0.0-cl04-spike.12",
+  "runtimeSaveBinding": "cl04-spike.9",
+  "hostClassification": "Node plus one real Web Worker on a Windows development host; not shell, persistent-storage, target-device, or three-host evidence"
+}
