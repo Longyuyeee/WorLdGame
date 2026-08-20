@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[当前开发情况综合审计（2026-08-16）](136-current-development-audit-2026-08-16.md)。`RA-N21-001/002` 已关闭；[`RA-N21-003`](126-n31-e1-runtime-kernel-audit.md)只授权 N31 正式 Runtime 工程候选，不改变 N21/N23/N30/N31 产品验收与 M1/发布仍被阻断的事实，也不授权 N32。[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 建立为 Authoritative。
+> 当前审计：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。`RA-N21-001/002/003` 已关闭；`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31/N32 产品验收与 M1/发布仍被阻断的事实，也不授权 N40 及以后。N31 集中集成候选正在建立，现有 Draft PR 不等于已合入 `main`。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-20）：E1–E14 已完成 N31 Engineering。[E14 复审](140-n31-e14-runtime-engineering-exit-reaudit.md)逐项得到 VM-01–VM-15 `完整 15 / 部分 0 / 未对齐 0`；Draft PR #50 的 Windows / Node 22 完整门 run `32349504993` / job `96365349584` 用时 4 分 01 秒绿色。本机 Node 25 完整 check 因既有 10,000-seed 107.871 秒超过 90 秒而保持红色，没有放宽门槛，并作为非支持环境差异保留。`RA-N21-003` 继续阻断 N31 Product Acceptance、N32、M1 与发布。
+> 实施状态（2026-08-20）：E1–E14 已完成 N31 Engineering。[E14 复审](140-n31-e14-runtime-engineering-exit-reaudit.md)逐项得到 VM-01–VM-15 `完整 15 / 部分 0 / 未对齐 0`；Draft PR #50 的 Windows / Node 22 完整门 run `32349504993` / job `96365349584` 用时 4 分 01 秒绿色。本机 Node 25 完整 check 因既有 10,000-seed 107.871 秒超过 90 秒而保持红色，没有放宽门槛，并作为非支持环境差异保留。`RA-N21-004` 继续阻断 N31 Product Acceptance，但只解除 N32 Engineering 前置，不解除任何产品、N40+、M1 或发布门。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：
@@ -292,6 +292,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Exit audit**：E14 复审确认 VM-01–VM-15 全部对齐，独立 Windows / Node 22 完整门绿色，N31 Engineering 通过。最终判定以 [N31-E14](140-n31-e14-runtime-engineering-exit-reaudit.md)为准；Engineering 通过不等于 Product Acceptance，也不授权进入 N32。
 
 ### N32 Editor Preview 接入正式 Runtime
+
+> 准入状态（2026-08-20）：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)正在建立集中集成候选；`RA-N21-004` 只允许本节点 Engineering。集中 Draft PR 与最终 Windows / Node 22 门未完成前仍不开始实现。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：

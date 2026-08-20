@@ -83,7 +83,7 @@
     },
     {
       "id": "RA-N21-003",
-      "status": "active",
+      "status": "closed",
       "failedControls": [
         "N21 non-programmer 20-minute product task",
         "N23 product acceptance by two non-implementers",
@@ -119,6 +119,53 @@
       "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N32 or any product acceptance declaration.",
       "verificationMethod": "Keep human records pending; audit the formal Runtime dependency boundary; execute Compiler-IR fixed vectors, deterministic transition equality, malformed/future version rejection, and bounded-loop tests; do not treat these as usability evidence.",
       "evidencePath": "docs/126-n31-e1-runtime-kernel-audit.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-004",
+      "status": "active",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N32 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "Editor Preview integration assumptions may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish discoverability or independent task completion"
+      ],
+      "reason": "After N31 Engineering passed VM-01 through VM-15 and two independent Windows / Node 22 full checks, the Product Owner was told that a new bounded authorization was required because human participants remain unavailable, then explicitly instructed the team on 2026-08-20 to enter the next step with real expected-versus-actual testing, audit, requirement alignment, documentation, and push. This authorizes only N32 Editor Preview engineering while every product and release gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, and N31 product acceptance pending rather than passed",
+        "Limit the extension to N32 Editor Preview engineering; N32 Product Acceptance, N40, and every later node remain blocked",
+        "Require Preview to consume the formal N30 Compiler output and execute through the formal N31 Runtime rather than retaining a parallel product interpreter",
+        "Require real production-browser tests with frozen expected outcomes, actual outcomes, hashes, diagnostics, and correction records",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Keep the consolidated N31 integration baseline reviewable against main and prohibit claims that a Draft PR is already merged",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-runtime-integration",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-20T16:49:49+08:00",
+      "expiresAt": "2026-09-20T16:49:49+08:00",
+      "maximumDeliveryNode": "N32",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N32 Product Acceptance or any N40 work.",
+      "verificationMethod": "Keep human records pending; audit the consolidated N31 ancestor chain; for N32 execute formal Compiler-to-Runtime Preview flows in a production browser and compare frozen State, Outcome, History, diagnostic location, cancellation, save, back, forward, auto, and skip expectations against actual results.",
+      "evidencePath": "docs/141-n31-n32-governance-integration-checkpoint.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",

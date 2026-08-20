@@ -1,5 +1,7 @@
 # N31-E14 Runtime Engineering 出口复审
 
+> 后续节点更新：产品负责人已在明确真人门与 N32 阻断后授权进入下一治理步骤；最新准入边界见 [N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。本文件保留 N31 Engineering 出口证据。
+
 > 审计日期：2026-08-20
 > 审计基线：`bbbac613bf1b566756acfbfdd581d4394149ab35`（E13 最终证据头；PR #49 run `32348096037` / job `96361069900` 绿色）
 > 审计分支：`codex/n31-runtime-e14-engineering-exit-audit`

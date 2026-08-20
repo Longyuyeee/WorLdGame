@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选；N31-E1–E14 已通过未集成的 Engineering 出口，证据为 Draft PR #50 run `32349504993` / job `96365349584`。`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
+> 集成边界：当前开发链仍未进入 `main`；N31 集中集成候选正在 [N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)建立。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选；N31-E1–E14 已通过未集成的 Engineering 出口，证据为 Draft PR #50 run `32349504993` / job `96365349584`。`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31 产品验收，也持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；N22/N23 工程门、N30 Compiler 工程退出候选和 N31 Runtime 工程切片不跨越 N21 产品门，不能登记 N23、N30 或 N31 产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。`RA-N21-003` 在 2026-09-14 到期，仅允许推进到 N31，并持续阻断 N21/N23/N30/N31 产品验收、N32、M1 Stable 与发布。
+最近按产品顺序通过的节点仍是 `N20`；N22/N23 工程门、N30 Compiler 和 N31 Runtime Engineering 不跨越 N21 产品门，不能登记 N23、N30 或 N31 产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。`RA-N21-004` 在 2026-09-20 到期，只允许推进到 N32 Engineering，并持续阻断 N21/N23/N30/N31/N32 产品验收、N40 及以后、M1 Stable 与发布。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -62,7 +62,7 @@
 | AC-02 | 两端编辑对白/角色/选择/条件 | N91/N92 | 未开始 | N13/N21 | 双端任务 E2E |
 | AC-03 | Route/Sequence/Script/Stage 同源 | N40–N43 | 实现中 | 通用 Project、完整视图 | ChangeSet/Hash 对照 |
 | AC-04 | 任一视图修改 500 ms 同步 | N43 | 实现中 | 视图不全 | P95 测量和 E2E |
-| AC-05 | 任意语句预览和变量 | N32/N60 | 未开始 | N31-E8 已建立 Runtime Diagnostic → Statement 的后端定位契约；仍缺 N32 任意入口预览与 N60 Debugger/变量检查 UI，且 `RA-N21-003` 不授权进入 N32 | [N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、Debugger E2E |
+| AC-05 | 任意语句预览和变量 | N32/N60 | 未开始 | N31-E8 已建立 Runtime Diagnostic → Statement 的后端定位契约；`RA-N21-004` 只允许开始 N32 Editor Preview Engineering，N60 Debugger/变量检查 UI 与所有产品验收仍未获准 | [N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、[N31→N32 治理检查点](141-n31-n32-governance-integration-checkpoint.md)、Debugger E2E |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 实现中 | N30 Compiler 已拒绝不可达结局、无出口、无交互闭环和缺失资源；仍缺 N60 产品 QA 呈现、抑制与 Solver | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden 报告 |
 | AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 实现中 | E11 已恢复完整 Session；E12 已证明 Back/Forward 和旧 State/Session Save 不回退 read/CG/ending，原存档 artifactHash 仍可验证，并取得远端完整门绿色。三端 Player、设备与存档槽仍未完成 | [N31-E4](129-n31-e4-runtime-save-load-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、三端 Session Save/Outcome Hash 0 差异 |
 | AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web 新工作区资源自包含导入、运行和重载已通过；尚待正式 Windows/Android 壳、断网设备和远端 CI 证据 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、离线导出导入 E2E |
