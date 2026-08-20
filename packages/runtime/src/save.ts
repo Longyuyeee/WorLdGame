@@ -1,6 +1,7 @@
 import { canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { runtimeSaveArtifactHashV1, runtimeStateHashV1 } from "./hash";
 import { validateRuntimeProgramV1, validateRuntimeStateV1 } from "./runtime";
+import { mergeRuntimeMetaProgressV1 } from "./meta-progress";
 import {
   MAX_RUNTIME_SAVE_BYTES,
   RUNTIME_SAVE_SCHEMA_VERSION,
@@ -99,8 +100,14 @@ export function loadRuntimeSaveV1(program: RuntimeProgramV1, serialized: string,
     if (stateDiagnostics.length > 0) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Save contains an invalid Runtime State"), ...stateDiagnostics] };
     if (state.buildId !== parsed.buildId || state.stateRevision !== parsed.stateRevision) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Save envelope does not match its State identity")] };
     if (runtimeStateHashV1(state) !== parsed.stateHash) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Save State Hash verification failed")] };
+    let loadedState = state;
+    if (options.currentMetaProgress !== undefined) {
+      const merged = mergeRuntimeMetaProgressV1(options.currentMetaProgress, state.metaProgress);
+      if (!merged.ok) return { ok: false, diagnostics: merged.diagnostics };
+      loadedState = state.metaProgress === merged.progress ? state : { ...state, metaProgress: merged.progress };
+    }
     const save = parsed as unknown as RuntimeSaveV1;
-    return { ok: true, save, state, rehydration: rehydration(state), artifactHash: runtimeSaveArtifactHashV1(save) };
+    return { ok: true, save, state: loadedState, rehydration: rehydration(loadedState), artifactHash: runtimeSaveArtifactHashV1(save) };
   } catch {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Save contains a structurally invalid Runtime State")] };
   }

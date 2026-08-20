@@ -79,7 +79,7 @@ export const RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1: RuntimeGeneratedCorpusSumm
     "diagnostic-rollback": 1428
   },
   failedSeeds: [],
-  outcomeDigest: "e12b72f81c47339604540876d77eda0d0f5dc624462a20ec1dd35f8c9322a125"
+  outcomeDigest: "20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2"
 };
 
 export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
@@ -98,16 +98,19 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   saveArtifactHash: "16a362a9def60c478121d4195475876f0beddc0397bb9f0e8a838b1372d2a094",
   rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
   rehydratedStateHash: "9b3637dfae72873e2ad30cdb17b7075883352c1d1b8a4ea98c276402b3f8ca61",
-  historyBackStateHash: "b2a3ce524981f87eb687356bcddd18ad6a3c0276cad29b6975605e0229537aab",
+  historyBackStateHash: "57a2ced75466c817204a4086ad43af65a76a9935f330a63b1e48d6b31e8b0a4b",
   historyForwardStateHash: "4753549ffbaf6c03b97c55894b1731e4dc095603d7b30417e6cf5c7e09db4d58",
-  historyForkStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
-  historySessionHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
+  historyForkStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
+  historySessionHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
   historyTombstoneInputId: "input-history-left",
-  sessionSaveArtifactHash: "bec6f97873cd561fc81cfcb06aea507062ca770a0ceb6b2b63c98ac835f798d1",
-  sessionSaveHistoryHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
+  sessionSaveArtifactHash: "45ffc3f41cc27b9134d5cffab4eec0952f4c58cb35026fce45d7478da5c173e5",
+  sessionSaveHistoryHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
   sessionSaveCursor: 2,
-  sessionSaveBackStateHash: "b2a3ce524981f87eb687356bcddd18ad6a3c0276cad29b6975605e0229537aab",
-  sessionSaveForwardStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
+  sessionSaveBackStateHash: "f93c1dc5cbc0e83439f5462a1aa51337b8bf400809a4cfc1096fdac134f00f72",
+  sessionSaveForwardStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
+  metaProgressHash: "346bcc949e6e08fa3de252e4afe7a01816a61c8ed56c47aac35806c9603cb1f8",
+  metaBackProgressHash: "3c0e071936fceec176d39224409ee097bad8be2e650d3251d7e083dca2119f56",
+  metaLoadProgressHash: "346bcc949e6e08fa3de252e4afe7a01816a61c8ed56c47aac35806c9603cb1f8",
   historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
   schedulerFinalStateHash: "4817233c4c9113e2d35b1aae0d33600d1210d44e6accd1bccc2abc29d308f0e4",
   schedulerNormalHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
@@ -128,8 +131,8 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
     randomContinuationStateHash: "4138275f03eefb8daed5b5730112892e1b89bb87050c1216d5335df847cf5718",
     sceneLateCompletionCode: "RUNTIME_EFFECT_CANCELLED",
     sceneStateHash: "0d648a00f4e50677178ebde1e5d3d8325a5ae5499fa50cceca771adf239d15c8",
-    backReconciliationHash: "11413e5f17dea82dcecf7976d3d6feb1b76c344359135150ab42bfcce2d782e9",
-    forwardReconciliationHash: "1d8055958bd8632a97c5739a84097f750800895f3cebf487dd147cdbc50659ae",
+    backReconciliationHash: "6c711096c41979f942c52faab29963da91379b8dbe531081580116fa6dfbb939",
+    forwardReconciliationHash: "f28334923af7048f8a8cfc0ee0b1c3bb2eb65eed69c5f780707d337a94621322",
     compensationKind: "background.restore",
     replayDescriptorId: "reversible-bg",
     futureOpcodeCode: "RUNTIME_INVALID_IR",

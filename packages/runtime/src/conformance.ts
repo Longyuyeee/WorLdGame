@@ -1,4 +1,4 @@
-import { runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeStateHashV1 } from "./hash";
+import { runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1 } from "./hash";
 import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, createRuntimeHistorySessionV1, forwardRuntimeHistoryV1 } from "./history";
 import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
 import { createRuntimeSchedulerSessionV1, scheduleRuntimeBatchV1 } from "./scheduler";
@@ -35,6 +35,9 @@ export interface RuntimeConformanceResultV1 {
   readonly sessionSaveCursor: number;
   readonly sessionSaveBackStateHash: string;
   readonly sessionSaveForwardStateHash: string;
+  readonly metaProgressHash: string;
+  readonly metaBackProgressHash: string;
+  readonly metaLoadProgressHash: string;
   readonly historyBarrierCode: "RUNTIME_BARRIER_BLOCKED";
   readonly schedulerFinalStateHash: string;
   readonly schedulerNormalHistoryHash: string;
@@ -226,6 +229,8 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   const historyInitial = createRuntimeHistorySessionV1(historyProgram, historyCreated.state);
   const historyChoice = advanceRuntimeHistoryV1(historyProgram, historyInitial.session), choice = historyChoice.state.pendingChoice;
   if (choice === null) throw new TypeError("Runtime History conformance choice failed");
+  const oldMetaSave = createRuntimeSaveV1(historyProgram, historyChoice.state);
+  if (!oldMetaSave.ok) throw new TypeError("Runtime Meta conformance old Save failed");
   const leftInput = { schemaVersion: 1 as const, kind: "choiceSelected" as const, inputId: "input-history-left", executionId: historyChoice.state.executionId, expectedStateRevision: historyChoice.state.stateRevision, logicalSequence: choice.logicalSequence, requestId: choice.requestId, instructionId: choice.instructionId, optionId: "left" };
   const historyLeft = advanceRuntimeHistoryV1(historyProgram, historyChoice.session, { input: leftInput });
   const historyBack = backRuntimeHistoryV1(historyProgram, historyLeft.session);
@@ -241,6 +246,10 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   const sessionForward = forwardRuntimeHistoryV1(historyProgram, sessionBack.session);
   if (sessionBack.diagnostics.length > 0 || sessionForward.diagnostics.length > 0 || runtimeStateHashV1(sessionForward.state) !== runtimeStateHashV1(sessionLoaded.state)) {
     throw new TypeError("Runtime Session Save Back/Forward conformance failed");
+  }
+  const metaLoaded = loadRuntimeSaveV1(historyProgram, oldMetaSave.serialized, { expectedBuildId: historyFork.state.buildId, currentMetaProgress: historyFork.state.metaProgress });
+  if (!metaLoaded.ok || runtimeMetaProgressHashV1(metaLoaded.state.metaProgress) !== runtimeMetaProgressHashV1(historyFork.state.metaProgress)) {
+    throw new TypeError("Runtime Meta Progress load conformance failed");
   }
   const barrierHistoryInitial = createRuntimeHistorySessionV1(barrierProgram, barrierCreated.state);
   const barrierHistoryRequest = advanceRuntimeHistoryV1(barrierProgram, barrierHistoryInitial.session), barrierPending = barrierHistoryRequest.state.pendingBarrier;
@@ -322,6 +331,9 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     sessionSaveCursor: sessionLoaded.session.cursor,
     sessionSaveBackStateHash: runtimeStateHashV1(sessionBack.state),
     sessionSaveForwardStateHash: runtimeStateHashV1(sessionForward.state),
+    metaProgressHash: runtimeMetaProgressHashV1(historyFork.state.metaProgress),
+    metaBackProgressHash: runtimeMetaProgressHashV1(historyBack.state.metaProgress),
+    metaLoadProgressHash: runtimeMetaProgressHashV1(metaLoaded.state.metaProgress),
     historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
     schedulerFinalStateHash: runtimeStateHashV1(schedulerNormal.workingState),
     schedulerNormalHistoryHash: runtimeHistorySessionHashV1(schedulerNormal.history),

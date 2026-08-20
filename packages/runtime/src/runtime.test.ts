@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -195,16 +195,19 @@ describe("N31-E2 deterministic state foundations", () => {
       saveArtifactHash: "16a362a9def60c478121d4195475876f0beddc0397bb9f0e8a838b1372d2a094",
       rehydratedEffectId: "effect.d79a3a9f688842936460611f2fd9a3505574511865833e165d05ca0e7337d577",
       rehydratedStateHash: "9b3637dfae72873e2ad30cdb17b7075883352c1d1b8a4ea98c276402b3f8ca61",
-      historyBackStateHash: "b2a3ce524981f87eb687356bcddd18ad6a3c0276cad29b6975605e0229537aab",
+      historyBackStateHash: "57a2ced75466c817204a4086ad43af65a76a9935f330a63b1e48d6b31e8b0a4b",
       historyForwardStateHash: "4753549ffbaf6c03b97c55894b1731e4dc095603d7b30417e6cf5c7e09db4d58",
-      historyForkStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
-      historySessionHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
+      historyForkStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
+      historySessionHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
       historyTombstoneInputId: "input-history-left",
-      sessionSaveArtifactHash: "bec6f97873cd561fc81cfcb06aea507062ca770a0ceb6b2b63c98ac835f798d1",
-      sessionSaveHistoryHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
+      sessionSaveArtifactHash: "45ffc3f41cc27b9134d5cffab4eec0952f4c58cb35026fce45d7478da5c173e5",
+      sessionSaveHistoryHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
       sessionSaveCursor: 2,
-      sessionSaveBackStateHash: "b2a3ce524981f87eb687356bcddd18ad6a3c0276cad29b6975605e0229537aab",
-      sessionSaveForwardStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
+      sessionSaveBackStateHash: "f93c1dc5cbc0e83439f5462a1aa51337b8bf400809a4cfc1096fdac134f00f72",
+      sessionSaveForwardStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
+      metaProgressHash: "346bcc949e6e08fa3de252e4afe7a01816a61c8ed56c47aac35806c9603cb1f8",
+      metaBackProgressHash: "3c0e071936fceec176d39224409ee097bad8be2e650d3251d7e083dca2119f56",
+      metaLoadProgressHash: "346bcc949e6e08fa3de252e4afe7a01816a61c8ed56c47aac35806c9603cb1f8",
       historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
       schedulerFinalStateHash: "4817233c4c9113e2d35b1aae0d33600d1210d44e6accd1bccc2abc29d308f0e4",
       schedulerNormalHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
@@ -225,8 +228,8 @@ describe("N31-E2 deterministic state foundations", () => {
         randomContinuationStateHash: "4138275f03eefb8daed5b5730112892e1b89bb87050c1216d5335df847cf5718",
         sceneLateCompletionCode: "RUNTIME_EFFECT_CANCELLED",
         sceneStateHash: "0d648a00f4e50677178ebde1e5d3d8325a5ae5499fa50cceca771adf239d15c8",
-        backReconciliationHash: "11413e5f17dea82dcecf7976d3d6feb1b76c344359135150ab42bfcce2d782e9",
-        forwardReconciliationHash: "1d8055958bd8632a97c5739a84097f750800895f3cebf487dd147cdbc50659ae",
+        backReconciliationHash: "6c711096c41979f942c52faab29963da91379b8dbe531081580116fa6dfbb939",
+        forwardReconciliationHash: "f28334923af7048f8a8cfc0ee0b1c3bb2eb65eed69c5f780707d337a94621322",
         compensationKind: "background.restore",
         replayDescriptorId: "reversible-bg",
         futureOpcodeCode: "RUNTIME_INVALID_IR",
@@ -435,10 +438,12 @@ describe("N31-E5 canonical Runtime History", () => {
     const back = backRuntimeHistoryV1(story, left.session);
     expect(back.diagnostics).toEqual([]);
     expect(back.reconciliationRequired).toBe(true);
-    expect(runtimeStateHashV1(back.state)).toBe(beforeChoiceHash);
+    expect(runtimeStateHashV1(back.state)).not.toBe(beforeChoiceHash);
+    expect(back.state.metaProgress).toEqual(left.state.metaProgress);
     const forward = forwardRuntimeHistoryV1(story, back.session);
     expect(runtimeStateHashV1(forward.state)).toBe(runtimeStateHashV1(left.state));
-    expect(runtimeHistorySessionHashV1(forward.session)).toBe(sessionHash);
+    expect(runtimeHistorySessionHashV1(forward.session)).not.toBe(sessionHash);
+    expect(validateRuntimeHistorySessionV1(story, forward.session)).toEqual([]);
   });
 
   it("requires Forward for recorded input and atomically truncates it for a changed branch", () => {
@@ -584,6 +589,87 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     const rejected = loadRuntimeSessionSaveV1(story, canonicalRuntimeStringify(corrupt), { expectedBuildId: buildId });
     expect(rejected).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_INVALID" }, { code: "RUNTIME_HISTORY_INVALID" }] });
     expect("session" in rejected).toBe(false);
+  });
+});
+
+describe("N31-E12 monotonic Meta Progress boundary", () => {
+  function metaStory(): RuntimeStoryIrV1 {
+    return program([
+      { instructionId: "meta-line", opcode: "narration", operands: { textId: "text.meta", text: "Remember this." } },
+      { instructionId: "meta-cg", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "cg.meta" } } },
+      { instructionId: "meta-end", opcode: "end", operands: { endingId: "ending.meta", name: "Remembered" } }
+    ]);
+  }
+
+  function history(story: RuntimeStoryIrV1): RuntimeHistorySessionV1 {
+    return createRuntimeHistorySessionV1(story, start(story, "build-meta")).session;
+  }
+
+  it("preserves read, Gallery, and ending progress across repeated Back and Forward", () => {
+    const story = metaStory();
+    const line = advanceRuntimeHistoryV1(story, history(story));
+    const cg = advanceRuntimeHistoryV1(story, line.session);
+    const ended = advanceRuntimeHistoryV1(story, cg.session);
+    const expected = ended.state.metaProgress;
+    const backFromEnding = backRuntimeHistoryV1(story, ended.session);
+    const backFromCg = backRuntimeHistoryV1(story, backFromEnding.session);
+    expect(backFromEnding.state.metaProgress).toEqual(expected);
+    expect(backFromCg.state.metaProgress).toEqual(expected);
+    expect(forwardRuntimeHistoryV1(story, backFromCg.session).state.metaProgress).toEqual(expected);
+    expect(validateRuntimeHistorySessionV1(story, backFromCg.session)).toEqual([]);
+  });
+
+  it("loads older State and Session saves without rolling newer progress backward", () => {
+    const story = metaStory();
+    const line = advanceRuntimeHistoryV1(story, history(story));
+    const oldStateSave = createRuntimeSaveV1(story, line.state);
+    const oldSessionSave = createRuntimeSessionSaveV1(story, line.session);
+    if (!oldStateSave.ok || !oldSessionSave.ok) throw new Error("older saves were not created");
+    const cg = advanceRuntimeHistoryV1(story, line.session);
+    const ended = advanceRuntimeHistoryV1(story, cg.session);
+    const current = ended.state.metaProgress;
+    const stateLoaded = loadRuntimeSaveV1(story, oldStateSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: current });
+    const sessionLoaded = loadRuntimeSessionSaveV1(story, oldSessionSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: current });
+    if (!stateLoaded.ok || !sessionLoaded.ok) throw new Error("older saves did not load");
+    expect(stateLoaded.state.metaProgress).toEqual(current);
+    expect(sessionLoaded.state.metaProgress).toEqual(current);
+    expect(sessionLoaded.session.checkpoints[sessionLoaded.session.cursor]?.state.metaProgress).toEqual(current);
+    expect(stateLoaded.artifactHash).toBe(oldStateSave.artifactHash);
+    expect(sessionLoaded.artifactHash).toBe(oldSessionSave.artifactHash);
+  });
+
+  it("merges commutatively, associatively, and idempotently with an isolated fixed hash", () => {
+    const empty = start(metaStory(), "build-meta").metaProgress;
+    const progress = (readTextIds: readonly string[], unlockedGalleryAssetIds: readonly string[], reachedEndingIds: readonly string[]): RuntimeMetaProgressV1 => ({ ...empty, readTextIds, unlockedGalleryAssetIds, reachedEndingIds });
+    const a = progress(["text.a"], ["cg.a"], []), b = progress(["text.b"], [], ["ending.b"]), c = progress([], ["cg.c"], ["ending.c"]);
+    const ab = mergeRuntimeMetaProgressV1(a, b), ba = mergeRuntimeMetaProgressV1(b, a);
+    if (!ab.ok || !ba.ok) throw new Error("Meta merge failed");
+    expect(ab.progress).toEqual(ba.progress);
+    const left = mergeRuntimeMetaProgressV1(ab.progress, c), bc = mergeRuntimeMetaProgressV1(b, c);
+    if (!left.ok || !bc.ok) throw new Error("Meta merge failed");
+    const right = mergeRuntimeMetaProgressV1(a, bc.progress);
+    if (!right.ok) throw new Error("Meta merge failed");
+    expect(left.progress).toEqual(right.progress);
+    const idempotent = mergeRuntimeMetaProgressV1(left.progress, left.progress);
+    expect(idempotent).toMatchObject({ ok: true, changed: false });
+    expect(runtimeMetaProgressHashV1(left.progress)).toBe("3781e0d49383a58af283f09a748415c2b9841ef6f01fb099744a1ae923cfe8b3");
+  });
+
+  it("fails closed for foreign scopes and malformed monotonic sets", () => {
+    const story = metaStory(), current = start(story, "build-meta").metaProgress;
+    const foreign = { ...current, progressScopeId: "progress.foreign" };
+    expect(mergeRuntimeMetaProgressV1(current, foreign)).toMatchObject({ ok: false, progress: current, diagnostics: [{ code: "RUNTIME_META_PROGRESS_INCOMPATIBLE" }] });
+    const malformed = { ...current, readTextIds: ["text.z", "text.a"] };
+    expect(validateRuntimeMetaProgressV1(malformed)[0]?.code).toBe("RUNTIME_META_PROGRESS_INVALID");
+    const save = createRuntimeSaveV1(story, start(story, "build-meta"));
+    const sessionSave = createRuntimeSessionSaveV1(story, history(story));
+    if (!save.ok || !sessionSave.ok) throw new Error("save failed");
+    const rejected = loadRuntimeSaveV1(story, save.serialized, { expectedBuildId: "build-meta", currentMetaProgress: foreign });
+    const rejectedSession = loadRuntimeSessionSaveV1(story, sessionSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: foreign });
+    expect(rejected).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_META_PROGRESS_INCOMPATIBLE" }] });
+    expect(rejectedSession).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_META_PROGRESS_INCOMPATIBLE" }] });
+    expect("state" in rejected).toBe(false);
+    expect("state" in rejectedSession).toBe(false);
   });
 });
 
@@ -746,7 +832,7 @@ describe("N31-E7 formal Runtime generated corpus", () => {
         "diagnostic-rollback": 1428
       },
       failedSeeds: [],
-      outcomeDigest: "e12b72f81c47339604540876d77eda0d0f5dc624462a20ec1dd35f8c9322a125"
+      outcomeDigest: "20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2"
     });
   }, 90_000);
 

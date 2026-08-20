@@ -1,5 +1,7 @@
 # N31-E11 Runtime Session Save 开发与审计
 
+> 后续节点更新：永久 Meta Progress 的 Back/Forward 与旧存档加载边界见 [N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)。本文件保留 E11 Session Save 节点证据。
+
 > 审计日期：2026-08-20  
 > 起始基线：`6430789faa1d8ee75d78e2adb4ed4cee448b9e6b`（`agent/current-development-audit-2026-08-16`）  
 > 开发分支：`agent/n31-runtime-e11-session-save`  
