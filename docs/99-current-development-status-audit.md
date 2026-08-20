@@ -1,6 +1,6 @@
-# 当前开发情况审计（N31-E14 Engineering 出口候选）
+# 当前开发情况审计（N31 Engineering 已通过，产品门阻断）
 
-> 最新节点审计：请优先阅读 [N31-E14 Runtime Engineering 出口复审](140-n31-e14-runtime-engineering-exit-reaudit.md)。[N31-E13 审计](139-n31-e13-bounded-10k-step-audit.md)保留 VM-14 与远端 Node 22 证据；[2026-08-16 综合审计](136-current-development-audit-2026-08-16.md)保留全产品基线快照；本文件其余章节保留 N31-E10 形成过程与细项证据。
+> 最新节点审计：N31-E14 已在 Draft PR #50 的 Windows / Node 22 完整门（run `32349504993` / job `96365349584`）通过，N31 Engineering 正式登记为通过；N31 Product Acceptance、N32、M1 与发布仍被阻断。请优先阅读 [N31-E14 Runtime Engineering 出口复审](140-n31-e14-runtime-engineering-exit-reaudit.md)。[N31-E13 审计](139-n31-e13-bounded-10k-step-audit.md)保留 VM-14 证据；[2026-08-16 综合审计](136-current-development-audit-2026-08-16.md)保留全产品基线快照；本文件其余章节保留 N31-E10 形成过程与细项证据。
 
 > 审计日期：2026-08-16
 > 本轮审计基线：`d426fbe1608477e640b08e0c61818df3b4e6cbe9`（N31-E9 最终远端绿色头）
