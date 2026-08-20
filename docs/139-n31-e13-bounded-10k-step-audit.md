@@ -1,5 +1,7 @@
 # N31-E13 Bounded 10,000-step 开发与审计
 
+> 后续节点更新：VM-01–VM-15 与 N31 Engineering 的最终逐项复审见 [N31-E14](140-n31-e14-runtime-engineering-exit-reaudit.md)。本文件保留 E13 VM-14 节点证据。
+
 > 审计日期：2026-08-20
 > 起始基线：`fcd817ff839aba0d76947d61a4857101da85c114`（E12 最终证据头；PR #48 最新 run `32344677885` / job `96350790797` 绿色）
 > 开发分支：`codex/n31-runtime-e13-bounded-10k-step`

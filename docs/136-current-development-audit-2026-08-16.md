@@ -1,6 +1,6 @@
 # 当前开发情况综合审计（2026-08-16）
 
-> 后续节点更新：N31-E11/E12 的 Session Save 与永久 Meta 证据见 [E11](137-n31-e11-runtime-session-save-audit.md)、[E12](138-n31-e12-monotonic-meta-audit.md)；N31-E13 正式 10,000-step 有界向量见 [E13 审计](139-n31-e13-bounded-10k-step-audit.md)。本文件保留 2026-08-16 的综合基线快照。
+> 后续节点更新：N31-E11/E12/E13 已关闭 Session Save、永久 Meta 与正式 10,000-step 缺口；N31-E14 又以 VM `15/15` 和 Draft PR #50 Windows / Node 22 完整门登记 N31 Engineering 通过。最新结论见 [N31-E14 Runtime Engineering 出口复审](140-n31-e14-runtime-engineering-exit-reaudit.md)。本文件保留 2026-08-16 的综合基线快照。
 
 > 审计日期：2026-08-16
 > 代码基线：`1572796418dcd365a900199b8bb8291330b5212c`（N31-E10 最终远端绿色头）
@@ -153,4 +153,4 @@
 - 不得把 Draft PR 或 authoritative branch 称为已经合入 `main`；
 - 不得在 `RA-N21-003` 下进入 N32 Engineering 或 Public Release。
 
-当前后续顺序更新为：完成 **N31-E13 远端支持版本复验**，再进入 **N31-E14 Engineering exit re-audit**；复审前不得宣告 N31 Engineering 通过。
+当前后续顺序更新为：**N31 Engineering 已完成**；下一步是 GitHub 集成检查点与 N21/N23 真人/治理门。在人工门完成或取得覆盖 N32 的新授权前，不得进入 N32。
