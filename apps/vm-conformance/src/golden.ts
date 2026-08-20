@@ -123,6 +123,19 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   sourceDiagnosticInstructionIndex: 0,
   sourceDiagnosticStatementId: "source_statement",
   sourceDiagnosticStatementIndex: 3,
+  boundedTenThousand: {
+    schemaVersion: 1,
+    iterationCount: 10_000,
+    instructionBudget: 128,
+    batchCount: 235,
+    budgetYieldCount: 234,
+    maximumBatchInstructions: 128,
+    totalExecutedInstructions: 30_002,
+    finalCounter: 10_000,
+    finalStateHash: "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
+    finalOutcomeHash: "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
+    finalHistoryHash: "28207f6823e05033e702e80911d81f6be5bf293232d72afa2f13839a8eabe6de"
+  },
   formalVmParity: {
     schemaVersion: 1,
     recursiveOverflowCode: "RUNTIME_CALL_STACK_OVERFLOW",

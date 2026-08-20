@@ -1,5 +1,7 @@
 # N31-E12 Monotonic Meta Boundary 开发与审计
 
+> 后续节点更新：正式单流程 10,000-step 有界向量见 [N31-E13 审计](139-n31-e13-bounded-10k-step-audit.md)。本文件保留 E12 永久 Meta 边界证据。
+
 > 审计日期：2026-08-20
 > 起始基线：`7f550b9`（N31-E11 文档证据头）
 > 开发分支：`agent/n31-runtime-e12-monotonic-meta`

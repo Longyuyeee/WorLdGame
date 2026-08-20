@@ -1,6 +1,6 @@
-# 当前开发情况审计（N31-E12 Monotonic Meta 候选）
+# 当前开发情况审计（N31-E13 Bounded 10,000-step 候选）
 
-> 最新节点审计：请优先阅读 [N31-E12 Monotonic Meta Boundary 开发与审计](138-n31-e12-monotonic-meta-audit.md)。[N31-E11 审计](137-n31-e11-runtime-session-save-audit.md)保留 Session Save 与远端 Node 22 证据；[2026-08-16 综合审计](136-current-development-audit-2026-08-16.md)保留全产品基线快照；本文件其余章节保留 N31-E10 形成过程与细项证据。
+> 最新节点审计：请优先阅读 [N31-E13 Bounded 10,000-step 开发与审计](139-n31-e13-bounded-10k-step-audit.md)。[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)保留 VM-13 与远端 Node 22 证据；[2026-08-16 综合审计](136-current-development-audit-2026-08-16.md)保留全产品基线快照；本文件其余章节保留 N31-E10 形成过程与细项证据。
 
 > 审计日期：2026-08-16
 > 本轮审计基线：`d426fbe1608477e640b08e0c61818df3b4e6cbe9`（N31-E9 最终远端绿色头）

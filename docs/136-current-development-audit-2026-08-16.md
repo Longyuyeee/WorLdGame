@@ -1,6 +1,6 @@
 # 当前开发情况综合审计（2026-08-16）
 
-> 后续节点更新：N31-E11 Runtime Session Save 的实现与远端 Node 22 证据见 [N31-E11 审计](137-n31-e11-runtime-session-save-audit.md)；N31-E12 永久 Meta 边界、真实浏览器完整门与本机性能差异见 [N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)。本文件保留 2026-08-16 的综合基线快照。
+> 后续节点更新：N31-E11/E12 的 Session Save 与永久 Meta 证据见 [E11](137-n31-e11-runtime-session-save-audit.md)、[E12](138-n31-e12-monotonic-meta-audit.md)；N31-E13 正式 10,000-step 有界向量见 [E13 审计](139-n31-e13-bounded-10k-step-audit.md)。本文件保留 2026-08-16 的综合基线快照。
 
 > 审计日期：2026-08-16
 > 代码基线：`1572796418dcd365a900199b8bb8291330b5212c`（N31-E10 最终远端绿色头）
@@ -153,4 +153,4 @@
 - 不得把 Draft PR 或 authoritative branch 称为已经合入 `main`；
 - 不得在 `RA-N21-003` 下进入 N32 Engineering 或 Public Release。
 
-当前后续顺序更新为：完成 **N31-E12 远端支持版本复验**，再进入 **N31-E13 Bounded 10k-step**；E14 复审前不得宣告 N31 Engineering 通过。
+当前后续顺序更新为：完成 **N31-E13 远端支持版本复验**，再进入 **N31-E14 Engineering exit re-audit**；复审前不得宣告 N31 Engineering 通过。
