@@ -3,7 +3,7 @@
 > 审计日期：2026-08-20  
 > 起始基线：`6430789faa1d8ee75d78e2adb4ed4cee448b9e6b`（`agent/current-development-audit-2026-08-16`）  
 > 开发分支：`agent/n31-runtime-e11-session-save`  
-> 交付：Draft PR #47；实现提交 `2e3f62bd78f79f6406e0c86e7ea28d3891ca57f1`；Windows / Node 22 `product-baseline` run `32341186865`、job `96340464971` 通过（5 分 31 秒）  
+> 交付：Draft PR #47；实现提交 `2e3f62bd78f79f6406e0c86e7ea28d3891ca57f1`；Windows / Node 22 `product-baseline` run `32341186865`、job `96340464971` 通过（5 分 31 秒）
 > 节点边界：只关闭 VM-11 的正式 Session Save 实现缺口；不宣告 N31 Engineering、N31 Product Acceptance、M1 Stable 或任一平台发布通过。
 
 ## 1. 目标与修复前差异
