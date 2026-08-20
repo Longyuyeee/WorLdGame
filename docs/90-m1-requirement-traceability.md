@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选；N31-E1–E12 为未集成工程切片，E12 远端完整门与 E14 出口审计仍未完成。`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
+> 集成边界：当前 N00–N21 能力仍未进入 `main`；[M1 N21 指定集成基线](101-m1-n21-integration-baseline.md)已在 Draft PR #32 成为 Authoritative。N22 与 N23-E1–E7 工程门已完成，N30-E1/E2 Compiler 为未集成工程退出候选；N31-E1–E12 为未集成工程切片，VM-11/13 已关闭，VM-14 与 E14 出口审计仍未完成。`RA-N21-003` 不改变 N21/N23/N30/N31 产品验收与 M1 仍被阻断，也不授权 N32。
 
 ## 1. 状态和证据规则
 
@@ -33,7 +33,7 @@
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | 三模式视觉原型 | 七模式、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
 | USP-08 | Gal Automation | N62 | 未开始 | 简单 Route 投影 | 自动 Catalog、玩家附加页、三端一致 |
-| USP-09 | Skip / History / Back | N31/N52 | 实现中 | E5/E6 已形成正式 History/调度，E10 补齐 reconciliation，E11 持久化完整 Session；E12 又使 Back/Forward 和旧 State/Session Save 对 read/CG/ending 只增，并通过真实浏览器完整 Worker Golden。E12 远端支持版本门、Player 控件、真实媒体宿主和三端证据仍缺 | [N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E6](131-n31-e6-runtime-scheduler-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、Editor/Player/三端状态一致 |
+| USP-09 | Skip / History / Back | N31/N52 | 实现中 | E5/E6 已形成正式 History/调度，E10 补齐 reconciliation，E11 持久化完整 Session；E12 又使 Back/Forward 和旧 State/Session Save 对 read/CG/ending 只增，并通过真实浏览器与 Windows / Node 22 完整门。Player 控件、真实媒体宿主和三端证据仍缺 | [N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E6](131-n31-e6-runtime-scheduler-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、Editor/Player/三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
 ## 3. P0 模块需求
@@ -47,7 +47,7 @@
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
-| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | E11 已关闭 VM-11；E12 的独立 Meta boundary 已通过 Node 定向和真实浏览器完整 Worker 门，VM-13 等待远端支持版本复验后关闭。VM-14 10k-step、玩家槽、真实媒体策略和共享 Editor/Player 仍未建立 | [E1](126-n31-e1-runtime-kernel-audit.md)–[E10](135-n31-e10-formal-vm-parity-audit.md)、[E11](137-n31-e11-runtime-session-save-audit.md)、[E12](138-n31-e12-monotonic-meta-audit.md)、三宿主 State/Save/History/Diagnostic Golden、玩家 E2E |
+| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | E11 已关闭 VM-11；E12 的独立 Meta boundary 已通过 Node、真实浏览器与 Windows / Node 22 完整门，VM-13 已关闭。VM-14 10k-step、玩家槽、真实媒体策略和共享 Editor/Player 仍未建立 | [E1](126-n31-e1-runtime-kernel-audit.md)–[E10](135-n31-e10-formal-vm-parity-audit.md)、[E11](137-n31-e11-runtime-session-save-audit.md)、[E12](138-n31-e12-monotonic-meta-audit.md)、三宿主 State/Save/History/Diagnostic Golden、玩家 E2E |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
 | REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler 已有语句级 CFG/SCC、不可达/无交互循环诊断与 Statement Source Map；N31-E8 已将结构化 Runtime Diagnostic 精确映射回 Statement ID/Index，并拒绝残缺、重复、错属、乱序 Source Map 与伪造诊断位置；Debugger/Solver 和产品呈现未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、QA Golden、Debugger E2E |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N23 已有确定性单文件离线试玩候选；两名参与者的实际下载/离线运行证据待补，无正式 Player/PWA、资源构建、安装、签名或发布材料 | [N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、三端 Artifact Manifest、安装/签名报告 |
@@ -64,7 +64,7 @@
 | AC-04 | 任一视图修改 500 ms 同步 | N43 | 实现中 | 视图不全 | P95 测量和 E2E |
 | AC-05 | 任意语句预览和变量 | N32/N60 | 未开始 | N31-E8 已建立 Runtime Diagnostic → Statement 的后端定位契约；仍缺 N32 任意入口预览与 N60 Debugger/变量检查 UI，且 `RA-N21-003` 不授权进入 N32 | [N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、Debugger E2E |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 实现中 | N30 Compiler 已拒绝不可达结局、无出口、无交互闭环和缺失资源；仍缺 N60 产品 QA 呈现、抑制与 Solver | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden 报告 |
-| AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 实现中 | E11 已恢复完整 Session；E12 已证明 Back/Forward 和旧 State/Session Save 不回退 read/CG/ending，原存档 artifactHash 仍可验证。E12 远端完整门、三端 Player、设备与存档槽仍未完成 | [N31-E4](129-n31-e4-runtime-save-load-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、三端 Session Save/Outcome Hash 0 差异 |
+| AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 实现中 | E11 已恢复完整 Session；E12 已证明 Back/Forward 和旧 State/Session Save 不回退 read/CG/ending，原存档 artifactHash 仍可验证，并取得远端完整门绿色。三端 Player、设备与存档槽仍未完成 | [N31-E4](129-n31-e4-runtime-save-load-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、三端 Session Save/Outcome Hash 0 差异 |
 | AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web 新工作区资源自包含导入、运行和重载已通过；尚待正式 Windows/Android 壳、断网设备和远端 CI 证据 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、离线导出导入 E2E |
 | AC-09 | 崩溃恢复到自动保存 | N12/N90/N91 | 实现中 | 正式宿主未贯通 | 真实强杀恢复矩阵 |
 | AC-10 | 键盘完整操作、手机替代拖拽 | N21/N43/N91 | 实现中 | 完整任务和 Android | 键盘/触屏任务报告 |
@@ -73,7 +73,7 @@
 | AC-13 | 镜头/角色/转场/BGM/Voice/SFX | N42/N50 | 实现中 | Runtime E3 已形成 Direction → Effect Intent 与 await/cancel 内核；正式 Stage/Player 调度、镜头和三端媒体宿主仍缺 | [N31-E3 审计](128-n31-e3-runtime-effect-barrier-audit.md)、Media Golden 三端快照 |
 | AC-14 | 编辑器和玩家设备预算 | N90–N92/N102 | 未开始 | 实体设备 | WIN-L/AND-L/AND-R 报告 |
 | AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | N31-E6 正式内核已证明 Normal、5/10/20/40/Instant 最终 State/History Hash 一致、Skip Read 未读停止、Hold/Toggle 策略同构、Auto 延迟不入 State，以及 Choice/Effect/Barrier/资源/Stop Point 停止；Player 控件、真实计时/语音/媒体策略、三端与真人证据仍缺 | [N31-E6 审计](131-n31-e6-runtime-scheduler-audit.md)、玩家输入向量和 State Hash |
-| AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | E5 checkpoint/原子截断/tombstone、E10 reconciliation、E11 Session Save 继续有效；E12 在 Back/Forward 时确定性重链 checkpoint/entry，并保持永久 Meta 只增。E12 远端完整门、玩家控制、真实媒体宿主、三端与真人证据仍缺 | [N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、玩家 History E2E |
+| AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | E5 checkpoint/原子截断/tombstone、E10 reconciliation、E11 Session Save 继续有效；E12 在 Back/Forward 时确定性重链 checkpoint/entry，保持永久 Meta 只增并取得远端完整门绿色。玩家控制、真实媒体宿主、三端与真人证据仍缺 | [N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、玩家 History E2E |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | 图语义不全 | Branching Golden |
 | AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2 记录 Gallery/Ending，E12 又确保 Back/Forward 与旧存档加载不回退该永久 Meta。覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 仍待 N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |
 | AC-19 | Gal 配置中心覆盖 P0 | N51 | 未开始 | Settings Schema/UI | 配置追踪全覆盖 |

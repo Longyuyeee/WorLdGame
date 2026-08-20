@@ -3,7 +3,7 @@
 > 审计日期：2026-08-20
 > 起始基线：`7f550b9`（N31-E11 文档证据头）
 > 开发分支：`agent/n31-runtime-e12-monotonic-meta`
-> 远端状态：本文件记录推送前的本地真实证据；Windows / Node 22 完整门必须由独立 Draft PR 取得后回写，未取得前不登记 E12 最终关闭。
+> 交付：Draft PR #48；实现提交 `91e91f5`；Windows / Node 22 `product-baseline` run `32344160565`、job `96349224744` 通过（4 分 22 秒）。
 > 节点边界：只修复 VM-13 永久 Meta Progress 回退；不宣告 N31 Engineering、N31 Product Acceptance、M1 Stable 或平台发布通过。
 
 ## 1. 目标冻结与修复前差异
@@ -44,14 +44,15 @@ Meta Progress 指已读文本、已解锁 Gallery Asset 与已到达 Ending。�
 | 浏览器 Runtime 快速门 | 正式 Runtime 与 Node Golden 零差异 | 真实生产预览 `data-runtime=passed` | 通过 |
 | 浏览器完整语料门 | 正式 Runtime、Source Map 与 10,000 seeds 全部零差异 | 真实模块 Worker 最终 `data-status=passed`，页面显示 PASS | 通过 |
 | Node 10,000-seed 双重重放 | 20,000 次执行、0 failed seed，并在冻结 90 秒内完成 | 本机 Node 25 实际 163.528 秒、0 failed seed、结果 Digest `20e9a842…92ef2`；超过 90 秒 | 语义通过，性能门失败；不得放宽阈值 |
+| Windows / Node 22 权威完整门 | 全仓 `product-baseline` 在支持版本和冻结预算内通过 | PR #48 run `32344160565` / job `96349224744`，`SUCCESS`，4 分 22 秒 | 通过 |
 
 测试先以旧 Golden 运行并得到预期失败；仅在核对“Meta 保留导致 checkpoint/History/reconciliation Hash 改变、剧情执行结果未被误改”后才冻结新向量。新独立 Meta 固定向量为 `3781e0d4…fe8b3`。旧 Save Load 的返回 State/Session 使用 union 后进度，但返回的 artifactHash 与原保存产物严格相同。
 
-本机 Node 为不受支持的 `v25.2.1`，仓库权威环境为 Windows / Node `22.12.0`。浏览器完整门本轮实际通过，既有 Spike 在隔离时也于 82 秒通过；正式 Runtime 10,000-seed 双重重放仍为 163.528 秒并超过冻结 90 秒，因此必须交由远端支持版本复验。不能以浏览器或旧 Spike 通过替代正式 Runtime 的 Node 预算门。
+本机 Node 为不受支持的 `v25.2.1`，仓库权威环境为 Windows / Node `22.12.0`。浏览器完整门本轮实际通过，既有 Spike 在隔离时也于 82 秒通过；正式 Runtime 10,000-seed 双重重放在本机为 163.528 秒并超过冻结 90 秒。PR #48 的支持版本权威完整门随后于 4 分 22 秒通过，因此冻结预算在受支持环境成立；本机性能差异仍保留，不据此放宽产品门。
 
 ## 4. 需求对齐与出口审计
 
-- VM-13：实现与本地真实 Node/浏览器证据已对齐；最终关闭仍等待 Windows / Node 22 完整门；
+- VM-13：实现、真实 Node/浏览器证据与 Windows / Node 22 权威完整门全部对齐，登记为关闭；
 - USP-09 / REQ-RUNTIME / AC-07 / AC-16：Back/Forward 和旧 State/Session Save 不再回退 read/CG/ending，但 Player 控件、真实媒体宿主、三端设备与存档槽仍缺；
 - AC-18：Runtime 永久解锁边界已补齐，Catalog 覆盖配置、Replay/Music 规则和 Player UI 仍归 N62；
 - VM-14：仍未对齐；10,000 seeds 不等于单次 10,000-step 有界执行；
@@ -61,7 +62,6 @@ Meta Progress 指已读文本、已解锁 Gallery Asset 与已到达 Ending。�
 
 ## 5. 下一步
 
-1. 推送 E12 独立分支并建立独立 Draft PR；
-2. 以 Windows / Node 22 `product-baseline` 完整门复验冻结 90 秒预算；
-3. 远端绿色后回写 PR、commit、run、job 与耗时，并将 VM-13 登记为关闭；
-4. 再进入 E13 Bounded 10k-step；E14 复审前不得宣告 N31 Engineering 通过。
+1. E12 已在独立 Draft PR #48 取得 Windows / Node 22 完整门绿色，VM-13 关闭；
+2. 进入 E13 Bounded 10k-step，建立单次 10,000-step 正式向量、固定批次/预算让步和 Node/Worker Hash 对照；
+3. E14 复审前不得宣告 N31 Engineering 通过。
