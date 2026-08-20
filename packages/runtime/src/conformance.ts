@@ -3,6 +3,7 @@ import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, createRuntimeHistorySess
 import { createRuntimeState, drawRuntimeRandom, runRuntime } from "./runtime";
 import { createRuntimeSchedulerSessionV1, scheduleRuntimeBatchV1 } from "./scheduler";
 import { createRuntimeSaveV1, loadRuntimeSaveV1 } from "./save";
+import { createRuntimeSessionSaveV1, loadRuntimeSessionSaveV1 } from "./session-save";
 import { runtimeEffectIntentHashV1 } from "./effect";
 import { mapRuntimeDiagnosticsV1 } from "./source-map";
 import { createRuntimeStoryOutcomeV1 } from "./outcome";
@@ -29,6 +30,11 @@ export interface RuntimeConformanceResultV1 {
   readonly historyForkStateHash: string;
   readonly historySessionHash: string;
   readonly historyTombstoneInputId: string;
+  readonly sessionSaveArtifactHash: string;
+  readonly sessionSaveHistoryHash: string;
+  readonly sessionSaveCursor: number;
+  readonly sessionSaveBackStateHash: string;
+  readonly sessionSaveForwardStateHash: string;
   readonly historyBarrierCode: "RUNTIME_BARRIER_BLOCKED";
   readonly schedulerFinalStateHash: string;
   readonly schedulerNormalHistoryHash: string;
@@ -227,6 +233,15 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
   const historyRewound = backRuntimeHistoryV1(historyProgram, historyForward.session);
   const rightInput = { ...leftInput, inputId: "input-history-right", optionId: "right" };
   const historyFork = advanceRuntimeHistoryV1(historyProgram, historyRewound.session, { input: rightInput });
+  const sessionSaved = createRuntimeSessionSaveV1(historyProgram, historyFork.session);
+  if (!sessionSaved.ok) throw new TypeError("Runtime Session Save conformance creation failed");
+  const sessionLoaded = loadRuntimeSessionSaveV1(historyProgram, sessionSaved.serialized, { expectedBuildId: historyFork.state.buildId });
+  if (!sessionLoaded.ok) throw new TypeError("Runtime Session Save conformance load failed");
+  const sessionBack = backRuntimeHistoryV1(historyProgram, sessionLoaded.session);
+  const sessionForward = forwardRuntimeHistoryV1(historyProgram, sessionBack.session);
+  if (sessionBack.diagnostics.length > 0 || sessionForward.diagnostics.length > 0 || runtimeStateHashV1(sessionForward.state) !== runtimeStateHashV1(sessionLoaded.state)) {
+    throw new TypeError("Runtime Session Save Back/Forward conformance failed");
+  }
   const barrierHistoryInitial = createRuntimeHistorySessionV1(barrierProgram, barrierCreated.state);
   const barrierHistoryRequest = advanceRuntimeHistoryV1(barrierProgram, barrierHistoryInitial.session), barrierPending = barrierHistoryRequest.state.pendingBarrier;
   if (barrierPending === null) throw new TypeError("Runtime History Barrier request failed");
@@ -302,6 +317,11 @@ export function executeRuntimeConformanceV1(): RuntimeConformanceResultV1 {
     historyForkStateHash: runtimeStateHashV1(historyFork.state),
     historySessionHash: runtimeHistorySessionHashV1(historyFork.session),
     historyTombstoneInputId: historyFork.session.inputTombstones[0]?.inputId ?? "",
+    sessionSaveArtifactHash: sessionSaved.artifactHash,
+    sessionSaveHistoryHash: runtimeHistorySessionHashV1(sessionLoaded.session),
+    sessionSaveCursor: sessionLoaded.session.cursor,
+    sessionSaveBackStateHash: runtimeStateHashV1(sessionBack.state),
+    sessionSaveForwardStateHash: runtimeStateHashV1(sessionForward.state),
     historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
     schedulerFinalStateHash: runtimeStateHashV1(schedulerNormal.workingState),
     schedulerNormalHistoryHash: runtimeHistorySessionHashV1(schedulerNormal.history),

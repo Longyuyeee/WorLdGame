@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, mapRuntimeDiagnosticsV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -200,6 +200,11 @@ describe("N31-E2 deterministic state foundations", () => {
       historyForkStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
       historySessionHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
       historyTombstoneInputId: "input-history-left",
+      sessionSaveArtifactHash: "bec6f97873cd561fc81cfcb06aea507062ca770a0ceb6b2b63c98ac835f798d1",
+      sessionSaveHistoryHash: "2f98afc4db5ba330be896826219c3a63e6424186e4c265f66350fbc15c03db6c",
+      sessionSaveCursor: 2,
+      sessionSaveBackStateHash: "b2a3ce524981f87eb687356bcddd18ad6a3c0276cad29b6975605e0229537aab",
+      sessionSaveForwardStateHash: "90838d6d0a40948affd89dce40bd59940edcb81ea456fada9581a12850006b6b",
       historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
       schedulerFinalStateHash: "4817233c4c9113e2d35b1aae0d33600d1210d44e6accd1bccc2abc29d308f0e4",
       schedulerNormalHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
@@ -495,6 +500,90 @@ describe("N31-E5 canonical Runtime History", () => {
     const malformed = { ...advanced.session, checkpoints: [{ checkpointId: "missing-state" }] } as unknown as RuntimeHistorySessionV1;
     expect(() => validateRuntimeHistorySessionV1(story, malformed)).not.toThrow();
     expect(validateRuntimeHistorySessionV1(story, malformed)[0]?.code).toBe("RUNTIME_HISTORY_INVALID");
+  });
+});
+
+describe("N31-E11 canonical Runtime Session Save", () => {
+  function history(story: RuntimeStoryIrV1, state: RuntimeStateV1): RuntimeHistorySessionV1 {
+    const created = createRuntimeHistorySessionV1(story, state);
+    if (created.diagnostics.length > 0) throw new Error(JSON.stringify(created.diagnostics));
+    return created.session;
+  }
+
+  function save(story: RuntimeStoryIrV1, session: RuntimeHistorySessionV1) {
+    const created = createRuntimeSessionSaveV1(story, session);
+    if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));
+    return created;
+  }
+
+  it("restores cursor, recorded future, tombstones, and exact Back/Forward behavior", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const left = advanceRuntimeHistoryV1(story, waiting.session, { input: select(waiting.state, "branch_left_option", "input-session-left") });
+    const forkPoint = backRuntimeHistoryV1(story, left.session);
+    const right = advanceRuntimeHistoryV1(story, forkPoint.session, { input: select(forkPoint.state, "branch_right_option", "input-session-right") });
+    const savedAtFork = backRuntimeHistoryV1(story, right.session);
+    const expectedSessionHash = runtimeHistorySessionHashV1(savedAtFork.session);
+    const created = save(story, savedAtFork.session);
+    const repeated = save(story, savedAtFork.session);
+    expect(repeated.serialized).toBe(created.serialized);
+    expect(repeated.artifactHash).toBe(created.artifactHash);
+    const loaded = loadRuntimeSessionSaveV1(story, created.serialized, { expectedBuildId: buildId });
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.diagnostics));
+    expect(loaded.session).toEqual(savedAtFork.session);
+    expect(loaded.session).not.toBe(savedAtFork.session);
+    expect(loaded.session.cursor).toBe(1);
+    expect(loaded.session.entries).toHaveLength(2);
+    expect(loaded.session.inputTombstones.map((input) => input.inputId)).toEqual(["input-session-left"]);
+    expect(runtimeHistorySessionHashV1(loaded.session)).toBe(expectedSessionHash);
+    expect(loaded.artifactHash).toHaveLength(64);
+    expect(runtimeStateHashV1(loaded.state)).toBe(runtimeStateHashV1(savedAtFork.state));
+    const forwarded = forwardRuntimeHistoryV1(story, loaded.session);
+    expect(forwarded.diagnostics).toEqual([]);
+    expect(runtimeStateHashV1(forwarded.state)).toBe(runtimeStateHashV1(right.state));
+    const backed = backRuntimeHistoryV1(story, forwarded.session);
+    expect(runtimeStateHashV1(backed.state)).toBe(runtimeStateHashV1(loaded.state));
+  });
+
+  it("rehydrates a pending Effect from the active History checkpoint", () => {
+    const story = program([
+      { instructionId: "session-effect", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_session", awaitMode: "awaited", replayKey: "replay.session", cancellationScope: "scope.session" } } },
+      { instructionId: "session-end", opcode: "end", operands: { endingId: "done", name: "Done" } }
+    ]);
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, "build-session")));
+    const loaded = loadRuntimeSessionSaveV1(story, save(story, waiting.session).serialized, { expectedBuildId: "build-session" });
+    if (!loaded.ok || loaded.rehydration.kind !== "effect") throw new Error("pending Effect did not rehydrate");
+    expect(loaded.rehydration.intent).toEqual(waiting.state.pendingEffect);
+    expect(runtimeStateHashV1(loaded.state)).toBe(runtimeStateHashV1(waiting.state));
+  });
+
+  it("fails closed for incompatible, noncanonical, unknown, hash-tampered, and structurally corrupt saves", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const created = save(story, waiting.session);
+    const raw = JSON.parse(created.serialized) as Record<string, unknown>;
+    const cases: ReadonlyArray<readonly [unknown, string]> = [
+      [{ ...raw, schemaVersion: 2 }, "RUNTIME_SAVE_INCOMPATIBLE"],
+      [{ ...raw, futureMember: true }, "RUNTIME_SAVE_INVALID"],
+      [{ ...raw, executionId: "execution-foreign" }, "RUNTIME_SAVE_INVALID"],
+      [{ ...raw, cursor: 0 }, "RUNTIME_SAVE_INVALID"],
+      [{ ...raw, historyHash: "0".repeat(64) }, "RUNTIME_SAVE_HASH_MISMATCH"]
+    ];
+    for (const [value, code] of cases) {
+      const loaded = loadRuntimeSessionSaveV1(story, canonicalRuntimeStringify(value), { expectedBuildId: buildId });
+      expect(loaded).toMatchObject({ ok: false, diagnostics: [{ code }] });
+      expect("session" in loaded).toBe(false);
+      expect("state" in loaded).toBe(false);
+    }
+    expect(loadRuntimeSessionSaveV1(story, created.serialized, { expectedBuildId: "build-foreign" })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_BUILD_MISMATCH" }] });
+    expect(loadRuntimeSessionSaveV1(story, `${created.serialized}\n`, { expectedBuildId: buildId })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_INVALID" }] });
+
+    const corrupt = JSON.parse(created.serialized) as { history: RuntimeHistorySessionV1; historyHash: string };
+    corrupt.history = { ...corrupt.history, checkpoints: [{ ...corrupt.history.checkpoints[0]!, stateHash: "0".repeat(64) }, ...corrupt.history.checkpoints.slice(1)] };
+    corrupt.historyHash = runtimeHistorySessionHashV1(corrupt.history);
+    const rejected = loadRuntimeSessionSaveV1(story, canonicalRuntimeStringify(corrupt), { expectedBuildId: buildId });
+    expect(rejected).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_INVALID" }, { code: "RUNTIME_HISTORY_INVALID" }] });
+    expect("session" in rejected).toBe(false);
   });
 });
 
