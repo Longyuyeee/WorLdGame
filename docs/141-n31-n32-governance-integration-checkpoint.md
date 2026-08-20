@@ -3,7 +3,8 @@
 > 日期：2026-08-20
 > 分支：`codex/m1-integration-n31-governance`
 > 风险接受：`RA-N21-004`
-> 当前阶段：风险边界与集成候选建立中
+> 集成交付登记：`config/delivery-baseline.json`（Candidate；面向 `origin/main`）
+> 当前阶段：风险边界通过；集成候选待集中 Draft PR 与远端门
 > 当前判定：只批准 N32 Editor Preview Engineering；N32 Product Acceptance、N40 及以后、M1 Stable 与 Public Release 继续阻断
 
 ## 1. 开发目标
@@ -56,7 +57,10 @@
 | N22→N23→N30→N31 祖先链 | 顺序全部成立 | `merge-base --is-ancestor` 全部退出码 0 | 通过 |
 | RA-004 策略测试 | 正例和四类反例全部通过 | `3 files / 20 tests` 通过；含 N32 正例、N40 越界、到期、Product Gate 删除、旧例外重启反例 | 通过 |
 | 风险登记审计 | 唯一 active 为 RA-004、上限 N32 | 首轮因追踪矩阵缺少 RA-004 而 FAIL；同步 docs/90 后第二轮 PASS，blocked gates 与到期时间均正确 | 纠偏后通过 |
-| N31 集成交付基线 | 固定祖先、证据、main 非 behind | 待建立 | 待取得 |
+| N31 集成交付基线 | 固定祖先、证据、main 非 behind | N00–N21 既有链 + N22 `b86de83` + N23 `5150465` + N30 `63e0886` + N31 `f8d3c72` + RA-004 `d825756`；基线审计 PASS，策略 `4/4` | Candidate 通过 |
+| 本机根级 `npm run check` | 治理、功能、构建、架构和性能完整通过 | Runtime `57/57`、普通 `97 files / 588 tests`、存储 `1/1`、VM 重型 `5/5`、12 workspace build、架构 `85/4`、Script `10/10`、Asset `4/4` 全部通过 | 通过 |
+| 本机 Runtime 性能差异 | 冻结 90 秒门不放宽 | 上轮 Node 25 为 107.871 秒红；本轮 Runtime 文件总计 69.33 秒并通过。结果显示负载波动，历史红项继续保留 | 本轮通过，波动风险保留 |
+| Editor 生产包 | 构建成功且如实报告体积 | `636.85 kB`、gzip `183.53 kB`，构建通过但仍有 `>500 kB` warning | 功能门通过，体积未达优化目标 |
 | Windows / Node 22 全仓门 | 最终候选头完整通过 | 待建立集中 Draft PR | 待取得 |
 
 ## 6. 关闭条件

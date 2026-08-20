@@ -1,5 +1,7 @@
 # M1 N21 指定集成基线
 
+> 后续状态：本基线已由 [N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)中的 N31 集中候选取代；本文件保留 N21 时点的集成证据，不再作为后续开发 authority。
+
 > 日期：2026-08-14
 > 分支：`agent/m1-integration-n21`
 > 基线状态：Authoritative；整合 Draft PR #32，远端 Windows 全检查已通过

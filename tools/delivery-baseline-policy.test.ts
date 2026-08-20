@@ -4,10 +4,10 @@ import { requiredIntegrationNodes, validateDeliveryBaselineRegistry } from "./de
 function registry(overrides: Record<string, unknown> = {}) {
   return {
     schemaVersion: 1,
-    authorityBranch: "agent/m1-integration-n21",
+    authorityBranch: "codex/m1-integration-n31-governance",
     baseRef: "origin/main",
     status: "candidate",
-    integratedThrough: "N21",
+    integratedThrough: "N31",
     pullRequest: null,
     requiredAncestors: requiredIntegrationNodes.map((node, index) => ({
       node,
@@ -27,7 +27,7 @@ describe("delivery baseline policy", () => {
   it("rejects a missing or reordered node", () => {
     const value = registry();
     value.requiredAncestors = value.requiredAncestors.slice(1);
-    expect(validateDeliveryBaselineRegistry(value)).toContain("requiredAncestors must preserve the frozen N00-N21 order");
+    expect(validateDeliveryBaselineRegistry(value)).toContain("requiredAncestors must preserve the frozen N00-N31 order");
   });
 
   it("rejects duplicate commit identities", () => {
