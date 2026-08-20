@@ -1,9 +1,9 @@
 # N31-E12 Monotonic Meta Boundary 开发与审计
 
-> 审计日期：2026-08-20  
-> 起始基线：`7f550b9`（N31-E11 文档证据头）  
-> 开发分支：`agent/n31-runtime-e12-monotonic-meta`  
-> 远端状态：本文件记录推送前的本地真实证据；Windows / Node 22 完整门必须由独立 Draft PR 取得后回写，未取得前不登记 E12 最终关闭。  
+> 审计日期：2026-08-20
+> 起始基线：`7f550b9`（N31-E11 文档证据头）
+> 开发分支：`agent/n31-runtime-e12-monotonic-meta`
+> 远端状态：本文件记录推送前的本地真实证据；Windows / Node 22 完整门必须由独立 Draft PR 取得后回写，未取得前不登记 E12 最终关闭。
 > 节点边界：只修复 VM-13 永久 Meta Progress 回退；不宣告 N31 Engineering、N31 Product Acceptance、M1 Stable 或平台发布通过。
 
 ## 1. 目标冻结与修复前差异
