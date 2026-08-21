@@ -1,19 +1,19 @@
-# 当前开发情况审计（N32 Engineering 出口未通过）
+# 当前开发情况审计（N32-E7 后，正式 Player 仍阻断）
 
-> 审计日期：2026-08-21
-> 当前分支：`codex/n32-e6-preview-hot-update`；Draft PR #57
+> 审计日期：2026-08-22
+> 当前分支：`codex/n32-e7-shared-runtime-host`；直接基线为 N32-E6 最终头 `5e55a4aea936261b852abee6374af097df392ae1`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32 Engineering 出口对齐审计](149-n32-engineering-exit-alignment-audit.md)
+> 最新节点证据：[N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)、[N32 Engineering 出口复审](151-n32-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
+Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
-E1–E6 已把 Entry/Scene/Statement Fresh Run、状态观察、调试控制、Editor Effect Host，以及受约束的文案热更新/结构变化显式重启接入正式 Runtime。但出口审计确认 N32 计划只完成 `5/6`：Preview/Player 共享渲染与音频 Host Adapter 尚不存在，当前产品中的“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E6 通过不等于 N32 Engineering 总出口通过。
+E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N32-E6 Engineering 已通过；N32 Engineering 总出口未通过；下一步 N32-E7 纠偏**；
+- 当前工程节点：**N32-E7 本地 Engineering、产品闭环实测及远端 Windows / Node 22 完整门通过；N32 Engineering 总出口仍未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -28,9 +28,9 @@ E1–E6 已把 Entry/Scene/Statement Fresh Run、状态观察、调试控制、E
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、Writer 卡片、Script、基础 Flow、稳定 ID、Compiler IR/Source Map | N41 完整 Sequence、N40 专业 Route、N60 QA/Debugger |
-| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor；awaited/cancel/Barrier 与 Host reconciliation；安全文案热更新与结构变更显式重启 | 断点/Watch、共享 Player Host 与跨宿主画面 Golden |
+| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
-| Runtime | VM-01–VM-15 正式 portable Runtime、State/History/Save/Back/Forward/调度/诊断 | Editor 控件产品化、Player 槽位、三端一致性 |
+| Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选，可确定性离线打开 | 当前候选仍是平行 `StoryStatement` 解释器，不是正式 Runtime Player；正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
@@ -69,7 +69,13 @@ E1–E6 已把 Entry/Scene/Statement Fresh Run、状态观察、调试控制、E
 | E6 本机普通/存储/构建 | 新功能全回归；真实 IndexedDB；12 workspace 可构建 | 100 files / 611 tests；storage 1/1；CSS 79.65/15.18 kB；JS 734.30/208.23 kB；架构与 Script 性能通过 | 功能通过；>500 kB 拆包债保留 |
 | E6 本机冻结性能 | 既有 Spike 10k ≤90 秒；Dicing 3s/3s/5s | Node 25 Spike 实际约 180.5 秒；Dicing 两次分别 3.35+3.21=6.56 秒、2.36+4.13=6.49 秒 | 本机完整门红；不改规模/digest/预算，等待 Windows / Node 22 裁决 |
 | E6 GitHub CI | Windows / Node 22 完整门裁决本机性能差异 | Draft PR #57，run `32470326283` / job `96735561264`，4 分 20 秒；100/611；autosave 1/1；VM 5/5（68.68 秒）；Runtime corpus 30.635 秒；Dicing 1.47/1.78/3.25 秒 | 通过；本机环境差异关闭，E6 Engineering 关闭 |
-| N32 出口逐项审计 | 6 项 Implementation 与跨宿主 Acceptance 全对齐 | 5 项完整；共享 Host 未实现；现有单文件 Web 候选仍直接解释 StoryStatement；跨宿主 State/Outcome/画面 Golden 为 0 | N32 Engineering 总出口未通过；不得进入 N40 |
+| E6 时点 N32 出口审计 | 6 项 Implementation 与跨宿主 Acceptance 全对齐 | 当时为 5 项完整；共享 Host 未实现；现有单文件 Web 候选仍直接解释 StoryStatement | 历史判定保留；由下方 E7 后复审取代当前状态 |
+| E7 定向与 Benchmark | 共享 Host 正反例；正式 Compiler/Runtime 两路线到结局 | Host/Editor `3 files / 22 tests`；Benchmark/adapter `2 files / 6 tests`；两结局正确 | 通过；首测发现旧 Direction 与缺失变量后已纠偏 |
+| E7 本机完整门 | 治理、Runtime corpus、常规/存储/重型 VM、13 workspace、架构/性能 | `npm run check` 退出码 0；100 files/617 tests；storage 1/1；VM 5/5；88 portable / 4 adapters | 通过 |
+| E7 Worker production | Node↔浏览器 Host receipt/hash 零差异 | `data-status/runtime/runtime-host=passed`；console `[]` | 通过；测试宿主不是 Player |
+| E7 Editor production | 五分钟工程两路线、History 与错误日志 | 16 Continue 到分支；两路线各 14 Continue 到正确结局；Back/Forward 回到同一结局；console `[]` | 通过 |
+| E7 GitHub CI | 干净 Windows / Node 22 完整门验证实现头 | Draft PR #58，提交 `c93514e`，run `32505981631` / job `96846121361`，4 分 16 秒；locked install 与 full check 均成功 | 通过；此前 `dist` 入口红灯的真实根因已关闭 |
+| E7 后出口复审 | Implementation 6/6 且 Acceptance 1/1 | `完整 5 / 部分 1 / 未对齐 0`；Acceptance `0/1` | 总出口失败；正式 Player/视觉差分仍缺 |
 
 ## 4. 需求方向审计
 
@@ -85,8 +91,8 @@ E1–E6 已把 Entry/Scene/Statement Fresh Run、状态观察、调试控制、E
 
 ## 5. 下一步顺序
 
-1. N32-E7：在 N32 授权内冻结可移植共享 Host 契约，把 Editor Effect/Stage receipt 从产品私有实现收敛为 Preview/测试宿主可复用边界；
-2. 建立同一 IR/输入的 Editor Preview 与独立测试宿主 State、Outcome、History、Effect receipt 和画面关键快照差分门；
-3. 正式 Web Player 仍属于 N50/N80，未获新授权前不得启动；N32-E7 也不得用测试宿主冒充产品 Player Acceptance。
+1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
+2. 不再扩充 Editor 私有 Host：剩余 N32 出口只能由正式 Player 消费同一 IR/Runtime/Host 并建立 State/Outcome/History/receipt/visual 差分关闭；
+3. 正式 Player 属于后续授权节点。未获授权时保持 fail closed，并优先完成 N21/N23 真人记录；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

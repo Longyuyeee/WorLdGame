@@ -276,7 +276,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N31 正式 Narrative Runtime
 
-> 实施状态（2026-08-20）：E1–E14 已完成 N31 Engineering。[E14 复审](140-n31-e14-runtime-engineering-exit-reaudit.md)逐项得到 VM-01–VM-15 `完整 15 / 部分 0 / 未对齐 0`；Draft PR #50 的 Windows / Node 22 完整门 run `32349504993` / job `96365349584` 用时 4 分 01 秒绿色。本机 Node 25 完整 check 因既有 10,000-seed 107.871 秒超过 90 秒而保持红色，没有放宽门槛，并作为非支持环境差异保留。`RA-N21-004` 继续阻断 N31 Product Acceptance，但只解除 N32 Engineering 前置，不解除任何产品、N40+、M1 或发布门。
+> 实施状态（2026-08-20）：E1–E14 已完成 N31 Engineering。[E14 复审](140-n31-e14-runtime-engineering-exit-reaudit.md)逐项得到 VM-01–VM-15 `完整 15 / 部分 0 / 未对齐 0`；Draft PR #50 的 Windows / Node 22 完整门 run `32349504993` / job `96365349584` 用时 4 分 01 秒绿色。本机 Node 25 完整 check 因既有 10,000-seed 107.871 秒超过 90 秒而保持红色，没有放宽门槛，并作为非权威 CI 环境性能差异保留；根 `engines` 实际声明为 `>=22.12.0`，不能写成 Node 25 不受支持。`RA-N21-004` 继续阻断 N31 Product Acceptance，但只解除 N32 Engineering 前置，不解除任何产品、N40+、M1 或发布门。
 
 - **Goal**：把 VM Spike 收敛成受支持的 Runtime 包。
 - **Implementation**：
@@ -307,7 +307,9 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6 实施状态（2026-08-21）：Preview 已新增受约束热更新：仅对白/旁白正文与 Choice prompt/label 在稳定 ID、控制流、Source Map 和运行语义不变时，以记录输入重放到新 IR 并保持 State、History、分支位置与 Host receipt；Direction、变量、控制流、等待、待决 Effect/Barrier、transient 光标或编译失败均保留旧 Session，并要求用户明确重启。自动化与 production browser 已验证 `h4/4` 安全迁移、结构变化仍为 `h4/4`、明确重启后回到 `h1/1`。Draft PR #57 实现头 `34dfbf1` 的 Windows / Node 22 完整门 run `32470326283` / job `96735561264` 用时 4 分 20 秒绿色；本机 Node 25 性能差异未通过放宽门槛掩盖，E6 Engineering 关闭，详见 [N32-E6 审计](148-n32-e6-preview-hot-update-audit.md)。
 
-> 出口对齐状态（2026-08-21）：[N32 出口审计](149-n32-engineering-exit-alignment-audit.md)逐项得到 Implementation `完整 5 / 未对齐 1`，Acceptance `0/1`。未对齐项是 Preview/Player 共享渲染与音频 Host Adapter；当前“构建试玩 HTML”仍由 `playable-web-export.ts` 内嵌独立 `StoryStatement` 解释器，未消费 N30 IR/N31 Runtime，不能作为跨宿主一致性证据。N32 Engineering 总出口保持未通过，下一步只能在 N32 授权内纠正共享 Host 契约与测试宿主，不得进入 N40 或把 N23 单文件候选称为正式 Web Player。
+> E7 实施状态（2026-08-22）：新增 portable `@world-studio/runtime-host`，Editor 正式 Preview 与真实浏览器 Worker 验证宿主已消费同一 Effect receipt/reconciliation reducer 和确定性 SHA-256 快照；Editor 私有 Host 已删除。实测同时发现并修正 N23 Benchmark 的四条旧式 Direction 与缺失 `promise_state` 声明，两条正式 Compiler/Runtime 路线均在 production browser 跑到正确结局，Back/Forward 可返回同一结局。纠偏提交 `c93514e` 已通过 Draft PR #58 的 Windows / Node 22 完整门 run `32505981631` / job `96846121361`，用时 4 分 16 秒；此前干净安装暴露的 `dist` 入口问题已按真实日志关闭。详见 [N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)。
+
+> 出口复审状态（2026-08-22）：[N32 出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`，Acceptance `0/1`。共享 Host 工程前置已建立，但 `apps/player-web` 仍不存在，旧“构建试玩 HTML”仍是独立 `StoryStatement` 解释器；因此不能把测试宿主称作 Player，也没有 Editor↔正式 Player 画面 Golden。N32 Engineering 总出口仍未通过。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：

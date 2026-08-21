@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E6 已在 Draft PR #52–#57 通过各自未集成 Engineering，但 [N32 总出口审计](149-n32-engineering-exit-alignment-audit.md)为 Implementation `5/6`、Acceptance `0/1`，不得把切片通过换算成 N32 Engineering 总出口通过。`RA-N21-004` 持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E7 已形成未集成 Engineering 切片；[E7 后出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`、Acceptance `0/1`，不得把共享测试 Host 或切片通过换算成 N32 Engineering 总出口通过。`RA-N21-004` 持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
@@ -33,7 +33,7 @@
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | 三模式视觉原型 | 七模式、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
 | USP-08 | Gal Automation | N62 | 未开始 | 简单 Route 投影 | 自动 Catalog、玩家附加页、三端一致 |
-| USP-09 | Skip / History / Back | N31/N52 | 实现中 | N31 已形成正式 History/调度/reconciliation/Session Save/永久 Meta；N32-E4 接入 Editor 调试控制，E5 又执行 Host checkpoint 恢复、compensation/replay 与安全取消。共享 Player 控件和三端证据仍缺 | [N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E6](131-n31-e6-runtime-scheduler-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、[N32-E4](146-n32-e4-preview-debug-controls-audit.md)、[N32-E5](147-n32-e5-preview-effect-host-audit.md)、Editor/Player/三端状态一致 |
+| USP-09 | Skip / History / Back | N31/N52 | 实现中 | N31 已形成正式 History/调度/reconciliation/Session Save/永久 Meta；E4/E5 接入 Editor 控制，E7 又把 checkpoint、compensation/replay、cancel receipt 收敛到 portable Host，并在 Benchmark production 实跑 Back/Forward。正式 Player 控件和三端证据仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、Editor/Player/三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
 ## 3. P0 模块需求
@@ -47,7 +47,7 @@
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
-| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | E14 复审 VM-01–VM-15 为 15/15 完整；N32-E1–E6 已完成 Editor 正式执行、观察、Fresh Run、调试、Effect Host 与安全热更新。但共享 Player Host 未实现，当前单文件试玩仍是独立 `StoryStatement` 解释器，无法证明同一 IR/Host 行为。玩家槽和三端真实媒体策略也仍缺 | [E1](126-n31-e1-runtime-kernel-audit.md)–[E14](140-n31-e14-runtime-engineering-exit-reaudit.md)、[N32-E1](142-n32-e1-formal-editor-preview-audit.md)–[N32-E6](148-n32-e6-preview-hot-update-audit.md)、[N32 出口审计](149-n32-engineering-exit-alignment-audit.md)、三宿主 Golden、玩家 E2E |
+| REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | VM-01–VM-15 为 15/15；E1–E7 已完成 Editor 正式执行、观察、Fresh Run、调试、安全热更新和 portable Host，Node↔Worker receipt/hash Golden 通过，Benchmark 两路线正式执行到结局。正式 Player 仍不存在，单文件试玩仍是独立 `StoryStatement` 解释器；玩家槽、视觉差分和三端媒体策略仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、[N32 出口复审](151-n32-engineering-exit-reaudit.md)、三宿主 Golden、玩家 E2E |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
 | REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler/Runtime 已有 CFG/SCC、Source Map 与结构化诊断；N32-E3–E5 已支持 Fresh Run、调试控制与 Effect/History Host 边界；E6 对可迁移和必须重启的编辑给出可审计产品反馈。仍缺断点管理、Watch、Solver 和完整 Debugger E2E | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、[N32-E3](145-n32-e3-run-from-target-audit.md)–[N32-E6](148-n32-e6-preview-hot-update-audit.md)、QA Golden、Debugger E2E |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N23 有确定性单文件离线试玩候选，但其运行脚本未消费正式 Compiler IR/Runtime，只能保留为验收候选，不能登记为正式 Player。两名参与者证据、PWA、资源构建、安装、签名和发布材料均缺 | [N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、[N32 出口审计](149-n32-engineering-exit-alignment-audit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、三端 Artifact Manifest、安装/签名报告 |
@@ -62,7 +62,7 @@
 | AC-02 | 两端编辑对白/角色/选择/条件 | N91/N92 | 未开始 | N13/N21 | 双端任务 E2E |
 | AC-03 | Route/Sequence/Script/Stage 同源 | N40–N43 | 实现中 | 通用 Project、完整视图 | ChangeSet/Hash 对照 |
 | AC-04 | 任一视图修改 500 ms 同步 | N43 | 实现中 | 视图不全 | P95 测量和 E2E |
-| AC-05 | 任意语句预览和变量 | N32/N60 | 实现中 | E1–E6 已完成 Editor 正式执行、状态观察、Fresh Run、调试控制、Effect/Barrier Host 与安全热更新；N32 总出口仍因共享 Player Host 和跨宿主 Golden 缺失而未通过。断点/Watch、完整 Debugger E2E 和产品验收也仍缺 | [N31-E8 审计](133-n31-e8-runtime-source-map-diagnostics-audit.md)、[N32-E1](142-n32-e1-formal-editor-preview-audit.md)–[N32-E6](148-n32-e6-preview-hot-update-audit.md)、[N32 出口审计](149-n32-engineering-exit-alignment-audit.md)、Debugger E2E |
+| AC-05 | 任意语句预览和变量 | N32/N60 | 实现中 | E1–E7 已完成 Editor 正式执行、状态观察、Fresh Run、调试、Effect/Barrier portable Host 与安全热更新；Benchmark 缺失变量也已由正式路线测试发现并修正。断点/Watch、正式 Player、Editor↔Player 画面 Golden、完整 Debugger E2E 和产品验收仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、[N32 出口复审](151-n32-engineering-exit-reaudit.md)、Debugger E2E |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 实现中 | N30 Compiler 已拒绝不可达结局、无出口、无交互闭环和缺失资源；仍缺 N60 产品 QA 呈现、抑制与 Solver | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden 报告 |
 | AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 实现中 | E11 已恢复完整 Session；E12 已证明 Back/Forward 和旧 State/Session Save 不回退 read/CG/ending，原存档 artifactHash 仍可验证，并取得远端完整门绿色。三端 Player、设备与存档槽仍未完成 | [N31-E4](129-n31-e4-runtime-save-load-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、三端 Session Save/Outcome Hash 0 差异 |
 | AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web 新工作区资源自包含导入、运行和重载已通过；尚待正式 Windows/Android 壳、断网设备和远端 CI 证据 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、离线导出导入 E2E |
@@ -70,10 +70,10 @@
 | AC-10 | 键盘完整操作、手机替代拖拽 | N21/N43/N91 | 实现中 | 完整任务和 Android | 键盘/触屏任务报告 |
 | AC-11 | 七模式修改同一语句 | N43 | 未开始 | 仅三模式 | 七模式 E2E |
 | AC-12 | 动效不阻塞且有减少动效 | N43 | 实现中 | 完整交互未覆盖 | 帧时间/可中断/减少动效测试 |
-| AC-13 | 镜头/角色/转场/BGM/Voice/SFX | N42/N50 | 实现中 | Runtime E3 已形成 Direction → Effect Intent；N32-E5 在 Editor 执行 await/cancel、Barrier 和 History Host 协调。复杂镜头、共享 Player Host 与三端媒体宿主仍缺 | [N31-E3 审计](128-n31-e3-runtime-effect-barrier-audit.md)、[N32-E5](147-n32-e5-preview-effect-host-audit.md)、Media Golden 三端快照 |
+| AC-13 | 镜头/角色/转场/BGM/Voice/SFX | N42/N50 | 实现中 | Runtime E3 已形成 Direction → Effect Intent；E5 接入 Editor，E7 将 execute/complete/cancel/compensate/replay 与 active channel 收敛为 portable Host，并取得 Node↔Worker Golden。复杂镜头、真实 Player 渲染/音频 Adapter 与三端媒体宿主仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、Media Golden 三端快照 |
 | AC-14 | 编辑器和玩家设备预算 | N90–N92/N102 | 未开始 | 实体设备 | WIN-L/AND-L/AND-R 报告 |
 | AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | N31-E6 正式内核已证明 Normal、5/10/20/40/Instant 最终 State/History Hash 一致、Skip Read 未读停止、Hold/Toggle 策略同构、Auto 延迟不入 State，以及 Choice/Effect/Barrier/资源/Stop Point 停止；Player 控件、真实计时/语音/媒体策略、三端与真人证据仍缺 | [N31-E6 审计](131-n31-e6-runtime-scheduler-audit.md)、玩家输入向量和 State Hash |
-| AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | 正式 Runtime checkpoint/截断/tombstone/reconciliation/Session Save/永久 Meta 保持有效；N32-E4 验证控制和 fork，E5 已真实修正 Back 后 pure Effect 通道残留并验证 compensation/replay。共享 Player/三端和真人证据仍缺 | [N31-E5](130-n31-e5-runtime-history-audit.md)、[N31-E10](135-n31-e10-formal-vm-parity-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、[N32-E4](146-n32-e4-preview-debug-controls-audit.md)、[N32-E5](147-n32-e5-preview-effect-host-audit.md)、玩家 History E2E |
+| AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | 正式 Runtime checkpoint/截断/tombstone/reconciliation/Session Save/永久 Meta 保持有效；E7 共享 Host Golden 覆盖 compensation/replay，Benchmark production 实际 Back 后 Forward 返回同一结局。正式 Player/三端和真人证据仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、玩家 History E2E |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | 图语义不全 | Branching Golden |
 | AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2 记录 Gallery/Ending，E12 又确保 Back/Forward 与旧存档加载不回退该永久 Meta。覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 仍待 N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |
 | AC-19 | Gal 配置中心覆盖 P0 | N51 | 未开始 | Settings Schema/UI | 配置追踪全覆盖 |

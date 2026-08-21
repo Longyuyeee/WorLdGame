@@ -31,7 +31,7 @@ describe("Canonical project editor adapter", () => {
     const canonical = projectCanonicalFromStory(campusStoryProject, "bridge-entropy");
     const withDomainData = {
       ...canonical,
-      variables: { schemaVersion: 1 as const, variables: [{ id: "variable_route", name: "Route", type: "string", defaultValue: "" }] },
+      variables: { schemaVersion: 1 as const, variables: [{ id: "variable_route", name: "Route", type: "string", defaultValue: "", pluginMetadata: { owner: "test" } }] },
       characters: { schemaVersion: 1 as const, characters: canonical.characters.characters.map((item) => ({ ...item, portraitSlots: ["main"], defaultExpression: "neutral" })) }
     };
     const edited = {
@@ -45,5 +45,7 @@ describe("Canonical project editor adapter", () => {
     expect(reopened.variables.variables).toEqual(withDomainData.variables.variables);
     expect(reopened.characters.characters[0]).toMatchObject({ portraitSlots: ["main"], defaultExpression: "neutral" });
     expect(projectCanonicalForEditor(reopened).project.scenes[0]?.statements.at(-1)).toMatchObject({ id: "statement_saved", kind: "set" });
+    const projected = projectCanonicalForEditor(withDomainData).project;
+    expect(projectCanonicalWithStory(withDomainData, projected).variables.variables[0]).toMatchObject({ pluginMetadata: { owner: "test" }, scope: "story" });
   });
 });

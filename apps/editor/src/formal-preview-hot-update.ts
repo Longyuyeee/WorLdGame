@@ -1,7 +1,7 @@
 import { compileProject, type RuntimeInstructionV1, type RuntimeSourceMapV1 } from "@world-studio/project-compiler";
 import type { CanonicalProject } from "@world-studio/project-domain";
 import type { RuntimeHistorySessionV1, RuntimeProgramV1, RuntimeStateV1 } from "@world-studio/runtime";
-import { rebaseFormalPreviewEffectHost } from "./formal-preview-effect-host";
+import { rebaseRuntimePresentationHostV1 } from "@world-studio/runtime-host";
 import {
   advanceFormalPreview,
   approveFormalPreviewBarrier,
@@ -119,7 +119,7 @@ function replaySession(project: CanonicalProject, previous: FormalPreviewState):
   }
   if (replayed.runtimeState === null || stateSemantics(replayed.runtimeState) !== stateSemantics(previous.runtimeState)) return null;
   const checkpointEffects = replayed.historySession.entries.slice(0, replayed.historySession.cursor).flatMap((entry) => entry.effects);
-  return { ...replayed, effectHost: rebaseFormalPreviewEffectHost(previous.effectHost, checkpointEffects) };
+  return { ...replayed, effectHost: rebaseRuntimePresentationHostV1(previous.effectHost, checkpointEffects) };
 }
 
 export function updateFormalPreviewProject(project: CanonicalProject, state: FormalPreviewState): FormalPreviewHotUpdateResult {

@@ -8,6 +8,7 @@ const auditedRoots = [
   join(repoRoot, "packages", "project-domain", "src"),
   join(repoRoot, "packages", "project-compiler", "src"),
   join(repoRoot, "packages", "runtime", "src"),
+  join(repoRoot, "packages", "runtime-host", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
   join(repoRoot, "packages", "project-persistence", "src")
@@ -75,7 +76,12 @@ for (const path of coreFiles) {
   }
 }
 
-const vmFiles = coreFiles.filter((path) => path.includes(`${join("packages", "narrative-vm-spike", "src")}`) || path.includes(`${join("packages", "runtime", "src")}`));
+const vmFiles = coreFiles.filter(
+  (path) =>
+    path.includes(`${join("packages", "narrative-vm-spike", "src")}`) ||
+    path.includes(`${join("packages", "runtime", "src")}`) ||
+    path.includes(`${join("packages", "runtime-host", "src")}`)
+);
 for (const path of vmFiles) {
   const source = await readFile(path, "utf8");
   for (const [globalName, globalPattern] of vmForbiddenGlobals) {
@@ -137,6 +143,9 @@ const projectCompilerPackage = JSON.parse(
 const runtimePackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "runtime", "package.json"), "utf8")
 );
+const runtimeHostPackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "runtime-host", "package.json"), "utf8")
+);
 const projectCompilerDependencies = Object.keys(projectCompilerPackage.dependencies ?? {}).sort();
 if (JSON.stringify(projectCompilerDependencies) !== JSON.stringify([
   "@world-studio/project-domain",
@@ -147,6 +156,10 @@ if (JSON.stringify(projectCompilerDependencies) !== JSON.stringify([
 const runtimeDependencies = Object.keys(runtimePackage.dependencies ?? {}).sort();
 if (JSON.stringify(runtimeDependencies) !== JSON.stringify(["@world-studio/project-compiler"])) {
   violations.push("runtime may depend only on project-compiler in N31");
+}
+const runtimeHostDependencies = Object.keys(runtimeHostPackage.dependencies ?? {}).sort();
+if (JSON.stringify(runtimeHostDependencies) !== JSON.stringify(["@world-studio/runtime"])) {
+  violations.push("runtime-host may depend only on the formal runtime in N32-E7");
 }
 if (projectDomainPackage.dependencies !== undefined) {
   violations.push("project-domain must not declare runtime dependencies in N10");
@@ -198,8 +211,8 @@ const vmHarnessPackage = JSON.parse(
   await readFile(join(vmHarnessRoot, "package.json"), "utf8")
 );
 const vmHarnessDependencies = Object.keys(vmHarnessPackage.dependencies ?? {});
-if (JSON.stringify(vmHarnessDependencies.sort()) !== JSON.stringify(["@world-studio/narrative-vm-spike", "@world-studio/runtime"])) {
-  violations.push("VM conformance Harness may depend only on narrative-vm-spike and formal runtime");
+if (JSON.stringify(vmHarnessDependencies.sort()) !== JSON.stringify(["@world-studio/narrative-vm-spike", "@world-studio/runtime", "@world-studio/runtime-host"])) {
+  violations.push("VM conformance Harness may depend only on narrative-vm-spike, formal runtime, and portable runtime-host");
 }
 const vmHarnessFiles = (await collectFiles(join(vmHarnessRoot, "src")))
   .filter((path) => extname(path) === ".ts");
@@ -304,6 +317,7 @@ if (violations.length > 0) {
           "story-language depends only on story-core",
           "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
           "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
+          "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
@@ -311,7 +325,7 @@ if (violations.length > 0) {
           "editor declares the story-language dependency explicitly",
           "editor declares the project-persistence dependency explicitly",
           "web editor does not bundle the Node filesystem adapter",
-          "VM Web Worker conformance Harness depends only on the portable Spike and formal Runtime and imports no shell or Node adapter",
+          "VM Web Worker conformance Harness depends only on the portable Spike, formal Runtime, and portable Runtime Host and imports no shell or Node adapter",
           "VM conformance CLI is an isolated Node reference host and depends only on the portable narrative VM",
           "Windows Electron host keeps isolation and sandboxing enabled with the frozen WindowsHostV1 storage bridge",
           "Windows Tauri host exposes only the frozen WindowsHostV1 storage commands and no generic privileged plugin",

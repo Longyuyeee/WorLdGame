@@ -1,5 +1,5 @@
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import type { Character, StoryProject, StoryStatement } from "@world-studio/story-core";
+import type { Character, StoryProject, StoryStatement, StoryVariable } from "@world-studio/story-core";
 
 function character(value: JsonObject): Character {
   if (typeof value.id !== "string" || typeof value.displayName !== "string" || typeof value.color !== "string") throw new Error("Canonical character is not supported by the current editor projection");
@@ -9,6 +9,16 @@ function statement(value: JsonObject): StoryStatement {
   const candidate = value as unknown as StoryStatement;
   if (typeof candidate.id !== "string" || !["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"].includes(candidate.kind)) throw new Error("Canonical statement is not supported by the current editor projection");
   return candidate;
+}
+function variable(value: JsonObject): StoryVariable {
+  const type = value.type;
+  if (typeof value.id !== "string" || typeof value.name !== "string" || !["boolean", "number", "string"].includes(String(type))) {
+    throw new Error("Canonical variable is not supported by the current editor projection");
+  }
+  const defaultValue = value.defaultValue;
+  if (typeof defaultValue !== type) throw new Error("Canonical variable default does not match its type");
+  const scope = ["story", "chapter", "scene", "meta"].includes(String(value.scope)) ? value.scope as StoryVariable["scope"] : "story";
+  return { id: value.id, name: value.name, type: type as StoryVariable["type"], defaultValue: defaultValue as StoryVariable["defaultValue"], scope };
 }
 function quote(value: string): string { return JSON.stringify(value); }
 function sourceLine(value: StoryStatement): string {
@@ -32,7 +42,15 @@ export function projectCanonicalForEditor(project: CanonicalProject): { readonly
     return { id: scene.id, title: scene.title, statements };
   });
   return {
-    project: { schemaVersion: 0, id: project.manifest.projectId, title: project.manifest.title, entrySceneId: project.manifest.entrySceneId, characters: project.characters.characters.map(character), scenes },
+    project: {
+      schemaVersion: 0,
+      id: project.manifest.projectId,
+      title: project.manifest.title,
+      entrySceneId: project.manifest.entrySceneId,
+      characters: project.characters.characters.map(character),
+      ...(project.variables.variables.length === 0 ? {} : { variables: project.variables.variables.map(variable) }),
+      scenes
+    },
     sources: Object.fromEntries(scenes.map((scene) => [scene.id, `scene ${quote(scene.title)} @id(${scene.id})\n${scene.statements.map(sourceLine).join("\n")}\n`]))
   };
 }
@@ -63,6 +81,9 @@ export function projectCanonicalFromStory(project: StoryProject, durableEntropy:
       schemaVersion: 1,
       characters: project.characters.map((item) => ({ ...item }))
     },
+    ...(project.variables === undefined ? {} : {
+      variables: { schemaVersion: 1 as const, variables: project.variables.map((item) => ({ ...item })) }
+    }),
     scripts: Object.fromEntries(project.scenes.map((scene) => [scene.id, {
       schemaVersion: 1,
       sceneId: scene.id,
@@ -78,6 +99,7 @@ export function projectCanonicalFromStory(project: StoryProject, durableEntropy:
 
 export function projectCanonicalWithStory(base: CanonicalProject, story: StoryProject): CanonicalProject {
   const baseCharacters = new Map(base.characters.characters.map((item) => [String(item.id), item]));
+  const baseVariables = new Map(base.variables.variables.map((item) => [String(item.id), item]));
   return {
     ...base,
     manifest: {
@@ -89,6 +111,9 @@ export function projectCanonicalWithStory(base: CanonicalProject, story: StoryPr
       ...base.characters,
       characters: story.characters.map((item) => ({ ...baseCharacters.get(item.id), ...item }))
     },
+    ...(story.variables === undefined ? {} : {
+      variables: { ...base.variables, variables: story.variables.map((item) => ({ ...baseVariables.get(item.id), ...item })) }
+    }),
     scripts: Object.fromEntries(story.scenes.map((scene) => [scene.id, {
       ...(base.scripts[scene.id] ?? {}),
       schemaVersion: 1,

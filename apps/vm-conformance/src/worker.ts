@@ -18,13 +18,14 @@ import {
   executeRuntimeGeneratedCorpusChunkV1,
   summarizeRuntimeGeneratedCorpusV1
 } from "@world-studio/runtime";
+import { executeRuntimePresentationHostConformanceV1 } from "@world-studio/runtime-host";
 
 const scope = self as DedicatedWorkerGlobalScope;
 
 scope.addEventListener("message", async (event: MessageEvent<WorkerRequestV0 | RuntimeWorkerRequestV1>) => {
   const request = event.data;
   if (request.protocolVersion === 1 && request.kind === "runRuntimeConformance" && request.requestId === "request.runtime-v1.web-worker") {
-    const response: RuntimeWorkerResponseV1 = { protocolVersion: 1, kind: "runtimeConformanceResult", requestId: request.requestId, host: "web-worker", result: executeRuntimeConformanceV1() };
+    const response: RuntimeWorkerResponseV1 = { protocolVersion: 1, kind: "runtimeConformanceResult", requestId: request.requestId, host: "web-worker", result: executeRuntimeConformanceV1(), presentationHost: executeRuntimePresentationHostConformanceV1() };
     scope.postMessage(response);
     return;
   }

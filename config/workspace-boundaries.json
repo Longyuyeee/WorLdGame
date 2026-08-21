@@ -12,6 +12,7 @@
         "@world-studio/project-domain",
         "@world-studio/project-persistence",
         "@world-studio/runtime",
+        "@world-studio/runtime-host",
         "@world-studio/story-core",
         "@world-studio/story-language"
       ]
@@ -22,7 +23,11 @@
       "kind": "conformance",
       "stability": "experimental",
       "owner": "Runtime Verification Owner",
-      "allowedWorkspaceDependencies": ["@world-studio/narrative-vm-spike", "@world-studio/runtime"]
+      "allowedWorkspaceDependencies": [
+        "@world-studio/narrative-vm-spike",
+        "@world-studio/runtime",
+        "@world-studio/runtime-host"
+      ]
     },
     {
       "path": "apps/vm-conformance-cli",
@@ -94,6 +99,14 @@
       "stability": "candidate",
       "owner": "Runtime Owner",
       "allowedWorkspaceDependencies": ["@world-studio/project-compiler", "@world-studio/project-domain"]
+    },
+    {
+      "path": "packages/runtime-host",
+      "packageName": "@world-studio/runtime-host",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Runtime Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/runtime"]
     },
     {
       "path": "packages/story-core",

@@ -21,12 +21,12 @@ import {
 } from "@world-studio/runtime";
 import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
 import {
-  consumeFormalPreviewEffects,
-  createFormalPreviewEffectHostState,
-  reconcileFormalPreviewEffectHost,
-  settleFormalPreviewEffect,
-  type FormalPreviewEffectHostState
-} from "./formal-preview-effect-host";
+  consumeRuntimePresentationEffectsV1,
+  createRuntimePresentationHostStateV1,
+  reconcileRuntimePresentationHostV1,
+  settleRuntimePresentationEffectV1,
+  type RuntimePresentationHostStateV1
+} from "@world-studio/runtime-host";
 
 export type FormalPreviewStatus = "idle" | "presenting" | "paused" | "waiting-choice" | "waiting-effect" | "waiting-barrier" | "ended" | "error";
 export type FormalPreviewStartTarget =
@@ -77,7 +77,7 @@ export interface FormalPreviewState {
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly schedulerSession: RuntimeSchedulerSessionV1 | null;
   readonly reconciliation: RuntimeHistoryReconciliationPlanV1 | null;
-  readonly effectHost: FormalPreviewEffectHostState;
+  readonly effectHost: RuntimePresentationHostStateV1;
   readonly currentEvent: RuntimeEventV1 | null;
   readonly sceneId: string | null;
   readonly statementIndex: number;
@@ -101,7 +101,7 @@ export function createIdleFormalPreviewState(): FormalPreviewState {
     historySession: null,
     schedulerSession: null,
     reconciliation: null,
-    effectHost: createFormalPreviewEffectHostState(),
+    effectHost: createRuntimePresentationHostStateV1(),
     currentEvent: null,
     sceneId: null,
     statementIndex: 0,
@@ -193,7 +193,7 @@ function presentHistory(
   if (source === undefined) return sessionFailure({ ...base, runtimeState: state, historySession: history, schedulerSession: scheduler }, "PREVIEW_SOURCE_MISSING", "Source Map 无法定位当前 Runtime 位置");
   const visits = activeVisits(base, history);
   const { endingName: _previousEndingName, error: _previousError, ...cleanBase } = base;
-  const effectHost = consumeFormalPreviewEffects(base.effectHost, effects);
+  const effectHost = consumeRuntimePresentationEffectsV1(base.effectHost, effects);
   return {
     ...cleanBase,
     status: state.pendingBarrier !== null ? "waiting-barrier" : state.pendingEffect !== null ? "waiting-effect" : event?.kind === "choice" ? "waiting-choice" : event?.kind === "ending" ? "ended" : paused ? "paused" : "presenting",
@@ -373,7 +373,7 @@ function presentNavigation(base: FormalPreviewState, history: RuntimeHistorySess
     scheduler = created;
   }
   const checkpointEffects = history.entries.slice(0, history.cursor).flatMap((entry) => entry.effects);
-  const hostBase = reconciliation === null ? base : { ...base, effectHost: reconcileFormalPreviewEffectHost(base.effectHost, reconciliation, checkpointEffects) };
+  const hostBase = reconciliation === null ? base : { ...base, effectHost: reconcileRuntimePresentationHostV1(base.effectHost, reconciliation, checkpointEffects) };
   return presentHistory(hostBase, history, scheduler, state, eventAtCursor(history), reconciliation, history.cursor === 0);
 }
 
@@ -413,7 +413,7 @@ function submitEffectInput(state: FormalPreviewState, outcome: "complete" | "can
   };
   const advanced = advanceRuntimeHistoryV1(state.program, state.historySession, { input });
   if (advanced.diagnostics.length > 0) return controlDiagnostic(state, advanced.diagnostics[0]!.code, advanced.diagnostics[0]!.message);
-  const hostState = { ...state, effectHost: settleFormalPreviewEffect(state.effectHost, pending, outcome) };
+  const hostState = { ...state, effectHost: settleRuntimePresentationEffectV1(state.effectHost, pending, outcome) };
   const created = schedulerFromHistory(hostState, advanced.session);
   if (!("schemaVersion" in created)) return created;
   return presentHistory(hostState, advanced.session, created, advanced.state, advanced.event, null, false, advanced.effects);

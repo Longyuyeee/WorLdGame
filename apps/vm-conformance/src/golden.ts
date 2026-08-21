@@ -62,6 +62,16 @@ export const SPIKE13_NODE_GOLDEN_V0 = {
   suiteDigest: "fdf3b8dcc83f57f29b45a27f275c48254dbe4e3c208d788d196eb4fb7c74fb26"
 } as const;
 import type { RuntimeConformanceResultV1, RuntimeGeneratedCorpusSummaryV1 } from "@world-studio/runtime";
+import type { RuntimePresentationHostConformanceResultV1 } from "@world-studio/runtime-host";
+
+export const RUNTIME_PRESENTATION_HOST_NODE_GOLDEN_V1: RuntimePresentationHostConformanceResultV1 = {
+  schemaVersion: 1,
+  hostVersion: "0.1.0",
+  checkpointId: "checkpoint.2",
+  activeChannels: ["background"],
+  operationKinds: ["execute", "execute", "complete", "compensate", "replay"],
+  snapshotHash: "e84fe19367494828020b5802367dc036d3667eb570dc7479fa371d7e4d5532cd"
+};
 
 export const RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1: RuntimeGeneratedCorpusSummaryV1 = {
   schemaVersion: 1,

@@ -1,5 +1,6 @@
 import type { ConformanceResultV0, GeneratedCorpusSummaryV0, Spike11ConformanceResultV0, Spike13ConformanceResultV0 } from "@world-studio/narrative-vm-spike";
 import type { RuntimeConformanceResultV1, RuntimeGeneratedCorpusSummaryV1 } from "@world-studio/runtime";
+import type { RuntimePresentationHostConformanceResultV1 } from "@world-studio/runtime-host";
 
 export interface WorkerRequestV0 {
   readonly protocolVersion: 0;
@@ -34,4 +35,5 @@ export interface RuntimeWorkerResponseV1 {
   readonly requestId: RuntimeWorkerRequestV1["requestId"];
   readonly host: "web-worker";
   readonly result: RuntimeConformanceResultV1;
+  readonly presentationHost: RuntimePresentationHostConformanceResultV1;
 }

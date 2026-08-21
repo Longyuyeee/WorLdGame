@@ -5,6 +5,7 @@
     { "path": "./packages/project-domain" },
     { "path": "./packages/project-compiler" },
     { "path": "./packages/runtime" },
+    { "path": "./packages/runtime-host" },
     { "path": "./packages/story-core" },
     { "path": "./packages/story-language" },
     { "path": "./packages/project-persistence" },

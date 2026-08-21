@@ -10,5 +10,6 @@ export * from "./runtime";
 export * from "./save";
 export * from "./session-save";
 export * from "./scheduler";
+export * from "./sha256";
 export * from "./source-map";
 export * from "./types";

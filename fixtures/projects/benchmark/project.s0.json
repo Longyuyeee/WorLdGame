@@ -7,13 +7,16 @@
     { "id": "benchmark_aya", "displayName": "绫", "color": "#7C3AED" },
     { "id": "benchmark_ren", "displayName": "任", "color": "#DB2777" }
   ],
+  "variables": [
+    { "id": "promise_state", "name": "约定状态", "type": "string", "defaultValue": "unanswered", "scope": "story" }
+  ],
   "scenes": [
     {
       "id": "benchmark_opening",
       "title": "雨夜站台",
       "statements": [
-        { "id": "benchmark_bg", "kind": "direction", "command": "background", "summary": "雨夜的旧城站台，电子钟停在二十三点五十五分，远处轨道泛着潮湿的银光" },
-        { "id": "benchmark_bgm", "kind": "direction", "command": "audio", "summary": "低声的钢琴与雨声交织，末班车进站广播从很远的地方传来" },
+        { "id": "benchmark_bg", "kind": "direction", "command": "background", "summary": "action=clear description=雨夜的旧城站台，电子钟停在二十三点五十五分，远处轨道泛着潮湿的银光" },
+        { "id": "benchmark_bgm", "kind": "direction", "command": "audio", "summary": "action=stop bus=bgm description=低声的钢琴与雨声交织，末班车进站广播从很远的地方传来" },
         { "id": "benchmark_opening_narration", "kind": "narration", "textId": "benchmark_opening_narration_text", "text": "雨水沿着站棚边缘落成一面透明的帘。电子钟还有五分钟跳到午夜，而那趟只在旧时刻表上存在的列车，正从废弃的北线缓慢接近。" },
         { "id": "benchmark_opening_01", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_opening_01_text", "text": "你果然来了。我还以为那封没有寄件人的信，只会把我一个人骗到这座已经停运三年的站台。" },
         { "id": "benchmark_opening_02", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_opening_02_text", "text": "信里写着我们的暗号，还夹着毕业那天丢失的半张车票。除了你，没有人知道我们把约定藏在检票口第三块砖下面。" },
@@ -46,7 +49,7 @@
       "id": "benchmark_departure",
       "title": "驶向旧夏天",
       "statements": [
-        { "id": "benchmark_departure_bg", "kind": "direction", "command": "background", "summary": "空无一人的旧式车厢，窗外的雨夜逐渐倒流成十年前的盛夏黄昏" },
+        { "id": "benchmark_departure_bg", "kind": "direction", "command": "background", "summary": "action=clear description=空无一人的旧式车厢，窗外的雨夜逐渐倒流成十年前的盛夏黄昏" },
         { "id": "benchmark_departure_01", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_departure_01_text", "text": "车门在身后合上了，站台却没有远去。你看窗外，每一扇亮起的窗都像一段被保存下来的记忆，正按照相反的顺序经过我们。" },
         { "id": "benchmark_departure_02", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_departure_02_text", "text": "我看见毕业典礼后的教室，看见你把两张车票压进书里。那时的我只顾着害怕告别，从来没有问过你是不是也一样不安。" },
         { "id": "benchmark_departure_03", "kind": "narration", "textId": "benchmark_departure_03_text", "text": "列车穿过没有灯光的隧道，车轮声变成心跳。再次亮起时，两个年轻的身影正站在十年前的检票口，争论未来究竟应该通向哪里。" },
@@ -67,7 +70,7 @@
       "id": "benchmark_platform",
       "title": "留在雨停以后",
       "statements": [
-        { "id": "benchmark_platform_bg", "kind": "direction", "command": "background", "summary": "末班电车驶过却没有停靠，站台灯光逐盏熄灭，东方天空开始泛白" },
+        { "id": "benchmark_platform_bg", "kind": "direction", "command": "background", "summary": "action=clear description=末班电车驶过却没有停靠，站台灯光逐盏熄灭，东方天空开始泛白" },
         { "id": "benchmark_platform_01", "kind": "dialogue", "speakerId": "benchmark_aya", "textId": "benchmark_platform_01_text", "text": "列车过去了。刚才有一瞬间，我看见车窗里坐着十年前的我们。他们没有回头，大概因为属于他们的路本来就应该继续向前。" },
         { "id": "benchmark_platform_02", "kind": "dialogue", "speakerId": "benchmark_ren", "textId": "benchmark_platform_02_text", "text": "谢谢你选择留下。我不是害怕那趟车，只是不想再把希望寄托在改写过去上。能改变的东西都在这里，在我们接下来愿意说出的每句话里。" },
         { "id": "benchmark_platform_03", "kind": "narration", "textId": "benchmark_platform_03_text", "text": "轨道重新归于黑暗，录音机却还在转动。磁带空白的尾端传出细小电流声，像是在等待两个人为这个迟到了十年的故事录下新的结尾。" },
