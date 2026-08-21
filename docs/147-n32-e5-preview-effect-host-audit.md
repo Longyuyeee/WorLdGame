@@ -4,8 +4,8 @@
 > 分支：`codex/n32-e5-preview-effect-host`
 > 直接基线：N32-E4 最终证据头 `d43452f40ad1a12491bb83b19c7eee9674df08ad`
 > 授权：`RA-N21-004`，最大节点 N32
-> 远端交付：待创建 Draft PR；本文件当前记录本机实现候选与 production browser 实际值
-> 当前判定：N32-E5 Engineering 候选；远端完整门通过后才能关闭本切片
+> 远端交付：Draft PR #56；实现头 `dcfe084`；Windows / Node 22 run `32467211148` / job `96726246321`，4 分 9 秒绿色
+> 当前判定：N32-E5 Engineering 通过；N32 Product Acceptance、N40、M1 与发布继续阻断
 
 ## 1. 冻结目标与边界
 
@@ -55,6 +55,8 @@ Production Editor build 为 CSS 78.38 kB / gzip 14.99 kB，JS 727.60 kB / gzip 2
 
 ## 6. 出口与下一步
 
-当前实现、本机完整门、真实 production browser 与差异修正均满足 E5 候选要求；还需精确提交、推送 Draft PR，并让 Windows / Node 22 对同一实现头执行完整 `npm run check`。远端绿色后更新本节和追踪矩阵，才能标记 E5 Engineering 通过。
+Draft PR #56 的实现头 `dcfe084` 已通过 Windows / Node 22 完整 `npm run check`：普通回归 99 files / 607 tests，用时 73.16 秒；autosave 1/1，实际 2.855 秒；重型 VM 5/5，实际 60.884 秒；Runtime corpus 10,000 seeds / 20,000 replays / 40 chunks、28.603 秒、0 failed、digest 未变；Production build CSS 78.38/14.99 kB、JS 727.60/206.71 kB；85 portable / 4 adapters 及其余治理、构建、性能门均绿色。E5 Engineering 出口满足。
+
+本次远端实现门不包含随后补写的证据文本；文档提交仍需通过同一 `product-baseline`，该第二次检查只确认证据更新未破坏仓库门，不重复冒充实现验证。
 
 下一步冻结为 N32-E6：Preview 热更新与结构变更重启策略；随后执行 N32 Engineering 出口复审。E5 不提升任何产品验收状态，`RA-N21-004` 仍阻断 N32 Product Acceptance、N40、M1 Stable 与发布。

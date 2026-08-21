@@ -1,7 +1,7 @@
-# 当前开发情况审计（N32-E5 Engineering 候选）
+# 当前开发情况审计（N32-E5 Engineering）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e5-preview-effect-host`；Draft PR 待创建
+> 当前分支：`codex/n32-e5-preview-effect-host`；Draft PR #56
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
 > 最新节点证据：[N32-E5 Preview Effect / Stage Host 审计](147-n32-e5-preview-effect-host-audit.md)
@@ -11,9 +11,9 @@
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E5 Engineering 候选，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制以及 Editor Effect Host 的 awaited/cancel/Barrier/checkpoint/compensation/replay 已接入正式 Runtime。仍没有断点/Watch、热更新、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E5 Engineering，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制以及 Editor Effect Host 的 awaited/cancel/Barrier/checkpoint/compensation/replay 已接入正式 Runtime。仍没有断点/Watch、热更新、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E5 本地候选已通过；远端门待裁决；下一步 N32-E6**；
+- 当前工程节点：**N32-E5 Engineering 已通过；下一步 N32-E6**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -63,7 +63,7 @@
 | E5 本机完整门 | 治理、普通/存储/重型 VM、12 workspace、架构与性能 | 99 files / 607 tests；storage 1/1；VM 5/5；Runtime corpus 26.938 秒；85 portable / 4 adapters | 通过 |
 | E5 production build | awaited/Barrier 决策与 Back/Forward channel 实际值 | awaited `true→false / last cancel`；Barrier `true→false / last execute`；Back `1→0 active`；Forward `0→1 / last replay` | 通过；首测 pure channel 残留已修正 |
 | E5 production 体积 | 成功并报告增量 | CSS 78.38/14.99 kB；JS 727.60/206.71 kB | 构建通过；>500 kB 拆包债保留 |
-| E5 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR/CI 待创建 | 待远端裁决，不提前标记 E5 关闭 |
+| E5 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #56，run `32467211148` / job `96726246321`，4 分 9 秒；99/607；autosave 2.855 秒；Runtime corpus 28.603 秒 | 通过；E5 Engineering 关闭 |
 
 ## 4. 需求方向审计
 
@@ -78,8 +78,7 @@
 
 ## 5. 下一步顺序
 
-1. 关闭 N32-E5 远端完整门并记录实现头；
-2. N32-E6：热更新与结构变更重启策略；
-3. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
+1. N32-E6：热更新与结构变更重启策略；
+2. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
