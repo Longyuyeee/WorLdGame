@@ -1,19 +1,19 @@
-# 当前开发情况审计（N32-E1 Engineering）
+# 当前开发情况审计（N32-E2 Engineering）
 
-> 审计日期：2026-08-20
-> 当前分支：`codex/n32-e1-formal-preview-runtime`；Draft PR #52
+> 审计日期：2026-08-21
+> 当前分支：`codex/n32-e2-preview-observability`；Draft PR #53
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E1 正式 Editor Preview 审计](142-n32-e1-formal-editor-preview-audit.md)
+> 最新节点证据：[N32-E2 Preview Session 状态观察审计](144-n32-e2-preview-session-observability-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E1，不是 N32 完成。目前仍没有 Run from Scene/Statement、变量/调用栈检查器、Step Back/Forward/Over、热更新、正式媒体 Effect Host 或与 Web Player 共用 Host。正式 Windows/Web/Android Player、构建、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E2，不是 N32 完成。变量、调用栈、当前 IR/Statement 和结构化诊断已经可见；仍没有 Run from Scene/Statement、Step Back/Forward/Over、热更新、正式媒体 Effect Host 或与 Web Player 共用 Host。正式 Windows/Web/Android Player、构建、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E1 Engineering 已通过；下一步 N32-E2**；
+- 当前工程节点：**N32-E2 Engineering 已通过；下一步 N32-E3**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -28,13 +28,13 @@
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、Writer 卡片、Script、基础 Flow、稳定 ID、Compiler IR/Source Map | N41 完整 Sequence、N40 专业 Route、N60 QA/Debugger |
-| Preview | Entry 全流程经 Compiler→Runtime；Choice/Ending/Statement mapping；双路线生产浏览器通过 | Scene/Statement 启动、变量/栈检查、调试推进、热更新、正式媒体 Host |
+| Preview | Entry 全流程经 Compiler→Runtime；Choice/Ending mapping；变量/栈/当前 IR/Statement/结构化诊断观察 | Scene/Statement 启动、调试推进、热更新、正式媒体 Host |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频和安全占位 | 正式 Runtime Effect 接入、复杂镜头/关键帧、Pixi/WebGL 与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime、State/History/Save/Back/Forward/调度/诊断 | Editor 控件产品化、Player 槽位、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选 | 正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
-## 3. N32-E1 证据与差异
+## 3. N32-E1/E2 证据与差异
 
 | 检查 | 预期 | 实际 | 判定 |
 |---|---|---|---|
@@ -46,6 +46,11 @@
 | Runtime 10k | 10,000 seeds / 20,000 replays / 40 chunks / 原 digest；单 shard ≤90 秒 | Windows / Node 22 总墙钟 30.868 秒；shard 26.558–27.107 秒；digest `20e9a842…92ef2` | 通过；未减 corpus、未改 digest、未放宽门 |
 | GitHub CI | 纠偏实现头 Windows / Node 22 完整门绿色 | Draft PR #52，run `32457615078` / job `96697835514`，4 分 8 秒 | 通过 |
 | Editor production build | 成功并报告体积 | 682.24 kB，gzip 196.33 kB，仍有 >500 kB warning | 构建通过，体积未达优化目标 |
+| E2 定向 | 观察契约、结构化负例和 UI 回归 | 2 files / 6 tests | 通过 |
+| E2 生产浏览器 | r1/r4 位置、真实变量、console 0 error | `direction #0`→`choice #3`；产品 UI 新增 Number 后显示 2；0 error | 通过 |
+| E2 本机全仓 | 普通回归全绿；串行 autosave ≤5 秒 | 98 files / 592 tests 通过；autosave 约 23.10 秒仍“保存中…” | 功能通过；已知主机负载差异保留给远端裁决 |
+| E2 production build | 成功并报告增量 | 692.05 kB，gzip 198.42 kB；较 E1 约 +9.7/+2.1 kB | 构建通过，拆包债保留 |
+| E2 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #53，run `32459445287` / job `96703241983`，4 分 16 秒；autosave 3.086 秒 | 通过；本机负载差异关闭 |
 
 ## 4. 需求方向审计
 
@@ -60,11 +65,10 @@
 
 ## 5. 下一步顺序
 
-1. N32-E2：Preview Session 状态观察——变量、调用栈、当前 IR/Statement、结构化诊断；
-2. N32-E3：Run from Scene/Statement 与合法状态构造，失败时明确原因；
-3. N32-E4：Continue、Step Over、Back/Forward、Run to Cursor 对接正式 History；
-4. N32-E5：正式 Effect/Stage Host 与安全取消/Barrier；
-5. N32-E6：热更新与结构变更重启策略；
-6. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
+1. N32-E3：Run from Scene/Statement 与合法状态构造，失败时明确原因；
+2. N32-E4：Continue、Step Over、Back/Forward、Run to Cursor 对接正式 History；
+3. N32-E5：正式 Effect/Stage Host 与安全取消/Barrier；
+4. N32-E6：热更新与结构变更重启策略；
+5. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -4,6 +4,7 @@ import { campusStoryProject } from "@world-studio/story-core";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
 import {
   advanceFormalPreview,
+  observeFormalPreview,
   selectFormalPreviewChoice,
   startFormalPreview,
   type FormalPreviewState
@@ -55,7 +56,41 @@ describe("formal editor preview runtime", () => {
         }
       }
     };
-    expect(startFormalPreview(broken)).toMatchObject({ status: "error" });
-    expect(startFormalPreview(broken).error).toContain("MISSING_LABEL");
+    const failed = startFormalPreview(broken);
+    expect(failed).toMatchObject({ status: "error" });
+    expect(failed.error).toContain("MISSING_LABEL");
+    expect(observeFormalPreview(failed).diagnostics).toContainEqual(expect.objectContaining({ origin: "compiler", severity: "error", code: "MISSING_LABEL", sceneId: "scn_school_gate", statementId: "broken" }));
+  });
+
+  it("exposes deterministic variables, current IR/Statement, call stack, and diagnostics", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-observation");
+    const project = { ...base, variables: { ...base.variables, variables: [{ id: "clue_count", defaultValue: 2 }, { id: "trusted", defaultValue: false }] } };
+    const waiting = untilChoice(startFormalPreview(project));
+    const observed = observeFormalPreview({
+      ...waiting,
+      runtimeState: { ...waiting.runtimeState!, callStack: [{ sceneId: "scn_school_gate", instructionIndex: 1 }] }
+    });
+
+    expect(observed).toMatchObject({
+      status: "waiting-choice",
+      current: { sceneId: "scn_school_gate", instructionId: expect.any(String), opcode: "choice", statementId: "stmt_gate_choice", statementIndex: 3 },
+      variables: [{ id: "clue_count", type: "number", value: 2 }, { id: "trusted", type: "boolean", value: false }],
+      callStack: [{ depth: 0, sceneId: "scn_school_gate", instructionIndex: 1, opcode: "dialogue", statementId: "stmt_gate_001", statementIndex: 1 }],
+      diagnostics: []
+    });
+  });
+
+  it("source-maps formal Runtime failures into structured preview diagnostics", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-runtime-diagnostic");
+    const started = startFormalPreview(project);
+    const failed = advanceFormalPreview({
+      ...started,
+      runtimeState: { ...started.runtimeState!, cursor: { sceneId: "missing_scene", instructionIndex: 0 } }
+    });
+
+    expect(failed).toMatchObject({ status: "error", error: expect.stringContaining("RUNTIME_INVALID_STATE") });
+    expect(observeFormalPreview(failed).diagnostics).toEqual([
+      expect.objectContaining({ origin: "runtime", severity: "error", code: "RUNTIME_INVALID_STATE", sceneId: "missing_scene", statementId: null })
+    ]);
   });
 });

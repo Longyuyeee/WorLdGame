@@ -297,6 +297,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1 实施状态（2026-08-21）：Editor 的“完整流程试玩”已停止直接遍历 `StoryStatement`，改为从 Canonical Project 调用 N30 Project Compiler，再由 N31 Runtime 执行 IR；Choice、结局与当前语句定位来自 Runtime Event/State 和 Source Map。两条生产浏览器路线和编译失败关闭均通过。[稳定性纠偏](143-n32-e1-runtime-corpus-stability-audit.md)在不减少 10,000 seeds/20,000 replays/40 chunks/负例、不改变 digest 且不放宽 90 秒门的前提下完成；Draft PR #52 纠偏头 run `32457615078` 用时 4 分 8 秒并通过完整门，E1 Engineering 关闭。Run from Scene/Statement、状态检查器、Back/Forward/Over、热更新与共享 Player Host 仍属于 E2+。
 
+> E2 实施状态（2026-08-21）：正式 Preview Session 已提供变量、调用栈、当前 IR/Statement、revision、逻辑时间与结构化 Compiler/Runtime/Source Map 诊断观察；现代化状态检查器在生产浏览器中实际显示 r1/r4 精确位置和经产品 UI 创建的 Number 初值 2，console error 为 0。Draft PR #53 的 Windows / Node 22 完整门 run `32459445287` / job `96703241983` 用时 4 分 16 秒并绿色，E2 Engineering 关闭。Run from Scene/Statement 明确保留给 E3，详见 [N32-E2 审计](144-n32-e2-preview-session-observability-audit.md)。
+
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：
   1. Preview 只消费 Compiler 输出，不直接遍历 StoryStatement；
