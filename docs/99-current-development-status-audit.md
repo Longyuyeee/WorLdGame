@@ -1,7 +1,7 @@
-# 当前开发情况审计（N32-E6 Engineering Candidate）
+# 当前开发情况审计（N32-E6 Engineering）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e6-preview-hot-update`；Draft PR 待创建
+> 当前分支：`codex/n32-e6-preview-hot-update`；Draft PR #57
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
 > 最新节点证据：[N32-E6 Preview 热更新审计](148-n32-e6-preview-hot-update-audit.md)
@@ -11,9 +11,9 @@
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E6 Engineering Candidate，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制、Editor Effect Host，以及受约束的文案热更新/结构变化显式重启已接入正式 Runtime。仍没有断点/Watch、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E6 Engineering，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制、Editor Effect Host，以及受约束的文案热更新/结构变化显式重启已接入正式 Runtime。仍没有断点/Watch、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E6 本地候选已完成；等待 Windows / Node 22 远端完整门**；
+- 当前工程节点：**N32-E6 Engineering 已通过；下一步 N32 出口复审**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -68,6 +68,7 @@
 | E6 production browser | 文案更新保持状态；语义变化保留旧会话；仅明确操作后重启 | `h4/4`→安全更新仍 `h4/4` 且新 prompt/label 可见；结构更新仍 `h4/4` 并显示 `OLD SESSION PRESERVED`；重启后 `h1/1` | 通过；与预期零差异 |
 | E6 本机普通/存储/构建 | 新功能全回归；真实 IndexedDB；12 workspace 可构建 | 100 files / 611 tests；storage 1/1；CSS 79.65/15.18 kB；JS 734.30/208.23 kB；架构与 Script 性能通过 | 功能通过；>500 kB 拆包债保留 |
 | E6 本机冻结性能 | 既有 Spike 10k ≤90 秒；Dicing 3s/3s/5s | Node 25 Spike 实际约 180.5 秒；Dicing 两次分别 3.35+3.21=6.56 秒、2.36+4.13=6.49 秒 | 本机完整门红；不改规模/digest/预算，等待 Windows / Node 22 裁决 |
+| E6 GitHub CI | Windows / Node 22 完整门裁决本机性能差异 | Draft PR #57，run `32470326283` / job `96735561264`，4 分 20 秒；100/611；autosave 1/1；VM 5/5（68.68 秒）；Runtime corpus 30.635 秒；Dicing 1.47/1.78/3.25 秒 | 通过；本机环境差异关闭，E6 Engineering 关闭 |
 
 ## 4. 需求方向审计
 
@@ -82,7 +83,7 @@
 
 ## 5. 下一步顺序
 
-1. Draft PR 的 Windows / Node 22 完整门裁决 N32-E6 Engineering；
-2. N32 出口复审：逐项审计 Preview 与正式 Runtime/未来 Web Player 的 State、Outcome 和画面关键快照边界。
+1. N32 出口复审：逐项审计 Preview 与正式 Runtime/未来 Web Player 的 State、Outcome 和画面关键快照边界；
+2. 若共享 Player Host 尚未存在，则必须将缺口明确路由到后续节点，不得用 Editor Host 自比对冒充跨宿主验收。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

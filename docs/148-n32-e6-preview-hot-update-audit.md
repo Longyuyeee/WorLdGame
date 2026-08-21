@@ -4,8 +4,8 @@
 > 分支：`codex/n32-e6-preview-hot-update`
 > 直接基线：N32-E5 最终证据头 `29eb089197e900cf93c751a226a5347709e718ba`
 > 授权：`RA-N21-004`，最大节点 N32
-> 远端交付：Draft PR 待创建；Windows / Node 22 完整门待裁决
-> 当前判定：本地 Engineering Candidate 完成；不得提前宣称 E6 通过、N32 Product Acceptance、N40、M1 或发布通过
+> 远端交付：Draft PR #57；实现头 `34dfbf1bc9c1f84fd373d217b969b69639febd92`；Windows / Node 22 run `32470326283` / job `96735561264`，4 分 20 秒绿色
+> 当前判定：N32-E6 Engineering 通过；N32 Product Acceptance、N40、M1 与发布继续阻断
 
 ## 1. 冻结目标与安全边界
 
@@ -52,4 +52,6 @@ E6 关闭 E5 留下的热更新缺口，但不允许直接修改 Runtime State �
 
 E6 对齐 N32 Implementation 5、REQ-RUNTIME、REQ-QA 与 AC-05：创作者可继续在试玩位置修改纯展示文案；任何可能改变剧情、变量、Effect 或执行位置的变化都 fail closed。它保持 Naninovel/Utage 级专业执行边界所需的可解释性，也保持现代化、多彩且信息清晰的产品反馈。
 
-E6 不完成共享 Preview/Player Host、断点/Watch、复杂 GPU/音频策略、三端 Player、真人产品验收或发布。当前本机完整 `npm run check` 因两项冻结性能门为红，不能写成全绿；只有 Draft PR 的 Windows / Node 22 完整门绿色后，才可补写远端证据并关闭 E6 Engineering。随后进入 N32 Engineering 出口复审，而不是 N40。
+E6 不完成共享 Preview/Player Host、断点/Watch、复杂 GPU/音频策略、三端 Player、真人产品验收或发布。本机完整 `npm run check` 因两项冻结性能门为红，仍不得写成全绿；Draft PR #57 的支持环境完整门随后证明普通回归 100 files / 611 tests、autosave 1/1、重型 VM 5/5（68.68 秒）、Runtime corpus 30.635 秒、Dicing 1.47/1.78/3.25 秒、12 workspace 构建、85 portable / 4 adapters 及其余治理/性能门全部绿色。Editor 产物体积与本地一致。
+
+因此远端裁决关闭的是 E6 Engineering 与本机环境差异，不抹除原始失败记录。下一步进入 N32 Engineering 出口复审，而不是 N40；`RA-N21-004` 继续阻断所有产品与发布门。
