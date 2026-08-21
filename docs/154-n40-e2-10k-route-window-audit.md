@@ -3,7 +3,7 @@
 > 日期：2026-08-22
 > 分支：`codex/n40-e1-route-graph-core`
 > 授权：`RA-N21-005`，仅 N40 Route Map Engineering
-> 判定：E2 本地实现、性能门、production build 与 production browser 通过；远端 Windows / Node 22 完整门待推送后回填。N40 Product Acceptance、N41+、M1 与发布继续阻断。
+> 判定：E2 本地实现、性能门、production build、production browser 与远端 Windows / Node 22 完整门通过，Engineering 切片关闭。N40 Product Acceptance、N41+、M1 与发布继续阻断。
 
 ## 1. 本切片解决的问题
 
@@ -59,6 +59,8 @@ production build 体积为 CSS 82.07 kB（gzip 15.57 kB）、JS 743.11 kB（gzip
 ## 5. 本机完整门
 
 `npm run check` 退出码 0：治理与 50 条需求审计通过；Compiler 20/20；Runtime 55/55 与 10,000 seeds 固定 digest 通过；普通测试 102 files / 625 tests；storage 1/1；重型 VM 5/5；14 workspaces 构建成功；architecture 90 portable / 4 Node adapters；Script performance 10/10；Route performance 1/1；Asset performance 4/4。
+
+实现提交 `b4fb150` 推送后，Draft PR #59 的 product-baseline run `32511431022` / job `96863202675` 在干净 Windows / Node 22 上重新执行锁定依赖安装与完整 `npm run check`，4 分 24 秒绿色，包含新增 Route performance gate。E2 Engineering 切片据此关闭。
 
 ## 6. 诚实边界与下一步
 
