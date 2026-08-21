@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N31 集中基线已在 Draft PR #51 的 Windows / Node 22 完整门（run `32352341550` / job `96374022660`）绿色后成为 Authoritative。N32-E1 的实现头在 Draft PR #52 run `32455301058` 绿色，但文档头 run `32455771721` 的 10k corpus 为 90.612 秒并超时，因此最终 E1 交付保持实现成立、稳定性纠偏中；[纠偏审计](143-n32-e1-runtime-corpus-stability-audit.md)不减少 seeds/replays/负例或改变 digest。`RA-N21-004` 持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N31 集中基线已在 Draft PR #51 的 Windows / Node 22 完整门（run `32352341550` / job `96374022660`）绿色后成为 Authoritative。N32-E1 已在不减少 corpus、不改变 digest、不放宽性能门的前提下完成[稳定性纠偏](143-n32-e1-runtime-corpus-stability-audit.md)，Draft PR #52 纠偏头 `b89a48e` 的 run `32457615078` / job `96697835514` 用时 4 分 8 秒并通过完整门，因此 E1 记录为未集成 Engineering 通过。`RA-N21-004` 持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 

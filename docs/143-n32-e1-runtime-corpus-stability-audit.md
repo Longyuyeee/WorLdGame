@@ -4,6 +4,8 @@
 > 触发：Draft PR #52 最终文档头 `40a45bc` 的 Windows / Node 22 run `32455771721` / job `96692640907`
 > 失败：10,000-seed corpus 实际 90.612 秒，超过冻结的 90 秒测试时限
 > 原则：不减少 seeds、replays、scenario、chunk 或负例，不改变 digest，不放宽 90 秒门
+> 纠偏头：`b89a48e23be62dfced8d6b53275d2f6ef72ed0f0`
+> 最终裁决：Windows / Node 22 run `32457615078` / job `96697835514`，4 分 8 秒绿色；纠偏关闭
 
 ## 1. 预期与实际
 
@@ -26,6 +28,7 @@
 | 定向首轮 | 37.331 秒 | 31.216–31.446 秒 | 10,000 / 20,000 | 原值 | 通过 |
 | 定向复轮 | 42.403 秒 | 34.582–34.995 秒 | 10,000 / 20,000 | 原值 | 通过 |
 | 根级 check 内 | 47.651 秒 | 37.757–39.671 秒 | 10,000 / 20,000 | 原值 | 通过 |
+| Windows / Node 22 | 30.868 秒 | 26.558–27.107 秒 | 10,000 / 20,000 | 原值 | 通过 |
 
 所有 shard 还重复执行 oversized、noncontiguous、incomplete、scenario count 篡改和 `FAILED` outcome 五类反例。Portable architecture 与 typecheck 通过。
 
@@ -35,4 +38,6 @@
 
 ## 4. 出口条件
 
-本纠偏只有在 Draft PR #52 的新实现头通过 Windows / Node 22 `npm run check` 后才能关闭。绿色前不得把一次旧实现头绿色写成最终头绿色，也不得进入 N32-E2。
+Draft PR #52 的纠偏实现头已通过 Windows / Node 22 `npm run check`。远端实际同时证明：Runtime 主测试 `55/55`、普通并行 `98 files / 590 tests`、autosave `1/1`（3.107 秒）、VM 重型 `5/5`、资产性能 `4/4`；资产 Dicing 实际为 grouping 1456.81 毫秒、atlas 1760 毫秒、总计 3216.81 毫秒，均低于 3000/3000/5000 毫秒预算。由此确认本机 autosave 与资产红灯属于主机负载差异，而非本次 Runtime 回归。
+
+纠偏出口已满足，E1 Engineering 可以关闭并进入 N32-E2；该结论不提升 N32 Product Acceptance，也不解除 N40、M1 与发布阻断。

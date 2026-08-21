@@ -13,7 +13,7 @@
 
 这只是 N32-E1，不是 N32 完成。目前仍没有 Run from Scene/Statement、变量/调用栈检查器、Step Back/Forward/Over、热更新、正式媒体 Effect Host 或与 Web Player 共用 Host。正式 Windows/Web/Android Player、构建、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E1 功能实现成立，最终交付头稳定性纠偏中；尚未进入 N32-E2**；
+- 当前工程节点：**N32-E1 Engineering 已通过；下一步 N32-E2**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -43,8 +43,8 @@
 | 编译失败 | fail closed，不回退 | `MISSING_LABEL` | 通过 |
 | 生产浏览器 | 两路线正确 Ending、console 0 error | 入口至 Choice 3 次 Continue；两分支各 2 次；两个结局正确；0 error | 通过 |
 | 工作区/架构/风险/需求 | 当前节点 N32 且不越权 | 四项审计 PASS；RA-N21-004 唯一 active | 通过 |
-| Runtime 10k | ≤90 秒 | Node 25.2.1 首轮 91.276 秒失败；隔离复跑 77.14 秒通过；本机全仓复跑 173.842 秒再次失败；Windows / Node 22 run `32455301058` 绿色 | 支持环境通过；本机非支持环境波动保留 |
-| GitHub CI | 最终头 Windows / Node 22 完整门绿色 | 实现头 run `32455301058` 绿色；文档头 run `32455771721` 的 corpus 90.612 秒超时 | 最终头红；按 [docs/143](143-n32-e1-runtime-corpus-stability-audit.md)纠偏 |
+| Runtime 10k | 10,000 seeds / 20,000 replays / 40 chunks / 原 digest；单 shard ≤90 秒 | Windows / Node 22 总墙钟 30.868 秒；shard 26.558–27.107 秒；digest `20e9a842…92ef2` | 通过；未减 corpus、未改 digest、未放宽门 |
+| GitHub CI | 纠偏实现头 Windows / Node 22 完整门绿色 | Draft PR #52，run `32457615078` / job `96697835514`，4 分 8 秒 | 通过 |
 | Editor production build | 成功并报告体积 | 682.24 kB，gzip 196.33 kB，仍有 >500 kB warning | 构建通过，体积未达优化目标 |
 
 ## 4. 需求方向审计

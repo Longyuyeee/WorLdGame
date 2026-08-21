@@ -295,7 +295,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 准入状态（2026-08-20）：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)已通过，集中 Draft PR #51 的 Windows / Node 22 完整门绿色；`RA-N21-004` 只允许本节点 Engineering。N32 Product Acceptance、N40 及以后仍被阻断。
 
-> E1 实施状态（2026-08-21）：Editor 的“完整流程试玩”已停止直接遍历 `StoryStatement`，改为从 Canonical Project 调用 N30 Project Compiler，再由 N31 Runtime 执行 IR；Choice、结局与当前语句定位来自 Runtime Event/State 和 Source Map。两条生产浏览器路线和编译失败关闭均通过。Draft PR #52 的实现头 Windows / Node 22 完整门绿色，但后续文档头因既有 10k corpus 90.612 秒超时而红色；当前按 [稳定性纠偏审计](143-n32-e1-runtime-corpus-stability-audit.md)保留全部 10,000 seeds/20,000 replays/原 digest，并改为四进程分片汇总，最终远端绿色前不关闭 E1。Run from Scene/Statement、状态检查器、Back/Forward/Over、热更新与共享 Player Host 仍属于 E2+。
+> E1 实施状态（2026-08-21）：Editor 的“完整流程试玩”已停止直接遍历 `StoryStatement`，改为从 Canonical Project 调用 N30 Project Compiler，再由 N31 Runtime 执行 IR；Choice、结局与当前语句定位来自 Runtime Event/State 和 Source Map。两条生产浏览器路线和编译失败关闭均通过。[稳定性纠偏](143-n32-e1-runtime-corpus-stability-audit.md)在不减少 10,000 seeds/20,000 replays/40 chunks/负例、不改变 digest 且不放宽 90 秒门的前提下完成；Draft PR #52 纠偏头 run `32457615078` 用时 4 分 8 秒并通过完整门，E1 Engineering 关闭。Run from Scene/Statement、状态检查器、Back/Forward/Over、热更新与共享 Player Host 仍属于 E2+。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：

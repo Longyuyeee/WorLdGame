@@ -4,8 +4,8 @@
 > 分支：`codex/n32-e1-formal-preview-runtime`
 > 直接基线：N31 Authoritative 头 `143c05f1d1fcf84844a5f3122e217e4283afd15b`
 > 授权：`RA-N21-004`，最大节点 N32
-> 远端交付：Draft PR #52；实现头 `0468dd717e04b4e629047a68ba7562b135760ae2` 的 Windows / Node 22 run `32455301058` / job `96691329961`，5 分 17 秒绿色；文档头 `40a45bc` 的 run `32455771721` / job `96692640907` 因相同 10k corpus 90.612 秒超时而红色
-> 当前判定：E1 功能实现成立，但最终交付头需完成 [Runtime corpus 稳定性纠偏](143-n32-e1-runtime-corpus-stability-audit.md)并重新取得远端绿色；N32 Product Acceptance、N40、M1 和发布继续阻断
+> 远端交付：Draft PR #52；纠偏实现头 `b89a48e23be62dfced8d6b53275d2f6ef72ed0f0` 的 Windows / Node 22 run `32457615078` / job `96697835514`，4 分 8 秒绿色
+> 当前判定：E1 Engineering 通过；[Runtime corpus 稳定性纠偏](143-n32-e1-runtime-corpus-stability-audit.md)已关闭；N32 Product Acceptance、N40、M1 和发布继续阻断
 
 ## 1. 本步目标与冻结范围
 
@@ -30,7 +30,7 @@ E1 不包含 Run from Scene/Statement、Step Back/Forward/Over、变量与调用
 | 新默认与旧兼容 | 默认可编译，旧迁移能力仍受测 | 默认改为类型化命令后 7 个 legacy UI 用例失败；全仓又发现 2 个 Source Session 断言仍假定旧默认 | 7 个 UI 用例自行注入旧式项目；2 个 Session 用例改为验证合法 `action=set` 和新默认的无损复制，不删除断言 | 定向 `4 files / 40 tests`、Session `14/14`、普通全仓 `98 files / 590 tests` 通过 |
 | 编译错误 | 不回退平行解释器 | 缺失 label 项目返回 `MISSING_LABEL` | 无需修正 | fail closed 通过 |
 | 生产浏览器双路线 | Entry→Choice→两个 Ending，控制台 0 error | 与预期一致 | 无需修正 | Choice 前 3 次 Continue；分支后各 2 次；两个结局正确；0 error |
-| Runtime 10k 性能 | 冻结门 ≤90 秒 | Node 25.2.1 首轮 91.276 秒超时 | 不放宽阈值；同代码隔离复跑并触发支持环境 CI | 隔离复跑 77.14 秒、57/57；随后本机全仓复跑 173.842 秒再次超时；Windows / Node 22 完整门最终绿色，判定为非支持环境负载波动 |
+| Runtime 10k 性能 | 冻结 10,000 seeds / 20,000 replays / 40 chunks / 原 digest，单 shard ≤90 秒 | 单进程在本机与 CI 出现 90.612–180.332 秒波动 | 不放宽门、不减 corpus；消除重复 canonical 工作并四进程分片、父进程完整汇总 | Windows / Node 22 总墙钟 30.868 秒，shard 26.558–27.107 秒，原 digest；通过 |
 | Editor 用例时限 | 默认单用例 ≤5 秒 | 紧接 10k 重型门后一次 6.647 秒超时 | 不放宽时限；隔离复跑 | 3.06 秒完成文件内 2/2，通过；登记为瞬时资源争用 |
 | Editor 生产包 | 构建成功且如实报告体积 | JS 682.24 kB，gzip 196.33 kB，仍有 >500 kB warning | 本步不以拆包扩大范围 | 构建通过；体积优化债保留给后续性能切片 |
 
@@ -40,8 +40,8 @@ E1 不包含 Run from Scene/Statement、Step Back/Forward/Over、变量与调用
 - 架构与治理：workspace、architecture、risk acceptance、requirements 审计全部 PASS；当前节点 N32，唯一 active 例外为 RA-N21-004；
 - 生产构建：`npm run build --workspace @world-studio/editor` → 122 modules，JS 682.24 kB / gzip 196.33 kB；
 - 生产浏览器：Vite production preview `http://127.0.0.1:4173/`，真实打开示例工程并进入内容编辑器；正式 Runtime 两条路线均到达冻结结局，console error `[]`；
-- Runtime 重型门：首轮 10k corpus 91.276 秒失败；不改门槛后隔离复跑 77.14 秒、57/57 通过；随后本机全仓复跑为 173.842 秒再次超时。Draft PR #52 的 Windows / Node 22 完整门 run `32455301058` / job `96691329961` 用时 5 分 17 秒绿色，因此 E1 支持环境裁决通过，同时保留 Node 25 性能波动记录。
-- 其余本地门：普通并行 `98 files / 590 tests`、串行存储 `1/1`、VM 重型 `5/5`、12 workspace build、architecture、Script `10/10`、Asset `4/4`、typecheck 与 `git diff --check` 均通过。
+- Runtime 重型门：不改冻结 corpus 和门槛，纠偏后本机三轮总墙钟 37.331/42.403/47.651 秒；Windows / Node 22 为 30.868 秒，10,000 seeds、20,000 replays、40 chunks、七类计数、零失败和 digest `20e9a842…92ef2` 全部一致。
+- 远端完整门：Draft PR #52 run `32457615078` / job `96697835514` 用时 4 分 8 秒；Runtime 主测试 `55/55`、普通并行 `98 files / 590 tests`、串行 autosave `1/1`（3.107 秒）、VM 重型 `5/5`、12 workspace build、architecture、Script `10/10`、Asset `4/4`、typecheck 全部通过。
 
 ## 5. 需求对齐与下一步
 
