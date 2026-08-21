@@ -1,7 +1,7 @@
 # 当前开发情况审计（N32-E1 Engineering）
 
 > 审计日期：2026-08-20
-> 当前分支：`codex/n32-e1-formal-preview-runtime`
+> 当前分支：`codex/n32-e1-formal-preview-runtime`；Draft PR #52
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
 > 最新节点证据：[N32-E1 正式 Editor Preview 审计](142-n32-e1-formal-editor-preview-audit.md)
@@ -13,7 +13,7 @@
 
 这只是 N32-E1，不是 N32 完成。目前仍没有 Run from Scene/Statement、变量/调用栈检查器、Step Back/Forward/Over、热更新、正式媒体 Effect Host 或与 Web Player 共用 Host。正式 Windows/Web/Android Player、构建、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E1 Engineering 候选**；
+- 当前工程节点：**N32-E1 Engineering 通过，下一步 N32-E2**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -43,7 +43,8 @@
 | 编译失败 | fail closed，不回退 | `MISSING_LABEL` | 通过 |
 | 生产浏览器 | 两路线正确 Ending、console 0 error | 入口至 Choice 3 次 Continue；两分支各 2 次；两个结局正确；0 error | 通过 |
 | 工作区/架构/风险/需求 | 当前节点 N32 且不越权 | 四项审计 PASS；RA-N21-004 唯一 active | 通过 |
-| Runtime 10k | ≤90 秒 | Node 25.2.1 首轮 91.276 秒失败；隔离复跑 77.14 秒通过；全仓复跑 173.842 秒再次失败 | 本机完整门红；功能向量无失败，等待远端 Node 22 裁决 |
+| Runtime 10k | ≤90 秒 | Node 25.2.1 首轮 91.276 秒失败；隔离复跑 77.14 秒通过；本机全仓复跑 173.842 秒再次失败；Windows / Node 22 run `32455301058` 绿色 | 支持环境通过；本机非支持环境波动保留 |
+| GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #52，run `32455301058` / job `96691329961`，5 分 17 秒 | 通过 |
 | Editor production build | 成功并报告体积 | 682.24 kB，gzip 196.33 kB，仍有 >500 kB warning | 构建通过，体积未达优化目标 |
 
 ## 4. 需求方向审计
