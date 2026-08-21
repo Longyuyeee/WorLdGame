@@ -1,10 +1,10 @@
-# 当前开发情况审计（N32-E7 后，正式 Player 仍阻断）
+# 当前开发情况审计（N40 准入，产品门仍阻断）
 
 > 审计日期：2026-08-22
-> 当前分支：`codex/n32-e7-shared-runtime-host`；直接基线为 N32-E6 最终头 `5e55a4aea936261b852abee6374af097df392ae1`
+> 当前分支：`codex/n40-e1-route-graph-core`；直接基线为 N32-E7 最终头 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
-> 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)、[N32 Engineering 出口复审](151-n32-engineering-exit-reaudit.md)
+> 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
+> 最新节点证据：[N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)、[N32 Engineering 出口复审](151-n32-engineering-exit-reaudit.md)、[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**有界准入**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
@@ -92,7 +92,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. 不再扩充 Editor 私有 Host：剩余 N32 出口只能由正式 Player 消费同一 IR/Runtime/Host 并建立 State/Outcome/History/receipt/visual 差分关闭；
-3. 正式 Player 属于后续授权节点。未获授权时保持 fail closed，并优先完成 N21/N23 真人记录；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
+2. 按交付顺序进入 N40 Route Map Engineering：先建立 Canonical Project/Compiler 事实的只读图投影、稳定 ID 与诊断，再做通过 Project Service 的可撤销编辑；
+3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

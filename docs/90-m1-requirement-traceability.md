@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E7 已形成未集成 Engineering 切片；[E7 后出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`、Acceptance `0/1`，不得把共享测试 Host 或切片通过换算成 N32 Engineering 总出口通过。`RA-N21-004` 持续阻断 N32 Product Acceptance、N40 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E7 已形成未集成 Engineering 切片；[E7 后出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`、Acceptance `0/1`，不得把共享测试 Host 或切片通过换算成 N32 Product Acceptance。`RA-N21-005` 仅允许 N40 Route Map Engineering，持续阻断 N32/N40 Product Acceptance、N41 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；N22/N23 工程门、N30 Compiler 和 N31 Runtime Engineering 不跨越 N21 产品门，不能登记 N23、N30 或 N31 产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。`RA-N21-004` 在 2026-09-20 到期，只允许推进到 N32 Engineering，并持续阻断 N21/N23/N30/N31/N32 产品验收、N40 及以后、M1 Stable 与发布。
+最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。产品负责人于 2026-08-22 再次明确要求按顺序继续并逐步实测、审计和推送，因此关闭 `RA-N21-004`，建立 2026-09-22 到期的 `RA-N21-005`：只允许推进 N40 Route Map Engineering，并持续阻断 N21/N23/N30/N31/N32/N40 产品验收、N41 及以后、M1 Stable 与发布。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|

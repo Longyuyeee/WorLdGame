@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N32 Engineering 出口对齐审计](149-n32-engineering-exit-alignment-audit.md)；准入依据仍为 [N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。`RA-N21-001/002/003` 已关闭；`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31/N32 产品验收与 M1/发布仍被阻断的事实，也不授权 N40 及以后。N31 集中基线已在 Draft PR #51 经 Windows / Node 22 完整门成为 Authoritative，但仍未合入 `main`。
+> 当前审计：[N32 Engineering 出口复审](151-n32-engineering-exit-reaudit.md)；N32→N40 准入依据为 [治理检查点](152-n32-n40-governance-checkpoint.md)。`RA-N21-001/002/003/004` 已关闭；`RA-N21-005` 只授权 N40 Route Map Engineering，不改变 N21/N23/N30/N31/N32/N40 产品验收与 M1/发布仍被阻断的事实，也不授权 N41、正式 Player 或以后节点。N31 集中基线仍未合入 `main`。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -310,6 +310,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E7 实施状态（2026-08-22）：新增 portable `@world-studio/runtime-host`，Editor 正式 Preview 与真实浏览器 Worker 验证宿主已消费同一 Effect receipt/reconciliation reducer 和确定性 SHA-256 快照；Editor 私有 Host 已删除。实测同时发现并修正 N23 Benchmark 的四条旧式 Direction 与缺失 `promise_state` 声明，两条正式 Compiler/Runtime 路线均在 production browser 跑到正确结局，Back/Forward 可返回同一结局。纠偏提交 `c93514e` 已通过 Draft PR #58 的 Windows / Node 22 完整门 run `32505981631` / job `96846121361`，用时 4 分 16 秒；此前干净安装暴露的 `dist` 入口问题已按真实日志关闭。详见 [N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)。
 
 > 出口复审状态（2026-08-22）：[N32 出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`，Acceptance `0/1`。共享 Host 工程前置已建立，但 `apps/player-web` 仍不存在，旧“构建试玩 HTML”仍是独立 `StoryStatement` 解释器；因此不能把测试宿主称作 Player，也没有 Editor↔正式 Player 画面 Golden。N32 Engineering 总出口仍未通过。
+
+> 顺序纠偏（2026-08-22）：正式 Player Shell 位于 N50、正式 Web 构建位于 N80，不能为了补 N32 的跨宿主 Acceptance 直接跳过 N40–N43。N32 产品门继续挂起；`RA-N21-005` 只允许按计划进入 N40 Route Map Engineering，详见 [N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：

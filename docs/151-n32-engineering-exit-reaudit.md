@@ -51,3 +51,9 @@ E7 关闭了“Editor 私有 Host、没有共享契约”的未对齐状态，�
 2. 保持现有授权边界，先完成 N21/N23 真人记录，再按交付图恢复后续节点准入。
 
 在任一条件满足前，N32 Engineering、N32 Product Acceptance、N40+、M1 Stable 与发布全部 fail closed；不得通过重命名 Worker、旧 HTML 或自动化记录绕过。
+
+## 6. 2026-08-22 顺序纠偏附记
+
+产品负责人再次明确要求按计划继续开发、逐步实测、审计与推送。复核交付图后确认：正式 Player Shell 是 N50，正式 Web Player 构建是 N80；把“补齐 N32 Acceptance”的下一步直接写成创建 `apps/player-web` 会跳过 N40–N43，并违反 workspace `firstNode=N80`。因此本文件第 5 节的两选一不是完整的顺序描述。
+
+纠偏后不改写 E7 时点历史裁决：N32 Product Acceptance 仍为 `0/1`；但通过新的 `RA-N21-005`，允许按交付顺序进入 N40 Route Map Engineering。N40 只能投影 Canonical Project/Compiler 事实，不维护第二份剧情逻辑；N40 Product Acceptance、N41、正式 Player、M1 和发布继续 fail closed。权威准入见 [N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)。
