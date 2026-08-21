@@ -1,7 +1,7 @@
-# 当前开发情况审计（N32-E2 Engineering 候选）
+# 当前开发情况审计（N32-E2 Engineering）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e2-preview-observability`
+> 当前分支：`codex/n32-e2-preview-observability`；Draft PR #53
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
 > 最新节点证据：[N32-E2 Preview Session 状态观察审计](144-n32-e2-preview-session-observability-audit.md)
@@ -13,7 +13,7 @@
 
 这只是 N32-E2，不是 N32 完成。变量、调用栈、当前 IR/Statement 和结构化诊断已经可见；仍没有 Run from Scene/Statement、Step Back/Forward/Over、热更新、正式媒体 Effect Host 或与 Web Player 共用 Host。正式 Windows/Web/Android Player、构建、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E2 本地 Engineering 候选；等待远端完整门**；
+- 当前工程节点：**N32-E2 Engineering 已通过；下一步 N32-E3**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -50,6 +50,7 @@
 | E2 生产浏览器 | r1/r4 位置、真实变量、console 0 error | `direction #0`→`choice #3`；产品 UI 新增 Number 后显示 2；0 error | 通过 |
 | E2 本机全仓 | 普通回归全绿；串行 autosave ≤5 秒 | 98 files / 592 tests 通过；autosave 约 23.10 秒仍“保存中…” | 功能通过；已知主机负载差异保留给远端裁决 |
 | E2 production build | 成功并报告增量 | 692.05 kB，gzip 198.42 kB；较 E1 约 +9.7/+2.1 kB | 构建通过，拆包债保留 |
+| E2 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #53，run `32459445287` / job `96703241983`，4 分 16 秒；autosave 3.086 秒 | 通过；本机负载差异关闭 |
 
 ## 4. 需求方向审计
 
@@ -64,11 +65,10 @@
 
 ## 5. 下一步顺序
 
-1. 取得 N32-E2 远端 Windows / Node 22 完整门并关闭本步；
-2. N32-E3：Run from Scene/Statement 与合法状态构造，失败时明确原因；
-3. N32-E4：Continue、Step Over、Back/Forward、Run to Cursor 对接正式 History；
-4. N32-E5：正式 Effect/Stage Host 与安全取消/Barrier；
-5. N32-E6：热更新与结构变更重启策略；
-6. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
+1. N32-E3：Run from Scene/Statement 与合法状态构造，失败时明确原因；
+2. N32-E4：Continue、Step Over、Back/Forward、Run to Cursor 对接正式 History；
+3. N32-E5：正式 Effect/Stage Host 与安全取消/Barrier；
+4. N32-E6：热更新与结构变更重启策略；
+5. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

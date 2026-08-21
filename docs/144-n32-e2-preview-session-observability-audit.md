@@ -4,7 +4,8 @@
 > 分支：`codex/n32-e2-preview-observability`
 > 直接基线：N32-E1 最终证据头 `8169fbd`
 > 授权：`RA-N21-004`，最大节点 N32
-> 当前判定：本地 Engineering 候选；远端完整门绿色前不得关闭 E2
+> 远端交付：Draft PR #53；实现头 `1eeaa6d`；Windows / Node 22 run `32459445287` / job `96703241983`，4 分 16 秒绿色
+> 当前判定：N32-E2 Engineering 通过；N32 Product Acceptance、N40、M1 与发布继续阻断
 
 ## 1. 冻结目标与边界
 
@@ -38,4 +39,6 @@ Run from Scene/Statement 属于 E3；Step Back/Forward/Over 属于 E4；Effect/S
 
 ## 4. 出口条件
 
-必须取得本分支 Draft PR 的 Windows / Node 22 `npm run check` 绿色，并把 run/job/耗时写回本文件与追踪文档，E2 才能关闭。N32 Product Acceptance、N40、M1 Stable 与发布继续阻断。
+Draft PR #53 的实现头已通过 Windows / Node 22 `npm run check`：Runtime corpus 30.541 秒，普通回归 98 files / 592 tests，autosave 1/1（3.086 秒），VM 5/5，Asset 4/4，构建、typecheck、architecture、requirements 与 risk 全部绿色。远端实测关闭了本机 autosave 负载差异，E2 Engineering 出口满足。
+
+下一步只能进入 N32-E3 的 Run from Scene/Statement 与合法状态构造；本结论不提升 N32 Product Acceptance，也不解除 N40、M1 Stable 与发布阻断。
