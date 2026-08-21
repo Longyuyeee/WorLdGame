@@ -134,6 +134,7 @@ import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonica
 import {
   advanceFormalPreview,
   createIdleFormalPreviewState,
+  observeFormalPreview,
   selectFormalPreviewChoice,
   startFormalPreview,
   type FormalPreviewState
@@ -1968,6 +1969,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
+  const previewObservation = observeFormalPreview(playable);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -2318,6 +2320,41 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
         )}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
       </div>
+      <section className={`runtime-inspector runtime-inspector--${playable.status}`} aria-label="Runtime 状态检查器">
+        <header className="runtime-inspector__header">
+          <div><span className="runtime-inspector__pulse" aria-hidden="true" /><strong>Preview Session</strong><small>正式 Runtime 状态观察</small></div>
+          <div className="runtime-inspector__metrics">
+            <span>r{previewObservation.stateRevision ?? "—"}</span>
+            <span>{previewObservation.logicalTimeMilliseconds ?? 0} ms</span>
+          </div>
+        </header>
+        <div className="runtime-inspector__current">
+          <span>当前 IR / Statement</span>
+          {previewObservation.current === null
+            ? <strong>启动完整流程后显示精确位置</strong>
+            : <><strong>{previewObservation.current.opcode ?? "unknown"} · {previewObservation.current.instructionId}</strong><code>{previewObservation.current.sceneId} / {previewObservation.current.statementId ?? "unmapped"} #{previewObservation.current.statementIndex ?? "—"}</code></>}
+        </div>
+        <div className="runtime-inspector__grid">
+          <section aria-label="Runtime 变量">
+            <div className="runtime-inspector__section-title"><strong>变量</strong><span>{previewObservation.variables.length}</span></div>
+            {previewObservation.variables.length === 0
+              ? <p>暂无 Runtime 变量</p>
+              : <ul>{previewObservation.variables.map((variable) => <li key={variable.id}><code>{variable.id}</code><span>{variable.type}</span><strong>{variable.value === null ? "null" : String(variable.value)}</strong></li>)}</ul>}
+          </section>
+          <section aria-label="Runtime 调用栈">
+            <div className="runtime-inspector__section-title"><strong>调用栈</strong><span>{previewObservation.callStack.length}</span></div>
+            {previewObservation.callStack.length === 0
+              ? <p>栈为空 · 当前位于顶层场景</p>
+              : <ol>{previewObservation.callStack.map((frame) => <li key={`${frame.depth}:${frame.sceneId}:${frame.instructionIndex}`}><span>#{frame.depth + 1}</span><code>{frame.sceneId} · {frame.statementId ?? frame.instructionId ?? frame.instructionIndex}</code></li>)}</ol>}
+          </section>
+        </div>
+        <section className="runtime-inspector__diagnostics" aria-label="Runtime 结构化诊断">
+          <div className="runtime-inspector__section-title"><strong>结构化诊断</strong><span>{previewObservation.diagnostics.length}</span></div>
+          {previewObservation.diagnostics.length === 0
+            ? <p><span aria-hidden="true">✓</span> 当前 Session 无诊断</p>
+            : <ul>{previewObservation.diagnostics.map((diagnostic, index) => <li className={`runtime-inspector__diagnostic--${diagnostic.severity}`} key={`${diagnostic.code}:${index}`}><strong>{diagnostic.code}</strong><span>{diagnostic.origin}</span><p>{diagnostic.message}</p><code>{diagnostic.sceneId ?? "global"} / {diagnostic.statementId ?? diagnostic.instructionId ?? "unmapped"}</code></li>)}</ul>}
+        </section>
+      </section>
       <div className="playable-web-export" aria-label="独立试玩导出">
         <div><strong>独立试玩产物</strong><small>生成无需编辑器和网络即可运行的单文件 HTML</small></div>
         <button type="button" onClick={preparePlayableWeb} disabled={pendingDraft || inputDirty}>构建试玩 HTML</button>
