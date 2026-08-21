@@ -11,21 +11,23 @@ export function sha256Hex(input: Uint8Array): string {
   const bitLength = input.length * 8, paddedLength = Math.ceil((input.length + 9) / 64) * 64;
   const bytes = new Uint8Array(paddedLength); bytes.set(input); bytes[input.length] = 0x80;
   const view = new DataView(bytes.buffer); view.setUint32(paddedLength - 8, Math.floor(bitLength / 0x1_0000_0000)); view.setUint32(paddedLength - 4, bitLength >>> 0);
-  const hash: number[] = [...INITIAL], words = new Uint32Array(64);
+  const words = new Uint32Array(64);
+  let h0: number = INITIAL[0], h1: number = INITIAL[1], h2: number = INITIAL[2], h3: number = INITIAL[3];
+  let h4: number = INITIAL[4], h5: number = INITIAL[5], h6: number = INITIAL[6], h7: number = INITIAL[7];
   for (let offset = 0; offset < bytes.length; offset += 64) {
     for (let index = 0; index < 16; index += 1) words[index] = view.getUint32(offset + index * 4);
     for (let index = 16; index < 64; index += 1) {
       const word15 = words[index - 15] ?? 0, word2 = words[index - 2] ?? 0;
       words[index] = ((words[index - 16] ?? 0) + (rotateRight(word15, 7) ^ rotateRight(word15, 18) ^ (word15 >>> 3)) + (words[index - 7] ?? 0) + (rotateRight(word2, 17) ^ rotateRight(word2, 19) ^ (word2 >>> 10))) >>> 0;
     }
-    let [a,b,c,d,e,f,g,h] = hash;
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
     for (let index = 0; index < 64; index += 1) {
-      const e0=e??0,f0=f??0,g0=g??0,a0=a??0,b0=b??0,c0=c??0;
-      const temp1=((h??0)+(rotateRight(e0,6)^rotateRight(e0,11)^rotateRight(e0,25))+((e0&f0)^(~e0&g0))+(ROUND[index]??0)+(words[index]??0))>>>0;
-      const temp2=((rotateRight(a0,2)^rotateRight(a0,13)^rotateRight(a0,22))+((a0&b0)^(a0&c0)^(b0&c0)))>>>0;
-      h=g;g=f;f=e;e=((d??0)+temp1)>>>0;d=c;c=b;b=a;a=(temp1+temp2)>>>0;
+      const temp1=(h+(rotateRight(e,6)^rotateRight(e,11)^rotateRight(e,25))+((e&f)^(~e&g))+ROUND[index]!+words[index]!)>>>0;
+      const temp2=((rotateRight(a,2)^rotateRight(a,13)^rotateRight(a,22))+((a&b)^(a&c)^(b&c)))>>>0;
+      h=g;g=f;f=e;e=(d+temp1)>>>0;d=c;c=b;b=a;a=(temp1+temp2)>>>0;
     }
-    for (const [index, value] of [a,b,c,d,e,f,g,h].entries()) hash[index]=((hash[index]??0)+(value??0))>>>0;
+    h0=(h0+a)>>>0;h1=(h1+b)>>>0;h2=(h2+c)>>>0;h3=(h3+d)>>>0;
+    h4=(h4+e)>>>0;h5=(h5+f)>>>0;h6=(h6+g)>>>0;h7=(h7+h)>>>0;
   }
-  return hash.map((item)=>item.toString(16).padStart(8,"0")).join("");
+  return [h0,h1,h2,h3,h4,h5,h6,h7].map((item)=>item.toString(16).padStart(8,"0")).join("");
 }

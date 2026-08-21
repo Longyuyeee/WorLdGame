@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1, advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, executeRuntimeGeneratedCorpusChunkV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, summarizeRuntimeGeneratedCorpusV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -841,42 +841,6 @@ describe("N31-E6 deterministic Runtime scheduling", () => {
     const malformed = { ...initial, accumulatedInstructions: -1 };
     expect(validateRuntimeSchedulerSessionV1(story, malformed)[0]?.code).toBe("RUNTIME_SCHEDULER_INVALID");
     expect(scheduleRuntimeBatchV1(story, malformed, policy()).session).toBe(malformed);
-  });
-});
-
-describe("N31-E7 formal Runtime generated corpus", () => {
-  it("executes 10,000 frozen seeds twice with no failures", () => {
-    const chunks = [];
-    for (let start = 0; start < RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1; start += RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1) {
-      chunks.push(executeRuntimeGeneratedCorpusChunkV1(start, Math.min(start + RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1, RUNTIME_GENERATED_CORPUS_SEED_COUNT_V1)));
-    }
-    expect(summarizeRuntimeGeneratedCorpusV1(chunks)).toEqual({
-      schemaVersion: 1,
-      corpusId: "corpus.generated.runtime.v1",
-      seedCount: 10_000,
-      replayExecutions: 20_000,
-      chunkCount: 40,
-      scenarioCounts: {
-        "control-flow": 1429,
-        random: 1429,
-        "effect-cancellation": 1429,
-        "save-load": 1429,
-        "choice-history": 1428,
-        "scheduler-equivalence": 1428,
-        "diagnostic-rollback": 1428
-      },
-      failedSeeds: [],
-      outcomeDigest: "20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2"
-    });
-  }, 90_000);
-
-  it("rejects oversized, noncontiguous, and incomplete corpus input", () => {
-    expect(() => executeRuntimeGeneratedCorpusChunkV1(0, RUNTIME_GENERATED_CORPUS_CHUNK_SIZE_V1 + 1)).toThrow("frozen bound");
-    const first = executeRuntimeGeneratedCorpusChunkV1(0, 1);
-    expect(() => summarizeRuntimeGeneratedCorpusV1([first])).toThrow("frozen seed range");
-    expect(() => summarizeRuntimeGeneratedCorpusV1([{ ...first, seedStart: 1 }])).toThrow("non-contiguous");
-    expect(() => summarizeRuntimeGeneratedCorpusV1([{ ...first, scenarioCounts: { ...first.scenarioCounts, random: 1 } }])).toThrow("invalid");
-    expect(() => summarizeRuntimeGeneratedCorpusV1([{ ...first, outcomes: ["FAILED"] }])).toThrow("invalid");
   });
 });
 

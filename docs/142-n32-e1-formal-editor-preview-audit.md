@@ -4,8 +4,8 @@
 > 分支：`codex/n32-e1-formal-preview-runtime`
 > 直接基线：N31 Authoritative 头 `143c05f1d1fcf84844a5f3122e217e4283afd15b`
 > 授权：`RA-N21-004`，最大节点 N32
-> 远端交付：Draft PR #52；实现头 `0468dd717e04b4e629047a68ba7562b135760ae2`；Windows / Node 22 run `32455301058` / job `96691329961`，5 分 17 秒绿色
-> 判定：E1 Engineering 通过；N32 Product Acceptance、N40、M1 和发布继续阻断
+> 远端交付：Draft PR #52；实现头 `0468dd717e04b4e629047a68ba7562b135760ae2` 的 Windows / Node 22 run `32455301058` / job `96691329961`，5 分 17 秒绿色；文档头 `40a45bc` 的 run `32455771721` / job `96692640907` 因相同 10k corpus 90.612 秒超时而红色
+> 当前判定：E1 功能实现成立，但最终交付头需完成 [Runtime corpus 稳定性纠偏](143-n32-e1-runtime-corpus-stability-audit.md)并重新取得远端绿色；N32 Product Acceptance、N40、M1 和发布继续阻断
 
 ## 1. 本步目标与冻结范围
 
