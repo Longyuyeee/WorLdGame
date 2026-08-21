@@ -74,11 +74,20 @@ export interface StoryScene {
   readonly statements: readonly StoryStatement[];
 }
 
+export interface StoryVariable {
+  readonly id: EntityId;
+  readonly name: string;
+  readonly type: "boolean" | "number" | "string";
+  readonly defaultValue: boolean | number | string;
+  readonly scope: "story" | "chapter" | "scene" | "meta";
+}
+
 export interface StoryProject {
   readonly schemaVersion: 0;
   readonly id: EntityId;
   readonly title: string;
   readonly characters: readonly Character[];
+  readonly variables?: readonly StoryVariable[];
   readonly scenes: readonly StoryScene[];
   readonly entrySceneId: EntityId;
 }

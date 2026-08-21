@@ -45,7 +45,7 @@ E6 关闭 E5 留下的热更新缺口，但不允许直接修改 Runtime State �
 | transient 边界 | 可见 Run-to-cursor 中间态必须重启 | 初版只检查 scheduler accumulated，paused/null cursor 中间态被迁移 | 与正式 Preview transient 定义对齐：cursor>0 的 paused/null 也拒绝 |
 | 结构更新 | 旧 Session/History 完整保留 | production 实际 `h4/4` 且明确列出 `stmt_gate_bg` | 与预期一致，无修正 |
 | 明确重启 | 只有用户操作才 Fresh Run | production 点击后 `h1/1`，无静默重启 | 与预期一致，无修正 |
-| 本机 Spike 性能 | 既有 10,000-seed ≤90 秒 | Node 25 约 180.5 秒超时；语义 corpus 与 digest 正确 | 历史已知非支持环境差异；不改 10k/20k、digest 或 90 秒门，远端 Node 22 裁决 |
+| 本机 Spike 性能 | 既有 10,000-seed ≤90 秒 | Node 25 约 180.5 秒超时；语义 corpus 与 digest 正确 | 非权威 CI 版本的历史性能差异；Node 25 符合根 `engines`，不改 10k/20k、digest 或 90 秒门，远端 Node 22 裁决 |
 | 本机 Dicing 性能 | grouping/atlas/total <3s/3s/5s | 两次为 3.35+3.21=6.56 秒、2.36+4.13=6.49 秒；重建正确、净节省 85.83% | 保留红灯，不放宽预算；远端 Node 22 裁决 |
 
 ## 5. 需求对齐与出口条件

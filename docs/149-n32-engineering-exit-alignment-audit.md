@@ -1,5 +1,7 @@
 # N32 Engineering 出口与开发方向对齐审计
 
+> 后续更新：本文件保留 E6 时点的 `5/6` 原始审计。E7 已关闭 Editor 私有 Host 偏移并建立浏览器 Worker Host Golden；最新判定见 [N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)与 [N32 出口复审](151-n32-engineering-exit-reaudit.md)。正式 Player 与画面差分仍未完成。
+
 > 日期：2026-08-21
 > 审计分支：`codex/n32-e6-preview-hot-update`
 > 审计头：`344ab7d340baf0762153cce8047eecb7a1906a5e`

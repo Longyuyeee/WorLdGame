@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：产品负责人要求开发重心回到实际可用的游戏引擎。平台/VM Spike 只作为产品节点输入，不再单独驱动主计划；N23 可运行闭环已完成工程门，N30-E1/E2 已形成正式 Compiler 工程退出候选，N31-E1–E10 已建立正式 Runtime 候选并把 VM 矩阵推进至完整 12/15，但 E9 出口审计仍未关闭的 VM-11/13/14 必须按 E11–E14 完成；真人产品验收、N31 产品退出与 N32 仍被阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。真实生产浏览器已跑通五分钟验收工程两条结局和 Back/Forward；但正式 Player 仍不存在，旧单文件 HTML 仍是平行解释器，所以 N32 总出口、真人产品验收、N40+、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -38,6 +38,9 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [工程格式与脚本设计](docs/06-project-format-and-script.md) | 目录结构、稳定 ID、脚本/图形双向编辑和兼容策略 |
 | [质量与发布体系](docs/07-quality-and-release.md) | 测试、性能、可访问性、安全和发布门禁 |
 | [路线图与评审门](docs/08-roadmap.md) | 阶段、里程碑、退出条件与指标 |
+| [当前开发状态审计](docs/99-current-development-status-audit.md) | 当前真实代码、能力、阻断项与下一步 |
+| [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
+| [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

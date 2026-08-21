@@ -1,5 +1,5 @@
 import type { RuntimeWorkerRequestV1, RuntimeWorkerResponseV1, WorkerRequestV0, WorkerResponseV0 } from "./protocol";
-import { RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1, RUNTIME_NODE_GOLDEN_V1, SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
+import { RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1, RUNTIME_NODE_GOLDEN_V1, RUNTIME_PRESENTATION_HOST_NODE_GOLDEN_V1, SPIKE10_NODE_GOLDEN_V0, SPIKE11_NODE_GOLDEN_V0, SPIKE12_NODE_GOLDEN_V0, SPIKE13_NODE_GOLDEN_V0 } from "./golden";
 
 const status = document.querySelector<HTMLParagraphElement>("#status");
 const output = document.querySelector<HTMLPreElement>("#result");
@@ -12,9 +12,11 @@ const runtimeRequest: RuntimeWorkerRequestV1 = { protocolVersion: 1, kind: "runR
 runtimeWorker.addEventListener("message", (event: MessageEvent<RuntimeWorkerResponseV1>) => {
   runtimeWorker.terminate();
   const response = event.data;
-  const matches = response.protocolVersion === 1 && response.kind === "runtimeConformanceResult" && response.requestId === runtimeRequest.requestId && response.host === "web-worker" && JSON.stringify(response.result) === JSON.stringify(RUNTIME_NODE_GOLDEN_V1);
-  status.dataset.runtime = matches ? "passed" : "failed";
-  if (!matches) output.textContent = JSON.stringify(response, null, 2);
+  const matchesRuntime = response.protocolVersion === 1 && response.kind === "runtimeConformanceResult" && response.requestId === runtimeRequest.requestId && response.host === "web-worker" && JSON.stringify(response.result) === JSON.stringify(RUNTIME_NODE_GOLDEN_V1);
+  const matchesHost = JSON.stringify(response.presentationHost) === JSON.stringify(RUNTIME_PRESENTATION_HOST_NODE_GOLDEN_V1);
+  status.dataset.runtime = matchesRuntime ? "passed" : "failed";
+  status.dataset.runtimeHost = matchesHost ? "passed" : "failed";
+  if (!matchesRuntime || !matchesHost) output.textContent = JSON.stringify(response, null, 2);
 }, { once: true });
 runtimeWorker.addEventListener("error", () => { runtimeWorker.terminate(); status.dataset.runtime = "failed"; }, { once: true });
 runtimeWorker.postMessage(runtimeRequest);
