@@ -305,6 +305,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E5 实施状态（2026-08-21）：Editor Preview 已建立正式 Effect / Stage Host receipt，消费 Runtime Effect Intent，并提供 awaited 完成/安全取消、Barrier 原因与明确批准、Back checkpoint 通道恢复、reversible compensation 和 Forward replay；未批准时 Stage 明确保持未提交。生产 build 已真实验证 awaited、cancel、Barrier approve 与 pure Effect Back/Forward 差异修正。Draft PR #56 的实现头 `dcfe084` 已通过 Windows / Node 22 完整门 run `32467211148` / job `96726246321`，用时 4 分 9 秒，E5 Engineering 关闭，详见 [N32-E5 审计](147-n32-e5-preview-effect-host-audit.md)。E5 不包含热更新、复杂 GPU 渲染或共享 Web Player Host。
 
+> E6 候选状态（2026-08-21）：Preview 已新增受约束热更新：仅对白/旁白正文与 Choice prompt/label 在稳定 ID、控制流、Source Map 和运行语义不变时，以记录输入重放到新 IR 并保持 State、History、分支位置与 Host receipt；Direction、变量、控制流、等待、待决 Effect/Barrier、transient 光标或编译失败均保留旧 Session，并要求用户明确重启。自动化与 production browser 已验证 `h4/4` 安全迁移、结构变化仍为 `h4/4`、明确重启后回到 `h1/1`。本地 Node 25 的既有 Spike corpus 与 Dicing 冻结性能门保持红色且未放宽，E6 Engineering 最终判定等待 Draft PR 的 Windows / Node 22 完整门，详见 [N32-E6 审计](148-n32-e6-preview-hot-update-audit.md)。
+
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：
   1. Preview 只消费 Compiler 输出，不直接遍历 StoryStatement；

@@ -3005,6 +3005,20 @@ textarea[data-input-state="composing"] {
 .runtime-effect-host__actions button.is-secondary { border-color: rgb(148 163 184 / 20%); color: var(--wg-color-text-muted); background: rgb(30 41 59 / 35%); }
 .runtime-effect-host__settled span { color: #86efac; }
 
+.runtime-hot-update { display: grid; gap: 7px; padding: 10px; border: 1px solid rgb(52 211 153 / 28%); border-radius: 12px; background: linear-gradient(135deg, rgb(6 78 59 / 20%), rgb(15 23 42 / 76%)); }
+.runtime-hot-update--restart-required { border-color: rgb(251 146 60 / 38%); background: linear-gradient(135deg, rgb(124 45 18 / 22%), rgb(15 23 42 / 78%)); }
+.runtime-hot-update > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.runtime-hot-update > header div { display: flex; align-items: center; gap: 6px; color: #a7f3d0; }
+.runtime-hot-update--restart-required > header div { color: #fdba74; }
+.runtime-hot-update > header small { color: var(--wg-color-text-muted); font-size: 7px; letter-spacing: .08em; }
+.runtime-hot-update p,
+.runtime-hot-update li { margin: 0; color: var(--wg-color-text-muted); font-size: 8px; line-height: 1.5; }
+.runtime-hot-update code { overflow: hidden; color: #6ee7b7; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.runtime-hot-update ul { display: grid; gap: 3px; margin: 0; padding-left: 15px; }
+.runtime-hot-update__actions { display: flex; gap: 7px; }
+.runtime-hot-update__actions button { min-height: 28px; padding: 0 10px; border: 1px solid rgb(251 146 60 / 35%); border-radius: 7px; color: #ffedd5; background: rgb(154 52 18 / 22%); font-size: 8px; cursor: pointer; }
+.runtime-hot-update__actions button.is-secondary { border-color: rgb(148 163 184 / 20%); color: var(--wg-color-text-muted); background: rgb(30 41 59 / 35%); }
+
 .runtime-inspector {
   display: grid;
   gap: 9px;

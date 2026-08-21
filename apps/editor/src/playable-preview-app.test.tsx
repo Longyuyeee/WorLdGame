@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import { campusStoryProject } from "@world-studio/story-core";
@@ -127,5 +127,36 @@ describe("playable preview integration", () => {
     expect(screen.getByTestId("preview-stage")).toHaveAttribute("data-host-commit-pending", "true");
     fireEvent.click(within(host).getByRole("button", { name: "理解并批准" }));
     expect(screen.getByTestId("preview-stage")).toHaveAttribute("data-host-commit-pending", "false");
+  });
+
+  it("applies safe presentation hot updates and requires an explicit restart for semantic changes", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
+    for (let index = 0; index < 3; index += 1) fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
+    expect(within(controls).getByText("History 4/4")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const editor = screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement;
+    const presentationSource = editor.value
+      .replace("广播站的灯还亮着。你也听见那段没有署名的留言了吗？", "热更新后的广播留言。")
+      .replace('choice "先去哪里调查？"', 'choice "更新后先去哪里？"');
+    fireEvent.change(editor, { target: { value: presentationSource } });
+    fireEvent.keyDown(editor, { key: "s", ctrlKey: true });
+
+    const hotUpdate = await screen.findByRole("region", { name: "Runtime 热更新" });
+    expect(within(hotUpdate).getByText("安全热更新已应用")).toBeVisible();
+    expect(within(controls).getByText("History 4/4")).toBeVisible();
+    expect(within(screen.getByTestId("preview-step")).getByText("更新后先去哪里？")).toBeVisible();
+
+    const semanticSource = editor.value.replace("@background action=clear", "@background action=clear descriptorId=changed.background");
+    fireEvent.change(editor, { target: { value: semanticSource } });
+    fireEvent.keyDown(editor, { key: "s", ctrlKey: true });
+    await waitFor(() => expect(within(screen.getByRole("region", { name: "Runtime 热更新" })).getByText("需要明确重启试玩")).toBeVisible());
+    expect(screen.getByText("语句语义已变化：stmt_gate_bg")).toBeVisible();
+    expect(within(controls).getByText("History 4/4")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "以当前启动目标重启" }));
+    expect(within(controls).getByText("History 1/1")).toBeVisible();
+    expect(screen.queryByRole("region", { name: "Runtime 热更新" })).not.toBeInTheDocument();
   });
 });

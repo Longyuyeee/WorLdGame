@@ -1,19 +1,19 @@
-# 当前开发情况审计（N32-E5 Engineering）
+# 当前开发情况审计（N32-E6 Engineering Candidate）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e5-preview-effect-host`；Draft PR #56
+> 当前分支：`codex/n32-e6-preview-hot-update`；Draft PR 待创建
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E5 Preview Effect / Stage Host 审计](147-n32-e5-preview-effect-host-audit.md)
+> 最新节点证据：[N32-E6 Preview 热更新审计](148-n32-e6-preview-hot-update-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E5 Engineering，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制以及 Editor Effect Host 的 awaited/cancel/Barrier/checkpoint/compensation/replay 已接入正式 Runtime。仍没有断点/Watch、热更新、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E6 Engineering Candidate，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制、Editor Effect Host，以及受约束的文案热更新/结构变化显式重启已接入正式 Runtime。仍没有断点/Watch、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E5 Engineering 已通过；下一步 N32-E6**；
+- 当前工程节点：**N32-E6 本地候选已完成；等待 Windows / Node 22 远端完整门**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -28,13 +28,13 @@
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、Writer 卡片、Script、基础 Flow、稳定 ID、Compiler IR/Source Map | N41 完整 Sequence、N40 专业 Route、N60 QA/Debugger |
-| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor；awaited/cancel/Barrier 与 Host reconciliation | 断点/Watch、热更新、共享 Player Host 与跨宿主画面 Golden |
+| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor；awaited/cancel/Barrier 与 Host reconciliation；安全文案热更新与结构变更显式重启 | 断点/Watch、共享 Player Host 与跨宿主画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime、State/History/Save/Back/Forward/调度/诊断 | Editor 控件产品化、Player 槽位、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选 | 正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
-## 3. N32-E1–E5 证据与差异
+## 3. N32-E1–E6 证据与差异
 
 | 检查 | 预期 | 实际 | 判定 |
 |---|---|---|---|
@@ -64,21 +64,25 @@
 | E5 production build | awaited/Barrier 决策与 Back/Forward channel 实际值 | awaited `true→false / last cancel`；Barrier `true→false / last execute`；Back `1→0 active`；Forward `0→1 / last replay` | 通过；首测 pure channel 残留已修正 |
 | E5 production 体积 | 成功并报告增量 | CSS 78.38/14.99 kB；JS 727.60/206.71 kB | 构建通过；>500 kB 拆包债保留 |
 | E5 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #56，run `32467211148` / job `96726246321`，4 分 9 秒；99/607；autosave 2.855 秒；Runtime corpus 28.603 秒 | 通过；E5 Engineering 关闭 |
+| E6 定向 | 安全迁移、rewound future、结构/编译/transient/Effect 反例与产品路径 | 4 files / 25 tests | 通过 |
+| E6 production browser | 文案更新保持状态；语义变化保留旧会话；仅明确操作后重启 | `h4/4`→安全更新仍 `h4/4` 且新 prompt/label 可见；结构更新仍 `h4/4` 并显示 `OLD SESSION PRESERVED`；重启后 `h1/1` | 通过；与预期零差异 |
+| E6 本机普通/存储/构建 | 新功能全回归；真实 IndexedDB；12 workspace 可构建 | 100 files / 611 tests；storage 1/1；CSS 79.65/15.18 kB；JS 734.30/208.23 kB；架构与 Script 性能通过 | 功能通过；>500 kB 拆包债保留 |
+| E6 本机冻结性能 | 既有 Spike 10k ≤90 秒；Dicing 3s/3s/5s | Node 25 Spike 实际约 180.5 秒；Dicing 两次分别 3.35+3.21=6.56 秒、2.36+4.13=6.49 秒 | 本机完整门红；不改规模/digest/预算，等待 Windows / Node 22 裁决 |
 
 ## 4. 需求方向审计
 
-方向没有偏离已冻结产品目标：正式 Compiler/Runtime 取代产品平行解释器，是后续专业 Debugger、路线状态、Save/Back/Forward、三端一致性和商业级 QA 的必要基础。现代化 UI、图形化编辑、强动效、多彩表达、16:9 默认预览及可调尺寸仍保留；E1 没有用新增视觉外壳替代执行一致性工作。
+方向没有偏离已冻结产品目标：正式 Compiler/Runtime 取代产品平行解释器，是后续专业 Debugger、路线状态、Save/Back/Forward、三端一致性和商业级 QA 的必要基础。E6 的安全迁移严格由新 IR 重放和语义快照裁决，没有为了“看起来实时”直接改 State 或静默重启。现代化 UI、图形化编辑、多彩表达、16:9 默认预览及可调尺寸仍保留。
 
 需要防止四类偏移：
 
 1. 不得让旧 `playable-preview-runtime.ts` 重新成为 Editor 完整流程权威；
-2. 不得把 Editor Host receipt 冒充共享 Player Host、复杂媒体设备策略或完整 Debugger；
+2. 不得把安全文案热更新扩大成任意 IR/State 原地修改，也不得把 Editor Host receipt 冒充共享 Player Host；
 3. 不得用 jsdom 或代理浏览器替代 N21/N23 真人任务；
 4. 不得因生产构建成功就宣称包体优化、正式 Player 或三端发布完成。
 
 ## 5. 下一步顺序
 
-1. N32-E6：热更新与结构变更重启策略；
-2. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
+1. Draft PR 的 Windows / Node 22 完整门裁决 N32-E6 Engineering；
+2. N32 出口复审：逐项审计 Preview 与正式 Runtime/未来 Web Player 的 State、Outcome 和画面关键快照边界。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

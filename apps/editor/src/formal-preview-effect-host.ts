@@ -75,6 +75,15 @@ export function settleFormalPreviewEffect(
   return next;
 }
 
+export function rebaseFormalPreviewEffectHost(
+  state: FormalPreviewEffectHostState,
+  checkpointEffects: readonly RuntimeEffectIntentV1[]
+): FormalPreviewEffectHostState {
+  const activeByChannel: Record<string, RuntimeEffectIntentV1> = {};
+  for (const effect of checkpointEffects) activeByChannel[effect.channel] = effect;
+  return { ...state, activeByChannel };
+}
+
 export function reconcileFormalPreviewEffectHost(
   state: FormalPreviewEffectHostState,
   plan: RuntimeHistoryReconciliationPlanV1,
