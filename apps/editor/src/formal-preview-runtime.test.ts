@@ -3,8 +3,11 @@ import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "@world-studio/r
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
 import {
+  approveFormalPreviewBarrier,
   advanceFormalPreview,
   backFormalPreview,
+  cancelFormalPreviewEffect,
+  completeFormalPreviewEffect,
   forwardFormalPreview,
   observeFormalPreview,
   runFormalPreviewToStatement,
@@ -212,5 +215,66 @@ describe("formal editor preview runtime", () => {
     expect(forked.historySession?.cursor).toBe(forked.historySession?.entries.length);
     expect(forked.historySession?.inputTombstones).toHaveLength(1);
     expect(observeFormalPreview(forked).history?.canForward).toBe(false);
+  });
+
+  it("holds awaited Stage effects until the Host explicitly completes or safely cancels them", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-awaited-host");
+    const first = base.scripts.scn_school_gate!.statements[0]!;
+    const project = {
+      ...base,
+      assets: { ...base.assets, assets: [...base.assets.assets, { assetId: "bg_host", kind: "background" }] },
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: "action=set asset=bg_host effectPolicy=reversible awaitMode=awaited compensationKind=background.restore descriptorId=preview.awaited.bg" },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    };
+    const waiting = startFormalPreview(project);
+    expect(waiting).toMatchObject({ status: "waiting-effect", runtimeState: { sceneState: { backgroundAssetId: null } } });
+    expect(observeFormalPreview(waiting)).toMatchObject({ pendingEffect: { descriptorId: "preview.awaited.bg", awaitMode: "awaited" }, effectHost: { operationCount: 1, activeChannels: ["background"], lastOperation: "execute" } });
+
+    const cancelled = cancelFormalPreviewEffect(waiting);
+    expect(cancelled).toMatchObject({ status: "presenting", statementId: "stmt_gate_001", runtimeState: { sceneState: { backgroundAssetId: null } } });
+    expect(observeFormalPreview(cancelled).effectHost).toMatchObject({ operationCount: 2, activeChannels: [], lastOperation: "cancel" });
+
+    const completed = completeFormalPreviewEffect(startFormalPreview(project));
+    expect(completed).toMatchObject({ status: "presenting", statementId: "stmt_gate_001", runtimeState: { sceneState: { backgroundAssetId: "bg_host" } } });
+    expect(observeFormalPreview(completed).effectHost.lastOperation).toBe("complete");
+  });
+
+  it("requires an explicit Barrier decision and exposes the exact reason without auto-approval", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-barrier-host");
+    const first = base.scripts.scn_school_gate!.statements[0]!;
+    const project = {
+      ...base,
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: `${String(first.summary)} effectPolicy=barrier awaitMode=detached barrierReason=将永久提交画廊解锁 descriptorId=preview.gallery.commit` },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    };
+    const waiting = startFormalPreview(project);
+    expect(waiting).toMatchObject({ status: "waiting-barrier", runtimeState: { barrierLedger: [] } });
+    expect(observeFormalPreview(waiting).pendingBarrier).toEqual(expect.objectContaining({ descriptorId: "preview.gallery.commit", reason: "将永久提交画廊解锁" }));
+    const approved = approveFormalPreviewBarrier(waiting);
+    expect(approved).toMatchObject({ status: "presenting", statementId: "stmt_gate_bg", runtimeState: { barrierLedger: [expect.objectContaining({ descriptorId: "preview.gallery.commit" })] } });
+    const beforeBarrier = backFormalPreview(approved);
+    expect(beforeBarrier.diagnostics).toContainEqual(expect.objectContaining({ code: "RUNTIME_BARRIER_BLOCKED" }));
+  });
+
+  it("executes reversible Effect compensation and replay during History navigation", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-reconciliation-host");
+    const first = base.scripts.scn_school_gate!.statements[0]!;
+    const project = {
+      ...base,
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: `${String(first.summary)} effectPolicy=reversible compensationKind=background.restore descriptorId=preview.reversible.bg` },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    };
+    const dialogue = advanceFormalPreview(startFormalPreview(project));
+    const background = backFormalPreview(dialogue);
+    const beforeBackground = backFormalPreview(background);
+    expect(observeFormalPreview(beforeBackground)).toMatchObject({ reconciliation: { direction: "back", compensations: [expect.objectContaining({ descriptorId: "preview.reversible.bg" })] }, effectHost: { lastOperation: "compensate", activeChannels: [] } });
+    const replayed = forwardFormalPreview(beforeBackground);
+    expect(observeFormalPreview(replayed)).toMatchObject({ reconciliation: { direction: "forward", replayEffects: [expect.objectContaining({ descriptorId: "preview.reversible.bg" })] }, effectHost: { lastOperation: "replay", activeChannels: ["background"] } });
   });
 });
