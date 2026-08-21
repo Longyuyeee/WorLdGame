@@ -2950,6 +2950,37 @@ textarea[data-input-state="composing"] {
 .runtime-start-actions button:focus-visible { transform: translateY(-1px); border-color: rgb(62 215 255 / 56%); background: rgb(62 215 255 / 13%); outline: none; }
 .runtime-start-actions button:disabled { cursor: not-allowed; opacity: .42; }
 
+.runtime-debug-actions {
+  display: grid;
+  grid-template-columns: minmax(92px, 1fr) repeat(5, auto);
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+  padding: 8px;
+  border: 1px solid rgb(85 217 138 / 22%);
+  border-radius: 11px;
+  background: linear-gradient(105deg, rgb(85 217 138 / 7%), rgb(62 215 255 / 7%) 52%, rgb(139 124 255 / 8%));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+}
+
+.runtime-debug-actions__history { display: grid; gap: 2px; min-width: 0; }
+.runtime-debug-actions__history strong { color: #8ee8ad; font-size: 9px; letter-spacing: .03em; }
+.runtime-debug-actions__history small { overflow: hidden; color: var(--wg-color-text-muted); font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.runtime-debug-actions button {
+  min-height: 28px;
+  padding: 0 7px;
+  border: 1px solid rgb(62 215 255 / 27%);
+  border-radius: 7px;
+  background: rgb(7 14 26 / 68%);
+  color: #d9f7ff;
+  cursor: pointer;
+  font: 800 7px/1 var(--wg-font-sans, sans-serif);
+  transition: transform var(--wg-motion-duration-fast) ease, border-color var(--wg-motion-duration-fast) ease, color var(--wg-motion-duration-fast) ease;
+}
+.runtime-debug-actions button:hover:not(:disabled),
+.runtime-debug-actions button:focus-visible { transform: translateY(-1px); border-color: rgb(85 217 138 / 62%); color: #9fffc1; outline: none; }
+.runtime-debug-actions button:disabled { cursor: not-allowed; opacity: .35; }
+
 .runtime-inspector {
   display: grid;
   gap: 9px;
@@ -2993,6 +3024,7 @@ textarea[data-input-state="composing"] {
 }
 
 .runtime-inspector--presenting .runtime-inspector__pulse,
+.runtime-inspector--paused .runtime-inspector__pulse,
 .runtime-inspector--waiting-choice .runtime-inspector__pulse { background: #55d98a; animation: runtime-pulse 1.8s ease-in-out infinite; }
 .runtime-inspector--error .runtime-inspector__pulse { background: #ff5f72; }
 
@@ -3505,6 +3537,10 @@ textarea[data-input-state="composing"] {
   .edge-row > :nth-child(4) {
     display: none;
   }
+
+  .runtime-debug-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .runtime-debug-actions__history { grid-column: 1 / -1; }
+  .runtime-debug-actions button { min-height: 38px; }
 }
 
 @media (max-width: 440px) {

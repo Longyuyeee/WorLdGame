@@ -1,19 +1,19 @@
-# 当前开发情况审计（N32-E3 Engineering）
+# 当前开发情况审计（N32-E4 Engineering 候选）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e3-run-from-target`；Draft PR #54
+> 当前分支：`codex/n32-e4-preview-debug-controls`；Draft PR 待创建
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E3 从场景/语句 Fresh Run 审计](145-n32-e3-run-from-target-audit.md)
+> 最新节点证据：[N32-E4 Preview 调试控制审计](146-n32-e4-preview-debug-controls-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E3 Engineering，不是 N32 完成。变量、调用栈、当前 IR/Statement 和结构化诊断已经可见；Entry、Scene 与 Statement 可构造合法 Fresh Run。仍没有 Step Back/Forward/Over、Run to Cursor、热更新、正式媒体 Effect Host 或与 Web Player 共用 Host。正式 Windows/Web/Android Player、构建、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E4 Engineering 候选，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、Continue、Step Over、Back/Forward 和执行前 Run to Cursor 已接入正式 Runtime。仍没有正式媒体 Effect Host、补偿/重放执行、断点/Watch、热更新或与 Web Player 共用 Host。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E3 Engineering 已通过；下一步 N32-E4**；
+- 当前工程节点：**N32-E4 Engineering 本地候选；远端完整门待取得**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -28,13 +28,13 @@
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、Writer 卡片、Script、基础 Flow、稳定 ID、Compiler IR/Source Map | N41 完整 Sequence、N40 专业 Route、N60 QA/Debugger |
-| Preview | Entry 全流程经 Compiler→Runtime；Choice/Ending mapping；变量/栈/当前 IR/Statement/结构化诊断观察；Scene/Statement Fresh Run | 调试推进、保留上下文的任意位置启动、热更新、正式媒体 Host |
+| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor | 断点/Watch、热更新、正式媒体 Host 与跨宿主画面协调 |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频和安全占位 | 正式 Runtime Effect 接入、复杂镜头/关键帧、Pixi/WebGL 与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime、State/History/Save/Back/Forward/调度/诊断 | Editor 控件产品化、Player 槽位、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选 | 正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
-## 3. N32-E1–E3 证据与差异
+## 3. N32-E1–E4 证据与差异
 
 | 检查 | 预期 | 实际 | 判定 |
 |---|---|---|---|
@@ -55,6 +55,10 @@
 | E3 全仓与构建 | 普通回归、串行 storage、审计和 production build 通过 | 98 files / 595 tests；storage 1/1；JS 694.55 kB / gzip 199.03 kB | 通过；>500 kB 拆包债保留 |
 | E3 生产浏览器 | Scene/Statement 精确位置、同目标重启、console 0 error | `stmt_radio_bg #0`、`stmt_radio_001 #1`；结局后重启仍为 `#1`；`[]` | 通过 |
 | E3 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #54，run `32461345815` / job `96708731870`，4 分 16 秒；98/595；autosave 3.049 秒；Runtime corpus 32.593 秒 | 通过；E3 Engineering 关闭 |
+| E4 定向 | History/Scheduler 控制、内部光标、调用栈、阻断和 fork | 2 files / 14 tests；History Hash `ffcbb64f…aa6594` | 通过 |
+| E4 本机全仓 | 普通回归、串行 storage、审计和 production build | 98 files / 600 tests；storage 1/1（5.18 秒）；JS 721.30/205.42 kB | 通过；拆包债扩大并保留 |
+| E4 生产浏览器 | Cursor/Back/Forward/Choice/fork/布局/console | h2/2 transient；h1/2↔h2/2；Choice h3/3→h4/4；route fork h5/5；352×46；`[]` | 通过 |
+| E4 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR 与 run/job 待取得 | 待远端裁决，E4 尚未关闭 |
 
 ## 4. 需求方向审计
 
@@ -63,14 +67,14 @@
 需要防止四类偏移：
 
 1. 不得让旧 `playable-preview-runtime.ts` 重新成为 Editor 完整流程权威；
-2. 不得把 Fresh Run 等同保留调用上下文/副作用的任意语句调试，AC-05 仍只能是实现中；
+2. 不得把逻辑 checkpoint 恢复等同媒体 Host 已协调，也不得把 E4 控制冒充完整 Debugger；
 3. 不得用 jsdom 或代理浏览器替代 N21/N23 真人任务；
 4. 不得因生产构建成功就宣称包体优化、正式 Player 或三端发布完成。
 
 ## 5. 下一步顺序
 
-1. N32-E4：Continue、Step Over、Back/Forward、Run to Cursor 对接正式 History；
-2. N32-E5：正式 Effect/Stage Host 与安全取消/Barrier；
+1. 取得 N32-E4 Draft PR 的 Windows / Node 22 完整门并关闭 Engineering 证据；
+2. N32-E5：正式 Effect/Stage Host、reconciliation、安全取消与 Barrier；
 3. N32-E6：热更新与结构变更重启策略；
 4. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
 
