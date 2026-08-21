@@ -333,6 +333,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3 实施状态（2026-08-22）：Canonical `layouts/*.json` 已从空壳 `JsonObject[]` 收紧为 `nodeId/x/y` 坐标契约，并新增 Project Service `layout.node.set` / `layout.reset`、确定性自动布局、Editor 坐标编辑和真实工程保存/重开。自动化与 production browser 均证明布局删除重建不改脚本/Compiler 图、场景脚本改名后坐标保持。分组/折叠、视口、拖拽、存储级 lazy loading、10k 局部编辑和 500 ms 门仍未完成，详见 [N40-E3 审计](155-n40-e3-route-layout-sidecar-audit.md)。
 
+> E4 实施状态（2026-08-22）：Canonical Layout 已加入严格分组、折叠与视口契约；创建/更新/删除分组、节点归组、折叠和视口保存全部经 Project Service，分组删除和元数据承载场景删除具备一致性处理。Editor 支持原生拖拽，并提供 `Alt+方向键` 与显式触控方向按钮作为等价可访问路径。自动化、production build 和真实工程刷新恢复均通过；浏览器自动化没有把未成功合成的原生 DnD 手势冒充通过，拖放事件路径由真实 DOM 事件测试覆盖。存储级 lazy loading、高级过滤、运行路线高亮、10k 局部编辑和端到端 500 ms P95 仍未完成，详见 [N40-E4 审计](156-n40-e4-route-layout-interaction-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

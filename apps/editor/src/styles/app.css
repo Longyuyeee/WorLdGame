@@ -2193,6 +2193,14 @@ textarea[data-input-state="composing"] {
   background: rgb(12 17 26 / 82%);
 }
 
+.route-layout-toolbar { display:grid; gap:10px; margin-bottom:14px; padding:12px; border:1px solid var(--wg-color-border-subtle); border-radius:12px; background:rgb(12 17 26 / 78%); }
+.route-group-create,.route-viewport-controls,.route-groups,.route-nudge { display:flex; flex-wrap:wrap; align-items:end; gap:8px; }
+.route-group-create label,.route-viewport-controls label { display:grid; gap:4px; color:var(--wg-color-text-muted); font-size:9px; }
+.route-group-create input,.route-viewport-controls input,.route-inspector select { min-width:0; padding:8px 10px; border:1px solid var(--wg-color-border-strong); border-radius:8px; background:rgb(8 12 19 / 92%); color:var(--wg-color-text-primary); }
+.route-groups button { border:1px solid rgb(139 124 255 / 38%); border-radius:999px; padding:6px 9px; background:rgb(139 124 255 / 10%); color:var(--wg-color-text-primary); }
+.route-group-chip { display:inline-flex; align-items:center; gap:3px; }
+.route-groups span,.route-nudge small { color:var(--wg-color-text-muted); font-size:9px; }
+
 .route-toolbar label,
 .route-inspector label {
   display: grid;
@@ -2265,6 +2273,8 @@ textarea[data-input-state="composing"] {
   overflow: auto;
 }
 
+.flow-grid__surface { position:relative; min-width:1400px; min-height:900px; transform-origin:top left; transition:transform var(--wg-motion-duration-standard) ease; }
+
 .route-node {
   position: absolute;
   left: var(--route-x);
@@ -2320,6 +2330,9 @@ textarea[data-input-state="composing"] {
   color: var(--wg-color-text-muted);
   font-size: 9px;
 }
+
+.route-node[draggable="true"] { cursor:grab; }
+.route-node[draggable="true"]:active { cursor:grabbing; }
 
 .route-node[aria-pressed="true"] {
   outline: 2px solid rgb(139 124 255 / 60%);

@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteProjectMutationResult } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1900,9 +1900,14 @@ interface FlowViewProps extends CommonProps {
   readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
   readonly onSetScenePosition: (sceneId: string, x: number, y: number) => RouteProjectMutationResult;
   readonly onResetSceneLayout: (sceneId: string) => RouteProjectMutationResult;
+  readonly onUpsertGroup: (groupId: string, title: string) => RouteProjectMutationResult;
+  readonly onToggleGroup: (groupId: string) => RouteProjectMutationResult;
+  readonly onDeleteGroup: (groupId: string) => RouteProjectMutationResult;
+  readonly onAssignGroup: (sceneId: string, groupId?: string) => RouteProjectMutationResult;
+  readonly onSetViewport: (x: number, y: number, zoom: number) => RouteProjectMutationResult;
 }
 
-function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout }: FlowViewProps) {
+function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
   const graph = useMemo(() => buildRouteGraph(canonicalProject), [canonicalProject]);
   const routeIndex = useMemo(() => createRouteGraphIndex(graph), [graph]);
   const [query, setQuery] = useState("");
@@ -1912,9 +1917,17 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
   const [title, setTitle] = useState(selected?.title ?? "");
   const [layoutX, setLayoutX] = useState(selected?.layout.x ?? 0);
   const [layoutY, setLayoutY] = useState(selected?.layout.y ?? 0);
+  const [selectedGroupId,setSelectedGroupId]=useState(selected?.layout.groupId??"");
+  const [newGroupId,setNewGroupId]=useState("");
+  const [newGroupTitle,setNewGroupTitle]=useState("");
+  const [viewportX,setViewportX]=useState(graph.viewport.x);
+  const [viewportY,setViewportY]=useState(graph.viewport.y);
+  const [viewportZoom,setViewportZoom]=useState(graph.viewport.zoom);
   const [editResult, setEditResult] = useState<{ readonly tone: "success" | "error"; readonly text: string } | null>(null);
   useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
   useEffect(() => { setLayoutX(selected?.layout.x ?? 0);setLayoutY(selected?.layout.y ?? 0); }, [selected?.id, selected?.layout.x, selected?.layout.y]);
+  useEffect(()=>setSelectedGroupId(selected?.layout.groupId??""),[selected?.id,selected?.layout.groupId]);
+  useEffect(()=>{setViewportX(graph.viewport.x);setViewportY(graph.viewport.y);setViewportZoom(graph.viewport.zoom);},[graph.viewport.x,graph.viewport.y,graph.viewport.zoom]);
   useEffect(() => setWindowOffset(undefined), [query]);
   const routeWindow = useMemo(() => queryRouteGraphWindow(routeIndex, {
     query,
@@ -1942,6 +1955,12 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
     if (!result.ok) { setEditResult({ tone: "error", text: `${result.error.code} · ${result.error.message}` });return; }
     setEditResult({ tone: "success", text: "已重建自动布局 · 脚本与 Compiler 图未修改" });
   };
+  const commitMutation=(result:RouteProjectMutationResult,success:string)=>{if(!result.ok){setEditResult({tone:"error",text:`${result.error.code} · ${result.error.message}`});return false;}setEditResult({tone:"success",text:success});return true;};
+  const createGroup=()=>{if(commitMutation(onUpsertGroup(newGroupId,newGroupTitle),"路线分组已写入 Layout Sidecar")){setNewGroupId("");setNewGroupTitle("");}};
+  const assignGroup=()=>{if(selected!==undefined)commitMutation(onAssignGroup(selected.id,selectedGroupId===""?undefined:selectedGroupId),"节点分组已提交 · 剧情语义未修改");};
+  const saveViewport=()=>commitMutation(onSetViewport(viewportX,viewportY,viewportZoom),"路线视口已写入 Layout Sidecar");
+  const moveNode=(node:RouteSceneNodeV1,dx:number,dy:number)=>commitMutation(onSetScenePosition(node.id,node.layout.x+dx,node.layout.y+dy),"节点位置已提交 · 支持撤销与重开");
+  const moveSelected=(dx:number,dy:number)=>{if(selected!==undefined)moveNode(selected,dx,dy);};
   return (
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
       <div className="panel-heading authoring-heading">
@@ -1955,6 +1974,11 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
         <label><span>搜索路线图</span><input type="search" aria-label="搜索路线图" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="场景、稳定 ID、标签或结局" /></label>
         <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
       </div>
+      <div className="route-layout-toolbar" aria-label="路线布局工具">
+        <div className="route-group-create"><label><span>分组 ID</span><input aria-label="新路线分组 ID" value={newGroupId} onChange={(event)=>setNewGroupId(event.target.value)} placeholder="group_route" /></label><label><span>分组名称</span><input aria-label="新路线分组名称" value={newGroupTitle} onChange={(event)=>setNewGroupTitle(event.target.value)} placeholder="路线名称" /></label><button type="button" onClick={createGroup}>创建路线分组</button></div>
+        <div className="route-groups" aria-label="路线分组列表">{graph.groups.map((group)=><span className="route-group-chip" key={group.groupId}><button type="button" aria-label={`${group.collapsed?"展开":"折叠"}分组：${group.title}`} aria-pressed={group.collapsed} onClick={()=>commitMutation(onToggleGroup(group.groupId),group.collapsed?"路线分组已展开":"路线分组已折叠")}>{group.collapsed?"＋":"−"} {group.title} · {graph.nodes.filter((node)=>node.layout.groupId===group.groupId).length}</button><button type="button" aria-label={`删除分组：${group.title}`} onClick={()=>commitMutation(onDeleteGroup(group.groupId),"路线分组已删除 · 节点已解除视觉分组")}>×</button></span>)}{graph.groups.length===0&&<span>尚无自定义分组</span>}</div>
+        <div className="route-viewport-controls"><label><span>视口 X</span><input type="number" aria-label="路线视口 X" value={viewportX} onChange={(event)=>setViewportX(event.currentTarget.valueAsNumber)} /></label><label><span>视口 Y</span><input type="number" aria-label="路线视口 Y" value={viewportY} onChange={(event)=>setViewportY(event.currentTarget.valueAsNumber)} /></label><label><span>缩放</span><input type="number" min="0.5" max="2" step="0.25" aria-label="路线视口缩放" value={viewportZoom} onChange={(event)=>setViewportZoom(event.currentTarget.valueAsNumber)} /></label><button type="button" onClick={saveViewport}>保存路线视口</button></div>
+      </div>
       <div className="route-window-controls" aria-label="路线局部窗口">
         <button type="button" aria-label="上一段路线场景" disabled={!routeWindow.hasPrevious} onClick={() => setWindowOffset(Math.max(0, routeWindow.start - ROUTE_GRAPH_WINDOW_LIMIT))}>← 上一段</button>
         <span role="status" aria-label="路线窗口范围">{routeWindow.totalMatches === 0 ? "0 / 0" : `${routeWindow.start + 1}–${routeWindow.end} / ${routeWindow.totalMatches}`}</span>
@@ -1962,7 +1986,8 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
         <small>最多挂载 {ROUTE_GRAPH_WINDOW_LIMIT} 个节点 · 当前相关连接 {routeWindow.edges.length}/{routeWindow.totalLocalEdges}</small>
       </div>
       <div className="flow-canvas">
-        <div className="flow-grid" aria-label="路线场景节点">
+        <div className="flow-grid" aria-label="路线场景节点" onDragOver={(event)=>event.preventDefault()} onDrop={(event)=>{event.preventDefault();const sceneId=event.dataTransfer.getData("text/plain"),rect=event.currentTarget.getBoundingClientRect();if(sceneId!=="")commitMutation(onSetScenePosition(sceneId,(event.clientX-rect.left+graph.viewport.x)/graph.viewport.zoom,(event.clientY-rect.top+graph.viewport.y)/graph.viewport.zoom),"拖拽位置已写入 Layout Sidecar");}}>
+          <div className="flow-grid__surface" aria-label="路线画布表面" style={{transform:`translate(-${graph.viewport.x}px, -${graph.viewport.y}px) scale(${graph.viewport.zoom})`} as CSSProperties}>
           {visibleNodes.map((node, index) => (
             <button
               key={node.id}
@@ -1970,6 +1995,10 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
               style={{ "--node-order": index, "--route-x": `${node.layout.x}px`, "--route-y": `${node.layout.y}px` } as CSSProperties}
               aria-label={`路线场景：${node.title} · ${node.id}`}
               aria-pressed={node.id === selectedSceneId}
+              data-route-group={node.layout.groupId}
+              draggable
+              onDragStart={(event)=>{event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",node.id);}}
+              onKeyDown={(event)=>{if(!event.altKey)return;if(event.key==="ArrowLeft"){event.preventDefault();moveNode(node,-24,0);}else if(event.key==="ArrowRight"){event.preventDefault();moveNode(node,24,0);}else if(event.key==="ArrowUp"){event.preventDefault();moveNode(node,0,-24);}else if(event.key==="ArrowDown"){event.preventDefault();moveNode(node,0,24);}}}
               onClick={() => { setSelectedSceneId(node.id);setTitle(node.title);setEditResult(null);dispatch({ type: "select-scene", sceneId: node.id }); }}
             >
               <span className="route-node__kind">
@@ -1982,6 +2011,7 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
             </button>
           ))}
           {visibleNodes.length === 0 && <p className="route-empty">没有匹配的路线场景；权威工程未被修改。</p>}
+          </div>
         </div>
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
@@ -2000,7 +2030,9 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
         <label><span>路线场景名称</span><input aria-label="路线场景名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>节点 X</span><input type="number" aria-label="路线节点 X" value={layoutX} onChange={(event) => setLayoutX(event.currentTarget.valueAsNumber)} /></label>
         <label><span>节点 Y</span><input type="number" aria-label="路线节点 Y" value={layoutY} onChange={(event) => setLayoutY(event.currentTarget.valueAsNumber)} /></label>
-        <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
+        <label><span>所属分组</span><select aria-label="节点所属分组" value={selectedGroupId} onChange={(event)=>setSelectedGroupId(event.target.value)}><option value="">不分组</option>{graph.groups.map((group)=><option key={group.groupId} value={group.groupId}>{group.title}</option>)}</select></label>
+        <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>moveSelected(-24,0)}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>moveSelected(0,-24)}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>moveSelected(0,24)}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>moveSelected(24,0)}>→</button><small>Alt＋方向键亦可移动</small></div>
+        <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={assignGroup}>保存节点分组</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
         {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
       </aside>}
       <section className="route-diagnostics" aria-label="Route Compiler 诊断">
@@ -2785,6 +2817,11 @@ export function App({ initialProject, onProjectChange, onProjectSave, onCanonica
   };
   const setScenePositionFromRouteMap = (sceneId: string, x: number, y: number) => applyRouteLayoutMutation(setRouteScenePosition(previewCanonicalProject, createCommandId(), sceneId, x, y));
   const resetSceneLayoutFromRouteMap = (sceneId: string) => applyRouteLayoutMutation(resetRouteSceneLayout(previewCanonicalProject, createCommandId(), sceneId));
+  const upsertRouteGroupFromMap=(groupId:string,title:string)=>applyRouteLayoutMutation(upsertRouteGroup(previewCanonicalProject,createCommandId(),groupId,title));
+  const toggleRouteGroupFromMap=(groupId:string)=>applyRouteLayoutMutation(toggleRouteGroup(previewCanonicalProject,createCommandId(),groupId));
+  const deleteRouteGroupFromMap=(groupId:string)=>applyRouteLayoutMutation(deleteRouteGroup(previewCanonicalProject,createCommandId(),groupId));
+  const assignRouteSceneGroupFromMap=(sceneId:string,groupId?:string)=>applyRouteLayoutMutation(assignRouteSceneGroup(previewCanonicalProject,createCommandId(),sceneId,groupId));
+  const setRouteViewportFromMap=(x:number,y:number,zoom:number)=>applyRouteLayoutMutation(setRouteViewport(previewCanonicalProject,createCommandId(),x,y,zoom));
 
   useEffect(() => {
     if (!storageAvailable) return;
@@ -3778,6 +3815,11 @@ export function App({ initialProject, onProjectChange, onProjectSave, onCanonica
             onRenameScene={renameSceneFromRouteMap}
             onSetScenePosition={setScenePositionFromRouteMap}
             onResetSceneLayout={resetSceneLayoutFromRouteMap}
+            onUpsertGroup={upsertRouteGroupFromMap}
+            onToggleGroup={toggleRouteGroupFromMap}
+            onDeleteGroup={deleteRouteGroupFromMap}
+            onAssignGroup={assignRouteSceneGroupFromMap}
+            onSetViewport={setRouteViewportFromMap}
             onOpenSequence={(sceneId) => { dispatch({ type: "select-scene", sceneId });setMode("writer"); }}
           />
         )}

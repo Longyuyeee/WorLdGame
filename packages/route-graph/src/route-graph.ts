@@ -1,6 +1,7 @@
 import { compileProject, type CompilerDiagnostic, type RuntimeInstructionV1 } from "@world-studio/project-compiler";
 import {
   createProjectService,
+  executeProjectBatch,
   executeProjectCommand,
   type CanonicalProject,
   type ChangeSet,
@@ -32,7 +33,9 @@ export interface RouteSceneNodeV1 {
   readonly layout: RouteNodeLayoutV1;
 }
 
-export interface RouteNodeLayoutV1 { readonly x: number; readonly y: number; readonly source: "sidecar" | "automatic"; }
+export interface RouteNodeLayoutV1 { readonly x: number; readonly y: number; readonly source: "sidecar" | "automatic"; readonly groupId?: string; }
+export interface RouteGroupV1 { readonly groupId: string; readonly title: string; readonly collapsed: boolean; }
+export interface RouteViewportV1 { readonly x: number; readonly y: number; readonly zoom: number; readonly source: "sidecar" | "automatic"; }
 
 export interface RouteEdgeV1 {
   readonly id: string;
@@ -60,6 +63,8 @@ export interface RouteGraphV1 {
   readonly nodes: readonly RouteSceneNodeV1[];
   readonly edges: readonly RouteEdgeV1[];
   readonly diagnostics: readonly RouteGraphDiagnosticV1[];
+  readonly groups: readonly RouteGroupV1[];
+  readonly viewport: RouteViewportV1;
 }
 
 export const ROUTE_GRAPH_WINDOW_LIMIT = 64;
@@ -166,13 +171,15 @@ export function buildRouteGraph(project: CanonicalProject): RouteGraphV1 {
       facts,
       layout: (() => {
         const position = project.layouts[scene.id]?.nodes.find((node) => node.nodeId === scene.id);
-        return position === undefined ? automaticLayout(sceneIndex) : { x: position.x, y: position.y, source: "sidecar" as const };
+        return position === undefined ? automaticLayout(sceneIndex) : { x: position.x, y: position.y, source: "sidecar" as const, ...(position.groupId===undefined?{}:{groupId:position.groupId}) };
       })()
     };
   });
   const edges = project.scenes.flatMap((scene) =>
     (compilation.cache.scenes[scene.id]?.scene.instructions ?? []).flatMap((instruction) => choiceEdges(instruction, scene.id, knownSceneIds))
   );
+  const groups=Object.values(project.layouts).flatMap((layout)=>layout.groups??[]);
+  const viewport=Object.values(project.layouts).find((layout)=>layout.viewport!==undefined)?.viewport;
   return {
     schemaVersion: 1,
     projectId: project.manifest.projectId,
@@ -180,7 +187,9 @@ export function buildRouteGraph(project: CanonicalProject): RouteGraphV1 {
     chapters,
     nodes,
     edges,
-    diagnostics: compilation.diagnostics.map((item) => ({ ...item }))
+    diagnostics: compilation.diagnostics.map((item) => ({ ...item })),
+    groups,
+    viewport: viewport===undefined?{x:0,y:0,zoom:1,source:"automatic"}:{...viewport,source:"sidecar"}
   };
 }
 
@@ -204,9 +213,10 @@ export function createRouteGraphIndex(graph: RouteGraphV1): RouteGraphIndexV1 {
 
 export function queryRouteGraphWindow(index: RouteGraphIndexV1, request: RouteGraphWindowRequest = {}): RouteGraphWindowV1 {
   const query = normalizeSearch(request.query ?? "");
+  const collapsedGroups=new Set(index.graph.groups.filter((group)=>group.collapsed).map((group)=>group.groupId));
   const matchingIndexes = query.length === 0
-    ? index.graph.nodes.map((_, nodeIndex) => nodeIndex)
-    : index.searchTextByNode.flatMap((searchText, nodeIndex) => searchText.includes(query) ? [nodeIndex] : []);
+    ? index.graph.nodes.flatMap((node,nodeIndex)=>node.layout.groupId!==undefined&&collapsedGroups.has(node.layout.groupId)?[]:[nodeIndex])
+    : index.searchTextByNode.flatMap((searchText, nodeIndex) => searchText.includes(query)&&!(index.graph.nodes[nodeIndex]?.layout.groupId!==undefined&&collapsedGroups.has(index.graph.nodes[nodeIndex]!.layout.groupId!)) ? [nodeIndex] : []);
   const limit = Math.max(1, Math.min(ROUTE_GRAPH_WINDOW_LIMIT, Math.floor(request.limit ?? ROUTE_GRAPH_WINDOW_LIMIT)));
   const anchorMatchIndex = request.anchorSceneId === undefined
     ? -1
@@ -269,3 +279,13 @@ export function resetRouteSceneLayout(project: CanonicalProject, commandId: stri
   if (!result.ok) return { ok: false, project, error: result.error };
   return { ok: true, project: result.state.project, changeSet: result.changeSet };
 }
+
+export function upsertRouteGroup(project:CanonicalProject,commandId:string,groupId:string,title:string):RouteProjectMutationResult { const state=createProjectService(project);const result=executeProjectCommand(state,{commandId,expectedRevision:state.revision,kind:"layout.group.upsert",groupId,title});return result.ok?{ok:true,project:result.state.project,changeSet:result.changeSet}:{ok:false,project,error:result.error}; }
+
+export function toggleRouteGroup(project:CanonicalProject,commandId:string,groupId:string):RouteProjectMutationResult { const state=createProjectService(project);const result=executeProjectCommand(state,{commandId,expectedRevision:state.revision,kind:"layout.group.toggle",groupId});return result.ok?{ok:true,project:result.state.project,changeSet:result.changeSet}:{ok:false,project,error:result.error}; }
+
+export function deleteRouteGroup(project:CanonicalProject,commandId:string,groupId:string):RouteProjectMutationResult { const state=createProjectService(project);const result=executeProjectCommand(state,{commandId,expectedRevision:state.revision,kind:"layout.group.delete",groupId});return result.ok?{ok:true,project:result.state.project,changeSet:result.changeSet}:{ok:false,project,error:result.error}; }
+
+export function setRouteViewport(project:CanonicalProject,commandId:string,x:number,y:number,zoom:number):RouteProjectMutationResult { const state=createProjectService(project);const result=executeProjectCommand(state,{commandId,expectedRevision:state.revision,kind:"layout.viewport.set",x,y,zoom});return result.ok?{ok:true,project:result.state.project,changeSet:result.changeSet}:{ok:false,project,error:result.error}; }
+
+export function assignRouteSceneGroup(project:CanonicalProject,commandId:string,sceneId:string,groupId?:string):RouteProjectMutationResult { const state=createProjectService(project),sceneIndex=project.scenes.findIndex((scene)=>scene.id===sceneId);if(sceneIndex<0)return {ok:false,project,error:{code:"NOT_FOUND",commandId,entityId:sceneId,message:`scene ${sceneId} was not found`}};const stored=project.layouts[sceneId]?.nodes.find((node)=>node.nodeId===sceneId),position=stored??automaticLayout(sceneIndex);const result=executeProjectBatch(state,[{commandId:`${commandId}_position`,expectedRevision:state.revision,kind:"layout.node.set",sceneId,nodeId:sceneId,x:position.x,y:position.y},{commandId,expectedRevision:state.revision,kind:"layout.node.assign-group",sceneId,nodeId:sceneId,...(groupId===undefined?{}:{groupId})}]);return result.ok?{ok:true,project:result.state.project,changeSet:result.changeSet}:{ok:false,project,error:result.error}; }

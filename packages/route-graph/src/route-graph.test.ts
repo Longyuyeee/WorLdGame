@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition } from "./route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup } from "./route-graph";
 
 function routeProject(includeDangling = true): CanonicalProject {
   const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
@@ -133,5 +133,27 @@ describe("N40 route graph", () => {
       .toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" }, project });
     expect(setRouteScenePosition(project, "command_layout_missing", "route_missing", 10, 10))
       .toMatchObject({ ok: false, error: { code: "NOT_FOUND" }, project });
+  });
+
+  it("persists groups, folding, and viewport without creating story semantics", () => {
+    const project=routeProject(false);const beforeScripts=structuredClone(project.scripts);const beforeEdges=buildRouteGraph(project).edges;
+    const grouped=upsertRouteGroup(project,"command_group_upsert","group_branch","支线路线");if(!grouped.ok)throw new Error(grouped.error.message);
+    const assigned=assignRouteSceneGroup(grouped.project,"command_group_assign","route_left","group_branch");if(!assigned.ok)throw new Error(assigned.error.message);
+    const viewport=setRouteViewport(assigned.project,"command_viewport",120,80,1.25);if(!viewport.ok)throw new Error(viewport.error.message);
+    const collapsed=toggleRouteGroup(viewport.project,"command_group_toggle","group_branch");if(!collapsed.ok)throw new Error(collapsed.error.message);
+    const graph=buildRouteGraph(collapsed.project);
+    expect(graph.groups).toEqual([{groupId:"group_branch",title:"支线路线",collapsed:true}]);
+    expect(graph.viewport).toEqual({x:120,y:80,zoom:1.25,source:"sidecar"});
+    expect(graph.nodes.find((node)=>node.id==="route_left")?.layout.groupId).toBe("group_branch");
+    expect(queryRouteGraphWindow(createRouteGraphIndex(graph)).nodes.map((node)=>node.id)).toEqual(["route_entry"]);
+    expect(collapsed.project.scripts).toEqual(beforeScripts);expect(graph.edges).toEqual(beforeEdges);
+    const deleted=deleteRouteGroup(collapsed.project,"command_group_delete","group_branch");if(!deleted.ok)throw new Error(deleted.error.message);
+    const restored=buildRouteGraph(deleted.project);expect(restored.groups).toEqual([]);expect(restored.nodes.find((node)=>node.id==="route_left")?.layout.groupId).toBeUndefined();expect(queryRouteGraphWindow(createRouteGraphIndex(restored)).nodes).toHaveLength(2);
+  });
+
+  it("fails closed for unknown groups and unsafe viewport zoom", () => {
+    const project=routeProject(false);
+    expect(assignRouteSceneGroup(project,"command_unknown_group","route_left","group_missing")).toMatchObject({ok:false,error:{code:"NOT_FOUND"},project});
+    expect(setRouteViewport(project,"command_bad_zoom",0,0,0.1)).toMatchObject({ok:false,error:{code:"INVALID_COMMAND"},project});
   });
 });

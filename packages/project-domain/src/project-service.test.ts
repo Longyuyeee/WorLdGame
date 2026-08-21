@@ -50,6 +50,26 @@ describe("Project Service", () => {
     const start=initial();const sceneId=start.project.manifest.entrySceneId;const result=executeProjectCommand(start,{commandId:"command_layout_invalid",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:Number.POSITIVE_INFINITY,y:0});
     expect(result).toMatchObject({ok:false,state:start,error:{code:"INVALID_COMMAND"}});
   });
+  it("stores route groups and viewport in sidecars and keeps the batch atomic", () => {
+    const start=initial();const sceneId=start.project.manifest.entrySceneId;const commands=[
+      {commandId:"command_group_create",expectedRevision:0,kind:"layout.group.upsert",groupId:"group_main",title:"主路线"},
+      {commandId:"command_node_position",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:320,y:180},
+      {commandId:"command_group_assign",expectedRevision:0,kind:"layout.node.assign-group",sceneId,nodeId:sceneId,groupId:"group_main"},
+      {commandId:"command_viewport_set",expectedRevision:0,kind:"layout.viewport.set",x:64,y:32,zoom:1.5}
+    ] as ProjectCommand[];
+    const result=executeProjectBatch(start,commands);expect(result.ok).toBe(true);if(!result.ok)return;
+    const reopened=loadProject(serializeCommittedRevision(result.state,1));
+    expect(Object.values(reopened.layouts).flatMap((layout)=>layout.groups??[])).toEqual([{groupId:"group_main",title:"主路线",collapsed:false}]);
+    expect(Object.values(reopened.layouts).find((layout)=>layout.viewport!==undefined)?.viewport).toEqual({x:64,y:32,zoom:1.5});
+    expect(reopened.layouts[sceneId]?.nodes[0]?.groupId).toBe("group_main");expect(reopened.scripts).toEqual(start.project.scripts);
+  });
+  it("moves route canvas metadata when its owner scene is deleted",()=>{
+    const built=executeProjectBatch(initial(),storyCommands);expect(built.ok).toBe(true);if(!built.ok)return;let state=built.state;
+    const group=executeProjectCommand(state,{commandId:"command_owner_group",expectedRevision:state.revision,kind:"layout.group.upsert",groupId:"group_owner",title:"Owner"});expect(group.ok).toBe(true);if(!group.ok)return;state=group.state;
+    const viewport=executeProjectCommand(state,{commandId:"command_owner_viewport",expectedRevision:state.revision,kind:"layout.viewport.set",x:10,y:20,zoom:1.25});expect(viewport.ok).toBe(true);if(!viewport.ok)return;state=viewport.state;
+    const removed=executeProjectCommand(state,{commandId:"command_owner_delete",expectedRevision:state.revision,kind:"scene.delete",sceneId:"scene_start",replacementSceneId:"scene_end"});expect(removed.ok).toBe(true);if(!removed.ok)return;
+    expect(removed.state.project.layouts.scene_end).toMatchObject({groups:[{groupId:"group_owner",title:"Owner",collapsed:false}],viewport:{x:10,y:20,zoom:1.25}});
+  });
   it("covers rename, move, update, and delete commands across every N11 entity collection", () => {
     const built=executeProjectBatch(initial(),storyCommands);expect(built.ok).toBe(true);if(!built.ok)return;let state=built.state;
     const run=(value:Record<string,unknown>&{kind:string},id:string)=>{const result=executeProjectCommand(state,{commandId:id,expectedRevision:state.revision,...value} as unknown as ProjectCommand);expect(result.ok?null:result.error).toBeNull();if(result.ok)state=result.state;};
