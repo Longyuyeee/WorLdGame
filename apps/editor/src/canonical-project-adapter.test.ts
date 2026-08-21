@@ -38,12 +38,14 @@ describe("Canonical project editor adapter", () => {
       ...campusStoryProject,
       scenes: campusStoryProject.scenes.map((scene, index) => index === 0 ? {
         ...scene,
+        title: "Renamed through canonical bridge",
         statements: [...scene.statements, { id: "statement_saved", kind: "set" as const, variable: "route", expression: '"radio"' }]
       } : scene)
     };
     const reopened = loadProject(saveProject(projectCanonicalWithStory(withDomainData, edited)));
     expect(reopened.variables.variables).toEqual(withDomainData.variables.variables);
     expect(reopened.characters.characters[0]).toMatchObject({ portraitSlots: ["main"], defaultExpression: "neutral" });
+    expect(reopened.scenes[0]).toMatchObject({ id: "scn_school_gate", title: "Renamed through canonical bridge" });
     expect(projectCanonicalForEditor(reopened).project.scenes[0]?.statements.at(-1)).toMatchObject({ id: "statement_saved", kind: "set" });
     const projected = projectCanonicalForEditor(withDomainData).project;
     expect(projectCanonicalWithStory(withDomainData, projected).variables.variables[0]).toMatchObject({ pluginMetadata: { owner: "test" }, scope: "story" });

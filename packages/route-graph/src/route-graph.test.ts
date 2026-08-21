@@ -1,0 +1,80 @@
+import { describe, expect, it } from "vitest";
+import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { buildRouteGraph, renameRouteScene } from "./route-graph";
+
+function routeProject(includeDangling = true): CanonicalProject {
+  const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
+  const statements: Record<string, readonly JsonObject[]> = {
+    route_entry: [
+      { id: "label_start", kind: "label", name: "start" },
+      { id: "condition_retry", kind: "condition", expression: "flag == true", targetLabel: "start" },
+      { id: "choice_path", kind: "choice", prompt: "去哪边？", options: [
+        { id: "option_left", label: "左边", targetSceneId: "route_left" },
+        ...(includeDangling ? [{ id: "option_missing", label: "失效路线", targetSceneId: "route_missing" }] : [])
+      ] }
+    ],
+    route_left: [
+      { id: "call_epilogue", kind: "call", targetLabel: "epilogue" },
+      { id: "label_epilogue", kind: "label", name: "epilogue" },
+      { id: "ending_left", kind: "end", endingName: "左侧结局" }
+    ]
+  };
+  return {
+    ...base,
+    manifest: { ...base.manifest, entrySceneId: "route_entry", chapterPaths: ["chapters/chapter_main.json"] },
+    chapters: [{ schemaVersion: 1, id: "chapter_main", title: "主线", scenePaths: ["scenes/route_entry.json", "scenes/route_left.json"] }],
+    scenes: [
+      { schemaVersion: 1, id: "route_entry", title: "入口", scriptPath: "scripts/route_entry.json", layoutPath: "layouts/route_entry.json" },
+      { schemaVersion: 1, id: "route_left", title: "左侧", scriptPath: "scripts/route_left.json", layoutPath: "layouts/route_left.json" }
+    ],
+    variables: { schemaVersion: 1, variables: [{ id: "flag", name: "flag", type: "boolean", defaultValue: false, scope: "story" }] },
+    scripts: Object.fromEntries(Object.entries(statements).map(([sceneId, value]) => [sceneId, { schemaVersion: 1, sceneId, statements: value }])),
+    layouts: Object.fromEntries(Object.keys(statements).map((sceneId) => [sceneId, { schemaVersion: 1, sceneId, nodes: [] }]))
+  };
+}
+
+describe("N40 route graph", () => {
+  it("projects chapters, stable scenes, compiler facts, endings, and dangling route diagnostics deterministically", () => {
+    const first = buildRouteGraph(routeProject());
+    const second = buildRouteGraph(routeProject());
+
+    expect(second).toEqual(first);
+    expect(first.chapters).toEqual([{ id: "chapter_main", title: "主线", sceneIds: ["route_entry", "route_left"] }]);
+    expect(first.nodes.map((node) => [node.id, node.kind, node.chapterId])).toEqual([
+      ["route_entry", "entry", "chapter_main"],
+      ["route_left", "ending", "chapter_main"]
+    ]);
+    expect(first.nodes[0]?.facts.map((fact) => [fact.kind, fact.id])).toEqual([
+      ["label", "label_start"],
+      ["condition", "condition_retry"],
+      ["choice", "choice_path"]
+    ]);
+    expect(first.edges.map((edge) => [edge.id, edge.targetSceneId, edge.status])).toEqual([
+      ["option_left", "route_left", "valid"],
+      ["option_missing", "route_missing", "dangling"]
+    ]);
+    expect(first.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "MISSING_TARGET_SCENE", sceneId: "route_entry", entityId: "route_missing" })
+    ]));
+  });
+
+  it("renames through Project Service while preserving the stable scene ID and graph edges", () => {
+    const project = routeProject(false);
+    const before = buildRouteGraph(project);
+    const edited = renameRouteScene(project, "command_route_rename", "route_left", "左侧月台");
+
+    if (!edited.ok) throw new Error(`${edited.error.code}: ${edited.error.message}`);
+    expect(edited.changeSet.changedEntityIds).toEqual(["route_left"]);
+    expect(edited.changeSet.beforeHash).not.toBe(edited.changeSet.afterHash);
+    const after = buildRouteGraph(edited.project);
+    expect(after.nodes.find((node) => node.id === "route_left")?.title).toBe("左侧月台");
+    expect(after.edges).toEqual(before.edges);
+  });
+
+  it("fails closed for blank names and unknown scenes without mutating the project", () => {
+    const project = routeProject(false);
+    expect(renameRouteScene(project, "command_blank", "route_left", "  ")).toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" } });
+    expect(renameRouteScene(project, "command_missing", "route_unknown", "未知")).toMatchObject({ ok: false, error: { code: "NOT_FOUND" } });
+    expect(project.scenes[1]?.title).toBe("左侧");
+  });
+});

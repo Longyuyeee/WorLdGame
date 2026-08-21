@@ -24,7 +24,6 @@ import {
   type ProjectWriterLease
 } from "@world-studio/project-persistence";
 import {
-  deriveRouteGraph,
   findScene,
   findStatement,
   predictStoryResources,
@@ -32,6 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
+import { buildRouteGraph, renameRouteScene, type RenameRouteSceneResult } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1894,33 +1894,68 @@ function ScriptView({
   );
 }
 
-function FlowView({ session, dispatch }: CommonProps) {
-  const graph = useMemo(() => deriveRouteGraph(session.project), [session.project]);
+interface FlowViewProps extends CommonProps {
+  readonly canonicalProject: CanonicalProject;
+  readonly onOpenSequence: (sceneId: string) => void;
+  readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
+}
+
+function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene }: FlowViewProps) {
+  const graph = useMemo(() => buildRouteGraph(canonicalProject), [canonicalProject]);
+  const [query, setQuery] = useState("");
+  const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
+  const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
+  const [title, setTitle] = useState(selected?.title ?? "");
+  const [editResult, setEditResult] = useState<{ readonly tone: "success" | "error"; readonly text: string } | null>(null);
+  useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
+  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const visibleNodes = normalizedQuery.length === 0 ? graph.nodes : graph.nodes.filter((node) =>
+    [node.id, node.title, ...node.facts.flatMap((item) => [item.id, item.label, item.targetLabel ?? ""])]
+      .some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
+  );
+  const saveTitle = () => {
+    if (selected === undefined) return;
+    const result = onRenameScene(selected.id, title);
+    if (!result.ok) {
+      setEditResult({ tone: "error", text: `${result.error.code} · ${result.error.message}` });
+      return;
+    }
+    setEditResult({ tone: "success", text: `Project Service 已提交 · ${result.changeSet.beforeHash.slice(0, 8)}→${result.changeSet.afterHash.slice(0, 8)}` });
+  };
   return (
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">FLOW · DERIVED VIEW</p>
-          <h2 id="flow-heading">自动路线图</h2>
+          <p className="eyebrow">N40 · CANONICAL ROUTE GRAPH</p>
+          <h2 id="flow-heading">Route Map</h2>
         </div>
-        <span className="context-chip context-chip--cyan">无语义副本</span>
+        <span className="context-chip context-chip--cyan">Compiler 图事实</span>
+      </div>
+      <div className="route-toolbar">
+        <label><span>搜索路线图</span><input type="search" aria-label="搜索路线图" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="场景、稳定 ID、标签或结局" /></label>
+        <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
       </div>
       <div className="flow-canvas">
-        <div className="flow-grid" aria-label="路线节点">
-          {graph.nodes.map((node, index) => (
+        <div className="flow-grid" aria-label="路线场景节点">
+          {visibleNodes.map((node, index) => (
             <button
               key={node.id}
               className={node.id === session.activeSceneId ? `route-node route-node--${node.kind} is-active` : `route-node route-node--${node.kind}`}
               style={{ "--node-order": index } as CSSProperties}
-              onClick={() => dispatch({ type: "select-scene", sceneId: node.id })}
+              aria-label={`路线场景：${node.title} · ${node.id}`}
+              aria-pressed={node.id === selectedSceneId}
+              onClick={() => { setSelectedSceneId(node.id);setTitle(node.title);setEditResult(null);dispatch({ type: "select-scene", sceneId: node.id }); }}
             >
               <span className="route-node__kind">
                 {node.kind === "entry" ? "入口" : node.kind === "ending" ? "结局" : "场景"}
               </span>
               <strong>{node.title}</strong>
               <code>{node.id}</code>
+              <span className="route-node__chapter">{graph.chapters.find((chapter) => chapter.id === node.chapterId)?.title ?? "未分组"}</span>
+              <span className="route-node__facts">{node.facts.length === 0 ? "无控制流事实" : node.facts.map((item) => `${item.kind}:${item.label}${item.targetLabel === undefined ? "" : `→${item.targetLabel}`}`).join(" · ")}</span>
             </button>
           ))}
+          {visibleNodes.length === 0 && <p className="route-empty">没有匹配的路线场景；权威工程未被修改。</p>}
         </div>
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
@@ -1928,11 +1963,21 @@ function FlowView({ session, dispatch }: CommonProps) {
             <div className="edge-row" key={edge.id}>
               <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
               <strong>{edge.label}</strong><span className="edge-arrow">→</span>
-              <span>{edge.targetSceneId}</span>
+              <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}
             </div>
           ))}
         </div>
       </div>
+      {selected !== undefined && <aside className="route-inspector" aria-label="路线场景 Inspector">
+        <div><p className="eyebrow">STABLE SCENE</p><strong>{selected.title}</strong><code>{selected.id}</code></div>
+        <label><span>路线场景名称</span><input aria-label="路线场景名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
+        <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
+        {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
+      </aside>}
+      <section className="route-diagnostics" aria-label="Route Compiler 诊断">
+        <p className="eyebrow">COMPILER DIAGNOSTICS · {graph.diagnostics.length}</p>
+        {graph.diagnostics.length === 0 ? <p>正式 Compiler 未报告路线阻断。</p> : <ul>{graph.diagnostics.map((item, index) => <li key={`${item.code}:${item.sceneId ?? "project"}:${item.statementId ?? index}`}><code>{item.code}</code><span>{item.message}</span></li>)}</ul>}
+      </section>
     </section>
   );
 }
@@ -2676,6 +2721,26 @@ export function App({ initialProject, onProjectChange, onProjectSave, autosaveDe
     let candidate: string;
     do candidate = `${prefix}_ui_${++entitySerial.current}`; while (used.has(candidate));
     return candidate;
+  };
+  const renameSceneFromRouteMap = (sceneId: string, title: string): RenameRouteSceneResult => {
+    const result = renameRouteScene(previewCanonicalProject, createCommandId(), sceneId, title);
+    if (!result.ok) return result;
+    const nextSession = createStudioSessionFromCanonical(result.project);
+    const selectedScene = nextSession.project.scenes.find((item) => item.id === sceneId);
+    baseDispatch({
+      type: "restore-session",
+      session: selectedScene === undefined ? nextSession : {
+        ...nextSession,
+        activeSceneId: sceneId,
+        selectedStatementId: selectedScene.statements[0]?.id ?? nextSession.selectedStatementId
+      }
+    });
+    editGeneration.current += 1;
+    setEditVersion((value) => value + 1);
+    setPersistence((current) => current.status === "unavailable" || current.status === "conflict" || current.status === "readonly" || current.status === "blocked" || current.status === "loading" || current.status === "migrating"
+      ? current
+      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }) });
+    return result;
   };
 
   useEffect(() => {
@@ -3663,7 +3728,13 @@ export function App({ initialProject, onProjectChange, onProjectSave, autosaveDe
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
-          <FlowView session={session} dispatch={dispatch} />
+          <FlowView
+            session={session}
+            dispatch={dispatch}
+            canonicalProject={previewCanonicalProject}
+            onRenameScene={renameSceneFromRouteMap}
+            onOpenSequence={(sceneId) => { dispatch({ type: "select-scene", sceneId });setMode("writer"); }}
+          />
         )}
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} />
       </main>

@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。真实生产浏览器已跑通五分钟验收工程两条结局和 Back/Forward；但正式 Player 仍不存在，旧单文件 HTML 仍是平行解释器，所以 N32 总出口、真人产品验收、N40+、M1 与发布继续阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1 已建立 Compiler 驱动的 Route Map 和经 Project Service 写回 Route/Writer/Script 的最小闭环；10k 图、布局/局部加载/路线高亮/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -41,6 +41,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [当前开发状态审计](docs/99-current-development-status-audit.md) | 当前真实代码、能力、阻断项与下一步 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
+| [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

@@ -13,6 +13,7 @@
         "@world-studio/project-persistence",
         "@world-studio/runtime",
         "@world-studio/runtime-host",
+        "@world-studio/route-graph",
         "@world-studio/story-core",
         "@world-studio/story-language"
       ]
@@ -107,6 +108,14 @@
       "stability": "candidate",
       "owner": "Runtime Owner",
       "allowedWorkspaceDependencies": ["@world-studio/runtime"]
+    },
+    {
+      "path": "packages/route-graph",
+      "packageName": "@world-studio/route-graph",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Flow Experience Owner",
+      "allowedWorkspaceDependencies": ["@world-studio/project-compiler", "@world-studio/project-domain"]
     },
     {
       "path": "packages/story-core",

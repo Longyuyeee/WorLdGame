@@ -100,6 +100,7 @@ export function projectCanonicalFromStory(project: StoryProject, durableEntropy:
 export function projectCanonicalWithStory(base: CanonicalProject, story: StoryProject): CanonicalProject {
   const baseCharacters = new Map(base.characters.characters.map((item) => [String(item.id), item]));
   const baseVariables = new Map(base.variables.variables.map((item) => [String(item.id), item]));
+  const storyScenes = new Map(story.scenes.map((item) => [item.id, item]));
   return {
     ...base,
     manifest: {
@@ -114,6 +115,7 @@ export function projectCanonicalWithStory(base: CanonicalProject, story: StoryPr
     ...(story.variables === undefined ? {} : {
       variables: { ...base.variables, variables: story.variables.map((item) => ({ ...baseVariables.get(item.id), ...item })) }
     }),
+    scenes: base.scenes.map((item) => ({ ...item, title: storyScenes.get(item.id)?.title ?? item.title })),
     scripts: Object.fromEntries(story.scenes.map((scene) => [scene.id, {
       ...(base.scripts[scene.id] ?? {}),
       schemaVersion: 1,

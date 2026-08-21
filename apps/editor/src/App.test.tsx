@@ -553,8 +553,9 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     ).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
-    expect(screen.getByRole("heading", { name: "自动路线图" })).toBeVisible();
-    expect(screen.getByText("无语义副本")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
+    expect(screen.getByText("Compiler 图事实")).toBeVisible();
+    expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" })).toBeVisible();
     expect(screen.getByText("去天台")).toBeVisible();
   });
 

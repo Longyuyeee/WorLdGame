@@ -41,7 +41,7 @@
 | REQ | P0 范围摘要 | 主节点 | 依赖 | 当前状态 | 当前缺口 | 通过证据 |
 |---|---|---|---|---|---|---|
 | REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N23-E3 已证明 Canonical 文档、Asset Index 与源 Blob 随确定性 ZIP 搬到新工作区并在重载后运行；仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Project E2E、Recovery Golden、双端任务 |
-| REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | 仅简单 Choice 场景图 | 10k Route Golden、跨视图 E2E |
+| REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入 Sequence | N40 | N20/N30 | 实现中 | E1 已用正式 Compiler 事实投影场景、Choice/Label/Jump/Call/Condition/Ending、连接与诊断，并实测搜索、Project Service 改名和进入 Sequence；仍缺 10k Branching Golden、布局 Sidecar、分组/折叠/局部加载、路线高亮与 500 ms 门 | [N40-E1 审计](153-n40-e1-route-graph-core-audit.md)、10k Route Golden、跨视图 E2E |
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | 空工程非法角色/变量/资源占位插入已由 N21 就绪预演修复；`N21-HV-01` 仍为 `pending-participant`，N41 完整 Sequence 与 Stage 跨视图联动未完成 | [N21 就绪预演](118-n21-human-readiness-rehearsal-audit.md)、[N21 真人执行包](114-n21-human-validation-execution-kit.md) |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
@@ -60,7 +60,7 @@
 |---:|---|---|---|---|---|
 | AC-01 | Windows/Android 打开工程 | N90–N92 | 未开始 | REQ-PRJ、双端编辑器 | 同工程双端打开录像和 Hash |
 | AC-02 | 两端编辑对白/角色/选择/条件 | N91/N92 | 未开始 | N13/N21 | 双端任务 E2E |
-| AC-03 | Route/Sequence/Script/Stage 同源 | N40–N43 | 实现中 | 通用 Project、完整视图 | ChangeSet/Hash 对照 |
+| AC-03 | Route/Sequence/Script/Stage 同源 | N40–N43 | 实现中 | E1 已证明 Route 改名经 Project Service 写回 Canonical，并在 Route/Writer/Script 保持 `scn_broadcast_room`；Stage 与完整 N41–N43 跨视图协议仍缺 | [N40-E1 审计](153-n40-e1-route-graph-core-audit.md)、ChangeSet/Hash 对照 |
 | AC-04 | 任一视图修改 500 ms 同步 | N43 | 实现中 | 视图不全 | P95 测量和 E2E |
 | AC-05 | 任意语句预览和变量 | N32/N60 | 实现中 | E1–E7 已完成 Editor 正式执行、状态观察、Fresh Run、调试、Effect/Barrier portable Host 与安全热更新；Benchmark 缺失变量也已由正式路线测试发现并修正。断点/Watch、正式 Player、Editor↔Player 画面 Golden、完整 Debugger E2E 和产品验收仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、[N32 出口复审](151-n32-engineering-exit-reaudit.md)、Debugger E2E |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 实现中 | N30 Compiler 已拒绝不可达结局、无出口、无交互闭环和缺失资源；仍缺 N60 产品 QA 呈现、抑制与 Solver | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden 报告 |
@@ -74,7 +74,7 @@
 | AC-14 | 编辑器和玩家设备预算 | N90–N92/N102 | 未开始 | 实体设备 | WIN-L/AND-L/AND-R 报告 |
 | AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | N31-E6 正式内核已证明 Normal、5/10/20/40/Instant 最终 State/History Hash 一致、Skip Read 未读停止、Hold/Toggle 策略同构、Auto 延迟不入 State，以及 Choice/Effect/Barrier/资源/Stop Point 停止；Player 控件、真实计时/语音/媒体策略、三端与真人证据仍缺 | [N31-E6 审计](131-n31-e6-runtime-scheduler-audit.md)、玩家输入向量和 State Hash |
 | AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | 正式 Runtime checkpoint/截断/tombstone/reconciliation/Session Save/永久 Meta 保持有效；E7 共享 Host Golden 覆盖 compensation/replay，Benchmark production 实际 Back 后 Forward 返回同一结局。正式 Player/三端和真人证据仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、玩家 History E2E |
-| AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | 图语义不全 | Branching Golden |
+| AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | E1 已从正式 Compiler 自动生成基础创作者 Route 与诊断；10k 分支、布局保持、局部加载、运行高亮和 N62 玩家自动图仍缺 | [N40-E1 审计](153-n40-e1-route-graph-core-audit.md)、Branching Golden |
 | AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2 记录 Gallery/Ending，E12 又确保 Back/Forward 与旧存档加载不回退该永久 Meta。覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 仍待 N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |
 | AC-19 | Gal 配置中心覆盖 P0 | N51 | 未开始 | Settings Schema/UI | 配置追踪全覆盖 |
 | AC-20 | 自动页和状态三端一致 | N62/N92 | 未开始 | AC-18、三端 Player | Catalog/Meta Hash 0 差异 |

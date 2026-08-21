@@ -15,6 +15,7 @@
     "@world-studio/story-language": "0.1.0-n20",
     "@world-studio/runtime": "0.12.0-n31",
     "@world-studio/runtime-host": "0.1.0-n32",
+    "@world-studio/route-graph": "0.1.0-n40",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   }
