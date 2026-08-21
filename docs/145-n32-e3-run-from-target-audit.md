@@ -4,8 +4,8 @@
 > 分支：`codex/n32-e3-run-from-target`
 > 直接基线：N32-E2 最终证据头 `fe8f07950424cded107ffdeff492bbd74e3086f3`
 > 授权：`RA-N21-004`，最大节点 N32
-> 当前候选：本地 Engineering 证据已通过；远端 Draft PR 与 Windows / Node 22 完整门待取得
-> 当前判定：N32-E3 尚未关闭；N32 Product Acceptance、N40、M1 与发布继续阻断
+> 远端交付：Draft PR #54；实现头 `5a57385`；Windows / Node 22 run `32461345815` / job `96708731870`，4 分 16 秒绿色
+> 当前判定：N32-E3 Engineering 通过；N32 Product Acceptance、N40、M1 与发布继续阻断
 
 ## 1. 冻结目标与语义
 
@@ -44,6 +44,7 @@ E3 只实现正式 Preview 从 Entry、Scene 或 Statement 启动。Scene 定位
 | 全仓普通回归 | 无功能回归 | 98 files / 595 tests，65.20 秒 | 通过 |
 | 串行 storage conformance | 自动保存真实路径通过 | 1/1，通过；测试 5.30 秒、总计 10.09 秒 | 通过 |
 | 生产构建 | 成功并报告体积 | CSS 75.57 kB / gzip 14.53 kB；JS 694.55 kB / gzip 199.03 kB | 通过；JS 较 E2 +2.50/+0.61 kB，>500 kB 拆包债保留 |
+| 远端构建差异 | Windows / Node 22 与本地同量级 | CSS 75.57/14.53 kB；JS 694.76/199.07 kB，比本地 +0.21/+0.04 kB | 构建通过；记录环境产物差异，不把近似体积写成 bit-identical |
 
 Architecture 为 85 portable / 4 adapters，requirements 为 50 requirements / 10 USP / 13 P0 / 27 AC / 6 owners，risk 当前节点为 N32 且唯一 active authorization 为 `RA-N21-004`；三门和 `git diff --check` 均通过。
 
@@ -61,6 +62,6 @@ Architecture 为 85 portable / 4 adapters，requirements 为 50 requirements / 1
 
 ## 6. 出口条件
 
-本地 Engineering 候选已满足功能、回归、构建、架构、需求、风险和真实生产浏览器检查。只有当前实现头及随后的最终文档头在 Draft PR 的 Windows / Node 22 `npm run check` 完整绿色后，才可将 N32-E3 Engineering 记为通过。
+Draft PR #54 的实现头已通过 Windows / Node 22 `npm run check`：普通回归 98 files / 595 tests（79.52 秒），autosave 1/1（3.049 秒），VM conformance 1/1（65.34 秒），Runtime corpus 10,000 seeds / 20,000 replays / 40 chunks、32.593 秒、0 failed seeds、digest `20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2`。Typecheck、production builds、architecture、requirements、risk、delivery baseline 与性能门全部绿色，N32-E3 Engineering 出口满足。
 
-下一步为 N32-E4：把 Continue、Step Over、Back/Forward 与 Run to Cursor 接入正式 Runtime History，并继续用状态 Hash、结构化失败和真实产品入口验证。E3 不提升 N32 Product Acceptance，也不解除 N40、M1 Stable 与发布阻断。
+最终证据文档头仍需通过同一远端完整门；该检查只确认审计更新没有破坏仓库门，不重复宣称实现头的功能证据。下一步为 N32-E4：把 Continue、Step Over、Back/Forward 与 Run to Cursor 接入正式 Runtime History，并继续用状态 Hash、结构化失败和真实产品入口验证。E3 不提升 N32 Product Acceptance，也不解除 N40、M1 Stable 与发布阻断。

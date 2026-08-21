@@ -299,7 +299,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E2 实施状态（2026-08-21）：正式 Preview Session 已提供变量、调用栈、当前 IR/Statement、revision、逻辑时间与结构化 Compiler/Runtime/Source Map 诊断观察；现代化状态检查器在生产浏览器中实际显示 r1/r4 精确位置和经产品 UI 创建的 Number 初值 2，console error 为 0。Draft PR #53 的 Windows / Node 22 完整门 run `32459445287` / job `96703241983` 用时 4 分 16 秒并绿色，E2 Engineering 关闭。Run from Scene/Statement 明确保留给 E3，详见 [N32-E2 审计](144-n32-e2-preview-session-observability-audit.md)。
 
-> E3 实施候选（2026-08-21）：正式 Preview 已可从所选 Scene 第一条 IR 或所选 Statement 的 Source Map 精确位置 Fresh Run；变量恢复工程默认值、调用栈为空，直接从 `return` 启动会以明确调用上下文诊断关闭。2 files / 9 tests、98 files / 595 tests、串行 storage、production build 和真实生产浏览器目标/重启路径均已通过；远端 Windows / Node 22 完整门尚待取得，因此 E3 尚未关闭，详见 [N32-E3 审计](145-n32-e3-run-from-target-audit.md)。
+> E3 实施状态（2026-08-21）：正式 Preview 已可从所选 Scene 第一条 IR 或所选 Statement 的 Source Map 精确位置 Fresh Run；变量恢复工程默认值、调用栈为空，直接从 `return` 启动会以明确调用上下文诊断关闭。真实生产浏览器的 Scene/Statement/同目标重启路径和 console 0 error 已通过；Draft PR #54 的 Windows / Node 22 完整门 run `32461345815` / job `96708731870` 用时 4 分 16 秒并绿色，E3 Engineering 关闭，详见 [N32-E3 审计](145-n32-e3-run-from-target-audit.md)。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：
