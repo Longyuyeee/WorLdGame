@@ -1,6 +1,6 @@
 import { canonicalRuntimeStringify } from "./canonical";
 import { commitRuntimeHistoryStepV1, validateRuntimeHistorySessionV1 } from "./history";
-import { runRuntime, validateRuntimeStateV1 } from "./runtime";
+import { runRuntime, validateRuntimeStateStructureV1 } from "./runtime";
 import {
   RUNTIME_VERSION,
   type CreateRuntimeSchedulerResultV1,
@@ -86,11 +86,10 @@ export function validateRuntimeSchedulerSessionV1(program: RuntimeProgramV1, ses
     const historyDiagnostics = validateRuntimeHistorySessionV1(program, session.history);
     if (historyDiagnostics.length > 0) return historyDiagnostics;
     const current = session.history.checkpoints[session.history.cursor]!;
-    const stateDiagnostics = validateRuntimeStateV1(program, session.workingState);
+    const stateDiagnostics = validateRuntimeStateStructureV1(program, session.workingState);
     if (session.schemaVersion !== 1 || session.runtimeVersion !== RUNTIME_VERSION || session.history.cursor !== session.history.entries.length || session.baseCheckpointId !== current.checkpointId || stateDiagnostics.length > 0 || session.workingState.projectId !== current.state.projectId || session.workingState.buildId !== current.state.buildId || session.workingState.executionId !== current.state.executionId || !Number.isSafeInteger(session.accumulatedInstructions) || session.accumulatedInstructions < 0) return [diagnostic("Scheduler Session identity, working State, or counters are invalid", current.state)];
     if (session.accumulatedInstructions === 0 && canonicalRuntimeStringify(session.workingState) !== canonicalRuntimeStringify(current.state)) return [diagnostic("Idle Scheduler working State must equal its History checkpoint", current.state)];
     if (session.accumulatedInstructions > 0 && (session.workingState.terminal.kind === "ended" || session.workingState.pendingChoice !== null || session.workingState.pendingEffect !== null || session.workingState.pendingBarrier !== null)) return [diagnostic("Transient Scheduler State cannot contain an observable stop", current.state)];
-    canonicalRuntimeStringify(session);
     return [];
   } catch { return [diagnostic("Scheduler Session contains malformed or noncanonical data")]; }
 }

@@ -6,6 +6,7 @@ describe("playable preview integration", () => {
   it("lets a creator play from the entry scene through a choice to an ending", () => {
     render(<App />);
 
+    expect(screen.getByText("Project Compiler → Runtime · 从入口执行到结局")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
     const continueStory = () => fireEvent.click(screen.getByRole("button", { name: "继续剧情" }));
 

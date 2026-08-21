@@ -129,14 +129,15 @@ import {
 import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
-import {
-  advancePlayablePreview,
-  createIdlePlayablePreviewState,
-  selectPlayableChoice,
-  startPlayablePreview,
-  type PlayablePreviewState
-} from "./playable-preview-runtime";
 import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
+import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
+import {
+  advanceFormalPreview,
+  createIdleFormalPreviewState,
+  selectFormalPreviewChoice,
+  startFormalPreview,
+  type FormalPreviewState
+} from "./formal-preview-runtime";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1929,6 +1930,7 @@ interface PreviewPanelProps extends CommonProps {
   readonly inputDirty: boolean;
   readonly assetIndex: AssetIndex;
   readonly assetRepository: IndexedDbAssetRepository | null;
+  readonly canonicalProject: CanonicalProject;
 }
 
 function browserDevicePixelRatio(): number {
@@ -1949,7 +1951,7 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository, canonicalProject }: PreviewPanelProps) {
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
@@ -1962,7 +1964,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     undefined,
     createPreviewTransportState
   );
-  const [playable, setPlayable] = useState<PlayablePreviewState>(createIdlePlayablePreviewState);
+  const [playable, setPlayable] = useState<FormalPreviewState>(createIdleFormalPreviewState);
   const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
@@ -2139,10 +2141,10 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
 
   const beginPlayablePreview = () => {
     transportDispatch({ type: "reset" });
-    setPlayable(startPlayablePreview(session.project));
+    setPlayable(startFormalPreview(canonicalProject));
   };
 
-  const exitPlayablePreview = () => setPlayable(createIdlePlayablePreviewState());
+  const exitPlayablePreview = () => setPlayable(createIdleFormalPreviewState());
 
   const preparePlayableWeb = () => {
     webBuild?.dispose();
@@ -2292,7 +2294,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
               <div className="choice-preview">
                 <strong>{statement.prompt}</strong>
                 {statement.options.map((option) => playable.status === "waiting-choice"
-                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectPlayableChoice(session.project, playable, option.id))} aria-label={`选择路线：${option.label}`}>{option.label}</button>
+                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{option.label}</button>
                   : <span key={option.id}>{option.label}</span>)}
               </div>
             )}
@@ -2302,14 +2304,14 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
       </div>
       <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
         <div>
-          <strong>完整流程试玩</strong>
-          <small>{playableActive ? playableStatus : "从入口场景执行脚本、选择路线并到达结局"}</small>
+          <strong>正式 Runtime 试玩</strong>
+          <small>{playableActive ? playableStatus : "Project Compiler → Runtime · 从入口执行到结局"}</small>
         </div>
         {!playableActive && (
           <button type="button" onClick={beginPlayablePreview} disabled={pendingDraft || inputDirty}>试玩完整流程</button>
         )}
         {playable.status === "presenting" && (
-          <button type="button" onClick={() => setPlayable(advancePlayablePreview(session.project, playable))}>继续剧情</button>
+          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))}>继续剧情</button>
         )}
         {(playable.status === "ended" || playable.status === "error") && (
           <button type="button" onClick={beginPlayablePreview}>重新试玩</button>
@@ -2384,6 +2386,12 @@ export interface AppProps {
 }
 export function App({ initialProject, onProjectChange, onProjectSave, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
+  const previewCanonicalProject = useMemo(
+    () => initialProject === undefined
+      ? projectCanonicalFromStory(session.project, "n32-editor-preview")
+      : projectCanonicalWithStory(initialProject, session.project),
+    [initialProject, session.project]
+  );
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
@@ -3496,7 +3504,7 @@ export function App({ initialProject, onProjectChange, onProjectSave, autosaveDe
         ) : (
           <FlowView session={session} dispatch={dispatch} />
         )}
-        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} />
+        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} />
       </main>
       <footer className="workspace-footer">
         <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.41 PROJECT · GLOBAL SEARCH</span>

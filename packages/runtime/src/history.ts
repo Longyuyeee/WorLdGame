@@ -1,7 +1,7 @@
 import { canonicalRuntimeBytes, canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { runtimeStateHashV1 } from "./hash";
 import { mergeRuntimeMetaProgressV1 } from "./meta-progress";
-import { runRuntime, validateRuntimeEffectIntentV1, validateRuntimeStateV1 } from "./runtime";
+import { runRuntime, validateRuntimeEffectIntentV1, validateRuntimeStateStructureV1, validateRuntimeStateV1 } from "./runtime";
 import { sha256Hex } from "./sha256";
 import {
   MAX_RUNTIME_HISTORY_ENTRIES,
@@ -119,7 +119,7 @@ function validateRuntimeHistorySessionUnsafe(program: RuntimeProgramV1, session:
     const item = session.checkpoints[index]!;
     if (!record(item) || !exactKeys(item as unknown as Readonly<Record<string, unknown>>, checkpointKeys)) return invalid(`Checkpoint ${index} schema is invalid`);
     const typedItem = item as unknown as RuntimeHistoryCheckpointV1;
-    const stateDiagnostics = validateRuntimeStateV1(program, typedItem.state);
+    const stateDiagnostics = validateRuntimeStateStructureV1(program, typedItem.state);
     const hash = runtimeStateHashV1(typedItem.state);
     if (stateDiagnostics.length > 0 || typedItem.state.projectId !== session.projectId || typedItem.state.buildId !== session.buildId || typedItem.state.executionId !== session.executionId || typedItem.stateHash !== hash || typedItem.checkpointId !== `history.${hash}`) return invalid(`Checkpoint ${index} State or hash is invalid`);
   }
@@ -147,7 +147,6 @@ function validateRuntimeHistorySessionUnsafe(program: RuntimeProgramV1, session:
     if (previous !== undefined && previous !== payload) return invalid(`Input tombstone ${input.inputId} conflicts with an accepted input`);
     inputIds.set(input.inputId, payload);
   }
-  try { canonicalRuntimeStringify(session); } catch { return invalid("History Session is not canonically serializable"); }
   return [];
 }
 
@@ -197,7 +196,7 @@ export function commitRuntimeHistoryStepV1(program: RuntimeProgramV1, session: R
   const before = session.checkpoints[session.cursor]!.state;
   if (session.cursor !== session.entries.length) return result(session, [diagnostic("RUNTIME_HISTORY_FORWARD_REQUIRED", "Scheduler cannot commit across recorded future History", before)]);
   if (executed.diagnostics.length > 0 || executed.event === null && executed.barrierRequest === null) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "History commit requires one successful observable Runtime step", before)]);
-  const stateDiagnostics = validateRuntimeStateV1(program, executed.state);
+  const stateDiagnostics = validateRuntimeStateStructureV1(program, executed.state);
   if (stateDiagnostics.length > 0 || executed.state.projectId !== before.projectId || executed.state.buildId !== before.buildId || executed.state.executionId !== before.executionId || !Number.isSafeInteger(executedInstructions) || executedInstructions < 1) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "Executed History step State, identity, or instruction count is invalid", before)]);
   if (session.cursor >= MAX_RUNTIME_HISTORY_ENTRIES) return result(session, [diagnostic("RUNTIME_HISTORY_LIMIT", `History is limited to ${MAX_RUNTIME_HISTORY_ENTRIES} entries`, before)]);
   const after = checkpoint(executed.state);

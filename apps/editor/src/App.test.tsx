@@ -1,7 +1,28 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProjectStoreError } from "@world-studio/project-persistence";
+import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { App, persistenceErrorLabel, persistenceFailure } from "./App";
+import { projectCanonicalFromStory } from "./canonical-project-adapter";
+
+function legacyDirectionProject() {
+  const story: StoryProject = {
+    ...campusStoryProject,
+    scenes: campusStoryProject.scenes.map((scene) => scene.id !== campusStoryProject.entrySceneId
+      ? scene
+      : {
+          ...scene,
+          statements: scene.statements.map((statement) => statement.id === "stmt_gate_bg"
+            ? { ...statement, summary: "黄昏校门 · 云层缓慢移动" }
+            : statement)
+        })
+  };
+  return projectCanonicalFromStory(story, "app-legacy-direction-tests");
+}
+
+function renderLegacyDirectionApp() {
+  return render(<App initialProject={legacyDirectionProject()} />);
+}
 
 function selectFirstDialogue() {
   fireEvent.click(
@@ -63,7 +84,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("exposes a typed graphical Inspector for the selected direction without guessing legacy text", () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     expect(screen.getByText("图形化演出参数")).toBeVisible();
     expect(screen.getByText("检测到旧式描述")).toBeVisible();
     expect(screen.getByLabelText("演出主资源")).toHaveValue("");
@@ -72,7 +93,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("exposes bounded character geometry without requiring Script syntax", () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const scriptEditor = screen.getByLabelText("权威脚本编辑器");
     const source = String((scriptEditor as HTMLTextAreaElement).value);
@@ -91,7 +112,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("converts an existing Show cue into a resource-free Move without dropping geometry controls", () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const scriptEditor = screen.getByLabelText("权威脚本编辑器");
     const source = String((scriptEditor as HTMLTextAreaElement).value);
@@ -116,13 +137,13 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("fails closed to the visual placeholder when a legacy direction has no executable Asset ID", async () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     expect(await screen.findByText("安全占位")).toBeVisible();
     expect(screen.getByText("1 项资源未执行")).toBeVisible();
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
   });
   it("commits background clear without requiring or leaking resource-only fields", () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "clear" } });
     expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("演出过渡")).not.toBeInTheDocument();
@@ -221,7 +242,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("本地事务 · r2")).toBeVisible();
   });
   it("duplicates a cue and applies one atomic batch parameter transaction", () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
     expect(screen.getByText("本地事务 · r1")).toBeVisible();
     expect(screen.getAllByRole("button", { name: /轨道步骤 [12]：黄昏校门/ })).toHaveLength(2);
@@ -267,7 +288,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
   });
 
   it("selects a same-command range by keyboard and offers touch-equivalent lane controls", () => {
-    render(<App />);
+    renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
     fireEvent.click(screen.getByRole("button", { name: "复制演出" }));
     expect(screen.getByText("本地事务 · r2")).toBeVisible();

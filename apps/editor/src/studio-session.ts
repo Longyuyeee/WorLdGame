@@ -136,7 +136,7 @@ export const campusStorySources: Readonly<Record<EntityId, string>> = {
   scn_school_gate: `# S0.8：注释由权威 CST 保留
 scene "放学后的校门" @id(scn_school_gate)
 
-@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)
+@background action=clear @id(stmt_gate_bg)
 char_xia: 广播站的灯还亮着。你也听见那段没有署名的留言了吗？ @sid(stmt_gate_001) @id(txt_gate_001)
 char_yu: 听见了。声音像是从很多年前传过来的。 @sid(stmt_gate_002) @id(txt_gate_002)
 choice "先去哪里调查？" @id(stmt_gate_choice)
@@ -144,12 +144,12 @@ choice "先去哪里调查？" @id(stmt_gate_choice)
   "去天台" -> scn_rooftop @id(opt_rooftop)
 `,
   scn_broadcast_room: `scene "旧广播室" @id(scn_broadcast_room)
-@background 广播室 · 磁带机指示灯闪烁 @id(stmt_radio_bg)
+@background action=clear @id(stmt_radio_bg)
 char_xia: 这盘磁带的日期，正好是学校建校纪念日。 @sid(stmt_radio_001) @id(txt_radio_001)
 end "留在电波里的名字" @id(stmt_radio_end)
 `,
   scn_rooftop: `scene "风中的天台" @id(scn_rooftop)
-@background 天台 · 风吹动旧社团旗 @id(stmt_rooftop_bg)
+@background action=clear @id(stmt_rooftop_bg)
 char_yu: 留言里提到的那颗星，也许只有从这里才能看见。 @sid(stmt_rooftop_001) @id(txt_rooftop_001)
 end "晚风知道答案" @id(stmt_rooftop_end)
 `

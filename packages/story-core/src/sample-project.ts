@@ -18,7 +18,7 @@ export const campusStoryProject: StoryProject = {
           id: "stmt_gate_bg",
           kind: "direction",
           command: "background",
-          summary: "黄昏校门 · 云层缓慢移动"
+          summary: "action=clear"
         },
         {
           id: "stmt_gate_001",
@@ -61,7 +61,7 @@ export const campusStoryProject: StoryProject = {
           id: "stmt_radio_bg",
           kind: "direction",
           command: "background",
-          summary: "广播室 · 磁带机指示灯闪烁"
+          summary: "action=clear"
         },
         {
           id: "stmt_radio_001",
@@ -81,7 +81,7 @@ export const campusStoryProject: StoryProject = {
           id: "stmt_rooftop_bg",
           kind: "direction",
           command: "background",
-          summary: "天台 · 风吹动旧社团旗"
+          summary: "action=clear"
         },
         {
           id: "stmt_rooftop_001",

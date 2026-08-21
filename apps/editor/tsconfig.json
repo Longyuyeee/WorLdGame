@@ -10,7 +10,9 @@
   },
   "include": ["src"],
   "references": [
+    { "path": "../../packages/project-compiler" },
     { "path": "../../packages/project-domain" },
+    { "path": "../../packages/runtime" },
     { "path": "../../packages/story-core" },
     { "path": "../../packages/story-language" },
     { "path": "../../packages/project-persistence" }

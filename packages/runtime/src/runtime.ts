@@ -92,7 +92,8 @@ export function validateRuntimeProgramV1(program: RuntimeProgramV1): readonly Ru
   return [];
 }
 
-export function validateRuntimeStateV1(program: RuntimeProgramV1, state: RuntimeStateV1): readonly RuntimeDiagnosticV1[] {
+/** Structural validation used when the caller immediately canonicalizes or hashes the State. */
+export function validateRuntimeStateStructureV1(program: RuntimeProgramV1, state: RuntimeStateV1): readonly RuntimeDiagnosticV1[] {
   if (!validRecord(state) || !exactRecordKeys(state, runtimeStateKeys)) return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State schema members are missing or unknown")];
   if (state.schemaVersion !== RUNTIME_STATE_SCHEMA_VERSION || state.runtimeVersion !== RUNTIME_VERSION || state.irVersion !== program.irVersion || state.projectId !== program.projectId) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State identity or version does not match the program", state.cursor)];
@@ -139,6 +140,12 @@ export function validateRuntimeStateV1(program: RuntimeProgramV1, state: Runtime
   if (cursors.some((cursor) => !scenes.has(cursor.sceneId) || !Number.isSafeInteger(cursor.instructionIndex) || cursor.instructionIndex < 0)) {
     return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State contains an invalid cursor", state.cursor)];
   }
+  return [];
+}
+
+export function validateRuntimeStateV1(program: RuntimeProgramV1, state: RuntimeStateV1): readonly RuntimeDiagnosticV1[] {
+  const diagnostics = validateRuntimeStateStructureV1(program, state);
+  if (diagnostics.length > 0) return diagnostics;
   try { canonicalRuntimeStringify(state); } catch { return [diagnostic("RUNTIME_INVALID_STATE", "Runtime State is not canonically serializable", state.cursor)]; }
   return [];
 }

@@ -7,6 +7,7 @@
 > 远端证据：候选提交 `022e0f8c85403a0111342b92783f8b40400b7739`；Windows / Node 22 run `32352341550` / job `96374022660`，3 分 59 秒绿色
 > 当前阶段：N31 集成 authority 与 N32 Engineering 准入通过；仍未合入 `main`
 > 当前判定：只批准 N32 Editor Preview Engineering；N32 Product Acceptance、N40 及以后、M1 Stable 与 Public Release 继续阻断
+> 后续实施证据：[N32-E1 正式 Editor Preview 审计](142-n32-e1-formal-editor-preview-audit.md)
 
 ## 1. 开发目标
 
