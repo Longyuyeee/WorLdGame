@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。`RA-N21-001/002/003` 已关闭；`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31/N32 产品验收与 M1/发布仍被阻断的事实，也不授权 N40 及以后。N31 集中基线已在 Draft PR #51 经 Windows / Node 22 完整门成为 Authoritative，但仍未合入 `main`。
+> 当前审计：[N32 Engineering 出口对齐审计](149-n32-engineering-exit-alignment-audit.md)；准入依据仍为 [N31→N32 治理与集成检查点](141-n31-n32-governance-integration-checkpoint.md)。`RA-N21-001/002/003` 已关闭；`RA-N21-004` 只授权 N32 Editor Preview Engineering，不改变 N21/N23/N30/N31/N32 产品验收与 M1/发布仍被阻断的事实，也不授权 N40 及以后。N31 集中基线已在 Draft PR #51 经 Windows / Node 22 完整门成为 Authoritative，但仍未合入 `main`。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -304,6 +304,10 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E4 实施状态（2026-08-21）：Editor Preview 已直接接入正式 Runtime History/Scheduler，提供 Continue、Step Over、Back/Forward 和执行前 Run to Cursor；内部指令 transient、Choice 阻断、调用栈 Step Over、recorded future 与分支 fork 均有正反例及真实生产浏览器证据。Draft PR #55 的 Windows / Node 22 完整门 run `32464584207` / job `96718382563` 用时 4 分 15 秒并绿色，E4 Engineering 关闭，详见 [N32-E4 审计](146-n32-e4-preview-debug-controls-audit.md)。
 
 > E5 实施状态（2026-08-21）：Editor Preview 已建立正式 Effect / Stage Host receipt，消费 Runtime Effect Intent，并提供 awaited 完成/安全取消、Barrier 原因与明确批准、Back checkpoint 通道恢复、reversible compensation 和 Forward replay；未批准时 Stage 明确保持未提交。生产 build 已真实验证 awaited、cancel、Barrier approve 与 pure Effect Back/Forward 差异修正。Draft PR #56 的实现头 `dcfe084` 已通过 Windows / Node 22 完整门 run `32467211148` / job `96726246321`，用时 4 分 9 秒，E5 Engineering 关闭，详见 [N32-E5 审计](147-n32-e5-preview-effect-host-audit.md)。E5 不包含热更新、复杂 GPU 渲染或共享 Web Player Host。
+
+> E6 实施状态（2026-08-21）：Preview 已新增受约束热更新：仅对白/旁白正文与 Choice prompt/label 在稳定 ID、控制流、Source Map 和运行语义不变时，以记录输入重放到新 IR 并保持 State、History、分支位置与 Host receipt；Direction、变量、控制流、等待、待决 Effect/Barrier、transient 光标或编译失败均保留旧 Session，并要求用户明确重启。自动化与 production browser 已验证 `h4/4` 安全迁移、结构变化仍为 `h4/4`、明确重启后回到 `h1/1`。Draft PR #57 实现头 `34dfbf1` 的 Windows / Node 22 完整门 run `32470326283` / job `96735561264` 用时 4 分 20 秒绿色；本机 Node 25 性能差异未通过放宽门槛掩盖，E6 Engineering 关闭，详见 [N32-E6 审计](148-n32-e6-preview-hot-update-audit.md)。
+
+> 出口对齐状态（2026-08-21）：[N32 出口审计](149-n32-engineering-exit-alignment-audit.md)逐项得到 Implementation `完整 5 / 未对齐 1`，Acceptance `0/1`。未对齐项是 Preview/Player 共享渲染与音频 Host Adapter；当前“构建试玩 HTML”仍由 `playable-web-export.ts` 内嵌独立 `StoryStatement` 解释器，未消费 N30 IR/N31 Runtime，不能作为跨宿主一致性证据。N32 Engineering 总出口保持未通过，下一步只能在 N32 授权内纠正共享 Host 契约与测试宿主，不得进入 N40 或把 N23 单文件候选称为正式 Web Player。
 
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：

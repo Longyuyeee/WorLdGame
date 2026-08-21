@@ -148,6 +148,7 @@ import {
   stepOverFormalPreview,
   type FormalPreviewState
 } from "./formal-preview-runtime";
+import { updateFormalPreviewProject, type FormalPreviewHotUpdateResult } from "./formal-preview-hot-update";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -1975,6 +1976,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     createPreviewTransportState
   );
   const [playable, setPlayable] = useState<FormalPreviewState>(createIdleFormalPreviewState);
+  const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(null);
   const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
@@ -2020,6 +2022,14 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     createPreviewMediaHostState
   );
   const mediaGenerationRef = useRef(0);
+
+  useEffect(() => {
+    if (!playableActive) return;
+    const result = updateFormalPreviewProject(canonicalProject, playable);
+    if (result.kind === "unchanged") return;
+    if (result.kind === "applied") setPlayable(result.state);
+    setHotUpdate(result);
+  }, [canonicalProject, playableActive]);
 
   useEffect(() => () => webBuild?.dispose(), [webBuild]);
 
@@ -2150,25 +2160,32 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
 
   const beginPlayablePreview = () => {
     transportDispatch({ type: "reset" });
+    setHotUpdate(null);
     setPlayable(startFormalPreview(canonicalProject));
   };
 
   const beginPlayablePreviewFromScene = () => {
     transportDispatch({ type: "reset" });
+    setHotUpdate(null);
     setPlayable(startFormalPreviewFromScene(canonicalProject, session.activeSceneId));
   };
 
   const beginPlayablePreviewFromStatement = () => {
     transportDispatch({ type: "reset" });
+    setHotUpdate(null);
     setPlayable(startFormalPreviewFromStatement(canonicalProject, session.activeSceneId, session.selectedStatementId));
   };
 
   const restartPlayablePreview = () => {
     transportDispatch({ type: "reset" });
+    setHotUpdate(null);
     setPlayable(startFormalPreview(canonicalProject, playable.startTarget ?? { kind: "entry" }));
   };
 
-  const exitPlayablePreview = () => setPlayable(createIdleFormalPreviewState());
+  const exitPlayablePreview = () => {
+    setHotUpdate(null);
+    setPlayable(createIdleFormalPreviewState());
+  };
 
   const preparePlayableWeb = () => {
     webBuild?.dispose();
@@ -2395,6 +2412,27 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           )}
           {previewObservation.pendingEffect === null && previewObservation.pendingBarrier === null && (
             <p className="runtime-effect-host__settled"><span aria-hidden="true">✓</span> Host 已协调 · last {previewObservation.effectHost.lastOperation ?? "none"}{previewObservation.effectHost.checkpointId === null ? "" : ` · ${previewObservation.effectHost.checkpointId.slice(0, 12)}`}</p>
+          )}
+        </section>
+      )}
+      {playableActive && hotUpdate !== null && (
+        <section className={`runtime-hot-update runtime-hot-update--${hotUpdate.kind}`} aria-label="Runtime 热更新" aria-live="polite">
+          {hotUpdate.kind === "applied" ? (
+            <>
+              <header><div><span aria-hidden="true">↻</span><strong>安全热更新已应用</strong></div><small>STATE PRESERVED</small></header>
+              <p>新 IR 已用记录输入重新回放；State、History、分支位置与已执行 Host receipt 保持一致。</p>
+              <code>{hotUpdate.previousBuildId.slice(0, 10)} → {hotUpdate.buildId.slice(0, 10)}</code>
+            </>
+          ) : (
+            <>
+              <header><div><span aria-hidden="true">!</span><strong>需要明确重启试玩</strong></div><small>OLD SESSION PRESERVED</small></header>
+              <p>当前试玩仍运行旧 IR，没有静默迁移或自动重启。</p>
+              <ul>{hotUpdate.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+              <div className="runtime-hot-update__actions">
+                <button type="button" onClick={restartPlayablePreview}>以当前启动目标重启</button>
+                <button type="button" className="is-secondary" onClick={exitPlayablePreview}>退出试玩并保留编辑</button>
+              </div>
+            </>
           )}
         </section>
       )}
