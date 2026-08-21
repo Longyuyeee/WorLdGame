@@ -1,19 +1,19 @@
-# 当前开发情况审计（N32-E6 Engineering）
+# 当前开发情况审计（N32 Engineering 出口未通过）
 
 > 审计日期：2026-08-21
 > 当前分支：`codex/n32-e6-preview-hot-update`；Draft PR #57
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E6 Preview 热更新审计](148-n32-e6-preview-hot-update-audit.md)
+> 最新节点证据：[N32 Engineering 出口对齐审计](149-n32-engineering-exit-alignment-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E6 Engineering，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制、Editor Effect Host，以及受约束的文案热更新/结构变化显式重启已接入正式 Runtime。仍没有断点/Watch、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
+E1–E6 已把 Entry/Scene/Statement Fresh Run、状态观察、调试控制、Editor Effect Host，以及受约束的文案热更新/结构变化显式重启接入正式 Runtime。但出口审计确认 N32 计划只完成 `5/6`：Preview/Player 共享渲染与音频 Host Adapter 尚不存在，当前产品中的“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E6 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N32-E6 Engineering 已通过；下一步 N32 出口复审**；
+- 当前工程节点：**N32-E6 Engineering 已通过；N32 Engineering 总出口未通过；下一步 N32-E7 纠偏**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -31,7 +31,7 @@
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor；awaited/cancel/Barrier 与 Host reconciliation；安全文案热更新与结构变更显式重启 | 断点/Watch、共享 Player Host 与跨宿主画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime、State/History/Save/Back/Forward/调度/诊断 | Editor 控件产品化、Player 槽位、三端一致性 |
-| Player/Build | N23 独立单文件 HTML 候选 | 正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料 |
+| Player/Build | N23 独立单文件 HTML 候选，可确定性离线打开 | 当前候选仍是平行 `StoryStatement` 解释器，不是正式 Runtime Player；正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
 ## 3. N32-E1–E6 证据与差异
@@ -69,21 +69,24 @@
 | E6 本机普通/存储/构建 | 新功能全回归；真实 IndexedDB；12 workspace 可构建 | 100 files / 611 tests；storage 1/1；CSS 79.65/15.18 kB；JS 734.30/208.23 kB；架构与 Script 性能通过 | 功能通过；>500 kB 拆包债保留 |
 | E6 本机冻结性能 | 既有 Spike 10k ≤90 秒；Dicing 3s/3s/5s | Node 25 Spike 实际约 180.5 秒；Dicing 两次分别 3.35+3.21=6.56 秒、2.36+4.13=6.49 秒 | 本机完整门红；不改规模/digest/预算，等待 Windows / Node 22 裁决 |
 | E6 GitHub CI | Windows / Node 22 完整门裁决本机性能差异 | Draft PR #57，run `32470326283` / job `96735561264`，4 分 20 秒；100/611；autosave 1/1；VM 5/5（68.68 秒）；Runtime corpus 30.635 秒；Dicing 1.47/1.78/3.25 秒 | 通过；本机环境差异关闭，E6 Engineering 关闭 |
+| N32 出口逐项审计 | 6 项 Implementation 与跨宿主 Acceptance 全对齐 | 5 项完整；共享 Host 未实现；现有单文件 Web 候选仍直接解释 StoryStatement；跨宿主 State/Outcome/画面 Golden 为 0 | N32 Engineering 总出口未通过；不得进入 N40 |
 
 ## 4. 需求方向审计
 
 方向没有偏离已冻结产品目标：正式 Compiler/Runtime 取代产品平行解释器，是后续专业 Debugger、路线状态、Save/Back/Forward、三端一致性和商业级 QA 的必要基础。E6 的安全迁移严格由新 IR 重放和语义快照裁决，没有为了“看起来实时”直接改 State 或静默重启。现代化 UI、图形化编辑、多彩表达、16:9 默认预览及可调尺寸仍保留。
 
-需要防止四类偏移：
+需要防止五类偏移：
 
 1. 不得让旧 `playable-preview-runtime.ts` 重新成为 Editor 完整流程权威；
 2. 不得把安全文案热更新扩大成任意 IR/State 原地修改，也不得把 Editor Host receipt 冒充共享 Player Host；
 3. 不得用 jsdom 或代理浏览器替代 N21/N23 真人任务；
 4. 不得因生产构建成功就宣称包体优化、正式 Player 或三端发布完成。
+5. 不得把 `playable-web-export.ts` 的独立解释器或其自测冒充正式 Runtime Web Player 与跨宿主差分证据。
 
 ## 5. 下一步顺序
 
-1. N32 出口复审：逐项审计 Preview 与正式 Runtime/未来 Web Player 的 State、Outcome 和画面关键快照边界；
-2. 若共享 Player Host 尚未存在，则必须将缺口明确路由到后续节点，不得用 Editor Host 自比对冒充跨宿主验收。
+1. N32-E7：在 N32 授权内冻结可移植共享 Host 契约，把 Editor Effect/Stage receipt 从产品私有实现收敛为 Preview/测试宿主可复用边界；
+2. 建立同一 IR/输入的 Editor Preview 与独立测试宿主 State、Outcome、History、Effect receipt 和画面关键快照差分门；
+3. 正式 Web Player 仍属于 N50/N80，未获新授权前不得启动；N32-E7 也不得用测试宿主冒充产品 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
