@@ -30,6 +30,10 @@ const launcherAudit = spawnSync(process.execPath, [join(root, "tools", "audit-n2
   cwd: root, encoding: "utf8", windowsHide: true
 });
 if (launcherAudit.status !== 0) violations.push("N23 product acceptance prerequisite launcher gate is not passing");
+if (launcherAudit.status !== 0) {
+  const detail = (launcherAudit.stderr || launcherAudit.stdout).trim().slice(-4_000);
+  if (detail !== "") violations.push(`N23 launcher audit detail: ${detail}`);
+}
 const projectHomeSource = await readFile(join(root, "apps", "editor", "src", "project-home.tsx"), "utf8");
 if (!projectHomeSource.includes(`>${protocol.prerequisite.productEntryLabel}</button>`)) {
   violations.push("N23 product acceptance entry label is not exposed by the project home UI");
