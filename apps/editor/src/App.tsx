@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { buildRouteGraph, renameRouteScene, type RenameRouteSceneResult } from "@world-studio/route-graph";
+import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1902,17 +1902,20 @@ interface FlowViewProps extends CommonProps {
 
 function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene }: FlowViewProps) {
   const graph = useMemo(() => buildRouteGraph(canonicalProject), [canonicalProject]);
+  const routeIndex = useMemo(() => createRouteGraphIndex(graph), [graph]);
   const [query, setQuery] = useState("");
+  const [windowOffset, setWindowOffset] = useState<number | undefined>(undefined);
   const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
   const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
   const [title, setTitle] = useState(selected?.title ?? "");
   const [editResult, setEditResult] = useState<{ readonly tone: "success" | "error"; readonly text: string } | null>(null);
   useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
-  const normalizedQuery = query.trim().toLocaleLowerCase();
-  const visibleNodes = normalizedQuery.length === 0 ? graph.nodes : graph.nodes.filter((node) =>
-    [node.id, node.title, ...node.facts.flatMap((item) => [item.id, item.label, item.targetLabel ?? ""])]
-      .some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
-  );
+  useEffect(() => setWindowOffset(undefined), [query]);
+  const routeWindow = useMemo(() => queryRouteGraphWindow(routeIndex, {
+    query,
+    ...(windowOffset === undefined ? { anchorSceneId: selectedSceneId } : { offset: windowOffset })
+  }), [query, routeIndex, selectedSceneId, windowOffset]);
+  const visibleNodes = routeWindow.nodes;
   const saveTitle = () => {
     if (selected === undefined) return;
     const result = onRenameScene(selected.id, title);
@@ -1934,6 +1937,12 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
       <div className="route-toolbar">
         <label><span>搜索路线图</span><input type="search" aria-label="搜索路线图" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="场景、稳定 ID、标签或结局" /></label>
         <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
+      </div>
+      <div className="route-window-controls" aria-label="路线局部窗口">
+        <button type="button" aria-label="上一段路线场景" disabled={!routeWindow.hasPrevious} onClick={() => setWindowOffset(Math.max(0, routeWindow.start - ROUTE_GRAPH_WINDOW_LIMIT))}>← 上一段</button>
+        <span role="status" aria-label="路线窗口范围">{routeWindow.totalMatches === 0 ? "0 / 0" : `${routeWindow.start + 1}–${routeWindow.end} / ${routeWindow.totalMatches}`}</span>
+        <button type="button" aria-label="下一段路线场景" disabled={!routeWindow.hasNext} onClick={() => setWindowOffset(routeWindow.end)}>下一段 →</button>
+        <small>最多挂载 {ROUTE_GRAPH_WINDOW_LIMIT} 个节点 · 当前相关连接 {routeWindow.edges.length}/{routeWindow.totalLocalEdges}</small>
       </div>
       <div className="flow-canvas">
         <div className="flow-grid" aria-label="路线场景节点">
@@ -1959,13 +1968,14 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
         </div>
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
-          {graph.edges.map((edge) => (
+          {routeWindow.edges.map((edge) => (
             <div className="edge-row" key={edge.id}>
               <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
               <strong>{edge.label}</strong><span className="edge-arrow">→</span>
               <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}
             </div>
           ))}
+          {routeWindow.edgesTruncated && <p className="route-empty">当前相关连接超过局部上限；请缩小搜索或切换窗口。</p>}
         </div>
       </div>
       {selected !== undefined && <aside className="route-inspector" aria-label="路线场景 Inspector">

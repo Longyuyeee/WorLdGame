@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { campusStoryProject } from "@world-studio/story-core";
+import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { App } from "./App";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
 
@@ -10,6 +10,21 @@ function renderRouteMap() {
   render(<App initialProject={project} onProjectChange={onProjectChange} />);
   fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
   return { onProjectChange };
+}
+
+function branchingStory(sceneCount: number): StoryProject {
+  const scenes = Array.from({ length: sceneCount }, (_, index) => {
+    const id = `route_ui_${String(index).padStart(3, "0")}`;
+    const childIndexes = [index * 2 + 1, index * 2 + 2].filter((value) => value < sceneCount);
+    return {
+      id,
+      title: `Route UI Scene ${index}`,
+      statements: childIndexes.length === 0
+        ? [{ id: `ending_${id}`, kind: "end" as const, endingName: `Ending ${index}` }]
+        : [{ id: `choice_${id}`, kind: "choice" as const, prompt: `Branch ${index}`, options: childIndexes.map((childIndex) => ({ id: `option_${id}_${childIndex}`, label: `To ${childIndex}`, targetSceneId: `route_ui_${String(childIndex).padStart(3, "0")}` })) }]
+    };
+  });
+  return { schemaVersion: 0, id: "route-ui-window", title: "Route UI Window", entrySceneId: "route_ui_000", characters: [], scenes };
 }
 
 describe("N40 Route Map product flow", () => {
@@ -59,5 +74,23 @@ describe("N40 Route Map product flow", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("INVALID_COMMAND");
     expect(screen.getByRole("button", { name: /路线场景：风中的天台/ })).toBeVisible();
     expect(onProjectChange.mock.calls).toHaveLength(callsBeforeEdit);
+  });
+
+  it("mounts only a bounded route window and pages through a larger branching project", () => {
+    const project = projectCanonicalFromStory(branchingStory(70), "n40-route-window-ui");
+    render(<App initialProject={project} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+
+    const nodes = screen.getByLabelText("路线场景节点");
+    expect(within(nodes).getAllByRole("button")).toHaveLength(64);
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 70");
+    fireEvent.click(screen.getByRole("button", { name: "下一段路线场景" }));
+    expect(within(nodes).getAllByRole("button")).toHaveLength(6);
+    expect(within(nodes).getByRole("button", { name: /Route UI Scene 69/ })).toBeVisible();
+    expect(within(nodes).queryByRole("button", { name: /Route UI Scene 0 ·/ })).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线图" }), { target: { value: "Ending 69" } });
+    expect(within(nodes).getAllByRole("button")).toHaveLength(1);
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–1 / 1");
   });
 });

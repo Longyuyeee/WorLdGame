@@ -59,6 +59,36 @@ export interface RouteGraphV1 {
   readonly diagnostics: readonly RouteGraphDiagnosticV1[];
 }
 
+export const ROUTE_GRAPH_WINDOW_LIMIT = 64;
+export const ROUTE_GRAPH_EDGE_LIMIT = 256;
+
+export interface RouteGraphIndexV1 {
+  readonly schemaVersion: 1;
+  readonly graph: RouteGraphV1;
+  readonly searchTextByNode: readonly string[];
+}
+
+export interface RouteGraphWindowRequest {
+  readonly query?: string;
+  readonly offset?: number;
+  readonly limit?: number;
+  readonly anchorSceneId?: string;
+}
+
+export interface RouteGraphWindowV1 {
+  readonly schemaVersion: 1;
+  readonly query: string;
+  readonly start: number;
+  readonly end: number;
+  readonly totalMatches: number;
+  readonly nodes: readonly RouteSceneNodeV1[];
+  readonly edges: readonly RouteEdgeV1[];
+  readonly totalLocalEdges: number;
+  readonly edgesTruncated: boolean;
+  readonly hasPrevious: boolean;
+  readonly hasNext: boolean;
+}
+
 export type RenameRouteSceneResult =
   | { readonly ok: true; readonly project: CanonicalProject; readonly changeSet: ChangeSet }
   | { readonly ok: false; readonly project: CanonicalProject; readonly error: ProjectServiceError };
@@ -139,6 +169,57 @@ export function buildRouteGraph(project: CanonicalProject): RouteGraphV1 {
     nodes,
     edges,
     diagnostics: compilation.diagnostics.map((item) => ({ ...item }))
+  };
+}
+
+function normalizeSearch(value: string): string {
+  return value.trim().toLocaleLowerCase();
+}
+
+export function createRouteGraphIndex(graph: RouteGraphV1): RouteGraphIndexV1 {
+  const chapterTitles = new Map(graph.chapters.map((chapter) => [chapter.id, chapter.title]));
+  return {
+    schemaVersion: 1,
+    graph,
+    searchTextByNode: graph.nodes.map((node) => normalizeSearch([
+      node.id,
+      node.title,
+      chapterTitles.get(node.chapterId) ?? "",
+      ...node.facts.flatMap((item) => [item.id, item.kind, item.label, item.targetLabel ?? ""])
+    ].join("\n")))
+  };
+}
+
+export function queryRouteGraphWindow(index: RouteGraphIndexV1, request: RouteGraphWindowRequest = {}): RouteGraphWindowV1 {
+  const query = normalizeSearch(request.query ?? "");
+  const matchingIndexes = query.length === 0
+    ? index.graph.nodes.map((_, nodeIndex) => nodeIndex)
+    : index.searchTextByNode.flatMap((searchText, nodeIndex) => searchText.includes(query) ? [nodeIndex] : []);
+  const limit = Math.max(1, Math.min(ROUTE_GRAPH_WINDOW_LIMIT, Math.floor(request.limit ?? ROUTE_GRAPH_WINDOW_LIMIT)));
+  const anchorMatchIndex = request.anchorSceneId === undefined
+    ? -1
+    : matchingIndexes.findIndex((nodeIndex) => index.graph.nodes[nodeIndex]?.id === request.anchorSceneId);
+  const requestedStart = request.offset === undefined
+    ? anchorMatchIndex < 0 ? 0 : Math.floor(anchorMatchIndex / limit) * limit
+    : Math.max(0, Math.floor(request.offset));
+  const maximumStart = matchingIndexes.length === 0 ? 0 : Math.floor((matchingIndexes.length - 1) / limit) * limit;
+  const start = Math.min(requestedStart, maximumStart);
+  const end = Math.min(matchingIndexes.length, start + limit);
+  const nodes = matchingIndexes.slice(start, end).flatMap((nodeIndex) => index.graph.nodes[nodeIndex] ?? []);
+  const localNodeIds = new Set(nodes.map((node) => node.id));
+  const localEdges = index.graph.edges.filter((edge) => localNodeIds.has(edge.sourceSceneId) || localNodeIds.has(edge.targetSceneId));
+  return {
+    schemaVersion: 1,
+    query,
+    start,
+    end,
+    totalMatches: matchingIndexes.length,
+    nodes,
+    edges: localEdges.slice(0, ROUTE_GRAPH_EDGE_LIMIT),
+    totalLocalEdges: localEdges.length,
+    edgesTruncated: localEdges.length > ROUTE_GRAPH_EDGE_LIMIT,
+    hasPrevious: start > 0,
+    hasNext: end < matchingIndexes.length
   };
 }
 

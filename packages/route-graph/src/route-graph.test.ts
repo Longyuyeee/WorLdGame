@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { buildRouteGraph, renameRouteScene } from "./route-graph";
+import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene } from "./route-graph";
 
 function routeProject(includeDangling = true): CanonicalProject {
   const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
@@ -76,5 +76,21 @@ describe("N40 route graph", () => {
     expect(renameRouteScene(project, "command_blank", "route_left", "  ")).toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" } });
     expect(renameRouteScene(project, "command_missing", "route_unknown", "未知")).toMatchObject({ ok: false, error: { code: "NOT_FOUND" } });
     expect(project.scenes[1]?.title).toBe("左侧");
+  });
+
+  it("queries a bounded deterministic window without dropping local connections", () => {
+    const graph = buildRouteGraph(routeProject(false));
+    const index = createRouteGraphIndex(graph);
+    const first = queryRouteGraphWindow(index, { limit: 1 });
+    const second = queryRouteGraphWindow(index, { offset: 1, limit: 1 });
+    const searched = queryRouteGraphWindow(index, { query: "左侧结局", limit: 1 });
+
+    expect(first).toMatchObject({ start: 0, end: 1, totalMatches: 2, hasPrevious: false, hasNext: true });
+    expect(first.nodes.map((node) => node.id)).toEqual(["route_entry"]);
+    expect(first.edges.map((edge) => edge.id)).toEqual(["option_left"]);
+    expect(second).toMatchObject({ start: 1, end: 2, totalMatches: 2, hasPrevious: true, hasNext: false });
+    expect(second.nodes.map((node) => node.id)).toEqual(["route_left"]);
+    expect(second.edges.map((edge) => edge.id)).toEqual(["option_left"]);
+    expect(searched.nodes.map((node) => node.id)).toEqual(["route_left"]);
   });
 });
