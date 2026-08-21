@@ -8,6 +8,8 @@
 
 > 远端首次裁决：Draft PR #58 的 run `32505380712` 首次 job `96844244975` 与失败重跑 job `96844792467` 均在 N23 launcher prerequisite 处失败；父审计只报告 gate 失败并吞掉子进程细节。本轮先修正失败详情透传，再以新提交复测，不把重复红灯写成通过。
 
+> 远端诊断裁决：详情透传提交 `fd7a797` 的 run `32505681115` / job `96845194905` 证明干净 `npm ci` 后 launcher 先于 workspace build，`runtime-host` 的 `dist` 入口不存在，Vite 无法解析；本机曾因已有 `dist` 被掩盖。纠偏为与 Runtime/Compiler 一致的 `./src/index.ts` workspace 入口，并以无 `runtime-host/dist` 的 Node 22 launcher smoke 复测。
+
 ## 1. 冻结目标与非目标
 
 E7 只关闭 E6 出口审计中的 Editor 私有 Host 偏移：建立可移植、确定、可独立验证的 Effect/Stage presentation Host contract，让 Editor Preview 与真实浏览器测试宿主消费同一 reducer。契约必须覆盖 execute、complete、cancel、Back compensation、Forward replay、checkpoint、active channel、幂等 receipt、状态校验和 canonical SHA-256 快照。
