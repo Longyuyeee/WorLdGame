@@ -4,7 +4,7 @@
 > 当前分支：`codex/n40-e1-route-graph-core`；直接基线为 N32-E7 最终头 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
-> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph 审计](153-n40-e1-route-graph-core-audit.md)、[N40-E2 10k Route Window 审计](154-n40-e2-10k-route-window-audit.md)
+> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph 审计](153-n40-e1-route-graph-core-audit.md)、[N40-E2 10k Route Window 审计](154-n40-e2-10k-route-window-audit.md)、[N40-E3 Layout Sidecar 审计](155-n40-e3-route-layout-sidecar-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1/E2 的 Compiler 图、Project Service 写回、10k 分支图、有界查询/DOM、production browser 与远端 Windows / Node 22 完整门通过，两个 Engineering 切片均关闭**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1/E2 已完成 Compiler 图、Project Service 写回、10k 分支图和有界查询/DOM；E3 已完成最小 Canonical Layout Sidecar、布局保存/重建、真实工程落盘重开及 production browser，本地完整门通过，远端 Windows / Node 22 待本次推送裁决**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
@@ -27,7 +27,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、Writer 卡片、Script、稳定 ID、Compiler IR/Source Map；Route Map 已有 Compiler 事实、Project Service 改名、10k 分支投影与 64 节点有界窗口 | N40 布局 Sidecar、存储级按需载入、路线高亮、10k 局部编辑/500 ms 门，N41 完整 Sequence、N60 QA/Debugger |
+| Story | P0 语言、Writer 卡片、Script、稳定 ID、Compiler IR/Source Map；Route Map 已有 Compiler 事实、Project Service 改名、10k 分支投影、64 节点有界窗口和可保存/重建的最小 Layout Sidecar | N40 分组/折叠/视口/拖拽、存储级按需载入、路线高亮、10k 局部编辑/500 ms 门，N41 完整 Sequence、N60 QA/Debugger |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -92,7 +92,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. N40-E2 已完成 10k Branching Golden、编译后有界窗口和远端 CI；下一切片进入布局 Sidecar，存储级按需载入、10k 局部编辑和可撤销完整图编辑仍不得提前宣称；
+2. N40-E3 已完成最小 Layout Sidecar、剧情隔离与真实工程重开；下一切片进入分组/折叠/视口和交互布局，存储级按需载入、10k 局部编辑和可撤销完整图编辑仍不得提前宣称；
 3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -242,17 +242,15 @@ end "未寄出的真相" @id(stmt_end_truth)
 
 ```json
 {
-  "formatVersion": 1,
+  "schemaVersion": 1,
   "sceneId": "scn_rooftop",
-  "nodes": {
-    "label_promise": { "x": 320, "y": 120, "group": "route_warm" },
-    "label_ask_truth": { "x": 320, "y": 360, "group": "route_truth" }
-  },
-  "groups": {
-    "route_warm": { "title": "约定路线", "collapsed": false }
-  }
+  "nodes": [
+    { "nodeId": "scn_rooftop", "x": 320, "y": 120 }
+  ]
 }
 ```
+
+当前 `schemaVersion: 1` 已冻结节点坐标的最小 portable 契约：`nodeId/x/y`。分组、折叠与视口仍是 N40 后续 schema 演进项，不能提前写进已实现示例；未知或非有限坐标在 codec 边界 fail closed。
 
 位置冲突不应阻塞剧情文件合并；可以选择本地布局、远端布局或自动重排。
 

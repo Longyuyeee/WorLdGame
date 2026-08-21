@@ -33,7 +33,8 @@ export interface UiDocument { readonly schemaVersion: 1; readonly screens: reado
 export interface PluginDocument { readonly schemaVersion: 1; readonly plugins: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface TestRouteDocument { readonly schemaVersion: 1; readonly routes: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface ScriptDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly statements: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
-export interface LayoutDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly nodes: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
+export interface LayoutNodePosition { readonly nodeId: StableId; readonly x: number; readonly y: number; }
+export interface LayoutDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly nodes: readonly LayoutNodePosition[]; readonly preservedFields?: JsonObject; }
 
 export interface CanonicalProject {
   readonly mode: "editable";

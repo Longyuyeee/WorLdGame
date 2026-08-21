@@ -2260,12 +2260,16 @@ textarea[data-input-state="composing"] {
 }
 
 .flow-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(180px, 1fr));
-  gap: 28px 50px;
+  position: relative;
+  min-height: 560px;
+  overflow: auto;
 }
 
 .route-node {
+  position: absolute;
+  left: var(--route-x);
+  top: var(--route-y);
+  width: 250px;
   display: grid;
   gap: 7px;
   min-height: 112px;
@@ -2284,12 +2288,6 @@ textarea[data-input-state="composing"] {
     border-color var(--wg-motion-duration-fast) ease,
     box-shadow var(--wg-motion-duration-standard) ease,
     transform var(--wg-motion-duration-fast) ease;
-}
-
-.route-node:first-child {
-  grid-column: 1 / -1;
-  width: min(280px, 100%);
-  justify-self: center;
 }
 
 .route-node:hover,

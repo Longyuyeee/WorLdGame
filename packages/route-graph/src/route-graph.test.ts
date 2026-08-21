@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene } from "./route-graph";
+import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition } from "./route-graph";
 
 function routeProject(includeDangling = true): CanonicalProject {
   const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
@@ -92,5 +92,46 @@ describe("N40 route graph", () => {
     expect(second.nodes.map((node) => node.id)).toEqual(["route_left"]);
     expect(second.edges.map((edge) => edge.id)).toEqual(["option_left"]);
     expect(searched.nodes.map((node) => node.id)).toEqual(["route_left"]);
+  });
+
+  it("persists route positions in layout sidecars while script edits preserve them", () => {
+    const project = routeProject(false);
+    const positioned = setRouteScenePosition(project, "command_layout_position", "route_left", 640, 360);
+    if (!positioned.ok) throw new Error(`${positioned.error.code}: ${positioned.error.message}`);
+
+    expect(positioned.project.layouts.route_left?.nodes).toEqual([{ nodeId: "route_left", x: 640, y: 360 }]);
+    expect(buildRouteGraph(positioned.project).nodes.find((node) => node.id === "route_left")?.layout)
+      .toEqual({ x: 640, y: 360, source: "sidecar" });
+
+    const renamed = renameRouteScene(positioned.project, "command_layout_rename", "route_left", "布局保留");
+    if (!renamed.ok) throw new Error(`${renamed.error.code}: ${renamed.error.message}`);
+    expect(renamed.project.layouts.route_left?.nodes).toEqual([{ nodeId: "route_left", x: 640, y: 360 }]);
+  });
+
+  it("rebuilds a deleted layout without changing scripts or compiler route facts", () => {
+    const project = routeProject(false);
+    const positioned = setRouteScenePosition(project, "command_layout_seed", "route_left", 640, 360);
+    if (!positioned.ok) throw new Error(`${positioned.error.code}: ${positioned.error.message}`);
+    const beforeGraph = buildRouteGraph(positioned.project);
+    const beforeScripts = structuredClone(positioned.project.scripts);
+    const reset = resetRouteSceneLayout(positioned.project, "command_layout_reset", "route_left");
+    if (!reset.ok) throw new Error(`${reset.error.code}: ${reset.error.message}`);
+
+    expect(reset.project.layouts.route_left?.nodes).toEqual([]);
+    expect(reset.project.scripts).toEqual(beforeScripts);
+    expect(buildRouteGraph(reset.project)).toEqual({
+      ...beforeGraph,
+      nodes: beforeGraph.nodes.map((node) => node.id === "route_left"
+        ? { ...node, layout: { x: 360, y: 96, source: "automatic" } }
+        : node)
+    });
+  });
+
+  it("rejects non-finite positions and unknown scenes without mutation", () => {
+    const project = routeProject(false);
+    expect(setRouteScenePosition(project, "command_layout_nan", "route_left", Number.NaN, 10))
+      .toMatchObject({ ok: false, error: { code: "INVALID_COMMAND" }, project });
+    expect(setRouteScenePosition(project, "command_layout_missing", "route_missing", 10, 10))
+      .toMatchObject({ ok: false, error: { code: "NOT_FOUND" }, project });
   });
 });

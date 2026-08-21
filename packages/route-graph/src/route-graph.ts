@@ -29,7 +29,10 @@ export interface RouteSceneNodeV1 {
   readonly chapterId: string;
   readonly kind: RouteNodeKind;
   readonly facts: readonly RouteFactV1[];
+  readonly layout: RouteNodeLayoutV1;
 }
+
+export interface RouteNodeLayoutV1 { readonly x: number; readonly y: number; readonly source: "sidecar" | "automatic"; }
 
 export interface RouteEdgeV1 {
   readonly id: string;
@@ -92,6 +95,11 @@ export interface RouteGraphWindowV1 {
 export type RenameRouteSceneResult =
   | { readonly ok: true; readonly project: CanonicalProject; readonly changeSet: ChangeSet }
   | { readonly ok: false; readonly project: CanonicalProject; readonly error: ProjectServiceError };
+export type RouteProjectMutationResult = RenameRouteSceneResult;
+
+function automaticLayout(index: number): RouteNodeLayoutV1 {
+  return { x: 72 + (index % 4) * 288, y: 96 + Math.floor(index / 4) * 180, source: "automatic" };
+}
 
 function sceneIdFromPath(path: string): string | undefined {
   const match = /^scenes\/(.+)\.json$/u.exec(path);
@@ -147,7 +155,7 @@ export function buildRouteGraph(project: CanonicalProject): RouteGraphV1 {
     for (const sceneId of sceneIds) chapterByScene.set(sceneId, chapter.id);
     return { id: chapter.id, title: chapter.title, sceneIds };
   });
-  const nodes = project.scenes.map<RouteSceneNodeV1>((scene) => {
+  const nodes = project.scenes.map<RouteSceneNodeV1>((scene, sceneIndex) => {
     const instructions = compilation.cache.scenes[scene.id]?.scene.instructions ?? [];
     const facts = instructions.flatMap((instruction) => fact(instruction) ?? []);
     return {
@@ -155,7 +163,11 @@ export function buildRouteGraph(project: CanonicalProject): RouteGraphV1 {
       title: scene.title,
       chapterId: chapterByScene.get(scene.id) ?? "chapter_unassigned",
       kind: scene.id === project.manifest.entrySceneId ? "entry" : facts.some((item) => item.kind === "ending") ? "ending" : "scene",
-      facts
+      facts,
+      layout: (() => {
+        const position = project.layouts[scene.id]?.nodes.find((node) => node.nodeId === scene.id);
+        return position === undefined ? automaticLayout(sceneIndex) : { x: position.x, y: position.y, source: "sidecar" as const };
+      })()
     };
   });
   const edges = project.scenes.flatMap((scene) =>
@@ -240,6 +252,20 @@ export function renameRouteScene(project: CanonicalProject, commandId: string, s
     sceneId,
     title: trimmedTitle
   });
+  if (!result.ok) return { ok: false, project, error: result.error };
+  return { ok: true, project: result.state.project, changeSet: result.changeSet };
+}
+
+export function setRouteScenePosition(project: CanonicalProject, commandId: string, sceneId: string, x: number, y: number): RouteProjectMutationResult {
+  const state = createProjectService(project);
+  const result = executeProjectCommand(state, { commandId, expectedRevision: state.revision, kind: "layout.node.set", sceneId, nodeId: sceneId, x, y });
+  if (!result.ok) return { ok: false, project, error: result.error };
+  return { ok: true, project: result.state.project, changeSet: result.changeSet };
+}
+
+export function resetRouteSceneLayout(project: CanonicalProject, commandId: string, sceneId: string): RouteProjectMutationResult {
+  const state = createProjectService(project);
+  const result = executeProjectCommand(state, { commandId, expectedRevision: state.revision, kind: "layout.reset", sceneId });
   if (!result.ok) return { ok: false, project, error: result.error };
   return { ok: true, project: result.state.project, changeSet: result.changeSet };
 }

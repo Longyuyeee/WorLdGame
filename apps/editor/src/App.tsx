@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult } from "@world-studio/route-graph";
+import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteProjectMutationResult } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1898,9 +1898,11 @@ interface FlowViewProps extends CommonProps {
   readonly canonicalProject: CanonicalProject;
   readonly onOpenSequence: (sceneId: string) => void;
   readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
+  readonly onSetScenePosition: (sceneId: string, x: number, y: number) => RouteProjectMutationResult;
+  readonly onResetSceneLayout: (sceneId: string) => RouteProjectMutationResult;
 }
 
-function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene }: FlowViewProps) {
+function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout }: FlowViewProps) {
   const graph = useMemo(() => buildRouteGraph(canonicalProject), [canonicalProject]);
   const routeIndex = useMemo(() => createRouteGraphIndex(graph), [graph]);
   const [query, setQuery] = useState("");
@@ -1908,8 +1910,11 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
   const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
   const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
   const [title, setTitle] = useState(selected?.title ?? "");
+  const [layoutX, setLayoutX] = useState(selected?.layout.x ?? 0);
+  const [layoutY, setLayoutY] = useState(selected?.layout.y ?? 0);
   const [editResult, setEditResult] = useState<{ readonly tone: "success" | "error"; readonly text: string } | null>(null);
   useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
+  useEffect(() => { setLayoutX(selected?.layout.x ?? 0);setLayoutY(selected?.layout.y ?? 0); }, [selected?.id, selected?.layout.x, selected?.layout.y]);
   useEffect(() => setWindowOffset(undefined), [query]);
   const routeWindow = useMemo(() => queryRouteGraphWindow(routeIndex, {
     query,
@@ -1924,6 +1929,18 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
       return;
     }
     setEditResult({ tone: "success", text: `Project Service 已提交 · ${result.changeSet.beforeHash.slice(0, 8)}→${result.changeSet.afterHash.slice(0, 8)}` });
+  };
+  const saveLayout = () => {
+    if (selected === undefined) return;
+    const result = onSetScenePosition(selected.id, layoutX, layoutY);
+    if (!result.ok) { setEditResult({ tone: "error", text: `${result.error.code} · ${result.error.message}` });return; }
+    setEditResult({ tone: "success", text: "布局 Sidecar 已提交 · 脚本与 Compiler 图未修改" });
+  };
+  const resetLayout = () => {
+    if (selected === undefined) return;
+    const result = onResetSceneLayout(selected.id);
+    if (!result.ok) { setEditResult({ tone: "error", text: `${result.error.code} · ${result.error.message}` });return; }
+    setEditResult({ tone: "success", text: "已重建自动布局 · 脚本与 Compiler 图未修改" });
   };
   return (
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
@@ -1950,7 +1967,7 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
             <button
               key={node.id}
               className={node.id === session.activeSceneId ? `route-node route-node--${node.kind} is-active` : `route-node route-node--${node.kind}`}
-              style={{ "--node-order": index } as CSSProperties}
+              style={{ "--node-order": index, "--route-x": `${node.layout.x}px`, "--route-y": `${node.layout.y}px` } as CSSProperties}
               aria-label={`路线场景：${node.title} · ${node.id}`}
               aria-pressed={node.id === selectedSceneId}
               onClick={() => { setSelectedSceneId(node.id);setTitle(node.title);setEditResult(null);dispatch({ type: "select-scene", sceneId: node.id }); }}
@@ -1981,7 +1998,9 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
       {selected !== undefined && <aside className="route-inspector" aria-label="路线场景 Inspector">
         <div><p className="eyebrow">STABLE SCENE</p><strong>{selected.title}</strong><code>{selected.id}</code></div>
         <label><span>路线场景名称</span><input aria-label="路线场景名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-        <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
+        <label><span>节点 X</span><input type="number" aria-label="路线节点 X" value={layoutX} onChange={(event) => setLayoutX(event.currentTarget.valueAsNumber)} /></label>
+        <label><span>节点 Y</span><input type="number" aria-label="路线节点 Y" value={layoutY} onChange={(event) => setLayoutY(event.currentTarget.valueAsNumber)} /></label>
+        <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
         {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
       </aside>}
       <section className="route-diagnostics" aria-label="Route Compiler 诊断">
@@ -2598,15 +2617,15 @@ export interface AppProps {
   readonly initialProject?: CanonicalProject;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
+  readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, onProjectChange, onProjectSave, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialProject, onProjectChange, onProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
+  const [canonicalBase, setCanonicalBase] = useState<CanonicalProject>(() => initialProject ?? projectCanonicalFromStory(session.project, "n32-editor-preview"));
   const previewCanonicalProject = useMemo(
-    () => initialProject === undefined
-      ? projectCanonicalFromStory(session.project, "n32-editor-preview")
-      : projectCanonicalWithStory(initialProject, session.project),
-    [initialProject, session.project]
+    () => projectCanonicalWithStory(canonicalBase, session.project),
+    [canonicalBase, session.project]
   );
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
@@ -2735,6 +2754,7 @@ export function App({ initialProject, onProjectChange, onProjectSave, autosaveDe
   const renameSceneFromRouteMap = (sceneId: string, title: string): RenameRouteSceneResult => {
     const result = renameRouteScene(previewCanonicalProject, createCommandId(), sceneId, title);
     if (!result.ok) return result;
+    setCanonicalBase(result.project);
     const nextSession = createStudioSessionFromCanonical(result.project);
     const selectedScene = nextSession.project.scenes.find((item) => item.id === sceneId);
     baseDispatch({
@@ -2752,6 +2772,19 @@ export function App({ initialProject, onProjectChange, onProjectSave, autosaveDe
       : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }) });
     return result;
   };
+  const applyRouteLayoutMutation = (result: RouteProjectMutationResult): RouteProjectMutationResult => {
+    if (!result.ok) return result;
+    setCanonicalBase(result.project);
+    onCanonicalProjectChange?.(result.project);
+    editGeneration.current += 1;
+    setEditVersion((value) => value + 1);
+    setPersistence((current) => current.status === "unavailable" || current.status === "conflict" || current.status === "readonly" || current.status === "blocked" || current.status === "loading" || current.status === "migrating"
+      ? current
+      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }) });
+    return result;
+  };
+  const setScenePositionFromRouteMap = (sceneId: string, x: number, y: number) => applyRouteLayoutMutation(setRouteScenePosition(previewCanonicalProject, createCommandId(), sceneId, x, y));
+  const resetSceneLayoutFromRouteMap = (sceneId: string) => applyRouteLayoutMutation(resetRouteSceneLayout(previewCanonicalProject, createCommandId(), sceneId));
 
   useEffect(() => {
     if (!storageAvailable) return;
@@ -3743,6 +3776,8 @@ export function App({ initialProject, onProjectChange, onProjectSave, autosaveDe
             dispatch={dispatch}
             canonicalProject={previewCanonicalProject}
             onRenameScene={renameSceneFromRouteMap}
+            onSetScenePosition={setScenePositionFromRouteMap}
+            onResetSceneLayout={resetSceneLayoutFromRouteMap}
             onOpenSequence={(sceneId) => { dispatch({ type: "select-scene", sceneId });setMode("writer"); }}
           />
         )}

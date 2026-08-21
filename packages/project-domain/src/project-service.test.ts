@@ -37,6 +37,19 @@ describe("Project Service", () => {
   it("requires the exact committed revision when serializing", () => {
     const built=executeProjectBatch(initial(),storyCommands);expect(built).toMatchObject({ok:true});if(!built.ok)return;expect(()=>serializeCommittedRevision(built.state,0)).toThrow(/STALE_REVISION/);
   });
+  it("commits, serializes, undoes, and redoes layout sidecar positions independently", () => {
+    const start=initial();const sceneId=start.project.manifest.entrySceneId;const result=executeProjectCommand(start,{commandId:"command_layout_position",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:320,y:180});
+    expect(result.ok).toBe(true);if(!result.ok)return;
+    expect(result.state.project.scripts).toEqual(start.project.scripts);
+    expect(result.state.project.layouts[sceneId]?.nodes).toEqual([{nodeId:sceneId,x:320,y:180}]);
+    expect(loadProject(serializeCommittedRevision(result.state,1)).layouts[sceneId]?.nodes).toEqual([{nodeId:sceneId,x:320,y:180}]);
+    const undone=undoProject(result.state);expect(undone.project.layouts[sceneId]?.nodes).toEqual([]);
+    expect(redoProject(undone).project.layouts[sceneId]?.nodes).toEqual([{nodeId:sceneId,x:320,y:180}]);
+  });
+  it("rejects invalid layout coordinates without changing the project", () => {
+    const start=initial();const sceneId=start.project.manifest.entrySceneId;const result=executeProjectCommand(start,{commandId:"command_layout_invalid",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:Number.POSITIVE_INFINITY,y:0});
+    expect(result).toMatchObject({ok:false,state:start,error:{code:"INVALID_COMMAND"}});
+  });
   it("covers rename, move, update, and delete commands across every N11 entity collection", () => {
     const built=executeProjectBatch(initial(),storyCommands);expect(built.ok).toBe(true);if(!built.ok)return;let state=built.state;
     const run=(value:Record<string,unknown>&{kind:string},id:string)=>{const result=executeProjectCommand(state,{commandId:id,expectedRevision:state.revision,...value} as unknown as ProjectCommand);expect(result.ok?null:result.error).toBeNull();if(result.ok)state=result.state;};

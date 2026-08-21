@@ -559,6 +559,25 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("去天台")).toBeVisible();
   });
 
+  it("edits and resets a canonical route layout sidecar through Project Service", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }));
+    fireEvent.change(screen.getByLabelText("路线节点 X"), { target: { value: "640" } });
+    fireEvent.change(screen.getByLabelText("路线节点 Y"), { target: { value: "360" } });
+    fireEvent.click(screen.getByRole("button", { name: "保存节点布局" }));
+
+    expect(screen.getByText(/布局 Sidecar 已提交/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }).style.getPropertyValue("--route-x")).toBe("640px");
+    expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }).style.getPropertyValue("--route-y")).toBe("360px");
+
+    fireEvent.click(screen.getByRole("button", { name: "重建自动布局" }));
+    expect(screen.getByText(/已重建自动布局/)).toBeVisible();
+    expect(screen.getByLabelText("路线节点 X")).toHaveValue(648);
+    expect(screen.getByLabelText("路线节点 Y")).toHaveValue(96);
+    expect(screen.getByText(/脚本与 Compiler 图未修改/)).toBeVisible();
+  });
+
   it("defaults Preview to 16:9 and switches canvas profiles without editing the story", () => {
     render(<App />);
     const stage = screen.getByTestId("preview-stage");

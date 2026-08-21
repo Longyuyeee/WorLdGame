@@ -331,6 +331,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E2 实施状态（2026-08-22）：真实 10k 二叉分支 Canonical Project 已经正式 Compiler 投影为 10,000 节点/9,999 边/0 诊断；Route Index 与 Editor 固定窗口将 DOM 限制为 64 节点/256 相关边，并实测分页和搜索。该能力是编译后有界查询，不是存储层 lazy loading；布局 Sidecar、10k 局部编辑和 500 ms 同步仍未完成，详见 [N40-E2 审计](154-n40-e2-10k-route-window-audit.md)。
 
+> E3 实施状态（2026-08-22）：Canonical `layouts/*.json` 已从空壳 `JsonObject[]` 收紧为 `nodeId/x/y` 坐标契约，并新增 Project Service `layout.node.set` / `layout.reset`、确定性自动布局、Editor 坐标编辑和真实工程保存/重开。自动化与 production browser 均证明布局删除重建不改脚本/Compiler 图、场景脚本改名后坐标保持。分组/折叠、视口、拖拽、存储级 lazy loading、10k 局部编辑和 500 ms 门仍未完成，详见 [N40-E3 审计](155-n40-e3-route-layout-sidecar-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

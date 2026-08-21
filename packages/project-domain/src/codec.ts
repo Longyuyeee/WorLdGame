@@ -1,5 +1,5 @@
 import { sha256 } from "./sha256";
-import { ProjectDomainError, type CanonicalProject, type JsonObject, type JsonValue, type ProjectFiles, type ProjectManifest, type ProjectProbe } from "./types";
+import { ProjectDomainError, type CanonicalProject, type JsonObject, type JsonValue, type LayoutNodePosition, type ProjectFiles, type ProjectManifest, type ProjectProbe } from "./types";
 
 export const PROJECT_MANIFEST_PATH = "world.project.json";
 const ID = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
@@ -18,6 +18,20 @@ function id(value: unknown, label: string): string { const result = string(value
 function path(value: unknown, label: string): string { const result = string(value, label); return PATH.test(result) && !result.includes("..") ? result : fail("INVALID_SCHEMA", `${label} is not a canonical JSON path`); }
 function strings(value: unknown, label: string, mapper = string): string[] { return Array.isArray(value) ? value.map((item, index) => mapper(item, `${label}[${index}]`)) : fail("INVALID_SCHEMA", `${label} must be an array`); }
 function objects(value: unknown, label: string): JsonObject[] { return Array.isArray(value) && value.every((item) => isRecord(item) && isJson(item)) ? value as JsonObject[] : fail("INVALID_SCHEMA", `${label} must contain JSON objects`); }
+function layoutNodes(value: unknown, label: string): LayoutNodePosition[] {
+  if (!Array.isArray(value)) return fail("INVALID_SCHEMA", `${label} must be an array`);
+  const seen = new Set<string>();
+  return value.map((item, index) => {
+    if (!isRecord(item)) return fail("INVALID_SCHEMA", `${label}[${index}] must be an object`);
+    const nodeId = id(item.nodeId, `${label}[${index}].nodeId`);
+    if (seen.has(nodeId)) return fail("DUPLICATE_ID", `${label} contains duplicate node ${nodeId}`);
+    if (typeof item.x !== "number" || !Number.isFinite(item.x) || typeof item.y !== "number" || !Number.isFinite(item.y)) return fail("INVALID_SCHEMA", `${label}[${index}] coordinates must be finite numbers`);
+    const unknown = preserved(item, ["nodeId", "x", "y"]);
+    if (unknown !== undefined) return fail("INVALID_SCHEMA", `${label}[${index}] contains unsupported fields`);
+    seen.add(nodeId);
+    return { nodeId, x: item.x, y: item.y };
+  });
+}
 function preserved(data: Record<string, unknown>, known: readonly string[]): JsonObject | undefined { const entries = Object.entries(data).filter(([key]) => !known.includes(key)); if (entries.length === 0) return undefined; if (entries.some(([, value]) => !isJson(value))) return fail("INVALID_SCHEMA", "Unknown fields must be JSON values"); return Object.fromEntries(entries) as JsonObject; }
 function version(data: Record<string, unknown>, file: string): void { if (data.schemaVersion !== 1) { if (Number.isSafeInteger(data.schemaVersion) && (data.schemaVersion as number) > 1) fail("FUTURE_SCHEMA", `${file} uses future schema ${data.schemaVersion as number}`); fail("INVALID_SCHEMA", `${file} must use schemaVersion 1`); } }
 function arrayDocument(files: ProjectFiles, file: string, field: string): object { const data=parse(files,file); version(data,file); const result={schemaVersion:1 as const,[field]:objects(data[field],`${file}.${field}`)}; const unknown=preserved(data,["schemaVersion",field]); return unknown ? {...result,preservedFields:unknown}:result; }
@@ -41,7 +55,7 @@ export function loadProject(files: ProjectFiles): CanonicalProject {
   const scenePaths=chapters.flatMap((chapter)=>chapter.scenePaths); const scenes=scenePaths.map((file)=>{const value=parse(files,file);version(value,file);const base={schemaVersion:1 as const,id:id(value.id,`${file}.id`),title:string(value.title,`${file}.title`),scriptPath:path(value.scriptPath,`${file}.scriptPath`),layoutPath:path(value.layoutPath,`${file}.layoutPath`)};const unknown=preserved(value,["schemaVersion","id","title","scriptPath","layoutPath"]);return unknown?{...base,preservedFields:unknown}:base;});
   const allIds=[manifest.projectId,...chapters.map((item)=>item.id),...scenes.map((item)=>item.id)]; if(new Set(allIds).size!==allIds.length) fail("DUPLICATE_ID","Project, chapter, and scene stable IDs must be unique"); if(!scenes.some((scene)=>scene.id===manifest.entrySceneId)) fail("BROKEN_REFERENCE","entrySceneId does not reference a scene");
   const scripts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.scriptPath);version(value,scene.scriptPath);if(id(value.sceneId,`${scene.scriptPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.scriptPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,statements:objects(value.statements,`${scene.scriptPath}.statements`)};const unknown=preserved(value,["schemaVersion","sceneId","statements"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
-  const layouts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.layoutPath);version(value,scene.layoutPath);if(id(value.sceneId,`${scene.layoutPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.layoutPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,nodes:objects(value.nodes,`${scene.layoutPath}.nodes`)};const unknown=preserved(value,["schemaVersion","sceneId","nodes"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
+  const layouts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.layoutPath);version(value,scene.layoutPath);if(id(value.sceneId,`${scene.layoutPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.layoutPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,nodes:layoutNodes(value.nodes,`${scene.layoutPath}.nodes`)};const unknown=preserved(value,["schemaVersion","sceneId","nodes"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
   const project: CanonicalProject={mode:"editable",manifest,chapters,scenes,characters:arrayDocument(files,manifest.charactersPath,"characters") as CanonicalProject["characters"],variables:arrayDocument(files,manifest.variablesPath,"variables") as CanonicalProject["variables"],assets:arrayDocument(files,manifest.assetsPath,"assets") as CanonicalProject["assets"],localization:arrayDocument(files,manifest.localizationPath,"locales") as CanonicalProject["localization"],settings:valueDocument(files,manifest.settingsPath),ui:arrayDocument(files,manifest.uiPath,"screens") as CanonicalProject["ui"],plugins:arrayDocument(files,manifest.pluginsPath,"plugins") as CanonicalProject["plugins"],testRoutes:arrayDocument(files,manifest.testRoutesPath,"routes") as CanonicalProject["testRoutes"],scripts,layouts};
   validateEntityIds(project); return project;
 }
