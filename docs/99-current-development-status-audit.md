@@ -1,7 +1,7 @@
-# 当前开发情况审计（N32-E4 Engineering 候选）
+# 当前开发情况审计（N32-E4 Engineering）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e4-preview-debug-controls`；Draft PR 待创建
+> 当前分支：`codex/n32-e4-preview-debug-controls`；Draft PR #55
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
 > 最新节点证据：[N32-E4 Preview 调试控制审计](146-n32-e4-preview-debug-controls-audit.md)
@@ -11,9 +11,9 @@
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E4 Engineering 候选，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、Continue、Step Over、Back/Forward 和执行前 Run to Cursor 已接入正式 Runtime。仍没有正式媒体 Effect Host、补偿/重放执行、断点/Watch、热更新或与 Web Player 共用 Host。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E4 Engineering，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、Continue、Step Over、Back/Forward 和执行前 Run to Cursor 已接入正式 Runtime。仍没有正式媒体 Effect Host、补偿/重放执行、断点/Watch、热更新或与 Web Player 共用 Host。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E4 Engineering 本地候选；远端完整门待取得**；
+- 当前工程节点：**N32-E4 Engineering 已通过；下一步 N32-E5**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -58,7 +58,7 @@
 | E4 定向 | History/Scheduler 控制、内部光标、调用栈、阻断和 fork | 2 files / 14 tests；History Hash `ffcbb64f…aa6594` | 通过 |
 | E4 本机全仓 | 普通回归、串行 storage、审计和 production build | 98 files / 600 tests；storage 1/1（5.18 秒）；JS 721.30/205.42 kB | 通过；拆包债扩大并保留 |
 | E4 生产浏览器 | Cursor/Back/Forward/Choice/fork/布局/console | h2/2 transient；h1/2↔h2/2；Choice h3/3→h4/4；route fork h5/5；352×46；`[]` | 通过 |
-| E4 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR 与 run/job 待取得 | 待远端裁决，E4 尚未关闭 |
+| E4 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #55，run `32464584207` / job `96718382563`，4 分 15 秒；98/600；autosave 2.961 秒；Runtime corpus 30.334 秒 | 通过；E4 Engineering 关闭 |
 
 ## 4. 需求方向审计
 
@@ -73,9 +73,8 @@
 
 ## 5. 下一步顺序
 
-1. 取得 N32-E4 Draft PR 的 Windows / Node 22 完整门并关闭 Engineering 证据；
-2. N32-E5：正式 Effect/Stage Host、reconciliation、安全取消与 Barrier；
-3. N32-E6：热更新与结构变更重启策略；
-4. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
+1. N32-E5：正式 Effect/Stage Host、reconciliation、安全取消与 Barrier；
+2. N32-E6：热更新与结构变更重启策略；
+3. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

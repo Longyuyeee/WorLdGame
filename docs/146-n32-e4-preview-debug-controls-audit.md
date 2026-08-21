@@ -4,8 +4,8 @@
 > 分支：`codex/n32-e4-preview-debug-controls`
 > 直接基线：N32-E3 最终证据头 `f5ae68cb3c382f2e4cfb27f6b9b38ac5ccc64c24`
 > 授权：`RA-N21-004`，最大节点 N32
-> 当前候选：本地 Engineering、production build 与真实浏览器证据已通过；远端 Draft PR 和 Windows / Node 22 完整门待取得
-> 当前判定：N32-E4 尚未关闭；N32 Product Acceptance、N40、M1 与发布继续阻断
+> 远端交付：Draft PR #55；实现头 `e50c489`；Windows / Node 22 run `32464584207` / job `96718382563`，4 分 15 秒绿色
+> 当前判定：N32-E4 Engineering 通过；N32 Product Acceptance、N40、M1 与发布继续阻断
 
 ## 1. 冻结目标与边界
 
@@ -65,6 +65,6 @@ Run to Cursor 穿越到未满足的 Choice、awaited Effect、Barrier、资源�
 
 ## 6. 出口条件与下一步
 
-本地 E4 候选已满足功能、正反例、全仓回归、构建、治理和真实浏览器检查。只有实现头及最终文档头在 Draft PR 的 Windows / Node 22 `npm run check` 完整绿色后，才可关闭 N32-E4 Engineering。
+Draft PR #55 的实现头已通过 Windows / Node 22 完整 `npm run check`：普通回归 98 files / 600 tests；autosave 1/1，实际 2.961 秒；Runtime corpus 10,000 seeds / 20,000 replays / 40 chunks、30.334 秒、0 failed seeds、digest `20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2`。远端 production build 与本地实际相同：CSS 76.97/14.73 kB，JS 721.30/205.42 kB；typecheck、architecture、requirements、risk、workspace、delivery、Script/Asset 性能门均绿色，E4 Engineering 出口满足。
 
-下一步是 N32-E5：正式 Effect/Stage Host、补偿/重放、安全取消和 Barrier 产品呈现。E4 不提升 N32 Product Acceptance，不解除 N40、M1 Stable 或发布阻断；JS 拆包债必须继续进入后续性能/架构审计，不能因功能正确而消失。
+最终证据文档头仍需通过同一远端完整门；该检查只确认文档更新未破坏仓库门，不重复宣称实现证据。下一步是 N32-E5：正式 Effect/Stage Host、补偿/重放、安全取消和 Barrier 产品呈现。E4 不提升 N32 Product Acceptance，不解除 N40、M1 Stable 或发布阻断；JS 拆包债必须继续进入后续性能/架构审计，不能因功能正确而消失。
