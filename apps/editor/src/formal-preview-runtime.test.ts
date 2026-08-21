@@ -7,6 +7,8 @@ import {
   observeFormalPreview,
   selectFormalPreviewChoice,
   startFormalPreview,
+  startFormalPreviewFromScene,
+  startFormalPreviewFromStatement,
   type FormalPreviewState
 } from "./formal-preview-runtime";
 
@@ -92,5 +94,35 @@ describe("formal editor preview runtime", () => {
     expect(observeFormalPreview(failed).diagnostics).toEqual([
       expect.objectContaining({ origin: "runtime", severity: "error", code: "RUNTIME_INVALID_STATE", sceneId: "missing_scene", statementId: null })
     ]);
+  });
+
+  it("constructs fresh legal States for a Scene and an exact Statement", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-run-from");
+    const scene = startFormalPreviewFromScene(project, "scn_broadcast_room");
+    expect(scene).toMatchObject({ status: "presenting", sceneId: "scn_broadcast_room", statementId: "stmt_radio_bg", statementIndex: 0, startTarget: { kind: "scene", sceneId: "scn_broadcast_room" } });
+    expect(observeFormalPreview(scene).current).toMatchObject({ opcode: "direction", statementId: "stmt_radio_bg" });
+    expect(runtimeStateHashV1(scene.runtimeState!)).toBe("2658ce4949954097987d9bacd66895f32f8e6a95afb661b1d2bcff4fdaba1ef6");
+
+    const statement = startFormalPreviewFromStatement(project, "scn_rooftop", "stmt_rooftop_001");
+    expect(statement).toMatchObject({ status: "presenting", sceneId: "scn_rooftop", statementId: "stmt_rooftop_001", statementIndex: 1, startTarget: { kind: "statement", sceneId: "scn_rooftop", statementId: "stmt_rooftop_001" } });
+    expect(observeFormalPreview(statement).current).toMatchObject({ opcode: "dialogue", statementId: "stmt_rooftop_001" });
+    expect(runtimeStateHashV1(statement.runtimeState!)).toBe("62babbde92a8ea5ef2ba6e4a46f3f34ce4bc4d928cd5040fc72d57e0f35c69e6");
+  });
+
+  it("fails closed when a start target is missing or requires call context", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-invalid-start");
+    expect(startFormalPreviewFromScene(base, "missing_scene")).toMatchObject({ status: "error", diagnostics: [{ code: "PREVIEW_START_SCENE_MISSING" }] });
+    expect(startFormalPreviewFromStatement(base, "scn_school_gate", "missing_statement")).toMatchObject({ status: "error", diagnostics: [{ code: "PREVIEW_START_STATEMENT_MISSING" }] });
+    const withReturn = {
+      ...base,
+      scripts: {
+        ...base.scripts,
+        scn_broadcast_room: {
+          ...base.scripts.scn_broadcast_room!,
+          statements: [{ id: "stmt_return", kind: "return" }, ...base.scripts.scn_broadcast_room!.statements.slice(1)]
+        }
+      }
+    };
+    expect(startFormalPreviewFromStatement(withReturn, "scn_broadcast_room", "stmt_return")).toMatchObject({ status: "error", diagnostics: [{ code: "PREVIEW_START_REQUIRES_CALL_CONTEXT", statementId: "stmt_return" }] });
   });
 });

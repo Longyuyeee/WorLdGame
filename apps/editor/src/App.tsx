@@ -137,6 +137,8 @@ import {
   observeFormalPreview,
   selectFormalPreviewChoice,
   startFormalPreview,
+  startFormalPreviewFromScene,
+  startFormalPreviewFromStatement,
   type FormalPreviewState
 } from "./formal-preview-runtime";
 
@@ -2146,6 +2148,21 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     setPlayable(startFormalPreview(canonicalProject));
   };
 
+  const beginPlayablePreviewFromScene = () => {
+    transportDispatch({ type: "reset" });
+    setPlayable(startFormalPreviewFromScene(canonicalProject, session.activeSceneId));
+  };
+
+  const beginPlayablePreviewFromStatement = () => {
+    transportDispatch({ type: "reset" });
+    setPlayable(startFormalPreviewFromStatement(canonicalProject, session.activeSceneId, session.selectedStatementId));
+  };
+
+  const restartPlayablePreview = () => {
+    transportDispatch({ type: "reset" });
+    setPlayable(startFormalPreview(canonicalProject, playable.startTarget ?? { kind: "entry" }));
+  };
+
   const exitPlayablePreview = () => setPlayable(createIdleFormalPreviewState());
 
   const preparePlayableWeb = () => {
@@ -2316,10 +2333,17 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))}>继续剧情</button>
         )}
         {(playable.status === "ended" || playable.status === "error") && (
-          <button type="button" onClick={beginPlayablePreview}>重新试玩</button>
+          <button type="button" onClick={restartPlayablePreview}>重新试玩</button>
         )}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
       </div>
+      {!playableActive && (
+        <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">
+          <div><strong>Fresh Run</strong><small>变量恢复工程默认值 · 调用栈为空</small></div>
+          <button type="button" onClick={beginPlayablePreviewFromScene} disabled={pendingDraft || inputDirty}>从当前场景运行</button>
+          <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={pendingDraft || inputDirty}>从当前语句运行</button>
+        </div>
+      )}
       <section className={`runtime-inspector runtime-inspector--${playable.status}`} aria-label="Runtime 状态检查器">
         <header className="runtime-inspector__header">
           <div><span className="runtime-inspector__pulse" aria-hidden="true" /><strong>Preview Session</strong><small>正式 Runtime 状态观察</small></div>

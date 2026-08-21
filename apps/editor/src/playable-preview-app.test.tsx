@@ -50,4 +50,21 @@ describe("playable preview integration", () => {
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:playable-web");
     vi.restoreAllMocks();
   });
+
+  it("starts the formal Runtime from the selected Scene and Statement", () => {
+    render(<App />);
+    expect(screen.getByRole("group", { name: "Runtime 启动位置" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /02旧广播室3 个步骤/ }));
+    fireEvent.click(screen.getByRole("button", { name: "从当前场景运行" }));
+    let inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
+    expect(within(inspector).getByText(/direction · stmt_radio_bg/)).toBeVisible();
+    expect(within(inspector).getByText(/scn_broadcast_room \/ stmt_radio_bg #0/)).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: "退出试玩" }));
+    fireEvent.click(screen.getByRole("button", { name: /选择对白：这盘磁带的日期/ }));
+    fireEvent.click(screen.getByRole("button", { name: "从当前语句运行" }));
+    inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
+    expect(within(inspector).getByText(/dialogue · stmt_radio_001/)).toBeVisible();
+    expect(within(inspector).getByText(/scn_broadcast_room \/ stmt_radio_001 #1/)).toBeVisible();
+  });
 });
