@@ -3,7 +3,7 @@
 > 日期：2026-08-22
 > 分支：`codex/n40-e1-route-graph-core`
 > 范围：最小 Canonical 节点坐标契约、Project Service 写回、自动重建、真实工程落盘
-> 结论：本地 Engineering 通过；远端 Windows / Node 22 待实现提交推送后补录
+> 结论：本地与远端 Windows / Node 22 Engineering 均通过
 
 ## 1. 偏移审计与纠偏
 
@@ -72,4 +72,9 @@ E3 只关闭最小坐标 sidecar，不关闭 N40：
 
 ## 5. 远端证据
 
-实现提交推送后补录 Draft PR #59 的 Windows / Node 22 run/job；在其变绿前，本文件只登记本地 Engineering 证据。
+- Draft PR：[#59](https://github.com/Longyuyeee/WorLdGame/pull/59)；
+- 实现提交：`bb40530639a71ce792f5afe6d9da87eb2aacbcb3`；
+- Windows / Node 22 full check：[run 32514046873](https://github.com/Longyuyeee/WorLdGame/actions/runs/32514046873)，job `96871521066`，`4m32s`，`success`；
+- locked dependencies、完整 `npm run check` 与 post steps 全部为绿色。
+
+远端结论关闭 E3 Engineering；它不解除 `RA-N21-005` 对 N40 Product Acceptance、N41+、M1 与发布的阻断。

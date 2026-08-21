@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1/E2 已完成 Compiler 图、Project Service 写回、10k 分支图和有界查询/DOM；E3 已完成最小 Canonical Layout Sidecar、布局保存/重建、真实工程落盘重开及 production browser，本地完整门通过，远端 Windows / Node 22 待本次推送裁决**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1/E2 已完成 Compiler 图、Project Service 写回、10k 分支图和有界查询/DOM；E3 已完成最小 Canonical Layout Sidecar、布局保存/重建、真实工程落盘重开及 production browser，本地完整门与远端 Windows / Node 22 run `32514046873` / job `96871521066` 均通过**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
