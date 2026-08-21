@@ -2981,6 +2981,30 @@ textarea[data-input-state="composing"] {
 .runtime-debug-actions button:focus-visible { transform: translateY(-1px); border-color: rgb(85 217 138 / 62%); color: #9fffc1; outline: none; }
 .runtime-debug-actions button:disabled { cursor: not-allowed; opacity: .35; }
 
+.runtime-effect-host {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgb(103 232 249 / 18%);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgb(34 211 238 / 7%), rgb(139 92 246 / 8%));
+}
+.runtime-effect-host > header,
+.runtime-effect-host__request > div:first-child,
+.runtime-effect-host__actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.runtime-effect-host > header div { display: flex; align-items: center; gap: 6px; color: #9ff3ff; }
+.runtime-effect-host > header small { color: var(--wg-color-text-muted); font-size: 8px; }
+.runtime-effect-host__request { display: grid; gap: 7px; padding: 9px; border: 1px solid rgb(34 211 238 / 22%); border-radius: 9px; background: rgb(8 15 31 / 68%); }
+.runtime-effect-host__request--barrier { border-color: rgb(251 146 60 / 38%); background: linear-gradient(135deg, rgb(124 45 18 / 22%), rgb(8 15 31 / 76%)); }
+.runtime-effect-host__request strong { color: #d9fbff; font-size: 10px; }
+.runtime-effect-host__request code { color: #67e8f9; font-size: 8px; }
+.runtime-effect-host__request p,
+.runtime-effect-host__settled { margin: 0; color: var(--wg-color-text-muted); font-size: 8px; line-height: 1.5; }
+.runtime-effect-host__actions { justify-content: flex-start; }
+.runtime-effect-host__actions button { min-height: 28px; padding: 0 10px; border: 1px solid rgb(34 211 238 / 35%); border-radius: 7px; color: #c9fbff; background: rgb(8 145 178 / 18%); font-size: 8px; cursor: pointer; }
+.runtime-effect-host__actions button.is-secondary { border-color: rgb(148 163 184 / 20%); color: var(--wg-color-text-muted); background: rgb(30 41 59 / 35%); }
+.runtime-effect-host__settled span { color: #86efac; }
+
 .runtime-inspector {
   display: grid;
   gap: 9px;

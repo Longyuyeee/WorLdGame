@@ -13,14 +13,22 @@ import {
   type RuntimeEventV1,
   type RuntimeHistoryReconciliationPlanV1,
   type RuntimeHistorySessionV1,
+  type RuntimeEffectIntentV1,
   type RuntimeInputV1,
   type RuntimeProgramV1,
   type RuntimeSchedulerSessionV1,
   type RuntimeStateV1
 } from "@world-studio/runtime";
 import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
+import {
+  consumeFormalPreviewEffects,
+  createFormalPreviewEffectHostState,
+  reconcileFormalPreviewEffectHost,
+  settleFormalPreviewEffect,
+  type FormalPreviewEffectHostState
+} from "./formal-preview-effect-host";
 
-export type FormalPreviewStatus = "idle" | "presenting" | "paused" | "waiting-choice" | "ended" | "error";
+export type FormalPreviewStatus = "idle" | "presenting" | "paused" | "waiting-choice" | "waiting-effect" | "waiting-barrier" | "ended" | "error";
 export type FormalPreviewStartTarget =
   | { readonly kind: "entry" }
   | { readonly kind: "scene"; readonly sceneId: string }
@@ -56,6 +64,9 @@ export interface FormalPreviewObservation {
   readonly diagnostics: readonly FormalPreviewDiagnostic[];
   readonly history: { readonly cursor: number; readonly length: number; readonly canBack: boolean; readonly canForward: boolean; readonly transient: boolean } | null;
   readonly reconciliation: RuntimeHistoryReconciliationPlanV1 | null;
+  readonly pendingEffect: RuntimeEffectIntentV1 | null;
+  readonly pendingBarrier: { readonly requestId: string; readonly descriptorId: string; readonly reason: string } | null;
+  readonly effectHost: { readonly operationCount: number; readonly activeChannels: readonly string[]; readonly lastOperation: string | null; readonly checkpointId: string | null };
 }
 
 export interface FormalPreviewState {
@@ -66,6 +77,7 @@ export interface FormalPreviewState {
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly schedulerSession: RuntimeSchedulerSessionV1 | null;
   readonly reconciliation: RuntimeHistoryReconciliationPlanV1 | null;
+  readonly effectHost: FormalPreviewEffectHostState;
   readonly currentEvent: RuntimeEventV1 | null;
   readonly sceneId: string | null;
   readonly statementIndex: number;
@@ -89,6 +101,7 @@ export function createIdleFormalPreviewState(): FormalPreviewState {
     historySession: null,
     schedulerSession: null,
     reconciliation: null,
+    effectHost: createFormalPreviewEffectHostState(),
     currentEvent: null,
     sceneId: null,
     statementIndex: 0,
@@ -173,19 +186,22 @@ function presentHistory(
   state: RuntimeStateV1,
   event: RuntimeEventV1 | null,
   reconciliation: RuntimeHistoryReconciliationPlanV1 | null = null,
-  paused = false
+  paused = false,
+  effects: readonly RuntimeEffectIntentV1[] = []
 ): FormalPreviewState {
   const source = event === null ? sourceAtCursor(base, state) : base.sourceMap?.entries.find((entry) => entry.instructionId === event.instructionId);
   if (source === undefined) return sessionFailure({ ...base, runtimeState: state, historySession: history, schedulerSession: scheduler }, "PREVIEW_SOURCE_MISSING", "Source Map 无法定位当前 Runtime 位置");
   const visits = activeVisits(base, history);
   const { endingName: _previousEndingName, error: _previousError, ...cleanBase } = base;
+  const effectHost = consumeFormalPreviewEffects(base.effectHost, effects);
   return {
     ...cleanBase,
-    status: event?.kind === "choice" ? "waiting-choice" : event?.kind === "ending" ? "ended" : paused ? "paused" : "presenting",
+    status: state.pendingBarrier !== null ? "waiting-barrier" : state.pendingEffect !== null ? "waiting-effect" : event?.kind === "choice" ? "waiting-choice" : event?.kind === "ending" ? "ended" : paused ? "paused" : "presenting",
     runtimeState: state,
     historySession: history,
     schedulerSession: scheduler,
     reconciliation,
+    effectHost,
     currentEvent: event,
     diagnostics: base.compilerWarnings.map(compilerDiagnostic),
     sceneId: source.sceneId,
@@ -221,7 +237,7 @@ function execute(base: FormalPreviewState): FormalPreviewState {
       return failed({ ...base, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, `${first.code} · ${first.message}`, runtimeDiagnostics(base, result.diagnostics));
     }
     const event = result.events.at(-1) ?? null;
-    if (event !== null) return presentHistory(base, result.session.history, result.session, result.state, event);
+    if (event !== null || result.stopReason === "effect" || result.stopReason === "barrier") return presentHistory(base, result.session.history, result.session, result.state, event, null, false, result.effects);
     if (result.stopReason !== "budget") return sessionFailure({ ...base, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, "PREVIEW_EVENT_MISSING", `Runtime 在 ${result.stopReason} 停止但没有产生可呈现事件`);
   }
   return sessionFailure(base, "PREVIEW_EXECUTION_LIMIT", "单次 Continue 超过 128 个调度批次");
@@ -323,7 +339,15 @@ export function observeFormalPreview(state: FormalPreviewState): FormalPreviewOb
     callStack: (runtime?.callStack ?? []).map((cursor, depth) => ({ ...location(state, cursor.sceneId, cursor.instructionIndex), depth })),
     diagnostics: state.diagnostics,
     history: state.historySession === null ? null : { cursor: state.historySession.cursor, length: state.historySession.entries.length, canBack: transient || state.historySession.cursor > 0, canForward: !transient && state.historySession.cursor < state.historySession.entries.length, transient },
-    reconciliation: state.reconciliation
+    reconciliation: state.reconciliation,
+    pendingEffect: runtime?.pendingEffect ?? null,
+    pendingBarrier: runtime?.pendingBarrier === null || runtime?.pendingBarrier === undefined ? null : { requestId: runtime.pendingBarrier.requestId, descriptorId: runtime.pendingBarrier.descriptorId, reason: runtime.pendingBarrier.reason },
+    effectHost: {
+      operationCount: state.effectHost.operations.length,
+      activeChannels: Object.keys(state.effectHost.activeByChannel).sort(),
+      lastOperation: state.effectHost.operations.at(-1)?.kind ?? null,
+      checkpointId: state.effectHost.checkpointId
+    }
   };
 }
 
@@ -336,7 +360,8 @@ function eventAtCursor(history: RuntimeHistorySessionV1): RuntimeEventV1 | null 
 }
 
 function hasTransientPosition(state: FormalPreviewState): boolean {
-  return (state.schedulerSession?.accumulatedInstructions ?? 0) > 0 || state.status === "paused" && state.currentEvent === null;
+  return (state.schedulerSession?.accumulatedInstructions ?? 0) > 0 ||
+    state.status === "paused" && state.currentEvent === null && (state.historySession?.cursor ?? 0) > 0;
 }
 
 function presentNavigation(base: FormalPreviewState, history: RuntimeHistorySessionV1, reconciliation: RuntimeHistoryReconciliationPlanV1 | null): FormalPreviewState {
@@ -347,7 +372,9 @@ function presentNavigation(base: FormalPreviewState, history: RuntimeHistorySess
     if (!("schemaVersion" in created)) return created;
     scheduler = created;
   }
-  return presentHistory(base, history, scheduler, state, eventAtCursor(history), reconciliation, history.cursor === 0);
+  const checkpointEffects = history.entries.slice(0, history.cursor).flatMap((entry) => entry.effects);
+  const hostBase = reconciliation === null ? base : { ...base, effectHost: reconcileFormalPreviewEffectHost(base.effectHost, reconciliation, checkpointEffects) };
+  return presentHistory(hostBase, history, scheduler, state, eventAtCursor(history), reconciliation, history.cursor === 0);
 }
 
 export function forwardFormalPreview(state: FormalPreviewState): FormalPreviewState {
@@ -370,6 +397,49 @@ export function advanceFormalPreview(state: FormalPreviewState): FormalPreviewSt
   if (state.status !== "presenting" && state.status !== "paused") return state;
   if (state.historySession !== null && state.historySession.cursor < state.historySession.entries.length) return forwardFormalPreview(state);
   return execute(state);
+}
+
+function submitEffectInput(state: FormalPreviewState, outcome: "complete" | "cancel"): FormalPreviewState {
+  const pending = state.runtimeState?.pendingEffect ?? null;
+  if (state.program === null || state.historySession === null || state.runtimeState === null || pending === null) return controlDiagnostic(state, "PREVIEW_EFFECT_MISSING", "当前没有等待 Host 响应的 Effect");
+  const input: RuntimeInputV1 = outcome === "complete" ? {
+    schemaVersion: 1, kind: "effectCompleted", inputId: `preview.input.${state.runtimeState.nextInputSequence}.${outcome}`,
+    executionId: state.runtimeState.executionId, expectedStateRevision: state.runtimeState.stateRevision,
+    logicalSequence: pending.logicalSequence, effectId: pending.effectId, replayKey: pending.replayKey
+  } : {
+    schemaVersion: 1, kind: "effectCancelled", inputId: `preview.input.${state.runtimeState.nextInputSequence}.${outcome}`,
+    executionId: state.runtimeState.executionId, expectedStateRevision: state.runtimeState.stateRevision,
+    logicalSequence: pending.logicalSequence, effectId: pending.effectId, cancellationScope: pending.cancellationScope
+  };
+  const advanced = advanceRuntimeHistoryV1(state.program, state.historySession, { input });
+  if (advanced.diagnostics.length > 0) return controlDiagnostic(state, advanced.diagnostics[0]!.code, advanced.diagnostics[0]!.message);
+  const hostState = { ...state, effectHost: settleFormalPreviewEffect(state.effectHost, pending, outcome) };
+  const created = schedulerFromHistory(hostState, advanced.session);
+  if (!("schemaVersion" in created)) return created;
+  return presentHistory(hostState, advanced.session, created, advanced.state, advanced.event, null, false, advanced.effects);
+}
+
+export function completeFormalPreviewEffect(state: FormalPreviewState): FormalPreviewState {
+  return submitEffectInput(state, "complete");
+}
+
+export function cancelFormalPreviewEffect(state: FormalPreviewState): FormalPreviewState {
+  return submitEffectInput(state, "cancel");
+}
+
+export function approveFormalPreviewBarrier(state: FormalPreviewState): FormalPreviewState {
+  const pending = state.runtimeState?.pendingBarrier ?? null;
+  if (state.program === null || state.historySession === null || state.runtimeState === null || pending === null) return controlDiagnostic(state, "PREVIEW_BARRIER_MISSING", "当前没有等待明确批准的 Barrier");
+  const input: RuntimeInputV1 = {
+    schemaVersion: 1, kind: "barrierApproved", inputId: `preview.input.${state.runtimeState.nextInputSequence}.approve`,
+    executionId: state.runtimeState.executionId, expectedStateRevision: state.runtimeState.stateRevision,
+    logicalSequence: pending.logicalSequence, requestId: pending.requestId, descriptorId: pending.descriptorId
+  };
+  const advanced = advanceRuntimeHistoryV1(state.program, state.historySession, { input });
+  if (advanced.diagnostics.length > 0) return controlDiagnostic(state, advanced.diagnostics[0]!.code, advanced.diagnostics[0]!.message);
+  const created = schedulerFromHistory(state, advanced.session);
+  if (!("schemaVersion" in created)) return created;
+  return presentHistory(state, advanced.session, created, advanced.state, advanced.event, null, false, advanced.effects);
 }
 
 export function stepOverFormalPreview(state: FormalPreviewState): FormalPreviewState {

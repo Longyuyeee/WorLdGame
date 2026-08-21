@@ -1,19 +1,19 @@
-# 当前开发情况审计（N32-E4 Engineering）
+# 当前开发情况审计（N32-E5 Engineering 候选）
 
 > 审计日期：2026-08-21
-> 当前分支：`codex/n32-e4-preview-debug-controls`；Draft PR #55
+> 当前分支：`codex/n32-e5-preview-effect-host`；Draft PR 待创建
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E4 Preview 调试控制审计](146-n32-e4-preview-debug-controls-audit.md)
+> 最新节点证据：[N32-E5 Preview Effect / Stage Host 审计](147-n32-e5-preview-effect-host-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
 项目已从“编辑器自带平行故事解释器”向正式产品执行链迈出第一步：Editor 的完整流程试玩现在把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；Choice、结局和当前 Statement 通过 Runtime Event/State 与 Source Map 对齐。校园短故事两条路线已在生产浏览器中真实运行到正确结局，编译错误会关闭试玩而不会回退旧解释器。
 
-这只是 N32-E4 Engineering，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、Continue、Step Over、Back/Forward 和执行前 Run to Cursor 已接入正式 Runtime。仍没有正式媒体 Effect Host、补偿/重放执行、断点/Watch、热更新或与 Web Player 共用 Host。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
+这只是 N32-E5 Engineering 候选，不是 N32 完成。Entry/Scene/Statement Fresh Run、状态观察、调试控制以及 Editor Effect Host 的 awaited/cancel/Barrier/checkpoint/compensation/replay 已接入正式 Runtime。仍没有断点/Watch、热更新、共享 Web Player Host、复杂 GPU 媒体策略或三端设备证据。正式 Windows/Web/Android Player、签名、安装与发布也尚未进入授权范围。
 
-- 当前工程节点：**N32-E4 Engineering 已通过；下一步 N32-E5**；
+- 当前工程节点：**N32-E5 本地候选已通过；远端门待裁决；下一步 N32-E6**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -28,13 +28,13 @@
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、Writer 卡片、Script、基础 Flow、稳定 ID、Compiler IR/Source Map | N41 完整 Sequence、N40 专业 Route、N60 QA/Debugger |
-| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor | 断点/Watch、热更新、正式媒体 Host 与跨宿主画面协调 |
-| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频和安全占位 | 正式 Runtime Effect 接入、复杂镜头/关键帧、Pixi/WebGL 与共享 Host |
+| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、执行前 Run to Cursor；awaited/cancel/Barrier 与 Host reconciliation | 断点/Watch、热更新、共享 Player Host 与跨宿主画面 Golden |
+| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime、State/History/Save/Back/Forward/调度/诊断 | Editor 控件产品化、Player 槽位、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选 | 正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
-## 3. N32-E1–E4 证据与差异
+## 3. N32-E1–E5 证据与差异
 
 | 检查 | 预期 | 实际 | 判定 |
 |---|---|---|---|
@@ -59,6 +59,11 @@
 | E4 本机全仓 | 普通回归、串行 storage、审计和 production build | 98 files / 600 tests；storage 1/1（5.18 秒）；JS 721.30/205.42 kB | 通过；拆包债扩大并保留 |
 | E4 生产浏览器 | Cursor/Back/Forward/Choice/fork/布局/console | h2/2 transient；h1/2↔h2/2；Choice h3/3→h4/4；route fork h5/5；352×46；`[]` | 通过 |
 | E4 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #55，run `32464584207` / job `96718382563`，4 分 15 秒；98/600；autosave 2.961 秒；Runtime corpus 30.334 秒 | 通过；E4 Engineering 关闭 |
+| E5 定向 | Host intent、awaited/cancel、Barrier、checkpoint/compensation/replay 与产品按钮 | 3 files / 21 tests | 通过 |
+| E5 本机完整门 | 治理、普通/存储/重型 VM、12 workspace、架构与性能 | 99 files / 607 tests；storage 1/1；VM 5/5；Runtime corpus 26.938 秒；85 portable / 4 adapters | 通过 |
+| E5 production build | awaited/Barrier 决策与 Back/Forward channel 实际值 | awaited `true→false / last cancel`；Barrier `true→false / last execute`；Back `1→0 active`；Forward `0→1 / last replay` | 通过；首测 pure channel 残留已修正 |
+| E5 production 体积 | 成功并报告增量 | CSS 78.38/14.99 kB；JS 727.60/206.71 kB | 构建通过；>500 kB 拆包债保留 |
+| E5 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR/CI 待创建 | 待远端裁决，不提前标记 E5 关闭 |
 
 ## 4. 需求方向审计
 
@@ -67,13 +72,13 @@
 需要防止四类偏移：
 
 1. 不得让旧 `playable-preview-runtime.ts` 重新成为 Editor 完整流程权威；
-2. 不得把逻辑 checkpoint 恢复等同媒体 Host 已协调，也不得把 E4 控制冒充完整 Debugger；
+2. 不得把 Editor Host receipt 冒充共享 Player Host、复杂媒体设备策略或完整 Debugger；
 3. 不得用 jsdom 或代理浏览器替代 N21/N23 真人任务；
 4. 不得因生产构建成功就宣称包体优化、正式 Player 或三端发布完成。
 
 ## 5. 下一步顺序
 
-1. N32-E5：正式 Effect/Stage Host、reconciliation、安全取消与 Barrier；
+1. 关闭 N32-E5 远端完整门并记录实现头；
 2. N32-E6：热更新与结构变更重启策略；
 3. N32 出口复审：Editor Preview 与未来 Web Player 固定输入 State/Outcome/画面关键快照一致。
 

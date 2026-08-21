@@ -1,6 +1,18 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
+import { campusStoryProject } from "@world-studio/story-core";
+import { projectCanonicalFromStory } from "./canonical-project-adapter";
+
+function projectWithFirstDirection(summary: string, durableEntropy: string) {
+  const base = projectCanonicalFromStory(campusStoryProject, durableEntropy);
+  const first = base.scripts.scn_school_gate!.statements[0]!;
+  return {
+    ...base,
+    assets: { ...base.assets, assets: [...base.assets.assets, { assetId: "bg_host", kind: "background" }] },
+    scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [{ ...first, summary }, ...base.scripts.scn_school_gate!.statements.slice(1)] } }
+  };
+}
 
 describe("playable preview integration", () => {
   it("lets a creator play from the entry scene through a choice to an ending", () => {
@@ -91,5 +103,29 @@ describe("playable preview integration", () => {
     fireEvent.click(within(controls).getByRole("button", { name: "Runtime 前进一步" }));
     expect(within(inspector).getByText(/dialogue · stmt_gate_001/)).toBeVisible();
     expect(within(controls).getByText("History 2/2")).toBeVisible();
+  });
+
+  it("presents awaited Effect completion and safe cancellation as explicit Host decisions", () => {
+    render(<App initialProject={projectWithFirstDirection("action=set asset=bg_host effectPolicy=reversible awaitMode=awaited compensationKind=background.restore descriptorId=preview.awaited.bg", "app-awaited-host")} />);
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    const host = screen.getByRole("region", { name: "Runtime Effect Host" });
+    expect(within(host).getByText("等待宿主完成")).toBeVisible();
+    expect(within(host).getByText("preview.awaited.bg")).toBeVisible();
+    expect(screen.getByTestId("preview-stage")).toHaveAttribute("data-host-commit-pending", "true");
+    fireEvent.click(within(host).getByRole("button", { name: "完成 Effect" }));
+    expect(screen.getByText(/试玩中/)).toBeVisible();
+    expect(screen.getByTestId("preview-stage")).toHaveAttribute("data-host-commit-pending", "false");
+    expect(within(screen.getByRole("region", { name: "Runtime Effect Host" })).getByText(/last complete/)).toBeVisible();
+  });
+
+  it("shows the exact Barrier reason and never approves it automatically", () => {
+    render(<App initialProject={projectWithFirstDirection("action=clear effectPolicy=barrier awaitMode=detached barrierReason=将永久提交画廊解锁 descriptorId=preview.gallery.commit", "app-barrier-host")} />);
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    const host = screen.getByRole("region", { name: "Runtime Effect Host" });
+    expect(within(host).getByText("不可逆边界")).toBeVisible();
+    expect(within(host).getByText("将永久提交画廊解锁")).toBeVisible();
+    expect(screen.getByTestId("preview-stage")).toHaveAttribute("data-host-commit-pending", "true");
+    fireEvent.click(within(host).getByRole("button", { name: "理解并批准" }));
+    expect(screen.getByTestId("preview-stage")).toHaveAttribute("data-host-commit-pending", "false");
   });
 });

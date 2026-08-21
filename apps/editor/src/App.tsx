@@ -132,8 +132,11 @@ import { PreviewAudioLayer } from "./preview-audio-layer";
 import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
 import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
 import {
+  approveFormalPreviewBarrier,
   advanceFormalPreview,
   backFormalPreview,
+  cancelFormalPreviewEffect,
+  completeFormalPreviewEffect,
   createIdleFormalPreviewState,
   forwardFormalPreview,
   observeFormalPreview,
@@ -2007,7 +2010,9 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   const speedProfile = findPreviewSpeedProfile(transport.speedId);
   const previousTransportSceneId = useRef(session.activeSceneId);
   const stageTimeline = useMemo(() => compilePreviewStageTimeline(scene.statements), [scene.statements]);
-  const stagePlan = stageTimeline[previewIndex] ?? derivePreviewStagePlan([], 0);
+  const hostCommitPending = previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null;
+  const committedPreviewIndex = playableActive && hostCommitPending ? previewIndex - 1 : previewIndex;
+  const stagePlan = committedPreviewIndex < 0 ? derivePreviewStagePlan([], 0) : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0);
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
   const [mediaView, mediaViewDispatch] = useReducer(
     reducePreviewMediaHost,
@@ -2174,6 +2179,10 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
 
   const playableStatus = playable.status === "waiting-choice"
     ? `请选择路线 · 已经过 ${playable.visitedSceneIds.length} 个场景`
+    : playable.status === "waiting-effect"
+      ? `等待 Effect Host · ${previewObservation.pendingEffect?.descriptorId ?? "未知 Effect"}`
+      : playable.status === "waiting-barrier"
+        ? `等待明确批准 · ${previewObservation.pendingBarrier?.descriptorId ?? "未知 Barrier"}`
     : playable.status === "ended"
       ? `流程完成：${playable.endingName ?? "未命名结局"}`
       : playable.status === "error"
@@ -2267,6 +2276,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           data-stage-pixel-width={stageSurface.pixelWidth}
           data-stage-pixel-height={stageSurface.pixelHeight}
           data-stage-resolution-limited={stageSurface.resolutionLimited}
+          data-host-commit-pending={hostCommitPending}
           style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
         >
           <div className="stage-chrome">
@@ -2356,6 +2366,37 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
           <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={pendingDraft || inputDirty}>Run to Cursor</button>
         </div>
+      )}
+      {playableActive && (previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null || previewObservation.effectHost.operationCount > 0) && (
+        <section className="runtime-effect-host" aria-label="Runtime Effect Host">
+          <header>
+            <div><span aria-hidden="true">◆</span><strong>Effect / Stage Host</strong></div>
+            <small>{previewObservation.effectHost.activeChannels.length} active · {previewObservation.effectHost.operationCount} operations</small>
+          </header>
+          {previewObservation.pendingEffect !== null && (
+            <div className="runtime-effect-host__request" data-host-state="awaited">
+              <div><strong>等待宿主完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
+              <p>{previewObservation.pendingEffect.kind} · {previewObservation.pendingEffect.channel} · scope {previewObservation.pendingEffect.cancellationScope}</p>
+              <div className="runtime-effect-host__actions">
+                <button type="button" onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成 Effect</button>
+                <button type="button" className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
+              </div>
+            </div>
+          )}
+          {previewObservation.pendingBarrier !== null && (
+            <div className="runtime-effect-host__request runtime-effect-host__request--barrier" data-host-state="barrier">
+              <div><strong>不可逆边界</strong><code>{previewObservation.pendingBarrier.descriptorId}</code></div>
+              <p>{previewObservation.pendingBarrier.reason}</p>
+              <div className="runtime-effect-host__actions">
+                <button type="button" onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
+                <button type="button" className="is-secondary" onClick={exitPlayablePreview}>拒绝并退出试玩</button>
+              </div>
+            </div>
+          )}
+          {previewObservation.pendingEffect === null && previewObservation.pendingBarrier === null && (
+            <p className="runtime-effect-host__settled"><span aria-hidden="true">✓</span> Host 已协调 · last {previewObservation.effectHost.lastOperation ?? "none"}{previewObservation.effectHost.checkpointId === null ? "" : ` · ${previewObservation.effectHost.checkpointId.slice(0, 12)}`}</p>
+          )}
+        </section>
       )}
       {!playableActive && (
         <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">

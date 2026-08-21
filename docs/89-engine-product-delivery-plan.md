@@ -303,6 +303,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4 实施状态（2026-08-21）：Editor Preview 已直接接入正式 Runtime History/Scheduler，提供 Continue、Step Over、Back/Forward 和执行前 Run to Cursor；内部指令 transient、Choice 阻断、调用栈 Step Over、recorded future 与分支 fork 均有正反例及真实生产浏览器证据。Draft PR #55 的 Windows / Node 22 完整门 run `32464584207` / job `96718382563` 用时 4 分 15 秒并绿色，E4 Engineering 关闭，详见 [N32-E4 审计](146-n32-e4-preview-debug-controls-audit.md)。
 
+> E5 实施候选（2026-08-21）：Editor Preview 已建立正式 Effect / Stage Host receipt，消费 Runtime Effect Intent，并提供 awaited 完成/安全取消、Barrier 原因与明确批准、Back checkpoint 通道恢复、reversible compensation 和 Forward replay；未批准时 Stage 明确保持未提交。生产 build 已真实验证 awaited、cancel、Barrier approve 与 pure Effect Back/Forward 差异修正；本机完整门为 99 files / 607 tests、10k Runtime corpus 26.938 秒，远端状态待 Draft PR 裁决，详见 [N32-E5 审计](147-n32-e5-preview-effect-host-audit.md)。E5 不包含热更新、复杂 GPU 渲染或共享 Web Player Host。
+
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：
   1. Preview 只消费 Compiler 输出，不直接遍历 StoryStatement；
