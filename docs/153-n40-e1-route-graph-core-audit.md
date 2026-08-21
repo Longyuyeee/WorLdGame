@@ -3,7 +3,7 @@
 > 日期：2026-08-22
 > 分支：`codex/n40-e1-route-graph-core`
 > 授权：`RA-N21-005`，仅 N40 Route Map Engineering
-> 判定：E1 本地工程证据通过；远端 Windows / Node 22 完整门待本提交推送后回填。N40 Product Acceptance、N41+、M1 与发布继续阻断。
+> 判定：E1 本地工程、production browser 与远端 Windows / Node 22 完整门均通过，Engineering 切片关闭。N40 Product Acceptance、N41+、M1 与发布继续阻断。
 
 ## 1. 目标与需求对齐
 
@@ -65,9 +65,13 @@
 
 Editor JS 仍有 `>500 kB` warning，本切片只登记债务，不通过调高阈值隐藏。
 
-## 6. E1 结论与下一阻断
+## 6. 远端 Windows / Node 22
 
-N40-E1 已形成“Canonical Project → Compiler 图事实 → Route Map → Project Service 编辑 → Canonical Project → Route/Writer/Script 重投影”的可运行闭环。本地自动化、构建和生产浏览器证据已通过；只有远端 Windows / Node 22 CI 回填后，E1 才能正式关闭。
+实现提交 `7fb1010` 推送后，Draft PR #59 的 product-baseline run `32509355479` / job `96856611297` 实际执行锁定依赖安装与完整 `npm run check`，4 分 19 秒绿色。该结果验证的是干净 Windows / Node 22 实现头，不以本机缓存替代远端证据。
+
+## 7. E1 结论与下一阻断
+
+N40-E1 已形成“Canonical Project → Compiler 图事实 → Route Map → Project Service 编辑 → Canonical Project → Route/Writer/Script 重投影”的可运行闭环。本地自动化、构建、生产浏览器与远端 Windows / Node 22 证据全部通过，E1 Engineering 切片关闭。
 
 N40 后续必须按顺序补齐：
 

@@ -42,7 +42,7 @@ N32-E7 已完成共享 Runtime Host、正式 Compiler/Runtime Benchmark 闭环�
 
 10k 图、完整自动布局、折叠/分组、路线状态高亮和 500 ms 增量同步仍属于后续 N40 切片，E1 不以空壳 UI 冒充完成。
 
-E1 的本地实现、实测与剩余边界记录在 [N40-E1 Canonical Route Graph 核心闭环审计](153-n40-e1-route-graph-core-audit.md)；远端 Windows / Node 22 完整门回填前不得关闭 E1。
+E1 的实现、实测与剩余边界记录在 [N40-E1 Canonical Route Graph 核心闭环审计](153-n40-e1-route-graph-core-audit.md)；实现头已取得远端 Windows / Node 22 完整门绿色，E1 Engineering 切片关闭，但没有解除任何产品门或 N41 阻断。
 
 ## 4. 策略测试与关闭条件
 
