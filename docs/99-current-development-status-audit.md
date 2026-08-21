@@ -13,7 +13,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N32-E7 本地 Engineering 与产品闭环实测通过；N32 Engineering 总出口仍未通过**；
+- 当前工程节点：**N32-E7 本地 Engineering、产品闭环实测及远端 Windows / Node 22 完整门通过；N32 Engineering 总出口仍未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -74,6 +74,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | E7 本机完整门 | 治理、Runtime corpus、常规/存储/重型 VM、13 workspace、架构/性能 | `npm run check` 退出码 0；100 files/617 tests；storage 1/1；VM 5/5；88 portable / 4 adapters | 通过 |
 | E7 Worker production | Node↔浏览器 Host receipt/hash 零差异 | `data-status/runtime/runtime-host=passed`；console `[]` | 通过；测试宿主不是 Player |
 | E7 Editor production | 五分钟工程两路线、History 与错误日志 | 16 Continue 到分支；两路线各 14 Continue 到正确结局；Back/Forward 回到同一结局；console `[]` | 通过 |
+| E7 GitHub CI | 干净 Windows / Node 22 完整门验证实现头 | Draft PR #58，提交 `c93514e`，run `32505981631` / job `96846121361`，4 分 16 秒；locked install 与 full check 均成功 | 通过；此前 `dist` 入口红灯的真实根因已关闭 |
 | E7 后出口复审 | Implementation 6/6 且 Acceptance 1/1 | `完整 5 / 部分 1 / 未对齐 0`；Acceptance `0/1` | 总出口失败；正式 Player/视觉差分仍缺 |
 
 ## 4. 需求方向审计
@@ -90,7 +91,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 
 ## 5. 下一步顺序
 
-1. 推送 N32-E7，等待 Windows / Node 22 全仓 CI，并把 run/job 与最终提交补入 E7 证据；
+1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
 2. 不再扩充 Editor 私有 Host：剩余 N32 出口只能由正式 Player 消费同一 IR/Runtime/Host 并建立 State/Outcome/History/receipt/visual 差分关闭；
 3. 正式 Player 属于后续授权节点。未获授权时保持 fail closed，并优先完成 N21/N23 真人记录；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 

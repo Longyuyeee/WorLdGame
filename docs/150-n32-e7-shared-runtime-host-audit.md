@@ -4,11 +4,13 @@
 > 分支：`codex/n32-e7-shared-runtime-host`
 > 直接基线：N32-E6 最终证据头 `5e55a4aea936261b852abee6374af097df392ae1`
 > 授权：`RA-N21-004`，最大节点 N32；不授权正式 Player、N40、M1 或发布
-> 当前判定：N32-E7 Engineering 实现与本地实测通过；远端 PR/CI 证据在推送后补录
+> 当前判定：N32-E7 Engineering 实现、本地实测与远端 Windows / Node 22 完整门通过；N32 Engineering 总出口仍未通过
 
 > 远端首次裁决：Draft PR #58 的 run `32505380712` 首次 job `96844244975` 与失败重跑 job `96844792467` 均在 N23 launcher prerequisite 处失败；父审计只报告 gate 失败并吞掉子进程细节。本轮先修正失败详情透传，再以新提交复测，不把重复红灯写成通过。
 
 > 远端诊断裁决：详情透传提交 `fd7a797` 的 run `32505681115` / job `96845194905` 证明干净 `npm ci` 后 launcher 先于 workspace build，`runtime-host` 的 `dist` 入口不存在，Vite 无法解析；本机曾因已有 `dist` 被掩盖。纠偏为与 Runtime/Compiler 一致的 `./src/index.ts` workspace 入口，并以无 `runtime-host/dist` 的 Node 22 launcher smoke 复测。
+
+> 远端最终裁决：纠偏提交 `c93514e5fb2710ebd13c9571d1f150deedd5360d` 的 run `32505981631` / job `96846121361` 在干净 checkout、locked dependency install 后完成 Windows / Node 22 `full check`，用时 4 分 16 秒并成功。首次红灯、诊断红灯和最终绿灯均保留，不以重跑覆盖失败历史。
 
 ## 1. 冻结目标与非目标
 
@@ -63,6 +65,8 @@ Host 测试在实现文件不存在时先得到真实红灯，再补实现。实
 | Editor bundle | JS `735.17 kB` / gzip `208.53 kB`，仍有 >500 kB warning；不提高阈值、不写成优化完成 |
 
 上述完整 `npm run check` 是在本机 Node `v25.2.1` 实际执行并以退出码 0 完成。Node 25 符合仓库 `engines >=22.12.0`，但远端权威裁决仍固定 Windows / Node 22。
+
+为排除本地既有构建产物掩盖依赖入口问题，还将 `packages/runtime-host/dist` 临时移出包目录，并用准确的 Node `22.12.0` 执行 N23 product acceptance launcher；实际退出码为 0，随后恢复构建目录。远端 run `32505981631` 又在全新 checkout 中重复验证了该链路。
 
 ## 6. Production browser 实测
 

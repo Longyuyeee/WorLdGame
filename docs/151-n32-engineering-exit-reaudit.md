@@ -5,6 +5,7 @@
 > 基线：N32-E6 最终证据头 `5e55a4aea936261b852abee6374af097df392ae1`
 > 证据：[N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)
 > 结论：Implementation `完整 5 / 部分 1 / 未对齐 0`；Acceptance `0/1`；N32 Engineering 总出口未通过
+> 工程门：实现头 `c93514e` 已通过 Draft PR #58 的 Windows / Node 22 完整门 run `32505981631` / job `96846121361`（4 分 16 秒）；工程门绿色不改变正式 Player 缺失导致的出口判定
 
 ## 1. 六项 Implementation 复审
 
