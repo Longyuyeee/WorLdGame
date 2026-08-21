@@ -13,7 +13,7 @@ describe("playable preview integration", () => {
     expect(within(screen.getByRole("region", { name: "Runtime 变量" })).getByText(/暂无 Runtime 变量/)).toBeVisible();
     expect(within(screen.getByRole("region", { name: "Runtime 调用栈" })).getByText(/栈为空/)).toBeVisible();
     expect(within(screen.getByRole("region", { name: "Runtime 结构化诊断" })).getByText(/当前 Session 无诊断/)).toBeVisible();
-    const continueStory = () => fireEvent.click(screen.getByRole("button", { name: "继续剧情" }));
+    const continueStory = () => fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     continueStory();
     continueStory();
@@ -66,5 +66,30 @@ describe("playable preview integration", () => {
     inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
     expect(within(inspector).getByText(/dialogue · stmt_radio_001/)).toBeVisible();
     expect(within(inspector).getByText(/scn_broadcast_room \/ stmt_radio_001 #1/)).toBeVisible();
+  });
+
+  it("uses formal History controls and runs to the selected cursor", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
+    expect(within(controls).getByText("History 1/1")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("button", { name: /选择对白：听见了。声音像是从很多年前传过来的。/ }));
+    fireEvent.click(within(controls).getByRole("button", { name: "Run to Cursor" }));
+    const inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
+    expect(within(inspector).getByText(/dialogue · stmt_gate_002/)).toBeVisible();
+    expect(within(controls).getByText("History 2/2")).toBeVisible();
+    expect(within(controls).getByText("光标临时状态")).toBeVisible();
+
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 后退一步" }));
+    expect(within(inspector).getByText(/dialogue · stmt_gate_001/)).toBeVisible();
+    expect(within(controls).getByText("History 2/2")).toBeVisible();
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 后退一步" }));
+    expect(within(inspector).getByText(/direction · stmt_gate_bg/)).toBeVisible();
+    expect(within(controls).getByText("History 1/2")).toBeVisible();
+    expect(within(controls).getByText("back · checkpoint 已恢复")).toBeVisible();
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 前进一步" }));
+    expect(within(inspector).getByText(/dialogue · stmt_gate_001/)).toBeVisible();
+    expect(within(controls).getByText("History 2/2")).toBeVisible();
   });
 });

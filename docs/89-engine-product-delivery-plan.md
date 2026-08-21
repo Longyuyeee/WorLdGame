@@ -301,6 +301,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3 实施状态（2026-08-21）：正式 Preview 已可从所选 Scene 第一条 IR 或所选 Statement 的 Source Map 精确位置 Fresh Run；变量恢复工程默认值、调用栈为空，直接从 `return` 启动会以明确调用上下文诊断关闭。真实生产浏览器的 Scene/Statement/同目标重启路径和 console 0 error 已通过；Draft PR #54 的 Windows / Node 22 完整门 run `32461345815` / job `96708731870` 用时 4 分 16 秒并绿色，E3 Engineering 关闭，详见 [N32-E3 审计](145-n32-e3-run-from-target-audit.md)。
 
+> E4 实施状态（2026-08-21）：Editor Preview 已直接接入正式 Runtime History/Scheduler，提供 Continue、Step Over、Back/Forward 和执行前 Run to Cursor；内部指令 transient、Choice 阻断、调用栈 Step Over、recorded future 与分支 fork 均有正反例及真实生产浏览器证据。Draft PR #55 的 Windows / Node 22 完整门 run `32464584207` / job `96718382563` 用时 4 分 15 秒并绿色，E4 Engineering 关闭，详见 [N32-E4 审计](146-n32-e4-preview-debug-controls-audit.md)。
+
 - **Goal**：编辑器中看到的结果就是玩家 Runtime 的结果。
 - **Implementation**：
   1. Preview 只消费 Compiler 输出，不直接遍历 StoryStatement；

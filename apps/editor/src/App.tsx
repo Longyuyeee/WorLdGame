@@ -133,12 +133,16 @@ import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-
 import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
 import {
   advanceFormalPreview,
+  backFormalPreview,
   createIdleFormalPreviewState,
+  forwardFormalPreview,
   observeFormalPreview,
+  runFormalPreviewToStatement,
   selectFormalPreviewChoice,
   startFormalPreview,
   startFormalPreviewFromScene,
   startFormalPreviewFromStatement,
+  stepOverFormalPreview,
   type FormalPreviewState
 } from "./formal-preview-runtime";
 
@@ -2087,12 +2091,8 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     if (!playableActive || playable.sceneId === null) return;
     if (session.activeSceneId !== playable.sceneId) {
       dispatch({ type: "select-scene", sceneId: playable.sceneId });
-      return;
     }
-    if (session.selectedStatementId !== statement.id) {
-      dispatch({ type: "select-statement", statementId: statement.id });
-    }
-  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.selectedStatementId, statement.id]);
+  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId]);
 
   useEffect(() => {
     if (!playableActive || transport.mode !== "playing") return;
@@ -2178,7 +2178,17 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
       ? `流程完成：${playable.endingName ?? "未命名结局"}`
       : playable.status === "error"
         ? `流程中止：${playable.error ?? "未知错误"}`
-        : `试玩中 · ${scene.title} · ${playable.visitedStatementIds.length} 个节点`;
+        : playable.status === "paused"
+          ? `已暂停 · ${scene.title} · ${playable.statementId ?? "光标位置"}`
+          : `试玩中 · ${scene.title} · ${playable.visitedStatementIds.length} 个节点`;
+  const reconciliationOperationCount = (previewObservation.reconciliation?.compensations.length ?? 0) + (previewObservation.reconciliation?.replayEffects.length ?? 0);
+  const historyStatus = previewObservation.history?.transient
+    ? "光标临时状态"
+    : previewObservation.reconciliation === null
+      ? "确定性 checkpoint"
+      : reconciliationOperationCount === 0
+        ? `${previewObservation.reconciliation.direction} · checkpoint 已恢复`
+        : `${previewObservation.reconciliation.direction} · ${reconciliationOperationCount} 项 Host 协调`;
 
   const transportStatus = playableActive
     ? "完整流程试玩接管中"
@@ -2329,14 +2339,24 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
         {!playableActive && (
           <button type="button" onClick={beginPlayablePreview} disabled={pendingDraft || inputDirty}>试玩完整流程</button>
         )}
-        {playable.status === "presenting" && (
-          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))}>继续剧情</button>
-        )}
         {(playable.status === "ended" || playable.status === "error") && (
           <button type="button" onClick={restartPlayablePreview}>重新试玩</button>
         )}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
       </div>
+      {playableActive && playable.status !== "error" && (
+        <div className="runtime-debug-actions" aria-label="Runtime 调试控制" role="group">
+          <div className="runtime-debug-actions__history">
+            <strong>History {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
+            <small>{historyStatus}</small>
+          </div>
+          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={!previewObservation.history?.canBack} aria-label="Runtime 后退一步">← Back</button>
+          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={!previewObservation.history?.canForward} aria-label="Runtime 前进一步">Forward →</button>
+          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Continue</button>
+          <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
+          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={pendingDraft || inputDirty}>Run to Cursor</button>
+        </div>
+      )}
       {!playableActive && (
         <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">
           <div><strong>Fresh Run</strong><small>变量恢复工程默认值 · 调用栈为空</small></div>
@@ -2350,6 +2370,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <div className="runtime-inspector__metrics">
             <span>r{previewObservation.stateRevision ?? "—"}</span>
             <span>{previewObservation.logicalTimeMilliseconds ?? 0} ms</span>
+            <span>h{previewObservation.history?.cursor ?? "—"}/{previewObservation.history?.length ?? "—"}</span>
           </div>
         </header>
         <div className="runtime-inspector__current">

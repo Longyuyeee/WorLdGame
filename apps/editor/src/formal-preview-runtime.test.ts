@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { runtimeStateHashV1 } from "@world-studio/runtime";
-import { campusStoryProject } from "@world-studio/story-core";
+import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "@world-studio/runtime";
+import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
 import {
   advanceFormalPreview,
+  backFormalPreview,
+  forwardFormalPreview,
   observeFormalPreview,
+  runFormalPreviewToStatement,
   selectFormalPreviewChoice,
   startFormalPreview,
   startFormalPreviewFromScene,
   startFormalPreviewFromStatement,
+  stepOverFormalPreview,
   type FormalPreviewState
 } from "./formal-preview-runtime";
 
@@ -124,5 +128,89 @@ describe("formal editor preview runtime", () => {
       }
     };
     expect(startFormalPreviewFromStatement(withReturn, "scn_broadcast_room", "stmt_return")).toMatchObject({ status: "error", diagnostics: [{ code: "PREVIEW_START_REQUIRES_CALL_CONTEXT", statementId: "stmt_return" }] });
+  });
+
+  it("navigates exact formal History checkpoints backward and forward", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-history");
+    const first = startFormalPreview(project);
+    const second = advanceFormalPreview(first);
+    const third = advanceFormalPreview(second);
+    const back = backFormalPreview(third);
+    const forward = forwardFormalPreview(back);
+
+    expect(observeFormalPreview(third).history).toMatchObject({ cursor: 3, length: 3, canBack: true, canForward: false });
+    expect(back).toMatchObject({ status: "presenting", statementId: "stmt_gate_001" });
+    expect(observeFormalPreview(back).history).toMatchObject({ cursor: 2, length: 3, canForward: true });
+    expect(runtimeStateHashV1(forward.runtimeState!)).toBe(runtimeStateHashV1(third.runtimeState!));
+    expect(forward).toMatchObject({ statementId: "stmt_gate_002" });
+    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("ffcbb64fbbac59f31161b0c00c457c8b2445e954be851665a02a74b7b8aa6594");
+  });
+
+  it("runs to visible and internal Statement cursors and reports blocking boundaries", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-run-cursor");
+    const choice = runFormalPreviewToStatement(startFormalPreview(project), "scn_school_gate", "stmt_gate_choice");
+    expect(choice).toMatchObject({ status: "paused", statementId: "stmt_gate_choice", currentEvent: null });
+    expect(observeFormalPreview(choice).history).toMatchObject({ cursor: 3, length: 3, transient: true });
+    expect(advanceFormalPreview(choice)).toMatchObject({ status: "waiting-choice", statementId: "stmt_gate_choice" });
+
+    const internalStory: StoryProject = {
+      ...campusStoryProject,
+      scenes: campusStoryProject.scenes.map((scene) => scene.id !== "scn_school_gate" ? scene : {
+        ...scene,
+        statements: [scene.statements[0]!, { id: "stmt_debug_label", kind: "label", name: "debug_anchor" }, ...scene.statements.slice(1)]
+      })
+    };
+    const internal = runFormalPreviewToStatement(startFormalPreview(projectCanonicalFromStory(internalStory, "n32-formal-preview-internal-cursor")), "scn_school_gate", "stmt_debug_label");
+    expect(internal).toMatchObject({ status: "paused", statementId: "stmt_debug_label", currentEvent: null });
+    expect(observeFormalPreview(internal)).toMatchObject({ current: { opcode: "label", statementId: "stmt_debug_label" }, history: { transient: true, canBack: true, canForward: false } });
+    expect(backFormalPreview(internal)).toMatchObject({ status: "presenting", statementId: "stmt_gate_bg" });
+
+    const blocked = runFormalPreviewToStatement(startFormalPreview(project), "scn_broadcast_room", "stmt_radio_001");
+    expect(blocked).toMatchObject({ status: "waiting-choice", diagnostics: [expect.objectContaining({ code: "PREVIEW_RUN_TO_CURSOR_BLOCKED" })] });
+  });
+
+  it("steps over a nested call without stopping inside its call frame", () => {
+    const callStory: StoryProject = {
+      schemaVersion: 0,
+      id: "prj_step_over",
+      title: "Step Over",
+      entrySceneId: "scn_main",
+      characters: [],
+      scenes: [{
+        id: "scn_main",
+        title: "Main",
+        statements: [
+          { id: "stmt_before", kind: "narration", textId: "txt_before", text: "Before" },
+          { id: "stmt_call", kind: "call", targetLabel: "sub" },
+          { id: "stmt_after", kind: "narration", textId: "txt_after", text: "After" },
+          { id: "stmt_end", kind: "end", endingName: "Done" },
+          { id: "stmt_sub", kind: "label", name: "sub" },
+          { id: "stmt_nested", kind: "narration", textId: "txt_nested", text: "Nested" },
+          { id: "stmt_return", kind: "return" }
+        ]
+      }]
+    };
+    const started = startFormalPreview(projectCanonicalFromStory(callStory, "n32-formal-preview-step-over"));
+    const stepped = stepOverFormalPreview(started);
+    expect(started).toMatchObject({ statementId: "stmt_before" });
+    expect(stepped).toMatchObject({ status: "presenting", statementId: "stmt_after" });
+    expect(stepped.visitedStatementIds).toEqual(["stmt_before", "stmt_nested", "stmt_after"]);
+    expect(stepped.runtimeState?.callStack).toEqual([]);
+  });
+
+  it("replays recorded choice History and atomically forks a changed route", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n32-formal-preview-history-fork");
+    const waiting = untilChoice(startFormalPreview(project));
+    const radio = selectFormalPreviewChoice(waiting, "opt_broadcast");
+    const rewound = backFormalPreview(radio);
+    const replayed = selectFormalPreviewChoice(rewound, "opt_broadcast");
+    const forked = selectFormalPreviewChoice(backFormalPreview(replayed), "opt_rooftop");
+
+    expect(rewound).toMatchObject({ status: "waiting-choice", statementId: "stmt_gate_choice" });
+    expect(runtimeStateHashV1(replayed.runtimeState!)).toBe(runtimeStateHashV1(radio.runtimeState!));
+    expect(forked).toMatchObject({ status: "presenting", sceneId: "scn_rooftop", statementId: "stmt_rooftop_bg" });
+    expect(forked.historySession?.cursor).toBe(forked.historySession?.entries.length);
+    expect(forked.historySession?.inputTombstones).toHaveLength(1);
+    expect(observeFormalPreview(forked).history?.canForward).toBe(false);
   });
 });
