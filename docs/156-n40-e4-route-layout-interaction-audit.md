@@ -3,7 +3,7 @@
 > 日期：2026-08-22
 > 分支：`codex/n40-e1-route-graph-core`
 > 范围：Canonical 分组/折叠/视口、拖拽、键盘与触控等价移动、真实保存恢复
-> 结论：本地 Engineering 通过；远端 Windows / Node 22 等待推送后裁决
+> 结论：本地与远端 Windows / Node 22 Engineering 均通过
 
 ## 1. 需求对齐与偏移纠正
 
@@ -69,5 +69,6 @@ E4 Engineering 本地通过，但 N40 仍未完成：
 ## 5. 远端证据
 
 - Draft PR：[#59](https://github.com/Longyuyeee/WorLdGame/pull/59)；
-- 实现提交、Windows / Node 22 run 与 job：推送后回填；
-- 远端必须运行 locked dependencies、完整 `npm run check` 与 post steps；未绿色前不得把 E4 记为远端关闭。
+- 实现提交：`691167db8f5fcc933d309f2cc42ff07695a568e4`；
+- Windows / Node 22 full check：[run 32518694786](https://github.com/Longyuyeee/WorLdGame/actions/runs/32518694786)，job `96885966342`，`4m9s`，`success`；
+- locked dependencies、完整产品基线检查与 post steps 全部为绿色。远端结论关闭 E4 Engineering，但不解除 `RA-N21-005` 对产品门和后续节点的阻断。
