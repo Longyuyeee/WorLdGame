@@ -27,15 +27,15 @@ function branchingStory(sceneCount: number): StoryProject {
   return { schemaVersion: 0, id: "route-ui-window", title: "Route UI Window", entrySceneId: "route_ui_000", characters: [], scenes };
 }
 
-function linearRuntimeStory(sceneCount: number): StoryProject {
+function pagedRuntimeStory(sceneCount: number): StoryProject {
   const scenes = Array.from({ length: sceneCount }, (_, index) => {
     const id = `runtime_route_${String(index).padStart(3, "0")}`;
     return {
       id,
       title: `Runtime Route Scene ${index}`,
-      statements: index === sceneCount - 1
-        ? [{ id: `ending_${id}`, kind: "end" as const, endingName: "Window reached" }]
-        : [{ id: `choice_${id}`, kind: "choice" as const, prompt: `Continue ${index}`, options: [{ id: `edge_${index}_${index + 1}`, label: `Next ${index + 1}`, targetSceneId: `runtime_route_${String(index + 1).padStart(3, "0")}` }] }]
+      statements: index === 0
+        ? [{ id: `choice_${id}`, kind: "choice" as const, prompt: "Choose page target", options: Array.from({ length: sceneCount - 1 }, (_, optionIndex) => ({ id: `edge_0_${optionIndex + 1}`, label: `Target ${optionIndex + 1}`, targetSceneId: `runtime_route_${String(optionIndex + 1).padStart(3, "0")}` })) }]
+        : [{ id: `ending_${id}`, kind: "end" as const, endingName: `Window ${index}` }]
     };
   });
   return { schemaVersion: 0, id: "runtime-route-window", title: "Runtime Route Window", entrySceneId: "runtime_route_000", characters: [], scenes };
@@ -150,7 +150,7 @@ describe("N40 Route Map product flow", () => {
   });
 
   it("re-anchors the bounded Route window around a Runtime current scene outside the visible page", () => {
-    const project = projectCanonicalFromStory(linearRuntimeStory(65), "n40-runtime-route-window");
+    const project = projectCanonicalFromStory(pagedRuntimeStory(65), "n40-runtime-route-window");
     render(<App initialProject={project} />);
     fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
     fireEvent.click(screen.getByRole("button", { name: "下一段路线场景" }));
