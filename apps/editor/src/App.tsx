@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1898,6 +1898,8 @@ function ScriptView({
 interface FlowViewProps extends CommonProps {
   readonly canonicalProject: CanonicalProject;
   readonly routeCompiler?: EditorProjectCompilerState;
+  readonly hasLocalChanges: boolean;
+  readonly trustedChangedSceneIds?: readonly string[];
   readonly onOpenSequence: (sceneId: string) => void;
   readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
   readonly onSetScenePosition: (sceneId: string, x: number, y: number) => RouteProjectMutationResult;
@@ -1919,13 +1921,14 @@ const compilerCacheLabels = {
   "source-mismatch": "源正文变化后重建"
 } as const;
 
-function FlowView({ session, dispatch, canonicalProject, routeCompiler, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
-  const canonicalHash = useMemo(() => semanticHash(canonicalProject), [canonicalProject]);
+function FlowView({ session, dispatch, canonicalProject, routeCompiler, hasLocalChanges, trustedChangedSceneIds, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
+  const canonicalHash = useMemo(() => hasLocalChanges ? undefined : semanticHash(canonicalProject), [canonicalProject, hasLocalChanges]);
   const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
-  const graph = useMemo(() => compilerAligned ? buildRouteGraphFromCompilation(canonicalProject, routeCompiler.compilation) : buildRouteGraph(canonicalProject), [canonicalProject, compilerAligned, routeCompiler]);
+  const incrementalProjection = useMemo(() => !compilerAligned && routeCompiler !== undefined ? buildRouteGraphIncremental(canonicalProject, routeCompiler.compilation.cache, trustedChangedSceneIds) : undefined, [canonicalProject, compilerAligned, routeCompiler, trustedChangedSceneIds]);
+  const graph = useMemo(() => compilerAligned ? buildRouteGraphFromCompilation(canonicalProject, routeCompiler.compilation) : incrementalProjection?.graph ?? buildRouteGraph(canonicalProject), [canonicalProject, compilerAligned, incrementalProjection, routeCompiler]);
   const compilerStatus = compilerAligned
     ? `${compilerCacheLabels[routeCompiler.cacheStatus]} · ${routeCompiler.compilation.stats.compiledSceneIds.length} 编译 / ${routeCompiler.compilation.stats.reusedSceneIds.length} 复用`
-    : routeCompiler === undefined ? "未接入宿主缓存 · 内存全量编译" : "存在未保存改动 · 内存临时全量编译";
+    : incrementalProjection === undefined ? "未接入宿主缓存 · 内存全量编译" : `存在未保存改动 · 内存增量分析 · ${incrementalProjection.analysis.stats.compiledSceneIds.length} 编译 / ${incrementalProjection.analysis.stats.reusedSceneIds.length} 复用`;
   const routeIndex = useMemo(() => createRouteGraphIndex(graph), [graph]);
   const [query, setQuery] = useState("");
   const [chapterFilter,setChapterFilter]=useState("");
@@ -2737,6 +2740,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const saveInFlight = useRef(false);
   const autosaveSuspended = useRef(false);
   const editGeneration = useRef(0);
+  const routeChangedSceneIds = useRef<Set<string> | null>(new Set());
   const sessionRef = useRef(session);
   sessionRef.current = session;
   const onProjectChangeRef = useRef(onProjectChange);
@@ -2774,8 +2778,9 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     baseDispatch(action);
     if ([
       "edit-script", "patch-dialogue", "patch-direction", "patch-directions", "insert-dialogue", "insert-direction", "duplicate-direction", "delete-dialogue",
-      "move-dialogue", "delete-direction", "move-direction", "format-script", "discard-draft", "undo", "redo"
+      "move-dialogue", "delete-direction", "move-direction", "p0-insert", "p0-update", "p0-delete", "p0-move", "p0-batch", "format-script", "discard-draft", "undo", "redo"
     ].includes(action.type)) {
+      routeChangedSceneIds.current?.add(sessionRef.current.activeSceneId);
       editGeneration.current += 1;
       setEditVersion((value) => value + 1);
       setPersistence((current) => current.status === "unavailable" || current.status === "conflict" ||
@@ -2817,6 +2822,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const renameSceneFromRouteMap = (sceneId: string, title: string): RenameRouteSceneResult => {
     const result = renameRouteScene(previewCanonicalProject, createCommandId(), sceneId, title);
     if (!result.ok) return result;
+    routeChangedSceneIds.current?.add(sceneId);
     setCanonicalBase(result.project);
     const nextSession = createStudioSessionFromCanonical(result.project);
     const selectedScene = nextSession.project.scenes.find((item) => item.id === sceneId);
@@ -3844,6 +3850,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             dispatch={dispatch}
             canonicalProject={previewCanonicalProject}
             {...(routeCompiler===undefined?{}:{routeCompiler})}
+            hasLocalChanges={editGeneration.current > 0}
+            {...(routeChangedSceneIds.current===null?{}:{trustedChangedSceneIds:[...routeChangedSceneIds.current]})}
             onRenameScene={renameSceneFromRouteMap}
             onSetScenePosition={setScenePositionFromRouteMap}
             onResetSceneLayout={resetSceneLayoutFromRouteMap}

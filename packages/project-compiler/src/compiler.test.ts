@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, type S0Project } from "@world-studio/project-domain";
 import { canonicalJson } from "./canonical-json";
-import { compileProject, compileProjectIncremental } from "./compiler";
+import { analyzeProjectIncremental, compileProject, compileProjectIncremental } from "./compiler";
 
 const fixtureNames = ["tiny", "branching", "media", "cjk"] as const;
 
@@ -238,6 +238,29 @@ describe("project compiler N30-E1/E2", () => {
     expect(third.stats.compiledSceneIds).toEqual(["branch_left"]);
     expect(third.stats.reusedSceneIds).toEqual(["branch_right", "branch_start"]);
     expect(third.stats.resourceCatalogChanged).toBe(false);
+  });
+
+  it("uses a trusted scene-local hint without weakening scene-set fallback", () => {
+    const project = loadFixture("branching");
+    const baseline = compileProjectIncremental(project);
+    const changedStatements = project.scripts.branch_left!.statements.map((statement) => statement.id === "branch_left_line" ? { ...statement, text: "Fast local edit" } : statement);
+    const changedProject = replaceScript(project, "branch_left", changedStatements);
+    const local = analyzeProjectIncremental(changedProject, { previousCache: baseline.cache, trustedChangedSceneIds: ["branch_left"] });
+    expect(local.stats.compiledSceneIds).toEqual(["branch_left"]);
+    expect(local.stats.reusedSceneIds).toEqual(["branch_right", "branch_start"]);
+    expect(local.diagnostics).toEqual(compileProjectIncremental(changedProject, { previousCache: baseline.cache }).diagnostics);
+
+    const removed: CanonicalProject = {
+      ...changedProject,
+      scenes: changedProject.scenes.filter((scene) => scene.id !== "branch_right"),
+      scripts: Object.fromEntries(Object.entries(changedProject.scripts).filter(([sceneId]) => sceneId !== "branch_right")),
+      layouts: Object.fromEntries(Object.entries(changedProject.layouts).filter(([sceneId]) => sceneId !== "branch_right")),
+      chapters: changedProject.chapters.map((chapter) => ({ ...chapter, scenePaths: chapter.scenePaths.filter((path) => !path.includes("branch_right")) }))
+    };
+    const fallback = analyzeProjectIncremental(removed, { previousCache: baseline.cache, trustedChangedSceneIds: ["branch_left"] });
+    expect(fallback.stats.compiledSceneIds).toEqual(["branch_left", "branch_start"]);
+    expect(fallback.stats.reusedSceneIds).toEqual([]);
+    expect(fallback.stats.removedSceneIds).toEqual(["branch_right"]);
   });
 
   it("invalidates only resource catalogs when unreferenced asset metadata changes", () => {

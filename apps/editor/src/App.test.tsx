@@ -572,6 +572,9 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(screen.getByLabelText("路线场景名称"), { target: { value: "内存修改" } });
     fireEvent.click(screen.getByRole("button", { name: "通过 Project Service 保存" }));
     expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("存在未保存改动");
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("内存增量分析");
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("1 编译");
+    expect(screen.getByRole("button", { name: "路线场景：内存修改 · scn_school_gate" })).toBeVisible();
   });
 
   it("edits and resets a canonical route layout sidecar through Project Service", () => {

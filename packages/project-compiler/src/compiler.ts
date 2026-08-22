@@ -4,8 +4,8 @@ import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
 import {
   PROJECT_COMPILER_VERSION, RUNTIME_IR_VERSION,
   type CompileProfile, type CompileProjectResult, type CompilerArtifactsV1, type CompilerDiagnostic,
-  type CompilerDiagnosticCode, type CompilerSceneCacheEntryV1, type IncrementalCompileOptions,
-  type ProjectCompilerCacheV1, type RuntimeInstructionV1, type RuntimeOpcodeV1, type RuntimeSceneV1,
+  type CompilerDiagnosticCode, type CompilerSceneCacheEntryV1, type IncrementalAnalysisOptions, type IncrementalCompileOptions,
+  type ProjectAnalysisResult, type ProjectCompilerCacheV1, type RuntimeInstructionV1, type RuntimeOpcodeV1, type RuntimeSceneV1,
   type SourceMapEntryV1
 } from "./types";
 
@@ -75,7 +75,7 @@ function controlFlowEdges(statements: readonly JsonObject[], labels: ReadonlyMap
 
 function reachableIndexes(edges: readonly ReadonlySet<number>[]): ReadonlySet<number> {
   const reached = new Set<number>(); const queue = edges.length === 0 ? [] : [0];
-  while (queue.length > 0) { const index = queue.shift()!; if (reached.has(index)) continue; reached.add(index); for (const target of edges[index] ?? []) if (!reached.has(target)) queue.push(target); }
+  for (let cursor = 0; cursor < queue.length; cursor += 1) { const index = queue[cursor]!; if (reached.has(index)) continue; reached.add(index); for (const target of edges[index] ?? []) if (!reached.has(target)) queue.push(target); }
   return reached;
 }
 
@@ -233,7 +233,7 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const stats = { compiledSceneIds: uniqueSorted(compiledSceneIds), reusedSceneIds: uniqueSorted(reusedSceneIds), removedSceneIds, resourceCatalogChanged: previous === undefined || previous.catalogInputHash !== catalogInputHash };
   for (const entry of Object.values(sceneCache)) diagnostics.push(...entry.diagnostics);
   const graph = new Map(project.scenes.map((scene) => [scene.id, new Set(sceneCache[scene.id]?.targetSceneIds ?? [])])); const reachableScenes = new Set<string>(); const queue = sceneIds.has(project.manifest.entrySceneId) ? [project.manifest.entrySceneId] : [];
-  while (queue.length > 0) { const sceneId = queue.shift()!; if (reachableScenes.has(sceneId)) continue; reachableScenes.add(sceneId); for (const target of graph.get(sceneId) ?? []) if (!reachableScenes.has(target)) queue.push(target); }
+  for (let cursor = 0; cursor < queue.length; cursor += 1) { const sceneId = queue[cursor]!; if (reachableScenes.has(sceneId)) continue; reachableScenes.add(sceneId); for (const target of graph.get(sceneId) ?? []) if (!reachableScenes.has(target)) queue.push(target); }
   for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId)).sort((left, right) => compareCanonicalStrings(left.endingId, right.endingId));
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
@@ -266,3 +266,53 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
 }
 
 export function compileProject(project: CanonicalProject, profile: CompileProfile = "debug"): CompileProjectResult { return compileProjectIncremental(project, { profile }); }
+
+/** Runs the compiler's authoritative semantic analysis without emitting release artifacts. */
+export function analyzeProjectIncremental(project: CanonicalProject, options: IncrementalAnalysisOptions = {}): ProjectAnalysisResult {
+  const diagnostics: CompilerDiagnostic[] = [];
+  const sceneIds = new Set(project.scenes.map((scene) => scene.id));
+  const characterIds = new Set(project.characters.characters.flatMap((value) => typeof value.id === "string" ? [value.id] : []));
+  const variableTypes: Record<string, ExpressionValueType> = {};
+  for (const value of project.variables.variables) if (typeof value.id === "string" && ["boolean", "number", "string"].includes(String(value.type))) variableTypes[value.id] = value.type as ExpressionValueType;
+  const seenAssetIds = new Set<string>();
+  const assets = project.assets.assets.map((asset) => {
+    const assetId = typeof asset.assetId === "string" ? asset.assetId : typeof asset.id === "string" ? asset.id : undefined;
+    if (assetId === undefined || !/^[A-Za-z][A-Za-z0-9._-]{0,127}$/u.test(assetId)) diagnostics.push(diagnostic("INVALID_ASSET", "Asset entry is missing a valid stable string ID"));
+    else if (seenAssetIds.has(assetId)) diagnostics.push(diagnostic("INVALID_ASSET", `Asset ID is duplicated: ${assetId}`, { entityId: assetId })); else seenAssetIds.add(assetId);
+    return Object.fromEntries(Object.entries(jsonClone(asset)).filter(([key]) => key !== "base64")) as JsonObject;
+  }).sort((left, right) => compareCanonicalStrings(String(left.assetId ?? left.id), String(right.assetId ?? right.id)));
+  const context: CompileContext = { sceneIds, characterIds, assetIds: seenAssetIds, variableTypes };
+  if (!sceneIds.has(project.manifest.entrySceneId)) diagnostics.push(diagnostic("MISSING_ENTRY_SCENE", `Entry scene does not exist: ${project.manifest.entrySceneId}`, { entityId: project.manifest.entrySceneId }));
+  const previous = options.previousCache?.schemaVersion === 1 && options.previousCache.compilerVersion === PROJECT_COMPILER_VERSION && options.previousCache.irVersion === RUNTIME_IR_VERSION ? options.previousCache : undefined;
+  const cacheSceneIds = Object.keys(previous?.scenes ?? {}).sort(compareCanonicalStrings);
+  const currentSceneIds = project.scenes.map((scene) => scene.id).sort(compareCanonicalStrings);
+  const trustedChangedSceneIds = options.trustedChangedSceneIds === undefined || previous === undefined || cacheSceneIds.length !== currentSceneIds.length || cacheSceneIds.some((sceneId, index) => sceneId !== currentSceneIds[index])
+    ? undefined
+    : new Set(options.trustedChangedSceneIds);
+  const sceneCache: Record<string, CompilerSceneCacheEntryV1> = {};
+  const compiledSceneIds: string[] = [];
+  const reusedSceneIds: string[] = [];
+  for (const scene of project.scenes) {
+    const script = project.scripts[scene.id];
+    const trustedCached = trustedChangedSceneIds?.has(scene.id) === false ? previous?.scenes[scene.id] : undefined;
+    if (trustedCached !== undefined) { sceneCache[scene.id] = trustedCached; reusedSceneIds.push(scene.id); continue; }
+    const inputHash = sceneDependencyHash(scene, script, context);
+    const cached = previous?.scenes[scene.id];
+    if (cached?.inputHash === inputHash && validCachedEntry(cached)) { sceneCache[scene.id] = cached; reusedSceneIds.push(scene.id); }
+    else { sceneCache[scene.id] = compileScene(scene, script, context, inputHash); compiledSceneIds.push(scene.id); }
+  }
+  const removedSceneIds = uniqueSorted(Object.keys(previous?.scenes ?? {}).filter((sceneId) => !sceneIds.has(sceneId)));
+  const catalogInputHash = sha256(canonicalJson({ assets: assets as unknown as JsonValue, localization: project.localization as unknown as JsonValue }));
+  const cache: ProjectCompilerCacheV1 = { schemaVersion: 1, compilerVersion: PROJECT_COMPILER_VERSION, irVersion: RUNTIME_IR_VERSION, catalogInputHash, scenes: sceneCache };
+  const stats = { compiledSceneIds: uniqueSorted(compiledSceneIds), reusedSceneIds: uniqueSorted(reusedSceneIds), removedSceneIds, resourceCatalogChanged: previous === undefined || previous.catalogInputHash !== catalogInputHash };
+  for (const entry of Object.values(sceneCache)) diagnostics.push(...entry.diagnostics);
+  const graph = new Map(project.scenes.map((scene) => [scene.id, new Set(sceneCache[scene.id]?.targetSceneIds ?? [])]));
+  const reachableScenes = new Set<string>();
+  const queue = sceneIds.has(project.manifest.entrySceneId) ? [project.manifest.entrySceneId] : [];
+  for (let cursor = 0; cursor < queue.length; cursor += 1) { const sceneId = queue[cursor]!; if (reachableScenes.has(sceneId)) continue; reachableScenes.add(sceneId); for (const target of graph.get(sceneId) ?? []) if (!reachableScenes.has(target)) queue.push(target); }
+  for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
+  const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId));
+  if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
+  const sortedDiagnostics = sortDiagnostics(diagnostics);
+  return { ok: !sortedDiagnostics.some((item) => item.severity === "error"), diagnostics: sortedDiagnostics, cache, stats };
+}

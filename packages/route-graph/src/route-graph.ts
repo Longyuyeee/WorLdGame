@@ -1,4 +1,4 @@
-import { compileProject, type CompileProjectResult, type CompilerDiagnostic, type RuntimeInstructionV1 } from "@world-studio/project-compiler";
+import { analyzeProjectIncremental, compileProject, type CompilerDiagnostic, type ProjectAnalysisResult, type ProjectCompilerCacheV1, type RuntimeInstructionV1 } from "@world-studio/project-compiler";
 import {
   createProjectService,
   executeProjectBatch,
@@ -154,7 +154,7 @@ function choiceEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, k
   });
 }
 
-export function buildRouteGraphFromCompilation(project: CanonicalProject, compilation: CompileProjectResult): RouteGraphV1 {
+export function buildRouteGraphFromCompilation(project: CanonicalProject, compilation: ProjectAnalysisResult): RouteGraphV1 {
   const knownSceneIds = new Set(project.scenes.map((scene) => scene.id));
   const chapterByScene = new Map<string, string>();
   const chapters = project.chapters.map<RouteChapterV1>((chapter) => {
@@ -197,6 +197,16 @@ export function buildRouteGraphFromCompilation(project: CanonicalProject, compil
 
 export function buildRouteGraph(project: CanonicalProject): RouteGraphV1 {
   return buildRouteGraphFromCompilation(project, compileProject(project, "debug"));
+}
+
+export interface IncrementalRouteGraphResult {
+  readonly graph: RouteGraphV1;
+  readonly analysis: ProjectAnalysisResult;
+}
+
+export function buildRouteGraphIncremental(project: CanonicalProject, previousCache?: ProjectCompilerCacheV1, trustedChangedSceneIds?: readonly string[]): IncrementalRouteGraphResult {
+  const analysis = analyzeProjectIncremental(project, { profile: "debug", ...(previousCache === undefined ? {} : { previousCache }), ...(trustedChangedSceneIds === undefined ? {} : { trustedChangedSceneIds }) });
+  return { graph: buildRouteGraphFromCompilation(project, analysis), analysis };
 }
 
 function normalizeSearch(value: string): string {

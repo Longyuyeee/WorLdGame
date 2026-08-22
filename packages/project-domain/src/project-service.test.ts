@@ -18,9 +18,9 @@ const storyCommands: readonly ProjectCommand[] = [
 describe("Project Service", () => {
   it("builds a two-scene branch atomically, undoes to the empty story, and redoes to the same hash", () => {
     const start = initial(); const result = executeProjectBatch(start, storyCommands); expect(result.ok ? null : result.error).toBeNull(); if(!result.ok)return;
-    const finalHash = semanticHash(result.state.project); expect(result.state.project.scenes.map(x=>x.id)).toEqual(["scene_start","scene_end"]); expect(result.changeSet.changedEntityIds).toContain("statement_choice");
-    const undone = undoProject(result.state); expect(undone.project.scenes.map(x=>x.id)).toEqual(["scene_empty"]);
-    const redone = redoProject(undone); expect(semanticHash(redone.project)).toBe(finalHash); expect(serializeCommittedRevision(redone,redone.revision)["world.project.json"]).toBeDefined();
+    const finalHash = semanticHash(result.state.project); expect(result.state.revisionHash).toBe(result.changeSet.afterHash);expect(result.state.project.scenes.map(x=>x.id)).toEqual(["scene_start","scene_end"]); expect(result.changeSet.changedEntityIds).toContain("statement_choice");
+    const undone = undoProject(result.state); expect(undone.revisionHash).toBe(result.changeSet.beforeHash);expect(undone.project.scenes.map(x=>x.id)).toEqual(["scene_empty"]);
+    const redone = redoProject(undone); expect(redone.revisionHash).toBe(result.changeSet.afterHash);expect(semanticHash(redone.project)).toBe(finalHash); expect(serializeCommittedRevision(redone,redone.revision)["world.project.json"]).toBeDefined();
   });
   it("rejects a stale revision without changing the project", () => {
     const start=initial();const result=executeProjectCommand(start,{...storyCommands[0]!,expectedRevision:9});expect(result.ok).toBe(false);if(result.ok)return;expect(result.error.code).toBe("STALE_REVISION");expect(semanticHash(result.state.project)).toBe(semanticHash(start.project));

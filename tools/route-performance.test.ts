@@ -1,12 +1,19 @@
 import { performance } from "node:perf_hooks";
-import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
+import { createProjectService, createProjectTemplate, executeProjectCommand, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { compileProjectIncremental } from "@world-studio/project-compiler";
+import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { describe, expect, it } from "vitest";
 
 const sceneCount = 10_000;
 const projectionBudgetMs = 15_000;
 const indexBudgetMs = 2_000;
 const queryBudgetMs = 250;
+const editSyncBudgetMs = 500;
+const editSamples = 20;
+
+function percentile95(values: readonly number[]): number {
+  return [...values].sort((left, right) => left - right)[Math.ceil(values.length * 0.95) - 1]!;
+}
 
 function sceneId(index: number): string {
   return `route_scene_${String(index).padStart(5, "0")}`;
@@ -80,5 +87,46 @@ describe("N40 10k branching Route performance gate", () => {
     expect(projectionMs).toBeLessThan(projectionBudgetMs);
     expect(indexMs).toBeLessThan(indexBudgetMs);
     expect(queryMs).toBeLessThan(queryBudgetMs);
+  });
+
+  it("synchronizes a Project Service single-scene edit into a queried Route window within 500ms P95", () => {
+    const project = createBranchingRouteProject();
+    const baselineCompilation = compileProjectIncremental(project);
+    const measurements: number[] = [];
+    const components: { projectService: number; incrementalCompiler: number; projectionAndQuery: number }[] = [];
+
+    for (let sample = 0; sample < editSamples; sample += 1) {
+      const service = createProjectService(project);
+      const start = performance.now();
+      const edited = executeProjectCommand(service, {
+        commandId: `route_performance_rename_${sample}`,
+        expectedRevision: 0,
+        kind: "scene.rename",
+        sceneId: sceneId(5_555),
+        title: `Edited Route Scene ${sample}`
+      });
+      expect(edited.ok).toBe(true);
+      if (!edited.ok) return;
+      const serviceEnd = performance.now();
+      const projection = buildRouteGraphIncremental(edited.state.project, baselineCompilation.cache, [sceneId(5_555)]);
+      const compilerEnd = performance.now();
+      const routeWindow = queryRouteGraphWindow(createRouteGraphIndex(projection.graph), { anchorSceneId: sceneId(5_555) });
+      const end = performance.now();
+      measurements.push(end - start);
+      components.push({ projectService: serviceEnd - start, incrementalCompiler: compilerEnd - serviceEnd, projectionAndQuery: end - compilerEnd });
+      expect(projection.analysis.stats.compiledSceneIds).toEqual([sceneId(5_555)]);
+      expect(projection.analysis.stats.reusedSceneIds).toHaveLength(sceneCount - 1);
+      expect(routeWindow.nodes.find((node) => node.id === sceneId(5_555))?.title).toBe(`Edited Route Scene ${sample}`);
+    }
+
+    const p95 = percentile95(measurements);
+    console.log(JSON.stringify({
+      status: p95 < editSyncBudgetMs ? "PASS" : "FAIL",
+      baseline: { sceneCount, edit: "Project Service scene.rename -> compiler -> Route graph -> index -> anchored window", samples: editSamples },
+      measurementsMs: { samples: measurements.map((value) => Number(value.toFixed(2))), p95: Number(p95.toFixed(2)) },
+      componentSamplesMs: components.map((value) => Object.fromEntries(Object.entries(value).map(([key, duration]) => [key, Number(duration.toFixed(2))]))),
+      budgetMs: { p95: editSyncBudgetMs }
+    }, null, 2));
+    expect(p95).toBeLessThan(editSyncBudgetMs);
   });
 });
