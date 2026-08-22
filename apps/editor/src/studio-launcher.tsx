@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createProject, markProjectDirty, openProject, rememberRecent, saveLifecycleProject, saveProject, type ProjectLifecycleSession, type ProjectWorkspace, type RecentProject } from "@world-studio/project-domain";
+import { createProject, markProjectDirty, rememberRecent, saveProject, type ProjectLifecycleSession, type ProjectWorkspace, type RecentProject } from "@world-studio/project-domain";
 import { campusStoryProject } from "@world-studio/story-core";
 import { App } from "./App";
 import { BrowserRecentProjectStore, loadDirectoryHandle, saveDirectoryHandle } from "./browser-project-registry";
@@ -11,6 +11,7 @@ import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
+import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -22,26 +23,27 @@ export function StudioLauncher() {
   const recentStore = useMemo(() => new BrowserRecentProjectStore(), []);
   const [recent, setRecent] = useState<readonly RecentProject[]>([]);
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;view:"structure"|"content"}|null>(null);
+  const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content"}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
-  const finish = async (workspace:ProjectWorkspace,session: ProjectLifecycleSession) => { workspaces.current.set(session.reference.referenceId,workspace);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
+  const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const opfsWorkspace = async () => createOpfsProjectWorkspace(browserApi(), `project-${entropy()}`);
   const actions: ProjectHomeActions = {
-    create: async (title) => {const workspace=await opfsWorkspace();return finish(workspace,await createProject(workspace, title, entropy()));},
-    openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openProject(workspace)); },
+    create: async (title) => {const workspace=await opfsWorkspace();const session=await createProject(workspace,title,entropy());return finish(workspace,await compileLifecycleProject(workspace,session));},
+    openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openCompiledLifecycleProject(workspace)); },
     openRecent: async (item) => {
       let workspace: BrowserDirectoryProjectWorkspace;
       if (item.reference.hostKind === "web-opfs" && item.reference.referenceId.startsWith("opfs_")) workspace = await createOpfsProjectWorkspace(browserApi(), item.reference.referenceId.slice(5));
       else { const handle = await loadDirectoryHandle(item.reference.referenceId); if (handle === null) throw new Error("目录授权已失效，请重新选择工程目录"); workspace = new BrowserDirectoryProjectWorkspace(handle, item.reference.referenceId); }
-      return finish(workspace,await openProject(workspace));
+      return finish(workspace,await openCompiledLifecycleProject(workspace));
     },
     openExample: async () => {
       const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
-      await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openProject(workspace));
+      await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openCompiledLifecycleProject(workspace));
     },
     openN23Benchmark: async () => {
       const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(loadN23BenchmarkProject(), entropy());
-      await workspace.writeFiles(saveProject(project), null); return finish(workspace, await openProject(workspace));
+      await workspace.writeFiles(saveProject(project), null); return finish(workspace, await openCompiledLifecycleProject(workspace));
     },
     importArchive: async (file) => {
       const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = await opfsWorkspace();
@@ -56,7 +58,7 @@ export function StudioLauncher() {
         try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
         finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
       }
-      return finish(workspace,await openProject(workspace));
+      return finish(workspace,await openCompiledLifecycleProject(workspace));
     },
     exportArchive: async (session) => {
       const assets = new IndexedDbAssetRepository(globalThis.indexedDB, session.projectId);
@@ -64,6 +66,6 @@ export function StudioLauncher() {
       return { href: url, filename: `${session.title.replace(/[^a-z0-9_-]+/gi, "-") || "world-project"}.zip`, byteLength: archive.byteLength, dispose: () => URL.revokeObjectURL(url) };
     }
   };
-  if(editing?.session.project){if(editing.view==="structure")return <><button className="project-home-return" onClick={()=>setEditing(null)}>返回项目首页</button><ProjectEntityManager session={editing.session} workspace={editing.workspace} onSession={(session)=>setEditing({...editing,session})} onOpenEditor={(project)=>setEditing({...editing,session:{...editing.session,project},view:"content"})}/></>;return <><button className="project-home-return" onClick={()=>setEditing({...editing,view:"structure"})}>返回项目结构</button><App initialProject={editing.session.project} onCanonicalProjectChange={(project)=>setEditing((current)=>current===null?current:{...current,session:markProjectDirty(current.session,project)})} onProjectChange={(story)=>setEditing((current)=>{if(current===null||current.session.project===null)return current;return {...current,session:markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story))};})} onProjectSave={async(story)=>{const current=editing;if(current.session.project===null)return;const dirty=markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story));const saved=await saveLifecycleProject(current.workspace,dirty);setEditing((latest)=>latest===null?latest:{...latest,session:saved});}}/></>;}
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId);if(workspace===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,view:"structure"});}} />;
+  if(editing?.session.project){if(editing.view==="structure")return <><button className="project-home-return" onClick={()=>setEditing(null)}>返回项目首页</button><ProjectEntityManager session={editing.session} workspace={editing.workspace} onSession={async(session)=>{const compiled=await compileLifecycleProject(editing.workspace,session);compilers.current.set(session.reference.referenceId,compiled.compiler);setEditing((current)=>current===null?current:{...current,session:compiled.session,compiler:compiled.compiler});}} onOpenEditor={(project)=>setEditing({...editing,session:{...editing.session,project},view:"content"})}/></>;return <><button className="project-home-return" onClick={()=>setEditing({...editing,view:"structure"})}>返回项目结构</button><App initialProject={editing.session.project} {...(editing.compiler===null?{}:{routeCompiler:editing.compiler})} onCanonicalProjectChange={(project)=>setEditing((current)=>current===null?current:{...current,session:markProjectDirty(current.session,project)})} onProjectChange={(story)=>setEditing((current)=>{if(current===null||current.session.project===null)return current;return {...current,session:markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story))};})} onProjectSave={async(story)=>{const current=editing;if(current.session.project===null)return;const dirty=markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story));const compiled=await saveCompiledLifecycleProject(current.workspace,dirty);compilers.current.set(compiled.session.reference.referenceId,compiled.compiler);setEditing((latest)=>latest===null?latest:{...latest,session:compiled.session,compiler:compiled.compiler});}}/></>;}
+  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"structure"});}} />;
 }

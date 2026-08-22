@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -54,7 +54,7 @@ import {
   resolveDirectiveAction,
   type StoryDocument
 } from "@world-studio/story-language";
-import type { CanonicalProject } from "@world-studio/project-domain";
+import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
 import type { StoryProject } from "@world-studio/story-core";
 import {
   activeSourceDraft,
@@ -85,6 +85,7 @@ import { analyzeDicingInWorker, buildDicingAtlasInWorker } from "./dicing-analys
 import { resolveDicingRuntimeImageInWorker } from "./dicing-runtime-client";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
 import { StoryResourceCoordinator } from "./story-resource-coordinator";
+import type { EditorProjectCompilerState } from "./editor-project-compilation";
 import { createProjectSearchIndex, searchProjectIndex, type ProjectSearchMatch } from "./project-search";
 import { selectStageDirectionLane, selectStageDirectionRange, type StageDirectionCommand } from "./stage-selection";
 import { createStageSearchIndex, searchStageIndex, type StageSearchMatch } from "./stage-search";
@@ -1896,6 +1897,7 @@ function ScriptView({
 
 interface FlowViewProps extends CommonProps {
   readonly canonicalProject: CanonicalProject;
+  readonly routeCompiler?: EditorProjectCompilerState;
   readonly onOpenSequence: (sceneId: string) => void;
   readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
   readonly onSetScenePosition: (sceneId: string, x: number, y: number) => RouteProjectMutationResult;
@@ -1907,8 +1909,23 @@ interface FlowViewProps extends CommonProps {
   readonly onSetViewport: (x: number, y: number, zoom: number) => RouteProjectMutationResult;
 }
 
-function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
-  const graph = useMemo(() => buildRouteGraph(canonicalProject), [canonicalProject]);
+const compilerCacheLabels = {
+  unsupported: "宿主不支持缓存",
+  miss: "缓存未命中",
+  hit: "缓存命中",
+  corrupt: "缓存损坏后重建",
+  incompatible: "缓存版本不兼容后重建",
+  "inventory-mismatch": "文件清单变化后重建",
+  "source-mismatch": "源正文变化后重建"
+} as const;
+
+function FlowView({ session, dispatch, canonicalProject, routeCompiler, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
+  const canonicalHash = useMemo(() => semanticHash(canonicalProject), [canonicalProject]);
+  const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
+  const graph = useMemo(() => compilerAligned ? buildRouteGraphFromCompilation(canonicalProject, routeCompiler.compilation) : buildRouteGraph(canonicalProject), [canonicalProject, compilerAligned, routeCompiler]);
+  const compilerStatus = compilerAligned
+    ? `${compilerCacheLabels[routeCompiler.cacheStatus]} · ${routeCompiler.compilation.stats.compiledSceneIds.length} 编译 / ${routeCompiler.compilation.stats.reusedSceneIds.length} 复用`
+    : routeCompiler === undefined ? "未接入宿主缓存 · 内存全量编译" : "存在未保存改动 · 内存临时全量编译";
   const routeIndex = useMemo(() => createRouteGraphIndex(graph), [graph]);
   const [query, setQuery] = useState("");
   const [chapterFilter,setChapterFilter]=useState("");
@@ -1977,6 +1994,7 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
         <span className="context-chip context-chip--cyan">Compiler 图事实</span>
       </div>
       <div className="route-toolbar">
+        <div className="route-compiler-cache" role="status" aria-label="Route Compiler 缓存状态">{compilerStatus}</div>
         <label><span>搜索路线图</span><input type="search" aria-label="搜索路线图" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="场景、稳定 ID、标签或结局" /></label>
         <div className="route-filter-controls" aria-label="路线 P0 过滤器">
           <label><span>章节</span><select aria-label="路线章节过滤" value={chapterFilter} onChange={(event)=>setChapterFilter(event.target.value)}><option value="">全部章节</option>{graph.chapters.map((chapter)=><option key={chapter.id} value={chapter.id}>{chapter.title}</option>)}</select></label>
@@ -2659,12 +2677,13 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
 
 export interface AppProps {
   readonly initialProject?: CanonicalProject;
+  readonly routeCompiler?: EditorProjectCompilerState;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, onProjectChange, onProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialProject, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
   const [canonicalBase, setCanonicalBase] = useState<CanonicalProject>(() => initialProject ?? projectCanonicalFromStory(session.project, "n32-editor-preview"));
   const previewCanonicalProject = useMemo(
@@ -3824,6 +3843,7 @@ export function App({ initialProject, onProjectChange, onProjectSave, onCanonica
             session={session}
             dispatch={dispatch}
             canonicalProject={previewCanonicalProject}
+            {...(routeCompiler===undefined?{}:{routeCompiler})}
             onRenameScene={renameSceneFromRouteMap}
             onSetScenePosition={setScenePositionFromRouteMap}
             onResetSceneLayout={resetSceneLayoutFromRouteMap}

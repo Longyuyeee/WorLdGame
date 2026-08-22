@@ -4,7 +4,7 @@
 > 当前分支：`codex/n40-e1-route-graph-core`；直接基线为 N32-E7 最终头 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
-> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph 审计](153-n40-e1-route-graph-core-audit.md)、[N40-E2 10k Route Window 审计](154-n40-e2-10k-route-window-audit.md)、[N40-E3 Layout Sidecar 审计](155-n40-e3-route-layout-sidecar-audit.md)、[N40-E4 Route Workspace 审计](156-n40-e4-route-layout-interaction-audit.md)、[N40-E5 P0 Filter 审计](157-n40-e5-route-filtering-audit.md)、[N40-E6a 选择性读取审计](158-n40-e6a-selective-project-read-audit.md)、[N40-E6b Inventory 审计](159-n40-e6b-project-file-inventory-audit.md)、[N40-E6c Compiler Cache 审计](160-n40-e6c-verified-compiler-cache-audit.md)
+> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph 审计](153-n40-e1-route-graph-core-audit.md)、[N40-E2 10k Route Window 审计](154-n40-e2-10k-route-window-audit.md)、[N40-E3 Layout Sidecar 审计](155-n40-e3-route-layout-sidecar-audit.md)、[N40-E4 Route Workspace 审计](156-n40-e4-route-layout-interaction-audit.md)、[N40-E5 P0 Filter 审计](157-n40-e5-route-filtering-audit.md)、[N40-E6a 选择性读取审计](158-n40-e6a-selective-project-read-audit.md)、[N40-E6b Inventory 审计](159-n40-e6b-project-file-inventory-audit.md)、[N40-E6c Compiler Cache 审计](160-n40-e6c-verified-compiler-cache-audit.md)、[N40-E6d Launcher/Route 接入审计](161-n40-e6d-launcher-route-cache-integration-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1–E4 已远端绿色；E5 P0 过滤 production browser 待复验；E6a–E6c 已远端绿色，E6c 正文篡改会全量重建。缓存尚未接入 Launcher/Route，冷启动仍全量读源**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1–E4 已远端绿色；E5 P0 过滤 production browser 待复验；E6a–E6c 已远端绿色；E6d Launcher/Route 缓存接入本地全仓通过，但 production browser 与远端 CI 待复验。冷启动仍全量读源**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
@@ -27,7 +27,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k/64 窗口、Layout/交互；过滤待 browser；Web/Node 有选择性读取、inventory 和可校验 Compiler cache | cache 尚未接入 Launcher/Route且冷启动全量读源；另缺运行高亮、10k 局部编辑/500 ms P95、N41/N60；角色/变量/覆盖过滤属 P1 |
+| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k/64 窗口、Layout/交互；过滤待 browser；Web/Node 有选择性读取、inventory 和可校验 Compiler cache；Launcher/Route 缓存接入本地通过 | E6d browser/远端待复验且冷启动全量读源；另缺运行高亮、10k 局部编辑/500 ms P95、N41/N60；角色/变量/覆盖过滤属 P1 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -92,7 +92,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. 安全校验恢复后补做 E5 production browser；E6a–E6c 已完成宿主读取、inventory 和可校验 Compiler cache。下一步 E6d 接入 Launcher/Route 并实测 hit/miss/保存失效；但冷启动仍全量读源，不能据此宣称存储 lazy loading 完成；
+2. E6d 已在本地接入 Launcher/Route 并实测 hit/miss/保存重建；推送并取得远端完整门后，安全校验恢复时与 E5 一并补做 production browser。之后先审计真正冷启动局部正文协议与 10k 局部编辑/500 ms P95；当前仍全量读源，不能宣称存储 lazy loading 完成；
 3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E4 已建立 Compiler Route Map、10k 投影/64 节点窗口和 Canonical Layout 交互；E5 P0 过滤 production browser 待复验。E6a–E6c 已建立选择性正文读取、无正文 inventory，以及具备源 SHA-256、版本/完整性校验和全量回退的可删除 Compiler cache。缓存尚未接入 Launcher/Route，冷启动仍全量读源；路线高亮、10k 局部编辑/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E4 已建立 Compiler Route Map、10k 投影/64 节点窗口和 Canonical Layout 交互；E5 P0 过滤 production browser 待复验。E6a–E6c 已建立选择性正文读取、inventory 和可校验 Compiler cache；E6d 已把缓存结果接入 Launcher/Route 并通过本地全仓，但 production browser 与远端 CI 待复验。冷启动仍全量读源；路线高亮、10k 局部编辑/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -49,6 +49,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N40-E6a 宿主选择性读取审计](docs/158-n40-e6a-selective-project-read-audit.md) | Web/Node 按路径读取、安全边界、真实磁盘/句柄证据，以及尚未接入 Route 的诚实边界 |
 | [N40-E6b 工程源文件 Inventory 审计](docs/159-n40-e6b-project-file-inventory-audit.md) | 无正文 path/size/modified 清单、真实磁盘与链接安全、缓存失效提示及 E6c/E6d 纠偏顺序 |
 | [N40-E6c 可校验 Compiler 缓存审计](docs/160-n40-e6c-verified-compiler-cache-audit.md) | 派生目录隔离、版本/源 Hash/完整性校验、增量命中、篡改全量回退与尚未接入产品的边界 |
+| [N40-E6d Launcher / Route 缓存接入审计](docs/161-n40-e6d-launcher-route-cache-integration-audit.md) | 工程打开/保存缓存生命周期、Route 正式结果复用、状态可观察、内存降级与 browser 待复验边界 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

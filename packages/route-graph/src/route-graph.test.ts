@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { compileProject } from "@world-studio/project-compiler";
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { assignRouteSceneGroup, buildRouteGraph, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup } from "./route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup } from "./route-graph";
 
 function routeProject(includeDangling = true): CanonicalProject {
   const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
@@ -34,6 +35,12 @@ function routeProject(includeDangling = true): CanonicalProject {
 }
 
 describe("N40 route graph", () => {
+  it("projects a supplied formal Compiler result without owning workspace cache parsing", () => {
+    const project = routeProject();
+    const compilation = compileProject(project, "debug");
+    expect(buildRouteGraphFromCompilation(project, compilation)).toEqual(buildRouteGraph(project));
+  });
+
   it("projects chapters, stable scenes, compiler facts, endings, and dangling route diagnostics deterministically", () => {
     const first = buildRouteGraph(routeProject());
     const second = buildRouteGraph(routeProject());

@@ -1,6 +1,8 @@
 import { createEvent, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProjectStoreError } from "@world-studio/project-persistence";
+import { compileProject, compileProjectIncremental } from "@world-studio/project-compiler";
+import { semanticHash } from "@world-studio/project-domain";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { App, persistenceErrorLabel, persistenceFailure } from "./App";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
@@ -557,6 +559,19 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("Compiler 图事实")).toBeVisible();
     expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" })).toBeVisible();
     expect(screen.getByText("去天台")).toBeVisible();
+  });
+
+  it("shows the verified workspace Compiler cache result consumed by Route", () => {
+    const project = legacyDirectionProject();
+    const first = compileProject(project, "debug");
+    const compilation = compileProjectIncremental(project, { profile: "debug", previousCache: first.cache });
+    render(<App initialProject={project} routeCompiler={{ cacheStatus: "hit", projectHash: semanticHash(project), compilation }} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("缓存命中");
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("0 编译");
+    fireEvent.change(screen.getByLabelText("路线场景名称"), { target: { value: "内存修改" } });
+    fireEvent.click(screen.getByRole("button", { name: "通过 Project Service 保存" }));
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("存在未保存改动");
   });
 
   it("edits and resets a canonical route layout sidecar through Project Service", () => {

@@ -52,7 +52,7 @@ E6b 证明 inventory 可以在不读取正文时发现常规文件变化，但 `
 ## 5. 未完成与下一顺序
 
 1. E5 production browser 仍因管理员安全校验不可用而待复验；
-2. E6d：把 `compileProjectWorkspace()` 接入 Launcher/Route 生命周期，显示 hit/miss/rebuild 状态，验证第二次打开和源保存后的真实复用/失效；
+2. E6d 已形成 Launcher/Route 接入候选并通过本地自动化/全仓门；production browser 与远端证据仍待复验，详见 [E6d 审计](161-n40-e6d-launcher-route-cache-integration-audit.md)；
 3. E6d 仍不能宣称冷启动磁盘 lazy loading，因为内容 Hash 校验会读取全部源；
 4. 真正冷启动局部正文读取需要可信宿主变更日志/强文件身份，或冻结由 Compiler 生成、可验证且不成为第二事实源的目录协议；必须另行审计后才能实施；
 5. 运行路线高亮、10k 局部编辑/500 ms P95、N40 Product Acceptance 仍未完成。
