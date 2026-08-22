@@ -41,5 +41,6 @@ PRD 的 Route P0 是“分组、折叠、搜索、过滤和局部加载”；“
 ## 5. 远端证据
 
 - Draft PR：[#59](https://github.com/Longyuyeee/WorLdGame/pull/59)；
-- 实现提交与 Windows / Node 22 run/job：推送后回填；
-- 即使远端 CI 绿色，也不能替代尚未完成的 production browser 产品路径。
+- 实现提交：`b4558e3448db760beed9e8e370124a6dda932741`；
+- Windows / Node 22 full check：[run 32579135238](https://github.com/Longyuyeee/WorLdGame/actions/runs/32579135238)，job `97045771988`，`4m30s`，`success`；
+- locked dependencies、完整产品基线与 post steps 全绿。该结果证明干净环境中的实现/测试/构建成立，但不能替代尚未完成的 production browser 产品路径，E5 状态仍为实现候选。
