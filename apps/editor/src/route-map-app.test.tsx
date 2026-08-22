@@ -27,6 +27,20 @@ function branchingStory(sceneCount: number): StoryProject {
   return { schemaVersion: 0, id: "route-ui-window", title: "Route UI Window", entrySceneId: "route_ui_000", characters: [], scenes };
 }
 
+function linearRuntimeStory(sceneCount: number): StoryProject {
+  const scenes = Array.from({ length: sceneCount }, (_, index) => {
+    const id = `runtime_route_${String(index).padStart(3, "0")}`;
+    return {
+      id,
+      title: `Runtime Route Scene ${index}`,
+      statements: index === sceneCount - 1
+        ? [{ id: `ending_${id}`, kind: "end" as const, endingName: "Window reached" }]
+        : [{ id: `choice_${id}`, kind: "choice" as const, prompt: `Continue ${index}`, options: [{ id: `edge_${index}_${index + 1}`, label: `Next ${index + 1}`, targetSceneId: `runtime_route_${String(index + 1).padStart(3, "0")}` }] }]
+    };
+  });
+  return { schemaVersion: 0, id: "runtime-route-window", title: "Runtime Route Window", entrySceneId: "runtime_route_000", characters: [], scenes };
+}
+
 describe("N40 Route Map product flow", () => {
   it("searches the compiler-derived scene graph without changing stable IDs", () => {
     renderRouteMap();
@@ -103,5 +117,52 @@ describe("N40 Route Map product flow", () => {
     fireEvent.change(screen.getByLabelText("路线节点类型过滤"),{target:{value:"entry"}});
     expect(within(nodes).getAllByRole("button")).toHaveLength(1);
     expect(within(nodes).getByRole("button",{name:/路线场景：放学后的校门/})).toBeVisible();
+  });
+
+  it("highlights the current, visited, and traversed Route facts from formal Runtime History", () => {
+    renderRouteMap();
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+
+    const routeTrace = screen.getByRole("status", { name: "运行路线高亮" });
+    const entry = screen.getByRole("button", { name: /路线场景：放学后的校门/ });
+    expect(entry).toHaveAttribute("aria-current", "step");
+    expect(entry).toHaveAttribute("data-runtime-visited", "true");
+    expect(routeTrace).toHaveTextContent("当前：放学后的校门");
+
+    const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
+    for (let index = 0; index < 3; index += 1) {
+      fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "选择路线：去广播室" }));
+
+    const radio = screen.getByRole("button", { name: /路线场景：旧广播室/ });
+    expect(radio).toHaveAttribute("aria-current", "step");
+    expect(radio).toHaveAttribute("data-runtime-visited", "true");
+    expect(screen.getByTestId("route-edge-opt_broadcast")).toHaveAttribute("data-runtime-visited", "true");
+    expect(routeTrace).toHaveTextContent("已走连接 1");
+
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 后退一步" }));
+    expect(entry).toHaveAttribute("aria-current", "step");
+    expect(screen.getByTestId("route-edge-opt_broadcast")).toHaveAttribute("data-runtime-visited", "false");
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 前进一步" }));
+    expect(radio).toHaveAttribute("aria-current", "step");
+    expect(screen.getByTestId("route-edge-opt_broadcast")).toHaveAttribute("data-runtime-visited", "true");
+  });
+
+  it("re-anchors the bounded Route window around a Runtime current scene outside the visible page", () => {
+    const project = projectCanonicalFromStory(linearRuntimeStory(65), "n40-runtime-route-window");
+    render(<App initialProject={project} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("button", { name: "下一段路线场景" }));
+    fireEvent.click(screen.getByRole("button", { name: /路线场景：Runtime Route Scene 64/ }));
+    fireEvent.click(screen.getByRole("button", { name: "上一段路线场景" }));
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
+
+    fireEvent.click(screen.getByRole("button", { name: "从当前场景运行" }));
+
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("65–65 / 65");
+    const current = screen.getByRole("button", { name: /路线场景：Runtime Route Scene 64/ });
+    expect(current).toHaveAttribute("aria-current", "step");
+    expect(screen.queryByRole("button", { name: /路线场景：Runtime Route Scene 0 ·/ })).not.toBeInTheDocument();
   });
 });

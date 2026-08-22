@@ -1897,6 +1897,7 @@ function ScriptView({
 
 interface FlowViewProps extends CommonProps {
   readonly canonicalProject: CanonicalProject;
+  readonly runtimeRouteTrace: RuntimeRouteTrace;
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly hasLocalChanges: boolean;
   readonly trustedChangedSceneIds?: readonly string[];
@@ -1911,6 +1912,20 @@ interface FlowViewProps extends CommonProps {
   readonly onSetViewport: (x: number, y: number, zoom: number) => RouteProjectMutationResult;
 }
 
+interface RuntimeRouteTrace {
+  readonly active: boolean;
+  readonly currentSceneId: string | null;
+  readonly visitedSceneIds: readonly string[];
+  readonly visitedEdgeIds: readonly string[];
+}
+
+const IDLE_RUNTIME_ROUTE_TRACE: RuntimeRouteTrace = {
+  active: false,
+  currentSceneId: null,
+  visitedSceneIds: [],
+  visitedEdgeIds: []
+};
+
 const compilerCacheLabels = {
   unsupported: "宿主不支持缓存",
   miss: "缓存未命中",
@@ -1921,7 +1936,7 @@ const compilerCacheLabels = {
   "source-mismatch": "源正文变化后重建"
 } as const;
 
-function FlowView({ session, dispatch, canonicalProject, routeCompiler, hasLocalChanges, trustedChangedSceneIds, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
+function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, routeCompiler, hasLocalChanges, trustedChangedSceneIds, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
   const canonicalHash = useMemo(() => hasLocalChanges ? undefined : semanticHash(canonicalProject), [canonicalProject, hasLocalChanges]);
   const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
   const incrementalProjection = useMemo(() => !compilerAligned && routeCompiler !== undefined ? buildRouteGraphIncremental(canonicalProject, routeCompiler.compilation.cache, trustedChangedSceneIds) : undefined, [canonicalProject, compilerAligned, routeCompiler, trustedChangedSceneIds]);
@@ -1947,11 +1962,19 @@ function FlowView({ session, dispatch, canonicalProject, routeCompiler, hasLocal
   const [viewportY,setViewportY]=useState(graph.viewport.y);
   const [viewportZoom,setViewportZoom]=useState(graph.viewport.zoom);
   const [editResult, setEditResult] = useState<{ readonly tone: "success" | "error"; readonly text: string } | null>(null);
+  const runtimeVisitedScenes = useMemo(() => new Set(runtimeRouteTrace.visitedSceneIds), [runtimeRouteTrace.visitedSceneIds]);
+  const runtimeVisitedEdges = useMemo(() => new Set(runtimeRouteTrace.visitedEdgeIds), [runtimeRouteTrace.visitedEdgeIds]);
+  const runtimeCurrentTitle = graph.nodes.find((node) => node.id === runtimeRouteTrace.currentSceneId)?.title ?? runtimeRouteTrace.currentSceneId;
   useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
   useEffect(() => { setLayoutX(selected?.layout.x ?? 0);setLayoutY(selected?.layout.y ?? 0); }, [selected?.id, selected?.layout.x, selected?.layout.y]);
   useEffect(()=>setSelectedGroupId(selected?.layout.groupId??""),[selected?.id,selected?.layout.groupId]);
   useEffect(()=>{setViewportX(graph.viewport.x);setViewportY(graph.viewport.y);setViewportZoom(graph.viewport.zoom);},[graph.viewport.x,graph.viewport.y,graph.viewport.zoom]);
   useEffect(() => setWindowOffset(undefined), [query,chapterFilter,kindFilter,groupFilter]);
+  useEffect(() => {
+    if (!runtimeRouteTrace.active || runtimeRouteTrace.currentSceneId === null) return;
+    setSelectedSceneId(runtimeRouteTrace.currentSceneId);
+    setWindowOffset(undefined);
+  }, [runtimeRouteTrace.active, runtimeRouteTrace.currentSceneId]);
   const routeWindow = useMemo(() => queryRouteGraphWindow(routeIndex, {
     query,
     ...(chapterFilter===""?{}:{chapterId:chapterFilter}),
@@ -2018,16 +2041,32 @@ function FlowView({ session, dispatch, canonicalProject, routeCompiler, hasLocal
         <button type="button" aria-label="下一段路线场景" disabled={!routeWindow.hasNext} onClick={() => setWindowOffset(routeWindow.end)}>下一段 →</button>
         <small>最多挂载 {ROUTE_GRAPH_WINDOW_LIMIT} 个节点 · 当前相关连接 {routeWindow.edges.length}/{routeWindow.totalLocalEdges}</small>
       </div>
+      <div className={runtimeRouteTrace.active ? "route-runtime-trace is-active" : "route-runtime-trace"} role="status" aria-label="运行路线高亮">
+        {runtimeRouteTrace.active
+          ? <>Runtime History · 当前：<strong>{runtimeCurrentTitle ?? "未知场景"}</strong> · 已访问 {runtimeVisitedScenes.size} 场景 · 已走连接 {runtimeVisitedEdges.size}</>
+          : "Runtime 未运行 · 启动试玩后将在此投影当前、已访问和已走连接"}
+      </div>
       <div className="flow-canvas">
         <div className="flow-grid" aria-label="路线场景节点" onDragOver={(event)=>event.preventDefault()} onDrop={(event)=>{event.preventDefault();const sceneId=event.dataTransfer.getData("text/plain"),rect=event.currentTarget.getBoundingClientRect();if(sceneId!=="")commitMutation(onSetScenePosition(sceneId,(event.clientX-rect.left+graph.viewport.x)/graph.viewport.zoom,(event.clientY-rect.top+graph.viewport.y)/graph.viewport.zoom),"拖拽位置已写入 Layout Sidecar");}}>
           <div className="flow-grid__surface" aria-label="路线画布表面" style={{transform:`translate(-${graph.viewport.x}px, -${graph.viewport.y}px) scale(${graph.viewport.zoom})`} as CSSProperties}>
-          {visibleNodes.map((node, index) => (
+          {visibleNodes.map((node, index) => {
+            const runtimeCurrent = runtimeRouteTrace.active && node.id === runtimeRouteTrace.currentSceneId;
+            const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedScenes.has(node.id);
+            const className = [
+              `route-node route-node--${node.kind}`,
+              node.id === session.activeSceneId ? "is-active" : "",
+              runtimeVisited ? "is-runtime-visited" : "",
+              runtimeCurrent ? "is-runtime-current" : ""
+            ].filter(Boolean).join(" ");
+            return (
             <button
               key={node.id}
-              className={node.id === session.activeSceneId ? `route-node route-node--${node.kind} is-active` : `route-node route-node--${node.kind}`}
+              className={className}
               style={{ "--node-order": index, "--route-x": `${node.layout.x}px`, "--route-y": `${node.layout.y}px` } as CSSProperties}
               aria-label={`路线场景：${node.title} · ${node.id}`}
               aria-pressed={node.id === selectedSceneId}
+              aria-current={runtimeCurrent ? "step" : undefined}
+              data-runtime-visited={runtimeVisited}
               data-route-group={node.layout.groupId}
               draggable
               onDragStart={(event)=>{event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",node.id);}}
@@ -2041,20 +2080,25 @@ function FlowView({ session, dispatch, canonicalProject, routeCompiler, hasLocal
               <code>{node.id}</code>
               <span className="route-node__chapter">{graph.chapters.find((chapter) => chapter.id === node.chapterId)?.title ?? "未分组"}</span>
               <span className="route-node__facts">{node.facts.length === 0 ? "无控制流事实" : node.facts.map((item) => `${item.kind}:${item.label}${item.targetLabel === undefined ? "" : `→${item.targetLabel}`}`).join(" · ")}</span>
+              {runtimeCurrent ? <span className="route-node__runtime-state">当前运行</span> : runtimeVisited ? <span className="route-node__runtime-state">已访问</span> : null}
             </button>
-          ))}
+            );
+          })}
           {visibleNodes.length === 0 && <p className="route-empty">没有匹配的路线场景；权威工程未被修改。</p>}
           </div>
         </div>
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
-          {routeWindow.edges.map((edge) => (
-            <div className="edge-row" key={edge.id}>
+          {routeWindow.edges.map((edge) => {
+            const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedEdges.has(edge.id);
+            return (
+            <div className={runtimeVisited ? "edge-row is-runtime-visited" : "edge-row"} key={edge.id} data-testid={`route-edge-${edge.id}`} data-runtime-visited={runtimeVisited}>
               <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
               <strong>{edge.label}</strong><span className="edge-arrow">→</span>
-              <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}
+              <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}{runtimeVisited && <em className="edge-row__runtime-state">已走过</em>}
             </div>
-          ))}
+            );
+          })}
           {routeWindow.edgesTruncated && <p className="route-empty">当前相关连接超过局部上限；请缩小搜索或切换窗口。</p>}
         </div>
       </div>
@@ -2081,6 +2125,7 @@ interface PreviewPanelProps extends CommonProps {
   readonly assetIndex: AssetIndex;
   readonly assetRepository: IndexedDbAssetRepository | null;
   readonly canonicalProject: CanonicalProject;
+  readonly onRouteTraceChange: (trace: RuntimeRouteTrace) => void;
 }
 
 function browserDevicePixelRatio(): number {
@@ -2101,7 +2146,7 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository, canonicalProject }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange }: PreviewPanelProps) {
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
@@ -2120,6 +2165,14 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
   const previewObservation = observeFormalPreview(playable);
+  useEffect(() => {
+    onRouteTraceChange(playableActive ? {
+      active: true,
+      currentSceneId: playable.sceneId,
+      visitedSceneIds: playable.visitedSceneIds,
+      visitedEdgeIds: playable.visitedRouteEdgeIds
+    } : IDLE_RUNTIME_ROUTE_TRACE);
+  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playableActive]);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -2698,6 +2751,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("writer");
+  const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
   const storageAvailable = typeof globalThis.indexedDB !== "undefined";
@@ -3849,6 +3903,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             session={session}
             dispatch={dispatch}
             canonicalProject={previewCanonicalProject}
+            runtimeRouteTrace={runtimeRouteTrace}
             {...(routeCompiler===undefined?{}:{routeCompiler})}
             hasLocalChanges={editGeneration.current > 0}
             {...(routeChangedSceneIds.current===null?{}:{trustedChangedSceneIds:[...routeChangedSceneIds.current]})}
@@ -3863,7 +3918,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onOpenSequence={(sceneId) => { dispatch({ type: "select-scene", sceneId });setMode("writer"); }}
           />
         )}
-        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} />
+        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
       </main>
       <footer className="workspace-footer">
         <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.41 PROJECT · GLOBAL SEARCH</span>

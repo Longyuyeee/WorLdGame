@@ -46,10 +46,12 @@ describe("formal editor preview runtime", () => {
     const radio = untilSettled(selectFormalPreviewChoice(waiting, "opt_broadcast"));
     expect(radio).toMatchObject({ status: "ended", endingName: "留在电波里的名字", statementId: "stmt_radio_end" });
     expect(radio.visitedSceneIds).toEqual(["scn_school_gate", "scn_broadcast_room"]);
+    expect(radio.visitedRouteEdgeIds).toEqual(["opt_broadcast"]);
     expect(runtimeStateHashV1(radio.runtimeState!)).toBe("7cbc22960842f5df24ef7b2121edcc0d1d43c5105dc24ea179f65d0f7fd7909b");
 
     const rooftop = untilSettled(selectFormalPreviewChoice(waiting, "opt_rooftop"));
     expect(rooftop).toMatchObject({ status: "ended", endingName: "晚风知道答案", statementId: "stmt_rooftop_end" });
+    expect(rooftop.visitedRouteEdgeIds).toEqual(["opt_rooftop"]);
     expect(runtimeStateHashV1(rooftop.runtimeState!)).toBe("72def5efcde9a381a40fec38038323c3e3a04b2f4c0910237f26d70ef32a0353");
   });
 
@@ -147,6 +149,20 @@ describe("formal editor preview runtime", () => {
     expect(runtimeStateHashV1(forward.runtimeState!)).toBe(runtimeStateHashV1(third.runtimeState!));
     expect(forward).toMatchObject({ statementId: "stmt_gate_002" });
     expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("ffcbb64fbbac59f31161b0c00c457c8b2445e954be851665a02a74b7b8aa6594");
+  });
+
+  it("projects traversed route edges from the active History cursor", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n40-runtime-route-trace");
+    const crossed = selectFormalPreviewChoice(untilChoice(startFormalPreview(project)), "opt_broadcast");
+    expect(crossed.visitedRouteEdgeIds).toEqual(["opt_broadcast"]);
+
+    const rewound = backFormalPreview(crossed);
+    expect(rewound).toMatchObject({ status: "waiting-choice", sceneId: "scn_school_gate" });
+    expect(rewound.visitedRouteEdgeIds).toEqual([]);
+
+    const restored = forwardFormalPreview(rewound);
+    expect(restored).toMatchObject({ status: "presenting", sceneId: "scn_broadcast_room" });
+    expect(restored.visitedRouteEdgeIds).toEqual(["opt_broadcast"]);
   });
 
   it("runs to visible and internal Statement cursors and reports blocking boundaries", () => {

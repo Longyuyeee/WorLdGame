@@ -2270,6 +2270,23 @@ textarea[data-input-state="composing"] {
   color: var(--wg-color-text-muted);
 }
 
+.route-runtime-trace {
+  margin: 10px 0 0;
+  padding: 9px 12px;
+  border: 1px solid var(--wg-color-border-subtle);
+  border-radius: 9px;
+  background: rgb(18 24 36 / 65%);
+  color: var(--wg-color-text-muted);
+  font-size: 10px;
+}
+
+.route-runtime-trace.is-active {
+  border-color: rgb(85 217 138 / 45%);
+  color: var(--wg-color-text-primary);
+}
+
+.route-runtime-trace strong { color: var(--wg-color-semantic-choice); }
+
 .flow-grid {
   position: relative;
   min-height: 560px;
@@ -2334,6 +2351,26 @@ textarea[data-input-state="composing"] {
   font-size: 9px;
 }
 
+.route-node.is-runtime-visited {
+  border-color: rgb(85 217 138 / 55%);
+  box-shadow: inset 0 0 0 1px rgb(85 217 138 / 16%);
+}
+
+.route-node.is-runtime-current {
+  border-color: var(--wg-color-semantic-choice);
+  box-shadow: 0 0 0 3px rgb(85 217 138 / 18%), 0 0 32px rgb(85 217 138 / 20%);
+}
+
+.route-node__runtime-state {
+  justify-self: start;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgb(85 217 138 / 16%);
+  color: var(--wg-color-semantic-choice);
+  font-size: 9px;
+  font-weight: 800;
+}
+
 .route-node[draggable="true"] { cursor:grab; }
 .route-node[draggable="true"]:active { cursor:grabbing; }
 
@@ -2383,6 +2420,18 @@ textarea[data-input-state="composing"] {
 .edge-row strong {
   color: var(--wg-color-semantic-choice);
   font-size: 10px;
+}
+
+.edge-row.is-runtime-visited {
+  box-shadow: inset 3px 0 0 var(--wg-color-semantic-choice);
+  background: rgb(85 217 138 / 10%);
+  color: var(--wg-color-text-primary);
+}
+
+.edge-row em.edge-row__runtime-state {
+  grid-column: 1 / -1;
+  color: var(--wg-color-semantic-choice);
+  font-weight: 800;
 }
 
 .edge-row em {
