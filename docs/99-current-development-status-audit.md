@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1–E4 已远端绿色；E5 P0 过滤 production browser 待复验；E6a/E6b 已远端绿色；E6c 可校验 Compiler cache 本地全仓通过，正文篡改会全量重建。缓存尚未接入 Launcher/Route，冷启动仍全量读源**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1–E4 已远端绿色；E5 P0 过滤 production browser 待复验；E6a–E6c 已远端绿色，E6c 正文篡改会全量重建。缓存尚未接入 Launcher/Route，冷启动仍全量读源**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
