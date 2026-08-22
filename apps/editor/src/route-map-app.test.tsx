@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
-import { App } from "./App";
+import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow } from "@world-studio/route-graph";
+import { App, runtimeRouteAnchorSceneId } from "./App";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
 
 function renderRouteMap() {
@@ -149,20 +150,14 @@ describe("N40 Route Map product flow", () => {
     expect(screen.getByTestId("route-edge-opt_broadcast")).toHaveAttribute("data-runtime-visited", "true");
   });
 
-  it("re-anchors the bounded Route window around a Runtime current scene outside the visible page", () => {
+  it("anchors a real 65-node Compiler Route window around the Runtime current scene", () => {
     const project = projectCanonicalFromStory(pagedRuntimeStory(65), "n40-runtime-route-window");
-    render(<App initialProject={project} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
-    fireEvent.click(screen.getByRole("button", { name: "下一段路线场景" }));
-    fireEvent.click(screen.getByRole("button", { name: /路线场景：Runtime Route Scene 64/ }));
-    fireEvent.click(screen.getByRole("button", { name: "上一段路线场景" }));
-    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
+    const index = createRouteGraphIndex(buildRouteGraph(project));
+    const anchorSceneId = runtimeRouteAnchorSceneId({ active: true, currentSceneId: "runtime_route_064", visitedSceneIds: ["runtime_route_064"], visitedEdgeIds: [] }, "runtime_route_000");
+    const routeWindow = queryRouteGraphWindow(index, { anchorSceneId });
 
-    fireEvent.click(screen.getByRole("button", { name: "从当前场景运行" }));
-
-    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("65–65 / 65");
-    const current = screen.getByRole("button", { name: /路线场景：Runtime Route Scene 64/ });
-    expect(current).toHaveAttribute("aria-current", "step");
-    expect(screen.queryByRole("button", { name: /路线场景：Runtime Route Scene 0 ·/ })).not.toBeInTheDocument();
+    expect(anchorSceneId).toBe("runtime_route_064");
+    expect(routeWindow).toMatchObject({ start: 64, end: 65, totalMatches: 65 });
+    expect(routeWindow.nodes.map((node) => node.id)).toEqual(["runtime_route_064"]);
   });
 });

@@ -1912,11 +1912,15 @@ interface FlowViewProps extends CommonProps {
   readonly onSetViewport: (x: number, y: number, zoom: number) => RouteProjectMutationResult;
 }
 
-interface RuntimeRouteTrace {
+export interface RuntimeRouteTrace {
   readonly active: boolean;
   readonly currentSceneId: string | null;
   readonly visitedSceneIds: readonly string[];
   readonly visitedEdgeIds: readonly string[];
+}
+
+export function runtimeRouteAnchorSceneId(trace: RuntimeRouteTrace, selectedSceneId: string): string {
+  return trace.active && trace.currentSceneId !== null ? trace.currentSceneId : selectedSceneId;
 }
 
 const IDLE_RUNTIME_ROUTE_TRACE: RuntimeRouteTrace = {
@@ -1965,6 +1969,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const runtimeVisitedScenes = useMemo(() => new Set(runtimeRouteTrace.visitedSceneIds), [runtimeRouteTrace.visitedSceneIds]);
   const runtimeVisitedEdges = useMemo(() => new Set(runtimeRouteTrace.visitedEdgeIds), [runtimeRouteTrace.visitedEdgeIds]);
   const runtimeCurrentTitle = graph.nodes.find((node) => node.id === runtimeRouteTrace.currentSceneId)?.title ?? runtimeRouteTrace.currentSceneId;
+  const routeWindowAnchorSceneId = runtimeRouteAnchorSceneId(runtimeRouteTrace, selectedSceneId);
   useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
   useEffect(() => { setLayoutX(selected?.layout.x ?? 0);setLayoutY(selected?.layout.y ?? 0); }, [selected?.id, selected?.layout.x, selected?.layout.y]);
   useEffect(()=>setSelectedGroupId(selected?.layout.groupId??""),[selected?.id,selected?.layout.groupId]);
@@ -1980,8 +1985,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
     ...(chapterFilter===""?{}:{chapterId:chapterFilter}),
     ...(kindFilter===""?{}:{kind:kindFilter}),
     ...(groupFilter===""?{}:{groupId:groupFilter==="__ungrouped__"?null:groupFilter}),
-    ...(windowOffset === undefined ? { anchorSceneId: selectedSceneId } : { offset: windowOffset })
-  }), [query,chapterFilter,kindFilter,groupFilter,routeIndex, selectedSceneId, windowOffset]);
+    ...(windowOffset === undefined ? { anchorSceneId: routeWindowAnchorSceneId } : { offset: windowOffset })
+  }), [query,chapterFilter,kindFilter,groupFilter,routeIndex, routeWindowAnchorSceneId, windowOffset]);
   const visibleNodes = routeWindow.nodes;
   const saveTitle = () => {
     if (selected === undefined) return;
