@@ -1,4 +1,4 @@
-import type { ProjectFiles, ProjectReference, ProjectWorkspace } from "@world-studio/project-domain";
+import { assertSelectedProjectPaths, type ProjectFiles, type ProjectReference, type ProjectWorkspace } from "@world-studio/project-domain";
 
 export interface BrowserFileHandle { readonly kind:"file"; getFile():Promise<{text():Promise<string>}>; createWritable():Promise<{write(value:string):Promise<void>;close():Promise<void>}>; }
 export interface BrowserDirectoryHandle { readonly kind:"directory"; readonly name:string; entries():AsyncIterableIterator<[string,BrowserFileHandle|BrowserDirectoryHandle]>; getDirectoryHandle(name:string,options?:{create?:boolean}):Promise<BrowserDirectoryHandle>; getFileHandle(name:string,options?:{create?:boolean}):Promise<BrowserFileHandle>; removeEntry(name:string,options?:{recursive?:boolean}):Promise<void>; }
@@ -10,6 +10,7 @@ export class BrowserDirectoryProjectWorkspace implements ProjectWorkspace {
   readonly reference:ProjectReference;
   constructor(readonly directoryHandle:BrowserDirectoryHandle,referenceId:string,hostKind:"web-file-system"|"web-opfs"="web-file-system"){this.reference={referenceId,hostKind,displayLocation:directoryHandle.name,permissionKey:`directory:${referenceId}`};}
   async readFiles(){const files=await scan(this.directoryHandle);return {files,version:version(files)};}
+  async readSelectedFiles(paths:readonly string[]){const files:Record<string,string>={};for(const path of assertSelectedProjectPaths(paths)){const target=await parent(this.directoryHandle,path,false);let handle:BrowserFileHandle;try{handle=await target.directory.getFileHandle(target.name);}catch{throw new Error(`Missing project file: ${path}`);}files[path]=await (await handle.getFile()).text();}return {files,version:version(files)};}
   async writeFiles(files:ProjectFiles,expectedVersion:string|null){const current=await this.readFiles();if(expectedVersion!==null&&current.version!==expectedVersion)throw new Error(`External project version changed from ${expectedVersion} to ${current.version}`);for(const path of Object.keys(current.files).filter((path)=>files[path]===undefined)){const target=await parent(this.directoryHandle,path,false);await target.directory.removeEntry(target.name);}for(const [path,value] of Object.entries(files)){const target=await parent(this.directoryHandle,path);const writable=await (await target.directory.getFileHandle(target.name,{create:true})).createWritable();await writable.write(value);await writable.close();}const written=await this.readFiles();return {version:written.version};}
 }
 export interface BrowserProjectPicker { showDirectoryPicker?:()=>Promise<BrowserDirectoryHandle>; navigator?:{storage?:{getDirectory():Promise<BrowserDirectoryHandle>}}; }

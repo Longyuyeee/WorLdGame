@@ -27,14 +27,14 @@ PRD 的 Route P0 是“分组、折叠、搜索、过滤和局部加载”；“
 
 ## 3. 未关闭的 production browser
 
-在 production preview `http://127.0.0.1:4173/` 上进行了两次直接连接，均被 Codex 应用的管理员安全校验拒绝，理由为安全策略暂时无法验证。没有绕过安全控制、切换间接浏览器或把 jsdom 冒充 production browser。
+在 production preview `http://127.0.0.1:4173/` 上先后进行了三次直接连接，均被 Codex 应用的管理员安全校验拒绝，理由为安全策略暂时无法验证。没有绕过安全控制、切换间接浏览器或把 jsdom 冒充 production browser。
 
 因此 E5 当前只能登记为实现候选。安全校验恢复后必须实际执行：全部 → 结局 → 入口 → 未分组/指定分组 → 清除过滤，并核对可见节点、范围状态和 console warning/error，之后才能关闭 E5。
 
 ## 4. 下一顺序
 
 1. 补齐 E5 production browser 并回填精确值；
-2. 冻结宿主/磁盘级按需读取契约，先证明只读取索引与当前窗口所需文件，再接入 Route；
+2. E6a 已冻结并实测宿主选择性读取契约；E6b 仍需建立 Route catalog/window 并证明只读取索引与当前窗口所需文件；
 3. 运行路线高亮、10k 局部编辑/端到端 500 ms P95、完整图编辑 undo/redo 仍在后续；
 4. `RA-N21-005` 继续阻断 N40 Product Acceptance、N41+、M1 Stable 与发布。
 

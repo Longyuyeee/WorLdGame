@@ -1,6 +1,6 @@
-import { readdir } from "node:fs/promises";
+import { lstat, readdir } from "node:fs/promises";
 import { isAbsolute, parse, resolve } from "node:path";
-import type { ProjectFiles, ProjectReference, ProjectWorkspace } from "@world-studio/project-domain";
+import { assertSelectedProjectPaths, type ProjectFiles, type ProjectReference, type ProjectWorkspace } from "@world-studio/project-domain";
 import { NodeProjectFileStore } from "./node-project-file-store";
 
 const SAFE_SEGMENT = /^[a-z0-9._-]+$/;
@@ -17,6 +17,7 @@ export class NodeDirectoryProjectWorkspace implements ProjectWorkspace {
     this.reference = { referenceId, hostKind: "windows-directory", displayLocation: this.root, permissionKey: `windows-directory:${referenceId}` };
   }
   async readFiles(): Promise<{ readonly files: ProjectFiles; readonly version: string }> { const files = await this.scan(); return { files, version: contentVersion(files) }; }
+  async readSelectedFiles(paths:readonly string[]){const files:Record<string,string>={};for(const path of assertSelectedProjectPaths(paths)){let current=this.root;for(const segment of path.split("/")){current=resolve(current,segment);const metadata=await lstat(current).catch(()=>null);if(metadata===null)throw new Error(`Missing project file: ${path}`);if(metadata.isSymbolicLink())throw new Error(`Symbolic links are not allowed in project workspaces: ${segment}`);}const content=await this.files.read(path);if(content===null)throw new Error(`Missing project file: ${path}`);files[path]=content;}return {files,version:contentVersion(files)};}
   async writeFiles(files: ProjectFiles, expectedVersion: string | null): Promise<{ readonly version: string }> {
     const current = await this.readFiles();
     if (expectedVersion !== null && current.version !== expectedVersion) throw new Error(`External project version changed from ${expectedVersion} to ${current.version}`);
