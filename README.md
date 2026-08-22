@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E4 已建立 Compiler Route Map、10k 投影/64 节点窗口和 Canonical Layout 交互；E5 P0 过滤 production browser 待复验。E6a–E6c 已建立选择性正文读取、inventory 和可校验 Compiler cache；E6d 已把缓存结果接入 Launcher/Route 并通过本地全仓，但 production browser 与远端 CI 待复验。冷启动仍全量读源；路线高亮、10k 局部编辑/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E4 已建立 Compiler Route Map、10k 投影/64 节点窗口和 Canonical Layout 交互；E5 P0 过滤 production browser 待复验。E6a–E6c 已建立选择性正文读取、inventory 和可校验 Compiler cache；E6d 已把缓存结果接入 Launcher/Route 并通过本地/远端全仓，但 production browser 待复验。冷启动仍全量读源；路线高亮、10k 局部编辑/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 

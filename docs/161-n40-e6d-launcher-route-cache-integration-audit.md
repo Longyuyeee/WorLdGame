@@ -3,7 +3,7 @@
 > 日期：2026-08-23
 > 分支：`codex/n40-e1-route-graph-core`
 > 范围：Studio Launcher 工程打开/创建/导入/保存生命周期、Route 正式 Compiler 结果复用、缓存状态可观察与失效重建
-> 结论：实现与本地完整门通过；production browser 三次被管理员安全校验阻断，远端 CI 待推送，因此 E6d 仍为实施候选，不能关闭 Engineering
+> 结论：实现、本地完整门与远端 Windows / Node 22 完整门通过；production browser 三次被管理员安全校验阻断，因此 E6d 仍为实施候选，不能关闭 Engineering
 
 ## 1. 审计发现与顺序纠偏
 
@@ -75,11 +75,15 @@ E6d 因此冻结以下边界：
 
 ## 6. 未完成与下一顺序
 
-1. 推送实现并取得 Windows / Node 22 full check；
-2. 安全校验恢复后同时补做 E5 与 E6d production browser，不得提前关闭两个节点；
-3. E6d 关闭后，先审计真正冷启动局部正文读取协议与 10k 局部编辑/500 ms P95，不能把当前 Compiler scene reuse 等同于存储 lazy loading；
-4. 运行路线高亮和 N40 Product Acceptance 仍未完成；N41+、M1 Stable 与发布继续阻断。
+1. 安全校验恢复后同时补做 E5 与 E6d production browser，不得提前关闭两个节点；
+2. E6d 关闭后，先审计真正冷启动局部正文读取协议与 10k 局部编辑/500 ms P95，不能把当前 Compiler scene reuse 等同于存储 lazy loading；
+3. 运行路线高亮和 N40 Product Acceptance 仍未完成；N41+、M1 Stable 与发布继续阻断。
 
 ## 7. 远端证据
 
-实现提交、Draft PR #59 与 Windows / Node 22 full check 将在推送后回填；远端绿色前只登记本地候选通过。
+- Draft PR：[#59](https://github.com/Longyuyeee/WorLdGame/pull/59)；
+- 实现提交：`cc242997789f81f04927043c00329d423a7d09a3`；
+- 首次 GitHub Actions job `97057788860` 在并行全仓压力下于既有 Node 真实目录缓存测试的默认 5 秒上限超时，E6d 新增 lifecycle 测试自身 `2/2`、`120 ms` 通过；超时后的临时目录清理另报 `ENOTEMPTY`；
+- 本机随后连续运行该 Node 真实目录套件 `10` 轮，全部 `5/5`，单轮约 `1.00–1.08s`、测试主体 `272–299 ms`，未复现功能错误；
+- 同一提交、同一 run 的失败任务重跑：run [`32584113370`](https://github.com/Longyuyeee/WorLdGame/actions/runs/32584113370)，Windows / Node 22 full check job `97058322039`，`success`，`4m05s`；
+- locked dependencies、完整产品基线与 post steps 全绿。该结果关闭远端代码门，不关闭 E5/E6d production browser、冷启动局部读取或 N40 Product Acceptance。
