@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1911,6 +1911,9 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
   const graph = useMemo(() => buildRouteGraph(canonicalProject), [canonicalProject]);
   const routeIndex = useMemo(() => createRouteGraphIndex(graph), [graph]);
   const [query, setQuery] = useState("");
+  const [chapterFilter,setChapterFilter]=useState("");
+  const [kindFilter,setKindFilter]=useState<""|RouteNodeKind>("");
+  const [groupFilter,setGroupFilter]=useState("");
   const [windowOffset, setWindowOffset] = useState<number | undefined>(undefined);
   const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
   const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
@@ -1928,11 +1931,14 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
   useEffect(() => { setLayoutX(selected?.layout.x ?? 0);setLayoutY(selected?.layout.y ?? 0); }, [selected?.id, selected?.layout.x, selected?.layout.y]);
   useEffect(()=>setSelectedGroupId(selected?.layout.groupId??""),[selected?.id,selected?.layout.groupId]);
   useEffect(()=>{setViewportX(graph.viewport.x);setViewportY(graph.viewport.y);setViewportZoom(graph.viewport.zoom);},[graph.viewport.x,graph.viewport.y,graph.viewport.zoom]);
-  useEffect(() => setWindowOffset(undefined), [query]);
+  useEffect(() => setWindowOffset(undefined), [query,chapterFilter,kindFilter,groupFilter]);
   const routeWindow = useMemo(() => queryRouteGraphWindow(routeIndex, {
     query,
+    ...(chapterFilter===""?{}:{chapterId:chapterFilter}),
+    ...(kindFilter===""?{}:{kind:kindFilter}),
+    ...(groupFilter===""?{}:{groupId:groupFilter==="__ungrouped__"?null:groupFilter}),
     ...(windowOffset === undefined ? { anchorSceneId: selectedSceneId } : { offset: windowOffset })
-  }), [query, routeIndex, selectedSceneId, windowOffset]);
+  }), [query,chapterFilter,kindFilter,groupFilter,routeIndex, selectedSceneId, windowOffset]);
   const visibleNodes = routeWindow.nodes;
   const saveTitle = () => {
     if (selected === undefined) return;
@@ -1972,6 +1978,12 @@ function FlowView({ session, dispatch, canonicalProject, onOpenSequence, onRenam
       </div>
       <div className="route-toolbar">
         <label><span>搜索路线图</span><input type="search" aria-label="搜索路线图" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="场景、稳定 ID、标签或结局" /></label>
+        <div className="route-filter-controls" aria-label="路线 P0 过滤器">
+          <label><span>章节</span><select aria-label="路线章节过滤" value={chapterFilter} onChange={(event)=>setChapterFilter(event.target.value)}><option value="">全部章节</option>{graph.chapters.map((chapter)=><option key={chapter.id} value={chapter.id}>{chapter.title}</option>)}</select></label>
+          <label><span>节点类型</span><select aria-label="路线节点类型过滤" value={kindFilter} onChange={(event)=>setKindFilter(event.target.value as ""|RouteNodeKind)}><option value="">全部类型</option><option value="entry">入口</option><option value="scene">普通场景</option><option value="ending">结局</option></select></label>
+          <label><span>视觉分组</span><select aria-label="路线分组过滤" value={groupFilter} onChange={(event)=>setGroupFilter(event.target.value)}><option value="">全部分组</option><option value="__ungrouped__">未分组</option>{graph.groups.map((group)=><option key={group.groupId} value={group.groupId}>{group.title}</option>)}</select></label>
+          <button type="button" disabled={chapterFilter===""&&kindFilter===""&&groupFilter===""} onClick={()=>{setChapterFilter("");setKindFilter("");setGroupFilter("");}}>清除路线过滤</button>
+        </div>
         <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
       </div>
       <div className="route-layout-toolbar" aria-label="路线布局工具">

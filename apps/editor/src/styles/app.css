@@ -2194,6 +2194,8 @@ textarea[data-input-state="composing"] {
 }
 
 .route-layout-toolbar { display:grid; gap:10px; margin-bottom:14px; padding:12px; border:1px solid var(--wg-color-border-subtle); border-radius:12px; background:rgb(12 17 26 / 78%); }
+.route-filter-controls { display:flex; flex-wrap:wrap; align-items:end; gap:10px; }
+.route-filter-controls label { min-width:9rem; }
 .route-group-create,.route-viewport-controls,.route-groups,.route-nudge { display:flex; flex-wrap:wrap; align-items:end; gap:8px; }
 .route-group-create label,.route-viewport-controls label { display:grid; gap:4px; color:var(--wg-color-text-muted); font-size:9px; }
 .route-group-create input,.route-viewport-controls input,.route-inspector select { min-width:0; padding:8px 10px; border:1px solid var(--wg-color-border-strong); border-radius:8px; background:rgb(8 12 19 / 92%); color:var(--wg-color-text-primary); }

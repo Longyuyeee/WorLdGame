@@ -93,4 +93,15 @@ describe("N40 Route Map product flow", () => {
     expect(within(nodes).getAllByRole("button")).toHaveLength(1);
     expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–1 / 1");
   });
+
+  it("filters the visible Route window by P0 node type without changing canonical content",()=>{
+    renderRouteMap();const nodes=screen.getByLabelText("路线场景节点");
+    fireEvent.change(screen.getByLabelText("路线节点类型过滤"),{target:{value:"ending"}});
+    expect(within(nodes).getAllByRole("button")).toHaveLength(2);
+    expect(within(nodes).queryByRole("button",{name:/路线场景：放学后的校门/})).not.toBeInTheDocument();
+    expect(screen.getByRole("status",{name:"路线窗口范围"})).toHaveTextContent("1–2 / 2");
+    fireEvent.change(screen.getByLabelText("路线节点类型过滤"),{target:{value:"entry"}});
+    expect(within(nodes).getAllByRole("button")).toHaveLength(1);
+    expect(within(nodes).getByRole("button",{name:/路线场景：放学后的校门/})).toBeVisible();
+  });
 });

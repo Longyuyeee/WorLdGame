@@ -156,4 +156,14 @@ describe("N40 route graph", () => {
     expect(assignRouteSceneGroup(project,"command_unknown_group","route_left","group_missing")).toMatchObject({ok:false,error:{code:"NOT_FOUND"},project});
     expect(setRouteViewport(project,"command_bad_zoom",0,0,0.1)).toMatchObject({ok:false,error:{code:"INVALID_COMMAND"},project});
   });
+
+  it("combines P0 chapter, node-kind, and group filters before applying the bounded window",()=>{
+    const project=routeProject(false);const grouped=upsertRouteGroup(project,"command_group_filter","group_left","左线");expect(grouped.ok).toBe(true);if(!grouped.ok)return;
+    const assigned=assignRouteSceneGroup(grouped.project,"command_assign_filter","route_left","group_left");expect(assigned.ok).toBe(true);if(!assigned.ok)return;
+    const index=createRouteGraphIndex(buildRouteGraph(assigned.project));
+    expect(queryRouteGraphWindow(index,{kind:"entry"}).nodes.map((node)=>node.id)).toEqual(["route_entry"]);
+    expect(queryRouteGraphWindow(index,{kind:"ending",groupId:"group_left"}).nodes.map((node)=>node.id)).toEqual(["route_left"]);
+    expect(queryRouteGraphWindow(index,{groupId:null}).nodes.map((node)=>node.id)).toEqual(["route_entry"]);
+    expect(queryRouteGraphWindow(index,{chapterId:"chapter_missing"})).toMatchObject({totalMatches:0,nodes:[]});
+  });
 });

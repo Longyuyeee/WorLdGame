@@ -81,6 +81,9 @@ export interface RouteGraphWindowRequest {
   readonly offset?: number;
   readonly limit?: number;
   readonly anchorSceneId?: string;
+  readonly chapterId?: string;
+  readonly kind?: RouteNodeKind;
+  readonly groupId?: string | null;
 }
 
 export interface RouteGraphWindowV1 {
@@ -214,9 +217,13 @@ export function createRouteGraphIndex(graph: RouteGraphV1): RouteGraphIndexV1 {
 export function queryRouteGraphWindow(index: RouteGraphIndexV1, request: RouteGraphWindowRequest = {}): RouteGraphWindowV1 {
   const query = normalizeSearch(request.query ?? "");
   const collapsedGroups=new Set(index.graph.groups.filter((group)=>group.collapsed).map((group)=>group.groupId));
-  const matchingIndexes = query.length === 0
-    ? index.graph.nodes.flatMap((node,nodeIndex)=>node.layout.groupId!==undefined&&collapsedGroups.has(node.layout.groupId)?[]:[nodeIndex])
-    : index.searchTextByNode.flatMap((searchText, nodeIndex) => searchText.includes(query)&&!(index.graph.nodes[nodeIndex]?.layout.groupId!==undefined&&collapsedGroups.has(index.graph.nodes[nodeIndex]!.layout.groupId!)) ? [nodeIndex] : []);
+  const matchesFilters=(node:RouteSceneNodeV1,searchText:string)=>
+    (query.length===0||searchText.includes(query))&&
+    (request.chapterId===undefined||node.chapterId===request.chapterId)&&
+    (request.kind===undefined||node.kind===request.kind)&&
+    (request.groupId===undefined||(request.groupId===null?node.layout.groupId===undefined:node.layout.groupId===request.groupId))&&
+    !(node.layout.groupId!==undefined&&collapsedGroups.has(node.layout.groupId));
+  const matchingIndexes=index.graph.nodes.flatMap((node,nodeIndex)=>matchesFilters(node,index.searchTextByNode[nodeIndex]??"")?[nodeIndex]:[]);
   const limit = Math.max(1, Math.min(ROUTE_GRAPH_WINDOW_LIMIT, Math.floor(request.limit ?? ROUTE_GRAPH_WINDOW_LIMIT)));
   const anchorMatchIndex = request.anchorSceneId === undefined
     ? -1
