@@ -8,9 +8,18 @@ class MemoryCompilerWorkspace implements ProjectWorkspace {
   derived: string | null = null;
   version = 1;
   inventoryReads = 0;
+  fullReads = 0;
+  selectedReads: string[][] = [];
 
   constructor(files: ProjectFiles) { this.files = structuredClone(files); }
-  async readFiles() { return { files: structuredClone(this.files), version: String(this.version) }; }
+  async readFiles() { this.fullReads += 1; return { files: structuredClone(this.files), version: String(this.version) }; }
+  async readSelectedFiles(paths: readonly string[]) {
+    this.selectedReads.push([...paths]);
+    return {
+      files: Object.fromEntries(paths.flatMap((path) => this.files[path] === undefined ? [] : [[path, this.files[path]]])),
+      version: `selected-${this.version}`
+    };
+  }
   async listProjectFiles() { this.inventoryReads += 1; return { files: Object.entries(this.files).map(([path, value]) => ({ path, size: value.length, modifiedAtMs: this.version })), version: `inventory-${this.version}` }; }
   async readDerivedFile() { return this.derived; }
   async writeDerivedFile(_path: string, value: string) { this.derived = value; }
@@ -25,6 +34,16 @@ class MemoryCompilerWorkspace implements ProjectWorkspace {
 }
 
 describe("E6d editor workspace compilation lifecycle", () => {
+  it("probes the manifest selectively and performs one verified full read for a current project", async () => {
+    const workspace = new MemoryCompilerWorkspace(saveProject(createProjectTemplate("E8a", "e8a-single-read")));
+
+    const opened = await openCompiledLifecycleProject(workspace);
+
+    expect(opened.session.access).toBe("editable");
+    expect(workspace.selectedReads).toEqual([["world.project.json"]]);
+    expect(workspace.fullReads).toBe(1);
+  });
+
   it("misses on first open, hits on reopen, and rebuilds after a canonical save", async () => {
     const workspace = new MemoryCompilerWorkspace(saveProject(createProjectTemplate("E6d", "e6d-lifecycle")));
 
@@ -60,6 +79,8 @@ describe("E6d editor workspace compilation lifecycle", () => {
     const opened = await openCompiledLifecycleProject(workspace);
     expect(opened.session.access).toBe("read-only");
     expect(opened.compiler).toBeNull();
+    expect(workspace.selectedReads).toEqual([["world.project.json"]]);
+    expect(workspace.fullReads).toBe(0);
     expect(workspace.inventoryReads).toBe(0);
     expect(workspace.derived).toBeNull();
   });
