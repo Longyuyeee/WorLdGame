@@ -349,6 +349,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E7 Engineering 状态（2026-08-23）：Formal Runtime 现在从 active History cursor 投影当前场景、已访问场景和精确 `choiceSelected.optionId`；Flow Route Map 只读消费该轨迹，Back 会撤销未来连接高亮，Forward 会恢复，Runtime 当前场景跨出 64 节点窗口时自动重新锚定。定向 `2 files / 21 tests`、全量 `104 files / 658 tests`、10k/20k Runtime corpus、全部构建/架构/性能门均通过；最终复跑 Route 编辑 P95 `62.14 ms < 500 ms`。Windows CI 两次暴露 65 场景整应用 UI 用例的 5 秒负载敏感 timeout；未放宽门，而是保留三场景整应用产品链，并用真实 65 节点 Compiler 图独立验证窗口锚点，边界用例连续三次为 `11–13 ms`。稳定化提交 `bae2b75` 的 run `32589014554` / job `97069769247` 在 3m40s 完整通过。Vite 实际启动，但 production browser 两次被管理员安全策略阻止在页面加载前，故 browser 与 N40 Product Acceptance 不关闭；冷启动正文局部读取仍缺可信协议。详见 [N40-E7 审计](163-n40-e7-runtime-route-highlight-audit.md)。
 
+> E8a Engineering 状态（2026-08-23）：真实调用链审计发现 Launcher 先由 Lifecycle 全量读源，再由 Workspace Compiler 全量读源，cache hit 只减少编译而没有减少两次正文扫描。本轮先选择性读取 manifest 探测 schema；current schema 只执行一次保留逐源 SHA-256 与 inventory 稳定检查的正式 Compiler 读取，并从同一结果建立 Lifecycle Session；future schema 只读 manifest，不扫描 scene/script/layout 或调用 Compiler。Browser Handle 实测 current miss/hit 的 `[manifest, script, layout]` 均为 `[2,1,1]`，future 为 `[1,0]`；全量 `104 files / 661 tests`、Route P95 `59.05 ms` 和远端 run `32589909573` / job `97071987355` 均通过。current cache hit 仍全量读源，故冷启动局部正文读取与 N40 Product Acceptance 不关闭；下一协议必须落地可信原子 source snapshot identity 或内容寻址不可变目录。详见 [N40-E8a 审计](164-n40-e8a-single-project-read-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
