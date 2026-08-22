@@ -3,7 +3,7 @@
 > 日期：2026-08-22
 > 分支：`codex/n40-e1-route-graph-core`
 > 范围：Web/Node 不读取 JSON 正文的源文件 path/size/modified stamp 清单与版本提示
-> 结论：本地实现与实测通过；这是验证 Route 派生缓存的必要前置，不是 Route 存储级 lazy loading 完成
+> 结论：本地与远端 Windows / Node 22 完整门通过；这是验证 Route 派生缓存的必要前置，不是 Route 存储级 lazy loading 完成
 
 ## 1. 计划纠偏
 
@@ -63,4 +63,7 @@ E6a 后原计划直接在 E6b 持久化 Route catalog/window 并接入 Launcher�
 
 ## 6. 远端证据
 
-实现提交、Draft PR #59 与 Windows / Node 22 full check 将在推送后回填；远端绿色前只登记本地实现通过。
+- Draft PR：[#59](https://github.com/Longyuyeee/WorLdGame/pull/59)；
+- 实现与首轮文档提交：`227168511faaf0aa16ec42653b9e55ee2b977d15`；
+- Windows / Node 22 full check：[run 32581401234](https://github.com/Longyuyeee/WorLdGame/actions/runs/32581401234)，job `97051215765`，`4m31s`，`success`；
+- locked dependencies、完整产品基线与 post steps 全绿。该结果关闭 E6b Engineering，但不关闭 E5 production browser、E6c 缓存验证或 E6d Route 产品接入。
