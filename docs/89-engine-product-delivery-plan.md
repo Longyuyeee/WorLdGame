@@ -347,6 +347,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6e Engineering 状态（2026-08-23）：已纠正 E6d 的“未保存改动临时全量编译”路径。Project Compiler 新增不生成发布产物的权威增量分析入口；只有经 Project Service 确认、且 cache 已由宿主验证或当前进程生成的场景局部变更，才可跳过 9,999 个未变场景的依赖 Hash 重算，场景集合变化自动回退完整校验。Route/Sequence/Script 的局部动作已登记变更场景；Project Service 的 ChangeSet 改为独立 SHA-256 事务修订链，工程语义 Hash 继续只负责持久化/Compiler 对齐。完整负载下 10k 单场景改名到 Route 锚点窗口 20 样本 P95 `64.10 ms`（预算 `<500 ms`），1 编译 / 9,999 复用；完整 `npm run check` 退出 0。production browser 仍被管理员策略阻止，冷启动正文局部读取与运行路线高亮仍未完成，故不关闭 N40 Product Acceptance。详见 [N40-E6e 审计](162-n40-e6e-route-edit-sync-performance-audit.md)。
 
+> E7 Engineering 状态（2026-08-23）：Formal Runtime 现在从 active History cursor 投影当前场景、已访问场景和精确 `choiceSelected.optionId`；Flow Route Map 只读消费该轨迹，Back 会撤销未来连接高亮，Forward 会恢复，Runtime 当前场景跨出 64 节点窗口时自动重新锚定。定向 `2 files / 21 tests`、全量 `104 files / 658 tests`、10k/20k Runtime corpus、全部构建/架构/性能门均通过；最终复跑 Route 编辑 P95 `59.35 ms < 500 ms`。首次 Windows CI 暴露跨窗口 fixture 的 5 秒 timeout，未放宽门；精简为同等语义的 65 场景可达图后，run `32588504610` / job `97068432489` 在 3m31s 完整通过。Vite 实际启动，但 production browser 两次被管理员安全策略阻止在页面加载前，故 browser 与 N40 Product Acceptance 不关闭；冷启动正文局部读取仍缺可信协议。详见 [N40-E7 审计](163-n40-e7-runtime-route-highlight-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
