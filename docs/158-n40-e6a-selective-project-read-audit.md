@@ -3,7 +3,7 @@
 > 日期：2026-08-22
 > 分支：`codex/n40-e1-route-graph-core`
 > 范围：冻结并实现 Web/Node `ProjectWorkspace` 选择性 JSON 文件读取能力
-> 结论：本地实现与实测通过；这是 Route 存储级按需加载的基础，不是 Route lazy loading 完成
+> 结论：本地与远端 Windows / Node 22 完整门通过；这是 Route 存储级按需加载的基础，不是 Route lazy loading 完成
 
 ## 1. 需求与偏移审计
 
@@ -50,4 +50,7 @@ N40 P0 要求大型路线图“局部加载”。E2 的 64 节点窗口只限制
 
 ## 5. 远端证据
 
-实现提交、Draft PR #59 与 Windows / Node 22 full check 将在推送后回填；远端绿色之前本切片只登记为本地实现通过。
+- Draft PR：[#59](https://github.com/Longyuyeee/WorLdGame/pull/59)；
+- 实现与首轮文档提交：`4d51cfb43c1d195403d25f4eca0a09f63dc91b98`；
+- Windows / Node 22 full check：[run 32580452976](https://github.com/Longyuyeee/WorLdGame/actions/runs/32580452976)，job `97048887858`，`4m35s`，`success`；
+- locked dependencies、完整产品基线与 post steps 全绿。该结果关闭 E6a Engineering，但不关闭 E5 production browser 或 E6b Route 存储级接入。
