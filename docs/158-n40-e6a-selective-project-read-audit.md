@@ -43,8 +43,8 @@ N40 P0 要求大型路线图“局部加载”。E2 的 64 节点窗口只限制
 ## 4. 未完成与下一顺序
 
 1. E5 production browser 第三次仍被管理员安全校验拒绝，保持实现候选，不用 adapter 测试替代产品交互验收；
-2. E6b：建立 Route catalog/window 与失效规则，将选择性读取接入真实打开/换窗路径，并以读取清单和计数证明无关场景未读；
-3. E6c：验证保存、外部修改、删除/重命名与 Compiler 全图诊断在局部装载下不产生双重事实；
+2. E6b 审计发现宿主缺少无正文 inventory，原“直接接入 catalog”顺序会信任不可验证缓存；现已先补 path/size/modified stamp，详见 [E6b 审计](159-n40-e6b-project-file-inventory-audit.md)；
+3. E6c/E6d：先建立 Compiler 派生缓存的内容校验和全量回退，再接入 Route 打开/换窗；保存、外部修改、删除/重命名不得产生双重事实；
 4. 之后再推进运行路线高亮、10k 局部编辑与端到端 500 ms P95；
 5. `RA-N21-005` 继续阻断 N40 Product Acceptance、N41+、M1 Stable 与发布。
 

@@ -337,7 +337,9 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E5 实施候选状态（2026-08-22）：Route Window 已支持章节、节点类型和视觉分组 P0 组合过滤，并在过滤后再应用 64 节点窗口。需求审计同时纠正文档口径：PRD P0 只要求过滤，按角色/变量/覆盖过滤属于 P1，不能偷带为当前 N40 完成条件。定向、全仓与 production build 已实际通过；production browser 三次被管理员安全校验拒绝，故 E5 尚未关闭。详见 [N40-E5 审计](157-n40-e5-route-filtering-audit.md)。
 
-> E6a Engineering 状态（2026-08-22）：`ProjectWorkspace` 已新增受限选择性读取能力，Web adapter 通过文件句柄读取计数证明未读取无关文件，Node adapter 在真实临时目录中读取指定切片并拒绝真实目录联接逃逸；本地全仓、production build 与远端 Windows / Node 22 完整门通过。这只是宿主按需读取基础，Route 打开/换窗仍走完整 Canonical Project，E6b catalog/window 接入与失效/保存一致性尚未完成。详见 [N40-E6a 审计](158-n40-e6a-selective-project-read-audit.md)。
+> E6a Engineering 状态（2026-08-22）：`ProjectWorkspace` 已新增受限选择性读取能力，Web adapter 通过文件句柄读取计数证明未读取无关文件，Node adapter 在真实临时目录中读取指定切片并拒绝真实目录联接逃逸；本地全仓、production build 与远端 Windows / Node 22 完整门通过。这只是宿主按需读取基础，Route 打开/换窗仍走完整 Canonical Project；后续 E6b 审计又确认必须先补缓存失效所需的无正文 inventory。详见 [N40-E6a 审计](158-n40-e6a-selective-project-read-audit.md)。
+
+> E6b 本地实施状态（2026-08-22）：真实代码审计否决了“无失效依据直接信任 Route 派生缓存”的原顺序。Web/Node workspace 现可在不读取 JSON 正文时枚举源文件 path/size/modified stamp；Web 正文计数保持 0，Node 真实目录修改会改变 inventory version，私有缓存被排除且目录联接继续拒绝。stamp 仅是快速失效提示，不是内容 Hash；E6c 必须补缓存内容校验与全量回退，E6d 才接入 Launcher/Route。详见 [N40-E6b 审计](159-n40-e6b-project-file-inventory-audit.md)。
 
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。

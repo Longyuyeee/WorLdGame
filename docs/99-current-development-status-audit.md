@@ -4,7 +4,7 @@
 > 当前分支：`codex/n40-e1-route-graph-core`；直接基线为 N32-E7 最终头 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
-> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph 审计](153-n40-e1-route-graph-core-audit.md)、[N40-E2 10k Route Window 审计](154-n40-e2-10k-route-window-audit.md)、[N40-E3 Layout Sidecar 审计](155-n40-e3-route-layout-sidecar-audit.md)、[N40-E4 Route Workspace 审计](156-n40-e4-route-layout-interaction-audit.md)、[N40-E5 P0 Filter 审计](157-n40-e5-route-filtering-audit.md)、[N40-E6a 选择性读取审计](158-n40-e6a-selective-project-read-audit.md)
+> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph 审计](153-n40-e1-route-graph-core-audit.md)、[N40-E2 10k Route Window 审计](154-n40-e2-10k-route-window-audit.md)、[N40-E3 Layout Sidecar 审计](155-n40-e3-route-layout-sidecar-audit.md)、[N40-E4 Route Workspace 审计](156-n40-e4-route-layout-interaction-audit.md)、[N40-E5 P0 Filter 审计](157-n40-e5-route-filtering-audit.md)、[N40-E6a 选择性读取审计](158-n40-e6a-selective-project-read-audit.md)、[N40-E6b Inventory 审计](159-n40-e6b-project-file-inventory-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1–E4 已完成并取得远端绿色；E5 的 P0 组合过滤已通过本地门，但 production browser 三次被管理员安全校验拒绝，故仍未关闭；E6a Web/Node 安全选择性读取已通过本地与远端 Windows / Node 22 完整门，但尚未接入 Route，不能登记为存储 lazy loading 完成**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1–E4 已完成并取得远端绿色；E5 P0 过滤因 production browser 安全校验阻断仍未关闭；E6a 已远端绿色，E6b Web/Node 无正文 inventory 本地全仓通过，并纠正了无失效依据直接信任 Route 缓存的错误顺序。Compiler 缓存验证与 Route 产品接入仍未完成**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
@@ -27,7 +27,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、Writer 卡片、Script、稳定 ID、Compiler IR/Source Map；Route Map 已有 Compiler 事实、10k 分支投影、64 节点窗口、Layout Sidecar、分组/折叠/视口、可访问移动；P0 过滤待浏览器复验；Web/Node adapter 已能安全选择性读取 | 选择性读取尚未接入 Route catalog/window，故存储级 lazy loading 仍缺；另缺运行路线高亮、10k 局部编辑/端到端 500 ms P95、N41 Sequence、N60 QA/Debugger；角色/变量/覆盖过滤属 P1 |
+| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k 投影、64 节点窗口、Layout、分组/折叠/视口/交互；P0 过滤待 browser；Web/Node 已有选择性正文读取和无正文源 inventory | inventory 只是失效提示；仍缺经内容校验的 Compiler/Route 派生缓存与 Launcher/窗口接入、运行高亮、10k 局部编辑/500 ms P95、N41/N60；角色/变量/覆盖过滤属 P1 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -92,7 +92,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. 安全校验恢复后补做 N40-E5 production browser；E6a 选择性读取契约和 adapter 已本地通过，下一步 E6b 必须接入 Route catalog/window，并用实际读取清单证明打开/换窗未读无关场景；在此之前不能宣称存储 lazy loading 完成；
+2. 安全校验恢复后补做 E5 production browser；E6a 选择性读取与 E6b inventory 已建立宿主前置能力。下一步 E6c 先完成 Compiler 派生缓存的内容校验/全量回退，E6d 才接入 Launcher/Route 并证明无关正文未读；在此之前不能宣称存储 lazy loading 完成；
 3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

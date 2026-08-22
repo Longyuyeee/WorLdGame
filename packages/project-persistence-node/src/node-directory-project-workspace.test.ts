@@ -1,4 +1,4 @@
-import { mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -20,6 +20,8 @@ describe("NodeDirectoryProjectWorkspace", () => {
     const outside = await mkdtemp(join(tmpdir(), "world-outside-")); roots.push(outside); await writeFile(join(outside,"secret.json"),"secret","utf8");await symlink(outside, join(root, "linked"), "junction");
     await expect(workspace.readFiles()).rejects.toThrow(/Symbolic links are not allowed/);
     await expect(workspace.readSelectedFiles(["linked/secret.json"])).rejects.toThrow(/Symbolic links are not allowed/);
+    await expect(workspace.listProjectFiles()).rejects.toThrow(/Symbolic links are not allowed/);
   });
   it("reads an explicit canonical file slice and rejects traversal",async()=>{const root=await mkdtemp(join(tmpdir(),"world-project-"));roots.push(root);const workspace=new NodeDirectoryProjectWorkspace(root,"windows_slice");const created=await createProject(workspace,"Slice","018f08d8-71a1-7bc2-a627-2f4a843ee173");const scriptPath=created.project?.scenes[0]?.scriptPath;if(scriptPath===undefined)throw new Error("missing script path");const selected=await workspace.readSelectedFiles(["world.project.json",scriptPath]);expect(Object.keys(selected.files).sort()).toEqual([scriptPath,"world.project.json"].sort());expect(selected.files[scriptPath]).toContain("statements");await expect(workspace.readSelectedFiles(["../secret.json"])).rejects.toThrow(/Unsafe project path/);});
+  it("lists real source file stamps, detects metadata changes, and excludes disposable cache files",async()=>{const root=await mkdtemp(join(tmpdir(),"world-project-"));roots.push(root);const workspace=new NodeDirectoryProjectWorkspace(root,"windows_inventory");const created=await createProject(workspace,"Inventory","018f08d8-71a1-7bc2-a627-2f4a843ee174");await mkdir(join(root,".world-cache"));await writeFile(join(root,".world-cache","route.json"),"stale","utf8");const listed=await workspace.listProjectFiles();expect(listed.files.some((item)=>item.path==="world.project.json"&&item.size>0&&item.modifiedAtMs>0)).toBe(true);expect(listed.files.some((item)=>item.path.startsWith(".world-cache/"))).toBe(false);expect(listed.files.map((item)=>item.path)).toEqual(Object.keys(created.baseFiles).sort());await writeFile(join(root,"world.project.json"),`${created.baseFiles["world.project.json"]}\n`,"utf8");const changed=await workspace.listProjectFiles();expect(changed.version).not.toBe(listed.version);});
 });

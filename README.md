@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-13
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E4 已建立 Compiler 驱动的 Route Map、Project Service 跨视图写回、真实 10k 分支投影、64 节点有界窗口，以及可保存/重建、分组/折叠、持久化视口和可访问移动的 Canonical Layout Sidecar；E5 已形成 P0 章节/节点类型/视觉分组过滤实现候选，但 production browser 因管理员安全校验不可用而待复验。E6a 已通过 Web/Node 实测建立安全的选择性工程文件读取能力，但尚未接入 Route 打开/换窗路径，不能登记为宿主/磁盘级 lazy loading 完成。路线高亮、10k 局部编辑/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E4 已建立 Compiler 驱动的 Route Map、Project Service 跨视图写回、真实 10k 分支投影、64 节点有界窗口，以及可保存/重建、分组/折叠、持久化视口和可访问移动的 Canonical Layout Sidecar；E5 已形成 P0 过滤实现候选，但 production browser 因管理员安全校验不可用而待复验。E6a/E6b 已通过 Web/Node 实测建立选择性正文读取和无正文源文件 inventory；审计同时纠正了“直接信任未验证 Route 缓存”的错误顺序。Compiler 缓存验证、Route 打开/换窗接入、路线高亮、10k 局部编辑/500 ms 门、正式 Player、真人产品验收、N41+、M1 与发布仍被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -47,6 +47,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N40-E4 Route Workspace 交互审计](docs/156-n40-e4-route-layout-interaction-audit.md) | 分组/折叠、视口、拖拽与键盘/触控移动、持久化复核及剩余 N40 边界 |
 | [N40-E5 P0 Route 过滤审计](docs/157-n40-e5-route-filtering-audit.md) | 章节/节点类型/视觉分组组合过滤、64 节点有界窗口、P0/P1 纠偏与待复验状态 |
 | [N40-E6a 宿主选择性读取审计](docs/158-n40-e6a-selective-project-read-audit.md) | Web/Node 按路径读取、安全边界、真实磁盘/句柄证据，以及尚未接入 Route 的诚实边界 |
+| [N40-E6b 工程源文件 Inventory 审计](docs/159-n40-e6b-project-file-inventory-audit.md) | 无正文 path/size/modified 清单、真实磁盘与链接安全、缓存失效提示及 E6c/E6d 纠偏顺序 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

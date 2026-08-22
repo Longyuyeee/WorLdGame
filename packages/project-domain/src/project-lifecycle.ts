@@ -6,7 +6,9 @@ import type { CanonicalProject, ProjectFiles } from "./types";
 export type ProjectHostKind="windows-directory"|"web-file-system"|"web-opfs"|"memory-test";
 export interface ProjectReference { readonly referenceId:string; readonly hostKind:ProjectHostKind; readonly displayLocation:string; readonly permissionKey:string; }
 export interface ProjectSelectedFiles { readonly files:ProjectFiles; readonly version:string; }
-export interface ProjectWorkspace { readonly reference:ProjectReference; readFiles():Promise<{readonly files:ProjectFiles;readonly version:string}>; readSelectedFiles?(paths:readonly string[]):Promise<ProjectSelectedFiles>; writeFiles(files:ProjectFiles,expectedVersion:string|null):Promise<{readonly version:string}>; }
+export interface ProjectFileStamp { readonly path:string; readonly size:number; readonly modifiedAtMs:number; }
+export interface ProjectFileInventory { readonly files:readonly ProjectFileStamp[]; readonly version:string; }
+export interface ProjectWorkspace { readonly reference:ProjectReference; readFiles():Promise<{readonly files:ProjectFiles;readonly version:string}>; readSelectedFiles?(paths:readonly string[]):Promise<ProjectSelectedFiles>; listProjectFiles?():Promise<ProjectFileInventory>; writeFiles(files:ProjectFiles,expectedVersion:string|null):Promise<{readonly version:string}>; }
 export interface RecentProject { readonly reference:ProjectReference; readonly projectId:string; readonly title:string; readonly lastOpenedAtMs:number; }
 export interface RecentProjectStore { load():Promise<readonly RecentProject[]>; save(items:readonly RecentProject[]):Promise<void>; }
 export interface ProjectLifecycleSession { readonly project:CanonicalProject|null; readonly projectId:string; readonly title:string; readonly schemaVersion:number; readonly reference:ProjectReference; readonly hostVersion:string|null; readonly baseHash:string; readonly baseFiles:ProjectFiles; readonly dirty:boolean; readonly recovery:"clean"|"recovered"; readonly access:"editable"|"read-only"; readonly readOnlyReason?:string; }
