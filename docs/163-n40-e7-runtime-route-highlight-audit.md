@@ -2,7 +2,7 @@
 
 > 日期：2026-08-23  
 > 实现提交：`6fbc800495726a7666516fd6ba19b35f86751c5c`  
-> 测试纠偏提交：`fb63329b6bc9c80e955b76f37731a88378b94106`  
+> 测试纠偏提交：`fb63329b6bc9c80e955b76f37731a88378b94106`、`bae2b7569d2d197f386147765e45c488b52bc74f`
 > 范围：Formal Runtime History → Editor Preview → Flow Route Map 的当前场景、已访问场景、已走连接只读投影
 
 ## 1. 需求与顺序审计
@@ -47,25 +47,33 @@ npm exec vitest run apps/editor/src/formal-preview-runtime.test.ts apps/editor/s
 - 广播室/天台两条正式 Compiler/Runtime 路线分别记录 `opt_broadcast` / `opt_rooftop`；
 - Back 撤销已走连接，Forward 恢复同一连接；
 - Flow 当前/访问节点及实际 edge 同步更新；
-- 65 场景工程先把窗口移回 1–64，再从第 65 场景启动 Runtime，窗口实际回锚为 `65–65 / 65`；
+- 三场景完整 App 链验证 Runtime → Flow 当前/访问/edge 高亮，以及 Back 撤销、Forward 恢复；
+- 真实 65 节点 Compiler Route Graph 验证运行场景位于窗口外时，锚点策略和窗口查询得到 `65–65 / 65`；
 - TypeScript project build 通过。
 
-首次实现头 `6fbc800` 的 Windows CI 在跨窗口 UI 用例触发默认 5 秒 timeout（103 files / 657 tests 已通过，只有该用例失败）。没有提高 timeout 或删除验收；测试 fixture 改为一个入口 choice 连接其余 64 个合法结局，保持“65 个可达场景、窗口先回第一页、从第 65 场景启动 Formal Runtime、自动回锚”的产品链不变，同时移除 64 个与该验收无关的连续 choice 编译负载。中间尝试用不可达 narration 场景提速时，正式 Compiler 正确 fail closed，窗口未被伪高亮；该反例被放弃。修正必须经新的本地全量和远端完整门裁决。
+首次实现头 `6fbc800` 的 Windows CI 在跨窗口 UI 用例触发默认 5 秒 timeout（103 files / 657 tests 已通过，只有该用例失败）。没有提高 timeout 或删除验收；第一次纠偏把 fixture 从 64 段连续 choice 改为一个入口 choice 连接其余 64 个合法结局，移除了与窗口验收无关的连续执行负载。该提交一度远端通过，但文档头再次出现同一 timeout，证明整应用挂载 65 场景仍受共享 runner 负载影响，不能把一次绿灯当成稳定通过。
+
+第二次纠偏按职责拆分验收：三场景完整 App 用例继续覆盖真实 Runtime → Flow 高亮、choice edge 以及 Back/Forward；跨窗口边界则导出无副作用的运行锚点策略，并以真实 65 节点 Compiler Route Graph 和正式 `queryRouteGraphWindow` 验证第 65 场景回锚。该边界用例连续三次实跑为 `11–13 ms`。没有提高默认 timeout，也没有删除任一产品断言；只是避免用整个 Editor/Runtime 生命周期重复验证纯窗口边界。
 
 完整 `npm run check` 退出码为 0：
 
 - 普通并行测试：`104 files / 658 tests`；
 - 存储一致性：`1/1`；VM 重载一致性：`5/5`；
 - Runtime：`10,000 seeds / 20,000 replay executions`，0 failed seeds；
-- 所有 workspace production build 完成；Editor CSS `84.48 kB`（gzip `15.97 kB`），JS `772.06 kB`（gzip `218.47 kB`），既有 `>500 kB` warning 保留；
+- 所有 workspace production build 完成；Editor CSS `84.48 kB`（gzip `15.97 kB`），JS `772.13 kB`（gzip `218.49 kB`），既有 `>500 kB` warning 保留；
 - 架构：`91` portable files、`4` Node adapter files；
-- Route 10k full projection `1793.34 ms`，index `5.76 ms`，three queries `3.38 ms`；
-- Route 局部编辑 20 样本 P95 `59.35 ms`，预算 `<500 ms`；
+- Route 10k full projection `1738.57 ms`，index `5.36 ms`，three queries `3.64 ms`；
+- Route 局部编辑 20 样本 P95 `62.14 ms`，预算 `<500 ms`；
 - Script、Route、Asset 全部性能门通过。
 
 Vite 以 `npm run dev --workspace @world-studio/editor -- --host 127.0.0.1 --port 5177` 实际启动，ready `111 ms`。应用内浏览器两次在页面加载前因管理员安全策略校验服务不可用而拒绝 localhost；没有绕过控制，也没有用 Vite ready 冒充浏览器交互通过。因此 production browser 仍明确记为未验证。
 
-首次实现头的 GitHub Windows / Node 22 完整门 run `32588154189` / job `97067570183` 在 2m33s 后因上述单一 UI timeout 失败；测试纠偏头 `fb63329` 的 run `32588504610` / job `97068432489` 随后在 3m31s 完整通过，locked install、产品基线与 post steps 全绿。
+GitHub Windows / Node 22 完整门按真实结果保留完整链路：
+
+1. 实现头 `6fbc800`：run `32588154189` / job `97067570183`，2m33s，单一跨窗口 UI timeout，失败；
+2. 第一次纠偏头 `fb63329`：run `32588504610` / job `97068432489`，3m31s，完整通过；
+3. 文档头 `3fb0768`：run `32588725352` / job `97069033851`，2m43s，再次发生同一 timeout，证明确有负载敏感性；
+4. 稳定化头 `bae2b75`：run `32589014554` / job `97069769247`，3m40s，locked install、完整产品基线及 post steps 全部通过。
 
 ## 5. 结论与剩余工作
 
