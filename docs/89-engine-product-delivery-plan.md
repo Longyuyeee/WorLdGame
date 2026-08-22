@@ -345,6 +345,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6d 实施候选状态（2026-08-23）：Studio Launcher 的创建/打开/Recent/示例/导入/保存已统一进入 verified workspace Compiler lifecycle；Route 在项目 Hash 对齐时消费该次正式 Compiler 结果，并显示 miss/hit/rebuild 与 compiled/reused 数，未保存改动明确降级为内存临时全量编译。实际自动化证明首次 miss、重开 hit、保存后 miss/rebuild、再重开 hit，future-schema 不调用当前 Compiler；本地完整门与远端 Windows / Node 22 重跑已通过（run `32584113370` / job `97058322039`）。production browser 三次在页面加载前被管理员安全校验拒绝，因此 E6d 尚未关闭。当前仍全量读取源，且打开阶段有 lifecycle probe 与 workspace compile 两次读取，不能登记为冷启动 lazy loading。详见 [N40-E6d 审计](161-n40-e6d-launcher-route-cache-integration-audit.md)。
 
+> E6e Engineering 状态（2026-08-23）：已纠正 E6d 的“未保存改动临时全量编译”路径。Project Compiler 新增不生成发布产物的权威增量分析入口；只有经 Project Service 确认、且 cache 已由宿主验证或当前进程生成的场景局部变更，才可跳过 9,999 个未变场景的依赖 Hash 重算，场景集合变化自动回退完整校验。Route/Sequence/Script 的局部动作已登记变更场景；Project Service 的 ChangeSet 改为独立 SHA-256 事务修订链，工程语义 Hash 继续只负责持久化/Compiler 对齐。完整负载下 10k 单场景改名到 Route 锚点窗口 20 样本 P95 `64.10 ms`（预算 `<500 ms`），1 编译 / 9,999 复用；完整 `npm run check` 退出 0。production browser 仍被管理员策略阻止，冷启动正文局部读取与运行路线高亮仍未完成，故不关闭 N40 Product Acceptance。详见 [N40-E6e 审计](162-n40-e6e-route-edit-sync-performance-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

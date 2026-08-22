@@ -28,6 +28,8 @@ E6d 因此冻结以下边界：
 - Route 显示命中、未命中、损坏/版本/inventory/正文变化后的重建原因，以及实际 compiled/reused scene 数；
 - future-schema 只读工程保持 Compiler `null`，不枚举 inventory、不读写派生缓存。
 
+> 2026-08-23 E6e 纠偏：上述“内存改动自动降级为临时全量编译”是 E6d 当时的真实边界，现已由权威增量分析替换；场景局部动作使用宿主已验证/进程内 cache，场景集合或全局依赖变化仍回退完整验证。后续事实以 [N40-E6e 审计](162-n40-e6e-route-edit-sync-performance-audit.md)为准。
+
 ## 3. 测试驱动与实际结果
 
 ### 3.1 红灯

@@ -35,11 +35,13 @@ N11 将所有项目语义写入收敛到 `@world-studio/project-domain` 内的 P
 ## 3. Revision、ChangeSet 与事务
 
 - 单命令通过 `executeProjectCommand`，内部使用同一批处理实现；
-- `executeProjectBatch` 在内存副本上顺序应用全部命令，最后用 Canonical save/load 再验证；
+- `executeProjectBatch` 从 Service 持有的不可变快照顺序产生新对象；普通批次最后用 Canonical save/load 再验证，严格场景改名在已验证基线之上使用局部标题/引用约束快路径；
 - 任一命令、引用或最终 Schema 验证失败时返回原始 `state`，revision、Hash、命令 receipt 均不变化；
 - 成功批次只增加一次 revision，并产生包含 command IDs、before/after Hash、changed entity IDs 的 `ChangeSet`；
 - 已登记的 `commandId` 重放返回 `DUPLICATE_COMMAND` 且不再次修改项目；
-- `undoProject` / `redoProject` 使用语义快照恢复，Redo 后 Hash 必须与原提交完全一致；
+- ChangeSet 的 before/after Hash 是独立的 SHA-256 事务修订链（前一修订 Hash、revision、完整规范化命令载荷、changed entity IDs），用于审计、幂等与 Undo/Redo；它不是工程语义 Hash；
+- 工程语义 Hash 仍由 Canonical Project files 计算，只用于持久化、外部变化和 Compiler 对齐，不能与事务修订 Hash 混用；
+- `undoProject` / `redoProject` 使用语义快照恢复，Redo 后事务修订 Hash 必须与原提交完全一致；
 - 新命令会清空 redo stack，避免分叉后应用旧未来状态。
 
 ## 4. 保存边界与 SourceSession 收敛
