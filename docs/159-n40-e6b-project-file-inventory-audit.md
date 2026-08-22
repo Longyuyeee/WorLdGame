@@ -56,8 +56,8 @@ E6a 后原计划直接在 E6b 持久化 Route catalog/window 并接入 Launcher�
 ## 5. 下一顺序
 
 1. E5 production browser 仍因管理员安全校验不可用而待复验；
-2. E6c：为正式 Compiler cache 建立可删除重建的宿主存储、schema/compiler 版本、inventory 快速失效、内容校验和 fail-closed 全量回退；
-3. E6d：Launcher/Route 先加载已验证 catalog，再按 64 节点窗口读取脚本/布局；记录实际读取路径，证明无关正文未读；
+2. E6c 已完成可删除宿主存储、版本/inventory/源 Hash/envelope 校验与全量回退，详见 [E6c 审计](160-n40-e6c-verified-compiler-cache-audit.md)；
+3. E6d 先接入 Launcher/Route 并实测 cache hit/miss/保存失效；因 E6c 为内容校验仍全量读源，不得提前写成冷启动按窗口读取；
 4. 保存、外部编辑、删除/重命名必须使缓存失效并由 Compiler 重建，不能维护第二份剧情逻辑；
 5. 之后推进运行路线高亮、10k 局部编辑和端到端 500 ms P95。
 

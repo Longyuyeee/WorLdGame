@@ -1,6 +1,6 @@
-import { lstat, readdir, stat } from "node:fs/promises";
+import { lstat, readdir, rm, stat } from "node:fs/promises";
 import { isAbsolute, parse, resolve } from "node:path";
-import { assertSelectedProjectPaths, type ProjectFiles, type ProjectFileStamp, type ProjectReference, type ProjectWorkspace } from "@world-studio/project-domain";
+import { assertDerivedProjectPath, assertSelectedProjectPaths, type ProjectFiles, type ProjectFileStamp, type ProjectReference, type ProjectWorkspace } from "@world-studio/project-domain";
 import { NodeProjectFileStore } from "./node-project-file-store";
 
 const SAFE_SEGMENT = /^[a-z0-9._-]+$/;
@@ -19,9 +19,13 @@ export class NodeDirectoryProjectWorkspace implements ProjectWorkspace {
   async readFiles(): Promise<{ readonly files: ProjectFiles; readonly version: string }> { const files = await this.scan(); return { files, version: contentVersion(files) }; }
   async readSelectedFiles(paths:readonly string[]){const files:Record<string,string>={};for(const path of assertSelectedProjectPaths(paths)){let current=this.root;for(const segment of path.split("/")){current=resolve(current,segment);const metadata=await lstat(current).catch(()=>null);if(metadata===null)throw new Error(`Missing project file: ${path}`);if(metadata.isSymbolicLink())throw new Error(`Symbolic links are not allowed in project workspaces: ${segment}`);}const content=await this.files.read(path);if(content===null)throw new Error(`Missing project file: ${path}`);files[path]=content;}return {files,version:contentVersion(files)};}
   async listProjectFiles(){const files=await this.inventory();return {files,version:contentVersion(Object.fromEntries(files.map((item)=>[item.path,`${item.size}:${item.modifiedAtMs}`])))};}
+  async readDerivedFile(path:string){assertDerivedProjectPath(path);if(!await this.assertDerivedPathLinks(path,true))return null;return this.files.read(path);}
+  async writeDerivedFile(path:string,value:string){assertDerivedProjectPath(path);await this.assertDerivedPathLinks(path,true);await this.files.write(path,value);}
+  async clearDerivedFiles(){const cacheRoot=resolve(this.root,".world-cache"),metadata=await lstat(cacheRoot).catch(()=>null);if(metadata===null)return;if(metadata.isSymbolicLink())throw new Error("Symbolic links are not allowed in project workspaces: .world-cache");await rm(cacheRoot,{recursive:true,force:true});}
   async writeFiles(files: ProjectFiles, expectedVersion: string | null): Promise<{ readonly version: string }> {
     const current = await this.readFiles();
     if (expectedVersion !== null && current.version !== expectedVersion) throw new Error(`External project version changed from ${expectedVersion} to ${current.version}`);
+    await this.clearDerivedFiles();
     for (const path of Object.keys(current.files).filter((path) => files[path] === undefined)) await this.files.remove(path);
     for (const [path, value] of Object.entries(files)) await this.files.write(path, value);
     const written = await this.readFiles(); return { version: written.version };
@@ -38,4 +42,5 @@ export class NodeDirectoryProjectWorkspace implements ProjectWorkspace {
     return files;
   }
   private async inventory(directory=this.root,prefix=""):Promise<ProjectFileStamp[]>{const files:ProjectFileStamp[]=[];for(const entry of await readdir(directory,{withFileTypes:true})){if(entry.isSymbolicLink())throw new Error(`Symbolic links are not allowed in project workspaces: ${entry.name}`);if(!SAFE_SEGMENT.test(entry.name)||entry.name===".world-cache"||entry.name===".world-host")continue;const relative=prefix?`${prefix}/${entry.name}`:entry.name,absolute=resolve(directory,entry.name);if(entry.isDirectory())files.push(...await this.inventory(absolute,relative));else if(entry.isFile()&&entry.name.endsWith(".json")){const metadata=await stat(absolute);files.push({path:relative,size:metadata.size,modifiedAtMs:Math.trunc(metadata.mtimeMs)});}}return files.sort((left,right)=>left.path.localeCompare(right.path));}
+  private async assertDerivedPathLinks(path:string,allowMissing:boolean):Promise<boolean>{let current=this.root;for(const segment of path.split("/")){current=resolve(current,segment);const metadata=await lstat(current).catch(()=>null);if(metadata===null){if(allowMissing)return false;throw new Error(`Missing derived project file: ${path}`);}if(metadata.isSymbolicLink())throw new Error(`Symbolic links are not allowed in project workspaces: ${segment}`);}return true;}
 }
