@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createProjectTemplate,
+  readTrustedProjectStructurePage,
   readTrustedProjectStructure,
   saveProject,
   sha256,
@@ -98,5 +99,39 @@ describe("E8d trusted project structure", () => {
 
     await expect(readTrustedProjectStructure(workspace)).rejects.toThrow(/does not match trusted source commit/);
     expect(workspace.fullReads).toBe(0);
+  });
+
+  it("reads only requested scene pages while retaining the complete chapter topology", async () => {
+    const base = createProjectTemplate("E8k Paged Structure", "e8k-paged-structure");
+    const scenes = Array.from({ length: 300 }, (_, index) => {
+      const id = `scene_page_${String(index).padStart(4, "0")}`;
+      return { schemaVersion: 1 as const, id, title: `Scene ${index}`, scriptPath: `scripts/${id}.json`, layoutPath: `layouts/${id}.json` };
+    });
+    const project = { ...base, manifest: { ...base.manifest, entrySceneId: scenes[0]!.id }, chapters: [{ ...base.chapters[0]!, scenePaths: scenes.map((scene) => `scenes/${scene.id}.json`) }], scenes, scripts: Object.fromEntries(scenes.map((scene) => [scene.id, { schemaVersion: 1 as const, sceneId: scene.id, statements: [] }])), layouts: Object.fromEntries(scenes.map((scene) => [scene.id, { schemaVersion: 1 as const, sceneId: scene.id, nodes: [] }])) };
+    const workspace = new StructureWorkspace(saveProject(project));
+
+    const requestedPaths = project.chapters[0]!.scenePaths.slice(64, 128);
+    const snapshot = await readTrustedProjectStructurePage(workspace, requestedPaths);
+
+    expect(snapshot.totalScenes).toBe(300);
+    expect(snapshot.scenes.map((scene) => scene.id)).toEqual(scenes.slice(64, 128).map((scene) => scene.id));
+    expect(snapshot.scenePaths).toEqual(project.chapters[0]!.scenePaths);
+    expect(workspace.selectedReads.map((paths) => paths.length)).toEqual([1, 1, 64]);
+    expect(workspace.fullReads).toBe(0);
+  });
+
+  it("fails closed for unknown pages, corrupt scene bodies, and revision races", async () => {
+    const project = createProjectTemplate("E8k Paged Failure", "e8k-paged-failure");
+    const workspace = new StructureWorkspace(saveProject(project));
+    await expect(readTrustedProjectStructurePage(workspace, ["scenes/scene_missing.json"])).rejects.toThrow(/unknown scene path/i);
+
+    workspace.selectedReads.length = 0;
+    workspace.corruptPath = project.chapters[0]!.scenePaths[0]!;
+    await expect(readTrustedProjectStructurePage(workspace, [project.chapters[0]!.scenePaths[0]!])).rejects.toThrow(/does not match trusted source commit/);
+
+    workspace.corruptPath = null;
+    workspace.selectedReads.length = 0;
+    workspace.mutateAfterRead = 3;
+    await expect(readTrustedProjectStructurePage(workspace, [project.chapters[0]!.scenePaths[0]!])).rejects.toThrow(/changed while reading project structure page/);
   });
 });

@@ -1,8 +1,9 @@
 import { performance } from "node:perf_hooks";
-import { createProjectService, createProjectTemplate, executeProjectCommand, type CanonicalProject, type JsonObject, type ScriptDocument } from "@world-studio/project-domain";
+import { createProjectService, createProjectTemplate, executeProjectCommand, saveProject, sha256, type CanonicalProject, type JsonObject, type ProjectFiles, type ProjectReference, type ProjectTrustedSourceCommit, type ProjectWorkspace, type ScriptDocument } from "@world-studio/project-domain";
 import { compileProjectIncremental, preflightLazyNarrationInsertion, preflightLazyNarrationStructuralEdit } from "@world-studio/project-compiler";
 import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
+import { publishTrustedRouteOverview, readTrustedRouteOverview } from "../apps/editor/src/trusted-route-overview";
 import { describe, expect, it } from "vitest";
 
 const sceneCount = 10_000;
@@ -13,6 +14,25 @@ const editSyncBudgetMs = 500;
 const editSamples = 20;
 const lazyEditIndexBudgetMs = 500;
 const lazyStructuralPreflightBudgetMs = 500;
+const lazyRouteStructurePageBudgetMs = 500;
+
+class PerformanceRouteWorkspace implements ProjectWorkspace {
+  readonly reference: ProjectReference = { referenceId: "route-performance", hostKind: "memory-test", displayLocation: "memory/route-performance", permissionKey: "route-performance" };
+  readonly selectedReads: string[][] = [];
+  readonly derived = new Map<string, string>();
+  readonly commit: ProjectTrustedSourceCommit;
+  fullReads = 0;
+  constructor(readonly files: ProjectFiles) {
+    const entries = Object.entries(files).map(([path, value]) => ({ path, size: new TextEncoder().encode(value).byteLength, modifiedAtMs: 1, sha256: sha256(value) }));
+    this.commit = { schemaVersion: 1, generation: 1, files: entries, version: sha256(JSON.stringify({ schemaVersion: 1, generation: 1, files: entries })) };
+  }
+  async readFiles() { this.fullReads += 1; return { files: this.files, version: this.commit.version }; }
+  async readSelectedFiles(paths: readonly string[]) { this.selectedReads.push([...paths]); return { files: Object.fromEntries(paths.map((path) => [path, this.files[path]!])), version: this.commit.version }; }
+  async readTrustedSourceCommit() { return this.commit; }
+  async readDerivedFile(path: string) { return this.derived.get(path) ?? null; }
+  async writeDerivedFile(path: string, value: string) { this.derived.set(path, value); }
+  async writeFiles(): Promise<{ readonly version: string }> { throw new Error("not used"); }
+}
 
 function percentile95(values: readonly number[]): number {
   return [...values].sort((left, right) => left - right)[Math.ceil(values.length * 0.95) - 1]!;
@@ -131,6 +151,30 @@ describe("N40 10k branching Route performance gate", () => {
       budgetMs: { p95: editSyncBudgetMs }
     }, null, 2));
     expect(p95).toBeLessThan(editSyncBudgetMs);
+  });
+
+  it("reads only one trusted 64-scene structure/layout page from a 10k Route within 500ms", async () => {
+    const project = createBranchingRouteProject();
+    const workspace = new PerformanceRouteWorkspace(saveProject(project));
+    await publishTrustedRouteOverview(workspace, project, compileProjectIncremental(project), workspace.commit.version);
+    workspace.selectedReads.length = 0;
+    const started = performance.now();
+    const overview = await readTrustedRouteOverview(workspace, { anchorSceneId: sceneId(5_555) });
+    const elapsedMs = performance.now() - started;
+
+    console.log(JSON.stringify({
+      status: elapsedMs < lazyRouteStructurePageBudgetMs ? "PASS" : "FAIL",
+      baseline: { sceneCount, windowLimit: ROUTE_GRAPH_WINDOW_LIMIT, operation: "trusted manifest/chapter + scene/layout page" },
+      measurementsMs: { lazyRouteStructurePage: Number(elapsedMs.toFixed(2)) },
+      budgetMs: { lazyRouteStructurePage: lazyRouteStructurePageBudgetMs },
+      result: { selectedReadBatchSizes: workspace.selectedReads.map((paths) => paths.length), sourceFileCount: overview.sourceRead.fileCount, mountedNodes: overview.window.nodes.length }
+    }, null, 2));
+
+    expect(overview.window.nodes.some((node) => node.id === sceneId(5_555))).toBe(true);
+    expect(workspace.selectedReads.map((paths) => paths.length)).toEqual([1, 1, 64, 64]);
+    expect(overview.sourceRead.fileCount).toBe(130);
+    expect(workspace.fullReads).toBe(0);
+    expect(elapsedMs).toBeLessThan(lazyRouteStructurePageBudgetMs);
   });
 
   it("builds the revision-bound global Lazy Edit Index for 10k statements within 500ms", () => {

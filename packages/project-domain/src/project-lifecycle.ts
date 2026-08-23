@@ -1,8 +1,8 @@
-import { loadProject, loadProjectChapters, loadProjectManifest, loadProjectStructure, PROJECT_MANIFEST_PATH, probeProject, saveProject, semanticHash } from "./codec";
+import { loadProject, loadProjectChapters, loadProjectManifest, loadProjectScenes, loadProjectStructure, PROJECT_MANIFEST_PATH, probeProject, saveProject, semanticHash } from "./codec";
 import { exportProjectZip, importProjectZip } from "./project-archive";
 import { createStableId } from "./stable-id";
 import { sha256 } from "./sha256";
-import type { CanonicalProject, ProjectFiles, ProjectStructureIndex } from "./types";
+import type { CanonicalProject, ChapterDocument, ProjectFiles, ProjectManifest, ProjectStructureIndex, SceneDocument } from "./types";
 
 export type ProjectHostKind="windows-directory"|"web-file-system"|"web-opfs"|"web-indexeddb"|"memory-test";
 export interface ProjectReference { readonly referenceId:string; readonly hostKind:ProjectHostKind; readonly displayLocation:string; readonly permissionKey:string; }
@@ -12,6 +12,7 @@ export interface ProjectFileInventory { readonly files:readonly ProjectFileStamp
 export interface ProjectTrustedSourceFile extends ProjectFileStamp { readonly sha256:string; }
 export interface ProjectTrustedSourceCommit { readonly schemaVersion:1; readonly version:string; readonly generation:number; readonly files:readonly ProjectTrustedSourceFile[]; }
 export interface ProjectStructureSnapshot { readonly structure:ProjectStructureIndex; readonly files:ProjectFiles; readonly version:string; }
+export interface ProjectStructurePageSnapshot { readonly manifest:ProjectManifest; readonly chapters:readonly ChapterDocument[]; readonly scenePaths:readonly string[]; readonly scenes:readonly SceneDocument[]; readonly totalScenes:number; readonly files:ProjectFiles; readonly version:string; }
 export interface ProjectWorkspace { readonly reference:ProjectReference; readFiles():Promise<{readonly files:ProjectFiles;readonly version:string}>; readSelectedFiles?(paths:readonly string[]):Promise<ProjectSelectedFiles>; listProjectFiles?():Promise<ProjectFileInventory>; readTrustedSourceCommit?():Promise<ProjectTrustedSourceCommit|null>; readDerivedFile?(path:string):Promise<string|null>; writeDerivedFile?(path:string,value:string):Promise<void>; clearDerivedFiles?():Promise<void>; writeSelectedFiles?(files:ProjectFiles,expectedVersion:string):Promise<{readonly version:string}>; writeFiles(files:ProjectFiles,expectedVersion:string|null):Promise<{readonly version:string}>; }
 export interface RecentProject { readonly reference:ProjectReference; readonly projectId:string; readonly title:string; readonly lastOpenedAtMs:number; }
 export interface RecentProjectStore { load():Promise<readonly RecentProject[]>; save(items:readonly RecentProject[]):Promise<void>; }
@@ -38,6 +39,29 @@ export async function readTrustedProjectFiles(workspace:ProjectWorkspace,paths:r
 }
 
 export async function readTrustedProjectStructure(workspace:ProjectWorkspace):Promise<ProjectStructureSnapshot>{if(workspace.readSelectedFiles===undefined||workspace.readTrustedSourceCommit===undefined)throw new Error("Trusted project structure read is unsupported");const before=await workspace.readTrustedSourceCommit();if(before===null||!isProjectTrustedSourceCommit(before))throw new Error("Trusted project source commit is unavailable or invalid");const files:Record<string,string>={},trustedByPath=new Map(before.files.map((entry)=>[entry.path,entry])),encoder=new TextEncoder();const read=async(paths:readonly string[]):Promise<void>=>{for(let offset=0;offset<paths.length;offset+=256){const batch=paths.slice(offset,offset+256),selected=await workspace.readSelectedFiles!(batch);if(selected.version!==before.version)throw new Error("Project source changed while reading project structure");for(const path of batch){const body=selected.files[path],trusted=trustedByPath.get(path);if(body===undefined||trusted===undefined)throw new Error(`Missing project file: ${path}`);if(encoder.encode(body).byteLength!==trusted.size||sha256(body)!==trusted.sha256)throw new Error(`Project source ${path} does not match trusted source commit`);files[path]=body;}}};await read([PROJECT_MANIFEST_PATH]);const manifest=loadProjectManifest(files);await read(manifest.chapterPaths);const chapters=loadProjectChapters(files,manifest);await read(chapters.flatMap((chapter)=>chapter.scenePaths));const structure=loadProjectStructure(files);const after=await workspace.readTrustedSourceCommit();if(after===null||!isProjectTrustedSourceCommit(after)||after.version!==before.version)throw new Error("Project source changed while reading project structure");return {structure,files,version:before.version};}
+
+export async function readTrustedProjectStructurePage(workspace:ProjectWorkspace,requestedScenePaths:readonly string[],options:{readonly includeLayouts?:boolean}={}):Promise<ProjectStructurePageSnapshot>{
+  if(workspace.readSelectedFiles===undefined||workspace.readTrustedSourceCommit===undefined)throw new Error("Trusted project structure page read is unsupported");
+  if(requestedScenePaths.length>256||new Set(requestedScenePaths).size!==requestedScenePaths.length)throw new Error("Project structure page must request at most 256 unique scenes");
+  const before=await workspace.readTrustedSourceCommit();
+  if(before===null||!isProjectTrustedSourceCommit(before))throw new Error("Trusted project source commit is unavailable or invalid");
+  const files:Record<string,string>={},trustedByPath=new Map(before.files.map((entry)=>[entry.path,entry])),encoder=new TextEncoder();
+  const read=async(paths:readonly string[]):Promise<void>=>{for(let offset=0;offset<paths.length;offset+=256){const batch=paths.slice(offset,offset+256);if(batch.length===0)continue;const selected=await workspace.readSelectedFiles!(batch);if(selected.version!==before.version)throw new Error("Project source changed while reading project structure page");for(const path of batch){const body=selected.files[path],trusted=trustedByPath.get(path);if(body===undefined||trusted===undefined)throw new Error(`Missing project file: ${path}`);if(encoder.encode(body).byteLength!==trusted.size||sha256(body)!==trusted.sha256)throw new Error(`Project source ${path} does not match trusted source commit`);files[path]=body;}}};
+  await read([PROJECT_MANIFEST_PATH]);
+  const manifest=loadProjectManifest(files);
+  await read(manifest.chapterPaths);
+  const chapters=loadProjectChapters(files,manifest),scenePaths=chapters.flatMap((chapter)=>chapter.scenePaths);
+  if(new Set(scenePaths).size!==scenePaths.length)throw new Error("Project chapter topology contains duplicate scene paths");
+  for(const path of requestedScenePaths)if(!scenePaths.includes(path))throw new Error(`Project structure page requested an unknown scene path: ${path}`);
+  await read(requestedScenePaths);
+  const pageChapter:ChapterDocument={schemaVersion:1,id:"chapter_structure_page",title:"Structure Page",scenePaths:requestedScenePaths};
+  const scenes=loadProjectScenes(files,[pageChapter]);
+  if(new Set(scenes.map((scene)=>scene.id)).size!==scenes.length)throw new Error("Project structure page contains duplicate scene IDs");
+  if(options.includeLayouts===true)await read(scenes.map((scene)=>scene.layoutPath));
+  const after=await workspace.readTrustedSourceCommit();
+  if(after===null||after.schemaVersion!==1||after.version!==before.version||after.generation!==before.generation)throw new Error("Project source changed while reading project structure page");
+  return {manifest,chapters,scenePaths,scenes,totalScenes:scenePaths.length,files,version:before.version};
+}
 
 export function createProjectTemplate(title:string,durableEntropy:string):CanonicalProject {
   if(title.trim()==="")throw new ProjectLifecycleError("INVALID_TEMPLATE","Project title must not be empty");const projectId=createStableId("project",durableEntropy),chapterId=createStableId("chapter",`${durableEntropy}/chapter`),sceneId=createStableId("scene",`${durableEntropy}/scene`),statementId=createStableId("statement",`${durableEntropy}/statement`),chapterPath=`chapters/${chapterId}.json`,scenePath=`scenes/${sceneId}.json`,scriptPath=`scripts/${sceneId}.json`,layoutPath=`layouts/${sceneId}.json`;

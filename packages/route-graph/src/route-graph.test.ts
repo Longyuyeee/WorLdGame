@@ -65,6 +65,30 @@ describe("N40 route graph", () => {
     ]));
   });
 
+  it("maps chapter topology from canonical scene order without deriving IDs from source filenames", () => {
+    const base = routeProject(false);
+    const project: CanonicalProject = {
+      ...base,
+      chapters: [{ ...base.chapters[0]!, scenePaths: ["content/opening.json", "content/finale.json"] }]
+    };
+
+    const graph = buildRouteGraph(project);
+
+    expect(graph.chapters[0]?.sceneIds).toEqual(["route_entry", "route_left"]);
+    expect(graph.nodes.map((node) => [node.id, node.chapterId])).toEqual([
+      ["route_entry", "chapter_main"],
+      ["route_left", "chapter_main"]
+    ]);
+  });
+
+  it("fails closed when chapter topology and canonical scenes have different cardinality", () => {
+    const base = routeProject(false);
+    const project: CanonicalProject = { ...base, chapters: [{ ...base.chapters[0]!, scenePaths: ["content/opening.json"] }] };
+    const compilation = compileProject(base, "debug");
+
+    expect(() => buildRouteGraphFromCompilation(project, compilation)).toThrow(/chapter topology does not match/);
+  });
+
   it("renames through Project Service while preserving the stable scene ID and graph edges", () => {
     const project = routeProject(false);
     const before = buildRouteGraph(project);

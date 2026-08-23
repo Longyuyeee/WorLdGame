@@ -79,13 +79,13 @@ describe("N40-E8e trusted Route-first overview", () => {
     expect(overview.totalScenes).toBe(100);
     expect(overview.window.nodes).toHaveLength(64);
     expect(overview.window.nodes[63]?.layout).toMatchObject({ x: 630, y: 1260, source: "sidecar" });
-    expect(workspace.selectedReads.map((paths) => paths.length)).toEqual([1, 1, 100, 64]);
+    expect(workspace.selectedReads.map((paths) => paths.length)).toEqual([1, 1, 64, 64]);
     expect(workspace.selectedReads.flat()).not.toContain(project.scenes[0]!.scriptPath);
     expect(workspace.selectedReads.flat()).not.toContain(project.manifest.charactersPath);
     const expectedSourceBytes = workspace.selectedReads.flat().reduce((total, path) => total + new TextEncoder().encode(workspace.files[path]!).byteLength, 0);
     const allSourceBytes = Object.values(workspace.files).reduce((total, value) => total + new TextEncoder().encode(value).byteLength, 0);
     expect(workspace.selectedBytes).toBe(expectedSourceBytes);
-    expect(overview.sourceRead).toEqual({ fileCount: 166, layoutFileCount: 64, utf8Bytes: expectedSourceBytes, fullRead: false });
+    expect(overview.sourceRead).toEqual({ fileCount: 130, layoutFileCount: 64, utf8Bytes: expectedSourceBytes, fullRead: false });
     expect(workspace.selectedBytes).toBeLessThan(allSourceBytes);
     expect(workspace.fullReads).toBe(0);
   });
@@ -101,7 +101,39 @@ describe("N40-E8e trusted Route-first overview", () => {
 
     expect(overview.window.nodes).toHaveLength(36);
     expect(overview.window.nodes[0]?.id).toBe("scene_route_0064");
+    expect(workspace.selectedReads.map((paths) => paths.length)).toEqual([1, 1, 36, 36]);
     expect(workspace.selectedReads.at(-1)).toHaveLength(36);
+    expect(workspace.fullReads).toBe(0);
+  });
+
+  it("uses chapter-owned scene paths instead of deriving paths from scene IDs", async () => {
+    const base = largeProject(2);
+    const customPaths = ["content/opening.json", "content/finale.json"];
+    const project: CanonicalProject = { ...base, chapters: [{ ...base.chapters[0]!, scenePaths: customPaths }] };
+    const workspace = new RouteOverviewWorkspace(saveProject(project));
+    const version = (await workspace.readTrustedSourceCommit()).version;
+    await publishTrustedRouteOverview(workspace, project, compileProject(project), version);
+    workspace.selectedReads.length = 0;
+
+    const overview = await readTrustedRouteOverview(workspace);
+
+    expect(overview.scenePages.map((scene) => scene.id)).toEqual(project.scenes.map((scene) => scene.id));
+    expect(workspace.selectedReads[2]).toEqual(customPaths);
+    expect(workspace.selectedReads.flat()).not.toContain(`scenes/${project.scenes[0]!.id}.json`);
+  });
+
+  it("reads no scene or layout pages when a Route query has no matches", async () => {
+    const project = largeProject();
+    const workspace = new RouteOverviewWorkspace(saveProject(project));
+    const version = (await workspace.readTrustedSourceCommit()).version;
+    await publishTrustedRouteOverview(workspace, project, compileProject(project), version);
+    workspace.selectedReads.length = 0;
+
+    const overview = await readTrustedRouteOverview(workspace, { query: "no-such-scene" });
+
+    expect(overview.window.nodes).toEqual([]);
+    expect(workspace.selectedReads.map((paths) => paths.length)).toEqual([1, 1]);
+    expect(overview.sourceRead.layoutFileCount).toBe(0);
     expect(workspace.fullReads).toBe(0);
   });
 
@@ -114,11 +146,18 @@ describe("N40-E8e trusted Route-first overview", () => {
     workspace.derived.set(path, artifact.replace("Route Scene 0", "Forged Route"));
     await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/Route overview artifact/);
 
-    const malformed = JSON.parse(artifact) as { schemaVersion: 1; sourceVersion: string; graph: Record<string, unknown>; envelopeHash: string };
+    const malformed = JSON.parse(artifact) as { schemaVersion: 2; sourceVersion: string; graph: Record<string, unknown>; scenePages: unknown[]; envelopeHash: string };
     malformed.graph = { ...malformed.graph, nodes: [{}] };
-    malformed.envelopeHash = sha256(JSON.stringify({ schemaVersion: 1, sourceVersion: malformed.sourceVersion, graph: malformed.graph }));
+    malformed.envelopeHash = sha256(JSON.stringify({ schemaVersion: 2, sourceVersion: malformed.sourceVersion, graph: malformed.graph, scenePages: malformed.scenePages }));
     workspace.derived.set(path, JSON.stringify(malformed));
     await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/graph is invalid/);
+
+    const forged = JSON.parse(artifact) as { schemaVersion: 2; sourceVersion: string; graph: { nodes: Array<Record<string, unknown>> }; scenePages: Array<{ sourcePath: string; scene: Record<string, unknown> }>; envelopeHash: string };
+    forged.graph.nodes[0] = { ...forged.graph.nodes[0], title: "Forged Route" };
+    forged.scenePages[0] = { ...forged.scenePages[0]!, scene: { ...forged.scenePages[0]!.scene, title: "Forged Route" } };
+    forged.envelopeHash = sha256(JSON.stringify({ schemaVersion: 2, sourceVersion: forged.sourceVersion, graph: forged.graph, scenePages: forged.scenePages }));
+    workspace.derived.set(path, JSON.stringify(forged));
+    await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/scene metadata does not match/);
 
     await publishTrustedRouteOverview(workspace, project, compileProject(project), version);
     workspace.generation += 1;
@@ -137,7 +176,7 @@ describe("N40-E8e trusted Route-first overview", () => {
     workspace.corruptPath = null;
     workspace.selectedReads.length = 0;
     workspace.mutateAfterRead = 4;
-    await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/revision changed during trusted selected read/);
+    await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/changed while reading project structure page/);
     expect(workspace.fullReads).toBe(0);
   });
 });

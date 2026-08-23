@@ -109,11 +109,6 @@ function automaticLayout(index: number): RouteNodeLayoutV1 {
   return { x: 72 + (index % 4) * 288, y: 96 + Math.floor(index / 4) * 180, source: "automatic" };
 }
 
-function sceneIdFromPath(path: string): string | undefined {
-  const match = /^scenes\/(.+)\.json$/u.exec(path);
-  return match?.[1];
-}
-
 function stringOperand(instruction: RuntimeInstructionV1, key: string): string | undefined {
   const value = instruction.operands[key];
   return typeof value === "string" ? value : undefined;
@@ -157,11 +152,14 @@ function choiceEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, k
 export function buildRouteGraphFromCompilation(project: CanonicalProject, compilation: ProjectAnalysisResult): RouteGraphV1 {
   const knownSceneIds = new Set(project.scenes.map((scene) => scene.id));
   const chapterByScene = new Map<string, string>();
+  let sceneOffset = 0;
   const chapters = project.chapters.map<RouteChapterV1>((chapter) => {
-    const sceneIds = chapter.scenePaths.flatMap((path) => sceneIdFromPath(path) ?? []);
+    const sceneIds = project.scenes.slice(sceneOffset, sceneOffset + chapter.scenePaths.length).map((scene) => scene.id);
+    sceneOffset += chapter.scenePaths.length;
     for (const sceneId of sceneIds) chapterByScene.set(sceneId, chapter.id);
     return { id: chapter.id, title: chapter.title, sceneIds };
   });
+  if (sceneOffset !== project.scenes.length) throw new Error("Route graph chapter topology does not match the project scenes");
   const nodes = project.scenes.map<RouteSceneNodeV1>((scene, sceneIndex) => {
     const instructions = compilation.cache.scenes[scene.id]?.scene.instructions ?? [];
     const facts = instructions.flatMap((instruction) => fact(instruction) ?? []);

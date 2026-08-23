@@ -100,7 +100,7 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     const project = createProjectTemplate("E8f Scene", "e8f-scene-project");
     const files = saveProject(project);
     const initial = await workspace.writeFiles(files, null);
-    await workspace.writeDerivedFile?.(".world-cache/route-overview-v1.json", "route");
+    await workspace.writeDerivedFile?.(".world-cache/route-overview-v2.json", "route");
     const scene = project.scenes[0]!;
 
     const unloaded = createLazyScenePage(scene, initial.version);
@@ -123,7 +123,7 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     expect(workspace.selectedWrites).toEqual([[scene.scriptPath]]);
     expect((await workspace.readFiles()).files[scene.scriptPath]).toContain("Lazy ending");
     expect((await workspace.readFiles()).files[scene.layoutPath]).toBe(files[scene.layoutPath]);
-    expect(await workspace.readDerivedFile?.(".world-cache/route-overview-v1.json")).toBeNull();
+    expect(await workspace.readDerivedFile?.(".world-cache/route-overview-v2.json")).toBeNull();
   });
 
   it("keeps invalid drafts unsaved and marks conflicting saves stale", async () => {

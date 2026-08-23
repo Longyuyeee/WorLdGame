@@ -1,12 +1,13 @@
 import type { ProjectAnalysisResult } from "@world-studio/project-compiler";
 import {
+  assertProjectSourcePath,
   isProjectTrustedSourceCommit,
   loadProjectLayouts,
-  readTrustedProjectFiles,
-  readTrustedProjectStructure,
+  readTrustedProjectStructurePage,
   sha256,
   type CanonicalProject,
-  type ProjectStructureIndex,
+  type ChapterDocument,
+  type ProjectManifest,
   type ProjectWorkspace,
   type SceneDocument
 } from "@world-studio/project-domain";
@@ -19,12 +20,18 @@ import {
   type RouteGraphWindowV1
 } from "@world-studio/route-graph";
 
-export const PROJECT_ROUTE_OVERVIEW_CACHE_PATH = ".world-cache/route-overview-v1.json";
+export const PROJECT_ROUTE_OVERVIEW_CACHE_PATH = ".world-cache/route-overview-v2.json";
+
+interface RouteOverviewScenePage {
+  readonly sourcePath: string;
+  readonly scene: SceneDocument;
+}
 
 interface RouteOverviewArtifact {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly sourceVersion: string;
   readonly graph: RouteGraphV1;
+  readonly scenePages: readonly RouteOverviewScenePage[];
   readonly envelopeHash: string;
 }
 
@@ -50,14 +57,14 @@ const strings = (value: unknown): value is readonly string[] => Array.isArray(va
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const automaticLayout = (index: number) => ({ x: 72 + (index % 4) * 288, y: 96 + Math.floor(index / 4) * 180, source: "automatic" as const });
 
-function artifactPayload(sourceVersion: string, graph: RouteGraphV1): string {
-  return JSON.stringify({ schemaVersion: 1, sourceVersion, graph });
+function artifactPayload(sourceVersion: string, graph: RouteGraphV1, scenePages: readonly RouteOverviewScenePage[]): string {
+  return JSON.stringify({ schemaVersion: 2, sourceVersion, graph, scenePages });
 }
 
 function parseArtifact(source: string): RouteOverviewArtifact {
   let value: unknown;
   try { value = JSON.parse(source); } catch { throw new Error("Route overview artifact is corrupt"); }
-  if (!record(value) || value.schemaVersion !== 1 || typeof value.sourceVersion !== "string" || !HASH.test(value.sourceVersion) || typeof value.envelopeHash !== "string" || !HASH.test(value.envelopeHash) || !record(value.graph)) throw new Error("Route overview artifact is incompatible");
+  if (!record(value) || value.schemaVersion !== 2 || typeof value.sourceVersion !== "string" || !HASH.test(value.sourceVersion) || typeof value.envelopeHash !== "string" || !HASH.test(value.envelopeHash) || !record(value.graph) || !Array.isArray(value.scenePages)) throw new Error("Route overview artifact is incompatible");
   const graph = value.graph;
   if (graph.schemaVersion !== 1 || typeof graph.projectId !== "string" || typeof graph.entrySceneId !== "string" || !Array.isArray(graph.chapters) || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges) || !Array.isArray(graph.diagnostics) || !Array.isArray(graph.groups) || !record(graph.viewport)) throw new Error("Route overview artifact graph is invalid");
   const validChapters = graph.chapters.every((chapter) => record(chapter) && typeof chapter.id === "string" && typeof chapter.title === "string" && strings(chapter.sceneIds));
@@ -66,27 +73,36 @@ function parseArtifact(source: string): RouteOverviewArtifact {
   const validDiagnostics = graph.diagnostics.every((item) => record(item) && ["error", "warning"].includes(String(item.severity)) && typeof item.code === "string" && typeof item.message === "string" && (item.sceneId === undefined || typeof item.sceneId === "string") && (item.statementId === undefined || typeof item.statementId === "string") && (item.entityId === undefined || typeof item.entityId === "string"));
   const validGroups = graph.groups.every((group) => record(group) && typeof group.groupId === "string" && typeof group.title === "string" && typeof group.collapsed === "boolean");
   const validViewport = finite(graph.viewport.x) && finite(graph.viewport.y) && finite(graph.viewport.zoom) && graph.viewport.zoom > 0 && ["sidecar", "automatic"].includes(String(graph.viewport.source));
-  if (!validChapters || !validNodes || !validEdges || !validDiagnostics || !validGroups || !validViewport) throw new Error("Route overview artifact graph is invalid");
+  const validScenePages = value.scenePages.every((page) => {
+    if (!record(page) || typeof page.sourcePath !== "string" || !record(page.scene)) return false;
+    try { assertProjectSourcePath(page.sourcePath); } catch { return false; }
+    const scene = page.scene;
+    if (scene.schemaVersion !== 1 || typeof scene.id !== "string" || typeof scene.title !== "string" || typeof scene.scriptPath !== "string" || typeof scene.layoutPath !== "string") return false;
+    try { assertProjectSourcePath(scene.scriptPath); assertProjectSourcePath(scene.layoutPath); } catch { return false; }
+    return true;
+  });
+  if (!validChapters || !validNodes || !validEdges || !validDiagnostics || !validGroups || !validViewport || !validScenePages) throw new Error("Route overview artifact graph is invalid");
   const typedGraph = graph as unknown as RouteGraphV1;
-  if (sha256(artifactPayload(value.sourceVersion, typedGraph)) !== value.envelopeHash) throw new Error("Route overview artifact hash does not match");
-  return { schemaVersion: 1, sourceVersion: value.sourceVersion, graph: typedGraph, envelopeHash: value.envelopeHash };
+  const scenePages = value.scenePages as unknown as readonly RouteOverviewScenePage[];
+  if (scenePages.length !== typedGraph.nodes.length || new Set(scenePages.map((page) => page.sourcePath)).size !== scenePages.length || new Set(scenePages.map((page) => page.scene.id)).size !== scenePages.length || scenePages.some((page, index) => page.scene.id !== typedGraph.nodes[index]!.id || page.scene.title !== typedGraph.nodes[index]!.title)) throw new Error("Route overview artifact scene index is invalid");
+  if (sha256(artifactPayload(value.sourceVersion, typedGraph, scenePages)) !== value.envelopeHash) throw new Error("Route overview artifact hash does not match");
+  return { schemaVersion: 2, sourceVersion: value.sourceVersion, graph: typedGraph, scenePages, envelopeHash: value.envelopeHash };
 }
 
-function structureSignature(structure: ProjectStructureIndex): string {
+function structureSignature(manifest: ProjectManifest, chapters: readonly ChapterDocument[]): string {
   return JSON.stringify({
-    projectId: structure.manifest.projectId,
-    entrySceneId: structure.manifest.entrySceneId,
-    chapters: structure.chapters.map((chapter) => ({ id: chapter.id, title: chapter.title, sceneIds: chapter.scenePaths.map((path) => /^scenes\/(.+)\.json$/u.exec(path)?.[1] ?? "") })),
-    scenes: structure.scenes.map((scene) => ({ id: scene.id, title: scene.title }))
+    projectId: manifest.projectId,
+    entrySceneId: manifest.entrySceneId,
+    chapters: chapters.map((chapter) => ({ id: chapter.id, title: chapter.title, scenePaths: chapter.scenePaths }))
   });
 }
 
-function graphSignature(graph: RouteGraphV1): string {
+function graphSignature(graph: RouteGraphV1, scenePages: readonly RouteOverviewScenePage[]): string {
+  const pathById = new Map(scenePages.map((page) => [page.scene.id, page.sourcePath]));
   return JSON.stringify({
     projectId: graph.projectId,
     entrySceneId: graph.entrySceneId,
-    chapters: graph.chapters.map(({ id, title, sceneIds }) => ({ id, title, sceneIds })),
-    scenes: graph.nodes.map(({ id, title }) => ({ id, title }))
+    chapters: graph.chapters.map(({ id, title, sceneIds }) => ({ id, title, scenePaths: sceneIds.map((sceneId) => pathById.get(sceneId) ?? "") }))
   });
 }
 
@@ -99,36 +115,44 @@ export async function publishTrustedRouteOverview(workspace: ProjectWorkspace, p
     ...compiled,
     nodes: compiled.nodes.map((node, index) => ({ ...node, layout: { ...automaticLayout(index), ...(node.layout.groupId === undefined ? {} : { groupId: node.layout.groupId }) } }))
   };
-  const payload = artifactPayload(sourceVersion, graph);
-  await workspace.writeDerivedFile(PROJECT_ROUTE_OVERVIEW_CACHE_PATH, JSON.stringify({ schemaVersion: 1, sourceVersion, graph, envelopeHash: sha256(payload) }));
+  const scenePaths = project.chapters.flatMap((chapter) => chapter.scenePaths);
+  if (scenePaths.length !== project.scenes.length) throw new Error("Cannot publish Route overview with mismatched scene paths");
+  const scenePages = project.scenes.map((scene, index) => ({ sourcePath: scenePaths[index]!, scene }));
+  const payload = artifactPayload(sourceVersion, graph, scenePages);
+  await workspace.writeDerivedFile(PROJECT_ROUTE_OVERVIEW_CACHE_PATH, JSON.stringify({ schemaVersion: 2, sourceVersion, graph, scenePages, envelopeHash: sha256(payload) }));
 }
 
 export async function readTrustedRouteOverview(workspace: ProjectWorkspace, request: RouteGraphWindowRequest = {}): Promise<TrustedRouteOverview> {
   if (workspace.readDerivedFile === undefined) throw new Error("Route overview artifact is unsupported");
-  const snapshot = await readTrustedProjectStructure(workspace);
   const source = await workspace.readDerivedFile(PROJECT_ROUTE_OVERVIEW_CACHE_PATH);
   if (source === null) throw new Error("Route overview artifact is unavailable; open the full editor once to rebuild it");
   const artifact = parseArtifact(source);
-  if (artifact.sourceVersion !== snapshot.version) throw new Error("Route overview artifact belongs to another source revision");
-  if (structureSignature(snapshot.structure) !== graphSignature(artifact.graph)) throw new Error("Route overview artifact structure does not match the project");
   const window = queryRouteGraphWindow(createRouteGraphIndex(artifact.graph), request);
-  const scenesById = new Map(snapshot.structure.scenes.map((scene) => [scene.id, scene]));
+  const artifactPagesById = new Map(artifact.scenePages.map((page) => [page.scene.id, page]));
+  const requestedPages = window.nodes.map((node) => artifactPagesById.get(node.id)).filter((page): page is RouteOverviewScenePage => page !== undefined);
+  if (requestedPages.length !== window.nodes.length) throw new Error("Route overview artifact references an unknown scene page");
+  const snapshot = await readTrustedProjectStructurePage(workspace, requestedPages.map((page) => page.sourcePath), { includeLayouts: true });
+  if (artifact.sourceVersion !== snapshot.version) throw new Error("Route overview artifact belongs to another source revision");
+  if (structureSignature(snapshot.manifest, snapshot.chapters) !== graphSignature(artifact.graph, artifact.scenePages)) throw new Error("Route overview artifact structure does not match the project");
+  const scenesById = new Map(snapshot.scenes.map((scene) => [scene.id, scene]));
   const windowScenes = window.nodes.map((node) => scenesById.get(node.id)).filter((scene): scene is NonNullable<typeof scene> => scene !== undefined);
   if (windowScenes.length !== window.nodes.length) throw new Error("Route overview artifact references an unknown scene");
-  const layoutFiles = await readTrustedProjectFiles(workspace, windowScenes.map((scene) => scene.layoutPath), snapshot.version);
-  const layouts = loadProjectLayouts(layoutFiles, windowScenes);
+  if (windowScenes.some((scene, index) => JSON.stringify(scene) !== JSON.stringify(requestedPages[index]!.scene))) throw new Error("Route overview artifact scene metadata does not match the project");
+  const layoutPaths = new Set(windowScenes.map((scene) => scene.layoutPath));
+  const layoutFiles = Object.fromEntries(Object.entries(snapshot.files).filter(([path]) => layoutPaths.has(path)));
+  const layouts = loadProjectLayouts(snapshot.files, windowScenes);
   const nodes = window.nodes.map((node) => {
     const position = layouts[node.id]?.nodes.find((item) => item.nodeId === node.id);
     return position === undefined ? node : { ...node, layout: { x: position.x, y: position.y, source: "sidecar" as const, ...(position.groupId === undefined ? {} : { groupId: position.groupId }) } };
   });
   const encoder = new TextEncoder();
-  const sourceFiles = { ...snapshot.files, ...layoutFiles };
+  const sourceFiles = snapshot.files;
   return {
     schemaVersion: 1,
-    projectId: snapshot.structure.manifest.projectId,
-    title: snapshot.structure.manifest.title,
+    projectId: snapshot.manifest.projectId,
+    title: snapshot.manifest.title,
     sourceVersion: snapshot.version,
-    totalScenes: snapshot.structure.scenes.length,
+    totalScenes: snapshot.totalScenes,
     window: { ...window, nodes },
     scenePages: windowScenes,
     sourceRead: {
