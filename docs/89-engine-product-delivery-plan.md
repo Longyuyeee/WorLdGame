@@ -369,6 +369,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8j Engineering 状态（2026-08-24）：Story Language 新增显式 before-anchor 命令且不改变旧 append 语义，Compiler narration 结构预检扩展为精确前插/后插/删除/移动联合；Route-first Sequence 可在所选语句前新增旁白，并对旁白执行上移、下移、删除。真实 fake-IndexedDB 已从默认仅含 `end` 的空白工程完成首条旁白→保存→完整 Compiler/Route/索引重建→重开→再插入→移动→删除闭环；apply/save 双预检、同 revision index、expected-version selected write 与失败关闭保持不变。红测为 `4 failed / 19 passed`，最终全量 `113 files / 704 tests`；本地/Windows 10k 前插/移动/删除为 `4.01/2.44/2.38 ms` 与 `9.12/7.24/7.35 ms`，均 `<500 ms`；GitHub run `32654253484` / job `97230449299` 4 分 54 秒绿色。当前只关闭 narration 最小结构闭环；其他 P0、跨实体引用、structure/topology 分页、production browser 与 N41 仍缺。详见 [N40-E8j 审计](173-n40-e8j-lazy-narration-structure-flow-audit.md)。
 
+> E8k Engineering 状态（2026-08-24）：Route-first 现在只读取 manifest、全部 chapter topology、当前最多 64 个 scene 与对应 layout；100 场景首窗由 `[1,1,100,64]` 收敛为 `[1,1,64,64]`（166→130 源文件），第二窗 `[1,1,36,36]`，零匹配 `[1,1]`，Script/全局正文/full read 均为 0。审计纠正了从文件名猜 scene ID 的隐含假设，Route graph 与 artifact v2 使用 Canonical scene 顺序和权威 scenePaths，自定义路径及重签篡改均有失败关闭测试。首次 Windows run `32655628393` 暴露 `644.88 ms > 500 ms` 后未放宽预算；紧凑 artifact 和移除 trusted adapter 已完成校验的重复 30k commit Hash 后，本地全门为 `157.27 ms`，Windows run `32656159511` / job `97235137319` 为 `301.56 ms`，5 分 01 秒绿色。最终全量 `113 files / 710 tests`。这关闭 Route structure/topology scene/layout 分页，不等于完整 Lazy Project Session、增量 topology 写、N40 Product Acceptance 或 N41。详见 [N40-E8k 审计](174-n40-e8k-trusted-route-topology-page-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
