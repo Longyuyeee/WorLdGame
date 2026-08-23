@@ -77,3 +77,5 @@ E8c 关闭“受管工程 verified cache hit 仍重复读取 source object store
 5. 读取字节、文件/IDB request、首屏时间、内存和错误恢复如何建立预算与实测。
 
 这些契约成立并取得实际产品流证据前，不得把 E8c 表述为完整 lazy loading。
+
+> 后续纠偏（2026-08-23）：E8d 已建立只读取 manifest/chapter/scene 的可信分层结构协议，并以真实 IndexedDB、300 scene 分批、revision race 与正文 Hash 失配测试证明；它尚未接入 Route 或可编辑 Session。详见 [N40-E8d 审计](167-n40-e8d-lazy-project-structure-audit.md)。

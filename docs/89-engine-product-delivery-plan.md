@@ -355,6 +355,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8c Engineering 状态（2026-08-23）：调用链审计纠正了“只读 manifest/选中场景即可进入当前完整编辑器”的超前计划，因为同步 `ProjectLifecycleSession`、App 与 Project Service 仍要求完整 Canonical Project/baseFiles。Compiler disposable cache 已显式升级为 v2，包含 exact source snapshot、逐源 Hash、正式 scene cache 与 envelope Hash；只有自行验证 trusted commit schema/generation/path/size/Hash/version，且前后 revision 稳定时，warm reopen 才从 snapshot 恢复并保持 `fullReads=1`。损坏 cache 会使计数增至 2 并重建；伪造 commit、外部目录和旧宿主继续 full verified read。定向 `5 files / 20 tests`、全量 `106 files / 669 tests`、Route P95 `60.81 ms` 及 GitHub Windows / Node 22 run `32645089657` / job `97208020611` 均通过；production browser 仍被管理员安全策略阻断。E8c 关闭重复 source-store 正文读取，不减少 cache 总正文体积，场景级 lazy loading 必须先引入 Lazy Project Session，N40 Product Acceptance 不关闭。详见 [N40-E8c 审计](166-n40-e8c-trusted-warm-reopen-audit.md)。
 
+> E8d Engineering 状态（2026-08-23）：Project Domain 已冻结 `ProjectStructureIndex`，并把严格解码拆为 manifest → chapters → scenes 三阶段；受管 workspace 可在 trusted commit 前后同 revision、逐正文 size/SHA-256 复核下，只读取这三类结构文件。300 scene 按 `[1,1,256,44]` 遵守 256 path 上限，revision race、同版本正文篡改和真实 fake-IndexedDB 都有失败/成功实测；`fullReads=0` 且不读取 script/layout/global。定向 `6 files / 43 tests`、全量 `107 files / 674 tests`、Route P95 `59.61 ms` 与 GitHub Windows / Node 22 run `32646157815` / job `97210628628` 均通过。该 API 尚未接入 Launcher/Route/可编辑 Session，不能登记为场景正文 lazy loading；E8e 必须让 Route 首屏消费结构与 Compiler 图，再按窗口/选中 scene 补读 layout/script。详见 [N40-E8d 审计](167-n40-e8d-lazy-project-structure-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
