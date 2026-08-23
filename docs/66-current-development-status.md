@@ -94,7 +94,7 @@
 | Android 端直接打包 | 尚未验证，不能承诺 | 真机验证；失败则明确采用 Windows 本地 Android 构建基线 |
 | 自动路线图/画廊目录 | 需求和编译架构已定义，未形成正式端到端产品能力 | Compiler Catalog + VM 解锁 + 编辑器/玩家/QA 一致性 |
 | 商业级资源优化 | 算法原型证据较强，平台收益未证明 | 三端格式、包体、加载、内存、画质、Dicing 收益与回退矩阵 |
-| 10k Route 图 | 已有真实 10k 二叉分支图、64 节点窗口、搜索/过滤、布局交互、最终复跑单场景编辑 P95 `59.61 ms`；Formal Runtime 路线高亮支持 Back/Forward 与窗口回锚；E8a–E8c 消除重复扫描、建立原子 source commit 并使受管工程 warm hit 不读取 source-store 正文；E8d 建立只读 manifest/chapter/scene 的可信结构索引与 256 path 分批 | 结构索引尚未接入 Route/编辑 Session；cache v2 仍含完整 Canonical snapshot；外部目录仍完整读源；缺场景正文/布局按需补页、production browser 与内存/缩放产品验收 |
+| 10k Route 图 | 已有真实 10k 二叉分支图、64 节点窗口、搜索/过滤、布局交互、最终复跑单场景编辑 P95 `57.64 ms`；Formal Runtime 路线高亮支持 Back/Forward；E8a–E8d 建立 trusted commit 与结构索引；E8e 让受管 Recent 以无源正文 Route artifact + 当前窗口 layout 进入只读首屏，100 scene 首屏 `166 files / 64 layouts / fullRead=false` | 结构 metadata 与 Route topology 仍全量；Route 首屏只读；完整 Session、script/layout 编辑补页、外部目录、production browser 与内存/缩放产品验收仍缺 |
 | 长时稳定性 | 没有最低档 Android 2 小时 Soak | 0 崩溃/OOM/ANR，且内存/资源无持续增长 |
 | D1 用户验证 | 内部原型和浏览器检查不能替代创作者测试 | 至少 5 名目标创作者，Severity 0/1 为 0 |
 | 发布供应链 | 没有同 Revision 的正式三端产物证据 | SBOM、Provenance、Hash、签名、Manifest 和撤回流程 |

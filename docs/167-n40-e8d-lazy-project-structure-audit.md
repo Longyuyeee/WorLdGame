@@ -70,3 +70,5 @@ E8d 关闭的是“没有可信、分层、可分批读取的项目结构协议�
 5. 用真实 IndexedDB 计数、10k 工程、production browser 和完整 CI 证明 Route 首屏没有读取全部正文。
 
 在 E8e 产品流证据出现前，`ProjectStructureIndex` 只能称为 lazy-loading foundation。
+
+> 后续纠偏（2026-08-23）：E8e 没有读取包含完整 source snapshot 的 Compiler cache v2，而是新增无源正文的 Route 派生快照；受管 Recent 已能以结构索引和 64 个 layout 进入只读 Route 首屏，完整编辑器仍在明确操作后加载。详见 [N40-E8e 审计](168-n40-e8e-trusted-route-first-overview-audit.md)。

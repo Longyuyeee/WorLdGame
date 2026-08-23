@@ -357,6 +357,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8d Engineering 状态（2026-08-23）：Project Domain 已冻结 `ProjectStructureIndex`，并把严格解码拆为 manifest → chapters → scenes 三阶段；受管 workspace 可在 trusted commit 前后同 revision、逐正文 size/SHA-256 复核下，只读取这三类结构文件。300 scene 按 `[1,1,256,44]` 遵守 256 path 上限，revision race、同版本正文篡改和真实 fake-IndexedDB 都有失败/成功实测；`fullReads=0` 且不读取 script/layout/global。定向 `6 files / 43 tests`、全量 `107 files / 674 tests`、Route P95 `59.61 ms` 与 GitHub Windows / Node 22 run `32646157815` / job `97210628628` 均通过。该 API 尚未接入 Launcher/Route/可编辑 Session，不能登记为场景正文 lazy loading；E8e 必须让 Route 首屏消费结构与 Compiler 图，再按窗口/选中 scene 补读 layout/script。详见 [N40-E8d 审计](167-n40-e8d-lazy-project-structure-audit.md)。
 
+> E8e Engineering 状态（2026-08-23）：调用链审计证明 cache v2 含完整 source snapshot，不能直接冒充局部 Route 首屏；实现改为无源正文 `.world-cache/route-overview-v1.json`，绑定 trusted commit、严格验证图与结构签名。受管 Recent 已增加只读 Route 首屏，100 scene 首屏 selected batches `[1,1,100,64]`、`166 files / 64 layouts / fullRead=false`，第二窗口只读 36 layouts；script/global 不读取。真实 fake-IndexedDB Launcher 路径、损坏/伪造/版本漂移反例、定向 `7 files / 38 tests`、全量 `108 files / 678 tests`、Route P95 `57.64 ms` 与 GitHub Windows / Node 22 run `32647435399` / job `97213728178` 均通过。完整编辑器只在明确点击后加载；场景内容编辑、结构/topology 分页和 production browser 尚未关闭。详见 [N40-E8e 审计](168-n40-e8e-trusted-route-first-overview-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
