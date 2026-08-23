@@ -363,6 +363,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8g Engineering 状态（2026-08-23）：现有完整 Writer 依赖全工程 scenes/characters/variables/assets，不能直接复用而保持 lazy read；实现改为从同一 Lazy Scene `ScriptSourceSession` 投影安全内容 Sequence。Script/Sequence 共用稳定 ID 选择、dirty、诊断、history/future 与保存边界；dialogue/narration、choice 文本、wait 和 ending 可通过正式 patch 编辑，其余结构/引用字段只读。150 statements 实际分页 `64/64/22`，1,000 次 Script/Sequence 交替修改保持同一 statement ID 与 0 error diagnostics；Route→Sequence→Script→Undo/Redo→保存→完整重读产品 E2E 通过。复审还把可能携带全局变量引用的 set/condition expression 收紧为只读。定向 `4 files / 13 tests`、全量 `110 files / 687 tests`、Route P95 `109.57 ms` 与 GitHub Windows / Node 22 run `32649874611` / job `97219677591` 均通过。完整 Sequence 结构编辑、全局 edit index、外部宿主和 production browser 仍缺。详见 [N40-E8g 审计](170-n40-e8g-lazy-sequence-projection-audit.md)。
 
+> E8h Engineering 状态（2026-08-24）：完整 Compiler 成功后发布独立 `.world-cache/lazy-edit-index-v1.json`，覆盖全局 project/chapter/scene、character/variable/asset、statement/option/text 及扩展声明和反向引用；artifact 绑定 trusted source version、Envelope Hash、严格 owner/reference 关系。Route-first scene 读取索引不访问 source bodies，并与当前真实 script IDs 精确交叉校验；保存后旧索引随派生失效并从 page 移除。定向 `5 files / 20 tests`、全量 `111 files / 692 tests`、本地 10k 索引 `140.49 ms`、Windows `308.36 ms`（预算 500 ms）与纠偏后 GitHub run `32651592837` / job `97223944981` 均通过。首次 run `32651352033` 因在并行 jsdom 重复执行性能断言得到 `517.66 ms` 失败，已收敛到专用 Node 性能门，预算未放宽。结构命令仍等待 index + Compiler/Route 语义事务，不能称为完整 Sequence。详见 [N40-E8h 审计](171-n40-e8h-trusted-lazy-edit-index-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

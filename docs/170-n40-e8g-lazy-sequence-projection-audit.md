@@ -86,3 +86,5 @@ E8g 关闭的是“Route-first 单场景 Script/Sequence 内容同源编辑与�
 - N40 Product Acceptance、N41 Engineering 与 M1 纵向验收。
 
 下一节点 E8h 应发布绑定 trusted source revision、带 envelope Hash 的全局 Lazy Edit Index，至少覆盖 scene/character/variable/asset 与全工程 statement/option/text ID；局部页只有在该索引和 source commit 同 revision 且完整校验后，才能逐步开放插入、删除、移动和跨实体引用修改。索引缺失、损坏或 revision 漂移必须失败关闭并要求完整工程重建。
+
+> 后续纠偏（2026-08-24）：E8h 已发布独立、revision-bound、envelope-hashed 的全局声明/反向引用索引，并在 Route-first scene 与真实 statement/option/text 集合交叉校验；10k statements 专用 Node 门通过。审计同时确认索引只是结构编辑必要条件，仍需增量 Compiler/Route 语义预检后才能开放结构命令。详见 [N40-E8h 审计](171-n40-e8h-trusted-lazy-edit-index-audit.md)。
