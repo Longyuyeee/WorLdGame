@@ -1,6 +1,7 @@
 import { compileProjectWorkspace, type CompileProjectResult, type WorkspaceCompilerCacheStatus } from "@world-studio/project-compiler";
 import { openProject, probeProject, PROJECT_MANIFEST_PATH, saveLifecycleProject, semanticHash, type ProjectLifecycleSession, type ProjectWorkspace } from "@world-studio/project-domain";
 import { publishTrustedRouteOverview } from "./trusted-route-overview";
+import { publishTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 
 export interface EditorProjectCompilerState {
   readonly cacheStatus: WorkspaceCompilerCacheStatus;
@@ -25,6 +26,7 @@ export async function compileLifecycleProject(workspace: ProjectWorkspace, sessi
   const projectHash = semanticHash(result.project);
   assertAligned(session, result.hostVersion, projectHash);
   await publishTrustedRouteOverview(workspace, result.project, result.compilation, result.hostVersion);
+  if (result.compilation.ok) await publishTrustedLazyEditIndex(workspace, result.project, result.hostVersion);
   return { session, compiler: { cacheStatus: result.cacheStatus, projectHash, compilation: result.compilation } };
 }
 
@@ -57,6 +59,7 @@ export async function openCompiledLifecycleProject(workspace: ProjectWorkspace):
   const result = await compileProjectWorkspace(workspace, "debug");
   const projectHash = semanticHash(result.project);
   await publishTrustedRouteOverview(workspace, result.project, result.compilation, result.hostVersion);
+  if (result.compilation.ok) await publishTrustedLazyEditIndex(workspace, result.project, result.hostVersion);
   return {
     session: {
       project: result.project,

@@ -2,6 +2,7 @@ import { performance } from "node:perf_hooks";
 import { createProjectService, createProjectTemplate, executeProjectCommand, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import { compileProjectIncremental } from "@world-studio/project-compiler";
 import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
+import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
 import { describe, expect, it } from "vitest";
 
 const sceneCount = 10_000;
@@ -10,6 +11,7 @@ const indexBudgetMs = 2_000;
 const queryBudgetMs = 250;
 const editSyncBudgetMs = 500;
 const editSamples = 20;
+const lazyEditIndexBudgetMs = 500;
 
 function percentile95(values: readonly number[]): number {
   return [...values].sort((left, right) => left - right)[Math.ceil(values.length * 0.95) - 1]!;
@@ -128,5 +130,32 @@ describe("N40 10k branching Route performance gate", () => {
       budgetMs: { p95: editSyncBudgetMs }
     }, null, 2));
     expect(p95).toBeLessThan(editSyncBudgetMs);
+  });
+
+  it("builds the revision-bound global Lazy Edit Index for 10k statements within 500ms", () => {
+    const base = createProjectTemplate("N40 10k Lazy Edit Index", "n40-e8h-lazy-edit-index-performance");
+    const scene = base.scenes[0]!;
+    const statements = Array.from({ length: 10_000 }, (_, index) => ({
+      id: `statement_scale_${index}`,
+      kind: "narration",
+      textId: `text_scale_${index}`,
+      text: `Line ${index}`
+    }));
+    const project = { ...base, scripts: { ...base.scripts, [scene.id]: { schemaVersion: 1 as const, sceneId: scene.id, statements } } };
+    const started = performance.now();
+    const index = buildTrustedLazyEditIndex(project, "b".repeat(64));
+    const elapsedMs = performance.now() - started;
+
+    console.log(JSON.stringify({
+      status: elapsedMs < lazyEditIndexBudgetMs ? "PASS" : "FAIL",
+      baseline: { statementCount: 10_000, expectedStatementAndTextIds: 20_000 },
+      measurementsMs: { globalLazyEditIndex: Number(elapsedMs.toFixed(2)) },
+      budgetMs: { globalLazyEditIndex: lazyEditIndexBudgetMs },
+      result: { entities: index.entities.length, references: index.references.length, envelopeHash: index.envelopeHash }
+    }, null, 2));
+
+    expect(index.entities.filter((entity) => entity.kind === "statement")).toHaveLength(10_000);
+    expect(index.entities.filter((entity) => entity.kind === "text")).toHaveLength(10_000);
+    expect(elapsedMs).toBeLessThan(lazyEditIndexBudgetMs);
   });
 });

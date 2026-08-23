@@ -1,6 +1,6 @@
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
-import { createProjectTemplate, saveProject } from "@world-studio/project-domain";
+import { createProjectTemplate, saveProject, sha256 } from "@world-studio/project-domain";
 import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import {
   beginLazyScenePageLoad,
@@ -13,6 +13,7 @@ import {
   selectLazySceneStatement,
   saveLazyScenePage
 } from "./lazy-scene-session";
+import { buildTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 
 class CountingWorkspace extends IndexedDbProjectWorkspace {
   fullReads = 0;
@@ -179,5 +180,28 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     expect(rejected.status).toBe("error");
     expect(rejected.error).toMatch(/跨实体引用/);
     expect(workspace.selectedWrites).toEqual([]);
+  });
+
+  it("rejects an envelope-valid index that omits the selected scene identity", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new CountingWorkspace(indexedDb, "e8h_incomplete", "E8h Incomplete");
+    const project = createProjectTemplate("E8h Incomplete", "e8h-incomplete-project");
+    const written = await workspace.writeFiles(saveProject(project), null);
+    const scene = project.scenes[0]!;
+    const complete = buildTrustedLazyEditIndex(project, written.version);
+    const base = {
+      schemaVersion: 1 as const,
+      sourceVersion: complete.sourceVersion,
+      projectId: complete.projectId,
+      entities: complete.entities.filter((entity) => entity.kind !== "statement"),
+      references: complete.references
+    };
+    const incomplete = { ...base, envelopeHash: sha256(JSON.stringify(base)) };
+
+    const page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, incomplete)));
+
+    expect(page.status).toBe("error");
+    expect(page.error).toMatch(/incomplete/i);
+    expect(workspace.fullReads).toBe(0);
   });
 });

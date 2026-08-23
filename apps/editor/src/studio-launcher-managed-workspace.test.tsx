@@ -41,6 +41,7 @@ describe("E8b Studio Launcher managed workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "编辑场景 Start" }));
     const lazyEditor = await screen.findByLabelText("单场景权威脚本编辑器") as HTMLTextAreaElement;
     expect(lazyEditor.value).toContain('end "Ending"');
+    expect(screen.getByText(/全局编辑索引：.*revision 已对齐/)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Sequence 视图" }));
     fireEvent.click(screen.getByRole("button", { name: /选择结局：Ending/ }));
     fireEvent.change(screen.getByLabelText("局部 Sequence 结局名称"), { target: { value: "Closed loop ending" } });

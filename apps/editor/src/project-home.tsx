@@ -121,6 +121,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
       {lazyScene?.sourceSession ? <section aria-label="单场景 Script/Sequence 编辑器">
         <h3>{lazyScene.scene.title} · {lazySceneView === "script" ? "Script" : "Sequence"}</h3>
         <p>状态：{lazyScene.status} · 仅加载当前场景 script + layout；可修改既有语句内容，结构、ID 与跨实体引用请进入完整工程。</p>
+        {lazyScene.editIndex ? <p>全局编辑索引：{lazyScene.editIndex.entities.length} IDs / {lazyScene.editIndex.references.length} refs · revision 已对齐</p> : null}
         <div className="project-home__actions" role="group" aria-label="局部场景视图">
           <button aria-pressed={lazySceneView === "script"} onClick={() => setLazySceneView("script")}>Script 视图</button>
           <button aria-pressed={lazySceneView === "sequence"} onClick={() => setLazySceneView("sequence")}>Sequence 视图</button>

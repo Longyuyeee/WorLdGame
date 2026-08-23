@@ -14,6 +14,7 @@ import { exportPortableProjectBundle, importPortableProjectBundle } from "./port
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
 import { readTrustedRouteOverview } from "./trusted-route-overview";
+import { readTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLazyScenePage } from "./lazy-scene-session";
 
 function entropy(): string { return crypto.randomUUID(); }
@@ -46,7 +47,9 @@ export function StudioLauncher() {
     openLazyScene: async (item, overview, sceneId) => {
       const scene = overview.scenePages.find((candidate) => candidate.id === sceneId);
       if (scene === undefined) throw new Error("当前 Route 窗口中没有这个场景");
-      return loadLazyScenePage(await recentWorkspace(item), beginLazyScenePageLoad(createLazyScenePage(scene, overview.sourceVersion)));
+      const workspace = await recentWorkspace(item);
+      const editIndex = await readTrustedLazyEditIndex(workspace, overview.sourceVersion);
+      return loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, overview.sourceVersion, editIndex)));
     },
     saveLazyScene: async (item, page) => saveLazyScenePage(await recentWorkspace(item), page),
     openExample: async () => {

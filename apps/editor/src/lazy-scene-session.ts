@@ -17,6 +17,7 @@ import {
 } from "@world-studio/story-language";
 import { canonicalSceneSource, canonicalScriptWithStoryScene } from "./canonical-project-adapter";
 import type { StoryScene, StoryStatement } from "@world-studio/story-core";
+import type { TrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 
 export type LazyScenePageStatus = "unloaded" | "loading" | "ready" | "dirty" | "error" | "stale";
 
@@ -30,6 +31,7 @@ export interface LazyScenePage {
   readonly sourceSession?: ScriptSourceSession;
   readonly savedSource?: string;
   readonly selectedStatementId?: string | undefined;
+  readonly editIndex?: TrustedLazyEditIndex | undefined;
   readonly error?: string | undefined;
 }
 
@@ -40,8 +42,8 @@ export type LazySequenceContentPatch =
   | { readonly kind: "wait"; readonly statementId: string; readonly duration: string }
   | { readonly kind: "end"; readonly statementId: string; readonly endingName: string };
 
-export function createLazyScenePage(scene: SceneDocument, sourceVersion: string): LazyScenePage {
-  return { schemaVersion: 1, scene, sourceVersion, status: "unloaded" };
+export function createLazyScenePage(scene: SceneDocument, sourceVersion: string, editIndex?: TrustedLazyEditIndex): LazyScenePage {
+  return { schemaVersion: 1, scene, sourceVersion, status: "unloaded", ...(editIndex === undefined ? {} : { editIndex }) };
 }
 
 export function beginLazyScenePageLoad(page: LazyScenePage): LazyScenePage {
@@ -56,11 +58,28 @@ export async function loadLazyScenePage(workspace: ProjectWorkspace, page: LazyS
     const source = canonicalSceneSource(page.scene, script);
     const sourceSession = createScriptSourceSession(source);
     const projection = projectStoryScene(sourceSession.committedDocument);
+    if (projection.ok && page.editIndex !== undefined) assertSceneMatchesEditIndex(page, projection.scene);
     return { ...page, status: "ready", script, layout, sourceSession, savedSource: source, selectedStatementId: projection.ok ? projection.scene.statements[0]?.id : undefined, error: undefined };
   } catch (reason) {
     const message = reason instanceof Error ? reason.message : String(reason);
     return { ...page, status: /revision|version|changed/i.test(message) ? "stale" : "error", error: message };
   }
+}
+
+function assertSceneMatchesEditIndex(page: LazyScenePage, scene: StoryScene): void {
+  const index = page.editIndex!;
+  if (index.sourceVersion !== page.sourceVersion || index.entities.find((entity) => entity.id === scene.id)?.kind !== "scene") throw new Error("Lazy Edit Index does not match the scene source revision");
+  const expected = new Map<string, { readonly kind: "statement" | "option" | "text"; readonly ownerId: string }>();
+  for (const item of scene.statements) {
+    expected.set(item.id, { kind: "statement", ownerId: scene.id });
+    if (item.kind === "dialogue" || item.kind === "narration") expected.set(item.textId, { kind: "text", ownerId: item.id });
+    if (item.kind === "choice") for (const option of item.options) expected.set(option.id, { kind: "option", ownerId: item.id });
+  }
+  const indexed = index.entities.filter((entity) => entity.sceneId === scene.id && ["statement", "option", "text"].includes(entity.kind));
+  if (indexed.length !== expected.size || indexed.some((entity) => {
+    const target = expected.get(entity.id);
+    return target === undefined || target.kind !== entity.kind || target.ownerId !== entity.ownerId || entity.sourcePath !== page.scene.scriptPath;
+  })) throw new Error("Lazy Edit Index is incomplete for the selected scene");
 }
 
 export function projectLazyScene(page: LazyScenePage): StoryScene | null {
@@ -155,7 +174,7 @@ export async function saveLazyScenePage(workspace: ProjectWorkspace, page: LazyS
   try {
     const written = await workspace.writeSelectedFiles({ [page.scene.scriptPath]: saveProjectScript(script) }, page.sourceVersion);
     const source = page.sourceSession.committedSource;
-    return { ...page, status: "ready", sourceVersion: written.version, script, sourceSession: createScriptSourceSession(source), savedSource: source, error: undefined };
+    return { ...page, status: "ready", sourceVersion: written.version, script, sourceSession: createScriptSourceSession(source), savedSource: source, editIndex: undefined, error: undefined };
   } catch (reason) {
     const message = reason instanceof Error ? reason.message : String(reason);
     return { ...page, status: /revision|version|changed/i.test(message) ? "stale" : "error", error: message };
