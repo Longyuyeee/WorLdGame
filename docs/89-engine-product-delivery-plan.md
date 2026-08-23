@@ -361,6 +361,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8f Engineering 状态（2026-08-23）：真实调用链审计发现局部读取若继续调用整工程 `writeFiles()` 会删除未加载文件，因此先冻结受管 IndexedDB selected atomic write，再接 Route → 单场景 Script。scene page 具备 `unloaded/loading/ready/dirty/error/stale` 六态，只读所选 `script+layout`、`fullReads=0`，复用正式 Story Language 诊断与 Undo/Redo；保存集合精确为 script，expected-version 冲突零覆盖，并在同一 strict transaction 使 Compiler/Route 派生失效。产品 E2E 已完成 Route 修改 ending → 原子保存 → 完整工程重编译 → Script 重读同一修改。因局部页尚无全局 ID/引用索引，E8f 安全限制为既有语句内容编辑，结构/ID/引用变化失败关闭。定向 `4 files / 14 tests`、全量 `109 files / 682 tests`、Route P95 `60.73 ms` 与 GitHub Windows / Node 22 run `32648653153` / job `97216734611` 均通过；完整 Sequence、结构/topology 分页、外部宿主和 production browser 仍缺。详见 [N40-E8f 审计](169-n40-e8f-lazy-scene-edit-loop-audit.md)。
 
+> E8g Engineering 状态（2026-08-23）：现有完整 Writer 依赖全工程 scenes/characters/variables/assets，不能直接复用而保持 lazy read；实现改为从同一 Lazy Scene `ScriptSourceSession` 投影安全内容 Sequence。Script/Sequence 共用稳定 ID 选择、dirty、诊断、history/future 与保存边界；dialogue/narration、choice 文本、wait 和 ending 可通过正式 patch 编辑，其余结构/引用字段只读。150 statements 实际分页 `64/64/22`，1,000 次 Script/Sequence 交替修改保持同一 statement ID 与 0 error diagnostics；Route→Sequence→Script→Undo/Redo→保存→完整重读产品 E2E 通过。复审还把可能携带全局变量引用的 set/condition expression 收紧为只读。定向 `4 files / 13 tests`、全量 `110 files / 687 tests`、Route P95 `109.57 ms` 与 GitHub Windows / Node 22 run `32649874611` / job `97219677591` 均通过。完整 Sequence 结构编辑、全局 edit index、外部宿主和 production browser 仍缺。详见 [N40-E8g 审计](170-n40-e8g-lazy-sequence-projection-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

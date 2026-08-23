@@ -78,3 +78,5 @@ E8f 关闭：受管 Recent Route 首屏可进入一个可信、可撤销、可�
 - N40 Product Acceptance、N41 和 M1 纵向验收。
 
 下一节点 E8g 应先把同一 Lazy Scene Session 投影为可视 Sequence 内容页，冻结 Script/Sequence 共用历史、selection 与 dirty 状态；然后补同一 trusted revision 下的全局实体/ID 索引，使结构编辑能够在保存前完成全工程引用与重复 ID 校验。完成前不得把 E8f 的安全内容编辑称为完整 Sequence 或整体 lazy loading。
+
+> 后续纠偏（2026-08-23）：E8g 已把同一 source session 投影为 64 卡有界 Sequence，Script/Sequence 共用稳定 ID 选择、dirty、诊断和 Undo/Redo，并以 1,000 次交替修改及真实产品保存重开验证。审计同时发现表达式可能携带未加载变量引用，现已把 set/condition expression 收紧为局部只读。完整结构编辑仍等待 trusted global edit index。详见 [N40-E8g 审计](170-n40-e8g-lazy-sequence-projection-audit.md)。
