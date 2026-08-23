@@ -3,6 +3,7 @@ import type { ProjectLifecycleSession, RecentProject } from "@world-studio/proje
 import type { TrustedRouteOverview } from "./trusted-route-overview";
 import { reduceLazySceneHistory, replaceLazySceneSource, type LazyScenePage } from "./lazy-scene-session";
 import { TransactionalTextarea } from "./transactional-textarea";
+import { LazySequenceEditor } from "./lazy-sequence-editor";
 
 export interface ProjectArchiveDownload {
   readonly href: string;
@@ -36,6 +37,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
   const [routeOverview, setRouteOverview] = useState<{ readonly item: RecentProject; readonly overview: TrustedRouteOverview } | null>(null);
   const [lazyScene, setLazyScene] = useState<LazyScenePage | null>(null);
   const [routeStale, setRouteStale] = useState(false);
+  const [lazySceneView, setLazySceneView] = useState<"script" | "sequence">("script");
   const commandSerial = useRef(0);
   useEffect(() => () => download?.dispose(), [download]);
   const run = async (action: () => Promise<ProjectLifecycleSession>) => {
@@ -58,13 +60,13 @@ export function ProjectHome({ recent, actions, onEnter }: {
     setBusy(true);
     setError(null);
     setDownload(null);
-    try { setRouteOverview({ item, overview: await actions.openRouteOverview(item, offset) }); setLazyScene(null); setRouteStale(false); }
+    try { setRouteOverview({ item, overview: await actions.openRouteOverview(item, offset) }); setLazyScene(null); setLazySceneView("script"); setRouteStale(false); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
   };
   const openLazyScene = async (sceneId: string) => {
     if (routeOverview === null || actions.openLazyScene === undefined) return;
-    setBusy(true); setError(null); setLazyScene(null);
+    setBusy(true); setError(null); setLazyScene(null); setLazySceneView("script");
     try { setLazyScene(await actions.openLazyScene(routeOverview.item, routeOverview.overview, sceneId)); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
@@ -116,15 +118,19 @@ export function ProjectHome({ recent, actions, onEnter }: {
       <p role="status">源读取 {routeOverview.overview.sourceRead.fileCount} 文件 / {routeOverview.overview.sourceRead.utf8Bytes} bytes，其中 layout {routeOverview.overview.sourceRead.layoutFileCount}；未执行 full read。</p>
       {routeStale ? <p role="status">单场景已原子保存；Route 派生视图已失效，请加载完整工程重建。</p> : null}
       <ul>{routeOverview.overview.window.nodes.map((node) => <li key={node.id}><strong>{node.title}</strong><span>{node.kind} · {node.facts.length} facts · ({node.layout.x}, {node.layout.y})</span>{actions.openLazyScene !== undefined ? <button disabled={busy || routeStale} aria-label={`编辑场景 ${node.title}`} onClick={() => void openLazyScene(node.id)}>编辑场景</button> : null}</li>)}</ul>
-      {lazyScene?.sourceSession ? <section aria-label="单场景脚本编辑器">
-        <h3>{lazyScene.scene.title} · Script</h3>
+      {lazyScene?.sourceSession ? <section aria-label="单场景 Script/Sequence 编辑器">
+        <h3>{lazyScene.scene.title} · {lazySceneView === "script" ? "Script" : "Sequence"}</h3>
         <p>状态：{lazyScene.status} · 仅加载当前场景 script + layout；可修改既有语句内容，结构、ID 与跨实体引用请进入完整工程。</p>
-        <TransactionalTextarea
+        <div className="project-home__actions" role="group" aria-label="局部场景视图">
+          <button aria-pressed={lazySceneView === "script"} onClick={() => setLazySceneView("script")}>Script 视图</button>
+          <button aria-pressed={lazySceneView === "sequence"} onClick={() => setLazySceneView("sequence")}>Sequence 视图</button>
+        </div>
+        {lazySceneView === "script" ? <TransactionalTextarea
           aria-label="单场景权威脚本编辑器"
           rows={12}
           value={lazyScene.sourceSession.draftSource}
           onCommit={(source) => setLazyScene((current) => current === null ? current : replaceLazySceneSource(current, source, `lazy-scene-${++commandSerial.current}`))}
-        />
+        /> : <LazySequenceEditor page={lazyScene} busy={busy || lazyScene.sourceSession.draftSource !== lazyScene.sourceSession.committedSource} createCommandId={() => `lazy-sequence-${++commandSerial.current}`} onPage={setLazyScene} />}
         {lazyScene.error ? <p role="alert">{lazyScene.error}</p> : null}
         <div className="project-home__actions">
           <button disabled={busy || lazyScene.sourceSession.history.length === 0 || lazyScene.sourceSession.draftSource !== lazyScene.sourceSession.committedSource} onClick={() => setLazyScene((current) => current === null ? current : reduceLazySceneHistory(current, "undo"))}>撤销</button>

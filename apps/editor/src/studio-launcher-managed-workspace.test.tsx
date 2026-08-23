@@ -41,8 +41,15 @@ describe("E8b Studio Launcher managed workspace", () => {
     fireEvent.click(screen.getByRole("button", { name: "编辑场景 Start" }));
     const lazyEditor = await screen.findByLabelText("单场景权威脚本编辑器") as HTMLTextAreaElement;
     expect(lazyEditor.value).toContain('end "Ending"');
-    fireEvent.change(lazyEditor, { target: { value: lazyEditor.value.replace("Ending", "Closed loop ending") } });
-    fireEvent.keyDown(lazyEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("button", { name: "Sequence 视图" }));
+    fireEvent.click(screen.getByRole("button", { name: /选择结局：Ending/ }));
+    fireEvent.change(screen.getByLabelText("局部 Sequence 结局名称"), { target: { value: "Closed loop ending" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用 Sequence 内容" }));
+    fireEvent.click(screen.getByRole("button", { name: "Script 视图" }));
+    expect((screen.getByLabelText("单场景权威脚本编辑器") as HTMLTextAreaElement).value).toContain('end "Closed loop ending"');
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect((screen.getByLabelText("单场景权威脚本编辑器") as HTMLTextAreaElement).value).toContain('end "Ending"');
+    fireEvent.click(screen.getByRole("button", { name: "重做" }));
     await waitFor(() => expect(screen.getByRole("button", { name: "保存当前场景" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "保存当前场景" }));
     expect(await screen.findByText(/单场景已原子保存；Route 派生视图已失效/)).toBeVisible();
