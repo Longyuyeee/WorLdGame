@@ -84,3 +84,5 @@ E8e 关闭的是“Recent 可以不加载完整工程而先看到真实 Route �
 - 外部目录、OPFS 和 production browser 没有 Route-first 证据。
 
 下一节点 E8f 应先冻结 `LazyProjectSession` 的 scene page 状态机（unloaded/loading/ready/dirty/error/stale），实现按 scene ID 补读 script+layout，并把进入 Sequence/Script 的一个只读到可编辑流程接上；随后才处理 dirty page、Undo/Redo、原子保存集合和冲突。上述边界及真实产品流完成前，不得宣称编辑器整体 lazy loading 已完成。
+
+> 后续纠偏（2026-08-23）：E8f 已一次性补齐六态、单场景 `script+layout` 可信读取、Script 内容编辑、Undo/Redo、selected atomic write、冲突拒绝和 Route 派生失效，并从产品入口完整重建验证落盘内容。因局部页尚无全局 ID/引用索引，结构、稳定 ID 与跨实体引用编辑继续失败关闭；完整 Sequence 与整体 lazy loading 仍未完成。详见 [N40-E8f 审计](169-n40-e8f-lazy-scene-edit-loop-audit.md)。
