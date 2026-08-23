@@ -38,6 +38,13 @@ export interface LayoutGroup { readonly groupId: StableId; readonly title: strin
 export interface LayoutViewport { readonly x: number; readonly y: number; readonly zoom: number; }
 export interface LayoutDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly nodes: readonly LayoutNodePosition[]; readonly groups?: readonly LayoutGroup[]; readonly viewport?: LayoutViewport; readonly preservedFields?: JsonObject; }
 
+export interface ProjectStructureIndex {
+  readonly schemaVersion: 1;
+  readonly manifest: ProjectManifest;
+  readonly chapters: readonly ChapterDocument[];
+  readonly scenes: readonly SceneDocument[];
+}
+
 export interface CanonicalProject {
   readonly mode: "editable";
   readonly manifest: ProjectManifest;

@@ -1,5 +1,5 @@
 import {
-  assertProjectSourcePath,
+  isProjectTrustedSourceCommit,
   loadProject,
   sha256,
   type CanonicalProject,
@@ -63,18 +63,6 @@ function sameHashes(left: Readonly<Record<string, string>>, right: Readonly<Reco
   return leftPaths.length === rightPaths.length && leftPaths.every((path, index) => path === rightPaths[index] && left[path] === right[path]);
 }
 
-function validTrustedCommit(commit: ProjectTrustedSourceCommit): boolean {
-  if (commit.schemaVersion !== 1 || !hashPattern.test(commit.version) || !Number.isSafeInteger(commit.generation) || commit.generation < 1) return false;
-  for (let index = 0; index < commit.files.length; index += 1) {
-    const entry = commit.files[index]!;
-    try { assertProjectSourcePath(entry.path); } catch { return false; }
-    if (!hashPattern.test(entry.sha256) || !Number.isSafeInteger(entry.size) || entry.size < 0 || !Number.isSafeInteger(entry.modifiedAtMs) || entry.modifiedAtMs < 1) return false;
-    if (index > 0 && commit.files[index - 1]!.path.localeCompare(entry.path) >= 0) return false;
-  }
-  const payload = JSON.stringify({ schemaVersion: 1, generation: commit.generation, files: commit.files.map(({ path, size, modifiedAtMs, sha256: digest }) => ({ path, size, modifiedAtMs, sha256: digest })) });
-  return sha256(payload) === commit.version;
-}
-
 function parseArtifact(source: string, inventoryVersion: string): ParsedCachePayload {
   let value: unknown;
   try { value = JSON.parse(source); } catch { return { status: "invalid", reason: "corrupt" }; }
@@ -123,14 +111,14 @@ export async function compileProjectWorkspace(workspace: ProjectWorkspace, profi
   const supported = workspace.listProjectFiles !== undefined && workspace.readDerivedFile !== undefined && workspace.writeDerivedFile !== undefined;
   if (supported && workspace.readTrustedSourceCommit !== undefined) {
     const trustedBefore = await workspace.readTrustedSourceCommit();
-    if (trustedBefore !== null && validTrustedCommit(trustedBefore)) {
+    if (trustedBefore !== null && isProjectTrustedSourceCommit(trustedBefore)) {
       const artifact = await workspace.readDerivedFile!(PROJECT_COMPILER_CACHE_PATH);
       const verified = artifact === null ? null : verifyTrustedCacheArtifact(artifact, trustedBefore);
       if (verified?.status === "valid" && verified.files !== undefined) {
         const project = loadProject(verified.files);
         const compilation = compileProjectIncremental(project, { profile, previousCache: verified.cache });
         const trustedAfter = await workspace.readTrustedSourceCommit();
-        if (trustedAfter === null || !validTrustedCommit(trustedAfter) || trustedAfter.version !== trustedBefore.version) throw new Error("Project files changed while reading trusted Compiler cache input");
+        if (trustedAfter === null || !isProjectTrustedSourceCommit(trustedAfter) || trustedAfter.version !== trustedBefore.version) throw new Error("Project files changed while reading trusted Compiler cache input");
         return { project, files: verified.files, hostVersion: trustedBefore.version, inventoryVersion: trustedBefore.version, cacheStatus: "hit", compilation };
       }
     }

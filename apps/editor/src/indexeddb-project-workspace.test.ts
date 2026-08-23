@@ -1,6 +1,6 @@
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
-import { createProjectTemplate, saveProject, sha256 } from "@world-studio/project-domain";
+import { createProjectTemplate, readTrustedProjectStructure, saveProject, sha256 } from "@world-studio/project-domain";
 import { PROJECT_COMPILER_CACHE_PATH } from "@world-studio/project-compiler";
 import {
   INDEXEDDB_PROJECT_COMMIT_STORE,
@@ -113,5 +113,25 @@ describe("E8b IndexedDB atomic project workspace", () => {
     expect(rebuilt.compiler?.cacheStatus).toBe("corrupt");
     expect(afterRebuild.compiler?.cacheStatus).toBe("hit");
     expect(workspace.fullReads).toBe(2);
+  });
+
+  it("reads a real managed project structure without scripts, layouts or global documents", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new CountingIndexedDbProjectWorkspace(indexedDb, "e8d_structure", "E8d Structure");
+    const project = createProjectTemplate("E8d Structure", "e8d-structure-project");
+    await workspace.writeFiles(saveProject(project), null);
+
+    const snapshot = await readTrustedProjectStructure(workspace);
+
+    expect(snapshot.structure.scenes).toEqual(project.scenes);
+    expect(workspace.selectedReads).toEqual([
+      ["world.project.json"],
+      [...project.manifest.chapterPaths],
+      project.chapters.flatMap((chapter) => chapter.scenePaths)
+    ]);
+    expect(workspace.selectedReads.flat()).not.toContain(project.scenes[0]!.scriptPath);
+    expect(workspace.selectedReads.flat()).not.toContain(project.scenes[0]!.layoutPath);
+    expect(workspace.selectedReads.flat()).not.toContain(project.manifest.charactersPath);
+    expect(workspace.fullReads).toBe(0);
   });
 });

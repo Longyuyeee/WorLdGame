@@ -1,5 +1,5 @@
 import { sha256 } from "./sha256";
-import { ProjectDomainError, type CanonicalProject, type JsonObject, type JsonValue, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe } from "./types";
+import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument } from "./types";
 
 export const PROJECT_MANIFEST_PATH = "world.project.json";
 const ID = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
@@ -50,16 +50,31 @@ export function probeProject(files: ProjectFiles): ProjectProbe {
   return {status:"current",schemaVersion:1,projectId:id(data.projectId,"projectId"),title:string(data.title,"title")};
 }
 
-export function loadProject(files: ProjectFiles): CanonicalProject {
+export function loadProjectManifest(files: ProjectFiles): ProjectManifest {
   const probe=probeProject(files); if(probe.status!=="current") return fail("FUTURE_SCHEMA",`Project schema ${probe.schemaVersion} is read-only`);
   const data=parse(files,PROJECT_MANIFEST_PATH); version(data,PROJECT_MANIFEST_PATH);
   const manifestKnown=["schemaVersion","fileVersion","projectId","title","defaultLocale","entrySceneId","chapterPaths","charactersPath","variablesPath","assetsPath","localizationPath","settingsPath","uiPath","pluginsPath","testRoutesPath"];
   if(data.fileVersion!=="1.0.0") fail("INVALID_SCHEMA","fileVersion must be 1.0.0");
   const manifestBase={schemaVersion:1 as const,fileVersion:"1.0.0" as const,projectId:id(data.projectId,"projectId"),title:string(data.title,"title"),defaultLocale:string(data.defaultLocale,"defaultLocale"),entrySceneId:id(data.entrySceneId,"entrySceneId"),chapterPaths:strings(data.chapterPaths,"chapterPaths",path),charactersPath:path(data.charactersPath,"charactersPath"),variablesPath:path(data.variablesPath,"variablesPath"),assetsPath:path(data.assetsPath,"assetsPath"),localizationPath:path(data.localizationPath,"localizationPath"),settingsPath:path(data.settingsPath,"settingsPath"),uiPath:path(data.uiPath,"uiPath"),pluginsPath:path(data.pluginsPath,"pluginsPath"),testRoutesPath:path(data.testRoutesPath,"testRoutesPath")};
-  const manifestUnknown=preserved(data,manifestKnown); const manifest: ProjectManifest=manifestUnknown?{...manifestBase,preservedFields:manifestUnknown}:manifestBase;
-  const chapters=manifest.chapterPaths.map((file)=>{const value=parse(files,file);version(value,file);const base={schemaVersion:1 as const,id:id(value.id,`${file}.id`),title:string(value.title,`${file}.title`),scenePaths:strings(value.scenePaths,`${file}.scenePaths`,path)};const unknown=preserved(value,["schemaVersion","id","title","scenePaths"]);return unknown?{...base,preservedFields:unknown}:base;});
-  const scenePaths=chapters.flatMap((chapter)=>chapter.scenePaths); const scenes=scenePaths.map((file)=>{const value=parse(files,file);version(value,file);const base={schemaVersion:1 as const,id:id(value.id,`${file}.id`),title:string(value.title,`${file}.title`),scriptPath:path(value.scriptPath,`${file}.scriptPath`),layoutPath:path(value.layoutPath,`${file}.layoutPath`)};const unknown=preserved(value,["schemaVersion","id","title","scriptPath","layoutPath"]);return unknown?{...base,preservedFields:unknown}:base;});
+  const manifestUnknown=preserved(data,manifestKnown); return manifestUnknown?{...manifestBase,preservedFields:manifestUnknown}:manifestBase;
+}
+
+export function loadProjectChapters(files: ProjectFiles, manifest: ProjectManifest): readonly ChapterDocument[] {
+  return manifest.chapterPaths.map((file)=>{const value=parse(files,file);version(value,file);const base={schemaVersion:1 as const,id:id(value.id,`${file}.id`),title:string(value.title,`${file}.title`),scenePaths:strings(value.scenePaths,`${file}.scenePaths`,path)};const unknown=preserved(value,["schemaVersion","id","title","scenePaths"]);return unknown?{...base,preservedFields:unknown}:base;});
+}
+
+export function loadProjectScenes(files: ProjectFiles, chapters: readonly ChapterDocument[]): readonly SceneDocument[] {
+  const scenePaths=chapters.flatMap((chapter)=>chapter.scenePaths); return scenePaths.map((file)=>{const value=parse(files,file);version(value,file);const base={schemaVersion:1 as const,id:id(value.id,`${file}.id`),title:string(value.title,`${file}.title`),scriptPath:path(value.scriptPath,`${file}.scriptPath`),layoutPath:path(value.layoutPath,`${file}.layoutPath`)};const unknown=preserved(value,["schemaVersion","id","title","scriptPath","layoutPath"]);return unknown?{...base,preservedFields:unknown}:base;});
+}
+
+export function loadProjectStructure(files: ProjectFiles): ProjectStructureIndex {
+  const manifest=loadProjectManifest(files),chapters=loadProjectChapters(files,manifest),scenes=loadProjectScenes(files,chapters);
   const allIds=[manifest.projectId,...chapters.map((item)=>item.id),...scenes.map((item)=>item.id)]; if(new Set(allIds).size!==allIds.length) fail("DUPLICATE_ID","Project, chapter, and scene stable IDs must be unique"); if(!scenes.some((scene)=>scene.id===manifest.entrySceneId)) fail("BROKEN_REFERENCE","entrySceneId does not reference a scene");
+  return {schemaVersion:1,manifest,chapters,scenes};
+}
+
+export function loadProject(files: ProjectFiles): CanonicalProject {
+  const {manifest,chapters,scenes}=loadProjectStructure(files);
   const scripts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.scriptPath);version(value,scene.scriptPath);if(id(value.sceneId,`${scene.scriptPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.scriptPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,statements:objects(value.statements,`${scene.scriptPath}.statements`)};const unknown=preserved(value,["schemaVersion","sceneId","statements"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
   const layouts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.layoutPath);version(value,scene.layoutPath);if(id(value.sceneId,`${scene.layoutPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.layoutPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,nodes:layoutNodes(value.nodes,`${scene.layoutPath}.nodes`),...(value.groups===undefined?{}:{groups:layoutGroups(value.groups,`${scene.layoutPath}.groups`)}),...(value.viewport===undefined?{}:{viewport:layoutViewport(value.viewport,`${scene.layoutPath}.viewport`)})};const unknown=preserved(value,["schemaVersion","sceneId","nodes","groups","viewport"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
   const project: CanonicalProject={mode:"editable",manifest,chapters,scenes,characters:arrayDocument(files,manifest.charactersPath,"characters") as CanonicalProject["characters"],variables:arrayDocument(files,manifest.variablesPath,"variables") as CanonicalProject["variables"],assets:arrayDocument(files,manifest.assetsPath,"assets") as CanonicalProject["assets"],localization:arrayDocument(files,manifest.localizationPath,"locales") as CanonicalProject["localization"],settings:valueDocument(files,manifest.settingsPath),ui:arrayDocument(files,manifest.uiPath,"screens") as CanonicalProject["ui"],plugins:arrayDocument(files,manifest.pluginsPath,"plugins") as CanonicalProject["plugins"],testRoutes:arrayDocument(files,manifest.testRoutesPath,"routes") as CanonicalProject["testRoutes"],scripts,layouts};
