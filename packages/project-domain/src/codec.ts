@@ -1,5 +1,5 @@
 import { sha256 } from "./sha256";
-import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutDocument, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument } from "./types";
+import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutDocument, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument, type ScriptDocument } from "./types";
 
 export const PROJECT_MANIFEST_PATH = "world.project.json";
 const ID = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
@@ -77,9 +77,19 @@ export function loadProjectLayouts(files: ProjectFiles, scenes: readonly SceneDo
   return Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.layoutPath);version(value,scene.layoutPath);if(id(value.sceneId,`${scene.layoutPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.layoutPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,nodes:layoutNodes(value.nodes,`${scene.layoutPath}.nodes`),...(value.groups===undefined?{}:{groups:layoutGroups(value.groups,`${scene.layoutPath}.groups`)}),...(value.viewport===undefined?{}:{viewport:layoutViewport(value.viewport,`${scene.layoutPath}.viewport`)})};const unknown=preserved(value,["schemaVersion","sceneId","nodes","groups","viewport"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
 }
 
+export function loadProjectScripts(files: ProjectFiles, scenes: readonly SceneDocument[]): Readonly<Record<string, ScriptDocument>> {
+  return Object.fromEntries(scenes.map((scene) => {
+    const value=parse(files,scene.scriptPath);version(value,scene.scriptPath);
+    if(id(value.sceneId,`${scene.scriptPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.scriptPath} belongs to another scene`);
+    const base={schemaVersion:1 as const,sceneId:scene.id,statements:objects(value.statements,`${scene.scriptPath}.statements`)};
+    const unknown=preserved(value,["schemaVersion","sceneId","statements"]);
+    return [scene.id,unknown?{...base,preservedFields:unknown}:base];
+  }));
+}
+
 export function loadProject(files: ProjectFiles): CanonicalProject {
   const {manifest,chapters,scenes}=loadProjectStructure(files);
-  const scripts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.scriptPath);version(value,scene.scriptPath);if(id(value.sceneId,`${scene.scriptPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.scriptPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,statements:objects(value.statements,`${scene.scriptPath}.statements`)};const unknown=preserved(value,["schemaVersion","sceneId","statements"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
+  const scripts=loadProjectScripts(files,scenes);
   const layouts=loadProjectLayouts(files,scenes);
   const project: CanonicalProject={mode:"editable",manifest,chapters,scenes,characters:arrayDocument(files,manifest.charactersPath,"characters") as CanonicalProject["characters"],variables:arrayDocument(files,manifest.variablesPath,"variables") as CanonicalProject["variables"],assets:arrayDocument(files,manifest.assetsPath,"assets") as CanonicalProject["assets"],localization:arrayDocument(files,manifest.localizationPath,"locales") as CanonicalProject["localization"],settings:valueDocument(files,manifest.settingsPath),ui:arrayDocument(files,manifest.uiPath,"screens") as CanonicalProject["ui"],plugins:arrayDocument(files,manifest.pluginsPath,"plugins") as CanonicalProject["plugins"],testRoutes:arrayDocument(files,manifest.testRoutesPath,"routes") as CanonicalProject["testRoutes"],scripts,layouts};
   validateEntityIds(project);validateLayouts(project); return project;
@@ -91,6 +101,7 @@ function validateEntityIds(project: CanonicalProject): void { const ids=new Set<
 function withUnknown<T extends object>(value:T & {preservedFields?:JsonObject}):JsonObject { const {preservedFields,...known}=value; return {...(preservedFields??{}),...known} as unknown as JsonObject; }
 const canonical=(value:JsonValue):JsonValue=>Array.isArray(value)?value.map(canonical):isRecord(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key] as JsonValue)])):value;
 const encode=(value:JsonValue)=>`${JSON.stringify(canonical(value),null,2)}\n`;
+export function saveProjectScript(script:ScriptDocument):string { return encode(withUnknown(script)); }
 export function saveProject(project:CanonicalProject):ProjectFiles { const files:Record<string,string>={}; files[PROJECT_MANIFEST_PATH]=encode(withUnknown(project.manifest)); project.chapters.forEach((item,index)=>files[project.manifest.chapterPaths[index]??fail("BROKEN_REFERENCE","chapter path mismatch")]=encode(withUnknown(item))); const scenePaths=project.chapters.flatMap(chapter=>chapter.scenePaths); project.scenes.forEach((item,index)=>{const file=scenePaths[index]??fail("BROKEN_REFERENCE","scene path mismatch");files[file]=encode(withUnknown(item));files[item.scriptPath]=encode(withUnknown(project.scripts[item.id]??fail("BROKEN_REFERENCE",`missing script ${item.id}`)));files[item.layoutPath]=encode(withUnknown(project.layouts[item.id]??fail("BROKEN_REFERENCE",`missing layout ${item.id}`)));}); const docs:[[string,object],...Array<[string,object]>]=[[project.manifest.charactersPath,project.characters],[project.manifest.variablesPath,project.variables],[project.manifest.assetsPath,project.assets],[project.manifest.localizationPath,project.localization],[project.manifest.settingsPath,project.settings],[project.manifest.uiPath,project.ui],[project.manifest.pluginsPath,project.plugins],[project.manifest.testRoutesPath,project.testRoutes]]; docs.forEach(([file,value])=>files[file]=encode(withUnknown(value))); return Object.fromEntries(Object.entries(files).sort(([a],[b])=>a.localeCompare(b))); }
 export function semanticHashProjectFiles(files:ProjectFiles):string { return sha256(JSON.stringify(canonical(files as JsonValue))); }
 export function semanticHash(project:CanonicalProject):string { return semanticHashProjectFiles(saveProject(project)); }

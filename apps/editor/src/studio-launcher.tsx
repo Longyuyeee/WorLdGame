@@ -14,6 +14,7 @@ import { exportPortableProjectBundle, importPortableProjectBundle } from "./port
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
 import { readTrustedRouteOverview } from "./trusted-route-overview";
+import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLazyScenePage } from "./lazy-scene-session";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -42,6 +43,12 @@ export function StudioLauncher() {
     openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openCompiledLifecycleProject(workspace)); },
     openRecent: async (item) => {const workspace=await recentWorkspace(item);return finish(workspace,await openCompiledLifecycleProject(workspace));},
     openRouteOverview: async (item,offset) => readTrustedRouteOverview(await recentWorkspace(item), offset===undefined?{}:{offset}),
+    openLazyScene: async (item, overview, sceneId) => {
+      const scene = overview.scenePages.find((candidate) => candidate.id === sceneId);
+      if (scene === undefined) throw new Error("当前 Route 窗口中没有这个场景");
+      return loadLazyScenePage(await recentWorkspace(item), beginLazyScenePageLoad(createLazyScenePage(scene, overview.sourceVersion)));
+    },
+    saveLazyScene: async (item, page) => saveLazyScenePage(await recentWorkspace(item), page),
     openExample: async () => {
       const workspace = managedWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openCompiledLifecycleProject(workspace));

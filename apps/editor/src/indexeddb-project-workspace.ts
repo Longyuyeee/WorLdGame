@@ -88,6 +88,21 @@ function createCommit(files: ProjectFiles, previous: ProjectTrustedSourceCommit 
   return { schemaVersion: 1, version: sha256(payload), generation, files: entries };
 }
 
+function createPartialCommit(files: ProjectFiles, previous: ProjectTrustedSourceCommit): ProjectTrustedSourceCommit {
+  const selected = assertSelectedProjectPaths(Object.keys(files));
+  const updates = new Map(selected.map((path) => [path, files[path]!]));
+  const generation = previous.generation + 1;
+  const entries = previous.files.map((entry) => {
+    const value = updates.get(entry.path);
+    if (value === undefined) return entry;
+    const digest = sha256(value);
+    return { ...entry, size: encoder.encode(value).byteLength, modifiedAtMs: entry.sha256 === digest ? entry.modifiedAtMs : generation, sha256: digest };
+  });
+  for (const path of selected) if (!previous.files.some((entry) => entry.path === path)) throw new Error(`Missing project file: ${path}`);
+  const payload = JSON.stringify({ schemaVersion: 1, generation, files: entries });
+  return { schemaVersion: 1, version: sha256(payload), generation, files: entries };
+}
+
 export class IndexedDbProjectWorkspace implements ProjectWorkspace {
   readonly reference: ProjectReference;
   private readonly database: Promise<IDBDatabase>;
@@ -175,6 +190,29 @@ export class IndexedDbProjectWorkspace implements ProjectWorkspace {
     const prefix = `${this.workspaceId}\0`;
     for (const key of await requestResult(store.getAllKeys())) if (String(key).startsWith(prefix)) store.delete(key);
     await transactionDone(transaction);
+  }
+
+  async writeSelectedFiles(files: ProjectFiles, expectedVersion: string): Promise<{ readonly version: string }> {
+    const database = await this.database;
+    const transaction = database.transaction([INDEXEDDB_PROJECT_SOURCE_STORE, INDEXEDDB_PROJECT_COMMIT_STORE, INDEXEDDB_PROJECT_DERIVED_STORE], "readwrite", { durability: "strict" });
+    const sourceStore = transaction.objectStore(INDEXEDDB_PROJECT_SOURCE_STORE);
+    const commitStore = transaction.objectStore(INDEXEDDB_PROJECT_COMMIT_STORE);
+    const derivedStore = transaction.objectStore(INDEXEDDB_PROJECT_DERIVED_STORE);
+    try {
+      const previous = parseCommit(await requestResult(commitStore.get(this.workspaceId)));
+      if (previous === null) throw new Error("Managed project workspace is empty");
+      if (previous.version !== expectedVersion) throw new Error(`External project version changed from ${expectedVersion} to ${previous.version}`);
+      const commit = createPartialCommit(files, previous);
+      for (const [path, value] of Object.entries(files)) sourceStore.put(value, sourceKey(this.workspaceId, path));
+      const prefix = `${this.workspaceId}\0`;
+      for (const key of await requestResult(derivedStore.getAllKeys())) if (String(key).startsWith(prefix)) derivedStore.delete(key);
+      commitStore.put(commit, this.workspaceId);
+      await transactionDone(transaction);
+      return { version: commit.version };
+    } catch (error) {
+      try { transaction.abort(); } catch { /* already completed */ }
+      throw error;
+    }
   }
 
   async writeFiles(files: ProjectFiles, expectedVersion: string | null): Promise<{ readonly version: string }> {

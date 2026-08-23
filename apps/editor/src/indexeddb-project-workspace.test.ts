@@ -71,6 +71,29 @@ describe("E8b IndexedDB atomic project workspace", () => {
     expect(winner.version).not.toBe(initial.version);
   });
 
+  it("atomically updates only selected source files and rejects stale partial writers", async () => {
+    const indexedDb = new IDBFactory();
+    const first = new IndexedDbProjectWorkspace(indexedDb, "e8f_partial", "E8f Partial");
+    const stale = new IndexedDbProjectWorkspace(indexedDb, "e8f_partial", "E8f Partial");
+    const project = createProjectTemplate("E8f Partial", "e8f-partial-project");
+    const files = saveProject(project);
+    const scriptPath = project.scenes[0]!.scriptPath;
+    const layoutPath = project.scenes[0]!.layoutPath;
+    const initial = await first.writeFiles(files, null);
+    await first.writeDerivedFile?.(".world-cache/compiler-v1.json", "compiled");
+    const changedScript = files[scriptPath]!.replace("Ending", "Lazy ending");
+
+    const written = await first.writeSelectedFiles?.({ [scriptPath]: changedScript }, initial.version);
+    expect(written).toBeDefined();
+    expect(written?.version).not.toBe(initial.version);
+    expect((await first.readFiles()).files).toEqual({ ...files, [scriptPath]: changedScript });
+    expect((await first.readTrustedSourceCommit())?.generation).toBe(2);
+    expect(await first.readDerivedFile?.(".world-cache/compiler-v1.json")).toBeNull();
+
+    await expect(stale.writeSelectedFiles?.({ [layoutPath]: `${files[layoutPath]} ` }, initial.version)).rejects.toThrow(/External project version changed/);
+    expect((await first.readFiles()).files[layoutPath]).toBe(files[layoutPath]);
+  });
+
   it("fails closed when a source body no longer matches its atomic commit", async () => {
     const indexedDb = new IDBFactory();
     const workspace = new IndexedDbProjectWorkspace(indexedDb, "e8b_corrupt", "E8b Corrupt");

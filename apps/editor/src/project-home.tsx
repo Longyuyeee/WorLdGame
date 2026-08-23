@@ -1,6 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { ProjectLifecycleSession, RecentProject } from "@world-studio/project-domain";
 import type { TrustedRouteOverview } from "./trusted-route-overview";
+import { reduceLazySceneHistory, replaceLazySceneSource, type LazyScenePage } from "./lazy-scene-session";
+import { TransactionalTextarea } from "./transactional-textarea";
 
 export interface ProjectArchiveDownload {
   readonly href: string;
@@ -17,6 +19,8 @@ export interface ProjectHomeActions {
   readonly importArchive: (file: File) => Promise<ProjectLifecycleSession>;
   readonly exportArchive: (session: ProjectLifecycleSession) => Promise<ProjectArchiveDownload>;
   readonly openRouteOverview?: (item: RecentProject, offset?: number) => Promise<TrustedRouteOverview>;
+  readonly openLazyScene?: (item: RecentProject, overview: TrustedRouteOverview, sceneId: string) => Promise<LazyScenePage>;
+  readonly saveLazyScene?: (item: RecentProject, page: LazyScenePage) => Promise<LazyScenePage>;
 }
 
 export function ProjectHome({ recent, actions, onEnter }: {
@@ -30,6 +34,9 @@ export function ProjectHome({ recent, actions, onEnter }: {
   const [error, setError] = useState<string | null>(null);
   const [download, setDownload] = useState<ProjectArchiveDownload | null>(null);
   const [routeOverview, setRouteOverview] = useState<{ readonly item: RecentProject; readonly overview: TrustedRouteOverview } | null>(null);
+  const [lazyScene, setLazyScene] = useState<LazyScenePage | null>(null);
+  const [routeStale, setRouteStale] = useState(false);
+  const commandSerial = useRef(0);
   useEffect(() => () => download?.dispose(), [download]);
   const run = async (action: () => Promise<ProjectLifecycleSession>) => {
     setBusy(true);
@@ -51,8 +58,25 @@ export function ProjectHome({ recent, actions, onEnter }: {
     setBusy(true);
     setError(null);
     setDownload(null);
-    try { setRouteOverview({ item, overview: await actions.openRouteOverview(item, offset) }); }
+    try { setRouteOverview({ item, overview: await actions.openRouteOverview(item, offset) }); setLazyScene(null); setRouteStale(false); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
+    finally { setBusy(false); }
+  };
+  const openLazyScene = async (sceneId: string) => {
+    if (routeOverview === null || actions.openLazyScene === undefined) return;
+    setBusy(true); setError(null); setLazyScene(null);
+    try { setLazyScene(await actions.openLazyScene(routeOverview.item, routeOverview.overview, sceneId)); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
+    finally { setBusy(false); }
+  };
+  const saveLazyScene = async () => {
+    if (routeOverview === null || lazyScene === null || actions.saveLazyScene === undefined) return;
+    setBusy(true); setError(null);
+    try {
+      const saved = await actions.saveLazyScene(routeOverview.item, lazyScene);
+      setLazyScene(saved);
+      if (saved.status === "ready" && saved.sourceVersion !== routeOverview.overview.sourceVersion) setRouteStale(true);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
   };
   const submit = (event: FormEvent) => {
@@ -90,10 +114,27 @@ export function ProjectHome({ recent, actions, onEnter }: {
       <h2>{routeOverview.overview.title} · Route</h2>
       <p>仅载入工程结构和当前布局窗口；{routeOverview.overview.window.start + 1}–{routeOverview.overview.window.end} / {routeOverview.overview.totalScenes} 个场景。</p>
       <p role="status">源读取 {routeOverview.overview.sourceRead.fileCount} 文件 / {routeOverview.overview.sourceRead.utf8Bytes} bytes，其中 layout {routeOverview.overview.sourceRead.layoutFileCount}；未执行 full read。</p>
-      <ul>{routeOverview.overview.window.nodes.map((node) => <li key={node.id}><strong>{node.title}</strong><span>{node.kind} · {node.facts.length} facts · ({node.layout.x}, {node.layout.y})</span></li>)}</ul>
+      {routeStale ? <p role="status">单场景已原子保存；Route 派生视图已失效，请加载完整工程重建。</p> : null}
+      <ul>{routeOverview.overview.window.nodes.map((node) => <li key={node.id}><strong>{node.title}</strong><span>{node.kind} · {node.facts.length} facts · ({node.layout.x}, {node.layout.y})</span>{actions.openLazyScene !== undefined ? <button disabled={busy || routeStale} aria-label={`编辑场景 ${node.title}`} onClick={() => void openLazyScene(node.id)}>编辑场景</button> : null}</li>)}</ul>
+      {lazyScene?.sourceSession ? <section aria-label="单场景脚本编辑器">
+        <h3>{lazyScene.scene.title} · Script</h3>
+        <p>状态：{lazyScene.status} · 仅加载当前场景 script + layout；可修改既有语句内容，结构、ID 与跨实体引用请进入完整工程。</p>
+        <TransactionalTextarea
+          aria-label="单场景权威脚本编辑器"
+          rows={12}
+          value={lazyScene.sourceSession.draftSource}
+          onCommit={(source) => setLazyScene((current) => current === null ? current : replaceLazySceneSource(current, source, `lazy-scene-${++commandSerial.current}`))}
+        />
+        {lazyScene.error ? <p role="alert">{lazyScene.error}</p> : null}
+        <div className="project-home__actions">
+          <button disabled={busy || lazyScene.sourceSession.history.length === 0 || lazyScene.sourceSession.draftSource !== lazyScene.sourceSession.committedSource} onClick={() => setLazyScene((current) => current === null ? current : reduceLazySceneHistory(current, "undo"))}>撤销</button>
+          <button disabled={busy || lazyScene.sourceSession.future.length === 0 || lazyScene.sourceSession.draftSource !== lazyScene.sourceSession.committedSource} onClick={() => setLazyScene((current) => current === null ? current : reduceLazySceneHistory(current, "redo"))}>重做</button>
+          <button disabled={busy || lazyScene.status !== "dirty"} onClick={() => void saveLazyScene()}>保存当前场景</button>
+        </div>
+      </section> : lazyScene ? <p role={lazyScene.status === "error" || lazyScene.status === "stale" ? "alert" : "status"}>{lazyScene.error ?? `场景状态：${lazyScene.status}`}</p> : null}
       <div className="project-home__actions">
-        <button disabled={busy || !routeOverview.overview.window.hasPrevious} onClick={() => void openRouteOverview(routeOverview.item, Math.max(0, routeOverview.overview.window.start - 64))}>上一窗口</button>
-        <button disabled={busy || !routeOverview.overview.window.hasNext} onClick={() => void openRouteOverview(routeOverview.item, routeOverview.overview.window.end)}>下一窗口</button>
+        <button disabled={busy || routeStale || !routeOverview.overview.window.hasPrevious} onClick={() => void openRouteOverview(routeOverview.item, Math.max(0, routeOverview.overview.window.start - 64))}>上一窗口</button>
+        <button disabled={busy || routeStale || !routeOverview.overview.window.hasNext} onClick={() => void openRouteOverview(routeOverview.item, routeOverview.overview.window.end)}>下一窗口</button>
         <button disabled={busy} onClick={() => void run(() => actions.openRecent(routeOverview.item))}>加载完整工程</button>
       </div>
     </section> : null}

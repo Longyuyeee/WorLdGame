@@ -7,7 +7,8 @@ import {
   sha256,
   type CanonicalProject,
   type ProjectStructureIndex,
-  type ProjectWorkspace
+  type ProjectWorkspace,
+  type SceneDocument
 } from "@world-studio/project-domain";
 import {
   buildRouteGraphFromCompilation,
@@ -34,6 +35,7 @@ export interface TrustedRouteOverview {
   readonly sourceVersion: string;
   readonly totalScenes: number;
   readonly window: RouteGraphWindowV1;
+  readonly scenePages: readonly SceneDocument[];
   readonly sourceRead: {
     readonly fileCount: number;
     readonly layoutFileCount: number;
@@ -128,6 +130,7 @@ export async function readTrustedRouteOverview(workspace: ProjectWorkspace, requ
     sourceVersion: snapshot.version,
     totalScenes: snapshot.structure.scenes.length,
     window: { ...window, nodes },
+    scenePages: windowScenes,
     sourceRead: {
       fileCount: Object.keys(sourceFiles).length,
       layoutFileCount: Object.keys(layoutFiles).length,

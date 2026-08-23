@@ -38,10 +38,23 @@ describe("E8b Studio Launcher managed workspace", () => {
     expect(screen.getByText(/仅载入工程结构和当前布局窗口/)).toBeVisible();
     expect(screen.getByRole("status")).toHaveTextContent(/其中 layout 1；未执行 full read/);
     expect(screen.getByRole("button", { name: "下一窗口" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "编辑场景 Start" }));
+    const lazyEditor = await screen.findByLabelText("单场景权威脚本编辑器") as HTMLTextAreaElement;
+    expect(lazyEditor.value).toContain('end "Ending"');
+    fireEvent.change(lazyEditor, { target: { value: lazyEditor.value.replace("Ending", "Closed loop ending") } });
+    fireEvent.keyDown(lazyEditor, { key: "s", ctrlKey: true });
+    await waitFor(() => expect(screen.getByRole("button", { name: "保存当前场景" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "保存当前场景" }));
+    expect(await screen.findByText(/单场景已原子保存；Route 派生视图已失效/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "编辑场景 Start" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "加载完整工程" }));
 
     await waitFor(() => expect(screen.getByRole("heading", { name: "E8b Managed Story" })).toBeVisible());
     expect(screen.getAllByText("浏览器事务工作区/E8b Managed Story")).toHaveLength(2);
     expect(screen.getByRole("button", { name: "进入编辑器" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "进入编辑器" }));
+    fireEvent.click(screen.getByRole("button", { name: "进入内容编辑器" }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Script" }));
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain("Closed loop ending");
   });
 });

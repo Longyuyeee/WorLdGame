@@ -1,5 +1,5 @@
-import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import type { Character, StoryProject, StoryStatement, StoryVariable } from "@world-studio/story-core";
+import { createProjectTemplate, type CanonicalProject, type JsonObject, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
+import type { Character, StoryProject, StoryScene, StoryStatement, StoryVariable } from "@world-studio/story-core";
 
 function character(value: JsonObject): Character {
   if (typeof value.id !== "string" || typeof value.displayName !== "string" || typeof value.color !== "string") throw new Error("Canonical character is not supported by the current editor projection");
@@ -36,6 +36,23 @@ function sourceLine(value: StoryStatement): string {
   return `wait ${value.duration} @id(${value.id})`;
 }
 
+export function canonicalSceneSource(scene: SceneDocument, script: ScriptDocument): string {
+  if (script.sceneId !== scene.id) throw new Error(`Script ${script.sceneId} does not belong to scene ${scene.id}`);
+  return `scene ${quote(scene.title)} @id(${scene.id})\n${script.statements.map((value) => sourceLine(statement(value))).join("\n")}\n`;
+}
+
+export function canonicalScriptWithStoryScene(base: ScriptDocument, scene: StoryScene): ScriptDocument {
+  if (base.sceneId !== scene.id) throw new Error(`Projected scene ${scene.id} does not belong to script ${base.sceneId}`);
+  const previous = new Map(base.statements.map((item) => [String(item.id), item]));
+  const statements = scene.statements.map((item) => {
+    const original = previous.get(item.id) ?? {};
+    if (item.kind !== "choice") return { ...original, ...item } as JsonObject;
+    const originalOptions = new Map((Array.isArray(original.options) ? original.options : []).filter((option): option is JsonObject => typeof option === "object" && option !== null && !Array.isArray(option) && typeof option.id === "string").map((option) => [String(option.id), option]));
+    return { ...original, ...item, options: item.options.map((option) => ({ ...originalOptions.get(option.id), ...option })) } as JsonObject;
+  });
+  return { ...base, schemaVersion: 1, sceneId: scene.id, statements };
+}
+
 export function projectCanonicalForEditor(project: CanonicalProject): { readonly project: StoryProject; readonly sources: Readonly<Record<string, string>> } {
   const scenes = project.scenes.map((scene) => {
     const statements = (project.scripts[scene.id]?.statements ?? []).map(statement);
@@ -51,7 +68,7 @@ export function projectCanonicalForEditor(project: CanonicalProject): { readonly
       ...(project.variables.variables.length === 0 ? {} : { variables: project.variables.variables.map(variable) }),
       scenes
     },
-    sources: Object.fromEntries(scenes.map((scene) => [scene.id, `scene ${quote(scene.title)} @id(${scene.id})\n${scene.statements.map(sourceLine).join("\n")}\n`]))
+    sources: Object.fromEntries(project.scenes.map((scene) => [scene.id, canonicalSceneSource(scene, project.scripts[scene.id]!)]))
   };
 }
 
