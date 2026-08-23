@@ -351,6 +351,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8a Engineering 状态（2026-08-23）：真实调用链审计发现 Launcher 先由 Lifecycle 全量读源，再由 Workspace Compiler 全量读源，cache hit 只减少编译而没有减少两次正文扫描。本轮先选择性读取 manifest 探测 schema；current schema 只执行一次保留逐源 SHA-256 与 inventory 稳定检查的正式 Compiler 读取，并从同一结果建立 Lifecycle Session；future schema 只读 manifest，不扫描 scene/script/layout 或调用 Compiler。Browser Handle 实测 current miss/hit 的 `[manifest, script, layout]` 均为 `[2,1,1]`，future 为 `[1,0]`；全量 `104 files / 661 tests`、Route P95 `59.05 ms` 和远端 run `32589909573` / job `97071987355` 均通过。current cache hit 仍全量读源，故冷启动局部正文读取与 N40 Product Acceptance 不关闭；下一协议必须落地可信原子 source snapshot identity 或内容寻址不可变目录。详见 [N40-E8a 审计](164-n40-e8a-single-project-read-audit.md)。
 
+> E8b Engineering 状态（2026-08-23）：新浏览器受管工程已迁移到事务型 IndexedDB workspace。source bodies、按 path 排序且带逐文件 SHA-256 的 trusted commit 与派生缓存失效在同一 strict transaction 发布；单调 generation、commit Hash、expected-version 冲突拒绝及正文损坏闭锁均有实际测试。Studio Launcher 的新建、示例、五分钟验收、ZIP 导入和 Recent 重开已接入，历史 OPFS 与外部目录保持兼容但不被错误升级为 trusted。定向 `5 files / 17 tests`、全量 `106 files / 665 tests`、Route P95 `59.28 ms` 及 GitHub Windows / Node 22 run `32643998215` / job `97205305615` 均通过；浏览器仍被管理员安全策略阻断。Compiler/Route 尚未消费 trusted commit，故 E8b 只关闭可信宿主前置，不关闭正文局部读取或 N40 Product Acceptance；E8c 才实现受信 cache hit 的选择性正文读取与完整回退。详见 [N40-E8b 审计](165-n40-e8b-atomic-source-commit-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
