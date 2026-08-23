@@ -367,6 +367,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8i Engineering 状态（2026-08-24）：Route-first Sequence 已开放首个失败关闭结构事务：在非终止锚点后新增一条 narration。事务用 E8h 索引验证 statement/text ID 全局唯一，以正式 Story Language P0 命令生成候选，由 portable Compiler 精确证明“仅新增该旁白”、Route 证明 facts/edges 不变，并在 apply/save 两次校验后执行 expected-version selected atomic write。真实 fake-IndexedDB 已完成插入→保存→完整 Compiler/Route/索引重建→局部重开；缺索引、重复 ID、终止锚点、额外变更和 revision race 均拒绝。全量 `113 files / 699 tests`，本地/Windows 10k 双预检 `4.37/10.25 ms < 500 ms`，GitHub run `32652926653` / job `97227196050` 4 分 59 秒绿色。默认空白工程仅有 end，首部/终止前插入及删除/移动仍待 E8j；不能登记为完整 N41。详见 [N40-E8i 审计](172-n40-e8i-lazy-narration-structural-transaction-audit.md)。
 
+> E8j Engineering 状态（2026-08-24）：Story Language 新增显式 before-anchor 命令且不改变旧 append 语义，Compiler narration 结构预检扩展为精确前插/后插/删除/移动联合；Route-first Sequence 可在所选语句前新增旁白，并对旁白执行上移、下移、删除。真实 fake-IndexedDB 已从默认仅含 `end` 的空白工程完成首条旁白→保存→完整 Compiler/Route/索引重建→重开→再插入→移动→删除闭环；apply/save 双预检、同 revision index、expected-version selected write 与失败关闭保持不变。红测为 `4 failed / 19 passed`，最终全量 `113 files / 704 tests`；本地/Windows 10k 前插/移动/删除为 `4.01/2.44/2.38 ms` 与 `9.12/7.24/7.35 ms`，均 `<500 ms`；GitHub run `32654253484` / job `97230449299` 4 分 54 秒绿色。当前只关闭 narration 最小结构闭环；其他 P0、跨实体引用、structure/topology 分页、production browser 与 N41 仍缺。详见 [N40-E8j 审计](173-n40-e8j-lazy-narration-structure-flow-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

@@ -1,10 +1,10 @@
 # 当前开发情况审计（N40 准入，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n40-e1-route-graph-core`；当前实现头为 N40-E8i `d1339d89e4755d7b66bfb14c31e1bc79d3247759`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
+> 当前分支：`codex/n40-e1-route-graph-core`；当前实现头为 N40-E8j `064d54efb9eaa1b5dc4f02e0b316fa405e799663`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
-> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8i Lazy Narration Structural Transaction](172-n40-e8i-lazy-narration-structural-transaction-audit.md)
+> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8j Lazy Narration Structure Flow](173-n40-e8j-lazy-narration-structure-flow-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1–E7 已形成 Compiler 图、10k/64 窗口、Layout/过滤、可校验缓存、`<500 ms` 局部编辑和 Runtime 路线高亮；E8a–E8h 建立 trusted Route-first、可保存 Script/Sequence 与全局索引；E8i 已完成首个 index-backed narration 插入事务及保存后完整重建。结构/topology 仍全量，首部/终止前插入、删除/移动、其他 P0/跨实体编辑、外部宿主和 production browser 待完成**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1–E7 已形成 Compiler 图、10k/64 窗口、Layout/过滤、可校验缓存、`<500 ms` 局部编辑和 Runtime 路线高亮；E8a–E8h 建立 trusted Route-first、可保存 Script/Sequence 与全局索引；E8i/E8j 已完成 narration 前插/后插/删除/移动事务及保存后完整重建，默认空白工程可建立线性内容。结构/topology 仍全量，其他 P0/跨实体编辑、外部宿主和 production browser 待完成**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
 
@@ -27,7 +27,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k/64 窗口、Layout/过滤、可校验缓存、`<500 ms` 局部编辑及 Formal Runtime 路线高亮；受管工程可从 Recent 无 full read 进入 Route，按 scene 补读 script/layout，在同源 Script/64 卡 Sequence 编辑安全内容；全局索引已对齐；首个 narration 插入经过 Compiler/Route 双证明、原子保存和完整重建 | 结构/topology 全量；首部/终止前插入、删除/移动、其他 P0 与跨实体引用、完整演出 Inspector、多 dirty page 仍缺；production browser、外部宿主、N41/N60 仍缺 |
+| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k/64 窗口、Layout/过滤、可校验缓存、`<500 ms` 局部编辑及 Formal Runtime 路线高亮；受管工程可从 Recent 无 full read 进入 Route，按 scene 补读 script/layout，在同源 Script/64 卡 Sequence 编辑安全内容；全局索引已对齐；narration 前插/后插/删除/移动均经过 Compiler/Route 双证明、原子保存和完整重建，默认空白工程可建立线性内容 | 结构/topology 全量；其他 P0 与跨实体引用、复制/批量/折叠、完整演出 Inspector、多 dirty page 仍缺；production browser、外部宿主、N41/N60 仍缺 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -92,7 +92,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. E6e/E7 已关闭局部编辑与 Runtime 高亮，E8a–E8h 已建立可信 Route-first、可保存同源内容页与全局索引；E8i 已关闭首个 narration 结构事务。下一步沿同一协议补首部/终止前插入及 narration 删除/移动，使默认空白工程也可建立内容结构，再逐步开放其他 P0 与跨实体编辑。整体 lazy loading 尚未完成；安全校验恢复时补做 E5/E6d–E8i production browser；
+2. E6e/E7 已关闭局部编辑与 Runtime 高亮，E8a–E8h 已建立可信 Route-first、可保存同源内容页与全局索引；E8i/E8j 已关闭 narration 最小结构闭环并让默认空白工程可建立线性内容。下一步先做 N40-E8k 准入复审，优先关闭 structure/topology 分页与 trusted 增量更新；其他 P0 与跨实体编辑不得在 N41 授权/验收前越界。整体 lazy loading 尚未完成；安全校验恢复时补做 E5/E6d–E8j production browser；
 3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
