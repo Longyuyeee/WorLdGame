@@ -146,16 +146,15 @@ describe("N40-E8e trusted Route-first overview", () => {
     workspace.derived.set(path, artifact.replace("Route Scene 0", "Forged Route"));
     await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/Route overview artifact/);
 
-    const malformed = JSON.parse(artifact) as { schemaVersion: 2; sourceVersion: string; graph: Record<string, unknown>; scenePages: unknown[]; envelopeHash: string };
+    const malformed = JSON.parse(artifact) as { schemaVersion: 2; sourceVersion: string; graph: Record<string, unknown>; scenePaths: string[]; envelopeHash: string };
     malformed.graph = { ...malformed.graph, nodes: [{}] };
-    malformed.envelopeHash = sha256(JSON.stringify({ schemaVersion: 2, sourceVersion: malformed.sourceVersion, graph: malformed.graph, scenePages: malformed.scenePages }));
+    malformed.envelopeHash = sha256(JSON.stringify({ schemaVersion: 2, sourceVersion: malformed.sourceVersion, graph: malformed.graph, scenePaths: malformed.scenePaths }));
     workspace.derived.set(path, JSON.stringify(malformed));
     await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/graph is invalid/);
 
-    const forged = JSON.parse(artifact) as { schemaVersion: 2; sourceVersion: string; graph: { nodes: Array<Record<string, unknown>> }; scenePages: Array<{ sourcePath: string; scene: Record<string, unknown> }>; envelopeHash: string };
+    const forged = JSON.parse(artifact) as { schemaVersion: 2; sourceVersion: string; graph: { nodes: Array<Record<string, unknown>> }; scenePaths: string[]; envelopeHash: string };
     forged.graph.nodes[0] = { ...forged.graph.nodes[0], title: "Forged Route" };
-    forged.scenePages[0] = { ...forged.scenePages[0]!, scene: { ...forged.scenePages[0]!.scene, title: "Forged Route" } };
-    forged.envelopeHash = sha256(JSON.stringify({ schemaVersion: 2, sourceVersion: forged.sourceVersion, graph: forged.graph, scenePages: forged.scenePages }));
+    forged.envelopeHash = sha256(JSON.stringify({ schemaVersion: 2, sourceVersion: forged.sourceVersion, graph: forged.graph, scenePaths: forged.scenePaths }));
     workspace.derived.set(path, JSON.stringify(forged));
     await expect(readTrustedRouteOverview(workspace)).rejects.toThrow(/scene metadata does not match/);
 

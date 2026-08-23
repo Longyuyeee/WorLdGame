@@ -44,7 +44,7 @@ export async function readTrustedProjectStructurePage(workspace:ProjectWorkspace
   if(workspace.readSelectedFiles===undefined||workspace.readTrustedSourceCommit===undefined)throw new Error("Trusted project structure page read is unsupported");
   if(requestedScenePaths.length>256||new Set(requestedScenePaths).size!==requestedScenePaths.length)throw new Error("Project structure page must request at most 256 unique scenes");
   const before=await workspace.readTrustedSourceCommit();
-  if(before===null||!isProjectTrustedSourceCommit(before))throw new Error("Trusted project source commit is unavailable or invalid");
+  if(before===null||before.schemaVersion!==1||!SHA256_PATTERN.test(before.version)||!Number.isSafeInteger(before.generation)||before.generation<1)throw new Error("Trusted project source commit is unavailable or invalid");
   const files:Record<string,string>={},trustedByPath=new Map(before.files.map((entry)=>[entry.path,entry])),encoder=new TextEncoder();
   const read=async(paths:readonly string[]):Promise<void>=>{for(let offset=0;offset<paths.length;offset+=256){const batch=paths.slice(offset,offset+256);if(batch.length===0)continue;const selected=await workspace.readSelectedFiles!(batch);if(selected.version!==before.version)throw new Error("Project source changed while reading project structure page");for(const path of batch){const body=selected.files[path],trusted=trustedByPath.get(path);if(body===undefined||trusted===undefined)throw new Error(`Missing project file: ${path}`);if(encoder.encode(body).byteLength!==trusted.size||sha256(body)!==trusted.sha256)throw new Error(`Project source ${path} does not match trusted source commit`);files[path]=body;}}};
   await read([PROJECT_MANIFEST_PATH]);
