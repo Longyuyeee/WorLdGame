@@ -12,7 +12,9 @@ import { parseStory } from "./parser";
 import {
   deleteP0Node,
   insertP0Node,
+  insertP0NodeBefore,
   moveP0Node,
+  moveP0NodeBefore,
   updateP0Node,
   type P0EditableNode,
   type P0PatchErrorCode
@@ -138,9 +140,11 @@ export interface MoveDialogueSourceCommand {
 }
 
 export interface InsertP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-insert"; readonly commandId: EntityId; readonly baseRevision: number; readonly afterId: EntityId | null; readonly node: P0EditableNode; }
+export interface InsertP0BeforeSourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-insert-before"; readonly commandId: EntityId; readonly baseRevision: number; readonly beforeId: EntityId; readonly node: P0EditableNode; }
 export interface UpdateP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-update"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; readonly patch: Readonly<Record<string, unknown>>; }
 export interface DeleteP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-delete"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; }
 export interface MoveP0SourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-move"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; readonly afterId: EntityId; }
+export interface MoveP0BeforeSourceCommand { readonly schemaVersion: 0; readonly kind: "script.p0-move-before"; readonly commandId: EntityId; readonly baseRevision: number; readonly statementId: EntityId; readonly beforeId: EntityId; }
 export type P0BatchOperation = { readonly kind:"insert";readonly afterId:EntityId|null;readonly node:P0EditableNode }|{ readonly kind:"update";readonly statementId:EntityId;readonly patch:Readonly<Record<string,unknown>> }|{ readonly kind:"delete";readonly statementId:EntityId }|{ readonly kind:"move";readonly statementId:EntityId;readonly afterId:EntityId };
 export interface BatchP0SourceCommand { readonly schemaVersion:0;readonly kind:"script.p0-batch";readonly commandId:EntityId;readonly baseRevision:number;readonly operations:readonly P0BatchOperation[]; }
 
@@ -158,9 +162,11 @@ export type ScriptSourceCommand =
   | DeleteDirectiveSourceCommand
   | MoveDirectiveSourceCommand
   | InsertP0SourceCommand
+  | InsertP0BeforeSourceCommand
   | UpdateP0SourceCommand
   | DeleteP0SourceCommand
   | MoveP0SourceCommand
+  | MoveP0BeforeSourceCommand
   | BatchP0SourceCommand;
 
 export type ScriptCommandErrorCode =
@@ -402,12 +408,16 @@ function commandFingerprint(command: ScriptSourceCommand): string {
       return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.afterId].join("\u0000");
     case "script.p0-insert":
       return [command.schemaVersion, command.kind, command.baseRevision, command.afterId ?? "<end>", JSON.stringify(command.node)].join("\u0000");
+    case "script.p0-insert-before":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.beforeId, JSON.stringify(command.node)].join("\u0000");
     case "script.p0-update":
       return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, JSON.stringify(command.patch)].join("\u0000");
     case "script.p0-delete":
       return [command.schemaVersion, command.kind, command.baseRevision, command.statementId].join("\u0000");
     case "script.p0-move":
       return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.afterId].join("\u0000");
+    case "script.p0-move-before":
+      return [command.schemaVersion, command.kind, command.baseRevision, command.statementId, command.beforeId].join("\u0000");
     case "script.p0-batch":
       return [command.schemaVersion,command.kind,command.baseRevision,JSON.stringify(command.operations)].join("\u0000");
   }
@@ -792,6 +802,13 @@ export function executeScriptSourceCommand(
       commandStatementIds = result.affectedIds;
       break;
     }
+    case "script.p0-insert-before": {
+      const result = insertP0NodeBefore(session.committedSource, command.beforeId, command.node);
+      if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedIds;
+      break;
+    }
     case "script.p0-update": {
       const result = updateP0Node(session.committedSource, command.statementId, command.patch);
       if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
@@ -808,6 +825,13 @@ export function executeScriptSourceCommand(
     }
     case "script.p0-move": {
       const result = moveP0Node(session.committedSource, command.statementId, command.afterId);
+      if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
+      nextSource = result.source;
+      commandStatementIds = result.affectedIds;
+      break;
+    }
+    case "script.p0-move-before": {
+      const result = moveP0NodeBefore(session.committedSource, command.statementId, command.beforeId);
       if (!result.ok) return reject(session, { category: "validation", code: result.code, message: result.message });
       nextSource = result.source;
       commandStatementIds = result.affectedIds;

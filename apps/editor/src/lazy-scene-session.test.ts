@@ -5,8 +5,10 @@ import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import {
   beginLazyScenePageLoad,
   createLazyScenePage,
+  deleteLazyNarration,
   insertLazyNarration,
   loadLazyScenePage,
+  moveLazyNarration,
   patchLazySequenceContent,
   projectLazyScene,
   reduceLazySceneHistory,
@@ -264,6 +266,8 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     const ready = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, index)));
     expect(insertLazyNarration(ready, { afterId: "statement_intro", statementId: "statement_end", textId: "text_new", text: "New" }, "duplicate")).toMatchObject({ status: "error", error: expect.stringMatching(/unique|exists/i) });
     expect(insertLazyNarration(ready, { afterId: "statement_end", statementId: "statement_new", textId: "text_new", text: "New" }, "terminal")).toMatchObject({ status: "error", error: expect.stringMatching(/terminal|终止/i) });
+    expect(deleteLazyNarration(ready, { statementId: "statement_end" }, "delete-end")).toMatchObject({ status: "error", error: expect.stringMatching(/narration/i) });
+    expect(moveLazyNarration(ready, { statementId: "statement_intro", afterId: "statement_end" }, "move-after-end")).toMatchObject({ status: "error", error: expect.stringMatching(/terminal/i) });
 
     const edited = insertLazyNarration(ready, { afterId: "statement_intro", statementId: "statement_new", textId: "text_new", text: "New" }, "race");
     await workspace.writeFiles(files, written.version);
@@ -271,5 +275,46 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     expect(stale.status).toBe("stale");
     expect(workspace.selectedWrites).toEqual([[scene.scriptPath]]);
     expect((await workspace.readFiles()).files[scene.scriptPath]).not.toContain("statement_new");
+  });
+
+  it("builds a blank template into a runnable sequence, then moves and deletes narration through atomic saves", async () => {
+    const workspace = new CountingWorkspace(new IDBFactory(), "e8j_closed_loop", "E8j Closed Loop");
+    const project = createProjectTemplate("E8j Closed Loop", "e8j-closed-loop-project");
+    const scene = project.scenes[0]!;
+    let written = await workspace.writeFiles(saveProject(project), null);
+    let index = buildTrustedLazyEditIndex(project, written.version);
+    let page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, index)));
+    const endIdValue = project.scripts[scene.id]!.statements[0]!.id;
+    if (typeof endIdValue !== "string") throw new Error("template end statement needs an ID");
+    const endId = endIdValue;
+
+    page = insertLazyNarration(page, { beforeId: endId, statementId: "statement_first", textId: "text_first", text: "First" }, "insert-first");
+    expect(projectLazyScene(page)?.statements.map((statement) => statement.id)).toEqual(["statement_first", endId]);
+    page = await saveLazyScenePage(workspace, page);
+    expect(page.status).toBe("ready");
+
+    let rebuilt = await openCompiledLifecycleProject(workspace);
+    expect(rebuilt.compiler?.compilation.ok).toBe(true);
+    if (rebuilt.session.hostVersion === null) throw new Error("compiled project needs a version");
+    index = await readTrustedLazyEditIndex(workspace, rebuilt.session.hostVersion);
+    page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, rebuilt.session.hostVersion, index)));
+    page = insertLazyNarration(page, { beforeId: endId, statementId: "statement_second", textId: "text_second", text: "Second" }, "insert-second");
+    page = await saveLazyScenePage(workspace, page);
+
+    rebuilt = await openCompiledLifecycleProject(workspace);
+    if (rebuilt.session.hostVersion === null) throw new Error("compiled project needs a version");
+    index = await readTrustedLazyEditIndex(workspace, rebuilt.session.hostVersion);
+    page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, rebuilt.session.hostVersion, index)));
+    page = moveLazyNarration(page, { statementId: "statement_second", beforeId: "statement_first" }, "move-second");
+    expect(projectLazyScene(page)?.statements.map((statement) => statement.id)).toEqual(["statement_second", "statement_first", endId]);
+    page = await saveLazyScenePage(workspace, page);
+
+    rebuilt = await openCompiledLifecycleProject(workspace);
+    if (rebuilt.session.hostVersion === null) throw new Error("compiled project needs a version");
+    index = await readTrustedLazyEditIndex(workspace, rebuilt.session.hostVersion);
+    page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, rebuilt.session.hostVersion, index)));
+    page = deleteLazyNarration(page, { statementId: "statement_first" }, "delete-first");
+    page = await saveLazyScenePage(workspace, page);
+    expect(projectLazyScene(page)?.statements.map((statement) => statement.id)).toEqual(["statement_second", endId]);
   });
 });

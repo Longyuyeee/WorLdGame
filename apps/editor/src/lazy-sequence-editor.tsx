@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { StoryStatement } from "@world-studio/story-core";
-import { insertLazyNarration, patchLazySequenceContent, projectLazyScene, selectLazySceneStatement, type LazyScenePage, type LazySequenceContentPatch } from "./lazy-scene-session";
+import { deleteLazyNarration, insertLazyNarration, moveLazyNarration, patchLazySequenceContent, projectLazyScene, selectLazySceneStatement, type LazyScenePage, type LazySequenceContentPatch } from "./lazy-scene-session";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "./stage-window";
 
 function kindLabel(statement: StoryStatement): string {
@@ -59,18 +59,29 @@ export function LazySequenceEditor({ page, busy, createCommandId, onPage }: { re
   if (selected === undefined) return <p role="alert">当前场景没有可显示的语句。</p>;
   const window = createStageWindow(scene.statements.length, windowStart);
   const visible = scene.statements.slice(window.start, window.end);
-  const canInsertNarration = page.editIndex !== undefined && page.status === "ready" && !["choice", "jump", "return", "end"].includes(selected.kind);
+  const canEditStructure = page.editIndex !== undefined && page.status === "ready";
+  const canMoveUp = canEditStructure && selected.kind === "narration" && selectedIndex > 0;
+  const canMoveDown = canEditStructure && selected.kind === "narration" && selectedIndex >= 0 && selectedIndex + 2 < scene.statements.length;
   const insertNarration = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const text = String(new FormData(event.currentTarget).get("new-narration") ?? "").trim();
     if (text === "") return;
     const commandId = createCommandId();
     onPage(insertLazyNarration(page, {
-      afterId: selected.id,
+      beforeId: selected.id,
       statementId: `statement_${commandId}`,
       textId: `text_${commandId}`,
       text
     }, commandId));
+  };
+  const deleteNarration = () => onPage(deleteLazyNarration(page, { statementId: selected.id }, createCommandId()));
+  const moveNarrationUp = () => {
+    const previous = scene.statements[selectedIndex - 1];
+    if (previous !== undefined) onPage(moveLazyNarration(page, { statementId: selected.id, beforeId: previous.id }, createCommandId()));
+  };
+  const moveNarrationDown = () => {
+    const followingAnchor = scene.statements[selectedIndex + 2];
+    if (followingAnchor !== undefined) onPage(moveLazyNarration(page, { statementId: selected.id, beforeId: followingAnchor.id }, createCommandId()));
   };
   return <div className="lazy-sequence" aria-label="局部 Sequence 编辑器">
     <p>当前显示 {window.start + 1}–{window.end} / {window.total}，最多挂载 {window.size} 个语句卡。</p>
@@ -88,10 +99,15 @@ export function LazySequenceEditor({ page, busy, createCommandId, onPage }: { re
       ><span className="statement-order">{String(window.start + visibleIndex + 1).padStart(2, "0")}</span><span className="statement-kind">{kindLabel(statement)}</span><span className="statement-copy">{contentLabel(statement)}</span></button>)}
     </div>
     <LazySequenceInspector statement={selected} busy={busy} onApply={(patch) => onPage(patchLazySequenceContent(page, patch, createCommandId()))} />
+    {selected.kind === "narration" ? <div className="project-home__actions" aria-label="旁白结构操作">
+      <button type="button" disabled={busy || !canMoveUp} onClick={moveNarrationUp}>上移旁白</button>
+      <button type="button" disabled={busy || !canMoveDown} onClick={moveNarrationDown}>下移旁白</button>
+      <button type="button" disabled={busy || !canEditStructure} onClick={deleteNarration}>删除旁白</button>
+    </div> : null}
     <form className="sequence-inspector" aria-label="新增旁白结构事务" onSubmit={insertNarration}>
-      <label>新增旁白<textarea name="new-narration" aria-label="新增旁白内容" rows={3} required disabled={busy || !canInsertNarration} /></label>
-      <button disabled={busy || !canInsertNarration}>在所选语句后新增旁白</button>
-      {!canInsertNarration ? <p>仅能在已对齐全局索引的干净页面中，选择具有后继路径的语句作为锚点。</p> : null}
+      <label>新增旁白<textarea name="new-narration" aria-label="新增旁白内容" rows={3} required disabled={busy || !canEditStructure} /></label>
+      <button disabled={busy || !canEditStructure}>在所选语句前新增旁白</button>
+      {!canEditStructure ? <p>仅能在已对齐全局索引的干净页面中执行一次结构事务。</p> : null}
     </form>
   </div>;
 }

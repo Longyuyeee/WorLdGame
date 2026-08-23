@@ -1,6 +1,6 @@
 import { performance } from "node:perf_hooks";
 import { createProjectService, createProjectTemplate, executeProjectCommand, type CanonicalProject, type JsonObject, type ScriptDocument } from "@world-studio/project-domain";
-import { compileProjectIncremental, preflightLazyNarrationInsertion } from "@world-studio/project-compiler";
+import { compileProjectIncremental, preflightLazyNarrationInsertion, preflightLazyNarrationStructuralEdit } from "@world-studio/project-compiler";
 import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
 import { describe, expect, it } from "vitest";
@@ -184,5 +184,41 @@ describe("N40 10k branching Route performance gate", () => {
     expect(compiler.ok).toBe(true);
     expect(route.ok).toBe(true);
     expect(elapsedMs).toBeLessThan(lazyStructuralPreflightBudgetMs);
+  });
+
+  it("proves 10k-statement before-insert, move, and delete transactions within 500ms each", () => {
+    const statements = [
+      ...Array.from({ length: 9_999 }, (_, index) => ({ id: `statement_scale_${index}`, kind: "narration", textId: `text_scale_${index}`, text: `Line ${index}` })),
+      { id: "statement_end", kind: "end", endingName: "Done" }
+    ] as readonly JsonObject[];
+    const baseline: ScriptDocument = { schemaVersion: 1, sceneId: "scene_scale", statements };
+    const insertedStatement = { id: "statement_inserted", kind: "narration", textId: "text_inserted", text: "Inserted" };
+    const inserted: ScriptDocument = { ...baseline, statements: [...statements.slice(0, -1), insertedStatement, statements.at(-1)!] };
+    const moved: ScriptDocument = { ...inserted, statements: [insertedStatement, ...inserted.statements.filter((statement) => statement.id !== "statement_inserted")] };
+    const deleted: ScriptDocument = baseline;
+    const cases = [
+      [baseline, inserted, { kind: "insert-before", beforeId: "statement_end", statementId: "statement_inserted", textId: "text_inserted" }],
+      [inserted, moved, { kind: "move-before", statementId: "statement_inserted", beforeId: "statement_scale_0" }],
+      [inserted, deleted, { kind: "delete", statementId: "statement_inserted" }]
+    ] as const;
+    const measurements = cases.map(([before, after, request]) => {
+      const started = performance.now();
+      const compiler = preflightLazyNarrationStructuralEdit(before, after, request);
+      const route = compiler.ok ? preflightRouteNeutralSceneEdit(before, after, compiler.changedStatementIds) : compiler;
+      return { elapsedMs: performance.now() - started, compiler, route };
+    });
+
+    console.log(JSON.stringify({
+      status: measurements.every((measurement) => measurement.compiler.ok && measurement.route.ok && measurement.elapsedMs < lazyStructuralPreflightBudgetMs) ? "PASS" : "FAIL",
+      baseline: { statementCount: 10_000, operations: ["insert-before", "move-before", "delete"] },
+      measurementsMs: measurements.map((measurement) => Number(measurement.elapsedMs.toFixed(2))),
+      budgetMs: { eachStructuralPreflight: lazyStructuralPreflightBudgetMs }
+    }, null, 2));
+
+    for (const measurement of measurements) {
+      expect(measurement.compiler.ok).toBe(true);
+      expect(measurement.route.ok).toBe(true);
+      expect(measurement.elapsedMs).toBeLessThan(lazyStructuralPreflightBudgetMs);
+    }
   });
 });

@@ -24,7 +24,7 @@ describe("N40-E8g lazy Sequence window", () => {
     expect(within(sequence).getAllByRole("button", { name: /^选择旁白：/ })).toHaveLength(22);
   });
 
-  it("exposes the audited narration insertion only with an aligned index and non-terminal anchor", () => {
+  it("exposes audited narration insertion before the selected anchor with an aligned index", () => {
     const project = createProjectTemplate("E8i UI", "e8i-ui-project");
     const scene = project.scenes[0]!;
     const script = { schemaVersion: 1 as const, sceneId: scene.id, statements: [
@@ -39,8 +39,22 @@ describe("N40-E8g lazy Sequence window", () => {
     render(<LazySequenceEditor page={page} busy={false} createCommandId={() => "lazy_insert_1"} onPage={onPage} />);
 
     fireEvent.change(screen.getByLabelText("新增旁白内容"), { target: { value: "A new beat" } });
-    fireEvent.click(screen.getByRole("button", { name: "在所选语句后新增旁白" }));
+    fireEvent.click(screen.getByRole("button", { name: "在所选语句前新增旁白" }));
 
     expect(onPage).toHaveBeenCalledWith(expect.objectContaining({ status: "dirty", selectedStatementId: "statement_lazy_insert_1" }));
+  });
+
+  it("allows a blank template to insert its first narration before end", () => {
+    const project = createProjectTemplate("E8j Blank UI", "e8j-blank-ui-project");
+    const scene = project.scenes[0]!;
+    const script = project.scripts[scene.id]!;
+    const source = `scene "${scene.title}" @id(${scene.id})\nend "${String(script.statements[0]!.endingName)}" @id(${String(script.statements[0]!.id)})\n`;
+    const version = "b".repeat(64);
+    const page: LazyScenePage = { schemaVersion: 1, scene, script, sourceVersion: version, status: "ready", sourceSession: createScriptSourceSession(source), savedSource: source, selectedStatementId: String(script.statements[0]!.id), editIndex: buildTrustedLazyEditIndex(project, version) };
+    const onPage = vi.fn();
+    render(<LazySequenceEditor page={page} busy={false} createCommandId={() => "first"} onPage={onPage} />);
+    fireEvent.change(screen.getByLabelText("新增旁白内容"), { target: { value: "First beat" } });
+    fireEvent.click(screen.getByRole("button", { name: "在所选语句前新增旁白" }));
+    expect(onPage).toHaveBeenCalledWith(expect.objectContaining({ status: "dirty", selectedStatementId: "statement_first" }));
   });
 });

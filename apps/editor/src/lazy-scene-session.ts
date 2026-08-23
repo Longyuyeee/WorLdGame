@@ -18,7 +18,7 @@ import {
 import { canonicalSceneSource, canonicalScriptWithStoryScene } from "./canonical-project-adapter";
 import type { StoryScene, StoryStatement } from "@world-studio/story-core";
 import type { TrustedLazyEditIndex } from "./trusted-lazy-edit-index";
-import { preflightLazyNarrationInsertion, type LazyNarrationInsertionRequest } from "@world-studio/project-compiler";
+import { preflightLazyNarrationStructuralEdit, type LazyNarrationStructuralRequest } from "@world-studio/project-compiler";
 import { preflightRouteNeutralSceneEdit } from "@world-studio/route-graph";
 
 export type LazyScenePageStatus = "unloaded" | "loading" | "ready" | "dirty" | "error" | "stale";
@@ -38,12 +38,18 @@ export interface LazyScenePage {
   readonly error?: string | undefined;
 }
 
-export interface LazyNarrationInsertRequest extends LazyNarrationInsertionRequest { readonly text: string; }
+export type LazyNarrationInsertRequest =
+  | { readonly afterId: string; readonly statementId: string; readonly textId: string; readonly text: string }
+  | { readonly beforeId: string; readonly statementId: string; readonly textId: string; readonly text: string };
+export interface LazyNarrationDeleteRequest { readonly statementId: string; }
+export type LazyNarrationMoveRequest =
+  | { readonly statementId: string; readonly afterId: string }
+  | { readonly statementId: string; readonly beforeId: string };
 interface LazyNarrationStructuralTransaction {
-  readonly kind: "insert-narration";
+  readonly kind: "narration-structure";
   readonly commandId: string;
   readonly baselineSource: string;
-  readonly request: LazyNarrationInsertionRequest;
+  readonly request: LazyNarrationStructuralRequest;
 }
 
 export type LazySequenceContentPatch =
@@ -155,7 +161,14 @@ export function insertLazyNarration(page: LazyScenePage, request: LazyNarrationI
   if (page.editIndex === undefined || page.editIndex.sourceVersion !== page.sourceVersion) return structuralError(page, "A current trusted Lazy Edit Index is required for structural editing");
   const declared = new Set(page.editIndex.entities.map((entity) => entity.id));
   if (declared.has(request.statementId) || declared.has(request.textId)) return structuralError(page, "Structural statement and text IDs must be globally unique and must not already exist");
-  const execution = executeScriptSourceCommand(page.sourceSession, {
+  const execution = executeScriptSourceCommand(page.sourceSession, "beforeId" in request ? {
+    schemaVersion: 0,
+    kind: "script.p0-insert-before",
+    commandId,
+    baseRevision: page.sourceSession.revision,
+    beforeId: request.beforeId,
+    node: { kind: "narration", statementId: request.statementId, textId: request.textId, textRaw: JSON.stringify(request.text), trailingMetadata: "" }
+  } : {
     schemaVersion: 0,
     kind: "script.p0-insert",
     commandId,
@@ -164,21 +177,61 @@ export function insertLazyNarration(page: LazyScenePage, request: LazyNarrationI
     node: { kind: "narration", statementId: request.statementId, textId: request.textId, textRaw: JSON.stringify(request.text), trailingMetadata: "" }
   });
   if (execution.result.status === "rejected") return structuralError(page, execution.result.error.message);
-  const baselineProjection = projectStoryScene(createScriptSourceSession(page.savedSource).committedDocument);
-  const candidateProjection = projectStoryScene(execution.session.committedDocument);
+  const declaration: LazyNarrationStructuralRequest = "beforeId" in request
+    ? { kind: "insert-before", beforeId: request.beforeId, statementId: request.statementId, textId: request.textId }
+    : { kind: "insert-after", afterId: request.afterId, statementId: request.statementId, textId: request.textId };
+  return acceptLazyNarrationStructuralEdit(page, execution.session, declaration, commandId, request.statementId);
+}
+
+export function deleteLazyNarration(page: LazyScenePage, request: LazyNarrationDeleteRequest, commandId: string): LazyScenePage {
+  const contextError = lazyStructuralContextError(page);
+  if (contextError !== null) return structuralError(page, contextError);
+  const scene = projectLazyScene(page);
+  if (scene?.statements.find((statement) => statement.id === request.statementId)?.kind !== "narration") return structuralError(page, "Only narration statements may be deleted lazily");
+  const execution = executeScriptSourceCommand(page.sourceSession!, { schemaVersion: 0, kind: "script.p0-delete", commandId, baseRevision: page.sourceSession!.revision, statementId: request.statementId });
+  if (execution.result.status === "rejected") return structuralError(page, execution.result.error.message);
+  const projection = projectStoryScene(execution.session.committedDocument);
+  const selectedStatementId = projection.ok ? projection.scene.statements[0]?.id : undefined;
+  return acceptLazyNarrationStructuralEdit(page, execution.session, { kind: "delete", statementId: request.statementId }, commandId, selectedStatementId);
+}
+
+export function moveLazyNarration(page: LazyScenePage, request: LazyNarrationMoveRequest, commandId: string): LazyScenePage {
+  const contextError = lazyStructuralContextError(page);
+  if (contextError !== null) return structuralError(page, contextError);
+  const scene = projectLazyScene(page);
+  if (scene?.statements.find((statement) => statement.id === request.statementId)?.kind !== "narration") return structuralError(page, "Only narration statements may be moved lazily");
+  const execution = executeScriptSourceCommand(page.sourceSession!, "beforeId" in request
+    ? { schemaVersion: 0, kind: "script.p0-move-before", commandId, baseRevision: page.sourceSession!.revision, statementId: request.statementId, beforeId: request.beforeId }
+    : { schemaVersion: 0, kind: "script.p0-move", commandId, baseRevision: page.sourceSession!.revision, statementId: request.statementId, afterId: request.afterId });
+  if (execution.result.status === "rejected") return structuralError(page, execution.result.error.message);
+  const declaration: LazyNarrationStructuralRequest = "beforeId" in request
+    ? { kind: "move-before", statementId: request.statementId, beforeId: request.beforeId }
+    : { kind: "move-after", statementId: request.statementId, afterId: request.afterId };
+  return acceptLazyNarrationStructuralEdit(page, execution.session, declaration, commandId, request.statementId);
+}
+
+function lazyStructuralContextError(page: LazyScenePage): string | null {
+  if (page.sourceSession === undefined || page.savedSource === undefined || page.script === undefined) return "Scene source is not loaded";
+  if (page.status !== "ready" || page.sourceSession.committedSource !== page.savedSource || page.structuralTransaction !== undefined) return "一次只能提交一个干净基线上的结构事务";
+  if (page.editIndex === undefined || page.editIndex.sourceVersion !== page.sourceVersion) return "A current trusted Lazy Edit Index is required for structural editing";
+  return null;
+}
+
+function acceptLazyNarrationStructuralEdit(page: LazyScenePage, session: ScriptSourceSession, declaration: LazyNarrationStructuralRequest, commandId: string, selectedStatementId: string | undefined): LazyScenePage {
+  const baselineProjection = projectStoryScene(createScriptSourceSession(page.savedSource!).committedDocument);
+  const candidateProjection = projectStoryScene(session.committedDocument);
   if (!baselineProjection.ok || !candidateProjection.ok) return structuralError(page, "Compiler preflight could not project the structural candidate");
-  const baseline = canonicalScriptWithStoryScene(page.script, baselineProjection.scene);
-  const candidate = canonicalScriptWithStoryScene(page.script, candidateProjection.scene);
-  const declaration = { afterId: request.afterId, statementId: request.statementId, textId: request.textId };
-  const compiler = preflightLazyNarrationInsertion(baseline, candidate, declaration);
+  const baseline = canonicalScriptWithStoryScene(page.script!, baselineProjection.scene);
+  const candidate = canonicalScriptWithStoryScene(page.script!, candidateProjection.scene);
+  const compiler = preflightLazyNarrationStructuralEdit(baseline, candidate, declaration);
   if (!compiler.ok) return structuralError(page, `${compiler.code}: ${compiler.message}`);
   const route = preflightRouteNeutralSceneEdit(baseline, candidate, compiler.changedStatementIds);
   if (!route.ok) return structuralError(page, `${route.code}: ${route.message}`);
   return withSourceSession({
     ...page,
-    selectedStatementId: request.statementId,
-    structuralTransaction: { kind: "insert-narration", commandId, baselineSource: page.savedSource, request: declaration }
-  }, execution.session);
+    selectedStatementId,
+    structuralTransaction: { kind: "narration-structure", commandId, baselineSource: page.savedSource!, request: declaration }
+  }, session);
 }
 
 export function reduceLazySceneHistory(page: LazyScenePage, direction: "undo" | "redo"): LazyScenePage {
@@ -220,10 +273,11 @@ export async function saveLazyScenePage(workspace: ProjectWorkspace, page: LazyS
   if (!sameLazyEditableStructure(baseline.scene, projection.scene)) {
     const transaction = page.structuralTransaction;
     if (transaction === undefined || transaction.baselineSource !== page.savedSource || page.editIndex === undefined || page.editIndex.sourceVersion !== page.sourceVersion) return { ...page, status: "error", error: "结构、稳定 ID 与跨实体引用修改缺少同 revision 的索引与 Compiler/Route 预检凭据" };
-    if (page.editIndex.entities.some((entity) => entity.id === transaction.request.statementId || entity.id === transaction.request.textId)) return { ...page, status: "error", error: "结构事务 ID 已存在，不能原子提交" };
+    const request = transaction.request;
+    if ((request.kind === "insert-after" || request.kind === "insert-before") && page.editIndex.entities.some((entity) => entity.id === request.statementId || entity.id === request.textId)) return { ...page, status: "error", error: "结构事务 ID 已存在，不能原子提交" };
     const baselineScript = canonicalScriptWithStoryScene(page.script, baseline.scene);
     const candidateScript = canonicalScriptWithStoryScene(page.script, projection.scene);
-    const compiler = preflightLazyNarrationInsertion(baselineScript, candidateScript, transaction.request);
+    const compiler = preflightLazyNarrationStructuralEdit(baselineScript, candidateScript, request);
     if (!compiler.ok) return { ...page, status: "error", error: `${compiler.code}: ${compiler.message}` };
     const route = preflightRouteNeutralSceneEdit(baselineScript, candidateScript, compiler.changedStatementIds);
     if (!route.ok) return { ...page, status: "error", error: `${route.code}: ${route.message}` };
