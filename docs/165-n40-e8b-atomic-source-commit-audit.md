@@ -9,7 +9,7 @@
 
 E8a 证明 path/size/modified stamp 不能抵抗同尺寸、同时间标记的正文替换，因此不能安全地用既有目录 inventory 跳过正文 Hash。继续在 Browser File System、OPFS 或 Node 原始目录上推断强版本会牺牲 Compiler 单一事实来源，属于需求偏移。
 
-E8b 选择先为浏览器受管工程建立真实的原子宿主，而不是伪造目录可信度。外部目录和历史 OPFS 工程保持兼容但不升级为 trusted；新建、示例、五分钟验收和 ZIP 导入改用事务型 IndexedDB workspace。这样后续 E8c 可以只在明确提供 trusted commit 的宿主上启用局部正文读取，对其他宿主继续完整校验并 fail safe。
+E8b 选择先为浏览器受管工程建立真实的原子宿主，而不是伪造目录可信度。外部目录和历史 OPFS 工程保持兼容但不升级为 trusted；新建、示例、五分钟验收和 ZIP 导入改用事务型 IndexedDB workspace。这样后续 E8c 可以只在明确提供 trusted commit 的宿主上启用可信缓存路径，对其他宿主继续完整校验并 fail safe。
 
 ## 2. 冻结协议
 
@@ -66,10 +66,12 @@ Vite 已在 `127.0.0.1:5174` 实际启动。按 Browser 技能连接应用内浏
 
 E8b 关闭的是“受管工程没有可信原子 source snapshot identity”的前置缺口。它没有关闭 REQ-ROUTE 的局部加载：当前 `openCompiledLifecycleProject()` 和 `compileProjectWorkspace()` 尚未读取 trusted commit 来证明 cache 对应同一原子 source revision，current cache hit 仍会读取全部 Canonical JSON。
 
-下一步 E8c 必须：
+后续调用链审计确认，现有 Editor 同步要求完整 `CanonicalProject` 与 `baseFiles`，因此原先“E8c 只读启动 manifest/选中场景即可进入完整编辑器”的表述不成立。E8c 已纠偏为可信 cache v2 warm reopen：验证 commit 与完整派生快照后不访问 source-store 正文，但 snapshot 本身仍是完整正文。详见 [E8c 审计](166-n40-e8c-trusted-warm-reopen-audit.md)。
+
+E8c 实际协议为：
 
 1. 只对 `readTrustedSourceCommit()` 返回有效 commit 的 workspace 启用 trusted fast path；
-2. 证明 Compiler cache envelope 的 source hashes、路径集合和 source version 与 commit 完全一致后，只读取启动所需 manifest/选中场景正文；
+2. 证明 Compiler cache envelope 的 source hashes、路径集合、source version、byte size 与 commit 完全一致后，从 cache v2 exact snapshot 恢复完整工程且不读取 source-store 正文；
 3. cache miss、commit/cache 不匹配、损坏或不支持 trusted commit 的宿主继续完整读取、逐源 Hash 和全量编译；
-4. 用读取计数证明未选正文没有被读取，并继续实测 cold miss、warm hit、修改、损坏、future schema 与外部目录兼容；
-5. production browser 未恢复前保持 N40 Product Acceptance fail closed。
+4. 用读取计数证明 warm hit 没有调用 full source read，并继续实测 cold miss、warm hit、损坏、future schema 与外部目录兼容；
+5. 真正场景级 lazy loading 留给 Lazy Project Session 架构节点；production browser 未恢复前保持 N40 Product Acceptance fail closed。
