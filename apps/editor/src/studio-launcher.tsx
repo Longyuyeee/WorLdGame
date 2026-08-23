@@ -9,6 +9,7 @@ import { ProjectEntityManager } from "./project-entity-manager";
 import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
@@ -27,26 +28,27 @@ export function StudioLauncher() {
   const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content"}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
-  const opfsWorkspace = async () => createOpfsProjectWorkspace(browserApi(), `project-${entropy()}`);
+  const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
   const actions: ProjectHomeActions = {
-    create: async (title) => {const workspace=await opfsWorkspace();const session=await createProject(workspace,title,entropy());return finish(workspace,await compileLifecycleProject(workspace,session));},
+    create: async (title) => {const workspace=managedWorkspace();const session=await createProject(workspace,title,entropy());return finish(workspace,await compileLifecycleProject(workspace,session));},
     openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openCompiledLifecycleProject(workspace)); },
     openRecent: async (item) => {
-      let workspace: BrowserDirectoryProjectWorkspace;
-      if (item.reference.hostKind === "web-opfs" && item.reference.referenceId.startsWith("opfs_")) workspace = await createOpfsProjectWorkspace(browserApi(), item.reference.referenceId.slice(5));
+      let workspace: ProjectWorkspace;
+      if (item.reference.hostKind === "web-indexeddb" && item.reference.referenceId.startsWith("idb_")) workspace = new IndexedDbProjectWorkspace(globalThis.indexedDB, item.reference.referenceId.slice(4), item.title);
+      else if (item.reference.hostKind === "web-opfs" && item.reference.referenceId.startsWith("opfs_")) workspace = await createOpfsProjectWorkspace(browserApi(), item.reference.referenceId.slice(5));
       else { const handle = await loadDirectoryHandle(item.reference.referenceId); if (handle === null) throw new Error("目录授权已失效，请重新选择工程目录"); workspace = new BrowserDirectoryProjectWorkspace(handle, item.reference.referenceId); }
       return finish(workspace,await openCompiledLifecycleProject(workspace));
     },
     openExample: async () => {
-      const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
+      const workspace = managedWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openCompiledLifecycleProject(workspace));
     },
     openN23Benchmark: async () => {
-      const workspace = await opfsWorkspace(); const project = projectCanonicalFromStory(loadN23BenchmarkProject(), entropy());
+      const workspace = managedWorkspace(); const project = projectCanonicalFromStory(loadN23BenchmarkProject(), entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace, await openCompiledLifecycleProject(workspace));
     },
     importArchive: async (file) => {
-      const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = await opfsWorkspace();
+      const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();
       await workspace.writeFiles(saveProject(imported.project), null);
       if (!imported.legacyTextOnly) {
         const now = Date.now(); const ownerId = `portable-import-${entropy()}`;
