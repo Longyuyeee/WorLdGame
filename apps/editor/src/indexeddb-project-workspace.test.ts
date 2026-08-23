@@ -1,12 +1,21 @@
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
 import { createProjectTemplate, saveProject, sha256 } from "@world-studio/project-domain";
+import { PROJECT_COMPILER_CACHE_PATH } from "@world-studio/project-compiler";
 import {
   INDEXEDDB_PROJECT_COMMIT_STORE,
   INDEXEDDB_PROJECT_SOURCE_STORE,
   INDEXEDDB_PROJECT_WORKSPACE_DATABASE,
   IndexedDbProjectWorkspace
 } from "./indexeddb-project-workspace";
+import { openCompiledLifecycleProject } from "./editor-project-compilation";
+
+class CountingIndexedDbProjectWorkspace extends IndexedDbProjectWorkspace {
+  fullReads = 0;
+  selectedReads: string[][] = [];
+  override async readFiles() { this.fullReads += 1; return super.readFiles(); }
+  override async readSelectedFiles(paths: readonly string[]) { this.selectedReads.push([...paths]); return super.readSelectedFiles(paths); }
+}
 
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -81,5 +90,28 @@ describe("E8b IndexedDB atomic project workspace", () => {
 
     await expect(workspace.readSelectedFiles?.(["world.project.json"])).rejects.toThrow(/does not match trusted source commit/);
     await expect(workspace.readFiles()).rejects.toThrow(/does not match trusted source commit/);
+  });
+
+  it("warm-reopens a real managed project without reading source-store bodies and rebuilds a corrupt cache", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new CountingIndexedDbProjectWorkspace(indexedDb, "e8c_warm", "E8c Warm");
+    const files = saveProject(createProjectTemplate("E8c Warm", "e8c-warm-project"));
+    await workspace.writeFiles(files, null);
+
+    const first = await openCompiledLifecycleProject(workspace);
+    const reopened = await openCompiledLifecycleProject(workspace);
+
+    expect(first.compiler?.cacheStatus).toBe("miss");
+    expect(reopened.compiler?.cacheStatus).toBe("hit");
+    expect(reopened.session.baseFiles).toEqual(files);
+    expect(workspace.selectedReads).toEqual([["world.project.json"], ["world.project.json"]]);
+    expect(workspace.fullReads).toBe(1);
+
+    await workspace.writeDerivedFile?.(PROJECT_COMPILER_CACHE_PATH, "corrupt");
+    const rebuilt = await openCompiledLifecycleProject(workspace);
+    const afterRebuild = await openCompiledLifecycleProject(workspace);
+    expect(rebuilt.compiler?.cacheStatus).toBe("corrupt");
+    expect(afterRebuild.compiler?.cacheStatus).toBe("hit");
+    expect(workspace.fullReads).toBe(2);
   });
 });
