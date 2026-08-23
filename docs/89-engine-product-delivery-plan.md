@@ -371,6 +371,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8k Engineering 状态（2026-08-24）：Route-first 现在只读取 manifest、全部 chapter topology、当前最多 64 个 scene 与对应 layout；100 场景首窗由 `[1,1,100,64]` 收敛为 `[1,1,64,64]`（166→130 源文件），第二窗 `[1,1,36,36]`，零匹配 `[1,1]`，Script/全局正文/full read 均为 0。审计纠正了从文件名猜 scene ID 的隐含假设，Route graph 与 artifact v2 使用 Canonical scene 顺序和权威 scenePaths，自定义路径及重签篡改均有失败关闭测试。首次 Windows run `32655628393` 暴露 `644.88 ms > 500 ms` 后未放宽预算；紧凑 artifact 和移除 trusted adapter 已完成校验的重复 30k commit Hash 后，本地全门为 `157.27 ms`，Windows run `32656159511` / job `97235137319` 为 `301.56 ms`，5 分 01 秒绿色。最终全量 `113 files / 710 tests`。这关闭 Route structure/topology scene/layout 分页，不等于完整 Lazy Project Session、增量 topology 写、N40 Product Acceptance 或 N41。详见 [N40-E8k 审计](174-n40-e8k-trusted-route-topology-page-audit.md)。
 
+> E8l–E8n 功能优先计划纠偏（2026-08-24）：代码复审确认 Route P0 仍缺指定结局路线计算/高亮、诊断点击定位、节点双击进入 Sequence、目标导航/补全，以及“路线审阅→定位→修改→保存→重建→Preview 走通”的单一用户闭环。此前把 topology/derived artifact 增量更新或外部 trusted host 作为 E8l 优先项会继续偏向底层，现降为功能阻断时才允许实施的后置工程项。E8l 冻结为指定结局路线审阅，E8m 为诊断定位与直接导航，E8n 为 Route 驱动的创作修复闭环；之后执行 N40 出口复审。不得借 E8g–E8j 的局部 Sequence 能力越权开启 N41。详见 [N40 功能优先复审](175-n40-function-first-development-reaudit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

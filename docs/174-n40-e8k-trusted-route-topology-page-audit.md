@@ -71,4 +71,4 @@ E8k 关闭的是 Route structure/topology 的 scene/layout 正文分页。以下
 - Dialogue、Choice/options、Wait、Direction 等其他结构事务和跨实体引用；
 - 外部目录 trusted selected write、production browser、真人验收与正式 Player/三端发布。
 
-下一步必须先做 N40-E8l 准入复审，选择仍属于 Route Map Engineering 的最小缺口（优先 topology/derived artifact 增量更新或外部 trusted host 对齐），继续执行红测、正式契约、原子保存、完整重建、本地全门、实现推送/Windows CI、文档推送/最终 CI。N40 Product Acceptance、N41 及以后继续 fail closed。
+后续[功能优先复审](175-n40-function-first-development-reaudit.md)已纠正本节原先偏向 topology/derived artifact 增量更新或外部 trusted host 的顺序。下一步冻结为 N40-E8l 指定结局路线审阅：先补入口→结局路线计算、候选路线和跨窗口高亮，再做诊断定位/双击进入 Sequence 与 Route 驱动修复闭环。topology 增量写、缓存局部更新和外部 trusted host 降为后置工程项；只有实际功能被其阻断时才做最小修复。N40 Product Acceptance、N41 及以后继续 fail closed。
