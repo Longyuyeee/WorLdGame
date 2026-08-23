@@ -365,6 +365,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8h Engineering 状态（2026-08-24）：完整 Compiler 成功后发布独立 `.world-cache/lazy-edit-index-v1.json`，覆盖全局 project/chapter/scene、character/variable/asset、statement/option/text 及扩展声明和反向引用；artifact 绑定 trusted source version、Envelope Hash、严格 owner/reference 关系。Route-first scene 读取索引不访问 source bodies，并与当前真实 script IDs 精确交叉校验；保存后旧索引随派生失效并从 page 移除。定向 `5 files / 20 tests`、全量 `111 files / 692 tests`、本地 10k 索引 `140.49 ms`、Windows `308.36 ms`（预算 500 ms）与纠偏后 GitHub run `32651592837` / job `97223944981` 均通过。首次 run `32651352033` 因在并行 jsdom 重复执行性能断言得到 `517.66 ms` 失败，已收敛到专用 Node 性能门，预算未放宽。结构命令仍等待 index + Compiler/Route 语义事务，不能称为完整 Sequence。详见 [N40-E8h 审计](171-n40-e8h-trusted-lazy-edit-index-audit.md)。
 
+> E8i Engineering 状态（2026-08-24）：Route-first Sequence 已开放首个失败关闭结构事务：在非终止锚点后新增一条 narration。事务用 E8h 索引验证 statement/text ID 全局唯一，以正式 Story Language P0 命令生成候选，由 portable Compiler 精确证明“仅新增该旁白”、Route 证明 facts/edges 不变，并在 apply/save 两次校验后执行 expected-version selected atomic write。真实 fake-IndexedDB 已完成插入→保存→完整 Compiler/Route/索引重建→局部重开；缺索引、重复 ID、终止锚点、额外变更和 revision race 均拒绝。全量 `113 files / 699 tests`，本地/Windows 10k 双预检 `4.37/10.25 ms < 500 ms`，GitHub run `32652926653` / job `97227196050` 4 分 59 秒绿色。默认空白工程仅有 end，首部/终止前插入及删除/移动仍待 E8j；不能登记为完整 N41。详见 [N40-E8i 审计](172-n40-e8i-lazy-narration-structural-transaction-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
