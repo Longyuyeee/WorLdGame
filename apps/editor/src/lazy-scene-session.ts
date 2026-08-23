@@ -18,6 +18,8 @@ import {
 import { canonicalSceneSource, canonicalScriptWithStoryScene } from "./canonical-project-adapter";
 import type { StoryScene, StoryStatement } from "@world-studio/story-core";
 import type { TrustedLazyEditIndex } from "./trusted-lazy-edit-index";
+import { preflightLazyNarrationInsertion, type LazyNarrationInsertionRequest } from "@world-studio/project-compiler";
+import { preflightRouteNeutralSceneEdit } from "@world-studio/route-graph";
 
 export type LazyScenePageStatus = "unloaded" | "loading" | "ready" | "dirty" | "error" | "stale";
 
@@ -32,7 +34,16 @@ export interface LazyScenePage {
   readonly savedSource?: string;
   readonly selectedStatementId?: string | undefined;
   readonly editIndex?: TrustedLazyEditIndex | undefined;
+  readonly structuralTransaction?: LazyNarrationStructuralTransaction | undefined;
   readonly error?: string | undefined;
+}
+
+export interface LazyNarrationInsertRequest extends LazyNarrationInsertionRequest { readonly text: string; }
+interface LazyNarrationStructuralTransaction {
+  readonly kind: "insert-narration";
+  readonly commandId: string;
+  readonly baselineSource: string;
+  readonly request: LazyNarrationInsertionRequest;
 }
 
 export type LazySequenceContentPatch =
@@ -108,7 +119,7 @@ export function replaceLazySceneSource(page: LazyScenePage, source: string, comm
   if (page.sourceSession === undefined || page.savedSource === undefined) return { ...page, status: "error", error: "Scene source is not loaded" };
   const execution = executeScriptSourceCommand(page.sourceSession, { schemaVersion: 0, kind: "script.replace-source", commandId, baseRevision: page.sourceSession.revision, source });
   if (execution.result.status === "rejected") return { ...page, status: "error", error: execution.result.error.message };
-  return withSourceSession(page, execution.session);
+  return withSourceSession({ ...page, structuralTransaction: undefined }, execution.session);
 }
 
 export function patchLazySequenceContent(page: LazyScenePage, patch: LazySequenceContentPatch, commandId: string): LazyScenePage {
@@ -131,7 +142,43 @@ export function patchLazySequenceContent(page: LazyScenePage, patch: LazySequenc
               : { nameRaw: JSON.stringify(patch.endingName) } };
   const execution = executeScriptSourceCommand(page.sourceSession, command);
   if (execution.result.status === "rejected") return { ...page, status: "error", error: execution.result.error.message };
-  return withSourceSession({ ...page, selectedStatementId: patch.statementId }, execution.session);
+  return withSourceSession({ ...page, selectedStatementId: patch.statementId, structuralTransaction: undefined }, execution.session);
+}
+
+function structuralError(page: LazyScenePage, message: string): LazyScenePage {
+  return { ...page, status: "error", error: message };
+}
+
+export function insertLazyNarration(page: LazyScenePage, request: LazyNarrationInsertRequest, commandId: string): LazyScenePage {
+  if (page.sourceSession === undefined || page.savedSource === undefined || page.script === undefined) return structuralError(page, "Scene source is not loaded");
+  if (page.status !== "ready" || page.sourceSession.committedSource !== page.savedSource || page.structuralTransaction !== undefined) return structuralError(page, "一次只能提交一个干净基线上的结构事务");
+  if (page.editIndex === undefined || page.editIndex.sourceVersion !== page.sourceVersion) return structuralError(page, "A current trusted Lazy Edit Index is required for structural editing");
+  const declared = new Set(page.editIndex.entities.map((entity) => entity.id));
+  if (declared.has(request.statementId) || declared.has(request.textId)) return structuralError(page, "Structural statement and text IDs must be globally unique and must not already exist");
+  const execution = executeScriptSourceCommand(page.sourceSession, {
+    schemaVersion: 0,
+    kind: "script.p0-insert",
+    commandId,
+    baseRevision: page.sourceSession.revision,
+    afterId: request.afterId,
+    node: { kind: "narration", statementId: request.statementId, textId: request.textId, textRaw: JSON.stringify(request.text), trailingMetadata: "" }
+  });
+  if (execution.result.status === "rejected") return structuralError(page, execution.result.error.message);
+  const baselineProjection = projectStoryScene(createScriptSourceSession(page.savedSource).committedDocument);
+  const candidateProjection = projectStoryScene(execution.session.committedDocument);
+  if (!baselineProjection.ok || !candidateProjection.ok) return structuralError(page, "Compiler preflight could not project the structural candidate");
+  const baseline = canonicalScriptWithStoryScene(page.script, baselineProjection.scene);
+  const candidate = canonicalScriptWithStoryScene(page.script, candidateProjection.scene);
+  const declaration = { afterId: request.afterId, statementId: request.statementId, textId: request.textId };
+  const compiler = preflightLazyNarrationInsertion(baseline, candidate, declaration);
+  if (!compiler.ok) return structuralError(page, `${compiler.code}: ${compiler.message}`);
+  const route = preflightRouteNeutralSceneEdit(baseline, candidate, compiler.changedStatementIds);
+  if (!route.ok) return structuralError(page, `${route.code}: ${route.message}`);
+  return withSourceSession({
+    ...page,
+    selectedStatementId: request.statementId,
+    structuralTransaction: { kind: "insert-narration", commandId, baselineSource: page.savedSource, request: declaration }
+  }, execution.session);
 }
 
 export function reduceLazySceneHistory(page: LazyScenePage, direction: "undo" | "redo"): LazyScenePage {
@@ -169,12 +216,23 @@ export async function saveLazyScenePage(workspace: ProjectWorkspace, page: LazyS
   if (!projection.ok || projection.scene.id !== page.scene.id) return { ...page, status: "error", error: projection.ok ? "脚本场景 ID 与当前场景不一致" : projection.diagnostics.map((item) => item.message).join("；") };
   if (projection.scene.title !== page.scene.title) return { ...page, status: "error", error: "场景标题属于结构文件；请加载完整工程后修改标题" };
   const baseline = projectStoryScene(createScriptSourceSession(page.savedSource).committedDocument);
-  if (!baseline.ok || !sameLazyEditableStructure(baseline.scene, projection.scene)) return { ...page, status: "error", error: "局部页只允许修改既有语句内容；结构、稳定 ID 与跨实体引用请在完整工程中编辑" };
+  if (!baseline.ok) return { ...page, status: "error", error: "无法读取结构事务基线" };
+  if (!sameLazyEditableStructure(baseline.scene, projection.scene)) {
+    const transaction = page.structuralTransaction;
+    if (transaction === undefined || transaction.baselineSource !== page.savedSource || page.editIndex === undefined || page.editIndex.sourceVersion !== page.sourceVersion) return { ...page, status: "error", error: "结构、稳定 ID 与跨实体引用修改缺少同 revision 的索引与 Compiler/Route 预检凭据" };
+    if (page.editIndex.entities.some((entity) => entity.id === transaction.request.statementId || entity.id === transaction.request.textId)) return { ...page, status: "error", error: "结构事务 ID 已存在，不能原子提交" };
+    const baselineScript = canonicalScriptWithStoryScene(page.script, baseline.scene);
+    const candidateScript = canonicalScriptWithStoryScene(page.script, projection.scene);
+    const compiler = preflightLazyNarrationInsertion(baselineScript, candidateScript, transaction.request);
+    if (!compiler.ok) return { ...page, status: "error", error: `${compiler.code}: ${compiler.message}` };
+    const route = preflightRouteNeutralSceneEdit(baselineScript, candidateScript, compiler.changedStatementIds);
+    if (!route.ok) return { ...page, status: "error", error: `${route.code}: ${route.message}` };
+  }
   const script = canonicalScriptWithStoryScene(page.script, projection.scene);
   try {
     const written = await workspace.writeSelectedFiles({ [page.scene.scriptPath]: saveProjectScript(script) }, page.sourceVersion);
     const source = page.sourceSession.committedSource;
-    return { ...page, status: "ready", sourceVersion: written.version, script, sourceSession: createScriptSourceSession(source), savedSource: source, editIndex: undefined, error: undefined };
+    return { ...page, status: "ready", sourceVersion: written.version, script, sourceSession: createScriptSourceSession(source), savedSource: source, editIndex: undefined, structuralTransaction: undefined, error: undefined };
   } catch (reason) {
     const message = reason instanceof Error ? reason.message : String(reason);
     return { ...page, status: /revision|version|changed/i.test(message) ? "stale" : "error", error: message };

@@ -120,7 +120,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
       <ul>{routeOverview.overview.window.nodes.map((node) => <li key={node.id}><strong>{node.title}</strong><span>{node.kind} · {node.facts.length} facts · ({node.layout.x}, {node.layout.y})</span>{actions.openLazyScene !== undefined ? <button disabled={busy || routeStale} aria-label={`编辑场景 ${node.title}`} onClick={() => void openLazyScene(node.id)}>编辑场景</button> : null}</li>)}</ul>
       {lazyScene?.sourceSession ? <section aria-label="单场景 Script/Sequence 编辑器">
         <h3>{lazyScene.scene.title} · {lazySceneView === "script" ? "Script" : "Sequence"}</h3>
-        <p>状态：{lazyScene.status} · 仅加载当前场景 script + layout；可修改既有语句内容，结构、ID 与跨实体引用请进入完整工程。</p>
+        <p>状态：{lazyScene.status} · 仅加载当前场景 script + layout；Sequence 可执行单次新增旁白事务，其他结构、ID 与跨实体引用仍需进入完整工程。</p>
         {lazyScene.editIndex ? <p>全局编辑索引：{lazyScene.editIndex.entities.length} IDs / {lazyScene.editIndex.references.length} refs · revision 已对齐</p> : null}
         <div className="project-home__actions" role="group" aria-label="局部场景视图">
           <button aria-pressed={lazySceneView === "script"} onClick={() => setLazySceneView("script")}>Script 视图</button>

@@ -5,6 +5,7 @@ import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import {
   beginLazyScenePageLoad,
   createLazyScenePage,
+  insertLazyNarration,
   loadLazyScenePage,
   patchLazySequenceContent,
   projectLazyScene,
@@ -14,6 +15,9 @@ import {
   saveLazyScenePage
 } from "./lazy-scene-session";
 import { buildTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
+import { readTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
+import { openCompiledLifecycleProject } from "./editor-project-compilation";
+import { readTrustedRouteOverview } from "./trusted-route-overview";
 
 class CountingWorkspace extends IndexedDbProjectWorkspace {
   fullReads = 0;
@@ -203,5 +207,69 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     expect(page.status).toBe("error");
     expect(page.error).toMatch(/incomplete/i);
     expect(workspace.fullReads).toBe(0);
+  });
+
+  it("commits one index-backed Compiler/Route-preflighted narration insertion atomically", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new CountingWorkspace(indexedDb, "e8i_insert", "E8i Insert");
+    const template = createProjectTemplate("E8i Insert", "e8i-insert-project");
+    const scene = template.scenes[0]!;
+    const project = { ...template, scripts: { ...template.scripts, [scene.id]: { schemaVersion: 1 as const, sceneId: scene.id, statements: [
+      { id: "statement_intro", kind: "narration", textId: "text_intro", text: "Intro" },
+      { id: "statement_end", kind: "end", endingName: "Done" }
+    ] } } };
+    const written = await workspace.writeFiles(saveProject(project), null);
+    const index = buildTrustedLazyEditIndex(project, written.version);
+    const ready = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, index)));
+
+    const edited = insertLazyNarration(ready, {
+      afterId: "statement_intro", statementId: "statement_inserted", textId: "text_inserted", text: "Inserted"
+    }, "insert-narration");
+    expect(edited).toMatchObject({ status: "dirty", selectedStatementId: "statement_inserted" });
+    expect(projectLazyScene(edited)?.statements.map((statement) => statement.id)).toEqual(["statement_intro", "statement_inserted", "statement_end"]);
+
+    const saved = await saveLazyScenePage(workspace, edited);
+    expect(saved.status).toBe("ready");
+    expect(workspace.selectedWrites).toEqual([[scene.scriptPath]]);
+    expect((await workspace.readFiles()).files[scene.scriptPath]).toContain("statement_inserted");
+
+    const rebuilt = await openCompiledLifecycleProject(workspace);
+    expect(rebuilt.compiler?.compilation.ok).toBe(true);
+    if (rebuilt.session.hostVersion === null) throw new Error("compiled lazy project must have a host version");
+    const overview = await readTrustedRouteOverview(workspace);
+    const rebuiltIndex = await readTrustedLazyEditIndex(workspace, rebuilt.session.hostVersion);
+    const reopened = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, overview.sourceVersion, rebuiltIndex)));
+    expect(projectLazyScene(reopened)?.statements.map((statement) => statement.id)).toEqual(["statement_intro", "statement_inserted", "statement_end"]);
+    expect(rebuiltIndex.entities).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "statement_inserted", kind: "statement" }),
+      expect.objectContaining({ id: "text_inserted", kind: "text" })
+    ]));
+  });
+
+  it("fails closed without a current index, on duplicate IDs, terminal anchors, and version races", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new CountingWorkspace(indexedDb, "e8i_fail_closed", "E8i Fail Closed");
+    const template = createProjectTemplate("E8i Fail Closed", "e8i-fail-closed-project");
+    const scene = template.scenes[0]!;
+    const project = { ...template, scripts: { ...template.scripts, [scene.id]: { schemaVersion: 1 as const, sceneId: scene.id, statements: [
+      { id: "statement_intro", kind: "narration", textId: "text_intro", text: "Intro" },
+      { id: "statement_end", kind: "end", endingName: "Done" }
+    ] } } };
+    const files = saveProject(project);
+    const written = await workspace.writeFiles(files, null);
+    const index = buildTrustedLazyEditIndex(project, written.version);
+    const withoutIndex = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version)));
+    expect(insertLazyNarration(withoutIndex, { afterId: "statement_intro", statementId: "statement_new", textId: "text_new", text: "New" }, "missing-index")).toMatchObject({ status: "error", error: expect.stringMatching(/index/i) });
+
+    const ready = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, index)));
+    expect(insertLazyNarration(ready, { afterId: "statement_intro", statementId: "statement_end", textId: "text_new", text: "New" }, "duplicate")).toMatchObject({ status: "error", error: expect.stringMatching(/unique|exists/i) });
+    expect(insertLazyNarration(ready, { afterId: "statement_end", statementId: "statement_new", textId: "text_new", text: "New" }, "terminal")).toMatchObject({ status: "error", error: expect.stringMatching(/terminal|终止/i) });
+
+    const edited = insertLazyNarration(ready, { afterId: "statement_intro", statementId: "statement_new", textId: "text_new", text: "New" }, "race");
+    await workspace.writeFiles(files, written.version);
+    const stale = await saveLazyScenePage(workspace, edited);
+    expect(stale.status).toBe("stale");
+    expect(workspace.selectedWrites).toEqual([[scene.scriptPath]]);
+    expect((await workspace.readFiles()).files[scene.scriptPath]).not.toContain("statement_new");
   });
 });

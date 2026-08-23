@@ -1,7 +1,7 @@
 import { performance } from "node:perf_hooks";
-import { createProjectService, createProjectTemplate, executeProjectCommand, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { compileProjectIncremental } from "@world-studio/project-compiler";
-import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
+import { createProjectService, createProjectTemplate, executeProjectCommand, type CanonicalProject, type JsonObject, type ScriptDocument } from "@world-studio/project-domain";
+import { compileProjectIncremental, preflightLazyNarrationInsertion } from "@world-studio/project-compiler";
+import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
 import { describe, expect, it } from "vitest";
 
@@ -12,6 +12,7 @@ const queryBudgetMs = 250;
 const editSyncBudgetMs = 500;
 const editSamples = 20;
 const lazyEditIndexBudgetMs = 500;
+const lazyStructuralPreflightBudgetMs = 500;
 
 function percentile95(values: readonly number[]): number {
   return [...values].sort((left, right) => left - right)[Math.ceil(values.length * 0.95) - 1]!;
@@ -157,5 +158,31 @@ describe("N40 10k branching Route performance gate", () => {
     expect(index.entities.filter((entity) => entity.kind === "statement")).toHaveLength(10_000);
     expect(index.entities.filter((entity) => entity.kind === "text")).toHaveLength(10_000);
     expect(elapsedMs).toBeLessThan(lazyEditIndexBudgetMs);
+  });
+
+  it("proves a 10k-statement lazy narration insertion Compiler/Route-safe within 500ms", () => {
+    const statements = [
+      ...Array.from({ length: 9_999 }, (_, index) => ({ id: `statement_scale_${index}`, kind: "narration", textId: `text_scale_${index}`, text: `Line ${index}` })),
+      { id: "statement_end", kind: "end", endingName: "Done" }
+    ] as readonly JsonObject[];
+    const baseline: ScriptDocument = { schemaVersion: 1, sceneId: "scene_scale", statements };
+    const inserted = { id: "statement_inserted", kind: "narration", textId: "text_inserted", text: "Inserted" };
+    const candidate: ScriptDocument = { ...baseline, statements: [...statements.slice(0, -1), inserted, statements.at(-1)!] };
+    const started = performance.now();
+    const compiler = preflightLazyNarrationInsertion(baseline, candidate, { afterId: "statement_scale_9998", statementId: "statement_inserted", textId: "text_inserted" });
+    const route = compiler.ok ? preflightRouteNeutralSceneEdit(baseline, candidate, compiler.changedStatementIds) : compiler;
+    const elapsedMs = performance.now() - started;
+
+    console.log(JSON.stringify({
+      status: compiler.ok && route.ok && elapsedMs < lazyStructuralPreflightBudgetMs ? "PASS" : "FAIL",
+      baseline: { statementCount: 10_000, operation: "insert one narration with Compiler and Route proofs" },
+      measurementsMs: { lazyStructuralPreflight: Number(elapsedMs.toFixed(2)) },
+      budgetMs: { lazyStructuralPreflight: lazyStructuralPreflightBudgetMs },
+      result: { compiler, route }
+    }, null, 2));
+
+    expect(compiler.ok).toBe(true);
+    expect(route.ok).toBe(true);
+    expect(elapsedMs).toBeLessThan(lazyStructuralPreflightBudgetMs);
   });
 });
