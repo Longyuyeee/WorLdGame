@@ -30,8 +30,15 @@ describe("E8b Studio Launcher managed workspace", () => {
     first.unmount();
 
     render(<StudioLauncher />);
-    const recent = await screen.findByRole("button", { name: /E8b Managed Story/ });
-    fireEvent.click(recent);
+    const quickRoute = await screen.findByRole("button", { name: "快速查看 E8b Managed Story Route" });
+    fireEvent.click(quickRoute);
+
+    expect(await screen.findByRole("region", { name: "Route 快速概览" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "E8b Managed Story · Route" })).toBeVisible();
+    expect(screen.getByText(/仅载入工程结构和当前布局窗口/)).toBeVisible();
+    expect(screen.getByRole("status")).toHaveTextContent(/其中 layout 1；未执行 full read/);
+    expect(screen.getByRole("button", { name: "下一窗口" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "加载完整工程" }));
 
     await waitFor(() => expect(screen.getByRole("heading", { name: "E8b Managed Story" })).toBeVisible());
     expect(screen.getAllByText("浏览器事务工作区/E8b Managed Story")).toHaveLength(2);

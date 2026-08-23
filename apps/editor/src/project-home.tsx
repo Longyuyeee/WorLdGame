@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { ProjectLifecycleSession, RecentProject } from "@world-studio/project-domain";
+import type { TrustedRouteOverview } from "./trusted-route-overview";
 
 export interface ProjectArchiveDownload {
   readonly href: string;
@@ -15,6 +16,7 @@ export interface ProjectHomeActions {
   readonly openN23Benchmark: () => Promise<ProjectLifecycleSession>;
   readonly importArchive: (file: File) => Promise<ProjectLifecycleSession>;
   readonly exportArchive: (session: ProjectLifecycleSession) => Promise<ProjectArchiveDownload>;
+  readonly openRouteOverview?: (item: RecentProject, offset?: number) => Promise<TrustedRouteOverview>;
 }
 
 export function ProjectHome({ recent, actions, onEnter }: {
@@ -27,6 +29,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [download, setDownload] = useState<ProjectArchiveDownload | null>(null);
+  const [routeOverview, setRouteOverview] = useState<{ readonly item: RecentProject; readonly overview: TrustedRouteOverview } | null>(null);
   useEffect(() => () => download?.dispose(), [download]);
   const run = async (action: () => Promise<ProjectLifecycleSession>) => {
     setBusy(true);
@@ -40,6 +43,15 @@ export function ProjectHome({ recent, actions, onEnter }: {
     setBusy(true);
     setError(null);
     try { setDownload(await action()); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
+    finally { setBusy(false); }
+  };
+  const openRouteOverview = async (item: RecentProject, offset?: number) => {
+    if (actions.openRouteOverview === undefined) return;
+    setBusy(true);
+    setError(null);
+    setDownload(null);
+    try { setRouteOverview({ item, overview: await actions.openRouteOverview(item, offset) }); }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
   };
@@ -71,8 +83,20 @@ export function ProjectHome({ recent, actions, onEnter }: {
       <h2 id="recent-title">最近工程</h2>
       {recent.length === 0
         ? <p>还没有最近工程。这里仅保存位置引用和权限键，不复制工程内容。</p>
-        : <ul className="project-home__recent">{recent.map((item) => <li key={item.reference.referenceId}><button disabled={busy} onClick={() => void run(() => actions.openRecent(item))}><strong>{item.title}</strong><span>{item.reference.displayLocation}</span></button></li>)}</ul>}
+        : <ul className="project-home__recent">{recent.map((item) => <li key={item.reference.referenceId}><button disabled={busy} onClick={() => void run(() => actions.openRecent(item))}><strong>{item.title}</strong><span>{item.reference.displayLocation}</span></button>{actions.openRouteOverview !== undefined && item.reference.hostKind === "web-indexeddb" ? <button disabled={busy} aria-label={`快速查看 ${item.title} Route`} onClick={() => void openRouteOverview(item)}>Route 首屏</button> : null}</li>)}</ul>}
     </section>
+    {routeOverview ? <section className="project-home__card project-home__route-overview" aria-label="Route 快速概览">
+      <p className="eyebrow">TRUSTED ROUTE-FIRST</p>
+      <h2>{routeOverview.overview.title} · Route</h2>
+      <p>仅载入工程结构和当前布局窗口；{routeOverview.overview.window.start + 1}–{routeOverview.overview.window.end} / {routeOverview.overview.totalScenes} 个场景。</p>
+      <p role="status">源读取 {routeOverview.overview.sourceRead.fileCount} 文件 / {routeOverview.overview.sourceRead.utf8Bytes} bytes，其中 layout {routeOverview.overview.sourceRead.layoutFileCount}；未执行 full read。</p>
+      <ul>{routeOverview.overview.window.nodes.map((node) => <li key={node.id}><strong>{node.title}</strong><span>{node.kind} · {node.facts.length} facts · ({node.layout.x}, {node.layout.y})</span></li>)}</ul>
+      <div className="project-home__actions">
+        <button disabled={busy || !routeOverview.overview.window.hasPrevious} onClick={() => void openRouteOverview(routeOverview.item, Math.max(0, routeOverview.overview.window.start - 64))}>上一窗口</button>
+        <button disabled={busy || !routeOverview.overview.window.hasNext} onClick={() => void openRouteOverview(routeOverview.item, routeOverview.overview.window.end)}>下一窗口</button>
+        <button disabled={busy} onClick={() => void run(() => actions.openRecent(routeOverview.item))}>加载完整工程</button>
+      </div>
+    </section> : null}
     {selected ? <section className="project-home__card project-home__status" aria-label="工程状态">
       <h2>{selected.title}</h2>
       <dl>

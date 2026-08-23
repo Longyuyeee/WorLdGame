@@ -1,5 +1,5 @@
 import { sha256 } from "./sha256";
-import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument } from "./types";
+import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutDocument, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument } from "./types";
 
 export const PROJECT_MANIFEST_PATH = "world.project.json";
 const ID = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/;
@@ -73,10 +73,14 @@ export function loadProjectStructure(files: ProjectFiles): ProjectStructureIndex
   return {schemaVersion:1,manifest,chapters,scenes};
 }
 
+export function loadProjectLayouts(files: ProjectFiles, scenes: readonly SceneDocument[]): Readonly<Record<string, LayoutDocument>> {
+  return Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.layoutPath);version(value,scene.layoutPath);if(id(value.sceneId,`${scene.layoutPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.layoutPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,nodes:layoutNodes(value.nodes,`${scene.layoutPath}.nodes`),...(value.groups===undefined?{}:{groups:layoutGroups(value.groups,`${scene.layoutPath}.groups`)}),...(value.viewport===undefined?{}:{viewport:layoutViewport(value.viewport,`${scene.layoutPath}.viewport`)})};const unknown=preserved(value,["schemaVersion","sceneId","nodes","groups","viewport"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
+}
+
 export function loadProject(files: ProjectFiles): CanonicalProject {
   const {manifest,chapters,scenes}=loadProjectStructure(files);
   const scripts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.scriptPath);version(value,scene.scriptPath);if(id(value.sceneId,`${scene.scriptPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.scriptPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,statements:objects(value.statements,`${scene.scriptPath}.statements`)};const unknown=preserved(value,["schemaVersion","sceneId","statements"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
-  const layouts=Object.fromEntries(scenes.map((scene)=>{const value=parse(files,scene.layoutPath);version(value,scene.layoutPath);if(id(value.sceneId,`${scene.layoutPath}.sceneId`)!==scene.id) fail("BROKEN_REFERENCE",`${scene.layoutPath} belongs to another scene`);const base={schemaVersion:1 as const,sceneId:scene.id,nodes:layoutNodes(value.nodes,`${scene.layoutPath}.nodes`),...(value.groups===undefined?{}:{groups:layoutGroups(value.groups,`${scene.layoutPath}.groups`)}),...(value.viewport===undefined?{}:{viewport:layoutViewport(value.viewport,`${scene.layoutPath}.viewport`)})};const unknown=preserved(value,["schemaVersion","sceneId","nodes","groups","viewport"]);return [scene.id,unknown?{...base,preservedFields:unknown}:base];}));
+  const layouts=loadProjectLayouts(files,scenes);
   const project: CanonicalProject={mode:"editable",manifest,chapters,scenes,characters:arrayDocument(files,manifest.charactersPath,"characters") as CanonicalProject["characters"],variables:arrayDocument(files,manifest.variablesPath,"variables") as CanonicalProject["variables"],assets:arrayDocument(files,manifest.assetsPath,"assets") as CanonicalProject["assets"],localization:arrayDocument(files,manifest.localizationPath,"locales") as CanonicalProject["localization"],settings:valueDocument(files,manifest.settingsPath),ui:arrayDocument(files,manifest.uiPath,"screens") as CanonicalProject["ui"],plugins:arrayDocument(files,manifest.pluginsPath,"plugins") as CanonicalProject["plugins"],testRoutes:arrayDocument(files,manifest.testRoutesPath,"routes") as CanonicalProject["testRoutes"],scripts,layouts};
   validateEntityIds(project);validateLayouts(project); return project;
 }

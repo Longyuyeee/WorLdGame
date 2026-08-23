@@ -13,6 +13,7 @@ import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
+import { readTrustedRouteOverview } from "./trusted-route-overview";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -29,16 +30,18 @@ export function StudioLauncher() {
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
+  const recentWorkspace = async (item: RecentProject): Promise<ProjectWorkspace> => {
+    if (item.reference.hostKind === "web-indexeddb" && item.reference.referenceId.startsWith("idb_")) return new IndexedDbProjectWorkspace(globalThis.indexedDB, item.reference.referenceId.slice(4), item.title);
+    if (item.reference.hostKind === "web-opfs" && item.reference.referenceId.startsWith("opfs_")) return createOpfsProjectWorkspace(browserApi(), item.reference.referenceId.slice(5));
+    const handle = await loadDirectoryHandle(item.reference.referenceId);
+    if (handle === null) throw new Error("目录授权已失效，请重新选择工程目录");
+    return new BrowserDirectoryProjectWorkspace(handle, item.reference.referenceId);
+  };
   const actions: ProjectHomeActions = {
     create: async (title) => {const workspace=managedWorkspace();const session=await createProject(workspace,title,entropy());return finish(workspace,await compileLifecycleProject(workspace,session));},
     openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openCompiledLifecycleProject(workspace)); },
-    openRecent: async (item) => {
-      let workspace: ProjectWorkspace;
-      if (item.reference.hostKind === "web-indexeddb" && item.reference.referenceId.startsWith("idb_")) workspace = new IndexedDbProjectWorkspace(globalThis.indexedDB, item.reference.referenceId.slice(4), item.title);
-      else if (item.reference.hostKind === "web-opfs" && item.reference.referenceId.startsWith("opfs_")) workspace = await createOpfsProjectWorkspace(browserApi(), item.reference.referenceId.slice(5));
-      else { const handle = await loadDirectoryHandle(item.reference.referenceId); if (handle === null) throw new Error("目录授权已失效，请重新选择工程目录"); workspace = new BrowserDirectoryProjectWorkspace(handle, item.reference.referenceId); }
-      return finish(workspace,await openCompiledLifecycleProject(workspace));
-    },
+    openRecent: async (item) => {const workspace=await recentWorkspace(item);return finish(workspace,await openCompiledLifecycleProject(workspace));},
+    openRouteOverview: async (item,offset) => readTrustedRouteOverview(await recentWorkspace(item), offset===undefined?{}:{offset}),
     openExample: async () => {
       const workspace = managedWorkspace(); const project = projectCanonicalFromStory(campusStoryProject, entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace,await openCompiledLifecycleProject(workspace));
