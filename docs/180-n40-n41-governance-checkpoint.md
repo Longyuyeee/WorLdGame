@@ -4,6 +4,7 @@
 > 分支：`codex/n41-e1-sequence-core`
 > 直接基线：N40 最终绿色头 `60b5aae5b55caaff61e2361e7a0b7a528e031e71`
 > 授权：`RA-N21-006`，最大节点 N41，2026-09-24 11:35:40（UTC+8）到期
+> Draft PR：#60，base `codex/n40-e1-route-graph-core`
 > 判定：只准入 N41 Sequence Engineering；N41 Product Acceptance、N42+、M1 Stable 与发布继续阻断
 
 ## 1. 触发与前置事实
@@ -54,4 +55,6 @@ N40 Route Map Engineering 已按当前代码重新取得 Goal `1/1`、Implementa
 
 ## 5. 关闭条件
 
-本地策略正反例、风险、需求、N21/N23、工作区、delivery baseline、PR traceability 与文档格式检查均已通过。精确推送和当前 head 的 Windows / Node 22 完整门仍是最后关闭条件；在其绿色前不启动 N41-E1 产品代码。
+本地策略正反例、风险、需求、N21/N23、工作区、delivery baseline、PR traceability 与文档格式检查均已通过。治理头 `ca064660c1b688a093bce3809a4b4b71b6d81268` 已精确推送；Draft PR #60 的 Windows / Node 22 `product-baseline` run `32687261787` / job `97314498235` 用时 3 分 51 秒，locked install 与完整 `npm run check` 全绿：普通并行 `114 files / 723 tests`，Route P95 `122.72 ms <500 ms`，其余重型 VM、Runtime corpus、构建、架构及性能门均通过。
+
+因此本治理检查点关闭，允许从下一提交开始执行 N41-E1 产品代码。该结论只解除 N41 Engineering 前置，不解除任何 Product Acceptance、N42+、M1 Stable 或发布门。
