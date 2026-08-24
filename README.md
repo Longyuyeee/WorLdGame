@@ -60,6 +60,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N40→N41 治理检查点](docs/180-n40-n41-governance-checkpoint.md) | RA-N21-006 有界授权、N41 正例/N42 越界反例、真人门与 N41-E1 冻结起点 |
 | [N41-E1 正式 Sequence 模式审计](docs/181-n41-e1-formal-sequence-mode-audit.md) | Writer→Sequence 正式边界、标签 stable-ID/Script/Compiler/Route/IndexedDB 重开及 production browser 实测 |
 | [N41 集中整合基线审计](docs/182-n41-consolidated-integration-baseline-audit.md) | N00–N41 真实祖先链、main-target Candidate、治理正反例与交付链纠偏 |
+| [N41-E2 Sequence/Script 规模门审计](docs/183-n41-e2-sequence-script-scale-audit.md) | 1,000 次全 P0 交替互改、choice child、stable ID、语义 Hash 与失败关闭 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

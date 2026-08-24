@@ -25,6 +25,7 @@
     "audit:n23-acceptance-launcher": "node tools/audit-n23-acceptance-launcher.mjs",
     "audit:n30-compiler": "vitest run packages/project-compiler/src/compiler.test.ts --maxWorkers=1",
     "audit:n31-runtime": "vitest run packages/runtime/src/runtime.test.ts --maxWorkers=1 && node tools/run-runtime-corpus-shards.mjs",
+    "audit:n41-sequence-scale": "vitest run apps/editor/src/n41-sequence-script-scale.test.ts --maxWorkers=1 --disableConsoleIntercept",
     "audit:risk-acceptance-policy": "vitest run --config vitest.governance.config.ts",
     "audit:delivery-baseline": "node tools/audit-delivery-baseline.mjs",
     "audit:delivery-baseline-policy": "vitest run --config vitest.delivery-baseline.config.ts",
@@ -36,7 +37,7 @@
     "audit:route-performance": "vitest run --config vitest.route-performance.config.ts",
     "audit:asset-performance": "vitest run --config vitest.asset-performance.config.ts",
     "demo:empty-to-web": "node tools/run-empty-to-web-build.mjs",
-    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:n23-product-acceptance && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run audit:n30-compiler && npm run audit:n31-runtime && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:route-performance && npm run audit:asset-performance"
+    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:n23-product-acceptance && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run audit:n30-compiler && npm run audit:n31-runtime && npm run audit:n41-sequence-scale && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:route-performance && npm run audit:asset-performance"
   },
   "engines": {
     "node": ">=22.12.0"
