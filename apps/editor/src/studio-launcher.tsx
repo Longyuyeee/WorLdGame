@@ -16,6 +16,7 @@ import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLife
 import { readTrustedRouteOverview } from "./trusted-route-overview";
 import { readTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLazyScenePage } from "./lazy-scene-session";
+import { prepareN42MediaStageFixture } from "./n42-media-stage-fixture";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -59,6 +60,13 @@ export function StudioLauncher() {
     openN23Benchmark: async () => {
       const workspace = managedWorkspace(); const project = projectCanonicalFromStory(loadN23BenchmarkProject(), entropy());
       await workspace.writeFiles(saveProject(project), null); return finish(workspace, await openCompiledLifecycleProject(workspace));
+    },
+    openN42MediaStage: async () => {
+      const projectId = `n42_stage_${entropy().replaceAll("-", "")}`;
+      const prepared = await prepareN42MediaStageFixture(globalThis.indexedDB, projectId);
+      const workspace = managedWorkspace();
+      await workspace.writeFiles(saveProject(prepared.project), null);
+      return finish(workspace, await openCompiledLifecycleProject(workspace));
     },
     importArchive: async (file) => {
       const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();

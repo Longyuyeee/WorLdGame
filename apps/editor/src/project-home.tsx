@@ -17,6 +17,7 @@ export interface ProjectHomeActions {
   readonly openRecent: (item: RecentProject) => Promise<ProjectLifecycleSession>;
   readonly openExample: () => Promise<ProjectLifecycleSession>;
   readonly openN23Benchmark: () => Promise<ProjectLifecycleSession>;
+  readonly openN42MediaStage: () => Promise<ProjectLifecycleSession>;
   readonly importArchive: (file: File) => Promise<ProjectLifecycleSession>;
   readonly exportArchive: (session: ProjectLifecycleSession) => Promise<ProjectArchiveDownload>;
   readonly openRouteOverview?: (item: RecentProject, offset?: number) => Promise<TrustedRouteOverview>;
@@ -102,6 +103,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
         <button disabled={busy} onClick={() => void run(actions.openDirectory)}>打开工程目录</button>
         <button disabled={busy} onClick={() => void run(actions.openExample)}>打开示例工程</button>
         <button disabled={busy} onClick={() => void run(actions.openN23Benchmark)}>打开五分钟验收工程</button>
+        <button disabled={busy} onClick={() => void run(actions.openN42MediaStage)}>打开 Stage 媒体验收工程</button>
         <label className="button-like">导入工程 ZIP<input aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={(event) => { const file = event.target.files?.[0]; if (file) void run(() => actions.importArchive(file)); }} /></label>
       </div>
     </section>

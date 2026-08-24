@@ -6,7 +6,7 @@
 > 授权：`RA-N21-007`，只覆盖 N42 Stage Engineering
 > Draft PR：[#66](https://github.com/Longyuyeee/WorLdGame/pull/66)（Draft，保持 open）
 > 首个 Windows CI：run `32699501588` / job `97347995042`，5 分 50 秒，绿色
-> 判定：工程候选；语义定位与 Windows CI 通过，真实媒体 production-browser 子门尚未关闭
+> 判定：本文件记录 E1a 历史候选；真实媒体子门及最终 Windows CI 已由 [E1b 审计](188-n42-e1b-production-media-stage-audit.md)关闭
 
 ## 1. 冻结切片与代码级差距
 
@@ -58,4 +58,4 @@
 
 ## 6. 当前出口与下一修正
 
-Windows CI 已把本机 VM 超时裁决为环境差异，但没有替代产品媒体实测。E1b 建立可重复的 production-browser 媒体夹具，通过产品现有的 IndexedDB Asset Repository 与真实签名检查准备测试资源，而不是依赖人工文件选择桥接；随后复验角色实际画面、75/45 DOM/Canvas 几何、正式 Runtime Host、Back/Forward 和 console。该门通过前 E1 仍不关闭，也不进入关键帧切片。
+Windows CI 已把本机 VM 超时裁决为环境差异，但没有替代产品媒体实测。后续 [E1b](188-n42-e1b-production-media-stage-audit.md)已建立可重复的 product-controlled 媒体夹具，并真实关闭 PNG/WAV、75/45、保存重开、Canonical 资源投影、正式 Runtime/Host 与 console 子门；Draft PR #67 Windows / Node 22 完整门也已绿色。

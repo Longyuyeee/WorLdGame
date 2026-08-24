@@ -132,7 +132,7 @@ import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
 import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
-import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
+import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
   approveFormalPreviewBarrier,
@@ -2452,7 +2452,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const selectedStageStatement = scene.statements.find((candidate) => candidate.id === session.selectedStatementId);
   const placeOnStage = (event: ReactPointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
-    if (target.closest("button, input, select, textarea, .stage-content, .stage-chrome") !== null) return;
+    if (target.closest("button, input, select, textarea, .stage-chrome") !== null) return;
     const point = mapClientPointToStage(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), viewport.width, viewport.height);
     if (point === null) {
       setStageDirectorMessage("画布坐标无效，未修改剧情");
@@ -2936,9 +2936,10 @@ export interface AppProps {
 export function App({ initialProject, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
   const [canonicalBase, setCanonicalBase] = useState<CanonicalProject>(() => initialProject ?? projectCanonicalFromStory(session.project, "n32-editor-preview"));
+  const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
   const previewCanonicalProject = useMemo(
-    () => projectCanonicalWithStory(canonicalBase, session.project),
-    [canonicalBase, session.project]
+    () => projectCanonicalWithAssetIndex(projectCanonicalWithStory(canonicalBase, session.project), assetIndex),
+    [assetIndex, canonicalBase, session.project]
   );
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
@@ -2949,7 +2950,6 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
   const storageAvailable = typeof globalThis.indexedDB !== "undefined";
-  const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
   const assetIndexRef = useRef(assetIndex);
   assetIndexRef.current = assetIndex;
   const [assetLifecycle, setAssetLifecycle] = useState<AssetLifecycleManifest>(() =>
@@ -3637,6 +3637,12 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         })
       });
       setAssetIndex(result.index);
+      const canonicalWithAssets = projectCanonicalWithAssetIndex(
+        projectCanonicalWithStory(canonicalBase, sessionRef.current.project),
+        result.index
+      );
+      setCanonicalBase(canonicalWithAssets);
+      onCanonicalProjectChange?.(canonicalWithAssets);
       setAssetLifecycle(result.lifecycle);
       setAssetStatus("success");
       setAssetImportState({

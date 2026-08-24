@@ -302,7 +302,10 @@ function normalizeDirectionPayloadScalar(command: string, action: string, key: s
       ? Number(value)
       : Number.NaN;
   if (!Number.isFinite(numeric) || numeric < range[0] || numeric > range[1] || key === "z" && !Number.isInteger(numeric)) return undefined;
-  return numeric;
+  // Runtime snapshots deliberately admit safe integers only. Preserve fractional Stage
+  // geometry as one canonical decimal string so hashing stays deterministic while
+  // integer coordinates remain numeric for presentation hosts.
+  return Number.isSafeInteger(numeric) ? numeric : numeric.toString();
 }
 
 function stringOperand(instruction: RuntimeInstructionV1, name: string): string | undefined {

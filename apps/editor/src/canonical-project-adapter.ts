@@ -1,4 +1,5 @@
 import { createProjectTemplate, type CanonicalProject, type JsonObject, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
+import type { AssetIndex } from "@world-studio/project-persistence";
 import type { Character, StoryProject, StoryScene, StoryStatement, StoryVariable } from "@world-studio/story-core";
 
 function character(value: JsonObject): Character {
@@ -139,5 +140,37 @@ export function projectCanonicalWithStory(base: CanonicalProject, story: StoryPr
       sceneId: scene.id,
       statements: scene.statements.map((item) => ({ ...item })) as readonly JsonObject[]
     }]))
+  };
+}
+
+export function projectCanonicalWithAssetIndex(base: CanonicalProject, index: AssetIndex): CanonicalProject {
+  const previous = new Map(base.assets.assets.flatMap((asset) => {
+    const assetId = typeof asset.assetId === "string" ? asset.assetId : typeof asset.id === "string" ? asset.id : null;
+    return assetId === null ? [] : [[assetId, asset] as const];
+  }));
+  const projected = new Map(previous);
+  for (const entry of index.assets) projected.set(entry.assetId, {
+    ...(previous.get(entry.assetId) ?? {}),
+    assetId: entry.assetId,
+    kind: entry.kind,
+    displayName: entry.displayName,
+    source: {
+      digest: entry.source.digest,
+      byteLength: entry.source.byteLength,
+      mimeType: entry.source.mimeType
+    },
+    tags: [...entry.tags],
+    ...(entry.preservedFields === undefined ? {} : { assetIndexMetadata: entry.preservedFields })
+  });
+  const unidentified = base.assets.assets.filter((asset) => typeof asset.assetId !== "string" && typeof asset.id !== "string");
+  return {
+    ...base,
+    assets: {
+      ...base.assets,
+      assets: [
+        ...[...projected.entries()].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0).map(([, asset]) => asset),
+        ...unidentified
+      ]
+    }
   };
 }
