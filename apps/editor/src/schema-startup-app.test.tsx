@@ -43,7 +43,7 @@ describe("S0.13 schema startup gate", () => {
     await store.release(acquisition.lease);
 
     render(<App />);
-    expect(await screen.findByText("Writer")).toBeVisible();
+    expect(await screen.findByText("Sequence")).toBeVisible();
     await waitFor(async () => {
       const migrated = JSON.parse(await store.read("project.json") ?? "{}") as Record<string, unknown>;
       expect(migrated.schemaVersion).toBe(2);
@@ -76,7 +76,7 @@ describe("S0.13 schema startup gate", () => {
     render(<App />);
     expect(await screen.findByRole("heading", { name: "项目来自更新版本" })).toBeVisible();
     expect(screen.getAllByText(/schema 99/)).toHaveLength(2);
-    expect(screen.queryByText("Writer")).not.toBeInTheDocument();
+    expect(screen.queryByText("Sequence")).not.toBeInTheDocument();
 
     await waitFor(async () => {
       await expect(store.read("project.json")).resolves.toBe(manifest);

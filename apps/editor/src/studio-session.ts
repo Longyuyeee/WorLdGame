@@ -25,7 +25,7 @@ import {
 import type { CanonicalProject } from "@world-studio/project-domain";
 import { projectCanonicalForEditor } from "./canonical-project-adapter";
 
-export type StudioMode = "writer" | "script" | "flow";
+export type StudioMode = "sequence" | "script" | "flow";
 
 export interface StudioDiagnostic {
   readonly code: string;
@@ -227,7 +227,7 @@ export function createStudioSessionFromProject(baseProject: StoryProject, source
     notice: {
       tone: "success",
       title: "三视图已连接",
-      detail: "Script、Writer 与 Preview 正在读取同一份权威脚本事务。"
+      detail: "Script、Sequence 与 Preview 正在读取同一份权威脚本事务。"
     }
   };
 }
@@ -403,7 +403,7 @@ function replaceScriptDraft(
       notice: {
         tone: "draft",
         title: "草稿尚未提交",
-        detail: "Writer 与 Preview 继续显示最后一次有效投影。"
+        detail: "Sequence 与 Preview 继续显示最后一次有效投影。"
       }
     };
   }
@@ -436,7 +436,7 @@ function replaceScriptDraft(
       notice: {
         tone: "draft",
         title: "项目引用检查失败",
-        detail: "脚本草稿已保留，但不会进入 Writer 或 Preview。"
+        detail: "脚本草稿已保留，但不会进入 Sequence 或 Preview。"
       }
     };
   }
@@ -474,7 +474,7 @@ function replaceScriptDraft(
     notice: {
       tone: "success",
       title: "脚本已原子提交",
-      detail: `Writer 与 Preview 已同步到 revision ${execution.session.revision}。`
+      detail: `Sequence 与 Preview 已同步到 revision ${execution.session.revision}。`
     }
   });
 }
@@ -490,7 +490,7 @@ function executeStructuralCommand(
       notice: {
         tone: "error",
         title: "先处理脚本草稿",
-        detail: "修复或丢弃当前错误草稿后，才能从 Writer 修改权威脚本。"
+        detail: "修复或丢弃当前错误草稿后，才能从 Sequence 修改权威脚本。"
       }
     };
   }
@@ -538,7 +538,7 @@ function restoreSourceHistory(session: StudioSession, direction: "undo" | "redo"
     notice: {
       tone: "success",
       title: direction === "undo" ? "已撤销一步" : "已重做一步",
-      detail: `Script、Writer 与 Preview 已恢复到 revision ${sourceSession.revision}。`
+      detail: `Script、Sequence 与 Preview 已恢复到 revision ${sourceSession.revision}。`
     }
   });
 }
@@ -568,7 +568,7 @@ export function reduceStudioSession(
           ? {
               tone: "draft",
               title: "此场景有未提交草稿",
-              detail: "Writer 与 Preview 继续读取该场景最后一次有效投影。"
+              detail: "Sequence 与 Preview 继续读取该场景最后一次有效投影。"
             }
           : {
               tone: "success",

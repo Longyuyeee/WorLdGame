@@ -216,7 +216,7 @@ export function persistenceErrorLabel(errorCode: string | undefined): string {
 }
 
 const modeLabels: Record<StudioMode, string> = {
-  writer: "Writer",
+  sequence: "Sequence",
   script: "Script",
   flow: "Flow"
 };
@@ -789,7 +789,7 @@ function AssetVaultDialog({
   );
 }
 
-interface WriterViewProps extends CommonProps {
+interface SequenceViewProps extends CommonProps {
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
@@ -1251,7 +1251,7 @@ function SequenceInspector({statement,disabled,targetIds,variableIds,createComma
   </form>;
 }
 
-function WriterView({
+function SequenceView({
   session,
   dispatch,
   createCommandId,
@@ -1261,7 +1261,7 @@ function WriterView({
   variableIds,
   requestedFocusStatementId,
   onRequestedFocusHandled
-}: WriterViewProps) {
+}: SequenceViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
   const selectedIndex = scene.statements.findIndex((statement) => statement.id === selected.id);
@@ -1425,11 +1425,11 @@ function WriterView({
   useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   return (
-    <section className="authoring-panel view-enter" aria-labelledby="writer-heading">
+    <section className="authoring-panel view-enter" aria-labelledby="sequence-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">WRITER · STABLE-ID PATCH</p>
-          <h2 id="writer-heading">{scene.title}</h2>
+          <p className="eyebrow">SEQUENCE · CANONICAL STABLE-ID PATCH</p>
+          <h2 id="sequence-heading">{scene.title}</h2>
         </div>
         <span className="context-chip">权威脚本投影</span>
       </div>
@@ -1800,7 +1800,7 @@ function WriterView({
           />
         ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} variableIds={sequenceReferences.variableIds} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
-          Writer 不直接修改模型；每次编辑都通过稳定 ID Patch 写回权威脚本，再重新投影。
+          Sequence 不持有第二份剧情；每次编辑都通过稳定 ID Patch 写回权威 Script，再重新投影。
         </p>
       </div>
     </section>
@@ -2871,7 +2871,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const lifecycleHosted = initialProject !== undefined;
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
-  const [mode, setMode] = useState<StudioMode>("writer");
+  const [mode, setMode] = useState<StudioMode>("sequence");
   const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
@@ -4010,13 +4010,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           assetStatus={assetStatus}
           onOpenAssets={() => setAssetPanelOpen(true)}
           onGlobalJump={(match) => {
-            setMode("writer");
+            setMode("sequence");
             setRequestedFocusStatementId(match.statementId);
             dispatch({ type: "select-project-result", sceneId: match.sceneId, statementId: match.statementId });
           }}
         />
-        {mode === "writer" ? (
-          <WriterView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
+        {mode === "sequence" ? (
+          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
@@ -4037,7 +4037,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onDeleteGroup={deleteRouteGroupFromMap}
             onAssignGroup={assignRouteSceneGroupFromMap}
             onSetViewport={setRouteViewportFromMap}
-            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("writer");}}
+            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
           />
         )}
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
