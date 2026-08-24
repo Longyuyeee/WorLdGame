@@ -1,10 +1,10 @@
-# 当前开发情况审计（N42-E1 Engineering 已关闭，产品门仍阻断）
+# 当前开发情况审计（N42-E2 Move easing 已闭环，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n42-e1b-production-media-fixture`；直接基线为 N42-E1 最终绿色头 `ea4eb3d00331760677f92215beda64ec3c05c276`
+> 当前分支：`codex/n42-e2-stage-move-easing`；直接基线为 N42-E1b 最终绿色头 `f79dd8b0618bd1233e90e016a4dc1eaf1ed08e6f`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[N42-E1b 真实媒体 Stage 闭环审计](188-n42-e1b-production-media-stage-audit.md)
+> 最新节点证据：[N42-E2 Stage Move 缓动闭环审计](189-n42-e2-stage-move-easing-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -13,14 +13,14 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E1b 已关闭真实媒体 production-browser、Canonical 资源与正式 Runtime/Host 闭环，Draft PR #67 Windows CI 绿色。N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；N42-E2 又关闭 Move easing 的语言、图形化编辑、保存重开、Canvas/DOM 与正式 Runtime/Host 纵向闭环。完整 N42 时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1 Goal 1/1、Implementation 5/5、Acceptance 5/5，工程切片已关闭**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
+- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1 已关闭，E2 Move easing 纵向切片已闭环，但多轨/关键帧/路径/镜头/模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2/E3/E4 为 Draft PR #62/#63/#64；N42 治理为 Draft PR #65；N42-E1a 为 Draft PR #66；E1b 为 Draft PR #67，run `32703189510` / job `97358747818` 用时 5 分 53 秒并绿色**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66 与 E1b/#67 保持开放证据。E2 为 Draft PR #68；实现头 run `32705758409` 因追踪矩阵尚未随代码提交而在 `audit:pr-traceability` 真实失败，文档修正与最终绿色门将继续记录在 E2 审计**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -97,6 +97,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. RA-N21-007 治理已由 Draft PR #65 最终 CI 关闭；N42-E1a/#66 与 E1b/#67 的 Windows 门均绿色。E1 已通过产品入口、真实 PNG/WAV、Index r3、75/45 保存重开、Canonical 资源桥、Runtime Host 与 console 实测；下一步从 N42 冻结规格选择有界切片。N43 与正式 Player 仍禁止进入。
+5. RA-N21-007 治理已由 Draft PR #65 最终 CI 关闭；E1a/#66 与 E1b/#67 的 Windows 门均绿色。E2/#68 已完成真实 PNG/WAV 的 Move easing 编辑→Script→s1 重开→Canvas/DOM→Formal Runtime/Host 产品实测；首个远端 run 因缺同提交追踪文档而红，当前文档提交负责修正并重跑。下一步仍只能从 N42 冻结规格选择有界切片；N43 与正式 Player 仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

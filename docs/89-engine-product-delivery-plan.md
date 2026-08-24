@@ -398,6 +398,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1 Engineering 关闭（2026-08-24）：[真实媒体 Stage 审计](188-n42-e1b-production-media-stage-audit.md)已用产品入口把冻结 PNG/WAV 经签名、Hash、lease 与 Asset Repository 写入 Index r3；真实 Canvas 点击与 s1 重开保持 75/45，Canonical 资源桥使正式 Compiler/Runtime 得到 Host 1 active、0 diagnostics。全仓普通 740/740、storage 1/1、VM 5/5，production console 0 error/warn；Draft PR #67 Windows / Node 22 完整门 5 分 53 秒绿色。多轨、关键帧、镜头、模板与 Product Acceptance 仍未完成。
 
+> E2 Move easing 闭环（2026-08-24）：[N42-E2 审计](189-n42-e2-stage-move-easing-audit.md)冻结 `linear/ease-in/ease-out/ease-in-out`，贯通 Inspector/批量/插入、stable-ID Script、s1 重开、CSS 语义 Canvas 曲线、DOM 代理与正式 Runtime Host。真实 PNG/WAV 工程将 `ease-in-out` 改为 `ease-out` 后重开保持 X=25/Y=80/800ms，Runtime 定位 `media_move #2`、Host 1 active、0 diagnostics、console `[]`。这不关闭多轨、关键帧、路径、镜头或模板。
+
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。
 - **Acceptance**：AC-13 样例在 Editor Preview 和 Player 中一致。
