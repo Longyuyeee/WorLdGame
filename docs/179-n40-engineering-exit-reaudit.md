@@ -58,7 +58,17 @@
 
 Editor production build 成功：CSS `87.60 kB / gzip 16.50 kB`，JS `838.75 kB / gzip 235.74 kB`。既有单 chunk `>500 kB` warning 仍是后续性能债，不影响本次 Route 功能判定，也未被隐藏。
 
-## 4. 冻结 Tests / Acceptance 判定
+## 4. 远端完整门
+
+文档头 `c14b8559cf2d773bb4632bc7497f41ab7850e399` 的 GitHub Actions `product-baseline` run `32686284143` / job `97311883224` 在 Windows / Node 22 上用时 4 分 12 秒并成功完成：
+
+- locked dependencies、治理、需求、delivery baseline、PR traceability、Golden、Compiler、Runtime、typecheck、全部 workspace build 与 architecture 均通过；
+- 普通并行测试 `114 files / 723 tests`，storage `1/1`，重型 VM `5/5`；
+- Script `10/10`、Route `9/9`、Asset `4/4`，远端 10k Route 同步 P95 `138.45 ms <500 ms`。
+
+远端结果与本机功能判断一致，且没有通过放宽产品预算或跳过重型门获得绿色。
+
+## 5. 冻结 Tests / Acceptance 判定
 
 ### Tests：3/3
 
@@ -73,7 +83,7 @@ Editor production build 成功：CSS `87.60 kB / gzip 16.50 kB`，JS `838.75 kB 
 
 自动化 production browser、fake IndexedDB 和 CI 都不能代替真人 Product Acceptance。`RA-N21-005` 仍明确把 N40 Product Acceptance、N41 Engineering、M1 Stable 和发布保持为阻断状态。
 
-## 5. 出口与后续边界
+## 6. 出口与后续边界
 
 N40 Route Map 已具备 Engineering 出口资格，当前不再新增 N40 功能切片。仍未完成或后置的能力按归属保持：
 
