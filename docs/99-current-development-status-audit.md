@@ -1,10 +1,10 @@
-# 当前开发情况审计（N42-E2 Move easing 已闭环，产品门仍阻断）
+# 当前开发情况审计（N42-E3 基本角色关键帧已闭环，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n42-e2-stage-move-easing`；直接基线为 N42-E1b 最终绿色头 `f79dd8b0618bd1233e90e016a4dc1eaf1ed08e6f`
+> 当前分支：`codex/n42-e3-character-keyframe-authoring`；直接基线为 N42-E2 最终绿色头 `a130779d03977e2eeff93cecca2260bd01ac868b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[N42-E2 Stage Move 缓动闭环审计](189-n42-e2-stage-move-easing-audit.md)
+> 最新节点证据：[N42-E3 角色关键帧编排闭环审计](190-n42-e3-character-keyframe-authoring-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -13,12 +13,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；N42-E2 又关闭 Move easing 的语言、图形化编辑、保存重开、Canvas/DOM 与正式 Runtime/Host 纵向闭环。完整 N42 时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2 关闭 Move easing，E3 又关闭“当前 Show/Move→下一 stable-ID Move”的基本角色关键帧图形编排。完整 N42 多轨时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1 已关闭，E2 Move easing 纵向切片已闭环，但多轨/关键帧/路径/镜头/模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
+- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1、E2 与 E3 基本角色关键帧已闭环，但多轨 playhead、时间标尺、路径、镜头、模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66 与 E1b/#67 保持开放证据。E2 为 Draft PR #68；实现头 run `32705758409` 因追踪矩阵尚未随代码提交而真实失败，修正后 run `32706011575` / job `97367166318` 用时 5 分 50 秒并绿色**。
 
@@ -31,7 +31,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠、跨视图定位与 Formal Runtime statement 高亮；1,000 次全 P0 Sequence/Script 互改和 84 项退出矩阵已通过；N40/N41 Engineering 出口均通过 | N21/N23 真人、N40/N41 Product Acceptance、完整 Stage/Player 仍阻断；Route-first lazy 控制流是后续大型工程增强，不是 N41 出口缺口 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
-| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
+| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；Move easing；从当前角色状态图形化生成下一 stable-ID Move 关键帧；正式 Runtime Effect 提交时机 | 完整多轨关键帧/时间标尺、复杂镜头/路径、Pixi/WebGL、三端媒体策略与正式 Player Adapter |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选，可确定性离线打开 | 当前候选仍是平行 `StoryStatement` 解释器，不是正式 Runtime Player；正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
@@ -97,6 +97,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. RA-N21-007 治理已由 Draft PR #65 最终 CI 关闭；E1a/#66 与 E1b/#67 的 Windows 门均绿色。E2/#68 已完成真实 PNG/WAV 的 Move easing 编辑→Script→s1 重开→Canvas/DOM→Formal Runtime/Host 产品实测；首个远端 run 因缺同提交追踪文档而红，修正后完整门绿色。下一步仍只能从 N42 冻结规格选择有界切片；N43 与正式 Player 仍禁止进入。
+5. RA-N21-007 治理已由 Draft PR #65 最终 CI 关闭；E1a/#66、E1b/#67 与 E2/#68 的 Windows 门均绿色。E3 又把下一角色关键帧收敛为 canonical Move，真实 fixture 与全仓 753/753 通过；本轮隔离浏览器无法连接宿主本地服务，故 UI 浏览器验收明确不计通过，待后续可用环境补证。下一步仍只能从 N42 冻结规格选择有界切片；N43 与正式 Player仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

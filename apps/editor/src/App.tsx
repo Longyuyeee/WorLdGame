@@ -125,6 +125,11 @@ import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, s
 import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
 import { createStagePlacementPatch } from "./stage-director";
 import {
+  deriveStageMoveKeyframeSeed,
+  planStageMoveKeyframe,
+  type StageMoveKeyframeSeed
+} from "./stage-keyframe";
+import {
   createPreviewMediaHostState,
   previewMediaErrorCount,
   reducePreviewMediaHost,
@@ -1230,6 +1235,60 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   );
 }
 
+interface StageKeyframeInsertPanelProps {
+  readonly seed: StageMoveKeyframeSeed;
+  readonly disabled: boolean;
+  readonly createCommandId: () => string;
+  readonly createEntityId: (prefix: "stmt" | "txt") => string;
+  readonly dispatch: (action: StudioAction) => void;
+  readonly onClose: () => void;
+}
+
+function StageKeyframeInsertPanel({ seed, disabled, createCommandId, createEntityId, dispatch, onClose }: StageKeyframeInsertPanelProps) {
+  const [draft, setDraft] = useState(() => ({
+    z: String(seed.z), x: String(seed.x), y: String(seed.y), scale: String(seed.scale), rotation: String(seed.rotation),
+    anchorX: String(seed.anchorX), anchorY: String(seed.anchorY), duration: seed.duration, easing: seed.easing
+  }));
+  const plan = planStageMoveKeyframe(seed, draft);
+  const set = (field: keyof typeof draft, value: string) => setDraft((current) => ({ ...current, [field]: value }));
+  const message = plan.ok ? "将写入稳定 ID 的 @show action=move，并自动选中新步骤。" :
+    plan.code === "NO_GEOMETRY_CHANGE" ? "请调整至少一个舞台几何值；不会创建空关键帧。" :
+      plan.code === "INVALID_DURATION" ? "时长必须是正数，并使用 ms 或 s。" :
+        plan.code === "INVALID_EASING" ? "请选择受支持的缓动曲线。" :
+          "几何值超出舞台边界；位置 0–100、缩放 0.1–4、锚点 0–1。";
+  return <form className="direction-insert keyframe-insert" aria-label="新增角色关键帧" onSubmit={(event) => {
+    event.preventDefault();
+    if (!plan.ok || disabled) return;
+    dispatch({ type: "insert-direction", commandId: createCommandId(), afterId: seed.sourceStatementId, statementId: createEntityId("stmt"), command: "show", parameters: plan.parameters });
+    onClose();
+  }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+    <div className="direction-insert__heading">
+      <div><span className="track-command track-command--show">KF</span><strong>下一角色关键帧</strong></div>
+      <button type="button" aria-label="关闭关键帧插入面板" onClick={onClose}>×</button>
+    </div>
+    <div className="keyframe-insert__path" aria-label="关键帧插入路径"><code>{seed.sourceStatementId}</code><span>→</span><strong>{seed.slot} · NEW KEYFRAME</strong></div>
+    <div className="direction-insert__fields keyframe-insert__fields">
+      <label><span>X（%）</span><input aria-label="关键帧水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={draft.x} disabled={disabled} onChange={(event) => set("x", event.target.value)} /></label>
+      <label><span>Y（%）</span><input aria-label="关键帧垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={draft.y} disabled={disabled} onChange={(event) => set("y", event.target.value)} /></label>
+      <label><span>缩放</span><input aria-label="关键帧缩放" type="number" min={MIN_STAGE_SCALE} max={MAX_STAGE_SCALE} step="0.01" value={draft.scale} disabled={disabled} onChange={(event) => set("scale", event.target.value)} /></label>
+      <label><span>旋转</span><input aria-label="关键帧旋转" type="number" min={MIN_STAGE_ROTATION} max={MAX_STAGE_ROTATION} step="0.1" value={draft.rotation} disabled={disabled} onChange={(event) => set("rotation", event.target.value)} /></label>
+      <label><span>锚点 X</span><input aria-label="关键帧水平锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={draft.anchorX} disabled={disabled} onChange={(event) => set("anchorX", event.target.value)} /></label>
+      <label><span>锚点 Y</span><input aria-label="关键帧垂直锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={draft.anchorY} disabled={disabled} onChange={(event) => set("anchorY", event.target.value)} /></label>
+      <label><span>层级</span><input aria-label="关键帧层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} step="1" value={draft.z} disabled={disabled} onChange={(event) => set("z", event.target.value)} /></label>
+      <label><span>时长</span><input aria-label="关键帧时长" value={draft.duration} disabled={disabled} onChange={(event) => set("duration", event.target.value)} /></label>
+      <label className="keyframe-insert__easing"><span>缓动</span><select aria-label="关键帧缓动" value={draft.easing} disabled={disabled} onChange={(event) => set("easing", event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+    </div>
+    <p className={plan.ok ? "keyframe-insert__status" : "keyframe-insert__status is-error"} role="status">{message}</p>
+    <div className="direction-insert__actions"><span>单一权威脚本 · 可撤销 · Preview/Runtime 同语义</span><button type="submit" disabled={disabled || !plan.ok}>插入关键帧</button></div>
+  </form>;
+}
+
+function isCharacterMoveCue(statement: StoryStatement): boolean {
+  if (statement.kind !== "direction" || statement.command !== "show") return false;
+  const inspected = inspectDirectiveArguments(statement.summary);
+  return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
+}
+
 function stageLane(statement: StoryStatement): "background" | "character" | "audio" | "story" {
   if (statement.kind !== "direction") return "story";
   return statement.command === "background" ? "background" : statement.command === "show" ? "character" : "audio";
@@ -1282,6 +1341,7 @@ function SequenceView({
   const nextStatement = scene.statements[selectedIndex + 1];
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
+  const [keyframeInsertOpen, setKeyframeInsertOpen] = useState(false);
   const [draggedDirectionId, setDraggedDirectionId] = useState<string | null>(null);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
@@ -1303,6 +1363,7 @@ function SequenceView({
   const stageSearch = useMemo(() => searchStageIndex(stageSearchIndex, stageSearchQuery), [stageSearchIndex, stageSearchQuery]);
   const resolvedStageSearchResult = Math.min(activeStageSearchResult, Math.max(0, stageSearch.matches.length - 1));
   const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
+  const keyframeSeed = useMemo(() => deriveStageMoveKeyframeSeed(scene.statements, selectedIndex), [scene.statements, selectedIndex]);
   const runtimeCurrentStatementId = runtimeRouteTrace.active && runtimeRouteTrace.currentSceneId === scene.id
     ? runtimeRouteTrace.currentStatementId
     : null;
@@ -1401,6 +1462,7 @@ function SequenceView({
     setPendingStageFocusId(null);
     setSequenceMultiSelect(false);setSequenceSelectedIds([]);setSequenceRangeAnchor(null);setCollapsedStatementIds([]);
   }, [scene.id]);
+  useEffect(() => { setKeyframeInsertOpen(false); }, [selected.id]);
   useEffect(() => {
     setActiveStageSearchResult(0);
   }, [stageSearchQuery, stageSearch.totalMatches]);
@@ -1574,6 +1636,7 @@ function SequenceView({
               <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
               <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
               <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
+              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
             </div>
           </div>
         </div>
@@ -1707,7 +1770,7 @@ function SequenceView({
                       }
                     }}
                   >
-                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>
+                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>{isCharacterMoveCue(statement) && <em className="stage-cue__keyframe">KF</em>}
                   </button>
                 ) : <span className="stage-cue stage-cue--empty" aria-hidden="true" key={`${statement.id}:empty`} />;
                 })}
@@ -1777,6 +1840,16 @@ function SequenceView({
         createEntityId={createEntityId}
         dispatch={dispatch}
         onClose={() => setInsertCommand(null)}
+      />}
+
+      {keyframeInsertOpen && keyframeSeed.ok && <StageKeyframeInsertPanel
+        key={keyframeSeed.seed.sourceStatementId}
+        seed={keyframeSeed.seed}
+        disabled={pendingDraft}
+        createCommandId={createCommandId}
+        createEntityId={createEntityId}
+        dispatch={dispatch}
+        onClose={() => setKeyframeInsertOpen(false)}
       />}
 
       <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>

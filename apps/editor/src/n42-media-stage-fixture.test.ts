@@ -5,6 +5,7 @@ import { derivePreviewStagePlan, loadPreviewMedia, releasePreviewMedia } from ".
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { prepareN42MediaStageFixture } from "./n42-media-stage-fixture";
 import { startFormalPreviewFromStatement } from "./formal-preview-runtime";
+import { deriveStageMoveKeyframeSeed, planStageMoveKeyframe } from "./stage-keyframe";
 
 describe("N42-E1b production media Stage fixture", () => {
   it("prepares inspected real media through the product repository and reopens it for Stage rendering", async () => {
@@ -40,6 +41,13 @@ describe("N42-E1b production media Stage fixture", () => {
       easing: "ease-in-out",
       movementFrom: { x: 50, y: 100, scale: 1, anchorX: 0.5, anchorY: 1 }
     });
+    const keyframeSeed = deriveStageMoveKeyframeSeed(scene.statements, moveIndex);
+    expect(keyframeSeed).toMatchObject({ ok: true, seed: { sourceStatementId: "media_move", slot: "actor", x: 25, y: 80, scale: 0.9 } });
+    if (!keyframeSeed.ok) throw new Error("production fixture did not expose the selected character keyframe");
+    expect(planStageMoveKeyframe(keyframeSeed.seed, {
+      z: String(keyframeSeed.seed.z), x: "72", y: "84", scale: "1.05", rotation: String(keyframeSeed.seed.rotation),
+      anchorX: String(keyframeSeed.seed.anchorX), anchorY: String(keyframeSeed.seed.anchorY), duration: "650ms", easing: "ease-out"
+    })).toMatchObject({ ok: true, parameters: { action: "move", slot: "actor", x: "72", y: "84", scale: "1.05", duration: "650ms", easing: "ease-out" } });
     const plan = derivePreviewStagePlan(scene.statements, scene.statements.length - 1);
     const revoked: string[] = [];
     const urls = {

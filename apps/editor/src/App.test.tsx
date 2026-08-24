@@ -220,6 +220,36 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       "@show action=move slot=primary x=80 y=90 transition=slide duration=300ms easing=ease-in-out"
     );
   });
+  it("authors the next character keyframe from the selected Show cue and writes it back to Script", () => {
+    renderLegacyDirectionApp();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    const source = String((scriptEditor as HTMLTextAreaElement).value);
+    fireEvent.change(scriptEditor, { target: { value: source.replace(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
+      "@show action=show asset=asset_missing slot=hero z=2 x=20 y=100 scale=1 rotation=0 anchorX=0.5 anchorY=1 @id(stmt_gate_bg)"
+    ) } });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "＋ 关键帧" }));
+    expect(screen.getByRole("form", { name: "新增角色关键帧" })).toBeVisible();
+    expect(screen.getByLabelText("关键帧水平位置")).toHaveValue(20);
+    expect(screen.getByRole("button", { name: "插入关键帧" })).toBeDisabled();
+    expect(screen.getByText("请调整至少一个舞台几何值；不会创建空关键帧。")).toBeVisible();
+    fireEvent.change(screen.getByLabelText("关键帧水平位置"), { target: { value: "72" } });
+    fireEvent.change(screen.getByLabelText("关键帧垂直位置"), { target: { value: "84" } });
+    fireEvent.change(screen.getByLabelText("关键帧缩放"), { target: { value: "1.05" } });
+    fireEvent.change(screen.getByLabelText("关键帧时长"), { target: { value: "650ms" } });
+    fireEvent.change(screen.getByLabelText("关键帧缓动"), { target: { value: "ease-out" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入关键帧" }));
+
+    expect(screen.getByText("KF")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toMatch(
+      /@show action=move slot=hero z=2 x=72 y=84 scale=1\.05 rotation=0 anchorX=0\.5 anchorY=1 transition=slide duration=650ms easing=ease-out @id\(stmt_[^)]+\)/u
+    );
+  });
   it("inserts a resource-free Hide cue with the frozen fade default", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));
