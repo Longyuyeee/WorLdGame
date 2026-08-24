@@ -384,7 +384,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N41 Sequence
 
-> 准入状态（2026-08-24）：N40 Engineering 出口已通过；产品负责人在获知 `RA-N21-005` 截止于 N40 后再次明确要求进入下一步骤，因此 [N40→N41 治理检查点](180-n40-n41-governance-checkpoint.md)建立 `RA-N21-006`，只允许 N41 Sequence Engineering。N41 Product Acceptance、N42+、M1 Stable 与发布继续 fail closed。E1 必须先审计当前能力差距，再关闭一个同源、可保存重开、经 Compiler/Route 复核的 P0 创作结果。
+> 工程状态（2026-08-24）：[N40→N41 治理检查点](180-n40-n41-governance-checkpoint.md)建立的 `RA-N21-006` 只允许 N41 Sequence Engineering。[N41-E1](181-n41-e1-formal-sequence-mode-audit.md)已把原 Writer 正式统一为 Sequence，并用标签结构完成 Sequence→Script→IndexedDB 保存复读→Compiler/Route→重开 Sequence。E1 不等于完整 N41；1,000 次互改、其余规模/失败关闭矩阵和 Product Acceptance 仍缺，N42+、M1 Stable 与发布继续 fail closed。
 
 - **Goal**：提供场景内部完整的可视化语义编辑。
 - **Implementation**：全部 P0 块、类型化 Inspector、运行高亮、搜索插入、批量、折叠、跨视图定位；复杂条件允许进入 Script 但不得丢失。

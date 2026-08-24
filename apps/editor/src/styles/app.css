@@ -210,7 +210,7 @@ h2 {
   border-radius: var(--wg-radius-full);
 }
 
-.mode-dot--writer {
+.mode-dot--sequence {
   background: var(--wg-color-semantic-dialogue);
   box-shadow: 0 0 10px rgb(139 124 255 / 70%);
 }

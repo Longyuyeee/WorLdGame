@@ -145,7 +145,7 @@ describe("N40 Route Map product flow", () => {
     expect(onProjectChange).toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "进入 Sequence" }));
-    expect(screen.getByRole("tab", { name: "Writer" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Sequence" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("heading", { name: "旧广播室 · 修订" })).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain('scene "旧广播室 · 修订" @id(scn_broadcast_room)');
@@ -195,7 +195,7 @@ describe("N40 Route Map product flow", () => {
   it("opens the same stable scene in Writer by double-clicking a Route node", () => {
     renderRouteMap();
     fireEvent.doubleClick(screen.getByRole("button", { name: /路线场景：风中的天台/ }));
-    expect(screen.getByRole("tab", { name: "Writer" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Sequence" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("heading", { name: "风中的天台" })).toBeVisible();
   });
 
@@ -247,7 +247,7 @@ describe("N40 Route Map product flow", () => {
     const globalDiagnostic = screen.getByRole("button", { name: /定位诊断：NO_REACHABLE_ENDING · 全局/ });
     expect(globalDiagnostic).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "进入诊断内容：UNREACHABLE_STATEMENT · diagnostic_end" }));
-    expect(screen.getByRole("tab", { name: "Writer" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Sequence" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("button", { name: "选择结局：结局 · Never" })).toHaveFocus();
   });
 

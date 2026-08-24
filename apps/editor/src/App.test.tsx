@@ -104,7 +104,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       "@show action=show asset=asset_missing slot=primary @id(stmt_gate_bg)"
     ) } });
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
-    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
     expect(screen.getByLabelText("角色水平位置")).toHaveAttribute("min", "0");
     expect(screen.getByLabelText("角色缩放")).toHaveAttribute("max", "4");
@@ -123,7 +123,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       "@show action=show asset=asset_missing slot=hero x=20 expression=smile @id(stmt_gate_bg)"
     ) } });
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
-    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "move" } });
     expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("角色表情")).not.toBeInTheDocument();
@@ -213,7 +213,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     const movedSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
     expect(movedSource.indexOf("stmt_gate_001")).toBeLessThan(movedSource.indexOf("stmt_gate_bg"));
 
-    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     const selectedCue = screen.getByRole("button", { name: /轨道步骤 2：/ });
     fireEvent.keyDown(selectedCue, { key: "Delete" });
     expect(screen.getByLabelText("已删除步骤记录")).toBeVisible();
@@ -394,7 +394,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.blur(scriptEditor);
 
     expect(screen.getByText("脚本已原子提交")).toBeVisible();
-    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     fireEvent.click(
       screen.getByRole("button", { name: /选择对白：听见了。声音来自那盘被遗忘的磁带。/ })
     );
@@ -421,7 +421,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("LOCKED")).toBeVisible();
     expect(screen.getByText("错误草稿 · 未提交")).toBeVisible();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Writer" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     expect(screen.getByRole("searchbox", { name: "定位步骤" })).toHaveValue("");
     expect(screen.getByText("当前 Script 草稿尚未提交；搜索继续使用最后一次有效场景。")).toBeVisible();
     selectFirstDialogue();
