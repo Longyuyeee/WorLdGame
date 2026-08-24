@@ -2287,6 +2287,44 @@ textarea[data-input-state="composing"] {
 
 .route-runtime-trace strong { color: var(--wg-color-semantic-choice); }
 
+.route-ending-review {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(280px, 1.2fr);
+  gap: 12px;
+  align-items: end;
+  margin-top: 10px;
+  padding: 13px;
+  border: 1px solid rgb(240 212 92 / 28%);
+  border-radius: 12px;
+  background: linear-gradient(120deg, rgb(240 212 92 / 8%), rgb(139 124 255 / 8%));
+}
+
+.route-ending-review label,
+.route-ending-review__controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.route-ending-review label { flex: 1; }
+.route-ending-review label span { color: var(--wg-color-text-muted); font-size: 9px; white-space: nowrap; }
+.route-ending-review select { min-width: 0; flex: 1; }
+
+.route-ending-review__status {
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: rgb(18 24 36 / 66%);
+  color: var(--wg-color-text-primary);
+  font-size: 10px;
+}
+
+.route-ending-review__status--unreachable,
+.route-ending-review__status--invalid-ending { color: var(--wg-color-status-error); }
+
+.route-ending-review__controls { grid-column: 1 / -1; }
+.route-ending-review__controls button { white-space: nowrap; }
+.route-ending-review__controls > span { color: rgb(240 212 92); font-variant-numeric: tabular-nums; }
+
 .flow-grid {
   position: relative;
   min-height: 560px;
@@ -2361,12 +2399,27 @@ textarea[data-input-state="composing"] {
   box-shadow: 0 0 0 3px rgb(85 217 138 / 18%), 0 0 32px rgb(85 217 138 / 20%);
 }
 
+.route-node.is-route-reviewed {
+  border-color: rgb(240 212 92 / 72%);
+  box-shadow: inset 0 0 0 1px rgb(240 212 92 / 18%), 0 0 24px rgb(240 212 92 / 10%);
+}
+
 .route-node__runtime-state {
   justify-self: start;
   padding: 3px 7px;
   border-radius: 999px;
   background: rgb(85 217 138 / 16%);
   color: var(--wg-color-semantic-choice);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.route-node__review-state {
+  justify-self: start;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgb(240 212 92 / 14%);
+  color: rgb(240 212 92);
   font-size: 9px;
   font-weight: 800;
 }
@@ -2428,9 +2481,21 @@ textarea[data-input-state="composing"] {
   color: var(--wg-color-text-primary);
 }
 
+.edge-row.is-route-reviewed {
+  box-shadow: inset 3px 0 0 rgb(240 212 92 / 80%);
+  background: rgb(240 212 92 / 8%);
+  color: var(--wg-color-text-primary);
+}
+
 .edge-row em.edge-row__runtime-state {
   grid-column: 1 / -1;
   color: var(--wg-color-semantic-choice);
+  font-weight: 800;
+}
+
+.edge-row em.edge-row__review-state {
+  grid-column: 1 / -1;
+  color: rgb(240 212 92);
   font-weight: 800;
 }
 
@@ -3780,6 +3845,20 @@ textarea[data-input-state="composing"] {
 
   .flow-grid {
     grid-template-columns: 1fr;
+  }
+
+  .route-ending-review {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .route-ending-review__controls {
+    grid-column: 1;
+    display: grid;
+    grid-template-columns: auto auto auto;
+  }
+
+  .route-ending-review__controls label {
+    grid-column: 1 / -1;
   }
 
   .route-node:first-child {

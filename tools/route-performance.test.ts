@@ -1,7 +1,7 @@
 import { performance } from "node:perf_hooks";
 import { createProjectService, createProjectTemplate, executeProjectCommand, saveProject, sha256, type CanonicalProject, type JsonObject, type ProjectFiles, type ProjectReference, type ProjectTrustedSourceCommit, type ProjectWorkspace, type ScriptDocument } from "@world-studio/project-domain";
 import { compileProjectIncremental, preflightLazyNarrationInsertion, preflightLazyNarrationStructuralEdit } from "@world-studio/project-compiler";
-import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
+import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, reviewRouteToEnding, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
 import { publishTrustedRouteOverview, readTrustedRouteOverview } from "../apps/editor/src/trusted-route-overview";
 import { describe, expect, it } from "vitest";
@@ -10,6 +10,7 @@ const sceneCount = 10_000;
 const projectionBudgetMs = 15_000;
 const indexBudgetMs = 2_000;
 const queryBudgetMs = 250;
+const endingRouteReviewBudgetMs = 250;
 const editSyncBudgetMs = 500;
 const editSamples = 20;
 const lazyEditIndexBudgetMs = 500;
@@ -151,6 +152,26 @@ describe("N40 10k branching Route performance gate", () => {
       budgetMs: { p95: editSyncBudgetMs }
     }, null, 2));
     expect(p95).toBeLessThan(editSyncBudgetMs);
+  });
+
+  it("reviews a concrete ending route in the real 10k branching graph within 250ms", () => {
+    const graph = buildRouteGraph(createBranchingRouteProject());
+    const started = performance.now();
+    const review = reviewRouteToEnding(graph, sceneId(9_999));
+    const elapsedMs = performance.now() - started;
+
+    console.log(JSON.stringify({
+      status: review.status === "found" && elapsedMs < endingRouteReviewBudgetMs ? "PASS" : "FAIL",
+      baseline: { sceneCount, edgeCount: sceneCount - 1, shape: "binary branching DAG", targetEndingSceneId: sceneId(9_999) },
+      measurementsMs: { endingRouteReview: Number(elapsedMs.toFixed(2)) },
+      budgetMs: { endingRouteReview: endingRouteReviewBudgetMs },
+      result: { status: review.status, candidateCount: review.candidates.length, routeSceneCount: review.candidates[0]?.sceneIds.length, exploredEdgeCount: review.exploredEdgeCount, truncated: review.truncated }
+    }, null, 2));
+
+    expect(review.status).toBe("found");
+    expect(review.candidates[0]?.sceneIds.at(0)).toBe(sceneId(0));
+    expect(review.candidates[0]?.sceneIds.at(-1)).toBe(sceneId(9_999));
+    expect(elapsedMs).toBeLessThan(endingRouteReviewBudgetMs);
   });
 
   it("reads only one trusted 64-scene structure/layout page from a 10k Route within 500ms", async () => {

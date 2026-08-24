@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compileProject } from "@world-studio/project-compiler";
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup } from "./route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, type RouteGraphV1 } from "./route-graph";
 
 function routeProject(includeDangling = true): CanonicalProject {
   const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
@@ -196,5 +196,55 @@ describe("N40 route graph", () => {
     expect(queryRouteGraphWindow(index,{kind:"ending",groupId:"group_left"}).nodes.map((node)=>node.id)).toEqual(["route_left"]);
     expect(queryRouteGraphWindow(index,{groupId:null}).nodes.map((node)=>node.id)).toEqual(["route_entry"]);
     expect(queryRouteGraphWindow(index,{chapterId:"chapter_missing"})).toMatchObject({totalMatches:0,nodes:[]});
+  });
+
+  it("reviews deterministic candidate routes to an ending while skipping cycles and dangling edges", () => {
+    const graph: RouteGraphV1 = {
+      schemaVersion: 1,
+      projectId: "ending-review",
+      entrySceneId: "entry",
+      chapters: [{ id: "main", title: "Main", sceneIds: ["entry", "left", "right", "ending"] }],
+      nodes: ["entry", "left", "right", "ending"].map((id, index) => ({
+        id,
+        title: id,
+        chapterId: "main",
+        kind: id === "entry" ? "entry" : id === "ending" ? "ending" : "scene",
+        facts: id === "ending" ? [{ id: "end_fact", kind: "ending", label: "Done" }] : [],
+        layout: { x: index * 100, y: 0, source: "automatic" }
+      })),
+      edges: [
+        { id: "edge_left", sourceSceneId: "entry", targetSceneId: "left", statementId: "choice_entry", label: "Left", status: "valid" },
+        { id: "edge_right", sourceSceneId: "entry", targetSceneId: "right", statementId: "choice_entry", label: "Right", status: "valid" },
+        { id: "edge_left_loop", sourceSceneId: "left", targetSceneId: "entry", statementId: "choice_left", label: "Loop", status: "valid" },
+        { id: "edge_left_end", sourceSceneId: "left", targetSceneId: "ending", statementId: "choice_left", label: "Finish", status: "valid" },
+        { id: "edge_right_end", sourceSceneId: "right", targetSceneId: "ending", statementId: "choice_right", label: "Finish", status: "valid" },
+        { id: "edge_missing", sourceSceneId: "right", targetSceneId: "missing", statementId: "choice_right", label: "Missing", status: "dangling" }
+      ],
+      diagnostics: [],
+      groups: [],
+      viewport: { x: 0, y: 0, zoom: 1, source: "automatic" }
+    };
+
+    const first = reviewRouteToEnding(graph, "ending");
+    const second = reviewRouteToEnding(graph, "ending");
+    expect(second).toEqual(first);
+    expect(first).toMatchObject({ status: "found", skippedCycleEdgeCount: 1, ignoredDanglingEdgeCount: 1, truncated: false });
+    expect(first.candidates.map((candidate) => candidate.sceneIds)).toEqual([
+      ["entry", "left", "ending"],
+      ["entry", "right", "ending"]
+    ]);
+    expect(first.candidates.map((candidate) => candidate.edgeIds)).toEqual([
+      ["edge_left", "edge_left_end"],
+      ["edge_right", "edge_right_end"]
+    ]);
+  });
+
+  it("reports invalid and unreachable endings and enforces candidate and expansion limits", () => {
+    const base = buildRouteGraph(routeProject(false));
+    expect(reviewRouteToEnding(base, "route_entry")).toMatchObject({ status: "invalid-ending", candidates: [] });
+    const unreachable: RouteGraphV1 = { ...base, edges: [] };
+    expect(reviewRouteToEnding(unreachable, "route_left")).toMatchObject({ status: "unreachable", candidates: [], truncated: false });
+    expect(reviewRouteToEnding(base, "route_left", { expansionLimit: 1 })).toMatchObject({ status: "found", exploredEdgeCount: 1 });
+    expect(reviewRouteToEnding(base, "route_left", { candidateLimit: 1 })).toMatchObject({ status: "found", truncated: true });
   });
 });

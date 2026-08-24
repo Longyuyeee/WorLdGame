@@ -120,6 +120,36 @@ describe("N40 Route Map product flow", () => {
     expect(within(nodes).getByRole("button",{name:/路线场景：放学后的校门/})).toBeVisible();
   });
 
+  it("reviews a selected ending route and highlights its Compiler scenes and connections", () => {
+    renderRouteMap();
+    fireEvent.change(screen.getByLabelText("审阅结局路线"), { target: { value: "scn_rooftop" } });
+
+    expect(screen.getByRole("status", { name: "结局路线审阅状态" })).toHaveTextContent("已找到 1 条候选路线");
+    expect(screen.getByLabelText("结局候选路线")).toHaveValue("0");
+    expect(screen.getByRole("status", { name: "结局路线步骤" })).toHaveTextContent("2 / 2");
+    expect(screen.getByRole("button", { name: /路线场景：风中的天台/ })).toHaveAttribute("data-route-reviewed", "true");
+    expect(screen.getByTestId("route-edge-opt_rooftop")).toHaveAttribute("data-route-reviewed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "上一个审阅路线节点" }));
+    expect(screen.getByRole("status", { name: "结局路线步骤" })).toHaveTextContent("1 / 2");
+    expect(screen.getByRole("button", { name: /路线场景：放学后的校门/ })).toHaveAttribute("data-route-reviewed", "true");
+  });
+
+  it("anchors ending-route steps across real 64-node Route windows", () => {
+    const project = projectCanonicalFromStory(pagedRuntimeStory(65), "n40-ending-route-window");
+    render(<App initialProject={project} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.change(screen.getByLabelText("审阅结局路线"), { target: { value: "runtime_route_064" } });
+
+    const nodes = screen.getByLabelText("路线场景节点");
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("65–65 / 65");
+    expect(within(nodes).getByRole("button", { name: /Runtime Route Scene 64/ })).toHaveAttribute("data-route-reviewed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "上一个审阅路线节点" }));
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
+    expect(within(nodes).getByRole("button", { name: /Runtime Route Scene 0/ })).toHaveAttribute("data-route-reviewed", "true");
+    expect(within(nodes).queryByRole("button", { name: /Runtime Route Scene 64/ })).not.toBeInTheDocument();
+  });
+
   it("highlights the current, visited, and traversed Route facts from formal Runtime History", () => {
     renderRouteMap();
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));

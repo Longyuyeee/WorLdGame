@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1954,6 +1954,9 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const [kindFilter,setKindFilter]=useState<""|RouteNodeKind>("");
   const [groupFilter,setGroupFilter]=useState("");
   const [windowOffset, setWindowOffset] = useState<number | undefined>(undefined);
+  const [endingSceneId, setEndingSceneId] = useState("");
+  const [endingCandidateIndex, setEndingCandidateIndex] = useState(0);
+  const [endingRouteStep, setEndingRouteStep] = useState(0);
   const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
   const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
   const [title, setTitle] = useState(selected?.title ?? "");
@@ -1969,7 +1972,15 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const runtimeVisitedScenes = useMemo(() => new Set(runtimeRouteTrace.visitedSceneIds), [runtimeRouteTrace.visitedSceneIds]);
   const runtimeVisitedEdges = useMemo(() => new Set(runtimeRouteTrace.visitedEdgeIds), [runtimeRouteTrace.visitedEdgeIds]);
   const runtimeCurrentTitle = graph.nodes.find((node) => node.id === runtimeRouteTrace.currentSceneId)?.title ?? runtimeRouteTrace.currentSceneId;
-  const routeWindowAnchorSceneId = runtimeRouteAnchorSceneId(runtimeRouteTrace, selectedSceneId);
+  const endingNodes = useMemo(() => graph.nodes.filter((node) => node.facts.some((item) => item.kind === "ending")), [graph]);
+  const endingRouteReview = useMemo(() => endingSceneId === "" ? null : reviewRouteToEnding(graph, endingSceneId), [endingSceneId, graph]);
+  const endingCandidate = endingRouteReview?.candidates[endingCandidateIndex] ?? endingRouteReview?.candidates[0];
+  const reviewedSceneIds = useMemo(() => new Set(endingCandidate?.sceneIds ?? []), [endingCandidate]);
+  const reviewedEdgeIds = useMemo(() => new Set(endingCandidate?.edgeIds ?? []), [endingCandidate]);
+  const endingRouteAnchorSceneId = endingCandidate?.sceneIds[endingRouteStep];
+  const routeWindowAnchorSceneId = endingSceneId !== "" && endingRouteAnchorSceneId !== undefined
+    ? endingRouteAnchorSceneId
+    : runtimeRouteAnchorSceneId(runtimeRouteTrace, selectedSceneId);
   useEffect(() => setTitle(selected?.title ?? ""), [selected?.id, selected?.title]);
   useEffect(() => { setLayoutX(selected?.layout.x ?? 0);setLayoutY(selected?.layout.y ?? 0); }, [selected?.id, selected?.layout.x, selected?.layout.y]);
   useEffect(()=>setSelectedGroupId(selected?.layout.groupId??""),[selected?.id,selected?.layout.groupId]);
@@ -2015,6 +2026,40 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const saveViewport=()=>commitMutation(onSetViewport(viewportX,viewportY,viewportZoom),"路线视口已写入 Layout Sidecar");
   const moveNode=(node:RouteSceneNodeV1,dx:number,dy:number)=>commitMutation(onSetScenePosition(node.id,node.layout.x+dx,node.layout.y+dy),"节点位置已提交 · 支持撤销与重开");
   const moveSelected=(dx:number,dy:number)=>{if(selected!==undefined)moveNode(selected,dx,dy);};
+  const focusEndingRouteStep = (step: number) => {
+    if (endingCandidate === undefined) return;
+    const nextStep = Math.max(0, Math.min(endingCandidate.sceneIds.length - 1, step));
+    const sceneId = endingCandidate.sceneIds[nextStep];
+    if (sceneId === undefined) return;
+    setEndingRouteStep(nextStep);
+    setWindowOffset(undefined);
+    setSelectedSceneId(sceneId);
+    setEditResult(null);
+    dispatch({ type: "select-scene", sceneId });
+  };
+  const selectEnding = (sceneId: string) => {
+    setEndingSceneId(sceneId);
+    setEndingCandidateIndex(0);
+    setQuery("");setChapterFilter("");setKindFilter("");setGroupFilter("");setWindowOffset(undefined);
+    if (sceneId === "") return;
+    const review = reviewRouteToEnding(graph, sceneId);
+    const candidate = review.candidates[0];
+    const step = Math.max(0, (candidate?.sceneIds.length ?? 1) - 1);
+    setEndingRouteStep(step);
+    const focusSceneId = candidate?.sceneIds[step] ?? sceneId;
+    setSelectedSceneId(focusSceneId);
+    dispatch({ type: "select-scene", sceneId: focusSceneId });
+  };
+  const selectEndingCandidate = (index: number) => {
+    const candidate = endingRouteReview?.candidates[index];
+    if (candidate === undefined) return;
+    setEndingCandidateIndex(index);
+    setEndingRouteStep(candidate.sceneIds.length - 1);
+    setWindowOffset(undefined);
+    const sceneId = candidate.sceneIds.at(-1)!;
+    setSelectedSceneId(sceneId);
+    dispatch({ type: "select-scene", sceneId });
+  };
   return (
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
       <div className="panel-heading authoring-heading">
@@ -2040,6 +2085,25 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         <div className="route-groups" aria-label="路线分组列表">{graph.groups.map((group)=><span className="route-group-chip" key={group.groupId}><button type="button" aria-label={`${group.collapsed?"展开":"折叠"}分组：${group.title}`} aria-pressed={group.collapsed} onClick={()=>commitMutation(onToggleGroup(group.groupId),group.collapsed?"路线分组已展开":"路线分组已折叠")}>{group.collapsed?"＋":"−"} {group.title} · {graph.nodes.filter((node)=>node.layout.groupId===group.groupId).length}</button><button type="button" aria-label={`删除分组：${group.title}`} onClick={()=>commitMutation(onDeleteGroup(group.groupId),"路线分组已删除 · 节点已解除视觉分组")}>×</button></span>)}{graph.groups.length===0&&<span>尚无自定义分组</span>}</div>
         <div className="route-viewport-controls"><label><span>视口 X</span><input type="number" aria-label="路线视口 X" value={viewportX} onChange={(event)=>setViewportX(event.currentTarget.valueAsNumber)} /></label><label><span>视口 Y</span><input type="number" aria-label="路线视口 Y" value={viewportY} onChange={(event)=>setViewportY(event.currentTarget.valueAsNumber)} /></label><label><span>缩放</span><input type="number" min="0.5" max="2" step="0.25" aria-label="路线视口缩放" value={viewportZoom} onChange={(event)=>setViewportZoom(event.currentTarget.valueAsNumber)} /></label><button type="button" onClick={saveViewport}>保存路线视口</button></div>
       </div>
+      <section className="route-ending-review" aria-label="指定结局路线审阅">
+        <div>
+          <p className="eyebrow">ENDING ROUTE REVIEW</p>
+          <label><span>目标结局</span><select aria-label="审阅结局路线" value={endingSceneId} onChange={(event)=>selectEnding(event.target.value)}><option value="">选择一个结局</option>{endingNodes.map((node)=><option key={node.id} value={node.id}>{node.title} · {node.id}</option>)}</select></label>
+        </div>
+        {endingRouteReview !== null && <>
+          <div className={`route-ending-review__status route-ending-review__status--${endingRouteReview.status}`} role="status" aria-label="结局路线审阅状态">
+            {endingRouteReview.status === "found"
+              ? `已找到 ${endingRouteReview.candidates.length} 条候选路线${endingRouteReview.truncated ? "（已达安全上限）" : ""} · 忽略 ${endingRouteReview.ignoredDanglingEdgeCount} 条悬空连接`
+              : endingRouteReview.status === "unreachable" ? "目标结局从项目入口不可达" : "目标不是有效结局场景"}
+          </div>
+          {endingCandidate !== undefined && <div className="route-ending-review__controls">
+            <label><span>候选路线</span><select aria-label="结局候选路线" value={endingCandidateIndex} onChange={(event)=>selectEndingCandidate(Number(event.target.value))}>{endingRouteReview.candidates.map((candidate,index)=><option key={candidate.candidateId} value={index}>路线 {index+1} · {candidate.sceneIds.length} 场景</option>)}</select></label>
+            <button type="button" aria-label="上一个审阅路线节点" disabled={endingRouteStep<=0} onClick={()=>focusEndingRouteStep(endingRouteStep-1)}>← 上一步</button>
+            <span role="status" aria-label="结局路线步骤">{endingRouteStep+1} / {endingCandidate.sceneIds.length}</span>
+            <button type="button" aria-label="下一个审阅路线节点" disabled={endingRouteStep>=endingCandidate.sceneIds.length-1} onClick={()=>focusEndingRouteStep(endingRouteStep+1)}>下一步 →</button>
+          </div>}
+        </>}
+      </section>
       <div className="route-window-controls" aria-label="路线局部窗口">
         <button type="button" aria-label="上一段路线场景" disabled={!routeWindow.hasPrevious} onClick={() => setWindowOffset(Math.max(0, routeWindow.start - ROUTE_GRAPH_WINDOW_LIMIT))}>← 上一段</button>
         <span role="status" aria-label="路线窗口范围">{routeWindow.totalMatches === 0 ? "0 / 0" : `${routeWindow.start + 1}–${routeWindow.end} / ${routeWindow.totalMatches}`}</span>
@@ -2057,9 +2121,11 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
           {visibleNodes.map((node, index) => {
             const runtimeCurrent = runtimeRouteTrace.active && node.id === runtimeRouteTrace.currentSceneId;
             const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedScenes.has(node.id);
+            const routeReviewed = reviewedSceneIds.has(node.id);
             const className = [
               `route-node route-node--${node.kind}`,
               node.id === session.activeSceneId ? "is-active" : "",
+              routeReviewed ? "is-route-reviewed" : "",
               runtimeVisited ? "is-runtime-visited" : "",
               runtimeCurrent ? "is-runtime-current" : ""
             ].filter(Boolean).join(" ");
@@ -2072,6 +2138,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
               aria-pressed={node.id === selectedSceneId}
               aria-current={runtimeCurrent ? "step" : undefined}
               data-runtime-visited={runtimeVisited}
+              data-route-reviewed={routeReviewed}
               data-route-group={node.layout.groupId}
               draggable
               onDragStart={(event)=>{event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",node.id);}}
@@ -2086,6 +2153,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
               <span className="route-node__chapter">{graph.chapters.find((chapter) => chapter.id === node.chapterId)?.title ?? "未分组"}</span>
               <span className="route-node__facts">{node.facts.length === 0 ? "无控制流事实" : node.facts.map((item) => `${item.kind}:${item.label}${item.targetLabel === undefined ? "" : `→${item.targetLabel}`}`).join(" · ")}</span>
               {runtimeCurrent ? <span className="route-node__runtime-state">当前运行</span> : runtimeVisited ? <span className="route-node__runtime-state">已访问</span> : null}
+              {routeReviewed && <span className="route-node__review-state">结局路线</span>}
             </button>
             );
           })}
@@ -2096,11 +2164,12 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
           <p className="eyebrow">CONNECTIONS</p>
           {routeWindow.edges.map((edge) => {
             const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedEdges.has(edge.id);
+            const routeReviewed = reviewedEdgeIds.has(edge.id);
             return (
-            <div className={runtimeVisited ? "edge-row is-runtime-visited" : "edge-row"} key={edge.id} data-testid={`route-edge-${edge.id}`} data-runtime-visited={runtimeVisited}>
+            <div className={["edge-row",runtimeVisited?"is-runtime-visited":"",routeReviewed?"is-route-reviewed":""].filter(Boolean).join(" ")} key={edge.id} data-testid={`route-edge-${edge.id}`} data-runtime-visited={runtimeVisited} data-route-reviewed={routeReviewed}>
               <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
               <strong>{edge.label}</strong><span className="edge-arrow">→</span>
-              <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}{runtimeVisited && <em className="edge-row__runtime-state">已走过</em>}
+              <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}{runtimeVisited && <em className="edge-row__runtime-state">已走过</em>}{routeReviewed && <em className="edge-row__review-state">结局路线</em>}
             </div>
             );
           })}

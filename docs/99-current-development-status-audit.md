@@ -4,7 +4,7 @@
 > 当前分支：`codex/n40-e1-route-graph-core`；当前文档头为 `00acf94c6b37c84717008197f34389e873bd39b9`，N40-E8k 实现头为 `37ee47c2664ccd518889d5cb7a920a38b38397ca`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
-> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8k Trusted Route Topology Page](174-n40-e8k-trusted-route-topology-page-audit.md)、[N40 功能优先复审](175-n40-function-first-development-reaudit.md)
+> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8k Trusted Route Topology Page](174-n40-e8k-trusted-route-topology-page-audit.md)、[N40 功能优先复审](175-n40-function-first-development-reaudit.md)、[N40-E8l 指定结局路线审阅](176-n40-e8l-ending-route-review-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -13,12 +13,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40-E8k Engineering 已完成并通过本地/远端 Windows / Node 22 完整门；N40 整体仍在开发，下一节点按功能优先纠偏为 E8l 指定结局路线审阅。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40-E8l 已完成本地 Engineering、10k 与 desktop/mobile production browser 证据；远端 Windows / Node 22 完整门待首次推送后登记。N40 整体仍在开发，下一节点为 E8m 诊断定位与直接导航。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**E1–E7 已形成 Compiler 图、10k/64 窗口、Layout/过滤、可校验缓存、`<500 ms` 局部编辑和 Runtime 路线高亮；E8a–E8h 建立 trusted Route-first、可保存 Script/Sequence 与全局索引；E8i/E8j 已完成 narration 最小结构闭环；E8k 已关闭 Route structure/topology 的 scene/layout 正文分页，100 场景首窗 `[1,1,64,64]`，10k Windows `301.56 ms`。当前优先缺口是指定结局路线审阅、诊断定位、直接进入场景、目标导航及保存后 Preview 复核闭环；完整 Lazy Project、topology 增量、外部宿主后置**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**E1–E8k 已形成 Compiler 图、10k/64 窗口、Layout/过滤、缓存、局部编辑、Runtime 高亮、trusted Route-first、局部内容保存、narration 结构闭环与 topology 分页；E8l 已关闭指定结局候选路线审阅，10k 查询 `13.29 ms <250 ms`，跨窗与 desktop/mobile production 通过。当前优先缺口是诊断定位、直接进入场景、目标导航及保存后 Preview 复核闭环；完整 Lazy Project、topology 增量、外部宿主后置**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；当前 N40 开发在 Draft PR #59，分支 `codex/n40-e1-route-graph-core`**。
 
@@ -27,7 +27,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k/64 窗口、Layout/过滤、可校验缓存、`<500 ms` 局部编辑及 Formal Runtime 路线高亮；受管工程可从 Recent 无 full read 进入 Route，Route topology 只读当前 scene/layout 页，再按 scene 补读 script；同源 Script/64 卡 Sequence、全局索引和 narration 前插/后插/删除/移动闭环已对齐 | Route 指定结局路线审阅、诊断定位、直接进入场景、目标导航和修改后 Preview 复核闭环；完整 Sequence/Stage/Player 仍缺；Lazy Project 增量与外部宿主后置 |
+| Story | P0 语言、Writer/Script、Compiler IR/Source Map；Route 有 10k/64 窗口、Layout/过滤、缓存、`<500 ms` 局部编辑、Formal Runtime 高亮和指定结局候选路线审阅；受管工程可从 Recent 无 full read 进入 Route，Route topology 只读当前 scene/layout 页，再按 scene 补读 script；同源 Script/64 卡 Sequence、全局索引和 narration 前插/后插/删除/移动闭环已对齐 | Route 诊断定位、直接进入场景、目标导航和修改后 Preview 复核闭环；完整 Sequence/Stage/Player 仍缺；Lazy Project 增量与外部宿主后置 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -92,7 +92,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. E6e/E7 已关闭局部编辑与 Runtime 高亮，E8a–E8h 已建立可信 Route-first、可保存同源内容页与全局索引；E8i/E8j 已关闭 narration 最小结构闭环；E8k 已关闭 Route structure/topology scene/layout 分页并通过 10k Windows 500ms 门。根据[功能优先复审](175-n40-function-first-development-reaudit.md)，下一步冻结为 N40-E8l 指定结局路线审阅，随后 E8m 诊断定位/直接导航、E8n Route 驱动创作修复闭环；topology 增量写和外部 trusted host 后置。其他完整 Sequence 能力不得在 N41 授权/验收前越界；安全校验恢复时补做 production browser；
+2. E8l 已关闭指定结局候选路线、跨 64 节点定位、10k 性能与 desktop/mobile production browser 子门。下一步冻结为 E8m 诊断定位/直接导航，随后 E8n Route 驱动创作修复闭环；topology 增量写和外部 trusted host 后置。其他完整 Sequence 能力不得在 N41 授权/验收前越界；
 3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

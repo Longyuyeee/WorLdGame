@@ -69,6 +69,30 @@ export interface RouteGraphV1 {
 
 export const ROUTE_GRAPH_WINDOW_LIMIT = 64;
 export const ROUTE_GRAPH_EDGE_LIMIT = 256;
+export const ENDING_ROUTE_CANDIDATE_LIMIT = 8;
+export const ENDING_ROUTE_EXPANSION_LIMIT = 100_000;
+
+export interface EndingRouteCandidateV1 {
+  readonly candidateId: string;
+  readonly sceneIds: readonly string[];
+  readonly edgeIds: readonly string[];
+}
+
+export interface EndingRouteReviewV1 {
+  readonly schemaVersion: 1;
+  readonly endingSceneId: string;
+  readonly status: "found" | "unreachable" | "invalid-ending";
+  readonly candidates: readonly EndingRouteCandidateV1[];
+  readonly exploredEdgeCount: number;
+  readonly skippedCycleEdgeCount: number;
+  readonly ignoredDanglingEdgeCount: number;
+  readonly truncated: boolean;
+}
+
+export interface EndingRouteReviewRequest {
+  readonly candidateLimit?: number;
+  readonly expansionLimit?: number;
+}
 
 export interface RouteGraphIndexV1 {
   readonly schemaVersion: 1;
@@ -260,6 +284,101 @@ export function queryRouteGraphWindow(index: RouteGraphIndexV1, request: RouteGr
     edgesTruncated: localEdges.length > ROUTE_GRAPH_EDGE_LIMIT,
     hasPrevious: start > 0,
     hasNext: end < matchingIndexes.length
+  };
+}
+
+/**
+ * Enumerates deterministic simple routes from the project entry to one ending.
+ * Compiler-projected dangling edges never participate, and cycle edges are
+ * skipped per active path so malformed projects cannot make review unbounded.
+ */
+export function reviewRouteToEnding(
+  graph: RouteGraphV1,
+  endingSceneId: string,
+  request: EndingRouteReviewRequest = {}
+): EndingRouteReviewV1 {
+  const target = graph.nodes.find((node) => node.id === endingSceneId);
+  const ignoredDanglingEdgeCount = graph.edges.filter((edge) => edge.status === "dangling").length;
+  const empty = (status: "unreachable" | "invalid-ending", exploredEdgeCount = 0, skippedCycleEdgeCount = 0, truncated = false): EndingRouteReviewV1 => ({
+    schemaVersion: 1,
+    endingSceneId,
+    status,
+    candidates: [],
+    exploredEdgeCount,
+    skippedCycleEdgeCount,
+    ignoredDanglingEdgeCount,
+    truncated
+  });
+  if (target === undefined || !target.facts.some((item) => item.kind === "ending")) return empty("invalid-ending");
+  if (!graph.nodes.some((node) => node.id === graph.entrySceneId)) return empty("unreachable");
+
+  const candidateLimit = Math.max(1, Math.min(ENDING_ROUTE_CANDIDATE_LIMIT, Math.floor(request.candidateLimit ?? ENDING_ROUTE_CANDIDATE_LIMIT)));
+  const expansionLimit = Math.max(1, Math.min(ENDING_ROUTE_EXPANSION_LIMIT, Math.floor(request.expansionLimit ?? ENDING_ROUTE_EXPANSION_LIMIT)));
+  const outgoing = new Map<string, RouteEdgeV1[]>();
+  for (const edge of graph.edges) {
+    if (edge.status !== "valid") continue;
+    const edges = outgoing.get(edge.sourceSceneId);
+    if (edges === undefined) outgoing.set(edge.sourceSceneId, [edge]);
+    else edges.push(edge);
+  }
+
+  const candidates: EndingRouteCandidateV1[] = [];
+  const scenePath = [graph.entrySceneId];
+  const edgePath: string[] = [];
+  const activeScenes = new Set(scenePath);
+  const frames = [{ sceneId: graph.entrySceneId, nextEdgeIndex: 0 }];
+  let exploredEdgeCount = 0;
+  let skippedCycleEdgeCount = 0;
+  let truncated = false;
+
+  if (graph.entrySceneId === endingSceneId) {
+    candidates.push({ candidateId: `${endingSceneId}:1`, sceneIds: [...scenePath], edgeIds: [] });
+  } else {
+    while (frames.length > 0) {
+      const frame = frames.at(-1)!;
+      const edges = outgoing.get(frame.sceneId) ?? [];
+      if (frame.nextEdgeIndex >= edges.length) {
+        frames.pop();
+        activeScenes.delete(scenePath.pop()!);
+        if (edgePath.length >= frames.length) edgePath.pop();
+        continue;
+      }
+      if (exploredEdgeCount >= expansionLimit) {
+        truncated = true;
+        break;
+      }
+      const edge = edges[frame.nextEdgeIndex++]!;
+      exploredEdgeCount += 1;
+      if (activeScenes.has(edge.targetSceneId)) {
+        skippedCycleEdgeCount += 1;
+        continue;
+      }
+      scenePath.push(edge.targetSceneId);
+      edgePath.push(edge.id);
+      activeScenes.add(edge.targetSceneId);
+      if (edge.targetSceneId === endingSceneId) {
+        candidates.push({ candidateId: `${endingSceneId}:${candidates.length + 1}`, sceneIds: [...scenePath], edgeIds: [...edgePath] });
+        activeScenes.delete(scenePath.pop()!);
+        edgePath.pop();
+        if (candidates.length >= candidateLimit) {
+          truncated = true;
+          break;
+        }
+        continue;
+      }
+      frames.push({ sceneId: edge.targetSceneId, nextEdgeIndex: 0 });
+    }
+  }
+
+  return {
+    schemaVersion: 1,
+    endingSceneId,
+    status: candidates.length > 0 ? "found" : "unreachable",
+    candidates,
+    exploredEdgeCount,
+    skippedCycleEdgeCount,
+    ignoredDanglingEdgeCount,
+    truncated
   };
 }
 
