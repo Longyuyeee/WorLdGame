@@ -29,7 +29,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠，E1 标签结构通过 Script/Compiler/Route/IndexedDB 重开；E2 已建立 1,000 次全 P0 Sequence/Script 交替互改、choice child、stable ID、format/hash 与失败关闭门；N40 Route Engineering 出口已通过 | N41-E2 仍待全仓/远端闭环，N41 完整出口仍缺；Route-first lazy 仅已审计结构族开放；N40/N41 Product Acceptance、完整 Stage/Player 阻断 |
+| Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠，E1 标签结构通过 Script/Compiler/Route/IndexedDB 重开；E2 的 1,000 次全 P0 Sequence/Script 交替互改、choice child、stable ID、format/hash 与失败关闭门已由 PR #62 Windows CI 关闭；N40 Route Engineering 出口已通过 | N41 完整出口仍缺；Route-first lazy 仅已审计结构族开放；N40/N41 Product Acceptance、完整 Stage/Player 阻断 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -96,7 +96,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
-4. N41-E2 已从最终绿色 Authority 派生并建立 1,000 次 Sequence/Script 连续互改门；先完成全仓、Draft PR 与 Windows CI，再关闭 E2；
+4. N41-E2 已完成全仓、Draft PR #62 与 Windows CI；下一切片审计 N41 剩余退出条件，并只选择具备专用 Compiler/Route preflight 的 Route-first 结构族；
 5. 正式 Player 属于 N50/N80，不能跳过 N41–N43。N32/N40/N41 Product Acceptance 和 N42+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

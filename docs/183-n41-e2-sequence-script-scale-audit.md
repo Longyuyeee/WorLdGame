@@ -3,7 +3,8 @@
 > 日期：2026-08-24  
 > 分支：`codex/n41-e2-sequence-script-scale`  
 > 直接基线：N41 集中 Authority `644a38026265ca67bea254c154530d00c32a6680`  
-> 判定：实现与本地定向门通过；等待全仓门、推送和 Windows / Node 22 CI  
+> Draft PR：#62，base `codex/m1-integration-n41-governance`
+> 判定：N41-E2 Engineering 已闭合；不等于完整 N41 或 Product Acceptance
 > 边界：只关闭 N41-E2 Engineering，不代表 N41 Product Acceptance，也不授权 N42
 
 ## 1. 冻结目标与旧证据差距
@@ -40,6 +41,10 @@ N41-E2 要证明 Sequence 和 Script 在同一 Canonical Source Session 上可�
 | 格式与语义 | format→parse 后 Hash、snapshot、正式投影一致 | semantic Hash `50746ded` | 无差异 | 通过 |
 | 失败关闭 | 四类错误不污染 committed/Sequence | stale、duplicate、ID mutation 均 rejected；invalid Script 为 draft | 无差异 | 通过 |
 | TypeScript | 全仓类型通过 | `npm run typecheck` 退出码 0 | 无差异 | 通过 |
+| 受影响回归 | E1、lazy、Sequence model、Studio session、P0/source session 均不回归 | `6 files / 66 tests` | 无差异 | 通过 |
+| 本地完整门 | 治理、全仓、存储、重型 VM、构建、架构和性能均绿色 | `npm run check` 退出码 0；普通回归 `116 files / 726 tests`，storage `1/1`，VM `5/5` | 无差异；未降低 corpus 或预算 | E2 250.18 ms；Route P95 122.19 ms；Dicing 2322.85 ms |
+| Windows CI | 干净 Windows / Node 22 对实现头完整裁决 | Draft PR #62，run `32691082222` / job `97324747401`，5 分 30 秒 | 无差异 | E2 独立门 323.02 ms、普通回归 116/726、VM 5/5、Route P95 145.85 ms，全部通过 |
+| 构建体积 | 不因测试切片改变产品 bundle，并保留既有债 | Editor JS 838.80 kB / gzip 235.74 kB | 不提高 warning 门 | 构建通过；>500 kB 拆包债保留 |
 
 ## 4. 需求对齐与诚实边界
 
@@ -55,9 +60,11 @@ N41-E2 要证明 Sequence 和 Script 在同一 Canonical Source Session 上可�
 
 ## 5. 下一步与停止条件
 
-1. 执行受影响回归和 `npm run check`；
-2. 推送本分支并建立以 N41 Authority 为 base 的 Draft PR；
-3. 记录 Windows / Node 22 的实际耗时、测试总数与性能差异；
-4. 远端绿色后关闭 E2，再审计 N41 剩余完整失败矩阵和 Route-first 结构族，仍不得进入 N42。
+1. E2 已完成受影响回归、本地完整门、推送、Draft PR #62 和 Windows CI；
+2. 下一切片先审计 N41 剩余退出条件，选择一个有专用 Compiler/Route preflight 的 Route-first 结构族；
+3. 涉及 UI 的下一切片必须增加 production browser 实际值。本切片没有改变 UI，浏览器点击不能替代 Source Session 1,000 次事务门；
+4. N41 完整出口复审通过前仍不得进入 N42。
 
 任何 stable ID 变化、choice child 丢失、Hash 漂移、错误 draft 污染 committed，或 15 秒预算失败，均必须停止扩展并修正。
+
+实现头 `6e0021091f5abe6b0a4f59fbe158e44b4300904d` 已精确推送并由上述 Windows CI 验证。因此 N41-E2 Engineering 关闭；N21/N23 真人门、N41 Product Acceptance、N42+、M1 Stable 与发布继续 fail closed。
