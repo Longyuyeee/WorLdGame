@@ -394,7 +394,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 准入状态（2026-08-24）：N41 Engineering 出口后，产品负责人再次明确要求进入后续步骤。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)以 `RA-N21-007` 只准入本节点 Engineering；N42 Product Acceptance、N43+、M1 与发布继续 fail closed。E1 必须先冻结 canonical semantic command / timeline projection，再关闭一个 UI→保存重开→Formal Runtime/Host→Preview 的真实导演闭环。
 
-> E1 候选（2026-08-24）：[Stage Director 语义定位审计](187-n42-e1-stage-director-placement-audit.md)已关闭画布 75/45 → stable-ID patch → r2/s2 保存重开 → Runtime Host 数值 payload；production browser 的真实媒体文件桥接与本机 90 秒 VM 门仍未关闭，故 E1 Engineering 不登记通过，也不进入关键帧切片。
+> E1 候选（2026-08-24）：[Stage Director 语义定位审计](187-n42-e1-stage-director-placement-audit.md)已关闭画布 75/45 → stable-ID patch → r2/s2 保存重开 → Runtime Host 数值 payload；Draft PR #66 首个 Windows 完整门绿色，10k VM 67.983 秒。本机超时作为环境差异保留，production browser 的真实媒体文件桥接仍未关闭，故 E1 Engineering 不登记通过，也不进入关键帧切片。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。

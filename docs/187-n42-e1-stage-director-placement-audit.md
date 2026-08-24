@@ -4,8 +4,9 @@
 > 分支：`codex/n42-e1-stage-runtime-projection`
 > 直接基线：N42 治理最终绿色头 `69e33ffe573bf571ff8f84b193c2686071c410c0`
 > 授权：`RA-N21-007`，只覆盖 N42 Stage Engineering
-> Draft PR / Windows CI：提交推送后补录
-> 判定：工程候选；语义定位通过，真实媒体 production-browser 子门与本机 VM 性能裁决尚未关闭
+> Draft PR：[#66](https://github.com/Longyuyeee/WorLdGame/pull/66)（Draft，保持 open）
+> 首个 Windows CI：run `32699501588` / job `97347995042`，5 分 50 秒，绿色
+> 判定：工程候选；语义定位与 Windows CI 通过，真实媒体 production-browser 子门尚未关闭
 
 ## 1. 冻结切片与代码级差距
 
@@ -32,7 +33,7 @@
 | 保存重开 | r2/s2 重载后同命令 | 初次 production 操作为 r2、autosave s2 | 无需修正 | 重载显示“本地项目已恢复”，命令与 stable ID 零差异 |
 | 真实媒体 | 实际图片在 16:9 Stage 以 75/45 渲染 | E: 文件桥接得到 0 B / `NotFoundError`；临时路径重试又在 chooser 超时 | 停止重试；Index 维持 r0/0，安全占位未被冒充成功 | **未关闭**；下一修正切片建立可重复的 production-browser 媒体夹具 |
 | 独立 typecheck | Editor workspace 有单独脚本 | workspace 没有 `typecheck` script | 使用真实 `build = tsc -b && vite build` | 类型检查与生产构建通过 |
-| 本机重型 VM | 10k corpus ≤90 秒 | 91.698 秒；清理 Preview 服务后 96.664 秒 | 不减规模、不改 digest、不放宽超时；交由干净 Windows/Node 22 同门裁决 | **本机红，待 CI** |
+| 重型 VM | 10k corpus ≤90 秒 | 本机 91.698 秒；清理 Preview 服务后 96.664 秒 | 不减规模、不改 digest、不放宽超时；交由干净 Windows/Node 22 同门裁决 | CI 同一 5 项全绿，10k 实际 67.983 秒；本机差异保留 |
 
 ## 4. 自动化、构建与生产浏览器
 
@@ -43,6 +44,7 @@
 - 全部 workspace 构建、93 portable / 4 adapter 架构门、Script/Route/Asset 性能门绿色；Route P95 190.22 ms，Dicing 3343.86 ms、净节省 85.83%；
 - Editor production：CSS 89.24 kB / gzip 16.74 kB，JS 846.91 kB / gzip 237.46 kB；`>500 kB` 拆包债保留；
 - production browser：默认 `1920×1080` / 16:9；Stage 实际 rect `334×187.875`；点击实际值 X 75% / Y 45%；Script r2、autosave s2、重载恢复；console error/warning `[]`；真实资源仍按安全占位失败关闭。
+- Draft PR #66 首个 Windows / Node 22 完整门绿色：run `32699501588` / job `97347995042`，5 分 50 秒；重型 VM `5/5`，10k corpus 67.983 秒、总测试 68.084 秒，未更改冻结门。
 
 ## 5. 需求对齐与出口判定
 
@@ -50,10 +52,10 @@
 |---|---|
 | Goal：画布操作生成 canonical stable-ID Stage 命令 | 1/1 |
 | Implementation：有界映射、语义 patch、Runtime Host 数值化、交互防误触 | 4/4 |
-| Acceptance：自动化、保存重开、production 交互/console、真实媒体、Windows CI | 3/5（媒体与 CI 待关闭） |
+| Acceptance：自动化、保存重开、production 交互/console、真实媒体、Windows CI | 4/5（只余真实媒体待关闭） |
 
 方向与最初需求一致：现代、图形化、多彩且清晰；同时坚持 Naninovel/Utage 级的权威数据、确定性 Runtime、失败关闭和可审计保存链。没有账户、收费、N43 七模式、正式 Player 或发布范围漂移。E1 在真实媒体和 Windows CI 都通过前保持候选，下一步不得宣布完整 N42。
 
-## 6. 下一修正
+## 6. 当前出口与下一修正
 
-E1b 建立可重复的 production-browser 媒体夹具，通过产品现有的 IndexedDB Asset Repository 与真实签名检查准备测试资源，而不是依赖人工文件选择桥接；随后复验角色实际画面、75/45 DOM/Canvas 几何、正式 Runtime Host、Back/Forward 和 console。Windows CI 同时裁决本机 VM 超时；任一失败则继续修正，不进入关键帧切片。
+Windows CI 已把本机 VM 超时裁决为环境差异，但没有替代产品媒体实测。E1b 建立可重复的 production-browser 媒体夹具，通过产品现有的 IndexedDB Asset Repository 与真实签名检查准备测试资源，而不是依赖人工文件选择桥接；随后复验角色实际画面、75/45 DOM/Canvas 几何、正式 Runtime Host、Back/Forward 和 console。该门通过前 E1 仍不关闭，也不进入关键帧切片。
