@@ -192,6 +192,7 @@ export function PreviewCanvasHitProxy({
     tabIndex={character.exiting === true ? -1 : undefined}
     disabled={character.exiting === true}
     onPointerDown={(event) => {
+      event.stopPropagation();
       const stage = event.currentTarget.closest<HTMLElement>("[data-stage-surface]");
       if (stage === null) return;
       const point = mapClientPointToStage(event.clientX, event.clientY, stage.getBoundingClientRect(), designWidth, designHeight);

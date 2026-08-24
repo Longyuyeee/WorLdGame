@@ -138,6 +138,29 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(movedLine).not.toContain("expression=");
   });
 
+  it("places a selected character on the Stage through a stable-ID semantic patch", () => {
+    renderLegacyDirectionApp();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    const source = String((scriptEditor as HTMLTextAreaElement).value);
+    fireEvent.change(scriptEditor, { target: { value: source.replace(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
+      "@show action=show asset=asset_missing slot=lead x=20 y=100 @id(stmt_gate_bg)"
+    ) } });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+
+    const stage = screen.getByTestId("preview-stage");
+    Object.defineProperty(stage, "getBoundingClientRect", { configurable: true, value: () => ({ left: 0, top: 0, width: 1000, height: 562.5, right: 1000, bottom: 562.5, x: 0, y: 0, toJSON: () => ({}) }) });
+    fireEvent.pointerDown(stage, { clientX: 750, clientY: 253.125 });
+
+    expect(screen.getByText("lead 已定位到 X 75% · Y 45%")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const placed = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
+    expect(placed).toContain("@show action=show asset=asset_missing slot=lead x=75 y=45 @id(stmt_gate_bg)");
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+  });
+
   it("fails closed to the visual placeholder when a legacy direction has no executable Asset ID", async () => {
     renderLegacyDirectionApp();
     expect(await screen.findByText("安全占位")).toBeVisible();

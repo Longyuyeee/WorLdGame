@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import {
   AssetBlobError,
   assetBackupRecordId,
@@ -120,7 +120,8 @@ import {
   type PreviewUrlFactory
 } from "./preview-media-runtime";
 import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
-import { createStageSurfaceMetrics, type StageDesignPoint } from "./stage-surface";
+import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
+import { createStagePlacementPatch } from "./stage-director";
 import {
   createPreviewMediaHostState,
   previewMediaErrorCount,
@@ -2279,6 +2280,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly createCommandId: () => string;
   readonly inputDirty: boolean;
   readonly assetIndex: AssetIndex;
   readonly assetRepository: IndexedDbAssetRepository | null;
@@ -2304,13 +2306,14 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange }: PreviewPanelProps) {
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
   const [showSafeArea, setShowSafeArea] = useState(true);
   const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
+  const [stageDirectorMessage, setStageDirectorMessage] = useState<string | null>(null);
   const devicePixelRatio = useDevicePixelRatio();
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
@@ -2446,6 +2449,33 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
   });
   const renderFrame = createPreviewRenderFrame(mediaView, stagePlan.resourceKey);
   const mediaErrorCount = previewMediaErrorCount(mediaView);
+  const selectedStageStatement = scene.statements.find((candidate) => candidate.id === session.selectedStatementId);
+  const placeOnStage = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("button, input, select, textarea, .stage-content, .stage-chrome") !== null) return;
+    const point = mapClientPointToStage(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), viewport.width, viewport.height);
+    if (point === null) {
+      setStageDirectorMessage("画布坐标无效，未修改剧情");
+      return;
+    }
+    setLastStagePoint(point);
+    if (playableActive || pendingDraft || inputDirty || selectedStageStatement === undefined) {
+      setStageDirectorMessage(playableActive ? "正式 Runtime 运行中，画布编辑已锁定" : "请先提交草稿并选择角色 Show/Move 演出");
+      return;
+    }
+    const placement = createStagePlacementPatch(selectedStageStatement, point, viewport.width, viewport.height);
+    if (!placement.ok) {
+      setStageDirectorMessage(placement.message);
+      return;
+    }
+    dispatch({
+      type: "patch-direction",
+      commandId: createCommandId(),
+      statementId: placement.statementId,
+      parameters: placement.parameters
+    });
+    setStageDirectorMessage(`${placement.slot} 已定位到 X ${placement.xPercent}% · Y ${placement.yPercent}%`);
+  };
 
   useEffect(() => {
     if (previousTransportSceneId.current === session.activeSceneId) return;
@@ -2631,6 +2661,10 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           <output aria-label="自定义预览比例">{viewport.ratioLabel}</output>
         </div>
       )}
+      <div className="stage-director-strip" role="status" data-stage-director={playableActive ? "locked" : "ready"}>
+        <strong>DIRECTOR · 画布定位</strong>
+        <span>{stageDirectorMessage ?? "先选择角色 Show/Move 演出，再点击画布空白处写入稳定语义坐标"}</span>
+      </div>
       <div className="stage-viewport">
         <div
           className={`stage-preview stage-preview--${viewport.orientation}`}
@@ -2645,6 +2679,7 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
           data-stage-pixel-height={stageSurface.pixelHeight}
           data-stage-resolution-limited={stageSurface.resolutionLimited}
           data-host-commit-pending={hostCommitPending}
+          onPointerDown={placeOnStage}
           style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
         >
           <div className="stage-chrome">
@@ -4078,7 +4113,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
           />
         )}
-        <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+        <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
       </main>
       <footer className="workspace-footer">
         <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.41 PROJECT · GLOBAL SEARCH</span>

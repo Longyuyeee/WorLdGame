@@ -64,6 +64,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N41-E3 Route-first lazy 对白结构审计](docs/184-n41-e3-lazy-dialogue-structure-audit.md) | 角色引用、对白插入/移动/删除、原子保存、完整重建与可移植 ID 纠偏 |
 | [N41 Sequence Engineering 出口复审](docs/185-n41-engineering-exit-reaudit.md) | statement 级 Runtime 高亮、N41 退出矩阵、生产实测、完整门与 N42 阻断边界 |
 | [N41→N42 治理检查点](docs/186-n41-n42-governance-checkpoint.md) | RA-N21-007 有界授权、N42 正例/N43 越界反例、真人门与 N42-E1 冻结起点 |
+| [N42-E1 Stage Director 语义定位审计](docs/187-n42-e1-stage-director-placement-audit.md) | 16:9 画布定位、stable-ID patch、保存重开、Runtime Host 数值化及未关闭媒体/VM 子门 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

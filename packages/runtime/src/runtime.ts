@@ -262,8 +262,9 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
   const payload: Record<string, RuntimeScalar> = {};
   for (const [key, value] of Object.entries(parameters)) {
     if (metadata.has(key)) continue;
-    if (!finiteScalar(value)) return undefined;
-    payload[key] = value;
+    const normalized = normalizeDirectionPayloadScalar(command, action, key, value);
+    if (normalized === undefined) return undefined;
+    payload[key] = normalized;
   }
   return {
     effectId: runtimeEffectIdV1(state.executionId, descriptorId, state.nextEffectSequence, originatingRevision),
@@ -280,6 +281,28 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
     replayKey,
     compensation: policy === "reversible" ? { kind: compensationKind as string, payload: {} } : null
   };
+}
+
+const stageNumberRanges: Readonly<Record<string, readonly [number, number]>> = {
+  x: [0, 100],
+  y: [0, 100],
+  scale: [0.1, 4],
+  rotation: [-360, 360],
+  anchorX: [0, 1],
+  anchorY: [0, 1],
+  z: [-1000, 1000]
+};
+
+function normalizeDirectionPayloadScalar(command: string, action: string, key: string, value: unknown): RuntimeScalar | undefined {
+  const range = command === "show" && (action === "show" || action === "move") ? stageNumberRanges[key] : undefined;
+  if (range === undefined) return finiteScalar(value) ? value : undefined;
+  const numeric = typeof value === "number"
+    ? value
+    : typeof value === "string" && /^-?\d+(?:\.\d+)?$/u.test(value)
+      ? Number(value)
+      : Number.NaN;
+  if (!Number.isFinite(numeric) || numeric < range[0] || numeric > range[1] || key === "z" && !Number.isInteger(numeric)) return undefined;
+  return numeric;
 }
 
 function stringOperand(instruction: RuntimeInstructionV1, name: string): string | undefined {
