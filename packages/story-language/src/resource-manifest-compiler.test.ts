@@ -39,7 +39,7 @@ describe("S0.30 typed direction resource manifest compiler", () => {
     const document = parseStory(`scene "controls" @id(scn_controls)
 @background action=set asset=bg @id(bg)
 @show action=show asset=hero slot=left z=2 @id(show_left)
-@show action=move slot=left x=80 duration=300ms @id(move_left)
+@show action=move slot=left x=80 duration=300ms easing=ease-in-out @id(move_left)
 @audio action=play asset=theme bus=bgm @id(play)
 @audio action=pause bus=bgm @id(pause)
 @audio action=resume bus=bgm @id(resume)
@@ -58,6 +58,29 @@ end "done" @id(end)
       ["bg"], ["bg", "hero"], ["bg", "hero"], ["bg", "hero", "theme"], ["bg", "hero", "theme"],
       ["bg", "hero", "theme"], ["bg", "theme", "hero"], ["bg"], [], []
     ]);
+  });
+
+  it("accepts frozen Stage move easings and rejects unknown easing values", () => {
+    const valid = parseStory(`scene "valid easing" @id(scn_easing)
+@show action=show asset=hero slot=hero @id(show)
+@show action=move slot=hero x=80 duration=600ms easing=ease-in-out @id(move)
+end "done" @id(end)
+`);
+    const validScene = projectStoryScene(valid);
+    if (!validScene.ok) throw new Error(validScene.diagnostics[0]?.message);
+    expect(compileSceneResourceManifest({ ...campusStoryProject, scenes: [validScene.scene] }, { scn_easing: valid }, { knownAssetIds: ["hero"] }).ok).toBe(true);
+
+    const invalid = parseStory(`scene "invalid easing" @id(scn_easing)
+@show action=show asset=hero slot=hero @id(show)
+@show action=move slot=hero x=80 easing=spring @id(move)
+end "done" @id(end)
+`);
+    const invalidScene = projectStoryScene(invalid);
+    if (!invalidScene.ok) throw new Error(invalidScene.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [invalidScene.scene] }, { scn_easing: invalid }, { knownAssetIds: ["hero"] });
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("Expected invalid Stage easing");
+    expect(result.diagnostics).toContainEqual(expect.objectContaining({ code: "INVALID_STAGE_EASING", severity: "error" }));
   });
 
   it("fails closed when hide targets an inactive slot or carries a resource", () => {

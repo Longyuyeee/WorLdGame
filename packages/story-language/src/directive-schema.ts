@@ -7,7 +7,7 @@ export type DirectiveAction = BackgroundAction | CharacterAction | AudioAction;
 
 export const DIRECTIVE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
   background: ["action", "asset", "transition", "transitionAsset", "duration"],
-  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration"],
+  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"],
   audio: ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"]
 };
 
@@ -48,14 +48,21 @@ export const STAGE_MOVE_GEOMETRY_PARAMETERS = [
   "z", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY"
 ] as const;
 
+export const STAGE_EASINGS = ["linear", "ease-in", "ease-out", "ease-in-out"] as const;
+export type StageEasing = typeof STAGE_EASINGS[number];
+
+export function isStageEasing(value: string | undefined): value is StageEasing {
+  return value !== undefined && (STAGE_EASINGS as readonly string[]).includes(value);
+}
+
 export function directiveActionParameters(
   command: DirectiveNode["command"],
   action: DirectiveAction
 ): readonly string[] {
   if (command === "background") return action === "set" ? DIRECTIVE_PARAMETERS.background : ["action"];
   if (command === "show") {
-    if (action === "show") return DIRECTIVE_PARAMETERS.show;
-    if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "transition", "duration"];
+    if (action === "show") return DIRECTIVE_PARAMETERS.show.filter((parameter) => parameter !== "easing");
+    if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "transition", "duration", "easing"];
     return ["action", "slot", "transition", "duration"];
   }
   return action === "play" ? DIRECTIVE_PARAMETERS.audio : ["action", "bus"];

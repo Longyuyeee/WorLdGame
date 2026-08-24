@@ -5,6 +5,7 @@ import {
   type PreviewCharacterGeometry
 } from "./preview-media-runtime";
 import type { PreviewMediaRole } from "./preview-media-host";
+import type { StageEasing } from "@world-studio/story-language";
 import { PREVIEW_RENDER_HOST_CAPABILITIES, type PreviewRenderFrame } from "./preview-render-host";
 import { PreviewVisualHost } from "./preview-visual-host";
 import { mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
@@ -77,6 +78,31 @@ function interpolateGeometry(
   };
 }
 
+const CSS_EASING_CONTROL_POINTS: Readonly<Record<Exclude<StageEasing, "linear">, readonly [number, number, number, number]>> = {
+  "ease-in": [0.42, 0, 1, 1],
+  "ease-out": [0, 0, 0.58, 1],
+  "ease-in-out": [0.42, 0, 0.58, 1]
+};
+
+function cubicBezierCoordinate(t: number, first: number, second: number): number {
+  const inverse = 1 - t;
+  return 3 * inverse * inverse * t * first + 3 * inverse * t * t * second + t * t * t;
+}
+
+export function previewStageEasingProgress(easing: StageEasing | undefined, progress: number): number {
+  const bounded = Math.min(1, Math.max(0, progress));
+  if (easing === undefined || easing === "linear" || bounded === 0 || bounded === 1) return bounded;
+  const [x1, y1, x2, y2] = CSS_EASING_CONTROL_POINTS[easing];
+  let lower = 0;
+  let upper = 1;
+  for (let iteration = 0; iteration < 24; iteration += 1) {
+    const midpoint = (lower + upper) / 2;
+    if (cubicBezierCoordinate(midpoint, x1, x2) < bounded) lower = midpoint;
+    else upper = midpoint;
+  }
+  return cubicBezierCoordinate((lower + upper) / 2, y1, y2);
+}
+
 export function previewCanvasDurationMs(source: string | undefined): number {
   if (source === undefined) return 300;
   const match = /^(\d+(?:\.\d+)?)(ms|s)$/u.exec(source);
@@ -136,7 +162,7 @@ export function drawPreviewCanvasFrame(
     const targetGeometry = resolvePreviewCharacterGeometry(character);
     let geometry = character.movementFrom === undefined
       ? targetGeometry
-      : interpolateGeometry(character.movementFrom, targetGeometry, movementProgress);
+      : interpolateGeometry(character.movementFrom, targetGeometry, previewStageEasingProgress(character.easing, movementProgress));
     if (character.entering === true && character.transition === "slide") {
       geometry = { ...geometry, x: geometry.x + 7 * (1 - Math.min(1, Math.max(0, movementProgress))) };
     }
@@ -186,6 +212,7 @@ export function PreviewCanvasHitProxy({
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
     data-stage-y={geometry.y}
+    data-stage-easing={character.easing ?? "linear"}
     aria-label={label}
     aria-pressed={selected}
     aria-hidden={character.exiting === true ? true : undefined}
@@ -205,6 +232,7 @@ export function PreviewCanvasHitProxy({
       top: `${geometry.y}%`,
       transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) rotate(${geometry.rotation}deg)`,
       animationDuration: character.duration ?? "300ms",
+      animationTimingFunction: character.easing ?? "linear",
       ...(movementFrom === undefined ? {} : {
         "--stage-move-from-left": `${movementFrom.x}%`,
         "--stage-move-from-top": `${movementFrom.y}%`,

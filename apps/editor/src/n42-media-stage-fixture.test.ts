@@ -28,6 +28,18 @@ describe("N42-E1b production media Stage fixture", () => {
     await expect(reopened.audit()).resolves.toMatchObject({ status: "pass", assetCount: 3, uniqueBlobCount: 3 });
     const session = createStudioSessionFromCanonical(prepared.project);
     const scene = session.project.scenes.find((candidate) => candidate.id === session.activeSceneId)!;
+    const moveIndex = scene.statements.findIndex((statement) => statement.id === "media_move");
+    expect(moveIndex).toBeGreaterThan(0);
+    expect(derivePreviewStagePlan(scene.statements, moveIndex).characters[0]).toMatchObject({
+      statementId: "media_move",
+      assetId: "media_actor_sprite",
+      x: 25,
+      y: 80,
+      scale: 0.9,
+      duration: "800ms",
+      easing: "ease-in-out",
+      movementFrom: { x: 50, y: 100, scale: 1, anchorX: 0.5, anchorY: 1 }
+    });
     const plan = derivePreviewStagePlan(scene.statements, scene.statements.length - 1);
     const revoked: string[] = [];
     const urls = {
@@ -53,6 +65,18 @@ describe("N42-E1b production media Stage fixture", () => {
       scale: 1,
       anchorX: "0.5",
       anchorY: 1
+    });
+
+    const formalMove = startFormalPreviewFromStatement(prepared.project, scene.id, "media_move");
+    expect(formalMove).toMatchObject({ status: "presenting", statementId: "media_move" });
+    expect(formalMove.effectHost.activeByChannel.show?.payload).toMatchObject({
+      action: "move",
+      slot: "actor",
+      x: 25,
+      y: 80,
+      scale: "0.9",
+      duration: "800ms",
+      easing: "ease-in-out"
     });
   });
 });

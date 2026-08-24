@@ -4,6 +4,7 @@ import {
   PreviewCanvasHitProxy,
   PreviewCanvasHost,
   drawPreviewCanvasFrame,
+  previewStageEasingProgress,
   previewCanvasDurationMs,
   resolvePreviewCanvasCharacterRect,
   type PreviewCanvasImageSet
@@ -96,6 +97,15 @@ describe("Preview Canvas host", () => {
     expect(previewCanvasDurationMs("invalid")).toBe(300);
   });
 
+  it("uses the same frozen CSS easing semantics for deterministic Canvas movement", () => {
+    expect(previewStageEasingProgress("linear", 0.25)).toBeCloseTo(0.25, 5);
+    expect(previewStageEasingProgress("ease-in", 0.5)).toBeCloseTo(0.315357, 5);
+    expect(previewStageEasingProgress("ease-out", 0.5)).toBeCloseTo(0.684643, 5);
+    expect(previewStageEasingProgress("ease-in-out", 0.5)).toBeCloseTo(0.5, 5);
+    expect(previewStageEasingProgress("ease-in-out", -1)).toBe(0);
+    expect(previewStageEasingProgress("ease-in-out", 2)).toBe(1);
+  });
+
   it("fades an exiting character while retaining its final authored geometry", () => {
     const context = {
       setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
@@ -127,7 +137,7 @@ describe("Preview Canvas host", () => {
   it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {
     const onSelect = vi.fn();
     const onStagePoint = vi.fn();
-    const movingCharacter = { ...character, duration: "600ms", movementFrom: {
+    const movingCharacter = { ...character, duration: "600ms", easing: "ease-in-out", movementFrom: {
       x: 10, y: 75, scale: 1.2, rotation: 0, anchorX: 0.5, anchorY: 1
     } } as const;
     render(<div data-stage-surface="design-pixels">
@@ -154,6 +164,8 @@ describe("Preview Canvas host", () => {
     expect(target).toHaveStyle({ zIndex: 4 });
     expect(target).toHaveClass("stage-canvas-hit-proxy--moving");
     expect(target.style.animationDuration).toBe("600ms");
+    expect(target.style.animationTimingFunction).toBe("ease-in-out");
+    expect(target).toHaveAttribute("data-stage-easing", "ease-in-out");
     expect(target.style.getPropertyValue("--stage-move-from-left")).toBe("10%");
   });
 
