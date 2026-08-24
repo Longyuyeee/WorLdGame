@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E7 已形成未集成 Engineering 切片；[E7 后出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`、Acceptance `0/1`，不得把共享测试 Host 或切片通过换算成 N32 Product Acceptance。`RA-N21-005` 仅允许 N40 Route Map Engineering，持续阻断 N32/N40 Product Acceptance、N41 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E7 已形成未集成 Engineering 切片；[E7 后出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`、Acceptance `0/1`，不得把共享测试 Host 或切片通过换算成 N32 Product Acceptance。N40 Engineering 出口已通过；`RA-N21-006` 仅允许 N41 Sequence Engineering，持续阻断 N32/N40/N41 Product Acceptance、N42 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。产品负责人于 2026-08-22 再次明确要求按顺序继续并逐步实测、审计和推送，因此关闭 `RA-N21-004`，建立 2026-09-22 到期的 `RA-N21-005`：只允许推进 N40 Route Map Engineering，并持续阻断 N21/N23/N30/N31/N32/N40 产品验收、N41 及以后、M1 Stable 与发布。
+最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N40 Engineering 出口完成后，产品负责人在获知 RA-005 截止于 N40 后于 2026-08-24 再次明确要求进入下一步骤并逐步实测、审计和推送，因此关闭 `RA-N21-005`，建立 2026-09-24 到期的 `RA-N21-006`：只允许推进 N41 Sequence Engineering，并持续阻断 N21/N23/N30/N31/N32/N40/N41 产品验收、N42 及以后、M1 Stable 与发布。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -41,8 +41,8 @@
 | REQ | P0 范围摘要 | 主节点 | 依赖 | 当前状态 | 当前缺口 | 通过证据 |
 |---|---|---|---|---|---|---|
 | REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N23-E3 已证明 Canonical 文档、Asset Index 与源 Blob 随确定性 ZIP 搬到新工作区并在重载后运行；仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Project E2E、Recovery Golden、双端任务 |
-| REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入场景内容 | N40 | N20/N30 | 实现中 | N40 Engineering 出口已通过：E1–E8n 完成 Compiler 图、10k/64 窗口、Layout/交互、缓存、Runtime 高亮、trusted Route-first、局部内容、全局索引、narration 结构闭环、topology 分页、结局审阅、诊断/目标导航与 Choice 目标修改→保存复读→Compiler/Route 重建→Formal Runtime 新结局闭环。出口复审 Goal `1/1`、Implementation `11/11`、Tests `3/3`、Acceptance `2/2`；10k 同步 P95 `164.88 ms <500 ms`。Route 双击进入当前 Writer 图形内容入口，不等于 N41 完整 Sequence。Product Acceptance 仍被 `RA-N21-005` 阻断；完整 Lazy Project/增量 topology、外部目录和高级过滤后置 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
-| REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | E8g 投影全部 P0 卡片并共享选择/历史/dirty；E8h 提供全局索引；E8i/E8j 已完成 narration 前插/后插/删除/移动事务，包含 ID 唯一性、Compiler 精确变更、Route 中性、原子保存与完整重建，空白模板可建立首条内容。其他类型、复制/批量/折叠、引用/演出 Inspector、N21 真人和 N41 完整出口仍缺 | [N40-E8g](170-n40-e8g-lazy-sequence-projection-audit.md)–[N40-E8j](173-n40-e8j-lazy-narration-structure-flow-audit.md)、[N21 真人执行包](114-n21-human-validation-execution-kit.md) |
+| REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入场景内容 | N40 | N20/N30 | 实现中 | N40 Engineering 出口已通过：E1–E8n 完成 Compiler 图、10k/64 窗口、Layout/交互、缓存、Runtime 高亮、trusted Route-first、局部内容、全局索引、narration 结构闭环、topology 分页、结局审阅、诊断/目标导航与 Choice 目标修改→保存复读→Compiler/Route 重建→Formal Runtime 新结局闭环。出口复审 Goal `1/1`、Implementation `11/11`、Tests `3/3`、Acceptance `2/2`；10k 同步 P95 `164.88 ms <500 ms`。Route 双击进入当前 Writer 图形内容入口，不等于 N41 完整 Sequence。Product Acceptance 仍被当前 `RA-N21-006` 阻断；完整 Lazy Project/增量 topology、外部目录和高级过滤后置 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
+| REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 实现中 | E8g 投影全部 P0 卡片并共享选择/历史/dirty；E8h 提供全局索引；E8i/E8j 已完成 narration 前插/后插/删除/移动事务，包含 ID 唯一性、Compiler 精确变更、Route 中性、原子保存与完整重建，空白模板可建立首条内容。RA-N21-006 已准入 N41 Engineering；E1 先审计并关闭一个尚未安全开放的 P0 结构编辑族。其他类型、复制/批量/折叠、引用/演出 Inspector、1,000 次互改、N21 真人和 N41 完整出口仍缺 | [N40-E8g](170-n40-e8g-lazy-sequence-projection-audit.md)–[N40-E8j](173-n40-e8j-lazy-narration-structure-flow-audit.md)、[N40→N41 治理检查点](180-n40-n41-governance-checkpoint.md)、[N21 真人执行包](114-n21-human-validation-execution-kit.md) |
 | REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | N22 最小 Stage 工程门已通过：真实 Blob 预览、Canvas 2D/DOM 边界、几何/安全区/DPR/输入等价、Move/Hide/Show/Fade、四类音轨计划及真实 WAV 播放均有证据；Pixi/WebGL 高性能后端、镜头/复杂关键帧/UI 模板与正式 Runtime 同步仍归后续节点 | [N22 退出审计](113-n22-exit-condition-audit.md)、N42 正式 Stage、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |

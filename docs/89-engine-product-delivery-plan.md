@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N32 Engineering 出口复审](151-n32-engineering-exit-reaudit.md)；N32→N40 准入依据为 [治理检查点](152-n32-n40-governance-checkpoint.md)。`RA-N21-001/002/003/004` 已关闭；`RA-N21-005` 只授权 N40 Route Map Engineering，不改变 N21/N23/N30/N31/N32/N40 产品验收与 M1/发布仍被阻断的事实，也不授权 N41、正式 Player 或以后节点。N31 集中基线仍未合入 `main`。
+> 当前审计：[N40 Engineering 出口复审](179-n40-engineering-exit-reaudit.md)；N40→N41 准入依据为 [治理检查点](180-n40-n41-governance-checkpoint.md)。`RA-N21-001`–`005` 已关闭；`RA-N21-006` 只授权 N41 Sequence Engineering，不改变 N21/N23/N30/N31/N32/N40/N41 产品验收与 M1/发布仍被阻断的事实，也不授权 N42、正式 Player 或以后节点。N31 集中基线仍未合入 `main`。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -383,6 +383,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Acceptance**：10k Route 在目标预算内局部编辑，修改 Script 后图在 500 ms 内同步。
 
 ### N41 Sequence
+
+> 准入状态（2026-08-24）：N40 Engineering 出口已通过；产品负责人在获知 `RA-N21-005` 截止于 N40 后再次明确要求进入下一步骤，因此 [N40→N41 治理检查点](180-n40-n41-governance-checkpoint.md)建立 `RA-N21-006`，只允许 N41 Sequence Engineering。N41 Product Acceptance、N42+、M1 Stable 与发布继续 fail closed。E1 必须先审计当前能力差距，再关闭一个同源、可保存重开、经 Compiler/Route 复核的 P0 创作结果。
 
 - **Goal**：提供场景内部完整的可视化语义编辑。
 - **Implementation**：全部 P0 块、类型化 Inspector、运行高亮、搜索插入、批量、折叠、跨视图定位；复杂条件允许进入 Script 但不得丢失。
