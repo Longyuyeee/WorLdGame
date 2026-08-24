@@ -4,6 +4,9 @@
 > 分支：`codex/n42-e3-character-keyframe-authoring`
 > 直接基线：N42-E2 最终绿色头 `a130779d03977e2eeff93cecca2260bd01ac868b`
 > 授权：`RA-N21-007`，只覆盖 N42 Stage Engineering
+> 实现头：`ec3809b23f1aa7b79a0d02da903d21e2f18f6833`
+> Draft PR：[#69](https://github.com/Longyuyeee/WorLdGame/pull/69)（Draft，保持 open）
+> Windows CI：run `32708909967` / job `97375916279`，5 分 48 秒，绿色
 > 判定：N42-E3 角色关键帧 Engineering 切片完成；完整多轨/时间标尺/路径/镜头/模板、N42 Product Acceptance、N43+、M1 Stable 与发布继续阻断
 
 ## 1. 冻结目标与非目标
@@ -38,7 +41,7 @@
 - 全仓：普通 119 files / 747 tests、IndexedDB storage 1/1、VM conformance 5/5，总计 753/753；
 - Sequence 退出门：10 files / 86 tests；需求审计 50 requirements / 10 USP / 13 P0 modules / 27 acceptance criteria；架构审计 93 portable / 4 adapters，全部通过；
 - 13 workspace production build 通过；Editor CSS 90.21 kB / gzip 16.91 kB，JS 865.01 kB / gzip 243.94 kB；既有 `>500 kB` 拆包债保留；
-- 浏览器环境未形成可接受的产品 UI 证据，因此本审计明确不把浏览器验收登记为通过。远端 CI 状态在推送后补录。
+- 浏览器环境未形成可接受的产品 UI 证据，因此本审计明确不把浏览器验收登记为通过；Draft PR #69 的实现头在干净 Windows / Node 22 完整门绿色：run `32708909967` / job `97375916279`，5 分 48 秒。
 
 ## 5. 对齐与出口
 
