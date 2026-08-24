@@ -6,6 +6,7 @@ import {
   MAX_STAGE_Z,
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
+  isStageEasing,
   directiveActionRequiresAsset,
   resolveDirectiveAction
 } from "./directive-schema";
@@ -235,6 +236,9 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
     const z = request.parameters.z;
     if (z !== undefined && (!/^-?\d+$/.test(z) || Number(z) < MIN_STAGE_Z || Number(z) > MAX_STAGE_Z)) {
       return `@show z must be an integer from ${MIN_STAGE_Z} to ${MAX_STAGE_Z}`;
+    }
+    if (action === "move" && request.parameters.easing !== undefined && !isStageEasing(request.parameters.easing)) {
+      return "@show action=move requires a frozen Stage easing";
     }
   }
   if (request.command === "audio" && !audioBuses.has(request.parameters.bus ?? "")) {

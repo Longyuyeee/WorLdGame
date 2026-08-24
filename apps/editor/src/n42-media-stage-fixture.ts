@@ -43,12 +43,29 @@ function decodeBase64(source: string): Uint8Array {
 function fixtureProject(projectId: string): CanonicalProject {
   const source = JSON.parse(mediaProjectSource) as S0Project;
   const project = loadProject(migrateS0Project(source).files);
+  const mediaScript = project.scripts.media_stage;
+  if (mediaScript === undefined) throw new Error("N42 Stage 媒体夹具缺少 media_stage 脚本");
   return {
     ...project,
     manifest: {
       ...project.manifest,
       projectId,
       title: "N42 Stage 媒体验收工程"
+    },
+    scripts: {
+      ...project.scripts,
+      media_stage: {
+        ...mediaScript,
+        statements: mediaScript.statements.flatMap((statement) => String(statement.id) === "media_show" ? [
+          statement,
+          {
+            id: "media_move",
+            kind: "direction",
+            command: "show",
+            summary: "action=move slot=actor x=25 y=80 scale=0.9 anchorX=0.5 anchorY=1 z=10 transition=slide duration=800ms easing=ease-in-out"
+          }
+        ] : [statement])
+      }
     }
   };
 }

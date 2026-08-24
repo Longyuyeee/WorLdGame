@@ -94,15 +94,16 @@ describe("stable-ID directive insertion", () => {
       afterId: "stmt_bg",
       statementId: "stmt_move",
       command: "show",
-      parameters: { action: "move", slot: "hero", x: "80", y: "95", transition: "slide", duration: "300ms" }
+      parameters: { action: "move", slot: "hero", x: "80", y: "95", transition: "slide", duration: "300ms", easing: "ease-in-out" }
     });
     expect(moved.ok).toBe(true);
     if (!moved.ok) throw new Error(moved.error.message);
-    expect(moved.source).toContain("@show action=move slot=hero x=80 y=95 transition=slide duration=300ms @id(stmt_move)");
+    expect(moved.source).toContain("@show action=move slot=hero x=80 y=95 transition=slide duration=300ms easing=ease-in-out @id(stmt_move)");
 
     for (const parameters of [
       { action: "move", slot: "hero" },
-      { action: "move", slot: "hero", asset: "hero_smile", x: "80" }
+      { action: "move", slot: "hero", asset: "hero_smile", x: "80" },
+      { action: "move", slot: "hero", x: "80", easing: "spring" }
     ]) {
       expect(insertDirectiveAfter(source, parseStory(source), {
         afterId: "stmt_bg", statementId: "stmt_invalid_move", command: "show", parameters

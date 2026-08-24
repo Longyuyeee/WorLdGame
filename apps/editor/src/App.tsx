@@ -45,11 +45,13 @@ import {
   MIN_STAGE_ROTATION,
   MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
+  STAGE_EASINGS,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   compileSceneResourceManifest,
   directiveActionRequiresAsset,
   directiveActionOptions,
   inspectDirectiveArguments,
+  isStageEasing,
   parseStory,
   resolveDirectiveAction,
   type StoryDocument
@@ -803,17 +805,18 @@ interface SequenceViewProps extends CommonProps {
 
 type DirectionForm = Record<string, string>;
 type DirectionCommand = "background" | "show" | "audio";
-type BatchDirectionParameter = "transition" | "duration" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
+type BatchDirectionParameter = "transition" | "duration" | "easing" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
 
 const BATCH_DIRECTION_PARAMETERS: Readonly<Record<DirectionCommand, readonly BatchDirectionParameter[]>> = {
   background: ["transition", "duration", "transitionAsset"],
-  show: ["expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "duration", "transitionAsset"],
+  show: ["expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "duration", "easing", "transitionAsset"],
   audio: ["loop", "volume", "fade", "transitionAsset"]
 };
 
 const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> = {
   transition: "过渡",
   duration: "时长",
+  easing: "移动缓动",
   transitionAsset: "过渡资源",
   expression: "表情",
   position: "位置",
@@ -891,8 +894,9 @@ function DirectionInspector({
     validOptionalStageNumber(form, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
   ].every(Boolean);
   const moveHasGeometry = action !== "move" || STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => (form[key] ?? "").trim().length > 0);
+  const easingValid = action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
-    geometryValid && moveHasGeometry && transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && moveHasGeometry && easingValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -901,7 +905,7 @@ function DirectionInspector({
   const keys = statement.command === "background"
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration"]
+      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"]
       : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transition: null, transitionAsset: null, duration: null }
@@ -909,7 +913,7 @@ function DirectionInspector({
       ? action === "move"
         ? { asset: null, expression: null, transitionAsset: null }
         : action === "hide"
-          ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transitionAsset: null }
+          ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transitionAsset: null, easing: null }
           : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
       : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
@@ -924,6 +928,7 @@ function DirectionInspector({
         parameters: {
           ...fieldPatch(keys),
           action: action ?? null,
+          ...(statement.command === "show" && action === "show" ? { easing: null } : {}),
           ...(!assetRequired ? inactiveResourcePatch : {})
         },
         removeLegacyPositional: inspection.positional.length > 0
@@ -1001,6 +1006,7 @@ function DirectionInspector({
           {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
         </div>}
         {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
+        {action === "move" && <div className="direction-field"><label htmlFor={`direction-easing-${statement.id}`}>移动缓动</label><select id={`direction-easing-${statement.id}`} aria-label="移动缓动" value={form.easing ?? ""} disabled={disabled} onChange={(event) => setField("easing", event.target.value)}><option value="">Linear（兼容默认）</option>{STAGE_EASINGS.filter((value) => value !== "linear").map((value) => <option key={value} value={value}>{value}</option>)}</select>{!easingValid && <small className="is-error">请选择冻结的缓动曲线</small>}</div>}
       </>}
       {statement.command === "audio" && <>
         <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
@@ -1056,6 +1062,7 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
   const tokenValid = /^[^\s=@()]+$/.test(value) && value.length <= 256;
   const valueValid = mode === "remove" || (
     parameter === "transition" ? ["fade", "dissolve", "slide"].includes(value) :
+      parameter === "easing" ? isStageEasing(value) :
       parameter === "position" ? ["left", "center", "right"].includes(value) :
         parameter === "x" || parameter === "y" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT :
           parameter === "scale" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_SCALE && Number(value) <= MAX_STAGE_SCALE :
@@ -1125,7 +1132,7 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
         <div className="batch-direction__fields">
           <label><span>参数</span><select aria-label="批量演出参数名" value={parameter} disabled={disabled} onChange={(event) => changeParameter(event.target.value as BatchDirectionParameter)}>{parameters.map((item) => <option key={item} value={item}>{BATCH_PARAMETER_LABELS[item]}</option>)}</select></label>
           <label><span>操作</span><select aria-label="批量演出参数操作" value={mode} disabled={disabled} onChange={(event) => setMode(event.target.value as "set" | "remove")}><option value="set">设置</option><option value="remove">移除</option></select></label>
-          {mode === "set" && <label className="batch-direction__value"><span>值</span>{parameter === "transition" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option></select> : parameter === "position" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select> : parameter === "loop" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="true">开启</option><option value="false">关闭</option></select> : <input aria-label="批量演出参数值" list={parameter === "transitionAsset" ? "batch-transition-assets" : undefined} value={value} disabled={disabled} placeholder={parameter === "duration" || parameter === "fade" ? "300ms / 0.5s" : parameter === "volume" ? "0–1" : "输入单 token"} onChange={(event) => setValue(event.target.value)} />}{parameter === "transitionAsset" && <datalist id="batch-transition-assets">{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>}</label>}
+          {mode === "set" && <label className="batch-direction__value"><span>值</span>{parameter === "transition" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option></select> : parameter === "easing" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option>{STAGE_EASINGS.map((item) => <option key={item} value={item}>{item}</option>)}</select> : parameter === "position" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select> : parameter === "loop" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="true">开启</option><option value="false">关闭</option></select> : <input aria-label="批量演出参数值" list={parameter === "transitionAsset" ? "batch-transition-assets" : undefined} value={value} disabled={disabled} placeholder={parameter === "duration" || parameter === "fade" ? "300ms / 0.5s" : parameter === "volume" ? "0–1" : "输入单 token"} onChange={(event) => setValue(event.target.value)} />}{parameter === "transitionAsset" && <datalist id="batch-transition-assets">{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>}</label>}
           <button type="submit" disabled={!canApply}>原子应用 {changedCount} 项修改</button>
         </div>
       )}
@@ -1158,6 +1165,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [z, setZ] = useState("0");
   const [x, setX] = useState("50");
   const [y, setY] = useState("100");
+  const [easing, setEasing] = useState("ease-in-out");
   const [bus, setBus] = useState("bgm");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
@@ -1184,6 +1192,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
           parameters.y = y;
           parameters.transition = "slide";
           parameters.duration = "300ms";
+          parameters.easing = easing;
         } else if (action === "hide") {
           parameters.transition = "fade";
           parameters.duration = "300ms";
@@ -1209,7 +1218,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {assetRequired && <label className="direction-insert__asset"><span>资源</span><input aria-label="新增演出资源" list={`insert-assets-${command}`} value={asset} disabled={disabled} placeholder={compatibleAssets.length === 0 ? "请先导入兼容资源" : "选择 Asset ID"} onChange={(event) => setAsset(event.target.value)} /><datalist id={`insert-assets-${command}`}>{compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist></label>}
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
-        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label></>}
+        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
       </div>
       {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}

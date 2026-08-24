@@ -39,6 +39,7 @@ export function PreviewStageCharacter({
     data-stage-scale={geometry.scale}
     data-stage-rotation={geometry.rotation}
     data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
+    data-stage-easing={character.easing ?? "linear"}
     aria-label={label}
     aria-pressed={selected}
     aria-hidden={character.exiting === true ? true : undefined}
@@ -59,6 +60,7 @@ export function PreviewStageCharacter({
     onClick={() => onSelect(character.statementId)}
     style={{
       animationDuration: character.duration ?? "360ms",
+      animationTimingFunction: character.easing ?? "linear",
       zIndex: character.z ?? 0,
       left: `${geometry.x}%`,
       top: `${geometry.y}%`,

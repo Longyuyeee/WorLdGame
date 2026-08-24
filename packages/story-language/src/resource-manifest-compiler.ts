@@ -13,6 +13,7 @@ import {
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
+  isStageEasing,
   directiveActionParameters,
   directiveActionRequiresAsset,
   resolveDirectiveAction
@@ -23,7 +24,7 @@ export type ResourceManifestDiagnosticCode = "SOURCE_INVALID" | "MISSING_SCENE_D
   "SCENE_ID_MISMATCH" | "SCENE_STATEMENTS_MISMATCH" | "STATEMENT_SEMANTICS_MISMATCH" | "MISSING_STATEMENT_ID" | "UNTYPED_RESOURCE_REFERENCE" | "MALFORMED_PARAMETER" |
   "DUPLICATE_PARAMETER" | "UNKNOWN_RESOURCE_PARAMETER" | "MISSING_ASSET" | "INVALID_ASSET_ID" |
   "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_ACTION_PARAMETER" | "EMPTY_STAGE_MOVE" | "MISSING_STAGE_TARGET" |
-  "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" | "INVALID_STAGE_GEOMETRY" |
+  "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" | "INVALID_STAGE_GEOMETRY" | "INVALID_STAGE_EASING" |
   "INVALID_AUDIO_BUS" | "INVALID_BOOLEAN" | "INVALID_DURATION" | "INVALID_VOLUME";
 
 export interface ResourceManifestDiagnostic {
@@ -218,6 +219,12 @@ export function compileSceneResourceManifest(
               message: `@show ${parameter} must be a number from ${minimum} to ${maximum}`, sceneId: scene.id,
               statementId: node.id, line: node.range.start.line });
           }
+        }
+        const easing = parsed.parameters.get("easing");
+        if (action === "move" && easing !== undefined && !isStageEasing(easing)) {
+          diagnostics.push({ code: "INVALID_STAGE_EASING", severity: "error",
+            message: "@show action=move easing must be linear|ease-in|ease-out|ease-in-out", sceneId: scene.id,
+            statementId: node.id, line: node.range.start.line });
         }
       }
       let bus: string | undefined;

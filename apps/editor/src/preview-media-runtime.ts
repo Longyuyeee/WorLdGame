@@ -14,6 +14,8 @@ import {
   MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
+  isStageEasing,
+  type StageEasing,
   directiveActionParameters,
   directiveActionRequiresAsset,
   inspectDirectiveArguments,
@@ -25,6 +27,7 @@ export interface PreviewVisualLayerPlan {
   readonly assetId: string;
   readonly transition?: string;
   readonly duration?: string;
+  readonly easing?: StageEasing;
   readonly expression?: string;
   readonly position?: string;
   readonly slot?: string;
@@ -190,6 +193,11 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         addDiagnostic(state, `${statement.id}: move requires at least one Stage geometry parameter`);
         return true;
       }
+      const easing = optional(inspected.parameters, "easing");
+      if (action === "move" && easing !== undefined && !isStageEasing(easing)) {
+        addDiagnostic(state, `${statement.id}: easing must be linear, ease-in, ease-out, or ease-in-out`);
+        return true;
+      }
       const zSource = inspected.parameters.z;
       const z = zSource === undefined ? (action === "move" ? current?.z ?? 0 : 0) : Number(zSource);
       if (!Number.isInteger(z) || z < MIN_STAGE_Z || z > MAX_STAGE_Z) {
@@ -216,6 +224,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
           z,
           movementFrom: resolvePreviewCharacterGeometry(current!),
           transition: optional(inspected.parameters, "transition") ?? "slide",
+          ...(easing === undefined ? {} : { easing: easing as StageEasing }),
           ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
           ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position }),
           ...(typeof geometry.x === "number" ? { x: geometry.x } : {}),

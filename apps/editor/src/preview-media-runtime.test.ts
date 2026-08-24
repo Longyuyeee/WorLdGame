@@ -111,7 +111,7 @@ describe("preview media runtime", () => {
   it("moves an active slot without replacing its resource and rewinds to the authored geometry", () => {
     const movement: readonly StoryStatement[] = [
       { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero x=20 y=100 expression=smile" },
-      { kind: "direction", id: "move", command: "show", summary: "action=move slot=hero x=80 scale=1.5 rotation=12 duration=600ms" },
+      { kind: "direction", id: "move", command: "show", summary: "action=move slot=hero x=80 scale=1.5 rotation=12 duration=600ms easing=ease-in-out" },
       { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "arrived" }
     ];
     const before = derivePreviewStagePlan(movement, 0).characters[0]!;
@@ -128,6 +128,7 @@ describe("preview media runtime", () => {
       expression: "smile",
       transition: "slide",
       duration: "600ms",
+      easing: "ease-in-out",
       movementFrom: { x: 20, y: 100, scale: 1, rotation: 0, anchorX: 0.5, anchorY: 1 }
     });
     const timeline = compilePreviewStageTimeline(movement);
@@ -135,6 +136,15 @@ describe("preview media runtime", () => {
     expect(timeline[2]?.characters[0]).toMatchObject({ statementId: "move", assetId: "hero", x: 80, scale: 1.5 });
     expect(timeline[2]?.characters[0]?.movementFrom).toBeUndefined();
     expect(derivePreviewStagePlan(movement, 0).characters[0]).toEqual(before);
+  });
+
+  it("fails closed when a move uses an easing outside the frozen vocabulary", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },
+      { kind: "direction", id: "move", command: "show", summary: "action=move slot=hero x=80 easing=spring" }
+    ], 1);
+    expect(plan.characters).toEqual([expect.objectContaining({ statementId: "show", assetId: "hero" })]);
+    expect(plan.diagnostics).toEqual(["move: easing must be linear, ease-in, ease-out, or ease-in-out"]);
   });
 
   it("scopes Show entry transitions to their authored statement and restores them on rewind", () => {
