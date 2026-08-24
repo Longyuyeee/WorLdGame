@@ -57,4 +57,44 @@ describe("N40-E8g lazy Sequence window", () => {
     fireEvent.click(screen.getByRole("button", { name: "在所选语句前新增旁白" }));
     expect(onPage).toHaveBeenCalledWith(expect.objectContaining({ status: "dirty", selectedStatementId: "statement_first" }));
   });
+
+  it("exposes audited dialogue insertion and stable-ID structure controls only with an indexed speaker", () => {
+    const template = createProjectTemplate("N41 E3 UI", "n41-e3-ui-project");
+    const scene = template.scenes[0]!;
+    const project = {
+      ...template,
+      characters: { schemaVersion: 1 as const, characters: [{ id: "character_aya", displayName: "Aya", color: "#8b7cff" }] },
+      scripts: { ...template.scripts, [scene.id]: { schemaVersion: 1 as const, sceneId: scene.id, statements: [
+        { id: "statement_line", kind: "dialogue" as const, speakerId: "character_aya", textId: "text_line", text: "Hello" },
+        { id: "statement_end", kind: "end" as const, endingName: "Done" }
+      ] } }
+    };
+    const source = `scene "${scene.title}" @id(${scene.id})\ncharacter_aya: Hello @sid(statement_line) @id(text_line)\nend "Done" @id(statement_end)\n`;
+    const version = "c".repeat(64);
+    const script = project.scripts[scene.id]!;
+    const page: LazyScenePage = { schemaVersion: 1, scene, script, sourceVersion: version, status: "ready", sourceSession: createScriptSourceSession(source), savedSource: source, selectedStatementId: "statement_line", editIndex: buildTrustedLazyEditIndex(project, version) };
+    const onPage = vi.fn();
+    render(<LazySequenceEditor page={page} busy={false} createCommandId={() => "dialogue_1"} onPage={onPage} />);
+
+    expect(screen.getByRole("group", { name: "对白结构操作" })).toBeVisible();
+    expect(screen.getByRole("option", { name: "character_aya" })).toBeVisible();
+    fireEvent.change(screen.getByLabelText("新增对白内容"), { target: { value: "New line" } });
+    fireEvent.click(screen.getByRole("button", { name: "在所选语句前新增对白" }));
+    expect(onPage).toHaveBeenCalledWith(expect.objectContaining({ status: "dirty", selectedStatementId: "statement_dialogue_1", structuralTransaction: expect.objectContaining({ kind: "dialogue-structure" }) }));
+  });
+
+  it("keeps generated dialogue identities inside the canonical portable-ID contract", () => {
+    const template = createProjectTemplate("N41 E3 Portable", "n41-e3-portable-project");
+    const scene = template.scenes[0]!;
+    const project = { ...template, characters: { schemaVersion: 1 as const, characters: [{ id: "character_aya", displayName: "Aya", color: "#8b7cff" }] } };
+    const script = project.scripts[scene.id]!;
+    const source = `scene "${scene.title}" @id(${scene.id})\nend "${String(script.statements[0]!.endingName)}" @id(${String(script.statements[0]!.id)})\n`;
+    const version = "d".repeat(64);
+    const page: LazyScenePage = { schemaVersion: 1, scene, script, sourceVersion: version, status: "ready", sourceSession: createScriptSourceSession(source), savedSource: source, selectedStatementId: String(script.statements[0]!.id), editIndex: buildTrustedLazyEditIndex(project, version) };
+    const onPage = vi.fn();
+    render(<LazySequenceEditor page={page} busy={false} createCommandId={() => "lazy_sequence_1"} onPage={onPage} />);
+    fireEvent.change(screen.getByLabelText("新增对白内容"), { target: { value: "Portable" } });
+    fireEvent.click(screen.getByRole("button", { name: "在所选语句前新增对白" }));
+    expect(onPage).toHaveBeenCalledWith(expect.objectContaining({ status: "dirty", selectedStatementId: "statement_lazy_sequence_1" }));
+  });
 });

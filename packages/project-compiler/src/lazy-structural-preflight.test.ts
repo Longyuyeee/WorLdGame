@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ScriptDocument } from "@world-studio/project-domain";
-import { preflightLazyNarrationInsertion, preflightLazyNarrationStructuralEdit } from "./lazy-structural-preflight";
+import { preflightLazyDialogueStructuralEdit, preflightLazyNarrationInsertion, preflightLazyNarrationStructuralEdit } from "./lazy-structural-preflight";
 
 const baseline: ScriptDocument = { schemaVersion: 1, sceneId: "scene_main", statements: [
   { id: "statement_intro", kind: "narration", textId: "text_intro", text: "Intro" },
@@ -51,5 +51,49 @@ describe("N40-E8j Compiler narration structural preflight", () => {
     expect(preflightLazyNarrationStructuralEdit(baseline, { ...baseline, statements: [baseline.statements[0]!] }, { kind: "delete", statementId: "statement_end" })).toMatchObject({ ok: false, code: "UNSUPPORTED_CHANGE" });
     const changed: ScriptDocument = { ...baseline, statements: [baseline.statements[1]!, { ...baseline.statements[0]!, text: "Changed" }] };
     expect(preflightLazyNarrationStructuralEdit(baseline, changed, { kind: "move-before", statementId: "statement_intro", beforeId: "statement_end" })).toMatchObject({ ok: false, code: "UNSUPPORTED_CHANGE" });
+  });
+});
+
+describe("N41-E3 Compiler dialogue structural preflight", () => {
+  const dialogueBaseline: ScriptDocument = { ...baseline, statements: [
+    { id: "statement_line", kind: "dialogue", speakerId: "character_aya", textId: "text_line", text: "Hello" },
+    baseline.statements[1]!
+  ] };
+
+  it("accepts one declared dialogue insertion, move, and deletion", () => {
+    const inserted: ScriptDocument = { ...dialogueBaseline, statements: [dialogueBaseline.statements[0]!,
+      { id: "statement_new", kind: "dialogue", speakerId: "character_aya", textId: "text_new", text: "New" },
+      dialogueBaseline.statements[1]!
+    ] };
+    expect(preflightLazyDialogueStructuralEdit(dialogueBaseline, inserted, {
+      kind: "insert-before", beforeId: "statement_end", statementId: "statement_new", textId: "text_new", speakerId: "character_aya"
+    })).toEqual({ ok: true, changedStatementIds: ["statement_new"] });
+    const moved: ScriptDocument = { ...inserted, statements: [inserted.statements[1]!, inserted.statements[0]!, inserted.statements[2]!] };
+    expect(preflightLazyDialogueStructuralEdit(inserted, moved, { kind: "move-before", statementId: "statement_new", beforeId: "statement_line" })).toEqual({ ok: true, changedStatementIds: ["statement_new"] });
+    expect(preflightLazyDialogueStructuralEdit(moved, dialogueBaseline, { kind: "delete", statementId: "statement_new" })).toEqual({ ok: true, changedStatementIds: ["statement_new"] });
+  });
+
+  it("rejects an invalid speaker identity, a disguised content change, and non-dialogue deletion", () => {
+    const invalidSpeaker: ScriptDocument = { ...dialogueBaseline, statements: [
+      { id: "statement_new", kind: "dialogue", speakerId: "bad speaker", textId: "text_new", text: "New" },
+      ...dialogueBaseline.statements
+    ] };
+    expect(preflightLazyDialogueStructuralEdit(dialogueBaseline, invalidSpeaker, {
+      kind: "insert-before", beforeId: "statement_line", statementId: "statement_new", textId: "text_new", speakerId: "bad speaker"
+    })).toMatchObject({ ok: false, code: "INVALID_ID" });
+    expect(preflightLazyDialogueStructuralEdit(dialogueBaseline, invalidSpeaker, {
+      kind: "insert-before", beforeId: "statement_line", statementId: "statement_lazy-sequence-1", textId: "text_new", speakerId: "character_aya"
+    })).toMatchObject({ ok: false, code: "INVALID_ID" });
+    const disguised: ScriptDocument = { ...dialogueBaseline, statements: [
+      { id: "statement_new", kind: "dialogue", speakerId: "character_aya", textId: "text_new", text: "New" },
+      { ...dialogueBaseline.statements[0]!, text: "Changed too" },
+      dialogueBaseline.statements[1]!
+    ] };
+    expect(preflightLazyDialogueStructuralEdit(dialogueBaseline, disguised, {
+      kind: "insert-before", beforeId: "statement_line", statementId: "statement_new", textId: "text_new", speakerId: "character_aya"
+    })).toMatchObject({ ok: false, code: "UNSUPPORTED_CHANGE" });
+    expect(preflightLazyDialogueStructuralEdit(dialogueBaseline, { ...dialogueBaseline, statements: [dialogueBaseline.statements[0]!] }, {
+      kind: "delete", statementId: "statement_end"
+    })).toMatchObject({ ok: false, code: "UNSUPPORTED_CHANGE" });
   });
 });

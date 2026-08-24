@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import type { StoryStatement } from "@world-studio/story-core";
-import { deleteLazyNarration, insertLazyNarration, moveLazyNarration, patchLazySequenceContent, projectLazyScene, selectLazySceneStatement, type LazyScenePage, type LazySequenceContentPatch } from "./lazy-scene-session";
+import { deleteLazyDialogue, deleteLazyNarration, insertLazyDialogue, insertLazyNarration, moveLazyDialogue, moveLazyNarration, patchLazySequenceContent, projectLazyScene, selectLazySceneStatement, type LazyScenePage, type LazySequenceContentPatch } from "./lazy-scene-session";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "./stage-window";
 
 function kindLabel(statement: StoryStatement): string {
@@ -60,8 +60,10 @@ export function LazySequenceEditor({ page, busy, createCommandId, onPage }: { re
   const window = createStageWindow(scene.statements.length, windowStart);
   const visible = scene.statements.slice(window.start, window.end);
   const canEditStructure = page.editIndex !== undefined && page.status === "ready";
-  const canMoveUp = canEditStructure && selected.kind === "narration" && selectedIndex > 0;
-  const canMoveDown = canEditStructure && selected.kind === "narration" && selectedIndex >= 0 && selectedIndex + 2 < scene.statements.length;
+  const canMoveText = selected.kind === "narration" || selected.kind === "dialogue";
+  const canMoveUp = canEditStructure && canMoveText && selectedIndex > 0;
+  const canMoveDown = canEditStructure && canMoveText && selectedIndex >= 0 && selectedIndex + 2 < scene.statements.length;
+  const speakerIds = page.editIndex?.entities.filter((entity) => entity.kind === "character").map((entity) => entity.id) ?? [];
   const insertNarration = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const text = String(new FormData(event.currentTarget).get("new-narration") ?? "").trim();
@@ -82,6 +84,30 @@ export function LazySequenceEditor({ page, busy, createCommandId, onPage }: { re
   const moveNarrationDown = () => {
     const followingAnchor = scene.statements[selectedIndex + 2];
     if (followingAnchor !== undefined) onPage(moveLazyNarration(page, { statementId: selected.id, beforeId: followingAnchor.id }, createCommandId()));
+  };
+  const insertDialogue = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const text = String(data.get("new-dialogue") ?? "").trim();
+    const speakerId = String(data.get("new-dialogue-speaker") ?? "");
+    if (text === "" || speakerId === "") return;
+    const commandId = createCommandId();
+    onPage(insertLazyDialogue(page, {
+      beforeId: selected.id,
+      statementId: `statement_${commandId}`,
+      textId: `text_${commandId}`,
+      speakerId,
+      text
+    }, commandId));
+  };
+  const deleteDialogue = () => onPage(deleteLazyDialogue(page, { statementId: selected.id }, createCommandId()));
+  const moveDialogueUp = () => {
+    const previous = scene.statements[selectedIndex - 1];
+    if (previous !== undefined) onPage(moveLazyDialogue(page, { statementId: selected.id, beforeId: previous.id }, createCommandId()));
+  };
+  const moveDialogueDown = () => {
+    const followingAnchor = scene.statements[selectedIndex + 2];
+    if (followingAnchor !== undefined) onPage(moveLazyDialogue(page, { statementId: selected.id, beforeId: followingAnchor.id }, createCommandId()));
   };
   return <div className="lazy-sequence" aria-label="局部 Sequence 编辑器">
     <p>当前显示 {window.start + 1}–{window.end} / {window.total}，最多挂载 {window.size} 个语句卡。</p>
@@ -104,10 +130,21 @@ export function LazySequenceEditor({ page, busy, createCommandId, onPage }: { re
       <button type="button" disabled={busy || !canMoveDown} onClick={moveNarrationDown}>下移旁白</button>
       <button type="button" disabled={busy || !canEditStructure} onClick={deleteNarration}>删除旁白</button>
     </div> : null}
+    {selected.kind === "dialogue" ? <div className="project-home__actions" role="group" aria-label="对白结构操作">
+      <button type="button" disabled={busy || !canMoveUp} onClick={moveDialogueUp}>上移对白</button>
+      <button type="button" disabled={busy || !canMoveDown} onClick={moveDialogueDown}>下移对白</button>
+      <button type="button" disabled={busy || !canEditStructure} onClick={deleteDialogue}>删除对白</button>
+    </div> : null}
     <form className="sequence-inspector" aria-label="新增旁白结构事务" onSubmit={insertNarration}>
       <label>新增旁白<textarea name="new-narration" aria-label="新增旁白内容" rows={3} required disabled={busy || !canEditStructure} /></label>
       <button disabled={busy || !canEditStructure}>在所选语句前新增旁白</button>
       {!canEditStructure ? <p>仅能在已对齐全局索引的干净页面中执行一次结构事务。</p> : null}
+    </form>
+    <form className="sequence-inspector" aria-label="新增对白结构事务" onSubmit={insertDialogue}>
+      <label>新增对白角色<select name="new-dialogue-speaker" aria-label="新增对白角色" required disabled={busy || !canEditStructure || speakerIds.length === 0}>{speakerIds.map((speakerId) => <option key={speakerId} value={speakerId}>{speakerId}</option>)}</select></label>
+      <label>新增对白<textarea name="new-dialogue" aria-label="新增对白内容" rows={3} required disabled={busy || !canEditStructure || speakerIds.length === 0} /></label>
+      <button disabled={busy || !canEditStructure || speakerIds.length === 0}>在所选语句前新增对白</button>
+      {speakerIds.length === 0 ? <p>当前索引中没有可引用的角色；请先在完整工程中创建角色。</p> : null}
     </form>
   </div>;
 }

@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N41 集中整合权威基线](182-n41-consolidated-integration-baseline-audit.md)已由最终 Authority Windows CI 确认；N41-E2 正按 [Sequence/Script 规模门](183-n41-e2-sequence-script-scale-audit.md)推进。Authority 仍未合入 `main`。`RA-N21-006` 只授权 N41 Sequence Engineering，不改变 N21/N23/N30/N31/N32/N40/N41 产品验收与 M1/发布仍被阻断的事实，也不授权 N42、正式 Player 或以后节点。
+> 当前审计：[N41 集中整合权威基线](182-n41-consolidated-integration-baseline-audit.md)已由最终 Authority Windows CI 确认；N41-E2 [Sequence/Script 规模门](183-n41-e2-sequence-script-scale-audit.md)已关闭，N41-E3 正推进 [Route-first lazy 对白结构闭环](184-n41-e3-lazy-dialogue-structure-audit.md)。Authority 仍未合入 `main`。`RA-N21-006` 只授权 N41 Sequence Engineering，不改变 N21/N23/N30/N31/N32/N40/N41 产品验收与 M1/发布仍被阻断的事实，也不授权 N42、正式 Player 或以后节点。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
