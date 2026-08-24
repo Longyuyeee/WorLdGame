@@ -4,7 +4,8 @@
 > 分支：`codex/n42-governance-checkpoint`
 > 直接基线：N41 最终绿色头 `e7341289972cd0ba4e843b7ef218cd1458fb64c5`
 > 授权：`RA-N21-007`，最大节点 N42，2026-09-24 14:08:25（UTC+8）到期
-> Draft PR / Windows CI：提交推送后补录
+> Draft PR：[#65](https://github.com/Longyuyeee/WorLdGame/pull/65)（Draft，base `codex/n41-e4-sequence-runtime-highlight`）
+> 首个 Windows CI：run `32696755287` / job `97340206007`，5 分 50 秒，绿色
 > 判定：只准入 N42 Stage Engineering；N42 Product Acceptance、N43+、M1 Stable 与发布继续阻断
 
 ## 1. 触发与前置事实
@@ -48,6 +49,8 @@ N41 Sequence Engineering 已按冻结规格取得 Goal `1/1`、Implementation `8
 
 本切片只修改治理注册表、策略、测试和文档，没有改变 UI、产品行为或生产资源，因此不伪造无变化的浏览器产品验收；真实验证对象是实际风险注册表、正反策略、真人记录、全仓代码与构建。N42-E1 首个产品行为切片必须恢复 production browser 的画面、交互和 console 实测。
 
+远端干净 Windows / Node 22 首次完整门同样退出码为 0：治理 `3 files / 20 tests`、常规 `116 files / 733 tests`、storage `1/1`、重型 VM `5/5`；10k portable VM corpus 实际 65.243 秒，N41 1,000 次规模门 317.63 ms，Route P95 140.57 ms，八张 512 px Dicing 3.380 秒。93 个 portable 文件的架构审计、全部 workspace 构建和其余性能门均通过；Editor 仍为 844.58 kB / gzip 236.54 kB。相对本机的耗时差异没有越过任何冻结预算，因此无需修改功能、规模、digest 或门槛。
+
 ## 4. N42-E1 冻结起点
 
 治理门闭合后，E1 先做当前 Stage/Track/Runtime Host 与 N42 冻结规格的代码级差距审计，再选择一个可独立验证的导演结果。优先次序为：
@@ -59,4 +62,4 @@ N41 Sequence Engineering 已按冻结规格取得 Goal `1/1`、Implementation `8
 
 ## 5. 关闭条件
 
-本地治理策略正反例、风险注册表、N21/N23 pending 记录、需求矩阵、完整仓库门和 Windows / Node 22 CI 必须全部通过。推送与远端证据补录前，本检查点保持工程候选；通过后才允许从下一提交开始 N42-E1 产品代码。
+本地治理策略正反例、风险注册表、N21/N23 pending 记录、需求矩阵、完整仓库门和首个 Windows / Node 22 CI 已全部通过。证据补录提交自身的最终 Windows CI 绿色后，本检查点关闭；才允许从下一分支开始 N42-E1 产品代码。

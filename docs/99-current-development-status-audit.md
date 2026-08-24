@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**RA-N21-007 已有界准入，E1 产品代码尚未开始**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2/E3 为 Draft PR #62/#63，E4 出口复审为 Draft PR #64，首个 Windows run `32695198547` / job `97335890304` 绿色**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2/E3/E4 为 Draft PR #62/#63/#64；N42 治理为 Draft PR #65，首个 Windows run `32696755287` / job `97340206007` 用时 5 分 50 秒并绿色**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -97,6 +97,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. N41 最终证据头 Windows 完整门绿色；RA-N21-007 治理检查点关闭后进入 N42-E1，先做 Stage canonical command / timeline projection 差距审计，再实现首个真实导演闭环。N43 与正式 Player 仍禁止进入。
+5. N41 最终证据头与 RA-N21-007 治理实现头的 Windows 完整门均绿色；Draft PR #65 的证据提交最终 CI 关闭后进入 N42-E1，先做 Stage canonical command / timeline projection 差距审计，再实现首个真实导演闭环。N43 与正式 Player 仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
