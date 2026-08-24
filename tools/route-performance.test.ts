@@ -1,7 +1,7 @@
 import { performance } from "node:perf_hooks";
 import { createProjectService, createProjectTemplate, executeProjectCommand, saveProject, sha256, type CanonicalProject, type JsonObject, type ProjectFiles, type ProjectReference, type ProjectTrustedSourceCommit, type ProjectWorkspace, type ScriptDocument } from "@world-studio/project-domain";
 import { compileProjectIncremental, preflightLazyNarrationInsertion, preflightLazyNarrationStructuralEdit } from "@world-studio/project-compiler";
-import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, reviewRouteToEnding, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
+import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, locateRouteDiagnostic, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, reviewRouteToEnding, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
 import { publishTrustedRouteOverview, readTrustedRouteOverview } from "../apps/editor/src/trusted-route-overview";
 import { describe, expect, it } from "vitest";
@@ -172,6 +172,35 @@ describe("N40 10k branching Route performance gate", () => {
     expect(review.candidates[0]?.sceneIds.at(0)).toBe(sceneId(0));
     expect(review.candidates[0]?.sceneIds.at(-1)).toBe(sceneId(9_999));
     expect(elapsedMs).toBeLessThan(endingRouteReviewBudgetMs);
+  });
+
+  it("locates a diagnostic and anchors its 64-scene window in a real 10k graph within 250ms", () => {
+    const graph = buildRouteGraph(createBranchingRouteProject());
+    const index = createRouteGraphIndex(graph);
+    const diagnostic = {
+      severity: "error" as const,
+      code: "UNREACHABLE_SCENE" as const,
+      message: "Synthetic navigation target for the 10k performance gate.",
+      sceneId: sceneId(9_999),
+      statementId: `ending_${sceneId(9_999)}`
+    };
+    const started = performance.now();
+    const location = locateRouteDiagnostic(graph, diagnostic);
+    const window = queryRouteGraphWindow(index, { anchorSceneId: location.sceneId });
+    const elapsedMs = performance.now() - started;
+
+    console.log(JSON.stringify({
+      status: location.status === "located" && elapsedMs < queryBudgetMs ? "PASS" : "FAIL",
+      baseline: { sceneCount, targetSceneId: diagnostic.sceneId, windowLimit: ROUTE_GRAPH_WINDOW_LIMIT },
+      measurementsMs: { diagnosticLocationAndWindow: Number(elapsedMs.toFixed(2)) },
+      budgetMs: { diagnosticLocationAndWindow: queryBudgetMs },
+      result: { location, window: [window.start, window.end], mountedNodes: window.nodes.length }
+    }, null, 2));
+
+    expect(location).toEqual({ schemaVersion: 1, status: "located", sceneId: diagnostic.sceneId, statementId: diagnostic.statementId });
+    expect(window.nodes.some((node) => node.id === diagnostic.sceneId)).toBe(true);
+    expect(window.nodes.length).toBeLessThanOrEqual(ROUTE_GRAPH_WINDOW_LIMIT);
+    expect(elapsedMs).toBeLessThan(queryBudgetMs);
   });
 
   it("reads only one trusted 64-scene structure/layout page from a 10k Route within 500ms", async () => {

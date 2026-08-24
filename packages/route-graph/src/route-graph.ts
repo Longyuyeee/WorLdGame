@@ -78,6 +78,13 @@ export interface EndingRouteCandidateV1 {
   readonly edgeIds: readonly string[];
 }
 
+export interface RouteDiagnosticLocationV1 {
+  readonly schemaVersion: 1;
+  readonly status: "located" | "global" | "missing-scene";
+  readonly sceneId?: string;
+  readonly statementId?: string;
+}
+
 export interface EndingRouteReviewV1 {
   readonly schemaVersion: 1;
   readonly endingSceneId: string;
@@ -379,6 +386,22 @@ export function reviewRouteToEnding(
     skippedCycleEdgeCount,
     ignoredDanglingEdgeCount,
     truncated
+  };
+}
+
+export function locateRouteDiagnostic(
+  graph: RouteGraphV1,
+  diagnostic: RouteGraphDiagnosticV1
+): RouteDiagnosticLocationV1 {
+  if (diagnostic.sceneId === undefined) return { schemaVersion: 1, status: "global" };
+  if (!graph.nodes.some((node) => node.id === diagnostic.sceneId)) {
+    return { schemaVersion: 1, status: "missing-scene" };
+  }
+  return {
+    schemaVersion: 1,
+    status: "located",
+    sceneId: diagnostic.sceneId,
+    ...(diagnostic.statementId === undefined ? {} : { statementId: diagnostic.statementId })
   };
 }
 

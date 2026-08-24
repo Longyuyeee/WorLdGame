@@ -31,7 +31,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
@@ -1901,7 +1901,7 @@ interface FlowViewProps extends CommonProps {
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly hasLocalChanges: boolean;
   readonly trustedChangedSceneIds?: readonly string[];
-  readonly onOpenSequence: (sceneId: string) => void;
+  readonly onOpenSequence: (sceneId: string, statementId?: string) => void;
   readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
   readonly onSetScenePosition: (sceneId: string, x: number, y: number) => RouteProjectMutationResult;
   readonly onResetSceneLayout: (sceneId: string) => RouteProjectMutationResult;
@@ -2026,6 +2026,13 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const saveViewport=()=>commitMutation(onSetViewport(viewportX,viewportY,viewportZoom),"路线视口已写入 Layout Sidecar");
   const moveNode=(node:RouteSceneNodeV1,dx:number,dy:number)=>commitMutation(onSetScenePosition(node.id,node.layout.x+dx,node.layout.y+dy),"节点位置已提交 · 支持撤销与重开");
   const moveSelected=(dx:number,dy:number)=>{if(selected!==undefined)moveNode(selected,dx,dy);};
+  const focusRouteScene = (sceneId: string) => {
+    if (!graph.nodes.some((node) => node.id === sceneId)) return;
+    setEndingSceneId("");setEndingCandidateIndex(0);setEndingRouteStep(0);
+    setQuery("");setChapterFilter("");setKindFilter("");setGroupFilter("");setWindowOffset(undefined);
+    setSelectedSceneId(sceneId);setEditResult(null);
+    dispatch({ type: "select-scene", sceneId });
+  };
   const focusEndingRouteStep = (step: number) => {
     if (endingCandidate === undefined) return;
     const nextStep = Math.max(0, Math.min(endingCandidate.sceneIds.length - 1, step));
@@ -2143,7 +2150,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
               draggable
               onDragStart={(event)=>{event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",node.id);}}
               onKeyDown={(event)=>{if(!event.altKey)return;if(event.key==="ArrowLeft"){event.preventDefault();moveNode(node,-24,0);}else if(event.key==="ArrowRight"){event.preventDefault();moveNode(node,24,0);}else if(event.key==="ArrowUp"){event.preventDefault();moveNode(node,0,-24);}else if(event.key==="ArrowDown"){event.preventDefault();moveNode(node,0,24);}}}
-              onClick={() => { setSelectedSceneId(node.id);setTitle(node.title);setEditResult(null);dispatch({ type: "select-scene", sceneId: node.id }); }}
+              onClick={() => focusRouteScene(node.id)}
+              onDoubleClick={() => onOpenSequence(node.id)}
             >
               <span className="route-node__kind">
                 {node.kind === "entry" ? "入口" : node.kind === "ending" ? "结局" : "场景"}
@@ -2169,7 +2177,9 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
             <div className={["edge-row",runtimeVisited?"is-runtime-visited":"",routeReviewed?"is-route-reviewed":""].filter(Boolean).join(" ")} key={edge.id} data-testid={`route-edge-${edge.id}`} data-runtime-visited={runtimeVisited} data-route-reviewed={routeReviewed}>
               <span>{edge.sourceSceneId}</span><span className="edge-arrow">→</span>
               <strong>{edge.label}</strong><span className="edge-arrow">→</span>
-              <span>{edge.targetSceneId}</span>{edge.status === "dangling" && <em>悬空</em>}{runtimeVisited && <em className="edge-row__runtime-state">已走过</em>}{routeReviewed && <em className="edge-row__review-state">结局路线</em>}
+              {edge.status === "valid"
+                ? <button type="button" className="edge-row__target" aria-label={`定位路线目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.targetSceneId}</button>
+                : <span>{edge.targetSceneId}</span>}{edge.status === "dangling" && <em>悬空</em>}{runtimeVisited && <em className="edge-row__runtime-state">已走过</em>}{routeReviewed && <em className="edge-row__review-state">结局路线</em>}
             </div>
             );
           })}
@@ -2182,13 +2192,19 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         <label><span>节点 X</span><input type="number" aria-label="路线节点 X" value={layoutX} onChange={(event) => setLayoutX(event.currentTarget.valueAsNumber)} /></label>
         <label><span>节点 Y</span><input type="number" aria-label="路线节点 Y" value={layoutY} onChange={(event) => setLayoutY(event.currentTarget.valueAsNumber)} /></label>
         <label><span>所属分组</span><select aria-label="节点所属分组" value={selectedGroupId} onChange={(event)=>setSelectedGroupId(event.target.value)}><option value="">不分组</option>{graph.groups.map((group)=><option key={group.groupId} value={group.groupId}>{group.title}</option>)}</select></label>
+        <div className="route-target-navigation" aria-label="控制流目标导航">
+          <span>控制流目标</span>
+          {selected.facts.filter((fact)=>fact.targetLabel!==undefined).map((fact)=>{const target=selected.facts.find((candidate)=>candidate.kind==="label"&&candidate.label===fact.targetLabel);return <button type="button" key={fact.id} disabled={target===undefined} aria-label={`打开标签目标：${fact.targetLabel}`} onClick={()=>{if(target!==undefined)onOpenSequence(selected.id,target.id);}}>{fact.kind} → {fact.targetLabel}{target===undefined?" · 缺失":""}</button>;})}
+          {graph.edges.filter((edge)=>edge.sourceSceneId===selected.id).map((edge)=><button type="button" key={edge.id} disabled={edge.status!=="valid"} aria-label={`定位场景目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.label} → {edge.targetSceneId}{edge.status==="dangling"?" · 悬空":""}</button>)}
+          {selected.facts.every((fact)=>fact.targetLabel===undefined)&&graph.edges.every((edge)=>edge.sourceSceneId!==selected.id)&&<small>当前场景没有可导航目标</small>}
+        </div>
         <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>moveSelected(-24,0)}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>moveSelected(0,-24)}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>moveSelected(0,24)}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>moveSelected(24,0)}>→</button><small>Alt＋方向键亦可移动</small></div>
         <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={assignGroup}>保存节点分组</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
         {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
       </aside>}
       <section className="route-diagnostics" aria-label="Route Compiler 诊断">
         <p className="eyebrow">COMPILER DIAGNOSTICS · {graph.diagnostics.length}</p>
-        {graph.diagnostics.length === 0 ? <p>正式 Compiler 未报告路线阻断。</p> : <ul>{graph.diagnostics.map((item, index) => <li key={`${item.code}:${item.sceneId ?? "project"}:${item.statementId ?? index}`}><code>{item.code}</code><span>{item.message}</span></li>)}</ul>}
+        {graph.diagnostics.length === 0 ? <p>正式 Compiler 未报告路线阻断。</p> : <ul>{graph.diagnostics.map((item, index) => {const location=locateRouteDiagnostic(graph,item);const statementExists=location.status==="located"&&location.statementId!==undefined&&session.project.scenes.find((scene)=>scene.id===location.sceneId)?.statements.some((statement)=>statement.id===location.statementId)===true;return <li key={`${item.code}:${item.sceneId ?? "project"}:${item.statementId ?? index}`}><div><code>{item.code}</code><span>{item.message}</span></div><div className="route-diagnostics__actions"><button type="button" disabled={location.status!=="located"} aria-label={`定位诊断：${item.code} · ${item.sceneId??"全局"}`} onClick={()=>{if(location.status==="located")focusRouteScene(location.sceneId!);}}>定位 Route</button>{statementExists&&<button type="button" aria-label={`进入诊断内容：${item.code} · ${item.statementId}`} onClick={()=>onOpenSequence(location.sceneId!,location.statementId)}>进入内容</button>}</div></li>;})}</ul>}
       </section>
     </section>
   );
@@ -3989,7 +4005,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onDeleteGroup={deleteRouteGroupFromMap}
             onAssignGroup={assignRouteSceneGroupFromMap}
             onSetViewport={setRouteViewportFromMap}
-            onOpenSequence={(sceneId) => { dispatch({ type: "select-scene", sceneId });setMode("writer"); }}
+            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("writer");}}
           />
         )}
         <PreviewPanel session={session} dispatch={dispatch} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />

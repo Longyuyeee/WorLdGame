@@ -42,6 +42,49 @@ function pagedRuntimeStory(sceneCount: number): StoryProject {
   return { schemaVersion: 0, id: "runtime-route-window", title: "Runtime Route Window", entrySceneId: "runtime_route_000", characters: [], scenes };
 }
 
+function diagnosticStory(): StoryProject {
+  return {
+    schemaVersion: 0,
+    id: "route-diagnostic-story",
+    title: "Route Diagnostic Story",
+    entrySceneId: "diagnostic_entry",
+    characters: [],
+    scenes: [
+      { id: "diagnostic_entry", title: "Diagnostic Entry", statements: [
+        { id: "diagnostic_label", kind: "label", name: "loop" },
+        { id: "diagnostic_jump", kind: "jump", targetLabel: "loop" },
+        { id: "diagnostic_end", kind: "end", endingName: "Never" }
+      ] }
+    ]
+  };
+}
+
+function pagedDiagnosticStory(sceneCount: number): StoryProject {
+  const project = branchingStory(sceneCount);
+  const unreachableSceneId = `route_ui_${String(sceneCount - 1).padStart(3, "0")}`;
+  return {
+    ...project,
+    scenes: project.scenes.map((scene) => ({
+      ...scene,
+      statements: scene.statements.map((statement) => statement.kind === "choice"
+        ? { ...statement, options: statement.options.filter((option) => option.targetSceneId !== unreachableSceneId) }
+        : statement)
+    }))
+  };
+}
+
+function labelNavigationStory(): StoryProject {
+  return { schemaVersion: 0, id: "route-label-navigation", title: "Route Label Navigation", entrySceneId: "label_scene", characters: [], scenes: [{
+    id: "label_scene",
+    title: "Label Scene",
+    statements: [
+      { id: "jump_finish", kind: "jump", targetLabel: "finish" },
+      { id: "label_finish", kind: "label", name: "finish" },
+      { id: "label_end", kind: "end", endingName: "Label Done" }
+    ]
+  }] };
+}
+
 describe("N40 Route Map product flow", () => {
   it("searches the compiler-derived scene graph without changing stable IDs", () => {
     renderRouteMap();
@@ -120,6 +163,13 @@ describe("N40 Route Map product flow", () => {
     expect(within(nodes).getByRole("button",{name:/路线场景：放学后的校门/})).toBeVisible();
   });
 
+  it("opens the same stable scene in Writer by double-clicking a Route node", () => {
+    renderRouteMap();
+    fireEvent.doubleClick(screen.getByRole("button", { name: /路线场景：风中的天台/ }));
+    expect(screen.getByRole("tab", { name: "Writer" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("heading", { name: "风中的天台" })).toBeVisible();
+  });
+
   it("reviews a selected ending route and highlights its Compiler scenes and connections", () => {
     renderRouteMap();
     fireEvent.change(screen.getByLabelText("审阅结局路线"), { target: { value: "scn_rooftop" } });
@@ -133,6 +183,40 @@ describe("N40 Route Map product flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "上一个审阅路线节点" }));
     expect(screen.getByRole("status", { name: "结局路线步骤" })).toHaveTextContent("1 / 2");
     expect(screen.getByRole("button", { name: /路线场景：放学后的校门/ })).toHaveAttribute("data-route-reviewed", "true");
+  });
+
+  it("navigates valid scene and label targets without editing canonical content", () => {
+    const { onProjectChange } = renderRouteMap();
+    const callsBeforeNavigation = onProjectChange.mock.calls.length;
+    fireEvent.click(screen.getByRole("button", { name: "定位场景目标：去天台 · scn_rooftop" }));
+    expect(screen.getByRole("button", { name: /路线场景：风中的天台/ })).toHaveAttribute("aria-pressed", "true");
+    expect(onProjectChange).toHaveBeenCalledTimes(callsBeforeNavigation);
+
+    render(<App initialProject={projectCanonicalFromStory(labelNavigationStory(), "n40-label-navigation")} />);
+    const flowTabs = screen.getAllByRole("tab", { name: "Flow" });
+    fireEvent.click(flowTabs.at(-1)!);
+    fireEvent.click(screen.getByRole("button", { name: "打开标签目标：finish" }));
+    const labelCard = screen.getByRole("button", { name: /选择标签：finish/ });
+    expect(labelCard).toHaveFocus();
+  });
+
+  it("anchors a Compiler diagnostic across a 64-node window", () => {
+    render(<App initialProject={projectCanonicalFromStory(pagedDiagnosticStory(65), "n40-diagnostic-window")} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
+    fireEvent.click(screen.getByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · route_ui_064" }));
+    expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("65–65 / 65");
+    expect(screen.getByRole("button", { name: /路线场景：Route UI Scene 64/ })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("enters the exact diagnostic statement and fails closed for global diagnostics", () => {
+    render(<App initialProject={projectCanonicalFromStory(diagnosticStory(), "n40-diagnostic-content")} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    const globalDiagnostic = screen.getByRole("button", { name: /定位诊断：NO_REACHABLE_ENDING · 全局/ });
+    expect(globalDiagnostic).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "进入诊断内容：UNREACHABLE_STATEMENT · diagnostic_end" }));
+    expect(screen.getByRole("tab", { name: "Writer" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("button", { name: "选择结局：结局 · Never" })).toHaveFocus();
   });
 
   it("anchors ending-route steps across real 64-node Route windows", () => {

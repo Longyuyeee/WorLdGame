@@ -87,13 +87,15 @@ E8g–E8j 为了形成 Route-first 可编辑落地流程，已实现一部分 Se
 
 ### N40-E8m：诊断定位与直接导航
 
+> 2026-08-24 更新：本地实现、真实 Project/Compiler UI 正反例、10k 性能、desktop/mobile production browser 与全仓门已通过，详见 [E8m 审计](177-n40-e8m-diagnostic-navigation-audit.md)。合法目标只读导航已完成；目标编辑/自动补全写回因必须经过正式结构事务，保留给 E8n 的最小修复闭环或 N41。远端 Windows 门待本次推送后登记。
+
 **用户目标**：点击不可达、悬空、循环等 Compiler 诊断即可看到出错节点，并进入对应内容位置修复。
 
 **实现边界**：
 
 - 诊断点击锚定 Route window、选中 scene，并携带 statementId；
 - 节点双击进入同 scene 的 Sequence；诊断有 statementId 时继续定位对应卡片/Script；
-- label/jump/choice 目标提供可搜索导航与合法目标补全，写入仍经过正式 Story Language/Project Service/Compiler；
+- label/jump/choice 合法目标提供直接导航；目标编辑/补全写入不得绕过正式 Story Language/Project Service/Compiler；
 - 目标不存在、revision 漂移或 Compiler 拒绝时失败关闭。
 
 **完成证据**：诊断→Route→Sequence/Script 稳定 ID E2E；键盘与鼠标路径；保存/重开；本地全门和 Windows CI。

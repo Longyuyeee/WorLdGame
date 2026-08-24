@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compileProject } from "@world-studio/project-compiler";
 import { createProjectTemplate, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, type RouteGraphV1 } from "./route-graph";
+import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, type RouteGraphV1 } from "./route-graph";
 
 function routeProject(includeDangling = true): CanonicalProject {
   const base = createProjectTemplate("Route Graph", "n40-route-graph-tests");
@@ -246,5 +246,15 @@ describe("N40 route graph", () => {
     expect(reviewRouteToEnding(unreachable, "route_left")).toMatchObject({ status: "unreachable", candidates: [], truncated: false });
     expect(reviewRouteToEnding(base, "route_left", { expansionLimit: 1 })).toMatchObject({ status: "found", exploredEdgeCount: 1 });
     expect(reviewRouteToEnding(base, "route_left", { candidateLimit: 1 })).toMatchObject({ status: "found", truncated: true });
+  });
+
+  it("locates only diagnostics backed by stable Route scenes", () => {
+    const graph = buildRouteGraph(routeProject());
+    expect(locateRouteDiagnostic(graph, { severity: "error", code: "MISSING_TARGET_SCENE", message: "missing", sceneId: "route_entry", statementId: "choice_path" }))
+      .toEqual({ schemaVersion: 1, status: "located", sceneId: "route_entry", statementId: "choice_path" });
+    expect(locateRouteDiagnostic(graph, { severity: "error", code: "NO_REACHABLE_ENDING", message: "global" }))
+      .toEqual({ schemaVersion: 1, status: "global" });
+    expect(locateRouteDiagnostic(graph, { severity: "error", code: "MISSING_ENTRY_SCENE", message: "missing", sceneId: "route_missing" }))
+      .toEqual({ schemaVersion: 1, status: "missing-scene" });
   });
 });
