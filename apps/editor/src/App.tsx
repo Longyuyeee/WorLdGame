@@ -797,6 +797,7 @@ interface SequenceViewProps extends CommonProps {
   readonly variableIds: readonly string[];
   readonly requestedFocusStatementId: string | null;
   readonly onRequestedFocusHandled: () => void;
+  readonly runtimeRouteTrace: RuntimeRouteTrace;
 }
 
 type DirectionForm = Record<string, string>;
@@ -1260,7 +1261,8 @@ function SequenceView({
   assetIndex,
   variableIds,
   requestedFocusStatementId,
-  onRequestedFocusHandled
+  onRequestedFocusHandled,
+  runtimeRouteTrace
 }: SequenceViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -1291,6 +1293,12 @@ function SequenceView({
   const stageSearch = useMemo(() => searchStageIndex(stageSearchIndex, stageSearchQuery), [stageSearchIndex, stageSearchQuery]);
   const resolvedStageSearchResult = Math.min(activeStageSearchResult, Math.max(0, stageSearch.matches.length - 1));
   const selectedSearchMatch = stageSearch.matches[resolvedStageSearchResult];
+  const runtimeCurrentStatementId = runtimeRouteTrace.active && runtimeRouteTrace.currentSceneId === scene.id
+    ? runtimeRouteTrace.currentStatementId
+    : null;
+  const runtimeCurrentIndex = runtimeCurrentStatementId === null
+    ? -1
+    : scene.statements.findIndex((statement) => statement.id === runtimeCurrentStatementId);
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
   const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
   const sequenceInsertRequirement = sequenceInsertKind === "dialogue" && sequenceReferences.characterIds.length === 0
@@ -1393,6 +1401,13 @@ function SequenceView({
     ).start);
   }, [scene.statements.length, selectedIndex]);
   useEffect(() => {
+    if (runtimeCurrentIndex < 0) return;
+    setStageWindowStart((current) => revealStageIndex(
+      createStageWindow(scene.statements.length, current),
+      runtimeCurrentIndex
+    ).start);
+  }, [scene.statements.length, runtimeCurrentIndex]);
+  useEffect(() => {
     const valid = new Set(scene.statements.filter((statement) => statement.kind === "direction").map((statement) => statement.id));
     setSelectedDirectionIds((current) => current.filter((statementId) => valid.has(statementId)));
     setRangeAnchorId((current) => current !== null && valid.has(current) ? current : null);
@@ -1432,6 +1447,23 @@ function SequenceView({
           <h2 id="sequence-heading">{scene.title}</h2>
         </div>
         <span className="context-chip">权威脚本投影</span>
+      </div>
+
+      <div
+        className={runtimeRouteTrace.active ? "sequence-runtime-trace is-active" : "sequence-runtime-trace"}
+        role="status"
+        aria-label="Sequence 运行步骤高亮"
+      >
+        <span aria-hidden="true">◆</span>
+        {runtimeCurrentIndex >= 0 ? (
+          <span>Runtime 当前步骤 · <strong>{runtimeCurrentStatementId}</strong></span>
+        ) : runtimeRouteTrace.active && runtimeRouteTrace.currentSceneId !== scene.id ? (
+          <span>Runtime 当前位于其他场景 · <strong>{runtimeRouteTrace.currentSceneId}</strong></span>
+        ) : runtimeRouteTrace.active ? (
+          <span>Runtime 当前内部指令未映射到剧情步骤</span>
+        ) : (
+          <span>Runtime 未运行 · 启动试玩后高亮正式执行位置</span>
+        )}
       </div>
 
       <div className="statement-toolbar" aria-label="对白结构工具">
@@ -1740,17 +1772,20 @@ function SequenceView({
       <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>
         {visibleStatements.map((statement, visibleIndex) => {
           const index = stageWindow.start + visibleIndex;
+          const runtimeCurrent = statement.id === runtimeCurrentStatementId;
           return (
           <button
             id={`statement-card-${statement.id}`}
             key={statement.id}
-            className={
-              statement.id === session.selectedStatementId
-                ? `statement-card statement-card--${statement.kind} is-active`
-                : `statement-card statement-card--${statement.kind}`
-            }
+            className={[
+              `statement-card statement-card--${statement.kind}`,
+              statement.id === session.selectedStatementId ? "is-active" : "",
+              runtimeCurrent ? "is-runtime-current" : ""
+            ].filter(Boolean).join(" ")}
             onClick={(event) => {dispatch({ type: "select-statement", statementId: statement.id });if(sequenceMultiSelect){if(event.shiftKey&&sequenceRangeAnchor!==null)setSequenceSelectedIds(sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id));else{setSequenceRangeAnchor(statement.id);setSequenceSelectedIds((current)=>current.includes(statement.id)?current.filter((id)=>id!==statement.id):[...current,statement.id]);}}}}
             aria-pressed={sequenceMultiSelect?sequenceSelectedIds.includes(statement.id):undefined}
+            aria-current={runtimeCurrent ? "step" : undefined}
+            data-runtime-current={runtimeCurrent}
             aria-label={`选择${statementKindLabel(statement)}：${statementLabel(statement)}`}
             aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
             onKeyDown={(event)=>{if(pendingDraft)return;if(sequenceMultiSelect&&event.shiftKey&&(event.key===" "||event.key==="Enter")){event.preventDefault();const ids=sequenceRangeAnchor===null?[statement.id]:sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id);setSequenceSelectedIds(ids);return;}if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowUp"){event.preventDefault();moveStatement(statement,-1);}else if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowDown"){event.preventDefault();moveStatement(statement,1);}else if(event.key==="Delete"){event.preventDefault();deleteSelected();}}}
@@ -1917,6 +1952,7 @@ interface FlowViewProps extends CommonProps {
 export interface RuntimeRouteTrace {
   readonly active: boolean;
   readonly currentSceneId: string | null;
+  readonly currentStatementId: string | null;
   readonly visitedSceneIds: readonly string[];
   readonly visitedEdgeIds: readonly string[];
 }
@@ -1928,6 +1964,7 @@ export function runtimeRouteAnchorSceneId(trace: RuntimeRouteTrace, selectedScen
 const IDLE_RUNTIME_ROUTE_TRACE: RuntimeRouteTrace = {
   active: false,
   currentSceneId: null,
+  currentStatementId: null,
   visitedSceneIds: [],
   visitedEdgeIds: []
 };
@@ -2290,10 +2327,11 @@ function PreviewPanel({ session, dispatch, inputDirty, assetIndex, assetReposito
     onRouteTraceChange(playableActive ? {
       active: true,
       currentSceneId: playable.sceneId,
+      currentStatementId: previewObservation.current?.statementId ?? null,
       visitedSceneIds: playable.visitedSceneIds,
       visitedEdgeIds: playable.visitedRouteEdgeIds
     } : IDLE_RUNTIME_ROUTE_TRACE);
-  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playableActive]);
+  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playableActive, previewObservation.current?.statementId]);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -4016,7 +4054,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} />
+          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (

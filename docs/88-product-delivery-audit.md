@@ -81,7 +81,7 @@
 |---|---|---|---|---|
 | REQ-PRJ | 项目与工作区 | 局部可用 | N12 真实工程生命周期；N13 章节/场景/角色/变量管理、引用迁移、实体搜索与保存重开 | Android SAF、正式桌面/手机工作区、统一七模式搜索和强杀恢复验收 |
 | REQ-ROUTE | Route Map | 隔离原型 | Choice 派生简单场景图 | 完整节点/边语义、局部加载、布局 Sidecar、诊断、路线高亮、双击进入 Sequence |
-| REQ-SEQ | Sequence | 局部可用 | N21 全部 P0 卡片、插入/复制/排序/多选/折叠、类型化 Inspector、稳定 ID 引用与保存重开自动化门 | 20 分钟非程序用户实测、N41 完整 Sequence 与 Stage/Script 跨视图定位 |
+| REQ-SEQ | Sequence | 工程完整、验收待定 | N41 Engineering 已覆盖全部 P0 卡片、插入/复制/排序/多选/折叠、类型化 Inspector、搜索与跨视图定位；1,000 次 Sequence/Script stable-ID 互改、正式 Runtime statement 高亮和保存重开自动化门通过 | 20 分钟非程序用户实测与 N41 Product Acceptance；Stage 属于 N42 |
 | REQ-SCRIPT | Script | 局部可用 | N20 P0 CST/AST、安全表达式、诊断/补全/定义/引用、重构、通用 Patch、100k 增量门；原有文本编辑 | N41 正式代码编辑器呈现、所有视图集成和外部编辑 E2E |
 | REQ-STAGE | Stage / UI Composer | 局部可用 | 基础预览和 BG/CHAR/AUDIO 轨 | 画布操控、变换、镜头、关键帧、文本模板、安全区、Stage/Sequence/Runtime 同步 |
 | REQ-UX | 视觉与工作模式 | 局部可用 | Token、基础动效、三模式 | 七模式、Beginner/Pro、减少动效、触屏替代、60 FPS 目标和 D1 验证 |

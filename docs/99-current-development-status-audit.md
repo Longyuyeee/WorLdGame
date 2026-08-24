@@ -1,10 +1,10 @@
-# 当前开发情况审计（N41 Engineering 准入，产品门仍阻断）
+# 当前开发情况审计（N41 Engineering 出口通过，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n41-e3-lazy-dialogue-structure`；N41-E2 直接基线为 `8b0e9574d1f13af43a16a94d60fcd67234d72d2e`；N41 集中 Authority 为 `644a38026265ca67bea254c154530d00c32a6680`
+> 当前分支：`codex/n41-e4-sequence-runtime-highlight`；直接基线为 N41-E3 `35b5052d1590878f9c4dee50f4e8c23c885b5796`；N41 集中 Authority 为 `644a38026265ca67bea254c154530d00c32a6680`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-006` 只允许 N41 Sequence Engineering；2026-09-24 11:35:40（UTC+8）到期
-> 最新节点证据：[N40→N41 治理检查点](180-n40-n41-governance-checkpoint.md)、[N41-E1 正式 Sequence 模式审计](181-n41-e1-formal-sequence-mode-audit.md)
+> 最新节点证据：[N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -18,9 +18,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**E1/E2/E3 均已由本地、production browser（适用切片）和远端 Windows 完整门关闭**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**Goal 1/1、Implementation 8/8、Acceptance 1/1，本地完整门、production browser 与 Draft PR #64 Windows / Node 22 run `32695198547` 均通过**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2 为 Draft PR #62，E3 从其精确证据头 `8b0e957` 派生**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2/E3 为 Draft PR #62/#63，E4 出口复审为 Draft PR #64，首个 Windows run `32695198547` / job `97335890304` 绿色**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -29,7 +29,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠，E1 标签结构通过 Script/Compiler/Route/IndexedDB 重开；E2 的 1,000 次全 P0 Sequence/Script 交替互改、choice child、stable ID、format/hash 与失败关闭门已由 PR #62 Windows CI 关闭；N40 Route Engineering 出口已通过 | N41 完整出口仍缺；Route-first lazy 仅已审计结构族开放；N40/N41 Product Acceptance、完整 Stage/Player 阻断 |
+| Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠、跨视图定位与 Formal Runtime statement 高亮；1,000 次全 P0 Sequence/Script 互改和 84 项退出矩阵已通过；N40/N41 Engineering 出口均通过 | N21/N23 真人、N40/N41 Product Acceptance、完整 Stage/Player 仍阻断；Route-first lazy 控制流是后续大型工程增强，不是 N41 出口缺口 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -96,7 +96,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
-4. N41-E2 已完成全仓、Draft PR #62 与 Windows CI；N41-E3 选择 Route-neutral dialogue，完成专用 Compiler/Route preflight、真实 IndexedDB、生产界面、完整重建、本地完整门及 Draft PR #63 Windows CI；
-5. 正式 Player 属于 N50/N80，不能跳过 N41–N43。N32/N40/N41 Product Acceptance 和 N42+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
+4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
+5. E4 已推送、Windows 完整门绿色且证据已补录；现在停在 N41→N42 治理检查点。`RA-N21-006` 不授权 N42；正式 Player 属于 N50/N80，也不得跳过 Stage 与跨视图节点。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

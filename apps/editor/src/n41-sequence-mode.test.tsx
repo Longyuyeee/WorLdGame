@@ -29,6 +29,35 @@ const sequenceStory: StoryProject = {
 };
 
 describe("N41 formal Sequence mode", () => {
+  it("projects formal Runtime current statement and History navigation onto the canonical Sequence", async () => {
+    vi.stubGlobal("indexedDB", new IDBFactory());
+    render(<App />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "试玩完整流程" }));
+    const highlight = await screen.findByRole("status", { name: "Sequence 运行步骤高亮" });
+    const first = screen.getByRole("button", { name: "选择演出：action=clear" });
+    expect(highlight).toHaveTextContent("stmt_gate_bg");
+    expect(first).toHaveAttribute("aria-current", "step");
+    expect(first).toHaveAttribute("data-runtime-current", "true");
+
+    const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
+    fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
+    const dialogue = screen.getByRole("button", { name: /^选择对白：广播站/ });
+    expect(first).toHaveAttribute("data-runtime-current", "false");
+    expect(first).toHaveClass("is-active");
+    expect(dialogue).toHaveAttribute("aria-current", "step");
+    expect(dialogue).not.toHaveClass("is-active");
+
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    expect(screen.getByRole("button", { name: /^选择对白：广播站/ })).toHaveAttribute("aria-current", "step");
+
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 后退一步" }));
+    expect(screen.getByRole("button", { name: "选择演出：action=clear" })).toHaveAttribute("aria-current", "step");
+    fireEvent.click(within(controls).getByRole("button", { name: "Runtime 前进一步" }));
+    expect(screen.getByRole("button", { name: /^选择对白：广播站/ })).toHaveAttribute("aria-current", "step");
+  });
+
   it("persists a typed label structure through Sequence, Script, Compiler, Route, and reopen", async () => {
     const indexedDb = new IDBFactory();
     vi.stubGlobal("indexedDB", indexedDb);

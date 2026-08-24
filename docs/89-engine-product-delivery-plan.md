@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N41 集中整合权威基线](182-n41-consolidated-integration-baseline-audit.md)已由最终 Authority Windows CI 确认；N41-E2 [Sequence/Script 规模门](183-n41-e2-sequence-script-scale-audit.md)已关闭，N41-E3 正推进 [Route-first lazy 对白结构闭环](184-n41-e3-lazy-dialogue-structure-audit.md)。Authority 仍未合入 `main`。`RA-N21-006` 只授权 N41 Sequence Engineering，不改变 N21/N23/N30/N31/N32/N40/N41 产品验收与 M1/发布仍被阻断的事实，也不授权 N42、正式 Player 或以后节点。
+> 当前审计：[N41 集中整合权威基线](182-n41-consolidated-integration-baseline-audit.md)已由最终 Authority Windows CI 确认；E1–E3 与 [N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)已关闭正式 Sequence、1,000 次同源互改、lazy 对白结构和 statement 级 Runtime 高亮。Authority 仍未合入 `main`。`RA-N21-006` 只授权 N41 Sequence Engineering，不改变 N21/N23/N30/N31/N32/N40/N41 产品验收与 M1/发布仍被阻断的事实，也不授权 N42、正式 Player 或以后节点。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -384,7 +384,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N41 Sequence
 
-> 工程状态（2026-08-24）：[N40→N41 治理检查点](180-n40-n41-governance-checkpoint.md)建立的 `RA-N21-006` 只允许 N41 Sequence Engineering。[N41-E1](181-n41-e1-formal-sequence-mode-audit.md)已把原 Writer 正式统一为 Sequence，并用标签结构完成 Sequence→Script→IndexedDB 保存复读→Compiler/Route→重开 Sequence。E1 不等于完整 N41；1,000 次互改、其余规模/失败关闭矩阵和 Product Acceptance 仍缺，N42+、M1 Stable 与发布继续 fail closed。
+> 工程状态（2026-08-24）：[N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)确认 Goal `1/1`、Implementation `8/8`、Acceptance `1/1`。正式 Sequence 覆盖全部 P0、类型化 Inspector、搜索插入、批量/折叠、跨视图定位与 statement 级 Runtime 高亮；1,000 次 Sequence/Script 同源互改不漂移。N41 Engineering 出口通过。N21/N23 真人仍为 `0/1`、`0/2`，故 N41 Product Acceptance 不通过；`RA-N21-006` 继续阻断 N42+、M1 Stable 与发布。
 
 - **Goal**：提供场景内部完整的可视化语义编辑。
 - **Implementation**：全部 P0 块、类型化 Inspector、运行高亮、搜索插入、批量、折叠、跨视图定位；复杂条件允许进入 Script 但不得丢失。
