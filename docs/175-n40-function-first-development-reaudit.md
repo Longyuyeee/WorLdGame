@@ -114,6 +114,8 @@ E8g–E8j 为了形成 Route-first 可编辑落地流程，已实现一部分 Se
 
 E8l–E8n 后逐项对照 N40 Goal/Implementation/Tests/Acceptance。只有 Route P0 功能完整且证据一致，才能登记 N40 Engineering 出口候选。真人记录、production browser 和 `RA-N21-005` 未关闭时，N40 Product Acceptance、N41 及以后仍不得开启。
 
+> 2026-08-24 复审结果：N40 Engineering 出口通过，Goal `1/1`、Implementation `11/11`、Tests `3/3`、Acceptance `2/2`；详见 [N40 Engineering 出口复审](179-n40-engineering-exit-reaudit.md)。当前分支冻结，不自动进入 N41；N40 Product Acceptance、N41+、M1 Stable 与发布仍被 `RA-N21-005` 阻断。
+
 ## 6. N40 之后的产品主线
 
 1. **N41 Sequence**：全部 P0 块、Choice options、类型化 Inspector、复制/批量/折叠、跨视图定位和 1,000 次 Script/Sequence 互改不漂移；

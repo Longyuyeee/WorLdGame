@@ -375,8 +375,10 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8n Engineering 状态（2026-08-24）：Flow 已能把既有 Choice option 的 stable target 通过正式 Story Language `p0-batch` 改到另一 scene，保存到 checksummed IndexedDB 后复读同一语义，Compiler/Route 立即重建，Formal Runtime 实际抵达新结局。修复器默认按需挂载，候选最多 64；10k target plan 本地/Windows 为 `0.75/0.79 ms <250 ms`。全量为 `114 files / 723 tests`，Windows run `32684809412` / job `97307842092` 4 分 56 秒绿色。本机冻结 VM 因当前资源负载连续超出 90 秒，未放宽预算；干净 Windows runner 为 `61.81s`。E8n 只关闭 Route 驱动最小写闭环，N40 Product Acceptance、N41、M1 与发布仍阻断。详见 [N40-E8n 审计](178-n40-e8n-route-repair-loop-audit.md)。
 
+> N40 Engineering 出口状态（2026-08-24）：[出口复审](179-n40-engineering-exit-reaudit.md)从当前头重新核验 Goal `1/1`、Implementation `11/11`、Tests `3/3`、Acceptance `2/2`。定向 Route 回归 `8 files / 59 tests`，真实 10k 单场景修改到 Route 锚点窗口 P95 `164.88 ms <500 ms`，trusted 64-scene topology 页 `321.95 ms <500 ms`；当前 production desktop/mobile 验证 16:9、结局路线和 Route→同场景内容入口，控制台 0 warning/error。旧“进入 Sequence”统一澄清为进入当前 Writer 图形内容入口，不等于 N41 完整 Sequence。N40 Engineering 出口通过；Product Acceptance、N41+、M1 与发布仍被 `RA-N21-005` 阻断。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
-- **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
+- **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入同场景内容入口（当前 Writer；不等于 N41 完整 Sequence）。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。
 - **Acceptance**：10k Route 在目标预算内局部编辑，修改 Script 后图在 500 ms 内同步。
 
