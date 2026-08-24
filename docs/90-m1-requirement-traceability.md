@@ -25,14 +25,14 @@
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
-| USP-01 | One Story, Many Views | N40–N43 | 实现中 | N41 Engineering 出口已通过：Sequence/Script/Compiler/Route/IndexedDB 重开同源，1,000 次全 P0 互改不漂移，Formal Runtime statement 已投射到 Sequence；Stage 与七模式仍未进入 | 任意工程四视图+Preview+Debugger 同源 E2E |
+| USP-01 | One Story, Many Views | N40–N43 | 实现中 | N41 Engineering 出口已通过：Sequence/Script/Compiler/Route/IndexedDB 重开同源，1,000 次全 P0 互改不漂移，Formal Runtime statement 已投射到 Sequence；N42-E1–E3 已接入 Stage placement、Move easing 与基本角色关键帧；完整时间线、Debugger 与七模式仍未完成 | 任意工程四视图+Preview+Debugger 同源 E2E |
 | USP-02 | Mobile First Editor | N91 | 未开始 | CL-02 契约 | AND-L/AND-R 完整创作任务 |
 | USP-03 | Narrative Intelligence | N30/N60 | 实现中 | N30 Compiler 已有语句级 CFG/SCC、结构/资源/表达式诊断与 Source Map；Solver/Debugger 仍待 N60 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden、Debugger |
-| USP-04 | Local First / No Lock-in | N10–N13 | 实现中 | 固定 IndexedDB 保存/恢复 | 通用工程离线导入导出、Git diff、外部编辑 |
+| USP-04 | Local First / No Lock-in | N10–N13 | 实现中 | IndexedDB 保存/恢复、备份，以及 Canonical 文档/Asset Index/源 Blob 的确定性 ZIP 自包含迁移与重载已通过 | 正式双端壳离线导入导出、Git diff、外部编辑与强杀恢复 |
 | USP-05 | Local Multi-platform Build | N80–N83 | 未开始 | 开发构建不计 | Windows 本地三端正式产物 |
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | 三模式视觉原型 | 七模式、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
-| USP-08 | Gal Automation | N62 | 未开始 | 简单 Route 投影 | 自动 Catalog、玩家附加页、三端一致 |
+| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；Compiler 已生成 Gallery/Music/Ending 等 Catalog，Runtime 已记录 Gallery/Ending 永久 Meta | 覆盖配置、玩家 Gallery/Replay/Music/Ending 页面与三端一致 |
 | USP-09 | Skip / History / Back | N31/N52 | 实现中 | N31 已形成正式 History/调度/reconciliation/Session Save/永久 Meta；E4/E5 接入 Editor 控制，E7 又把 checkpoint、compensation/replay、cancel receipt 收敛到 portable Host，并在 Benchmark production 实跑 Back/Forward。正式 Player 控件和三端证据仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、[N31-E5](130-n31-e5-runtime-history-audit.md)、Editor/Player/三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
@@ -43,7 +43,7 @@
 | REQ-PRJ | 新建/打开/最近/示例、保存恢复、章节场景、搜索、桌面/手机工作区、导入导出、离线 | N10–N13/N90/N91 | N00 | 实现中 | N23-E3 已证明 Canonical 文档、Asset Index 与源 Blob 随确定性 ZIP 搬到新工作区并在重载后运行；仍缺 Android SAF、正式壳、统一七模式搜索与强杀恢复 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Project E2E、Recovery Golden、双端任务 |
 | REQ-ROUTE | 完整自动图、布局、局部加载、诊断、路线高亮、进入场景内容 | N40 | N20/N30 | 实现中 | N40 Engineering 出口已通过：E1–E8n 完成 Compiler 图、10k/64 窗口、Layout/交互、缓存、Runtime 高亮、trusted Route-first、局部内容、全局索引、narration 结构闭环、topology 分页、结局审阅、诊断/目标导航与 Choice 目标修改→保存复读→Compiler/Route 重建→Formal Runtime 新结局闭环。出口复审 Goal `1/1`、Implementation `11/11`、Tests `3/3`、Acceptance `2/2`；10k 同步 P95 `164.88 ms <500 ms`。Route 双击进入当前 Writer 图形内容入口，不等于 N41 完整 Sequence。Product Acceptance 仍被当前 `RA-N21-007` 阻断；完整 Lazy Project/增量 topology、外部目录和高级过滤后置 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
 | REQ-SEQ | P0 语句块、排序/复制/批量/折叠、Inspector、跨视图定位 | N21/N41 | N21 | 验收中 | N41 Engineering 出口 Goal `1/1`、Implementation `8/8`、Acceptance `1/1`：全部 P0、类型化 Inspector、搜索/插入、复制/移动/批量/折叠、跨视图定位、statement 级 Runtime 高亮和 1,000 次同源互改均通过。Route-first lazy narration/dialogue 是大型工程增强，不再误列为完整 Sequence 出口前置。N21 真人 `0/1`，Product Acceptance 仍阻断 | [N41 出口复审](185-n41-engineering-exit-reaudit.md)、[N41-E1](181-n41-e1-formal-sequence-mode-audit.md)–[N41-E3](184-n41-e3-lazy-dialogue-structure-audit.md)、[N21 真人执行包](114-n21-human-validation-execution-kit.md) |
-| REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；仍缺 N41 正式编辑器呈现、全视图集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
+| REQ-SCRIPT | 高亮/补全/诊断/定义/引用、稳定 ID、格式化/重构、双向同步、外部编辑 | N20/N41 | N20 | 实现中 | N20 语言内核与规模门通过；N41 已完成正式 Script/Sequence 双向同源、诊断、稳定 ID、1,000 次互改与规模测试；仍缺高级补全/定义/引用、统一七模式集成和外部编辑 E2E | 100k/round-trip/external edit Golden |
 | REQ-STAGE | 画布、安全区、变换、模板、多轨、关键帧、缓动、三视图同步 | N22/N42 | N20/N31 | 实现中 | E1 已用真实 PNG/WAV 关闭 16:9 Canvas 点击、s1 重开、Canonical 资源桥与 Runtime Host；E2 冻结 4 种 Move easing；E3 又关闭“当前 Show/Move→下一 stable-ID Move 关键帧”的图形化编排，拒绝空关键帧并在轨道显示 KF。真实 fixture 从 X=25/Y=80/scale=0.9 生成 X=72/Y=84/scale=1.05/650ms/ease-out；本地 753/753。多轨 playhead、时间标尺、路径、镜头、模板仍缺 | [N42-E3](190-n42-e3-character-keyframe-authoring-audit.md)、[N42-E2](189-n42-e2-stage-move-easing-audit.md)、[N42-E1b](188-n42-e1b-production-media-stage-audit.md)、[N22 退出审计](113-n22-exit-condition-audit.md)、AC-13 |
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | 固定 localhost 一键验收入口已通过生产烟测；仍仅三模式，N21 `0/1`、N23 `0/2` | [N23-E7 审计](122-n23-e7-acceptance-launcher-audit.md)、[N21 执行包](114-n21-human-validation-execution-kit.md)、[N23 执行包](121-n23-product-acceptance-execution-kit.md)、D1 任务报告 |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |

@@ -2,12 +2,14 @@
 
 > 审计日期：2026-08-24
 > 当前分支：`codex/n42-e3-character-keyframe-authoring`；直接基线为 N42-E2 最终绿色头 `a130779d03977e2eeff93cecca2260bd01ac868b`
-> 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
+> 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[N42-E3 角色关键帧编排闭环审计](190-n42-e3-character-keyframe-authoring-audit.md)
+> 最新节点证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)；实现证据：[N42-E3 角色关键帧编排闭环审计](190-n42-e3-character-keyframe-authoring-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
+
+2026-08-24 对最初需求重新逐项审计后的结论是：**产品目标和架构没有发生替换性偏移，但开发重心已明显偏向 Compiler/Runtime/Route/Sequence/Stage 工程底座，用户可见的 Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 闭环明显滞后。** 当前应继续按 `RA-N21-007` 收紧完成 N42 最小出口，并在下一治理检查点把优先级转向纵向产品闭环，禁止把工程测试数量换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
