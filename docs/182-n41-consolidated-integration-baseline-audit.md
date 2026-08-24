@@ -2,7 +2,7 @@
 
 > 日期：2026-08-24  
 > 分支：`codex/m1-integration-n41-governance`  
-> 状态：Candidate；等待面向 `main` 的 Draft PR 与 Windows / Node 22 完整门  
+> 状态：Authoritative；面向 `main` 的 Draft PR #61，仍等待维护者审阅与合并
 > 范围：只整合已完成的 N00–N41 Engineering 证据，不声明 Product Acceptance、M1 或发布通过
 
 ## 1. 纠偏目标
@@ -35,7 +35,10 @@
 | 节点缺失/重排反例 | 必须拒绝 | 正确拒绝，但错误文案仍指 N31 | 冻结文案和序列到 N00–N41 | 正确拒绝 N00–N41 缺失或重排 |
 | 旧权威反例 | N31 authority 与 `integratedThrough=N31` 必须拒绝 | 策略错误接受旧值 | 新增两项显式负例 | 两项均正确拒绝 |
 | Git 祖先审计 | 19 个节点均为 HEAD 祖先且顺序连续 | 首次 3 项失败；RA-N21-005 完整 SHA 录入错误 | 使用 `git rev-parse 64252bf` 的真实完整 SHA 修正登记表 | PASS，19/19 节点与顺序通过 |
-| `main` 差异 | 新基线不落后 `origin/main`，并诚实报告未整合规模 | `behind 0 / ahead 297` | 不把 ahead 误写成已合入；建立 main-target Draft PR | Candidate 不落后；仍等待 PR/CI/人工合并 |
+| `main` 差异 | 新基线不落后 `origin/main`，并诚实报告未整合规模 | `behind 0 / ahead 297` | 不把 ahead 误写成已合入；建立 main-target Draft PR #61 | Authority 不落后；仍等待人工审阅与合并 |
+| 本地完整门 | 治理、Compiler/Runtime、普通/存储/重型 VM、构建、架构与性能全部通过 | `npm run check` 退出码 0；115 files / 724 tests；storage 1/1；VM 5/5；Runtime 10k seeds / 20k replays | 无需放宽门槛 | Route 10k P95 115.09 ms；Dicing 2333.19 ms、净节省率 85.83% |
+| Windows CI | 干净 Windows / Node 22 对 Candidate 完整裁决 | run `32689911786` / job `97321630294`，4 分 55 秒，成功 | 无差异修正 | Runtime corpus 28.993 秒；Route P95 131.61 ms；Dicing 净节省率 85.83% |
+| 构建体积 | 构建成功且如实保留优化债 | Editor 主 JS 838.80 kB / gzip 235.74 kB，出现 >500 kB warning | 不提高 warning 门、不宣称优化完成 | 构建通过；拆包和 `App.tsx`/CSS 单体债保留 |
 
 这些测试使用真实 Git 对象、真实证据文件和当前远端 PR 列表，不使用伪造仓库或只验证文案的替代测试。
 
@@ -53,7 +56,7 @@
 
 ## 5. 放行与停止条件
 
-Candidate 只有在以下事实全部出现后才可登记为 Authoritative：
+Candidate 只有在以下事实全部出现后才可登记为 Authoritative；本次均已满足：
 
 1. 分支已推送且创建直接面向 `main` 的 Draft PR；
 2. PR 编号写回 `config/delivery-baseline.json`；
@@ -61,4 +64,4 @@ Candidate 只有在以下事实全部出现后才可登记为 Authoritative：
 4. 该 PR 的 Windows / Node 22 完整 CI 通过；
 5. 文档记录实际 run/job、测试数量、性能与任何差异修正。
 
-在此之前不得从 Candidate 开始 N41-E2。即使转为 Authoritative，也只代表“后续开发的权威分支”，不代表已合入 `main`；真正合入仍需仓库维护者审阅。N21/N23 真人门、N32/N40/N41 Product Acceptance、N42+、M1 和发布继续阻断。
+Authority 只代表“后续开发的权威分支”，不代表已合入 `main`；真正合入仍需仓库维护者审阅。N41-E2 可在最终权威提交头 CI 绿色后从本分支派生。N21/N23 真人门、N32/N40/N41 Product Acceptance、N42+、M1 和发布继续阻断。

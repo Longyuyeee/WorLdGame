@@ -5,7 +5,7 @@
 > 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40 Route Map Engineering 出口已通过。`RA-N21-006` 只准入 N41 Sequence Engineering；N41-E1 已把原 Writer 正式统一为同源 Sequence 模式并完成标签结构的 Script/Compiler/Route/IndexedDB 重开闭环。N40/N41 Product Acceptance、N42+、M1 与发布继续被阻断，完整 N41/Stage/正式 Player 仍未完成。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
-> 交付链纠偏：N00–N41 正在建立直接面向 `main` 的 [集中整合候选基线](docs/182-n41-consolidated-integration-baseline-audit.md)；在 Draft PR 与 Windows CI 完成前不得登记为 Authoritative，也不得开始 N41-E2。
+> 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
 
 WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制作器，而是建立一套兼顾新手、职业编剧、美术、程序、翻译和 QA 的跨平台视觉小说生产系统。
 
