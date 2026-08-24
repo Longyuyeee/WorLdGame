@@ -1,0 +1,12 @@
+{
+  "name": "@world-studio/project-compiler",
+  "version": "0.2.0-n30",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": { "build": "tsc -b" },
+  "dependencies": {
+    "@world-studio/project-domain": "0.4.0-n13",
+    "@world-studio/story-language": "0.1.0-n20"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "projectId": "golden_media",
+  "sourceSemanticHash": "966ff96a38c5fce54ffc75ccad96365e9accbcc79f98ec2b3c18a0e3e7fb5992",
+  "mediaFixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "n22MediaRuntimeEvidence": {
+    "status": "verified",
+    "test": "apps/editor/src/media-golden.test.ts",
+    "scope": "inspect-import-save-reopen-preview-release"
+  },
+  "n22BrowserEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/media-golden-browser.json",
+    "hash": "5ce66095bd0510caacfd2aa996797161836b8213867dbd3f6f1b4ac84475b04b"
+  },
+  "n22AudioPlaybackEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/audio-playback-browser.json",
+    "hash": "835e5ca51ad4e869ac914cbe09b3057bb79999bc6ec584462a277a8a0e4217a4"
+  },
+  "n22CanvasEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/canvas-2d-browser.json",
+    "hash": "dc6a0e771704412b9aa735b97b027975eb1db4f7f9d8c0cb5afe2ff95d9878a8"
+  },
+  "n22MoveEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/move-browser.json",
+    "hash": "0f43f9a23c377aaafa122d811c3678b47fd03bc352d0c328c9e2f85021ab4a67"
+  },
+  "n22HideEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/hide-browser.json",
+    "hash": "237ba171928434028d01bf4d7994256406537878e4a265e2dc22e8567d64e72d"
+  },
+  "n22ShowTransitionEvidence": {
+    "status": "verified",
+    "path": "evidence/n22/show-transition-browser.json",
+    "hash": "bfc31717994c9f4ebf14b2892f019065fd8eb99e27ca2f5a2651b9edbdcf2c09"
+  },
+  "expectedIrHash": {
+    "status": "verified",
+    "targetNode": "N30",
+    "value": "0a19dec5b213ab50758bdcd1a3483b5db59cd43cd500218339315101d7469c6d"
+  },
+  "expectedStateHash": {
+    "status": "pending",
+    "targetNode": "N31",
+    "value": null
+  },
+  "buildManifestHash": "090c6e36066e9729f1e55ad2fbf2af207e9378d9d46a7057869abfca973638a9",
+  "formalBuildArtifactHash": {
+    "status": "pending",
+    "targetNode": "N80",
+    "value": null
+  }
+}

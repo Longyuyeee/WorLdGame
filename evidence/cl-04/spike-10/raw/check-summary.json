@@ -1,0 +1,15 @@
+{
+  "sourceRevision": "36f3d747df7a77798f69a274c2c78accab3e27c0",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {"testFiles": 59, "tests": 409, "failed": 0},
+  "vmTargeted": {"testFiles": 10, "tests": 86, "failed": 0, "spike10Tests": 3},
+  "build": "PASS",
+  "webWorkerHarnessBuild": "PASS",
+  "architecture": {"status": "PASS", "auditedPortableFiles": 48, "auditedNodeAdapterFiles": 3},
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "browserConsoleWarningsOrErrors": 0,
+  "note": "Node and one real Chrome module Web Worker passed a 12-action basic corpus. This is not History/Save corpus, 10k cross-host, Windows/Android shell, or target-device evidence."
+}

@@ -1,0 +1,15 @@
+{
+  "sourceRevision": "359b208463076542589d5301b1c0c3d8c64aebc8",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {"testFiles": 60, "tests": 411, "failed": 0},
+  "vmTargeted": {"testFiles": 11, "tests": 88, "failed": 0, "spike11Tests": 2},
+  "build": "PASS",
+  "webWorkerHarnessBuild": "PASS",
+  "architecture": {"status": "PASS", "auditedPortableFiles": 48, "auditedNodeAdapterFiles": 3},
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "browserRecordDifferences": 0,
+  "browserConsoleWarningsOrErrors": 0
+}

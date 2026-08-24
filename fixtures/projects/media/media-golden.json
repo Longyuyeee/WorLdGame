@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "projectId": "golden_media",
+  "assets": [
+    {
+      "assetId": "media_sunset",
+      "kind": "cg",
+      "displayName": "Deterministic Sunset",
+      "mimeType": "image/png",
+      "byteLength": 422,
+      "sha256": "978b8e7cdec44c5a9eea31553005d074cf884dfeb9d7d1bc0eefb9c89a83cd95",
+      "base64": "iVBORw0KGgoAAAANSUhEUgAAABAAAAAJCAYAAAA7KqwyAAABbUlEQVR42gXBkQLFIBiA0ftCcRzHcRzHvySTZJJMkkkySSbJJJkke5zvnvMzamHVwqmFV4ugFlEtRC02tdjV4lCLUy0utbjV4lGLVy0+tfgZPbF64vTE60nQk6gnoiebnux6cujJqSeXntx68ujJqyefnvyMGVgzcGbgzSCYQTQDMYPNDHYzOMzgNIPLDG4zeMzgNYPPDH7GdqztONvxthNsJ9qO2M5mO7vtHLZz2s5lO7ftPLbz2s5nOz/jGtY1nGt41wiuEV1DXGNzjd01Dtc4XeNyjds1Htd4XeNzjZ/xFesrzle8rwRfib4ivrL5yu4rh6+cvnL5yu0rj6+8vvL5ys+Egg0FFwo+FEIoxFCQUNhCYQ+FIxTOULhC4Q6FJxTeUPhC4WdixsaMixkfMyFmYsxIzGwxs8fMETNnzFwxc8fMEzNvzHwx8zOSsJJwkvCSCJKIkhBJbJLYJXFI4pTEJYlbEo8kXkl8kvgDhNptsCQOE48AAAAASUVORK5CYII="
+    },
+    {
+      "assetId": "media_actor_sprite",
+      "kind": "character",
+      "displayName": "Deterministic Actor",
+      "mimeType": "image/png",
+      "byteLength": 109,
+      "sha256": "65e9353dfd69e07b5553ff6abcdedfc5015fa3499dbda66af4b9c09014587a3c",
+      "base64": "iVBORw0KGgoAAAANSUhEUgAAAAQAAAAICAYAAADeM14FAAAANElEQVR42mP4//8/AzJmIE7gTdrM/yCMECiY+R+EEQJVM/+DMEKgZeZ/EEYI9M38D8IgNgB8B1+ru/XaaQAAAABJRU5ErkJggg=="
+    },
+    {
+      "assetId": "media_theme",
+      "kind": "audio",
+      "displayName": "Deterministic Theme",
+      "mimeType": "audio/wav",
+      "byteLength": 1644,
+      "sha256": "5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "base64": "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"
+    }
+  ],
+  "expectedStage": {
+    "backgroundAssetId": "media_sunset",
+    "characterAssetIds": ["media_actor_sprite"],
+    "audioAssetIds": ["media_theme"],
+    "diagnosticCount": 0
+  }
+}

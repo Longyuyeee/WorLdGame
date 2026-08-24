@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-14T13:52:53+08:00",
+  "sourceBaseRevision": "5b5c2dcea6e42e988a6d6547679f81e76d6b1cd8",
+  "fixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Codex In-app Browser",
+    "viewportWidth": 1280,
+    "viewportHeight": 720,
+    "devicePixelRatio": 2
+  },
+  "renderContract": {
+    "version": 2,
+    "primaryBackend": "canvas-2d-v1",
+    "fallbackBackend": "dom-media-v1",
+    "coordinateSpace": "design-pixels",
+    "overlayOwner": "react-dom",
+    "visualCanvasCount": 1,
+    "domMediaImageCount": 0,
+    "accessibleHitProxyCount": 1,
+    "selectedProxyPressed": true,
+    "status": "ready"
+  },
+  "productFlow": {
+    "projectReference": "project-814108fd-b092-48c8-a448-e630442f6670",
+    "assetIndexRevision": 3,
+    "savedStorageRevision": 3,
+    "selectedStep": 2,
+    "backgroundAssetId": "media_sunset",
+    "characterAssetId": "media_actor_sprite",
+    "runtimeErrorCount": 0
+  },
+  "viewports": {
+    "landscape16x9": {
+      "profile": "landscape-16-9",
+      "designWidth": 1920,
+      "designHeight": 1080,
+      "cssWidth": 334,
+      "cssHeight": 187.875,
+      "measuredRatio": 1.7777777777777777,
+      "overflowX": 0,
+      "overflowY": 0,
+      "canvasPixelWidth": 3840,
+      "canvasPixelHeight": 2160
+    },
+    "portrait9x16": {
+      "profile": "portrait-9-16",
+      "designWidth": 1080,
+      "designHeight": 1920,
+      "cssWidth": 240,
+      "cssHeight": 426.6640625,
+      "measuredRatio": 0.562503433248494,
+      "overflowX": 0,
+      "overflowY": 0,
+      "canvasPixelWidth": 2160,
+      "canvasPixelHeight": 3840
+    },
+    "motionSettleMs": 800
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n22/canvas-2d-browser-workspace.png",
+      "profile": "landscape-16-9",
+      "width": 1280,
+      "height": 720,
+      "byteLength": 67546,
+      "sha256": "f5c7d15fe2a468636b7739ccca9600293e0c03952089f90599a89fd6c6b75a04"
+    },
+    {
+      "path": "evidence/n22/canvas-2d-browser-workspace-9x16.png",
+      "profile": "portrait-9-16",
+      "width": 1280,
+      "height": 720,
+      "byteLength": 72558,
+      "sha256": "a0f6aa70aa3b7c10280c6e8dcb0c450d0957654d9756b0ea81f29b632f3e5f75"
+    }
+  ],
+  "status": "pass",
+  "scope": "canvas-2d-dom-overlay-fallback-dpr-visual"
+}

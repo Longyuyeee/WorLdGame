@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "lib": ["ES2022", "DOM", "WebWorker"]
+  },
+  "references": [
+    { "path": "../../packages/narrative-vm-spike" },
+    { "path": "../../packages/runtime" },
+    { "path": "../../packages/runtime-host" }
+  ],
+  "include": ["src"]
+}

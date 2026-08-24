@@ -1,0 +1,27 @@
+{
+  "sourceRevision": "1c3bf1e53f76ac253fc6ad5788e69814dfb94d61",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 57,
+    "tests": 402,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 8,
+    "tests": 79,
+    "failed": 0,
+    "spike08Tests": 9,
+    "fixedMetaProgressHashes": 1
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 47,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "note": "Observed on one Node development host using in-memory Meta snapshots. This is not persistence, account/cloud sync, authenticity, gallery UI, 10k generated sequences, or cross-host evidence."
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@world-studio/editor",
+  "version": "0.0.0-s0.41",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build"
+  },
+  "dependencies": {
+    "@world-studio/project-compiler": "0.2.0-n30",
+    "@world-studio/project-domain": "0.4.0-n13",
+    "@world-studio/project-persistence": "0.0.0-s0.35",
+    "@world-studio/story-core": "0.0.0-s0.29",
+    "@world-studio/story-language": "0.1.0-n20",
+    "@world-studio/runtime": "0.12.0-n31",
+    "@world-studio/runtime-host": "0.1.0-n32",
+    "@world-studio/route-graph": "0.1.0-n40",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}

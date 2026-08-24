@@ -1,0 +1,21 @@
+{
+  "sourceRevision": "f44b01fa2f2d881f2d8c82daf62d76e0f75fd66c",
+  "runtimeVersion": "cl04-spike.7",
+  "opcodeRegistryDigest": "adae10dd7002a520ed48a0b90c16e817d5b6273bb45027ea985e8070ba8ab342",
+  "modes": ["normal", "skipAll:5", "skipAll:10", "skipAll:20", "skipAll:40", "skipAll:instant"],
+  "finalStateHash": "90dd1a392dffe73bb535d6c29fd4948b9e84db442297f2521fa556445b86ed2a",
+  "logicalClockTicks": 30,
+  "skipRead": {
+    "readStepIds": ["step.read.one"],
+    "stoppedAfterStepId": "step.unread.two",
+    "reason": "unreadBoundary",
+    "readSessionMutation": false
+  },
+  "auto": {
+    "formula": "max(baseDelayTicks + ticksPerReadableUnit * readableUnits, voiceDurationTicks + voiceTailTicks)",
+    "exampleDelayTicks": 90,
+    "authoritativeStateMutation": false
+  },
+  "instantInstructionBudget": {"minimum": 1, "maximum": 4096},
+  "stops": ["input", "effect", "resourceUnavailable", "stopPoint", "diagnostic", "terminal"]
+}

@@ -1,0 +1,27 @@
+{
+  "sourceRevision": "d57f1f701d628dcf8d41fe1ee0849103a3f5db07",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 52,
+    "tests": 351,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 3,
+    "tests": 28,
+    "failed": 0,
+    "spike03Tests": 11,
+    "choiceGoldenStateHashes": 6
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 42,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {"status": "PASS", "tests": 9},
+  "assetPerformance": {"status": "PASS", "tests": 4},
+  "note": "Observed on one Node development host. This does not provide History, Save compatibility, or cross-host CL-04 evidence."
+}

@@ -1,0 +1,24 @@
+import { describe, expect, it } from "vitest";
+import { analyzeProjectEntityReferences, createCharacterEntity, createProjectService, createProjectTemplate, createVariableEntity, executeProjectBatch, executeProjectCommand, searchProjectEntities, type ProjectCommand } from "./index";
+
+const command=(stateRevision:number,commandId:string,value:Record<string,unknown>):ProjectCommand=>({commandId,expectedRevision:stateRevision,...value} as ProjectCommand);
+describe("N13 project entities",()=>{
+  it("validates complete character and typed variable defaults",()=>{
+    expect(createCharacterEntity("character_a","阿遥","#ff44aa",["main","closeup"],"neutral")).toMatchObject({portraitSlots:["main","closeup"],defaultExpression:"neutral"});
+    expect(createVariableEntity("variable_flag","Flag","boolean",false,"story")).toMatchObject({type:"boolean",defaultValue:false,scope:"story"});
+    expect(()=>createVariableEntity("variable_bad","Bad","number","0","story")).toThrow(/Invalid variable/);
+  });
+  it("indexes chapters, scenes, characters and variables for global search",()=>{
+    let state=createProjectService(createProjectTemplate("Search","018f08d8-71a1-7bc2-a627-2f4a843ee180"));const result=executeProjectBatch(state,[command(0,"command_character",{kind:"character.create",character:createCharacterEntity("character_aya","Aya","#ff44aa",["main"],"neutral")}),command(0,"command_variable",{kind:"variable.create",variable:createVariableEntity("variable_trust","Trust","number",0,"story")})]);expect(result.ok).toBe(true);if(!result.ok)return;state=result.state;
+    expect(searchProjectEntities(state.project,"main").some((item)=>item.kind==="chapter")).toBe(true);expect(searchProjectEntities(state.project,"aya")).toEqual([expect.objectContaining({kind:"character",id:"character_aya"})]);expect(searchProjectEntities(state.project,"trust")).toEqual([expect.objectContaining({kind:"variable",id:"variable_trust"})]);
+  });
+  it("reports references and safely migrates them before deleting entities",()=>{
+    let state=createProjectService(createProjectTemplate("Migration","018f08d8-71a1-7bc2-a627-2f4a843ee181"));const sceneId=state.project.manifest.entrySceneId;const built=executeProjectBatch(state,[command(0,"command_character_a",{kind:"character.create",character:createCharacterEntity("character_a","A","#112233",["main"],"neutral")}),command(0,"command_character_b",{kind:"character.create",character:createCharacterEntity("character_b","B","#445566",["main"],"neutral")}),command(0,"command_line",{kind:"statement.insert",sceneId,statement:{id:"statement_line",kind:"dialogue",speakerId:"character_a",textId:"text_line",text:"Hello"}})]);expect(built.ok).toBe(true);if(!built.ok)return;state=built.state;
+    expect(analyzeProjectEntityReferences(state.project,"character_a")).toEqual([expect.objectContaining({field:"speakerId"})]);const blocked=executeProjectCommand(state,command(state.revision,"command_delete_blocked",{kind:"character.delete",characterId:"character_a"}));expect(blocked).toMatchObject({ok:false,error:{code:"REFERENCE_CONFLICT"}});
+    const migrated=executeProjectCommand(state,command(state.revision,"command_delete_migrated",{kind:"character.delete",characterId:"character_a",replacementCharacterId:"character_b"}));expect(migrated.ok).toBe(true);if(!migrated.ok)return;expect(migrated.state.project.scripts[sceneId]?.statements[1]).toMatchObject({speakerId:"character_b"});
+  });
+  it("updates full metadata and sets an entry scene explicitly",()=>{
+    let state=createProjectService(createProjectTemplate("Update","018f08d8-71a1-7bc2-a627-2f4a843ee182"));const chapterId=state.project.chapters[0]!.id;const built=executeProjectBatch(state,[command(0,"command_character",{kind:"character.create",character:createCharacterEntity("character_a","A","#112233",["main"],"neutral")}),command(0,"command_variable",{kind:"variable.create",variable:createVariableEntity("variable_a","A","string","","story")}),command(0,"command_scene",{kind:"scene.create",chapterId,sceneId:"scene_second",title:"Second"})]);expect(built.ok).toBe(true);if(!built.ok)return;state=built.state;
+    const updated=executeProjectBatch(state,[command(state.revision,"command_character_update",{kind:"character.update",characterId:"character_a",patch:{color:"#abcdef",portraitSlots:["main","closeup"],defaultExpression:"smile"}}),command(state.revision,"command_variable_update",{kind:"variable.update",variableId:"variable_a",patch:{type:"boolean",defaultValue:true,scope:"meta"}}),command(state.revision,"command_entry",{kind:"scene.set-entry",sceneId:"scene_second"})]);expect(updated.ok).toBe(true);if(!updated.ok)return;expect(updated.state.project.manifest.entrySceneId).toBe("scene_second");expect(updated.state.project.characters.characters[0]).toMatchObject({color:"#abcdef",defaultExpression:"smile"});expect(updated.state.project.variables.variables[0]).toMatchObject({type:"boolean",defaultValue:true,scope:"meta"});
+  });
+});

@@ -9,17 +9,41 @@
 
 ## 2. 阶段总览
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     D0["D0 调研与定位"] --> D1["D1 交互原型"]
     D1 --> S0["S0 技术 Spike"]
-    S0 --> M1["M1 核心纵向切片"]
-    M1 --> M2["M2 创作者 Alpha"]
-    M2 --> M3["M3 生产 Beta"]
-    M3 --> M4["M4 团队与生态"]
-\`\`\`
+    S0 --> M1["M1 首个正式 Stable 版本"]
+    M1 -. "验收后另行决策" .-> Future["M2+ 未排期愿景池"]
+```
 
-## 3. D0：调研与定位（当前）
+已确认：当前计划只执行到 M1，且 M1 必须是可正式公开发布的首个 Stable 版本。M2、M3、M4 不删除，但不代表排期、预算或开发承诺。
+
+当前状态：D0 产品决策门已闭合。2026-08-13 产品审计确认，S0.41 和后续 CL Spike 虽积累了脚本、存储、资源、VM 与平台证据，但没有形成能够创建、制作和发布任意游戏的产品闭环。当前按[《游戏引擎产品落地开发计划》](89-engine-product-delivery-plan.md)重建主线；D1、S0、M1 均未通过。
+
+### 2.1 当前强制主路径
+
+```mermaid
+flowchart LR
+    A["R0 产品与仓库基线"] --> B["R1 通用工程载体"]
+    B --> C["R2 五分钟创作闭环"]
+    C --> D["R3 Compiler 与正式 Runtime"]
+    D --> E["R4-R7 多视图、玩家、QA、资源优化"]
+    E --> F["R8-R9 三端玩家与双端编辑器"]
+    F --> G["R10 Benchmark Episode"]
+    G --> H{"AC-01 至 AC-27 全通过?"}
+    H -->|是| M1["R11 M1 Stable"]
+    H -->|否| Fix["回到阻塞节点"]
+    Fix --> G
+```
+
+- S0.1–S0.41 和 CL-01–CL-04 重新分类为产品节点的候选技术证据，不等于 M1 功能完成项；
+- 当前优先级是通用工程载体、最小创作闭环和正式 Compiler/Runtime，不再由平台 Spike 顺序驱动；
+- N23“五分钟可玩切片”通过前，冻结新的独立平台 Spike 和 P1/P2 功能；
+- 每个节点必须输出真实工程、可执行产物或目标用户任务，不允许只用测试日志宣称产品完成；
+- 详细节点、依赖、验收和停止条件以产品落地计划为准，状态以[追踪矩阵](90-m1-requirement-traceability.md)为准。
+
+## 3. D0：调研与定位（产品决策门已通过）
 
 ### 交付
 
@@ -29,28 +53,46 @@ flowchart LR
 - UX 信息架构；
 - 技术架构；
 - 工程格式与质量体系；
+- 程序模块/进程边界、数据契约、状态机与失败语义；
+- 风险分级、独立审阅、工程证据链与发布审计体系；
+- 视觉体验、强动效、编辑模式与商业制作基准；
+- 容量、性能、资源加载与长期稳定性优化规格；
 - 开放决策。
 
 ### 退出条件
 
-- 产品负责人确认首要用户；
+- 首要用户已确认：大型项目编剧/小团队为架构基准，零编程创作者为交互门槛；
 - 确认 P0 与明确排除项；
+- 确认现代多彩、强动效且专业的视觉方向；
+- 确认七种工作模式、原创校园短篇方向，以及由 D1 冻结 Benchmark Episode 详细规格的任务；
+- 已确认覆盖低档 Android 与集显 Windows；能力档位、容量/内存与 Benchmark 分包预算已在 CL-01 冻结，实体设备记录仍待补齐；
+- 批准核心工程不变量、信任边界和审计红线；
 - 确认工作名/品牌另行处理；
 - 批准进入低保真原型；
 - 不需要产品代码。
 
 ## 4. D1：交互原型
 
+> 当前状态：产品负责人已于 2026-08-11 批准 D1 Phase 0，随后明确停止 Figma 工作流。既有 Figma Foundations 作为历史输入保留，但不再继续、不再构成阻塞；活动原型与设计 Token 转为代码实现，首个 S0.1 纵向切片见[《S0.1 代码原型与审计记录》](20-s0-code-prototype.md)。
+
+D1 执行包见[《D1 发现与原型计划》](15-d1-discovery-and-prototype-plan.md)、[《D1 视觉系统规格》](16-d1-visual-system.md)、[《校园 Benchmark Episode 设计》](17-benchmark-episode.md)与[《D1 用户验证协议》](18-d1-validation-protocol.md)。
+
 ### 范围
 
 - 桌面 Route、Sequence、Script、Stage；
-- 手机写作、路线、舞台、预览和构建流程；
+- 手机写作、路线、舞台、预览、工程导出和构建配置流程；
 - 本地化表与 QA 报告；
-- 构建失败向导。
+- 构建失败向导；
+- 编辑器视觉方向板、设计 Token 和桌面/平板/手机高保真关键屏；
+- Route、视图切换、Stage、实时预览、QA、构建六组动效原型；
+- Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 七种模式；
+- Benchmark Episode 分镜、素材清单与评分表；
+- Optimization Center 的预算、建议、差异对比、应用和回退高保真流程。
 
 ### 方法
 
-- 可点击原型或静态高保真；
+- 可运行代码原型；不再使用 Figma；
+- 强动效部分必须使用可播放高保真原型，不以文字说明代替；
 - 使用真实长度台词和复杂分支；
 - 至少 5 名目标用户；
 - 同任务对比 WebGAL、Naninovel Story Editor 或可用同类。
@@ -60,9 +102,14 @@ flowchart LR
 - 8/10 核心任务无需指导完成；
 - 用户理解四视图是同一内容；
 - 手机连接分支和修改演出没有致命阻塞；
+- 目标用户能够辨认语义色和七种模式的用途；
+- 完整与减少动效方案均通过核心任务，动画不阻塞输入；
+- 商业成品评分维度与 Benchmark Episode 方案获批准；
 - 无需推翻信息架构。
 
 ## 5. S0：技术 Spike
+
+> 当前状态：未通过。已有 Web/Node/Windows 验证证据保留，但尚未形成通用工程、最小创作闭环和正式 Compiler/Runtime。CL-01–CL-12 作为产品节点需要时调用的证据门，不再先于全部产品开发串行关闭。
 
 ### 范围
 
@@ -73,20 +120,28 @@ flowchart LR
 - PixiJS + DOM；
 - 保存/回滚；
 - Electron/Tauri 对比；
-- Capacitor；
-- 四平台最小构建；
+- Capacitor/最小 Android WebView 壳对照，按 CL-02 取证后选型；
+- Windows 本地 Web/Windows/Android 最小构建；
+- Android 端直接生成 APK/AAB 的可行性验证，不通过时采用 Windows 本地构建基线；
 - OPFS 恢复；
-- 插件未知命令保留。
+- 插件未知命令保留；
+- KTX2/Basis、ASTC/ETC2、普通 Web 图片的体积/画质/解码/显存对比；
+- 资源预测预载、引用计数/LRU/显式释放和低内存降级；
+- 音频、视频、字体子集、语言/语音包和章节分包；
+- 弱网断点续传、损坏包、磁盘不足、原子更新和旧包回退；
+- Benchmark Episode 2 小时 Soak 与移动端前后台恢复。
 
 ### 退出条件
 
 - 所有 Spike 有数据和结论；
 - 失败项有替代方案；
 - 技术选型形成 ADR；
+- Command、Schema、VM、Store、Asset、Capability 和 Build 契约冻结为 v0；
+- 威胁模型、风险分级、CI 门禁和 Release Assurance 证据方案就绪；
 - 性能预算没有结构性不可达项；
 - 产品负责人明确批准开始产品编码。
 
-## 6. M1：核心纵向切片
+## 6. M1：首个正式 Stable 版本
 
 ### P0
 
@@ -95,35 +150,59 @@ flowchart LR
 - Route、Sequence、Script、Stage 基础同步；
 - 对话、背景、角色、音频、选择、变量、条件、结局；
 - 即时预览与变量查看；
-- 保存、读取、回滚、历史、自动和跳过已读；
+- 保存、读取、历史、自动播放、可调快进与逐句前进/后退；
+- 自动生成创作者 Route Map 和基础玩家流程图；
+- 自动生成基础 CG 画廊、Scene Replay、Music Room 和 Ending 页面；
+- P0 Gal 配置中心；
 - 结构 QA；
 - Windows 与 Android 编辑；
-- Web 与 Windows 玩家包；
-- 工程导入导出和离线使用。
+- Web、Windows 与 Android 玩家包；
+- 无账户、无云同步、无云构建的完整本地工作流；
+- 工程导入导出和离线使用；
+- 语义色、跨视图连续动效、三级动效设置和七种模式基础布局；
+- 基础多轨时间线、关键帧、镜头与 BGM/Voice/SFX 同步；
+- P0 Optimization Center、预算面板、内容哈希去重和安全派生缓存；
+- 自动发现相似 CG/立绘、Lossless Dicing/Delta、透明/重复块消除、Atlas 重建、逐像素验证、收益报告和无收益回退；
+- Web、Windows、Android 的 Dicing 派生资源与内存预算验证；
+- 优先级资源加载、并发限制、取消、重试和基本显式释放；
+- Windows 与 Android 编辑器自身的正式安装、升级/卸载、签名/哈希和回退链；
+- 使用 WorLd Studio 完成一部 20–30 分钟的原创校园短篇 Benchmark Episode，并发布可正式分发的 Web、Windows、Android 包。
 
 ### 退出条件
 
-满足 PRD 的 10 条纵向切片验收，且：
+满足 PRD 的 27 条纵向切片验收，且：
 
 - 无 P0 数据丢失；
 - Golden Tiny/State/CJK 通过；
+- Golden Foundation/Dicing 通过，无损重建逐像素一致；
 - Windows 与 Android 同项目连续编辑一周；
-- Web/Windows 固定路线状态一致；
-- 20 名内部/受邀创作者完成短篇。
+- Web/Windows/Android 固定路线状态一致；
+- 原创校园短篇 Benchmark Episode 通过功能、演出、音画、排版、操作和稳定性评审；
+- 20 名内部/受邀创作者完成短篇；
+- 关键编辑和玩家流程在目标设备达到已批准帧时间预算；
+- 动效期间无输入阻塞，减少动效模式功能完整；
+- 目标低内存档 2 小时 0 崩溃、0 OOM、无持续内存增长；
+- 弱网/损坏包/磁盘不足测试保住最后一个有效版本与存档。
+- Windows/Android 编辑器和 Web/Windows/Android 玩家产物完成签名/哈希、SBOM、基础 Provenance、发布说明、许可证/隐私与回退审核；
+- R3/R4 独立审阅和 Release Assurance Bundle 完整，红线缺陷为零。
 
-## 7. M2：创作者 Alpha
+## 7. M2：规模化创作扩展（未排期愿景池）
+
+本节不进入当前开发计划。只有 M1 完整验收并由产品负责人重新批准后，才允许拆解、估时或承诺。
 
 ### 范围
 
-- 资源管理、压缩和批量操作；
+- 超大资源库管理、Dicing/Delta 高级聚类与批量审批、有损平台纹理优化和自定义成本函数；
 - UI 主题基础；
 - 本地化 CSV/XLSX；
 - 语音映射；
-- Android 玩家包/云构建；
+- 可选云构建；
 - 高级搜索、重构和调试器；
 - 路线录制和覆盖；
 - 模板与新手教程；
-- 基础可访问性。
+- 基础可访问性；
+- 完整 Optimization Center、多平台资源 Profile、预测预载和增量补丁；
+- 图片/GPU 纹理、音频、视频、字体和语言/语音包自动候选比较。
 
 ### 退出条件
 
@@ -132,9 +211,15 @@ flowchart LR
 - 首次成功 Web 构建中位时间符合目标；
 - 构建成功率达到 95%；
 - 工程恢复演练成功；
-- Alpha 格式迁移到下一版本无静默损失。
+- Alpha 格式迁移到下一版本无静默损失；
+- 大型资源库 Dicing/Delta、分包与多质量 Profile 扩展矩阵通过；
+- 自动优化报告同时满足发布体积和目标设备内存预算；
+- 自动归档 Performance & Stability Report；
+- Balanced/Small Download/Low Memory 三个 Profile 均通过目标设备矩阵。
 
-## 8. M3：生产 Beta
+## 8. M3：长篇与四平台扩展（未排期愿景池）
+
+本节不进入当前开发计划。
 
 ### 范围
 
@@ -147,7 +232,9 @@ flowchart LR
 - 评论、审阅和基础权限；
 - 插件 SDK；
 - Live2D/Spine 适配；
-- Steam/itch.io 发布辅助。
+- Steam/itch.io 发布辅助；
+- 完整 Scene Director、多轨音画、曲线、镜头预设与高级特效；
+- 20–30 分钟商业级 Benchmark Episode 四平台发布。
 
 ### 退出条件
 
@@ -156,9 +243,14 @@ flowchart LR
 - 旧存档升级测试通过；
 - 云端安全评审通过；
 - 插件 API 有外部试用；
-- 无阻塞级数据损坏问题。
+- 无阻塞级数据损坏问题；
+- Benchmark Episode 通过跨职能评审和商业参照池同维度评分；
+- 四平台关键分镜、音画同步、排版和输入体验达到批准门槛；
+- Stable crash-free sessions 达到批准指标，Soak、前后台和弱网恢复无阻塞问题。
 
-## 9. M4：团队与生态
+## 9. M4：团队与生态（未排期愿景池）
+
+本节不进入当前开发计划。
 
 ### 范围
 
@@ -211,7 +303,7 @@ flowchart LR
 
 - 数据损坏/丢失；
 - Story QA 发布前检出数；
-- 四平台一致性失败；
+- M1 Web/Windows/Android 一致性失败；未来平台加入后扩展统计；
 - 存档兼容失败；
 - 崩溃率与 P95 输入延迟。
 
