@@ -13,12 +13,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Engineering 出口已通过；RA-N21-006 只准入 N41 Sequence Engineering。N41-E1 已建立正式 Sequence 模式，并完成标签结构的 Script/Compiler/Route/IndexedDB 重开链路；远端完整门绿色前仍只算 E1 候选。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Engineering 出口已通过；RA-N21-006 只准入 N41 Sequence Engineering。N41-E1 已建立正式 Sequence 模式，并完成标签结构的 Script/Compiler/Route/IndexedDB 重开链路；实现头 `977935d` 的 Windows / Node 22 完整门已绿色，E1 Engineering 关闭。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**E1 本地与 production browser 已通过，待当前实现头远端完整门；下一步 E2 为 1,000 次 Sequence/Script 连续互改规模门**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**E1 本地、production browser 与远端 Windows 完整门均通过并关闭；下一步 E2 为 1,000 次 Sequence/Script 连续互改规模门**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N40 最终开发在 Draft PR #59；当前 N41 开发在 Draft PR #60，分支 `codex/n41-e1-sequence-core`**。
 

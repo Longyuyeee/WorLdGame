@@ -4,7 +4,7 @@
 > 分支：`codex/n41-e1-sequence-core`
 > 直接治理基线：`61bd1db6eb77bf8067fca9cf35df1e87e65fbbcf`
 > Draft PR：#60，base `codex/n40-e1-route-graph-core`
-> 判定：N41-E1 工程切片通过本地与 production browser 验证；不等于完整 N41 或 Product Acceptance
+> 判定：N41-E1 Engineering 已闭合；不等于完整 N41 或 Product Acceptance
 
 ## 1. 冻结目标与代码差距
 
@@ -53,4 +53,6 @@ N41-E2 应在同一 Canonical Source/Project Service 边界上补齐并自动验
 
 ## 6. 远端闭环
 
-待本提交精确推送并由 Draft PR #60 的 Windows / Node 22 完整门裁决后填写；远端绿色前不得把 E1 登记为最终关闭。
+实现头 `977935d6554f11925707eb56bf9504c6b2339917` 已精确推送。Draft PR #60 的 Windows / Node 22 `product-baseline` run `32688669467` / job `97318271737` 用时 5 分 17 秒并全绿：普通回归 `115 files / 724 tests`，真实 storage `1/1`，重型 VM `5/5`（测试 66.09 秒），Runtime corpus 10,000 seeds / 20,000 replays 用时 30.907 秒，Route 单场景编辑同步 P95 `149.02 ms <500 ms`，locked install、14 workspace 构建、架构和性能门全部通过。
+
+因此 N41-E1 Engineering 关闭，下一提交可进入 N41-E2 的 1,000 次 Sequence/Script 连续互改工程门。N41 Product Acceptance、N42+、M1 Stable 与发布仍由 `RA-N21-006` 阻断。
