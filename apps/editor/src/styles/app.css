@@ -1757,6 +1757,29 @@ button:disabled {
   gap: 8px;
 }
 
+.sequence-runtime-trace {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--wg-color-border-subtle);
+  border-radius: 10px;
+  background: rgb(18 24 36 / 48%);
+  color: var(--wg-color-text-muted);
+  font-size: 11px;
+  transition: border-color var(--wg-motion-duration-standard) ease, background var(--wg-motion-duration-standard) ease, color var(--wg-motion-duration-standard) ease;
+}
+
+.sequence-runtime-trace.is-active {
+  border-color: color-mix(in srgb, var(--wg-color-semantic-choice) 45%, transparent);
+  background: color-mix(in srgb, var(--wg-color-semantic-choice) 9%, var(--wg-color-bg-surface-1));
+  color: var(--wg-color-text-secondary);
+}
+
+.sequence-runtime-trace.is-active > span:first-child,
+.sequence-runtime-trace strong { color: var(--wg-color-semantic-choice); }
+
 .statement-card {
   --statement-accent: var(--wg-color-text-muted);
   display: grid;
@@ -2297,6 +2320,12 @@ textarea[data-input-state="composing"] {
   border: 1px solid rgb(240 212 92 / 28%);
   border-radius: 12px;
   background: linear-gradient(120deg, rgb(240 212 92 / 8%), rgb(139 124 255 / 8%));
+}
+
+.statement-card.is-runtime-current {
+  outline: 2px solid color-mix(in srgb, var(--wg-color-semantic-choice) 72%, white 8%);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--wg-color-semantic-choice) 10%, transparent), 0 8px 30px color-mix(in srgb, var(--wg-color-semantic-choice) 16%, transparent);
 }
 
 .route-ending-review label,

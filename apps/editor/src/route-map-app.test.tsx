@@ -336,7 +336,7 @@ describe("N40 Route Map product flow", () => {
   it("anchors a real 65-node Compiler Route window around the Runtime current scene", () => {
     const project = projectCanonicalFromStory(pagedRuntimeStory(65), "n40-runtime-route-window");
     const index = createRouteGraphIndex(buildRouteGraph(project));
-    const anchorSceneId = runtimeRouteAnchorSceneId({ active: true, currentSceneId: "runtime_route_064", visitedSceneIds: ["runtime_route_064"], visitedEdgeIds: [] }, "runtime_route_000");
+    const anchorSceneId = runtimeRouteAnchorSceneId({ active: true, currentSceneId: "runtime_route_064", currentStatementId: null, visitedSceneIds: ["runtime_route_064"], visitedEdgeIds: [] }, "runtime_route_000");
     const routeWindow = queryRouteGraphWindow(index, { anchorSceneId });
 
     expect(anchorSceneId).toBe("runtime_route_064");
