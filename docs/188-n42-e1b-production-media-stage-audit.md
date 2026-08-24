@@ -4,7 +4,10 @@
 > 分支：`codex/n42-e1b-production-media-fixture`
 > 直接基线：N42-E1 最终绿色头 `ea4eb3d00331760677f92215beda64ec3c05c276`
 > 授权：`RA-N21-007`，只覆盖 N42 Stage Engineering
-> 判定：本地工程门通过；等待本分支 Windows / Node 22 完整门后关闭 N42-E1 Engineering
+> 实现头：`37ea007014a1c38fda9e0103cfc00f03c9364dfd`
+> Draft PR：[#67](https://github.com/Longyuyeee/WorLdGame/pull/67)（Draft，保持 open）
+> Windows CI：run `32703189510` / job `97358747818`，5 分 53 秒，绿色
+> 判定：N42-E1 Engineering 关闭；N42 Product Acceptance、N43+、M1 Stable 与发布继续阻断
 
 ## 1. 冻结目标与非目标
 
@@ -41,11 +44,12 @@
 - Runtime 与全部 workspace production build 绿色；最终 Editor CSS `89.24 kB / gzip 16.74 kB`，JS `855.61 kB / gzip 241.63 kB`；`>500 kB` 拆包债保留，不能冒充优化完成；
 - 需求矩阵 `50 requirements / 10 USP / 13 P0 / 27 AC`、7 个 Golden 工程、架构 `93 portable / 4 adapters` 均通过；
 - production browser 使用 `http://127.0.0.1:4173/` 的 build 产物：默认 1920×1080 / 16:9，真实 PNG Canvas 存在；点击与 s1 重开后角色 `data-stage-x=75`、`data-stage-y=45`；从 `media_show` 启动得到 Effect Host `1 active · 1 operations`、Runtime 结构化诊断 `0`；console error/warn `[]`。
+- Draft PR #67 的实现头在干净 Windows / Node 22 完整门绿色：locked install、治理/需求/Golden、Runtime corpus、普通/存储/VM 测试、13 workspace build、架构与性能全部成功；普通套件 `118 files`，Runtime 10,000-seed corpus `31.10s`，冻结 VM 10,000-seed 用例 `66.20s`、总 `67.76s < 90s`；job 总时长 5 分 53 秒。
 
 ## 5. 需求对齐、出口与剩余风险
 
 本轮直接推进 `REQ-STAGE`、`REQ-ASSET`、`REQ-RUNTIME`、`AC-03` 与 `AC-13`：可视操作、权威 Script、真实资源、保存重开与正式 Runtime/Host 现在处于同一闭环。现代、图形化、多彩、清晰的 UI 方向未变，同时保留专业工具需要的单一事实、失败关闭、确定性快照和可审计恢复。
 
-E1 的 Goal `1/1`、Implementation `5/5`，本地 Acceptance `5/5`。但本分支 Windows / Node 22 完整门绿色前，只能记为“本地关闭候选”；绿色后才关闭 N42-E1 Engineering。即使 E1 关闭，N42 全节点仍缺多轨、关键帧、缓动、镜头、模板及 Editor↔正式 Player 视觉一致性；N42 Product Acceptance、N43+、M1 Stable 与发布继续阻断。
+E1 的 Goal `1/1`、Implementation `5/5`、Acceptance `5/5`，本地与 Windows / Node 22 完整门均绿色，因此 N42-E1 Engineering 关闭。即使 E1 关闭，N42 全节点仍缺多轨、关键帧、缓动、镜头、模板及 Editor↔正式 Player 视觉一致性；N42 Product Acceptance、N43+、M1 Stable 与发布继续阻断。
 
-下一切片只能在最终远端证据补录后，从 N42 冻结规格选择一个有界能力；不得因 E1 真实媒体闭环通过就宣称完整 Stage 或进入 N43。
+下一切片只能从 N42 冻结规格选择一个有界能力；不得因 E1 真实媒体闭环通过就宣称完整 Stage 或进入 N43。
