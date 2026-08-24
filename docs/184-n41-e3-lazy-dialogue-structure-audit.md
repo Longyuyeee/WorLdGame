@@ -3,7 +3,8 @@
 > 日期：2026-08-24  
 > 分支：`codex/n41-e3-lazy-dialogue-structure`  
 > 直接基线：N41-E2 `8b0e9574d1f13af43a16a94d60fcd67234d72d2e`  
-> 判定：本地 Engineering 闭环与完整门通过；远端 Windows 完整门待裁决  
+> Draft PR：#63，base `codex/n41-e2-sequence-script-scale`  
+> 判定：N41-E3 Engineering 已由本地、production browser 与 Windows 完整门关闭  
 > 边界：不代表 N41 Product Acceptance，不授权 N42、M1 或发布
 
 ## 1. 冻结目标
@@ -37,12 +38,14 @@ choice、label、jump、call、condition 等会改变路线语义的结构族继
 - `audit:n41-lazy-dialogue`：Compiler 正反例、fake-indexeddb 真实选定文件写入、完整 Compiler/Index 重建与重开、UI 交互、索引契约；当前定向 `4 files / 28 tests`；
 - production build：Vite production preview，不使用测试替身；从最近工程 Route 首屏进入单场景 Sequence，角色 `char_yu`，插入 `N41 E3 portable verification`，原子保存后加载完整工程，完整内容编辑器精确可见 1 次，console error `[]`；
 - 首次 production 失败产生的不可移植 ID 被保留为差异证据，没有把“局部保存成功”冒充完整闭环成功；随后使用新干净工程从头复验；
-- `npm run check` 与 Windows / Node 22 CI 证据在推送后补录，未绿色前不关闭 E3 Engineering。
+- Windows / Node 22：Draft PR #63，run `32692810127` / job `97329406215`，4 分 58 秒，完整门绿色。
 
 本地 `npm run check` 已以退出码 0 通过：普通回归 `116 files / 732 tests`、storage `1/1`、重型 VM `5/5`（59.70 秒）、Runtime corpus 10,000 seeds / 20,000 replays（19.757 秒，digest 未变）、Route 编辑同步 P95 `206.24 ms < 500 ms`、Dicing 总计 `2707.09 ms < 5000 ms` 且净节省 `85.83%`。Editor production bundle 为 843.50 kB / gzip 236.31 kB，既有拆包债未掩盖。
+
+远端同一实现头 `a897ad8f2fbe48af65fb55796972a10f74c42b07` 的专门门为 `4 files / 28 tests`，普通回归 `116/732`，storage `1/1`，重型 VM `5/5`，Route P95 `142.66 ms`，Dicing `3385.62 ms`，bundle `843.50 / 236.31 kB`；预算、规模和 digest 均未放宽。
 
 ## 5. 需求对齐与下一步
 
 本切片推进 `REQ-SEQ`、`REQ-SCRIPT`、`USP-01` 和 `AC-03`，将 narration 之外第一种带跨实体引用的文本结构纳入同源闭环。它没有实现控制流 lazy 编辑、Stage、正式 Player、Android 编辑器、三端发布或真人 Product Acceptance。
 
-下一步必须先取得远端 Windows 完整门；随后重新审计 N41 剩余出口条件，只能选择有专用 Compiler/Route 语义裁决的结构族。任何引用漂移、稳定 ID 不可移植、完整重建失败或 Route 语义被静默改变，都必须停止扩展并修正。
+下一步重新审计 N41 剩余出口条件，只能选择有专用 Compiler/Route 语义裁决的结构族。任何引用漂移、稳定 ID 不可移植、完整重建失败或 Route 语义被静默改变，都必须停止扩展并修正。

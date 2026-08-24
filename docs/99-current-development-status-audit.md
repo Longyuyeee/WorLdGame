@@ -18,7 +18,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**E1/E2 已由远端 Windows 完整门关闭；E3 已完成 lazy 对白结构本地与 production browser 闭环，等待远端 Windows 裁决**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**E1/E2/E3 均已由本地、production browser（适用切片）和远端 Windows 完整门关闭**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2 为 Draft PR #62，E3 从其精确证据头 `8b0e957` 派生**。
 
@@ -96,7 +96,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
-4. N41-E2 已完成全仓、Draft PR #62 与 Windows CI；N41-E3 选择 Route-neutral dialogue，完成专用 Compiler/Route preflight、真实 IndexedDB、生产界面和完整重建，当前只待全仓及远端 Windows 裁决；
+4. N41-E2 已完成全仓、Draft PR #62 与 Windows CI；N41-E3 选择 Route-neutral dialogue，完成专用 Compiler/Route preflight、真实 IndexedDB、生产界面、完整重建、本地完整门及 Draft PR #63 Windows CI；
 5. 正式 Player 属于 N50/N80，不能跳过 N41–N43。N32/N40/N41 Product Acceptance 和 N42+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
