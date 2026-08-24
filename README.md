@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-24
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40 Route Map 与 N41 Sequence Engineering 出口均已通过；N41-E4 补齐了 Sequence statement 级 Runtime 高亮，并由 1,000 次同源互改、84 项退出矩阵、完整本地门和 production browser 复审。N40/N41 Product Acceptance、N42+、M1 与发布继续被 `RA-N21-006` 阻断，Stage/正式 Player仍未完成。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40 Route Map 与 N41 Sequence Engineering 出口均已通过；产品负责人已建立只覆盖 N42 Stage Engineering 的 `RA-N21-007`。N40/N41/N42 Product Acceptance、N43+、M1 与发布继续阻断，完整 Stage/正式 Player仍未完成。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -63,6 +63,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N41-E2 Sequence/Script 规模门审计](docs/183-n41-e2-sequence-script-scale-audit.md) | 1,000 次全 P0 交替互改、choice child、stable ID、语义 Hash 与失败关闭 |
 | [N41-E3 Route-first lazy 对白结构审计](docs/184-n41-e3-lazy-dialogue-structure-audit.md) | 角色引用、对白插入/移动/删除、原子保存、完整重建与可移植 ID 纠偏 |
 | [N41 Sequence Engineering 出口复审](docs/185-n41-engineering-exit-reaudit.md) | statement 级 Runtime 高亮、N41 退出矩阵、生产实测、完整门与 N42 阻断边界 |
+| [N41→N42 治理检查点](docs/186-n41-n42-governance-checkpoint.md) | RA-N21-007 有界授权、N42 正例/N43 越界反例、真人门与 N42-E1 冻结起点 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

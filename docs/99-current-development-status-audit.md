@@ -1,10 +1,10 @@
-# 当前开发情况审计（N41 Engineering 出口通过，产品门仍阻断）
+# 当前开发情况审计（N42 Engineering 准入，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n41-e4-sequence-runtime-highlight`；直接基线为 N41-E3 `35b5052d1590878f9c4dee50f4e8c23c885b5796`；N41 集中 Authority 为 `644a38026265ca67bea254c154530d00c32a6680`
+> 当前分支：`codex/n42-governance-checkpoint`；直接基线为 N41 最终绿色头 `e7341289972cd0ba4e843b7ef218cd1458fb64c5`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
-> 当前授权：`RA-N21-006` 只允许 N41 Sequence Engineering；2026-09-24 11:35:40（UTC+8）到期
-> 最新节点证据：[N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)
+> 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
+> 最新节点证据：[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -13,12 +13,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Engineering 出口已通过；RA-N21-006 只准入 N41 Sequence Engineering。N41-E1 已建立正式 Sequence 模式，并完成标签结构的 Script/Compiler/Route/IndexedDB 重开链路；实现头 `977935d` 的 Windows / Node 22 完整门已绿色，E1 Engineering 关闭。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map 与 N41 Sequence Engineering 出口均已通过；RA-N21-007 只准入 N42 Stage Engineering，E1 产品代码尚未开始。N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40 Route Map Engineering：**出口已通过并冻结**；N41 Sequence Engineering：**Goal 1/1、Implementation 8/8、Acceptance 1/1，本地完整门、production browser 与 Draft PR #64 Windows / Node 22 run `32695198547` 均通过**；N40/N41 Product Acceptance、N42、M1 Stable、Public Release：**被阻断**；
+- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**RA-N21-007 已有界准入，E1 产品代码尚未开始**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，最终 Authority run `32690329153` 已绿色但尚未合入 `main`；N41-E2/E3 为 Draft PR #62/#63，E4 出口复审为 Draft PR #64，首个 Windows run `32695198547` / job `97335890304` 绿色**。
 
@@ -97,6 +97,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. E4 已推送、Windows 完整门绿色且证据已补录；现在停在 N41→N42 治理检查点。`RA-N21-006` 不授权 N42；正式 Player 属于 N50/N80，也不得跳过 Stage 与跨视图节点。
+5. N41 最终证据头 Windows 完整门绿色；RA-N21-007 治理检查点关闭后进入 N42-E1，先做 Stage canonical command / timeline projection 差距审计，再实现首个真实导演闭环。N43 与正式 Player 仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
