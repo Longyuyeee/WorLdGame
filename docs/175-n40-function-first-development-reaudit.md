@@ -87,7 +87,7 @@ E8g–E8j 为了形成 Route-first 可编辑落地流程，已实现一部分 Se
 
 ### N40-E8m：诊断定位与直接导航
 
-> 2026-08-24 更新：本地实现、真实 Project/Compiler UI 正反例、10k 性能、desktop/mobile production browser 与全仓门已通过，详见 [E8m 审计](177-n40-e8m-diagnostic-navigation-audit.md)。合法目标只读导航已完成；目标编辑/自动补全写回因必须经过正式结构事务，保留给 E8n 的最小修复闭环或 N41。远端 Windows 门待本次推送后登记。
+> 2026-08-24 更新：实现、真实 Project/Compiler UI 正反例、10k 性能、desktop/mobile production browser、本地全仓门与远端 Windows / Node 22 full check 已通过，详见 [E8m 审计](177-n40-e8m-diagnostic-navigation-audit.md)。合法目标只读导航已完成；目标编辑/自动补全写回因必须经过正式结构事务，保留给 E8n 的最小修复闭环或 N41。
 
 **用户目标**：点击不可达、悬空、循环等 Compiler 诊断即可看到出错节点，并进入对应内容位置修复。
 

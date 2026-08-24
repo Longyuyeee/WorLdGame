@@ -1,7 +1,7 @@
 # 当前开发情况审计（N40 准入，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n40-e1-route-graph-core`；N40-E8m 本地候选基于 `a7c7471`，实现提交/远端 CI 待本次推送后登记；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
+> 当前分支：`codex/n40-e1-route-graph-core`；N40-E8m 实现头为 `9a44b8653b785b60dc1ab3e3c7e84d41c5bf38d0`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
 > 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8k Trusted Route Topology Page](174-n40-e8k-trusted-route-topology-page-audit.md)、[N40 功能优先复审](175-n40-function-first-development-reaudit.md)、[N40-E8l 指定结局路线审阅](176-n40-e8l-ending-route-review-audit.md)、[N40-E8m 诊断定位与直接导航](177-n40-e8m-diagnostic-navigation-audit.md)
@@ -13,7 +13,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40-E8m 本地 Engineering 已完成，真实 Project/Compiler UI、10k、desktop/mobile production browser 与全仓门通过；远端 Windows / Node 22 完整门待本次推送后登记。N40 整体仍在开发，下一节点为 E8n Route 驱动创作修复闭环。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40-E8m Engineering 已完成，真实 Project/Compiler UI、10k、desktop/mobile production browser、本地全仓门与远端 Windows / Node 22 完整门通过。N40 整体仍在开发，下一节点为 E8n Route 驱动创作修复闭环。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；当前 N40 开发在 Draft PR #59，分支 `codex/n40-e1-route-graph-core`**。
 
-E8l 远端证据为 `product-baseline` run `32679945377` / job `97294729348`，Windows / Node 22 用时 `5m01s`，实现头 `68ea52e` 全绿。
+最新 E8m 远端证据为 `product-baseline` run `32681680611` / job `97299337442`，Windows / Node 22 用时 `5m09s`，实现头 `9a44b86` 全绿；E8l 历史证据仍保留在其节点审计。
 
 ## 2. 当前真实能力
 

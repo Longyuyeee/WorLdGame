@@ -4,7 +4,8 @@
 > 实现基线：`a7c7471`
 > 分支：`codex/n40-e1-route-graph-core`，Draft PR #59
 > 授权：`RA-N21-005`，仅允许 N40 Route Map Engineering
-> 判定：E8m 本地 Engineering 证据已通过，远端 Windows / Node 22 完整门待本次推送后登记。N40 Product Acceptance、N41+、M1 Stable 与发布继续 fail closed。
+> 实现头：`9a44b8653b785b60dc1ab3e3c7e84d41c5bf38d0`
+> 判定：E8m Engineering 已通过本地、production browser 与远端 Windows / Node 22 完整门。N40 Product Acceptance、N41+、M1 Stable 与发布继续 fail closed。
 
 ## 1. 冻结目标与范围
 
@@ -58,6 +59,8 @@ E8m 的用户结果是让 Route Map 不再只“报告问题”，而能把创�
 - Editor production build：CSS `87.02 kB / gzip 16.39 kB`，JS `835.28 kB / gzip 234.84 kB`；既有 `>500 kB` 拆包 warning 未关闭，也没有被误报为功能失败。
 
 N21 仍为 `0/1 pending-participant`，N23 仍为 `0/2 pending-participants`，M1 纵向验收仍为 `0/27`。自动化与浏览器证据不能替代真人产品验收。
+
+实现头 `9a44b86` 推送后的 GitHub Actions `product-baseline` run `32681680611` / job `97299337442` 在 Windows / Node 22 上用时 `5m09s`，locked install 与 full check 全部成功。因此 E8m 的本地与远端工程证据一致。
 
 ## 5. 需求对齐与剩余边界
 
