@@ -4,6 +4,8 @@ import { compileProjectIncremental, preflightLazyNarrationInsertion, preflightLa
 import { buildRouteGraph, buildRouteGraphIncremental, createRouteGraphIndex, locateRouteDiagnostic, preflightRouteNeutralSceneEdit, queryRouteGraphWindow, reviewRouteToEnding, ROUTE_GRAPH_EDGE_LIMIT, ROUTE_GRAPH_WINDOW_LIMIT } from "@world-studio/route-graph";
 import { buildTrustedLazyEditIndex } from "../apps/editor/src/trusted-lazy-edit-index";
 import { publishTrustedRouteOverview, readTrustedRouteOverview } from "../apps/editor/src/trusted-route-overview";
+import { projectCanonicalForEditor } from "../apps/editor/src/canonical-project-adapter";
+import { planRouteChoiceRetarget } from "../apps/editor/src/route-repair";
 import { describe, expect, it } from "vitest";
 
 const sceneCount = 10_000;
@@ -16,6 +18,7 @@ const editSamples = 20;
 const lazyEditIndexBudgetMs = 500;
 const lazyStructuralPreflightBudgetMs = 500;
 const lazyRouteStructurePageBudgetMs = 500;
+const routeRepairPlanBudgetMs = 250;
 
 class PerformanceRouteWorkspace implements ProjectWorkspace {
   readonly reference: ProjectReference = { referenceId: "route-performance", hostKind: "memory-test", displayLocation: "memory/route-performance", permissionKey: "route-performance" };
@@ -201,6 +204,30 @@ describe("N40 10k branching Route performance gate", () => {
     expect(window.nodes.some((node) => node.id === diagnostic.sceneId)).toBe(true);
     expect(window.nodes.length).toBeLessThanOrEqual(ROUTE_GRAPH_WINDOW_LIMIT);
     expect(elapsedMs).toBeLessThan(queryBudgetMs);
+  });
+
+  it("plans one stable-ID Choice target repair in a real 10k project within 250ms", () => {
+    const project = projectCanonicalForEditor(createBranchingRouteProject()).project;
+    const sourceSceneId = sceneId(0);
+    const optionId = `option_${sourceSceneId}_1`;
+    const targetSceneId = sceneId(9_999);
+    const started = performance.now();
+    const result = planRouteChoiceRetarget(project, sourceSceneId, optionId, targetSceneId);
+    const elapsedMs = performance.now() - started;
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const plan = result.plan;
+
+    console.log(JSON.stringify({
+      status: elapsedMs < routeRepairPlanBudgetMs ? "PASS" : "FAIL",
+      baseline: { sceneCount, operation: "validate source/option/target and produce one Story Language P0 update" },
+      measurementsMs: { routeChoiceRetargetPlan: Number(elapsedMs.toFixed(2)) },
+      budgetMs: { routeChoiceRetargetPlan: routeRepairPlanBudgetMs },
+      result: { sourceSceneId: plan.sourceSceneId, optionId: plan.optionId, targetSceneId: plan.targetSceneId, operationCount: 1 }
+    }, null, 2));
+
+    expect(plan.operation).toEqual({ kind: "update", statementId: optionId, patch: { targetLabel: targetSceneId } });
+    expect(elapsedMs).toBeLessThan(routeRepairPlanBudgetMs);
   });
 
   it("reads only one trusted 64-scene structure/layout page from a 10k Route within 500ms", async () => {

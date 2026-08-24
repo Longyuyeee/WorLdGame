@@ -2556,6 +2556,24 @@ textarea[data-input-state="composing"] {
 .route-target-navigation small { color: var(--wg-color-text-muted); font-size: 9px; }
 .route-target-navigation button { padding: 6px 9px; border-color: rgb(240 212 92 / 28%); background: rgb(240 212 92 / 7%); color: rgb(240 212 92); }
 
+.route-target-repair {
+  flex: 1 0 100%;
+  display: grid;
+  grid-template-columns: minmax(130px, .7fr) minmax(180px, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, var(--wg-color-border-strong) 55%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--wg-color-surface-elevated) 76%, transparent);
+}
+
+.route-target-repair label { min-width: 0; }
+.route-target-repair select,
+.route-target-repair input { width: 100%; }
+.route-target-repair button { min-height: 40px; }
+.route-target-repair small { grid-column: 1 / -1; }
+
 .route-edit-result {
   margin: 0;
   color: var(--wg-color-semantic-choice);
@@ -3915,6 +3933,14 @@ textarea[data-input-state="composing"] {
 
   .route-diagnostics li {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .route-target-repair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .route-target-repair small {
+    grid-column: 1;
   }
 
   .runtime-debug-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }

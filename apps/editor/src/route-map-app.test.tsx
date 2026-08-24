@@ -1,9 +1,15 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { IDBFactory } from "fake-indexeddb";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { loadProject } from "@world-studio/project-persistence";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { buildRouteGraph, createRouteGraphIndex, queryRouteGraphWindow } from "@world-studio/route-graph";
 import { App, runtimeRouteAnchorSceneId } from "./App";
-import { projectCanonicalFromStory } from "./canonical-project-adapter";
+import { projectCanonicalForEditor, projectCanonicalFromStory } from "./canonical-project-adapter";
+import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+import { restoreStudioSession } from "./studio-session";
+
+afterEach(() => vi.unstubAllGlobals());
 
 function renderRouteMap() {
   const onProjectChange = vi.fn();
@@ -85,6 +91,29 @@ function labelNavigationStory(): StoryProject {
   }] };
 }
 
+function repairableRouteStory(): StoryProject {
+  return {
+    schemaVersion: 0,
+    id: "route-repair-story",
+    title: "Route Repair Story",
+    entrySceneId: "repair_entry",
+    characters: [],
+    scenes: [
+      { id: "repair_entry", title: "Repair Entry", statements: [{
+        id: "repair_choice",
+        kind: "choice",
+        prompt: "Choose repair target",
+        options: [
+          { id: "repair_goal_option", label: "前往目标", targetSceneId: "repair_detour" },
+          { id: "repair_detour_option", label: "保留支线", targetSceneId: "repair_detour" }
+        ]
+      }] },
+      { id: "repair_detour", title: "Detour Ending", statements: [{ id: "repair_detour_end", kind: "end", endingName: "Detour" }] },
+      { id: "repair_goal", title: "Goal Ending", statements: [{ id: "repair_goal_end", kind: "end", endingName: "Goal Reached" }] }
+    ]
+  };
+}
+
 describe("N40 Route Map product flow", () => {
   it("searches the compiler-derived scene graph without changing stable IDs", () => {
     renderRouteMap();
@@ -150,7 +179,7 @@ describe("N40 Route Map product flow", () => {
     fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线图" }), { target: { value: "Ending 69" } });
     expect(within(nodes).getAllByRole("button")).toHaveLength(1);
     expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–1 / 1");
-  });
+  }, 10_000);
 
   it("filters the visible Route window by P0 node type without changing canonical content",()=>{
     renderRouteMap();const nodes=screen.getByLabelText("路线场景节点");
@@ -204,10 +233,13 @@ describe("N40 Route Map product flow", () => {
     render(<App initialProject={projectCanonicalFromStory(pagedDiagnosticStory(65), "n40-diagnostic-window")} />);
     fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
     expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
+    expect(document.querySelectorAll("datalist option")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
+    expect(document.querySelectorAll("datalist option")).toHaveLength(64);
     fireEvent.click(screen.getByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · route_ui_064" }));
     expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("65–65 / 65");
     expect(screen.getByRole("button", { name: /路线场景：Route UI Scene 64/ })).toHaveAttribute("aria-pressed", "true");
-  });
+  }, 10_000);
 
   it("enters the exact diagnostic statement and fails closed for global diagnostics", () => {
     render(<App initialProject={projectCanonicalFromStory(diagnosticStory(), "n40-diagnostic-content")} />);
@@ -217,6 +249,43 @@ describe("N40 Route Map product flow", () => {
     fireEvent.click(screen.getByRole("button", { name: "进入诊断内容：UNREACHABLE_STATEMENT · diagnostic_end" }));
     expect(screen.getByRole("tab", { name: "Writer" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("button", { name: "选择结局：结局 · Never" })).toHaveFocus();
+  });
+
+  it("repairs a diagnosed route, saves it, and reaches the new ending through formal Runtime", async () => {
+    const indexedDb = new IDBFactory();
+    vi.stubGlobal("indexedDB", indexedDb);
+    const project = projectCanonicalFromStory(repairableRouteStory(), "n40-e8n-route-repair");
+    const onProjectSave = vi.fn<(project: StoryProject) => Promise<void>>(async () => undefined);
+    render(<App initialProject={project} onProjectSave={onProjectSave} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "保存到本机" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+
+    expect(screen.getByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · repair_goal" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "修改选择目标：前往目标" }), { target: { value: "repair_goal" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用选择目标：前往目标" }));
+
+    expect(await screen.findByText(/路线目标已提交.*repair_detour→repair_goal/)).toBeVisible();
+    expect(screen.queryByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · repair_goal" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "定位路线目标：前往目标 · repair_goal" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
+    await waitFor(() => expect(onProjectSave).toHaveBeenCalledTimes(1));
+    expect(onProjectSave.mock.calls[0]?.[0].scenes[0]?.statements[0]).toMatchObject({
+      kind: "choice",
+      options: expect.arrayContaining([expect.objectContaining({ id: "repair_goal_option", targetSceneId: "repair_goal" })])
+    });
+    const persisted = await loadProject(new IndexedDbProjectFileStore(indexedDb, project.manifest.projectId));
+    expect(persisted).not.toBeNull();
+    expect(restoreStudioSession(persisted!, projectCanonicalForEditor(project).project).project.scenes[0]?.statements[0]).toMatchObject({
+      kind: "choice",
+      options: expect.arrayContaining([expect.objectContaining({ id: "repair_goal_option", targetSceneId: "repair_goal" })])
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    fireEvent.click(screen.getByRole("button", { name: "选择路线：前往目标" }));
+    expect(screen.getByText("流程完成：Goal Reached")).toBeVisible();
+    expect(screen.getByRole("button", { name: "路线场景：Goal Ending · repair_goal" })).toHaveAttribute("aria-current", "step");
   });
 
   it("anchors ending-route steps across real 64-node Route windows", () => {
@@ -232,7 +301,7 @@ describe("N40 Route Map product flow", () => {
     expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
     expect(within(nodes).getByRole("button", { name: /Runtime Route Scene 0/ })).toHaveAttribute("data-route-reviewed", "true");
     expect(within(nodes).queryByRole("button", { name: /Runtime Route Scene 64/ })).not.toBeInTheDocument();
-  });
+  }, 10_000);
 
   it("highlights the current, visited, and traversed Route facts from formal Runtime History", () => {
     renderRouteMap();

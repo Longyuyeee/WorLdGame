@@ -132,6 +132,7 @@ import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
 import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
 import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonical-project-adapter";
+import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
   approveFormalPreviewBarrier,
   advanceFormalPreview,
@@ -1901,6 +1902,7 @@ interface FlowViewProps extends CommonProps {
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly hasLocalChanges: boolean;
   readonly trustedChangedSceneIds?: readonly string[];
+  readonly createCommandId: () => string;
   readonly onOpenSequence: (sceneId: string, statementId?: string) => void;
   readonly onRenameScene: (sceneId: string, title: string) => RenameRouteSceneResult;
   readonly onSetScenePosition: (sceneId: string, x: number, y: number) => RouteProjectMutationResult;
@@ -1940,7 +1942,7 @@ const compilerCacheLabels = {
   "source-mismatch": "源正文变化后重建"
 } as const;
 
-function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, routeCompiler, hasLocalChanges, trustedChangedSceneIds, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
+function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, routeCompiler, hasLocalChanges, trustedChangedSceneIds, createCommandId, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
   const canonicalHash = useMemo(() => hasLocalChanges ? undefined : semanticHash(canonicalProject), [canonicalProject, hasLocalChanges]);
   const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
   const incrementalProjection = useMemo(() => !compilerAligned && routeCompiler !== undefined ? buildRouteGraphIncremental(canonicalProject, routeCompiler.compilation.cache, trustedChangedSceneIds) : undefined, [canonicalProject, compilerAligned, routeCompiler, trustedChangedSceneIds]);
@@ -1969,6 +1971,10 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const [viewportY,setViewportY]=useState(graph.viewport.y);
   const [viewportZoom,setViewportZoom]=useState(graph.viewport.zoom);
   const [editResult, setEditResult] = useState<{ readonly tone: "success" | "error"; readonly text: string } | null>(null);
+  const [repairTargets, setRepairTargets] = useState<Readonly<Record<string, string>>>({});
+  const [repairEdgeId, setRepairEdgeId] = useState("");
+  const [repairEditorOpen, setRepairEditorOpen] = useState(false);
+  const [pendingRepair, setPendingRepair] = useState<{ readonly sourceSceneId: string; readonly optionId: string; readonly previousTargetSceneId: string; readonly targetSceneId: string } | null>(null);
   const runtimeVisitedScenes = useMemo(() => new Set(runtimeRouteTrace.visitedSceneIds), [runtimeRouteTrace.visitedSceneIds]);
   const runtimeVisitedEdges = useMemo(() => new Set(runtimeRouteTrace.visitedEdgeIds), [runtimeRouteTrace.visitedEdgeIds]);
   const runtimeCurrentTitle = graph.nodes.find((node) => node.id === runtimeRouteTrace.currentSceneId)?.title ?? runtimeRouteTrace.currentSceneId;
@@ -1991,6 +1997,19 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
     setSelectedSceneId(runtimeRouteTrace.currentSceneId);
     setWindowOffset(undefined);
   }, [runtimeRouteTrace.active, runtimeRouteTrace.currentSceneId]);
+  useEffect(() => {
+    if (pendingRepair === null) return;
+    const actualTarget = choiceOptionTarget(session.project, pendingRepair.sourceSceneId, pendingRepair.optionId);
+    if (actualTarget === pendingRepair.targetSceneId) {
+      setEditResult({ tone: "success", text: `路线目标已提交 · ${pendingRepair.previousTargetSceneId}→${pendingRepair.targetSceneId} · 请保存并用正式 Runtime 复核` });
+      setPendingRepair(null);
+      return;
+    }
+    if (session.notice.tone === "error") {
+      setEditResult({ tone: "error", text: `路线修复失败关闭 · ${session.notice.detail}` });
+      setPendingRepair(null);
+    }
+  }, [pendingRepair, session.notice, session.project]);
   const routeWindow = useMemo(() => queryRouteGraphWindow(routeIndex, {
     query,
     ...(chapterFilter===""?{}:{chapterId:chapterFilter}),
@@ -1999,6 +2018,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
     ...(windowOffset === undefined ? { anchorSceneId: routeWindowAnchorSceneId } : { offset: windowOffset })
   }), [query,chapterFilter,kindFilter,groupFilter,routeIndex, routeWindowAnchorSceneId, windowOffset]);
   const visibleNodes = routeWindow.nodes;
+  const selectedOutgoingEdges = selected === undefined ? [] : graph.edges.filter((edge)=>edge.sourceSceneId===selected.id);
+  const repairEdge = selectedOutgoingEdges.find((edge)=>edge.id===repairEdgeId) ?? selectedOutgoingEdges[0];
   const saveTitle = () => {
     if (selected === undefined) return;
     const result = onRenameScene(selected.id, title);
@@ -2026,6 +2047,14 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const saveViewport=()=>commitMutation(onSetViewport(viewportX,viewportY,viewportZoom),"路线视口已写入 Layout Sidecar");
   const moveNode=(node:RouteSceneNodeV1,dx:number,dy:number)=>commitMutation(onSetScenePosition(node.id,node.layout.x+dx,node.layout.y+dy),"节点位置已提交 · 支持撤销与重开");
   const moveSelected=(dx:number,dy:number)=>{if(selected!==undefined)moveNode(selected,dx,dy);};
+  const applyChoiceTarget=(sourceSceneId:string,optionId:string,currentTargetSceneId:string)=>{
+    const targetSceneId=repairTargets[optionId]??currentTargetSceneId;
+    if(session.activeSceneId!==sourceSceneId){setEditResult({tone:"error",text:"路线修复失败关闭 · 请先重新选中来源场景，避免写入错误 Source revision"});return;}
+    const result=planRouteChoiceRetarget(session.project,sourceSceneId,optionId,targetSceneId);
+    if(!result.ok){setEditResult({tone:"error",text:`${result.code} · ${result.message}`});return;}
+    setPendingRepair({sourceSceneId,optionId,previousTargetSceneId:result.plan.previousTargetSceneId,targetSceneId});
+    dispatch({type:"p0-batch",commandId:createCommandId(),operations:[result.plan.operation],selectedStatementId:result.plan.choiceStatementId});
+  };
   const focusRouteScene = (sceneId: string) => {
     if (!graph.nodes.some((node) => node.id === sceneId)) return;
     setEndingSceneId("");setEndingCandidateIndex(0);setEndingRouteStep(0);
@@ -2195,7 +2224,9 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         <div className="route-target-navigation" aria-label="控制流目标导航">
           <span>控制流目标</span>
           {selected.facts.filter((fact)=>fact.targetLabel!==undefined).map((fact)=>{const target=selected.facts.find((candidate)=>candidate.kind==="label"&&candidate.label===fact.targetLabel);return <button type="button" key={fact.id} disabled={target===undefined} aria-label={`打开标签目标：${fact.targetLabel}`} onClick={()=>{if(target!==undefined)onOpenSequence(selected.id,target.id);}}>{fact.kind} → {fact.targetLabel}{target===undefined?" · 缺失":""}</button>;})}
-          {graph.edges.filter((edge)=>edge.sourceSceneId===selected.id).map((edge)=><button type="button" key={edge.id} disabled={edge.status!=="valid"} aria-label={`定位场景目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.label} → {edge.targetSceneId}{edge.status==="dangling"?" · 悬空":""}</button>)}
+          {selectedOutgoingEdges.map((edge)=><button type="button" key={edge.id} disabled={edge.status!=="valid"} aria-label={`定位场景目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.label} → {edge.targetSceneId}{edge.status==="dangling"?" · 悬空":""}</button>)}
+          {repairEdge!==undefined&&<button type="button" className="route-target-repair-toggle" aria-expanded={repairEditorOpen} aria-controls={`route-target-repair-${selected.id}`} onClick={()=>setRepairEditorOpen((open)=>!open)}>{repairEditorOpen?"收起 Choice 目标修复":"修改 Choice 目标"}</button>}
+          {repairEdge!==undefined&&repairEditorOpen&&<div id={`route-target-repair-${selected.id}`} className="route-target-repair" aria-label="路线 Choice 目标修复"><label><span>选择连接</span><select aria-label="选择待修复路线连接" value={repairEdge.id} onChange={(event)=>setRepairEdgeId(event.target.value)}>{selectedOutgoingEdges.map((edge)=><option key={edge.id} value={edge.id}>{edge.label} · {edge.id}</option>)}</select></label><label><span>目标稳定 ID</span><input aria-label={`修改选择目标：${repairEdge.label}`} list={`route-repair-targets-${selected.id}`} value={repairTargets[repairEdge.id]??repairEdge.targetSceneId} onChange={(event)=>setRepairTargets((current)=>({...current,[repairEdge.id]:event.target.value}))}/><datalist id={`route-repair-targets-${selected.id}`}>{visibleNodes.map((node)=><option key={node.id} value={node.id}>{node.title}</option>)}</datalist></label><button type="button" aria-label={`应用选择目标：${repairEdge.label}`} disabled={(repairTargets[repairEdge.id]??repairEdge.targetSceneId)===repairEdge.targetSceneId||pendingRepair!==null} onClick={()=>applyChoiceTarget(repairEdge.sourceSceneId,repairEdge.id,repairEdge.targetSceneId)}>应用目标</button><small>候选仅显示当前 64 节点窗口；提交时按完整工程验证 stable ID。</small></div>}
           {selected.facts.every((fact)=>fact.targetLabel===undefined)&&graph.edges.every((edge)=>edge.sourceSceneId!==selected.id)&&<small>当前场景没有可导航目标</small>}
         </div>
         <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>moveSelected(-24,0)}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>moveSelected(0,-24)}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>moveSelected(0,24)}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>moveSelected(24,0)}>→</button><small>Alt＋方向键亦可移动</small></div>
@@ -3997,6 +4028,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             {...(routeCompiler===undefined?{}:{routeCompiler})}
             hasLocalChanges={editGeneration.current > 0}
             {...(routeChangedSceneIds.current===null?{}:{trustedChangedSceneIds:[...routeChangedSceneIds.current]})}
+            createCommandId={createCommandId}
             onRenameScene={renameSceneFromRouteMap}
             onSetScenePosition={setScenePositionFromRouteMap}
             onResetSceneLayout={resetSceneLayoutFromRouteMap}
