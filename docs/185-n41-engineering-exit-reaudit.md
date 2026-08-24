@@ -3,7 +3,8 @@
 > 日期：2026-08-24
 > 分支：`codex/n41-e4-sequence-runtime-highlight`
 > 直接基线：N41-E3 `35b5052d1590878f9c4dee50f4e8c23c885b5796`
-> Draft PR / Windows CI：实现提交推送后补录
+> Draft PR：#64，base `codex/n41-e3-lazy-dialogue-structure`
+> Windows CI：run `32695198547` / job `97335890304`，5 分 50 秒，绿色
 > 判定：N41 Sequence Engineering 出口通过；N41 Product Acceptance、N42、M1 与发布继续阻断
 
 ## 1. 复审结论与纠偏
@@ -53,8 +54,10 @@
 - production browser：真实受管“黄昏广播”工程，正式 Runtime 启动、Continue、Script→Sequence、Back、Forward 全通过；console error `0`；默认 16:9 保持；
 - production bundle：JS `844.58 kB / gzip 236.54 kB`，既有 >500 kB 拆包债保留，没有把构建成功写成包体达标。
 
+Windows / Node 22 在同一实现头 `43b0bffb054b6d99d907be81c949af7d978b4349` 上复验：N41 退出矩阵 `10 files / 84 tests`、普通回归 `116/733`、storage `1/1`、重型 VM `5/5`（67.11 秒）、Runtime corpus shard `26.299–26.641 秒`、Route P95 `130.26 ms < 500 ms`、trusted Route 首屏 `300.64 ms < 500 ms`、Dicing `3196.96 ms < 5000 ms` 且净节省 `85.83%`；bundle 与本地一致为 `844.58 / 236.54 kB`。run `32695198547` / job `97335890304` 用时 5 分 50 秒，完整门绿色。
+
 ## 6. 需求与下一步边界
 
 本轮关闭 `REQ-SEQ` 的 N41 Engineering 实现缺口，并继续推进 `REQ-SCRIPT`、`USP-01` 和 `AC-03`。由于 N21/N23 无真人、Stage 仍属于 N42、七模式属于 N43，相关 Product Acceptance 与 M1 状态不得改为通过。
 
-`RA-N21-006` 明确阻断 N42 Engineering。下一步只能先完成远端 Windows CI 与证据补录，然后停在 N41→N42 治理检查点，等待产品负责人提供新的有界授权；不得自行进入 Stage、正式 Player 或发布节点。
+`RA-N21-006` 明确阻断 N42 Engineering。远端 Windows CI 与证据补录完成后，开发停在 N41→N42 治理检查点，等待产品负责人提供新的有界授权；不得自行进入 Stage、正式 Player 或发布节点。
