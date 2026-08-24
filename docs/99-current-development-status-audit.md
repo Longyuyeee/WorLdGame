@@ -1,7 +1,7 @@
 # 当前开发情况审计（N40 准入，产品门仍阻断）
 
 > 审计日期：2026-08-24
-> 当前分支：`codex/n40-e1-route-graph-core`；当前文档头为 `00acf94c6b37c84717008197f34389e873bd39b9`，N40-E8k 实现头为 `37ee47c2664ccd518889d5cb7a920a38b38397ca`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
+> 当前分支：`codex/n40-e1-route-graph-core`；N40-E8l 实现头为 `68ea52e43324f3ab9ce0b66967ba031ea8385968`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
 > 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
 > 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8k Trusted Route Topology Page](174-n40-e8k-trusted-route-topology-page-audit.md)、[N40 功能优先复审](175-n40-function-first-development-reaudit.md)、[N40-E8l 指定结局路线审阅](176-n40-e8l-ending-route-review-audit.md)
@@ -13,7 +13,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40-E8l 已完成本地 Engineering、10k 与 desktop/mobile production browser 证据；远端 Windows / Node 22 完整门待首次推送后登记。N40 整体仍在开发，下一节点为 E8m 诊断定位与直接导航。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40-E8l Engineering 已完成，并通过本地全门、10k、desktop/mobile production browser 与远端 Windows / Node 22 完整门。N40 整体仍在开发，下一节点为 E8m 诊断定位与直接导航。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -21,6 +21,8 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N40 Route Map Engineering：**E1–E8k 已形成 Compiler 图、10k/64 窗口、Layout/过滤、缓存、局部编辑、Runtime 高亮、trusted Route-first、局部内容保存、narration 结构闭环与 topology 分页；E8l 已关闭指定结局候选路线审阅，10k 查询 `13.29 ms <250 ms`，跨窗与 desktop/mobile production 通过。当前优先缺口是诊断定位、直接进入场景、目标导航及保存后 Preview 复核闭环；完整 Lazy Project、topology 增量、外部宿主后置**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；当前 N40 开发在 Draft PR #59，分支 `codex/n40-e1-route-graph-core`**。
+
+E8l 远端证据为 `product-baseline` run `32679945377` / job `97294729348`，Windows / Node 22 用时 `5m01s`，实现头 `68ea52e` 全绿。
 
 ## 2. 当前真实能力
 

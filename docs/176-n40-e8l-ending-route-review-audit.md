@@ -4,7 +4,8 @@
 > 实现基线：`5eb1575c4e13d7e5577e3bc4c1c39e92fa62c44b`
 > 分支：`codex/n40-e1-route-graph-core`，Draft PR #59
 > 授权：`RA-N21-005`，仅允许 N40 Route Map Engineering
-> 判定：E8l 本地 Engineering 证据通过；远端 Windows / Node 22 完整门在首次推送后登记。N40 Product Acceptance、N41+、M1 Stable 与发布状态不变，继续 fail closed。
+> 实现头：`68ea52e43324f3ab9ce0b66967ba031ea8385968`
+> 判定：E8l Engineering 已通过本地、production browser 与远端 Windows / Node 22 完整门。N40 Product Acceptance、N41+、M1 Stable 与发布状态不变，继续 fail closed。
 
 ## 1. 开发目标与需求对齐
 
@@ -52,6 +53,8 @@ E8l 的用户结果是：创作者选择一个结局后，可审阅从项目入�
 - Runtime corpus：10,000 seeds、20,000 replays、40 chunks，digest 不变；
 - workspace、需求、风险、delivery baseline、PR traceability、Golden、Compiler、Runtime、typecheck、全部 workspace build、architecture、Script/Route/Asset performance 全部 PASS；
 - N21 仍为 `0/1 pending-participant`，N23 仍为 `0/2 pending-participants`，没有用自动化或浏览器测试冒充真人产品验收。
+
+首次推送实现头后的 GitHub Actions `product-baseline` run `32679945377` / job `97294729348` 在 Windows / Node 22 上用时 `5m01s`，locked install 与 full check 全部成功。因此本机与远端差异为零，E8l Engineering 关闭。
 
 ## 5. 审计结论与下一步
 

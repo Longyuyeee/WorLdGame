@@ -71,7 +71,7 @@ E8g–E8j 为了形成 Route-first 可编辑落地流程，已实现一部分 Se
 
 ### N40-E8l：指定结局路线审阅
 
-> 2026-08-24 更新：实现、本地全门、10k 性能与 desktop/mobile production browser 已通过，详见 [E8l 审计](176-n40-e8l-ending-route-review-audit.md)。远端 Windows / Node 22 证据在首次推送后登记；后续转入 E8m。
+> 2026-08-24 更新：实现、本地全门、10k 性能、desktop/mobile production browser 与远端 Windows / Node 22 full check 已通过，详见 [E8l 审计](176-n40-e8l-ending-route-review-audit.md)；后续转入 E8m。
 
 **用户目标**：创作者选择一个结局，立即看到从入口抵达它的权威场景/连接路线，并能在大型图中逐段查看。
 
