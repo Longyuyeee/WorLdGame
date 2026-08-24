@@ -5,13 +5,14 @@ export const deliveryNodeOrder = Object.freeze([
   "N90", "N91", "N92", "N100", "N101", "N102", "N110", "N111"
 ]);
 
-const requiredN32BlockedGates = Object.freeze([
+const requiredActiveBlockedGates = Object.freeze([
   "N21 Product Acceptance",
   "N23 Acceptance",
   "N30 Product Acceptance",
   "N31 Product Acceptance",
   "N32 Product Acceptance",
-  "N40 Engineering",
+  "N40 Product Acceptance",
+  "N41 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -55,18 +56,18 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       const currentIndex = deliveryNodeOrder.indexOf(registry.currentDeliveryNode);
       const maximumIndex = deliveryNodeOrder.indexOf(exception.maximumDeliveryNode);
       if (currentIndex >= 0 && maximumIndex >= 0 && currentIndex > maximumIndex) violations.push(`${prefix}: current delivery node exceeds the accepted maximum`);
-      for (const gate of requiredN32BlockedGates) {
+      for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N32") violations.push(`${prefix}: active N21 exception may not extend beyond N32`);
-      if (prefix !== "RA-N21-004") violations.push(`${prefix}: only the approved RA-N21-004 exception may be active`);
+      if (exception.maximumDeliveryNode !== "N40") violations.push(`${prefix}: active N21 exception may not extend beyond N40`);
+      if (prefix !== "RA-N21-005") violations.push(`${prefix}: only the approved RA-N21-005 exception may be active`);
     }
   }
-  const previewExtension = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-004");
-  for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003"]) {
+  const routeMapExtension = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-005");
+  for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);
-    if (previewExtension?.status === "active" && superseded?.status !== "closed") {
-      violations.push(`RA-N21-004 requires the superseded ${supersededId} exception to be closed`);
+    if (routeMapExtension?.status === "active" && superseded?.status !== "closed") {
+      violations.push(`RA-N21-005 requires the superseded ${supersededId} exception to be closed`);
     }
   }
   return violations;

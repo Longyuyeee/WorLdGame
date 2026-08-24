@@ -1,10 +1,10 @@
-# 当前开发情况审计（N32-E7 后，正式 Player 仍阻断）
+# 当前开发情况审计（N40 Engineering 出口通过，产品门仍阻断）
 
-> 审计日期：2026-08-22
-> 当前分支：`codex/n32-e7-shared-runtime-host`；直接基线为 N32-E6 最终头 `5e55a4aea936261b852abee6374af097df392ae1`
+> 审计日期：2026-08-24
+> 当前分支：`codex/n40-e1-route-graph-core`；N40-E8n 实现头为 `7857ca95b9e92460c5821bc2f1e30d1c92c1cda2`；N32-E7 祖先基线为 `3b0b426e9804f9ed3842d05abd01171e9393655b`
 > 权威基线：N31 集中基线 `143c05f1d1fcf84844a5f3122e217e4283afd15b`，Draft PR #51，尚未合入 `main`
-> 当前授权：`RA-N21-004` 只允许 N32 Editor Preview Engineering；2026-09-20 到期
-> 最新节点证据：[N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)、[N32 Engineering 出口复审](151-n32-engineering-exit-reaudit.md)
+> 当前授权：`RA-N21-005` 只允许 N40 Route Map Engineering；2026-09-22 到期
+> 最新节点证据：[N32→N40 治理检查点](152-n32-n40-governance-checkpoint.md)、[N40-E1 Route Graph](153-n40-e1-route-graph-core-audit.md)–[N40-E7 Runtime Route Highlight](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a Single Project Read](164-n40-e8a-single-project-read-audit.md)–[N40-E8k Trusted Route Topology Page](174-n40-e8k-trusted-route-topology-page-audit.md)、[N40 功能优先复审](175-n40-function-first-development-reaudit.md)、[N40-E8l 指定结局路线审阅](176-n40-e8l-ending-route-review-audit.md)–[N40-E8n Route 修复闭环](178-n40-e8n-route-repair-loop-audit.md)、[N40 Engineering 出口复审](179-n40-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -13,21 +13,23 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N32-E7 本地 Engineering、产品闭环实测及远端 Windows / Node 22 完整门通过；N32 Engineering 总出口仍未通过**；
+- 当前工程节点：**N40 Engineering 出口复审已通过：Goal `1/1`、Implementation `11/11`、Tests `3/3`、Acceptance `2/2`。N32 Engineering 总出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40、M1 Stable、Public Release：**被阻断**；
+- N40 Route Map Engineering：**出口已通过；当前重测 Route 定向 `8 files / 59 tests`，10k 同步 P95 `164.88 ms <500 ms`，trusted topology 页 `321.95 ms <500 ms`，desktop/mobile production 与控制台通过。Route 进入当前 Writer 内容入口，不冒充 N41 完整 Sequence；完整 Lazy Project、topology 增量、外部宿主仍明确后置**；N40 Product Acceptance、N41、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；N32-E1 为其下游开发分支**。
+- GitHub 集成：**N31 authority 在 Draft PR #51，未合入 `main`；当前 N40 开发在 Draft PR #59，分支 `codex/n40-e1-route-graph-core`**。
+
+最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
 ## 2. 当前真实能力
 
 | 能力 | 当前可用 | 仍缺 |
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
-| Story | P0 语言、Writer 卡片、Script、基础 Flow、稳定 ID、Compiler IR/Source Map | N41 完整 Sequence、N40 专业 Route、N60 QA/Debugger |
+| Story | P0 语言、Writer/Script、Compiler IR/Source Map；N40 Route Engineering 出口已通过，具备 10k/64 窗口、Layout/过滤、缓存、`<500 ms` 局部编辑、Formal Runtime 高亮、结局审阅、诊断/目标导航，以及 Choice 目标修改→保存复读→Compiler/Route 重建→Formal Runtime 结局闭环；受管工程可从 Recent 无 full read 进入 Route，Route topology 只读当前 scene/layout 页，再按 scene 补读 script | N40 Product Acceptance 阻断；完整 Sequence/Stage/Player 仍缺；Lazy Project 增量与外部宿主后置 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；正式 Runtime Effect 提交时机 | 复杂镜头/关键帧、Pixi/WebGL、三端媒体策略与共享 Host |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
@@ -92,7 +94,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. 不再扩充 Editor 私有 Host：剩余 N32 出口只能由正式 Player 消费同一 IR/Runtime/Host 并建立 State/Outcome/History/receipt/visual 差分关闭；
-3. 正式 Player 属于后续授权节点。未获授权时保持 fail closed，并优先完成 N21/N23 真人记录；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
+2. N40 Engineering 出口已通过并冻结；topology 增量写和外部 trusted host 后置。`RA-N21-005` 不授权 N41，其他完整 Sequence 能力不得越界；
+3. 正式 Player 属于 N50/N80，不能跳过 N40–N43。N32/N40 Product Acceptance 和 N41+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

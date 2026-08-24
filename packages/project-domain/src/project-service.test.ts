@@ -18,9 +18,9 @@ const storyCommands: readonly ProjectCommand[] = [
 describe("Project Service", () => {
   it("builds a two-scene branch atomically, undoes to the empty story, and redoes to the same hash", () => {
     const start = initial(); const result = executeProjectBatch(start, storyCommands); expect(result.ok ? null : result.error).toBeNull(); if(!result.ok)return;
-    const finalHash = semanticHash(result.state.project); expect(result.state.project.scenes.map(x=>x.id)).toEqual(["scene_start","scene_end"]); expect(result.changeSet.changedEntityIds).toContain("statement_choice");
-    const undone = undoProject(result.state); expect(undone.project.scenes.map(x=>x.id)).toEqual(["scene_empty"]);
-    const redone = redoProject(undone); expect(semanticHash(redone.project)).toBe(finalHash); expect(serializeCommittedRevision(redone,redone.revision)["world.project.json"]).toBeDefined();
+    const finalHash = semanticHash(result.state.project); expect(result.state.revisionHash).toBe(result.changeSet.afterHash);expect(result.state.project.scenes.map(x=>x.id)).toEqual(["scene_start","scene_end"]); expect(result.changeSet.changedEntityIds).toContain("statement_choice");
+    const undone = undoProject(result.state); expect(undone.revisionHash).toBe(result.changeSet.beforeHash);expect(undone.project.scenes.map(x=>x.id)).toEqual(["scene_empty"]);
+    const redone = redoProject(undone); expect(redone.revisionHash).toBe(result.changeSet.afterHash);expect(semanticHash(redone.project)).toBe(finalHash); expect(serializeCommittedRevision(redone,redone.revision)["world.project.json"]).toBeDefined();
   });
   it("rejects a stale revision without changing the project", () => {
     const start=initial();const result=executeProjectCommand(start,{...storyCommands[0]!,expectedRevision:9});expect(result.ok).toBe(false);if(result.ok)return;expect(result.error.code).toBe("STALE_REVISION");expect(semanticHash(result.state.project)).toBe(semanticHash(start.project));
@@ -36,6 +36,39 @@ describe("Project Service", () => {
   });
   it("requires the exact committed revision when serializing", () => {
     const built=executeProjectBatch(initial(),storyCommands);expect(built).toMatchObject({ok:true});if(!built.ok)return;expect(()=>serializeCommittedRevision(built.state,0)).toThrow(/STALE_REVISION/);
+  });
+  it("commits, serializes, undoes, and redoes layout sidecar positions independently", () => {
+    const start=initial();const sceneId=start.project.manifest.entrySceneId;const result=executeProjectCommand(start,{commandId:"command_layout_position",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:320,y:180});
+    expect(result.ok).toBe(true);if(!result.ok)return;
+    expect(result.state.project.scripts).toEqual(start.project.scripts);
+    expect(result.state.project.layouts[sceneId]?.nodes).toEqual([{nodeId:sceneId,x:320,y:180}]);
+    expect(loadProject(serializeCommittedRevision(result.state,1)).layouts[sceneId]?.nodes).toEqual([{nodeId:sceneId,x:320,y:180}]);
+    const undone=undoProject(result.state);expect(undone.project.layouts[sceneId]?.nodes).toEqual([]);
+    expect(redoProject(undone).project.layouts[sceneId]?.nodes).toEqual([{nodeId:sceneId,x:320,y:180}]);
+  });
+  it("rejects invalid layout coordinates without changing the project", () => {
+    const start=initial();const sceneId=start.project.manifest.entrySceneId;const result=executeProjectCommand(start,{commandId:"command_layout_invalid",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:Number.POSITIVE_INFINITY,y:0});
+    expect(result).toMatchObject({ok:false,state:start,error:{code:"INVALID_COMMAND"}});
+  });
+  it("stores route groups and viewport in sidecars and keeps the batch atomic", () => {
+    const start=initial();const sceneId=start.project.manifest.entrySceneId;const commands=[
+      {commandId:"command_group_create",expectedRevision:0,kind:"layout.group.upsert",groupId:"group_main",title:"主路线"},
+      {commandId:"command_node_position",expectedRevision:0,kind:"layout.node.set",sceneId,nodeId:sceneId,x:320,y:180},
+      {commandId:"command_group_assign",expectedRevision:0,kind:"layout.node.assign-group",sceneId,nodeId:sceneId,groupId:"group_main"},
+      {commandId:"command_viewport_set",expectedRevision:0,kind:"layout.viewport.set",x:64,y:32,zoom:1.5}
+    ] as ProjectCommand[];
+    const result=executeProjectBatch(start,commands);expect(result.ok).toBe(true);if(!result.ok)return;
+    const reopened=loadProject(serializeCommittedRevision(result.state,1));
+    expect(Object.values(reopened.layouts).flatMap((layout)=>layout.groups??[])).toEqual([{groupId:"group_main",title:"主路线",collapsed:false}]);
+    expect(Object.values(reopened.layouts).find((layout)=>layout.viewport!==undefined)?.viewport).toEqual({x:64,y:32,zoom:1.5});
+    expect(reopened.layouts[sceneId]?.nodes[0]?.groupId).toBe("group_main");expect(reopened.scripts).toEqual(start.project.scripts);
+  });
+  it("moves route canvas metadata when its owner scene is deleted",()=>{
+    const built=executeProjectBatch(initial(),storyCommands);expect(built.ok).toBe(true);if(!built.ok)return;let state=built.state;
+    const group=executeProjectCommand(state,{commandId:"command_owner_group",expectedRevision:state.revision,kind:"layout.group.upsert",groupId:"group_owner",title:"Owner"});expect(group.ok).toBe(true);if(!group.ok)return;state=group.state;
+    const viewport=executeProjectCommand(state,{commandId:"command_owner_viewport",expectedRevision:state.revision,kind:"layout.viewport.set",x:10,y:20,zoom:1.25});expect(viewport.ok).toBe(true);if(!viewport.ok)return;state=viewport.state;
+    const removed=executeProjectCommand(state,{commandId:"command_owner_delete",expectedRevision:state.revision,kind:"scene.delete",sceneId:"scene_start",replacementSceneId:"scene_end"});expect(removed.ok).toBe(true);if(!removed.ok)return;
+    expect(removed.state.project.layouts.scene_end).toMatchObject({groups:[{groupId:"group_owner",title:"Owner",collapsed:false}],viewport:{x:10,y:20,zoom:1.25}});
   });
   it("covers rename, move, update, and delete commands across every N11 entity collection", () => {
     const built=executeProjectBatch(initial(),storyCommands);expect(built.ok).toBe(true);if(!built.ok)return;let state=built.state;

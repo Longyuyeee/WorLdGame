@@ -1,6 +1,8 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { createEvent, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { ProjectStoreError } from "@world-studio/project-persistence";
+import { compileProject, compileProjectIncremental } from "@world-studio/project-compiler";
+import { semanticHash } from "@world-studio/project-domain";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { App, persistenceErrorLabel, persistenceFailure } from "./App";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
@@ -553,9 +555,79 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     ).toBeVisible();
 
     fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
-    expect(screen.getByRole("heading", { name: "自动路线图" })).toBeVisible();
-    expect(screen.getByText("无语义副本")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
+    expect(screen.getByText("Compiler 图事实")).toBeVisible();
+    expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" })).toBeVisible();
     expect(screen.getByText("去天台")).toBeVisible();
+  });
+
+  it("shows the verified workspace Compiler cache result consumed by Route", () => {
+    const project = legacyDirectionProject();
+    const first = compileProject(project, "debug");
+    const compilation = compileProjectIncremental(project, { profile: "debug", previousCache: first.cache });
+    render(<App initialProject={project} routeCompiler={{ cacheStatus: "hit", projectHash: semanticHash(project), compilation }} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("缓存命中");
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("0 编译");
+    fireEvent.change(screen.getByLabelText("路线场景名称"), { target: { value: "内存修改" } });
+    fireEvent.click(screen.getByRole("button", { name: "通过 Project Service 保存" }));
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("存在未保存改动");
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("内存增量分析");
+    expect(screen.getByRole("status", { name: "Route Compiler 缓存状态" })).toHaveTextContent("1 编译");
+    expect(screen.getByRole("button", { name: "路线场景：内存修改 · scn_school_gate" })).toBeVisible();
+  });
+
+  it("edits and resets a canonical route layout sidecar through Project Service", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }));
+    fireEvent.change(screen.getByLabelText("路线节点 X"), { target: { value: "640" } });
+    fireEvent.change(screen.getByLabelText("路线节点 Y"), { target: { value: "360" } });
+    fireEvent.click(screen.getByRole("button", { name: "保存节点布局" }));
+
+    expect(screen.getByText(/布局 Sidecar 已提交/)).toBeVisible();
+    expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }).style.getPropertyValue("--route-x")).toBe("640px");
+    expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" }).style.getPropertyValue("--route-y")).toBe("360px");
+
+    fireEvent.click(screen.getByRole("button", { name: "重建自动布局" }));
+    expect(screen.getByText(/已重建自动布局/)).toBeVisible();
+    expect(screen.getByLabelText("路线节点 X")).toHaveValue(648);
+    expect(screen.getByLabelText("路线节点 Y")).toHaveValue(96);
+    expect(screen.getByText(/脚本与 Compiler 图未修改/)).toBeVisible();
+  });
+
+  it("groups, folds, pans, zooms, and keyboard-moves Route nodes through canonical commands", () => {
+    render(<App />);fireEvent.click(screen.getByRole("tab",{name:"Flow"}));
+    fireEvent.change(screen.getByLabelText("新路线分组 ID"),{target:{value:"group_rooftop"}});
+    fireEvent.change(screen.getByLabelText("新路线分组名称"),{target:{value:"天台线"}});
+    fireEvent.click(screen.getByRole("button",{name:"创建路线分组"}));
+    fireEvent.click(screen.getByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"}));
+    fireEvent.change(screen.getByLabelText("节点所属分组"),{target:{value:"group_rooftop"}});
+    fireEvent.click(screen.getByRole("button",{name:"保存节点分组"}));
+    const rooftop=screen.getByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"});
+    expect(rooftop).toHaveAttribute("data-route-group","group_rooftop");
+
+    fireEvent.keyDown(rooftop,{key:"ArrowRight",altKey:true});
+    expect(rooftop.style.getPropertyValue("--route-x")).toBe("672px");
+    fireEvent.click(screen.getByRole("button",{name:"节点下移 24"}));
+    expect(rooftop.style.getPropertyValue("--route-y")).toBe("120px");
+
+    fireEvent.change(screen.getByLabelText("路线视口 X"),{target:{value:"100"}});
+    fireEvent.change(screen.getByLabelText("路线视口 Y"),{target:{value:"50"}});
+    fireEvent.change(screen.getByLabelText("路线视口缩放"),{target:{value:"1.25"}});
+    fireEvent.click(screen.getByRole("button",{name:"保存路线视口"}));
+    expect(screen.getByLabelText("路线画布表面").style.transform).toBe("translate(-100px, -50px) scale(1.25)");
+
+    fireEvent.click(screen.getByRole("button",{name:"折叠分组：天台线"}));
+    expect(screen.queryByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"})).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button",{name:"展开分组：天台线"}));
+    expect(screen.getByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"})).toBeVisible();
+  });
+
+  it("writes pointer drag coordinates through the same canonical layout command",()=>{
+    render(<App/>);fireEvent.click(screen.getByRole("tab",{name:"Flow"}));const node=screen.getByRole("button",{name:"路线场景：风中的天台 · scn_rooftop"}),canvas=screen.getByLabelText("路线场景节点");const dataTransfer={effectAllowed:"move",setData:()=>undefined,getData:()=>"scn_rooftop"};
+    expect(node).toHaveAttribute("draggable","true");const drop=createEvent.drop(canvas,{dataTransfer});Object.defineProperty(drop,"clientX",{value:500});Object.defineProperty(drop,"clientY",{value:300});fireEvent(canvas,drop);
+    expect(node.style.getPropertyValue("--route-x")).toBe("500px");expect(node.style.getPropertyValue("--route-y")).toBe("300px");expect(screen.getByText(/拖拽位置已写入 Layout Sidecar/)).toBeVisible();
   });
 
   it("defaults Preview to 16:9 and switches canvas profiles without editing the story", () => {

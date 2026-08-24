@@ -155,8 +155,25 @@ export interface IncrementalCompileOptions {
   readonly previousCache?: ProjectCompilerCacheV1;
 }
 
+export interface IncrementalAnalysisOptions extends IncrementalCompileOptions {
+  /**
+   * Trusted scene-local changes produced by the Project Service. When present,
+   * unchanged cache entries may be reused without recalculating their hashes.
+   * The previous cache must already be host-verified or produced in this process;
+   * callers must omit this hint for scene-set or global dependency changes.
+   */
+  readonly trustedChangedSceneIds?: readonly string[];
+}
+
 export type CompileProjectResult =
   | { readonly ok: true; readonly diagnostics: readonly CompilerDiagnostic[]; readonly artifacts: CompilerArtifactsV1; readonly cache: ProjectCompilerCacheV1; readonly stats: IncrementalCompileStats }
   | { readonly ok: false; readonly diagnostics: readonly CompilerDiagnostic[]; readonly cache: ProjectCompilerCacheV1; readonly stats: IncrementalCompileStats };
+
+export interface ProjectAnalysisResult {
+  readonly ok: boolean;
+  readonly diagnostics: readonly CompilerDiagnostic[];
+  readonly cache: ProjectCompilerCacheV1;
+  readonly stats: IncrementalCompileStats;
+}
 
 export type RuntimeOperandValue = JsonValue;

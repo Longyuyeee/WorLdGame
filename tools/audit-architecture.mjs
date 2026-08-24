@@ -9,6 +9,7 @@ const auditedRoots = [
   join(repoRoot, "packages", "project-compiler", "src"),
   join(repoRoot, "packages", "runtime", "src"),
   join(repoRoot, "packages", "runtime-host", "src"),
+  join(repoRoot, "packages", "route-graph", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
   join(repoRoot, "packages", "project-persistence", "src")
@@ -146,6 +147,9 @@ const runtimePackage = JSON.parse(
 const runtimeHostPackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "runtime-host", "package.json"), "utf8")
 );
+const routeGraphPackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "route-graph", "package.json"), "utf8")
+);
 const projectCompilerDependencies = Object.keys(projectCompilerPackage.dependencies ?? {}).sort();
 if (JSON.stringify(projectCompilerDependencies) !== JSON.stringify([
   "@world-studio/project-domain",
@@ -160,6 +164,10 @@ if (JSON.stringify(runtimeDependencies) !== JSON.stringify(["@world-studio/proje
 const runtimeHostDependencies = Object.keys(runtimeHostPackage.dependencies ?? {}).sort();
 if (JSON.stringify(runtimeHostDependencies) !== JSON.stringify(["@world-studio/runtime"])) {
   violations.push("runtime-host may depend only on the formal runtime in N32-E7");
+}
+const routeGraphDependencies = Object.keys(routeGraphPackage.dependencies ?? {}).sort();
+if (JSON.stringify(routeGraphDependencies) !== JSON.stringify(["@world-studio/project-compiler", "@world-studio/project-domain"])) {
+  violations.push("route-graph may depend only on project-compiler and project-domain in N40");
 }
 if (projectDomainPackage.dependencies !== undefined) {
   violations.push("project-domain must not declare runtime dependencies in N10");
@@ -201,6 +209,9 @@ if (editorPackage.dependencies?.["@world-studio/project-persistence"] === undefi
 }
 if (editorPackage.dependencies?.["@world-studio/project-domain"] === undefined) {
   violations.push("editor must declare its canonical project-domain boundary explicitly");
+}
+if (editorPackage.dependencies?.["@world-studio/route-graph"] === undefined) {
+  violations.push("editor must declare its N40 route-graph boundary explicitly");
 }
 if (editorPackage.dependencies?.["@world-studio/project-persistence-node"] !== undefined) {
   violations.push("web editor must not bundle the Node filesystem adapter");
@@ -318,6 +329,7 @@ if (violations.length > 0) {
           "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
           "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
           "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+          "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",

@@ -33,7 +33,17 @@ export interface UiDocument { readonly schemaVersion: 1; readonly screens: reado
 export interface PluginDocument { readonly schemaVersion: 1; readonly plugins: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface TestRouteDocument { readonly schemaVersion: 1; readonly routes: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface ScriptDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly statements: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
-export interface LayoutDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly nodes: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
+export interface LayoutNodePosition { readonly nodeId: StableId; readonly x: number; readonly y: number; readonly groupId?: StableId; }
+export interface LayoutGroup { readonly groupId: StableId; readonly title: string; readonly collapsed: boolean; }
+export interface LayoutViewport { readonly x: number; readonly y: number; readonly zoom: number; }
+export interface LayoutDocument { readonly schemaVersion: 1; readonly sceneId: StableId; readonly nodes: readonly LayoutNodePosition[]; readonly groups?: readonly LayoutGroup[]; readonly viewport?: LayoutViewport; readonly preservedFields?: JsonObject; }
+
+export interface ProjectStructureIndex {
+  readonly schemaVersion: 1;
+  readonly manifest: ProjectManifest;
+  readonly chapters: readonly ChapterDocument[];
+  readonly scenes: readonly SceneDocument[];
+}
 
 export interface CanonicalProject {
   readonly mode: "editable";

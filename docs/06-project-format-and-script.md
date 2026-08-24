@@ -242,17 +242,19 @@ end "未寄出的真相" @id(stmt_end_truth)
 
 ```json
 {
-  "formatVersion": 1,
+  "schemaVersion": 1,
   "sceneId": "scn_rooftop",
-  "nodes": {
-    "label_promise": { "x": 320, "y": 120, "group": "route_warm" },
-    "label_ask_truth": { "x": 320, "y": 360, "group": "route_truth" }
-  },
-  "groups": {
-    "route_warm": { "title": "约定路线", "collapsed": false }
-  }
+  "nodes": [
+    { "nodeId": "scn_rooftop", "x": 320, "y": 120, "groupId": "group_rooftop" }
+  ],
+  "groups": [
+    { "groupId": "group_rooftop", "title": "天台线", "collapsed": false }
+  ],
+  "viewport": { "x": 100, "y": 50, "zoom": 1.25 }
 }
 ```
+
+当前 `schemaVersion: 1` 的 portable 契约包括：节点 `nodeId/x/y/groupId?`、可选 `groups[]` 的 `groupId/title/collapsed`，以及可选 `viewport.x/y/zoom`。`groupId` 必须引用同一 Layout 中的已有分组，ID 必须 portable，坐标与视口必须为有限数值，缩放限制为 `0.5–2`；重复节点/分组、悬空分组引用和未知字段均在 codec 边界 fail closed。分组删除会通过 Project Service 原子清除节点引用；删除承载布局元数据的场景时会把 groups/viewport 迁移到首个剩余场景。Layout 仍不保存剧情边。
 
 位置冲突不应阻塞剧情文件合并；可以选择本地布局、远端布局或自动重排。
 

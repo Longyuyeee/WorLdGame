@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
     "acceptance:n23": "node tools/start-n23-acceptance.mjs",
-    "build": "npm run build --workspace @world-studio/narrative-vm-spike && npm run build --workspace @world-studio/project-domain && npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-compiler && npm run build --workspace @world-studio/runtime && npm run build --workspace @world-studio/runtime-host && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor && npm run build --workspace @world-studio/vm-conformance-harness && npm run build --workspace @world-studio/vm-conformance-cli && npm run build --workspace @world-studio/windows-shell-conformance",
+    "build": "npm run build --workspace @world-studio/narrative-vm-spike && npm run build --workspace @world-studio/project-domain && npm run build --workspace @world-studio/story-core && npm run build --workspace @world-studio/story-language && npm run build --workspace @world-studio/project-compiler && npm run build --workspace @world-studio/runtime && npm run build --workspace @world-studio/runtime-host && npm run build --workspace @world-studio/route-graph && npm run build --workspace @world-studio/project-persistence && npm run build --workspace @world-studio/project-persistence-node && npm run build --workspace @world-studio/editor && npm run build --workspace @world-studio/vm-conformance-harness && npm run build --workspace @world-studio/vm-conformance-cli && npm run build --workspace @world-studio/windows-shell-conformance",
     "typecheck": "tsc -b",
     "test": "npm run test:parallel && npm run test:storage-conformance && npm run test:vm-conformance",
     "test:parallel": "vitest run --maxWorkers=4 --exclude apps/editor/src/autosave-app.test.tsx --exclude packages/narrative-vm-spike/src/vm-spike09.test.ts --exclude packages/runtime/src/runtime.test.ts --exclude packages/runtime/src/generated-corpus-shard.test.ts",
@@ -33,9 +33,10 @@
     "audit:n23-content": "node tools/audit-n23-content.mjs",
     "audit:architecture": "node tools/audit-architecture.mjs",
     "audit:script-performance": "vitest run --config vitest.performance.config.ts",
+    "audit:route-performance": "vitest run --config vitest.route-performance.config.ts",
     "audit:asset-performance": "vitest run --config vitest.asset-performance.config.ts",
     "demo:empty-to-web": "node tools/run-empty-to-web-build.mjs",
-    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:n23-product-acceptance && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run audit:n30-compiler && npm run audit:n31-runtime && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:asset-performance"
+    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:n23-product-acceptance && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run audit:n30-compiler && npm run audit:n31-runtime && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:route-performance && npm run audit:asset-performance"
   },
   "engines": {
     "node": ">=22.12.0"

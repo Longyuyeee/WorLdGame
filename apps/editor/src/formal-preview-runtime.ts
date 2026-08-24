@@ -84,6 +84,7 @@ export interface FormalPreviewState {
   readonly statementId: string | null;
   readonly visitedStatementIds: readonly string[];
   readonly visitedSceneIds: readonly string[];
+  readonly visitedRouteEdgeIds: readonly string[];
   readonly compilerWarnings: readonly CompilerDiagnostic[];
   readonly diagnostics: readonly FormalPreviewDiagnostic[];
   readonly startTarget: FormalPreviewStartTarget | null;
@@ -108,6 +109,7 @@ export function createIdleFormalPreviewState(): FormalPreviewState {
     statementId: null,
     visitedStatementIds: [],
     visitedSceneIds: [],
+    visitedRouteEdgeIds: [],
     compilerWarnings: [],
     diagnostics: [],
     startTarget: null,
@@ -166,17 +168,27 @@ function sourceAtCursor(base: FormalPreviewState, state: RuntimeStateV1) {
   return instruction === undefined ? undefined : base.sourceMap?.entries.find((entry) => entry.instructionId === instruction.instructionId);
 }
 
-function activeVisits(base: FormalPreviewState, history: RuntimeHistorySessionV1): { visitedStatementIds: readonly string[]; visitedSceneIds: readonly string[] } {
+function activeVisits(base: FormalPreviewState, history: RuntimeHistorySessionV1): { visitedStatementIds: readonly string[]; visitedSceneIds: readonly string[]; visitedRouteEdgeIds: readonly string[] } {
   const statementIds: string[] = [];
   const sceneIds: string[] = [];
+  const routeEdgeIds: string[] = [];
+  const seenSceneIds = new Set<string>();
+  const seenRouteEdgeIds = new Set<string>();
   for (const entry of history.entries.slice(0, history.cursor)) {
+    if (entry.input?.kind === "choiceSelected" && !seenRouteEdgeIds.has(entry.input.optionId)) {
+      seenRouteEdgeIds.add(entry.input.optionId);
+      routeEdgeIds.push(entry.input.optionId);
+    }
     if (entry.event === null) continue;
     const source = base.sourceMap?.entries.find((candidate) => candidate.instructionId === entry.event!.instructionId);
     if (source === undefined) continue;
     statementIds.push(source.statementId);
-    if (!sceneIds.includes(source.sceneId)) sceneIds.push(source.sceneId);
+    if (!seenSceneIds.has(source.sceneId)) {
+      seenSceneIds.add(source.sceneId);
+      sceneIds.push(source.sceneId);
+    }
   }
-  return { visitedStatementIds: statementIds, visitedSceneIds: sceneIds };
+  return { visitedStatementIds: statementIds, visitedSceneIds: sceneIds, visitedRouteEdgeIds: routeEdgeIds };
 }
 
 function presentHistory(

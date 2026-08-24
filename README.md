@@ -1,8 +1,8 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-08-13
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。真实生产浏览器已跑通五分钟验收工程两条结局和 Back/Forward；但正式 Player 仍不存在，旧单文件 HTML 仍是平行解释器，所以 N32 总出口、真人产品验收、N40+、M1 与发布继续阻断。
+> 文档基线：2026-08-24
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40 Route Map Engineering 出口复审已通过：Compiler Route Map、10k/64 有界窗口、Layout/分组/过滤、Runtime History 路线高亮、`<500 ms` 局部编辑、trusted Route-first、局部内容保存、narration 最小结构闭环、scene/layout topology 分页、结局路线审阅、诊断/目标导航，以及 Choice 目标修改→保存→Compiler/Route 重建→Formal Runtime 结局复核均有真实证据。完整 Sequence/Stage/正式 Player 与真人产品验收仍缺；`RA-N21-005` 不授权 N41，因此 N40 Product Acceptance、N41+、M1 与发布继续被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -41,6 +41,21 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [当前开发状态审计](docs/99-current-development-status-audit.md) | 当前真实代码、能力、阻断项与下一步 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
+| [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |
+| [N40-E2 10k Branching Route 审计](docs/154-n40-e2-10k-route-window-audit.md) | 真实 10k 分支 Golden、性能预算、64 节点有界窗口、UI 分页与诚实按需边界 |
+| [N40-E3 Canonical Layout Sidecar 审计](docs/155-n40-e3-route-layout-sidecar-audit.md) | Canonical 坐标、Project Service 写回、自动重建、剧情隔离与真实工程重开 |
+| [N40-E4 Route Workspace 交互审计](docs/156-n40-e4-route-layout-interaction-audit.md) | 分组/折叠、视口、拖拽与键盘/触控移动、持久化复核及剩余 N40 边界 |
+| [N40-E5 P0 Route 过滤审计](docs/157-n40-e5-route-filtering-audit.md) | 章节/节点类型/视觉分组组合过滤、64 节点有界窗口、P0/P1 纠偏与待复验状态 |
+| [N40-E6a 宿主选择性读取审计](docs/158-n40-e6a-selective-project-read-audit.md) | Web/Node 按路径读取、安全边界、真实磁盘/句柄证据，以及尚未接入 Route 的诚实边界 |
+| [N40-E6b 工程源文件 Inventory 审计](docs/159-n40-e6b-project-file-inventory-audit.md) | 无正文 path/size/modified 清单、真实磁盘与链接安全、缓存失效提示及 E6c/E6d 纠偏顺序 |
+| [N40-E6c 可校验 Compiler 缓存审计](docs/160-n40-e6c-verified-compiler-cache-audit.md) | 派生目录隔离、版本/源 Hash/完整性校验、增量命中、篡改全量回退与尚未接入产品的边界 |
+| [N40-E6d Launcher / Route 缓存接入审计](docs/161-n40-e6d-launcher-route-cache-integration-audit.md) | 工程打开/保存缓存生命周期、Route 正式结果复用、状态可观察、内存降级与 browser 待复验边界 |
+| [N40-E6e–E8k 最新 Route 工程审计](docs/174-n40-e8k-trusted-route-topology-page-audit.md) | 局部编辑、Runtime 路线高亮、Route-first 内容编辑、全局索引、narration 闭环与 topology 分页的最新证据 |
+| [N40 功能优先开发复审](docs/175-n40-function-first-development-reaudit.md) | 当前真实能力、剩余 Route P0 功能、方向纠偏和 E8l–E8n 用户闭环计划 |
+| [N40-E8l 指定结局路线审阅](docs/176-n40-e8l-ending-route-review-audit.md) | 确定性候选路线、循环/悬空/不可达边界、跨 64 节点定位、10k 与 desktop/mobile production 实测 |
+| [N40-E8m 诊断定位与直接导航](docs/177-n40-e8m-diagnostic-navigation-audit.md) | Compiler 诊断跨窗定位、精确 statement 聚焦、节点双击、Choice/label 目标导航及 10k/production 实测 |
+| [N40-E8n Route 驱动创作修复闭环](docs/178-n40-e8n-route-repair-loop-audit.md) | Choice stable-ID 目标事务、真实保存复读、Compiler/Route 重建、Formal Runtime 结局和 desktop/mobile production 实测 |
+| [N40 Engineering 出口复审](docs/179-n40-engineering-exit-reaudit.md) | Goal/Implementation/Tests/Acceptance 逐项矩阵、当前真实 10k/production 复验、术语纠偏与 N41 阻断边界 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

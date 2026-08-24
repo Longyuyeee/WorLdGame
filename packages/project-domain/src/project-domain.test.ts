@@ -36,4 +36,16 @@ describe("Canonical Project Schema", () => {
     const migrated = migrateS0Project(tiny); const withCache = { ...migrated.files, ".world-cache/index.json": "{\"stale\":true}" };
     const loaded = loadProject(withCache); expect(saveProject(loaded)[".world-cache/index.json"]).toBeUndefined(); expect(semanticHash(loaded)).toBe(semanticHash(loadProject(migrated.files)));
   });
+  it("rejects duplicate and invalid layout coordinates at the canonical codec boundary", () => {
+    const migrated=migrateS0Project(tiny);const loaded=loadProject(migrated.files);const scene=loaded.scenes[0]!;
+    const duplicate={...migrated.files,[scene.layoutPath]:JSON.stringify({schemaVersion:1,sceneId:scene.id,nodes:[{nodeId:scene.id,x:10,y:20},{nodeId:scene.id,x:30,y:40}]})};
+    expect(()=>loadProject(duplicate)).toThrow(/duplicate node/);
+    const invalid={...migrated.files,[scene.layoutPath]:JSON.stringify({schemaVersion:1,sceneId:scene.id,nodes:[{nodeId:scene.id,x:"NaN",y:20}]})};
+    expect(()=>loadProject(invalid)).toThrow(/finite numbers/);
+  });
+  it("rejects unsafe route viewport and dangling visual groups at the codec boundary",()=>{
+    const migrated=migrateS0Project(tiny),loaded=loadProject(migrated.files),scene=loaded.scenes[0]!;
+    const badViewport={...migrated.files,[scene.layoutPath]:JSON.stringify({schemaVersion:1,sceneId:scene.id,nodes:[],viewport:{x:0,y:0,zoom:0.1}})};expect(()=>loadProject(badViewport)).toThrow(/zoom from 0.5 to 2/);
+    const danglingGroup={...migrated.files,[scene.layoutPath]:JSON.stringify({schemaVersion:1,sceneId:scene.id,nodes:[{nodeId:scene.id,x:0,y:0,groupId:"group_missing"}]})};expect(()=>loadProject(danglingGroup)).toThrow(/unknown group/);
+  });
 });
