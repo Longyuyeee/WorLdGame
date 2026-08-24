@@ -51,7 +51,7 @@ export interface TrustedLazyEditIndex {
 }
 
 const HASH = /^[0-9a-f]{64}$/u;
-const SAFE_ID = /^[A-Za-z][A-Za-z0-9._-]{0,127}$/u;
+const SAFE_ID = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/u;
 const ENTITY_KINDS = new Set<LazyEditEntityKind>(["project", "chapter", "scene", "character", "variable", "asset", "statement", "option", "text", "localization", "screen", "plugin", "test-route", "extension"]);
 const REFERENCE_KINDS = new Set<LazyEditReferenceKind>(["entry-scene", "speaker", "choice-target", "set-variable", "expression-variable", "asset"]);
 const TARGET_KINDS = new Set<LazyEditReferenceTargetKind>(["scene", "character", "variable", "asset"]);

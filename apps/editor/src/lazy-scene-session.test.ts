@@ -5,9 +5,12 @@ import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import {
   beginLazyScenePageLoad,
   createLazyScenePage,
+  deleteLazyDialogue,
   deleteLazyNarration,
+  insertLazyDialogue,
   insertLazyNarration,
   loadLazyScenePage,
+  moveLazyDialogue,
   moveLazyNarration,
   patchLazySequenceContent,
   projectLazyScene,
@@ -275,6 +278,63 @@ describe("N40-E8f/E8g lazy scene source session", () => {
     expect(stale.status).toBe("stale");
     expect(workspace.selectedWrites).toEqual([[scene.scriptPath]]);
     expect((await workspace.readFiles()).files[scene.scriptPath]).not.toContain("statement_new");
+  });
+
+  it("commits dialogue insert, move, and delete through index, Compiler, Route, save, rebuild, and reopen", async () => {
+    const workspace = new CountingWorkspace(new IDBFactory(), "n41e3_dialogue", "N41 E3 Dialogue");
+    const template = createProjectTemplate("N41 E3 Dialogue", "n41-e3-dialogue-project");
+    const scene = template.scenes[0]!;
+    const project = {
+      ...template,
+      characters: { schemaVersion: 1 as const, characters: [{ id: "character_aya", displayName: "Aya", color: "#8b7cff" }] },
+      scripts: { ...template.scripts, [scene.id]: { schemaVersion: 1 as const, sceneId: scene.id, statements: [
+        { id: "statement_first", kind: "dialogue" as const, speakerId: "character_aya", textId: "text_first", text: "First" },
+        { id: "statement_end", kind: "end" as const, endingName: "Done" }
+      ] } }
+    };
+    let written = await workspace.writeFiles(saveProject(project), null);
+    let index = buildTrustedLazyEditIndex(project, written.version);
+    let page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, index)));
+
+    page = insertLazyDialogue(page, { beforeId: "statement_end", statementId: "statement_second", textId: "text_second", speakerId: "character_aya", text: "Second" }, "dialogue-insert");
+    expect(page).toMatchObject({ status: "dirty", selectedStatementId: "statement_second", structuralTransaction: { kind: "dialogue-structure" } });
+    page = await saveLazyScenePage(workspace, page);
+    expect(page.status).toBe("ready");
+
+    let rebuilt = await openCompiledLifecycleProject(workspace);
+    expect(rebuilt.compiler?.compilation.ok).toBe(true);
+    if (rebuilt.session.hostVersion === null) throw new Error("compiled project needs a version");
+    index = await readTrustedLazyEditIndex(workspace, rebuilt.session.hostVersion);
+    page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, rebuilt.session.hostVersion, index)));
+    page = moveLazyDialogue(page, { statementId: "statement_second", beforeId: "statement_first" }, "dialogue-move");
+    expect(projectLazyScene(page)?.statements.map((statement) => statement.id)).toEqual(["statement_second", "statement_first", "statement_end"]);
+    page = await saveLazyScenePage(workspace, page);
+
+    rebuilt = await openCompiledLifecycleProject(workspace);
+    if (rebuilt.session.hostVersion === null) throw new Error("compiled project needs a version");
+    index = await readTrustedLazyEditIndex(workspace, rebuilt.session.hostVersion);
+    page = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, rebuilt.session.hostVersion, index)));
+    page = deleteLazyDialogue(page, { statementId: "statement_first" }, "dialogue-delete");
+    page = await saveLazyScenePage(workspace, page);
+    expect(projectLazyScene(page)?.statements).toEqual([
+      expect.objectContaining({ id: "statement_second", kind: "dialogue", speakerId: "character_aya", textId: "text_second", text: "Second" }),
+      expect.objectContaining({ id: "statement_end", kind: "end" })
+    ]);
+  });
+
+  it("rejects missing speaker references, duplicate identities, and non-dialogue targets without writing", async () => {
+    const workspace = new CountingWorkspace(new IDBFactory(), "n41e3_dialogue_fail", "N41 E3 Dialogue Fail");
+    const template = createProjectTemplate("N41 E3 Dialogue Fail", "n41-e3-dialogue-fail-project");
+    const scene = template.scenes[0]!;
+    const written = await workspace.writeFiles(saveProject(template), null);
+    const index = buildTrustedLazyEditIndex(template, written.version);
+    const ready = await loadLazyScenePage(workspace, beginLazyScenePageLoad(createLazyScenePage(scene, written.version, index)));
+    const endId = String(template.scripts[scene.id]!.statements[0]!.id);
+
+    expect(insertLazyDialogue(ready, { beforeId: endId, statementId: "statement_new", textId: "text_new", speakerId: "character_missing", text: "No" }, "missing-speaker")).toMatchObject({ status: "error", error: expect.stringMatching(/speaker|角色/i) });
+    expect(insertLazyDialogue(ready, { beforeId: endId, statementId: endId, textId: "text_new", speakerId: "character_missing", text: "No" }, "duplicate-id")).toMatchObject({ status: "error" });
+    expect(deleteLazyDialogue(ready, { statementId: endId }, "delete-end")).toMatchObject({ status: "error", error: expect.stringMatching(/dialogue|对白/i) });
+    expect(workspace.selectedWrites).toEqual([]);
   });
 
   it("builds a blank template into a runnable sequence, then moves and deletes narration through atomic saves", async () => {
