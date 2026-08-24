@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N31 集中基线为 Authoritative。N32-E1–E7 已形成未集成 Engineering 切片；[E7 后出口复审](151-n32-engineering-exit-reaudit.md)为 Implementation `完整 5 / 部分 1 / 未对齐 0`、Acceptance `0/1`，不得把共享测试 Host 或切片通过换算成 N32 Product Acceptance。N40 Engineering 出口已通过；`RA-N21-006` 仅允许 N41 Sequence Engineering，持续阻断 N32/N40/N41 Product Acceptance、N42 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；旧 N31 Authority 已被 30 个连续 Draft PR 超越，现正按 [N41 集中整合审计](182-n41-consolidated-integration-baseline-audit.md)建立 N00–N41 Candidate。Candidate 通过 main-target Draft PR、本地完整门和 Windows CI 前不得登记为 Authoritative。N32/N40 Engineering 出口与 N41-E1 已有证据，但均不得换算成 Product Acceptance；`RA-N21-006` 持续阻断 N42 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 

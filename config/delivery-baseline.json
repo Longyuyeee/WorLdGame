@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "authorityBranch": "codex/m1-integration-n31-governance",
+  "authorityBranch": "codex/m1-integration-n41-governance",
   "baseRef": "origin/main",
-  "status": "authoritative",
-  "integratedThrough": "N31",
-  "pullRequest": 51,
+  "status": "candidate",
+  "integratedThrough": "N41",
+  "pullRequest": null,
   "requiredAncestors": [
     { "node": "N00", "commit": "58b52bbba38270d19d143d0cc4a13a3805ecba9a", "evidence": "docs/91-n00-product-baseline-audit.md" },
     { "node": "N01", "commit": "e74153910c64f6af671e1354bd6b908c5a3e4f34", "evidence": "docs/92-n01-requirement-golden-baseline.md" },
@@ -19,13 +19,19 @@
     { "node": "N23", "commit": "5150465226c8adbdd61d5fc494a31e6b1a4c7fdc", "evidence": "docs/122-n23-e7-acceptance-launcher-audit.md" },
     { "node": "N30", "commit": "63e0886968f6124518fae736f3bd7da0b61e3674", "evidence": "docs/124-n30-e2-compiler-completion-audit.md" },
     { "node": "N31", "commit": "f8d3c727db58bf6a27ae1cb940bba1a4dd291230", "evidence": "docs/140-n31-e14-runtime-engineering-exit-reaudit.md" },
-    { "node": "RA-N21-004", "commit": "d82575649e686bd1043bf37acfcb0d80213a43dc", "evidence": "docs/141-n31-n32-governance-integration-checkpoint.md" }
+    { "node": "RA-N21-004", "commit": "d82575649e686bd1043bf37acfcb0d80213a43dc", "evidence": "docs/141-n31-n32-governance-integration-checkpoint.md" },
+    { "node": "N32", "commit": "3b0b426e9804f9ed3842d05abd01171e9393655b", "evidence": "docs/151-n32-engineering-exit-reaudit.md" },
+    { "node": "RA-N21-005", "commit": "64252bf432a0efc4a580a6d5b7225e6cd91ce3cd", "evidence": "docs/152-n32-n40-governance-checkpoint.md" },
+    { "node": "N40", "commit": "60b5aae5b55caaff61e2361e7a0b7a528e031e71", "evidence": "docs/179-n40-engineering-exit-reaudit.md" },
+    { "node": "RA-N21-006", "commit": "ca064660c1b688a093bce3809a4b4b71b6d81268", "evidence": "docs/180-n40-n41-governance-checkpoint.md" },
+    { "node": "N41", "commit": "11bf31313edcc380ff9db03e3286b710e0a65679", "evidence": "docs/181-n41-e1-formal-sequence-mode-audit.md" }
   ],
   "unresolvedGates": [
     "N21 non-programmer product validation",
-    "N00-N31 integration into main",
+    "N00-N41 integration into main",
     "N23 product acceptance by two non-implementers",
-    "N32 Product Acceptance and every N40-or-later node",
-    "Local Node 25 Runtime corpus performance variance"
+    "N32, N40 and N41 Product Acceptance",
+    "N42 and every later product node",
+    "M1 Stable and release assurance"
   ]
 }

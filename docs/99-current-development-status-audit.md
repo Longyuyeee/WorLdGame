@@ -94,8 +94,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 ## 5. 下一步顺序
 
 1. N32-E7 已完成实现、实测、推送和远端 Windows / Node 22 全仓 CI，节点证据已闭合；
-2. N41-E1 已完成正式 Sequence 边界、标签结构真实往返、本地回归和 production browser；精确推送当前实现头并等待 Windows / Node 22 完整门，绿色后关闭 E1；
-3. N41-E2 建立 1,000 次 Sequence/Script 连续互改规模门，覆盖全部 P0、choice child、stable ID、语义 Hash 与失败关闭；不得提前进入 N42；
-4. 正式 Player 属于 N50/N80，不能跳过 N41–N43。N32/N40/N41 Product Acceptance 和 N42+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
+2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
+3. 先完成 [N41 集中整合候选](182-n41-consolidated-integration-baseline-audit.md)：直接面向 `main` 建立 Draft PR、本地 `npm run check`、远端 Windows CI，并将 Candidate 晋升为 Authority；旧 Draft PR 保留为证据，不擅自合并或关闭；
+4. 只有集中基线绿色后，N41-E2 才可建立 1,000 次 Sequence/Script 连续互改规模门，覆盖全部 P0、choice child、stable ID、语义 Hash 与失败关闭；不得提前进入 N42；
+5. 正式 Player 属于 N50/N80，不能跳过 N41–N43。N32/N40/N41 Product Acceptance 和 N42+ 保持 fail closed；不得把 Worker 或旧 HTML 重命名为 Player Acceptance。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

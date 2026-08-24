@@ -5,6 +5,7 @@
 > 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40 Route Map Engineering 出口已通过。`RA-N21-006` 只准入 N41 Sequence Engineering；N41-E1 已把原 Writer 正式统一为同源 Sequence 模式并完成标签结构的 Script/Compiler/Route/IndexedDB 重开闭环。N40/N41 Product Acceptance、N42+、M1 与发布继续被阻断，完整 N41/Stage/正式 Player 仍未完成。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
+> 交付链纠偏：N00–N41 正在建立直接面向 `main` 的 [集中整合候选基线](docs/182-n41-consolidated-integration-baseline-audit.md)；在 Draft PR 与 Windows CI 完成前不得登记为 Authoritative，也不得开始 N41-E2。
 
 WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制作器，而是建立一套兼顾新手、职业编剧、美术、程序、翻译和 QA 的跨平台视觉小说生产系统。
 
@@ -58,6 +59,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N40 Engineering 出口复审](docs/179-n40-engineering-exit-reaudit.md) | Goal/Implementation/Tests/Acceptance 逐项矩阵、当前真实 10k/production 复验、术语纠偏与 N41 阻断边界 |
 | [N40→N41 治理检查点](docs/180-n40-n41-governance-checkpoint.md) | RA-N21-006 有界授权、N41 正例/N42 越界反例、真人门与 N41-E1 冻结起点 |
 | [N41-E1 正式 Sequence 模式审计](docs/181-n41-e1-formal-sequence-mode-audit.md) | Writer→Sequence 正式边界、标签 stable-ID/Script/Compiler/Route/IndexedDB 重开及 production browser 实测 |
+| [N41 集中整合基线审计](docs/182-n41-consolidated-integration-baseline-audit.md) | N00–N41 真实祖先链、main-target Candidate、治理正反例与交付链纠偏 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |
