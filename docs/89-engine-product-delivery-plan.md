@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N41 集中整合权威基线](182-n41-consolidated-integration-baseline-audit.md)已由最终 Authority Windows CI 确认；E1–E3 与 [N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)已关闭正式 Sequence、1,000 次同源互改、lazy 对白结构和 statement 级 Runtime 高亮。Authority 仍未合入 `main`。`RA-N21-006` 只授权 N41 Sequence Engineering，不改变 N21/N23/N30/N31/N32/N40/N41 产品验收与 M1/发布仍被阻断的事实，也不授权 N42、正式 Player 或以后节点。
+> 当前审计：N41 最终证据头 Windows CI 已绿色；[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 只授权 N42 Stage Engineering。Authority 仍未合入 `main`。N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布继续阻断，也不授权正式 Player。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -384,13 +384,15 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 ### N41 Sequence
 
-> 工程状态（2026-08-24）：[N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)确认 Goal `1/1`、Implementation `8/8`、Acceptance `1/1`。正式 Sequence 覆盖全部 P0、类型化 Inspector、搜索插入、批量/折叠、跨视图定位与 statement 级 Runtime 高亮；1,000 次 Sequence/Script 同源互改不漂移。N41 Engineering 出口通过。N21/N23 真人仍为 `0/1`、`0/2`，故 N41 Product Acceptance 不通过；`RA-N21-006` 继续阻断 N42+、M1 Stable 与发布。
+> 工程状态（2026-08-24）：[N41 Engineering 出口复审](185-n41-engineering-exit-reaudit.md)确认 Goal `1/1`、Implementation `8/8`、Acceptance `1/1`。正式 Sequence 覆盖全部 P0、类型化 Inspector、搜索插入、批量/折叠、跨视图定位与 statement 级 Runtime 高亮；1,000 次 Sequence/Script 同源互改不漂移。N41 Engineering 出口通过。N21/N23 真人仍为 `0/1`、`0/2`，故 N41 Product Acceptance 不通过；后续 `RA-N21-007` 只把 Engineering 上限推进至 N42，不改变产品门。
 
 - **Goal**：提供场景内部完整的可视化语义编辑。
 - **Implementation**：全部 P0 块、类型化 Inspector、运行高亮、搜索插入、批量、折叠、跨视图定位；复杂条件允许进入 Script 但不得丢失。
 - **Acceptance**：Sequence 和 Script 连续互改 1,000 次，语义和稳定 ID 不漂移。
 
 ### N42 Stage 与基础时间线
+
+> 准入状态（2026-08-24）：N41 Engineering 出口后，产品负责人再次明确要求进入后续步骤。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)以 `RA-N21-007` 只准入本节点 Engineering；N42 Product Acceptance、N43+、M1 与发布继续 fail closed。E1 必须先冻结 canonical semantic command / timeline projection，再关闭一个 UI→保存重开→Formal Runtime/Host→Preview 的真实导演闭环。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。
