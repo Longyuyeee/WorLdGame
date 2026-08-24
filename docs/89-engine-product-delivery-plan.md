@@ -396,6 +396,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1 候选（2026-08-24）：[Stage Director 语义定位审计](187-n42-e1-stage-director-placement-audit.md)已关闭画布 75/45 → stable-ID patch → r2/s2 保存重开 → Runtime Host 数值 payload；Draft PR #66 首个 Windows 完整门绿色，10k VM 67.983 秒。本机超时作为环境差异保留，production browser 的真实媒体文件桥接仍未关闭，故 E1 Engineering 不登记通过，也不进入关键帧切片。
 
+> E1b 本地关闭候选（2026-08-24）：[真实媒体 Stage 审计](188-n42-e1b-production-media-stage-audit.md)已用产品入口把冻结 PNG/WAV 经签名、Hash、lease 与 Asset Repository 写入 Index r3；真实 Canvas 点击与 s1 重开保持 75/45，Canonical 资源桥使正式 Compiler/Runtime 得到 Host 1 active、0 diagnostics。全仓普通 740/740、storage 1/1、VM 5/5，production console 0 error/warn。等待本分支 Windows / Node 22 完整门后关闭 E1 Engineering；多轨、关键帧、镜头、模板与 Product Acceptance 仍未完成。
+
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。
 - **Acceptance**：AC-13 样例在 Editor Preview 和 Player 中一致。
