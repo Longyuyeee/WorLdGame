@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-24
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E8m 已建立 Compiler Route Map、10k/64 有界窗口、Layout/分组/过滤、Runtime History 路线高亮、`<500 ms` 局部编辑、trusted Route-first、局部 Script/Sequence 保存、narration 最小结构闭环、scene/layout topology 分页、指定结局候选路线审阅，以及诊断/Choice/label stable-ID 导航与节点双击进入 Writer。当前仍缺目标编辑与 Route 驱动修复闭环、完整 Sequence/Stage/正式 Player 与真人产品验收；N40 Product Acceptance、N41+、M1 与发布仍被阻断。后续按[功能优先复审](docs/175-n40-function-first-development-reaudit.md)先补 Route 用户闭环，不继续优先扩张平台层。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32-E1–E7 已把 Editor Preview 接到正式 Compiler/Runtime，并提取共享 portable Runtime Host。N40-E1–E8n 已建立 Compiler Route Map、10k/64 有界窗口、Layout/分组/过滤、Runtime History 路线高亮、`<500 ms` 局部编辑、trusted Route-first、局部 Script/Sequence 保存、narration 最小结构闭环、scene/layout topology 分页、指定结局路线审阅、诊断/目标导航，以及 Choice 目标修改→保存→Compiler/Route 重建→Formal Runtime 结局复核闭环。下一步是 N40 Engineering 出口复审；完整 Sequence/Stage/正式 Player 与真人产品验收仍缺，N40 Product Acceptance、N41+、M1 与发布继续被阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 
@@ -54,6 +54,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N40 功能优先开发复审](docs/175-n40-function-first-development-reaudit.md) | 当前真实能力、剩余 Route P0 功能、方向纠偏和 E8l–E8n 用户闭环计划 |
 | [N40-E8l 指定结局路线审阅](docs/176-n40-e8l-ending-route-review-audit.md) | 确定性候选路线、循环/悬空/不可达边界、跨 64 节点定位、10k 与 desktop/mobile production 实测 |
 | [N40-E8m 诊断定位与直接导航](docs/177-n40-e8m-diagnostic-navigation-audit.md) | Compiler 诊断跨窗定位、精确 statement 聚焦、节点双击、Choice/label 目标导航及 10k/production 实测 |
+| [N40-E8n Route 驱动创作修复闭环](docs/178-n40-e8n-route-repair-loop-audit.md) | Choice stable-ID 目标事务、真实保存复读、Compiler/Route 重建、Formal Runtime 结局和 desktop/mobile production 实测 |
 | [待确认决策](docs/09-open-decisions.md) | 开发前必须由产品负责人确认的问题 |
 | [视觉体验与商业制作基准](docs/10-visual-and-production-bar.md) | 现代多彩界面、强动效、七种编辑模式与商业成品门槛 |
 | [Gal 基础系统与自动化生产规格](docs/11-gal-foundation-and-automation.md) | 全套基础配置、差分切图压缩、快进/前后退、自动路线图与画廊 |

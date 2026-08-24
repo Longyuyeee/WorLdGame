@@ -373,6 +373,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8l–E8n 功能优先计划纠偏（2026-08-24）：代码复审确认 Route P0 仍缺指定结局路线计算/高亮、诊断点击定位、节点双击进入 Sequence、目标导航/补全，以及“路线审阅→定位→修改→保存→重建→Preview 走通”的单一用户闭环。此前把 topology/derived artifact 增量更新或外部 trusted host 作为 E8l 优先项会继续偏向底层，现降为功能阻断时才允许实施的后置工程项。E8l 冻结为指定结局路线审阅，E8m 为诊断定位与直接导航，E8n 为 Route 驱动的创作修复闭环；之后执行 N40 出口复审。不得借 E8g–E8j 的局部 Sequence 能力越权开启 N41。详见 [N40 功能优先复审](175-n40-function-first-development-reaudit.md)。
 
+> E8n Engineering 状态（2026-08-24）：Flow 已能把既有 Choice option 的 stable target 通过正式 Story Language `p0-batch` 改到另一 scene，保存到 checksummed IndexedDB 后复读同一语义，Compiler/Route 立即重建，Formal Runtime 实际抵达新结局。修复器默认按需挂载，候选最多 64；10k target plan 本地/Windows 为 `0.75/0.79 ms <250 ms`。全量为 `114 files / 723 tests`，Windows run `32684809412` / job `97307842092` 4 分 56 秒绿色。本机冻结 VM 因当前资源负载连续超出 90 秒，未放宽预算；干净 Windows runner 为 `61.81s`。E8n 只关闭 Route 驱动最小写闭环，N40 Product Acceptance、N41、M1 与发布仍阻断。详见 [N40-E8n 审计](178-n40-e8n-route-repair-loop-audit.md)。
+
 - **Goal**：大型故事结构可理解、可定位、可诊断，但不维护第二份剧情逻辑。
 - **Implementation**：章节、场景、标签、选择、条件、跳转、调用、结局自动投影；布局 Sidecar；分组/折叠/搜索/过滤/局部加载；不可达/悬空/循环；路线高亮；双击进入 Sequence。
 - **Tests**：真实 10k 分支图，不使用线性轨道替代；布局删除不丢剧情；脚本增量更新保留布局。

@@ -102,6 +102,8 @@ E8g–E8j 为了形成 Route-first 可编辑落地流程，已实现一部分 Se
 
 ### N40-E8n：Route 驱动的创作修复闭环
 
+> 2026-08-24 更新：实现、真实 IndexedDB 保存/复读、revision race 反例、Compiler/Route 重建、Formal Runtime ending、10k 性能、desktop/mobile production browser 与远端 Windows / Node 22 full check 已通过，详见 [E8n 审计](178-n40-e8n-route-repair-loop-audit.md)。下一步只能进入 N40 Engineering 出口复审。
+
 **用户目标**：在一个可运行流程中完成“选择结局路线 → 找到问题 → 进入内容修改 → 保存 → 图更新 → Preview 走通目标结局”。
 
 **实现边界**：优先复用已安全开放的 narration 和内容 patch；只为闭环补最小必要的目标编辑，不扩张到 N41 全量 Sequence。保存后必须重建 Compiler、Route overview 和 Lazy Edit Index，再从新 revision 重开并由 Formal Runtime 实际运行。
