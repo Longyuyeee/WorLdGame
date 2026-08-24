@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：N41 最终证据头 Windows CI 已绿色；[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 只授权 N42 Stage Engineering。Authority 仍未合入 `main`。N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布继续阻断，也不授权正式 Player。
+> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -399,6 +399,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E1 Engineering 关闭（2026-08-24）：[真实媒体 Stage 审计](188-n42-e1b-production-media-stage-audit.md)已用产品入口把冻结 PNG/WAV 经签名、Hash、lease 与 Asset Repository 写入 Index r3；真实 Canvas 点击与 s1 重开保持 75/45，Canonical 资源桥使正式 Compiler/Runtime 得到 Host 1 active、0 diagnostics。全仓普通 740/740、storage 1/1、VM 5/5，production console 0 error/warn；Draft PR #67 Windows / Node 22 完整门 5 分 53 秒绿色。多轨、关键帧、镜头、模板与 Product Acceptance 仍未完成。
 
 > E2 Move easing 闭环（2026-08-24）：[N42-E2 审计](189-n42-e2-stage-move-easing-audit.md)冻结 `linear/ease-in/ease-out/ease-in-out`，贯通 Inspector/批量/插入、stable-ID Script、s1 重开、CSS 语义 Canvas 曲线、DOM 代理与正式 Runtime Host。真实 PNG/WAV 工程将 `ease-in-out` 改为 `ease-out` 后重开保持 X=25/Y=80/800ms，Runtime 定位 `media_move #2`、Host 1 active、0 diagnostics、console `[]`。这不关闭多轨、关键帧、路径、镜头或模板。
+
+> E3 角色关键帧编排闭环（2026-08-24）：[N42-E3 审计](190-n42-e3-character-keyframe-authoring-audit.md)把“下一关键帧”冻结为稳定 ID 的 canonical `@show action=move`，从当前正式 Stage plan 继承完整几何与 timing，图形化修改后通过既有事务写回 Script；无变化、越界、歧义 Cue 和无效槽位均失败关闭，Character lane 显示 KF。真实 fixture 验证从 X=25/Y=80/scale=0.9 生成 X=72/Y=84/scale=1.05/650ms/ease-out；本地 753/753。它仍不等于多轨 playhead、时间标尺、路径、镜头或模板。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。

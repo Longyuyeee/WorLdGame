@@ -1577,6 +1577,7 @@ button:disabled {
 }
 
 .stage-cue {
+  position: relative;
   display: grid;
   min-height: 32px;
   padding: 4px 6px;
@@ -1601,6 +1602,20 @@ button:disabled {
 .stage-cue[draggable="true"] { cursor: grab; }
 .stage-cue[data-dragging="true"] { opacity: 0.45; transform: scale(0.96); }
 .stage-cue--empty { visibility: hidden; cursor: default; }
+
+.stage-cue__keyframe {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  padding: 1px 3px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff79c9, #9e8cff);
+  color: #fff;
+  font-size: 6px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
 
 .direction-insert {
   margin-bottom: 12px;
@@ -1756,6 +1771,35 @@ button:disabled {
   display: grid;
   gap: 8px;
 }
+
+.stage-keyframe-button {
+  border-color: rgb(255 121 201 / 40%) !important;
+  background: linear-gradient(135deg, rgb(255 121 201 / 16%), rgb(139 124 255 / 18%)) !important;
+}
+
+.keyframe-insert {
+  border-color: rgb(255 121 201 / 38%);
+  background: linear-gradient(145deg, rgb(48 25 57 / 96%), rgb(13 28 48 / 96%));
+}
+
+.keyframe-insert__path {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 9px 0 12px;
+  padding: 8px 10px;
+  border: 1px solid rgb(255 121 201 / 18%);
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgb(255 121 201 / 8%), rgb(77 145 255 / 7%));
+  color: var(--wg-color-text-muted);
+  font-size: 9px;
+}
+
+.keyframe-insert__path strong { color: #f3b9df; }
+.keyframe-insert__fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.keyframe-insert__easing { grid-column: span 2; }
+.keyframe-insert__status { color: #8ae8d7 !important; }
+.keyframe-insert__status.is-error { color: #ff9baf !important; }
 
 .sequence-runtime-trace {
   display: flex;
