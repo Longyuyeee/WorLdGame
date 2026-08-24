@@ -6,6 +6,7 @@
 > 授权：`RA-N21-007`，只覆盖 N42 Stage Engineering
 > 实现头：`237ea6b23909fa4bbdea84b840af50340f89b127`
 > Draft PR：[#68](https://github.com/Longyuyeee/WorLdGame/pull/68)（Draft，保持 open）
+> Windows CI：run `32706011575` / job `97367166318`，5 分 50 秒，绿色
 > 判定：N42-E2 Move easing Engineering 闭环完成；完整多轨/关键帧/镜头/模板、N42 Product Acceptance、N43+、M1 Stable 与发布继续阻断
 
 ## 1. 冻结目标与非目标
@@ -34,7 +35,7 @@
 | 图形化写回 | `ease-in-out` 可改为 `ease-out` 并写回 Script | 初始真实工程正确显示 `ease-in-out` | UI 选择 `ease-out` 后应用 stable-ID patch | r1 Script 精确为 `easing=ease-out`，诊断 0 |
 | 保存重开 | s1 后参数、几何与真实媒体不漂移 | 刷新返回项目首页，需按真实产品流程重进 | 从最近工程重开受管工程 | `已恢复 · s1`；easing `ease-out`，X=25、Y=80、800ms 均保持 |
 | 正式 Runtime/Host | 当前 Move 由正式链执行 | 无产品错误 | 从当前语句运行 | `media_move #2`、History 1/1、Host 1 active / 1 operation、diagnostics 0 |
-| 首次远端 CI | 产品代码与追踪文档同 PR | run `32705758409` 在 `audit:pr-traceability` 失败 | 本审计与 89/90/99 同步写入后重跑完整门 | 首次红灯保留为过程证据；最终绿色 run 在本文件后续证据提交补记 |
+| 首次远端 CI | 产品代码与追踪文档同 PR | run `32705758409` 在 `audit:pr-traceability` 失败 | 本审计与 89/90/99 同步写入后重跑完整门 | run `32706011575` / job `97367166318` 绿色，5 分 50 秒；首次红灯保留为过程证据 |
 
 ## 4. 自动化、构建与生产证据
 
@@ -43,6 +44,7 @@
 - Runtime：55/55，10,000 seeds / 20,000 replays / 40 chunks，digest `20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2`；Sequence 回归 10 files / 85 tests；
 - `npm run typecheck`、13 workspace production build 与架构审计（93 portable / 4 adapters）通过；Editor CSS 89.24 kB / gzip 16.74 kB，JS 858.50 kB / gzip 242.44 kB；既存 `>500 kB` 拆包债保留；
 - production browser：真实 PNG/WAV、Index r3、默认 1920×1080 / 16:9；初始 `ease-in-out`，编辑为 `ease-out` 后 Script r1 / autosave s1；重开 DOM 为 X=25、Y=80、800ms、timing/easing `ease-out`；Formal Runtime `media_move #2`、Host 1 active、0 diagnostics；console warning/error `[]`。
+- Draft PR #68 的实现+追踪文档头在干净 Windows / Node 22 完整门绿色：locked install、治理/需求/Golden、Runtime corpus、普通/存储/VM 测试、13 workspace build、架构与性能均通过；run `32706011575` / job `97367166318` 用时 5 分 50 秒。
 
 ## 5. 对齐与出口
 
