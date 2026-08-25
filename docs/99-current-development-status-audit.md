@@ -1,15 +1,15 @@
-# 当前开发情况审计（N42 Stage Engineering 出口通过，产品门仍阻断）
+# 当前开发情况审计（N43 Engineering 治理准入，产品门仍阻断）
 
 > 审计日期：2026-08-25
-> 当前分支：`codex/n42-engineering-exit`；直接基线为 N42-E9 `86f8457`
+> 当前分支：`codex/n43-governance-checkpoint`；直接基线为 N42 Engineering 最终绿色头 `853b70b`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[N42 Stage Engineering 出口复审](200-n42-stage-engineering-exit-reaudit.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
+> 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
+> 最新节点证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-24 对最初需求重新逐项审计后的结论是：**产品目标和架构没有发生替换性偏移，但开发重心已明显偏向 Compiler/Runtime/Route/Sequence/Stage 工程底座，用户可见的 Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 闭环明显滞后。** 当前应继续按 `RA-N21-007` 收紧完成 N42 最小出口，并在下一治理检查点把优先级转向纵向产品闭环，禁止把工程测试数量换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)。
+2026-08-25 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心已明显偏向 Compiler/Runtime/Route/Sequence/Stage 工程底座，用户可见的 Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 闭环明显滞后。** N42 已冻结退出；当前 `RA-N21-008` 只允许完成 N43 必需的模式/布局基础，N43 后必须优先转向正式 Player 与 Gal 产品闭环，禁止把工程测试数量换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)与[治理 #201](201-n42-n43-governance-checkpoint.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；E9 已补齐单命令三次贝塞尔路径，镜头高级效果与独立轨道时间编辑转为后续增强，不再无限延长 N42 出口；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**治理准入已通过，Draft PR #74 Windows run `32821867501` / job `97721518865` 用时 6 分 10 秒并绿色，尚未开始产品切片**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 

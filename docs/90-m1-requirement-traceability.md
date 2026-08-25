@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40/N41 Engineering 出口不得换算成 Product Acceptance；`RA-N21-007` 只准入 N42 Stage Engineering，持续阻断 N42 Product Acceptance、N43 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N42 Engineering 出口不得换算成 Product Acceptance；`RA-N21-008` 只准入 N43 七工作模式 Engineering，持续阻断 N43 Product Acceptance、N50 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N41 Engineering 出口完成后，产品负责人在获知 RA-006 截止于 N41 后于 2026-08-24 再次明确要求进入下一步骤并逐步实测、审计和推送，因此关闭 `RA-N21-006`，建立 2026-09-24 到期的 `RA-N21-007`：只允许推进 N42 Stage Engineering，并持续阻断 N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43 及以后、M1 Stable 与发布。
+最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N42 Engineering 出口完成后，产品负责人在获知 RA-007 截止于 N42 后于 2026-08-25 再次明确要求进入下一步骤并逐步实测、审计和推送，因此关闭 `RA-N21-007`，建立 2026-09-24 到期的 `RA-N21-008`：只允许推进 N43 七工作模式 Engineering，并持续阻断 N21/N23/N30/N31/N32/N40/N41/N42/N43 产品验收、N50 及以后、M1 Stable 与发布。证据见[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|

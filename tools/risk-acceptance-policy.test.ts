@@ -4,7 +4,7 @@ import { validateRiskAcceptanceRegistry } from "./risk-acceptance-policy.mjs";
 const blockedGates = [
   "N21 Product Acceptance", "N23 Acceptance", "N30 Product Acceptance", "N31 Product Acceptance",
   "N32 Product Acceptance", "N40 Product Acceptance", "N41 Product Acceptance", "N42 Product Acceptance",
-  "N43 Engineering", "M1 Stable", "Public Release"
+  "N43 Product Acceptance", "N50 Engineering", "M1 Stable", "Public Release"
 ];
 
 function exception(id: string, status: "active" | "closed", maximumDeliveryNode: string) {
@@ -20,7 +20,7 @@ function exception(id: string, status: "active" | "closed", maximumDeliveryNode:
 function registry(overrides: Record<string, unknown> = {}) {
   return {
     schemaVersion: 1,
-    currentDeliveryNode: "N42",
+    currentDeliveryNode: "N43",
     exceptions: [
       exception("RA-N21-001", "closed", "N22"),
       exception("RA-N21-002", "closed", "N30"),
@@ -28,7 +28,8 @@ function registry(overrides: Record<string, unknown> = {}) {
       exception("RA-N21-004", "closed", "N32"),
       exception("RA-N21-005", "closed", "N40"),
       exception("RA-N21-006", "closed", "N41"),
-      exception("RA-N21-007", "active", "N42")
+      exception("RA-N21-007", "closed", "N42"),
+      exception("RA-N21-008", "active", "N43")
     ],
     ...overrides
   };
@@ -37,32 +38,32 @@ function registry(overrides: Record<string, unknown> = {}) {
 describe("risk acceptance policy", () => {
   const now = new Date("2026-08-24T14:10:00+08:00");
 
-  it("accepts the bounded N42 engineering exception", () => {
+  it("accepts the bounded N43 engineering exception", () => {
     expect(validateRiskAcceptanceRegistry(registry(), now)).toEqual([]);
   });
 
   it("fails after the time expiry", () => {
-    expect(validateRiskAcceptanceRegistry(registry(), new Date("2026-09-24T14:08:26+08:00"))).toContain("RA-N21-007: active exception has expired");
+    expect(validateRiskAcceptanceRegistry(registry(), new Date("2026-09-24T15:12:19+08:00"))).toContain("RA-N21-008: active exception has expired");
   });
 
-  it("accepts N42 as the maximum delivery node", () => {
-    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N42" }), now)).toEqual([]);
+  it("accepts N43 as the maximum delivery node", () => {
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N43" }), now)).toEqual([]);
   });
 
-  it("fails when delivery advances beyond N42", () => {
-    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N43" }), now)).toContain("RA-N21-007: current delivery node exceeds the accepted maximum");
+  it("fails when delivery advances beyond N43", () => {
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N50" }), now)).toContain("RA-N21-008: current delivery node exceeds the accepted maximum");
   });
 
-  it("fails when N42 Product Acceptance is no longer blocked", () => {
+  it("fails when N43 Product Acceptance is no longer blocked", () => {
     const value = registry();
-    value.exceptions[6]!.blockedGates = value.exceptions[6]!.blockedGates.filter((gate) => gate !== "N42 Product Acceptance");
-    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-007: active N21 exception must block N42 Product Acceptance");
+    value.exceptions[7]!.blockedGates = value.exceptions[7]!.blockedGates.filter((gate) => gate !== "N43 Product Acceptance");
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-008: active N21 exception must block N43 Product Acceptance");
   });
 
   it("fails when a superseded exception remains active", () => {
     const value = registry();
-    value.exceptions[5]!.status = "active";
-    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-006: only the approved RA-N21-007 exception may be active");
-    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-007 requires the superseded RA-N21-006 exception to be closed");
+    value.exceptions[6]!.status = "active";
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-007: only the approved RA-N21-008 exception may be active");
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-008 requires the superseded RA-N21-007 exception to be closed");
   });
 });
