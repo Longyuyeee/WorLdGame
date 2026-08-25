@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42 Stage Engineering 出口均已通过；N42 汇总门为 `16 files / 192 tests`。正式 Player 不存在，因此 N42 Product Acceptance 与 N32 Engineering 的历史出口仍因 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42 Stage Engineering 出口均已通过；N42 汇总门为 `16 files / 192 tests`，Draft PR #73 Windows / Node 22 run `32819164396` / job `97713489647` 用时 6 分 18 秒并绿色。正式 Player 不存在，因此 N42 Product Acceptance 与 N32 Engineering 的历史出口仍因 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；

@@ -3,6 +3,8 @@
 > 日期：2026-08-25  
 > 分支：`codex/n42-engineering-exit`  
 > 直接基线：N42-E9 `86f8457`  
+> Draft PR：#73，base `codex/n42-e9-bezier-character-path`  
+> Windows CI：run `32819164396` / job `97713489647`，6 分 18 秒，绿色  
 > 授权边界：`RA-N21-007` 只允许 N42 Stage Engineering  
 > 判定：N42 Stage Engineering 出口通过；N42 Product Acceptance、N43、正式 Player、M1 与发布继续阻断
 
@@ -45,6 +47,8 @@ N42 冻结目标是“导演能操控镜头、角色、背景、音频和基础�
 根 `check` 已加入该命令，后续任何 Stage、Compiler、Runtime、Host 或 Preview 回归都会阻断完整仓库门。
 
 本机完整仓库门随后实际退出码为 0：常规回归 `128 files / 799 tests`，真实 IndexedDB storage `1/1`，重型 VM `5/5`；Runtime corpus 为 10,000 seeds / 20,000 replays、0 失败且 digest `20e9a842…92ef2` 不变；14 个 workspace 的 typecheck/build 与 93 个 portable 文件架构审计通过。Route 单场景编辑到锚点窗口 P95 `170.13ms <500ms`，Dicing 总耗时 `3699.84ms <5000ms`、净节省 `85.83%`。Editor production JS 为 `905.92 kB / gzip 252.88 kB`，仍触发 `>500 kB` 拆包警告，明确保留为优化债，未把构建成功写成包体达标。
+
+远端干净 Windows / Node 22 在同一实现头 `b3485b3` 上复验并于 6 分 18 秒绿色结束：N42 汇总矩阵 `16 files / 192 tests`、常规回归 `128 files / 799 tests`、storage `1/1`、重型 VM `5/5`，Runtime corpus digest 不变。Route P95 `130.24ms <500ms`，10,000 条三次贝塞尔规划 `12.5ms <500ms`；Editor JS `906.00 kB / gzip 252.87 kB`，与本机差异不足以改变判定，继续保留同一拆包债。run `32819164396` / job `97713489647`。
 
 ## 5. 需求对齐与下一步边界
 
