@@ -553,6 +553,28 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     expect(result.effects).toEqual([]);
   });
 
+  it("emits a normalized Bezier Move effect and rejects incomplete mutated paths", () => {
+    const validStory = program([
+      { instructionId: "curve", opcode: "direction", operands: { command: "show", parameters: {
+        action: "move", slot: "hero", x: "80", y: "80", curve: "bezier",
+        control1X: "30", control1Y: "20", control2X: "70", control2Y: "20", duration: "650ms", easing: "ease-in-out"
+      } } },
+      { instructionId: "curve-end", opcode: "end", operands: { endingId: "curve_done", name: "Done" } }
+    ]);
+    const valid = runRuntime(validStory, start(validStory, "build-curve"));
+    expect(valid.diagnostics).toEqual([]);
+    expect(valid.effects).toEqual([expect.objectContaining({ channel: "show", kind: "show.move", payload: expect.objectContaining({
+      curve: "bezier", x: 80, y: 80, control1X: 30, control1Y: 20, control2X: 70, control2Y: 20
+    }) })]);
+    const invalidStory = program([
+      { instructionId: "bad-curve", opcode: "direction", operands: { command: "show", parameters: { action: "move", slot: "hero", x: "80", y: "80", curve: "bezier", control1X: "30" } } },
+      { instructionId: "curve-end", opcode: "end", operands: { endingId: "curve_done", name: "Done" } }
+    ]);
+    const invalid = runRuntime(invalidStory, start(invalidStory, "build-bad-curve"));
+    expect(invalid.diagnostics).toEqual([expect.objectContaining({ code: "RUNTIME_INVALID_IR", instructionId: "bad-curve" })]);
+    expect(invalid.effects).toEqual([]);
+  });
+
   it("emits textbox presentation effects and rejects mutated templates", () => {
     const validStory = program([
       { instructionId: "textbox-nvl", opcode: "direction", operands: { command: "textbox", parameters: { action: "set", template: "nvl" } } },

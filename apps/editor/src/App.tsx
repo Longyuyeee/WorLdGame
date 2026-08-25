@@ -63,6 +63,7 @@ import {
   isStageEasing,
   isStageTransition,
   isDialogueTemplate,
+  validateStageBezierMotionParameters,
   parseStory,
   resolveDirectiveAction,
   type DialogueTemplate,
@@ -147,6 +148,11 @@ import {
   stageMotionPathDirectiveArguments,
   type StageMotionPathDraft
 } from "./stage-motion-path";
+import {
+  defaultStageBezierPathDraft,
+  planStageBezierPath,
+  type StageBezierPathDraft
+} from "./stage-bezier-path";
 import { formatStageTimelineTime, projectStageTimeline, stageTimelineLane } from "./stage-timeline";
 import {
   createPreviewMediaHostState,
@@ -923,6 +929,7 @@ function DirectionInspector({
     validOptionalStageNumber(form, "anchorX", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR),
     validOptionalStageNumber(form, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
   ].every(Boolean);
+  const bezierError = statement.command === "show" && action === "move" ? validateStageBezierMotionParameters(form) : undefined;
   const cameraGeometryValid = !cameraMoveActive || [
     validOptionalStageNumber(form, "x", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
     validOptionalStageNumber(form, "y", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
@@ -934,7 +941,7 @@ function DirectionInspector({
   const transitionValid = form.transition === undefined || form.transition.length === 0 || isStageTransition(form.transition);
   const templateValid = statement.command !== "textbox" || action === "reset" || isDialogueTemplate(form.template ?? "");
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid && templateValid &&
-    geometryValid && cameraGeometryValid && moveHasGeometry && easingValid && transitionValid && transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && bezierError === undefined && cameraGeometryValid && moveHasGeometry && easingValid && transitionValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -943,7 +950,7 @@ function DirectionInspector({
   const keys = statement.command === "background"
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"]
+      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", "control1X", "control1Y", "control2X", "control2Y", "transition", "transitionAsset", "duration", "easing"]
       : statement.command === "camera"
         ? ["action", "x", "y", "zoom", "rotation", "duration", "easing"]
         : statement.command === "textbox" ? ["action", "template"] : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
@@ -953,8 +960,8 @@ function DirectionInspector({
       ? action === "move"
         ? { asset: null, expression: null, transitionAsset: null }
         : action === "hide"
-          ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transitionAsset: null, easing: null }
-          : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
+          ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null, transitionAsset: null, easing: null }
+          : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null, transition: null, transitionAsset: null, duration: null }
       : statement.command === "camera"
         ? action === "reset" ? { x: null, y: null, zoom: null, rotation: null } : {}
         : statement.command === "textbox" ? action === "reset" ? { template: null } : {} : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
@@ -970,7 +977,7 @@ function DirectionInspector({
         parameters: {
           ...fieldPatch(keys),
           action: action ?? null,
-          ...(statement.command === "show" && action === "show" ? { easing: null } : {}),
+          ...(statement.command === "show" && action === "show" ? { easing: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null } : {}),
           ...(!assetRequired ? inactiveResourcePatch : {})
         },
         removeLegacyPositional: inspection.positional.length > 0
@@ -1057,6 +1064,14 @@ function DirectionInspector({
           {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
         </div>}
         {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
+        {action === "move" && <div className="direction-field"><label htmlFor={`direction-curve-${statement.id}`}>空间路径</label><select id={`direction-curve-${statement.id}`} aria-label="角色空间路径" value={form.curve ?? ""} disabled={disabled} onChange={(event) => {
+          const curve = event.target.value;
+          setForm((current) => curve === "" ? { ...current, curve: "", control1X: "", control1Y: "", control2X: "", control2Y: "" } : { ...current, curve });
+        }}><option value="">直线</option><option value="bezier">三次贝塞尔</option></select></div>}
+        {action === "move" && form.curve === "bezier" && <div className="direction-geometry" aria-label="贝塞尔控制点参数">
+          {(["control1X", "control1Y", "control2X", "control2Y"] as const).map((key, index) => <div className="direction-field" key={key}><label htmlFor={`direction-${key}-${statement.id}`}>{`控制点 ${index < 2 ? 1 : 2} ${key.endsWith("X") ? "X" : "Y"}`}</label><input id={`direction-${key}-${statement.id}`} aria-label={`角色贝塞尔控制点 ${index < 2 ? 1 : 2} ${key.endsWith("X") ? "X" : "Y"}`} type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form[key] ?? ""} disabled={disabled} onChange={(event) => setField(key, event.target.value)} /></div>)}
+          {bezierError !== undefined && <small className="is-error">{bezierError}</small>}
+        </div>}
         {action === "move" && <div className="direction-field"><label htmlFor={`direction-easing-${statement.id}`}>移动缓动</label><select id={`direction-easing-${statement.id}`} aria-label="移动缓动" value={form.easing ?? ""} disabled={disabled} onChange={(event) => setField("easing", event.target.value)}><option value="">Linear（兼容默认）</option>{STAGE_EASINGS.filter((value) => value !== "linear").map((value) => <option key={value} value={value}>{value}</option>)}</select>{!easingValid && <small className="is-error">请选择冻结的缓动曲线</small>}</div>}
       </>}
       {statement.command === "camera" && <>
@@ -1448,6 +1463,69 @@ function StageMotionPathPanel({ seed, disabled, createCommandId, createEntityId,
   </form>;
 }
 
+function StageBezierPathPanel({ seed, disabled, createCommandId, createEntityId, dispatch, onClose }: StageKeyframeInsertPanelProps) {
+  const [draft, setDraft] = useState<StageBezierPathDraft>(() => defaultStageBezierPathDraft(seed));
+  const [activePoint, setActivePoint] = useState<"control1" | "control2" | "destination">("destination");
+  const plan = planStageBezierPath(seed, draft);
+  const set = (field: keyof StageBezierPathDraft, value: string) => setDraft((current) => ({ ...current, [field]: value }));
+  const point = (x: string, y: string) => ({ x: Math.min(100, Math.max(0, Number(x) || 0)), y: Math.min(100, Math.max(0, Number(y) || 0)) });
+  const control1 = point(draft.control1X, draft.control1Y);
+  const control2 = point(draft.control2X, draft.control2Y);
+  const destination = point(draft.x, draft.y);
+  const message = plan.ok ? "将写入一个稳定 ID 的 Move；空间贝塞尔与时间缓动相互独立。" :
+    plan.code === "INVALID_CONTROL_POINT" ? "两个控制点都必须位于 0–100 的舞台范围。" :
+      plan.code === "INVALID_DESTINATION" ? "终点必须位于 0–100 的舞台范围。" :
+        plan.code === "EMPTY_PATH" ? "终点不能与当前角色位置相同。" : "时长或缓动无效。";
+  const selectPoint = (next: typeof activePoint, x: number, y: number) => {
+    setActivePoint(next);
+    if (next === "control1") { set("control1X", x.toFixed(1)); set("control1Y", y.toFixed(1)); }
+    else if (next === "control2") { set("control2X", x.toFixed(1)); set("control2Y", y.toFixed(1)); }
+    else { set("x", x.toFixed(1)); set("y", y.toFixed(1)); }
+  };
+  return <form className="direction-insert keyframe-insert motion-path-insert bezier-path-insert" aria-label="新增贝塞尔角色路径" onSubmit={(event) => {
+    event.preventDefault();
+    if (!plan.ok || disabled) return;
+    dispatch({ type: "insert-direction", commandId: createCommandId(), afterId: seed.sourceStatementId, statementId: createEntityId("stmt"), command: "show", parameters: plan.parameters });
+    onClose();
+  }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+    <div className="direction-insert__heading">
+      <div><span className="track-command track-command--show">BÉZIER</span><strong>三次贝塞尔角色路径</strong></div>
+      <button type="button" aria-label="关闭贝塞尔路径面板" onClick={onClose}>×</button>
+    </div>
+    <div className="motion-path-editor">
+      <svg viewBox="0 0 100 100" className="motion-path-editor__canvas" aria-label={`贝塞尔路径画布，当前编辑${activePoint}`} onPointerDown={(event: ReactPointerEvent<SVGSVGElement>) => {
+        if (disabled) return;
+        const bounds = event.currentTarget.getBoundingClientRect();
+        selectPoint(activePoint, Math.min(100, Math.max(0, (event.clientX - bounds.left) / bounds.width * 100)), Math.min(100, Math.max(0, (event.clientY - bounds.top) / bounds.height * 100)));
+      }}>
+        <defs><linearGradient id="bezier-path-gradient"><stop stopColor="#67e8f9"/><stop offset="0.5" stopColor="#a78bfa"/><stop offset="1" stopColor="#fb7185"/></linearGradient></defs>
+        <g className="bezier-guides"><path d={`M ${seed.x} ${seed.y} L ${control1.x} ${control1.y}`} /><path d={`M ${destination.x} ${destination.y} L ${control2.x} ${control2.y}`} /></g>
+        <path className="bezier-curve" d={`M ${seed.x} ${seed.y} C ${control1.x} ${control1.y}, ${control2.x} ${control2.y}, ${destination.x} ${destination.y}`} />
+        <circle className="is-source" cx={seed.x} cy={seed.y} r="2.4" />
+        <circle className={activePoint === "control1" ? "is-active is-control" : "is-control"} cx={control1.x} cy={control1.y} r="2.7" />
+        <circle className={activePoint === "control2" ? "is-active is-control" : "is-control"} cx={control2.x} cy={control2.y} r="2.7" />
+        <circle className={activePoint === "destination" ? "is-active" : ""} cx={destination.x} cy={destination.y} r="3" />
+      </svg>
+      <div className="motion-path-editor__legend"><span>START {seed.x}/{seed.y}</span><strong>{seed.slot}</strong><small>选择节点后点击画布定位</small></div>
+    </div>
+    <div className="bezier-path-fields">
+      {(["control1", "control2", "destination"] as const).map((name, index) => {
+        const xKey = name === "control1" ? "control1X" : name === "control2" ? "control2X" : "x";
+        const yKey = name === "control1" ? "control1Y" : name === "control2" ? "control2Y" : "y";
+        const label = name === "destination" ? "终点" : `控制点 ${index + 1}`;
+        return <fieldset key={name} data-active={activePoint === name}><legend><button type="button" aria-pressed={activePoint === name} onClick={() => setActivePoint(name)}>{label}</button></legend>
+          <label><span>X</span><input aria-label={`贝塞尔${label} X`} type="number" min="0" max="100" step="0.1" value={draft[xKey]} onFocus={() => setActivePoint(name)} onChange={(event) => set(xKey, event.target.value)} /></label>
+          <label><span>Y</span><input aria-label={`贝塞尔${label} Y`} type="number" min="0" max="100" step="0.1" value={draft[yKey]} onFocus={() => setActivePoint(name)} onChange={(event) => set(yKey, event.target.value)} /></label>
+        </fieldset>;
+      })}
+      <label><span>时长</span><input aria-label="贝塞尔移动时长" value={draft.duration} onChange={(event) => set("duration", event.target.value)} /></label>
+      <label><span>时间缓动</span><select aria-label="贝塞尔时间缓动" value={draft.easing} onChange={(event) => set("easing", event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value}>{value}</option>)}</select></label>
+    </div>
+    <p className={plan.ok ? "keyframe-insert__status" : "keyframe-insert__status is-error"} role="status">{message}</p>
+    <div className="direction-insert__actions"><span>单一 Canonical Move · Canvas/Runtime 同语义</span><button type="submit" disabled={disabled || !plan.ok}>创建贝塞尔路径</button></div>
+  </form>;
+}
+
 function isCharacterMoveCue(statement: StoryStatement): boolean {
   if (statement.kind !== "direction" || statement.command !== "show") return false;
   const inspected = inspectDirectiveArguments(statement.summary);
@@ -1503,6 +1581,7 @@ function SequenceView({
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
   const [keyframeInsertOpen, setKeyframeInsertOpen] = useState(false);
   const [motionPathOpen, setMotionPathOpen] = useState(false);
+  const [bezierPathOpen, setBezierPathOpen] = useState(false);
   const [draggedDirectionId, setDraggedDirectionId] = useState<string | null>(null);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
@@ -1798,13 +1877,10 @@ function SequenceView({
               }}>删除</button>
             </div>
             <div className="stage-track__insert" aria-label="新增演出指令">
-              <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
-              <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
-              <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
-              <button type="button" aria-keyshortcuts="Alt+4" disabled={pendingDraft} onClick={() => setInsertCommand("camera")}>＋ 镜头</button>
-              <button type="button" aria-keyshortcuts="Alt+5" disabled={pendingDraft} onClick={() => setInsertCommand("textbox")}>＋ 文本框</button>
-              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
-              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
+              {([['background', '＋ 背景', 'Alt+1'], ['show', '＋ 角色', 'Alt+2'], ['audio', '＋ 音频', 'Alt+3'], ['camera', '＋ 镜头', 'Alt+4'], ['textbox', '＋ 文本框', 'Alt+5']] as const).map(([command, label, shortcut]) => <button key={command} type="button" aria-keyshortcuts={shortcut} disabled={pendingDraft} onClick={() => { setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(false); setInsertCommand(command); }}>{label}</button>)}
+              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setBezierPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
+              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setBezierPathOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
+              <button type="button" className="stage-bezier-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "创建单一三次贝塞尔角色路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(true); }}>＋ 贝塞尔</button>
             </div>
           </div>
         </div>
@@ -2067,6 +2143,16 @@ function SequenceView({
         createEntityId={createEntityId}
         dispatch={dispatch}
         onClose={() => setMotionPathOpen(false)}
+      />}
+
+      {bezierPathOpen && keyframeSeed.ok && <StageBezierPathPanel
+        key={keyframeSeed.seed.sourceStatementId}
+        seed={keyframeSeed.seed}
+        disabled={pendingDraft}
+        createCommandId={createCommandId}
+        createEntityId={createEntityId}
+        dispatch={dispatch}
+        onClose={() => setBezierPathOpen(false)}
       />}
 
       <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>

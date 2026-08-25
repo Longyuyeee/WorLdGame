@@ -222,8 +222,19 @@ function directionState(state: RuntimeStateV1, command: string, parameters: Read
   if (command === "show") {
     const slotValue = parameters.slot ?? parameters.character ?? parameters.asset;
     if (typeof slotValue !== "string" || !canonicalId.test(slotValue)) return undefined;
+    const bezierKeys = ["curve", "control1X", "control1Y", "control2X", "control2Y"];
+    if (action !== "move" && bezierKeys.some((key) => parameters[key] !== undefined)) return undefined;
     if (action === "hide") { const characters = { ...state.sceneState.characters }; delete characters[slotValue]; return { sceneState: { ...state.sceneState, characters } }; }
-    if (action === "move") return {};
+    if (action === "move") {
+      const controls = bezierKeys.slice(1);
+      const presentControls = controls.filter((key) => parameters[key] !== undefined);
+      if (parameters.curve === undefined && presentControls.length > 0) return undefined;
+      if (parameters.curve !== undefined) {
+        if (parameters.curve !== "bezier" || parameters.x === undefined || parameters.y === undefined || presentControls.length !== controls.length) return undefined;
+        if (["x", "y", ...controls].some((key) => normalizeDirectionPayloadScalar(command, action, key, parameters[key]) === undefined)) return undefined;
+      }
+      return {};
+    }
     if (action !== "show" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset) || (parameters.expression !== undefined && (typeof parameters.expression !== "string" || !canonicalId.test(parameters.expression)))) return undefined;
     return { sceneState: { ...state.sceneState, characters: { ...state.sceneState.characters, [slotValue]: { assetId: parameters.asset, expression: typeof parameters.expression === "string" ? parameters.expression : null } } }, metaProgress: { ...state.metaProgress, unlockedGalleryAssetIds: addMonotonicId(state.metaProgress.unlockedGalleryAssetIds, parameters.asset) } };
   }
@@ -305,6 +316,10 @@ const stageNumberRanges: Readonly<Record<string, readonly [number, number]>> = {
   rotation: [-360, 360],
   anchorX: [0, 1],
   anchorY: [0, 1],
+  control1X: [0, 100],
+  control1Y: [0, 100],
+  control2X: [0, 100],
+  control2Y: [0, 100],
   z: [-1000, 1000]
 };
 

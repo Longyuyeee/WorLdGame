@@ -8,10 +8,17 @@ export type TextboxAction = "set" | "reset";
 export type DialogueTemplate = "adv" | "nvl" | "bubble";
 export type DirectiveAction = BackgroundAction | CharacterAction | CameraAction | AudioAction | TextboxAction;
 export type StageTransition = "fade" | "dissolve" | "slide";
+export type StageMotionCurve = "bezier";
 
 export const STAGE_TRANSITIONS = ["fade", "dissolve", "slide"] as const satisfies readonly StageTransition[];
 export function isStageTransition(value: string): value is StageTransition {
   return (STAGE_TRANSITIONS as readonly string[]).includes(value);
+}
+
+export const STAGE_MOTION_CURVES = ["bezier"] as const satisfies readonly StageMotionCurve[];
+export const STAGE_BEZIER_PARAMETERS = ["control1X", "control1Y", "control2X", "control2Y"] as const;
+export function isStageMotionCurve(value: string | undefined): value is StageMotionCurve {
+  return value !== undefined && (STAGE_MOTION_CURVES as readonly string[]).includes(value);
 }
 
 export const DIALOGUE_TEMPLATES = ["adv", "nvl", "bubble"] as const satisfies readonly DialogueTemplate[];
@@ -21,7 +28,7 @@ export function isDialogueTemplate(value: string | undefined): value is Dialogue
 
 export const DIRECTIVE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
   background: ["action", "asset", "transition", "transitionAsset", "duration"],
-  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"],
+  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", ...STAGE_BEZIER_PARAMETERS, "transition", "transitionAsset", "duration", "easing"],
   camera: ["action", "x", "y", "zoom", "rotation", "duration", "easing"],
   audio: ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"],
   textbox: ["action", "template"]
@@ -81,8 +88,10 @@ export function directiveActionParameters(
 ): readonly string[] {
   if (command === "background") return action === "set" ? DIRECTIVE_PARAMETERS.background : ["action", "transition", "duration"];
   if (command === "show") {
-    if (action === "show") return DIRECTIVE_PARAMETERS.show.filter((parameter) => parameter !== "easing");
-    if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "transition", "duration", "easing"];
+    if (action === "show") return DIRECTIVE_PARAMETERS.show.filter((parameter) =>
+      parameter !== "easing" && parameter !== "curve" && !STAGE_BEZIER_PARAMETERS.includes(parameter as typeof STAGE_BEZIER_PARAMETERS[number])
+    );
+    if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "curve", ...STAGE_BEZIER_PARAMETERS, "transition", "duration", "easing"];
     return ["action", "slot", "transition", "duration"];
   }
   if (command === "camera") return action === "move" ? DIRECTIVE_PARAMETERS.camera : ["action", "duration", "easing"];
@@ -101,6 +110,22 @@ export const MIN_STAGE_ROTATION = -360;
 export const MAX_STAGE_ROTATION = 360;
 export const MIN_STAGE_ANCHOR = 0;
 export const MAX_STAGE_ANCHOR = 1;
+
+export function validateStageBezierMotionParameters(parameters: Readonly<Record<string, string>>): string | undefined {
+  const curve = parameters.curve;
+  const presentControls = STAGE_BEZIER_PARAMETERS.filter((key) => parameters[key] !== undefined);
+  if (curve === undefined) return presentControls.length === 0 ? undefined : "Bezier control points require curve=bezier";
+  if (!isStageMotionCurve(curve)) return "curve must be bezier";
+  if (parameters.x === undefined || parameters.y === undefined) return "curve=bezier requires x and y endpoints";
+  if (presentControls.length !== STAGE_BEZIER_PARAMETERS.length) return "curve=bezier requires four control point coordinates";
+  for (const key of STAGE_BEZIER_PARAMETERS) {
+    const source = parameters[key]!;
+    if (!/^\d+(?:\.\d+)?$/.test(source) || Number(source) < MIN_STAGE_PERCENT || Number(source) > MAX_STAGE_PERCENT) {
+      return `${key} must be a number from ${MIN_STAGE_PERCENT} to ${MAX_STAGE_PERCENT}`;
+    }
+  }
+  return undefined;
+}
 export const CAMERA_GEOMETRY_PARAMETERS = ["x", "y", "zoom", "rotation"] as const;
 export const MIN_CAMERA_OFFSET = -100;
 export const MAX_CAMERA_OFFSET = 100;

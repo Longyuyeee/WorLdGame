@@ -9,6 +9,7 @@ import {
   MIN_CAMERA_ROTATION,
   MIN_CAMERA_ZOOM,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
+  validateStageBezierMotionParameters,
   directiveActionParameters,
   MAX_STAGE_Z,
   MIN_STAGE_Z,
@@ -254,6 +255,10 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
     }
     if (action === "move" && request.parameters.easing !== undefined && !isStageEasing(request.parameters.easing)) {
       return "@show action=move requires a frozen Stage easing";
+    }
+    if (action === "move") {
+      const bezierError = validateStageBezierMotionParameters(request.parameters);
+      if (bezierError !== undefined) return `@show action=move ${bezierError}`;
     }
   }
   if (request.command === "camera" && action === "move") {

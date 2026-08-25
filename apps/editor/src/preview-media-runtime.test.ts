@@ -153,6 +153,27 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(movement, 0).characters[0]).toEqual(before);
   });
 
+  it("keeps one validated cubic Bezier Move and fails closed before mutating the slot", () => {
+    const base: readonly StoryStatement[] = [
+      { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero x=20 y=80" }
+    ];
+    const valid = derivePreviewStagePlan([...base, {
+      kind: "direction", id: "curve", command: "show",
+      summary: "action=move slot=hero x=80 y=80 curve=bezier control1X=30 control1Y=20 control2X=70 control2Y=20 duration=650ms easing=ease-in-out"
+    }], 1);
+    expect(valid.characters[0]).toMatchObject({
+      statementId: "curve", assetId: "hero", x: 80, y: 80, curve: "bezier",
+      control1X: 30, control1Y: 20, control2X: 70, control2Y: 20,
+      movementFrom: { x: 20, y: 80 }
+    });
+    const invalid = derivePreviewStagePlan([...base, {
+      kind: "direction", id: "bad_curve", command: "show",
+      summary: "action=move slot=hero x=80 y=80 curve=bezier control1X=30 control1Y=20 control2X=70"
+    }], 1);
+    expect(invalid.characters[0]).toMatchObject({ statementId: "show", x: 20, y: 80 });
+    expect(invalid.diagnostics).toEqual(["bad_curve: curve=bezier requires bounded x, y, and four control point coordinates"]);
+  });
+
   it("derives, settles, resets, and rewinds the canonical camera track", () => {
     const camera: readonly StoryStatement[] = [
       { kind: "direction", id: "camera_move", command: "camera", summary: "action=move x=18 y=-10 zoom=1.25 rotation=2 duration=600ms easing=ease-out" },
