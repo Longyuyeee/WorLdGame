@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E4 时间标尺审计](194-n42-e4-derived-timeline-playhead-audit.md)已在 E3a/E3b UI 与生产浏览器纠偏基础上补齐 canonical 派生标尺和 Runtime 播放头。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
+> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E5 运动路径审计](195-n42-e5-character-motion-path-audit.md)已在 E4 派生时间尺上补齐两段 canonical Move 路径、保存重开和 Runtime/Host 真实闭环。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -403,6 +403,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E3 角色关键帧编排闭环（2026-08-24）：[N42-E3 审计](190-n42-e3-character-keyframe-authoring-audit.md)把“下一关键帧”冻结为稳定 ID 的 canonical `@show action=move`，从当前正式 Stage plan 继承完整几何与 timing，图形化修改后通过既有事务写回 Script；无变化、越界、歧义 Cue 和无效槽位均失败关闭，Character lane 显示 KF。真实 fixture 验证从 X=25/Y=80/scale=0.9 生成 X=72/Y=84/scale=1.05/650ms/ease-out；本地 753/753。它仍不等于多轨 playhead、时间标尺、路径、镜头或模板。
 
 > E4 派生时间标尺与播放头（2026-08-25）：[N42-E4 审计](194-n42-e4-derived-timeline-playhead-audit.md)在不增加第二份时间线模型的前提下，从 canonical Direction/Wait/Preview pacing 投影 TIME/BG/CHAR/AUDIO/STORY 起点；编辑 scrub 选择 stable ID，Formal Runtime statement 接管并锁定播放头。真实 7 步工程总长 5.200s，重开不漂移；390px 首测横向溢出 462px 已修正为文档 375/375、轨道内部滚动。10k 投影 10.89ms <500ms。路径、镜头、独立时间写入和模板仍缺。
+
+> E5 两段角色运动路径（2026-08-25）：[N42-E5 审计](195-n42-e5-character-motion-path-audit.md)从当前正式 Stage plan 派生起点，在图形画布编辑路径点/终点并以一次 P0 batch 生成两个连续 stable-ID Move；不保存第二份 Path。真实工程由 7→9 步、5.200→6.320s，r2/s2 重开不漂移；Formal Runtime `stmt_ui_2→stmt_ui_3`，Host operations 1→2。首个桌面截图发现底部说明条遮挡 Y=88 节点，修正后重叠 0px。10k 路径规划 43.14ms <500ms。任意曲线、镜头、独立时间写入和模板仍缺。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。

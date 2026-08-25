@@ -16,6 +16,8 @@ import { selectStageDirectionLane, selectStageDirectionRange } from "../apps/edi
 import { createStageSearchIndex, searchStageIndex } from "../apps/editor/src/stage-search";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "../apps/editor/src/stage-window";
 import { projectStageTimeline } from "../apps/editor/src/stage-timeline";
+import { defaultStageMotionPathDraft, planStageMotionPath } from "../apps/editor/src/stage-motion-path";
+import type { StageMoveKeyframeSeed } from "../apps/editor/src/stage-keyframe";
 
 const dialogueCount = 10_000;
 const budgets = {
@@ -191,6 +193,25 @@ describe("large script performance audit", () => {
     expect(projection.cues).toHaveLength(statementCount);
     expect(projection.totalDurationMilliseconds).toBe(10_625_000);
     expect(projectionMs).toBeLessThan(500);
+  });
+
+  it("plans ten thousand two-segment canonical motion paths within budget", () => {
+    const pathCount = 10_000;
+    const seed: StageMoveKeyframeSeed = {
+      sourceStatementId: "path_perf_source", slot: "hero", z: 1, x: 20, y: 80, scale: 1,
+      rotation: 0, anchorX: 0.5, anchorY: 1, duration: "600ms", easing: "ease-in-out"
+    };
+    const draft = defaultStageMotionPathDraft(seed);
+    const start = performance.now();
+    let last = planStageMotionPath(seed, draft);
+    for (let index = 1; index < pathCount; index += 1) last = planStageMotionPath(seed, draft);
+    const planningMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { pathCount, canonicalMoves: pathCount * 2 }, measurementsMs: {
+      twoSegmentMotionPathPlanning: Number(planningMs.toFixed(2)) }, budgetsMs: {
+      twoSegmentMotionPathPlanning: 500 }, result: {
+      ok: last.ok, finalDestination: last.ok ? [last.segments[1].x, last.segments[1].y] : null } }, null, 2));
+    expect(last.ok).toBe(true);
+    expect(planningMs).toBeLessThan(500);
   });
 
   it("atomically patches the maximum 256 direction-cue batch within budget", () => {

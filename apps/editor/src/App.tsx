@@ -129,6 +129,12 @@ import {
   planStageMoveKeyframe,
   type StageMoveKeyframeSeed
 } from "./stage-keyframe";
+import {
+  defaultStageMotionPathDraft,
+  planStageMotionPath,
+  stageMotionPathDirectiveArguments,
+  type StageMotionPathDraft
+} from "./stage-motion-path";
 import { formatStageTimelineTime, projectStageTimeline, stageTimelineLane } from "./stage-timeline";
 import {
   createPreviewMediaHostState,
@@ -1284,6 +1290,79 @@ function StageKeyframeInsertPanel({ seed, disabled, createCommandId, createEntit
   </form>;
 }
 
+function StageMotionPathPanel({ seed, disabled, createCommandId, createEntityId, dispatch, onClose }: StageKeyframeInsertPanelProps) {
+  const [draft, setDraft] = useState<StageMotionPathDraft>(() => defaultStageMotionPathDraft(seed));
+  const [activePoint, setActivePoint] = useState<keyof StageMotionPathDraft>("waypoint");
+  const plan = planStageMotionPath(seed, draft);
+  const setPoint = (point: keyof StageMotionPathDraft, field: keyof StageMotionPathDraft["waypoint"], value: string) => {
+    setDraft((current) => ({ ...current, [point]: { ...current[point], [field]: value } }));
+  };
+  const plotted = (point: keyof StageMotionPathDraft) => ({
+    x: Math.min(100, Math.max(0, Number(draft[point].x) || 0)),
+    y: Math.min(100, Math.max(0, Number(draft[point].y) || 0))
+  });
+  const waypoint = plotted("waypoint");
+  const destination = plotted("destination");
+  const message = plan.ok ? "将原子写入两个连续、稳定 ID 的 Move 关键帧；路径本身不另存模型。" :
+    plan.code === "EMPTY_FIRST_SEGMENT" ? "路径第一段不能停留在当前角色位置。" :
+      plan.code === "EMPTY_SECOND_SEGMENT" ? "终点必须不同于路径点。" :
+        plan.code === "INVALID_WAYPOINT" ? "路径点坐标、时长或缓动无效。" : "终点坐标、时长或缓动无效。";
+  return <form className="direction-insert keyframe-insert motion-path-insert" aria-label="新增角色运动路径" onSubmit={(event) => {
+    event.preventDefault();
+    if (!plan.ok || disabled) return;
+    const waypointId = createEntityId("stmt");
+    const destinationId = createEntityId("stmt");
+    dispatch({
+      type: "p0-batch",
+      commandId: createCommandId(),
+      operations: [
+        { kind: "insert", afterId: seed.sourceStatementId, node: { kind: "directive", command: "show", id: waypointId, argumentsRaw: stageMotionPathDirectiveArguments(plan.segments[0].parameters) } },
+        { kind: "insert", afterId: waypointId, node: { kind: "directive", command: "show", id: destinationId, argumentsRaw: stageMotionPathDirectiveArguments(plan.segments[1].parameters) } }
+      ],
+      selectedStatementId: destinationId
+    });
+    onClose();
+  }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
+    <div className="direction-insert__heading">
+      <div><span className="track-command track-command--show">PATH</span><strong>两段角色运动路径</strong></div>
+      <button type="button" aria-label="关闭运动路径面板" onClick={onClose}>×</button>
+    </div>
+    <div className="motion-path-editor">
+      <svg
+        viewBox="0 0 100 100"
+        className="motion-path-editor__canvas"
+        aria-label={`运动路径画布，当前编辑${activePoint === "waypoint" ? "路径点" : "终点"}`}
+        onPointerDown={(event: ReactPointerEvent<SVGSVGElement>) => {
+          if (disabled) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          const x = Math.min(100, Math.max(0, (event.clientX - bounds.left) / bounds.width * 100));
+          const y = Math.min(100, Math.max(0, (event.clientY - bounds.top) / bounds.height * 100));
+          setPoint(activePoint, "x", x.toFixed(1));
+          setPoint(activePoint, "y", y.toFixed(1));
+        }}
+      >
+        <defs><linearGradient id="motion-path-gradient"><stop stopColor="#79e6ff"/><stop offset="0.5" stopColor="#c58cff"/><stop offset="1" stopColor="#ff75b7"/></linearGradient></defs>
+        <path d={`M ${seed.x} ${seed.y} L ${waypoint.x} ${waypoint.y} L ${destination.x} ${destination.y}`} />
+        <circle className="is-source" cx={seed.x} cy={seed.y} r="2.4" />
+        <circle className={activePoint === "waypoint" ? "is-active" : ""} cx={waypoint.x} cy={waypoint.y} r="3" />
+        <circle className={activePoint === "destination" ? "is-active" : ""} cx={destination.x} cy={destination.y} r="3" />
+      </svg>
+      <div className="motion-path-editor__legend"><span>START {seed.x}/{seed.y}</span><strong>{seed.slot}</strong><small>点击画布设置当前节点</small></div>
+    </div>
+    <div className="motion-path-points">
+      {(["waypoint", "destination"] as const).map((point, index) => <fieldset key={point} data-active={activePoint === point}>
+        <legend><button type="button" aria-pressed={activePoint === point} onClick={() => setActivePoint(point)}>{index === 0 ? "01 · 路径点" : "02 · 终点"}</button></legend>
+        <label><span>X（%）</span><input aria-label={`${index === 0 ? "路径点" : "终点"}水平位置`} type="number" min={0} max={100} step="0.1" value={draft[point].x} disabled={disabled} onFocus={() => setActivePoint(point)} onChange={(event) => setPoint(point, "x", event.target.value)} /></label>
+        <label><span>Y（%）</span><input aria-label={`${index === 0 ? "路径点" : "终点"}垂直位置`} type="number" min={0} max={100} step="0.1" value={draft[point].y} disabled={disabled} onFocus={() => setActivePoint(point)} onChange={(event) => setPoint(point, "y", event.target.value)} /></label>
+        <label><span>时长</span><input aria-label={`${index === 0 ? "路径点" : "终点"}移动时长`} value={draft[point].duration} disabled={disabled} onFocus={() => setActivePoint(point)} onChange={(event) => setPoint(point, "duration", event.target.value)} /></label>
+        <label><span>缓动</span><select aria-label={`${index === 0 ? "路径点" : "终点"}缓动`} value={draft[point].easing} disabled={disabled} onFocus={() => setActivePoint(point)} onChange={(event) => setPoint(point, "easing", event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
+      </fieldset>)}
+    </div>
+    <p className={plan.ok ? "keyframe-insert__status" : "keyframe-insert__status is-error"} role="status">{message}</p>
+    <div className="direction-insert__actions"><span>一次事务 · 两个 Canonical Move · Runtime/Preview 同语义</span><button type="submit" disabled={disabled || !plan.ok}>创建运动路径</button></div>
+  </form>;
+}
+
 function isCharacterMoveCue(statement: StoryStatement): boolean {
   if (statement.kind !== "direction" || statement.command !== "show") return false;
   const inspected = inspectDirectiveArguments(statement.summary);
@@ -1338,6 +1417,7 @@ function SequenceView({
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
   const [keyframeInsertOpen, setKeyframeInsertOpen] = useState(false);
+  const [motionPathOpen, setMotionPathOpen] = useState(false);
   const [draggedDirectionId, setDraggedDirectionId] = useState<string | null>(null);
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
@@ -1636,7 +1716,8 @@ function SequenceView({
               <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
               <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
               <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
-              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
+              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
+              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
             </div>
           </div>
         </div>
@@ -1889,6 +1970,16 @@ function SequenceView({
         createEntityId={createEntityId}
         dispatch={dispatch}
         onClose={() => setKeyframeInsertOpen(false)}
+      />}
+
+      {motionPathOpen && keyframeSeed.ok && <StageMotionPathPanel
+        key={keyframeSeed.seed.sourceStatementId}
+        seed={keyframeSeed.seed}
+        disabled={pendingDraft}
+        createCommandId={createCommandId}
+        createEntityId={createEntityId}
+        dispatch={dispatch}
+        onClose={() => setMotionPathOpen(false)}
       />}
 
       <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>

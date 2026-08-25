@@ -250,6 +250,38 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       /@show action=move slot=hero z=2 x=72 y=84 scale=1\.05 rotation=0 anchorX=0\.5 anchorY=1 transition=slide duration=650ms easing=ease-out @id\(stmt_[^)]+\)/u
     );
   });
+  it("authors a two-segment character path as one atomic pair of canonical Move keyframes", () => {
+    renderLegacyDirectionApp();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    const source = String((scriptEditor as HTMLTextAreaElement).value);
+    fireEvent.change(scriptEditor, { target: { value: source.replace(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
+      "@show action=show asset=asset_missing slot=hero z=2 x=20 y=80 scale=0.9 rotation=4 anchorX=0.5 anchorY=1 @id(stmt_gate_bg)"
+    ) } });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "＋ 路径" }));
+    expect(screen.getByRole("form", { name: "新增角色运动路径" })).toBeVisible();
+    expect(screen.getByLabelText(/运动路径画布/)).toHaveAccessibleName(/当前编辑路径点/);
+    fireEvent.change(screen.getByLabelText("路径点水平位置"), { target: { value: "45" } });
+    fireEvent.change(screen.getByLabelText("路径点垂直位置"), { target: { value: "55" } });
+    fireEvent.change(screen.getByLabelText("路径点移动时长"), { target: { value: "400ms" } });
+    fireEvent.change(screen.getByLabelText("路径点缓动"), { target: { value: "ease-out" } });
+    fireEvent.change(screen.getByLabelText("终点水平位置"), { target: { value: "75" } });
+    fireEvent.change(screen.getByLabelText("终点垂直位置"), { target: { value: "82" } });
+    fireEvent.change(screen.getByLabelText("终点移动时长"), { target: { value: "650ms" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建运动路径" }));
+
+    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const pathSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
+    expect(pathSource).toMatch(/@show action=move slot=hero z=2 x=45 y=55 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 transition=slide duration=400ms easing=ease-out @id\(stmt_[^)]+\)\r?\n@show action=move slot=hero z=2 x=75 y=82 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 transition=slide duration=650ms easing=ease-in-out @id\(stmt_[^)]+\)/u);
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("x=45 y=55");
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("x=75 y=82");
+  });
   it("inserts a resource-free Hide cue with the frozen fade default", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));
