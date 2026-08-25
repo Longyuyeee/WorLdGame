@@ -424,6 +424,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 准入状态（2026-08-25）：N42 Engineering 出口后，产品负责人再次明确要求进入后续步骤。[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)以 `RA-N21-008` 只准入本节点 Engineering；N43 Product Acceptance、N50+、M1 与发布继续 fail closed。E1 必须先冻结七模式 ID、Canonical selection/context 和布局边界，再关闭一个模式切换→同一 stable-ID→保存重开→桌面/移动 production browser 的真实闭环。
 
+> E1a 七工作模式骨架（2026-08-25）：[N43-E1a 审计](202-n43-e1-workspace-mode-foundation-audit.md)冻结七个稳定模式 ID，开放 Writer、Director、Flow、Quick Start，Production、Debug & QA、Mobile Focus 在真实任务实现前明确禁用；Sequence/Script/Flow 被纠正为编辑视图而非工作模式。真实浏览器证明模式切换保持同一对白和 `r0`，Director 加宽 Preview、Quick Start 收起 Scene Rail；首次桌面截图发现 1920×1080 舞台被 flex 压成 18px 横带，修正后真实 Canvas 为 `606.781×340.438`；390px 首次截图发现返回按钮遮挡底部视图导航，修正后矩形不相交且文档横向溢出为 0。E1a 不宣称完整七模式、Product Acceptance 或真人通过；治理 #201 冻结的保存重开上下文闭环由 E1b 关闭，详见[当前对齐审计](203-n43-e1-current-development-alignment-audit.md)。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。
