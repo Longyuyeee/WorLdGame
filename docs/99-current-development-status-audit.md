@@ -1,10 +1,10 @@
-# 当前开发情况审计（N42-E9 贝塞尔路径 Engineering 已关闭，产品门仍阻断）
+# 当前开发情况审计（N42 Stage Engineering 出口通过，产品门仍阻断）
 
 > 审计日期：2026-08-25
-> 当前分支：`codex/n42-e9-bezier-character-path`；直接基线为 N42-E8 `449de01`
+> 当前分支：`codex/n42-engineering-exit`；直接基线为 N42-E9 `86f8457`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[N42-E9 贝塞尔路径审计](199-n42-e9-bezier-character-path-audit.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
+> 最新节点证据：[N42 Stage Engineering 出口复审](200-n42-stage-engineering-exit-reaudit.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -15,12 +15,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E9 已关闭，Draft PR #72 的 Windows / Node 22 完整门全绿。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42 Stage Engineering 出口均已通过；N42 汇总门为 `16 files / 192 tests`，Draft PR #73 Windows / Node 22 run `32819164396` / job `97713489647` 用时 6 分 18 秒并绿色。正式 Player 不存在，因此 N42 Product Acceptance 与 N32 Engineering 的历史出口仍因 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1–E8 已关闭至文本模板；任意曲线路径、镜头高级效果和独立轨道时间编辑仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；E9 已补齐单命令三次贝塞尔路径，镜头高级效果与独立轨道时间编辑转为后续增强，不再无限延长 N42 出口；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 
