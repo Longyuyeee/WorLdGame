@@ -22,6 +22,7 @@ import {
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   isStageEasing,
   isStageTransition,
+  isDialogueTemplate,
   directiveActionParameters,
   directiveActionRequiresAsset,
   resolveDirectiveAction
@@ -75,7 +76,8 @@ const KNOWN_PARAMETERS: Record<DirectiveNode["command"], ReadonlySet<string>> = 
   background: new Set(DIRECTIVE_PARAMETERS.background),
   show: new Set(DIRECTIVE_PARAMETERS.show),
   camera: new Set(DIRECTIVE_PARAMETERS.camera),
-  audio: new Set(DIRECTIVE_PARAMETERS.audio)
+  audio: new Set(DIRECTIVE_PARAMETERS.audio),
+  textbox: new Set(DIRECTIVE_PARAMETERS.textbox)
 };
 
 interface ParsedArguments {
@@ -206,6 +208,11 @@ export function compileSceneResourceManifest(
             !CAMERA_GEOMETRY_PARAMETERS.some((key) => parsed.parameters.has(key))) {
           diagnostics.push({ code: "EMPTY_STAGE_MOVE", severity: "error",
             message: "@camera action=move requires at least one camera geometry parameter", sceneId: scene.id,
+            statementId: node.id, line: node.range.start.line });
+        }
+        if (node.command === "textbox" && action === "set" && !isDialogueTemplate(parsed.parameters.get("template"))) {
+          diagnostics.push({ code: "INVALID_ACTION_PARAMETER", severity: "error",
+            message: "@textbox action=set requires template=adv|nvl|bubble", sceneId: scene.id,
             statementId: node.id, line: node.range.start.line });
         }
       }

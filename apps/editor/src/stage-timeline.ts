@@ -2,7 +2,7 @@ import type { StoryStatement } from "@world-studio/story-core";
 import { inspectDirectiveArguments } from "@world-studio/story-language";
 import { previewStepDelayMs } from "./preview-transport";
 
-export type StageTimelineLane = "background" | "character" | "camera" | "audio" | "story";
+export type StageTimelineLane = "background" | "character" | "camera" | "audio" | "text" | "story";
 export type StageTimelineDurationSource = "directive" | "wait" | "preview-pacing" | "instant";
 
 export interface StageTimelineCue {
@@ -31,7 +31,7 @@ function parseDurationMilliseconds(value: string | undefined): number | undefine
 
 export function stageTimelineLane(statement: StoryStatement): StageTimelineLane {
   if (statement.kind !== "direction") return "story";
-  return statement.command === "background" ? "background" : statement.command === "show" ? "character" : statement.command === "camera" ? "camera" : "audio";
+  return statement.command === "background" ? "background" : statement.command === "show" ? "character" : statement.command === "camera" ? "camera" : statement.command === "textbox" ? "text" : "audio";
 }
 
 function duration(statement: StoryStatement): { milliseconds: number; source: StageTimelineDurationSource } {

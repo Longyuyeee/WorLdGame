@@ -34,6 +34,7 @@ import {
 import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
+  DIALOGUE_TEMPLATES,
   MAX_CAMERA_OFFSET,
   MAX_CAMERA_ROTATION,
   MAX_CAMERA_ZOOM,
@@ -61,8 +62,10 @@ import {
   inspectDirectiveArguments,
   isStageEasing,
   isStageTransition,
+  isDialogueTemplate,
   parseStory,
   resolveDirectiveAction,
+  type DialogueTemplate,
   type StoryDocument
 } from "@world-studio/story-language";
 import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
@@ -154,6 +157,7 @@ import {
 import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
+import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createPlayableWebDownload, type PlayableWebArtifact } from "./playable-web-export";
 import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
@@ -825,14 +829,15 @@ interface SequenceViewProps extends CommonProps {
 }
 
 type DirectionForm = Record<string, string>;
-type DirectionCommand = "background" | "show" | "camera" | "audio";
-type BatchDirectionParameter = "transition" | "duration" | "easing" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "zoom" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
+type DirectionCommand = "background" | "show" | "camera" | "audio" | "textbox";
+type BatchDirectionParameter = "transition" | "duration" | "easing" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "zoom" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade" | "template";
 
 const BATCH_DIRECTION_PARAMETERS: Readonly<Record<DirectionCommand, readonly BatchDirectionParameter[]>> = {
   background: ["transition", "duration", "transitionAsset"],
   show: ["expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "duration", "easing", "transitionAsset"],
   camera: ["x", "y", "zoom", "rotation", "duration", "easing"],
-  audio: ["loop", "volume", "fade", "transitionAsset"]
+  audio: ["loop", "volume", "fade", "transitionAsset"],
+  textbox: ["template"]
 };
 
 const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> = {
@@ -851,7 +856,8 @@ const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> 
   anchorY: "垂直锚点",
   loop: "循环",
   volume: "音量",
-  fade: "淡入/淡出"
+  fade: "淡入/淡出",
+  template: "文本模板"
 };
 
 function compatibleDirectionAssets(
@@ -926,7 +932,8 @@ function DirectionInspector({
   const moveHasGeometry = action !== "move" || (statement.command === "camera" ? CAMERA_GEOMETRY_PARAMETERS : STAGE_MOVE_GEOMETRY_PARAMETERS).some((key) => (form[key] ?? "").trim().length > 0);
   const easingValid = statement.command !== "camera" && action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
   const transitionValid = form.transition === undefined || form.transition.length === 0 || isStageTransition(form.transition);
-  const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
+  const templateValid = statement.command !== "textbox" || action === "reset" || isDialogueTemplate(form.template ?? "");
+  const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid && templateValid &&
     geometryValid && cameraGeometryValid && moveHasGeometry && easingValid && transitionValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
@@ -939,7 +946,7 @@ function DirectionInspector({
       ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"]
       : statement.command === "camera"
         ? ["action", "x", "y", "zoom", "rotation", "duration", "easing"]
-        : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+        : statement.command === "textbox" ? ["action", "template"] : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transitionAsset: null }
     : statement.command === "show"
@@ -950,7 +957,7 @@ function DirectionInspector({
           : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
       : statement.command === "camera"
         ? action === "reset" ? { x: null, y: null, zoom: null, rotation: null } : {}
-        : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
+        : statement.command === "textbox" ? action === "reset" ? { template: null } : {} : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
     <form className="direction-inspector" onSubmit={(event) => {
@@ -994,6 +1001,14 @@ function DirectionInspector({
           {directiveActionOptions(statement.command).map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
       </div>
+
+      {statement.command === "textbox" && action === "set" && <div className="direction-field">
+        <label htmlFor={`direction-template-${statement.id}`}>文本模板</label>
+        <select id={`direction-template-${statement.id}`} aria-label="文本框模板" value={form.template ?? "adv"} disabled={disabled} onChange={(event) => setField("template", event.target.value)}>
+          {DIALOGUE_TEMPLATES.map((template) => <option key={template} value={template}>{template.toUpperCase()}</option>)}
+        </select>
+        {!templateValid && <small className="is-error">仅支持 ADV、NVL 或 Bubble</small>}
+      </div>}
 
       {assetRequired && <div className="direction-field direction-field--wide">
         <label htmlFor={`direction-asset-${statement.id}`}>主资源</label>
@@ -1119,7 +1134,8 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
         parameter === "loop" ? ["true", "false"].includes(value) :
           parameter === "duration" || parameter === "fade" ? /^\d+(?:\.\d+)?(?:ms|s)$/.test(value) :
             parameter === "volume" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= 0 && Number(value) <= 1 :
-              parameter === "transitionAsset" ? assetIndex.assets.some((entry) => entry.assetId === value) : tokenValid
+              parameter === "transitionAsset" ? assetIndex.assets.some((entry) => entry.assetId === value) :
+                parameter === "template" ? isDialogueTemplate(value) : tokenValid
   );
   const inspectedTargets = statements.map((statement) => ({
     statement,
@@ -1168,6 +1184,7 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
         <button type="button" disabled={disabled} onClick={() => onSelectLane("show")}>CHAR · {sceneDirections.filter((item) => item.command === "show").length}</button>
         <button type="button" disabled={disabled} onClick={() => onSelectLane("camera")}>CAM · {sceneDirections.filter((item) => item.command === "camera").length}</button>
         <button type="button" disabled={disabled} onClick={() => onSelectLane("audio")}>AUDIO · {sceneDirections.filter((item) => item.command === "audio").length}</button>
+        <button type="button" disabled={disabled} onClick={() => onSelectLane("textbox")}>TEXT · {sceneDirections.filter((item) => item.command === "textbox").length}</button>
       </div>
       {selectionNotice !== null && <p className="batch-direction__notice" role="status" aria-live="polite">{selectionNotice}</p>}
       {!canSelectSameCommand && command !== undefined && <p className="direction-error" role="alert">本场景共有 {sameCommandSceneCount} 个 @{command} Cue，超过单批上限，未自动截断选择。</p>}
@@ -1181,7 +1198,7 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
         <div className="batch-direction__fields">
           <label><span>参数</span><select aria-label="批量演出参数名" value={parameter} disabled={disabled} onChange={(event) => changeParameter(event.target.value as BatchDirectionParameter)}>{parameters.map((item) => <option key={item} value={item}>{BATCH_PARAMETER_LABELS[item]}</option>)}</select></label>
           <label><span>操作</span><select aria-label="批量演出参数操作" value={mode} disabled={disabled} onChange={(event) => setMode(event.target.value as "set" | "remove")}><option value="set">设置</option><option value="remove">移除</option></select></label>
-          {mode === "set" && <label className="batch-direction__value"><span>值</span>{parameter === "transition" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option></select> : parameter === "easing" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option>{STAGE_EASINGS.map((item) => <option key={item} value={item}>{item}</option>)}</select> : parameter === "position" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select> : parameter === "loop" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="true">开启</option><option value="false">关闭</option></select> : <input aria-label="批量演出参数值" list={parameter === "transitionAsset" ? "batch-transition-assets" : undefined} value={value} disabled={disabled} placeholder={parameter === "duration" || parameter === "fade" ? "300ms / 0.5s" : parameter === "volume" ? "0–1" : "输入单 token"} onChange={(event) => setValue(event.target.value)} />}{parameter === "transitionAsset" && <datalist id="batch-transition-assets">{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>}</label>}
+          {mode === "set" && <label className="batch-direction__value"><span>值</span>{parameter === "transition" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option></select> : parameter === "easing" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option>{STAGE_EASINGS.map((item) => <option key={item} value={item}>{item}</option>)}</select> : parameter === "template" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option>{DIALOGUE_TEMPLATES.map((item) => <option key={item} value={item}>{item.toUpperCase()}</option>)}</select> : parameter === "position" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select> : parameter === "loop" ? <select aria-label="批量演出参数值" value={value} disabled={disabled} onChange={(event) => setValue(event.target.value)}><option value="">请选择</option><option value="true">开启</option><option value="false">关闭</option></select> : <input aria-label="批量演出参数值" list={parameter === "transitionAsset" ? "batch-transition-assets" : undefined} value={value} disabled={disabled} placeholder={parameter === "duration" || parameter === "fade" ? "300ms / 0.5s" : parameter === "volume" ? "0–1" : "输入单 token"} onChange={(event) => setValue(event.target.value)} />}{parameter === "transitionAsset" && <datalist id="batch-transition-assets">{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>}</label>}
           <button type="submit" disabled={!canApply}>原子应用 {changedCount} 项修改</button>
         </div>
       )}
@@ -1220,6 +1237,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [easing, setEasing] = useState("ease-in-out");
   const [transition, setTransition] = useState("");
   const [bus, setBus] = useState("bgm");
+  const [template, setTemplate] = useState<DialogueTemplate>("adv");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
   const moveActive = command === "show" && action === "move";
@@ -1237,8 +1255,9 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   ].every(Boolean);
   const durationValid = command !== "camera" && !(command === "background" && transition.length > 0) || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const transitionValid = transition.length === 0 || (STAGE_TRANSITIONS as readonly string[]).includes(transition);
-  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid;
-  const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : "音频";
+  const templateValid = command !== "textbox" || action === "reset" || isDialogueTemplate(template);
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid && templateValid;
+  const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : command === "textbox" ? "文本框" : "音频";
 
   return (
     <form className={`direction-insert direction-insert--${command}`} aria-label={`新增${commandLabel}演出`} onSubmit={(event) => {
@@ -1276,6 +1295,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         parameters.easing = easing;
         if (cameraMoveActive) Object.assign(parameters, { x, y, zoom, rotation });
       }
+      if (command === "textbox" && action === "set") parameters.template = template;
       dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters });
       onClose();
     }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
@@ -1294,6 +1314,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
         {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
+        {command === "textbox" && action === "set" && <label><span>模板</span><select aria-label="新增文本框模板" value={template} disabled={disabled} onChange={(event) => setTemplate(event.target.value as DialogueTemplate)}>{DIALOGUE_TEMPLATES.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label>}
       </div>
       {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
@@ -1645,7 +1666,7 @@ function SequenceView({
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if (!event.altKey || pendingDraft) return;
-      const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : null;
+      const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : event.key === "5" ? "textbox" : null;
       if (command === null) return;
       event.preventDefault();
       setInsertCommand(command);
@@ -1683,7 +1704,7 @@ function SequenceView({
       </div>
 
       <div className="statement-toolbar" aria-label="对白结构工具">
-        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
         <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
         <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
         <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
@@ -1781,6 +1802,7 @@ function SequenceView({
               <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
               <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
               <button type="button" aria-keyshortcuts="Alt+4" disabled={pendingDraft} onClick={() => setInsertCommand("camera")}>＋ 镜头</button>
+              <button type="button" aria-keyshortcuts="Alt+5" disabled={pendingDraft} onClick={() => setInsertCommand("textbox")}>＋ 文本框</button>
               <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
               <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
             </div>
@@ -1891,9 +1913,9 @@ function SequenceView({
               ))}
             </div>
           </div>
-          {(["background", "character", "camera", "audio", "story"] as const).map((lane) => (
+          {(["background", "character", "camera", "audio", "text", "story"] as const).map((lane) => (
             <div className={`stage-lane stage-lane--${lane}`} key={lane}>
-              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "camera" ? "CAM" : lane === "audio" ? "AUDIO" : "STORY"}</span>
+              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "camera" ? "CAM" : lane === "audio" ? "AUDIO" : lane === "text" ? "TEXT" : "STORY"}</span>
               <div className="stage-lane__steps">
                 {visibleStatements.map((statement, visibleIndex) => {
                   const index = stageWindow.start + visibleIndex;
@@ -2631,9 +2653,6 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const scene = findScene(session.project, previewSceneId);
   const statement = scene.statements[previewIndex];
   if (statement === undefined) throw new Error(`Preview index is outside scene: ${previewIndex}`);
-  const speaker = statement.kind === "dialogue"
-    ? findCharacter(session.project.characters, statement.speakerId)
-    : undefined;
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
   const showBufferedNotice = inputDirty && session.notice.tone !== "error";
@@ -2650,6 +2669,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const hostCommitPending = previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null;
   const committedPreviewIndex = playableActive && hostCommitPending ? previewIndex - 1 : previewIndex;
   const stagePlan = committedPreviewIndex < 0 ? derivePreviewStagePlan([], 0) : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0);
+  const dialoguePresentation = deriveDialoguePresentation(scene.statements, committedPreviewIndex, stagePlan.dialogueTemplate);
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
   const [mediaView, mediaViewDispatch] = useReducer(
     reducePreviewMediaHost,
@@ -3006,15 +3026,15 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             </div>
           )}
           <div className="stage-content" key={statement.id} data-testid="preview-step">
-            {statement.kind === "dialogue" && (
-              <div className="dialogue-box">
-                <span className="speaker-name" style={{ "--speaker-color": speaker?.color ?? "#8B7CFF" } as CSSProperties}>
-                  {speaker?.displayName ?? "未知角色"}
-                </span>
-                <p>{statement.text}</p>
-              </div>
-            )}
-            {statement.kind === "narration" && <div className="stage-note"><span>旁白</span><strong>{statement.text}</strong></div>}
+            {(statement.kind === "dialogue" || statement.kind === "narration") && <div className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
+              {dialoguePresentation.lines.map((item) => {
+                const character = item.speakerId === undefined ? undefined : findCharacter(session.project.characters, item.speakerId);
+                return <div className="dialogue-presentation__line" key={item.statementId}>
+                  <span className="speaker-name" style={{ "--speaker-color": character?.color ?? "#8B7CFF" } as CSSProperties}>{character?.displayName ?? (item.speakerId === undefined ? "旁白" : "未知角色")}</span>
+                  <p>{item.text}</p>
+                </div>;
+              })}
+            </div>}
             {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
             {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
@@ -4313,7 +4333,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           /^@background\s+.*?\s+@id\(([^)]+)\)\s*$/m,
           (_line, statementId: string) => `@background asset=${backgroundAssetId}${scene.id === project.entrySceneId ? " transition=fade" : ` transition=fade transitionAsset=${entryAssetId}`} @id(${statementId})`
         );
-        typedDirectionCount += typedSource.match(/^@(background|show|camera|audio)\b/gm)?.length ?? 0;
+        typedDirectionCount += typedSource.match(/^@(background|show|camera|audio|textbox)\b/gm)?.length ?? 0;
         transitionDependencyCount += typedSource.match(/\btransitionAsset=/g)?.length ?? 0;
         documents[scene.id] = parseStory(typedSource);
       }

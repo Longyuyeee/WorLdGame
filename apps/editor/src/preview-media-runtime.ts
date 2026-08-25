@@ -23,6 +23,8 @@ import {
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   isStageEasing,
   isStageTransition,
+  isDialogueTemplate,
+  type DialogueTemplate,
   type StageEasing,
   type StageTransition,
   directiveActionParameters,
@@ -70,6 +72,7 @@ export interface PreviewStagePlan {
   readonly characters: readonly PreviewVisualLayerPlan[];
   readonly camera?: PreviewCameraPlan;
   readonly audio: readonly PreviewAudioLayerPlan[];
+  readonly dialogueTemplate: DialogueTemplate;
   readonly diagnostics: readonly string[];
 }
 
@@ -130,6 +133,7 @@ interface MutableStageState {
   camera?: PreviewCameraPlan;
   readonly exitingCharacters: Map<string, PreviewVisualLayerPlan>;
   readonly audio: Map<PreviewAudioLayerPlan["bus"], PreviewAudioLayerPlan>;
+  dialogueTemplate: DialogueTemplate;
   readonly diagnostics: string[];
 }
 
@@ -328,6 +332,17 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         ...(easing === undefined ? {} : { easing: easing as StageEasing }),
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
       };
+    } else if (statement.command === "textbox") {
+      if (action === "reset") {
+        state.dialogueTemplate = "adv";
+        return true;
+      }
+      const template = inspected.parameters.template;
+      if (action !== "set" || template === undefined || !isDialogueTemplate(template)) {
+        addDiagnostic(state, `${statement.id}: textbox set requires adv, nvl, or bubble`);
+        return true;
+      }
+      state.dialogueTemplate = template;
     } else {
       const bus = inspected.parameters.bus;
       if (bus === undefined || !AUDIO_BUSES.has(bus)) {
@@ -404,6 +419,7 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
     characters,
     camera: state.camera ?? null,
     audio: audioLayers,
+    dialogueTemplate: state.dialogueTemplate,
     diagnostics: state.diagnostics
   };
   const resourceIdentity = {
@@ -422,6 +438,7 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
     characters,
     ...(state.camera === undefined ? {} : { camera: state.camera }),
     audio: audioLayers,
+    dialogueTemplate: state.dialogueTemplate,
     diagnostics: [...state.diagnostics]
   };
 }
@@ -443,7 +460,7 @@ export function resolvePreviewCameraGeometry(layer: PreviewCameraPlan | undefine
 }
 
 export function compilePreviewStageTimeline(statements: readonly StoryStatement[]): readonly PreviewStagePlan[] {
-  const state: MutableStageState = { characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] };
+  const state: MutableStageState = { characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: "adv", diagnostics: [] };
   const timeline: PreviewStagePlan[] = [];
   let previous: PreviewStagePlan | undefined;
   for (const statement of statements) {
@@ -469,9 +486,9 @@ export function derivePreviewStagePlan(
   statements: readonly StoryStatement[],
   inclusiveIndex: number
 ): PreviewStagePlan {
-  if (statements.length === 0) return snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] });
+  if (statements.length === 0) return snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: "adv", diagnostics: [] });
   const index = Math.min(Math.max(inclusiveIndex, 0), statements.length - 1);
-  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] });
+  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: "adv", diagnostics: [] });
 }
 
 function compatible(entry: AssetIndexEntry, role: "background" | "character" | "audio"): boolean {

@@ -47,6 +47,13 @@ function snapshot(revision: number, suffix: string): ProjectSnapshot {
           argumentsRaw: "action=play asset=bgm bus=bgm @id(stmt_audio_deleted)",
           rawLine: "@audio action=play asset=bgm bus=bgm @id(stmt_audio_deleted)",
           formerLine: 3
+        }, {
+          kind: "directive",
+          statementId: "stmt_textbox_deleted",
+          command: "textbox",
+          argumentsRaw: "action=set template=nvl @id(stmt_textbox_deleted)",
+          rawLine: "@textbox action=set template=nvl @id(stmt_textbox_deleted)",
+          formerLine: 4
         }]
       }
     ]
@@ -63,6 +70,21 @@ describe("project persistence", () => {
     const expected = snapshot(1, "new");
     await saveProject(store, expected, { transactionId: "tx_1", expectedStorageRevision: 0 });
     await expect(loadProject(store)).resolves.toEqual(expected);
+  });
+
+  it("reopens canonical textbox templates without presentation drift", async () => {
+    const store = new InMemoryProjectFileStore();
+    const expected = snapshot(1, "textbox");
+    const source = `scene "Textbox" @id(scene_a)\n@textbox action=set template=nvl @id(textbox_nvl)\nchar_xia: "Line" @sid(line) @id(text)\n@textbox action=reset @id(textbox_reset)\nend "Done" @id(done)`;
+    const withTextbox: ProjectSnapshot = {
+      ...expected,
+      scenes: expected.scenes.map((scene) => scene.sceneId === "scene_a" ? { ...scene, committedSource: source, draftSource: source } : scene)
+    };
+    await saveProject(store, withTextbox, { transactionId: "tx_textbox", expectedStorageRevision: 0 });
+    const reopened = await loadProject(store);
+    if (reopened === null) throw new Error("Textbox project was not reopened");
+    expect(reopened.scenes[0]?.committedSource).toBe(source);
+    expect(reopened.scenes[0]?.draftSource).toBe(source);
   });
 
   it("rejects a stale writer without changing the current project", async () => {

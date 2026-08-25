@@ -553,6 +553,23 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     expect(result.effects).toEqual([]);
   });
 
+  it("emits textbox presentation effects and rejects mutated templates", () => {
+    const validStory = program([
+      { instructionId: "textbox-nvl", opcode: "direction", operands: { command: "textbox", parameters: { action: "set", template: "nvl" } } },
+      { instructionId: "textbox-end", opcode: "end", operands: { endingId: "textbox_done", name: "Done" } }
+    ]);
+    const valid = runRuntime(validStory, start(validStory, "build-textbox"));
+    expect(valid.diagnostics).toEqual([]);
+    expect(valid.effects).toEqual([expect.objectContaining({ channel: "textbox", kind: "textbox.set", payload: { action: "set", template: "nvl" } })]);
+    const mutated = program([
+      { instructionId: "textbox-bad", opcode: "direction", operands: { command: "textbox", parameters: { action: "set", template: "cinema" } } },
+      { instructionId: "textbox-end", opcode: "end", operands: { endingId: "textbox_done", name: "Done" } }
+    ]);
+    const rejected = runRuntime(mutated, start(mutated, "build-textbox-bad"));
+    expect(rejected.diagnostics).toEqual([expect.objectContaining({ code: "RUNTIME_INVALID_IR", instructionId: "textbox-bad" })]);
+    expect(rejected.effects).toEqual([]);
+  });
+
   function save(story: RuntimeStoryIrV1, session: RuntimeHistorySessionV1) {
     const created = createRuntimeSessionSaveV1(story, session);
     if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));

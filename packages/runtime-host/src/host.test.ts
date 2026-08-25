@@ -47,6 +47,16 @@ describe("portable Runtime Presentation Host", () => {
     expect(validateRuntimePresentationHostStateV1(state)).toEqual([]);
   });
 
+  it("keeps textbox templates portable on their dedicated channel", () => {
+    const textbox = effect({
+      effectId: "effect.textbox", descriptorId: "textbox.set", channel: "textbox", kind: "textbox.set",
+      replayKey: "replay.textbox", payload: { action: "set", template: "nvl" }, policy: "pure", awaitMode: "detached", compensation: null
+    });
+    const state = consumeRuntimePresentationEffectsV1(createRuntimePresentationHostStateV1(), [textbox]);
+    expect(state.activeByChannel.textbox).toEqual(textbox);
+    expect(validateRuntimePresentationHostStateV1(state)).toEqual([]);
+  });
+
   it("applies Back compensation and Forward replay from the exact restored checkpoint", () => {
     const intent = effect();
     const consumed = consumeRuntimePresentationEffectsV1(createRuntimePresentationHostStateV1(), [intent]);

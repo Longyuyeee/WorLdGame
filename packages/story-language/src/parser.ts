@@ -11,7 +11,7 @@ import type {
 } from "./model";
 
 const identifier = /^[A-Za-z_][A-Za-z0-9_.-]*$/;
-const knownDirectives = new Set(["background", "show", "camera", "audio"]);
+const knownDirectives = new Set(["background", "show", "camera", "audio", "textbox"]);
 
 interface ParsedQuoted {
   readonly raw: string;
@@ -231,7 +231,7 @@ export function parseStory(source: string): StoryDocument {
         command !== undefined && knownDirectives.has(command)
           ? {
               kind: "directive",
-              command: command as "background" | "show" | "camera" | "audio",
+              command: command as "background" | "show" | "camera" | "audio" | "textbox",
               ...(metadata.id === undefined ? {} : { id: metadata.id }),
               argumentsRaw: metadata.trailingMetadata,
               range
