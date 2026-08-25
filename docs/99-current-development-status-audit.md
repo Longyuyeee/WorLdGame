@@ -1,4 +1,4 @@
-# 当前开发情况审计（N42-E7 作用域舞台转场候选，产品门仍阻断）
+# 当前开发情况审计（N42-E7 作用域舞台转场已关闭，产品门仍阻断）
 
 > 审计日期：2026-08-25
 > 当前分支：`codex/n42-e7-scoped-transitions`；直接基线为 N42-E6 `d564347`
@@ -15,12 +15,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E6 已关闭 Move easing、基本角色关键帧、派生时间尺、两段角色运动路径和基础 Camera；E7 已完成功能与真实浏览器闭环，但本机 Route P95 性能门仍待干净 CI 裁决。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E7 已关闭 Move easing、基本角色关键帧、派生时间尺、两段角色运动路径、基础 Camera 与作用域舞台转场；Draft PR #70 的干净 Windows 完整门已关闭本机性能差异。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1–E6 已闭环，E7 转场功能候选已完成但等待干净 CI 性能裁决；任意曲线路径、镜头高级效果、独立轨道时间编辑和模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
+- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1–E7 已闭环到作用域舞台转场；任意曲线路径、镜头高级效果、独立轨道时间编辑和模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 
@@ -99,6 +99,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. RA-N21-007 治理与 E1–E6 证据保持有效；E7 真实工程图形化插入 `action=clear transition=dissolve duration=700ms`，正式 Runtime 0 诊断，关闭原窗口后冷启动自动恢复 r3/s3、3 项媒体和 0 阻断。全仓 783 项、构建、架构、需求、风险、脚本与资源性能通过；本机 Route 单场景编辑同步 P95 `883.38ms >500ms`，预算未放宽。下一步先等待干净 CI 裁决；N43 与正式 Player 仍禁止进入。
+5. RA-N21-007 治理与 E1–E7 证据保持有效；E7 真实工程图形化插入 `action=clear transition=dissolve duration=700ms`，正式 Runtime 0 诊断，关闭原窗口后冷启动自动恢复 r3/s3、3 项媒体和 0 阻断。Draft PR #70 run `32811420647` / job `97691337669` 用时 5m57s 全绿，Route P95 `136.43ms <500ms`，关闭本机差异。下一步只能在 N42 内重新审计最小出口切片；N43 与正式 Player 仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

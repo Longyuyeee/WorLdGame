@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E7 作用域舞台转场审计](197-n42-e7-scoped-stage-transitions-audit.md)已补齐冻结三类背景转场的 canonical、资源窗口、Runtime/Host、分层 Canvas Preview 与保存重开闭环，但本机 Route P95 性能门仍待干净 CI 裁决。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
+> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E7 作用域舞台转场审计](197-n42-e7-scoped-stage-transitions-audit.md)已补齐冻结三类背景转场的 canonical、资源窗口、Runtime/Host、分层 Canvas Preview 与保存重开闭环，Draft PR #70 的干净 Windows 完整门已关闭本机 Route 性能差异。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -408,7 +408,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6 基础镜头系统（2026-08-25）：[N42-E6 审计](196-n42-e6-basic-camera-audit.md)冻结 `@camera action=move/reset`，支持 X/Y、Zoom、Rotation、Duration 与四种 easing；Sequence/CAM lane、Script、Compiler、Runtime portable Host、Canvas/DOM Preview 与保存重开共用同一 stable-ID Canonical 事实。真实浏览器以 X=18/Y=-10/Zoom=1.25/Rotation=2/600ms/ease-out 完成插入、正式运行和重开。全仓普通 764/764、storage 1/1、VM 5/5，脚本/路线/资源性能门均通过。任意曲线、震屏/景深、独立时间写入、模板与正式 Player 一致性仍缺。
 
-> E7 作用域舞台转场候选（2026-08-25）：[N42-E7 审计](197-n42-e7-scoped-stage-transitions-audit.md)冻结 `fade/dissolve/slide`，使背景替换和清除共用 canonical 转场，Preview/资源窗口保留上一背景一个过渡帧，Canvas 只转场背景层而不影响角色。真实浏览器插入 `clear+dissolve+700ms` 后正式 Runtime 0 诊断，冷启动恢复 r3/s3 与 3 项媒体。783 项全量测试、构建、架构、需求、风险、脚本与资源性能均通过；本机 Route 单场景编辑同步 P95 `883.38ms >500ms`，预算未放宽，E7 等待干净 CI 裁决。
+> E7 作用域舞台转场（2026-08-25）：[N42-E7 审计](197-n42-e7-scoped-stage-transitions-audit.md)冻结 `fade/dissolve/slide`，使背景替换和清除共用 canonical 转场，Preview/资源窗口保留上一背景一个过渡帧，Canvas 只转场背景层而不影响角色。真实浏览器插入 `clear+dissolve+700ms` 后正式 Runtime 0 诊断，冷启动恢复 r3/s3 与 3 项媒体。783 项全量测试、构建、架构、需求、风险、脚本与资源性能通过；本机 Route P95 `883.38ms` 的负载差异由 Draft PR #70 run `32811420647` / job `97691337669` 以 Windows P95 `136.43ms <500ms` 关闭，E7 Engineering 切片完成。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。
