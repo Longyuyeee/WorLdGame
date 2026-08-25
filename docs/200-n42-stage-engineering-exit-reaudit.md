@@ -1,11 +1,11 @@
 # N42 Stage Engineering 出口复审
 
-> 日期：2026-08-25  
-> 分支：`codex/n42-engineering-exit`  
-> 直接基线：N42-E9 `86f8457`  
-> Draft PR：#73，base `codex/n42-e9-bezier-character-path`  
-> Windows CI：run `32819164396` / job `97713489647`，6 分 18 秒，绿色  
-> 授权边界：`RA-N21-007` 只允许 N42 Stage Engineering  
+> 日期：2026-08-25
+> 分支：`codex/n42-engineering-exit`
+> 直接基线：N42-E9 `86f8457`
+> Draft PR：#73，base `codex/n42-e9-bezier-character-path`
+> Windows CI：run `32819164396` / job `97713489647`，6 分 18 秒，绿色
+> 授权边界：`RA-N21-007` 只允许 N42 Stage Engineering
 > 判定：N42 Stage Engineering 出口通过；N42 Product Acceptance、N43、正式 Player、M1 与发布继续阻断
 
 ## 1. 复审结论与纠偏
