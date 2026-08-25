@@ -22,6 +22,7 @@ export interface PreviewCanvasImage {
 
 export interface PreviewCanvasImageSet {
   readonly background?: PreviewCanvasImage;
+  readonly previousBackground?: PreviewCanvasImage;
   readonly characters: ReadonlyMap<string, PreviewCanvasImage>;
 }
 
@@ -141,6 +142,60 @@ function drawCover(
   );
 }
 
+function drawFallbackBackground(context: CanvasRenderingContext2D, designWidth: number, designHeight: number): void {
+  const gradient = context.createLinearGradient(0, 0, 0, designHeight);
+  gradient.addColorStop(0, "#715fae");
+  gradient.addColorStop(0.66, "#efb26e");
+  gradient.addColorStop(0.67, "#253149");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, designWidth, designHeight);
+}
+
+function drawTransitionBackgrounds(
+  context: CanvasRenderingContext2D,
+  frame: PreviewRenderFrame,
+  images: PreviewCanvasImageSet,
+  designWidth: number,
+  designHeight: number,
+  selectedStatementId: string,
+  progress: number
+): void {
+  const transitionLayer = frame.background?.statementId === selectedStatementId
+    ? frame.background
+    : frame.previousBackground?.statementId === selectedStatementId
+      ? frame.previousBackground
+      : undefined;
+  const transition = transitionLayer?.transition;
+  const bounded = Math.min(1, Math.max(0, progress));
+  const previous = images.previousBackground;
+  const current = images.background;
+  if (transition === "fade") {
+    context.fillStyle = "#101827";
+    context.fillRect(0, 0, designWidth, designHeight);
+  } else if (previous === undefined) drawFallbackBackground(context, designWidth, designHeight);
+  if (previous !== undefined) {
+    context.save();
+    context.globalAlpha = current !== undefined && transition === "fade"
+      ? Math.max(0, 1 - bounded * 2)
+      : current === undefined && transition !== undefined
+        ? 1 - bounded
+        : 1;
+    if (current === undefined && transition === "slide") context.translate(-designWidth * bounded, 0);
+    drawCover(context, previous, designWidth, designHeight);
+    context.restore();
+    context.globalAlpha = 1;
+  }
+  if (current === undefined) return;
+  context.save();
+  if (transition === "fade") context.globalAlpha = bounded < 0.5 ? 0 : (bounded - 0.5) * 2;
+  else if (transition === "dissolve") context.globalAlpha = bounded;
+  else context.globalAlpha = 1;
+  if (transition === "slide") context.translate(designWidth * (1 - bounded), 0);
+  drawCover(context, current, designWidth, designHeight);
+  context.restore();
+  context.globalAlpha = 1;
+}
+
 export function drawPreviewCanvasFrame(
   context: CanvasRenderingContext2D,
   frame: PreviewRenderFrame,
@@ -161,16 +216,7 @@ export function drawPreviewCanvasFrame(
   context.rotate(camera.rotation * Math.PI / 180);
   context.scale(camera.zoom, camera.zoom);
   context.translate(-designWidth * 0.5, -designHeight * 0.5);
-  if (frame.background !== undefined && images.background !== undefined) {
-    drawCover(context, images.background, designWidth, designHeight);
-  } else {
-    const gradient = context.createLinearGradient(0, 0, 0, designHeight);
-    gradient.addColorStop(0, "#715fae");
-    gradient.addColorStop(0.66, "#efb26e");
-    gradient.addColorStop(0.67, "#253149");
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, designWidth, designHeight);
-  }
+  drawTransitionBackgrounds(context, frame, images, designWidth, designHeight, selectedStatementId, movementProgress);
   for (const character of frame.characters) {
     const image = images.characters.get(character.statementId);
     if (image === undefined) continue;
@@ -310,7 +356,11 @@ export function PreviewCanvasHost({
   const runtimeErrorRef = useRef(onRuntimeError);
   runtimeErrorRef.current = onRuntimeError;
   const [fallback, setFallback] = useState(false);
-  const activeTransition = frame.background?.statementId === selectedStatementId ? frame.background : undefined;
+  const activeTransition = frame.background?.statementId === selectedStatementId
+    ? frame.background
+    : frame.previousBackground?.statementId === selectedStatementId
+      ? frame.previousBackground
+      : undefined;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -330,14 +380,19 @@ export function PreviewCanvasHost({
     const characterImages = new Map<string, PreviewCanvasImage>();
     const imageTasks: Promise<void>[] = [];
     let animationFrame = 0;
-    let movementProgress = frame.camera?.movementFrom !== undefined || frame.characters.some((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
+    let movementProgress = activeTransition?.transition !== undefined || frame.camera?.movementFrom !== undefined || frame.characters.some((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
     let backgroundImage: PreviewCanvasImage | undefined;
+    let previousBackgroundImage: PreviewCanvasImage | undefined;
     const draw = () => {
       if (controller.signal.aborted) return;
       drawPreviewCanvasFrame(
         context,
         frame,
-        { ...(backgroundImage === undefined ? {} : { background: backgroundImage }), characters: characterImages },
+        {
+          ...(backgroundImage === undefined ? {} : { background: backgroundImage }),
+          ...(previousBackgroundImage === undefined ? {} : { previousBackground: previousBackgroundImage }),
+          characters: characterImages
+        },
         designWidth,
         designHeight,
         pixelWidth,
@@ -358,6 +413,17 @@ export function PreviewCanvasHost({
         }
       }));
     }
+    if (frame.previousBackground !== undefined) {
+      const layer = frame.previousBackground;
+      imageTasks.push(loadCanvasImage(layer.url, controller.signal).then((image) => {
+        previousBackgroundImage = image;
+        draw();
+      }).catch((error: unknown) => {
+        if (!controller.signal.aborted && !(error instanceof DOMException && error.name === "AbortError")) {
+          runtimeErrorRef.current("background", layer);
+        }
+      }));
+    }
     for (const character of frame.characters) {
       imageTasks.push(loadCanvasImage(character.url, controller.signal).then((image) => {
         characterImages.set(character.statementId, image);
@@ -371,7 +437,7 @@ export function PreviewCanvasHost({
     void Promise.allSettled(imageTasks).then(() => {
       if (controller.signal.aborted || movementProgress === 1) return;
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
-      const duration = Math.max(0, ...(frame.camera?.movementFrom === undefined ? [] : [previewCanvasDurationMs(frame.camera.duration)]), ...frame.characters
+      const duration = Math.max(0, ...(activeTransition?.transition === undefined ? [] : [previewCanvasDurationMs(activeTransition.duration)]), ...(frame.camera?.movementFrom === undefined ? [] : [previewCanvasDurationMs(frame.camera.duration)]), ...frame.characters
         .filter((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true)
         .map((character) => previewCanvasDurationMs(character.duration)));
       if (reducedMotion || duration === 0) {
@@ -416,12 +482,12 @@ export function PreviewCanvasHost({
     <canvas
       key={frame.planKey}
       ref={canvasRef}
-      className={`stage-canvas${activeTransition?.transition === undefined ? "" : ` stage-transition--${activeTransition.transition}`}`}
+      className="stage-canvas"
       width={pixelWidth}
       height={pixelHeight}
       role="img"
       aria-label="Canvas 2D 舞台画面"
-      style={{ animationDuration: activeTransition?.duration ?? "360ms" } as CSSProperties}
+      data-background-transition={activeTransition?.transition}
     />
     <div className="stage-canvas-hit-plane" data-camera-statement={frame.camera?.statementId} style={frame.camera === undefined ? undefined : {
       transformOrigin: "50% 50%",

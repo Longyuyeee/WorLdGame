@@ -25,6 +25,7 @@ export interface PreviewRenderFrame {
   readonly generation: number;
   readonly planKey: string;
   readonly background?: LoadedPreviewMedia["background"];
+  readonly previousBackground?: LoadedPreviewMedia["previousBackground"];
   readonly characters: LoadedPreviewMedia["characters"];
   readonly camera?: LoadedPreviewMedia["camera"];
   readonly errorCount: number;
@@ -47,6 +48,7 @@ export function createPreviewRenderFrame(
     };
   }
   const background = host.media.background;
+  const previousBackground = host.media.previousBackground;
   const backgroundAvailable = background !== undefined && !previewMediaLayerFailed(
     host,
     "background",
@@ -60,6 +62,9 @@ export function createPreviewRenderFrame(
     generation: host.generation,
     planKey: activePlanKey,
     ...(backgroundAvailable ? { background } : {}),
+    ...(previousBackground !== undefined && !previewMediaLayerFailed(host, "background", previousBackground.statementId, previousBackground.assetId)
+      ? { previousBackground }
+      : {}),
     characters: host.media.characters.filter((character) => !previewMediaLayerFailed(
       host,
       "character",

@@ -192,6 +192,40 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(entering, 0).characters[0]?.entering).toBe(true);
   });
 
+  it("retains only the previous background for one scoped replacement transition frame", () => {
+    const replacing: readonly StoryStatement[] = [
+      { kind: "direction", id: "old_bg", command: "background", summary: "action=set asset=bg_old" },
+      { kind: "direction", id: "new_bg", command: "background", summary: "action=set asset=bg_new transition=dissolve duration=700ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "settled" }
+    ];
+    const transition = derivePreviewStagePlan(replacing, 1);
+    expect(transition.background).toMatchObject({ statementId: "new_bg", assetId: "bg_new", transition: "dissolve", duration: "700ms" });
+    expect(transition.previousBackground).toMatchObject({ statementId: "old_bg", assetId: "bg_old" });
+    expect(derivePreviewStagePlan(replacing, 2).previousBackground).toBeUndefined();
+    expect(derivePreviewStagePlan(replacing, 0).previousBackground).toBeUndefined();
+  });
+
+  it("retains an outgoing background for one authored clear transition frame", () => {
+    const clearing: readonly StoryStatement[] = [
+      { kind: "direction", id: "old_bg", command: "background", summary: "action=set asset=bg_old" },
+      { kind: "direction", id: "clear_bg", command: "background", summary: "action=clear transition=fade duration=300ms" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "cleared" }
+    ];
+    const transition = derivePreviewStagePlan(clearing, 1);
+    expect(transition.background).toBeUndefined();
+    expect(transition.previousBackground).toMatchObject({ statementId: "clear_bg", assetId: "bg_old", transition: "fade", duration: "300ms" });
+    expect(derivePreviewStagePlan(clearing, 2).previousBackground).toBeUndefined();
+  });
+
+  it("fails closed instead of previewing an unknown transition", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "old_bg", command: "background", summary: "action=set asset=bg_old" },
+      { kind: "direction", id: "bad_transition", command: "background", summary: "action=set asset=bg_new transition=spin duration=450ms" }
+    ], 1);
+    expect(plan.background).toMatchObject({ statementId: "old_bg", assetId: "bg_old" });
+    expect(plan.diagnostics).toContain("bad_transition: transition must be fade, dissolve, or slide");
+  });
+
   it("does not execute empty moves or moves targeting inactive slots", () => {
     const plan = derivePreviewStagePlan([
       { kind: "direction", id: "missing", command: "show", summary: "action=move slot=hero x=80" },
@@ -260,6 +294,25 @@ describe("preview media runtime", () => {
     expect(media.errors).toEqual(["voice: Asset Index is missing voice_1"]);
     releasePreviewMedia(media, urls);
     expect(revoked).toEqual(["blob:image/png:1", "blob:image/png:2", "blob:audio/wav:3"]);
+  });
+
+  it("loads and releases both verified backgrounds for one replacement transition", async () => {
+    const oldBytes = new Uint8Array([21]);
+    const newBytes = new Uint8Array([22]);
+    const index: AssetIndex = { ...createAssetIndex(), assets: [entry("bg_old", "background", oldBytes), entry("bg_new", "background", newBytes)] };
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "old_bg", command: "background", summary: "action=set asset=bg_old" },
+      { kind: "direction", id: "new_bg", command: "background", summary: "action=set asset=bg_new transition=dissolve duration=700ms" }
+    ], 1);
+    const byDigest = new Map(index.assets.map((item, position) => [item.source.digest, [oldBytes, newBytes][position]!]));
+    const revoked: string[] = [];
+    let serial = 0;
+    const urls: PreviewUrlFactory = { create: () => `blob:bg:${++serial}`, revoke: (url) => revoked.push(url) };
+    const media = await loadPreviewMedia(plan, index, { read: async (digest) => byDigest.get(digest) ?? null }, urls, new AbortController().signal);
+    expect(media.background).toMatchObject({ assetId: "bg_new", url: "blob:bg:1" });
+    expect(media.previousBackground).toMatchObject({ assetId: "bg_old", url: "blob:bg:2" });
+    releasePreviewMedia(media, urls);
+    expect(revoked).toEqual(["blob:bg:1", "blob:bg:2"]);
   });
 
   it("deduplicates one verified Blob and Object URL reused by multiple audio buses", async () => {

@@ -135,6 +135,29 @@ describe("Preview Canvas host", () => {
     expect(context.translate).toHaveBeenCalledWith(547.2, 810);
   });
 
+  it("crossfades only background pixels while keeping characters fully opaque", () => {
+    const draws: Array<{ source: unknown; alpha: number }> = [];
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      drawImage(source: unknown) { draws.push({ source, alpha: (this as unknown as { globalAlpha: number }).globalAlpha }); },
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const transitionFrame: PreviewRenderFrame = {
+      ...frame,
+      background: { statementId: "new_bg", assetId: "new", url: "blob:new", transition: "dissolve", duration: "600ms" },
+      previousBackground: { statementId: "old_bg", assetId: "old", url: "blob:old" }
+    };
+    drawPreviewCanvasFrame(context, transitionFrame, {
+      background: { source: "new-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      previousBackground: { source: "old-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      characters: new Map([["stmt_hero", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "new_bg", 0.5);
+    expect(draws.find((draw) => draw.source === "old-background")?.alpha).toBe(1);
+    expect(draws.find((draw) => draw.source === "new-background")?.alpha).toBe(0.5);
+    expect(draws.find((draw) => draw.source === "hero")?.alpha).toBe(1);
+  });
+
   it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {
     const onSelect = vi.fn();
     const onStagePoint = vi.fn();

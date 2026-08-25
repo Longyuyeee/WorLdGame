@@ -138,6 +138,18 @@ describe("project compiler N30-E1/E2", () => {
     ]);
   });
 
+  it("rejects a Stage transition outside the frozen vocabulary before Runtime", () => {
+    const project = loadFixture("tiny");
+    const result = compileProject(replaceScript(project, "tiny_start", [
+      { id: "bad_transition", kind: "direction", command: "background", summary: "action=set asset=tiny_bg transition=spin duration=450ms" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(result.ok).toBe(false);
+    expect(result.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "INVALID_STATEMENT", statementId: "bad_transition", message: "Direction bad_transition has invalid Stage transition: spin" })
+    ]));
+  });
+
   it("rejects malformed graph and language references with stable diagnostics", () => {
     const project = loadFixture("tiny");
     const broken = replaceScript(project, "tiny_start", [

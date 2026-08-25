@@ -213,6 +213,7 @@ function addMonotonicId(values: readonly string[], id: string): readonly string[
 
 function directionState(state: RuntimeStateV1, command: string, parameters: Readonly<Record<string, unknown>>): Partial<RuntimeStateV1> | undefined {
   const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
+  if (parameters.transition !== undefined && (typeof parameters.transition !== "string" || !["fade", "dissolve", "slide"].includes(parameters.transition))) return undefined;
   if (command === "background") {
     if (action === "clear") return { sceneState: { ...state.sceneState, backgroundAssetId: null } };
     if (action !== "set" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset)) return undefined;
