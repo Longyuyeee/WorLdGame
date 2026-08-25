@@ -1,10 +1,10 @@
-# 当前开发情况审计（N42-E3 基本角色关键帧已闭环，产品门仍阻断）
+# 当前开发情况审计（N42-E3b 基本关键帧生产浏览器闭环，产品门仍阻断）
 
-> 审计日期：2026-08-24
-> 当前分支：`codex/n42-e3-character-keyframe-authoring`；直接基线为 N42-E2 最终绿色头 `a130779d03977e2eeff93cecca2260bd01ac868b`
+> 审计日期：2026-08-25
+> 当前分支：`codex/n42-e3b-preview-production-loop`；直接基线为 N42-E3a UI 壳层收敛头 `3eb1c87`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)；实现证据：[N42-E3 角色关键帧编排闭环审计](190-n42-e3-character-keyframe-authoring-audit.md)
+> 最新节点证据：[N42-E3b Preview 任务层级与关键帧生产闭环审计](193-n42-e3b-preview-production-loop-audit.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -99,6 +99,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. RA-N21-007 治理已由 Draft PR #65 最终 CI 关闭；E1a/#66、E1b/#67、E2/#68 与 E3/#69 的 Windows 门均绿色。E3 把下一角色关键帧收敛为 canonical Move，真实 fixture 与全仓 753/753 通过；本轮隔离浏览器无法连接宿主本地服务，故 UI 浏览器验收明确不计通过，待后续可用环境补证。下一步仍只能从 N42 冻结规格选择有界切片；N43 与正式 Player 仍禁止进入。
+5. RA-N21-007 治理已由 Draft PR #65 最终 CI 关闭；E1a/#66、E1b/#67、E2/#68 与 E3/#69 的 Windows 门均绿色。E3b 已补齐真实生产浏览器的关键帧编辑、s1 保存、刷新重开、Formal Runtime 稳定 ID 与 Stage 几何证据，并收敛 Preview 的 Runtime/Build 任务层级；普通全仓 748/748、存储 1/1、VM 5/5。下一步仍只能从 N42 冻结规格选择有界切片；N43 与正式 Player 仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

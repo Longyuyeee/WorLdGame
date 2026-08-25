@@ -2403,11 +2403,15 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     createPreviewTransportState
   );
   const [playable, setPlayable] = useState<FormalPreviewState>(createIdleFormalPreviewState);
+  const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(false);
   const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(null);
   const [webBuild, setWebBuild] = useState<(PlayableWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
   const previewObservation = observeFormalPreview(playable);
+  useEffect(() => {
+    if (playableActive) setRuntimeDetailsOpen(true);
+  }, [playableActive]);
   useEffect(() => {
     onRouteTraceChange(playableActive ? {
       active: true,
@@ -2826,6 +2830,42 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           </div>
         </div>
       </div>
+      <div className="preview-control-dock" aria-label="预览核心控制">
+        <div className="preview-transport">
+          <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
+          <div><strong>{previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
+          <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={playableActive || previewIndex === scene.statements.length - 1}>→</button>
+        </div>
+        <div className="preview-playback" aria-label="预览运行控制">
+          <button
+            className={transport.mode === "playing" ? "preview-playback__toggle is-playing" : "preview-playback__toggle"}
+            onClick={togglePlayback}
+            disabled={transport.mode !== "playing" && transportBarrier !== undefined}
+            aria-label={transport.mode === "playing" ? "暂停预览" : "开始预览"}
+          >
+            <span aria-hidden="true">{transport.mode === "playing" ? "Ⅱ" : "▶"}</span>
+            {transport.mode === "playing" ? "暂停" : "运行"}
+          </button>
+          <label>
+            <span>测试倍率</span>
+            <select
+              aria-label="预览测试倍率"
+              value={transport.speedId}
+              onChange={(event) => transportDispatch({
+                type: "set-speed",
+                speedId: event.target.value as PreviewSpeedId
+              })}
+            >
+              {PREVIEW_SPEED_PROFILES.map((profile) => (
+                <option key={profile.id} value={profile.id}>{profile.label}</option>
+              ))}
+            </select>
+          </label>
+          <output className={`preview-playback__status preview-playback__status--${transport.mode}`} aria-live="polite">
+            {transportStatus}
+          </output>
+        </div>
+      </div>
       <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
         <div>
           <strong>正式 Runtime 试玩</strong>
@@ -2911,6 +2951,15 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={pendingDraft || inputDirty}>从当前语句运行</button>
         </div>
       )}
+      <details
+        className="preview-disclosure preview-disclosure--runtime"
+        open={runtimeDetailsOpen}
+        onToggle={(event) => setRuntimeDetailsOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <span><strong>Runtime 诊断</strong><small>变量、调用栈与结构化诊断</small></span>
+          <span>r{previewObservation.stateRevision ?? "—"} · h{previewObservation.history?.cursor ?? "—"}/{previewObservation.history?.length ?? "—"}</span>
+        </summary>
       <section className={`runtime-inspector runtime-inspector--${playable.status}`} aria-label="Runtime 状态检查器">
         <header className="runtime-inspector__header">
           <div><span className="runtime-inspector__pulse" aria-hidden="true" /><strong>Preview Session</strong><small>正式 Runtime 状态观察</small></div>
@@ -2947,46 +2996,19 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             : <ul>{previewObservation.diagnostics.map((diagnostic, index) => <li className={`runtime-inspector__diagnostic--${diagnostic.severity}`} key={`${diagnostic.code}:${index}`}><strong>{diagnostic.code}</strong><span>{diagnostic.origin}</span><p>{diagnostic.message}</p><code>{diagnostic.sceneId ?? "global"} / {diagnostic.statementId ?? diagnostic.instructionId ?? "unmapped"}</code></li>)}</ul>}
         </section>
       </section>
+      </details>
+      <details className="preview-disclosure preview-disclosure--build">
+        <summary>
+          <span><strong>构建与导出</strong><small>独立、离线、可交付试玩产物</small></span>
+          <span>{webBuild === null ? "按需构建" : `${(webBuild.byteLength / 1024).toFixed(1)} KiB`}</span>
+        </summary>
       <div className="playable-web-export" aria-label="独立试玩导出">
         <div><strong>独立试玩产物</strong><small>生成无需编辑器和网络即可运行的单文件 HTML</small></div>
         <button type="button" onClick={preparePlayableWeb} disabled={pendingDraft || inputDirty}>构建试玩 HTML</button>
         {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
         {webBuildError && <p role="alert">{webBuildError}</p>}
       </div>
-      <div className="preview-transport">
-        <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
-        <div><strong>{previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
-        <button aria-label="下一步" onClick={() => stepPreview(1)} disabled={playableActive || previewIndex === scene.statements.length - 1}>→</button>
-      </div>
-      <div className="preview-playback" aria-label="预览运行控制">
-        <button
-          className={transport.mode === "playing" ? "preview-playback__toggle is-playing" : "preview-playback__toggle"}
-          onClick={togglePlayback}
-          disabled={transport.mode !== "playing" && transportBarrier !== undefined}
-          aria-label={transport.mode === "playing" ? "暂停预览" : "开始预览"}
-        >
-          <span aria-hidden="true">{transport.mode === "playing" ? "Ⅱ" : "▶"}</span>
-          {transport.mode === "playing" ? "暂停" : "运行"}
-        </button>
-        <label>
-          <span>测试倍率</span>
-          <select
-            aria-label="预览测试倍率"
-            value={transport.speedId}
-            onChange={(event) => transportDispatch({
-              type: "set-speed",
-              speedId: event.target.value as PreviewSpeedId
-            })}
-          >
-            {PREVIEW_SPEED_PROFILES.map((profile) => (
-              <option key={profile.id} value={profile.id}>{profile.label}</option>
-            ))}
-          </select>
-        </label>
-        <output className={`preview-playback__status preview-playback__status--${transport.mode}`} aria-live="polite">
-          {transportStatus}
-        </output>
-      </div>
+      </details>
       <div className={`diagnostic-card diagnostic-card--${showBufferedNotice ? "draft" : session.notice.tone}`} aria-live="polite">
         <span className="diagnostic-icon" aria-hidden="true">{showBufferedNotice ? "…" : session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
         <div>
@@ -3194,6 +3216,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     if (!storageAvailable) return;
     let cancelled = false;
     let heartbeat: ReturnType<typeof setInterval> | undefined;
+    let conflictRetry: ReturnType<typeof setTimeout> | undefined;
     const store = new IndexedDbProjectFileStore(globalThis.indexedDB, projectStorageId);
     const assetRepository = new IndexedDbAssetRepository(globalThis.indexedDB, projectStorageId);
     setPersistence({ status: "loading", revision: storageRevision.current });
@@ -3229,12 +3252,16 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         return;
       }
       if (acquisition.status === "held") {
+        const retryDelayMs = Math.max(100, acquisition.holderExpiresAtMs - Date.now() + 100);
         setPersistence({
           status: "conflict",
           revision: storageRevision.current,
-          detail: `另一编辑窗口持有写入权，最迟于 ${new Date(acquisition.holderExpiresAtMs).toLocaleTimeString()} 释放。`,
+          detail: `另一编辑窗口持有写入权，最迟于 ${new Date(acquisition.holderExpiresAtMs).toLocaleTimeString()} 释放；届时将自动重试。`,
           errorCode: "LEASE_REQUIRED"
         });
+        conflictRetry = setTimeout(() => {
+          if (!cancelled) setLeaseRetry((value) => value + 1);
+        }, retryDelayMs);
         return;
       }
 
@@ -3414,6 +3441,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     return () => {
       cancelled = true;
       if (heartbeat !== undefined) clearInterval(heartbeat);
+      if (conflictRetry !== undefined) clearTimeout(conflictRetry);
       globalThis.removeEventListener("pagehide", releaseOnPageHide);
       globalThis.removeEventListener("pageshow", reacquireAfterPageShow);
       const activeLease = leaseRef.current;

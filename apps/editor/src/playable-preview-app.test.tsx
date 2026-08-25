@@ -19,7 +19,11 @@ describe("playable preview integration", () => {
     render(<App />);
 
     expect(screen.getByText("Project Compiler → Runtime · 从入口执行到结局")).toBeVisible();
+    const runtimeDisclosure = screen.getByText("Runtime 诊断").closest("details");
+    expect(runtimeDisclosure).not.toHaveAttribute("open");
+    expect(screen.getByLabelText("预览核心控制")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    expect(runtimeDisclosure).toHaveAttribute("open");
     const inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
     expect(within(inspector).getByText("Preview Session")).toBeVisible();
     expect(within(screen.getByRole("region", { name: "Runtime 变量" })).getByText(/暂无 Runtime 变量/)).toBeVisible();
@@ -52,6 +56,10 @@ describe("playable preview integration", () => {
     const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     const view = render(<App />);
 
+    const buildDisclosure = screen.getByText("构建与导出").closest("details");
+    expect(buildDisclosure).not.toHaveAttribute("open");
+    fireEvent.click(screen.getByText("构建与导出"));
+    expect(buildDisclosure).toHaveAttribute("open");
     fireEvent.click(screen.getByRole("button", { name: "构建试玩 HTML" }));
 
     const download = screen.getByRole("link", { name: /下载 .* KiB/ });
