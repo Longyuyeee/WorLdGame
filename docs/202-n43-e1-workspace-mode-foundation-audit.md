@@ -1,4 +1,4 @@
-# N43-E1 七工作模式骨架与真实布局审计
+# N43-E1a 七工作模式骨架与真实布局审计
 
 > 日期：2026-08-25
 > 分支：`codex/n43-e1-workspace-modes`
@@ -7,7 +7,7 @@
 > Draft PR：#75，base `codex/n43-governance-checkpoint`
 > Windows CI：run `32831410443` / job `97750710122`，8 分 11 秒，绿色
 > 状态：本地实现与真实浏览器验收通过；远端 Windows 完整门通过
-> 判定：E1 有界切片 Engineering 完成；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
+> 判定：E1a 工作模式基础 Engineering 完成；治理 #201 所定义的广义 E1 仍缺保存重开上下文闭环，留给 E1b；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 
 ## 1. 冻结目标与范围
 
@@ -78,4 +78,4 @@ Canvas 比例与数学 16:9 的小幅差异来自设备像素取整和边框盒�
 
 ## 6. 下一步
 
-N43-E2 应冻结跨视图 Selection/Context 协议，把“当前场景、当前 stable-ID 语句、当前 Runtime 位置、当前 Inspector 对象”定义为可测试的单一上下文，并贯通 Writer/Director/Flow/Quick Start 的定位和保存重开。Production、Debug & QA、Mobile Focus 在拥有真实任务前继续禁用，不新增空壳页面。
+N43-E1b 应冻结跨视图 Selection/Context 协议，把“当前场景、当前 stable-ID 语句、当前 Runtime 位置、当前 Inspector 对象”定义为可测试的单一上下文，并贯通 Writer/Director/Flow/Quick Start 的定位和保存重开。E1b 关闭后才进入 E2；Production、Debug & QA、Mobile Focus 在拥有真实任务前继续禁用，不新增空壳页面。
