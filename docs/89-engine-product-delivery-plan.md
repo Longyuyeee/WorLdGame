@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E7 作用域舞台转场审计](197-n42-e7-scoped-stage-transitions-audit.md)已补齐冻结三类背景转场的 canonical、资源窗口、Runtime/Host、分层 Canvas Preview 与保存重开闭环，Draft PR #70 的干净 Windows 完整门已关闭本机 Route 性能差异。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
+> 当前审计：[N42 Stage Engineering 出口复审](200-n42-stage-engineering-exit-reaudit.md)确认 Goal `1/1`、Implementation `8/8` 并停止无限扩张 Stage；[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)建立的 `RA-N21-008` 只授权 N43 七工作模式 Engineering。工程底座仍明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N50+、M1/发布和正式 Player继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -421,6 +421,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Acceptance**：AC-13 样例在 Editor Preview 和 Player 中一致。
 
 ### N43 七工作模式与跨视图协议
+
+> 准入状态（2026-08-25）：N42 Engineering 出口后，产品负责人再次明确要求进入后续步骤。[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)以 `RA-N21-008` 只准入本节点 Engineering；N43 Product Acceptance、N50+、M1 与发布继续 fail closed。E1 必须先冻结七模式 ID、Canonical selection/context 和布局边界，再关闭一个模式切换→同一 stable-ID→保存重开→桌面/移动 production browser 的真实闭环。
 
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。

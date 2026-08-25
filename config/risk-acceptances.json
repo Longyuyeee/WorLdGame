@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentDeliveryNode": "N42",
+  "currentDeliveryNode": "N43",
   "exceptions": [
     {
       "id": "RA-N21-001",
@@ -271,7 +271,7 @@
     },
     {
       "id": "RA-N21-007",
-      "status": "active",
+      "status": "closed",
       "failedControls": [
         "N21 non-programmer 20-minute product task",
         "N23 product acceptance by two non-implementers",
@@ -313,6 +313,57 @@
       "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N42 Product Acceptance or any N43 work.",
       "verificationMethod": "Keep human records pending; for N42 compare frozen Stage semantic commands, stable IDs, timeline state, formal Runtime observation, presentation Host receipts, save/reopen state, production-browser interaction outcomes, and performance budgets against actual results; record and correct every difference before updating evidence.",
       "evidencePath": "docs/186-n41-n42-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-008",
+      "status": "active",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N43 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Seven-mode discoverability and mode-switching assumptions may remain undiscovered",
+        "mobile-focus and reduced-motion workflows may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish independent task completion"
+      ],
+      "reason": "N42 Stage Engineering passed its frozen Goal 1/1 and Implementation 8/8 exit with local and Windows / Node 22 evidence while formal Player parity correctly remained 0/1. The Product Owner was told that RA-N21-007 stopped at N42 and on 2026-08-25 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N43 seven-mode and cross-view Engineering while every product and later-node gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, N42, and N43 product acceptance pending rather than passed",
+        "Limit the extension to N43 Engineering; N43 Product Acceptance, N50 Engineering, and every later node remain blocked",
+        "Require all modes to project the same Canonical Project and prohibit mode-owned semantic documents",
+        "Require reversible mode changes, stable cross-view selection/context, reduced-motion behavior, and bounded desktop/mobile layouts",
+        "Require actual production-browser tests at desktop and mobile viewports, deterministic state tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Product Acceptance, N41 Product Acceptance, N42 Product Acceptance, N43 Product Acceptance, N50 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-ux-modes",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-25T15:12:18+08:00",
+      "expiresAt": "2026-09-24T15:12:18+08:00",
+      "maximumDeliveryNode": "N43",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Product Acceptance",
+        "N50 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N43 Product Acceptance or any N50 work.",
+      "verificationMethod": "Keep human records pending; for N43 compare frozen mode layouts, Canonical Project hashes, stable selection/context, keyboard/touch alternatives, reduced-motion state, desktop/mobile production-browser outcomes, and performance budgets against actual results; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/201-n42-n43-governance-checkpoint.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",
