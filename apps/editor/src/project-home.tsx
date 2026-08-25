@@ -97,15 +97,21 @@ export function ProjectHome({ recent, actions, onEnter }: {
       <h2 id="project-create-title">开始创作</h2>
       <form className="project-home__create" onSubmit={submit}>
         <label>项目名称<input aria-label="项目名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
-        <button disabled={busy || title.trim() === ""}>新建工程</button>
+        <button className="project-home__primary" disabled={busy || title.trim() === ""}>新建工程</button>
       </form>
       <div className="project-home__actions">
         <button disabled={busy} onClick={() => void run(actions.openDirectory)}>打开工程目录</button>
         <button disabled={busy} onClick={() => void run(actions.openExample)}>打开示例工程</button>
-        <button disabled={busy} onClick={() => void run(actions.openN23Benchmark)}>打开五分钟验收工程</button>
-        <button disabled={busy} onClick={() => void run(actions.openN42MediaStage)}>打开 Stage 媒体验收工程</button>
         <label className="button-like">导入工程 ZIP<input aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={(event) => { const file = event.target.files?.[0]; if (file) void run(() => actions.importArchive(file)); }} /></label>
       </div>
+      <details className="project-home__validation-tools">
+        <summary>开发与验收工程</summary>
+        <p>用于验证固定生产链，不属于日常创作入口。</p>
+        <div className="project-home__actions">
+          <button disabled={busy} onClick={() => void run(actions.openN23Benchmark)}>打开五分钟验收工程</button>
+          <button disabled={busy} onClick={() => void run(actions.openN42MediaStage)}>打开 Stage 媒体验收工程</button>
+        </div>
+      </details>
     </section>
     <section className="project-home__card" aria-labelledby="recent-title">
       <h2 id="recent-title">最近工程</h2>

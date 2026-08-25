@@ -10,6 +10,7 @@
   --wg-color-bg-surface-1: #121824;
   --wg-color-bg-surface-2: #182131;
   --wg-color-bg-surface-3: #202b3d;
+  --wg-color-bg-surface: var(--wg-color-bg-surface-1);
   --wg-color-border-subtle: #273247;
   --wg-color-border-strong: #3c4962;
   --wg-color-border-focus: #3ed7ff;

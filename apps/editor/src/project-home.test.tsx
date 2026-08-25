@@ -14,6 +14,7 @@ describe("Project Home", () => {
     const api = actions(); const enter = vi.fn();
     render(<ProjectHome recent={[{ reference, projectId: project.manifest.projectId, title: "Recent", lastOpenedAtMs: 1 }]} actions={api} onEnter={enter} />);
     expect(screen.getByRole("main", { name: "项目首页" })).toBeVisible();
+    fireEvent.click(screen.getByText("开发与验收工程"));
     expect(screen.getByRole("button", { name: "打开五分钟验收工程" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "打开 Stage 媒体验收工程" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "打开示例工程" }));
@@ -30,6 +31,7 @@ describe("Project Home", () => {
   it("prepares the product-controlled Stage media fixture without a file chooser", async () => {
     const api = actions();
     render(<ProjectHome recent={[]} actions={api} onEnter={vi.fn()} />);
+    fireEvent.click(screen.getByText("开发与验收工程"));
     fireEvent.click(screen.getByRole("button", { name: "打开 Stage 媒体验收工程" }));
     await waitFor(() => expect(api.openN42MediaStage).toHaveBeenCalledOnce());
   });
@@ -44,6 +46,7 @@ describe("Project Home", () => {
   it("opens the dedicated five-minute acceptance project", async () => {
     const api = actions();
     render(<ProjectHome recent={[]} actions={api} onEnter={() => undefined} />);
+    fireEvent.click(screen.getByText("开发与验收工程"));
     fireEvent.click(screen.getByRole("button", { name: "打开五分钟验收工程" }));
     await waitFor(() => expect(api.openN23Benchmark).toHaveBeenCalledOnce());
     expect(await screen.findByRole("heading", { name: "My Story" })).toBeVisible();
