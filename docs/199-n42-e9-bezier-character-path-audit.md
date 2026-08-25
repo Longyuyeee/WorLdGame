@@ -53,15 +53,17 @@
 - Requirements：50 / USP 10 / AC 27，PASS；Architecture：93 portable files / 4 Node adapters，PASS；
 - 全仓 `npm run check`：退出码 0；普通回归 128 files / 799 tests；storage 1/1；重型 VM 5/5；Runtime corpus 10,000 seeds / 20,000 replay，digest `20e9a842…92ef2`；
 - Script 性能 13/13 PASS（贝塞尔 10,000 条 `5.34ms`）；Route 9/9 PASS（20 样本 P95 `138.73ms`、Lazy page `269.73ms`、Lazy Index `260.53ms`）；Asset 4/4 PASS（Dicing 总计 `2635.43ms <5000ms`）；
-- 远端 Windows / Node 22：首次 run `32816908246` / job `97706938825` 被 PR traceability 门正确拒绝；修正提交后的完整门等待回填；
+- 远端 Windows / Node 22：首次 run `32816908246` / job `97706938825` 被 PR traceability 门正确拒绝；修正后 run `32817064802` / job `97707391453` 用时 `6m06s`，全部 PASS；
+- 远端普通回归 128 files / 799 tests，storage 1/1，VM 5/5；Runtime corpus `30.886s` 且 digest 不变；Editor JS `906.00 kB`（gzip `252.87 kB`）；
+- 远端 Script 13/13（贝塞尔 10,000 条 `13.97ms`）、Route 9/9（P95 `128.20ms`、Lazy page `298.85ms`、Lazy Index `250.80ms`）、Asset 4/4（Dicing `3254.38ms`），全部在冻结预算内；
 - `git diff --check`：PASS。
 
 ## 5. 需求对齐与出口判定
 
 E9 直接推进最初需求中的现代图形化演出编辑、专业级角色调度、稳定运行与可维护生产链。它复用 canonical Move 和 portable presentation channel，没有扩张出 Editor 私有路径数据库，也没有提前进入正式 Player、N43 或三端发布，因此当前没有替换性方向偏移。
 
-本机完整门已通过，当前判定 **E9 Engineering 候选**：待远端干净 Windows / Node 22 同门通过后才能关闭 E9。浏览器视觉实测仍缺，不能把数学/DOM 测试换算为 Product Acceptance；N42 完整专业时间线、正式 Player、Android/Windows/Web 发布和 M1 继续阻断。
+本机完整门与远端干净 Windows / Node 22 同门均已通过，因此 **E9 Engineering 切片关闭**。浏览器视觉实测仍缺，不能把数学/DOM 测试换算为 Product Acceptance；N42 完整专业时间线、正式 Player、Android/Windows/Web 发布和 M1 继续阻断。
 
 ## 6. 下一步
 
-先完成本分支全仓和远端 CI 裁决并回填本审计。若全绿，再在 `RA-N21-007` 内重新选择 N42 最小切片，优先在高级 Camera 与独立轨道时间写入之间按需求价值和共享语义闭环排序；不得把 E9 完成宣称为完整 N42 或商业发布完成。
+在 `RA-N21-007` 内重新选择 N42 最小切片，优先在高级 Camera 与独立轨道时间写入之间按需求价值和共享语义闭环排序；不得把 E9 完成宣称为完整 N42 或商业发布完成。

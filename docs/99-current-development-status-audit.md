@@ -1,4 +1,4 @@
-# 当前开发情况审计（N42-E9 贝塞尔路径本机候选，产品门仍阻断）
+# 当前开发情况审计（N42-E9 贝塞尔路径 Engineering 已关闭，产品门仍阻断）
 
 > 审计日期：2026-08-25
 > 当前分支：`codex/n42-e9-bezier-character-path`；直接基线为 N42-E8 `449de01`
@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E8 已关闭；E9 三次贝塞尔路径本机完整门已通过，正等待远端 Windows 裁决。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E9 已关闭，Draft PR #72 的 Windows / Node 22 完整门全绿。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
