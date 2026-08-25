@@ -21,6 +21,7 @@ import {
   SAFE_STAGE_SLOT,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   isStageEasing,
+  isStageTransition,
   directiveActionParameters,
   directiveActionRequiresAsset,
   resolveDirectiveAction
@@ -31,7 +32,7 @@ export type ResourceManifestDiagnosticCode = "SOURCE_INVALID" | "MISSING_SCENE_D
   "SCENE_ID_MISMATCH" | "SCENE_STATEMENTS_MISMATCH" | "STATEMENT_SEMANTICS_MISMATCH" | "MISSING_STATEMENT_ID" | "UNTYPED_RESOURCE_REFERENCE" | "MALFORMED_PARAMETER" |
   "DUPLICATE_PARAMETER" | "UNKNOWN_RESOURCE_PARAMETER" | "MISSING_ASSET" | "INVALID_ASSET_ID" |
   "UNKNOWN_ASSET" | "INVALID_ACTION" | "INVALID_ACTION_PARAMETER" | "EMPTY_STAGE_MOVE" | "MISSING_STAGE_TARGET" |
-  "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" | "INVALID_STAGE_GEOMETRY" | "INVALID_STAGE_EASING" |
+  "INVALID_STAGE_SLOT" | "INVALID_STAGE_Z" | "INVALID_STAGE_GEOMETRY" | "INVALID_STAGE_EASING" | "INVALID_STAGE_TRANSITION" |
   "INVALID_AUDIO_BUS" | "INVALID_BOOLEAN" | "INVALID_DURATION" | "INVALID_VOLUME";
 
 export interface ResourceManifestDiagnostic {
@@ -276,6 +277,9 @@ export function compileSceneResourceManifest(
       const duration = parsed.parameters.get("duration") ?? parsed.parameters.get("fade");
       if (duration !== undefined && !/^\d+(?:\.\d+)?(?:ms|s)$/.test(duration)) diagnostics.push({ code: "INVALID_DURATION", severity: "error",
         message: "duration/fade must use an explicit ms or s unit", sceneId: scene.id, statementId: node.id, line: node.range.start.line });
+      const transition = parsed.parameters.get("transition");
+      if (transition !== undefined && !isStageTransition(transition)) diagnostics.push({ code: "INVALID_STAGE_TRANSITION", severity: "error",
+        message: "transition must be fade|dissolve|slide", sceneId: scene.id, statementId: node.id, line: node.range.start.line });
       const requiresAsset = action !== undefined && directiveActionRequiresAsset(node.command, action);
       const dependencies = [requiresAsset ? assetId : undefined, requiresAsset ? parsed.parameters.get("transitionAsset") : undefined]
         .filter((value): value is string => value !== undefined);
@@ -290,10 +294,16 @@ export function compileSceneResourceManifest(
       for (const dependency of validDependencies) if (!sceneAssets.includes(dependency)) sceneAssets.push(dependency);
       const validPrimaryAsset = assetId !== undefined && validDependencies.includes(assetId) ? assetId : undefined;
       let exitingCharacterAsset: string | undefined;
+      let transitioningBackgroundAsset: string | undefined;
       if (action !== undefined) {
         if (node.command === "background") {
-          if (action === "clear") activeBackground = undefined;
-          else if (validPrimaryAsset !== undefined) activeBackground = validPrimaryAsset;
+          if (action === "clear") {
+            if (transition !== undefined && isStageTransition(transition)) transitioningBackgroundAsset = activeBackground;
+            activeBackground = undefined;
+          } else if (validPrimaryAsset !== undefined) {
+            if (transition !== undefined && isStageTransition(transition)) transitioningBackgroundAsset = activeBackground;
+            activeBackground = validPrimaryAsset;
+          }
         } else if (node.command === "show" && SAFE_STAGE_SLOT.test(slot)) {
           if (action === "hide") {
             exitingCharacterAsset = activeCharacters.get(slot);
@@ -312,6 +322,7 @@ export function compileSceneResourceManifest(
       }
       const transientDependencies = [
         ...validDependencies.filter((dependency) => dependency !== validPrimaryAsset),
+        ...(transitioningBackgroundAsset === undefined ? [] : [transitioningBackgroundAsset]),
         ...(exitingCharacterAsset === undefined ? [] : [exitingCharacterAsset])
       ];
       requiredByStatement.set(node.id, currentAssets(transientDependencies));

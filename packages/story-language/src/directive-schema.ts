@@ -5,6 +5,12 @@ export type CharacterAction = "show" | "move" | "hide";
 export type CameraAction = "move" | "reset";
 export type AudioAction = "play" | "stop" | "pause" | "resume";
 export type DirectiveAction = BackgroundAction | CharacterAction | CameraAction | AudioAction;
+export type StageTransition = "fade" | "dissolve" | "slide";
+
+export const STAGE_TRANSITIONS = ["fade", "dissolve", "slide"] as const satisfies readonly StageTransition[];
+export function isStageTransition(value: string): value is StageTransition {
+  return (STAGE_TRANSITIONS as readonly string[]).includes(value);
+}
 
 export const DIRECTIVE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
   background: ["action", "asset", "transition", "transitionAsset", "duration"],
@@ -63,7 +69,7 @@ export function directiveActionParameters(
   command: DirectiveNode["command"],
   action: DirectiveAction
 ): readonly string[] {
-  if (command === "background") return action === "set" ? DIRECTIVE_PARAMETERS.background : ["action"];
+  if (command === "background") return action === "set" ? DIRECTIVE_PARAMETERS.background : ["action", "transition", "duration"];
   if (command === "show") {
     if (action === "show") return DIRECTIVE_PARAMETERS.show.filter((parameter) => parameter !== "easing");
     if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "transition", "duration", "easing"];

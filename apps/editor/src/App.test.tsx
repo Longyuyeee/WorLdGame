@@ -170,11 +170,12 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByText("1 项资源未执行")).toBeVisible();
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
   });
-  it("commits background clear without requiring or leaking resource-only fields", () => {
+  it("commits background clear without requiring resource-only fields while keeping optional transition controls", () => {
     renderLegacyDirectionApp();
     fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "clear" } });
     expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("演出过渡")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("演出过渡")).toHaveValue("");
+    expect(screen.queryByLabelText("过渡资源")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "迁移旧描述并应用" }));
     expect(screen.getByRole("button", { name: "选择演出：action=clear" })).toBeVisible();
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
@@ -218,6 +219,21 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
       "@show action=move slot=primary x=80 y=90 transition=slide duration=300ms easing=ease-in-out"
+    );
+  });
+  it("authors a scoped background clear transition from the graphical Stage track", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 背景" }));
+    fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "clear" } });
+    fireEvent.change(screen.getByLabelText("新增背景转场"), { target: { value: "dissolve" } });
+    expect(screen.getByLabelText("新增背景转场时长")).toHaveValue("600ms");
+    fireEvent.change(screen.getByLabelText("新增背景转场时长"), { target: { value: "soon" } });
+    expect(screen.getByRole("button", { name: "插入演出" })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText("新增背景转场时长"), { target: { value: "700ms" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
+      "@background action=clear transition=dissolve duration=700ms"
     );
   });
   it("authors a bounded camera cue and exposes it on the dedicated timeline lane", () => {

@@ -14,6 +14,7 @@ import {
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
   isStageEasing,
+  isStageTransition,
   directiveActionRequiresAsset,
   resolveDirectiveAction
 } from "./directive-schema";
@@ -225,6 +226,9 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
   }
   const action = resolveDirectiveAction(request.command, request.parameters.action);
   if (action === undefined) return `Invalid @${request.command} action`;
+  if (request.parameters.transition !== undefined && !isStageTransition(request.parameters.transition)) {
+    return "transition must be fade, dissolve, or slide";
+  }
   const requiresAsset = directiveActionRequiresAsset(request.command, action);
   if (requiresAsset && request.parameters.asset === undefined) {
     return `@${request.command} action=${action} requires asset`;

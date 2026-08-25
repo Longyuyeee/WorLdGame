@@ -60,6 +60,23 @@ end "done" @id(end)
     ]);
   });
 
+  it("retains the outgoing background only for the scoped transition resource window", () => {
+    const document = parseStory(`scene "background transition" @id(scn_transition)
+@background action=set asset=bg_old @id(old_bg)
+@background action=set asset=bg_new transition=dissolve duration=700ms @id(new_bg)
+hero: settled @sid(line) @id(text)
+end "done" @id(end)
+`);
+    const projected = projectStoryScene(document);
+    if (!projected.ok) throw new Error(projected.diagnostics[0]?.message);
+    const result = compileSceneResourceManifest({ ...campusStoryProject, scenes: [projected.scene] }, { scn_transition: document }, { knownAssetIds: ["bg_old", "bg_new"] });
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.diagnostics[0]?.message);
+    expect(result.compilation.timelines[0]?.statements.map((statement) => statement.requiredAssetIds)).toEqual([
+      ["bg_old"], ["bg_new", "bg_old"], ["bg_new"], ["bg_new"]
+    ]);
+  });
+
   it("accepts frozen Stage move easings and rejects unknown easing values", () => {
     const valid = parseStory(`scene "valid easing" @id(scn_easing)
 @show action=show asset=hero slot=hero @id(show)

@@ -53,12 +53,14 @@ import {
   MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
   STAGE_EASINGS,
+  STAGE_TRANSITIONS,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   compileSceneResourceManifest,
   directiveActionRequiresAsset,
   directiveActionOptions,
   inspectDirectiveArguments,
   isStageEasing,
+  isStageTransition,
   parseStory,
   resolveDirectiveAction,
   type StoryDocument
@@ -890,7 +892,7 @@ function DirectionInspector({
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
   const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
   const cameraMoveActive = statement.command === "camera" && action === "move";
-  const visualTransitionActive = (statement.command === "background" && action === "set") ||
+  const visualTransitionActive = (statement.command === "background" && (action === "set" || action === "clear")) ||
     statement.command === "show" && (characterGeometryActive || action === "hide");
   const durationActive = visualTransitionActive || statement.command === "camera" || statement.command === "audio" && action === "play";
   const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
@@ -923,8 +925,9 @@ function DirectionInspector({
   ].every(Boolean);
   const moveHasGeometry = action !== "move" || (statement.command === "camera" ? CAMERA_GEOMETRY_PARAMETERS : STAGE_MOVE_GEOMETRY_PARAMETERS).some((key) => (form[key] ?? "").trim().length > 0);
   const easingValid = statement.command !== "camera" && action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
+  const transitionValid = form.transition === undefined || form.transition.length === 0 || isStageTransition(form.transition);
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
-    geometryValid && cameraGeometryValid && moveHasGeometry && easingValid && transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && cameraGeometryValid && moveHasGeometry && easingValid && transitionValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -938,7 +941,7 @@ function DirectionInspector({
         ? ["action", "x", "y", "zoom", "rotation", "duration", "easing"]
         : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
-    ? { asset: null, transition: null, transitionAsset: null, duration: null }
+    ? { asset: null, transitionAsset: null }
     : statement.command === "show"
       ? action === "move"
         ? { asset: null, expression: null, transitionAsset: null }
@@ -1019,8 +1022,9 @@ function DirectionInspector({
         <div className="direction-field">
           <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
           <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
-            <option value="">无</option><option value="fade">Fade</option><option value="dissolve">Dissolve</option><option value="slide">Slide</option>
+            <option value="">无</option>{STAGE_TRANSITIONS.map((transition) => <option key={transition} value={transition}>{transition[0]!.toUpperCase() + transition.slice(1)}</option>)}
           </select>
+          {!transitionValid && <small className="is-error">仅支持 fade、dissolve 或 slide</small>}
         </div>
       )}
       {statement.command === "show" && <>
@@ -1104,7 +1108,7 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
   const [value, setValue] = useState("");
   const tokenValid = /^[^\s=@()]+$/.test(value) && value.length <= 256;
   const valueValid = mode === "remove" || (
-    parameter === "transition" ? ["fade", "dissolve", "slide"].includes(value) :
+    parameter === "transition" ? (STAGE_TRANSITIONS as readonly string[]).includes(value) :
       parameter === "easing" ? isStageEasing(value) :
       parameter === "position" ? ["left", "center", "right"].includes(value) :
         parameter === "x" || parameter === "y" ? /^-?\d+(?:\.\d+)?$/.test(value) && Number(value) >= (command === "camera" ? MIN_CAMERA_OFFSET : MIN_STAGE_PERCENT) && Number(value) <= (command === "camera" ? MAX_CAMERA_OFFSET : MAX_STAGE_PERCENT) :
@@ -1214,6 +1218,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [rotation, setRotation] = useState("0");
   const [duration, setDuration] = useState("600ms");
   const [easing, setEasing] = useState("ease-in-out");
+  const [transition, setTransition] = useState("");
   const [bus, setBus] = useState("bgm");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
@@ -1230,8 +1235,9 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
     validOptionalStageNumber({ zoom }, "zoom", MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM),
     validOptionalStageNumber({ rotation }, "rotation", MIN_CAMERA_ROTATION, MAX_CAMERA_ROTATION)
   ].every(Boolean);
-  const durationValid = command !== "camera" || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
-  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid;
+  const durationValid = command !== "camera" && !(command === "background" && transition.length > 0) || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
+  const transitionValid = transition.length === 0 || (STAGE_TRANSITIONS as readonly string[]).includes(transition);
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid;
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : "音频";
 
   return (
@@ -1240,6 +1246,10 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       if (!canSubmit) return;
       const parameters: Record<string, string> = { action };
       if (assetRequired) parameters.asset = asset;
+      if (command === "background" && transition.length > 0) {
+        parameters.transition = transition;
+        parameters.duration = duration;
+      }
       if (command === "show") {
         parameters.slot = slot;
         if (assetRequired) parameters.z = z;
@@ -1281,6 +1291,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
         {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
         {cameraMoveActive && <><label><span>偏移 X（%）</span><input aria-label="新增镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>偏移 Y（%）</span><input aria-label="新增镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>倍率</span><input aria-label="新增镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={zoom} disabled={disabled} onChange={(event) => setZoom(event.target.value)} /></label><label><span>旋转</span><input aria-label="新增镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={rotation} disabled={disabled} onChange={(event) => setRotation(event.target.value)} /></label></>}
+        {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
         {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
       </div>
@@ -1289,7 +1300,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
       {!moveGeometryValid && <small className="is-error">移动位置必须在 0–100 之间</small>}
       {!cameraGeometryValid && <small className="is-error">镜头偏移 -100–100，倍率 0.5–3，旋转 -30–30</small>}
-      {!durationValid && <small className="is-error">镜头时长必须带 ms 或 s 单位</small>}
+      {!durationValid && <small className="is-error">转场或镜头时长必须带 ms 或 s 单位</small>}
       <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
     </form>
   );

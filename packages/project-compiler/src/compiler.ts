@@ -1,5 +1,5 @@
 import { semanticHash, sha256, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
-import { parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
+import { isStageTransition, parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
 import {
   PROJECT_COMPILER_VERSION, RUNTIME_IR_VERSION,
@@ -149,6 +149,9 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
         else {
           const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
           if (!allowedActions[command]!.has(action)) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid ${command} action: ${action}`, ctx));
+          if (parameters.transition !== undefined && (typeof parameters.transition !== "string" || !isStageTransition(parameters.transition))) {
+            diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid Stage transition: ${String(parameters.transition)}`, ctx));
+          }
           if (command === "camera") {
             const cameraBounds: Readonly<Record<string, readonly [number, number]>> = {
               x: [-100, 100], y: [-100, 100], zoom: [0.5, 3], rotation: [-30, 30]

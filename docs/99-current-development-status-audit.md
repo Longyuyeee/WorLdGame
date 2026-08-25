@@ -1,10 +1,10 @@
-# 当前开发情况审计（N42-E6 基础镜头系统，产品门仍阻断）
+# 当前开发情况审计（N42-E7 作用域舞台转场已关闭，产品门仍阻断）
 
 > 审计日期：2026-08-25
-> 当前分支：`codex/n42-e6-basic-camera`；直接基线为 N42-E5 `9a56fca`
+> 当前分支：`codex/n42-e7-scoped-transitions`；直接基线为 N42-E6 `d564347`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-007` 只允许 N42 Stage Engineering；2026-09-24 14:08:25（UTC+8）到期
-> 最新节点证据：[N42-E6 基础镜头系统审计](196-n42-e6-basic-camera-audit.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
+> 最新节点证据：[N42-E7 作用域舞台转场审计](197-n42-e7-scoped-stage-transitions-audit.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -15,12 +15,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、portable Host 和受约束热更新。但出口复审只能得到 `完整 5 / 部分 1`：共享 Host contract 存在，正式 Player 与真实渲染/音频 Adapter 不存在，当前“构建试玩 HTML”仍使用独立 `StoryStatement` 解释器。因此 E7 通过不等于 N32 Engineering 总出口通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E5 已关闭 Move easing、基本角色关键帧、派生时间尺和两段角色运动路径，E6 又补齐基础 Camera Move/Reset 及 Runtime/Host/Preview/重开闭环。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence 与 N42-E1 Engineering 均已通过；E2–E7 已关闭 Move easing、基本角色关键帧、派生时间尺、两段角色运动路径、基础 Camera 与作用域舞台转场；Draft PR #70 的干净 Windows 完整门已关闭本机性能差异。完整 N42 专业时间线尚未关闭；N32 Engineering 的历史出口仍因正式 Player/视觉差分缺口未通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1–E6 已闭环到基础 Camera，但任意曲线路径、镜头高级效果、独立轨道时间编辑和模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
+- N40/N41 Engineering：**出口已通过并冻结**；N42 Stage Engineering：**E1–E7 已闭环到作用域舞台转场；任意曲线路径、镜头高级效果、独立轨道时间编辑和模板仍未完成**；N40/N41/N42 Product Acceptance、N43、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 
@@ -33,7 +33,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠、跨视图定位与 Formal Runtime statement 高亮；1,000 次全 P0 Sequence/Script 互改和 84 项退出矩阵已通过；N40/N41 Engineering 出口均通过 | N21/N23 真人、N40/N41 Product Acceptance、完整 Stage/Player 仍阻断；Route-first lazy 控制流是后续大型工程增强，不是 N41 出口缺口 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
-| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；Move easing；下一 stable-ID 关键帧；Canonical 派生 TIME/BG/CHAR/CAM/AUDIO/STORY 标尺与 Runtime 播放头；两段折线路径；基础 Camera Move/Reset | 任意/贝塞尔路径、镜头高级效果、独立轨道时间编辑、模板、Pixi/WebGL、三端媒体策略与正式 Player Adapter |
+| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；Move easing；下一 stable-ID 关键帧；Canonical 派生 TIME/BG/CHAR/CAM/AUDIO/STORY 标尺与 Runtime 播放头；两段折线路径；基础 Camera Move/Reset；作用域 `fade/dissolve/slide` 背景替换与清除转场 | 任意/贝塞尔路径、镜头高级效果、独立轨道时间编辑、模板、自定义 shader、Pixi/WebGL、三端媒体策略与正式 Player Adapter |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选，可确定性离线打开 | 当前候选仍是平行 `StoryStatement` 解释器，不是正式 Runtime Player；正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
@@ -99,6 +99,6 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 2. N41-E1 已完成并由 Draft PR #60 的 Windows / Node 22 完整门关闭；
 3. [N41 集中整合 Authority](182-n41-consolidated-integration-baseline-audit.md)已建立为 main-target Draft PR #61；本地完整门与 Candidate Windows CI 绿色，旧 Draft PR 保留为证据且未擅自合并或关闭；
 4. N41-E2/E3 已由 Draft PR #62/#63 与 Windows CI 关闭；E4 又补齐 Sequence statement 级 Runtime 高亮，N41 Engineering 出口复审通过；
-5. RA-N21-007 治理与 E1–E5 证据保持有效；E6 真实工程插入 X=18/Y=-10/Zoom=1.25/Rotation=2/600ms/ease-out Camera，正式 Compiler/Runtime/Host 运行并在刷新、最近工程、结构页、内容编辑器的真实路径后保持 canonical `@camera`。普通全仓 122 files / 764 tests、storage 1/1、VM 5/5、构建、架构和三类性能门通过。下一步只能在 N42 内重新审计最小出口切片；N43 与正式 Player 仍禁止进入。
+5. RA-N21-007 治理与 E1–E7 证据保持有效；E7 真实工程图形化插入 `action=clear transition=dissolve duration=700ms`，正式 Runtime 0 诊断，关闭原窗口后冷启动自动恢复 r3/s3、3 项媒体和 0 阻断。Draft PR #70 run `32811420647` / job `97691337669` 用时 5m57s 全绿，Route P95 `136.43ms <500ms`，关闭本机差异。下一步只能在 N42 内重新审计最小出口切片；N43 与正式 Player 仍禁止进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

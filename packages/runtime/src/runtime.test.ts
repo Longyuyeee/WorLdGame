@@ -543,6 +543,16 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     expect(result.state.sceneState).toEqual(initial.sceneState);
   });
 
+  it("fails closed when mutated IR carries a transition outside the frozen Stage vocabulary", () => {
+    const story = program([
+      { instructionId: "bad-transition", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "bg_gate", transition: "spin", duration: "450ms" } } },
+      { instructionId: "transition-end", opcode: "end", operands: { endingId: "transition_done", name: "Done" } }
+    ]);
+    const result = runRuntime(story, start(story, "build-transition"));
+    expect(result.diagnostics).toEqual([expect.objectContaining({ code: "RUNTIME_INVALID_IR", instructionId: "bad-transition" })]);
+    expect(result.effects).toEqual([]);
+  });
+
   function save(story: RuntimeStoryIrV1, session: RuntimeHistorySessionV1) {
     const created = createRuntimeSessionSaveV1(story, session);
     if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));

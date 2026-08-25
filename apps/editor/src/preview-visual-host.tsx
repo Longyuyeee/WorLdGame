@@ -119,9 +119,17 @@ export function PreviewVisualHost({
       transform: `translate(${frame.camera.x}%, ${frame.camera.y}%) scale(${frame.camera.zoom}) rotate(${frame.camera.rotation}deg)`,
       transition: `transform ${frame.camera.duration ?? "360ms"} ${frame.camera.easing ?? "linear"}`
     } as CSSProperties}>
-    <div className="stage-background-plane" aria-hidden={frame.background === undefined ? "true" : undefined}>
+    <div className="stage-background-plane" aria-hidden={frame.background === undefined && frame.previousBackground === undefined ? "true" : undefined}>
+      {frame.previousBackground !== undefined && <img
+        className={`stage-media-background stage-media-background--previous${frame.background === undefined ? ` stage-media-background--outgoing stage-transition--${frame.previousBackground.transition ?? "fade"}` : ""}`}
+        data-testid="preview-previous-background"
+        src={frame.previousBackground.url}
+        alt=""
+        style={{ animationDuration: frame.previousBackground.duration ?? "360ms" } as CSSProperties}
+        onError={() => onRuntimeError("background", frame.previousBackground!)}
+      />}
       {frame.background === undefined ? (
-        <div className="stage-sky" aria-hidden="true">
+        frame.previousBackground === undefined && <div className="stage-sky" aria-hidden="true">
           <span className="sun" /><span className="school-building" />
           <span className="character-silhouette character-silhouette--left" />
           <span className="character-silhouette character-silhouette--right" />

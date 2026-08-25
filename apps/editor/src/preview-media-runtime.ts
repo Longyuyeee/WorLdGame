@@ -22,7 +22,9 @@ import {
   SAFE_STAGE_SLOT,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   isStageEasing,
+  isStageTransition,
   type StageEasing,
+  type StageTransition,
   directiveActionParameters,
   directiveActionRequiresAsset,
   inspectDirectiveArguments,
@@ -32,7 +34,7 @@ import {
 export interface PreviewVisualLayerPlan {
   readonly statementId: string;
   readonly assetId: string;
-  readonly transition?: string;
+  readonly transition?: StageTransition;
   readonly duration?: string;
   readonly easing?: StageEasing;
   readonly expression?: string;
@@ -64,6 +66,7 @@ export interface PreviewStagePlan {
   readonly key: string;
   readonly resourceKey: string;
   readonly background?: PreviewVisualLayerPlan;
+  readonly previousBackground?: PreviewVisualLayerPlan;
   readonly characters: readonly PreviewVisualLayerPlan[];
   readonly camera?: PreviewCameraPlan;
   readonly audio: readonly PreviewAudioLayerPlan[];
@@ -96,6 +99,7 @@ export interface PreviewCameraPlan extends PreviewCameraGeometry {
 export interface LoadedPreviewMedia {
   readonly planKey: string;
   readonly background?: PreviewVisualLayerPlan & { readonly url: string };
+  readonly previousBackground?: PreviewVisualLayerPlan & { readonly url: string };
   readonly characters: readonly (PreviewVisualLayerPlan & { readonly url: string })[];
   readonly camera?: PreviewCameraPlan;
   readonly audio: readonly (PreviewAudioLayerPlan & { readonly url: string })[];
@@ -121,6 +125,7 @@ function optional(parameters: Readonly<Record<string, string>>, key: string): st
 
 interface MutableStageState {
   background?: PreviewVisualLayerPlan;
+  previousBackground?: PreviewVisualLayerPlan;
   readonly characters: Map<string, PreviewVisualLayerPlan>;
   camera?: PreviewCameraPlan;
   readonly exitingCharacters: Map<string, PreviewVisualLayerPlan>;
@@ -170,6 +175,11 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
       addDiagnostic(state, `${statement.id}: action=${action} does not accept ${invalidActionParameters.join(", ")}`);
       return true;
     }
+    const transition = optional(inspected.parameters, "transition");
+    if (transition !== undefined && !isStageTransition(transition)) {
+      addDiagnostic(state, `${statement.id}: transition must be fade, dissolve, or slide`);
+      return true;
+    }
     const assetId = inspected.parameters.asset;
     if (directiveActionRequiresAsset(statement.command, action) && assetId === undefined) {
       addDiagnostic(state, `${statement.id}: asset is required for action=${action}`);
@@ -177,13 +187,23 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
     }
     if (statement.command === "background") {
       if (action === "clear") {
+        if (transition !== undefined && state.background !== undefined) {
+          state.previousBackground = {
+            ...state.background,
+            statementId: statement.id,
+            transition,
+            ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
+          };
+        } else delete state.previousBackground;
         delete state.background;
         return true;
       }
+      if (transition !== undefined && state.background !== undefined) state.previousBackground = state.background;
+      else delete state.previousBackground;
       state.background = {
         statementId: statement.id,
         assetId: assetId!,
-        ...(optional(inspected.parameters, "transition") === undefined ? {} : { transition: inspected.parameters.transition }),
+        ...(transition === undefined ? {} : { transition }),
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
       };
     } else if (statement.command === "show") {
@@ -203,7 +223,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
           ...current,
           statementId: statement.id,
           exiting: true,
-          transition: optional(inspected.parameters, "transition") ?? "fade",
+          transition: transition ?? "fade",
           ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
         });
         return true;
@@ -247,7 +267,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
           statementId: statement.id,
           z,
           movementFrom: resolvePreviewCharacterGeometry(current!),
-          transition: optional(inspected.parameters, "transition") ?? "slide",
+          transition: transition ?? "slide",
           ...(easing === undefined ? {} : { easing: easing as StageEasing }),
           ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
           ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position }),
@@ -265,14 +285,14 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         assetId: assetId!,
         slot,
         z,
-        ...(optional(inspected.parameters, "transition") === undefined ? {} : { entering: true }),
+        ...(transition === undefined ? {} : { entering: true }),
         ...(typeof geometry.x === "number" ? { x: geometry.x } : {}),
         ...(typeof geometry.y === "number" ? { y: geometry.y } : {}),
         ...(typeof geometry.scale === "number" ? { scale: geometry.scale } : {}),
         ...(typeof geometry.rotation === "number" ? { rotation: geometry.rotation } : {}),
         ...(typeof geometry.anchorX === "number" ? { anchorX: geometry.anchorX } : {}),
         ...(typeof geometry.anchorY === "number" ? { anchorY: geometry.anchorY } : {}),
-        ...(optional(inspected.parameters, "transition") === undefined ? {} : { transition: inspected.parameters.transition }),
+        ...(transition === undefined ? {} : { transition }),
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration }),
         ...(optional(inspected.parameters, "expression") === undefined ? {} : { expression: inspected.parameters.expression }),
         ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position })
@@ -367,6 +387,12 @@ function settleCameraTransition(state: MutableStageState): boolean {
   return true;
 }
 
+function settleBackgroundTransition(state: MutableStageState): boolean {
+  if (state.previousBackground === undefined) return false;
+  delete state.previousBackground;
+  return true;
+}
+
 function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   const characters = [...state.characters.values(), ...state.exitingCharacters.values()].sort((left, right) =>
     (left.z ?? 0) - (right.z ?? 0) || (left.slot ?? "").localeCompare(right.slot ?? "")
@@ -374,6 +400,7 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   const audioLayers = [...state.audio.values()].sort((left, right) => left.bus.localeCompare(right.bus));
   const identity = {
     background: state.background ?? null,
+    previousBackground: state.previousBackground ?? null,
     characters,
     camera: state.camera ?? null,
     audio: audioLayers,
@@ -381,6 +408,7 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   };
   const resourceIdentity = {
     background: state.background ?? null,
+    previousBackground: state.previousBackground ?? null,
     characters,
     camera: state.camera ?? null,
     audio: audioLayers.map(({ playback: _playback, ...layer }) => layer),
@@ -390,6 +418,7 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
     key: JSON.stringify(identity),
     resourceKey: JSON.stringify(resourceIdentity),
     ...(state.background === undefined ? {} : { background: state.background }),
+    ...(state.previousBackground === undefined ? {} : { previousBackground: state.previousBackground }),
     characters,
     ...(state.camera === undefined ? {} : { camera: state.camera }),
     audio: audioLayers,
@@ -420,10 +449,11 @@ export function compilePreviewStageTimeline(statements: readonly StoryStatement[
   for (const statement of statements) {
     const settledCharacterTransition = settleCharacterTransitions(state);
     const settledCamera = settleCameraTransition(state);
+    const settledBackground = settleBackgroundTransition(state);
     const clearedExit = state.exitingCharacters.size > 0;
     state.exitingCharacters.clear();
     const changed = applyDirection(statement, state);
-    if (!changed && !settledCharacterTransition && !settledCamera && !clearedExit && previous !== undefined) {
+    if (!changed && !settledCharacterTransition && !settledCamera && !settledBackground && !clearedExit && previous !== undefined) {
       timeline.push(previous);
       continue;
     }
@@ -493,6 +523,7 @@ export async function loadPreviewMedia(
 
   try {
     const backgroundUrl = plan.background === undefined ? undefined : await load(plan.background, "background");
+    const previousBackgroundUrl = plan.previousBackground === undefined ? undefined : await load(plan.previousBackground, "background");
     const characters: Array<PreviewVisualLayerPlan & { readonly url: string }> = [];
     for (const layer of plan.characters) {
       const url = await load(layer, "character");
@@ -507,6 +538,7 @@ export async function loadPreviewMedia(
     return {
       planKey: plan.resourceKey,
       ...(plan.background === undefined || backgroundUrl === undefined ? {} : { background: { ...plan.background, url: backgroundUrl } }),
+      ...(plan.previousBackground === undefined || previousBackgroundUrl === undefined ? {} : { previousBackground: { ...plan.previousBackground, url: previousBackgroundUrl } }),
       characters,
       ...(plan.camera === undefined ? {} : { camera: plan.camera }),
       audio,
