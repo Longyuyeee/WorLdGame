@@ -1366,6 +1366,8 @@ button:disabled {
 }
 
 .stage-track {
+  min-width: 0;
+  max-width: 100%;
   margin-bottom: 12px;
   padding: 12px;
   border: 1px solid rgb(139 124 255 / 22%);
@@ -1578,8 +1580,32 @@ button:disabled {
 .stage-track__window output { color: #c8c1ff; font-size: 9px; font-weight: 850; white-space: nowrap; }
 .stage-track__window small { justify-self: end; color: var(--wg-color-text-muted); font-size: 8px; }
 
+.stage-timeline-transport {
+  display: grid;
+  grid-template-columns: minmax(150px, .7fr) minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgb(62 215 196 / 22%);
+  border-radius: 10px;
+  background: linear-gradient(105deg, rgb(62 215 196 / 8%), rgb(139 124 255 / 7%));
+}
+.stage-timeline-transport > div { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: baseline; }
+.stage-timeline-transport > div span { color: #70dfd1; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
+.stage-timeline-transport > div strong { color: #d8fffa; font: 10px "IBM Plex Mono", Consolas, monospace; }
+.stage-timeline-transport > div small { grid-column: 1 / -1; overflow: hidden; color: var(--wg-color-text-muted); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.stage-timeline-transport > input { width: 100%; accent-color: #70dfd1; cursor: pointer; }
+.stage-timeline-transport > input:disabled { cursor: not-allowed; opacity: .58; }
+.stage-timeline-transport > output { color: #c8c1ff; font: 8px "IBM Plex Mono", Consolas, monospace; white-space: nowrap; }
+.stage-timeline-transport[data-playhead-source="runtime"] { border-color: rgb(255 121 201 / 38%); background: linear-gradient(105deg, rgb(255 121 201 / 9%), rgb(139 124 255 / 9%)); }
+.stage-timeline-transport[data-playhead-source="runtime"] > div span { color: #ff9fda; }
+
 .stage-track__scroll {
   display: grid;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   gap: 5px;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
@@ -1616,6 +1642,40 @@ button:disabled {
   gap: 5px;
 }
 
+.stage-timeline-ruler { min-height: 29px; }
+.stage-timeline-tick {
+  position: relative;
+  display: grid;
+  min-height: 27px;
+  padding: 3px 4px;
+  border: 0;
+  border-left: 1px solid rgb(255 255 255 / 13%);
+  background: transparent;
+  color: var(--wg-color-text-muted);
+  cursor: pointer;
+  text-align: left;
+}
+.stage-timeline-tick span { font: 7px "IBM Plex Mono", Consolas, monospace; }
+.stage-timeline-tick small { color: rgb(143 231 221 / 72%); font-size: 6px; }
+.stage-timeline-tick:hover:not(:disabled) { background: rgb(62 215 196 / 8%); }
+.stage-timeline-tick:disabled { cursor: default; }
+.stage-timeline-tick.is-playhead { color: #fff; background: linear-gradient(90deg, rgb(255 121 201 / 12%), transparent); }
+
+.stage-timeline-tick.is-playhead::after,
+.stage-cue.is-playhead::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: -4px;
+  bottom: -4px;
+  left: -1px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(#ff79c9, #70dfd1);
+  box-shadow: 0 0 10px rgb(255 121 201 / 70%);
+  pointer-events: none;
+}
+
 .stage-cue {
   position: relative;
   display: grid;
@@ -1642,6 +1702,7 @@ button:disabled {
 .stage-cue[draggable="true"] { cursor: grab; }
 .stage-cue[data-dragging="true"] { opacity: 0.45; transform: scale(0.96); }
 .stage-cue--empty { visibility: hidden; cursor: default; }
+.stage-cue--empty.is-playhead { visibility: visible; border-color: transparent; background: transparent; pointer-events: none; }
 
 .stage-cue__keyframe {
   position: absolute;
@@ -3954,6 +4015,12 @@ textarea[data-input-state="composing"] {
 }
 
 @media (max-width: 820px) {
+  .stage-timeline-transport {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .stage-timeline-transport > output { justify-self: start; }
   .app-shell {
     height: auto;
     min-height: 100dvh;

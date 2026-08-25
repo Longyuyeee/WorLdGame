@@ -735,4 +735,18 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getAllByRole("button", { name: /^选择/ })).toHaveLength(4);
     expect(screen.getByText("窗口外选择仍保留 · 拖放仅限当前窗口")).toBeVisible();
   });
+
+  it("scrubs a derived time ruler through canonical statement selection", () => {
+    render(<App />);
+    const timeline = screen.getByRole("group", { name: "时间线播放头" });
+    const playhead = within(timeline).getByRole("slider", { name: "时间线播放头位置" });
+    expect(timeline).toHaveAttribute("data-playhead-source", "selection");
+    expect(playhead).toHaveValue("0");
+    expect(screen.getAllByRole("button", { name: /^时间标记/ })).toHaveLength(4);
+
+    fireEvent.change(playhead, { target: { value: "1" } });
+    expect(playhead).toHaveValue("1");
+    expect(screen.getByRole("button", { name: /^选择对白：广播站/ })).toHaveClass("is-active");
+    expect(within(timeline).getByText(/选中步骤 · stmt_gate_001/)).toBeVisible();
+  });
 });

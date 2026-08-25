@@ -35,8 +35,13 @@ describe("N41 formal Sequence mode", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: "试玩完整流程" }));
     const highlight = await screen.findByRole("status", { name: "Sequence 运行步骤高亮" });
+    const timeline = screen.getByRole("group", { name: "时间线播放头" });
+    const playhead = within(timeline).getByRole("slider", { name: "时间线播放头位置" });
     const first = screen.getByRole("button", { name: "选择演出：action=clear" });
     expect(highlight).toHaveTextContent("stmt_gate_bg");
+    expect(timeline).toHaveAttribute("data-playhead-source", "runtime");
+    expect(playhead).toBeDisabled();
+    expect(playhead).toHaveValue("0");
     expect(first).toHaveAttribute("aria-current", "step");
     expect(first).toHaveAttribute("data-runtime-current", "true");
 
@@ -44,6 +49,7 @@ describe("N41 formal Sequence mode", () => {
     fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
     const dialogue = screen.getByRole("button", { name: /^选择对白：广播站/ });
     expect(first).toHaveAttribute("data-runtime-current", "false");
+    expect(playhead).toHaveValue("1");
     expect(first).toHaveClass("is-active");
     expect(dialogue).toHaveAttribute("aria-current", "step");
     expect(dialogue).not.toHaveClass("is-active");

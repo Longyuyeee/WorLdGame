@@ -15,6 +15,7 @@ import { createProjectSearchIndex, searchProjectIndex } from "../apps/editor/src
 import { selectStageDirectionLane, selectStageDirectionRange } from "../apps/editor/src/stage-selection";
 import { createStageSearchIndex, searchStageIndex } from "../apps/editor/src/stage-search";
 import { createStageWindow, moveStageWindow, revealStageIndex } from "../apps/editor/src/stage-window";
+import { projectStageTimeline } from "../apps/editor/src/stage-timeline";
 
 const dialogueCount = 10_000;
 const budgets = {
@@ -173,6 +174,23 @@ describe("large script performance audit", () => {
     expect(timeline).toHaveLength(statementCount);
     expect(timeline.at(-1)?.background?.assetId).toBe("background_9900");
     expect(compilationMs).toBeLessThan(2_000);
+  });
+
+  it("projects a ten-thousand-step authoring time ruler within budget", () => {
+    const statementCount = 10_000;
+    const statements = Array.from({ length: statementCount }, (_, index) => index % 4 === 0
+      ? { id: `timeline_move_${index}`, kind: "direction" as const, command: "show" as const, summary: "action=move duration=650ms easing=ease-out" }
+      : { id: `timeline_line_${index}`, kind: "dialogue" as const, speakerId: "hero", textId: `timeline_text_${index}`, text: "x" });
+    const start = performance.now();
+    const projection = projectStageTimeline(statements);
+    const projectionMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { statementCount }, measurementsMs: {
+      derivedStageTimelineProjection: Number(projectionMs.toFixed(2)) }, budgetsMs: {
+      derivedStageTimelineProjection: 500 }, result: {
+      cues: projection.cues.length, totalDurationMilliseconds: projection.totalDurationMilliseconds } }, null, 2));
+    expect(projection.cues).toHaveLength(statementCount);
+    expect(projection.totalDurationMilliseconds).toBe(10_625_000);
+    expect(projectionMs).toBeLessThan(500);
   });
 
   it("atomically patches the maximum 256 direction-cue batch within budget", () => {

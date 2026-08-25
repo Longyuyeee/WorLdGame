@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E3a UI 壳层收敛审计](192-n42-e3a-ui-shell-convergence-audit.md)进一步确认首页/结构页仍有工程工具外观、桌面工作区存在整页纵向摊大饼，并已完成第一批有界纠偏。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
+> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E4 时间标尺审计](194-n42-e4-derived-timeline-playhead-audit.md)已在 E3a/E3b UI 与生产浏览器纠偏基础上补齐 canonical 派生标尺和 Runtime 播放头。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -401,6 +401,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E2 Move easing 闭环（2026-08-24）：[N42-E2 审计](189-n42-e2-stage-move-easing-audit.md)冻结 `linear/ease-in/ease-out/ease-in-out`，贯通 Inspector/批量/插入、stable-ID Script、s1 重开、CSS 语义 Canvas 曲线、DOM 代理与正式 Runtime Host。真实 PNG/WAV 工程将 `ease-in-out` 改为 `ease-out` 后重开保持 X=25/Y=80/800ms，Runtime 定位 `media_move #2`、Host 1 active、0 diagnostics、console `[]`。这不关闭多轨、关键帧、路径、镜头或模板。
 
 > E3 角色关键帧编排闭环（2026-08-24）：[N42-E3 审计](190-n42-e3-character-keyframe-authoring-audit.md)把“下一关键帧”冻结为稳定 ID 的 canonical `@show action=move`，从当前正式 Stage plan 继承完整几何与 timing，图形化修改后通过既有事务写回 Script；无变化、越界、歧义 Cue 和无效槽位均失败关闭，Character lane 显示 KF。真实 fixture 验证从 X=25/Y=80/scale=0.9 生成 X=72/Y=84/scale=1.05/650ms/ease-out；本地 753/753。它仍不等于多轨 playhead、时间标尺、路径、镜头或模板。
+
+> E4 派生时间标尺与播放头（2026-08-25）：[N42-E4 审计](194-n42-e4-derived-timeline-playhead-audit.md)在不增加第二份时间线模型的前提下，从 canonical Direction/Wait/Preview pacing 投影 TIME/BG/CHAR/AUDIO/STORY 起点；编辑 scrub 选择 stable ID，Formal Runtime statement 接管并锁定播放头。真实 7 步工程总长 5.200s，重开不漂移；390px 首测横向溢出 462px 已修正为文档 375/375、轨道内部滚动。10k 投影 10.89ms <500ms。路径、镜头、独立时间写入和模板仍缺。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。

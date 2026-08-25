@@ -129,6 +129,7 @@ import {
   planStageMoveKeyframe,
   type StageMoveKeyframeSeed
 } from "./stage-keyframe";
+import { formatStageTimelineTime, projectStageTimeline, stageTimelineLane } from "./stage-timeline";
 import {
   createPreviewMediaHostState,
   previewMediaErrorCount,
@@ -1289,11 +1290,6 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-function stageLane(statement: StoryStatement): "background" | "character" | "audio" | "story" {
-  if (statement.kind !== "direction") return "story";
-  return statement.command === "background" ? "background" : statement.command === "show" ? "character" : "audio";
-}
-
 interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetIds:readonly string[];readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
 function SequenceInspector({statement,disabled,targetIds,variableIds,createCommandId,dispatch}:SequenceInspectorProps){
   if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
@@ -1370,6 +1366,10 @@ function SequenceView({
   const runtimeCurrentIndex = runtimeCurrentStatementId === null
     ? -1
     : scene.statements.findIndex((statement) => statement.id === runtimeCurrentStatementId);
+  const stageTimeline = useMemo(() => projectStageTimeline(scene.statements), [scene.statements]);
+  const timelineFollowsRuntime = runtimeCurrentIndex >= 0;
+  const timelinePlayheadIndex = timelineFollowsRuntime ? runtimeCurrentIndex : selectedIndex;
+  const timelinePlayheadCue = stageTimeline.cues[timelinePlayheadIndex];
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
   const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
   const sequenceInsertRequirement = sequenceInsertKind === "dialogue" && sequenceReferences.characterIds.length === 0
@@ -1705,20 +1705,59 @@ function SequenceView({
           <button type="button" aria-label="定位当前演出步骤" disabled={selectedInStageWindow || draggedDirectionId !== null} onClick={() => setStageWindowStart(revealStageIndex(stageWindow, selectedIndex).start)}>定位当前</button>
           <small>窗口外选择仍保留 · 拖放仅限当前窗口</small>
         </div>
+        <div className="stage-timeline-transport" role="group" aria-label="时间线播放头" data-playhead-source={timelineFollowsRuntime ? "runtime" : "selection"}>
+          <div>
+            <span>{timelineFollowsRuntime ? "RUNTIME" : "EDIT"}</span>
+            <strong>{formatStageTimelineTime(timelinePlayheadCue?.startMilliseconds ?? 0)}</strong>
+            <small>{timelineFollowsRuntime ? `正式运行 · ${runtimeCurrentStatementId}` : `选中步骤 · ${selected.id}`}</small>
+          </div>
+          <input
+            type="range"
+            aria-label="时间线播放头位置"
+            min={0}
+            max={Math.max(0, scene.statements.length - 1)}
+            step={1}
+            value={Math.max(0, timelinePlayheadIndex)}
+            disabled={timelineFollowsRuntime || pendingDraft || scene.statements.length <= 1}
+            onChange={(event) => {
+              const statement = scene.statements[Number(event.target.value)];
+              if (statement !== undefined) dispatch({ type: "select-statement", statementId: statement.id });
+            }}
+          />
+          <output>{formatStageTimelineTime(timelinePlayheadCue?.startMilliseconds ?? 0)} / {formatStageTimelineTime(stageTimeline.totalDurationMilliseconds)}</output>
+        </div>
         <div className="stage-track__scroll">
+          <div className="stage-timeline-ruler stage-lane" aria-label="时间标尺">
+            <span className="stage-lane__label">TIME</span>
+            <div className="stage-lane__steps">
+              {stageTimeline.cues.slice(stageWindow.start, stageWindow.end).map((cue) => (
+                <button
+                  type="button"
+                  className={cue.statementIndex === timelinePlayheadIndex ? "stage-timeline-tick is-playhead" : "stage-timeline-tick"}
+                  key={cue.statementId}
+                  aria-label={`时间标记 ${formatStageTimelineTime(cue.startMilliseconds)}，步骤 ${cue.statementIndex + 1}`}
+                  disabled={timelineFollowsRuntime || pendingDraft}
+                  onClick={() => dispatch({ type: "select-statement", statementId: cue.statementId })}
+                >
+                  <span>{formatStageTimelineTime(cue.startMilliseconds)}</span>
+                  <small>{cue.durationMilliseconds}ms</small>
+                </button>
+              ))}
+            </div>
+          </div>
           {(["background", "character", "audio", "story"] as const).map((lane) => (
             <div className={`stage-lane stage-lane--${lane}`} key={lane}>
               <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "audio" ? "AUDIO" : "STORY"}</span>
               <div className="stage-lane__steps">
                 {visibleStatements.map((statement, visibleIndex) => {
                   const index = stageWindow.start + visibleIndex;
-                  return stageLane(statement) === lane ? (
+                  return stageTimelineLane(statement) === lane ? (
                   <button
                     type="button"
                     key={statement.id}
                     draggable={statement.kind === "direction" && !pendingDraft && !multiSelectMode}
                     data-dragging={draggedDirectionId === statement.id ? "true" : undefined}
-                    className={`${statement.id === selected.id ? "stage-cue is-active" : "stage-cue"}${selectedDirectionIds.includes(statement.id) ? " is-batch-selected" : ""}`}
+                    className={`${statement.id === selected.id ? "stage-cue is-active" : "stage-cue"}${selectedDirectionIds.includes(statement.id) ? " is-batch-selected" : ""}${index === timelinePlayheadIndex ? " is-playhead" : ""}`}
                     aria-label={`轨道步骤 ${index + 1}：${statementLabel(statement)}`}
                     aria-pressed={multiSelectMode && statement.kind === "direction" ? selectedDirectionIds.includes(statement.id) : undefined}
                     aria-keyshortcuts={statement.kind === "direction" ? multiSelectMode ? "Shift+Space" : "Alt+ArrowLeft Alt+ArrowRight Delete" : undefined}
@@ -1772,7 +1811,7 @@ function SequenceView({
                   >
                     <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>{isCharacterMoveCue(statement) && <em className="stage-cue__keyframe">KF</em>}
                   </button>
-                ) : <span className="stage-cue stage-cue--empty" aria-hidden="true" key={`${statement.id}:empty`} />;
+                ) : <span className={`stage-cue stage-cue--empty${index === timelinePlayheadIndex ? " is-playhead" : ""}`} aria-hidden="true" key={`${statement.id}:empty`} />;
                 })}
               </div>
             </div>
