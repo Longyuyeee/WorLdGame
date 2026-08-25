@@ -6,6 +6,7 @@ import {
   drawPreviewCanvasFrame,
   previewStageEasingProgress,
   previewCanvasDurationMs,
+  resolvePreviewCharacterGeometryAtProgress,
   resolvePreviewCanvasCharacterRect,
   type PreviewCanvasImageSet
 } from "./preview-canvas-host";
@@ -105,6 +106,18 @@ describe("Preview Canvas host", () => {
     expect(previewStageEasingProgress("ease-in-out", 0.5)).toBeCloseTo(0.5, 5);
     expect(previewStageEasingProgress("ease-in-out", -1)).toBe(0);
     expect(previewStageEasingProgress("ease-in-out", 2)).toBe(1);
+  });
+
+  it("evaluates spatial cubic Bezier geometry after temporal easing", () => {
+    const geometry = resolvePreviewCharacterGeometryAtProgress({
+      ...character, x: 80, y: 80, curve: "bezier",
+      control1X: 30, control1Y: 20, control2X: 70, control2Y: 20,
+      movementFrom: { x: 20, y: 80, scale: 1.2, rotation: 10, anchorX: 0.5, anchorY: 1 },
+      easing: "linear"
+    }, 0.5);
+    expect(geometry.x).toBeCloseTo(50);
+    expect(geometry.y).toBeCloseTo(35);
+    expect(resolvePreviewCharacterGeometryAtProgress({ ...character, x: 80, y: 80 }, 0.5)).toMatchObject({ x: 80, y: 80 });
   });
 
   it("fades an exiting character while retaining its final authored geometry", () => {

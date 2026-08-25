@@ -81,6 +81,28 @@ function interpolateGeometry(
   };
 }
 
+function cubicStageCoordinate(start: number, control1: number, control2: number, end: number, progress: number): number {
+  const inverse = 1 - progress;
+  return inverse ** 3 * start + 3 * inverse ** 2 * progress * control1 + 3 * inverse * progress ** 2 * control2 + progress ** 3 * end;
+}
+
+export function resolvePreviewCharacterGeometryAtProgress(
+  character: LoadedPreviewCharacter,
+  progress: number
+): PreviewCharacterGeometry {
+  const target = resolvePreviewCharacterGeometry(character);
+  if (character.movementFrom === undefined) return target;
+  const temporalProgress = previewStageEasingProgress(character.easing, progress);
+  const geometry = interpolateGeometry(character.movementFrom, target, temporalProgress);
+  if (character.curve !== "bezier" || character.control1X === undefined || character.control1Y === undefined ||
+      character.control2X === undefined || character.control2Y === undefined) return geometry;
+  return {
+    ...geometry,
+    x: cubicStageCoordinate(character.movementFrom.x, character.control1X, character.control2X, target.x, temporalProgress),
+    y: cubicStageCoordinate(character.movementFrom.y, character.control1Y, character.control2Y, target.y, temporalProgress)
+  };
+}
+
 function interpolateCameraGeometry(from: PreviewCameraGeometry, to: PreviewCameraGeometry, progress: number): PreviewCameraGeometry {
   const value = Math.min(1, Math.max(0, progress));
   const interpolate = (start: number, end: number) => start + (end - start) * value;
@@ -220,10 +242,7 @@ export function drawPreviewCanvasFrame(
   for (const character of frame.characters) {
     const image = images.characters.get(character.statementId);
     if (image === undefined) continue;
-    const targetGeometry = resolvePreviewCharacterGeometry(character);
-    let geometry = character.movementFrom === undefined
-      ? targetGeometry
-      : interpolateGeometry(character.movementFrom, targetGeometry, previewStageEasingProgress(character.easing, movementProgress));
+    let geometry = resolvePreviewCharacterGeometryAtProgress(character, movementProgress);
     if (character.entering === true && character.transition === "slide") {
       geometry = { ...geometry, x: geometry.x + 7 * (1 - Math.min(1, Math.max(0, movementProgress))) };
     }
@@ -266,15 +285,19 @@ export function PreviewCanvasHitProxy({
 }: PreviewCanvasHitProxyProps) {
   const geometry = resolvePreviewCharacterGeometry(character);
   const movementFrom = character.movementFrom;
+  const bezierPath = movementFrom !== undefined && character.curve === "bezier" && character.control1X !== undefined && character.control1Y !== undefined && character.control2X !== undefined && character.control2Y !== undefined
+    ? `path("M ${movementFrom.x * designWidth / 100} ${movementFrom.y * designHeight / 100} C ${character.control1X * designWidth / 100} ${character.control1Y * designHeight / 100}, ${character.control2X * designWidth / 100} ${character.control2Y * designHeight / 100}, ${geometry.x * designWidth / 100} ${geometry.y * designHeight / 100}")`
+    : undefined;
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${character.entering === true ? ` stage-canvas-hit-proxy--entering stage-transition--${character.transition ?? "fade"}` : ""}${character.exiting === true ? " stage-canvas-hit-proxy--exiting" : ""}${selected ? " is-selected" : ""}`}
+    className={`stage-canvas-hit-proxy${movementFrom === undefined ? "" : " stage-canvas-hit-proxy--moving"}${bezierPath === undefined ? "" : " stage-canvas-hit-proxy--bezier"}${character.entering === true ? ` stage-canvas-hit-proxy--entering stage-transition--${character.transition ?? "fade"}` : ""}${character.exiting === true ? " stage-canvas-hit-proxy--exiting" : ""}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
     data-stage-y={geometry.y}
     data-stage-easing={character.easing ?? "linear"}
+    data-stage-curve={character.curve}
     aria-label={label}
     aria-pressed={selected}
     aria-hidden={character.exiting === true ? true : undefined}
@@ -290,11 +313,12 @@ export function PreviewCanvasHitProxy({
     onClick={() => onSelect(character.statementId)}
     style={{
       zIndex: character.z ?? 0,
-      left: `${geometry.x}%`,
-      top: `${geometry.y}%`,
+      left: bezierPath === undefined ? `${geometry.x}%` : 0,
+      top: bezierPath === undefined ? `${geometry.y}%` : 0,
       transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) rotate(${geometry.rotation}deg)`,
       animationDuration: character.duration ?? "300ms",
       animationTimingFunction: character.easing ?? "linear",
+      ...(bezierPath === undefined ? {} : { offsetPath: bezierPath, offsetDistance: "100%", offsetRotate: "0deg", offsetAnchor: "0 0" }),
       ...(movementFrom === undefined ? {} : {
         "--stage-move-from-left": `${movementFrom.x}%`,
         "--stage-move-from-top": `${movementFrom.y}%`,

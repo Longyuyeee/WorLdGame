@@ -28,10 +28,13 @@ export function PreviewStageCharacter({
   const geometry = resolvePreviewCharacterGeometry(character);
   const movementFrom = character.movementFrom;
   const hasTransition = character.entering === true || movementFrom !== undefined;
+  const bezierPath = movementFrom !== undefined && character.curve === "bezier" && character.control1X !== undefined && character.control1Y !== undefined && character.control2X !== undefined && character.control2Y !== undefined
+    ? `path("M ${movementFrom.x * designWidth / 100} ${movementFrom.y * designHeight / 100} C ${character.control1X * designWidth / 100} ${character.control1Y * designHeight / 100}, ${character.control2X * designWidth / 100} ${character.control2Y * designHeight / 100}, ${geometry.x * designWidth / 100} ${geometry.y * designHeight / 100}")`
+    : undefined;
   const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
   return <button
     type="button"
-    className={`stage-media-character${hasTransition ? ` stage-transition--${character.transition ?? "slide"}` : ""}${character.entering === true ? " stage-media-character--entering" : ""}${movementFrom === undefined ? "" : " stage-media-character--moving"}${character.exiting === true ? " stage-media-character--exiting" : ""}${selected ? " is-selected" : ""}`}
+    className={`stage-media-character${hasTransition ? ` stage-transition--${character.transition ?? "slide"}` : ""}${character.entering === true ? " stage-media-character--entering" : ""}${movementFrom === undefined ? "" : " stage-media-character--moving"}${bezierPath === undefined ? "" : " stage-media-character--bezier"}${character.exiting === true ? " stage-media-character--exiting" : ""}${selected ? " is-selected" : ""}`}
     data-testid={`preview-character-${character.slot}`}
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
@@ -40,6 +43,7 @@ export function PreviewStageCharacter({
     data-stage-rotation={geometry.rotation}
     data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
     data-stage-easing={character.easing ?? "linear"}
+    data-stage-curve={character.curve}
     aria-label={label}
     aria-pressed={selected}
     aria-hidden={character.exiting === true ? true : undefined}
@@ -62,12 +66,13 @@ export function PreviewStageCharacter({
       animationDuration: character.duration ?? "360ms",
       animationTimingFunction: character.easing ?? "linear",
       zIndex: character.z ?? 0,
-      left: `${geometry.x}%`,
-      top: `${geometry.y}%`,
+      left: bezierPath === undefined ? `${geometry.x}%` : 0,
+      top: bezierPath === undefined ? `${geometry.y}%` : 0,
       right: "auto",
       bottom: "auto",
       transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
       transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`,
+      ...(bezierPath === undefined ? {} : { offsetPath: bezierPath, offsetDistance: "100%", offsetRotate: "0deg", offsetAnchor: "0 0" }),
       ...(movementFrom === undefined ? {} : {
         "--stage-move-from-left": `${movementFrom.x}%`,
         "--stage-move-from-top": `${movementFrom.y}%`,

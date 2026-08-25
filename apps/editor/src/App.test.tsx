@@ -347,6 +347,32 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("x=45 y=55");
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("x=75 y=82");
   });
+  it("authors one graphical cubic Bezier Move with four absolute control coordinates", () => {
+    renderLegacyDirectionApp();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
+    fireEvent.change(scriptEditor, { target: { value: String((scriptEditor as HTMLTextAreaElement).value).replace(
+      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
+      "@show action=show asset=asset_missing slot=hero z=2 x=20 y=80 scale=0.9 rotation=4 anchorX=0.5 anchorY=1 @id(stmt_gate_bg)"
+    ) } });
+    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
+    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    fireEvent.click(screen.getByRole("button", { name: "＋ 贝塞尔" }));
+    expect(screen.getByRole("form", { name: "新增贝塞尔角色路径" })).toBeVisible();
+    fireEvent.change(screen.getByLabelText("贝塞尔控制点 1 X"), { target: { value: "30" } });
+    fireEvent.change(screen.getByLabelText("贝塞尔控制点 1 Y"), { target: { value: "20" } });
+    fireEvent.change(screen.getByLabelText("贝塞尔控制点 2 X"), { target: { value: "70" } });
+    fireEvent.change(screen.getByLabelText("贝塞尔控制点 2 Y"), { target: { value: "20" } });
+    fireEvent.change(screen.getByLabelText("贝塞尔终点 X"), { target: { value: "80" } });
+    fireEvent.change(screen.getByLabelText("贝塞尔终点 Y"), { target: { value: "80" } });
+    fireEvent.change(screen.getByLabelText("贝塞尔移动时长"), { target: { value: "650ms" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建贝塞尔路径" }));
+    expect(screen.getByLabelText("角色空间路径")).toHaveValue("bezier");
+    expect(screen.getByLabelText("角色贝塞尔控制点 1 X")).toHaveValue(30);
+    expect(screen.getByLabelText("角色贝塞尔控制点 2 Y")).toHaveValue(20);
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toMatch(/@show action=move slot=hero z=2 x=80 y=80 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 curve=bezier control1X=30 control1Y=20 control2X=70 control2Y=20 transition=slide duration=650ms easing=ease-in-out @id\(stmt_[^)]+\)/u);
+  });
   it("inserts a resource-free Hide cue with the frozen fade default", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));

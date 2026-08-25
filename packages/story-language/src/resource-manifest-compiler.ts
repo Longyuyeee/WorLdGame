@@ -20,6 +20,7 @@ import {
   MIN_STAGE_Z,
   SAFE_STAGE_SLOT,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
+  validateStageBezierMotionParameters,
   isStageEasing,
   isStageTransition,
   isDialogueTemplate,
@@ -202,6 +203,12 @@ export function compileSceneResourceManifest(
             !STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => parsed.parameters.has(key))) {
           diagnostics.push({ code: "EMPTY_STAGE_MOVE", severity: "error",
             message: "@show action=move requires at least one Stage geometry parameter", sceneId: scene.id,
+            statementId: node.id, line: node.range.start.line });
+        }
+        if (node.command === "show" && action === "move") {
+          const bezierError = validateStageBezierMotionParameters(Object.fromEntries(parsed.parameters));
+          if (bezierError !== undefined) diagnostics.push({ code: "INVALID_STAGE_GEOMETRY", severity: "error",
+            message: `@show action=move ${bezierError}`, sceneId: scene.id,
             statementId: node.id, line: node.range.start.line });
         }
         if (node.command === "camera" && action === "move" &&

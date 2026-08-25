@@ -17,6 +17,7 @@ import { createStageSearchIndex, searchStageIndex } from "../apps/editor/src/sta
 import { createStageWindow, moveStageWindow, revealStageIndex } from "../apps/editor/src/stage-window";
 import { projectStageTimeline } from "../apps/editor/src/stage-timeline";
 import { defaultStageMotionPathDraft, planStageMotionPath } from "../apps/editor/src/stage-motion-path";
+import { defaultStageBezierPathDraft, planStageBezierPath } from "../apps/editor/src/stage-bezier-path";
 import type { StageMoveKeyframeSeed } from "../apps/editor/src/stage-keyframe";
 
 const dialogueCount = 10_000;
@@ -210,6 +211,23 @@ describe("large script performance audit", () => {
       twoSegmentMotionPathPlanning: Number(planningMs.toFixed(2)) }, budgetsMs: {
       twoSegmentMotionPathPlanning: 500 }, result: {
       ok: last.ok, finalDestination: last.ok ? [last.segments[1].x, last.segments[1].y] : null } }, null, 2));
+    expect(last.ok).toBe(true);
+    expect(planningMs).toBeLessThan(500);
+  });
+
+  it("plans ten thousand single-command cubic Bezier paths within budget", () => {
+    const pathCount = 10_000;
+    const seed: StageMoveKeyframeSeed = {
+      sourceStatementId: "bezier_perf_source", slot: "hero", z: 1, x: 20, y: 80, scale: 1,
+      rotation: 0, anchorX: 0.5, anchorY: 1, duration: "650ms", easing: "ease-in-out"
+    };
+    const draft = defaultStageBezierPathDraft(seed);
+    const start = performance.now();
+    let last = planStageBezierPath(seed, draft);
+    for (let index = 1; index < pathCount; index += 1) last = planStageBezierPath(seed, draft);
+    const planningMs = performance.now() - start;
+    console.log(JSON.stringify({ status: "PASS", baseline: { pathCount, canonicalMoves: pathCount }, measurementsMs: {
+      cubicBezierPathPlanning: Number(planningMs.toFixed(2)) }, budgetsMs: { cubicBezierPathPlanning: 500 }, result: { ok: last.ok } }, null, 2));
     expect(last.ok).toBe(true);
     expect(planningMs).toBeLessThan(500);
   });

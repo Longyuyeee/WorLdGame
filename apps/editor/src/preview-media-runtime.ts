@@ -21,11 +21,14 @@ import {
   MIN_STAGE_SCALE,
   SAFE_STAGE_SLOT,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
+  STAGE_BEZIER_PARAMETERS,
   isStageEasing,
+  isStageMotionCurve,
   isStageTransition,
   isDialogueTemplate,
   type DialogueTemplate,
   type StageEasing,
+  type StageMotionCurve,
   type StageTransition,
   directiveActionParameters,
   directiveActionRequiresAsset,
@@ -49,6 +52,11 @@ export interface PreviewVisualLayerPlan {
   readonly rotation?: number;
   readonly anchorX?: number;
   readonly anchorY?: number;
+  readonly curve?: StageMotionCurve;
+  readonly control1X?: number;
+  readonly control1Y?: number;
+  readonly control2X?: number;
+  readonly control2Y?: number;
   readonly movementFrom?: PreviewCharacterGeometry;
   readonly entering?: boolean;
   readonly exiting?: boolean;
@@ -246,6 +254,16 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         addDiagnostic(state, `${statement.id}: easing must be linear, ease-in, ease-out, or ease-in-out`);
         return true;
       }
+      const curve = optional(inspected.parameters, "curve");
+      const presentControls = STAGE_BEZIER_PARAMETERS.filter((key) => inspected.parameters[key] !== undefined);
+      if (action === "move" && curve === undefined && presentControls.length > 0) {
+        addDiagnostic(state, `${statement.id}: Bezier control points require curve=bezier`);
+        return true;
+      }
+      if (action === "move" && curve !== undefined && !isStageMotionCurve(curve)) {
+        addDiagnostic(state, `${statement.id}: curve must be bezier`);
+        return true;
+      }
       const zSource = inspected.parameters.z;
       const z = zSource === undefined ? (action === "move" ? current?.z ?? 0 : 0) : Number(zSource);
       if (!Number.isInteger(z) || z < MIN_STAGE_Z || z > MAX_STAGE_Z) {
@@ -265,6 +283,19 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         addDiagnostic(state, `${statement.id}: ${invalidGeometry[0]} is outside the frozen Stage geometry range`);
         return true;
       }
+      const bezier = {
+        control1X: optionalBoundedNumber(inspected.parameters, "control1X", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+        control1Y: optionalBoundedNumber(inspected.parameters, "control1Y", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+        control2X: optionalBoundedNumber(inspected.parameters, "control2X", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT),
+        control2Y: optionalBoundedNumber(inspected.parameters, "control2Y", MIN_STAGE_PERCENT, MAX_STAGE_PERCENT)
+      } as const;
+      if (action === "move" && curve === "bezier") {
+        const invalidControl = Object.entries(bezier).find(([, value]) => value === undefined || value === "invalid");
+        if (geometry.x === undefined || geometry.y === undefined || invalidControl !== undefined) {
+          addDiagnostic(state, `${statement.id}: curve=bezier requires bounded x, y, and four control point coordinates`);
+          return true;
+        }
+      }
       if (action === "move") {
         state.characters.set(slot, {
           ...current!,
@@ -280,7 +311,12 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
           ...(typeof geometry.scale === "number" ? { scale: geometry.scale } : {}),
           ...(typeof geometry.rotation === "number" ? { rotation: geometry.rotation } : {}),
           ...(typeof geometry.anchorX === "number" ? { anchorX: geometry.anchorX } : {}),
-          ...(typeof geometry.anchorY === "number" ? { anchorY: geometry.anchorY } : {})
+          ...(typeof geometry.anchorY === "number" ? { anchorY: geometry.anchorY } : {}),
+          ...(curve === "bezier" ? {
+            curve: curve as StageMotionCurve,
+            control1X: bezier.control1X as number, control1Y: bezier.control1Y as number,
+            control2X: bezier.control2X as number, control2Y: bezier.control2Y as number
+          } : {})
         });
         return true;
       }
@@ -388,7 +424,11 @@ function settleCharacterTransitions(state: MutableStageState): boolean {
   let changed = false;
   for (const [slot, layer] of state.characters) {
     if (layer.entering !== true && layer.movementFrom === undefined) continue;
-    const { entering: _entering, movementFrom: _movementFrom, ...settled } = layer;
+    const {
+      entering: _entering, movementFrom: _movementFrom, curve: _curve,
+      control1X: _control1X, control1Y: _control1Y, control2X: _control2X, control2Y: _control2Y,
+      ...settled
+    } = layer;
     state.characters.set(slot, settled);
     changed = true;
   }

@@ -138,6 +138,28 @@ describe("project compiler N30-E1/E2", () => {
     ]);
   });
 
+  it("lowers one canonical cubic Bezier Move and rejects incomplete paths", () => {
+    const project = loadFixture("tiny");
+    const valid = compileProject(replaceScript(project, "tiny_start", [
+      { id: "curve", kind: "direction", command: "show", summary: "action=move slot=hero x=80 y=80 curve=bezier control1X=30 control1Y=20 control2X=70 control2Y=20 duration=650ms easing=ease-in-out" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(valid.ok).toBe(true);
+    if (valid.ok) expect(valid.artifacts.story.scenes[0]?.instructions[0]).toEqual({
+      instructionId: "curve", opcode: "direction", operands: { command: "show", parameters: {
+        action: "move", slot: "hero", x: "80", y: "80", curve: "bezier",
+        control1X: "30", control1Y: "20", control2X: "70", control2Y: "20",
+        duration: "650ms", easing: "ease-in-out"
+      } }
+    });
+    const invalid = compileProject(replaceScript(project, "tiny_start", [
+      { id: "bad_curve", kind: "direction", command: "show", summary: "action=move slot=hero x=80 y=80 curve=bezier control1X=30 control1Y=20 control2X=70" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(invalid.ok).toBe(false);
+    expect(invalid.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ statementId: "bad_curve", message: expect.stringContaining("four control") })]));
+  });
+
   it("lowers frozen textbox templates and rejects unknown presentation vocabulary", () => {
     const project = loadFixture("tiny");
     const valid = compileProject(replaceScript(project, "tiny_start", [

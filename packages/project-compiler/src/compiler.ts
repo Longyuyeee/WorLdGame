@@ -1,5 +1,5 @@
 import { semanticHash, sha256, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
-import { isDialogueTemplate, isStageTransition, parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
+import { isDialogueTemplate, isStageTransition, parseTypedExpression, validateStageBezierMotionParameters, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
 import {
   PROJECT_COMPILER_VERSION, RUNTIME_IR_VERSION,
@@ -167,6 +167,13 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
             }
             if (parameters.easing !== undefined && (typeof parameters.easing !== "string" || !["linear", "ease-in", "ease-out", "ease-in-out"].includes(parameters.easing))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera easing`, ctx));
             if (parameters.duration !== undefined && (typeof parameters.duration !== "string" || !/^\d+(?:\.\d+)?(?:ms|s)$/u.test(parameters.duration))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera duration`, ctx));
+          }
+          if (command === "show" && action === "move") {
+            const bezierError = validateStageBezierMotionParameters(parameters as Readonly<Record<string, string>>);
+            if (bezierError !== undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} ${bezierError}`, ctx));
+          }
+          if (command === "show" && action !== "move" && ["curve", "control1X", "control1Y", "control2X", "control2Y"].some((key) => parameters[key] !== undefined)) {
+            diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} ${action} cannot retain Bezier path parameters`, ctx));
           }
           if (command === "textbox") {
             if (action === "set" && (typeof parameters.template !== "string" || !isDialogueTemplate(parameters.template))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} textbox set requires an ADV, NVL, or bubble template`, ctx));
