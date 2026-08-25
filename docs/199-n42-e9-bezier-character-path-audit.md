@@ -42,6 +42,7 @@
 | 保存/正式链 | 源码精确保存重开，Compiler→Runtime Host 数值 payload 一致 | 新集成测试首次通过 | `curve=bezier` 与 6 个数值坐标精确到达 `show.move` channel |
 | 性能 | 10,000 条路径规划 <500ms | 实际 6.30ms | 通过，预算和样本均未放宽 |
 | 本地浏览器 | 真实页面可加载并检查图形面板/16:9 布局 | 内置浏览器在应用加载前以 URL 策略阻断 localhost:5174 | 未绕过；本轮不登记 production browser 视觉验收，以 App jsdom、Canvas/DOM 数学、production build 和待运行 Windows CI 替代 |
+| PR 追踪门 | 产品代码与 M1 唯一权威矩阵同 PR 更新 | 首次 run `32816908246` 在 38 秒时失败：`docs/90-m1-requirement-traceability.md` 未更新 | 不改门禁；补齐 USP-01、REQ-STAGE、AC-03、AC-13 的 E9 状态与证据后重新运行 |
 
 ## 4. 本机证据
 
@@ -52,7 +53,7 @@
 - Requirements：50 / USP 10 / AC 27，PASS；Architecture：93 portable files / 4 Node adapters，PASS；
 - 全仓 `npm run check`：退出码 0；普通回归 128 files / 799 tests；storage 1/1；重型 VM 5/5；Runtime corpus 10,000 seeds / 20,000 replay，digest `20e9a842…92ef2`；
 - Script 性能 13/13 PASS（贝塞尔 10,000 条 `5.34ms`）；Route 9/9 PASS（20 样本 P95 `138.73ms`、Lazy page `269.73ms`、Lazy Index `260.53ms`）；Asset 4/4 PASS（Dicing 总计 `2635.43ms <5000ms`）；
-- 远端 Windows / Node 22：等待本分支实现头运行后回填；
+- 远端 Windows / Node 22：首次 run `32816908246` / job `97706938825` 被 PR traceability 门正确拒绝；修正提交后的完整门等待回填；
 - `git diff --check`：PASS。
 
 ## 5. 需求对齐与出口判定
