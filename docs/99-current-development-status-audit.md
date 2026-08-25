@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1a 工作模式基础已完成：7 个稳定模式 ID、4 个可用布局、3 个明确禁用未来模式，模式切换保持 Canonical `r0`；真实桌面/390px 浏览器通过，Draft PR #75 最终代码头 Windows run `32832227228` / job `97753258991` 用时 6 分 30 秒并绿色。治理 #201 所定义的广义 E1 仍缺保存重开上下文闭环，由 E1b 继续**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；当前 N43-E1a 分支由 Draft PR #75 承载，最终代码头 run `32832227228` / job `97753258991` 用时 6 分 30 秒并绿色。当前开发头相对 `origin/main` 为 `0 behind / 336 ahead`，因此不得把堆叠 PR 绿色换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；当前 N43-E1a 分支由 Draft PR #75 承载，最终代码头 run `32832227228` / job `97753258991` 用时 6 分 30 秒并绿色。审计起点相对 `origin/main` 为 `0 behind / 336 ahead`，本轮文档提交会继续增加 ahead 计数，因此不得把堆叠 PR 绿色换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
