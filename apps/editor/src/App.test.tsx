@@ -26,6 +26,26 @@ function renderLegacyDirectionApp() {
   return render(<App initialProject={legacyDirectionProject()} />);
 }
 
+function characterDirectionProject({ y = 80, scale = 0.9, rotation = 4 } = {}) {
+  const story: StoryProject = {
+    ...campusStoryProject,
+    scenes: campusStoryProject.scenes.map((scene) => scene.id !== campusStoryProject.entrySceneId
+      ? scene
+      : {
+          ...scene,
+          statements: scene.statements.map((statement) => statement.id === "stmt_gate_bg"
+            ? {
+                kind: "direction" as const,
+                id: statement.id,
+                command: "show",
+                summary: `action=show asset=asset_missing slot=hero z=2 x=20 y=${y} scale=${scale} rotation=${rotation} anchorX=0.5 anchorY=1`
+              }
+            : statement)
+        })
+  };
+  return projectCanonicalFromStory(story, "app-character-direction-tests");
+}
+
 function textboxPresentationProject() {
   const story: StoryProject = {
     ...campusStoryProject,
@@ -286,16 +306,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     );
   });
   it("authors the next character keyframe from the selected Show cue and writes it back to Script", () => {
-    renderLegacyDirectionApp();
-    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
-    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
-    const source = String((scriptEditor as HTMLTextAreaElement).value);
-    fireEvent.change(scriptEditor, { target: { value: source.replace(
-      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
-      "@show action=show asset=asset_missing slot=hero z=2 x=20 y=100 scale=1 rotation=0 anchorX=0.5 anchorY=1 @id(stmt_gate_bg)"
-    ) } });
-    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
-    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    render(<App initialProject={characterDirectionProject({ y: 100, scale: 1, rotation: 0 })} />);
 
     fireEvent.click(screen.getByRole("button", { name: "＋ 关键帧" }));
     expect(screen.getByRole("form", { name: "新增角色关键帧" })).toBeVisible();
@@ -316,16 +327,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     );
   });
   it("authors a two-segment character path as one atomic pair of canonical Move keyframes", () => {
-    renderLegacyDirectionApp();
-    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
-    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
-    const source = String((scriptEditor as HTMLTextAreaElement).value);
-    fireEvent.change(scriptEditor, { target: { value: source.replace(
-      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
-      "@show action=show asset=asset_missing slot=hero z=2 x=20 y=80 scale=0.9 rotation=4 anchorX=0.5 anchorY=1 @id(stmt_gate_bg)"
-    ) } });
-    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
-    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    render(<App initialProject={characterDirectionProject()} />);
 
     fireEvent.click(screen.getByRole("button", { name: "＋ 路径" }));
     expect(screen.getByRole("form", { name: "新增角色运动路径" })).toBeVisible();
@@ -339,7 +341,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(screen.getByLabelText("终点移动时长"), { target: { value: "650ms" } });
     fireEvent.click(screen.getByRole("button", { name: "创建运动路径" }));
 
-    expect(screen.getByText("本地事务 · r2")).toBeVisible();
+    expect(screen.getByText("本地事务 · r1")).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     const pathSource = String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value);
     expect(pathSource).toMatch(/@show action=move slot=hero z=2 x=45 y=55 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 transition=slide duration=400ms easing=ease-out @id\(stmt_[^)]+\)\r?\n@show action=move slot=hero z=2 x=75 y=82 scale=0\.9 rotation=4 anchorX=0\.5 anchorY=1 transition=slide duration=650ms easing=ease-in-out @id\(stmt_[^)]+\)/u);
@@ -348,15 +350,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).not.toContain("x=75 y=82");
   });
   it("authors one graphical cubic Bezier Move with four absolute control coordinates", () => {
-    renderLegacyDirectionApp();
-    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
-    const scriptEditor = screen.getByLabelText("权威脚本编辑器");
-    fireEvent.change(scriptEditor, { target: { value: String((scriptEditor as HTMLTextAreaElement).value).replace(
-      "@background 黄昏校门 · 云层缓慢移动 @id(stmt_gate_bg)",
-      "@show action=show asset=asset_missing slot=hero z=2 x=20 y=80 scale=0.9 rotation=4 anchorX=0.5 anchorY=1 @id(stmt_gate_bg)"
-    ) } });
-    fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
-    fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    render(<App initialProject={characterDirectionProject()} />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 贝塞尔" }));
     expect(screen.getByRole("form", { name: "新增贝塞尔角色路径" })).toBeVisible();
     fireEvent.change(screen.getByLabelText("贝塞尔控制点 1 X"), { target: { value: "30" } });
@@ -857,6 +851,30 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByLabelText("剧情步骤，当前显示 1 至 4，共 4 步")).toBeVisible();
     expect(screen.getAllByRole("button", { name: /^选择/ })).toHaveLength(4);
     expect(screen.getByText("窗口外选择仍保留 · 拖放仅限当前窗口")).toBeVisible();
+  });
+
+  it("switches bounded N43 workspace modes without changing the canonical selection or revision", () => {
+    render(<App />);
+    selectFirstDialogue();
+
+    expect(screen.getByRole("radio", { name: "Writer" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "Production" })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "Debug & QA" })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "Mobile Focus" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Director" }));
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-workspace-mode", "director");
+    expect(screen.getByLabelText("对白内容")).toHaveValue(
+      "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
+    );
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Flow 模式" }));
+    expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
+    fireEvent.click(screen.getByRole("radio", { name: "Quick Start" }));
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-workspace-mode", "quick-start");
+    expect(screen.getByRole("heading", { name: "放学后的校门" })).toBeVisible();
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
   });
 
   it("scrubs a derived time ruler through canonical statement selection", () => {

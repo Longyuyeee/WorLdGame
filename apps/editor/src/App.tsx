@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import {
   AssetBlobError,
   assetBackupRecordId,
@@ -87,6 +87,7 @@ import {
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
+import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import {
   WEB_ASSET_IMPORT_MAX_BYTES,
@@ -311,18 +312,78 @@ interface CommonProps {
 
 interface WorkspaceHeaderProps extends CommonProps {
   readonly mode: StudioMode;
+  readonly workspaceMode: WorkspaceModeId;
   readonly inputDirty: boolean;
   readonly onModeChange: (mode: StudioMode) => void;
+  readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
   readonly persistence: PersistenceViewState;
   readonly onSave: () => void;
   readonly onOpenBackups: () => void;
 }
 
+interface WorkspaceNavigationProps {
+  readonly mode: StudioMode;
+  readonly workspaceMode: WorkspaceModeId;
+  readonly onModeChange: (mode: StudioMode) => void;
+  readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
+}
+
+const WorkspaceNavigation = memo(function WorkspaceNavigation({
+  mode,
+  workspaceMode,
+  onModeChange,
+  onWorkspaceModeChange
+}: WorkspaceNavigationProps) {
+  return (
+    <div className="workspace-navigation">
+      <nav className="workspace-mode-switcher" aria-label="工作模式" role="radiogroup">
+        {WORKSPACE_MODES.map((candidate) => (
+          <button
+            type="button"
+            role="radio"
+            className={candidate.id === workspaceMode ? "workspace-mode-button is-active" : "workspace-mode-button"}
+            key={candidate.id}
+            aria-checked={candidate.id === workspaceMode}
+            disabled={!candidate.available}
+            title={candidate.summary}
+            onClick={() => onWorkspaceModeChange(candidate.id)}
+          >
+            <span className={`workspace-mode-dot workspace-mode-dot--${candidate.id}`} aria-hidden="true" />
+            {candidate.label}
+            {!candidate.available && <span className="workspace-mode-lock" aria-hidden="true">·</span>}
+          </button>
+        ))}
+      </nav>
+      <div className="workspace-navigation__lower">
+        <output className="workspace-mode-summary" aria-live="polite">
+          {workspaceModeDescriptor(workspaceMode).summary}
+        </output>
+        <nav className="mode-switcher" aria-label="编辑视图" role="tablist">
+          {(Object.keys(modeLabels) as StudioMode[]).map((candidate) => (
+            <button
+              className={candidate === mode ? "mode-tab is-active" : "mode-tab"}
+              key={candidate}
+              onClick={() => onModeChange(candidate)}
+              role="tab"
+              aria-selected={candidate === mode}
+            >
+              <span className={`mode-dot mode-dot--${candidate}`} aria-hidden="true" />
+              {modeLabels[candidate]}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+});
+
 function WorkspaceHeader({
   mode,
+  workspaceMode,
   session,
   inputDirty,
   onModeChange,
+  onWorkspaceModeChange,
   persistence,
   onSave,
   onOpenBackups,
@@ -340,20 +401,12 @@ function WorkspaceHeader({
         </div>
       </div>
 
-      <nav className="mode-switcher" aria-label="编辑模式" role="tablist">
-        {(Object.keys(modeLabels) as StudioMode[]).map((candidate) => (
-          <button
-            className={candidate === mode ? "mode-tab is-active" : "mode-tab"}
-            key={candidate}
-            onClick={() => onModeChange(candidate)}
-            role="tab"
-            aria-selected={candidate === mode}
-          >
-            <span className={`mode-dot mode-dot--${candidate}`} aria-hidden="true" />
-            {modeLabels[candidate]}
-          </button>
-        ))}
-      </nav>
+      <WorkspaceNavigation
+        mode={mode}
+        workspaceMode={workspaceMode}
+        onModeChange={onModeChange}
+        onWorkspaceModeChange={onWorkspaceModeChange}
+      />
 
       <div className="history-actions" aria-label="脚本历史">
         <button
@@ -3355,6 +3408,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
+  const selectWorkspaceMode = useCallback((nextMode: WorkspaceModeId) => {
+    const descriptor = workspaceModeDescriptor(nextMode);
+    if (!descriptor.available) return;
+    setWorkspaceMode(nextMode);
+    setMode(descriptor.defaultView);
+  }, []);
   const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
@@ -4494,9 +4554,20 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   }
 
   return (
-    <div className="app-shell">
-      <WorkspaceHeader mode={mode} session={session} inputDirty={inputDirty} onModeChange={setMode} persistence={persistence} onSave={() => saveToLocal("manual")} onOpenBackups={openBackups} dispatch={dispatch} />
-      <main className="workspace-grid">
+    <div className="app-shell" data-workspace-mode={workspaceMode} data-testid="workspace-shell">
+      <WorkspaceHeader
+        mode={mode}
+        workspaceMode={workspaceMode}
+        session={session}
+        inputDirty={inputDirty}
+        onModeChange={setMode}
+        onWorkspaceModeChange={selectWorkspaceMode}
+        persistence={persistence}
+        onSave={() => saveToLocal("manual")}
+        onOpenBackups={openBackups}
+        dispatch={dispatch}
+      />
+      <main className="workspace-grid" data-workspace-mode={workspaceMode}>
         <SceneRail
           session={session}
           dispatch={dispatch}

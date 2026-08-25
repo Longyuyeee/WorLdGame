@@ -1,10 +1,10 @@
-# 当前开发情况审计（N43 Engineering 治理准入，产品门仍阻断）
+# 当前开发情况审计（N43-E1 工作模式骨架，产品门仍阻断）
 
 > 审计日期：2026-08-25
-> 当前分支：`codex/n43-governance-checkpoint`；直接基线为 N42 Engineering 最终绿色头 `853b70b`
+> 当前分支：`codex/n43-e1-workspace-modes`；直接基线为 `codex/n43-governance-checkpoint`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
-> 最新节点证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
+> 最新节点证据：[N43-E1 七工作模式骨架与真实布局审计](202-n43-e1-workspace-mode-foundation-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)；方向证据：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**治理准入已通过，Draft PR #74 Windows run `32821867501` / job `97721518865` 用时 6 分 10 秒并绿色，尚未开始产品切片**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 候选已完成实现与真实浏览器验收：7 个稳定模式 ID、4 个可用布局、3 个明确禁用未来模式，模式切换保持 Canonical `r0`；本地功能/构建门通过，Route 隔离性能通过，但 Asset Dicing 在热负载下仍超冻结预算，等待远端 Windows 同门裁决**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 
@@ -37,6 +37,8 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
 | Player/Build | N23 独立单文件 HTML 候选，可确定性离线打开 | 当前候选仍是平行 `StoryStatement` 解释器，不是正式 Runtime Player；正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
+
+N43-E1 新增的 Writer、Director、Flow、Quick Start 是同一编辑器的布局/工具优先级，不是四份工程数据。Production、Debug & QA、Mobile Focus 保持禁用；Sequence、Script、Flow 继续作为编辑视图。桌面真实浏览器首次发现默认 1920×1080 舞台容器被 flex 压成 18px 横带，修正后 Canvas 为 `606.781×340.438`；390px 首次发现返回按钮与底部视图导航重叠，修正后不相交、文档横向溢出为 0。详见[审计 #202](202-n43-e1-workspace-mode-foundation-audit.md)。
 
 ## 3. N32-E1–E6 证据与差异
 
