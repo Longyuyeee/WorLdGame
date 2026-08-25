@@ -4,8 +4,10 @@
 > 分支：`codex/n43-e1-workspace-modes`
 > 直接基线：`codex/n43-governance-checkpoint`
 > 授权：`RA-N21-008`，仅覆盖 N43 Engineering
-> 状态：本地实现与真实浏览器验收通过；远端 PR/Windows CI 待推送后回填
-> 判定：E1 有界切片 Engineering 候选完成，等待远端干净 Windows 性能裁决；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
+> Draft PR：#75，base `codex/n43-governance-checkpoint`
+> Windows CI：run `32831410443` / job `97750710122`，8 分 11 秒，绿色
+> 状态：本地实现与真实浏览器验收通过；远端 Windows 完整门通过
+> 判定：E1 有界切片 Engineering 完成；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 
 ## 1. 冻结目标与范围
 
@@ -63,6 +65,8 @@ Canvas 比例与数学 16:9 的小幅差异来自设备像素取整和边框盒�
 最终本地 `npm run check` 已实际走完治理、Compiler/Runtime corpus、N41/N42/N43、typecheck、普通/存储/VM 测试、14 workspace 构建、架构和 Script 性能：通用池 `128 files / 757 tests`、App `45/45`、storage `1/1`、VM `5/5`，Editor production build 为 CSS `106.64 kB / gzip 19.79 kB`、JS `908.10 kB / gzip 253.62 kB`。既有 >500kB JS 拆包债未因本切片关闭。
 
 完整门末端 Route 性能首次出现 `lazyRouteStructurePage 516.16ms`、`globalLazyEditIndex 568.80ms` 高于 500ms；保持预算不变后隔离复测分别为 `416.41ms`、`401.01ms`，Route 编辑同步 P95 `479.28ms <500ms`，判定为本机热负载差异。Asset Dicing 在同一高负载环境两次仍超过冻结的 3s/3s/5s（`5.12+3.52=8.64s`、`4.24+5.22=9.46s`），但 441 个重复块、85.83% 净节省及其余三项资源门均正确；不修改算法样本、断言或预算，必须由远端 Windows / Node 22 同门裁决。因此本地不能伪报单次完整门 exit 0。
+
+远端干净 Windows / Node 22 在实现头 `1cee094` 上执行相同 `npm run check` 全绿，run `32831410443` / job `97750710122` 用时 8 分 11 秒；本机 Route/Asset 热负载差异由此关闭。串行化后的门虽比旧约 6 分钟基线更慢，但没有减少覆盖或放宽预算。
 
 ## 5. 需求对齐与未完成边界
 

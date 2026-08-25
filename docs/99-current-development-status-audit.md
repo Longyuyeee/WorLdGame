@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 候选已完成实现与真实浏览器验收：7 个稳定模式 ID、4 个可用布局、3 个明确禁用未来模式，模式切换保持 Canonical `r0`；本地功能/构建门通过，Route 隔离性能通过，但 Asset Dicing 在热负载下仍超冻结预算，等待远端 Windows 同门裁决**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 已完成：7 个稳定模式 ID、4 个可用布局、3 个明确禁用未来模式，模式切换保持 Canonical `r0`；真实桌面/390px 浏览器通过，Draft PR #75 Windows run `32831410443` / job `97750710122` 用时 8 分 11 秒并绿色，本机 Route/Asset 热负载差异关闭**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 
