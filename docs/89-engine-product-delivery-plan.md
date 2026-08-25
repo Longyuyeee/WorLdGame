@@ -412,6 +412,10 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E8 文本呈现模板（2026-08-25）：[N42-E8 审计](198-n42-e8-dialogue-presentation-templates-audit.md)冻结 `@textbox action=set template=adv|nvl|bubble` 与 reset，贯通 Sequence/Script、Compiler、Runtime portable Host、TEXT lane、Preview 和保存重开。NVL 实际从 canonical 边界累积且最多 8 行，不是 CSS 换皮。常规 790 tests、storage 1、VM 5、构建/架构/脚本/资源门通过；本地 Route 隔离复测 P95 `400.24ms`。Draft PR #71 run `32814073460` / job `97698809843` 用时 5m47s 全绿，Windows P95 `139.75ms`、Lazy Index `255.64ms`，E8 Engineering 切片关闭。本地 browser 被 URL 安全策略阻断，不登记 production browser 视觉验收。
 
+> E9 三次贝塞尔路径（2026-08-25）：[N42-E9 审计](199-n42-e9-bezier-character-path-audit.md)以单条 stable-ID canonical Move 保存终点和两个控制点，贯通图形控制点、Inspector、Story Language、Compiler、Runtime/Host、Canvas/DOM Preview 与保存重开；Draft PR #72 Windows / Node 22 完整门全绿。它补齐冻结的运动轨迹能力，但不冒充正式 Player 或 Product Acceptance。
+
+> Engineering 出口（2026-08-25）：[N42 出口复审](200-n42-stage-engineering-exit-reaudit.md)确认 Goal `1/1`、Implementation `8/8`，新增 `audit:n42-stage-exit` 并以 `16 files / 192 tests` 复验真实媒体、Canonical、Compiler、Runtime/Host、Preview 与重开链。正式 Player 不存在，Editor↔Player Acceptance 为 `0/1`，因此 N42 Engineering 通过但 N42 Product Acceptance、N43、M1 与发布继续阻断；不得继续无限扩张 N42 高级特效。
+
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。
 - **Acceptance**：AC-13 样例在 Editor Preview 和 Player 中一致。
