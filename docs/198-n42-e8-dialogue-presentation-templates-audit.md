@@ -43,13 +43,14 @@
 - Route 性能隔离复测：9/9 PASS；P95 `400.24ms`、Lazy page `229.11ms`、Lazy Index `236.84ms`；
 - Asset 性能：4/4 PASS；Dicing 总计 `2466.20ms <5000ms`；
 - Requirements 50 / AC 27 与风险授权审计：PASS；`git diff --check`：PASS。
+- GitHub Actions：Draft PR #71，run `32814073460` / job `97698809843`，Windows / Node 22 / full check 用时 `5m47s`，全部 PASS；常规 125 files、Route P95 `139.75ms`、Lazy page `313.90ms`、Lazy Index `255.64ms`，Editor JS `894.48 kB`（gzip `250.49 kB`）。
 
 ## 5. 需求对齐与出口判定
 
 本切片直接推进 `REQ-STAGE` 与 `AC-03`：文本模板在 Script、Sequence、Compiler、Runtime/Host、TEXT lane、Preview 和持久化中共享同一 stable-ID Canonical 事实。它没有提前进入 N43，也没有把 Editor Preview 宣称为正式 Player。现代、多彩、动效清晰的 UI 目标获得了可见增量，同时保留 Naninovel/Utage 类专业工具要求的类型化、可审计、可移植执行链。
 
-本机 Engineering 候选完成；production browser 因工具安全策略未形成视觉证据，N42 Product Acceptance、正式 Player、三端一致性、真人与 M1 均继续阻断。远端 Windows / Node 22 完整门将在推送后的 Draft PR 上裁决。
+本机 Engineering 候选与远端干净 Windows / Node 22 完整门均已通过，因此 E8 **Engineering 切片关闭**。production browser 因工具安全策略未形成视觉证据，N42 Product Acceptance、正式 Player、三端一致性、真人与 M1 均继续阻断。
 
 ## 6. 下一步
 
-远端完整门绿色后关闭 E8 Engineering 切片；随后仍在 `RA-N21-007` 内重新审计 N42 的最小切片，优先处理任意/贝塞尔路径、镜头高级效果或独立时间写入之一。禁止把模板完成换算为完整 N42、正式 Player 或商业发布完成。
+仍在 `RA-N21-007` 内重新审计 N42 的最小切片，优先处理任意/贝塞尔路径、镜头高级效果或独立时间写入之一。禁止把模板完成换算为完整 N42、正式 Player 或商业发布完成。

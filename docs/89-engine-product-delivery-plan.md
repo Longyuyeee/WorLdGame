@@ -410,7 +410,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E7 作用域舞台转场（2026-08-25）：[N42-E7 审计](197-n42-e7-scoped-stage-transitions-audit.md)冻结 `fade/dissolve/slide`，使背景替换和清除共用 canonical 转场，Preview/资源窗口保留上一背景一个过渡帧，Canvas 只转场背景层而不影响角色。真实浏览器插入 `clear+dissolve+700ms` 后正式 Runtime 0 诊断，冷启动恢复 r3/s3 与 3 项媒体。783 项全量测试、构建、架构、需求、风险、脚本与资源性能通过；本机 Route P95 `883.38ms` 的负载差异由 Draft PR #70 run `32811420647` / job `97691337669` 以 Windows P95 `136.43ms <500ms` 关闭，E7 Engineering 切片完成。
 
-> E8 文本呈现模板候选（2026-08-25）：[N42-E8 审计](198-n42-e8-dialogue-presentation-templates-audit.md)冻结 `@textbox action=set template=adv|nvl|bubble` 与 reset，贯通 Sequence/Script、Compiler、Runtime portable Host、TEXT lane、Preview 和保存重开。NVL 实际从 canonical 边界累积且最多 8 行，不是 CSS 换皮。常规 790 tests、storage 1、VM 5、构建/架构/脚本/资源门通过；Route 隔离复测 P95 `400.24ms`、Lazy Index `236.84ms`。本地 browser 被 URL 安全策略阻断，远端 Windows 完整门待推送后裁决，故当前只登记 Engineering 候选。
+> E8 文本呈现模板（2026-08-25）：[N42-E8 审计](198-n42-e8-dialogue-presentation-templates-audit.md)冻结 `@textbox action=set template=adv|nvl|bubble` 与 reset，贯通 Sequence/Script、Compiler、Runtime portable Host、TEXT lane、Preview 和保存重开。NVL 实际从 canonical 边界累积且最多 8 行，不是 CSS 换皮。常规 790 tests、storage 1、VM 5、构建/架构/脚本/资源门通过；本地 Route 隔离复测 P95 `400.24ms`。Draft PR #71 run `32814073460` / job `97698809843` 用时 5m47s 全绿，Windows P95 `139.75ms`、Lazy Index `255.64ms`，E8 Engineering 切片关闭。本地 browser 被 URL 安全策略阻断，不登记 production browser 视觉验收。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。
