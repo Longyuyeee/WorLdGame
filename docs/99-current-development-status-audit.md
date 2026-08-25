@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**治理准入，尚未开始产品切片**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**治理准入已通过，Draft PR #74 Windows run `32821867501` / job `97721518865` 用时 6 分 10 秒并绿色，尚未开始产品切片**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N42 治理为 Draft PR #65；E1a/#66、E1b/#67 与 E2/#68 保持开放证据。E3 为 Draft PR #69；实现头 run `32708909967` / job `97375916279` 用时 5 分 48 秒并绿色**。
 

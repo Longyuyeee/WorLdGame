@@ -4,6 +4,8 @@
 > 分支：`codex/n43-governance-checkpoint`
 > 直接基线：N42 Engineering 最终绿色头 `853b70b`
 > 授权：`RA-N21-008`，最大节点 N43，2026-09-24 15:12:18（UTC+8）到期
+> Draft PR：#74，base `codex/n42-engineering-exit`
+> Windows CI：run `32821867501` / job `97721518865`，6 分 10 秒，绿色
 > 判定：只准入 N43 Engineering；N43 Product Acceptance、N50+、M1 Stable 与发布继续阻断
 
 ## 1. 触发与前置事实
@@ -58,4 +60,8 @@ N42 Stage Engineering 已按冻结范围取得 Goal `1/1`、Implementation `8/8`
 
 本机完整门进行了两次真实尝试，但未伪装为单链绿色：第一次在重型 VM 10,000-seed 用例实际 `96.50s > 90s` 超时；保持 10,000 seeds、digest 和 90 秒门槛不变后，隔离复测 `5/5`、核心测试 `80.59s <90s`。第二次完整门在 `App.test.tsx` 的键盘范围选择/触摸等价控件用例发生 `5.229s >5s` 超时；不提高 5 秒门槛，原用例隔离复测测试体 `2.05s` 并通过。两次失败位置不同，且断言均未失败，判定为本机并行负载抖动，等待干净 Windows 同一完整门裁决。
 
-未到达的后段门随后按原命令独立补齐：14 个 workspace 构建、93 个 portable 文件架构审计、Script/Stage/Route/Asset 性能全部通过；Route 编辑同步 P95 `168.63ms <500ms`，Dicing `2666ms <5000ms`、净节省 `85.83%`，Editor JS `905.92 kB / gzip 252.88 kB` 的既有拆包债保持。当前只形成 Engineering 治理候选，必须等远端完整门绿色后关闭。
+未到达的后段门随后按原命令独立补齐：14 个 workspace 构建、93 个 portable 文件架构审计、Script/Stage/Route/Asset 性能全部通过；Route 编辑同步 P95 `168.63ms <500ms`，Dicing `2666ms <5000ms`、净节省 `85.83%`，Editor JS `905.92 kB / gzip 252.88 kB` 的既有拆包债保持。
+
+远端干净 Windows / Node 22 在治理实现头 `136cc37` 上完整 `npm run check` 退出码为 0：治理 `3 files / 20 tests`，N42 汇总 `16 files / 192 tests`，常规 `128 files / 799 tests`，storage `1/1`，重型 VM `5/5` 且核心测试 `62.38s <90s`；Route P95 `150.02ms <500ms`，10,000 条贝塞尔规划 `13.82ms <500ms`，Editor JS `906.00 kB / gzip 252.87 kB`。两处本机超时均未复现，且所有冻结断言、规模、digest 与预算保持不变，因此以环境负载差异关闭，不修改功能或门槛。run `32821867501` / job `97721518865` 用时 6 分 10 秒。
+
+本治理检查点由此关闭，允许下一分支开始 N43-E1 产品代码；它只解除 N43 Engineering 前置，不解除 N43 Product Acceptance、N50+、M1 Stable 或发布门。
