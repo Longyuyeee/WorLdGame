@@ -25,7 +25,7 @@ export interface NarrationStatement extends StatementBase {
 
 export interface DirectionStatement extends StatementBase {
   readonly kind: "direction";
-  readonly command: "background" | "show" | "camera" | "audio";
+  readonly command: "background" | "show" | "camera" | "audio" | "textbox";
   readonly summary: string;
 }
 

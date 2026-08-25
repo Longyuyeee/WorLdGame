@@ -1,5 +1,5 @@
 import { semanticHash, sha256, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
-import { isStageTransition, parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
+import { isDialogueTemplate, isStageTransition, parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
 import {
   PROJECT_COMPILER_VERSION, RUNTIME_IR_VERSION,
@@ -12,7 +12,7 @@ import {
 const statementKinds = new Set<RuntimeOpcodeV1>(["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"]);
 const interactiveKinds = new Set(["dialogue", "narration", "direction", "choice", "wait", "end"]);
 const allowedActions: Readonly<Record<string, ReadonlySet<string>>> = {
-  background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), camera: new Set(["move", "reset"]), audio: new Set(["play", "stop", "pause", "resume"])
+  background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), camera: new Set(["move", "reset"]), audio: new Set(["play", "stop", "pause", "resume"]), textbox: new Set(["set", "reset"])
 };
 
 interface CompileContext {
@@ -147,7 +147,7 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
         const parameters = parseDirectiveParameters(summary);
         if (parameters === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has malformed key=value parameters`, ctx));
         else {
-          const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
+          const action = typeof parameters.action === "string" ? parameters.action : command === "background" || command === "textbox" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
           if (!allowedActions[command]!.has(action)) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid ${command} action: ${action}`, ctx));
           if (parameters.transition !== undefined && (typeof parameters.transition !== "string" || !isStageTransition(parameters.transition))) {
             diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid Stage transition: ${String(parameters.transition)}`, ctx));
@@ -167,6 +167,10 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
             }
             if (parameters.easing !== undefined && (typeof parameters.easing !== "string" || !["linear", "ease-in", "ease-out", "ease-in-out"].includes(parameters.easing))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera easing`, ctx));
             if (parameters.duration !== undefined && (typeof parameters.duration !== "string" || !/^\d+(?:\.\d+)?(?:ms|s)$/u.test(parameters.duration))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera duration`, ctx));
+          }
+          if (command === "textbox") {
+            if (action === "set" && (typeof parameters.template !== "string" || !isDialogueTemplate(parameters.template))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} textbox set requires an ADV, NVL, or bubble template`, ctx));
+            if (action === "reset" && parameters.template !== undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} textbox reset cannot retain a template`, ctx));
           }
           const requiresAsset = (command === "background" && action === "set") || (command === "show" && action === "show") || (command === "audio" && action === "play");
           const referenced = [requiresAsset ? parameters.asset : undefined, parameters.transitionAsset].filter((value): value is string => typeof value === "string");

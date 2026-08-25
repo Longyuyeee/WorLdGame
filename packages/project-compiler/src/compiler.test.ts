@@ -138,6 +138,24 @@ describe("project compiler N30-E1/E2", () => {
     ]);
   });
 
+  it("lowers frozen textbox templates and rejects unknown presentation vocabulary", () => {
+    const project = loadFixture("tiny");
+    const valid = compileProject(replaceScript(project, "tiny_start", [
+      { id: "textbox_nvl", kind: "direction", command: "textbox", summary: "action=set template=nvl" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(valid.ok).toBe(true);
+    if (valid.ok) expect(valid.artifacts.story.scenes[0]?.instructions[0]).toEqual({
+      instructionId: "textbox_nvl", opcode: "direction", operands: { command: "textbox", parameters: { action: "set", template: "nvl" } }
+    });
+    const invalid = compileProject(replaceScript(project, "tiny_start", [
+      { id: "textbox_bad", kind: "direction", command: "textbox", summary: "action=set template=cinema" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(invalid.ok).toBe(false);
+    expect(invalid.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ statementId: "textbox_bad", code: "INVALID_STATEMENT" })]));
+  });
+
   it("rejects a Stage transition outside the frozen vocabulary before Runtime", () => {
     const project = loadFixture("tiny");
     const result = compileProject(replaceScript(project, "tiny_start", [

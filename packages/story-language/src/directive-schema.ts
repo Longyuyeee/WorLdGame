@@ -4,7 +4,9 @@ export type BackgroundAction = "set" | "clear";
 export type CharacterAction = "show" | "move" | "hide";
 export type CameraAction = "move" | "reset";
 export type AudioAction = "play" | "stop" | "pause" | "resume";
-export type DirectiveAction = BackgroundAction | CharacterAction | CameraAction | AudioAction;
+export type TextboxAction = "set" | "reset";
+export type DialogueTemplate = "adv" | "nvl" | "bubble";
+export type DirectiveAction = BackgroundAction | CharacterAction | CameraAction | AudioAction | TextboxAction;
 export type StageTransition = "fade" | "dissolve" | "slide";
 
 export const STAGE_TRANSITIONS = ["fade", "dissolve", "slide"] as const satisfies readonly StageTransition[];
@@ -12,25 +14,33 @@ export function isStageTransition(value: string): value is StageTransition {
   return (STAGE_TRANSITIONS as readonly string[]).includes(value);
 }
 
+export const DIALOGUE_TEMPLATES = ["adv", "nvl", "bubble"] as const satisfies readonly DialogueTemplate[];
+export function isDialogueTemplate(value: string | undefined): value is DialogueTemplate {
+  return value !== undefined && (DIALOGUE_TEMPLATES as readonly string[]).includes(value);
+}
+
 export const DIRECTIVE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
   background: ["action", "asset", "transition", "transitionAsset", "duration"],
   show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"],
   camera: ["action", "x", "y", "zoom", "rotation", "duration", "easing"],
-  audio: ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"]
+  audio: ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"],
+  textbox: ["action", "template"]
 };
 
 const ACTIONS: Record<DirectiveNode["command"], ReadonlySet<string>> = {
   background: new Set(["set", "clear"]),
   show: new Set(["show", "move", "hide"]),
   camera: new Set(["move", "reset"]),
-  audio: new Set(["play", "stop", "pause", "resume"])
+  audio: new Set(["play", "stop", "pause", "resume"]),
+  textbox: new Set(["set", "reset"])
 };
 
 const DEFAULT_ACTIONS: Record<DirectiveNode["command"], DirectiveAction> = {
   background: "set",
   show: "show",
   camera: "move",
-  audio: "play"
+  audio: "play",
+  textbox: "set"
 };
 
 export function resolveDirectiveAction(
@@ -76,6 +86,7 @@ export function directiveActionParameters(
     return ["action", "slot", "transition", "duration"];
   }
   if (command === "camera") return action === "move" ? DIRECTIVE_PARAMETERS.camera : ["action", "duration", "easing"];
+  if (command === "textbox") return action === "set" ? DIRECTIVE_PARAMETERS.textbox : ["action"];
   return action === "play" ? DIRECTIVE_PARAMETERS.audio : ["action", "bus"];
 }
 

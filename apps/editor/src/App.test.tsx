@@ -26,6 +26,24 @@ function renderLegacyDirectionApp() {
   return render(<App initialProject={legacyDirectionProject()} />);
 }
 
+function textboxPresentationProject() {
+  const story: StoryProject = {
+    ...campusStoryProject,
+    scenes: campusStoryProject.scenes.map((scene) => scene.id !== campusStoryProject.entrySceneId ? scene : {
+      ...scene,
+      statements: [
+        { kind: "direction", id: "textbox_nvl", command: "textbox", summary: "action=set template=nvl" },
+        { kind: "dialogue", id: "textbox_line_1", speakerId: "char_xia", textId: "textbox_text_1", text: "第一行 NVL" },
+        { kind: "narration", id: "textbox_line_2", textId: "textbox_text_2", text: "第二行 NVL" },
+        { kind: "direction", id: "textbox_reset", command: "textbox", summary: "action=reset" },
+        { kind: "dialogue", id: "textbox_line_3", speakerId: "char_xia", textId: "textbox_text_3", text: "恢复 ADV" },
+        { kind: "end", id: "textbox_end", endingName: "Done" }
+      ]
+    })
+  };
+  return projectCanonicalFromStory(story, "app-textbox-presentation-tests");
+}
+
 function selectFirstDialogue() {
   fireEvent.click(
     screen.getByRole("button", {
@@ -234,6 +252,18 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
     expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
       "@background action=clear transition=dissolve duration=700ms"
+    );
+  });
+  it("authors a canonical NVL textbox template from the graphical Stage track", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 文本框" }));
+    expect(screen.getByRole("form", { name: "新增文本框演出" })).toBeVisible();
+    fireEvent.change(screen.getByLabelText("新增文本框模板"), { target: { value: "nvl" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    expect(screen.getByText("TEXT")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
+      "@textbox action=set template=nvl"
     );
   });
   it("authors a bounded camera cue and exposes it on the dedicated timeline lane", () => {
@@ -815,5 +845,22 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(playhead).toHaveValue("1");
     expect(screen.getByRole("button", { name: /^选择对白：广播站/ })).toHaveClass("is-active");
     expect(within(timeline).getByText(/选中步骤 · stmt_gate_001/)).toBeVisible();
+  });
+
+  it("renders actual NVL accumulation and canonical reset in Preview", () => {
+    render(<App initialProject={textboxPresentationProject()} />);
+    const next = screen.getByRole("button", { name: "下一步" });
+    fireEvent.click(next);
+    fireEvent.click(next);
+    const nvl = document.querySelector('[data-dialogue-template="nvl"]');
+    expect(nvl).not.toBeNull();
+    expect(within(nvl as HTMLElement).getByText("第一行 NVL")).toBeVisible();
+    expect(within(nvl as HTMLElement).getByText("第二行 NVL")).toBeVisible();
+    fireEvent.click(next);
+    fireEvent.click(next);
+    const adv = document.querySelector('[data-dialogue-template="adv"]');
+    expect(adv).not.toBeNull();
+    expect(within(adv as HTMLElement).getByText("恢复 ADV")).toBeVisible();
+    expect(within(adv as HTMLElement).queryByText("第一行 NVL")).toBeNull();
   });
 });

@@ -7,6 +7,7 @@ const statements: readonly StoryStatement[] = [
   { kind: "direction", id: "show", command: "show", summary: "action=show duration=0.3s" },
   { kind: "direction", id: "move", command: "show", summary: "action=move duration=800ms easing=ease-out" },
   { kind: "direction", id: "audio", command: "audio", summary: "action=play fade=500ms" },
+  { kind: "direction", id: "textbox", command: "textbox", summary: "action=set template=nvl" },
   { kind: "wait", id: "wait", duration: "250ms" },
   { kind: "dialogue", id: "dialogue", textId: "text", speakerId: "actor", text: "时间线对白" },
   { kind: "end", id: "end", endingName: "Curtain" }
@@ -20,6 +21,7 @@ describe("N42 derived Stage timeline", () => {
       ["show", "character", 400, 300],
       ["move", "character", 700, 800],
       ["audio", "audio", 1500, 500],
+      ["textbox", "text", 2000, 0],
       ["wait", "story", 2000, 250],
       ["dialogue", "story", 2250, 1200],
       ["end", "story", 3450, 0]

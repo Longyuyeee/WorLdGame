@@ -15,6 +15,7 @@ import {
   SAFE_STAGE_SLOT,
   isStageEasing,
   isStageTransition,
+  isDialogueTemplate,
   directiveActionRequiresAsset,
   resolveDirectiveAction
 } from "./directive-schema";
@@ -236,6 +237,9 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
   const actionKeys = new Set(directiveActionParameters(request.command, action));
   if (Object.keys(request.parameters).some((key) => !actionKeys.has(key))) {
     return `@${request.command} action=${action} contains parameters that are not valid for this action`;
+  }
+  if (request.command === "textbox" && action === "set" && !isDialogueTemplate(request.parameters.template)) {
+    return "@textbox action=set requires template=adv|nvl|bubble";
   }
   if (request.command === "show" && action === "move" &&
       !STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => request.parameters[key] !== undefined)) {

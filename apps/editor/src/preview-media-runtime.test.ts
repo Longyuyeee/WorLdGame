@@ -23,6 +23,21 @@ const statements: readonly StoryStatement[] = [
 ];
 
 describe("preview media runtime", () => {
+  it("derives, resets, and fails closed on canonical textbox templates", () => {
+    const controlled: readonly StoryStatement[] = [
+      { kind: "direction", id: "nvl", command: "textbox", summary: "action=set template=nvl" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "hello" },
+      { kind: "direction", id: "reset", command: "textbox", summary: "action=reset" },
+      { kind: "direction", id: "bad", command: "textbox", summary: "action=set template=cinema" }
+    ];
+    expect(derivePreviewStagePlan(controlled, 0).dialogueTemplate).toBe("nvl");
+    expect(derivePreviewStagePlan(controlled, 1).dialogueTemplate).toBe("nvl");
+    expect(derivePreviewStagePlan(controlled, 2).dialogueTemplate).toBe("adv");
+    const rejected = derivePreviewStagePlan(controlled, 3);
+    expect(rejected.dialogueTemplate).toBe("adv");
+    expect(rejected.diagnostics.at(-1)).toContain("requires adv, nvl, or bubble");
+  });
+
   it("derives cumulative stage state and rewinds deterministically", () => {
     const dialoguePlan = derivePreviewStagePlan(statements, 1);
     expect(dialoguePlan).toMatchObject({ background: { assetId: "bg_gate" }, audio: [] });

@@ -212,7 +212,7 @@ function addMonotonicId(values: readonly string[], id: string): readonly string[
 }
 
 function directionState(state: RuntimeStateV1, command: string, parameters: Readonly<Record<string, unknown>>): Partial<RuntimeStateV1> | undefined {
-  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
+  const action = typeof parameters.action === "string" ? parameters.action : command === "background" || command === "textbox" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
   if (parameters.transition !== undefined && (typeof parameters.transition !== "string" || !["fade", "dissolve", "slide"].includes(parameters.transition))) return undefined;
   if (command === "background") {
     if (action === "clear") return { sceneState: { ...state.sceneState, backgroundAssetId: null } };
@@ -236,6 +236,10 @@ function directionState(state: RuntimeStateV1, command: string, parameters: Read
     const geometry = Object.entries(ranges).filter(([key]) => parameters[key] !== undefined);
     if (geometry.length === 0 || geometry.some(([key]) => normalizeDirectionPayloadScalar(command, action, key, parameters[key]) === undefined)) return undefined;
     return {};
+  }
+  if (command === "textbox") {
+    if (action === "reset") return parameters.template === undefined ? {} : undefined;
+    return action === "set" && typeof parameters.template === "string" && ["adv", "nvl", "bubble"].includes(parameters.template) ? {} : undefined;
   }
   if (command === "audio") {
     const bus = typeof parameters.bus === "string" ? parameters.bus : "sfx";
@@ -261,7 +265,7 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
   const awaitMode = parameters.awaitMode ?? "detached";
   const descriptorId = parameters.descriptorId ?? instruction.instructionId;
   const channel = parameters.channel ?? command;
-  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
+  const action = typeof parameters.action === "string" ? parameters.action : command === "background" || command === "textbox" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
   const cancellationScope = parameters.cancellationScope ?? `scope.${state.cursor.sceneId}`;
   const replayKey = parameters.replayKey ?? `replay.${instruction.instructionId}`;
   if (!["pure", "reversible", "barrier"].includes(String(policy)) || !["detached", "awaited"].includes(String(awaitMode)) || typeof descriptorId !== "string" || typeof channel !== "string" || typeof cancellationScope !== "string" || typeof replayKey !== "string" || !canonicalId.test(descriptorId) || !canonicalId.test(channel) || !canonicalId.test(cancellationScope) || !canonicalId.test(replayKey)) return undefined;
