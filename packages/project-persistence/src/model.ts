@@ -100,7 +100,7 @@ export interface PersistedDialogueTombstone {
 export interface PersistedDirectiveTombstone {
   readonly kind: "directive";
   readonly statementId: string;
-  readonly command: "background" | "show" | "audio";
+  readonly command: "background" | "show" | "camera" | "audio";
   readonly argumentsRaw: string;
   readonly rawLine: string;
   readonly formerLine: number;

@@ -1,7 +1,7 @@
 import type { StoryStatement } from "@world-studio/story-core";
 import type { P0EditableNode } from "@world-studio/story-language";
 
-export type SequenceInsertKind = "dialogue" | "narration" | "choice" | "label" | "jump" | "call" | "return" | "set" | "condition" | "wait" | "end" | "background" | "show" | "audio";
+export type SequenceInsertKind = "dialogue" | "narration" | "choice" | "label" | "jump" | "call" | "return" | "set" | "condition" | "wait" | "end" | "background" | "show" | "camera" | "audio";
 export interface SequenceReferences { readonly characterIds: readonly string[]; readonly sceneIds: readonly string[]; readonly labelIds: readonly string[]; readonly variableIds: readonly string[]; readonly assetIds: readonly string[]; }
 export interface SequenceInsertStep { readonly afterId: string; readonly node: P0EditableNode; }
 export type SequenceIdFactory = (prefix: string) => string;
@@ -13,6 +13,7 @@ export function createSequenceInsertPlan(kind: SequenceInsertKind, afterId: stri
   const one=(node:P0EditableNode):readonly SequenceInsertStep[]=>[{afterId,node}];
   if(kind==="dialogue")return one({kind:"dialogue",speakerId:character,statementId,textId,textRaw:"新对白",trailingMetadata:""});
   if(kind==="narration")return one({kind:"narration",statementId,textId,textRaw:quote("新旁白"),trailingMetadata:""});
+  if(kind==="camera")return one({kind:"directive",command:kind,id:statementId,argumentsRaw:"action=move x=0 y=0 zoom=1 rotation=0 duration=600ms easing=ease-in-out"});
   if(kind==="background"||kind==="show"||kind==="audio")return one({kind:"directive",command:kind,id:statementId,argumentsRaw:`asset=${asset}`});
   if(kind==="label")return one({kind:"label",name:createId("label"),id:statementId,trailingMetadata:""});
   if(kind==="jump")return one({kind:"jump",targetLabel:target,id:statementId,trailingMetadata:""});

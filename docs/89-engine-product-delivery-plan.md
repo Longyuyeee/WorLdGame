@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E5 运动路径审计](195-n42-e5-character-motion-path-audit.md)已在 E4 派生时间尺上补齐两段 canonical Move 路径、保存重开和 Runtime/Host 真实闭环。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
+> 当前审计：[最初需求对齐与开发偏移审计](191-initial-requirements-alignment-and-drift-audit.md)确认产品目标和架构未发生替换性偏移，但工程底座明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；[N42-E6 基础镜头审计](196-n42-e6-basic-camera-audit.md)已在 E5 路径能力上补齐 Camera Move/Reset 的 canonical、Runtime/Host、Canvas Preview 与保存重开闭环。[N41→N42 治理检查点](186-n41-n42-governance-checkpoint.md)建立的 `RA-N21-007` 仍只授权 N42 Stage Engineering。Authority 未合入 `main`，N21/N23/N30/N31/N32/N40/N41/N42 产品验收、N43+、M1/发布和正式 Player 继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -405,6 +405,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E4 派生时间标尺与播放头（2026-08-25）：[N42-E4 审计](194-n42-e4-derived-timeline-playhead-audit.md)在不增加第二份时间线模型的前提下，从 canonical Direction/Wait/Preview pacing 投影 TIME/BG/CHAR/AUDIO/STORY 起点；编辑 scrub 选择 stable ID，Formal Runtime statement 接管并锁定播放头。真实 7 步工程总长 5.200s，重开不漂移；390px 首测横向溢出 462px 已修正为文档 375/375、轨道内部滚动。10k 投影 10.89ms <500ms。路径、镜头、独立时间写入和模板仍缺。
 
 > E5 两段角色运动路径（2026-08-25）：[N42-E5 审计](195-n42-e5-character-motion-path-audit.md)从当前正式 Stage plan 派生起点，在图形画布编辑路径点/终点并以一次 P0 batch 生成两个连续 stable-ID Move；不保存第二份 Path。真实工程由 7→9 步、5.200→6.320s，r2/s2 重开不漂移；Formal Runtime `stmt_ui_2→stmt_ui_3`，Host operations 1→2。首个桌面截图发现底部说明条遮挡 Y=88 节点，修正后重叠 0px。10k 路径规划 43.14ms <500ms。任意曲线、镜头、独立时间写入和模板仍缺。
+
+> E6 基础镜头系统（2026-08-25）：[N42-E6 审计](196-n42-e6-basic-camera-audit.md)冻结 `@camera action=move/reset`，支持 X/Y、Zoom、Rotation、Duration 与四种 easing；Sequence/CAM lane、Script、Compiler、Runtime portable Host、Canvas/DOM Preview 与保存重开共用同一 stable-ID Canonical 事实。真实浏览器以 X=18/Y=-10/Zoom=1.25/Rotation=2/600ms/ease-out 完成插入、正式运行和重开。全仓普通 764/764、storage 1/1、VM 5/5，脚本/路线/资源性能门均通过。任意曲线、震屏/景深、独立时间写入、模板与正式 Player 一致性仍缺。
 
 - **Goal**：导演能操控镜头、角色、背景、音频和基础特效。
 - **Implementation**：多轨、关键帧、缓动、运动轨迹、镜头、基础转场；Stage 操控生成语义命令；当前 Runtime 状态与时间线同步；ADV/NVL/气泡模板。

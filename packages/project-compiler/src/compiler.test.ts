@@ -111,6 +111,33 @@ describe("project compiler N30-E1/E2", () => {
     expect(result.artifacts.catalogs.endings).toEqual([{ endingId: "ending", name: "Complete", sceneId: "tiny_start" }]);
   });
 
+  it("lowers canonical camera cues without inventing an asset dependency", () => {
+    const project = loadFixture("tiny");
+    const result = compileProject(replaceScript(project, "tiny_start", [
+      { id: "camera_move", kind: "direction", command: "camera", summary: "action=move x=18 y=-10 zoom=1.25 rotation=2 duration=600ms easing=ease-out" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
+      instructionId: "camera_move", opcode: "direction", operands: { command: "camera", parameters: { action: "move", x: "18", y: "-10", zoom: "1.25", rotation: "2", duration: "600ms", easing: "ease-out" } }
+    });
+    expect(result.artifacts.assetManifest.assets).toEqual([]);
+  });
+
+  it("rejects malformed camera geometry before Runtime", () => {
+    const result = compileProject(replaceScript(loadFixture("tiny"), "tiny_start", [
+      { id: "camera_empty", kind: "direction", command: "camera", summary: "action=move duration=600ms" },
+      { id: "camera_zoom", kind: "direction", command: "camera", summary: "action=move zoom=4" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(result.ok).toBe(false);
+    expect(result.diagnostics.filter((item) => item.statementId?.startsWith("camera_")).map((item) => item.message)).toEqual([
+      "Direction camera_empty camera move requires geometry",
+      "Direction camera_zoom has invalid camera zoom"
+    ]);
+  });
+
   it("rejects malformed graph and language references with stable diagnostics", () => {
     const project = loadFixture("tiny");
     const broken = replaceScript(project, "tiny_start", [

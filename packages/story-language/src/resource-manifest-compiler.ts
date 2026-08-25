@@ -1,6 +1,13 @@
 import type { EntityId, SceneResourceManifest, StoryProject } from "@world-studio/story-core";
 import {
+  CAMERA_GEOMETRY_PARAMETERS,
   DIRECTIVE_PARAMETERS,
+  MAX_CAMERA_OFFSET,
+  MAX_CAMERA_ROTATION,
+  MAX_CAMERA_ZOOM,
+  MIN_CAMERA_OFFSET,
+  MIN_CAMERA_ROTATION,
+  MIN_CAMERA_ZOOM,
   MAX_STAGE_ANCHOR,
   MAX_STAGE_PERCENT,
   MAX_STAGE_ROTATION,
@@ -66,6 +73,7 @@ const AUDIO_BUSES = new Set(["voice", "bgm", "sfx", "ambient"]);
 const KNOWN_PARAMETERS: Record<DirectiveNode["command"], ReadonlySet<string>> = {
   background: new Set(DIRECTIVE_PARAMETERS.background),
   show: new Set(DIRECTIVE_PARAMETERS.show),
+  camera: new Set(DIRECTIVE_PARAMETERS.camera),
   audio: new Set(DIRECTIVE_PARAMETERS.audio)
 };
 
@@ -193,6 +201,12 @@ export function compileSceneResourceManifest(
             message: "@show action=move requires at least one Stage geometry parameter", sceneId: scene.id,
             statementId: node.id, line: node.range.start.line });
         }
+        if (node.command === "camera" && action === "move" &&
+            !CAMERA_GEOMETRY_PARAMETERS.some((key) => parsed.parameters.has(key))) {
+          diagnostics.push({ code: "EMPTY_STAGE_MOVE", severity: "error",
+            message: "@camera action=move requires at least one camera geometry parameter", sceneId: scene.id,
+            statementId: node.id, line: node.range.start.line });
+        }
       }
       const assetId = parsed.parameters.get("asset");
       if (action !== undefined && directiveActionRequiresAsset(node.command, action) && assetId === undefined) diagnostics.push({ code: "MISSING_ASSET", severity: "error", message: `@${node.command} action=${action} requires asset=<stable Asset ID>`,
@@ -226,6 +240,24 @@ export function compileSceneResourceManifest(
             message: "@show action=move easing must be linear|ease-in|ease-out|ease-in-out", sceneId: scene.id,
             statementId: node.id, line: node.range.start.line });
         }
+      }
+      if (node.command === "camera" && action === "move") {
+        const cameraBounds = {
+          x: [MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET], y: [MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET],
+          zoom: [MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM], rotation: [MIN_CAMERA_ROTATION, MAX_CAMERA_ROTATION]
+        } as const;
+        for (const [parameter, [minimum, maximum]] of Object.entries(cameraBounds)) {
+          const source = parsed.parameters.get(parameter);
+          if (source !== undefined && (!/^-?\d+(?:\.\d+)?$/.test(source) || Number(source) < minimum || Number(source) > maximum)) {
+            diagnostics.push({ code: "INVALID_STAGE_GEOMETRY", severity: "error",
+              message: `@camera ${parameter} must be a number from ${minimum} to ${maximum}`, sceneId: scene.id,
+              statementId: node.id, line: node.range.start.line });
+          }
+        }
+        const easing = parsed.parameters.get("easing");
+        if (easing !== undefined && !isStageEasing(easing)) diagnostics.push({ code: "INVALID_STAGE_EASING", severity: "error",
+          message: "@camera action=move easing must be linear|ease-in|ease-out|ease-in-out", sceneId: scene.id,
+          statementId: node.id, line: node.range.start.line });
       }
       let bus: string | undefined;
       if (node.command === "audio") {

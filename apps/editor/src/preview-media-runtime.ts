@@ -1,7 +1,14 @@
 import type { StoryStatement } from "@world-studio/story-core";
 import type { AssetIndex, AssetIndexEntry, BlobDigest } from "@world-studio/project-persistence";
 import {
+  CAMERA_GEOMETRY_PARAMETERS,
   DIRECTIVE_PARAMETERS,
+  MAX_CAMERA_OFFSET,
+  MAX_CAMERA_ROTATION,
+  MAX_CAMERA_ZOOM,
+  MIN_CAMERA_OFFSET,
+  MIN_CAMERA_ROTATION,
+  MIN_CAMERA_ZOOM,
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
   MAX_STAGE_PERCENT,
@@ -58,6 +65,7 @@ export interface PreviewStagePlan {
   readonly resourceKey: string;
   readonly background?: PreviewVisualLayerPlan;
   readonly characters: readonly PreviewVisualLayerPlan[];
+  readonly camera?: PreviewCameraPlan;
   readonly audio: readonly PreviewAudioLayerPlan[];
   readonly diagnostics: readonly string[];
 }
@@ -71,10 +79,25 @@ export interface PreviewCharacterGeometry {
   readonly anchorY: number;
 }
 
+export interface PreviewCameraGeometry {
+  readonly x: number;
+  readonly y: number;
+  readonly zoom: number;
+  readonly rotation: number;
+}
+
+export interface PreviewCameraPlan extends PreviewCameraGeometry {
+  readonly statementId: string;
+  readonly duration?: string;
+  readonly easing?: StageEasing;
+  readonly movementFrom?: PreviewCameraGeometry;
+}
+
 export interface LoadedPreviewMedia {
   readonly planKey: string;
   readonly background?: PreviewVisualLayerPlan & { readonly url: string };
   readonly characters: readonly (PreviewVisualLayerPlan & { readonly url: string })[];
+  readonly camera?: PreviewCameraPlan;
   readonly audio: readonly (PreviewAudioLayerPlan & { readonly url: string })[];
   readonly errors: readonly string[];
   readonly objectUrls: readonly string[];
@@ -99,6 +122,7 @@ function optional(parameters: Readonly<Record<string, string>>, key: string): st
 interface MutableStageState {
   background?: PreviewVisualLayerPlan;
   readonly characters: Map<string, PreviewVisualLayerPlan>;
+  camera?: PreviewCameraPlan;
   readonly exitingCharacters: Map<string, PreviewVisualLayerPlan>;
   readonly audio: Map<PreviewAudioLayerPlan["bus"], PreviewAudioLayerPlan>;
   readonly diagnostics: string[];
@@ -253,6 +277,37 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         ...(optional(inspected.parameters, "expression") === undefined ? {} : { expression: inspected.parameters.expression }),
         ...(optional(inspected.parameters, "position") === undefined ? {} : { position: inspected.parameters.position })
       });
+    } else if (statement.command === "camera") {
+      const easing = optional(inspected.parameters, "easing");
+      if (easing !== undefined && !isStageEasing(easing)) {
+        addDiagnostic(state, `${statement.id}: camera easing is invalid`);
+        return true;
+      }
+      const current = resolvePreviewCameraGeometry(state.camera);
+      const target = action === "reset" ? { x: 0, y: 0, zoom: 1, rotation: 0 } : {
+        x: optionalBoundedNumber(inspected.parameters, "x", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
+        y: optionalBoundedNumber(inspected.parameters, "y", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
+        zoom: optionalBoundedNumber(inspected.parameters, "zoom", MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM),
+        rotation: optionalBoundedNumber(inspected.parameters, "rotation", MIN_CAMERA_ROTATION, MAX_CAMERA_ROTATION)
+      };
+      if (action === "move" && !CAMERA_GEOMETRY_PARAMETERS.some((key) => inspected.parameters[key] !== undefined)) {
+        addDiagnostic(state, `${statement.id}: camera move requires at least one geometry parameter`);
+        return true;
+      }
+      if (Object.values(target).some((value) => value === "invalid")) {
+        addDiagnostic(state, `${statement.id}: camera geometry is outside the frozen range`);
+        return true;
+      }
+      state.camera = {
+        statementId: statement.id,
+        x: typeof target.x === "number" ? target.x : current.x,
+        y: typeof target.y === "number" ? target.y : current.y,
+        zoom: typeof target.zoom === "number" ? target.zoom : current.zoom,
+        rotation: typeof target.rotation === "number" ? target.rotation : current.rotation,
+        movementFrom: current,
+        ...(easing === undefined ? {} : { easing: easing as StageEasing }),
+        ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
+      };
     } else {
       const bus = inspected.parameters.bus;
       if (bus === undefined || !AUDIO_BUSES.has(bus)) {
@@ -305,6 +360,13 @@ function settleCharacterTransitions(state: MutableStageState): boolean {
   return changed;
 }
 
+function settleCameraTransition(state: MutableStageState): boolean {
+  if (state.camera?.movementFrom === undefined) return false;
+  const { movementFrom: _movementFrom, ...settled } = state.camera;
+  state.camera = settled;
+  return true;
+}
+
 function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   const characters = [...state.characters.values(), ...state.exitingCharacters.values()].sort((left, right) =>
     (left.z ?? 0) - (right.z ?? 0) || (left.slot ?? "").localeCompare(right.slot ?? "")
@@ -313,12 +375,14 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
   const identity = {
     background: state.background ?? null,
     characters,
+    camera: state.camera ?? null,
     audio: audioLayers,
     diagnostics: state.diagnostics
   };
   const resourceIdentity = {
     background: state.background ?? null,
     characters,
+    camera: state.camera ?? null,
     audio: audioLayers.map(({ playback: _playback, ...layer }) => layer),
     diagnostics: state.diagnostics
   };
@@ -327,6 +391,7 @@ function snapshotStageState(state: MutableStageState): PreviewStagePlan {
     resourceKey: JSON.stringify(resourceIdentity),
     ...(state.background === undefined ? {} : { background: state.background }),
     characters,
+    ...(state.camera === undefined ? {} : { camera: state.camera }),
     audio: audioLayers,
     diagnostics: [...state.diagnostics]
   };
@@ -344,16 +409,21 @@ export function resolvePreviewCharacterGeometry(layer: PreviewVisualLayerPlan): 
   };
 }
 
+export function resolvePreviewCameraGeometry(layer: PreviewCameraPlan | undefined): PreviewCameraGeometry {
+  return { x: layer?.x ?? 0, y: layer?.y ?? 0, zoom: layer?.zoom ?? 1, rotation: layer?.rotation ?? 0 };
+}
+
 export function compilePreviewStageTimeline(statements: readonly StoryStatement[]): readonly PreviewStagePlan[] {
   const state: MutableStageState = { characters: new Map(), exitingCharacters: new Map(), audio: new Map(), diagnostics: [] };
   const timeline: PreviewStagePlan[] = [];
   let previous: PreviewStagePlan | undefined;
   for (const statement of statements) {
     const settledCharacterTransition = settleCharacterTransitions(state);
+    const settledCamera = settleCameraTransition(state);
     const clearedExit = state.exitingCharacters.size > 0;
     state.exitingCharacters.clear();
     const changed = applyDirection(statement, state);
-    if (!changed && !settledCharacterTransition && !clearedExit && previous !== undefined) {
+    if (!changed && !settledCharacterTransition && !settledCamera && !clearedExit && previous !== undefined) {
       timeline.push(previous);
       continue;
     }
@@ -438,6 +508,7 @@ export async function loadPreviewMedia(
       planKey: plan.resourceKey,
       ...(plan.background === undefined || backgroundUrl === undefined ? {} : { background: { ...plan.background, url: backgroundUrl } }),
       characters,
+      ...(plan.camera === undefined ? {} : { camera: plan.camera }),
       audio,
       errors,
       objectUrls: createdUrls

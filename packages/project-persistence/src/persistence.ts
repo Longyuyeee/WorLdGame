@@ -132,7 +132,7 @@ export function assertProjectSnapshot(snapshot: ProjectSnapshot): void {
       if (tombstone.kind === "dialogue") {
         assertToken(tombstone.textId, "tombstone.textId");
         assertToken(tombstone.speakerId, "tombstone.speakerId");
-      } else if (!(["background", "show", "audio"] as const).includes(tombstone.command)) {
+      } else if (!(["background", "show", "camera", "audio"] as const).includes(tombstone.command)) {
         fail("INVALID_SNAPSHOT", `Invalid directive tombstone in ${scene.sceneId}`);
       }
       const key = tombstone.statementId;
@@ -381,8 +381,8 @@ export async function loadProject(store: ProjectFileStore): Promise<ProjectSnaps
       if (item.kind === "dialogue" && typeof item.textId === "string" && typeof item.speakerId === "string" && typeof item.text === "string") {
         return { kind: "dialogue" as const, statementId: item.statementId, textId: item.textId, speakerId: item.speakerId, text: item.text, rawLine: item.rawLine, formerLine: item.formerLine };
       }
-      if (item.kind === "directive" && (item.command === "background" || item.command === "show" || item.command === "audio") && typeof item.argumentsRaw === "string") {
-        const command: "background" | "show" | "audio" = item.command;
+      if (item.kind === "directive" && (item.command === "background" || item.command === "show" || item.command === "camera" || item.command === "audio") && typeof item.argumentsRaw === "string") {
+        const command: "background" | "show" | "camera" | "audio" = item.command;
         return { kind: "directive" as const, statementId: item.statementId, command, argumentsRaw: item.argumentsRaw, rawLine: item.rawLine, formerLine: item.formerLine };
       }
       return fail("CORRUPT_SCENE", `Scene tombstone is invalid: ${descriptor.sceneId}`);

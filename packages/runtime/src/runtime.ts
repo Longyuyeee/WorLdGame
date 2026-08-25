@@ -212,7 +212,7 @@ function addMonotonicId(values: readonly string[], id: string): readonly string[
 }
 
 function directionState(state: RuntimeStateV1, command: string, parameters: Readonly<Record<string, unknown>>): Partial<RuntimeStateV1> | undefined {
-  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : "play";
+  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
   if (command === "background") {
     if (action === "clear") return { sceneState: { ...state.sceneState, backgroundAssetId: null } };
     if (action !== "set" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset)) return undefined;
@@ -225,6 +225,16 @@ function directionState(state: RuntimeStateV1, command: string, parameters: Read
     if (action === "move") return {};
     if (action !== "show" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset) || (parameters.expression !== undefined && (typeof parameters.expression !== "string" || !canonicalId.test(parameters.expression)))) return undefined;
     return { sceneState: { ...state.sceneState, characters: { ...state.sceneState.characters, [slotValue]: { assetId: parameters.asset, expression: typeof parameters.expression === "string" ? parameters.expression : null } } }, metaProgress: { ...state.metaProgress, unlockedGalleryAssetIds: addMonotonicId(state.metaProgress.unlockedGalleryAssetIds, parameters.asset) } };
+  }
+  if (command === "camera") {
+    if (action === "reset") return {};
+    if (action !== "move") return undefined;
+    const ranges: Readonly<Record<string, readonly [number, number]>> = {
+      x: [-100, 100], y: [-100, 100], zoom: [0.5, 3], rotation: [-30, 30]
+    };
+    const geometry = Object.entries(ranges).filter(([key]) => parameters[key] !== undefined);
+    if (geometry.length === 0 || geometry.some(([key]) => normalizeDirectionPayloadScalar(command, action, key, parameters[key]) === undefined)) return undefined;
+    return {};
   }
   if (command === "audio") {
     const bus = typeof parameters.bus === "string" ? parameters.bus : "sfx";
@@ -250,7 +260,7 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
   const awaitMode = parameters.awaitMode ?? "detached";
   const descriptorId = parameters.descriptorId ?? instruction.instructionId;
   const channel = parameters.channel ?? command;
-  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : "play";
+  const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
   const cancellationScope = parameters.cancellationScope ?? `scope.${state.cursor.sceneId}`;
   const replayKey = parameters.replayKey ?? `replay.${instruction.instructionId}`;
   if (!["pure", "reversible", "barrier"].includes(String(policy)) || !["detached", "awaited"].includes(String(awaitMode)) || typeof descriptorId !== "string" || typeof channel !== "string" || typeof cancellationScope !== "string" || typeof replayKey !== "string" || !canonicalId.test(descriptorId) || !canonicalId.test(channel) || !canonicalId.test(cancellationScope) || !canonicalId.test(replayKey)) return undefined;
@@ -293,8 +303,13 @@ const stageNumberRanges: Readonly<Record<string, readonly [number, number]>> = {
   z: [-1000, 1000]
 };
 
+const cameraNumberRanges: Readonly<Record<string, readonly [number, number]>> = {
+  x: [-100, 100], y: [-100, 100], zoom: [0.5, 3], rotation: [-30, 30]
+};
+
 function normalizeDirectionPayloadScalar(command: string, action: string, key: string, value: unknown): RuntimeScalar | undefined {
-  const range = command === "show" && (action === "show" || action === "move") ? stageNumberRanges[key] : undefined;
+  const range = command === "show" && (action === "show" || action === "move") ? stageNumberRanges[key]
+    : command === "camera" && action === "move" ? cameraNumberRanges[key] : undefined;
   if (range === undefined) return finiteScalar(value) ? value : undefined;
   const numeric = typeof value === "number"
     ? value

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import {
+  resolvePreviewCameraGeometry,
   resolvePreviewCharacterGeometry,
+  type PreviewCameraGeometry,
   type LoadedPreviewMedia,
   type PreviewCharacterGeometry
 } from "./preview-media-runtime";
@@ -78,6 +80,12 @@ function interpolateGeometry(
   };
 }
 
+function interpolateCameraGeometry(from: PreviewCameraGeometry, to: PreviewCameraGeometry, progress: number): PreviewCameraGeometry {
+  const value = Math.min(1, Math.max(0, progress));
+  const interpolate = (start: number, end: number) => start + (end - start) * value;
+  return { x: interpolate(from.x, to.x), y: interpolate(from.y, to.y), zoom: interpolate(from.zoom, to.zoom), rotation: interpolate(from.rotation, to.rotation) };
+}
+
 const CSS_EASING_CONTROL_POINTS: Readonly<Record<Exclude<StageEasing, "linear">, readonly [number, number, number, number]>> = {
   "ease-in": [0.42, 0, 1, 1],
   "ease-out": [0, 0, 0.58, 1],
@@ -146,6 +154,13 @@ export function drawPreviewCanvasFrame(
 ): void {
   context.setTransform(pixelWidth / designWidth, 0, 0, pixelHeight / designHeight, 0, 0);
   context.clearRect(0, 0, designWidth, designHeight);
+  const cameraTarget = resolvePreviewCameraGeometry(frame.camera);
+  const camera = frame.camera?.movementFrom === undefined ? cameraTarget : interpolateCameraGeometry(frame.camera.movementFrom, cameraTarget, previewStageEasingProgress(frame.camera.easing, movementProgress));
+  context.save();
+  context.translate(designWidth * (0.5 + camera.x / 100), designHeight * (0.5 + camera.y / 100));
+  context.rotate(camera.rotation * Math.PI / 180);
+  context.scale(camera.zoom, camera.zoom);
+  context.translate(-designWidth * 0.5, -designHeight * 0.5);
   if (frame.background !== undefined && images.background !== undefined) {
     drawCover(context, images.background, designWidth, designHeight);
   } else {
@@ -183,6 +198,7 @@ export function drawPreviewCanvasFrame(
     context.drawImage(image.source, rect.offsetX, rect.offsetY, rect.width, rect.height);
     context.restore();
   }
+  context.restore();
 }
 
 interface PreviewCanvasHitProxyProps {
@@ -314,7 +330,7 @@ export function PreviewCanvasHost({
     const characterImages = new Map<string, PreviewCanvasImage>();
     const imageTasks: Promise<void>[] = [];
     let animationFrame = 0;
-    let movementProgress = frame.characters.some((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
+    let movementProgress = frame.camera?.movementFrom !== undefined || frame.characters.some((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true) ? 0 : 1;
     let backgroundImage: PreviewCanvasImage | undefined;
     const draw = () => {
       if (controller.signal.aborted) return;
@@ -355,7 +371,7 @@ export function PreviewCanvasHost({
     void Promise.allSettled(imageTasks).then(() => {
       if (controller.signal.aborted || movementProgress === 1) return;
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
-      const duration = Math.max(...frame.characters
+      const duration = Math.max(0, ...(frame.camera?.movementFrom === undefined ? [] : [previewCanvasDurationMs(frame.camera.duration)]), ...frame.characters
         .filter((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true)
         .map((character) => previewCanvasDurationMs(character.duration)));
       if (reducedMotion || duration === 0) {
@@ -407,7 +423,11 @@ export function PreviewCanvasHost({
       aria-label="Canvas 2D 舞台画面"
       style={{ animationDuration: activeTransition?.duration ?? "360ms" } as CSSProperties}
     />
-    <div className="stage-canvas-hit-plane">
+    <div className="stage-canvas-hit-plane" data-camera-statement={frame.camera?.statementId} style={frame.camera === undefined ? undefined : {
+      transformOrigin: "50% 50%",
+      transform: `translate(${frame.camera.x}%, ${frame.camera.y}%) scale(${frame.camera.zoom}) rotate(${frame.camera.rotation}deg)`,
+      transition: `transform ${frame.camera.duration ?? "360ms"} ${frame.camera.easing ?? "linear"}`
+    }}>
       {frame.characters.map((character) => <PreviewCanvasHitProxy
         key={character.slot}
         character={character}

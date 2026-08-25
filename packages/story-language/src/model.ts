@@ -33,7 +33,7 @@ export interface SceneNode extends SyntaxNodeBase {
 
 export interface DirectiveNode extends SyntaxNodeBase {
   readonly kind: "directive";
-  readonly command: "background" | "show" | "audio";
+  readonly command: "background" | "show" | "camera" | "audio";
   readonly id?: EntityId;
   readonly argumentsRaw: string;
 }

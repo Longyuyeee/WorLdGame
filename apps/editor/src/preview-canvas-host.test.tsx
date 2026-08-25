@@ -57,6 +57,7 @@ describe("Preview Canvas host", () => {
       save: () => calls.push("save"),
       translate: () => calls.push("translate"),
       rotate: () => calls.push("rotate"),
+      scale: () => calls.push("scale"),
       restore: () => calls.push("restore"),
       fillStyle: "",
       shadowColor: "",
@@ -79,7 +80,7 @@ describe("Preview Canvas host", () => {
     const translate = vi.fn();
     const context = {
       setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
-      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate, rotate: vi.fn(), restore: vi.fn(),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate, rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
       fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
     } as unknown as CanvasRenderingContext2D;
     const movedFrame: PreviewRenderFrame = {
@@ -109,7 +110,7 @@ describe("Preview Canvas host", () => {
   it("fades an exiting character while retaining its final authored geometry", () => {
     const context = {
       setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
-      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), restore: vi.fn(),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
       globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
     } as unknown as CanvasRenderingContext2D;
     const exiting = { ...character, statementId: "stmt_hide", exiting: true, duration: "450ms" } as const;
@@ -123,7 +124,7 @@ describe("Preview Canvas host", () => {
   it("animates an entering character without applying its transition to the whole Canvas", () => {
     const context = {
       setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
-      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), restore: vi.fn(),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
       globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
     } as unknown as CanvasRenderingContext2D;
     const entering = { ...character, entering: true, transition: "slide", duration: "450ms" } as const;

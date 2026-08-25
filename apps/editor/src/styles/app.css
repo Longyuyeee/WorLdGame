@@ -1624,6 +1624,7 @@ button:disabled {
 
 .stage-lane--background { --lane-color: #4d91ff; }
 .stage-lane--character { --lane-color: #bf7cff; }
+.stage-lane--camera { --lane-color: #ff72b6; }
 .stage-lane--audio { --lane-color: #3ed7c4; }
 .stage-lane--story { --lane-color: #ffbc66; }
 
@@ -1834,6 +1835,7 @@ button:disabled {
 
 .track-command--background { background: rgb(77 145 255 / 16%); color: #81b2ff; }
 .track-command--show { background: rgb(191 124 255 / 16%); color: #d1a5ff; }
+.track-command--camera { background: rgb(255 114 182 / 16%); color: #ff9dcb; }
 .track-command--audio { background: rgb(62 215 196 / 16%); color: #73eadb; }
 
 .direction-insert__fields {
@@ -3682,6 +3684,12 @@ textarea[data-input-state="composing"] {
   padding: 8px 4px 12px;
   background: linear-gradient(180deg, rgb(5 8 18 / 28%), rgb(5 8 18 / 96%) 22%);
   backdrop-filter: blur(16px);
+}
+
+.stage-camera-plane {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
 }
 
 .preview-disclosure {

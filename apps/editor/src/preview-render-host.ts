@@ -26,6 +26,7 @@ export interface PreviewRenderFrame {
   readonly planKey: string;
   readonly background?: LoadedPreviewMedia["background"];
   readonly characters: LoadedPreviewMedia["characters"];
+  readonly camera?: LoadedPreviewMedia["camera"];
   readonly errorCount: number;
 }
 
@@ -65,6 +66,7 @@ export function createPreviewRenderFrame(
       character.statementId,
       character.assetId
     )),
+    ...(host.media.camera === undefined ? {} : { camera: host.media.camera }),
     errorCount: previewMediaErrorCount(host)
   };
 }

@@ -92,7 +92,7 @@ export interface InsertDirectiveSourceCommand {
   readonly baseRevision: number;
   readonly afterId: EntityId;
   readonly statementId: EntityId;
-  readonly command: "background" | "show" | "audio";
+  readonly command: "background" | "show" | "camera" | "audio";
   readonly parameters: Readonly<Record<string, string>>;
 }
 

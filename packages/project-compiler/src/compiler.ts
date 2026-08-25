@@ -12,7 +12,7 @@ import {
 const statementKinds = new Set<RuntimeOpcodeV1>(["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"]);
 const interactiveKinds = new Set(["dialogue", "narration", "direction", "choice", "wait", "end"]);
 const allowedActions: Readonly<Record<string, ReadonlySet<string>>> = {
-  background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), audio: new Set(["play", "stop", "pause", "resume"])
+  background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), camera: new Set(["move", "reset"]), audio: new Set(["play", "stop", "pause", "resume"])
 };
 
 interface CompileContext {
@@ -147,8 +147,24 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
         const parameters = parseDirectiveParameters(summary);
         if (parameters === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has malformed key=value parameters`, ctx));
         else {
-          const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : "play";
+          const action = typeof parameters.action === "string" ? parameters.action : command === "background" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
           if (!allowedActions[command]!.has(action)) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid ${command} action: ${action}`, ctx));
+          if (command === "camera") {
+            const cameraBounds: Readonly<Record<string, readonly [number, number]>> = {
+              x: [-100, 100], y: [-100, 100], zoom: [0.5, 3], rotation: [-30, 30]
+            };
+            const geometry = Object.keys(cameraBounds).filter((key) => parameters[key] !== undefined);
+            if (action === "move" && geometry.length === 0) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} camera move requires geometry`, ctx));
+            if (action === "reset" && geometry.length > 0) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} camera reset cannot retain geometry`, ctx));
+            for (const key of geometry) {
+              const source = parameters[key]; const range = cameraBounds[key]!;
+              if (typeof source !== "string" || !/^-?\d+(?:\.\d+)?$/u.test(source) || Number(source) < range[0] || Number(source) > range[1]) {
+                diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera ${key}`, ctx));
+              }
+            }
+            if (parameters.easing !== undefined && (typeof parameters.easing !== "string" || !["linear", "ease-in", "ease-out", "ease-in-out"].includes(parameters.easing))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera easing`, ctx));
+            if (parameters.duration !== undefined && (typeof parameters.duration !== "string" || !/^\d+(?:\.\d+)?(?:ms|s)$/u.test(parameters.duration))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera duration`, ctx));
+          }
           const requiresAsset = (command === "background" && action === "set") || (command === "show" && action === "show") || (command === "audio" && action === "play");
           const referenced = [requiresAsset ? parameters.asset : undefined, parameters.transitionAsset].filter((value): value is string => typeof value === "string");
           if (requiresAsset && typeof parameters.asset !== "string") diagnostics.push(diagnostic("MISSING_ASSET", `Direction ${id} requires an asset reference`, ctx));

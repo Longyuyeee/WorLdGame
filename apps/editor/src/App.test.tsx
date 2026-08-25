@@ -220,6 +220,25 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
       "@show action=move slot=primary x=80 y=90 transition=slide duration=300ms easing=ease-in-out"
     );
   });
+  it("authors a bounded camera cue and exposes it on the dedicated timeline lane", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "＋ 镜头" }));
+    expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("新增镜头倍率")).toHaveValue(1.15);
+    fireEvent.change(screen.getByLabelText("新增镜头倍率"), { target: { value: "3.1" } });
+    expect(screen.getByRole("button", { name: "插入演出" })).toBeDisabled();
+    expect(screen.getByText(/镜头偏移 -100–100/)).toBeVisible();
+    fireEvent.change(screen.getByLabelText("新增镜头倍率"), { target: { value: "1.25" } });
+    fireEvent.change(screen.getByLabelText("新增镜头水平偏移"), { target: { value: "18" } });
+    fireEvent.change(screen.getByLabelText("新增镜头垂直偏移"), { target: { value: "-10" } });
+    fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+    expect(screen.getByRole("button", { name: /轨道步骤 2：action=move x=18 y=-10 zoom=1.25/ })).toBeVisible();
+    expect(screen.getByText("CAM")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(String((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value)).toContain(
+      "@camera action=move x=18 y=-10 zoom=1.25 rotation=0 duration=600ms easing=ease-in-out"
+    );
+  });
   it("authors the next character keyframe from the selected Show cue and writes it back to Script", () => {
     renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));

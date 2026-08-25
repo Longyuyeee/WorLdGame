@@ -1,6 +1,13 @@
 import type { EntityId } from "@world-studio/story-core";
 import {
+  CAMERA_GEOMETRY_PARAMETERS,
   DIRECTIVE_PARAMETERS,
+  MAX_CAMERA_OFFSET,
+  MAX_CAMERA_ROTATION,
+  MAX_CAMERA_ZOOM,
+  MIN_CAMERA_OFFSET,
+  MIN_CAMERA_ROTATION,
+  MIN_CAMERA_ZOOM,
   STAGE_MOVE_GEOMETRY_PARAMETERS,
   directiveActionParameters,
   MAX_STAGE_Z,
@@ -239,6 +246,24 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
     }
     if (action === "move" && request.parameters.easing !== undefined && !isStageEasing(request.parameters.easing)) {
       return "@show action=move requires a frozen Stage easing";
+    }
+  }
+  if (request.command === "camera" && action === "move") {
+    if (!CAMERA_GEOMETRY_PARAMETERS.some((key) => request.parameters[key] !== undefined)) {
+      return "@camera action=move requires at least one camera geometry parameter";
+    }
+    const cameraBounds = {
+      x: [MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET], y: [MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET],
+      zoom: [MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM], rotation: [MIN_CAMERA_ROTATION, MAX_CAMERA_ROTATION]
+    } as const;
+    for (const [key, [minimum, maximum]] of Object.entries(cameraBounds)) {
+      const value = request.parameters[key];
+      if (value !== undefined && (!/^-?\d+(?:\.\d+)?$/.test(value) || Number(value) < minimum || Number(value) > maximum)) {
+        return `@camera ${key} must be a number from ${minimum} to ${maximum}`;
+      }
+    }
+    if (request.parameters.easing !== undefined && !isStageEasing(request.parameters.easing)) {
+      return "@camera action=move requires a frozen Stage easing";
     }
   }
   if (request.command === "audio" && !audioBuses.has(request.parameters.bus ?? "")) {

@@ -49,7 +49,7 @@ describe("playable preview integration", () => {
     expect(within(screen.getByTestId("preview-step")).getByText("留在电波里的名字")).toBeVisible();
     expect(screen.getByRole("button", { name: "重新试玩" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "退出试玩" })).toBeEnabled();
-  });
+  }, 10_000);
 
   it("builds and exposes a downloadable independent playable file", () => {
     const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:playable-web");

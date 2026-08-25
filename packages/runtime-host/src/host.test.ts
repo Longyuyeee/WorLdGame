@@ -35,6 +35,18 @@ describe("portable Runtime Presentation Host", () => {
     expect(validateRuntimePresentationHostStateV1(state)).toEqual([]);
   });
 
+  it("keeps the formal camera presentation channel deterministic and host-portable", () => {
+    const camera = effect({
+      effectId: "effect.camera", descriptorId: "camera.move", channel: "camera", kind: "camera.move",
+      replayKey: "replay.camera", payload: { action: "move", x: 18, y: -10, zoom: "1.25", rotation: 2 },
+      policy: "pure", awaitMode: "detached", compensation: null
+    });
+    const state = consumeRuntimePresentationEffectsV1(createRuntimePresentationHostStateV1(), [camera]);
+    expect(state.activeByChannel.camera).toEqual(camera);
+    expect(state.operations).toEqual([expect.objectContaining({ kind: "execute", channel: "camera", descriptorId: "camera.move" })]);
+    expect(validateRuntimePresentationHostStateV1(state)).toEqual([]);
+  });
+
   it("applies Back compensation and Forward replay from the exact restored checkpoint", () => {
     const intent = effect();
     const consumed = consumeRuntimePresentationEffectsV1(createRuntimePresentationHostStateV1(), [intent]);

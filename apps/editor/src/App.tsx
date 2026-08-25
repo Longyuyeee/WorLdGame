@@ -33,12 +33,19 @@ import {
 } from "@world-studio/story-core";
 import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
+  CAMERA_GEOMETRY_PARAMETERS,
+  MAX_CAMERA_OFFSET,
+  MAX_CAMERA_ROTATION,
+  MAX_CAMERA_ZOOM,
   MAX_STAGE_Z,
   MAX_STAGE_ANCHOR,
   MAX_STAGE_PERCENT,
   MAX_STAGE_ROTATION,
   MAX_STAGE_SCALE,
   MAX_DIRECTIVE_BATCH_TARGETS,
+  MIN_CAMERA_OFFSET,
+  MIN_CAMERA_ROTATION,
+  MIN_CAMERA_ZOOM,
   MIN_STAGE_Z,
   MIN_STAGE_ANCHOR,
   MIN_STAGE_PERCENT,
@@ -816,12 +823,13 @@ interface SequenceViewProps extends CommonProps {
 }
 
 type DirectionForm = Record<string, string>;
-type DirectionCommand = "background" | "show" | "audio";
-type BatchDirectionParameter = "transition" | "duration" | "easing" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
+type DirectionCommand = "background" | "show" | "camera" | "audio";
+type BatchDirectionParameter = "transition" | "duration" | "easing" | "transitionAsset" | "expression" | "position" | "x" | "y" | "scale" | "zoom" | "rotation" | "anchorX" | "anchorY" | "loop" | "volume" | "fade";
 
 const BATCH_DIRECTION_PARAMETERS: Readonly<Record<DirectionCommand, readonly BatchDirectionParameter[]>> = {
   background: ["transition", "duration", "transitionAsset"],
   show: ["expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "duration", "easing", "transitionAsset"],
+  camera: ["x", "y", "zoom", "rotation", "duration", "easing"],
   audio: ["loop", "volume", "fade", "transitionAsset"]
 };
 
@@ -835,6 +843,7 @@ const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> 
   x: "水平位置",
   y: "垂直位置",
   scale: "缩放",
+  zoom: "镜头倍率",
   rotation: "旋转",
   anchorX: "水平锚点",
   anchorY: "垂直锚点",
@@ -844,13 +853,13 @@ const BATCH_PARAMETER_LABELS: Readonly<Record<BatchDirectionParameter, string>> 
 };
 
 function compatibleDirectionAssets(
-  command: "background" | "show" | "audio",
+  command: DirectionCommand,
   assets: readonly AssetIndexEntry[]
 ): readonly AssetIndexEntry[] {
   return assets.filter((entry) => {
     if (command === "background") return entry.kind === "background" || entry.kind === "cg";
     if (command === "show") return entry.kind === "character";
-    return entry.kind === "audio";
+    return command === "audio" && entry.kind === "audio";
   });
 }
 
@@ -880,9 +889,10 @@ function DirectionInspector({
   const action = resolveDirectiveAction(statement.command, form.action);
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
   const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
+  const cameraMoveActive = statement.command === "camera" && action === "move";
   const visualTransitionActive = (statement.command === "background" && action === "set") ||
     statement.command === "show" && (characterGeometryActive || action === "hide");
-  const durationActive = visualTransitionActive || statement.command === "audio" && action === "play";
+  const durationActive = visualTransitionActive || statement.command === "camera" || statement.command === "audio" && action === "play";
   const compatibleAssets = compatibleDirectionAssets(statement.command, assetIndex.assets);
   const assetId = form.asset ?? "";
   const assetKnown = !assetRequired || compatibleAssets.some((entry) => entry.assetId === assetId);
@@ -905,10 +915,16 @@ function DirectionInspector({
     validOptionalStageNumber(form, "anchorX", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR),
     validOptionalStageNumber(form, "anchorY", MIN_STAGE_ANCHOR, MAX_STAGE_ANCHOR)
   ].every(Boolean);
-  const moveHasGeometry = action !== "move" || STAGE_MOVE_GEOMETRY_PARAMETERS.some((key) => (form[key] ?? "").trim().length > 0);
-  const easingValid = action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
+  const cameraGeometryValid = !cameraMoveActive || [
+    validOptionalStageNumber(form, "x", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
+    validOptionalStageNumber(form, "y", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
+    validOptionalStageNumber(form, "zoom", MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM),
+    validOptionalStageNumber(form, "rotation", MIN_CAMERA_ROTATION, MAX_CAMERA_ROTATION)
+  ].every(Boolean);
+  const moveHasGeometry = action !== "move" || (statement.command === "camera" ? CAMERA_GEOMETRY_PARAMETERS : STAGE_MOVE_GEOMETRY_PARAMETERS).some((key) => (form[key] ?? "").trim().length > 0);
+  const easingValid = statement.command !== "camera" && action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
   const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid &&
-    geometryValid && moveHasGeometry && easingValid && transitionAssetKnown && durationValid && volumeValid;
+    geometryValid && cameraGeometryValid && moveHasGeometry && easingValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const fieldPatch = (keys: readonly string[]) => Object.fromEntries(
@@ -918,7 +934,9 @@ function DirectionInspector({
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
       ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "transition", "transitionAsset", "duration", "easing"]
-      : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+      : statement.command === "camera"
+        ? ["action", "x", "y", "zoom", "rotation", "duration", "easing"]
+        : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transition: null, transitionAsset: null, duration: null }
     : statement.command === "show"
@@ -927,7 +945,9 @@ function DirectionInspector({
         : action === "hide"
           ? { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transitionAsset: null, easing: null }
           : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, transition: null, transitionAsset: null, duration: null }
-      : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
+      : statement.command === "camera"
+        ? action === "reset" ? { x: null, y: null, zoom: null, rotation: null } : {}
+        : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
     <form className="direction-inspector" onSubmit={(event) => {
@@ -1020,13 +1040,24 @@ function DirectionInspector({
         {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
         {action === "move" && <div className="direction-field"><label htmlFor={`direction-easing-${statement.id}`}>移动缓动</label><select id={`direction-easing-${statement.id}`} aria-label="移动缓动" value={form.easing ?? ""} disabled={disabled} onChange={(event) => setField("easing", event.target.value)}><option value="">Linear（兼容默认）</option>{STAGE_EASINGS.filter((value) => value !== "linear").map((value) => <option key={value} value={value}>{value}</option>)}</select>{!easingValid && <small className="is-error">请选择冻结的缓动曲线</small>}</div>}
       </>}
+      {statement.command === "camera" && <>
+        {cameraMoveActive && <div className="direction-geometry direction-geometry--camera" aria-label="镜头构图参数">
+          <div className="direction-field"><label htmlFor={`camera-x-${statement.id}`}>偏移 X（%）</label><input id={`camera-x-${statement.id}`} aria-label="镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={form.x ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("x", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`camera-y-${statement.id}`}>偏移 Y（%）</label><input id={`camera-y-${statement.id}`} aria-label="镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={form.y ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("y", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`camera-zoom-${statement.id}`}>倍率</label><input id={`camera-zoom-${statement.id}`} aria-label="镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={form.zoom ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("zoom", event.target.value)} /></div>
+          <div className="direction-field"><label htmlFor={`camera-rotation-${statement.id}`}>旋转（°）</label><input id={`camera-rotation-${statement.id}`} aria-label="镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={form.rotation ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("rotation", event.target.value)} /></div>
+          {!cameraGeometryValid && <small className="is-error">偏移 -100–100，倍率 0.5–3，旋转 -30–30</small>}
+        </div>}
+        {cameraMoveActive && !moveHasGeometry && <small className="is-error">Camera Move 至少需要一个构图参数</small>}
+        <div className="direction-field"><label htmlFor={`camera-easing-${statement.id}`}>镜头缓动</label><select id={`camera-easing-${statement.id}`} aria-label="镜头缓动" value={form.easing ?? ""} disabled={disabled} onChange={(event) => setField("easing", event.target.value)}><option value="">Linear（兼容默认）</option>{STAGE_EASINGS.filter((value) => value !== "linear").map((value) => <option key={value} value={value}>{value}</option>)}</select>{!easingValid && <small className="is-error">请选择冻结的缓动曲线</small>}</div>
+      </>}
       {statement.command === "audio" && <>
         <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
         {assetRequired && <><div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
         <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div></>}
       </>}
       {durationActive && <div className="direction-field">
-        <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : "时长"}</label>
+        <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : statement.command === "camera" ? "镜头时长" : "时长"}</label>
         <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
         {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
       </div>}
@@ -1076,9 +1107,10 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
     parameter === "transition" ? ["fade", "dissolve", "slide"].includes(value) :
       parameter === "easing" ? isStageEasing(value) :
       parameter === "position" ? ["left", "center", "right"].includes(value) :
-        parameter === "x" || parameter === "y" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT :
+        parameter === "x" || parameter === "y" ? /^-?\d+(?:\.\d+)?$/.test(value) && Number(value) >= (command === "camera" ? MIN_CAMERA_OFFSET : MIN_STAGE_PERCENT) && Number(value) <= (command === "camera" ? MAX_CAMERA_OFFSET : MAX_STAGE_PERCENT) :
           parameter === "scale" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_SCALE && Number(value) <= MAX_STAGE_SCALE :
-            parameter === "rotation" ? /^-?\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_ROTATION && Number(value) <= MAX_STAGE_ROTATION :
+            parameter === "zoom" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_CAMERA_ZOOM && Number(value) <= MAX_CAMERA_ZOOM :
+            parameter === "rotation" ? /^-?\d+(?:\.\d+)?$/.test(value) && Number(value) >= (command === "camera" ? MIN_CAMERA_ROTATION : MIN_STAGE_ROTATION) && Number(value) <= (command === "camera" ? MAX_CAMERA_ROTATION : MAX_STAGE_ROTATION) :
               parameter === "anchorX" || parameter === "anchorY" ? /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_ANCHOR && Number(value) <= MAX_STAGE_ANCHOR :
         parameter === "loop" ? ["true", "false"].includes(value) :
           parameter === "duration" || parameter === "fade" ? /^\d+(?:\.\d+)?(?:ms|s)$/.test(value) :
@@ -1130,6 +1162,7 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
         <span>按轨道替换选择</span>
         <button type="button" disabled={disabled} onClick={() => onSelectLane("background")}>BG · {sceneDirections.filter((item) => item.command === "background").length}</button>
         <button type="button" disabled={disabled} onClick={() => onSelectLane("show")}>CHAR · {sceneDirections.filter((item) => item.command === "show").length}</button>
+        <button type="button" disabled={disabled} onClick={() => onSelectLane("camera")}>CAM · {sceneDirections.filter((item) => item.command === "camera").length}</button>
         <button type="button" disabled={disabled} onClick={() => onSelectLane("audio")}>AUDIO · {sceneDirections.filter((item) => item.command === "audio").length}</button>
       </div>
       {selectionNotice !== null && <p className="batch-direction__notice" role="status" aria-live="polite">{selectionNotice}</p>}
@@ -1175,20 +1208,31 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [asset, setAsset] = useState("");
   const [slot, setSlot] = useState("primary");
   const [z, setZ] = useState("0");
-  const [x, setX] = useState("50");
-  const [y, setY] = useState("100");
+  const [x, setX] = useState(command === "camera" ? "0" : "50");
+  const [y, setY] = useState(command === "camera" ? "0" : "100");
+  const [zoom, setZoom] = useState("1.15");
+  const [rotation, setRotation] = useState("0");
+  const [duration, setDuration] = useState("600ms");
   const [easing, setEasing] = useState("ease-in-out");
   const [bus, setBus] = useState("bgm");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
   const moveActive = command === "show" && action === "move";
+  const cameraMoveActive = command === "camera" && action === "move";
   const assetValid = !assetRequired || compatibleAssets.some((entry) => entry.assetId === asset);
   const slotValid = command !== "show" || SAFE_STAGE_SLOT.test(slot);
   const zNumber = Number(z);
   const zValid = command !== "show" || !assetRequired || Number.isInteger(zNumber) && zNumber >= MIN_STAGE_Z && zNumber <= MAX_STAGE_Z;
   const moveGeometryValid = !moveActive || [x, y].every((value) => /^\d+(?:\.\d+)?$/.test(value) && Number(value) >= MIN_STAGE_PERCENT && Number(value) <= MAX_STAGE_PERCENT);
-  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid;
-  const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : "音频";
+  const cameraGeometryValid = !cameraMoveActive || [
+    validOptionalStageNumber({ x }, "x", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
+    validOptionalStageNumber({ y }, "y", MIN_CAMERA_OFFSET, MAX_CAMERA_OFFSET),
+    validOptionalStageNumber({ zoom }, "zoom", MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM),
+    validOptionalStageNumber({ rotation }, "rotation", MIN_CAMERA_ROTATION, MAX_CAMERA_ROTATION)
+  ].every(Boolean);
+  const durationValid = command !== "camera" || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid;
+  const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : "音频";
 
   return (
     <form className={`direction-insert direction-insert--${command}`} aria-label={`新增${commandLabel}演出`} onSubmit={(event) => {
@@ -1217,6 +1261,11 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
           parameters.volume = "1";
         }
       }
+      if (command === "camera") {
+        parameters.duration = duration;
+        parameters.easing = easing;
+        if (cameraMoveActive) Object.assign(parameters, { x, y, zoom, rotation });
+      }
       dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters });
       onClose();
     }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
@@ -1231,12 +1280,16 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
         {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
+        {cameraMoveActive && <><label><span>偏移 X（%）</span><input aria-label="新增镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>偏移 Y（%）</span><input aria-label="新增镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>倍率</span><input aria-label="新增镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={zoom} disabled={disabled} onChange={(event) => setZoom(event.target.value)} /></label><label><span>旋转</span><input aria-label="新增镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={rotation} disabled={disabled} onChange={(event) => setRotation(event.target.value)} /></label></>}
+        {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
       </div>
       {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
       {!moveGeometryValid && <small className="is-error">移动位置必须在 0–100 之间</small>}
+      {!cameraGeometryValid && <small className="is-error">镜头偏移 -100–100，倍率 0.5–3，旋转 -30–30</small>}
+      {!durationValid && <small className="is-error">镜头时长必须带 ms 或 s 单位</small>}
       <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
     </form>
   );
@@ -1581,7 +1634,7 @@ function SequenceView({
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
       if (!event.altKey || pendingDraft) return;
-      const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : null;
+      const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : null;
       if (command === null) return;
       event.preventDefault();
       setInsertCommand(command);
@@ -1619,7 +1672,7 @@ function SequenceView({
       </div>
 
       <div className="statement-toolbar" aria-label="对白结构工具">
-        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['audio','音频']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
         <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
         <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
         <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
@@ -1716,6 +1769,7 @@ function SequenceView({
               <button type="button" aria-keyshortcuts="Alt+1" disabled={pendingDraft} onClick={() => setInsertCommand("background")}>＋ 背景</button>
               <button type="button" aria-keyshortcuts="Alt+2" disabled={pendingDraft} onClick={() => setInsertCommand("show")}>＋ 角色</button>
               <button type="button" aria-keyshortcuts="Alt+3" disabled={pendingDraft} onClick={() => setInsertCommand("audio")}>＋ 音频</button>
+              <button type="button" aria-keyshortcuts="Alt+4" disabled={pendingDraft} onClick={() => setInsertCommand("camera")}>＋ 镜头</button>
               <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
               <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
             </div>
@@ -1826,9 +1880,9 @@ function SequenceView({
               ))}
             </div>
           </div>
-          {(["background", "character", "audio", "story"] as const).map((lane) => (
+          {(["background", "character", "camera", "audio", "story"] as const).map((lane) => (
             <div className={`stage-lane stage-lane--${lane}`} key={lane}>
-              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "audio" ? "AUDIO" : "STORY"}</span>
+              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "camera" ? "CAM" : lane === "audio" ? "AUDIO" : "STORY"}</span>
               <div className="stage-lane__steps">
                 {visibleStatements.map((statement, visibleIndex) => {
                   const index = stageWindow.start + visibleIndex;
@@ -2675,6 +2729,10 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       return;
     }
     setLastStagePoint(point);
+    if (stagePlan.camera !== undefined && (stagePlan.camera.x !== 0 || stagePlan.camera.y !== 0 || stagePlan.camera.zoom !== 1 || stagePlan.camera.rotation !== 0)) {
+      setStageDirectorMessage("镜头构图生效时角色点选定位已锁定；请先选择 Camera Reset，避免写入屏幕坐标而污染舞台坐标");
+      return;
+    }
     if (playableActive || pendingDraft || inputDirty || selectedStageStatement === undefined) {
       setStageDirectorMessage(playableActive ? "正式 Runtime 运行中，画布编辑已锁定" : "请先提交草稿并选择角色 Show/Move 演出");
       return;
@@ -4244,7 +4302,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           /^@background\s+.*?\s+@id\(([^)]+)\)\s*$/m,
           (_line, statementId: string) => `@background asset=${backgroundAssetId}${scene.id === project.entrySceneId ? " transition=fade" : ` transition=fade transitionAsset=${entryAssetId}`} @id(${statementId})`
         );
-        typedDirectionCount += typedSource.match(/^@(background|show|audio)\b/gm)?.length ?? 0;
+        typedDirectionCount += typedSource.match(/^@(background|show|camera|audio)\b/gm)?.length ?? 0;
         transitionDependencyCount += typedSource.match(/\btransitionAsset=/g)?.length ?? 0;
         documents[scene.id] = parseStory(typedSource);
       }

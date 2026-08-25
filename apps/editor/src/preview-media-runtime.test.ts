@@ -138,6 +138,37 @@ describe("preview media runtime", () => {
     expect(derivePreviewStagePlan(movement, 0).characters[0]).toEqual(before);
   });
 
+  it("derives, settles, resets, and rewinds the canonical camera track", () => {
+    const camera: readonly StoryStatement[] = [
+      { kind: "direction", id: "camera_move", command: "camera", summary: "action=move x=18 y=-10 zoom=1.25 rotation=2 duration=600ms easing=ease-out" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "framed" },
+      { kind: "direction", id: "camera_reset", command: "camera", summary: "action=reset duration=300ms easing=ease-in-out" }
+    ];
+    expect(derivePreviewStagePlan(camera, 0).camera).toEqual({
+      statementId: "camera_move", x: 18, y: -10, zoom: 1.25, rotation: 2,
+      duration: "600ms", easing: "ease-out", movementFrom: { x: 0, y: 0, zoom: 1, rotation: 0 }
+    });
+    expect(derivePreviewStagePlan(camera, 1).camera).toMatchObject({ statementId: "camera_move", x: 18, y: -10, zoom: 1.25, rotation: 2 });
+    expect(derivePreviewStagePlan(camera, 1).camera?.movementFrom).toBeUndefined();
+    expect(derivePreviewStagePlan(camera, 2).camera).toMatchObject({
+      statementId: "camera_reset", x: 0, y: 0, zoom: 1, rotation: 0,
+      movementFrom: { x: 18, y: -10, zoom: 1.25, rotation: 2 }
+    });
+    expect(derivePreviewStagePlan(camera, 0).camera?.statementId).toBe("camera_move");
+  });
+
+  it("fails closed for empty or out-of-range camera moves", () => {
+    const plan = derivePreviewStagePlan([
+      { kind: "direction", id: "empty_camera", command: "camera", summary: "action=move duration=300ms" },
+      { kind: "direction", id: "bad_camera", command: "camera", summary: "action=move zoom=4" }
+    ], 1);
+    expect(plan.camera).toBeUndefined();
+    expect(plan.diagnostics).toEqual([
+      "empty_camera: camera move requires at least one geometry parameter",
+      "bad_camera: camera geometry is outside the frozen range"
+    ]);
+  });
+
   it("fails closed when a move uses an easing outside the frozen vocabulary", () => {
     const plan = derivePreviewStagePlan([
       { kind: "direction", id: "show", command: "show", summary: "action=show asset=hero slot=hero" },

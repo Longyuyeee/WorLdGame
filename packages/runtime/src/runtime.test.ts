@@ -528,6 +528,21 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     return created.session;
   }
 
+  it("emits a deterministic camera presentation effect without mutating logical scene state", () => {
+    const story = program([
+      { instructionId: "camera-move", opcode: "direction", operands: { command: "camera", parameters: { action: "move", x: "18", y: "-10", zoom: "1.25", rotation: "2", duration: "600ms", easing: "ease-out" } } },
+      { instructionId: "camera-end", opcode: "end", operands: { endingId: "camera_done", name: "Done" } }
+    ]);
+    const initial = start(story);
+    const result = runRuntime(story, initial);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.effects).toEqual([expect.objectContaining({
+      descriptorId: "camera-move", channel: "camera", kind: "camera.move",
+      payload: { action: "move", x: 18, y: -10, zoom: "1.25", rotation: 2, duration: "600ms", easing: "ease-out" }
+    })]);
+    expect(result.state.sceneState).toEqual(initial.sceneState);
+  });
+
   function save(story: RuntimeStoryIrV1, session: RuntimeHistorySessionV1) {
     const created = createRuntimeSessionSaveV1(story, session);
     if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));

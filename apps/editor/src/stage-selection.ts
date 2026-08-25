@@ -1,4 +1,4 @@
-export type StageDirectionCommand = "background" | "show" | "audio";
+export type StageDirectionCommand = "background" | "show" | "camera" | "audio";
 
 export interface StageDirectionSelectionItem {
   readonly id: string;

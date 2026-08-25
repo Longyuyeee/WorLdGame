@@ -114,6 +114,11 @@ export function PreviewVisualHost({
     data-render-status={frame.status}
     data-render-generation={frame.generation}
   >
+    <div className="stage-camera-plane" data-camera-statement={frame.camera?.statementId} style={frame.camera === undefined ? undefined : {
+      transformOrigin: "50% 50%",
+      transform: `translate(${frame.camera.x}%, ${frame.camera.y}%) scale(${frame.camera.zoom}) rotate(${frame.camera.rotation}deg)`,
+      transition: `transform ${frame.camera.duration ?? "360ms"} ${frame.camera.easing ?? "linear"}`
+    } as CSSProperties}>
     <div className="stage-background-plane" aria-hidden={frame.background === undefined ? "true" : undefined}>
       {frame.background === undefined ? (
         <div className="stage-sky" aria-hidden="true">
@@ -143,6 +148,7 @@ export function PreviewVisualHost({
         onStagePoint={onStagePoint}
         onDecodeError={() => onRuntimeError("character", character)}
       />)}
+    </div>
     </div>
   </div>;
 }
