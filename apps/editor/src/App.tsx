@@ -209,6 +209,7 @@ import {
 import { motionFrameAuditPasses, motionFrameAuditRequested, useMotionFrameAudit } from "./motion-frame-audit";
 import { crossViewSyncAuditPasses, crossViewSyncAuditRequested, useCrossViewSyncAudit } from "./cross-view-sync-audit";
 import { routeNodeNudge, type RouteNodeNudgeDirection } from "./input-equivalence";
+import { ProductionWorkspace } from "./ProductionWorkspace";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -4747,7 +4748,16 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         dispatch={dispatch}
       />
       <main className="workspace-grid" data-workspace-mode={workspaceMode}>
-        <SceneRail
+        {workspaceMode === "production" ? (
+          <ProductionWorkspace
+            index={assetIndex}
+            lifecycle={assetLifecycle}
+            dicingReport={dicingReport}
+            storageStatus={assetStatus}
+            onOpenPipeline={() => setAssetPanelOpen(true)}
+          />
+        ) : <>
+          <SceneRail
           session={session}
           dispatch={dispatch}
           assetIndex={assetIndex}
@@ -4784,7 +4794,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
           />
         )}
-        <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+        </>}
       </main>
       <footer className="workspace-footer">
         <span>本地优先</span><span>无账户</span><span>schema {CURRENT_PROJECT_SCHEMA_VERSION}</span><span>备份 {persistence.backupCount ?? 0}/{BACKUP_POLICY.retention}</span><span className="footer-accent">S0.41 PROJECT · GLOBAL SEARCH</span>

@@ -858,9 +858,14 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     selectFirstDialogue();
 
     expect(screen.getByRole("radio", { name: "Writer" })).toHaveAttribute("aria-checked", "true");
-    expect(screen.getByRole("radio", { name: "Production" })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "Production" })).toBeEnabled();
     expect(screen.getByRole("radio", { name: "Debug & QA" })).toBeDisabled();
     expect(screen.getByRole("radio", { name: "Mobile Focus" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    expect(screen.getByRole("heading", { name: "资源生产工作区" })).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_001");
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
 
     fireEvent.click(screen.getByRole("radio", { name: "Director" }));
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-workspace-mode", "director");
