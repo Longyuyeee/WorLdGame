@@ -47,7 +47,7 @@ E6 不建立另一份 QA 工程或诊断数据库。中央任务直接消费当�
 - 第二次完整门在更后的冻结 VM 测试体得到 `99.837s >90s`；未减少 10,000 seeds、未改 digest、未放宽预算。原样隔离复跑测试体 `60.43s <90s`，5/5 通过。
 - 因第二次完整门在 VM 处退出，后续门按原命令逐项补跑：全部 build、93 portable / 4 adapters 架构、Script、Route、Asset 均通过。Route 编辑 P95 `189.62ms <500ms`；Lazy Global Index `499.52ms <500ms`；Dicing 总计 `4024.29ms <5000ms`。
 - Editor production build：CSS `121.79/22.05 kB`，JS `931.67/259.73 kB`；`>500 kB` 分包债保持，未提高 warning 门。
-- 远端 Windows / Node 22 完整门在实现推送后作为本机冻结 VM 累积负载差异的最终裁决；绿色前不登记远端通过。
+- 实现头 `7c83ca530ea89007cde3f6e18ef0208a0a34c429` 的远端 Windows / Node 22 完整门已绿色：run `32938398390` / job `98084137349`，用时 `9m31s`。普通回归 `136/778`；冻结 VM 测试体 `54.367s <90s`；Route 编辑 P95 `125.24ms <500ms`；Lazy Global Index `222.61ms <500ms`；Editor CSS `121.79/22.05 kB`、JS `931.75/259.72 kB`。它关闭本机 VM 累积负载差异，但不消除分包债。
 
 ## 5. 需求对齐与出口
 

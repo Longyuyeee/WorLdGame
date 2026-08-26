@@ -48,6 +48,8 @@ N43-E5 开放 Production 的真实资源任务：中央区直接读取 Asset Ind
 
 N43-E6 开放 Debug & QA 的正式诊断任务：当前工程、草稿诊断、Compiler、Runtime 与 Source Map 形成单一检查链，错误草稿 fail closed，问题可返回同一 stable ID 修复。真实浏览器对 `stmt_gate_bg` 得到 0/0、Source Map ready、Runtime presenting；390px 主按钮 `351×48px`、定位按钮 `317×44px`、横溢出 0，保存 `s1` 后从 Recent 重开恢复 `debug-qa / stmt_gate_bg`，console 0。首次截图发现定位按钮浅色实心层级不符，修正后 computed 为紫色 `.09/.36` 描边。当前 6/7，仅 Mobile Focus disabled。详见[#209](209-n43-e6-debug-qa-workspace-audit.md)。
 
+E6 实现头 `7c83ca5` 的远端 Windows / Node 22 完整门 run `32938398390` / job `98084137349` 用时 `9m31s` 并绿色：普通回归 `136/778`，冻结 VM `54.367s <90s`，Route P95 `125.24ms <500ms`，Lazy Index `222.61ms <500ms`；Editor CSS `121.79/22.05 kB`、JS `931.75/259.72 kB`，大包债保持。
+
 E5 本机第二次完整门退出 0：普通回归 `135 files / 776 tests`，N43 `14/73`，storage `1/1`，冻结 VM `70.20s <90s`，14 workspace、架构和 Script/Route/Asset 性能均绿；Editor CSS `116.98/21.44 kB`、JS `925.46/258.19 kB`。首次完整门仅一个既有 Stage 测试在累积负载下 `6.21s >5s`，保持预算后原样复跑 `2.68s`、第二次全门通过；没有隐藏该差异或放宽 timeout。
 
 Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `32933485910` / job `98070145468` 用时 `11m37s` 并绿色：普通回归 `135/776`，冻结 VM `72.77s <90s`，Route P95 `135.91ms <500ms`；Editor CSS `116.98/21.44 kB`、JS `925.54/258.17 kB`，大包债保持。
