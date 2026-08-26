@@ -3,6 +3,7 @@
 > 日期：2026-08-26
 > 分支：`codex/n43-e4-input-sync`
 > 直接基线：N43-E3 `35646e1`，Draft PR #78 最终头 GitHub run `32927510219` 绿色
+> GitHub：堆叠 Draft PR #79；实现头 `e0b4cd4` 的 run `32929525731` / job `98058928262` 绿色
 > 授权：`RA-N21-008`，只覆盖 N43 Engineering
 > 判定：**E4 共同交互切片完成；N43 Engineering 总出口不通过（4/7 模式），Product Acceptance、N50+、M1 Stable 与发布继续阻断。**
 
@@ -43,7 +44,7 @@ E4 不新增空面板，关闭三项可审计结果：
 - 真实浏览器使用产品首页→真实工程→项目结构→内容编辑器；同步 `26.20ms <500ms`，移动触控目标修正后 `44×44px`，横溢出 0。
 - `npm run check` 本机单链退出 0：普通回归 `134 files / 774 tests`，Editor integration `1+1+2+2+45`，storage `1/1`，冻结 VM `5/5`（测试体 `54.33s <90s`），14 workspace build、架构与 Script/Route/Asset 性能门全部通过。
 - Editor production build：CSS `111.08 kB / gzip 20.48 kB`，JS `918.23 kB / gzip 256.59 kB`；构建通过，既有 `>500 kB` 分包债未关闭。
-- 本分支远端 Windows / Node 22 结果在提交后回填；未回填前不写成远端通过。
+- 远端 Windows / Node 22 完整门 run `32929525731` / job `98058928262` 用时 `11m30s`，实现头 `e0b4cd4` 绿色；普通回归 `134 files`，冻结 VM `5/5`、测试体 `67.15s <90s`，Route P95 `139.01ms <500ms`。远端 Editor CSS `111.08/20.48 kB`、JS `918.31/256.59 kB`，分包债结论不变。
 
 ## 5. N43 Engineering 出口矩阵
 

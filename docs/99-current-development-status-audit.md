@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 关闭模式/统一上下文，E2 关闭 Beginner/Pro，E3 关闭三级 Motion/State 与真实帧门，E4 关闭共同输入/同步子门；总出口因 Production、Debug & QA、Mobile Focus 未形成真实任务而失败（4/7）**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2、E3 分别由堆叠 Draft PR #75、#76、#77、#78 承载。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2、E3、E4 分别由堆叠 Draft PR #75、#76、#77、#78、#79 承载。不得把堆叠 PR、本地绿门或远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -42,7 +42,7 @@ N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式�
 
 N43-E3 增加完整/简化/静止三级动效与系统 reduce 优先级；静止全局 computed animation/transition `0.01ms`，选择、焦点和诊断均有 ARIA/文字/符号。真实页面三级 P95 为 `12.30/12.20/6.20ms`，390px 请求下横溢出 0、Preview 精确 16:9、console 0。真实 OS 媒体设置与目标设备矩阵仍待 Product Acceptance。详见[#206](206-n43-e3-motion-state-semantics-audit.md)。
 
-N43-E4 冻结七类键盘/指针触屏等价路径；真实浏览器对白提交 `r0→r1`，Sequence→Script/Preview layout commit `26.20ms <500ms`，stable ID 保持 `stmt_gate_001`。390×844 请求下实际 client 375，路线触控按钮首次仅 `32×29px`，已修正为 `44×44px`，X `648→624`、横溢出 0。N43 聚合门 `12 files / 70 tests`；本机全仓单链退出 0，普通回归 `134 files / 774 tests`，冻结 VM `54.33s <90s`。Editor build CSS `111.08/20.48 kB`、JS `918.23/256.59 kB`，分包债保留。出口矩阵仍因三模式 disabled 与真人缺失失败。详见[#207](207-n43-e4-input-sync-and-exit-audit.md)。
+N43-E4 冻结七类键盘/指针触屏等价路径；真实浏览器对白提交 `r0→r1`，Sequence→Script/Preview layout commit `26.20ms <500ms`，stable ID 保持 `stmt_gate_001`。390×844 请求下实际 client 375，路线触控按钮首次仅 `32×29px`，已修正为 `44×44px`，X `648→624`、横溢出 0。N43 聚合门 `12 files / 70 tests`；本机全仓单链退出 0，普通回归 `134 files / 774 tests`，冻结 VM `54.33s <90s`。实现头远端 run `32929525731` / job `98058928262` 用时 `11m30s` 绿色，VM `67.15s`。Editor build CSS `111.08/20.48 kB`、JS 本地 `918.23/256.59 kB`、远端 `918.31/256.59 kB`，分包债保留。出口矩阵仍因三模式 disabled 与真人缺失失败。详见[#207](207-n43-e4-input-sync-and-exit-audit.md)。
 
 ## 3. N32-E1–E6 证据与差异
 
