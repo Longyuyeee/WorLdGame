@@ -15,7 +15,8 @@ const requiredActiveBlockedGates = Object.freeze([
   "N41 Product Acceptance",
   "N42 Product Acceptance",
   "N43 Product Acceptance",
-  "N50 Engineering",
+  "N50 Product Acceptance",
+  "N51 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -62,15 +63,15 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N43") violations.push(`${prefix}: active N21 exception may not extend beyond N43`);
-      if (prefix !== "RA-N21-008") violations.push(`${prefix}: only the approved RA-N21-008 exception may be active`);
+      if (exception.maximumDeliveryNode !== "N50") violations.push(`${prefix}: active N21 exception may not extend beyond N50`);
+      if (prefix !== "RA-N21-009") violations.push(`${prefix}: only the approved RA-N21-009 exception may be active`);
     }
   }
-  const modeExtension = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-008");
-  for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007"]) {
+  const playerExtension = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-009");
+  for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);
-    if (modeExtension?.status === "active" && superseded?.status !== "closed") {
-      violations.push(`RA-N21-008 requires the superseded ${supersededId} exception to be closed`);
+    if (playerExtension?.status === "active" && superseded?.status !== "closed") {
+      violations.push(`RA-N21-009 requires the superseded ${supersededId} exception to be closed`);
     }
   }
   return violations;
