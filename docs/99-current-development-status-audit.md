@@ -1,15 +1,15 @@
-# 当前开发情况审计（N43-E2 可逆渐进披露完成，进入 E3）
+# 当前开发情况审计（N43-E3 Motion/State 完成，进入 E4）
 
 > 审计日期：2026-08-26
-> 当前分支：`codex/n43-e2-progressive-disclosure`；直接基线为 `codex/n43-e1b-workspace-context`
+> 当前分支：`codex/n43-e3-motion-state`；直接基线为 `codex/n43-e2-progressive-disclosure`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
-> 最新节点证据：[N43-E2 Beginner/Pro 审计](205-n43-e2-progressive-disclosure-audit.md)、[N43-E1b 统一上下文审计](204-n43-e1b-workspace-context-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
+> 最新节点证据：[N43-E3 Motion/State 审计](206-n43-e3-motion-state-semantics-audit.md)、[N43-E2 Beginner/Pro 审计](205-n43-e2-progressive-disclosure-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** N43-E1 已关闭模式/上下文，E2 已用 Beginner/Pro 收敛单页复杂度；当前授权仍只允许 N43 Engineering，禁止把这些工程闭环换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)、[治理 #201](201-n42-n43-governance-checkpoint.md)与[E2 审计 #205](205-n43-e2-progressive-disclosure-audit.md)。
+2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** N43-E1/E2 已关闭模式上下文与渐进披露，E3 已关闭三级 Motion/State Engineering；当前授权仍只允许 N43 Engineering，禁止把这些工程闭环换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)、[治理 #201](201-n42-n43-governance-checkpoint.md)与[E3 审计 #206](206-n43-e3-motion-state-semantics-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,9 +20,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 关闭模式/统一上下文，E2 关闭 Beginner/Pro 可逆披露；Beginner 可真实编辑，Pro 和已开 Script 可无损恢复，s2 重开零漂移。下一切片为 E3 Motion/State 语义**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 关闭模式/统一上下文，E2 关闭 Beginner/Pro，E3 关闭三级 Motion/State 与真实帧门；下一切片为 E4 键盘/触屏等价、跨视图预算和出口矩阵**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2 分别由堆叠 Draft PR #75、#76、#77 承载。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2、E3 分别由堆叠 Draft PR #75、#76、#77、#78 承载。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -39,6 +39,8 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。
+
+N43-E3 增加完整/简化/静止三级动效与系统 reduce 优先级；静止全局 computed animation/transition `0.01ms`，选择、焦点和诊断均有 ARIA/文字/符号。真实页面三级 P95 为 `12.30/12.20/6.20ms`，390px 请求下横溢出 0、Preview 精确 16:9、console 0。N43 `9 files / 64 tests`；Editor build CSS `110.79/20.43 kB`、JS `916.36/256.11 kB`，分包债保留。真实 OS 媒体设置与目标设备矩阵仍待 Product Acceptance。详见[#206](206-n43-e3-motion-state-semantics-audit.md)。
 
 ## 3. N32-E1–E6 证据与差异
 
@@ -97,7 +99,7 @@ N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式�
 
 ## 5. 下一步顺序
 
-1. N43-E3 冻结 Motion/State 语义：全局减少动效、可中断过渡、非颜色单一状态表达与真实帧时间；
+1. N43-E4 冻结键盘/触屏任务等价、跨视图真实同步预算和 N43 Engineering 出口矩阵；
 2. Production、Debug & QA、Mobile Focus 在真实任务闭环前保持 disabled，不用空面板冒充七模式完成；
 3. N43 完成键盘/触屏等价和跨视图性能后停止扩张编辑器面板；
 4. 维护者审阅 main-target Draft PR #61 及堆叠 PR 的合并策略；自动化不擅自合并或关闭；

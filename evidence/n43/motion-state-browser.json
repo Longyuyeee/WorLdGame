@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "deliveryNode": "N43-E3",
+  "recordedAt": "2026-08-26",
+  "browser": "Codex In-app Browser",
+  "url": "http://localhost:5173/?motionAudit=1",
+  "budget": {
+    "durationMilliseconds": 1200,
+    "minimumSamples": 60,
+    "p95MillisecondsMaximum": 16.7,
+    "over33Point34MillisecondsRatioMaximum": 0.02
+  },
+  "full": {
+    "view": "flow",
+    "samples": 160,
+    "p95Milliseconds": 12.299999999995634,
+    "maxMilliseconds": 48.400000000001455,
+    "over33Point34Milliseconds": 1,
+    "result": "PASS",
+    "modeToken": "340ms",
+    "decorativeLiveAnimation": "live-pulse"
+  },
+  "simplified": {
+    "view": "sequence",
+    "samples": 161,
+    "p95Milliseconds": 12.200000000004366,
+    "maxMilliseconds": 60.80000000000291,
+    "over33Point34Milliseconds": 2,
+    "result": "PASS",
+    "modeToken": "200ms",
+    "decorativeLiveAnimation": "none"
+  },
+  "reduced": {
+    "view": "script",
+    "samples": 179,
+    "p95Milliseconds": 6.2000000000116415,
+    "maxMilliseconds": 54.5,
+    "over33Point34Milliseconds": 2,
+    "result": "PASS",
+    "computedAnimationDuration": "0.01ms",
+    "computedTransitionDuration": "0.01ms",
+    "decorativeLiveAnimation": "none"
+  },
+  "stateSemantics": {
+    "selectedAriaChecked": true,
+    "selectedVisibleMarker": "✓静止",
+    "focusOutline": "2px solid rgb(62, 215, 255)",
+    "diagnosticVisibleMarker": "✓",
+    "diagnosticText": "三视图已连接"
+  },
+  "mobile": {
+    "requestedViewport": "390x844",
+    "clientWidth": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": 0,
+    "motionButtonHeight": 34,
+    "previewWidth": 337,
+    "previewHeight": 189.5625,
+    "previewRatio": 1.7777777777777777,
+    "previewProfile": "landscape-16-9"
+  },
+  "consoleWarningsAndErrors": [],
+  "limitations": [
+    "The in-app browser inspection sandbox does not expose PerformanceObserver, performance.now, requestAnimationFrame or document.getAnimations.",
+    "Frame sampling therefore runs inside the real product only for the explicit local motionAudit query; browser automation reads the resulting DOM attributes.",
+    "The browser surface cannot emulate the operating-system reduced-motion media feature; the OS override is covered by contract tests while the equivalent effective reduced level is verified in the real page."
+  ],
+  "status": "PASS"
+}

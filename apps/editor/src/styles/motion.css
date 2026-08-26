@@ -1,0 +1,100 @@
+.motion-preference {
+  display: inline-grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+}
+
+.motion-preference__options {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--wg-color-border-subtle);
+  border-radius: 9px;
+  background: rgb(8 10 16 / 58%);
+}
+
+.motion-preference__button {
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  gap: 3px;
+  padding: 0 7px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--wg-color-text-muted);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 750;
+  transition:
+    color var(--wg-motion-duration-fast) ease,
+    background var(--wg-motion-duration-standard) ease,
+    transform var(--wg-motion-duration-fast) ease;
+}
+
+.motion-preference__button:hover { color: var(--wg-color-text-primary); }
+.motion-preference__button:active { transform: scale(.96); }
+.motion-preference__button.is-active {
+  background: rgb(62 215 255 / 13%);
+  color: #b8efff;
+  box-shadow: inset 0 0 0 1px rgb(62 215 255 / 20%);
+}
+
+.motion-preference__summary {
+  overflow: hidden;
+  color: var(--wg-color-text-muted);
+  font-size: 8px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-shell[data-motion-level="simplified"] {
+  --wg-motion-duration-fast: 110ms;
+  --wg-motion-duration-standard: 150ms;
+  --wg-motion-duration-panel: 180ms;
+  --wg-motion-duration-mode: 200ms;
+}
+
+.app-shell[data-motion-level="simplified"] .live-badge::before,
+.app-shell[data-motion-level="simplified"] .stage-sky::before,
+.app-shell[data-motion-level="simplified"] .runtime-inspector__pulse {
+  animation: none;
+}
+
+.app-shell[data-motion-level="reduced"] {
+  --wg-motion-duration-fast: .01ms;
+  --wg-motion-duration-standard: .01ms;
+  --wg-motion-duration-panel: .01ms;
+  --wg-motion-duration-mode: .01ms;
+}
+
+.app-shell[data-motion-level="reduced"] *,
+.app-shell[data-motion-level="reduced"] *::before,
+.app-shell[data-motion-level="reduced"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: .01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .01ms !important;
+  transition-delay: 0ms !important;
+}
+
+.app-shell[data-motion-level="reduced"] .live-badge::before,
+.app-shell[data-motion-level="reduced"] .stage-sky::before,
+.app-shell[data-motion-level="reduced"] .runtime-inspector__pulse {
+  animation: none !important;
+}
+
+@media (max-width: 1180px) {
+  .motion-preference { grid-template-columns: auto; }
+  .motion-preference__summary { display: none; }
+}
+
+@media (max-width: 720px) {
+  .motion-preference { width: 100%; }
+  .motion-preference__options { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .motion-preference__button { min-height: 34px; justify-content: center; }
+}

@@ -5,7 +5,7 @@
 > 直接基线：`codex/n43-e1b-workspace-context`
 > GitHub：Draft PR #77（base `codex/n43-e1b-workspace-context`）
 > 授权：`RA-N21-008`，仅覆盖 N43 Engineering
-> 状态：实现、自动化、真实 Chrome、构建、架构与性能门通过；本机单链负载差异保留给远端 Windows / Node 22 裁决
+> 状态：实现、自动化、真实 Chrome、构建、架构与性能门通过；Draft PR #77 Windows / Node 22 run `32924595480` / job `98044825491` 已绿色关闭本机单链负载差异
 > 判定：E2 Engineering 完成；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 
 ## 1. 冻结目标与禁止范围
@@ -75,4 +75,4 @@ Beginner/Pro 是同一工程、同一 Canonical Story、同一 Selection/Context
 
 ## 6. 下一步
 
-进入 N43-E3：冻结全局 Motion/State 语义，完成 `prefers-reduced-motion`、可中断过渡、焦点/运行/诊断状态的非颜色单一表达和真实帧时间证据。Production、Debug & QA、Mobile Focus 在真实任务闭环前继续 disabled；E3 不扩张新面板。
+N43-E3 已完成三级 Motion/State 语义、系统减少动效优先级、非颜色状态和真实页面帧预算，见 [#206](206-n43-e3-motion-state-semantics-audit.md)。下一步为 E4 键盘/触屏等价、跨视图真实同步预算和 N43 Engineering 出口矩阵。
