@@ -1,15 +1,15 @@
-# 当前开发情况审计（N43-E5 Production 真实任务完成，总出口因 5/7 模式未通过）
+# 当前开发情况审计（N43-E6 Debug & QA 真实任务完成，总出口因 6/7 模式未通过）
 
 > 审计日期：2026-08-26
 > 当前分支：`codex/n43-e5-production-workspace`；直接基线为 `codex/n43-e4-input-sync`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
-> 最新节点证据：[N43-E5 Production 审计](208-n43-e5-production-workspace-audit.md)、[N43-E4 输入/同步与出口审计](207-n43-e4-input-sync-and-exit-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
+> 最新节点证据：[N43-E6 Debug & QA 审计](209-n43-e6-debug-qa-workspace-audit.md)、[N43-E5 Production 审计](208-n43-e5-production-workspace-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** N43-E1–E4 已关闭共同上下文、渐进披露、Motion 和输入/同步；E5 将现有资源底座收敛成可操作的 Production 中央任务，七模式达到 5/7。Debug & QA 与 Mobile Focus 仍禁用，Production 的本地化/配音 P1 也未完成，所以 N43 Engineering 总出口仍明确未通过。当前授权只允许 N43 Engineering，禁止把这些工程闭环换算成商业完成度。详见[治理 #201](201-n42-n43-governance-checkpoint.md)与[E5 审计 #208](208-n43-e5-production-workspace-audit.md)。
+2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** E5 将资源底座收敛成 Production 中央任务；E6 又让 Debug & QA 消费当前工程的正式 Compiler/Runtime/Source Map 并返回同一 stable ID 修复，七模式达到 6/7。Mobile Focus 仍禁用，N60 完整 Debugger 与 Production 本地化/配音 P1 也未完成，所以 N43 Engineering 总出口仍明确未通过。当前授权只允许 N43 Engineering，禁止把这些工程闭环换算成商业完成度。详见[治理 #201](201-n42-n43-governance-checkpoint.md)与[E6 审计 #209](209-n43-e6-debug-qa-workspace-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,9 +20,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1–E4 关闭共同模式基础，E5 开放真实 Production 资源生产任务；总出口因 Debug & QA、Mobile Focus 未形成真实任务而失败（5/7）**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1–E4 关闭共同模式基础，E5 开放 Production，E6 开放 Debug & QA；总出口因 Mobile Focus 未形成真实任务而失败（6/7）**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E5 分别由堆叠 Draft PR #75–#80 承载。不得把堆叠 PR、本地绿门或远端 CI 换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E5 分别由堆叠 Draft PR #75–#80 承载，E6 等待实现推送。不得把堆叠 PR、本地绿门或远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -45,6 +45,10 @@ N43-E3 增加完整/简化/静止三级动效与系统 reduce 优先级；静止
 N43-E4 冻结七类键盘/指针触屏等价路径；真实浏览器对白提交 `r0→r1`，Sequence→Script/Preview layout commit `26.20ms <500ms`，stable ID 保持 `stmt_gate_001`。390×844 请求下实际 client 375，路线触控按钮首次仅 `32×29px`，已修正为 `44×44px`，X `648→624`、横溢出 0。N43 聚合门 `12 files / 70 tests`；本机全仓单链退出 0，普通回归 `134 files / 774 tests`，冻结 VM `54.33s <90s`。实现头远端 run `32929525731` / job `98058928262` 用时 `11m30s` 绿色，VM `67.15s`。Editor build CSS `111.08/20.48 kB`、JS 本地 `918.23/256.59 kB`、远端 `918.31/256.59 kB`，分包债保留。出口矩阵仍因三模式 disabled 与真人缺失失败。详见[#207](207-n43-e4-input-sync-and-exit-audit.md)。
 
 N43-E5 开放 Production 的真实资源任务：中央区直接读取 Asset Index/Lifecycle/Dicing，显示四段生产流水线、下一动作和资源映射批量表；真实 N42 媒体工程为 `3` 资源、Index `r3`、`3/3` 检查通过、2 张 Dicing 候选。390px 首测桌面表仍需内部横向滚动，已改为六字段状态卡并隐藏无关视图栏；按钮 `351×48px`、文档 `375/375`。组合过滤、3 项真实流水线、Dicing 可用、console 0；保存 `s3→s4` 重开恢复 `production / media_background / 3/3`。当前 5/7，Debug & QA 与 Mobile Focus 仍 disabled。详见[#208](208-n43-e5-production-workspace-audit.md)。
+
+N43-E6 开放 Debug & QA 的正式诊断任务：当前工程、草稿诊断、Compiler、Runtime 与 Source Map 形成单一检查链，错误草稿 fail closed，问题可返回同一 stable ID 修复。真实浏览器对 `stmt_gate_bg` 得到 0/0、Source Map ready、Runtime presenting；390px 主按钮 `351×48px`、定位按钮 `317×44px`、横溢出 0，保存 `s1` 后从 Recent 重开恢复 `debug-qa / stmt_gate_bg`，console 0。首次截图发现定位按钮浅色实心层级不符，修正后 computed 为紫色 `.09/.36` 描边。当前 6/7，仅 Mobile Focus disabled。详见[#209](209-n43-e6-debug-qa-workspace-audit.md)。
+
+E6 实现头 `7c83ca5` 的远端 Windows / Node 22 完整门 run `32938398390` / job `98084137349` 用时 `9m31s` 并绿色：普通回归 `136/778`，冻结 VM `54.367s <90s`，Route P95 `125.24ms <500ms`，Lazy Index `222.61ms <500ms`；Editor CSS `121.79/22.05 kB`、JS `931.75/259.72 kB`，大包债保持。
 
 E5 本机第二次完整门退出 0：普通回归 `135 files / 776 tests`，N43 `14/73`，storage `1/1`，冻结 VM `70.20s <90s`，14 workspace、架构和 Script/Route/Asset 性能均绿；Editor CSS `116.98/21.44 kB`、JS `925.46/258.19 kB`。首次完整门仅一个既有 Stage 测试在累积负载下 `6.21s >5s`，保持预算后原样复跑 `2.68s`、第二次全门通过；没有隐藏该差异或放宽 timeout。
 
@@ -107,9 +111,9 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 
 ## 5. 下一步顺序
 
-1. N43-E5 Production 资源任务已关闭，但总出口为 5/7 FAIL；
-2. 在 N43 授权内按 Debug & QA → Mobile Focus 的真实任务逐个实现，完成前保持 disabled，不用空面板冒充七模式；
-3. 每个剩余模式都必须有 canonical 写入或正式 Runtime 消费、负例、保存重开和真实浏览器证据，7/7 后重新做 N43 出口审计；
+1. N43-E6 Debug & QA 正式诊断任务已关闭，但总出口为 6/7 FAIL；
+2. 在 N43 授权内实现 Mobile Focus 的真实手机创作任务，完成前保持 disabled，不用响应式空面板冒充 Android 编辑；
+3. Mobile Focus 必须有 canonical 写入、触屏/IME 替代、负例、保存重开和真实浏览器证据，7/7 后重新做 N43 出口审计；
 4. 维护者审阅 main-target Draft PR #61 及堆叠 PR 的合并策略；自动化不擅自合并或关闭；
 5. N43 后按新治理授权转向正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。
 

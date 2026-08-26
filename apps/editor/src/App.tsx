@@ -210,6 +210,7 @@ import { motionFrameAuditPasses, motionFrameAuditRequested, useMotionFrameAudit 
 import { crossViewSyncAuditPasses, crossViewSyncAuditRequested, useCrossViewSyncAudit } from "./cross-view-sync-audit";
 import { routeNodeNudge, type RouteNodeNudgeDirection } from "./input-equivalence";
 import { ProductionWorkspace } from "./ProductionWorkspace";
+import { DebugQaWorkspace } from "./DebugQaWorkspace";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -4755,6 +4756,22 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             dicingReport={dicingReport}
             storageStatus={assetStatus}
             onOpenPipeline={() => setAssetPanelOpen(true)}
+          />
+        ) : workspaceMode === "debug-qa" ? (
+          <DebugQaWorkspace
+            project={previewCanonicalProject}
+            diagnostics={session.diagnostics}
+            selectedSceneId={session.activeSceneId}
+            selectedStatementId={session.selectedStatementId}
+            onOpenSource={(sceneId, statementId) => {
+              if (statementId === undefined) dispatch({ type: "select-scene", sceneId });
+              else {
+                setRequestedFocusStatementId(statementId);
+                dispatch({ type: "select-project-result", sceneId, statementId });
+              }
+              setWorkspaceMode("writer");
+              setMode("sequence");
+            }}
           />
         ) : <>
           <SceneRail

@@ -436,6 +436,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E5 Production 资源生产任务（2026-08-26）：[N43-E5 审计](208-n43-e5-production-workspace-audit.md)把当前工程 Asset Index、Lifecycle、媒体检查、Dicing 与 Runtime 资源验证组织为 Production 中央工作区；真实 N42 媒体工程显示 `3` 资源、Index `r3`、`3/3` 检查通过、2 张 Dicing 候选，组合过滤和流水线均操作同一权威资源。390×844 请求下实际 client 375，首次横向表已纠正为六字段状态卡，按钮 `351×48px`、横溢出 0；保存 `s3→s4` 后重开恢复 `production / media_background / 3/3`。Production 由 disabled 改为可用，当前为 `5/7`；Debug & QA、Mobile Focus、Utage 级本地化/配音批量列、真人与产品门仍未完成。
 
+> E6 Debug & QA 正式诊断任务（2026-08-26）：[N43-E6 审计](209-n43-e6-debug-qa-workspace-audit.md)直接消费当前 Canonical Project、草稿诊断、正式 Compiler/Runtime/Source Map，错误草稿先阻断，结果可回到同一 stable ID 修复。真实浏览器对 `stmt_gate_bg` 得到 0 阻断/0 警告、Source Map ready、Runtime presenting；390×844 下主按钮 `351×48px`、定位按钮 `317×44px`、横溢出 0，保存 `s1` 后从 Recent 重开恢复 `debug-qa / stmt_gate_bg`。首次视觉检查发现次操作继承浅色实心样式，已纠正为紫色语义描边。Debug & QA 改为可用，当前 `6/7`；Mobile Focus、N60 完整 Debugger、真人与产品门仍未完成。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。
