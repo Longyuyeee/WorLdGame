@@ -3,6 +3,7 @@
 > 日期：2026-08-26
 > 分支：`codex/n43-e2-progressive-disclosure`
 > 直接基线：`codex/n43-e1b-workspace-context`
+> GitHub：Draft PR #77（base `codex/n43-e1b-workspace-context`）
 > 授权：`RA-N21-008`，仅覆盖 N43 Engineering
 > 状态：实现、自动化、真实 Chrome、构建、架构与性能门通过；本机单链负载差异保留给远端 Windows / Node 22 裁决
 > 判定：E2 Engineering 完成；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断

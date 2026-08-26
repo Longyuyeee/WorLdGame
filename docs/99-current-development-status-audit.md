@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 关闭模式/统一上下文，E2 关闭 Beginner/Pro 可逆披露；Beginner 可真实编辑，Pro 和已开 Script 可无损恢复，s2 重开零漂移。下一切片为 E3 Motion/State 语义**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a 由 Draft PR #75 承载，E1b 已推送为其上的堆叠 Draft PR #76。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2 分别由堆叠 Draft PR #75、#76、#77 承载。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
