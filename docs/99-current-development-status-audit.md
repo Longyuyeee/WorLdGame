@@ -1,4 +1,4 @@
-# 当前开发情况审计（N43-E7 Mobile Focus 完成，Engineering 7/7 进入远端出口裁决）
+# 当前开发情况审计（N43-E7 Mobile Focus 完成，Engineering 7/7 出口通过）
 
 > 审计日期：2026-08-26
 > 当前分支：`codex/n43-e7-mobile-focus-workspace`；直接基线为 `codex/n43-e6-debug-qa-workspace`
@@ -9,7 +9,7 @@
 
 ## 1. 当前结论
 
-2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** E5–E7 已把 Production、Debug & QA 与 Mobile Focus 分别收敛为同一权威工程上的真实中央任务，七模式 Engineering 达到 7/7。E7 本机 N43 门和真实浏览器已通过，但全仓长链的 storage/VM 仍受本机累计负载影响，等待远端干净 Windows runner 裁决；即使远端绿色，N60 完整 Debugger、Production 本地化/配音 P1、真人与全部 Product Acceptance 仍未完成。当前授权只允许 N43 Engineering，禁止把 7/7 换算成商业完成度。详见[治理 #201](201-n42-n43-governance-checkpoint.md)与[E7 审计 #210](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)。
+2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** E5–E7 已把 Production、Debug & QA 与 Mobile Focus 分别收敛为同一权威工程上的真实中央任务，七模式 Engineering 达到 7/7；远端完整门已关闭本机 storage/VM 累计负载差异，因此 N43 Engineering 出口通过。N60 完整 Debugger、Production 本地化/配音 P1、真人与全部 Product Acceptance 仍未完成。当前授权只允许 N43 Engineering，禁止把 7/7 换算成商业完成度。详见[治理 #201](201-n42-n43-governance-checkpoint.md)与[E7 审计 #210](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1–E4 关闭共同模式基础，E5–E7 开放 Production、Debug & QA、Mobile Focus，真实任务 7/7，等待远端完整门最终裁决**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E6 分别由堆叠 Draft PR #75–#81 承载，E7 等待实现推送。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 
@@ -49,6 +49,8 @@ N43-E5 开放 Production 的真实资源任务：中央区直接读取 Asset Ind
 N43-E6 开放 Debug & QA 的正式诊断任务：当前工程、草稿诊断、Compiler、Runtime 与 Source Map 形成单一检查链，错误草稿 fail closed，问题可返回同一 stable ID 修复。真实浏览器对 `stmt_gate_bg` 得到 0/0、Source Map ready、Runtime presenting；390px 主按钮 `351×48px`、定位按钮 `317×44px`、横溢出 0，保存 `s1` 后从 Recent 重开恢复 `debug-qa / stmt_gate_bg`，console 0。首次截图发现定位按钮浅色实心层级不符，修正后 computed 为紫色 `.09/.36` 描边。当前 6/7，仅 Mobile Focus disabled。详见[#209](209-n43-e6-debug-qa-workspace-audit.md)。
 
 N43-E7 开放 Mobile Focus：项目对白按 stable ID 投影，中文 IME 组合期不提交，输入明确提交/放弃，未提交时锁住模式与前后句导航；fake-indexeddb 完成 `r0→r1→s1→释放租约→重开`。真实 390×844 浏览器首测 overflow 0、入口 48px，但模式滚动条和历史操作过密，收敛后 textarea `240.25px`、提交/放弃/前后句均 48px。七模式 Engineering 达到 7/7；响应式 Web 不等于 Android/N91。详见[#210](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)。
+
+E7 实现头 `3eff0d4` 的远端 Windows / Node 22 完整门 run `32943861705` / job `98100313426` 用时 `11m15s` 并绿色：普通回归 `137/780`、storage `1/1`、冻结 VM `65.596s <90s`；Route P95 `131.84ms <500ms`、Global Lazy Index `264.93ms <500ms`、Dicing `3370.61ms <5000ms`；Editor CSS `126.46/22.88 kB`、JS `937.07/261.38 kB`，大包债保持。
 
 E6 实现头 `7c83ca5` 的远端 Windows / Node 22 完整门 run `32938398390` / job `98084137349` 用时 `9m31s` 并绿色：普通回归 `136/778`，冻结 VM `54.367s <90s`，Route P95 `125.24ms <500ms`，Lazy Index `222.61ms <500ms`；Editor CSS `121.79/22.05 kB`、JS `931.75/259.72 kB`，大包债保持。
 
@@ -113,8 +115,8 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 
 ## 5. 下一步顺序
 
-1. N43-E7 已完成 Mobile Focus 与七模式 7/7 实现；先等待远端 Windows 完整门裁决并回填 #210；
-2. 远端若失败，修复真实差异后重跑；若绿色，登记 N43 Engineering 出口通过，但不得换算为 Product Acceptance；
+1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
+2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-008` 明确阻断 N50；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. 获得新授权后，按产品缺口优先转向正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。

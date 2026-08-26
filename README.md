@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-26
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32 Preview 已接入正式 Compiler/Runtime 与共享 portable Runtime Host，N40 Route、N41 Sequence、N42 Stage Engineering 出口已通过。`RA-N21-008` 只授权 N43 七工作模式 Engineering；E7 已实现 7/7 真实任务并进入出口验证，全部 Product Acceptance、Android 编辑器、N50+、M1 与发布继续阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32 Preview 已接入正式 Compiler/Runtime 与共享 portable Runtime Host，N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。N43-E7 为 7/7 真实任务；全部 Product Acceptance、Android 编辑器、N50+、M1 与发布继续被 `RA-N21-008` 阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

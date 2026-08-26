@@ -41,7 +41,7 @@ E7 关闭的是 Web 编辑器在手机窄屏上的专注写作任务：从当前
 - 非 VM 后续门全部通过：14 workspace、93 portable / 4 adapter 架构、全部 production build 和 Script/Route/Asset 性能绿色。
 - Route 编辑 P95 `174.82ms <500ms`；Lazy Route `324.53ms <500ms`；Global Lazy Index `325.63ms <500ms`；Dicing 总计 `2951.93ms <5000ms`。
 - Editor build：CSS `126.46/22.88 kB`，JS `936.99/261.39 kB`；`>500 kB` 分包 warning 继续作为已知债，不提高阈值。
-- 远端 Windows / Node 22 完整门：**待首次推送后回填**。
+- 实现头 `3eff0d4` 的远端 Windows / Node 22 完整门已绿色：run `32943861705` / job `98100313426`，用时 `11m15s`。普通回归 `137/780`、storage `1/1` 均通过；冻结 VM 测试体 `65.596s <90s`，关闭本机 `90.051s/133.426s` 性能差异；Route 编辑 P95 `131.84ms <500ms`、Global Lazy Index `264.93ms <500ms`、Dicing `3370.61ms <5000ms`。远端 Editor CSS `126.46/22.88 kB`、JS `937.07/261.38 kB`，分包债保持。
 
 ## 5. N43 Engineering 出口与需求对齐
 
@@ -50,4 +50,4 @@ E7 关闭的是 Web 编辑器在手机窄屏上的专注写作任务：从当前
 - `AC-10`：Web 手机任务具备 IME 保护、明确提交/放弃和 48px 触控替代；Android 实体触摸、系统 IME 和真人纯触屏任务仍缺。
 - UI 保持现代、极简、色彩语义和清晰动效，同时用任务专页收敛信息密度，没有增加横向面板。
 
-因此本轮可以登记 **N43 Engineering 实现目标 7/7**，但在远端完整门绿色前只作“实现完成、验证待裁决”。即使远端绿色，也不能登记 N43 Product Acceptance：真人为 0，Authority 尚未合入 `main`，`RA-N21-008` 明确阻断 N50。下一步必须先建立新的治理准入或完成受阻产品门，不能自行进入正式 Player/N50。
+因此本轮登记 **N43 Engineering 出口通过，真实任务 7/7**。这不等于 N43 Product Acceptance：真人为 0，Authority 尚未合入 `main`，`RA-N21-008` 明确阻断 N50。下一步必须先建立新的治理准入或完成受阻产品门，不能自行进入正式 Player/N50。
