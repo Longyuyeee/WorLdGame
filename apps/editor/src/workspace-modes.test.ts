@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { WORKSPACE_MODES, workspaceModeDescriptor } from "./workspace-modes";
 
 describe("N43 workspace mode registry", () => {
-  it("publishes seven stable mode identities without presenting future modes as available", () => {
+  it("publishes seven stable mode identities and only enables modes with a real task", () => {
     expect(WORKSPACE_MODES.map(({ id }) => id)).toEqual([
       "writer",
       "director",
@@ -16,6 +16,7 @@ describe("N43 workspace mode registry", () => {
       "writer",
       "director",
       "flow",
+      "production",
       "quick-start"
     ]);
   });
@@ -24,6 +25,7 @@ describe("N43 workspace mode registry", () => {
     expect(workspaceModeDescriptor("writer").defaultView).toBe("sequence");
     expect(workspaceModeDescriptor("director").defaultView).toBe("sequence");
     expect(workspaceModeDescriptor("flow").defaultView).toBe("flow");
+    expect(workspaceModeDescriptor("production").defaultView).toBe("sequence");
     expect(workspaceModeDescriptor("quick-start").defaultView).toBe("sequence");
   });
 });

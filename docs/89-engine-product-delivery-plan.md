@@ -434,6 +434,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4 输入/同步与出口审计（2026-08-26）：[N43-E4 审计](207-n43-e4-input-sync-and-exit-audit.md)冻结七类键盘/触屏等价路径，路线两种输入共用 24px Sidecar 命令；真实浏览器对白 `r0→r1` 到 Script/Preview layout commit 为 `26.20ms <500ms`。390px 首测路线按钮仅 `32×29px`，已修至 `44×44px` 且横溢出 0。共同交互 Engineering 子门通过，但 Production、Debug & QA、Mobile Focus 仍 disabled，七模式只有 `4/7`，因此 N43 总出口失败；后续必须按真实任务逐个开放，不能直接进入 N50。
 
+> E5 Production 资源生产任务（2026-08-26）：[N43-E5 审计](208-n43-e5-production-workspace-audit.md)把当前工程 Asset Index、Lifecycle、媒体检查、Dicing 与 Runtime 资源验证组织为 Production 中央工作区；真实 N42 媒体工程显示 `3` 资源、Index `r3`、`3/3` 检查通过、2 张 Dicing 候选，组合过滤和流水线均操作同一权威资源。390×844 请求下实际 client 375，首次横向表已纠正为六字段状态卡，按钮 `351×48px`、横溢出 0；保存 `s3→s4` 后重开恢复 `production / media_background / 3/3`。Production 由 disabled 改为可用，当前为 `5/7`；Debug & QA、Mobile Focus、Utage 级本地化/配音批量列、真人与产品门仍未完成。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。

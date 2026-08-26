@@ -17,12 +17,15 @@ describe("S0.30 typed resource manifest compiler integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
-    const vaultButton = await screen.findByRole("button", { name: "打开资源保险库" });
-    await waitFor(() => expect(within(vaultButton).getByText(/0 项资源 · Index r0/)).toBeVisible());
-    fireEvent.click(vaultButton);
+    fireEvent.click(await screen.findByRole("radio", { name: "Production" }));
+    expect(screen.getByRole("heading", { name: "资源生产工作区" })).toBeVisible();
+    await waitFor(() => expect(screen.getByText("导入第一项生产资源")).toBeVisible());
+    await waitFor(() => expect(screen.getByRole("button", { name: "打开资源生产流水线" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "打开资源生产流水线" }));
 
+    const vault = screen.getByRole("dialog", { name: "资源保险库" });
     expect(screen.getByRole("heading", { name: "资源血缘与安全回收" })).toBeVisible();
-    expect(screen.getByText("Lifecycle r1")).toBeVisible();
+    expect(within(vault).getByText("Lifecycle r1")).toBeVisible();
     expect(screen.getByRole("button", { name: "安全扫描" })).toBeEnabled();
 
     const picker = screen.getByLabelText("选择资源文件");
@@ -38,7 +41,7 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "导入到资源保险库" }));
 
     await waitFor(() => expect(screen.getByText(/媒体检查通过；新 Blob 与 broadcast_cg 已原子写入 Index r1/)).toBeVisible());
-    expect(screen.getByText("Lifecycle r2")).toBeVisible();
+    expect(within(vault).getByText("Lifecycle r2")).toBeVisible();
     expect(screen.getAllByText("1", { selector: ".asset-lifecycle__metrics strong" })).toHaveLength(2);
     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast CG")).toBeVisible();
     expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
@@ -48,11 +51,11 @@ describe("S0.30 typed resource manifest compiler integration", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "生成 Sidecar" }));
     await waitFor(() => expect(screen.getByText(/Sidecar 已原子发布/)).toBeVisible());
-    expect(screen.getByText("Lifecycle r4")).toBeVisible();
+    expect(within(vault).getByText("Lifecycle r4")).toBeVisible();
     expect(screen.getAllByText("1", { selector: ".asset-lifecycle__metrics strong" })).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: "生成 Sidecar" }));
     await waitFor(() => expect(screen.getByText(/Sidecar 已按相同 recipe 精确复用/)).toBeVisible());
-    expect(screen.getByText("Lifecycle r4")).toBeVisible();
+    expect(within(vault).getByText("Lifecycle r4")).toBeVisible();
 
     const duplicateFile = new File([png], "Broadcast CG Copy.png", {
       type: "image/png"
@@ -166,6 +169,11 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     expect(screen.getByText(/3 场景 · 10 语句窗口 · 3 条类型化演出 · 2 个已验证 Asset/)).toBeVisible();
     expect(screen.getByText(/转场依赖 2 · 分支公共预取 1 · 未从描述文字猜测资源/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
+    fireEvent.click(screen.getByRole("button", { name: "关闭资源保险库" }));
+    expect(screen.getByRole("heading", { name: "资源映射批量表" })).toBeVisible();
+    expect(screen.getByText("2/2 项可见")).toBeVisible();
+    expect(screen.getByText("审阅并发布可获益的 Atlas 候选")).toBeVisible();
+    expect(screen.getAllByText("✓ 已通过")).toHaveLength(2);
   }, 20_000);
 
   it("rejects MIME-confused bytes before creating a Blob or Index revision", async () => {

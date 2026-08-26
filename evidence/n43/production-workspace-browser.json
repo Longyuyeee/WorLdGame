@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "node": "N43-E5",
+  "date": "2026-08-26",
+  "project": "N42 Stage 媒体验收工程",
+  "desktop": {
+    "viewportClientWidth": 1280,
+    "documentScrollWidth": 1280,
+    "workspaceWidth": 1264.9104,
+    "workspaceMode": "production",
+    "contextStatementId": "media_background",
+    "assetIndexRevision": 3,
+    "assetCount": 3,
+    "inspectionPassed": 3,
+    "lifecycleRevisionBeforeSave": 19,
+    "dicingEligibleCount": 2
+  },
+  "mobile": {
+    "requestedViewport": { "width": 390, "height": 844 },
+    "windowInnerWidth": 390,
+    "documentClientWidth": 375,
+    "documentScrollWidth": 375,
+    "pipelineButton": { "width": 350.9951, "height": 47.9993 },
+    "productionTable": { "x": 12.0025, "width": 350.9951, "right": 362.9975 },
+    "editorViewSwitcherDisplay": "none",
+    "resourceRows": "stacked-status-cards"
+  },
+  "filterTask": {
+    "querySunsetVisible": "1/3",
+    "querySunsetAndAudio": "empty",
+    "audioOnlyRows": 1
+  },
+  "pipeline": {
+    "assetItems": 3,
+    "lifecycleRevision": 21,
+    "dicingAnalyzeCandidateCount": 2,
+    "dicingAnalyzeEnabled": true
+  },
+  "saveReopen": {
+    "beforeStorageRevision": 3,
+    "afterStorageRevision": 4,
+    "workspaceModeRestored": "production",
+    "contextRestoreStatus": "restored",
+    "contextStatementId": "media_background",
+    "visibleAssets": "3/3"
+  },
+  "corrections": [
+    {
+      "expected": "resource integration test can switch modes immediately after render",
+      "actual": "single-writer startup gate still owned the page",
+      "correction": "wait for the fenced writer lease before interacting"
+    },
+    {
+      "expected": "Production pipeline controls have unique accessible names",
+      "actual": "background filter and vault metadata select were both named 资源类型",
+      "correction": "rename the background filter to 筛选资源类型"
+    },
+    {
+      "expected": "Production only shows controls relevant to resource production",
+      "actual": "Sequence/Script/Flow switcher remained visible and would occupy the mobile bottom bar",
+      "correction": "hide the editor-view switcher only in Production"
+    },
+    {
+      "expected": "all resource review fields are readable on a phone without horizontal scanning",
+      "actual": "the bounded table still required internal horizontal scrolling",
+      "correction": "project rows as stacked status cards below 820px"
+    },
+    {
+      "expected": "the full local gate passes without changing frozen budgets",
+      "actual": "one existing Stage range-selection test timed out at 6.21s after accumulated heavy suites",
+      "correction": "keep the 5s budget; exact rerun passed in 2.68s and the second full check passed"
+    }
+  ],
+  "consoleWarningsOrErrors": 0,
+  "humanProductAcceptance": "not-run-no-participant"
+}
