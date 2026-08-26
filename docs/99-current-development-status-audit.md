@@ -1,4 +1,4 @@
-# 当前开发情况审计（N50-E1 正式 Player Core 工程候选）
+# 当前开发情况审计（N50-E1 正式 Player Core Engineering 通过）
 
 > 审计日期：2026-08-26
 > 当前分支：`codex/n43-n50-governance`；直接基线为 `codex/n43-e7-mobile-focus-workspace`
@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1 已建立正式 Player Core 与最小共享 Shell，等待完整门/远端裁决**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1 正式 Player Core 与最小共享 Shell已通过远端完整门**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理等待推送。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 

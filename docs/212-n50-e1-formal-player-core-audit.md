@@ -4,7 +4,7 @@
 > 分支：`codex/n50-e1-player-core`  
 > 基线：N50 治理最终头 `9ebb859`  
 > 授权：`RA-N21-009`，仅 N50 Engineering  
-> 判定：E1 Engineering 候选完成；N50 Product Acceptance、N51+、三端发布宿主、Android 实体包、M1 与发布继续阻断
+> 判定：E1 Engineering 通过；N50 Product Acceptance、N51+、三端发布宿主、Android 实体包、M1 与发布继续阻断
 
 ## 1. 本步目标与边界
 
@@ -49,7 +49,9 @@ E1 不实现继续游戏、存档槽、历史、设置、Auto/Skip/Back/Forward�
 - 冻结 VM 在累计链首次核心 `92.761s >90s`；隔离原命令 `5/5`，核心 `78.80s <90s`。10,000 seeds/20,000 replays/40 chunks 与 digest 均未改变；远端 Windows / Node 22 仍须最终裁决。
 - 其余本机门：Runtime `59/59`，正式 corpus 总墙钟 `24.977s`；N43 模型 `10/25` 与七项集成、App `45/45`；全部 production build、`95 portable / 4 adapter` 架构、Script `13/13`、Route `9/9`、Asset `4/4` 均通过。
 - 性能实际：Route 编辑 P95 `343.75ms <500ms`，Lazy Route `331.95ms <500ms`，Global Lazy Index `333.90ms <500ms`；Dicing Atlas `2071.74ms <3000ms`、总计 `3581.52ms <5000ms`、净节省 `85.83%`。
-- 远端 Windows / Node 22 证据在本分支提交后记录；未完成前 E1 只保持候选状态。
+- 实现最终头 `0b1fce0` 的远端 Windows / Node 22 完整门绿色：run `32954927678` / job `98134398209`，用时 `11m21s`。ordinary `139/787`、storage `1/1`（测试 `3.976s`）、冻结 VM `5/5`（核心 `64.735s <90s`）关闭全部本机累计负载差异。
+- 远端 Player Shell build 与本机一致：CSS `5.98/2.04 kB`、JS `283.90/89.16 kB`；Editor 既有 CSS `126.46/22.88 kB`、JS `937.07/261.38 kB`，新增 Player 没有进入 Editor bundle。
+- 远端 Route 编辑 P95 `132.96ms <500ms`、Lazy Route `304.07ms <500ms`、Global Lazy Index `253.68ms <500ms`；Dicing Atlas `1770.43ms <3000ms`、总计 `3236.10ms <5000ms`、净节省 `85.83%`。
 
 ## 5. 需求对齐与未解除门
 
@@ -59,4 +61,4 @@ E1 不实现继续游戏、存档槽、历史、设置、Auto/Skip/Back/Forward�
 
 ## 6. 下一步
 
-远端完整门绿色后关闭 E1 Engineering。N50 后续必须继续在同一 Player Core 上切片，不得另建宿主剧情逻辑；下一切片优先补齐正式 Stage/Media presentation adapter 与 Player 可见 Effect 生命周期，再继续标题/继续/错误恢复等 Shell 能力。N51 Gal Settings 仍禁止开始。
+远端完整门已绿色，E1 Engineering 关闭。N50 后续必须继续在同一 Player Core 上切片，不得另建宿主剧情逻辑；下一切片优先补齐正式 Stage/Media presentation adapter 与 Player 可见 Effect 生命周期，再继续标题/继续/错误恢复等 Shell 能力。N51 Gal Settings 仍禁止开始。
