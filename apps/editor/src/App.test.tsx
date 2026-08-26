@@ -860,7 +860,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("radio", { name: "Writer" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("radio", { name: "Production" })).toBeEnabled();
     expect(screen.getByRole("radio", { name: "Debug & QA" })).toBeEnabled();
-    expect(screen.getByRole("radio", { name: "Mobile Focus" })).toBeDisabled();
+    expect(screen.getByRole("radio", { name: "Mobile Focus" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("radio", { name: "Production" }));
     expect(screen.getByRole("heading", { name: "资源生产工作区" })).toBeVisible();
@@ -869,6 +869,14 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
     fireEvent.click(screen.getByRole("radio", { name: "Debug & QA" }));
     expect(screen.getByRole("heading", { name: "诊断与运行检查台" })).toBeVisible();
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_001");
+    expect(screen.getByText("本地事务 · r0")).toBeVisible();
+
+    fireEvent.click(screen.getByRole("radio", { name: "Mobile Focus" }));
+    expect(screen.getByRole("heading", { name: "移动专注编辑" })).toBeVisible();
+    expect(screen.getByLabelText("移动专注对白")).toHaveValue(
+      "广播站的灯还亮着。你也听见那段没有署名的留言了吗？"
+    );
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_001");
     expect(screen.getByText("本地事务 · r0")).toBeVisible();
 

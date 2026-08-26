@@ -88,6 +88,7 @@ import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
 import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
+import { MobileFocusWorkspace } from "./MobileFocusWorkspace";
 import {
   EXPERIENCE_LEVELS,
   experienceLevelDescriptor,
@@ -359,6 +360,7 @@ interface WorkspaceNavigationProps {
   readonly motionPreference: MotionPreferenceId;
   readonly effectiveMotion: MotionPreferenceId;
   readonly systemReducedMotion: boolean;
+  readonly inputDirty: boolean;
   readonly contextStatementId: string;
   readonly onModeChange: (mode: StudioMode) => void;
   readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
@@ -373,6 +375,7 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
   motionPreference,
   effectiveMotion,
   systemReducedMotion,
+  inputDirty,
   contextStatementId,
   onModeChange,
   onWorkspaceModeChange,
@@ -395,8 +398,8 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
             className={candidate.id === workspaceMode ? "workspace-mode-button is-active" : "workspace-mode-button"}
             key={candidate.id}
             aria-checked={candidate.id === workspaceMode}
-            disabled={!candidate.available}
-            title={candidate.summary}
+            disabled={!candidate.available || (inputDirty && candidate.id !== workspaceMode)}
+            title={inputDirty && candidate.id !== workspaceMode ? "请先提交或放弃当前输入" : candidate.summary}
             onClick={() => onWorkspaceModeChange(candidate.id)}
           >
             <span className={`workspace-mode-dot workspace-mode-dot--${candidate.id}`} aria-hidden="true" />
@@ -487,6 +490,7 @@ function WorkspaceHeader({
         motionPreference={motionPreference}
         effectiveMotion={effectiveMotion}
         systemReducedMotion={systemReducedMotion}
+        inputDirty={inputDirty}
         contextStatementId={session.selectedStatementId}
         onModeChange={onModeChange}
         onWorkspaceModeChange={onWorkspaceModeChange}
@@ -4772,6 +4776,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
               setWorkspaceMode("writer");
               setMode("sequence");
             }}
+          />
+        ) : workspaceMode === "mobile-focus" ? (
+          <MobileFocusWorkspace
+            session={session}
+            dispatch={dispatch}
+            createCommandId={createCommandId}
+            onInputDirtyChange={setInputDirty}
           />
         ) : <>
           <SceneRail
