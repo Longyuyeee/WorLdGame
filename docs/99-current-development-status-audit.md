@@ -1,15 +1,15 @@
-# 当前开发情况审计（N43-E7 Mobile Focus 完成，Engineering 7/7 出口通过）
+# 当前开发情况审计（N50 Engineering 已有界准入，等待 Player E1）
 
 > 审计日期：2026-08-26
-> 当前分支：`codex/n43-e7-mobile-focus-workspace`；直接基线为 `codex/n43-e6-debug-qa-workspace`
+> 当前分支：`codex/n43-n50-governance`；直接基线为 `codex/n43-e7-mobile-focus-workspace`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
-> 最新节点证据：[N43-E7 Mobile Focus 与 Engineering 出口审计](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、[N43-E6 Debug & QA 审计](209-n43-e6-debug-qa-workspace-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
+> 当前授权：`RA-N21-009` 只允许 N50 正式 Player Shell Engineering；2026-09-25 16:07:12（UTC+8）到期
+> 最新节点证据：[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)、[N43-E7 Mobile Focus 与 Engineering 出口审计](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** E5–E7 已把 Production、Debug & QA 与 Mobile Focus 分别收敛为同一权威工程上的真实中央任务，七模式 Engineering 达到 7/7；远端完整门已关闭本机 storage/VM 累计负载差异，因此 N43 Engineering 出口通过。N60 完整 Debugger、Production 本地化/配音 P1、真人与全部 Product Acceptance 仍未完成。当前授权只允许 N43 Engineering，禁止把 7/7 换算成商业完成度。详见[治理 #201](201-n42-n43-governance-checkpoint.md)与[E7 审计 #210](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)。
+2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心仍明显偏向工程底座，Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 明显滞后。** E5–E7 已把 Production、Debug & QA 与 Mobile Focus 分别收敛为同一权威工程上的真实中央任务，七模式 Engineering 达到 7/7；远端完整门已关闭本机 storage/VM 累计负载差异，因此 N43 Engineering 出口通过。当前 `RA-N21-009` 只准入 N50 正式 Player Shell Engineering；N60 完整 Debugger、Production 本地化/配音 P1、真人与全部 Product Acceptance 仍未完成，禁止把工程进度换算成商业完成度。详见[治理 #211](211-n43-n50-governance-checkpoint.md)与[E7 审计 #210](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,9 +20,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**RA-009 治理门已由远端完整门关闭，产品代码尚未开始**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E6 分别由堆叠 Draft PR #75–#81 承载，E7 等待实现推送。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理等待推送。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -118,7 +118,7 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
-4. `RA-N21-008` 明确阻断 N50；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. 获得新授权后，按产品缺口优先转向正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。
+4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
+5. N50-E1 先建立正式 Compiler/Runtime/Host 驱动的最小 Player Core，禁止先铺宿主空壳；N51 Gal Settings 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

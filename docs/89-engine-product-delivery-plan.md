@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N42 Stage Engineering 出口复审](200-n42-stage-engineering-exit-reaudit.md)确认 Goal `1/1`、Implementation `8/8` 并停止无限扩张 Stage；[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)建立的 `RA-N21-008` 只授权 N43 七工作模式 Engineering。工程底座仍明显领先于 Gal Settings、正式 Player、Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N50+、M1/发布和正式 Player继续阻断。
+> 当前审计：[N43-E7 出口审计](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)确认七工作模式 Engineering 真实任务 `7/7`；[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)建立的 `RA-N21-009` 只授权 N50 正式 Player Shell Engineering。工程底座仍明显领先于 Gal Settings、Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N51+、M1/发布继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -447,6 +447,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 ## 10. R5：玩家与 Gal 基础
 
 ### N50 Player Shell 与输入
+
+> 准入状态（2026-08-26）：N43 Engineering 出口后，产品负责人再次明确要求进入后续步骤。[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)以 `RA-N21-009` 只准入本节点 Engineering；N50 Product Acceptance、N51+、Android 实体包、M1 与发布继续 fail closed。E1 必须先建立消费正式 Compiler/Runtime/Host 的最小 Player Core，禁止把旧独立 `StoryStatement` 试玩解释器改名为正式 Player。
 
 - **Goal**：形成可嵌入 Web/Windows/Android 的正式玩家。
 - **Implementation**：标题、开始/继续、对话、选择、历史、设置、存读档、错误页；鼠标/键盘/触摸/基础手柄；响应式安全区；无障碍语义。
