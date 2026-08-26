@@ -1,10 +1,10 @@
 # 当前开发情况审计（N50-E1 正式 Player Core Engineering 通过）
 
 > 审计日期：2026-08-26
-> 当前分支：`codex/n43-n50-governance`；直接基线为 `codex/n43-e7-mobile-focus-workspace`
+> 当前分支：`codex/n50-e1-player-core`；直接基线为 `codex/n43-n50-governance`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-009` 只允许 N50 正式 Player Shell Engineering；2026-09-25 16:07:12（UTC+8）到期
-> 最新节点证据：[N50-E1 正式 Player Core 审计](212-n50-e1-formal-player-core-audit.md)、[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)
+> 最新节点证据：[N50-E1 暂停开发与换机交接审计](213-n50-e1-development-handoff-2026-08-26.md)、[N50-E1 正式 Player Core 审计](212-n50-e1-formal-player-core-audit.md)、[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1 正式 Player Core 与最小共享 Shell已通过远端完整门**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理等待推送。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 由 Draft PR #84 承载。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
