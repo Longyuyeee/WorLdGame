@@ -1,7 +1,7 @@
 # N43-E5 Production 资源生产工作区审计
 
 > 日期：2026-08-26  
-> 分支：`codex/n43-e5-production-workspace`；Draft PR #80  
+> 分支：`codex/n43-e5-production-workspace`；Draft PR #80
 > 直接基线：N43-E4 最终头 `d4b5f4d76a7a9c177205c8fd235bf83e7b669640`，GitHub run `32930327420` 绿色  
 > 授权：`RA-N21-008`，只覆盖 N43 Engineering  
 > 判定：**Production 的真实资源生产任务切片通过，七模式可用度由 4/7 提升为 5/7；N43 总出口、Product Acceptance、N50+、M1 与发布继续阻断。**
