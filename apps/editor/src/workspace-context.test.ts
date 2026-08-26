@@ -76,14 +76,14 @@ describe("N43-E1b unified workspace context", () => {
     expect(resolution.session.project).toEqual(session.project);
   });
 
-  it("does not reopen a future mode before its real task is available", () => {
+  it("does not reopen an unknown workspace mode", () => {
     const session = createStudioSession();
     const snapshot = {
       ...createProjectSnapshot(session, 1),
       preservedFields: {
         [WORKSPACE_CONTEXT_FIELD]: {
           schemaVersion: 1,
-          workspaceMode: "mobile-focus",
+          workspaceMode: "future-mode",
           editorView: "flow",
           sceneId: session.activeSceneId,
           statementId: session.selectedStatementId

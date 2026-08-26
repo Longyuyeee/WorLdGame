@@ -18,6 +18,7 @@ describe("N43 workspace mode registry", () => {
       "flow",
       "production",
       "debug-qa",
+      "mobile-focus",
       "quick-start"
     ]);
   });
@@ -27,6 +28,8 @@ describe("N43 workspace mode registry", () => {
     expect(workspaceModeDescriptor("director").defaultView).toBe("sequence");
     expect(workspaceModeDescriptor("flow").defaultView).toBe("flow");
     expect(workspaceModeDescriptor("production").defaultView).toBe("sequence");
+    expect(workspaceModeDescriptor("debug-qa").defaultView).toBe("flow");
+    expect(workspaceModeDescriptor("mobile-focus").defaultView).toBe("sequence");
     expect(workspaceModeDescriptor("quick-start").defaultView).toBe("sequence");
   });
 });

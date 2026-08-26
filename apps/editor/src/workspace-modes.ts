@@ -23,7 +23,7 @@ export const WORKSPACE_MODES: readonly WorkspaceModeDescriptor[] = Object.freeze
   { id: "flow", label: "Flow 模式", available: true, defaultView: "flow", summary: "路线、结局与结构诊断" },
   { id: "production", label: "Production", available: true, defaultView: "sequence", summary: "资源映射、批量状态与交付流水线" },
   { id: "debug-qa", label: "Debug & QA", available: true, defaultView: "flow", summary: "正式 Compiler、Runtime 与源码定位检查" },
-  { id: "mobile-focus", label: "Mobile Focus", available: false, defaultView: "sequence", summary: "N43 后续 · 手机专注创作" },
+  { id: "mobile-focus", label: "Mobile Focus", available: true, defaultView: "sequence", summary: "同一 Canonical 工程的手机专注创作" },
   { id: "quick-start", label: "Quick Start", available: true, defaultView: "sequence", summary: "收起项目树，聚焦当前场景" }
 ]);
 

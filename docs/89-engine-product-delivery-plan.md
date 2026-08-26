@@ -438,6 +438,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6 Debug & QA 正式诊断任务（2026-08-26）：[N43-E6 审计](209-n43-e6-debug-qa-workspace-audit.md)直接消费当前 Canonical Project、草稿诊断、正式 Compiler/Runtime/Source Map，错误草稿先阻断，结果可回到同一 stable ID 修复。真实浏览器对 `stmt_gate_bg` 得到 0 阻断/0 警告、Source Map ready、Runtime presenting；390×844 下主按钮 `351×48px`、定位按钮 `317×44px`、横溢出 0，保存 `s1` 后从 Recent 重开恢复 `debug-qa / stmt_gate_bg`。首次视觉检查发现次操作继承浅色实心样式，已纠正为紫色语义描边。Debug & QA 改为可用，当前 `6/7`；Mobile Focus、N60 完整 Debugger、真人与产品门仍未完成。
 
+> E7 Mobile Focus 与 Engineering 出口（2026-08-26）：[N43-E7 审计](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)在同一 Canonical Project 上加入手机专注对白投影、明确提交/放弃、IME composition 保护、stable-ID 前后句导航和保存重开。390×844 首测虽无横溢出且入口为 48px，但模式滚动条和历史操作过密；收敛后四个操作均 48px、textarea `240.25px`、文档 overflow 0。Mobile Focus 改为可用，七模式 Engineering 达到 `7/7`；远端 run `32943861705` / job `98100313426` 用时 `11m15s` 绿色，冻结 VM `65.596s <90s`，关闭本机差异。N43 Engineering 出口通过；Android/SAF/低内存设备、真人、Product Acceptance 与 N50 仍不在本轮授权内。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。
