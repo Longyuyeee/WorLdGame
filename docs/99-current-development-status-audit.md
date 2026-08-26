@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1–E4 关闭共同模式基础，E5 开放真实 Production 资源生产任务；总出口因 Debug & QA、Mobile Focus 未形成真实任务而失败（5/7）**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2、E3、E4 分别由堆叠 Draft PR #75–#79 承载，E5 将继续建立堆叠 Draft PR。不得把堆叠 PR、本地绿门或远端 CI 换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E5 分别由堆叠 Draft PR #75–#80 承载。不得把堆叠 PR、本地绿门或远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -47,6 +47,8 @@ N43-E4 冻结七类键盘/指针触屏等价路径；真实浏览器对白提交
 N43-E5 开放 Production 的真实资源任务：中央区直接读取 Asset Index/Lifecycle/Dicing，显示四段生产流水线、下一动作和资源映射批量表；真实 N42 媒体工程为 `3` 资源、Index `r3`、`3/3` 检查通过、2 张 Dicing 候选。390px 首测桌面表仍需内部横向滚动，已改为六字段状态卡并隐藏无关视图栏；按钮 `351×48px`、文档 `375/375`。组合过滤、3 项真实流水线、Dicing 可用、console 0；保存 `s3→s4` 重开恢复 `production / media_background / 3/3`。当前 5/7，Debug & QA 与 Mobile Focus 仍 disabled。详见[#208](208-n43-e5-production-workspace-audit.md)。
 
 E5 本机第二次完整门退出 0：普通回归 `135 files / 776 tests`，N43 `14/73`，storage `1/1`，冻结 VM `70.20s <90s`，14 workspace、架构和 Script/Route/Asset 性能均绿；Editor CSS `116.98/21.44 kB`、JS `925.46/258.19 kB`。首次完整门仅一个既有 Stage 测试在累积负载下 `6.21s >5s`，保持预算后原样复跑 `2.68s`、第二次全门通过；没有隐藏该差异或放宽 timeout。
+
+Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `32933485910` / job `98070145468` 用时 `11m37s` 并绿色：普通回归 `135/776`，冻结 VM `72.77s <90s`，Route P95 `135.91ms <500ms`；Editor CSS `116.98/21.44 kB`、JS `925.54/258.17 kB`，大包债保持。
 
 ## 3. N32-E1–E6 证据与差异
 

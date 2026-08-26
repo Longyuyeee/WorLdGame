@@ -1,7 +1,7 @@
 # N43-E5 Production 资源生产工作区审计
 
 > 日期：2026-08-26  
-> 分支：`codex/n43-e5-production-workspace`  
+> 分支：`codex/n43-e5-production-workspace`；Draft PR #80  
 > 直接基线：N43-E4 最终头 `d4b5f4d76a7a9c177205c8fd235bf83e7b669640`，GitHub run `32930327420` 绿色  
 > 授权：`RA-N21-008`，只覆盖 N43 Engineering  
 > 判定：**Production 的真实资源生产任务切片通过，七模式可用度由 4/7 提升为 5/7；N43 总出口、Product Acceptance、N50+、M1 与发布继续阻断。**
@@ -49,7 +49,8 @@ E5 不是新增一个空面板，也不复制资源状态。它把既有权威 A
 - N43 聚合门现为 `14 files / 73 tests`，通过；普通回归 `135 files / 776 tests`，storage `1/1`，冻结 VM `5/5`、测试体 `70.20s <90s`。
 - 首次全仓门在连续重型集合后，一个既有 Stage 范围选择测试以 `6.21s >5s` 超时；没有放宽 timeout。原样单测复跑实际 `2.68s <5s`，第二次完整 `npm run check` 退出 0，同一 App 集合在 N41/N42/N43 与普通产品回归均通过，判定为本机累积负载差异而非 Production 语义回归。
 - 14 workspace 构建、架构、Script/Route/Asset 性能门全绿；Editor production build 为 CSS `116.98/21.44 kB`、JS `925.46/258.19 kB`，既有 `>500 kB` 分包债未关闭。
-- 远端 Windows 门将在实现提交后执行并回填；没有以浏览器自动化冒充真人 Product Acceptance。
+- 实现头 `afc095d39e91a938dcfc86cff569b5020a1fef88` 已通过远端 Windows / Node 22 完整门：run `32933485910` / job `98070145468`，用时 `11m37s`。普通回归 `135/776`，冻结 VM 测试体 `72.77s <90s`，Route P95 `135.91ms <500ms`；Editor CSS `116.98/21.44 kB`、JS `925.54/258.17 kB`，分包债结论不变。
+- 没有以浏览器自动化冒充真人 Product Acceptance。
 
 ## 5. 需求与出口对齐
 
