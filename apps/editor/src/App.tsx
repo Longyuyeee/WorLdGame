@@ -207,6 +207,8 @@ import {
   type MotionPreferenceId
 } from "./motion-preference";
 import { motionFrameAuditPasses, motionFrameAuditRequested, useMotionFrameAudit } from "./motion-frame-audit";
+import { crossViewSyncAuditPasses, crossViewSyncAuditRequested, useCrossViewSyncAudit } from "./cross-view-sync-audit";
+import { routeNodeNudge, type RouteNodeNudgeDirection } from "./input-equivalence";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -2604,7 +2606,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const assignGroup=()=>{if(selected!==undefined)commitMutation(onAssignGroup(selected.id,selectedGroupId===""?undefined:selectedGroupId),"节点分组已提交 · 剧情语义未修改");};
   const saveViewport=()=>commitMutation(onSetViewport(viewportX,viewportY,viewportZoom),"路线视口已写入 Layout Sidecar");
   const moveNode=(node:RouteSceneNodeV1,dx:number,dy:number)=>commitMutation(onSetScenePosition(node.id,node.layout.x+dx,node.layout.y+dy),"节点位置已提交 · 支持撤销与重开");
-  const moveSelected=(dx:number,dy:number)=>{if(selected!==undefined)moveNode(selected,dx,dy);};
+  const nudgeNode=(node:RouteSceneNodeV1,direction:RouteNodeNudgeDirection)=>{const delta=routeNodeNudge(direction);moveNode(node,delta.dx,delta.dy);};
+  const nudgeSelected=(direction:RouteNodeNudgeDirection)=>{if(selected!==undefined)nudgeNode(selected,direction);};
   const applyChoiceTarget=(sourceSceneId:string,optionId:string,currentTargetSceneId:string)=>{
     const targetSceneId=repairTargets[optionId]??currentTargetSceneId;
     if(session.activeSceneId!==sourceSceneId){setEditResult({tone:"error",text:"路线修复失败关闭 · 请先重新选中来源场景，避免写入错误 Source revision"});return;}
@@ -2731,12 +2734,13 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
               aria-label={`路线场景：${node.title} · ${node.id}`}
               aria-pressed={node.id === selectedSceneId}
               aria-current={runtimeCurrent ? "step" : undefined}
+              aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown"
               data-runtime-visited={runtimeVisited}
               data-route-reviewed={routeReviewed}
               data-route-group={node.layout.groupId}
               draggable
               onDragStart={(event)=>{event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",node.id);}}
-              onKeyDown={(event)=>{if(!event.altKey)return;if(event.key==="ArrowLeft"){event.preventDefault();moveNode(node,-24,0);}else if(event.key==="ArrowRight"){event.preventDefault();moveNode(node,24,0);}else if(event.key==="ArrowUp"){event.preventDefault();moveNode(node,0,-24);}else if(event.key==="ArrowDown"){event.preventDefault();moveNode(node,0,24);}}}
+              onKeyDown={(event)=>{if(!event.altKey)return;if(event.key==="ArrowLeft"){event.preventDefault();nudgeNode(node,"left");}else if(event.key==="ArrowRight"){event.preventDefault();nudgeNode(node,"right");}else if(event.key==="ArrowUp"){event.preventDefault();nudgeNode(node,"up");}else if(event.key==="ArrowDown"){event.preventDefault();nudgeNode(node,"down");}}}
               onClick={() => focusRouteScene(node.id)}
               onDoubleClick={() => onOpenSequence(node.id)}
             >
@@ -2787,7 +2791,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
           {repairEdge!==undefined&&repairEditorOpen&&<div id={`route-target-repair-${selected.id}`} className="route-target-repair" aria-label="路线 Choice 目标修复"><label><span>选择连接</span><select aria-label="选择待修复路线连接" value={repairEdge.id} onChange={(event)=>setRepairEdgeId(event.target.value)}>{selectedOutgoingEdges.map((edge)=><option key={edge.id} value={edge.id}>{edge.label} · {edge.id}</option>)}</select></label><label><span>目标稳定 ID</span><input aria-label={`修改选择目标：${repairEdge.label}`} list={`route-repair-targets-${selected.id}`} value={repairTargets[repairEdge.id]??repairEdge.targetSceneId} onChange={(event)=>setRepairTargets((current)=>({...current,[repairEdge.id]:event.target.value}))}/><datalist id={`route-repair-targets-${selected.id}`}>{visibleNodes.map((node)=><option key={node.id} value={node.id}>{node.title}</option>)}</datalist></label><button type="button" aria-label={`应用选择目标：${repairEdge.label}`} disabled={(repairTargets[repairEdge.id]??repairEdge.targetSceneId)===repairEdge.targetSceneId||pendingRepair!==null} onClick={()=>applyChoiceTarget(repairEdge.sourceSceneId,repairEdge.id,repairEdge.targetSceneId)}>应用目标</button><small>候选仅显示当前 64 节点窗口；提交时按完整工程验证 stable ID。</small></div>}
           {selected.facts.every((fact)=>fact.targetLabel===undefined)&&graph.edges.every((edge)=>edge.sourceSceneId!==selected.id)&&<small>当前场景没有可导航目标</small>}
         </div>
-        <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>moveSelected(-24,0)}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>moveSelected(0,-24)}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>moveSelected(0,24)}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>moveSelected(24,0)}>→</button><small>Alt＋方向键亦可移动</small></div>
+        <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>nudgeSelected("left")}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>nudgeSelected("up")}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>nudgeSelected("down")}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>nudgeSelected("right")}>→</button><small>Alt＋方向键亦可移动</small></div>
         <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={assignGroup}>保存节点分组</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
         {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
       </aside>}
@@ -3501,6 +3505,10 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     typeof globalThis.location !== "undefined" && motionFrameAuditRequested(globalThis.location.search),
     `${mode}:${workspaceMode}:${effectiveMotion}`
   );
+  const crossViewSyncAudit = useCrossViewSyncAudit(
+    typeof globalThis.location !== "undefined" && crossViewSyncAuditRequested(globalThis.location.search),
+    activeSourceSession(session).revision
+  );
   const [workspaceContextStatus, setWorkspaceContextStatus] = useState<"session" | "restored" | "missing" | "invalid">("session");
   const modeRef = useRef(mode);
   const workspaceModeRef = useRef(workspaceMode);
@@ -3616,11 +3624,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const commandSerial = useRef(0);
   const entitySerial = useRef(0);
   const dispatch = (action: StudioAction) => {
-    baseDispatch(action);
-    if ([
+    const editsStory = [
       "edit-script", "patch-dialogue", "patch-direction", "patch-directions", "insert-dialogue", "insert-direction", "duplicate-direction", "delete-dialogue",
       "move-dialogue", "delete-direction", "move-direction", "p0-insert", "p0-update", "p0-delete", "p0-move", "p0-batch", "format-script", "discard-draft", "undo", "redo"
-    ].includes(action.type)) {
+    ].includes(action.type);
+    if (editsStory) crossViewSyncAudit.begin(action.type, sessionRef.current.selectedStatementId, activeSourceSession(sessionRef.current).revision);
+    baseDispatch(action);
+    if (editsStory) {
       routeChangedSceneIds.current?.add(sessionRef.current.activeSceneId);
       editGeneration.current += 1;
       setEditVersion((value) => value + 1);
@@ -4703,6 +4713,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       data-motion-frame-max={motionFrameAudit.maxMilliseconds ?? ""}
       data-motion-frame-over-budget={motionFrameAudit.overBudgetFrames}
       data-motion-frame-result={motionFrameAudit.status === "complete" ? (motionFrameAuditPasses(motionFrameAudit) ? "pass" : "fail") : motionFrameAudit.status}
+      data-sync-audit-status={crossViewSyncAudit.result.status}
+      data-sync-audit-action={crossViewSyncAudit.result.action}
+      data-sync-audit-statement-id={crossViewSyncAudit.result.statementId}
+      data-sync-audit-source-revision={crossViewSyncAudit.result.sourceRevision}
+      data-sync-audit-projected-revision={crossViewSyncAudit.result.projectedRevision}
+      data-sync-audit-duration={crossViewSyncAudit.result.durationMilliseconds ?? ""}
+      data-sync-audit-result={crossViewSyncAudit.result.status === "complete" ? (crossViewSyncAuditPasses(crossViewSyncAudit.result) ? "pass" : "fail") : crossViewSyncAudit.result.status}
       data-context-scene-id={workspaceContext.sceneId}
       data-context-statement-id={contextProjection.selectionId}
       data-inspector-object-id={contextProjection.inspectorObjectId}

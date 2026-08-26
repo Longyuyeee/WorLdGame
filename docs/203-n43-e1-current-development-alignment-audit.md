@@ -70,9 +70,9 @@
 
 ## 5. 纠偏后的下一步
 
-1. **N43-E3 已关闭，进入 E4**：Beginner/Pro 见 [#205](205-n43-e2-progressive-disclosure-audit.md)，三级 Motion/State 和真实帧预算见 [#206](206-n43-e3-motion-state-semantics-audit.md)；下一步关闭键盘/触屏等价、跨视图同步预算和 N43 Engineering 出口矩阵。
+1. **N43-E4 共同交互已关闭，但总出口失败**：Beginner/Pro 见 [#205](205-n43-e2-progressive-disclosure-audit.md)，Motion 见 [#206](206-n43-e3-motion-state-semantics-audit.md)，输入/同步和 4/7 出口裁决见 [#207](207-n43-e4-input-sync-and-exit-audit.md)。
 2. **N43 后续模式必须按真实任务开放**：Production、Debug & QA、Mobile Focus 在拥有可执行任务、负例和真实浏览器证据前继续 disabled。
-3. **N43 出口停止扩张 UI 面板**：完成 Beginner/Pro、减少动效、键盘/触屏等价和跨视图 500ms 后退出；不把 Production 变成资源面板堆叠。
+3. **N43 不以共同交互冒充七模式出口**：Production、Debug & QA、Mobile Focus 必须各自形成真实任务，不把 Production 变成资源面板堆叠；完成 7/7 后再退出。
 4. **N43 后回到用户产品闭环**：按新治理授权优先正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。
 5. **集成决策交给维护者**：请求维护者审阅 #61 与堆叠 PR 的合并策略；自动化不擅自合并或关闭。
 

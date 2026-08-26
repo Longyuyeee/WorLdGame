@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-08-26",
+  "query": "?syncAudit=1",
+  "crossViewSync": {
+    "action": "patch-dialogue",
+    "statementId": "stmt_gate_001",
+    "sourceRevision": 0,
+    "projectedRevision": 1,
+    "durationMilliseconds": 26.199999999254942,
+    "budgetMilliseconds": 500,
+    "result": "pass",
+    "previewText": "N43 E4 浏览器真实同步",
+    "scriptContainsText": true
+  },
+  "mobileRouteNudge": {
+    "requestedViewport": { "width": 390, "height": 844 },
+    "actualClient": { "width": 375, "height": 844 },
+    "documentScrollWidth": 375,
+    "horizontalOverflow": 0,
+    "beforeCorrection": { "width": 32, "height": 29 },
+    "afterCorrection": { "width": 44, "height": 44 },
+    "routeXBefore": 648,
+    "routeXAfterLeftNudge": 624,
+    "ariaKeyShortcuts": "Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown",
+    "result": "pass"
+  },
+  "limitations": [
+    "真实浏览器完成了键盘文本输入与 Ctrl+S 提交，但浏览器定位器 press 未把未聚焦的剧情卡激活；完整纯键盘任务由集成测试覆盖，仍需目标设备/真人产品验收。",
+    "移动测试使用真实窄视口和指针点击触控替代按钮，不冒充 Android 实体触摸事件或软键盘验收。"
+  ]
+}

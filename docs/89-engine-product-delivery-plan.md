@@ -432,6 +432,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3 Motion/State 语义（2026-08-26）：[N43-E3 审计](206-n43-e3-motion-state-semantics-audit.md)增加完整/简化/静止三级本地偏好，系统减少动效强制有效静止但不擦除偏好；简化停止装饰循环，静止把全局动画/过渡压到 `0.01ms`。真实页面完整/简化/静止 P95 分别为 `12.30/12.20/6.20ms`，均满足 `≤16.7ms`，严重帧占比均 `≤2%`；390px 请求下 client `375/375`、Preview 精确 16:9。E3 不增加面板，OS/设备矩阵和 Product Acceptance 仍未关闭。
 
+> E4 输入/同步与出口审计（2026-08-26）：[N43-E4 审计](207-n43-e4-input-sync-and-exit-audit.md)冻结七类键盘/触屏等价路径，路线两种输入共用 24px Sidecar 命令；真实浏览器对白 `r0→r1` 到 Script/Preview layout commit 为 `26.20ms <500ms`。390px 首测路线按钮仅 `32×29px`，已修至 `44×44px` 且横溢出 0。共同交互 Engineering 子门通过，但 Production、Debug & QA、Mobile Focus 仍 disabled，七模式只有 `4/7`，因此 N43 总出口失败；后续必须按真实任务逐个开放，不能直接进入 N50。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。
