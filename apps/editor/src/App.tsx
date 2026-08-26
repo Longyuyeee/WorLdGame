@@ -199,6 +199,14 @@ import {
   type FormalPreviewState
 } from "./formal-preview-runtime";
 import { updateFormalPreviewProject, type FormalPreviewHotUpdateResult } from "./formal-preview-hot-update";
+import { MotionPreferenceControl } from "./MotionPreferenceControl";
+import {
+  effectiveMotionLevel,
+  loadMotionPreference,
+  storeMotionPreference,
+  type MotionPreferenceId
+} from "./motion-preference";
+import { motionFrameAuditPasses, motionFrameAuditRequested, useMotionFrameAudit } from "./motion-frame-audit";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -327,10 +335,14 @@ interface WorkspaceHeaderProps extends CommonProps {
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
   readonly experienceLevel: ExperienceLevelId;
+  readonly motionPreference: MotionPreferenceId;
+  readonly effectiveMotion: MotionPreferenceId;
+  readonly systemReducedMotion: boolean;
   readonly inputDirty: boolean;
   readonly onModeChange: (mode: StudioMode) => void;
   readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
   readonly onExperienceLevelChange: (level: ExperienceLevelId) => void;
+  readonly onMotionPreferenceChange: (preference: MotionPreferenceId) => void;
   readonly persistence: PersistenceViewState;
   readonly onSave: () => void;
   readonly onOpenBackups: () => void;
@@ -340,20 +352,28 @@ interface WorkspaceNavigationProps {
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
   readonly experienceLevel: ExperienceLevelId;
+  readonly motionPreference: MotionPreferenceId;
+  readonly effectiveMotion: MotionPreferenceId;
+  readonly systemReducedMotion: boolean;
   readonly contextStatementId: string;
   readonly onModeChange: (mode: StudioMode) => void;
   readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
   readonly onExperienceLevelChange: (level: ExperienceLevelId) => void;
+  readonly onMotionPreferenceChange: (preference: MotionPreferenceId) => void;
 }
 
 const WorkspaceNavigation = memo(function WorkspaceNavigation({
   mode,
   workspaceMode,
   experienceLevel,
+  motionPreference,
+  effectiveMotion,
+  systemReducedMotion,
   contextStatementId,
   onModeChange,
   onWorkspaceModeChange,
-  onExperienceLevelChange
+  onExperienceLevelChange,
+  onMotionPreferenceChange
 }: WorkspaceNavigationProps) {
   const visibleModeIds = visibleWorkspaceModes(
     experienceLevel,
@@ -401,6 +421,12 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
         <output className="workspace-mode-summary" aria-label="统一工作上下文" aria-live="polite">
           {workspaceModeDescriptor(workspaceMode).summary} · {contextStatementId}
         </output>
+        <MotionPreferenceControl
+          preference={motionPreference}
+          effectiveLevel={effectiveMotion}
+          systemReducedMotion={systemReducedMotion}
+          onChange={onMotionPreferenceChange}
+        />
         <nav className="mode-switcher" aria-label="编辑视图" role="tablist">
           {visibleViews.map((candidate) => (
             <button
@@ -424,11 +450,15 @@ function WorkspaceHeader({
   mode,
   workspaceMode,
   experienceLevel,
+  motionPreference,
+  effectiveMotion,
+  systemReducedMotion,
   session,
   inputDirty,
   onModeChange,
   onWorkspaceModeChange,
   onExperienceLevelChange,
+  onMotionPreferenceChange,
   persistence,
   onSave,
   onOpenBackups,
@@ -450,10 +480,14 @@ function WorkspaceHeader({
         mode={mode}
         workspaceMode={workspaceMode}
         experienceLevel={experienceLevel}
+        motionPreference={motionPreference}
+        effectiveMotion={effectiveMotion}
+        systemReducedMotion={systemReducedMotion}
         contextStatementId={session.selectedStatementId}
         onModeChange={onModeChange}
         onWorkspaceModeChange={onWorkspaceModeChange}
         onExperienceLevelChange={onExperienceLevelChange}
+        onMotionPreferenceChange={onMotionPreferenceChange}
       />
 
       <div className="history-actions" aria-label="脚本历史">
@@ -3458,6 +3492,15 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const [mode, setMode] = useState<StudioMode>("sequence");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevelId>("pro");
+  const [motionPreference, setMotionPreference] = useState<MotionPreferenceId>(() => {
+    try { return loadMotionPreference(globalThis.localStorage); } catch { return "simplified"; }
+  });
+  const [systemReducedMotion, setSystemReducedMotion] = useState(false);
+  const effectiveMotion = effectiveMotionLevel(motionPreference, systemReducedMotion);
+  const motionFrameAudit = useMotionFrameAudit(
+    typeof globalThis.location !== "undefined" && motionFrameAuditRequested(globalThis.location.search),
+    `${mode}:${workspaceMode}:${effectiveMotion}`
+  );
   const [workspaceContextStatus, setWorkspaceContextStatus] = useState<"session" | "restored" | "missing" | "invalid">("session");
   const modeRef = useRef(mode);
   const workspaceModeRef = useRef(workspaceMode);
@@ -3465,6 +3508,21 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   modeRef.current = mode;
   workspaceModeRef.current = workspaceMode;
   experienceLevelRef.current = experienceLevel;
+  useEffect(() => {
+    if (typeof globalThis.matchMedia !== "function") return;
+    const query = globalThis.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setSystemReducedMotion(query.matches);
+    update();
+    if (typeof query.addEventListener === "function") {
+      query.addEventListener("change", update);
+      return () => query.removeEventListener("change", update);
+    }
+    query.addListener?.(update);
+    return () => query.removeListener?.(update);
+  }, []);
+  useEffect(() => {
+    try { storeMotionPreference(globalThis.localStorage, motionPreference); } catch { /* local preference is fail-soft */ }
+  }, [motionPreference]);
   const selectWorkspaceMode = useCallback((nextMode: WorkspaceModeId) => {
     const descriptor = workspaceModeDescriptor(nextMode);
     if (!descriptor.available) return;
@@ -4636,6 +4694,15 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       data-workspace-mode={workspaceMode}
       data-editor-view={mode}
       data-experience-level={experienceLevel}
+      data-motion-preference={motionPreference}
+      data-motion-level={effectiveMotion}
+      data-system-reduced-motion={systemReducedMotion}
+      data-motion-frame-status={motionFrameAudit.status}
+      data-motion-frame-samples={motionFrameAudit.samples}
+      data-motion-frame-p95={motionFrameAudit.p95Milliseconds ?? ""}
+      data-motion-frame-max={motionFrameAudit.maxMilliseconds ?? ""}
+      data-motion-frame-over-budget={motionFrameAudit.overBudgetFrames}
+      data-motion-frame-result={motionFrameAudit.status === "complete" ? (motionFrameAuditPasses(motionFrameAudit) ? "pass" : "fail") : motionFrameAudit.status}
       data-context-scene-id={workspaceContext.sceneId}
       data-context-statement-id={contextProjection.selectionId}
       data-inspector-object-id={contextProjection.inspectorObjectId}
@@ -4648,11 +4715,15 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         mode={mode}
         workspaceMode={workspaceMode}
         experienceLevel={experienceLevel}
+        motionPreference={motionPreference}
+        effectiveMotion={effectiveMotion}
+        systemReducedMotion={systemReducedMotion}
         session={session}
         inputDirty={inputDirty}
         onModeChange={setMode}
         onWorkspaceModeChange={selectWorkspaceMode}
         onExperienceLevelChange={setExperienceLevel}
+        onMotionPreferenceChange={setMotionPreference}
         persistence={persistence}
         onSave={() => saveToLocal("manual")}
         onOpenBackups={openBackups}

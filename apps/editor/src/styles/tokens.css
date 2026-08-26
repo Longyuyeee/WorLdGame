@@ -61,7 +61,12 @@ button {
 }
 
 button:focus-visible,
-textarea:focus-visible {
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
   outline: 2px solid var(--wg-color-border-focus);
   outline-offset: 2px;
 }

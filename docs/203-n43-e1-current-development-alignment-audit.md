@@ -52,7 +52,7 @@
 3. **产品闭环继续滞后（高风险）**：M1 `0/27`，`REQ-GAL` 未开始，正式 Player/Android/三端构建均未形成产品结果。
 4. **堆叠集成风险（中高风险）**：审计起点已比 main 多 336 个提交，Authority PR #61 仍是 Draft。继续叠加会提高冲突、回归定位和维护者审阅成本。
 5. **UI 摊大饼风险仍存在（中风险）**：E1a 修正顶部模式结构和两个真实布局缺陷，但大量专业工具仍集中在单页；必须通过模式任务边界、渐进披露和可恢复上下文收敛，不能仅继续增加面板。
-6. **包体债（中风险）**：N43-E2 Editor production JS 为 `912.48 kB / gzip 254.91 kB`，继续存在 `>500 kB` 警告；尚未形成按任务加载和正式 Optimization 构建闭环。
+6. **包体债（中风险）**：N43-E3 Editor production JS 为 `916.36 kB / gzip 256.11 kB`，继续存在 `>500 kB` 警告；Motion CSS 已独立，但尚未形成按任务加载和正式 Optimization 构建闭环。
 
 ## 4. 本次真实证据
 
@@ -70,7 +70,7 @@
 
 ## 5. 纠偏后的下一步
 
-1. **N43-E2 已关闭，进入 E3**：Beginner/Pro 可逆披露证据见 [#205](205-n43-e2-progressive-disclosure-audit.md)；下一步冻结全局 Motion/State、减少动效、可中断过渡和帧时间。
+1. **N43-E3 已关闭，进入 E4**：Beginner/Pro 见 [#205](205-n43-e2-progressive-disclosure-audit.md)，三级 Motion/State 和真实帧预算见 [#206](206-n43-e3-motion-state-semantics-audit.md)；下一步关闭键盘/触屏等价、跨视图同步预算和 N43 Engineering 出口矩阵。
 2. **N43 后续模式必须按真实任务开放**：Production、Debug & QA、Mobile Focus 在拥有可执行任务、负例和真实浏览器证据前继续 disabled。
 3. **N43 出口停止扩张 UI 面板**：完成 Beginner/Pro、减少动效、键盘/触屏等价和跨视图 500ms 后退出；不把 Production 变成资源面板堆叠。
 4. **N43 后回到用户产品闭环**：按新治理授权优先正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。
