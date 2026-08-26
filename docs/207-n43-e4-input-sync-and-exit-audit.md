@@ -1,9 +1,9 @@
 # N43-E4 输入等价、跨视图同步与出口审计
 
-> 日期：2026-08-26  
-> 分支：`codex/n43-e4-input-sync`  
-> 直接基线：N43-E3 `35646e1`，Draft PR #78 最终头 GitHub run `32927510219` 绿色  
-> 授权：`RA-N21-008`，只覆盖 N43 Engineering  
+> 日期：2026-08-26
+> 分支：`codex/n43-e4-input-sync`
+> 直接基线：N43-E3 `35646e1`，Draft PR #78 最终头 GitHub run `32927510219` 绿色
+> 授权：`RA-N21-008`，只覆盖 N43 Engineering
 > 判定：**E4 共同交互切片完成；N43 Engineering 总出口不通过（4/7 模式），Product Acceptance、N50+、M1 Stable 与发布继续阻断。**
 
 ## 1. 冻结目标
