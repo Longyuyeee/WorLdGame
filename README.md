@@ -44,6 +44,8 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |
 | [N43-E7 Mobile Focus 与 Engineering 出口审计](docs/210-n43-e7-mobile-focus-and-engineering-exit-audit.md) | Canonical 手机专注写作、IME/触控替代、真实窄屏差异修正、七模式 7/7 与出口边界 |
 | [N43→N50 治理检查点](docs/211-n43-n50-governance-checkpoint.md) | RA-N21-009 有界准入、正式 Player Core 同源约束、N51 越界反例与 N50-E1 冻结起点 |
+| [N50-E1 正式 Player Core 审计](docs/212-n50-e1-formal-player-core-audit.md) | Canonical→Compiler→Runtime/Host→Player snapshot、最小共享 Shell、production browser 与差异修正 |
+| [N50-E1 暂停开发与换机交接审计](docs/213-n50-e1-development-handoff-2026-08-26.md) | 暂停头、远端证据、换机迁移边界、恢复命令与后续严格顺序 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |
