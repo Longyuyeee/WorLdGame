@@ -67,6 +67,30 @@
       "allowedWorkspaceDependencies": []
     },
     {
+      "path": "packages/player-core",
+      "packageName": "@world-studio/player-core",
+      "kind": "portable-candidate",
+      "stability": "candidate",
+      "owner": "Player Experience Owner",
+      "allowedWorkspaceDependencies": [
+        "@world-studio/project-compiler",
+        "@world-studio/project-domain",
+        "@world-studio/runtime",
+        "@world-studio/runtime-host"
+      ]
+    },
+    {
+      "path": "apps/player-shell",
+      "packageName": "@world-studio/player-shell",
+      "kind": "product",
+      "stability": "candidate",
+      "owner": "Player Experience Owner",
+      "allowedWorkspaceDependencies": [
+        "@world-studio/player-core",
+        "@world-studio/project-domain"
+      ]
+    },
+    {
       "path": "packages/project-compiler",
       "packageName": "@world-studio/project-compiler",
       "kind": "portable-candidate",

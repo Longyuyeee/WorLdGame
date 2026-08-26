@@ -9,6 +9,7 @@ const auditedRoots = [
   join(repoRoot, "packages", "project-compiler", "src"),
   join(repoRoot, "packages", "runtime", "src"),
   join(repoRoot, "packages", "runtime-host", "src"),
+  join(repoRoot, "packages", "player-core", "src"),
   join(repoRoot, "packages", "route-graph", "src"),
   join(repoRoot, "packages", "story-core", "src"),
   join(repoRoot, "packages", "story-language", "src"),
@@ -147,6 +148,9 @@ const runtimePackage = JSON.parse(
 const runtimeHostPackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "runtime-host", "package.json"), "utf8")
 );
+const playerCorePackage = JSON.parse(
+  await readFile(join(repoRoot, "packages", "player-core", "package.json"), "utf8")
+);
 const routeGraphPackage = JSON.parse(
   await readFile(join(repoRoot, "packages", "route-graph", "package.json"), "utf8")
 );
@@ -164,6 +168,15 @@ if (JSON.stringify(runtimeDependencies) !== JSON.stringify(["@world-studio/proje
 const runtimeHostDependencies = Object.keys(runtimeHostPackage.dependencies ?? {}).sort();
 if (JSON.stringify(runtimeHostDependencies) !== JSON.stringify(["@world-studio/runtime"])) {
   violations.push("runtime-host may depend only on the formal runtime in N32-E7");
+}
+const playerCoreDependencies = Object.keys(playerCorePackage.dependencies ?? {}).sort();
+if (JSON.stringify(playerCoreDependencies) !== JSON.stringify([
+  "@world-studio/project-compiler",
+  "@world-studio/project-domain",
+  "@world-studio/runtime",
+  "@world-studio/runtime-host"
+])) {
+  violations.push("player-core may depend only on formal Compiler, Domain, Runtime, and Runtime Host in N50-E1");
 }
 const routeGraphDependencies = Object.keys(routeGraphPackage.dependencies ?? {}).sort();
 if (JSON.stringify(routeGraphDependencies) !== JSON.stringify(["@world-studio/project-compiler", "@world-studio/project-domain"])) {
@@ -329,6 +342,7 @@ if (violations.length > 0) {
           "project-compiler is portable and depends only on project-domain/story-language, never the VM spike or platform APIs",
           "runtime is portable and depends only on project-compiler, never the VM spike, editor, filesystem, wall clock, randomness, or platform APIs",
           "runtime-host is portable and depends only on formal runtime, never UI, DOM, shell, filesystem, wall clock, randomness, or platform APIs",
+          "player-core is portable and consumes only canonical project, formal Compiler IR, Runtime, and Runtime Host without a parallel StoryStatement interpreter",
           "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",

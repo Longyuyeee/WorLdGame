@@ -1,0 +1,10 @@
+import { jsx as _jsx } from "react/jsx-runtime";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { loadProject, migrateS0Project } from "@world-studio/project-domain";
+import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
+import { PlayerShell } from "./PlayerShell";
+const source = benchmarkSource;
+const migrated = loadProject(migrateS0Project(source).files);
+const project = { ...migrated, variables: { schemaVersion: 1, variables: source.variables ?? [] } };
+createRoot(document.getElementById("root")).render(_jsx(StrictMode, { children: _jsx(PlayerShell, { project: project }) }));

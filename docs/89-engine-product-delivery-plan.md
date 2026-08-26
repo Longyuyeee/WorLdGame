@@ -450,6 +450,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 准入状态（2026-08-26）：N43 Engineering 出口后，产品负责人再次明确要求进入后续步骤。[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)以 `RA-N21-009` 只准入本节点 Engineering；N50 Product Acceptance、N51+、Android 实体包、M1 与发布继续 fail closed。E1 必须先建立消费正式 Compiler/Runtime/Host 的最小 Player Core，禁止把旧独立 `StoryStatement` 试玩解释器改名为正式 Player。
 
+> E1 实施状态（2026-08-26）：[N50-E1 审计](212-n50-e1-formal-player-core-audit.md)建立 portable `@world-studio/player-core` 与最小共享 Player Shell，Canonical 工程只经正式 Compiler/Runtime/Host 形成标题、对白/旁白、选择、结局与错误 snapshot。production browser 在 1280×720 和 390×844 完成指针/键盘双路线，窄屏 overflow 0、触控目标 52–56px、console 0；首测旧 Fixture 变量、React 双实例和技术角色 ID 差异均已修正。E1 不等于三宿主、媒体 Adapter、存档/历史/设置或 Product Acceptance 完成。
+
 - **Goal**：形成可嵌入 Web/Windows/Android 的正式玩家。
 - **Implementation**：标题、开始/继续、对话、选择、历史、设置、存读档、错误页；鼠标/键盘/触摸/基础手柄；响应式安全区；无障碍语义。
 - **Acceptance**：同一 Player Core 被三宿主使用，不复制剧情逻辑。
