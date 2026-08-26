@@ -4,7 +4,8 @@
 > 分支：`codex/n43-e1b-workspace-context`
 > 直接基线：`codex/n43-e1-workspace-modes`
 > 授权：`RA-N21-008`，仅覆盖 N43 Engineering
-> 状态：实现、自动化、真实 Chromium、完整本地工程门均通过；远端推送与 CI 状态以本次提交后的 GitHub 记录为准
+> Draft PR：#76，base `codex/n43-e1-workspace-modes`
+> 状态：实现、自动化、真实 Chromium、完整本地工程门均通过；分支已推送，Windows / Node 22 CI 已触发但本审计不等待或预报结果
 > 判定：治理 #201 定义的 N43-E1 Engineering 已关闭；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 
 ## 1. 冻结目标与事实边界
