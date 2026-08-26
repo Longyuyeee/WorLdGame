@@ -426,6 +426,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1a 七工作模式骨架（2026-08-25）：[N43-E1a 审计](202-n43-e1-workspace-mode-foundation-audit.md)冻结七个稳定模式 ID，开放 Writer、Director、Flow、Quick Start，Production、Debug & QA、Mobile Focus 在真实任务实现前明确禁用；Sequence/Script/Flow 被纠正为编辑视图而非工作模式。真实浏览器证明模式切换保持同一对白和 `r0`，Director 加宽 Preview、Quick Start 收起 Scene Rail；首次桌面截图发现 1920×1080 舞台被 flex 压成 18px 横带，修正后真实 Canvas 为 `606.781×340.438`；390px 首次截图发现返回按钮遮挡底部视图导航，修正后矩形不相交且文档横向溢出为 0。E1a 不宣称完整七模式、Product Acceptance 或真人通过；治理 #201 冻结的保存重开上下文闭环由 E1b 关闭，详见[当前对齐审计](203-n43-e1-current-development-alignment-audit.md)。
 
+> E1b 统一上下文（2026-08-26）：[N43-E1b 审计](204-n43-e1b-workspace-context-audit.md)把 workspace mode、editor view、scene stable-ID 与 statement stable-ID 写入同一版本化上下文，并让 Selection、Inspector 与创作态 Runtime 位置只从它派生。真实 Chrome 走产品首页、示例工程、Director、保存 s1、整页重载、最近工程重开后仍恢复 `scn_rooftop / stmt_rooftop_001`，三个投影零漂移，390px Preview 为 `352×198` 且横向溢出 0；favicon 404 与 Harness Windows 清理差异已按实际复跑关闭。广义 E1 Engineering 至此关闭；不包含 live Playable Runtime 会话恢复、其余三模式、Product Acceptance 或真人通过。下一切片为 E2 Beginner/Pro 可逆渐进披露。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。
