@@ -66,4 +66,6 @@ RA-009 不允许：
 - 全部 production build 和 93 portable / 4 adapter 架构通过；Editor CSS `126.46/22.88 kB`、JS `936.99/261.39 kB`，既有分包债保持。
 - Script 性能 `13/13` 通过；Route 编辑 P95 `271.85ms <500ms`，Lazy Route `375.56ms <500ms`，Global Lazy Index `385.56ms <500ms`。
 - 完整单链首次在最后的既有 Dicing Atlas 子预算得到 `3081.98ms >3000ms`，总计仍为 `4550.22ms <5000ms`、净节省 `85.83%`。不修改代码或门槛，原命令隔离复跑 Atlas `2048.65ms <3000ms`、总计 `3378.74ms <5000ms`，`4/4` 通过。该本机负载差异保留，等待远端完整门裁决。
-- 远端 Windows / Node 22 完整门：**待首次推送后回填**。
+- 治理实现头 `4d8d079` 的远端 Windows / Node 22 完整门已绿色：run `32948798413` / job `98115312148`，用时 `12m33s`。普通回归 `137/780`、storage `1/1` 均通过；冻结 VM 核心测试 `65.418s <90s`，关闭本机仅余 0.17 秒的风险差异；Route 编辑 P95 `138.51ms <500ms`、Global Lazy Index `243.30ms <500ms`；Dicing Atlas `1758.31ms <3000ms`、总计 `3215.87ms <5000ms`，关闭本机首跑超预算差异。远端 Editor CSS `126.46/22.88 kB`、JS `937.07/261.38 kB`，分包债保持。
+
+远端裁决通过后，本治理检查点关闭，允许从该头建立 N50-E1 产品分支。它只解除 N50 Engineering 前置，不解除 N50 Product Acceptance、N51+、Android 实体包、M1 Stable 或发布门。
