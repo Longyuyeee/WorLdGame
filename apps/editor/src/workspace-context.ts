@@ -1,6 +1,7 @@
 import type { JsonObject, ProjectSnapshot } from "@world-studio/project-persistence";
 import type { StudioMode, StudioSession } from "./studio-session";
 import { WORKSPACE_MODES, type WorkspaceModeId } from "./workspace-modes";
+import type { ExperienceLevelId } from "./experience-level";
 
 export const WORKSPACE_CONTEXT_FIELD = "worldStudioWorkspaceContext";
 
@@ -8,6 +9,7 @@ export interface WorkspaceContextV1 {
   readonly schemaVersion: 1;
   readonly workspaceMode: WorkspaceModeId;
   readonly editorView: StudioMode;
+  readonly experienceLevel: ExperienceLevelId;
   readonly sceneId: string;
   readonly statementId: string;
 }
@@ -33,6 +35,7 @@ function defaultContext(session: StudioSession): WorkspaceContextV1 {
     schemaVersion: 1,
     workspaceMode: "writer",
     editorView: "sequence",
+    experienceLevel: "pro",
     sceneId: session.activeSceneId,
     statementId: session.selectedStatementId
   };
@@ -49,10 +52,12 @@ function parseContext(value: unknown): WorkspaceContextV1 | null {
   const descriptor = WORKSPACE_MODES.find((candidate) => candidate.id === value.workspaceMode);
   if (descriptor === undefined || !descriptor.available ||
       !EDITOR_VIEWS.includes(value.editorView as StudioMode)) return null;
+  if (value.experienceLevel !== undefined && value.experienceLevel !== "beginner" && value.experienceLevel !== "pro") return null;
   return {
     schemaVersion: 1,
     workspaceMode: descriptor.id,
     editorView: value.editorView as StudioMode,
+    experienceLevel: value.experienceLevel === "beginner" ? "beginner" : "pro",
     sceneId: value.sceneId,
     statementId: value.statementId
   };
@@ -61,7 +66,8 @@ function parseContext(value: unknown): WorkspaceContextV1 | null {
 export function createWorkspaceContext(
   session: StudioSession,
   workspaceMode: WorkspaceModeId,
-  editorView: StudioMode
+  editorView: StudioMode,
+  experienceLevel: ExperienceLevelId = "pro"
 ): WorkspaceContextV1 {
   const descriptor = WORKSPACE_MODES.find((candidate) => candidate.id === workspaceMode);
   if (descriptor === undefined || !descriptor.available) {
@@ -71,6 +77,7 @@ export function createWorkspaceContext(
     schemaVersion: 1,
     workspaceMode,
     editorView,
+    experienceLevel,
     sceneId: session.activeSceneId,
     statementId: session.selectedStatementId
   };
@@ -93,6 +100,7 @@ export function persistWorkspaceContext(
     schemaVersion: context.schemaVersion,
     workspaceMode: context.workspaceMode,
     editorView: context.editorView,
+    experienceLevel: context.experienceLevel,
     sceneId: context.sceneId,
     statementId: context.statementId
   };

@@ -11,6 +11,9 @@ const baseUrl = "http://127.0.0.1:5177/";
 const desktopScreenshotPath = join(evidenceDirectory, "workspace-context-desktop.png");
 const mobileScreenshotPath = join(evidenceDirectory, "workspace-context-mobile.png");
 const evidencePath = join(evidenceDirectory, "workspace-context-browser.json");
+const progressiveDesktopScreenshotPath = join(evidenceDirectory, "progressive-disclosure-desktop.png");
+const progressiveMobileScreenshotPath = join(evidenceDirectory, "progressive-disclosure-mobile.png");
+const progressiveEvidencePath = join(evidenceDirectory, "progressive-disclosure-browser.json");
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
@@ -364,7 +367,144 @@ try {
   };
   await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
   console.log(JSON.stringify(evidence, null, 2));
-  if (!passed) process.exitCode = 1;
+
+  await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await new Promise((resolvePromise) => setTimeout(resolvePromise, 300));
+  await clickExpression(client, "Array.from(document.querySelectorAll('[role=radio]')).find((element) => element.textContent?.trim() === 'Beginner')", "Beginner experience");
+  await waitForCondition(client, "document.querySelector('[data-testid=workspace-shell]')?.getAttribute('data-experience-level') === 'beginner'", "Beginner disclosure");
+  const beginnerBeforeEdit = await evaluate(client, `(() => { const shell = document.querySelector('[data-testid="workspace-shell"]'); const stage = document.querySelector('.stage-track'); const search = document.querySelector('.project-search'); const advancedToolbar = document.querySelector('.statement-toolbar:not(.statement-toolbar--legacy)'); const preview = document.querySelector('.stage-preview')?.getBoundingClientRect(); return {
+    experienceLevel: shell?.getAttribute('data-experience-level'),
+    mode: shell?.getAttribute('data-workspace-mode'),
+    view: shell?.getAttribute('data-editor-view'),
+    sceneId: shell?.getAttribute('data-context-scene-id'),
+    statementId: shell?.getAttribute('data-context-statement-id'),
+    revision: document.querySelector('.save-state')?.textContent?.trim(),
+    editorTabs: Array.from(document.querySelectorAll('[role=tab]')).map((element) => element.textContent?.trim()),
+    workspaceModes: Array.from(document.querySelectorAll('.workspace-mode-button')).map((element) => element.textContent?.trim()),
+    stageMounted: stage !== null,
+    stageDisplay: stage === null ? null : getComputedStyle(stage).display,
+    projectSearchDisplay: search === null ? null : getComputedStyle(search).display,
+    advancedToolbarDisplay: advancedToolbar === null ? null : getComputedStyle(advancedToolbar).display,
+    dialogue: document.querySelector('#dialogue-editor')?.value,
+    previewRatio: preview === undefined || preview.height === 0 ? 0 : preview.width / preview.height
+  }; })()`);
+  const dialogueFocused = await evaluate(client, `(() => { const input = document.querySelector('#dialogue-editor'); if (!(input instanceof HTMLTextAreaElement)) return false; input.focus(); input.setSelectionRange(0, input.value.length); return document.activeElement === input; })()`);
+  if (!dialogueFocused) throw new Error("Could not focus Beginner dialogue editor");
+  const beginnerText = "留言里的星星仍在风里发亮。";
+  await client.send("Input.insertText", { text: beginnerText });
+  await evaluate(client, "document.activeElement instanceof HTMLElement && document.activeElement.blur()");
+  await waitForCondition(client, `document.querySelector('#dialogue-editor')?.value === ${JSON.stringify(beginnerText)} && document.querySelector('.save-state')?.textContent?.includes('r1') === true`, "Beginner Canonical dialogue commit");
+  const beginnerAfterEdit = await evaluate(client, `(() => { const shell = document.querySelector('[data-testid="workspace-shell"]'); return {
+    experienceLevel: shell?.getAttribute('data-experience-level'),
+    statementId: shell?.getAttribute('data-context-statement-id'),
+    inspectorObjectId: shell?.getAttribute('data-inspector-object-id'),
+    runtimeStatementId: shell?.getAttribute('data-runtime-statement-id'),
+    revision: document.querySelector('.save-state')?.textContent?.trim(),
+    dialogue: document.querySelector('#dialogue-editor')?.value
+  }; })()`);
+  const progressiveDesktopScreenshot = await screenshot(client, progressiveDesktopScreenshotPath);
+
+  await clickExpression(client, "Array.from(document.querySelectorAll('[role=radio]')).find((element) => element.textContent?.trim() === 'Pro')", "Pro experience");
+  await waitForCondition(client, "document.querySelector('[data-testid=workspace-shell]')?.getAttribute('data-experience-level') === 'pro'", "Pro disclosure restore");
+  const proRestored = await evaluate(client, `(() => { const shell = document.querySelector('[data-testid="workspace-shell"]'); const stage = document.querySelector('.stage-track'); const search = document.querySelector('.project-search'); const advancedToolbar = document.querySelector('.statement-toolbar:not(.statement-toolbar--legacy)'); return {
+    experienceLevel: shell?.getAttribute('data-experience-level'),
+    mode: shell?.getAttribute('data-workspace-mode'),
+    view: shell?.getAttribute('data-editor-view'),
+    sceneId: shell?.getAttribute('data-context-scene-id'),
+    statementId: shell?.getAttribute('data-context-statement-id'),
+    revision: document.querySelector('.save-state')?.textContent?.trim(),
+    editorTabs: Array.from(document.querySelectorAll('[role=tab]')).map((element) => element.textContent?.trim()),
+    workspaceModeCount: document.querySelectorAll('.workspace-mode-button').length,
+    stageDisplay: stage === null ? null : getComputedStyle(stage).display,
+    projectSearchDisplay: search === null ? null : getComputedStyle(search).display,
+    advancedToolbarDisplay: advancedToolbar === null ? null : getComputedStyle(advancedToolbar).display,
+    dialogue: document.querySelector('#dialogue-editor')?.value
+  }; })()`);
+  await clickExpression(client, "Array.from(document.querySelectorAll('[role=tab]')).find((element) => element.textContent?.trim() === 'Script')", "Script view");
+  await waitForCondition(client, "document.querySelector('[data-testid=workspace-shell]')?.getAttribute('data-editor-view') === 'script'", "Script advanced context");
+  await clickExpression(client, "Array.from(document.querySelectorAll('[role=radio]')).find((element) => element.textContent?.trim() === 'Beginner')", "Beginner from Script");
+  const retainedAdvancedView = await evaluate(client, `(() => { const shell = document.querySelector('[data-testid="workspace-shell"]'); return {
+    experienceLevel: shell?.getAttribute('data-experience-level'),
+    view: shell?.getAttribute('data-editor-view'),
+    statementId: shell?.getAttribute('data-context-statement-id'),
+    tabs: Array.from(document.querySelectorAll('[role=tab]')).map((element) => ({ label: element.textContent?.trim(), selected: element.getAttribute('aria-selected') }))
+  }; })()`);
+  await clickExpression(client, "Array.from(document.querySelectorAll('[role=tab]')).find((element) => element.textContent?.trim() === 'Sequence')", "Sequence view before save");
+  await clickExpression(client, "document.querySelector('.local-save-button')", "Save Beginner context");
+  await waitForCondition(client, "document.querySelector('.local-save-button')?.textContent?.includes('已保存 · s2') === true", "verified Beginner save s2");
+  await navigate(client, baseUrl);
+  await waitForCondition(client, "document.querySelector('.project-home__recent li button') !== null", "recent project for Beginner reopen");
+  await clickExpression(client, "document.querySelector('.project-home__recent li button')", "Reopen Beginner project");
+  await enterSelectedProject(client);
+  await waitForCondition(client, "document.querySelector('.local-save-button')?.textContent?.includes('已恢复 · s2') === true", "verified Beginner reopen s2");
+  const reopenedBeginner = await evaluate(client, `(() => { const shell = document.querySelector('[data-testid="workspace-shell"]'); return {
+    experienceLevel: shell?.getAttribute('data-experience-level'),
+    mode: shell?.getAttribute('data-workspace-mode'),
+    view: shell?.getAttribute('data-editor-view'),
+    sceneId: shell?.getAttribute('data-context-scene-id'),
+    statementId: shell?.getAttribute('data-context-statement-id'),
+    inspectorObjectId: shell?.getAttribute('data-inspector-object-id'),
+    runtimeStatementId: shell?.getAttribute('data-runtime-statement-id'),
+    dialogue: document.querySelector('#dialogue-editor')?.value,
+    saveLabel: document.querySelector('.local-save-button')?.textContent?.trim()
+  }; })()`);
+  await client.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await new Promise((resolvePromise) => setTimeout(resolvePromise, 500));
+  const progressiveMobile = await evaluate(client, `(() => { const shell = document.querySelector('[data-testid="workspace-shell"]'); const preview = document.querySelector('.stage-preview')?.getBoundingClientRect(); return {
+    experienceLevel: shell?.getAttribute('data-experience-level'),
+    width: innerWidth,
+    height: innerHeight,
+    documentScrollWidth: document.documentElement.scrollWidth,
+    horizontalOverflow: Math.max(0, document.documentElement.scrollWidth - innerWidth),
+    previewWidth: preview?.width ?? 0,
+    previewHeight: preview?.height ?? 0,
+    previewRatio: preview === undefined || preview.height === 0 ? 0 : preview.width / preview.height
+  }; })()`);
+  const progressiveMobileScreenshot = await screenshot(client, progressiveMobileScreenshotPath);
+  const progressivePassed = beginnerBeforeEdit.experienceLevel === "beginner" && beginnerBeforeEdit.mode === "director" &&
+    beginnerBeforeEdit.view === "sequence" && beginnerBeforeEdit.statementId === "stmt_rooftop_001" &&
+    beginnerBeforeEdit.editorTabs.join(",") === "Sequence" && beginnerBeforeEdit.workspaceModes.length === 3 &&
+    beginnerBeforeEdit.stageMounted && beginnerBeforeEdit.stageDisplay === "none" &&
+    beginnerBeforeEdit.projectSearchDisplay === "none" && beginnerBeforeEdit.advancedToolbarDisplay === "none" &&
+    Math.abs(beginnerBeforeEdit.previewRatio - 16 / 9) < 0.03 &&
+    beginnerAfterEdit.dialogue === beginnerText && beginnerAfterEdit.revision?.includes("r1") === true &&
+    beginnerAfterEdit.statementId === "stmt_rooftop_001" && beginnerAfterEdit.inspectorObjectId === "stmt_rooftop_001" &&
+    beginnerAfterEdit.runtimeStatementId === "stmt_rooftop_001" && proRestored.experienceLevel === "pro" &&
+    proRestored.editorTabs.length === 3 && proRestored.workspaceModeCount === 7 &&
+    proRestored.stageDisplay !== "none" && proRestored.projectSearchDisplay !== "none" &&
+    proRestored.advancedToolbarDisplay !== "none" && proRestored.dialogue === beginnerText &&
+    retainedAdvancedView.experienceLevel === "beginner" && retainedAdvancedView.view === "script" &&
+    retainedAdvancedView.statementId === "stmt_rooftop_001" && retainedAdvancedView.tabs.some((tab) => tab.label === "Script" && tab.selected === "true") &&
+    reopenedBeginner.experienceLevel === "beginner" && reopenedBeginner.mode === "director" && reopenedBeginner.view === "sequence" &&
+    reopenedBeginner.statementId === "stmt_rooftop_001" && reopenedBeginner.inspectorObjectId === "stmt_rooftop_001" &&
+    reopenedBeginner.runtimeStatementId === "stmt_rooftop_001" && reopenedBeginner.dialogue === beginnerText &&
+    reopenedBeginner.saveLabel === "已恢复 · s2" && progressiveMobile.width === 390 &&
+    progressiveMobile.horizontalOverflow === 0 && Math.abs(progressiveMobile.previewRatio - 16 / 9) < 0.03 && browserFailures.length === 0;
+  const progressiveEvidence = {
+    schemaVersion: 1,
+    node: "N43-E2",
+    scope: "real-chromium-beginner-edit-pro-restore-advanced-context-save-reopen-mobile",
+    generatedAt: new Date().toISOString(),
+    environment: evidence.environment,
+    expectation: {
+      beginner: { visibleEditorTabs: ["Sequence"], visibleWorkspaceModes: 3, hiddenAdvancedSurfaces: true },
+      edit: { statementId: "stmt_rooftop_001", revision: "r1", text: beginnerText },
+      pro: { visibleEditorTabs: 3, visibleWorkspaceModes: 7, contextUnchanged: true },
+      advancedContext: { beginnerRetainsCurrentScriptView: true },
+      reopen: { experienceLevel: "beginner", saveLabel: "已恢复 · s2", contextUnchanged: true },
+      mobile: { width: 390, horizontalOverflow: 0, previewRatio: "16:9 ± 0.03" },
+      browserFailures: 0
+    },
+    actual: { beginnerBeforeEdit, beginnerAfterEdit, proRestored, retainedAdvancedView, reopenedBeginner, mobile: progressiveMobile, browserFailures },
+    screenshots: [
+      { path: "evidence/n43/progressive-disclosure-desktop.png", width: 1440, height: 900, ...progressiveDesktopScreenshot },
+      { path: "evidence/n43/progressive-disclosure-mobile.png", width: 390, height: 844, ...progressiveMobileScreenshot }
+    ],
+    result: progressivePassed ? "PASS" : "FAIL"
+  };
+  await writeFile(progressiveEvidencePath, `${JSON.stringify(progressiveEvidence, null, 2)}\n`);
+  console.log(JSON.stringify(progressiveEvidence, null, 2));
+  if (!passed || !progressivePassed) process.exitCode = 1;
 } finally {
   if (client !== undefined) {
     await client.send("Browser.close").catch(() => undefined);

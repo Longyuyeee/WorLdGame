@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "node": "N43-E1b",
   "scope": "real-chromium-mode-select-save-close-reopen-desktop-mobile",
-  "generatedAt": "2026-08-26T01:32:16.822Z",
+  "generatedAt": "2026-08-26T02:02:41.522Z",
   "environment": {
     "product": "Chrome/151.0.7922.170",
     "protocolVersion": "1.3",
@@ -82,15 +82,15 @@
       "path": "evidence/n43/workspace-context-desktop.png",
       "width": 1440,
       "height": 900,
-      "bytes": 335260,
-      "sha256": "7b692b58a25466251b0639dd5f2f86b9750fdc7c6ecc10a7881ac04e75b6cb6c"
+      "bytes": 325489,
+      "sha256": "6ca754c81c5603c09b1de3567a9ef5c81b705c70ed4de824053ac79174629a92"
     },
     {
       "path": "evidence/n43/workspace-context-mobile.png",
       "width": 390,
       "height": 844,
-      "bytes": 142121,
-      "sha256": "fe72215fe0ca19c82756f658da0904e51da0e34a3119335836af571e7aa29c82"
+      "bytes": 140708,
+      "sha256": "4c058c09d35571ba9ca9c23438d1ed621bea3a49b0d3048c160bd0e3545abf1d"
     }
   ],
   "result": "PASS"

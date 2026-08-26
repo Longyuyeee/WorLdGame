@@ -428,6 +428,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1b 统一上下文（2026-08-26）：[N43-E1b 审计](204-n43-e1b-workspace-context-audit.md)把 workspace mode、editor view、scene stable-ID 与 statement stable-ID 写入同一版本化上下文，并让 Selection、Inspector 与创作态 Runtime 位置只从它派生。真实 Chrome 走产品首页、示例工程、Director、保存 s1、整页重载、最近工程重开后仍恢复 `scn_rooftop / stmt_rooftop_001`，三个投影零漂移，390px Preview 为 `352×198` 且横向溢出 0；favicon 404 与 Harness Windows 清理差异已按实际复跑关闭。广义 E1 Engineering 至此关闭；不包含 live Playable Runtime 会话恢复、其余三模式、Product Acceptance 或真人通过。下一切片为 E2 Beginner/Pro 可逆渐进披露。
 
+> E2 可逆渐进披露（2026-08-26）：[N43-E2 审计](205-n43-e2-progressive-disclosure-audit.md)增加 Beginner/Pro 两级布局，不改变 Canonical Story 或当前 stable-ID。Beginner 真实收敛到 1 个编辑视图、3 个任务模式和“场景—对白—预览”路径，高级组件保持挂载；Pro 恢复 3 个视图、7 个模式身份和完整工具。真实 Chrome 在 Beginner 修改对白 `r0→r1`、切 Pro、保留已开 Script、保存 s2、整页重载后仍恢复同一上下文；390px overflow 0、Preview `352×198`、console 0。E2 不宣称其余三模式可用、AC-12 完成或 Product Acceptance。
+
 - **Goal**：Writer、Director、Flow、Production、Debug & QA、Mobile Focus、Quick Start 修改同一工程。
 - **Implementation**：模式是布局/工具优先级，不是独立数据；Beginner/Pro 可逆；统一语义色/图标；减少动效；选中/上下文同步协议。
 - **Acceptance**：AC-03、04、10、11、12 全部在桌面通过，移动任务另在 N91 验收。
