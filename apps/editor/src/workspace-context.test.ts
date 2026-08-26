@@ -34,6 +34,7 @@ describe("N43-E1b unified workspace context", () => {
       context: {
         workspaceMode: "director",
         editorView: "sequence",
+        experienceLevel: "pro",
         sceneId: "scn_rooftop",
         statementId: "stmt_rooftop_001"
       },
@@ -93,6 +94,35 @@ describe("N43-E1b unified workspace context", () => {
     expect(restoreWorkspaceContext(snapshot, restoreStudioSession(snapshot))).toMatchObject({
       status: "invalid",
       context: { workspaceMode: "writer", editorView: "sequence" }
+    });
+  });
+
+  it("restores old contexts as Pro and rejects an unknown experience level", () => {
+    const session = createStudioSession();
+    const legacy = persistWorkspaceContext(createProjectSnapshot(session, 1), createWorkspaceContext(session, "writer", "sequence"));
+    const legacyField = legacy.preservedFields?.[WORKSPACE_CONTEXT_FIELD];
+    if (typeof legacyField !== "object" || legacyField === null || Array.isArray(legacyField)) throw new Error("missing context fixture");
+    const withoutLevel = {
+      ...legacy,
+      preservedFields: {
+        ...legacy.preservedFields,
+        [WORKSPACE_CONTEXT_FIELD]: Object.fromEntries(Object.entries(legacyField).filter(([key]) => key !== "experienceLevel"))
+      }
+    };
+    expect(restoreWorkspaceContext(withoutLevel, restoreStudioSession(withoutLevel))).toMatchObject({
+      status: "restored",
+      context: { experienceLevel: "pro" }
+    });
+    const unknown = {
+      ...legacy,
+      preservedFields: {
+        ...legacy.preservedFields,
+        [WORKSPACE_CONTEXT_FIELD]: { ...legacyField, experienceLevel: "expert" }
+      }
+    };
+    expect(restoreWorkspaceContext(unknown, restoreStudioSession(unknown))).toMatchObject({
+      status: "invalid",
+      context: { experienceLevel: "pro" }
     });
   });
 });

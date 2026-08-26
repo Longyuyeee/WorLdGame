@@ -5,7 +5,8 @@
 > 直接基线：`codex/n43-e1-workspace-modes`
 > 授权：`RA-N21-008`，仅覆盖 N43 Engineering
 > Draft PR：#76，base `codex/n43-e1-workspace-modes`
-> 状态：实现、自动化、真实 Chromium、完整本地工程门均通过；分支已推送，Windows / Node 22 CI 已触发但本审计不等待或预报结果
+> Windows CI：run `32920741797` / job `98033699049`，6 分 49 秒，绿色
+> 状态：实现、自动化、真实 Chromium、本地工程门与远端 Windows / Node 22 完整门均通过
 > 判定：治理 #201 定义的 N43-E1 Engineering 已关闭；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 
 ## 1. 冻结目标与事实边界
@@ -78,4 +79,4 @@ Production、Debug & QA、Mobile Focus 继续 disabled；E1b 没有为它们创�
 
 ## 6. 下一步
 
-进入 N43-E2：先冻结 Beginner/Pro 可逆渐进披露，让 Beginner 隐藏复杂度但不改变 Canonical 能力、Pro 可无损恢复完整工具；继续以真实任务限制模式边界，避免单页继续摊大饼。Production、Debug & QA、Mobile Focus 在各自拥有真实任务闭环前保持 disabled。后续仍需减少动效、键盘/触屏等价、跨视图帧时间与真实设备证据，完成后再审计 N43 Engineering 出口。
+N43-E2 已于 2026-08-26 完成 Beginner/Pro 可逆渐进披露，见 [#205](205-n43-e2-progressive-disclosure-audit.md)。下一步为 E3 Motion/State 语义；Production、Debug & QA、Mobile Focus 在各自拥有真实任务闭环前保持 disabled。

@@ -89,6 +89,13 @@ import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
 import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
 import {
+  EXPERIENCE_LEVELS,
+  experienceLevelDescriptor,
+  visibleEditorViews,
+  visibleWorkspaceModes,
+  type ExperienceLevelId
+} from "./experience-level";
+import {
   createWorkspaceContext,
   persistWorkspaceContext,
   restoreWorkspaceContext,
@@ -319,9 +326,11 @@ interface CommonProps {
 interface WorkspaceHeaderProps extends CommonProps {
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
+  readonly experienceLevel: ExperienceLevelId;
   readonly inputDirty: boolean;
   readonly onModeChange: (mode: StudioMode) => void;
   readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
+  readonly onExperienceLevelChange: (level: ExperienceLevelId) => void;
   readonly persistence: PersistenceViewState;
   readonly onSave: () => void;
   readonly onOpenBackups: () => void;
@@ -330,22 +339,32 @@ interface WorkspaceHeaderProps extends CommonProps {
 interface WorkspaceNavigationProps {
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
+  readonly experienceLevel: ExperienceLevelId;
   readonly contextStatementId: string;
   readonly onModeChange: (mode: StudioMode) => void;
   readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
+  readonly onExperienceLevelChange: (level: ExperienceLevelId) => void;
 }
 
 const WorkspaceNavigation = memo(function WorkspaceNavigation({
   mode,
   workspaceMode,
+  experienceLevel,
   contextStatementId,
   onModeChange,
-  onWorkspaceModeChange
+  onWorkspaceModeChange,
+  onExperienceLevelChange
 }: WorkspaceNavigationProps) {
+  const visibleModeIds = visibleWorkspaceModes(
+    experienceLevel,
+    workspaceMode,
+    WORKSPACE_MODES.map((candidate) => candidate.id)
+  );
+  const visibleViews = visibleEditorViews(experienceLevel, mode, Object.keys(modeLabels) as StudioMode[]);
   return (
     <div className="workspace-navigation">
       <nav className="workspace-mode-switcher" aria-label="工作模式" role="radiogroup">
-        {WORKSPACE_MODES.map((candidate) => (
+        {WORKSPACE_MODES.filter((candidate) => visibleModeIds.includes(candidate.id)).map((candidate) => (
           <button
             type="button"
             role="radio"
@@ -363,11 +382,27 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
         ))}
       </nav>
       <div className="workspace-navigation__lower">
+        <div className="experience-switcher" role="radiogroup" aria-label="编辑复杂度">
+          {EXPERIENCE_LEVELS.map((candidate) => (
+            <button
+              type="button"
+              role="radio"
+              aria-checked={candidate.id === experienceLevel}
+              className={candidate.id === experienceLevel ? "experience-button is-active" : "experience-button"}
+              key={candidate.id}
+              title={candidate.summary}
+              onClick={() => onExperienceLevelChange(candidate.id)}
+            >
+              {candidate.label}
+            </button>
+          ))}
+          <output aria-live="polite">{experienceLevelDescriptor(experienceLevel).summary}</output>
+        </div>
         <output className="workspace-mode-summary" aria-label="统一工作上下文" aria-live="polite">
           {workspaceModeDescriptor(workspaceMode).summary} · {contextStatementId}
         </output>
         <nav className="mode-switcher" aria-label="编辑视图" role="tablist">
-          {(Object.keys(modeLabels) as StudioMode[]).map((candidate) => (
+          {visibleViews.map((candidate) => (
             <button
               className={candidate === mode ? "mode-tab is-active" : "mode-tab"}
               key={candidate}
@@ -388,10 +423,12 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
 function WorkspaceHeader({
   mode,
   workspaceMode,
+  experienceLevel,
   session,
   inputDirty,
   onModeChange,
   onWorkspaceModeChange,
+  onExperienceLevelChange,
   persistence,
   onSave,
   onOpenBackups,
@@ -412,9 +449,11 @@ function WorkspaceHeader({
       <WorkspaceNavigation
         mode={mode}
         workspaceMode={workspaceMode}
+        experienceLevel={experienceLevel}
         contextStatementId={session.selectedStatementId}
         onModeChange={onModeChange}
         onWorkspaceModeChange={onWorkspaceModeChange}
+        onExperienceLevelChange={onExperienceLevelChange}
       />
 
       <div className="history-actions" aria-label="脚本历史">
@@ -3418,11 +3457,14 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
+  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevelId>("pro");
   const [workspaceContextStatus, setWorkspaceContextStatus] = useState<"session" | "restored" | "missing" | "invalid">("session");
   const modeRef = useRef(mode);
   const workspaceModeRef = useRef(workspaceMode);
+  const experienceLevelRef = useRef(experienceLevel);
   modeRef.current = mode;
   workspaceModeRef.current = workspaceMode;
+  experienceLevelRef.current = experienceLevel;
   const selectWorkspaceMode = useCallback((nextMode: WorkspaceModeId) => {
     const descriptor = workspaceModeDescriptor(nextMode);
     if (!descriptor.available) return;
@@ -3487,6 +3529,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     const resolution = restoreWorkspaceContext(snapshot, restoredSession);
     setWorkspaceMode(resolution.context.workspaceMode);
     setMode(resolution.context.editorView);
+    setExperienceLevel(resolution.context.experienceLevel);
     setRequestedFocusStatementId(resolution.context.statementId);
     setWorkspaceContextStatus(resolution.status);
     return resolution.session;
@@ -3911,7 +3954,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         nextRevision,
         persistedSnapshotRef.current
       ),
-      createWorkspaceContext(sessionRef.current, workspaceModeRef.current, modeRef.current)
+      createWorkspaceContext(sessionRef.current, workspaceModeRef.current, modeRef.current, experienceLevelRef.current)
     );
     const transactionId = `${reason}_save_${nextRevision}_${++saveSerial.current}`;
     const nowMs = Date.now();
@@ -4585,13 +4628,14 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     );
   }
 
-  const workspaceContext = createWorkspaceContext(session, workspaceMode, mode);
+  const workspaceContext = createWorkspaceContext(session, workspaceMode, mode, experienceLevel);
   const contextProjection = workspaceContextProjection(workspaceContext);
   return (
     <div
       className="app-shell"
       data-workspace-mode={workspaceMode}
       data-editor-view={mode}
+      data-experience-level={experienceLevel}
       data-context-scene-id={workspaceContext.sceneId}
       data-context-statement-id={contextProjection.selectionId}
       data-inspector-object-id={contextProjection.inspectorObjectId}
@@ -4603,10 +4647,12 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       <WorkspaceHeader
         mode={mode}
         workspaceMode={workspaceMode}
+        experienceLevel={experienceLevel}
         session={session}
         inputDirty={inputDirty}
         onModeChange={setMode}
         onWorkspaceModeChange={selectWorkspaceMode}
+        onExperienceLevelChange={setExperienceLevel}
         persistence={persistence}
         onSave={() => saveToLocal("manual")}
         onOpenBackups={openBackups}
