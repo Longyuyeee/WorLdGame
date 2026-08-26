@@ -88,6 +88,12 @@ import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
 import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
+import {
+  createWorkspaceContext,
+  persistWorkspaceContext,
+  restoreWorkspaceContext,
+  workspaceContextProjection
+} from "./workspace-context";
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import {
   WEB_ASSET_IMPORT_MAX_BYTES,
@@ -324,6 +330,7 @@ interface WorkspaceHeaderProps extends CommonProps {
 interface WorkspaceNavigationProps {
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
+  readonly contextStatementId: string;
   readonly onModeChange: (mode: StudioMode) => void;
   readonly onWorkspaceModeChange: (mode: WorkspaceModeId) => void;
 }
@@ -331,6 +338,7 @@ interface WorkspaceNavigationProps {
 const WorkspaceNavigation = memo(function WorkspaceNavigation({
   mode,
   workspaceMode,
+  contextStatementId,
   onModeChange,
   onWorkspaceModeChange
 }: WorkspaceNavigationProps) {
@@ -355,8 +363,8 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
         ))}
       </nav>
       <div className="workspace-navigation__lower">
-        <output className="workspace-mode-summary" aria-live="polite">
-          {workspaceModeDescriptor(workspaceMode).summary}
+        <output className="workspace-mode-summary" aria-label="统一工作上下文" aria-live="polite">
+          {workspaceModeDescriptor(workspaceMode).summary} · {contextStatementId}
         </output>
         <nav className="mode-switcher" aria-label="编辑视图" role="tablist">
           {(Object.keys(modeLabels) as StudioMode[]).map((candidate) => (
@@ -404,6 +412,7 @@ function WorkspaceHeader({
       <WorkspaceNavigation
         mode={mode}
         workspaceMode={workspaceMode}
+        contextStatementId={session.selectedStatementId}
         onModeChange={onModeChange}
         onWorkspaceModeChange={onWorkspaceModeChange}
       />
@@ -3409,6 +3418,11 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
+  const [workspaceContextStatus, setWorkspaceContextStatus] = useState<"session" | "restored" | "missing" | "invalid">("session");
+  const modeRef = useRef(mode);
+  const workspaceModeRef = useRef(workspaceMode);
+  modeRef.current = mode;
+  workspaceModeRef.current = workspaceMode;
   const selectWorkspaceMode = useCallback((nextMode: WorkspaceModeId) => {
     const descriptor = workspaceModeDescriptor(nextMode);
     if (!descriptor.available) return;
@@ -3468,6 +3482,15 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const [backupPanelOpen, setBackupPanelOpen] = useState(false);
   const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
   const [backupsLoading, setBackupsLoading] = useState(false);
+
+  const restoreSessionAndContext = useCallback((snapshot: ProjectSnapshot, restoredSession: StudioSession) => {
+    const resolution = restoreWorkspaceContext(snapshot, restoredSession);
+    setWorkspaceMode(resolution.context.workspaceMode);
+    setMode(resolution.context.editorView);
+    setRequestedFocusStatementId(resolution.context.statementId);
+    setWorkspaceContextStatus(resolution.status);
+    return resolution.session;
+  }, []);
 
   useEffect(() => {
     if (lifecycleHosted) onProjectChangeRef.current?.(session.project);
@@ -3742,7 +3765,10 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             "项目已恢复，但备份索引需要检查。";
         }
         if (cancelled) return;
-        const restored = restoreStudioSession(snapshot, sessionRef.current.project);
+        const restored = restoreSessionAndContext(
+          snapshot,
+          restoreStudioSession(snapshot, sessionRef.current.project)
+        );
         persistedSnapshotRef.current = snapshot;
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
@@ -3879,10 +3905,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     if (reason === "manual") autosaveSuspended.current = false;
     const generation = editGeneration.current;
     const nextRevision = storageRevision.current + 1;
-    const snapshot = createProjectSnapshot(
-      sessionRef.current,
-      nextRevision,
-      persistedSnapshotRef.current
+    const snapshot = persistWorkspaceContext(
+      createProjectSnapshot(
+        sessionRef.current,
+        nextRevision,
+        persistedSnapshotRef.current
+      ),
+      createWorkspaceContext(sessionRef.current, workspaceModeRef.current, modeRef.current)
     );
     const transactionId = `${reason}_save_${nextRevision}_${++saveSerial.current}`;
     const nowMs = Date.now();
@@ -4015,7 +4044,10 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         setAssetIndex(committed.index);
         setAssetLifecycle(committed.manifest);
       }
-      const restored = restoreStudioSession(result.snapshot, sessionRef.current.project);
+      const restored = restoreSessionAndContext(
+        result.snapshot,
+        restoreStudioSession(result.snapshot, sessionRef.current.project)
+      );
       persistedSnapshotRef.current = result.snapshot;
       storageRevision.current = result.snapshot.storageRevision;
       editGeneration.current += 1;
@@ -4553,8 +4585,21 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     );
   }
 
+  const workspaceContext = createWorkspaceContext(session, workspaceMode, mode);
+  const contextProjection = workspaceContextProjection(workspaceContext);
   return (
-    <div className="app-shell" data-workspace-mode={workspaceMode} data-testid="workspace-shell">
+    <div
+      className="app-shell"
+      data-workspace-mode={workspaceMode}
+      data-editor-view={mode}
+      data-context-scene-id={workspaceContext.sceneId}
+      data-context-statement-id={contextProjection.selectionId}
+      data-inspector-object-id={contextProjection.inspectorObjectId}
+      data-runtime-scene-id={contextProjection.runtimeSceneId}
+      data-runtime-statement-id={contextProjection.runtimeStatementId}
+      data-context-restore-status={workspaceContextStatus}
+      data-testid="workspace-shell"
+    >
       <WorkspaceHeader
         mode={mode}
         workspaceMode={workspaceMode}

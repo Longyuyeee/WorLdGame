@@ -1,15 +1,15 @@
-# 当前开发情况审计（N43-E1a 工作模式基础，广义 E1 仍未关闭）
+# 当前开发情况审计（N43-E1 Engineering 已关闭，进入 E2）
 
-> 审计日期：2026-08-25
-> 当前分支：`codex/n43-e1-workspace-modes`；直接基线为 `codex/n43-governance-checkpoint`
+> 审计日期：2026-08-26
+> 当前分支：`codex/n43-e1b-workspace-context`；直接基线为 `codex/n43-e1-workspace-modes`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
-> 最新节点证据：[N43-E1a 七工作模式骨架与真实布局审计](202-n43-e1-workspace-mode-foundation-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
+> 最新节点证据：[N43-E1b 统一工作区上下文审计](204-n43-e1b-workspace-context-audit.md)、[N43-E1a 七工作模式骨架审计](202-n43-e1-workspace-mode-foundation-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-25 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心已明显偏向 Compiler/Runtime/Route/Sequence/Stage 工程底座，用户可见的 Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 闭环明显滞后。** N42 已冻结退出；当前 `RA-N21-008` 只允许完成 N43 必需的模式/布局基础，N43 后必须优先转向正式 Player 与 Gal 产品闭环，禁止把工程测试数量换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)与[治理 #201](201-n42-n43-governance-checkpoint.md)。
+2026-08-26 纠偏结论是：**产品目标和架构没有发生替换性偏移，但开发重心已明显偏向 Compiler/Runtime/Route/Sequence/Stage 工程底座，用户可见的 Gal Settings、正式 Player、Gallery UI、Android、三端构建与商业 Benchmark 闭环明显滞后。** N43-E1a/E1b 已关闭模式基础和统一上下文保存重开；当前授权仍只允许 N43 Engineering，禁止把 E1 工程闭环或测试数量换算成商业完成度。详见[审计 #191](191-initial-requirements-alignment-and-drift-audit.md)、[治理 #201](201-n42-n43-governance-checkpoint.md)与[E1b 审计 #204](204-n43-e1b-workspace-context-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,9 +20,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1a 工作模式基础已完成：7 个稳定模式 ID、4 个可用布局、3 个明确禁用未来模式，模式切换保持 Canonical `r0`；真实桌面/390px 浏览器通过，Draft PR #75 最终代码头 Windows run `32832227228` / job `97753258991` 用时 6 分 30 秒并绿色。治理 #201 所定义的广义 E1 仍缺保存重开上下文闭环，由 E1b 继续**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1a + E1b 已关闭广义 E1：7 个稳定模式 ID、4 个可用布局、3 个禁用未来模式，以及 mode/view/scene/statement 单一可恢复上下文；真实 Chrome 保存、整页重载、最近工程重开后三个投影零漂移。下一切片为 E2 Beginner/Pro**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；当前 N43-E1a 分支由 Draft PR #75 承载，最终代码头 run `32832227228` / job `97753258991` 用时 6 分 30 秒并绿色。审计起点相对 `origin/main` 为 `0 behind / 336 ahead`，本轮文档提交会继续增加 ahead 计数，因此不得把堆叠 PR 绿色换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a 由 Draft PR #75 承载，E1b 已推送为其上的堆叠 Draft PR #76。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -38,7 +38,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Player/Build | N23 独立单文件 HTML 候选，可确定性离线打开 | 当前候选仍是平行 `StoryStatement` 解释器，不是正式 Runtime Player；正式 Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Dicing/资源分析原型与预算测试 | Optimization Center、平台变体、真机收益报告和包体闭环 |
 
-N43-E1a 新增的 Writer、Director、Flow、Quick Start 是同一编辑器的布局/工具优先级，不是四份工程数据。Production、Debug & QA、Mobile Focus 保持禁用；Sequence、Script、Flow 继续作为编辑视图。桌面真实浏览器首次发现默认 1920×1080 舞台容器被 flex 压成 18px 横带，修正后 Canvas 为 `606.781×340.438`；390px 首次发现返回按钮与底部视图导航重叠，修正后不相交、文档横向溢出为 0。详见[审计 #202](202-n43-e1-workspace-mode-foundation-audit.md)。
+N43-E1a 新增的 Writer、Director、Flow、Quick Start 是同一编辑器的布局/工具优先级，不是四份工程数据。E1b 进一步把 mode/view/scene/statement 保存为单一上下文，让 Selection、Inspector 与创作态 Runtime 只从它派生；真实 Chrome 在 Director 保存、整页重载、最近工程重开后仍精确恢复 `scn_rooftop / stmt_rooftop_001`。Production、Debug & QA、Mobile Focus 保持禁用；Sequence、Script、Flow 继续作为编辑视图。390px Preview `352×198`，整页横向溢出 0。详见[审计 #202](202-n43-e1-workspace-mode-foundation-audit.md)与[#204](204-n43-e1b-workspace-context-audit.md)。
 
 ## 3. N32-E1–E6 证据与差异
 
@@ -97,11 +97,10 @@ N43-E1a 新增的 Writer、Director、Flow、Quick Start 是同一编辑器的�
 
 ## 5. 下一步顺序
 
-1. N43-E1b 冻结统一 Selection/Context：当前场景、stable-ID 语句、Inspector 对象和 Runtime 位置只有一个可恢复事实；
-2. 用真实工程完成 Writer→Director→Flow→Quick Start→保存→关闭→重开→定位不漂移，并记录预期、实际、差异和修正；
-3. Production、Debug & QA、Mobile Focus 在真实任务闭环前保持 disabled，不用空面板冒充七模式完成；
-4. N43 完成 Beginner/Pro、减少动效、键盘/触屏等价和跨视图性能后停止扩张编辑器面板；
-5. 维护者审阅 main-target Draft PR #61 及堆叠 PR 的合并策略；自动化不擅自合并或关闭；
-6. N43 后按新治理授权转向正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。
+1. N43-E2 冻结 Beginner/Pro 可逆渐进披露：Beginner 隐藏复杂度但不改变 Canonical 能力，切回 Pro 无损恢复上下文；
+2. Production、Debug & QA、Mobile Focus 在真实任务闭环前保持 disabled，不用空面板冒充七模式完成；
+3. N43 完成减少动效、键盘/触屏等价和跨视图性能后停止扩张编辑器面板；
+4. 维护者审阅 main-target Draft PR #61 及堆叠 PR 的合并策略；自动化不擅自合并或关闭；
+5. N43 后按新治理授权转向正式 Player 与 Gal Settings，再进入自动页面、Optimization 产品面、三端构建和双端编辑器。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

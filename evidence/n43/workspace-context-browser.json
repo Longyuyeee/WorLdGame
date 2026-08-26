@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "node": "N43-E1b",
+  "scope": "real-chromium-mode-select-save-close-reopen-desktop-mobile",
+  "generatedAt": "2026-08-26T01:32:16.822Z",
+  "environment": {
+    "product": "Chrome/151.0.7922.170",
+    "protocolVersion": "1.3",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "headless": true,
+    "url": "http://127.0.0.1:5177/"
+  },
+  "expectation": {
+    "initial": {
+      "mode": "writer",
+      "view": "sequence"
+    },
+    "persistedContext": {
+      "mode": "director",
+      "view": "sequence",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "inspectorObjectId": "stmt_rooftop_001",
+      "runtimeSceneId": "scn_rooftop",
+      "runtimeStatementId": "stmt_rooftop_001"
+    },
+    "reopenStatus": "restored",
+    "saveLabel": "已恢复 · s1",
+    "mobile": {
+      "width": 390,
+      "horizontalOverflow": 0,
+      "previewRatio": "16:9 ± 0.03"
+    },
+    "browserFailures": 0
+  },
+  "actual": {
+    "initial": {
+      "mode": "writer",
+      "view": "sequence",
+      "sceneId": "scn_school_gate",
+      "statementId": "stmt_gate_bg"
+    },
+    "beforeSave": {
+      "mode": "director",
+      "view": "sequence",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "inspectorObjectId": "stmt_rooftop_001",
+      "runtimeSceneId": "scn_rooftop",
+      "runtimeStatementId": "stmt_rooftop_001",
+      "revision": "r0"
+    },
+    "reopened": {
+      "mode": "director",
+      "view": "sequence",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "inspectorObjectId": "stmt_rooftop_001",
+      "runtimeSceneId": "scn_rooftop",
+      "runtimeStatementId": "stmt_rooftop_001",
+      "restoreStatus": "restored",
+      "activeModeLabel": "Director",
+      "saveLabel": "已恢复 · s1",
+      "contextLabel": "舞台、时间线与即时预览 · stmt_rooftop_001"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "documentScrollWidth": 390,
+      "horizontalOverflow": 0,
+      "mode": "director",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "previewWidth": 352,
+      "previewHeight": 198,
+      "previewRatio": 1.7777777777777777
+    },
+    "browserFailures": []
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n43/workspace-context-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 335260,
+      "sha256": "7b692b58a25466251b0639dd5f2f86b9750fdc7c6ecc10a7881ac04e75b6cb6c"
+    },
+    {
+      "path": "evidence/n43/workspace-context-mobile.png",
+      "width": 390,
+      "height": 844,
+      "bytes": 142121,
+      "sha256": "fe72215fe0ca19c82756f658da0904e51da0e34a3119335836af571e7aa29c82"
+    }
+  ],
+  "result": "PASS"
+}

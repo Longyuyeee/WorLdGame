@@ -7,7 +7,7 @@
 > Draft PR：#75，base `codex/n43-governance-checkpoint`
 > Windows CI：run `32831410443` / job `97750710122`，8 分 11 秒，绿色
 > 状态：本地实现与真实浏览器验收通过；远端 Windows 完整门通过
-> 判定：E1a 工作模式基础 Engineering 完成；治理 #201 所定义的广义 E1 仍缺保存重开上下文闭环，留给 E1b；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
+> 当时判定：E1a 工作模式基础 Engineering 完成；治理 #201 所定义的广义 E1 尚缺保存重开上下文闭环，留给 E1b。后续 E1b 已于 2026-08-26 关闭，见 [#204](204-n43-e1b-workspace-context-audit.md)；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 
 ## 1. 冻结目标与范围
 
@@ -76,6 +76,8 @@ Canvas 比例与数学 16:9 的小幅差异来自设备像素取整和边框盒�
 - `AC-12`：本切片只复用现有 motion token；未完成 `prefers-reduced-motion`、可中断动效和 60 FPS 证据，状态不提升。
 - N21/N23 真人仍分别为 `0/1`、`0/2`；开发者真实浏览器验收不能替代真人 Product Acceptance。
 
-## 6. 下一步
+## 6. E1b 后续关闭记录
 
-N43-E1b 应冻结跨视图 Selection/Context 协议，把“当前场景、当前 stable-ID 语句、当前 Runtime 位置、当前 Inspector 对象”定义为可测试的单一上下文，并贯通 Writer/Director/Flow/Quick Start 的定位和保存重开。E1b 关闭后才进入 E2；Production、Debug & QA、Mobile Focus 在拥有真实任务前继续禁用，不新增空壳页面。
+2026-08-26，E1b 已冻结跨视图 Selection/Context 协议，把“当前场景、当前 stable-ID 语句、创作态 Runtime 位置、Inspector 对象”收敛为一份可保存和恢复的工作区上下文。真实 Chromium 已完成 Writer→Director→保存→整页重载→最近工程重开→精确定位，Selection/Inspector/Runtime 投影零漂移；详见 [N43-E1b 审计](204-n43-e1b-workspace-context-audit.md)。
+
+因此治理 #201 定义的广义 E1 Engineering 已关闭，下一切片为 E2 Beginner/Pro 可逆渐进披露。Production、Debug & QA、Mobile Focus 在拥有真实任务前继续禁用，不新增空壳页面。
