@@ -3,6 +3,7 @@
 > 日期：2026-08-26
 > 分支：`codex/n43-e3-motion-state`
 > 直接基线：N43-E2 `650a2d3`，Draft PR #77 Windows / Node 22 run `32924595480` / job `98044825491` 绿色
+> GitHub：堆叠 Draft PR #78（base `codex/n43-e2-progressive-disclosure`）
 > 授权：`RA-N21-008`，仅覆盖 N43 Engineering
 > 判定：E3 Engineering 完成；N43 总体、Product Acceptance、N50+、M1 Stable 与发布仍阻断
 

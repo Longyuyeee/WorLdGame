@@ -1,7 +1,7 @@
 # 当前开发情况审计（N43-E3 Motion/State 完成，进入 E4）
 
 > 审计日期：2026-08-26
-> 当前分支：`codex/n43-e2-progressive-disclosure`；直接基线为 `codex/n43-e1b-workspace-context`
+> 当前分支：`codex/n43-e3-motion-state`；直接基线为 `codex/n43-e2-progressive-disclosure`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-008` 只允许 N43 七工作模式 Engineering；2026-09-24 15:12:18（UTC+8）到期
 > 最新节点证据：[N43-E3 Motion/State 审计](206-n43-e3-motion-state-semantics-audit.md)、[N43-E2 Beginner/Pro 审计](205-n43-e2-progressive-disclosure-audit.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)；治理证据：[N42→N43 治理检查点](201-n42-n43-governance-checkpoint.md)
@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42 Engineering：**出口已通过并冻结**；N43 Engineering：**E1 关闭模式/统一上下文，E2 关闭 Beginner/Pro，E3 关闭三级 Motion/State 与真实帧门；下一切片为 E4 键盘/触屏等价、跨视图预算和出口矩阵**；全部 Product Acceptance、N50+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2 分别由堆叠 Draft PR #75、#76、#77 承载。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a、E1b、E2、E3 分别由堆叠 Draft PR #75、#76、#77、#78 承载。不得把堆叠 PR、本地绿门或进行中的远端 CI 换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
