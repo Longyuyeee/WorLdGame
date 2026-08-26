@@ -1,10 +1,10 @@
 # N50-E1 暂停开发与换机交接审计
 
-> 日期：2026-08-26  
-> 暂停分支：`codex/n50-e1-player-core`  
-> 暂停前提交：`bf848e6`  
-> 上游：`origin/codex/n50-e1-player-core`  
-> Draft PR：[#84](https://github.com/Longyuyeee/WorLdGame/pull/84)，基于 `codex/n43-n50-governance`  
+> 日期：2026-08-26
+> 暂停分支：`codex/n50-e1-player-core`
+> 暂停前提交：`bf848e6`
+> 上游：`origin/codex/n50-e1-player-core`
+> Draft PR：[#84](https://github.com/Longyuyeee/WorLdGame/pull/84)，基于 `codex/n43-n50-governance`
 > 判定：可以安全暂停并换机；已完成内容已进入 Git/GitHub，未发现未提交源码或文档
 
 ## 1. 暂停时的真实开发位置
