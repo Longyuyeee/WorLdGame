@@ -17,6 +17,7 @@ describe("N43 workspace mode registry", () => {
       "director",
       "flow",
       "production",
+      "debug-qa",
       "quick-start"
     ]);
   });

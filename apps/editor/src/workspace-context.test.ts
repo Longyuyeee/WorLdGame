@@ -83,7 +83,7 @@ describe("N43-E1b unified workspace context", () => {
       preservedFields: {
         [WORKSPACE_CONTEXT_FIELD]: {
           schemaVersion: 1,
-          workspaceMode: "debug-qa",
+          workspaceMode: "mobile-focus",
           editorView: "flow",
           sceneId: session.activeSceneId,
           statementId: session.selectedStatementId
