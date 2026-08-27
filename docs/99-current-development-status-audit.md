@@ -4,7 +4,7 @@
 > 当前分支：`codex/n51-e2-settings-catalog-editor`；直接基线为 N51-E1 最终绿色头 `c2257e4`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N51-E2 Settings Catalog 与 Editing Service](223-n51-e2-settings-catalog-editor-audit.md)、[N51-E1 Typed Gal Settings Core](222-n51-e1-typed-gal-settings-core-audit.md)、[N50→N51 治理检查点](221-n50-n51-governance-checkpoint.md)
+> 最新节点证据：[N51-E2 暂停与后续步骤检查点](224-n51-e2-pause-and-next-step-checkpoint.md)、[N51-E2 Settings Catalog 与 Editing Service](223-n51-e2-settings-catalog-editor-audit.md)、[N51-E1 Typed Gal Settings Core](222-n51-e1-typed-gal-settings-core-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -127,6 +127,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-010` 只准入 N51 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. RA-010 只准入 N51 Engineering；E2 远端裁决后进入 Canonical Project settings/undo transaction 接入，N52 继续阻断。
+6. RA-010 只准入 N51 Engineering；E2 已由同头本地/远端绿门关闭，下一步按[暂停检查点](224-n51-e2-pause-and-next-step-checkpoint.md)进入 E3 Canonical Project settings/undo transaction，N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
