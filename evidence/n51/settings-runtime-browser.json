@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "node": "N51-E5",
+  "scope": "cold-production-player-settings-hot-application-desktop-390x844",
+  "generatedAt": "2026-08-27T17:10:10.119Z",
+  "build": {
+    "playerDistIndexSha256": "f700c2f522c1237443b16c265a9e04e4704db37102e53386417d6462fb8ee65b"
+  },
+  "environment": {
+    "product": "Chrome/120.0.6099.225",
+    "protocolVersion": "1.3",
+    "headless": true,
+    "url": "http://127.0.0.1:5182/?demo=settings"
+  },
+  "expectation": {
+    "settingsOnlyRetainsCore": true,
+    "pointerGate": false,
+    "portraitRatio": 0.5625,
+    "horizontalOverflow": 0,
+    "browserErrors": 0
+  },
+  "actual": {
+    "before": {
+      "status": "title",
+      "platform": "web",
+      "quality": "high",
+      "orientation": "landscape",
+      "pointer": "true",
+      "accepted": "true",
+      "fontScale": "1",
+      "opacity": "0.88",
+      "aspect": "1920 / 1080",
+      "stageWidth": 1180,
+      "stageHeight": 664,
+      "viewportWidth": 1440,
+      "viewportHeight": 900,
+      "overflow": 0
+    },
+    "active": {
+      "status": "presenting",
+      "platform": "web",
+      "quality": "high",
+      "orientation": "landscape",
+      "pointer": "true",
+      "accepted": "true",
+      "fontScale": "1",
+      "opacity": "0.88",
+      "aspect": "1920 / 1080",
+      "dialogue": "GuideThe quiet route.⌄",
+      "stageWidth": 1180,
+      "stageHeight": 664,
+      "viewportWidth": 1440,
+      "viewportHeight": 900,
+      "overflow": 0
+    },
+    "applied": {
+      "status": "presenting",
+      "platform": "web",
+      "quality": "low",
+      "orientation": "portrait",
+      "pointer": "false",
+      "accepted": "true",
+      "fontScale": "1.4",
+      "opacity": "0.45",
+      "aspect": "1080 / 1920",
+      "dialogue": "GuideThe quiet route.⌄",
+      "stageWidth": 484,
+      "stageHeight": 860,
+      "viewportWidth": 1440,
+      "viewportHeight": 900,
+      "overflow": 0
+    },
+    "blocked": {
+      "status": "presenting",
+      "platform": "web",
+      "quality": "low",
+      "orientation": "portrait",
+      "pointer": "false",
+      "accepted": "false",
+      "fontScale": "1.4",
+      "opacity": "0.45",
+      "aspect": "1080 / 1920",
+      "dialogue": "GuideThe quiet route.⌄",
+      "stageWidth": 484,
+      "stageHeight": 860,
+      "viewportWidth": 1440,
+      "viewportHeight": 900,
+      "overflow": 0
+    },
+    "mobile": {
+      "status": "presenting",
+      "platform": "web",
+      "quality": "low",
+      "orientation": "portrait",
+      "pointer": "false",
+      "accepted": "false",
+      "fontScale": "1.4",
+      "opacity": "0.45",
+      "aspect": "1080 / 1920",
+      "dialogue": "GuideThe quiet route.⌄",
+      "stageWidth": 390,
+      "stageHeight": 693,
+      "viewportWidth": 390,
+      "viewportHeight": 844,
+      "overflow": 0
+    },
+    "failures": []
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n51/settings-runtime-player-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "byteLength": 600554,
+      "sha256": "76bddebf4bef873adb7927e03e9db897472ea79c8c89c09a43a427e20de0ec9f"
+    },
+    {
+      "path": "evidence/n51/settings-runtime-player-mobile.png",
+      "width": 390,
+      "height": 844,
+      "byteLength": 152370,
+      "sha256": "bbb16e55abe32b60ba371e072d3398c08bb596816d678e0d849350feb5ed747c"
+    }
+  ],
+  "result": "PASS"
+}

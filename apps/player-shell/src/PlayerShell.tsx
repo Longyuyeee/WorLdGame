@@ -251,6 +251,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
       style={{
         "--gal-stage-aspect": settingsApplication.display.aspectRatio,
+        "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
         "--gal-font-scale": settingsApplication.text.fontScale,
         "--gal-message-opacity": settingsApplication.text.messageWindowOpacity
       } as React.CSSProperties}

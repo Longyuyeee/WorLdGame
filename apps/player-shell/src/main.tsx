@@ -1,5 +1,6 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { withPlatformSettings } from "@world-studio/gal-settings";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
 import branchingSource from "../../../fixtures/projects/branching/project.s0.json";
@@ -47,14 +48,34 @@ function HostLifecycleDemo() {
   </>;
 }
 
+function SettingsApplicationDemo() {
+  const [applied, setApplied] = useState(false);
+  const configured = applied ? {
+    ...inputDemoProject,
+    settings: withPlatformSettings(inputDemoProject.settings, "web", {
+      display: { designWidth: 1080, designHeight: 1920, orientation: "portrait", safeArea: "none", quality: "low" },
+      text: { charactersPerSecond: 12, minimumDisplayMilliseconds: 900, punctuationDelayMilliseconds: 240, fontScale: 1.4, messageWindowOpacity: 0.45 },
+      advance: { allowHold: false, waitForVoice: false },
+      audio: { master: 0.6, bgm: 0.5, voice: 0.7, sfx: 0.4, ambient: 0.3, ui: 0.2, voiceDucking: 0.25 },
+      input: { pointerAdvance: false, keyboardAdvance: false, touchAdvance: false, gamepadAdvance: false }
+    })
+  } : inputDemoProject;
+  return <>
+    <button className="player-demo-switch" type="button" onClick={() => setApplied((current) => !current)}>{applied ? "恢复默认设置" : "热应用运行设置"}</button>
+    <WebPlayerHost project={configured} />
+  </>;
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {demoName === "recovery"
       ? <RecoveryDemo />
       : demoName === "lifecycle"
         ? <LifecycleDemo />
-        : demoName === "host"
+      : demoName === "host"
           ? <HostLifecycleDemo />
+          : demoName === "settings"
+            ? <SettingsApplicationDemo />
           : <WebPlayerHost project={demoName === "input" ? inputDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
   </StrictMode>
 );
