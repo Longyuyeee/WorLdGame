@@ -5,6 +5,7 @@ import "@testing-library/jest-dom/vitest";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
+import { createPlayerMediaDemoV1 } from "./media-demo";
 
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -15,7 +16,7 @@ describe("N50-E1 shared Player Shell", () => {
   it("exposes formal identities and supports pointer input from title through choice", () => {
     const { container } = render(<PlayerShell project={branching()} />);
     const shell = container.querySelector("main");
-    expect(shell).toHaveAttribute("data-player-core", "0.1.0");
+    expect(shell).toHaveAttribute("data-player-core", "0.2.0");
     expect(shell).toHaveAttribute("data-compiler", "0.2.0");
     expect(shell).toHaveAttribute("data-runtime", "0.6.0");
     expect(shell).toHaveAttribute("data-runtime-host", "0.1.0");
@@ -34,5 +35,33 @@ describe("N50-E1 shared Player Shell", () => {
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
     fireEvent.keyDown(window, { key: " " });
     expect(screen.getByRole("status")).toHaveTextContent("Right");
+  });
+
+  it("renders real Stage media and completes an awaited Effect from the visible transition lifecycle", () => {
+    const demo = createPlayerMediaDemoV1();
+    const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-effect");
+    expect(screen.getByRole("status", { name: /正在呈现动效 player.media.actor.enter/u })).toBeInTheDocument();
+    expect(container.querySelector('img[data-asset-id="media_sunset"]')).toBeInTheDocument();
+    expect(container.querySelector('img[data-asset-id="media_actor_sprite"]')).toBeInTheDocument();
+    fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    const audio = container.querySelector<HTMLAudioElement>('audio[data-asset-id="media_theme"]');
+    expect(audio).toBeInTheDocument();
+    expect(audio).toHaveAttribute("data-volume", "0.6");
+    expect(audio).toHaveAttribute("data-applied-volume", "0.6");
+    expect(audio?.volume).toBe(0.6);
+    expect(container.querySelector("main")).toHaveAttribute("data-effect-operation", "execute");
+  });
+
+  it("fails visibly when a required media asset is unavailable instead of auto-completing the Effect", () => {
+    const demo = createPlayerMediaDemoV1();
+    render(<PlayerShell project={demo.project} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByRole("alert")).toHaveTextContent("media_actor_sprite");
+    expect(screen.getByRole("button", { name: "完成动效" })).toBeDisabled();
+    fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    expect(screen.getByRole("status", { name: /正在呈现动效/u })).toBeInTheDocument();
   });
 });

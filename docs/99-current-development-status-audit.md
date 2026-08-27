@@ -1,10 +1,10 @@
-# 当前开发情况审计（N50-E1 正式 Player Core Engineering 通过）
+# 当前开发情况审计（N50-E2 Player Stage/Media Engineering 通过）
 
 > 审计日期：2026-08-26
-> 当前分支：`codex/n50-e1-player-core`；直接基线为 `codex/n43-n50-governance`
+> 当前分支：`codex/n50-e2-player-presentation`；直接基线为 `codex/n50-e1-player-core`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-009` 只允许 N50 正式 Player Shell Engineering；2026-09-25 16:07:12（UTC+8）到期
-> 最新节点证据：[N50-E1 暂停开发与换机交接审计](213-n50-e1-development-handoff-2026-08-26.md)、[N50-E1 正式 Player Core 审计](212-n50-e1-formal-player-core-audit.md)、[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)；当前对齐：[N43-E1 当前开发情况与最初需求对齐审计](203-n43-e1-current-development-alignment-audit.md)
+> 最新节点证据：[N50-E2 Player Stage/Media 审计](214-n50-e2-player-stage-media-presentation-audit.md)、[N50-E1 换机交接审计](213-n50-e1-development-handoff-2026-08-26.md)、[N50-E1 正式 Player Core 审计](212-n50-e1-formal-player-core-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1 正式 Player Core 与最小共享 Shell已通过远端完整门**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 由 Draft PR #84 承载。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -33,9 +33,9 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠、跨视图定位与 Formal Runtime statement 高亮；1,000 次全 P0 Sequence/Script 互改和 84 项退出矩阵已通过；N40/N41 Engineering 出口均通过 | N21/N23 真人、N40/N41 Product Acceptance、完整 Stage/Player 仍阻断；Route-first lazy 控制流是后续大型工程增强，不是 N41 出口缺口 |
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
-| Stage/Media | 16:9 默认预览、可调尺寸、真实 Blob、Canvas 2D、基础 BG/角色/音频、安全占位；Move easing；stable-ID 关键帧；Canonical 派生 TIME/BG/CHAR/CAM/AUDIO/TEXT/STORY；两段折线路径与单命令三次贝塞尔路径；基础 Camera；作用域转场；ADV/NVL/Bubble 文本模板候选 | 镜头高级效果、独立轨道时间编辑、自定义 shader、Pixi/WebGL、三端媒体策略与正式 Player Adapter |
+| Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E2 新增正式 Player Effect snapshot 与真实 PNG/WAV adapter、awaited/cancel、Camera/Textbox 映射 | Editor↔Player 差分 Golden、多 channel、Voice/SFX、损坏恢复、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 portable presentation Host；State/History/Save/Back/Forward/调度/诊断 | Player 槽位、真实媒体 Adapter、三端一致性 |
-| Player/Build | N50-E1 已建立 portable Player Core 与最小共享 Shell；标题、开始、对白/旁白、选择、结局、错误页消费正式 Compiler/Runtime/Host；桌面/390×844 指针与键盘路线通过 | 媒体 Adapter、继续/存档/历史/设置/Auto/Skip/Back、手柄、三端正式宿主、Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺；N23 旧 HTML 仍只是平行解释器候选 |
+| Player/Build | N50-E1 portable Core/共享 Shell；E2 已消费正式 Effect snapshot，真实渲染 PNG、播放 WAV，缺资源阻断，桌面/390×844 complete/cancel 路径通过 | 存档/历史/设置/Auto/Skip/Back、Gallery、手柄、三端正式宿主、Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。
@@ -119,6 +119,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E1 已建立正式 Compiler/Runtime/Host 驱动的最小 Player Core；完整门/远端绿色后，后续切片在同一 Core 上补 Stage/Media presentation adapter 与可见 Effect 生命周期，禁止复制宿主剧情逻辑；N51 Gal Settings 继续阻断。
+5. N50-E2 已在同一 Core 上补齐首个 Stage/Media presentation adapter 与可见 Effect 生命周期；远端完整门绿色后，下一切片优先建立 Editor↔Player Media Golden 差分、媒体失败恢复和多 channel 规则；N51 Gal Settings 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

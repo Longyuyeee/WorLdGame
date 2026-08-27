@@ -49,6 +49,8 @@
 
 Golden 登记文件与编译测试互相校验，不能只改文档或只改测试绕过哈希漂移。Recovery、Size、Benchmark 的 IR 槽仍显式 pending：它们不属于 N30 计划冻结的四个 E1 接受样例。
 
+> N50-E2 纠偏注记（2026-08-27）：上表保留 N30-E1 当时的历史值。正式 Player 首次运行 Media Golden 时发现音频 `loop/volume` 未规范化，修正后的当前 Media `story.ir.json` Hash 为 `b86a7178c3cf45ead3166dbb1fba28639b963af92bc171d4e21107cbfb839aea`，Debug Build ID 为 `24e4fb2d4003aca1ebdce398dc9fca010e83af93d0d3593c044c770c43c0c9d4`；现行证据见 [N50-E2 审计](214-n50-e2-player-stage-media-presentation-audit.md)。
+
 ## 5. 架构与风险控制
 
 - `packages/project-compiler` 只能依赖 `project-domain` 与 `story-language`；架构审计禁止 Editor、DOM、Node 文件系统、平台壳及 VM Spike 反向进入。
