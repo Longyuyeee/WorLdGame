@@ -10,6 +10,7 @@
   },
   "include": ["src"],
   "references": [
+    { "path": "../../packages/gal-settings" },
     { "path": "../../packages/project-compiler" },
     { "path": "../../packages/project-domain" },
     { "path": "../../packages/runtime" },

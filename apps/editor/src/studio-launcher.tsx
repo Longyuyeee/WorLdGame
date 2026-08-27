@@ -89,6 +89,46 @@ export function StudioLauncher() {
       return { href: url, filename: `${session.title.replace(/[^a-z0-9_-]+/gi, "-") || "world-project"}.zip`, byteLength: archive.byteLength, dispose: () => URL.revokeObjectURL(url) };
     }
   };
-  if(editing?.session.project){if(editing.view==="structure")return <><button className="project-home-return" onClick={()=>setEditing(null)}>返回项目首页</button><ProjectEntityManager session={editing.session} workspace={editing.workspace} onSession={async(session)=>{const compiled=await compileLifecycleProject(editing.workspace,session);compilers.current.set(session.reference.referenceId,compiled.compiler);setEditing((current)=>current===null?current:{...current,session:compiled.session,compiler:compiled.compiler});}} onOpenEditor={(project)=>setEditing({...editing,session:{...editing.session,project},view:"content"})}/></>;return <><button className="project-home-return" onClick={()=>setEditing({...editing,view:"structure"})}>返回项目结构</button><App initialProject={editing.session.project} {...(editing.compiler===null?{}:{routeCompiler:editing.compiler})} onCanonicalProjectChange={(project)=>setEditing((current)=>current===null?current:{...current,session:markProjectDirty(current.session,project)})} onProjectChange={(story)=>setEditing((current)=>{if(current===null||current.session.project===null)return current;return {...current,session:markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story))};})} onProjectSave={async(story)=>{const current=editing;if(current.session.project===null)return;const dirty=markProjectDirty(current.session,projectCanonicalWithStory(current.session.project,story));const compiled=await saveCompiledLifecycleProject(current.workspace,dirty);compilers.current.set(compiled.session.reference.referenceId,compiled.compiler);setEditing((latest)=>latest===null?latest:{...latest,session:compiled.session,compiler:compiled.compiler});}}/></>;}
+  if (editing?.session.project) {
+    if (editing.view === "structure") return <>
+      <button className="project-home-return" onClick={() => setEditing(null)}>返回项目首页</button>
+      <ProjectEntityManager
+        session={editing.session}
+        workspace={editing.workspace}
+        onSession={async (session) => {
+          const compiled = await compileLifecycleProject(editing.workspace, session);
+          compilers.current.set(session.reference.referenceId, compiled.compiler);
+          setEditing((current) => current === null ? current : { ...current, session: compiled.session, compiler: compiled.compiler });
+        }}
+        onOpenEditor={(project) => setEditing({ ...editing, session: { ...editing.session, project }, view: "content" })}
+      />
+    </>;
+    return <>
+      <button className="project-home-return" onClick={() => setEditing({ ...editing, view: "structure" })}>返回项目结构</button>
+      <App
+        initialProject={editing.session.project}
+        {...(editing.compiler === null ? {} : { routeCompiler: editing.compiler })}
+        onCanonicalProjectChange={(project) => setEditing((current) => current === null ? current : { ...current, session: markProjectDirty(current.session, project) })}
+        onProjectChange={(story) => setEditing((current) => {
+          if (current === null || current.session.project === null) return current;
+          return { ...current, session: markProjectDirty(current.session, projectCanonicalWithStory(current.session.project, story)) };
+        })}
+        onCanonicalProjectSave={async (project) => {
+          const current = editing;
+          const compiled = await saveCompiledLifecycleProject(current.workspace, markProjectDirty(current.session, project));
+          compilers.current.set(compiled.session.reference.referenceId, compiled.compiler);
+          setEditing((latest) => latest === null ? latest : { ...latest, session: compiled.session, compiler: compiled.compiler });
+        }}
+        onProjectSave={async (story) => {
+          const current = editing;
+          if (current.session.project === null) return;
+          const dirty = markProjectDirty(current.session, projectCanonicalWithStory(current.session.project, story));
+          const compiled = await saveCompiledLifecycleProject(current.workspace, dirty);
+          compilers.current.set(compiled.session.reference.referenceId, compiled.compiler);
+          setEditing((latest) => latest === null ? latest : { ...latest, session: compiled.session, compiler: compiled.compiler });
+        }}
+      />
+    </>;
+  }
   return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"structure"});}} />;
 }
