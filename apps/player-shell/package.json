@@ -11,6 +11,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@world-studio/gal-settings": "0.1.0-n51",
     "@world-studio/player-core": "0.3.0-n50",
     "@world-studio/project-domain": "0.4.0-n13",
     "react": "19.2.8",

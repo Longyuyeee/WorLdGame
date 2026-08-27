@@ -70,6 +70,12 @@ import {
   type StoryDocument
 } from "@world-studio/story-language";
 import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
+import {
+  createGalSettingsApplicationV1,
+  galAudioGainV1,
+  galTextRevealDurationMillisecondsV1,
+  type GalAudioBusV1
+} from "@world-studio/gal-settings";
 import type { StoryProject } from "@world-studio/story-core";
 import {
   activeSourceDraft,
@@ -2858,6 +2864,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
   const [stageDirectorMessage, setStageDirectorMessage] = useState<string | null>(null);
   const devicePixelRatio = useDevicePixelRatio();
+  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(canonicalProject.settings, "web"), [canonicalProject.settings]);
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
     undefined,
@@ -2891,7 +2898,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     height: customViewport.height,
     orientation: customViewport.width >= customViewport.height ? "landscape" as const : "portrait" as const
   } : selectedPreset;
-  const stageSurface = createStageSurfaceMetrics(viewport.width, viewport.height, devicePixelRatio);
+  const stageSurface = createStageSurfaceMetrics(
+    viewport.width,
+    viewport.height,
+    Math.min(devicePixelRatio, settingsApplication.display.maximumDevicePixelRatio)
+  );
   const previewSceneId = playableActive && playable.sceneId !== null ? playable.sceneId : session.activeSceneId;
   const previewIndex = playableActive ? playable.statementIndex : session.previewIndex;
   const scene = findScene(session.project, previewSceneId);
@@ -2914,6 +2925,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const committedPreviewIndex = playableActive && hostCommitPending ? previewIndex - 1 : previewIndex;
   const stagePlan = committedPreviewIndex < 0 ? derivePreviewStagePlan([], 0) : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0);
   const dialoguePresentation = deriveDialoguePresentation(scene.statements, committedPreviewIndex, stagePlan.dialogueTemplate);
+  const dialogueText = dialoguePresentation.lines.map((line) => line.text).join("\n");
+  const dialogueRevealDuration = dialogueText === "" ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, dialogueText);
+  const voiceScheduled = stagePlan.audio.some((layer) => layer.bus === "voice" && layer.playback === "playing");
   const urlFactory = useMemo<PreviewUrlFactory>(browserPreviewUrlFactory, []);
   const [mediaView, mediaViewDispatch] = useReducer(
     reducePreviewMediaHost,
@@ -2929,6 +2943,14 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     if (result.kind === "applied") setPlayable(result.state);
     setHotUpdate(result);
   }, [canonicalProject, playableActive]);
+
+  useEffect(() => {
+    const { designWidth: width, designHeight: height } = settingsApplication.display;
+    const selected = findPreviewViewportPreset(viewportProfileId);
+    if (viewportProfileId !== "custom" && selected.width === width && selected.height === height) return;
+    setCustomViewport({ width, height });
+    setViewportProfileId("custom");
+  }, [settingsApplication.display.designHeight, settingsApplication.display.designWidth]);
 
   useEffect(() => () => webBuild?.dispose(), [webBuild]);
 
@@ -3228,8 +3250,35 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           data-stage-pixel-height={stageSurface.pixelHeight}
           data-stage-resolution-limited={stageSurface.resolutionLimited}
           data-host-commit-pending={hostCommitPending}
+          data-settings-platform="web"
+          data-settings-application={settingsApplication.version}
+          data-settings-quality={settingsApplication.display.quality}
+          data-settings-safe-area={settingsApplication.display.safeArea}
+          data-settings-orientation={settingsApplication.display.orientation}
+          data-settings-text-cps={settingsApplication.text.charactersPerSecond}
+          data-settings-text-minimum={settingsApplication.text.minimumDisplayMilliseconds}
+          data-settings-text-punctuation={settingsApplication.text.punctuationDelayMilliseconds}
+          data-settings-allow-hold={settingsApplication.advance.allowHold}
+          data-settings-wait-for-voice={settingsApplication.advance.waitForVoice}
+          data-settings-input-pointer={settingsApplication.input.pointer}
+          data-settings-input-keyboard={settingsApplication.input.keyboard}
+          data-settings-input-touch={settingsApplication.input.touch}
+          data-settings-input-gamepad={settingsApplication.input.gamepad}
+          data-settings-audio-master={settingsApplication.resolved.values.audio.master}
+          data-settings-audio-bgm={settingsApplication.resolved.values.audio.bgm}
+          data-settings-audio-voice={settingsApplication.resolved.values.audio.voice}
+          data-settings-audio-sfx={settingsApplication.resolved.values.audio.sfx}
+          data-settings-audio-ambient={settingsApplication.resolved.values.audio.ambient}
+          data-settings-audio-ui={settingsApplication.resolved.values.audio.ui}
+          data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
+          data-text-reveal-duration={dialogueRevealDuration}
           onPointerDown={placeOnStage}
-          style={{ "--preview-aspect": `${viewport.width} / ${viewport.height}` } as CSSProperties}
+          style={{
+            "--preview-aspect": `${viewport.width} / ${viewport.height}`,
+            "--gal-font-scale": settingsApplication.text.fontScale,
+            "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
+            "--gal-text-reveal-duration": `${dialogueRevealDuration}ms`
+          } as CSSProperties}
         >
           <div className="stage-chrome">
             <span>{scene.title}</span>
@@ -3241,7 +3290,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               </small>
             </span>
           </div>
-          {showSafeArea && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
+          {showSafeArea && settingsApplication.display.safeArea === "system" && <div className="stage-safe-area" data-testid="preview-safe-area" aria-hidden="true" />}
           <PreviewCanvasHost
             frame={renderFrame}
             designWidth={viewport.width}
@@ -3259,6 +3308,12 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               return <PreviewAudioLayer
                 key={`${layer.bus}:${layer.statementId}:${layer.url}`}
                 layer={{ ...layer, playback }}
+                appliedVolume={galAudioGainV1(
+                  settingsApplication,
+                  (["bgm", "voice", "sfx", "ambient", "ui"].includes(layer.bus) ? layer.bus : "sfx") as GalAudioBusV1,
+                  layer.volume,
+                  voiceScheduled
+                )}
                 onDecodeError={() => reportRuntimeMediaError("audio", layer)}
               />;
             })}
@@ -3270,7 +3325,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             </div>
           )}
           <div className="stage-content" key={statement.id} data-testid="preview-step">
-            {(statement.kind === "dialogue" || statement.kind === "narration") && <div className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
+            {(statement.kind === "dialogue" || statement.kind === "narration") && <div key={`${statement.id}:${dialogueRevealDuration}`} className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
               {dialoguePresentation.lines.map((item) => {
                 const character = item.speakerId === undefined ? undefined : findCharacter(session.project.characters, item.speakerId);
                 return <div className="dialogue-presentation__line" key={item.statementId}>
