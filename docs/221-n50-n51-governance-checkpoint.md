@@ -69,3 +69,9 @@ RA-010 不允许：
 | Asset 性能 | 全部低于预算 | `4/4` PASS；dicing total `3036.79 ms < 5000 ms` | 无差异 |
 
 本地结论采用 fail-closed：由于一次完整串行门在 VM 处真实失败，本检查点尚不以本地结果宣称关闭；只有同一提交的远端 Windows / Node 22 完整 `npm run check` 绿色，才可关闭该波动疑点。此次仅修改治理、策略测试和文档，没有产品 UI 变化，因此不制造浏览器截图来替代下一切片的 production-browser 操作证据。
+
+## 7. 远端裁决与检查点结论
+
+治理实现头 `649fc08` 的 Draft PR #90 Windows / Node 22 完整门 run `33050123723` / job `98443305419` 用时 `12m14s`，结果 PASS。远端普通回归为 `142 files / 808 tests`，N50 为 `5 files / 26 tests`；VM 10,000 seeds replay equality 实际 `68.403 s`、VM 总测试 `68.51 s < 90 s`；Route P95 `146.72 ms < 500 ms`，Script `13/13`、Route `9/9`、Asset `4/4` 均通过。
+
+预期与实际裁决：预期 VM 在冻结门限内；本机完整串行首跑超限、隔离复跑和同头远端完整门均低于门限。没有代码功能差异需要掩盖，也没有放宽预算；将本机性能余量偏低保留为后续观测风险。本治理检查点据此关闭，允许从该最终绿色基线建立 N51-E1；N51 Product Acceptance、N52 Engineering、真人/实体设备、M1 和发布仍保持阻断。

@@ -27,6 +27,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N50-E4 由 Draft PR #87 承载；实现头 `3901da4` 的 Windows / Node 22 run `33041221691` / job `98415037714` 用时 `9m6s` 绿色，普通回归 `141/801`、N50 `19/19`、VM `5/5`、autosave `2.703s`，Route P95 `112.88ms <500ms`。这只关闭 E4 Engineering，不等于实体输入设备、`main` 集成或 Product Acceptance 通过。
 - N50-E5 由 Draft PR #88 承载；实现头 `8137784` 的 Windows / Node 22 run `33043581781` / job `98422396914` 用时 `11m58s` 绿色，普通回归 `141/804`、N50 `22/22`、VM `67.313s <90s`、autosave `4.153s`、Route P95 `133.25ms <500ms`。这只关闭 E5 Engineering，不等于 Windows/Android 正式宿主、`main` 集成或 Product Acceptance 通过。
 - N50-E6 由 Draft PR #89 承载；实现头 `001a92f` 与最终头 `6580b34` 的 Windows / Node 22 完整门均绿色。普通回归 `142/808`、N50 `26/26`、VM `53.581s <90s`、Route P95 `122.31ms <500ms`。范围消歧后 N50 Engineering 通过，但 `main` 未集成、三宿主 Product Acceptance 仍失败。
+- N50→N51 治理由 Draft PR #90 承载；治理实现头 `649fc08` 的 Windows / Node 22 完整门 run `33050123723` / job `98443305419` 用时 `12m14s` 绿色，普通回归 `142/808`、VM corpus `68.403s <90s`、Route P95 `146.72ms <500ms`。这只关闭 N51 Engineering 准入检查点，不表示 N51 功能已经实现。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
