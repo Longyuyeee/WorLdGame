@@ -1,4 +1,4 @@
-# 当前开发情况审计（N50-E4 Player 输入与生命周期验证中）
+# 当前开发情况审计（N50-E4 Player 输入与生命周期 Engineering 已通过）
 
 > 审计日期：2026-08-27
 > 当前分支：`codex/n50-e4-player-input-lifecycle`；直接基线为 N50-E3 最终头 `f288162`
@@ -20,10 +20,11 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1–E3 均已通过远端完整门；E4 输入等价与 lifecycle reset 已完成真实浏览器纠偏和本机完整门，等待远端裁决**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1–E4 均已通过实现、真实浏览器、本机及远端完整门**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
+- N50-E4 由 Draft PR #87 承载；实现头 `3901da4` 的 Windows / Node 22 run `33041221691` / job `98415037714` 用时 `9m6s` 绿色，普通回归 `141/801`、N50 `19/19`、VM `5/5`、autosave `2.703s`，Route P95 `112.88ms <500ms`。这只关闭 E4 Engineering，不等于实体输入设备、`main` 集成或 Product Acceptance 通过。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -120,6 +121,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E4 已实现 Player 输入等价与 fresh lifecycle reset，等待本地/远端完整门；通过后仍只能冻结 N50 内下一最小 Player 壳切片，N51/N52 继续阻断。
+5. N50-E4 Player 输入等价与 fresh lifecycle reset 已通过本机、真实浏览器和远端完整门；下一步只能冻结 N50 内下一最小 Player 壳切片，N51/N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -4,7 +4,7 @@
 > 分支：`codex/n50-e4-player-input-lifecycle`
 > 基线：N50-E3 最终头 `f288162`
 > 授权：`RA-N21-009`，仅 N50 Engineering
-> 当前判定：实现、真实浏览器差异复测和本机完整门通过；远端 Windows / Node 22 门待补录。N50 Product Acceptance、N51/N52、Android 实体包、M1 与发布继续阻断
+> 当前判定：实现、真实浏览器差异复测、本机完整门和远端 Windows / Node 22 门均通过，N50-E4 Engineering 关闭。N50 Product Acceptance、N51/N52、Android 实体包、M1 与发布继续阻断
 
 ## 1. 冻结目标与边界
 
@@ -46,6 +46,7 @@ E4 关闭 N50 Player Shell 的下一最小切片：平台无关 intent、桌面�
 - 390×844 真实移动布局：document `390/390`，对白 `362×188`，重启按钮 `106×48`；输入来源为 pointer。没有把 click 写成实体触摸。
 - 本机完整门退出 0：普通回归 `141 files / 801 tests`，Editor integration 全绿，autosave 用例 `5.83s`，重型 VM `5/5`、测试 `55.00s`，16 workspace build、架构和 Script `13/13` 均通过；Route P95 `124.84ms`、Route `9/9`、Asset `4/4`。
 - 干净 production preview 再走完整 Right 路线并重启：`#root` 前后都只有 1 个 child，页面无 createRoot 错误文本，preview terminal 无 React error；因此开发态报错裁决为编辑 main 时的 HMR invalidation 差异，不是冷启动产品错误。
+- 实现头 `3901da4` 的 Draft PR #87 Windows / Node 22 完整门 run `33041221691` / job `98415037714` 用时 `9m6s` 并绿色：普通回归 `141 files / 801 tests`、N50 `19/19`、N42 `151/151`、重型 VM `5/5`，autosave `2.703s`；Route P95 `112.88ms <500ms`、Lazy Route Structure `253.16ms <500ms`、Global Lazy Index `210.19ms <500ms`；Player build CSS `9.87/2.95 kB`、JS `303.33/96.28 kB`（raw/gzip）。远端没有放宽规模、timeout 或预算。
 
 ## 5. 需求对齐与剩余阻断
 
@@ -55,4 +56,4 @@ E4 推进 REQ-RUNTIME 的输入边界和 N50 Goal：多输入源消费同一 Cor
 
 ## 6. 下一步
 
-远端 Windows / Node 22 绿色后，E4 Engineering 才可关闭。下一步仍须在 N50 内审计正式 Player 的剩余壳能力；进入 N51/N52 必须另行获得治理授权。N21 `0/1`、N23 `0/2`、全部 Product Acceptance、Android 实体包、M1 Stable 与 Public Release 持续 fail closed。
+N50-E4 Engineering 已由本机、真实浏览器和远端实现头共同关闭。下一步仍须在 N50 内冻结并审计正式 Player 的下一最小壳能力；进入 N51/N52 必须另行获得治理授权。N21 `0/1`、N23 `0/2`、全部 Product Acceptance、Android 实体包、M1 Stable 与 Public Release 持续 fail closed。
