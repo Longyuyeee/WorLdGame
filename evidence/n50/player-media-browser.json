@@ -82,6 +82,23 @@
       "correction": "Targeted tests and a source-backed Vite development server passed; clean remote build remains required"
     }
   ],
+  "remoteGate": {
+    "platform": "GitHub Actions Windows / Node 22",
+    "runId": 33035133175,
+    "jobId": 98396096516,
+    "conclusion": "success",
+    "duration": "11m5s",
+    "ordinaryRegression": { "files": 139, "tests": 792 },
+    "storageConformanceMilliseconds": 3714,
+    "frozenVm": { "tests": 5, "testDurationSeconds": 64.35, "budgetSeconds": 90 },
+    "routeP95Milliseconds": 136.94,
+    "playerBuild": {
+      "cssKilobytes": 8.92,
+      "cssGzipKilobytes": 2.76,
+      "javascriptKilobytes": 297.33,
+      "javascriptGzipKilobytes": 94.65
+    }
+  },
   "artifacts": [
     {
       "path": "evidence/n50/player-media-desktop.png",

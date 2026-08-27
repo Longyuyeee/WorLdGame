@@ -4,7 +4,7 @@
 > 分支：`codex/n50-e2-player-presentation`
 > 基线：N50-E1 最终交接头 `f41f728`
 > 授权：`RA-N21-009`，仅 N50 Engineering
-> 判定：E2 定向门与真实浏览器证据通过；本机完整长链存在已保留的资源负载/沙箱差异，远端 Windows / Node 22 完整门等待推送后裁决；N50 Product Acceptance、N51+、三端发布宿主、Android 实体包、M1 与发布继续阻断
+> 判定：N50-E2 Engineering 通过；本机完整长链的资源负载/沙箱差异已由远端 Windows / Node 22 完整门关闭；N50 Product Acceptance、N51+、三端发布宿主、Android 实体包、M1 与发布继续阻断
 
 ## 1. 本步目标与边界
 
@@ -54,6 +54,8 @@ Awaited Effect 必须先进入可见 `waiting-effect`，再由真实 CSS transit
 - 性能：Script `13/13`；Route 首轮在并发负载下 P95 `529.08ms > 500ms`，停止预览负载后原样复测 `206.02ms`、`9/9`；Asset `4/4`，无预算或代码改写。
 - 完整本机长链的后半段保留三类物理差异：重复 N43 的 5 秒保存窗口、Storage 的 5 秒恢复窗口和 90 秒 VM corpus 在长时间串行负载下超时；同一 N43 用例在该链前段曾通过，其余 Editor integration 原样补跑通过。未放宽 timeout/corpus/assertion，交由干净远端 Windows / Node 22 裁决。
 - 本机受管沙箱还拒绝 Node 重建 `player-shell/dist` 与 `.vite-temp`，但允许 PowerShell 对同路径写入；修正后的定向测试和基于最新源码的 Vite dev browser 实测通过。该 ACL/沙箱差异不能冒充产品失败或成功，远端 build 必须通过。
+- GitHub Draft PR [#85](https://github.com/Longyuyeee/WorLdGame/pull/85) 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色：普通回归 `139/139 files`、`792/792 tests`；Storage `3714ms`；冻结 VM `5/5`、测试 `64.35s < 90s`；Route P95 `136.94ms < 500ms`。
+- 同一远端 build 成功生成 Player：CSS `8.92/2.76 kB`、JS `297.33/94.65 kB`（raw/gzip）。因此本机 N43/Storage/VM 窗口及 Node 输出 ACL 均确认为本机物理环境差异，而非当前实现回归。
 
 ## 6. 需求对齐与剩余阻断
 
@@ -63,4 +65,4 @@ E2 直接推进 REQ-STAGE、REQ-RUNTIME 与 AC-13：正式 Player 不再只有�
 
 ## 7. 下一步
 
-远端完整门绿色后关闭 E2 Engineering。下一切片仍在 N50 内，优先建立 Editor Stage 与 Player Stage 的同一 Media Golden 差分 contract，并补媒体加载失败/恢复与多 channel 规则；是否进入 Player Save/History/Settings 需按 N50 顺序和授权再次冻结。N51 继续禁止开始。
+E2 Engineering 已关闭。下一切片仍在 N50 内，优先建立 Editor Stage 与 Player Stage 的同一 Media Golden 差分 contract，并补媒体加载失败/恢复与多 channel 规则；是否进入 Player Save/History/Settings 需按 N50 顺序和授权再次冻结。N51 继续禁止开始。

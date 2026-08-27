@@ -1,4 +1,4 @@
-# 当前开发情况审计（N50-E2 Player Stage/Media 定向门通过，远端完整门待裁决）
+# 当前开发情况审计（N50-E2 Player Stage/Media Engineering 通过）
 
 > 审计日期：2026-08-26
 > 当前分支：`codex/n50-e2-player-presentation`；直接基线为 `codex/n50-e1-player-core`
@@ -22,7 +22,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1 正式 Player Core 与最小共享 Shell已通过远端完整门**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
-- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 由 Draft PR #84 承载；N50-E2 分支已完成本机定向审计，等待提交后建立新的堆叠 Draft PR。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
+- GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
