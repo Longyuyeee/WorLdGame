@@ -4,7 +4,7 @@
 > 分支：`codex/n50-e5-player-host-lifecycle`
 > 基线：N50-E4 最终头 `9f5186c`
 > 授权：`RA-N21-009`，仅 N50 Engineering
-> 当前判定：实现、真实浏览器差异复测和本机完整门通过；远端 Windows / Node 22 门待补录。N50 Product Acceptance、N51/N52、Android 实体包、M1 与发布继续阻断
+> 当前判定：实现、真实浏览器差异复测、本机完整门和远端 Windows / Node 22 门均通过，N50-E5 Engineering 关闭。N50 Product Acceptance、N51/N52、Android 实体包、M1 与发布继续阻断
 
 ## 1. 冻结目标与边界
 
@@ -43,9 +43,10 @@ E5 只关闭正式 Player Shell 的宿主嵌入和可见性生命周期：Web �
 - 干净 production preview：1280×720 完整暂停→恢复→卸载→重挂链通过，最终只有一个 main、无 createRoot 页面错误文本，preview terminal 无 React error。
 - 本机 `npm run check` 退出 0：普通回归 `141 files / 804 tests`，autosave `2.81s`，重型 VM `5/5`、核心测试 `46.76s <90s`，16 workspace build、架构、Script `13/13`、Route `9/9`、Asset `4/4` 全绿；Route P95 `104.42ms <500ms`。
 - Player production build：CSS `11.22/3.18 kB`、JS `305.50/96.95 kB`（raw/gzip）。增量来自宿主状态、暂停 UI 与验证入口，不登记为 N80 包体结论。
+- 实现头 `8137784` 的 Draft PR #88 Windows / Node 22 完整门 run `33043581781` / job `98422396914` 用时 `11m58s` 并绿色：普通回归 `141/804`、N50 `22/22`、N42 `151/151`、重型 VM `5/5` 且 `67.313s <90s`、autosave `4.153s`；Route P95 `133.25ms <500ms`、Lazy Route Structure `303.73ms <500ms`、Global Lazy Index `284.39ms <500ms`；Player build CSS `11.22/3.18 kB`、JS `305.50/96.95 kB`。远端没有缩减规模或放宽预算。
 
 ## 5. 需求对齐与下一步
 
 E5 直接推进 N50“同一 Player Core 被未来三宿主使用”的前置稳定边界，并改善用户要求的运行稳定、资源释放、移动安全区和现代暂停反馈。没有复制 Runtime、没有把 Web 响应式冒充 Android，也没有进入 N51/N52，方向对齐。
 
-远端 Windows / Node 22 绿色后 E5 Engineering 才可关闭。下一步仍只能在 N50 内冻结一个剩余 Player Shell 小切片；N21 `0/1`、N23 `0/2`、实体触屏/手柄、全部 Product Acceptance、N51+、Android 实体包、M1 Stable 与 Public Release 持续 fail closed。
+N50-E5 Engineering 已由本机、真实浏览器和远端实现头共同关闭。下一步仍只能在 N50 内冻结一个剩余 Player Shell 小切片；N21 `0/1`、N23 `0/2`、实体触屏/手柄、全部 Product Acceptance、N51+、Android 实体包、M1 Stable 与 Public Release 持续 fail closed。
