@@ -39,6 +39,20 @@
     "remounted": "mounted=true · title · active",
     "consoleErrors": []
   },
+  "remoteVerification": {
+    "pullRequest": 89,
+    "implementationCommit": "001a92ff5dfb80e60f80bf8fee469c4ecf116563",
+    "runId": 33046773968,
+    "jobId": 98432514531,
+    "environment": "Windows / Node 22 / full check",
+    "duration": "10m41s",
+    "result": "success",
+    "ordinaryTests": { "files": 142, "tests": 808 },
+    "n50Tests": { "files": 5, "tests": 26 },
+    "vmConformanceMilliseconds": 53581,
+    "routeP95Milliseconds": 122.31,
+    "auditedPortableFiles": 95
+  },
   "expectedActualCorrections": [
     {
       "expected": "Typecheck and dual-entry production build pass on the first implementation",

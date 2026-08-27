@@ -9,6 +9,8 @@
 
 正式 Player 已不再是“缺失”：portable Core、正式 Compiler/Runtime/Host、媒体舞台、输入、Web 生命周期和版本化嵌入边界均存在，并通过真实浏览器与完整仓库门。但 N50 冻结 Implementation 明列 History、Settings、Save/Load，当前 Player UI 尚未实现；Acceptance 要求同一 Core 被 Web/Windows/Android 三个正式宿主使用，当前只有 Web 独立嵌入页。因此不能把 E6 通过换算为 N50 总出口通过。
 
+E6 实现头 `001a92f` 已通过 Draft PR #89 的 Windows / Node 22 完整门（run `33046773968` / job `98432514531`，`10m41s`）；这强化工程证据，但不改变下列功能与设备缺口。
+
 ## 2. 出口矩阵
 
 | 类别 | 冻结项 | 实际 | 判定 |

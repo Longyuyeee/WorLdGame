@@ -26,6 +26,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
 - N50-E4 由 Draft PR #87 承载；实现头 `3901da4` 的 Windows / Node 22 run `33041221691` / job `98415037714` 用时 `9m6s` 绿色，普通回归 `141/801`、N50 `19/19`、VM `5/5`、autosave `2.703s`，Route P95 `112.88ms <500ms`。这只关闭 E4 Engineering，不等于实体输入设备、`main` 集成或 Product Acceptance 通过。
 - N50-E5 由 Draft PR #88 承载；实现头 `8137784` 的 Windows / Node 22 run `33043581781` / job `98422396914` 用时 `11m58s` 绿色，普通回归 `141/804`、N50 `22/22`、VM `67.313s <90s`、autosave `4.153s`、Route P95 `133.25ms <500ms`。这只关闭 E5 Engineering，不等于 Windows/Android 正式宿主、`main` 集成或 Product Acceptance 通过。
+- N50-E6 由 Draft PR #89 承载；实现头 `001a92f` 的 Windows / Node 22 run `33046773968` / job `98432514531` 用时 `10m41s` 绿色，普通回归 `142/808`、N50 `26/26`、VM `53.581s <90s`、Route P95 `122.31ms <500ms`。这只关闭 E6 切片，不改变 N50 总出口失败、`main` 未集成或 Product Acceptance 阻断。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -122,7 +123,7 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E6 嵌入 API 已通过本机完整门与开发/冷生产浏览器；推送后登记远端门；
+5. N50-E6 嵌入 API已通过本机、开发/冷生产浏览器和远端 Windows / Node 22 完整门；
 6. N50 总出口复审失败。先裁决 N50 与 N52 对 History/Settings/Save-Load 的重复范围，再决定新的 N50 切片；N51/N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

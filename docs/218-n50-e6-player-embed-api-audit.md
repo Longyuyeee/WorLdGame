@@ -4,7 +4,7 @@
 > 分支：`codex/n50-e6-player-embed-api`
 > 基线：N50-E5 最终头 `e5dac3a`
 > 授权：`RA-N21-009`，仅 N50 Engineering
-> 当前判定：N50-E6 实现、本机完整门、开发浏览器与冷生产浏览器通过；远端门待本分支推送后登记。N50 总出口不在本文件冒充通过
+> 当前判定：N50-E6 实现、本机完整门、开发/冷生产浏览器和远端 Windows / Node 22 完整门通过。N50 总出口不在本文件冒充通过
 
 ## 1. 冻结目标与边界
 
@@ -41,6 +41,7 @@ E6 关闭 Player Shell 从“只有 Vite 页面入口”到“可由平台宿主
 - 本机 `npm run check` 退出 0：普通回归 `142 files / 808 tests`，N50 `26/26`，VM `5/5`、`48.00s <90s`，16 workspace build、架构、Script `13/13`、Route `9/9`、Asset `4/4` 全绿；Route P95 `101.21ms <500ms`。
 - Player build：共享 CSS `11.22/3.18 kB`，共享 JS `289.54/89.98 kB`，embed CSS `1.08/0.59 kB`、host JS `2.45/1.15 kB`（raw/gzip）。这只是 Web 工程产物，不是 N80 发布包体结论。
 - 既有 Editor build 仍报告单 chunk `938.18 kB` 的 >500 kB 警告；不属于 E6 引入，继续作为性能债保留。
+- 实现头 `001a92f` 的 Draft PR #89 Windows / Node 22 完整门 run `33046773968` / job `98432514531` 用时 `10m41s` 并绿色：普通回归 `142/808`、N50 `5 files / 26 tests`、重型 VM `53.581s <90s`、Route P95 `122.31ms <500ms`、95 portable files；Player 产物体积与本机一致。远端没有缩减规模或放宽预算。
 
 ## 5. 需求对齐
 
