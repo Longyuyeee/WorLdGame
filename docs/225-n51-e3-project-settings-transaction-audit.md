@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e3-project-settings-transaction`
 > 直接基线：N51-E2 最终暂停头 `4817d68`
 > 授权：`RA-N21-010`，最大节点 N51
-> 判定：本地实现与定向门已通过；远端 Windows / Node 22 完整门通过前保持候选
+> 判定：Engineering 通过；Product Acceptance 仍阻断
 
 ## 1. 原始需求与冻结边界
 
@@ -74,7 +74,8 @@ E3 继续服务 PRD 3.14、Gal 基础规格第 2 节、REQ-GAL 与 AC-19：设�
 - 最终完整 `npm run check`：PASS；普通回归 `145 files / 841 tests`，Editor integration `8 files / 54 tests`，storage `1/1`，VM `5/5`、实际 `27.14s < 90s`；
 - Compiler `29/29`、N51 `43/43`；production build 17 workspaces，Editor `956.01 kB / gzip 267.47 kB` 的既有拆包 warning 未放宽；
 - 性能门：Route edit P95 `70.68ms < 500ms`，Asset dicing `2122.83ms < 5000ms`，其余 Script/Route/Asset 预算全部 PASS；
-- GitHub Windows / Node 22 同头完整门：待推送后记录。
+- 实现头 `8bae1b8` 的 GitHub Windows / Node 22 完整门：Draft PR #93，run `33088005806` / job `98572871025`，用时 `11m42s`，PASS；
+- 远端普通回归 `145/841`、N51 `43/43`、Compiler `29/29`、VM `63.76s <90s`、Route edit P95 `148.65ms <500ms`、Asset dicing `3382.11ms <5000ms`；99 portable / 4 Node adapter architecture 与 production build 均绿色。
 
 ## 6. 需求对齐与诚实边界
 
@@ -86,4 +87,4 @@ E3 直接推进 REQ-GAL 的“统一工程、继承、撤销、平台值”和 A
 4. REQ-GAL 剩余 P0 字段和模板；
 5. 所有真人、实体设备、正式三端包、M1 Stable 与发布门。
 
-下一切片冻结为 N51-E4 现代 Settings UI。E4 必须复用本轮 Canonical/Project Service/Lifecycle 链，不得把 React state、localStorage 或独立 settings store 变成第二权威来源。远端同头完整门未绿色前，E3 Engineering 不关闭。
+下一切片冻结为 N51-E4 现代 Settings UI。E4 必须复用本轮 Canonical/Project Service/Lifecycle 链，不得把 React state、localStorage 或独立 settings store 变成第二权威来源。实现头已通过同头本地与远端完整门，E3 Engineering 关闭；真人、实体设备和 N51 Product Acceptance 仍按权威记录失败关闭。

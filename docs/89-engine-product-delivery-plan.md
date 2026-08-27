@@ -479,7 +479,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 暂停检查点（2026-08-27）：当前源码、测试、需求追踪和跨电脑证据均已进入 Git，可安全暂停。后续冻结为 E3 Canonical Project settings/undo transaction → E4 现代 Settings UI → E5 Preview/Player 热应用 → E6 P0 覆盖与出口审计；每步继续执行预期—实际—修正、完整门和同头远端 CI。详见[暂停与后续步骤检查点](224-n51-e2-pause-and-next-step-checkpoint.md)。
 
-> E3 实施状态（2026-08-27）：[N51-E3 审计](225-n51-e3-project-settings-transaction-audit.md)已把 typed settings 接入 `settings/project.json`、Canonical Project 与正式 Project Service/ChangeSet；缺文件和精确空旧 v1 首次保存安全升级，非空旧数据/损坏/future schema fail closed。settings 原子命令支持 stale、非法组合、no-op、Undo/Redo；Node 原生目录与 Web IndexedDB 已完成保存重开和旧 writer 拒绝。本地完整门普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM/Route/Asset 预算全绿；远端 Windows / Node 22 通过前保持候选。下一切片只能进入 E4 Settings UI，不提前热应用 Preview/Player 或进入 N52。
+> E3 实施状态（2026-08-27）：[N51-E3 审计](225-n51-e3-project-settings-transaction-audit.md)已把 typed settings 接入 `settings/project.json`、Canonical Project 与正式 Project Service/ChangeSet；缺文件和精确空旧 v1 首次保存安全升级，非空旧数据/损坏/future schema fail closed。settings 原子命令支持 stale、非法组合、no-op、Undo/Redo；Node 原生目录与 Web IndexedDB 已完成保存重开和旧 writer 拒绝。本地完整门普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM/Route/Asset 预算全绿；实现头 `8bae1b8` 的 Draft PR #93 Windows / Node 22 run `33088005806` / job `98572871025` 用时 `11m42s` 绿色，E3 Engineering 关闭。下一切片只能进入 E4 Settings UI，不提前热应用 Preview/Player 或进入 N52。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 
