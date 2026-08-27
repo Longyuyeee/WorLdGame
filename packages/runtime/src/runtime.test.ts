@@ -555,16 +555,18 @@ describe("N31-E11 canonical Runtime Session Save", () => {
 
   it("emits a normalized Bezier Move effect and rejects incomplete mutated paths", () => {
     const validStory = program([
+      { instructionId: "show", opcode: "direction", operands: { command: "show", parameters: { action: "show", slot: "hero", asset: "hero_sprite" } } },
       { instructionId: "curve", opcode: "direction", operands: { command: "show", parameters: {
         action: "move", slot: "hero", x: "80", y: "80", curve: "bezier",
         control1X: "30", control1Y: "20", control2X: "70", control2Y: "20", duration: "650ms", easing: "ease-in-out"
       } } },
       { instructionId: "curve-end", opcode: "end", operands: { endingId: "curve_done", name: "Done" } }
     ]);
-    const valid = runRuntime(validStory, start(validStory, "build-curve"));
+    const shown = runRuntime(validStory, start(validStory, "build-curve"));
+    const valid = runRuntime(validStory, shown.state);
     expect(valid.diagnostics).toEqual([]);
-    expect(valid.effects).toEqual([expect.objectContaining({ channel: "show", kind: "show.move", payload: expect.objectContaining({
-      curve: "bezier", x: 80, y: 80, control1X: 30, control1Y: 20, control2X: 70, control2Y: 20
+    expect(valid.effects).toEqual([expect.objectContaining({ channel: "show.hero", kind: "show.move", payload: expect.objectContaining({
+      asset: "hero_sprite", curve: "bezier", x: 80, y: 80, control1X: 30, control1Y: 20, control2X: 70, control2Y: 20
     }) })]);
     const invalidStory = program([
       { instructionId: "bad-curve", opcode: "direction", operands: { command: "show", parameters: { action: "move", slot: "hero", x: "80", y: "80", curve: "bezier", control1X: "30" } } },
@@ -573,6 +575,21 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     const invalid = runRuntime(invalidStory, start(invalidStory, "build-bad-curve"));
     expect(invalid.diagnostics).toEqual([expect.objectContaining({ code: "RUNTIME_INVALID_IR", instructionId: "bad-curve" })]);
     expect(invalid.effects).toEqual([]);
+  });
+
+  it("enriches audio controls when a track already exists", () => {
+    const sequentialStory = program([
+      { instructionId: "bgm-play", opcode: "direction", operands: { command: "audio", parameters: { action: "play", bus: "bgm", asset: "bgm_theme", loop: true, volumePermille: 600 } } },
+      { instructionId: "bgm-pause", opcode: "direction", operands: { command: "audio", parameters: { action: "pause", bus: "bgm" } } },
+      { instructionId: "audio-end", opcode: "end", operands: { endingId: "audio_done", name: "Done" } }
+    ]);
+    const playing = runRuntime(sequentialStory, start(sequentialStory, "build-sequential-audio"));
+    const paused = runRuntime(sequentialStory, playing.state);
+    expect(paused.diagnostics).toEqual([]);
+    expect(paused.effects).toEqual([expect.objectContaining({
+      channel: "audio.bgm", kind: "audio.pause",
+      payload: { action: "pause", asset: "bgm_theme", bus: "bgm", loop: true, volumePermille: 600 }
+    })]);
   });
 
   it("emits textbox presentation effects and rejects mutated templates", () => {

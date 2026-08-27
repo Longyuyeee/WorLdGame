@@ -20,6 +20,9 @@ export interface PlayerStageCharacterV1 extends PlayerStageImageV1 {
   readonly x: number;
   readonly y: number;
   readonly scale: number;
+  readonly rotation: number;
+  readonly anchorX: number;
+  readonly anchorY: number;
   readonly z: number;
 }
 
@@ -111,11 +114,14 @@ export function derivePlayerStagePresentationV1(
         x: number(effect, "x", 50),
         y: number(effect, "y", 100),
         scale: number(effect, "scale", 1),
+        rotation: number(effect, "rotation", 0),
+        anchorX: number(effect, "anchorX", 0.5),
+        anchorY: number(effect, "anchorY", 1),
         z: number(effect, "z", 0),
         transition: text(effect, "transition") ?? "none",
         durationMilliseconds: duration(effect)
       });
-    } else if (effect.kind.startsWith("audio.") && !["stop", "pause"].includes(currentAction)) {
+    } else if (effect.kind.startsWith("audio.") && currentAction !== "stop") {
       const assetId = text(effect, "asset");
       if (assetId === undefined) continue;
       const asset = assets.get(assetId);

@@ -47,6 +47,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N50-E1 正式 Player Core 审计](docs/212-n50-e1-formal-player-core-audit.md) | Canonical→Compiler→Runtime/Host→Player snapshot、最小共享 Shell、production browser 与差异修正 |
 | [N50-E1 暂停开发与换机交接审计](docs/213-n50-e1-development-handoff-2026-08-26.md) | 暂停头、远端证据、换机迁移边界、恢复命令与后续严格顺序 |
 | [N50-E2 Player Stage/Media 审计](docs/214-n50-e2-player-stage-media-presentation-audit.md) | 正式 Effect snapshot、真实 PNG/WAV adapter、awaited/cancel 生命周期与 production-browser 物理证据 |
+| [N50-E3 Media Parity/Recovery 审计](docs/215-n50-e3-player-media-parity-recovery-audit.md) | Editor↔Player 同源结构差分、多角色/多音轨 channel、缺失媒体恢复与真实移动触控纠偏 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |

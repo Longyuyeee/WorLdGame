@@ -1,11 +1,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
-import { createPlayerMediaDemoV1 } from "./media-demo";
+import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -63,5 +64,36 @@ describe("N50-E1 shared Player Shell", () => {
     expect(screen.getByRole("button", { name: "完成动效" })).toBeDisabled();
     fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
     expect(screen.getByRole("status", { name: /正在呈现动效/u })).toBeInTheDocument();
+  });
+
+  it("recovers a missing awaited asset from a new platform source generation", () => {
+    const demo = createPlayerMediaDemoV1();
+    function RecoveryHarness() {
+      const [ready, setReady] = useState(false);
+      return <PlayerShell
+        project={demo.project}
+        mediaAssets={ready ? demo.mediaAssets : demo.mediaAssets.filter((asset) => asset.assetId !== "media_actor_sprite")}
+        onRetryMedia={() => setReady(true)}
+      />;
+    }
+    render(<RecoveryHarness />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByRole("alert")).toHaveTextContent("media_actor_sprite");
+    expect(screen.getByRole("button", { name: "完成动效" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "重试媒体" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "完成动效" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+  });
+
+  it("keeps two character slots and two audio buses active without channel overwrite", () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    expect(container.querySelectorAll('img[data-asset-id="media_actor_sprite"]')).toHaveLength(2);
+    expect([...container.querySelectorAll("img[data-stage-slot]")].map((node) => node.getAttribute("data-stage-slot"))).toEqual(["left", "right"]);
+    expect([...container.querySelectorAll("audio[data-audio-bus]")].map((node) => node.getAttribute("data-audio-bus"))).toEqual(["bgm", "voice"]);
   });
 });

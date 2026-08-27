@@ -16,6 +16,7 @@ import "./player-shell.css";
 export interface PlayerShellProps {
   readonly project: CanonicalProject;
   readonly mediaAssets?: readonly PlayerMediaAssetSourceV1[];
+  readonly onRetryMedia?: () => void;
 }
 
 function nextState(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
@@ -24,18 +25,24 @@ function nextState(state: PlayerCoreState, project: CanonicalProject): PlayerCor
   return state;
 }
 
-export function PlayerShell({ project, mediaAssets = [] }: PlayerShellProps) {
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
+  const [mediaGeneration, setMediaGeneration] = useState(0);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
   const stage = useMemo(() => derivePlayerStagePresentationV1(snapshot, mediaAssets), [mediaAssets, snapshot]);
+  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
   const lastEffectOperation = snapshot.effects.operations.at(-1) ?? null;
   const speakerNames = useMemo(() => Object.fromEntries(project.characters.characters.flatMap((character) => {
     const id = typeof character.id === "string" ? character.id : undefined;
     const displayName = typeof character.displayName === "string" ? character.displayName : undefined;
     return id === undefined || displayName === undefined ? [] : [[id, displayName] as const];
   })), [project.characters.characters]);
+
+  useEffect(() => {
+    setMediaErrors([]);
+  }, [mediaSignature]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -78,6 +85,7 @@ export function PlayerShell({ project, mediaAssets = [] }: PlayerShellProps) {
         <div className="player-stage-world" style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
             <img
+              key={`${mediaGeneration}:background:${stage.background.assetId}`}
               className={`player-stage-background player-transition--${stage.background.transition}`}
               src={stage.background.url}
               alt={stage.background.displayName}
@@ -90,20 +98,20 @@ export function PlayerShell({ project, mediaAssets = [] }: PlayerShellProps) {
           )}
           {stage.characters.map((character) => (
             <img
-              key={`${character.slot}:${character.assetId}`}
+              key={`${mediaGeneration}:${character.slot}:${character.assetId}`}
               className={`player-stage-character player-transition--${character.transition}`}
               src={character.url}
               alt={character.displayName}
               data-asset-id={character.assetId}
               data-stage-slot={character.slot}
-              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(-50%, -100%) scale(${character.scale})` }}
+              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)` }}
               onError={() => setMediaErrors((current) => [...new Set([...current, character.assetId])])}
             />
           ))}
         </div>
         {stage.audio.map((track) => (
           <audio
-            key={`${track.bus}:${track.assetId}`}
+            key={`${mediaGeneration}:${track.bus}:${track.assetId}`}
             ref={(element) => {
               if (element !== null) {
                 element.volume = track.volume;
@@ -129,7 +137,12 @@ export function PlayerShell({ project, mediaAssets = [] }: PlayerShellProps) {
 
         {(stage.missingAssetIds.length > 0 || mediaErrors.length > 0) && (
           <div className="player-media-error" role="alert">
-            媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...mediaErrors])].join("、")}
+            <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...mediaErrors])].join("、")}</span>
+            <button type="button" onClick={() => {
+              setMediaErrors([]);
+              setMediaGeneration((current) => current + 1);
+              onRetryMedia?.();
+            }}>重试媒体</button>
           </div>
         )}
 
