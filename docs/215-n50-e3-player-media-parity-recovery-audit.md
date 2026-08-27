@@ -4,7 +4,7 @@
 > 分支：`codex/n50-e3-player-media-parity`
 > 基线：N50-E2 最终头 `161fb93`
 > 授权：`RA-N21-009`，仅 N50 Engineering
-> 当前判定：实现、定向自动化、production-browser 与本机完整功能/构建门通过；长链末端首次性能红值已由停止负载后的原样复跑关闭，等待远端 Windows / Node 22 最终裁决。N50 Product Acceptance、N51+、Android 实体包、M1 与发布继续阻断
+> 判定：N50-E3 Engineering 通过；本机长链末端首次性能红值已由原样隔离复跑和远端 Windows / Node 22 完整门共同关闭。N50 Product Acceptance、N51+、Android 实体包、M1 与发布继续阻断
 
 ## 1. 本步冻结目标与非目标
 
@@ -43,6 +43,8 @@ E3 只关闭 E2 明确留下的三个相邻缺口：同一 Media Golden 在 Edit
 - 全仓 typecheck 通过；Player production build：CSS `9.13/2.80 kB`、JS `299.65/95.23 kB`（raw/gzip）。相对 E2 的增量来自 parity/recovery/multi demo，不是 N80 发布包预算结论。
 - 本机完整链的功能、治理、测试和构建阶段均通过：普通回归 `140 files / 796 tests`，Editor integration 全绿，真实 IndexedDB autosave 用例 `4.55s`，重型 VM `5/5`、测试 `59.81s`；16 个 workspace 均构建成功。Editor 仍有既存 >500kB 拆包债（JS `938.18/261.73 kB`），未把它解释为本轮新增或发布达标。
 - 完整链末端 Route 核心 P95 `416.75ms <500ms`，但另外两个既有 N40 用例在累计负载下首次为 `806.83ms` / `871.67ms`。停止长链后不改任何实现和门槛原样复跑为 `249.55ms` / `294.98ms`，Route `9/9`、Asset `4/4`；首次差异保留，仍由远端干净环境裁决。
+- Draft PR [#86](https://github.com/Longyuyeee/WorLdGame/pull/86) 的 Windows / Node 22 完整门 run `33038517971` / job `98406610224` 用时 `11m23s` 并绿色：普通回归 `140 files / 796 tests`，N42 `151/151`，N50 `14/14`，autosave `4.111s`，重型 VM `5/5`、测试 `70.96s <90s`。
+- 同一远端环境的 Route P95 `138.75ms <500ms`，首次本机红项分别为 `311.47ms` 与 `260.58ms`，均在完整长链内直接通过；因此本机累计负载差异关闭。远端 Player build 为 CSS `9.13/2.80 kB`、JS `299.64/95.22 kB`（raw/gzip）。
 - 真实桌面 1280×720：Stage `1178×662`，ratio `1.77946`；左右角色均 decoded，z=10/20；BGM/Voice 均 readyState 4，实际音量 0.6/0.8；document `1280/1280`。
 - 真实手机 390×844：恢复错误可见、document `390/390`；首测触控高度 34px，修正后 44px。Player 竖屏舞台按目标设备全屏呈现；Editor 默认 16:9 预览约束没有被改写。
 
@@ -54,4 +56,4 @@ E3 直接推进 REQ-STAGE、REQ-RUNTIME 与 AC-13：Editor 与 Player 已对同�
 
 ## 6. 下一步与阻断
 
-远端 Windows / Node 22 完整门绿色后，E3 才能关闭。随后仍在 N50 内按顺序冻结 Player 输入/状态恢复的下一最小切片；进入 N51 必须另有治理授权。N21 `0/1`、N23 `0/2`、全部 Product Acceptance、Android 实体包、M1 Stable 与 Public Release 持续 fail closed。
+E3 Engineering 已关闭。随后仍在 N50 内按顺序冻结 Player 输入/状态恢复的下一最小切片；进入 N51 必须另有治理授权。N21 `0/1`、N23 `0/2`、全部 Product Acceptance、Android 实体包、M1 Stable 与 Public Release 持续 fail closed。

@@ -1,4 +1,4 @@
-# 当前开发情况审计（N50-E3 Media Parity/Recovery 验证中）
+# 当前开发情况审计（N50-E3 Media Parity/Recovery Engineering 通过）
 
 > 审计日期：2026-08-27
 > 当前分支：`codex/n50-e3-player-media-parity`；直接基线为 N50-E2 最终头 `161fb93`
@@ -20,9 +20,10 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1/E2 已通过远端完整门，E3 已完成实现、真实浏览器纠偏与本机完整功能/构建门；长链性能首次红值原样隔离复跑已绿，等待远端最终裁决**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1–E3 均已通过远端完整门；E3 已关闭同源 Media 结构差分、slot/bus channel 与缺资源恢复切片**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
+- N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -119,6 +120,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E3 已建立 Editor↔Player Media Golden 结构差分、媒体失败恢复和 slot/bus multi-channel；本机功能/构建门及隔离性能复跑已绿，必须先完成远端 Windows / Node 22 复验，再冻结 N50 内下一最小 Player 切片；N51 Gal Settings 继续阻断。
+5. N50-E3 已建立 Editor↔Player Media Golden 结构差分、媒体失败恢复和 slot/bus multi-channel，且远端完整门绿色；下一步只能继续冻结 N50 内下一最小 Player 输入/状态切片，N51 Gal Settings 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
