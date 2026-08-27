@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "audit": "N50-E5",
+  "date": "2026-08-27",
+  "scope": "Web host embedding and visibility lifecycle",
+  "developmentBrowser": {
+    "url": "http://127.0.0.1:5173/?demo=host",
+    "active": {
+      "playerStatus": "presenting",
+      "hostActivity": "active",
+      "audio": [
+        { "bus": "bgm", "paused": false, "playback": "playing" },
+        { "bus": "voice", "paused": false, "playback": "playing" }
+      ]
+    },
+    "suspended": {
+      "playerStatus": "presenting",
+      "hostActivity": "suspended",
+      "audio": [
+        { "bus": "bgm", "paused": true, "playback": "suspended" },
+        { "bus": "voice", "paused": true, "playback": "suspended" }
+      ]
+    },
+    "resumed": {
+      "playerStatus": "presenting",
+      "hostActivity": "active",
+      "audio": [
+        { "bus": "bgm", "paused": false, "playback": "playing", "currentTime": 0.056889 },
+        { "bus": "voice", "paused": false, "playback": "playing", "currentTime": 0.040296 }
+      ]
+    },
+    "unmounted": {
+      "playerPresent": false,
+      "audioNodeCount": 0,
+      "mounted": false
+    },
+    "remounted": {
+      "playerStatus": "title",
+      "hostActivity": "active",
+      "audioNodeCount": 0,
+      "titleActionPresent": true
+    }
+  },
+  "mobileBrowser": {
+    "requestedViewport": [390, 844],
+    "actualViewport": [390, 844],
+    "documentClientAndScrollWidth": [390, 390],
+    "stage": { "width": 390, "height": 844 },
+    "suspendedOverlay": { "width": 390, "height": 844 },
+    "hostControlHeights": [48, 48]
+  },
+  "coldProductionPreview": {
+    "url": "http://127.0.0.1:5181/?demo=host",
+    "viewport": [1280, 720],
+    "initialStatus": "title",
+    "suspendedStatus": "presenting",
+    "suspendedAudioPaused": [true, true],
+    "remountedStatus": "title",
+    "remountedAudioNodeCount": 0,
+    "mainCount": 1,
+    "createRootErrorText": false,
+    "previewTerminalReactError": false
+  },
+  "expectedActualCorrections": [
+    {
+      "expected": "Media Golden ends with Media Ending",
+      "actual": "Formal Compiler and Runtime produced Curtain",
+      "correction": "Corrected the test expectation to the canonical Curtain ending"
+    },
+    {
+      "expected": "Unmount cleanup can pause every retained media reference",
+      "actual": "Already-paused jsdom elements produced six unsupported pause warnings",
+      "correction": "Pause only live non-paused elements during unmount"
+    },
+    {
+      "expected": "Removed buses cannot be resumed later",
+      "actual": "The first ref callback retained detached bus elements in its Map",
+      "correction": "Delete the bus on the null ref callback and add a detached-media negative test"
+    },
+    {
+      "expected": "Browser control can dispatch Space to the non-focusable pause overlay",
+      "actual": "The in-app browser rejected the unfocused locator key dispatch",
+      "correction": "Did not claim browser keyboard evidence; retained DOM keyboard contract coverage and browser pointer/media/lifecycle evidence"
+    }
+  ],
+  "physicalBoundary": {
+    "realBrowser": true,
+    "realAudioElements": true,
+    "physicalTouchscreen": false,
+    "physicalGamepad": false,
+    "humanParticipant": false
+  }
+}

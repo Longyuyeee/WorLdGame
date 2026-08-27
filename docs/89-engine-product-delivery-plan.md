@@ -456,6 +456,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4 Engineering 状态（2026-08-27）：[N50-E4](216-n50-e4-player-input-lifecycle-audit.md)已建立平台无关 Player intent，按钮/键盘/基础手柄协议消费同一 Core；Choice selection 与 DOM focus 同步，Ending 可创建 fresh Core，宿主替换 project 时旧 Runtime/Host 会话清零。真实桌面键盘和 390×844 pointer 路线通过；浏览器无 tap、现场无实体手柄，故不登记物理设备通过。本机完整门 `141/801`、Route P95 `124.84ms`；实现头 `3901da4` 的 Draft PR #87 Windows / Node 22 run `33041221691` / job `98415037714` 用时 `9m6s` 绿色，普通回归 `141/801`、N50 `19/19`、VM `5/5`、Route P95 `112.88ms <500ms`。E4 Engineering 关闭，Product Acceptance 与实体设备仍阻断。
 
+> E5 实施状态（2026-08-27）：[N50-E5](217-n50-e5-player-host-lifecycle-audit.md)新增 Web visibility→`active/suspended` 宿主边界；暂停冻结输入、系统 Effect 和真实音频，恢复继续同一个 Core，卸载释放 media ref，重挂建立 fresh Core。真实桌面 BGM/Voice pause/resume、卸载 audio=0 和 390×844 document `390/390`、按钮 48px 均通过；首次 canonical 结局预期和 detached audio Map 均已按实际纠正。本机完整门 `141/804`、N50 `22/22`、VM `46.76s`、Route P95 `104.42ms` 全绿；等待远端门前 E5 不关闭。
+
 - **Goal**：形成可嵌入 Web/Windows/Android 的正式玩家。
 - **Implementation**：标题、开始/继续、对话、选择、历史、设置、存读档、错误页；鼠标/键盘/触摸/基础手柄；响应式安全区；无障碍语义。
 - **Acceptance**：同一 Player Core 被三宿主使用，不复制剧情逻辑。

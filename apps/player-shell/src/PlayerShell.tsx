@@ -14,17 +14,21 @@ export interface PlayerShellProps {
   readonly project: CanonicalProject;
   readonly mediaAssets?: readonly PlayerMediaAssetSourceV1[];
   readonly onRetryMedia?: () => void;
+  readonly hostActivity?: PlayerHostActivityV1;
 }
 
 type PlayerInputSource = "lifecycle" | "pointer" | "keyboard" | "gamepad" | "system";
+export type PlayerHostActivityV1 = "active" | "suspended";
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerShellProps) {
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active" }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
   const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
+  const audioElements = useRef(new Map<string, HTMLAudioElement>());
+  const previousHostActivity = useRef(hostActivity);
   const projectSemanticHash = useMemo(() => semanticHash(project), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
@@ -67,6 +71,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
   }, [content.kind, selectedChoiceIndex]);
 
   useEffect(() => {
+    if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
@@ -93,9 +98,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [applyIntent, content, selectedChoiceIndex]);
+  }, [applyIntent, content, hostActivity, selectedChoiceIndex]);
 
   useEffect(() => {
+    if (hostActivity !== "active") return;
     if (typeof navigator.getGamepads !== "function") return;
     let animationFrame = 0;
     let previous = createEmptyPlayerGamepadFrameV1();
@@ -124,7 +130,33 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
     };
     animationFrame = requestAnimationFrame(poll);
     return () => cancelAnimationFrame(animationFrame);
-  }, [applyIntent, content, selectedChoiceIndex]);
+  }, [applyIntent, content, hostActivity, selectedChoiceIndex]);
+
+  useEffect(() => {
+    const previous = previousHostActivity.current;
+    previousHostActivity.current = hostActivity;
+    if (previous === hostActivity) return;
+    for (const element of audioElements.current.values()) {
+      if (hostActivity === "suspended") {
+        element.dataset.playerPlayback = "suspended";
+        element.pause();
+      } else if (element.dataset.shouldPlay === "true") {
+        element.dataset.playerPlayback = "resuming";
+        const resumed = element.play();
+        resumed?.then(() => {
+          element.dataset.playerPlayback = "playing";
+        }).catch(() => {
+          element.dataset.playerPlayback = "blocked";
+        });
+      }
+    }
+  }, [hostActivity]);
+
+  useEffect(() => () => {
+    for (const element of audioElements.current.values()) {
+      if (!element.paused) element.pause();
+    }
+  }, []);
 
   return (
     <main
@@ -136,6 +168,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
       data-runtime-host={snapshot.identities.runtimeHostVersion}
       data-effect-operation={lastEffectOperation?.kind ?? "none"}
       data-input-source={lastInputSource}
+      data-host-activity={hostActivity}
     >
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
@@ -172,20 +205,30 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
             key={`${mediaGeneration}:${track.bus}:${track.assetId}`}
             ref={(element) => {
               if (element !== null) {
+                audioElements.current.set(track.bus, element);
                 element.volume = track.volume;
                 element.dataset.appliedVolume = String(element.volume);
-              }
+                element.dataset.shouldPlay = String(track.status === "playing");
+                element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : track.status;
+              } else audioElements.current.delete(track.bus);
             }}
             src={track.url}
             data-audio-bus={track.bus}
             data-asset-id={track.assetId}
             data-volume={track.volume}
             aria-label={`${track.displayName} · ${track.bus}`}
-            autoPlay={track.status === "playing"}
+            autoPlay={hostActivity === "active" && track.status === "playing"}
             loop={track.loop}
             onError={() => setMediaErrors((current) => [...new Set([...current, track.assetId])])}
           />
         ))}
+        {hostActivity === "suspended" && (
+          <div className="player-host-suspended" role="status" aria-live="polite">
+            <span>PLAYER PAUSED</span>
+            <strong>宿主已暂停</strong>
+            <p>剧情状态已冻结，返回应用后继续。</p>
+          </div>
+        )}
         <header className="player-brand" aria-label="播放器状态">
           <span className="player-brand__mark" aria-hidden="true">W</span>
           <span>WorLd Player</span>
@@ -273,7 +316,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
               data-testid="player-effect-progress"
               style={{ animationDuration: `${stage.pendingDurationMilliseconds}ms` }}
               onAnimationEnd={() => {
-                if (stage.missingAssetIds.length === 0 && mediaErrors.length === 0) applyIntent({ kind: "primary" }, "system");
+                if (hostActivity === "active" && stage.missingAssetIds.length === 0 && mediaErrors.length === 0) applyIntent({ kind: "primary" }, "system");
               }}
             />
             <div className="player-boundary__actions">

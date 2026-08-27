@@ -1,10 +1,10 @@
-# 当前开发情况审计（N50-E4 Player 输入与生命周期 Engineering 已通过）
+# 当前开发情况审计（N50-E5 Player Web 宿主生命周期验证中）
 
 > 审计日期：2026-08-27
-> 当前分支：`codex/n50-e4-player-input-lifecycle`；直接基线为 N50-E3 最终头 `f288162`
+> 当前分支：`codex/n50-e5-player-host-lifecycle`；直接基线为 N50-E4 最终头 `9f5186c`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-009` 只允许 N50 正式 Player Shell Engineering；2026-09-25 16:07:12（UTC+8）到期
-> 最新节点证据：[N50-E4 Player 输入与生命周期审计](216-n50-e4-player-input-lifecycle-audit.md)、[N50-E3 Media Parity/Recovery 审计](215-n50-e3-player-media-parity-recovery-audit.md)、[N50-E2 Player Stage/Media 审计](214-n50-e2-player-stage-media-presentation-audit.md)
+> 最新节点证据：[N50-E5 Player Web 宿主生命周期审计](217-n50-e5-player-host-lifecycle-audit.md)、[N50-E4 Player 输入与生命周期审计](216-n50-e4-player-input-lifecycle-audit.md)、[N50-E3 Media Parity/Recovery 审计](215-n50-e3-player-media-parity-recovery-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -20,7 +20,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1–E4 均已通过实现、真实浏览器、本机及远端完整门**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43 Engineering：**出口已通过；N43 E1–E7 的七模式真实任务为 7/7**；N50 Engineering：**E1–E4 已通过；E5 宿主生命周期已通过实现、真实浏览器和本机完整门，等待远端裁决**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
@@ -37,7 +37,7 @@ E1–E7 已覆盖 Entry/Scene/Statement Fresh Run、状态观察、调试、port
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
-| Player/Build | N50-E1 portable Core/共享 Shell；E2/E3 完成正式媒体与 parity/recovery；E4 增加统一 intent、键盘/指针/基础手柄协议、Choice 焦点、fresh restart 与 project reset | 实体手柄/触屏、存档/历史/设置/Auto/Skip/Back、Gallery、三端正式宿主、Web/PWA、Windows、APK/AAB、签名、安装、升级与发布材料均缺 |
+| Player/Build | N50-E1 portable Core/共享 Shell；E2/E3 完成正式媒体与 parity/recovery；E4 增加统一输入与 lifecycle reset；E5 增加 Web visibility 暂停/恢复、媒体冻结、卸载释放与重挂 fresh Core | 实体手柄/触屏、存档/历史/设置/Auto/Skip/Back、Gallery、Windows/Android 正式宿主、Web/PWA、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。
@@ -121,6 +121,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E4 Player 输入等价与 fresh lifecycle reset 已通过本机、真实浏览器和远端完整门；下一步只能冻结 N50 内下一最小 Player 壳切片，N51/N52 继续阻断。
+5. N50-E5 Web 宿主生命周期已通过本机与真实浏览器门，等待远端完整门；通过后仍只能冻结 N50 内下一最小 Player 壳切片，N51/N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
