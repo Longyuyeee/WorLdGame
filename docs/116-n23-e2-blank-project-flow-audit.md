@@ -57,3 +57,5 @@ npx tsc -p apps/editor/tsconfig.json --noEmit
 npm run check
 git diff --check
 ```
+
+> 2026-08-27 N51-E3 演进说明：上文保留 N23-E2 当时的 semantic hash 与浏览器证据。Canonical Project 纳入正式 Gal settings defaults 后，现行自动 Golden semantic hash 为 `16e57309f5152bb8f9a7a11aa5b3bda06f9598fa946f100dcd41f0c64044fc69`；保存、重开、导出/导入与两路线语义未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。

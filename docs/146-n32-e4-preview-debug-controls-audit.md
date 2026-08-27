@@ -68,3 +68,5 @@ Run to Cursor 穿越到未满足的 Choice、awaited Effect、Barrier、资源�
 Draft PR #55 的实现头已通过 Windows / Node 22 完整 `npm run check`：普通回归 98 files / 600 tests；autosave 1/1，实际 2.961 秒；Runtime corpus 10,000 seeds / 20,000 replays / 40 chunks、30.334 秒、0 failed seeds、digest `20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2`。远端 production build 与本地实际相同：CSS 76.97/14.73 kB，JS 721.30/205.42 kB；typecheck、architecture、requirements、risk、workspace、delivery、Script/Asset 性能门均绿色，E4 Engineering 出口满足。
 
 最终证据文档头仍需通过同一远端完整门；该检查只确认文档更新未破坏仓库门，不重复宣称实现证据。下一步是 N32-E5：正式 Effect/Stage Host、补偿/重放、安全取消和 Barrier 产品呈现。E4 不提升 N32 Product Acceptance，不解除 N40、M1 Stable 或发布阻断；JS 拆包债必须继续进入后续性能/架构审计，不能因功能正确而消失。
+
+> 2026-08-27 N51-E3 演进说明：上文保留 N32-E4 当时的 History Hash。Canonical source identity 纳入正式 Gal settings defaults 后，现行三步 History Session Hash 为 `3863ae1835ba5f1f8972e1960d930347f1fbb9fbc2278805599b97c6c2d98c32`；Back/Forward 光标和 Runtime State 等价语义未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。

@@ -64,11 +64,33 @@ describe("project compiler N30-E1/E2", () => {
       }];
     }));
     expect(outputs).toEqual({
-      tiny: { buildId: "fc5f19f50068912baf2cf75fa6f18fa595087a07bf76387cb5815cc87760dd42", storyIrHash: "19ed7a308c9762e34765601b3ce090a662bcce5436f4f3d36805783b91b6eb55" },
-      branching: { buildId: "73ee4352a05d6a7a352639c39b1b6ddfdd5f9ab6b781c200a43b73099991336f", storyIrHash: "b845ba6270cb506366a7f3000c1823c67db769809bb76d0b53bbce0321266e7c" },
-      media: { buildId: "24e4fb2d4003aca1ebdce398dc9fca010e83af93d0d3593c044c770c43c0c9d4", storyIrHash: "b86a7178c3cf45ead3166dbb1fba28639b963af92bc171d4e21107cbfb839aea" },
-      cjk: { buildId: "e458aee78288fdfdd84527754c6fe5e6e1d05cffc09cd44407d0e34999bebc30", storyIrHash: "2dbe1079fefb2c8258510738583bf0d96824c2464cfa140d5ee803e608c03d3b" }
+      tiny: { buildId: "55fee35bea9cb33000d55a11f63832a35838158aca28bb6bf8276556f15dd551", storyIrHash: "19ed7a308c9762e34765601b3ce090a662bcce5436f4f3d36805783b91b6eb55" },
+      branching: { buildId: "fd520ac7622992d157e3aae4515e1d8135a5f0c37a27204970ef6ff8208580fb", storyIrHash: "b845ba6270cb506366a7f3000c1823c67db769809bb76d0b53bbce0321266e7c" },
+      media: { buildId: "cf2e8cfb72efa8eaf0466f9015e4fdd58f49d41cd1976baddf9bc00696790639", storyIrHash: "b86a7178c3cf45ead3166dbb1fba28639b963af92bc171d4e21107cbfb839aea" },
+      cjk: { buildId: "9c9741efdc9541b1af7b217860b07e0a9a5425852e3a24b2252ea753c4c03e37", storyIrHash: "2dbe1079fefb2c8258510738583bf0d96824c2464cfa140d5ee803e608c03d3b" }
     });
+  });
+
+  it("includes formal Gal settings in the build identity without changing story IR", () => {
+    const project = loadFixture("tiny");
+    const original = compileProject(project, "debug");
+    const changed = compileProject({
+      ...project,
+      settings: {
+        ...project.settings,
+        project: {
+          ...project.settings.project,
+          audio: { ...project.settings.project.audio, master: 0.5 }
+        }
+      }
+    }, "debug");
+
+    expect(original.ok).toBe(true);
+    expect(changed.ok).toBe(true);
+    if (!original.ok || !changed.ok) return;
+    expect(changed.artifacts.manifest.sourceHash).not.toBe(original.artifacts.manifest.sourceHash);
+    expect(changed.artifacts.manifest.buildId).not.toBe(original.artifacts.manifest.buildId);
+    expect(changed.artifacts.manifest.artifacts["story.ir.json"]).toBe(original.artifacts.manifest.artifacts["story.ir.json"]);
   });
 
   it("keeps unchanged artifacts stable after a one-character script edit", () => {

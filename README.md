@@ -57,6 +57,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N51-E1 Typed Gal Settings Core 审计](docs/222-n51-e1-typed-gal-settings-core-audit.md) | 23 个首批字段、三层继承/来源、当前层重置、严格解析与确定性序列化 |
 | [N51-E2 Settings Catalog 与 Editing Service 审计](docs/223-n51-e2-settings-catalog-editor-audit.md) | Basic/Advanced、双语元数据、确定性搜索、原子分层编辑与来源差分 |
 | [N51-E2 暂停与后续步骤检查点](docs/224-n51-e2-pause-and-next-step-checkpoint.md) | 当前完成度、可迁移证据、未完成边界、E3–E6 顺序与换电脑恢复步骤 |
+| [N51-E3 Canonical Project Settings 与撤销事务审计](docs/225-n51-e3-project-settings-transaction-audit.md) | typed settings 正式文件、旧占位安全升级、ChangeSet/Undo/Redo、Node/IndexedDB 保存重开与冲突拒绝 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |

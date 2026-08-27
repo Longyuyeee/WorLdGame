@@ -72,7 +72,7 @@
       "kind": "portable-candidate",
       "stability": "candidate",
       "owner": "Domain Owner",
-      "allowedWorkspaceDependencies": []
+      "allowedWorkspaceDependencies": ["@world-studio/gal-settings"]
     },
     {
       "path": "packages/player-core",

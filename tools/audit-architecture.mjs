@@ -190,8 +190,9 @@ const routeGraphDependencies = Object.keys(routeGraphPackage.dependencies ?? {})
 if (JSON.stringify(routeGraphDependencies) !== JSON.stringify(["@world-studio/project-compiler", "@world-studio/project-domain"])) {
   violations.push("route-graph may depend only on project-compiler and project-domain in N40");
 }
-if (projectDomainPackage.dependencies !== undefined) {
-  violations.push("project-domain must not declare runtime dependencies in N10");
+const projectDomainDependencies = Object.keys(projectDomainPackage.dependencies ?? {}).sort();
+if (JSON.stringify(projectDomainDependencies) !== JSON.stringify(["@world-studio/gal-settings"])) {
+  violations.push("project-domain may depend only on the portable Gal settings core through N51-E3");
 }
 if (persistencePackage.dependencies !== undefined) {
   violations.push("project-persistence must not declare runtime dependencies in S0.9");
@@ -354,7 +355,7 @@ if (violations.length > 0) {
           "gal-settings is dependency-free and portable with no UI, DOM, filesystem, process, shell, wall-clock, or ambient-random dependency",
           "route-graph is portable and projects only canonical project and compiler facts through the Project Service boundary",
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
-          "project-domain has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
+          "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
           "editor declares the story-core dependency explicitly",
           "editor declares the story-language dependency explicitly",

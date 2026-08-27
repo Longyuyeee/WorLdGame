@@ -1,6 +1,6 @@
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it } from "vitest";
-import { createProjectTemplate, readTrustedProjectStructure, saveProject, sha256 } from "@world-studio/project-domain";
+import { createProject, createProjectService, createProjectTemplate, executeProjectCommand, markProjectDirty, openProject, readTrustedProjectStructure, saveLifecycleProject, saveProject, sha256 } from "@world-studio/project-domain";
 import { PROJECT_COMPILER_CACHE_PATH } from "@world-studio/project-compiler";
 import {
   INDEXEDDB_PROJECT_COMMIT_STORE,
@@ -156,5 +156,32 @@ describe("E8b IndexedDB atomic project workspace", () => {
     expect(workspace.selectedReads.flat()).not.toContain(project.scenes[0]!.layoutPath);
     expect(workspace.selectedReads.flat()).not.toContain(project.manifest.charactersPath);
     expect(workspace.fullReads).toBe(0);
+  });
+
+  it("atomically saves and reopens a formal settings transaction in the managed Web workspace", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new IndexedDbProjectWorkspace(indexedDb, "n51_settings", "N51 Settings");
+    const stale = new IndexedDbProjectWorkspace(indexedDb, "n51_settings", "N51 Settings");
+    const created = await createProject(workspace, "Web Settings", "018f08d8-71a1-7bc2-a627-2f4a843ee214");
+    const service = createProjectService(created.project!);
+    const edited = executeProjectCommand(service, {
+      commandId: "command_web_settings",
+      expectedRevision: 0,
+      kind: "settings.edit",
+      layer: { kind: "platform", platform: "web" },
+      edits: [{ type: "set", path: "text.fontScale", value: 1.25 }]
+    });
+    expect(edited.ok).toBe(true);
+    if (!edited.ok) return;
+    const saved = await saveLifecycleProject(workspace, markProjectDirty(created, edited.state.project));
+    const settingsPath = edited.state.project.manifest.settingsPath;
+    const expectedSettings = saveProject(edited.state.project)[settingsPath];
+    const reopened = await openProject(workspace);
+
+    expect(reopened.project?.settings.platforms.web.text?.fontScale).toBe(1.25);
+    expect((await workspace.readFiles()).files[settingsPath]).toBe(expectedSettings);
+    await expect(stale.writeFiles(created.baseFiles, created.hostVersion)).rejects.toThrow(/External project version changed/);
+    expect((await workspace.readFiles()).files[settingsPath]).toBe(expectedSettings);
+    expect(saved.hostVersion).not.toBe(created.hostVersion);
   });
 });

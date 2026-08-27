@@ -4,5 +4,8 @@
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
-  "scripts": { "build": "tsc -b" }
+  "scripts": { "build": "tsc -b" },
+  "dependencies": {
+    "@world-studio/gal-settings": "0.1.0-n51"
+  }
 }

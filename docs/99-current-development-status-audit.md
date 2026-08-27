@@ -1,10 +1,10 @@
-# 当前开发情况审计（N50 Engineering 已通过，N51-E2 Catalog/Editor 已关闭）
+# 当前开发情况审计（N50 Engineering 已通过，N51-E3 Project Settings 候选已建立）
 
 > 审计日期：2026-08-27
-> 当前分支：`codex/n51-e2-settings-catalog-editor`；直接基线为 N51-E1 最终绿色头 `c2257e4`
+> 当前分支：`codex/n51-e3-project-settings-transaction`；直接基线为 N51-E2 最终暂停头 `4817d68`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N51-E2 暂停与后续步骤检查点](224-n51-e2-pause-and-next-step-checkpoint.md)、[N51-E2 Settings Catalog 与 Editing Service](223-n51-e2-settings-catalog-editor-audit.md)、[N51-E1 Typed Gal Settings Core](222-n51-e1-typed-gal-settings-core-audit.md)
+> 最新节点证据：[N51-E3 Canonical Project Settings 与撤销事务](225-n51-e3-project-settings-transaction-audit.md)、[N51-E2 暂停与后续步骤检查点](224-n51-e2-pause-and-next-step-checkpoint.md)、[N51-E2 Settings Catalog 与 Editing Service](223-n51-e2-settings-catalog-editor-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1/E2 Engineering 已关闭，下一切片为 E3 Project settings 与 undo/redo transaction**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1/E2 已关闭，E3 Project settings/undo transaction 本地候选已建立，远端同头绿色后下一切片为 E4 Settings UI**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -30,6 +30,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N50→N51 治理由 Draft PR #90 承载；治理实现头 `649fc08` 的 Windows / Node 22 完整门 run `33050123723` / job `98443305419` 用时 `12m14s` 绿色，普通回归 `142/808`、VM corpus `68.403s <90s`、Route P95 `146.72ms <500ms`。这只关闭 N51 Engineering 准入检查点，不表示 N51 功能已经实现。
 - N51-E1 由 Draft PR #91 承载；实现头 `963ee1b` 建立 23 字段 portable typed core，default/project/platform 继承、来源、reset、严格解析和序列化专门门 `12/12`。本机完整门普通 `143/820`、VM `69.80s <90s`、Route P95 `122.07ms <500ms`；远端 run `33053868990` / job `98455699350` 用时 `12m9s` 绿色，VM `64.544s`、Route P95 `129.30ms`。E1 Engineering 关闭，不等于完整 N51 或 Product Acceptance。
 - N51-E2 已实现 23 字段 runtime-frozen catalog、Basic `16`/Advanced `23`、双语/NFKC 搜索和原子 editing service；本机最终完整门普通 `144/832`、N51 `24/24`，修改前同切片 VM 精确计时 `53.33s <90s`，最终代码第二轮同预算门通过；证据复核 Route P95 `223.74ms <500ms`、Asset dicing `3458.41ms <5000ms`。实现头 `e4fa4b5` 的 Draft PR #92 Windows / Node 22 run `33058884556` / job `98472432704` 用时 `11m28s` 绿色，普通 `144/832`、VM `66.876s <90s`、Route P95 `134.46ms <500ms`、Asset dicing `3374.89ms <5000ms`；E2 Engineering 关闭。
+- N51-E3 已把 typed settings 接入 Canonical Project 文件、Project Service ChangeSet 与 Undo/Redo；缺文件/精确空旧 v1 可升级，非空旧数据、损坏和 future schema 失败关闭；Node Directory 与 Web IndexedDB 保存重开、stale writer 和字节保持已通过。本地完整门已绿：普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM `27.14s <90s`、Route P95 `70.68ms <500ms`、Asset dicing `2122.83ms <5000ms`；远端同头证据待最终记录，因此当前保持 Engineering 候选。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -70,7 +71,7 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 | 检查 | 预期 | 实际 | 判定 |
 |---|---|---|---|
 | 定向 Editor | 正式流程与旧兼容均不回归 | 4 files / 40 tests | 通过 |
-| 双路线 State | 路线/Source Map/Hash 固定 | 广播室 `7cbc2296…7909b`；天台 `72def5ef…0353` | 通过 |
+| 双路线 State | 路线/Source Map/Hash 固定 | N51-E3 source identity 后：广播室 `137bb121…595fa`；天台 `8704bf52…eddd1` | 通过 |
 | 编译失败 | fail closed，不回退 | `MISSING_LABEL` | 通过 |
 | 生产浏览器 | 两路线正确 Ending、console 0 error | 入口至 Choice 3 次 Continue；两分支各 2 次；两个结局正确；0 error | 通过 |
 | 工作区/架构/风险/需求 | 当前节点 N32 且不越权 | 四项审计 PASS；RA-N21-004 唯一 active | 通过 |
@@ -82,11 +83,11 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 | E2 本机全仓 | 普通回归全绿；串行 autosave ≤5 秒 | 98 files / 592 tests 通过；autosave 约 23.10 秒仍“保存中…” | 功能通过；已知主机负载差异保留给远端裁决 |
 | E2 production build | 成功并报告增量 | 692.05 kB，gzip 198.42 kB；较 E1 约 +9.7/+2.1 kB | 构建通过，拆包债保留 |
 | E2 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #53，run `32459445287` / job `96703241983`，4 分 16 秒；autosave 3.086 秒 | 通过；本机负载差异关闭 |
-| E3 定向 | 精确目标、Fresh State、结构化负例和 UI 路径 | 2 files / 9 tests；Scene Hash `2658ce49…1ef6`；Statement Hash `62babbde…69e6` | 通过 |
+| E3 定向 | 精确目标、Fresh State、结构化负例和 UI 路径 | 2 files / 9 tests；N51-E3 source identity 后 Scene Hash `67eda61e…fccc4`；Statement Hash `04c2d201…d0622` | 通过 |
 | E3 全仓与构建 | 普通回归、串行 storage、审计和 production build 通过 | 98 files / 595 tests；storage 1/1；JS 694.55 kB / gzip 199.03 kB | 通过；>500 kB 拆包债保留 |
 | E3 生产浏览器 | Scene/Statement 精确位置、同目标重启、console 0 error | `stmt_radio_bg #0`、`stmt_radio_001 #1`；结局后重启仍为 `#1`；`[]` | 通过 |
 | E3 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #54，run `32461345815` / job `96708731870`，4 分 16 秒；98/595；autosave 3.049 秒；Runtime corpus 32.593 秒 | 通过；E3 Engineering 关闭 |
-| E4 定向 | History/Scheduler 控制、内部光标、调用栈、阻断和 fork | 2 files / 14 tests；History Hash `ffcbb64f…aa6594` | 通过 |
+| E4 定向 | History/Scheduler 控制、内部光标、调用栈、阻断和 fork | 2 files / 14 tests；N51-E3 source identity 后 History Hash `3863ae18…98c32` | 通过 |
 | E4 本机全仓 | 普通回归、串行 storage、审计和 production build | 98 files / 600 tests；storage 1/1（5.18 秒）；JS 721.30/205.42 kB | 通过；拆包债扩大并保留 |
 | E4 生产浏览器 | Cursor/Back/Forward/Choice/fork/布局/console | h2/2 transient；h1/2↔h2/2；Choice h3/3→h4/4；route fork h5/5；352×46；`[]` | 通过 |
 | E4 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #55，run `32464584207` / job `96718382563`，4 分 15 秒；98/600；autosave 2.961 秒；Runtime corpus 30.334 秒 | 通过；E4 Engineering 关闭 |
@@ -127,6 +128,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-010` 只准入 N51 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. RA-010 只准入 N51 Engineering；E2 已由同头本地/远端绿门关闭，下一步按[暂停检查点](224-n51-e2-pause-and-next-step-checkpoint.md)进入 E3 Canonical Project settings/undo transaction，N52 继续阻断。
+6. RA-010 只准入 N51 Engineering；E3 完整门与远端同头绿色后，下一步按[审计 #225](225-n51-e3-project-settings-transaction-audit.md)进入 E4 现代 Settings UI；Preview/Player 热应用仍归 E5，N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -65,3 +65,5 @@ Architecture 为 85 portable / 4 adapters，requirements 为 50 requirements / 1
 Draft PR #54 的实现头已通过 Windows / Node 22 `npm run check`：普通回归 98 files / 595 tests（79.52 秒），autosave 1/1（3.049 秒），VM conformance 1/1（65.34 秒），Runtime corpus 10,000 seeds / 20,000 replays / 40 chunks、32.593 秒、0 failed seeds、digest `20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2`。Typecheck、production builds、architecture、requirements、risk、delivery baseline 与性能门全部绿色，N32-E3 Engineering 出口满足。
 
 最终证据文档头仍需通过同一远端完整门；该检查只确认审计更新没有破坏仓库门，不重复宣称实现头的功能证据。下一步为 N32-E4：把 Continue、Step Over、Back/Forward 与 Run to Cursor 接入正式 Runtime History，并继续用状态 Hash、结构化失败和真实产品入口验证。E3 不提升 N32 Product Acceptance，也不解除 N40、M1 Stable 与发布阻断。
+
+> 2026-08-27 N51-E3 演进说明：上文保留 N32-E3 当时的固定向量。Canonical source identity 纳入正式 Gal settings defaults 后，现行 Scene/Statement State Hash 分别为 `67eda61ebbd7124de768a28a80c2306334b5c635f567cd29999b11bb889fccc4` 与 `04c2d20153d9552b1ff2549c2194b0a5f1ac753eb6b790872846bc3d607d0622`；精确目标、IR 位置和 Source Map 未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。

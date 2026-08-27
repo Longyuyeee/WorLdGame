@@ -104,3 +104,5 @@ npm.cmd run check
 N11 不证明项目首页、真实目录打开、最近项目、导入导出、崩溃恢复 UI 或章节/实体管理界面已经完成。它证明的是这些界面将要调用的统一语义事务内核。
 
 N11 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N12：项目首页与文件生命周期。
+
+> 2026-08-27 N51-E3 演进说明：Project Command union 新增单命令原子 `settings.edit`，复用 typed catalog/editor 最终校验并进入同一 revision、ChangeSet、Undo/Redo 与保存链；stale、非法设置和 no-op 均保持原 state。该扩展不改变 N11 的事务原则，详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
