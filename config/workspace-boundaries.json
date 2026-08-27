@@ -8,6 +8,7 @@
       "stability": "prototype",
       "owner": "Editor Owner",
       "allowedWorkspaceDependencies": [
+        "@world-studio/gal-settings",
         "@world-studio/project-compiler",
         "@world-studio/project-domain",
         "@world-studio/project-persistence",

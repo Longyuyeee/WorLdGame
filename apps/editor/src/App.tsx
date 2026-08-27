@@ -212,6 +212,7 @@ import { crossViewSyncAuditPasses, crossViewSyncAuditRequested, useCrossViewSync
 import { routeNodeNudge, type RouteNodeNudgeDirection } from "./input-equivalence";
 import { ProductionWorkspace } from "./ProductionWorkspace";
 import { DebugQaWorkspace } from "./DebugQaWorkspace";
+import { SettingsWorkspace } from "./SettingsWorkspace";
 
 type PersistenceStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" |
   "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" |
@@ -351,6 +352,8 @@ interface WorkspaceHeaderProps extends CommonProps {
   readonly persistence: PersistenceViewState;
   readonly onSave: () => void;
   readonly onOpenBackups: () => void;
+  readonly settingsOpen: boolean;
+  readonly onOpenSettings: () => void;
 }
 
 interface WorkspaceNavigationProps {
@@ -469,6 +472,8 @@ function WorkspaceHeader({
   persistence,
   onSave,
   onOpenBackups,
+  settingsOpen,
+  onOpenSettings,
   dispatch
 }: WorkspaceHeaderProps) {
   const sourceSession = activeSourceSession(session);
@@ -523,6 +528,14 @@ function WorkspaceHeader({
               ? "输入批次 · 未提交"
               : `本地事务 · r${sourceSession.revision}`}
         </span>
+        <button
+          type="button"
+          className={settingsOpen ? "settings-open-button is-active" : "settings-open-button"}
+          aria-pressed={settingsOpen}
+          onClick={onOpenSettings}
+        >
+          项目设置
+        </button>
         <button
           className="backup-button"
           onClick={onOpenBackups}
@@ -3484,10 +3497,11 @@ export interface AppProps {
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
+  readonly onCanonicalProjectSave?: (project: CanonicalProject) => Promise<void>;
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialProject, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
   const [canonicalBase, setCanonicalBase] = useState<CanonicalProject>(() => initialProject ?? projectCanonicalFromStory(session.project, "n32-editor-preview"));
   const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
@@ -3495,11 +3509,14 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     () => projectCanonicalWithAssetIndex(projectCanonicalWithStory(canonicalBase, session.project), assetIndex),
     [assetIndex, canonicalBase, session.project]
   );
+  const previewCanonicalProjectRef = useRef(previewCanonicalProject);
+  previewCanonicalProjectRef.current = previewCanonicalProject;
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevelId>("pro");
   const [motionPreference, setMotionPreference] = useState<MotionPreferenceId>(() => {
@@ -3542,6 +3559,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
     if (!descriptor.available) return;
     setWorkspaceMode(nextMode);
     setMode(descriptor.defaultView);
+    setSettingsOpen(false);
   }, []);
   const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
@@ -3590,8 +3608,10 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   sessionRef.current = session;
   const onProjectChangeRef = useRef(onProjectChange);
   const onProjectSaveRef = useRef(onProjectSave);
+  const onCanonicalProjectSaveRef = useRef(onCanonicalProjectSave);
   onProjectChangeRef.current = onProjectChange;
   onProjectSaveRef.current = onProjectSave;
+  onCanonicalProjectSaveRef.current = onCanonicalProjectSave;
   const [editVersion, setEditVersion] = useState(0);
   const [backupPanelOpen, setBackupPanelOpen] = useState(false);
   const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
@@ -3716,6 +3736,15 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const deleteRouteGroupFromMap=(groupId:string)=>applyRouteLayoutMutation(deleteRouteGroup(previewCanonicalProject,createCommandId(),groupId));
   const assignRouteSceneGroupFromMap=(sceneId:string,groupId?:string)=>applyRouteLayoutMutation(assignRouteSceneGroup(previewCanonicalProject,createCommandId(),sceneId,groupId));
   const setRouteViewportFromMap=(x:number,y:number,zoom:number)=>applyRouteLayoutMutation(setRouteViewport(previewCanonicalProject,createCommandId(),x,y,zoom));
+  const applySettingsProject = (project: CanonicalProject) => {
+    setCanonicalBase(project);
+    onCanonicalProjectChange?.(project);
+    editGeneration.current += 1;
+    setEditVersion((value) => value + 1);
+    setPersistence((current) => current.status === "unavailable" || current.status === "conflict" || current.status === "readonly" || current.status === "blocked" || current.status === "loading" || current.status === "migrating"
+      ? current
+      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }), detail: "设置 ChangeSet 已进入 Canonical Project，等待保存。" });
+  };
 
   useEffect(() => {
     if (!storageAvailable) return;
@@ -4008,6 +4037,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         (reason === "auto" && autosaveSuspended.current)) return;
     const currentSnapshot = persistedSnapshotRef.current;
     const projectAtSaveStart = sessionRef.current.project;
+    const canonicalProjectAtSaveStart = previewCanonicalProjectRef.current;
     if (currentSnapshot !== null && assetRepository === null) {
       setPersistence((current) => ({
         status: "degraded",
@@ -4053,7 +4083,8 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         nowMs
       });
     }).then(async () => {
-      await onProjectSaveRef.current?.(projectAtSaveStart);
+      if (onCanonicalProjectSaveRef.current !== undefined) await onCanonicalProjectSaveRef.current(canonicalProjectAtSaveStart);
+      else await onProjectSaveRef.current?.(projectAtSaveStart);
       persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
       let verifiedBackups = backups;
@@ -4732,6 +4763,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
       data-runtime-scene-id={contextProjection.runtimeSceneId}
       data-runtime-statement-id={contextProjection.runtimeStatementId}
       data-context-restore-status={workspaceContextStatus}
+      data-settings-open={settingsOpen}
       data-testid="workspace-shell"
     >
       <WorkspaceHeader
@@ -4743,17 +4775,29 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
         systemReducedMotion={systemReducedMotion}
         session={session}
         inputDirty={inputDirty}
-        onModeChange={setMode}
+        onModeChange={(nextMode) => { setSettingsOpen(false); setMode(nextMode); }}
         onWorkspaceModeChange={selectWorkspaceMode}
         onExperienceLevelChange={setExperienceLevel}
         onMotionPreferenceChange={setMotionPreference}
         persistence={persistence}
         onSave={() => saveToLocal("manual")}
         onOpenBackups={openBackups}
+        settingsOpen={settingsOpen}
+        onOpenSettings={() => setSettingsOpen((value) => !value)}
         dispatch={dispatch}
       />
-      <main className="workspace-grid" data-workspace-mode={workspaceMode}>
-        {workspaceMode === "production" ? (
+      <main className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
+        {settingsOpen ? <>
+          <SettingsWorkspace
+            project={previewCanonicalProject}
+            saveStatus={persistence.status}
+            {...(persistence.detail === undefined ? {} : { saveDetail: persistence.detail })}
+            onProjectChange={applySettingsProject}
+            onSave={() => saveToLocal("manual")}
+            onClose={() => setSettingsOpen(false)}
+          />
+          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+        </> : workspaceMode === "production" ? (
           <ProductionWorkspace
             index={assetIndex}
             lifecycle={assetLifecycle}

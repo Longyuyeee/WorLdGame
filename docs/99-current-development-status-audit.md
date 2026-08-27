@@ -1,10 +1,10 @@
-# 当前开发情况审计（N50 Engineering 已通过，N51-E3 Project Settings 已关闭）
+# 当前开发情况审计（N50 Engineering 已通过，N51-E4 Settings UI 本地候选已通过）
 
 > 审计日期：2026-08-27
 > 当前分支：`codex/n51-e3-project-settings-transaction`；直接基线为 N51-E2 最终暂停头 `4817d68`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N51-E3 Canonical Project Settings 与撤销事务](225-n51-e3-project-settings-transaction-audit.md)、[N51-E2 暂停与后续步骤检查点](224-n51-e2-pause-and-next-step-checkpoint.md)、[N51-E2 Settings Catalog 与 Editing Service](223-n51-e2-settings-catalog-editor-audit.md)
+> 最新节点证据：[N51-E4 现代 Settings UI 与保存重开](226-n51-e4-modern-settings-ui-audit.md)、[N51-E3 Canonical Project Settings 与撤销事务](225-n51-e3-project-settings-transaction-audit.md)、[N51-E2 暂停与后续步骤检查点](224-n51-e2-pause-and-next-step-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E3 Engineering 已关闭，下一切片为 E4 Settings UI**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E3 Engineering 已关闭，E4 Settings UI 本地候选通过、同头远端待验证，下一切片冻结为 E5 Preview/Player 热应用**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -31,6 +31,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N51-E1 由 Draft PR #91 承载；实现头 `963ee1b` 建立 23 字段 portable typed core，default/project/platform 继承、来源、reset、严格解析和序列化专门门 `12/12`。本机完整门普通 `143/820`、VM `69.80s <90s`、Route P95 `122.07ms <500ms`；远端 run `33053868990` / job `98455699350` 用时 `12m9s` 绿色，VM `64.544s`、Route P95 `129.30ms`。E1 Engineering 关闭，不等于完整 N51 或 Product Acceptance。
 - N51-E2 已实现 23 字段 runtime-frozen catalog、Basic `16`/Advanced `23`、双语/NFKC 搜索和原子 editing service；本机最终完整门普通 `144/832`、N51 `24/24`，修改前同切片 VM 精确计时 `53.33s <90s`，最终代码第二轮同预算门通过；证据复核 Route P95 `223.74ms <500ms`、Asset dicing `3458.41ms <5000ms`。实现头 `e4fa4b5` 的 Draft PR #92 Windows / Node 22 run `33058884556` / job `98472432704` 用时 `11m28s` 绿色，普通 `144/832`、VM `66.876s <90s`、Route P95 `134.46ms <500ms`、Asset dicing `3374.89ms <5000ms`；E2 Engineering 关闭。
 - N51-E3 已把 typed settings 接入 Canonical Project 文件、Project Service ChangeSet 与 Undo/Redo；缺文件/精确空旧 v1 可升级，非空旧数据、损坏和 future schema 失败关闭；Node Directory 与 Web IndexedDB 保存重开、stale writer 和字节保持已通过。本地完整门普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM `27.14s`、Route P95 `70.68ms`、Asset dicing `2122.83ms`；实现头 `8bae1b8` 的 Draft PR #93 Windows / Node 22 run `33088005806` / job `98572871025` 用时 `11m42s` 绿色，远端普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM `63.76s <90s`、Route P95 `148.65ms <500ms`、Asset dicing `3382.11ms <5000ms`。E3 Engineering 关闭。
+- N51-E4 候选已提供现代 Settings UI：Basic 16 / Advanced 23、NFKC 搜索、五分区、项目/Windows/Web/Android、来源与覆盖、原子 ChangeSet、恢复、Undo/Redo 和完整 Canonical 保存桥。真实 UI→IndexedDB→Lifecycle 重开通过；冷 production browser 在 1440×900 与 390×844 完成保存重开、16:9、触控 ≥44px、overflow 0、focus/reduced-motion 和 console 0。首次 36px 恢复按钮、10px 顶栏溢出与固定返回按钮遮挡均按实际纠正。本地完整门普通 `147/847`、N51 `49/49`、VM `27.09s`、Route P95 `60.06ms`、Asset dicing `1745.71ms` 全绿；同头远端仍待验证，故 E4 最终 Engineering 关闭和 E5 开始均尚未登记。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 

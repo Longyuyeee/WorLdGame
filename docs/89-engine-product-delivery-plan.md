@@ -481,6 +481,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3 实施状态（2026-08-27）：[N51-E3 审计](225-n51-e3-project-settings-transaction-audit.md)已把 typed settings 接入 `settings/project.json`、Canonical Project 与正式 Project Service/ChangeSet；缺文件和精确空旧 v1 首次保存安全升级，非空旧数据/损坏/future schema fail closed。settings 原子命令支持 stale、非法组合、no-op、Undo/Redo；Node 原生目录与 Web IndexedDB 已完成保存重开和旧 writer 拒绝。本地完整门普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM/Route/Asset 预算全绿；实现头 `8bae1b8` 的 Draft PR #93 Windows / Node 22 run `33088005806` / job `98572871025` 用时 `11m42s` 绿色，E3 Engineering 关闭。下一切片只能进入 E4 Settings UI，不提前热应用 Preview/Player 或进入 N52。
 
+> E4 本地候选状态（2026-08-28）：[N51-E4 审计](226-n51-e4-modern-settings-ui-audit.md)已在现有七模式之上增加项目设置任务面板，提供 Basic 16 / Advanced 23、NFKC 搜索、五分区、项目/三平台层、来源/覆盖/草稿、原子应用、整层恢复与 Project Service Undo/Redo；App→Launcher 保存桥已纠正为完整 Canonical Project。真实 IndexedDB 保存重开与 App 精确回调通过。冷 production browser 完成桌面和 390×844，Web `audio.master=0.4` 重开仍为 Web 来源，移动 overflow 0、可见控件均 ≥44px、16:9、focus/reduced-motion 与 console 0 均通过。本地完整门普通 `147/847`、N51 `49/49`、VM/Route/Asset 预算全绿；同头远端完整门待验证，故 E4 最终 Engineering 关闭尚未登记。E5 继续禁止提前实现，直到本候选远端绿色。
+
 ### N52 Save、History、Auto、Skip、Back/Forward
 
 - **Goal**：特色播放控制成为玩家功能而非 VM 测试。

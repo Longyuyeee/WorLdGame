@@ -223,6 +223,9 @@ for (const path of editorProductionFiles) {
 if (editorPackage.dependencies?.["@world-studio/story-core"] === undefined) {
   violations.push("editor must declare its story-core boundary explicitly");
 }
+if (editorPackage.dependencies?.["@world-studio/gal-settings"] === undefined) {
+  violations.push("editor must declare its N51 Gal settings boundary explicitly");
+}
 if (editorPackage.dependencies?.["@world-studio/story-language"] === undefined) {
   violations.push("editor must declare its story-language boundary explicitly");
 }
@@ -357,6 +360,7 @@ if (violations.length > 0) {
           "project-persistence has no UI, DOM, platform-shell, filesystem, process, or runtime third-party dependency",
           "project-domain depends only on portable Gal settings and has no UI, DOM, platform-shell, filesystem, process, crypto-provider, or runtime third-party dependency",
           "project-persistence-node is isolated from the web editor and depends only on portable project-domain/project-persistence contracts",
+          "editor declares the Gal settings dependency explicitly",
           "editor declares the story-core dependency explicitly",
           "editor declares the story-language dependency explicitly",
           "editor declares the project-persistence dependency explicitly",
