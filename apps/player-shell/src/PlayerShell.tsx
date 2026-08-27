@@ -1,16 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import type { CanonicalProject } from "@world-studio/project-domain";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
 import {
-  approvePlayerCoreBarrier,
-  advancePlayerCore,
   createPlayerCore,
   createPlayerCoreSnapshotV1,
-  selectPlayerCoreChoice,
-  settlePlayerCoreEffect,
-  startPlayerCore,
-  type PlayerCoreState
+  dispatchPlayerCoreIntentV1,
+  type PlayerCoreIntentV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
 import "./player-shell.css";
 
 export interface PlayerShellProps {
@@ -19,16 +16,16 @@ export interface PlayerShellProps {
   readonly onRetryMedia?: () => void;
 }
 
-function nextState(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
-  if (state.status === "title") return startPlayerCore(state, project);
-  if (state.status === "presenting") return advancePlayerCore(state);
-  return state;
-}
+type PlayerInputSource = "lifecycle" | "pointer" | "keyboard" | "gamepad" | "system";
 
 export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
+  const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
+  const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
+  const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
+  const projectSemanticHash = useMemo(() => semanticHash(project), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
   const stage = useMemo(() => derivePlayerStagePresentationV1(snapshot, mediaAssets), [mediaAssets, snapshot]);
@@ -40,34 +37,94 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
     return id === undefined || displayName === undefined ? [] : [[id, displayName] as const];
   })), [project.characters.characters]);
 
+  const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
+    setLastInputSource(source);
+    setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
+  }, [projectSemanticHash]);
+
+  useEffect(() => {
+    setState(createPlayerCore(project));
+    setMediaErrors([]);
+    setMediaGeneration(0);
+    setSelectedChoiceIndex(0);
+    setLastInputSource("lifecycle");
+  }, [projectSemanticHash]);
+
   useEffect(() => {
     setMediaErrors([]);
   }, [mediaSignature]);
 
   useEffect(() => {
+    if (content.kind !== "choice") {
+      setSelectedChoiceIndex(0);
+      return;
+    }
+    setSelectedChoiceIndex((current) => Math.min(current, Math.max(0, content.options.length - 1)));
+  }, [content.kind, content.kind === "choice" ? content.options.length : 0]);
+
+  useEffect(() => {
+    if (content.kind === "choice") choiceButtons.current[selectedChoiceIndex]?.focus();
+  }, [content.kind, selectedChoiceIndex]);
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
-      if ((event.key === "Enter" || event.key === " ") && (state.status === "title" || state.status === "presenting")) {
+      if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
-        setState((current) => nextState(current, project));
+        const delta = event.key === "ArrowUp" ? -1 : 1;
+        setSelectedChoiceIndex((current) => (current + delta + content.options.length) % content.options.length);
         return;
       }
-      if (state.status === "waiting-choice" && /^[1-9]$/u.test(event.key) && content.kind === "choice") {
+      if (content.kind === "choice" && /^[1-9]$/u.test(event.key)) {
         const option = content.options[Number(event.key) - 1];
-        if (option !== undefined) setState((current) => selectPlayerCoreChoice(current, option.optionId));
+        if (option !== undefined) applyIntent({ kind: "select-choice", optionId: option.optionId }, "keyboard");
         return;
       }
-      if (state.status === "waiting-effect" && event.key === "Escape") {
+      if (event.key === "Escape") {
         event.preventDefault();
-        setState((current) => settlePlayerCoreEffect(current, "cancel"));
-      } else if (state.status === "waiting-barrier" && event.key === "Enter") {
+        applyIntent({ kind: "cancel" }, "keyboard");
+        return;
+      }
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        setState((current) => approvePlayerCoreBarrier(current));
+        const selected = content.kind === "choice" ? content.options[selectedChoiceIndex] : undefined;
+        applyIntent(selected === undefined ? { kind: "primary" } : { kind: "select-choice", optionId: selected.optionId }, "keyboard");
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [content, project, state.status]);
+  }, [applyIntent, content, selectedChoiceIndex]);
+
+  useEffect(() => {
+    if (typeof navigator.getGamepads !== "function") return;
+    let animationFrame = 0;
+    let previous = createEmptyPlayerGamepadFrameV1();
+    const poll = () => {
+      const gamepad = navigator.getGamepads().find((candidate) => candidate !== null);
+      if (gamepad !== undefined && gamepad !== null) {
+        const current = browserGamepadFrameV1(gamepad);
+        const action = playerGamepadActionV1(previous, current);
+        previous = current;
+        if (action === "previous-choice" || action === "next-choice") {
+          if (content.kind === "choice") {
+            const delta = action === "previous-choice" ? -1 : 1;
+            setSelectedChoiceIndex((index) => (index + delta + content.options.length) % content.options.length);
+            setLastInputSource("gamepad");
+          }
+        } else if (action === "primary") {
+          const selected = content.kind === "choice" ? content.options[selectedChoiceIndex] : undefined;
+          applyIntent(selected === undefined ? { kind: "primary" } : { kind: "select-choice", optionId: selected.optionId }, "gamepad");
+        } else if (action === "cancel") {
+          applyIntent({ kind: "cancel" }, "gamepad");
+        }
+      } else {
+        previous = createEmptyPlayerGamepadFrameV1();
+      }
+      animationFrame = requestAnimationFrame(poll);
+    };
+    animationFrame = requestAnimationFrame(poll);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [applyIntent, content, selectedChoiceIndex]);
 
   return (
     <main
@@ -78,6 +135,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
       data-runtime={snapshot.identities.runtimeVersion}
       data-runtime-host={snapshot.identities.runtimeHostVersion}
       data-effect-operation={lastEffectOperation?.kind ?? "none"}
+      data-input-source={lastInputSource}
     >
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
@@ -151,7 +209,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
             <p className="player-eyebrow">A WORLd STUDIO STORY</p>
             <h1>{snapshot.title}</h1>
             <p>同一个故事核心，面向每一块屏幕。</p>
-            <button className="player-primary" type="button" onClick={() => setState((current) => nextState(current, project))}>
+            <button className="player-primary" type="button" onClick={() => applyIntent({ kind: "primary" }, "pointer")}>
               开始故事
               <span aria-hidden="true">→</span>
             </button>
@@ -160,7 +218,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
         )}
 
         {(content.kind === "dialogue" || content.kind === "narration") && (
-          <button className={`player-dialogue player-dialogue--${stage.textboxTemplate}`} type="button" onClick={() => setState((current) => nextState(current, project))} aria-label="继续下一句">
+          <button className={`player-dialogue player-dialogue--${stage.textboxTemplate}`} type="button" onClick={() => applyIntent({ kind: "primary" }, "pointer")} aria-label="继续下一句">
             {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
             <span aria-live="polite">{content.text}</span>
             <i aria-hidden="true">⌄</i>
@@ -171,7 +229,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
           <div className="player-choice" role="group" aria-labelledby="player-choice-prompt">
             <p id="player-choice-prompt">{content.prompt}</p>
             {content.options.map((option, index) => (
-              <button key={option.optionId} type="button" onClick={() => setState((current) => selectPlayerCoreChoice(current, option.optionId))}>
+              <button
+                key={option.optionId}
+                ref={(element) => { choiceButtons.current[index] = element; }}
+                type="button"
+                className={index === selectedChoiceIndex ? "is-selected" : undefined}
+                data-player-selected={index === selectedChoiceIndex ? "true" : "false"}
+                onFocus={() => setSelectedChoiceIndex(index)}
+                onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, "pointer")}
+              >
                 <span aria-hidden="true">{index + 1}</span>{option.label}
               </button>
             ))}
@@ -182,6 +248,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
           <div className="player-ending" role="status">
             <span>ENDING</span>
             <h2>{content.name}</h2>
+            <button className="player-secondary" type="button" onClick={() => applyIntent({ kind: "restart" }, "pointer")}>回到标题</button>
           </div>
         )}
 
@@ -191,6 +258,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
             <h1>{snapshot.title}</h1>
             <p>{content.diagnostics[0]?.message ?? "未知 Player Core 错误"}</p>
             <code>{content.diagnostics[0]?.code ?? "PLAYER_UNKNOWN_ERROR"}</code>
+            <button className="player-secondary" type="button" onClick={() => applyIntent({ kind: "restart" }, "pointer")}>重新载入工程</button>
           </div>
         )}
 
@@ -205,12 +273,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
               data-testid="player-effect-progress"
               style={{ animationDuration: `${stage.pendingDurationMilliseconds}ms` }}
               onAnimationEnd={() => {
-                if (stage.missingAssetIds.length === 0 && mediaErrors.length === 0) setState((current) => settlePlayerCoreEffect(current, "complete"));
+                if (stage.missingAssetIds.length === 0 && mediaErrors.length === 0) applyIntent({ kind: "primary" }, "system");
               }}
             />
             <div className="player-boundary__actions">
-              <button type="button" disabled={stage.missingAssetIds.length > 0 || mediaErrors.length > 0} onClick={() => setState((current) => settlePlayerCoreEffect(current, "complete"))}>完成动效</button>
-              {content.canCancel && <button type="button" onClick={() => setState((current) => settlePlayerCoreEffect(current, "cancel"))}>跳过动效</button>}
+              <button type="button" disabled={stage.missingAssetIds.length > 0 || mediaErrors.length > 0} onClick={() => applyIntent({ kind: "primary" }, "pointer")}>完成动效</button>
+              {content.canCancel && <button type="button" onClick={() => applyIntent({ kind: "cancel" }, "pointer")}>跳过动效</button>}
             </div>
           </div>
         )}
@@ -218,7 +286,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia }: PlayerS
         {content.kind === "barrier" && (
           <div className="player-boundary" role="alertdialog" aria-label={`确认不可逆步骤 ${content.descriptorId}`}>
             <span>不可逆边界</span><strong>{content.reason}</strong><code>{content.descriptorId}</code>
-            <button type="button" onClick={() => setState((current) => approvePlayerCoreBarrier(current))}>确认继续</button>
+            <button type="button" onClick={() => applyIntent({ kind: "primary" }, "pointer")}>确认继续</button>
           </div>
         )}
 

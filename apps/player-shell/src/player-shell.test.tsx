@@ -17,7 +17,7 @@ describe("N50-E1 shared Player Shell", () => {
   it("exposes formal identities and supports pointer input from title through choice", () => {
     const { container } = render(<PlayerShell project={branching()} />);
     const shell = container.querySelector("main");
-    expect(shell).toHaveAttribute("data-player-core", "0.2.0");
+    expect(shell).toHaveAttribute("data-player-core", "0.3.0");
     expect(shell).toHaveAttribute("data-compiler", "0.2.0");
     expect(shell).toHaveAttribute("data-runtime", "0.6.0");
     expect(shell).toHaveAttribute("data-runtime-host", "0.1.0");
@@ -36,6 +36,37 @@ describe("N50-E1 shared Player Shell", () => {
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
     fireEvent.keyDown(window, { key: " " });
     expect(screen.getByRole("status")).toHaveTextContent("Right");
+  });
+
+  it("uses directional keyboard selection and returns from an ending to a fresh title state", () => {
+    const { container } = render(<PlayerShell project={branching()} />);
+    fireEvent.keyDown(window, { key: "Enter" });
+    fireEvent.keyDown(window, { key: "ArrowDown" });
+    expect(screen.getByRole("button", { name: /Right/u })).toHaveAttribute("data-player-selected", "true");
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(screen.getByText("The bright route.")).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: " " });
+    expect(screen.getByRole("status")).toHaveTextContent("Right");
+    expect(container.querySelector("main")).toHaveAttribute("data-input-source", "keyboard");
+    fireEvent.click(screen.getByRole("button", { name: "回到标题" }));
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeInTheDocument();
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    expect(container.querySelector("main")).toHaveAttribute("data-input-source", "pointer");
+  });
+
+  it("fails closed to a fresh Core when the platform host replaces the project identity", () => {
+    const first = branching();
+    const media = createPlayerMediaDemoV1();
+    const view = render(<PlayerShell project={first} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+    view.rerender(<PlayerShell project={{ ...first }} />);
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+    view.rerender(<PlayerShell project={media.project} mediaAssets={media.mediaAssets} />);
+    expect(screen.queryByRole("group", { name: "Choose a route" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeInTheDocument();
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-input-source", "lifecycle");
   });
 
   it("renders real Stage media and completes an awaited Effect from the visible transition lifecycle", () => {

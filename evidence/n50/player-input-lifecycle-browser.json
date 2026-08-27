@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-27T12:42:00+08:00",
+  "route": "player-shell-vite-dev-current-source",
+  "desktopKeyboard": {
+    "viewport": { "width": 1280, "height": 720 },
+    "expected": [
+      "Enter starts the formal Core",
+      "ArrowDown synchronizes visual selection and DOM focus",
+      "Enter selects the focused choice",
+      "Space advances to the ending",
+      "Restart creates a title state with an empty Host operation log"
+    ],
+    "actual": {
+      "initial": { "title": "Branching Golden", "status": "title", "inputSource": "lifecycle" },
+      "started": { "status": "waiting-choice", "prompt": "Choose a route" },
+      "selection": { "option": "Right", "selected": true, "focused": true, "inputSource": "keyboard" },
+      "dialogue": { "status": "presenting", "text": "The bright route.", "inputSource": "keyboard" },
+      "ending": { "status": "ended", "name": "Right", "restartHeight": 48, "inputSource": "keyboard" },
+      "restarted": { "status": "title", "inputSource": "pointer", "hostOperation": "none" }
+    },
+    "difference": "none"
+  },
+  "projectIdentityReplacement": {
+    "expected": "Replacing the project prop must discard the prior Runtime/Host session and return the new project to title.",
+    "actualBefore": { "title": "Branching Golden", "status": "waiting-choice", "choiceVisible": true },
+    "actualAfter": { "title": "末班电车前的五分钟", "status": "title", "choiceVisible": false, "inputSource": "lifecycle", "hostOperation": "none" },
+    "difference": "none"
+  },
+  "mobilePointer": {
+    "viewport": { "width": 390, "height": 844 },
+    "expected": { "horizontalOverflow": 0, "minimumRestartTouchHeight": 44 },
+    "actual": {
+      "dialogue": { "width": 362, "height": 188 },
+      "restart": { "width": 106, "height": 48 },
+      "documentClientWidth": 390,
+      "documentScrollWidth": 390,
+      "inputSource": "pointer"
+    },
+    "difference": "The browser-control surface does not expose a tap operation. This is a real 390x844 layout and pointer-click run, not physical touchscreen evidence."
+  },
+  "differencesAndCorrections": [
+    {
+      "expected": "Typecheck and production build pass after input refactoring.",
+      "firstActual": "TS6133: PlayerCoreState import became unused after all controls moved to the shared intent dispatcher.",
+      "correction": "Removed the dead type import.",
+      "retest": "typecheck, player build, and N50 19/19 passed."
+    },
+    {
+      "expected": "The browser keyboard route opens the Left/Right fixture.",
+      "firstActual": "The default page intentionally opened the five-minute Benchmark, so the frozen Left/Right selectors had no match.",
+      "correction": "Added an explicit ?demo=input route backed by the formal Branching Golden instead of changing the product default.",
+      "retest": "The complete keyboard route passed."
+    },
+    {
+      "expected": "The mobile run reports an actual 390x844 viewport.",
+      "firstActual": "The first override was applied before creating the target tab and the target remained 1280x720.",
+      "correction": "Applied the viewport override to the active browser after the target tab existed and verified innerWidth/innerHeight before interaction.",
+      "retest": "innerWidth=390, innerHeight=844, document width 390/390."
+    },
+    {
+      "expected": "A cold production build mounts one React root without the development HMR warning.",
+      "firstActual": "Editing main.tsx while the dev server was live caused Vite HMR to report repeated createRoot calls during invalidation.",
+      "correction": "Stopped the dev server, completed the production build, and started the locked Vite preview from a clean process.",
+      "retest": "The production input route completed, #root had exactly one child before and after restart, no createRoot text was rendered, and the preview terminal emitted no React error."
+    },
+    {
+      "expected": "Lifecycle reset follows project semantic identity, not React object identity.",
+      "firstActual": "The initial effect depended on the project object reference and would reset for an equivalent cloned object.",
+      "correction": "Changed the dependency to the Canonical project semantic hash.",
+      "retest": "An equivalent clone preserved waiting-choice; a different Media project reset to title."
+    }
+  ],
+  "coldProductionPreview": {
+    "url": "http://127.0.0.1:5181/?demo=input",
+    "initial": { "status": "title", "title": "Branching Golden", "rootChildren": 1 },
+    "afterKeyboardRouteAndRestart": { "status": "title", "title": "Branching Golden", "rootChildren": 1, "inputSource": "pointer", "reactErrorText": false },
+    "previewTerminalReactErrors": 0
+  },
+  "gamepadBoundary": {
+    "implemented": "A/B, D-pad and left-stick threshold edge mapping with held-control suppression.",
+    "evidence": "Automated protocol tests only.",
+    "physicalDeviceStatus": "not-tested; no controller was available, so no hardware claim is made"
+  }
+}

@@ -25,7 +25,7 @@ import {
   type RuntimePresentationHostStateV1
 } from "@world-studio/runtime-host";
 
-export const PLAYER_CORE_VERSION = "0.2.0" as const;
+export const PLAYER_CORE_VERSION = "0.3.0" as const;
 const MAX_PLAYER_DRIVE_STEPS = 10_000;
 
 export type PlayerCoreStatus =
@@ -105,6 +105,12 @@ export interface PlayerCoreEffectOperationSnapshotV1 {
   readonly descriptorId: string;
   readonly channel: string;
 }
+
+export type PlayerCoreIntentV1 =
+  | { readonly kind: "primary" }
+  | { readonly kind: "select-choice"; readonly optionId: string }
+  | { readonly kind: "cancel" }
+  | { readonly kind: "restart" };
 
 function effectSnapshot(effect: import("@world-studio/runtime").RuntimeEffectIntentV1): PlayerCoreEffectSnapshotV1 {
   return {
@@ -290,6 +296,18 @@ export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreStat
     descriptorId: pending.descriptorId
   };
   return drivePlayerCore(state, state.runtimeState, input);
+}
+
+export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: CanonicalProject, intent: PlayerCoreIntentV1): PlayerCoreState {
+  if (intent.kind === "select-choice") return selectPlayerCoreChoice(state, intent.optionId);
+  if (intent.kind === "cancel") return settlePlayerCoreEffect(state, "cancel");
+  if (intent.kind === "restart") return state.status === "ended" || state.status === "error" ? createPlayerCore(project) : state;
+  if (state.status === "title") return startPlayerCore(state, project);
+  if (state.status === "presenting") return advancePlayerCore(state);
+  if (state.status === "waiting-effect") return settlePlayerCoreEffect(state, "complete");
+  if (state.status === "waiting-barrier") return approvePlayerCoreBarrier(state);
+  if (state.status === "ended" || state.status === "error") return createPlayerCore(project);
+  return state;
 }
 
 function presentation(state: PlayerCoreState): PlayerCoreSnapshotV1["presentation"] {
