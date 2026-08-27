@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-26
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。N50-E1–E6 已建立正式 Player Core、媒体/输入/生命周期和 v1 嵌入 API；范围消歧后 N50 Engineering 通过，三宿主 Product Acceptance 仍为 `0/1`。N51-E1 已建立首批 23 字段 typed Settings Core 并通过本机/远端完整门；`RA-N21-010` 只准入 N51 Engineering，全部 Product Acceptance、N52+、Android 实体包、M1 与发布继续阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。N50-E1–E6 已建立正式 Player Core、媒体/输入/生命周期和 v1 嵌入 API；范围消歧后 N50 Engineering 通过，三宿主 Product Acceptance 仍为 `0/1`。N51-E1 已关闭；E2 已建立 Settings Catalog/Editing Service，本地完整门通过、等待远端同头门。`RA-N21-010` 只准入 N51 Engineering，全部 Product Acceptance、N52+、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -55,6 +55,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N50–N52 范围消歧审计](docs/220-n50-n52-scope-reconciliation.md) | Player Shell、Settings、Save/History/Auto/Skip/Back 的唯一节点归属与 N50 出口重判 |
 | [N50→N51 治理检查点](docs/221-n50-n51-governance-checkpoint.md) | RA-N21-010 有界准入、N52 越界反例和 N51-E1 typed settings 冻结起点 |
 | [N51-E1 Typed Gal Settings Core 审计](docs/222-n51-e1-typed-gal-settings-core-audit.md) | 23 个首批字段、三层继承/来源、当前层重置、严格解析与确定性序列化 |
+| [N51-E2 Settings Catalog 与 Editing Service 审计](docs/223-n51-e2-settings-catalog-editor-audit.md) | Basic/Advanced、双语元数据、确定性搜索、原子分层编辑与来源差分 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |
