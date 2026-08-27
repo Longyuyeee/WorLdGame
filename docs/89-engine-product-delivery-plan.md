@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N43-E7 出口审计](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)确认七工作模式 Engineering 真实任务 `7/7`；[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)建立的 `RA-N21-009` 只授权 N50 正式 Player Shell Engineering。工程底座仍明显领先于 Gal Settings、Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N51+、M1/发布继续阻断。
+> 当前审计：[N50–N52 范围消歧](220-n50-n52-scope-reconciliation.md)确认 N50 Engineering 通过、Product Acceptance `0/1`；[N50→N51 治理检查点](221-n50-n51-governance-checkpoint.md)建立的 `RA-N21-010` 只授权 N51 Gal Settings Engineering。工程底座仍明显领先于 Gal Settings、Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N52+、M1/发布继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -458,11 +458,13 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E5 Engineering 状态（2026-08-27）：[N50-E5](217-n50-e5-player-host-lifecycle-audit.md)新增 Web visibility→`active/suspended` 宿主边界；暂停冻结输入、系统 Effect 和真实音频，恢复继续同一个 Core，卸载释放 media ref，重挂建立 fresh Core。真实桌面 BGM/Voice pause/resume、卸载 audio=0 和 390×844 document `390/390`、按钮 48px 均通过；首次 canonical 结局预期和 detached audio Map 均已按实际纠正。本机完整门 `141/804`、N50 `22/22`、VM `46.76s`、Route P95 `104.42ms`；实现头 `8137784` 的 Draft PR #88 Windows / Node 22 run `33043581781` / job `98422396914` 用时 `11m58s` 绿色，VM `67.313s <90s`、Route P95 `133.25ms <500ms`。E5 Engineering 关闭，Product Acceptance 与实体设备仍阻断。
 
-> E6 与出口复审（2026-08-27）：[N50-E6](218-n50-e6-player-embed-api-audit.md)新增 `WORLD_PLAYER_EMBED_API_VERSION=1.0.0` 和 mount/update/suspend/unmount/observation handle，独立 `embed.html` 通过公开 package export 挂载同一个正式 Core。真实开发与冷 production browser 完成 `title→presenting→suspended→active→unmounted→title`；首次状态标签滞后、暂停遮罩覆盖宿主控制、预览 cwd 与 Vite `__dirname` 警告均按实际修正。本机全仓普通 `142/808`、N50 `26/26`、VM `48.00s`、Route P95 `101.21ms`；实现头 `001a92f` 的 Draft PR #89 Windows / Node 22 run `33046773968` / job `98432514531` 用时 `10m41s` 绿色，VM `53.581s`、Route P95 `122.31ms`。但[出口复审](219-n50-engineering-exit-reaudit.md)确认冻结 Implementation 中 History/Settings/Save-Load UI 未完成，Windows/Android 正式宿主也不存在，故 E1–E6 切片通过但 N50 总出口失败；N50/N52 重复范围须先治理消歧，禁止直接进入 N51/N52。
+> E6 首次出口复审（2026-08-27）：[N50-E6](218-n50-e6-player-embed-api-audit.md)新增 `WORLD_PLAYER_EMBED_API_VERSION=1.0.0` 和 mount/update/suspend/unmount/observation handle，独立 `embed.html` 通过公开 package export 挂载同一个正式 Core。真实开发与冷 production browser 完成 `title→presenting→suspended→active→unmounted→title`；首次状态标签滞后、暂停遮罩覆盖宿主控制、预览 cwd 与 Vite `__dirname` 警告均按实际修正。本机全仓普通 `142/808`、N50 `26/26`、VM `48.00s`、Route P95 `101.21ms`；实现头 `001a92f` 的 Draft PR #89 Windows / Node 22 run `33046773968` / job `98432514531` 用时 `10m41s` 绿色。该时点因范围重复而 fail closed；随后 #220 完成唯一归属纠偏并重判 N50 Engineering 通过，三宿主 Product Acceptance 仍失败。
 
 - **Goal**：形成可嵌入 Web/Windows/Android 的正式玩家。
-- **Implementation**：标题、开始/继续、对话、选择、历史、设置、存读档、错误页；鼠标/键盘/触摸/基础手柄；响应式安全区；无障碍语义。
+- **Implementation**：标题、开始/继续、对话、选择、结局、错误页；媒体舞台；鼠标/键盘/触摸/基础手柄；响应式安全区；无障碍语义；版本化宿主嵌入。Settings 唯一归 N51，Save/History/Auto/Skip/Back/Forward 唯一归 N52。
 - **Acceptance**：同一 Player Core 被三宿主使用，不复制剧情逻辑。
+
+> 范围消歧与 Engineering 出口（2026-08-27）：[审计 #220](220-n50-n52-scope-reconciliation.md)纠正 N50 与 N51/N52 的重复归属，不删除任何 P0 需求。E1–E6 已完成上述 N50 Implementation `9/9`，因此 N50 Engineering 通过；Windows/Android 正式宿主尚不存在，Acceptance `0/1`，N50 Product Acceptance 保持失败。[N50→N51 治理 #221](221-n50-n51-governance-checkpoint.md)只准入 N51 Settings Engineering，N52 继续阻断。
 
 ### N51 Gal 配置中心
 

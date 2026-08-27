@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N43 Engineering 出口不得换算成 Product Acceptance；`RA-N21-009` 只准入 N50 正式 Player Shell Engineering，持续阻断 N50 Product Acceptance、N51 及以后、M1 Stable 与发布。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N50 Engineering 出口不得换算成 Product Acceptance；`RA-N21-010` 只准入 N51 Gal Settings Engineering，持续阻断 N51 Product Acceptance、N52 及以后、M1 Stable 与发布。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N43 Engineering 7/7 出口完成后，产品负责人在获知 RA-008 截止于 N43 后于 2026-08-26 再次明确要求进入下一步骤并逐步实测、审计和推送，因此关闭 `RA-N21-008`，建立 2026-09-25 到期的 `RA-N21-009`：只允许推进 N50 正式 Player Shell Engineering，并持续阻断全部既有 Product Acceptance、N50 Product Acceptance、N51 及以后、M1 Stable 与发布。证据见[N43→N50 治理检查点](211-n43-n50-governance-checkpoint.md)。
+最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N50 E1–E6 完成 Core/媒体/输入/生命周期/嵌入后，[范围消歧 #220](220-n50-n52-scope-reconciliation.md)把 Settings 唯一归 N51、播放控制唯一归 N52，N50 Engineering 通过而 Product Acceptance `0/1`。产品负责人在获知 RA-009 截止于 N50 后于 2026-08-27 再次明确要求进入后续步骤，因此关闭 RA-009，建立 2026-09-26 到期的 `RA-N21-010`：只允许 N51 Settings Engineering，并持续阻断全部 Product Acceptance、N52+、M1 与发布。证据见[治理 #221](221-n50-n51-governance-checkpoint.md)。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|
@@ -51,7 +51,7 @@
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
 | REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler/Runtime 已有 CFG/SCC、Source Map 与结构化诊断；N43-E6 已提供当前 stable ID 的正式检查、错误草稿阻断、严重级别筛选和 Sequence 定位修复闭环。仍缺断点管理、Watch、Solver、覆盖率和完整 Debugger E2E | [N43-E6](209-n43-e6-debug-qa-workspace-audit.md)、QA Golden、Debugger E2E |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N50-E6 已生成消费正式 Compiler/Runtime/Player Core 的双入口 Web 工程产物并以冷 production preview 通过独立 embed 页；这不是 PWA、Windows/APK/AAB 发布包。两名参与者证据、资源构建、安装、签名和发布材料均缺 | [N50-E6](218-n50-e6-player-embed-api-audit.md)、[N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、三端 Artifact Manifest、安装/签名报告 |
-| REQ-GAL | 可搜索设置、继承/撤销/预览、完整 Gal P0、附加页模板、六类音量、三平台 Profile | N51/N52/N62 | N10/N31/N50 | 未开始 | 只有规格 | Settings Schema/E2E、三端配置 Golden |
+| REQ-GAL | 可搜索设置、继承/撤销/预览、完整 Gal P0、附加页模板、六类音量、三平台 Profile | N51/N52/N62 | N10/N31/N50 | 设计冻结 | N50/N51/N52 唯一归属与 N51-E1 typed schema 起点已冻结；Schema、继承解析、UI 和应用链尚未实现 | [范围消歧 #220](220-n50-n52-scope-reconciliation.md)、[N51 治理 #221](221-n50-n51-governance-checkpoint.md)、Settings Schema/E2E |
 | REQ-OPT | 联合预算、Profile、去重、报告、依赖、加载调度、稳定性诊断、可解释回退 | N71/N72/N102 | N70/N83 | 实现中 | 算法分散，无 Center/真机 | Optimization Golden、三端性能报告 |
 
 ## 4. M1 纵向验收
