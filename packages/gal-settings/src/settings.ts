@@ -1,0 +1,367 @@
+export const GAL_SETTINGS_SCHEMA_VERSION = 1 as const;
+
+export const GAL_SETTINGS_PLATFORMS = ["windows", "web", "android"] as const;
+export type GalSettingsPlatform = (typeof GAL_SETTINGS_PLATFORMS)[number];
+
+export interface GalSettings {
+  readonly display: {
+    readonly designWidth: number;
+    readonly designHeight: number;
+    readonly orientation: "landscape" | "portrait" | "adaptive";
+    readonly safeArea: "none" | "system";
+    readonly quality: "low" | "balanced" | "high";
+  };
+  readonly text: {
+    readonly charactersPerSecond: number;
+    readonly minimumDisplayMilliseconds: number;
+    readonly punctuationDelayMilliseconds: number;
+    readonly fontScale: number;
+    readonly messageWindowOpacity: number;
+  };
+  readonly advance: {
+    readonly allowHold: boolean;
+    readonly waitForVoice: boolean;
+  };
+  readonly audio: {
+    readonly master: number;
+    readonly bgm: number;
+    readonly voice: number;
+    readonly sfx: number;
+    readonly ambient: number;
+    readonly ui: number;
+    readonly voiceDucking: number;
+  };
+  readonly input: {
+    readonly pointerAdvance: boolean;
+    readonly keyboardAdvance: boolean;
+    readonly touchAdvance: boolean;
+    readonly gamepadAdvance: boolean;
+  };
+}
+
+export type GalSettingsOverride = {
+  readonly [Section in keyof GalSettings]?: Partial<GalSettings[Section]>;
+};
+
+export interface GalSettingsDocument {
+  readonly schemaVersion: typeof GAL_SETTINGS_SCHEMA_VERSION;
+  readonly project: GalSettingsOverride;
+  readonly platforms: Readonly<Record<GalSettingsPlatform, GalSettingsOverride>>;
+}
+
+export type GalSettingPath = {
+  [Section in keyof GalSettings]: {
+    [Field in keyof GalSettings[Section] & string]: `${Section & string}.${Field}`
+  }[keyof GalSettings[Section] & string]
+}[keyof GalSettings];
+
+export type GalSettingSource = "default" | "project" | GalSettingsPlatform;
+
+export interface ResolvedGalSettings {
+  readonly platform: GalSettingsPlatform;
+  readonly values: GalSettings;
+  readonly sources: Readonly<Record<GalSettingPath, GalSettingSource>>;
+}
+
+export type GalSettingsErrorCode =
+  | "INVALID_JSON"
+  | "INVALID_SCHEMA"
+  | "FUTURE_SCHEMA"
+  | "UNKNOWN_FIELD"
+  | "INVALID_VALUE"
+  | "INVALID_COMBINATION";
+
+export class GalSettingsError extends Error {
+  readonly code: GalSettingsErrorCode;
+  readonly path: string;
+
+  constructor(code: GalSettingsErrorCode, path: string, message: string) {
+    super(`${path}: ${message}`);
+    this.name = "GalSettingsError";
+    this.code = code;
+    this.path = path;
+  }
+}
+
+export const DEFAULT_GAL_SETTINGS: GalSettings = Object.freeze({
+  display: Object.freeze({
+    designWidth: 1920,
+    designHeight: 1080,
+    orientation: "landscape" as const,
+    safeArea: "system" as const,
+    quality: "high" as const
+  }),
+  text: Object.freeze({
+    charactersPerSecond: 30,
+    minimumDisplayMilliseconds: 350,
+    punctuationDelayMilliseconds: 120,
+    fontScale: 1,
+    messageWindowOpacity: 0.88
+  }),
+  advance: Object.freeze({ allowHold: true, waitForVoice: true }),
+  audio: Object.freeze({
+    master: 1,
+    bgm: 0.8,
+    voice: 1,
+    sfx: 0.9,
+    ambient: 0.8,
+    ui: 0.9,
+    voiceDucking: 0.35
+  }),
+  input: Object.freeze({
+    pointerAdvance: true,
+    keyboardAdvance: true,
+    touchAdvance: true,
+    gamepadAdvance: true
+  })
+});
+
+type UnknownRecord = Record<string, unknown>;
+type Section = keyof GalSettings;
+
+const SECTION_FIELDS = {
+  display: ["designWidth", "designHeight", "orientation", "safeArea", "quality"],
+  text: ["charactersPerSecond", "minimumDisplayMilliseconds", "punctuationDelayMilliseconds", "fontScale", "messageWindowOpacity"],
+  advance: ["allowHold", "waitForVoice"],
+  audio: ["master", "bgm", "voice", "sfx", "ambient", "ui", "voiceDucking"],
+  input: ["pointerAdvance", "keyboardAdvance", "touchAdvance", "gamepadAdvance"]
+} as const satisfies { readonly [Key in Section]: readonly (keyof GalSettings[Key] & string)[] };
+
+const SETTING_PATHS = (Object.entries(SECTION_FIELDS) as Array<[Section, readonly string[]]>)
+  .flatMap(([section, fields]) => fields.map((field) => `${section}.${field}` as GalSettingPath));
+
+function fail(code: GalSettingsErrorCode, path: string, message: string): never {
+  throw new GalSettingsError(code, path, message);
+}
+
+function parsePlatform(value: unknown): GalSettingsPlatform {
+  return enumeration(value, "platform", GAL_SETTINGS_PLATFORMS);
+}
+
+function record(value: unknown, path: string): UnknownRecord {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return fail("INVALID_SCHEMA", path, "must be an object");
+  }
+  return value as UnknownRecord;
+}
+
+function assertKnownFields(value: UnknownRecord, fields: readonly string[], path: string): void {
+  const unknown = Object.keys(value).find((key) => !fields.includes(key));
+  if (unknown !== undefined) fail("UNKNOWN_FIELD", `${path}.${unknown}`, "is not supported by schema v1");
+}
+
+function finiteNumber(value: unknown, path: string, minimum: number, maximum: number): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < minimum || value > maximum) {
+    return fail("INVALID_VALUE", path, `must be a finite number from ${minimum} to ${maximum}`);
+  }
+  return Object.is(value, -0) ? 0 : value;
+}
+
+function boolean(value: unknown, path: string): boolean {
+  return typeof value === "boolean" ? value : fail("INVALID_VALUE", path, "must be boolean");
+}
+
+function enumeration<const Value extends string>(value: unknown, path: string, values: readonly Value[]): Value {
+  return typeof value === "string" && values.includes(value as Value)
+    ? value as Value
+    : fail("INVALID_VALUE", path, `must be one of ${values.join(", ")}`);
+}
+
+function parseDisplay(value: unknown, path: string): NonNullable<GalSettingsOverride["display"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.display, path);
+  return {
+    ...(input.designWidth === undefined ? {} : { designWidth: finiteNumber(input.designWidth, `${path}.designWidth`, 320, 7680) }),
+    ...(input.designHeight === undefined ? {} : { designHeight: finiteNumber(input.designHeight, `${path}.designHeight`, 320, 4320) }),
+    ...(input.orientation === undefined ? {} : { orientation: enumeration(input.orientation, `${path}.orientation`, ["landscape", "portrait", "adaptive"] as const) }),
+    ...(input.safeArea === undefined ? {} : { safeArea: enumeration(input.safeArea, `${path}.safeArea`, ["none", "system"] as const) }),
+    ...(input.quality === undefined ? {} : { quality: enumeration(input.quality, `${path}.quality`, ["low", "balanced", "high"] as const) })
+  };
+}
+
+function parseText(value: unknown, path: string): NonNullable<GalSettingsOverride["text"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.text, path);
+  return {
+    ...(input.charactersPerSecond === undefined ? {} : { charactersPerSecond: finiteNumber(input.charactersPerSecond, `${path}.charactersPerSecond`, 1, 200) }),
+    ...(input.minimumDisplayMilliseconds === undefined ? {} : { minimumDisplayMilliseconds: finiteNumber(input.minimumDisplayMilliseconds, `${path}.minimumDisplayMilliseconds`, 0, 10000) }),
+    ...(input.punctuationDelayMilliseconds === undefined ? {} : { punctuationDelayMilliseconds: finiteNumber(input.punctuationDelayMilliseconds, `${path}.punctuationDelayMilliseconds`, 0, 2000) }),
+    ...(input.fontScale === undefined ? {} : { fontScale: finiteNumber(input.fontScale, `${path}.fontScale`, 0.75, 2) }),
+    ...(input.messageWindowOpacity === undefined ? {} : { messageWindowOpacity: finiteNumber(input.messageWindowOpacity, `${path}.messageWindowOpacity`, 0, 1) })
+  };
+}
+
+function parseAdvance(value: unknown, path: string): NonNullable<GalSettingsOverride["advance"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.advance, path);
+  return {
+    ...(input.allowHold === undefined ? {} : { allowHold: boolean(input.allowHold, `${path}.allowHold`) }),
+    ...(input.waitForVoice === undefined ? {} : { waitForVoice: boolean(input.waitForVoice, `${path}.waitForVoice`) })
+  };
+}
+
+function parseAudio(value: unknown, path: string): NonNullable<GalSettingsOverride["audio"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.audio, path);
+  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, finiteNumber(item, `${path}.${key}`, 0, 1)])) as NonNullable<GalSettingsOverride["audio"]>;
+}
+
+function parseInput(value: unknown, path: string): NonNullable<GalSettingsOverride["input"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.input, path);
+  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, boolean(item, `${path}.${key}`)])) as NonNullable<GalSettingsOverride["input"]>;
+}
+
+function parseOverride(value: unknown, path: string): GalSettingsOverride {
+  const input = record(value, path);
+  assertKnownFields(input, Object.keys(SECTION_FIELDS), path);
+  return {
+    ...(input.display === undefined ? {} : { display: parseDisplay(input.display, `${path}.display`) }),
+    ...(input.text === undefined ? {} : { text: parseText(input.text, `${path}.text`) }),
+    ...(input.advance === undefined ? {} : { advance: parseAdvance(input.advance, `${path}.advance`) }),
+    ...(input.audio === undefined ? {} : { audio: parseAudio(input.audio, `${path}.audio`) }),
+    ...(input.input === undefined ? {} : { input: parseInput(input.input, `${path}.input`) })
+  };
+}
+
+function mergeSettings(...overrides: readonly GalSettingsOverride[]): GalSettings {
+  return overrides.reduce<GalSettings>((current, override) => ({
+    display: { ...current.display, ...override.display },
+    text: { ...current.text, ...override.text },
+    advance: { ...current.advance, ...override.advance },
+    audio: { ...current.audio, ...override.audio },
+    input: { ...current.input, ...override.input }
+  }), DEFAULT_GAL_SETTINGS);
+}
+
+function validateCombination(values: GalSettings, path: string): void {
+  if (values.display.orientation === "landscape" && values.display.designWidth < values.display.designHeight) {
+    fail("INVALID_COMBINATION", `${path}.display`, "landscape requires designWidth >= designHeight");
+  }
+  if (values.display.orientation === "portrait" && values.display.designHeight < values.display.designWidth) {
+    fail("INVALID_COMBINATION", `${path}.display`, "portrait requires designHeight >= designWidth");
+  }
+}
+
+function normalizedOverride(value: GalSettingsOverride): GalSettingsOverride {
+  return Object.fromEntries(Object.entries(value).filter(([, section]) => Object.keys(section).length > 0)) as GalSettingsOverride;
+}
+
+export function createGalSettingsDocument(): GalSettingsDocument {
+  return {
+    schemaVersion: GAL_SETTINGS_SCHEMA_VERSION,
+    project: {},
+    platforms: { windows: {}, web: {}, android: {} }
+  };
+}
+
+export function parseGalSettingsDocument(value: unknown): GalSettingsDocument {
+  const input = record(value, "settings");
+  assertKnownFields(input, ["schemaVersion", "project", "platforms"], "settings");
+  if (input.schemaVersion !== GAL_SETTINGS_SCHEMA_VERSION) {
+    if (typeof input.schemaVersion === "number" && Number.isSafeInteger(input.schemaVersion) && input.schemaVersion > GAL_SETTINGS_SCHEMA_VERSION) {
+      fail("FUTURE_SCHEMA", "settings.schemaVersion", `schema ${input.schemaVersion} is read-only until migrated`);
+    }
+    fail("INVALID_SCHEMA", "settings.schemaVersion", `must equal ${GAL_SETTINGS_SCHEMA_VERSION}`);
+  }
+  const platforms = record(input.platforms, "settings.platforms");
+  assertKnownFields(platforms, GAL_SETTINGS_PLATFORMS, "settings.platforms");
+  for (const platform of GAL_SETTINGS_PLATFORMS) {
+    if (platforms[platform] === undefined) fail("INVALID_SCHEMA", `settings.platforms.${platform}`, "is required");
+  }
+  const project = normalizedOverride(parseOverride(input.project, "settings.project"));
+  const settingsDocument: GalSettingsDocument = {
+    schemaVersion: GAL_SETTINGS_SCHEMA_VERSION,
+    project,
+    platforms: Object.fromEntries(GAL_SETTINGS_PLATFORMS.map((platform) => [
+      platform,
+      normalizedOverride(parseOverride(platforms[platform], `settings.platforms.${platform}`))
+    ])) as Record<GalSettingsPlatform, GalSettingsOverride>
+  };
+  validateCombination(mergeSettings(settingsDocument.project), "settings.project");
+  for (const platform of GAL_SETTINGS_PLATFORMS) {
+    validateCombination(mergeSettings(settingsDocument.project, settingsDocument.platforms[platform]), `settings.platforms.${platform}`);
+  }
+  return settingsDocument;
+}
+
+export function parseSerializedGalSettingsDocument(source: string): GalSettingsDocument {
+  try {
+    return parseGalSettingsDocument(JSON.parse(source) as unknown);
+  } catch (error) {
+    if (error instanceof GalSettingsError) throw error;
+    fail("INVALID_JSON", "settings", "must contain valid JSON");
+  }
+}
+
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (typeof value === "object" && value !== null) {
+    return Object.fromEntries(Object.keys(value as UnknownRecord).sort().map((key) => [key, canonical((value as UnknownRecord)[key])]));
+  }
+  return value;
+}
+
+export function serializeGalSettingsDocument(settingsDocument: GalSettingsDocument): string {
+  const parsed = parseGalSettingsDocument(settingsDocument);
+  return `${JSON.stringify(canonical(parsed), null, 2)}\n`;
+}
+
+function hasSetting(override: GalSettingsOverride, path: GalSettingPath): boolean {
+  const [section, field] = path.split(".") as [Section, string];
+  return Object.prototype.hasOwnProperty.call(override[section] ?? {}, field);
+}
+
+export function resolveGalSettings(settingsDocument: GalSettingsDocument, platform: GalSettingsPlatform): ResolvedGalSettings {
+  platform = parsePlatform(platform);
+  const parsed = parseGalSettingsDocument(settingsDocument);
+  const platformOverride = parsed.platforms[platform];
+  const values = mergeSettings(parsed.project, platformOverride);
+  validateCombination(values, `settings.platforms.${platform}`);
+  const sources = Object.fromEntries(SETTING_PATHS.map((path) => [
+    path,
+    hasSetting(platformOverride, path) ? platform : hasSetting(parsed.project, path) ? "project" : "default"
+  ])) as Record<GalSettingPath, GalSettingSource>;
+  return { platform, values, sources };
+}
+
+function mergeOverride(current: GalSettingsOverride, patch: GalSettingsOverride): GalSettingsOverride {
+  return normalizedOverride({
+    ...current,
+    ...Object.fromEntries(Object.keys(patch).map((section) => [section, {
+      ...(current[section as Section] ?? {}),
+      ...(patch[section as Section] ?? {})
+    }]))
+  });
+}
+
+export function withProjectSettings(settingsDocument: GalSettingsDocument, patch: GalSettingsOverride): GalSettingsDocument {
+  return parseGalSettingsDocument({ ...settingsDocument, project: mergeOverride(settingsDocument.project, parseOverride(patch, "patch")) });
+}
+
+export function withPlatformSettings(settingsDocument: GalSettingsDocument, platform: GalSettingsPlatform, patch: GalSettingsOverride): GalSettingsDocument {
+  platform = parsePlatform(platform);
+  return parseGalSettingsDocument({
+    ...settingsDocument,
+    platforms: { ...settingsDocument.platforms, [platform]: mergeOverride(settingsDocument.platforms[platform], parseOverride(patch, "patch")) }
+  });
+}
+
+function withoutSetting(override: GalSettingsOverride, path: GalSettingPath): GalSettingsOverride {
+  const [section, field] = path.split(".") as [Section, string];
+  const sectionValue = { ...(override[section] ?? {}) } as UnknownRecord;
+  delete sectionValue[field];
+  return normalizedOverride({ ...override, [section]: sectionValue });
+}
+
+export function resetProjectSetting(settingsDocument: GalSettingsDocument, path: GalSettingPath): GalSettingsDocument {
+  return parseGalSettingsDocument({ ...settingsDocument, project: withoutSetting(settingsDocument.project, path) });
+}
+
+export function resetPlatformSetting(settingsDocument: GalSettingsDocument, platform: GalSettingsPlatform, path: GalSettingPath): GalSettingsDocument {
+  platform = parsePlatform(platform);
+  return parseGalSettingsDocument({
+    ...settingsDocument,
+    platforms: { ...settingsDocument.platforms, [platform]: withoutSetting(settingsDocument.platforms[platform], path) }
+  });
+}
