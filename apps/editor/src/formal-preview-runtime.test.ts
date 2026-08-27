@@ -47,12 +47,12 @@ describe("formal editor preview runtime", () => {
     expect(radio).toMatchObject({ status: "ended", endingName: "留在电波里的名字", statementId: "stmt_radio_end" });
     expect(radio.visitedSceneIds).toEqual(["scn_school_gate", "scn_broadcast_room"]);
     expect(radio.visitedRouteEdgeIds).toEqual(["opt_broadcast"]);
-    expect(runtimeStateHashV1(radio.runtimeState!)).toBe("7cbc22960842f5df24ef7b2121edcc0d1d43c5105dc24ea179f65d0f7fd7909b");
+    expect(runtimeStateHashV1(radio.runtimeState!)).toBe("137bb121a345a9ae99a2917d4f29c6dbb6bba42e2bc15a4d4689ef507c2595fa");
 
     const rooftop = untilSettled(selectFormalPreviewChoice(waiting, "opt_rooftop"));
     expect(rooftop).toMatchObject({ status: "ended", endingName: "晚风知道答案", statementId: "stmt_rooftop_end" });
     expect(rooftop.visitedRouteEdgeIds).toEqual(["opt_rooftop"]);
-    expect(runtimeStateHashV1(rooftop.runtimeState!)).toBe("72def5efcde9a381a40fec38038323c3e3a04b2f4c0910237f26d70ef32a0353");
+    expect(runtimeStateHashV1(rooftop.runtimeState!)).toBe("8704bf523fa62d736bb799cebc092fbf09ef2093e1d039e63418b6b6e05eddd1");
   });
 
   it("fails closed on Compiler diagnostics instead of falling back to the product interpreter", () => {
@@ -110,12 +110,12 @@ describe("formal editor preview runtime", () => {
     const scene = startFormalPreviewFromScene(project, "scn_broadcast_room");
     expect(scene).toMatchObject({ status: "presenting", sceneId: "scn_broadcast_room", statementId: "stmt_radio_bg", statementIndex: 0, startTarget: { kind: "scene", sceneId: "scn_broadcast_room" } });
     expect(observeFormalPreview(scene).current).toMatchObject({ opcode: "direction", statementId: "stmt_radio_bg" });
-    expect(runtimeStateHashV1(scene.runtimeState!)).toBe("2658ce4949954097987d9bacd66895f32f8e6a95afb661b1d2bcff4fdaba1ef6");
+    expect(runtimeStateHashV1(scene.runtimeState!)).toBe("67eda61ebbd7124de768a28a80c2306334b5c635f567cd29999b11bb889fccc4");
 
     const statement = startFormalPreviewFromStatement(project, "scn_rooftop", "stmt_rooftop_001");
     expect(statement).toMatchObject({ status: "presenting", sceneId: "scn_rooftop", statementId: "stmt_rooftop_001", statementIndex: 1, startTarget: { kind: "statement", sceneId: "scn_rooftop", statementId: "stmt_rooftop_001" } });
     expect(observeFormalPreview(statement).current).toMatchObject({ opcode: "dialogue", statementId: "stmt_rooftop_001" });
-    expect(runtimeStateHashV1(statement.runtimeState!)).toBe("62babbde92a8ea5ef2ba6e4a46f3f34ce4bc4d928cd5040fc72d57e0f35c69e6");
+    expect(runtimeStateHashV1(statement.runtimeState!)).toBe("04c2d20153d9552b1ff2549c2194b0a5f1ac753eb6b790872846bc3d607d0622");
   });
 
   it("fails closed when a start target is missing or requires call context", () => {
@@ -148,7 +148,7 @@ describe("formal editor preview runtime", () => {
     expect(observeFormalPreview(back).history).toMatchObject({ cursor: 2, length: 3, canForward: true });
     expect(runtimeStateHashV1(forward.runtimeState!)).toBe(runtimeStateHashV1(third.runtimeState!));
     expect(forward).toMatchObject({ statementId: "stmt_gate_002" });
-    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("ffcbb64fbbac59f31161b0c00c457c8b2445e954be851665a02a74b7b8aa6594");
+    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("3863ae1835ba5f1f8972e1960d930347f1fbb9fbc2278805599b97c6c2d98c32");
   });
 
   it("projects traversed route edges from the active History cursor", () => {

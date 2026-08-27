@@ -93,7 +93,7 @@ describe("N23-E2 blank-project playable Golden", () => {
     const saved = await saveLifecycleProject(workspace, dirty);
     const reopened = await openProject(workspace);
     const exported = importLifecycleProject(exportLifecycleProject(reopened));
-    expect(semanticHash(exported)).toBe("56c361a9b16d1fd532e280f4f21ee5e131d9bdaef7765365c6d88d4f3d7cb0e1");
+    expect(semanticHash(exported)).toBe("16e57309f5152bb8f9a7a11aa5b3bda06f9598fa946f100dcd41f0c64044fc69");
     expect(semanticHash(exported)).toBe(semanticHash(saved.project!));
     expect(exported.variables.variables).toMatchObject([{ id: "variable_route", name: "route" }]);
 

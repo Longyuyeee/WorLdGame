@@ -1,3 +1,4 @@
+import { createGalSettingsDocument, GalSettingsError, parseSerializedGalSettingsDocument, serializeGalSettingsDocument, type GalSettingsDocument } from "@world-studio/gal-settings";
 import { sha256 } from "./sha256";
 import { ProjectDomainError, type CanonicalProject, type ChapterDocument, type JsonObject, type JsonValue, type LayoutDocument, type LayoutGroup, type LayoutNodePosition, type LayoutViewport, type ProjectFiles, type ProjectManifest, type ProjectProbe, type ProjectStructureIndex, type SceneDocument, type ScriptDocument } from "./types";
 
@@ -41,7 +42,26 @@ function layoutViewport(value: unknown,label:string):LayoutViewport { if(!isReco
 function preserved(data: Record<string, unknown>, known: readonly string[]): JsonObject | undefined { const entries = Object.entries(data).filter(([key]) => !known.includes(key)); if (entries.length === 0) return undefined; if (entries.some(([, value]) => !isJson(value))) return fail("INVALID_SCHEMA", "Unknown fields must be JSON values"); return Object.fromEntries(entries) as JsonObject; }
 function version(data: Record<string, unknown>, file: string): void { if (data.schemaVersion !== 1) { if (Number.isSafeInteger(data.schemaVersion) && (data.schemaVersion as number) > 1) fail("FUTURE_SCHEMA", `${file} uses future schema ${data.schemaVersion as number}`); fail("INVALID_SCHEMA", `${file} must use schemaVersion 1`); } }
 function arrayDocument(files: ProjectFiles, file: string, field: string): object { const data=parse(files,file); version(data,file); const result={schemaVersion:1 as const,[field]:objects(data[field],`${file}.${field}`)}; const unknown=preserved(data,["schemaVersion",field]); return unknown ? {...result,preservedFields:unknown}:result; }
-function valueDocument(files: ProjectFiles, file: string): { schemaVersion: 1; values: JsonObject; preservedFields?: JsonObject } { const data=parse(files,file); version(data,file); if(!isRecord(data.values)||!isJson(data.values)) fail("INVALID_SCHEMA",`${file}.values must be a JSON object`); const unknown=preserved(data,["schemaVersion","values"]); return unknown ? {schemaVersion:1,values:data.values as JsonObject,preservedFields:unknown}:{schemaVersion:1,values:data.values as JsonObject}; }
+function settingsDocument(files: ProjectFiles, file: string): GalSettingsDocument {
+  const source=files[file];
+  if(source===undefined)return createGalSettingsDocument();
+  let value:unknown;
+  try{value=JSON.parse(source);}catch{return fail("INVALID_JSON",`${file} is not valid JSON`);}
+  if(isRecord(value)&&Object.prototype.hasOwnProperty.call(value,"values")){
+    const keys=Object.keys(value).sort();
+    if(value.schemaVersion===1&&keys.length===2&&keys[0]==="schemaVersion"&&keys[1]==="values"&&isRecord(value.values)&&Object.keys(value.values).length===0)return createGalSettingsDocument();
+    return fail("INVALID_SCHEMA",`${file} contains unsupported legacy settings data and cannot be migrated safely`);
+  }
+  try{return parseSerializedGalSettingsDocument(source);}
+  catch(error){
+    if(error instanceof GalSettingsError){
+      if(error.code==="FUTURE_SCHEMA")return fail("FUTURE_SCHEMA",`${file}: ${error.message}`);
+      if(error.code==="INVALID_JSON")return fail("INVALID_JSON",`${file}: ${error.message}`);
+      return fail("INVALID_SCHEMA",`${file}: ${error.message}`);
+    }
+    throw error;
+  }
+}
 
 export function probeProject(files: ProjectFiles): ProjectProbe {
   const data=parse(files,PROJECT_MANIFEST_PATH); const schema=data.schemaVersion;
@@ -91,7 +111,7 @@ export function loadProject(files: ProjectFiles): CanonicalProject {
   const {manifest,chapters,scenes}=loadProjectStructure(files);
   const scripts=loadProjectScripts(files,scenes);
   const layouts=loadProjectLayouts(files,scenes);
-  const project: CanonicalProject={mode:"editable",manifest,chapters,scenes,characters:arrayDocument(files,manifest.charactersPath,"characters") as CanonicalProject["characters"],variables:arrayDocument(files,manifest.variablesPath,"variables") as CanonicalProject["variables"],assets:arrayDocument(files,manifest.assetsPath,"assets") as CanonicalProject["assets"],localization:arrayDocument(files,manifest.localizationPath,"locales") as CanonicalProject["localization"],settings:valueDocument(files,manifest.settingsPath),ui:arrayDocument(files,manifest.uiPath,"screens") as CanonicalProject["ui"],plugins:arrayDocument(files,manifest.pluginsPath,"plugins") as CanonicalProject["plugins"],testRoutes:arrayDocument(files,manifest.testRoutesPath,"routes") as CanonicalProject["testRoutes"],scripts,layouts};
+  const project: CanonicalProject={mode:"editable",manifest,chapters,scenes,characters:arrayDocument(files,manifest.charactersPath,"characters") as CanonicalProject["characters"],variables:arrayDocument(files,manifest.variablesPath,"variables") as CanonicalProject["variables"],assets:arrayDocument(files,manifest.assetsPath,"assets") as CanonicalProject["assets"],localization:arrayDocument(files,manifest.localizationPath,"locales") as CanonicalProject["localization"],settings:settingsDocument(files,manifest.settingsPath),ui:arrayDocument(files,manifest.uiPath,"screens") as CanonicalProject["ui"],plugins:arrayDocument(files,manifest.pluginsPath,"plugins") as CanonicalProject["plugins"],testRoutes:arrayDocument(files,manifest.testRoutesPath,"routes") as CanonicalProject["testRoutes"],scripts,layouts};
   validateEntityIds(project);validateLayouts(project); return project;
 }
 
@@ -102,6 +122,6 @@ function withUnknown<T extends object>(value:T & {preservedFields?:JsonObject}):
 const canonical=(value:JsonValue):JsonValue=>Array.isArray(value)?value.map(canonical):isRecord(value)?Object.fromEntries(Object.keys(value).sort().map(key=>[key,canonical(value[key] as JsonValue)])):value;
 const encode=(value:JsonValue)=>`${JSON.stringify(canonical(value),null,2)}\n`;
 export function saveProjectScript(script:ScriptDocument):string { return encode(withUnknown(script)); }
-export function saveProject(project:CanonicalProject):ProjectFiles { const files:Record<string,string>={}; files[PROJECT_MANIFEST_PATH]=encode(withUnknown(project.manifest)); project.chapters.forEach((item,index)=>files[project.manifest.chapterPaths[index]??fail("BROKEN_REFERENCE","chapter path mismatch")]=encode(withUnknown(item))); const scenePaths=project.chapters.flatMap(chapter=>chapter.scenePaths); project.scenes.forEach((item,index)=>{const file=scenePaths[index]??fail("BROKEN_REFERENCE","scene path mismatch");files[file]=encode(withUnknown(item));files[item.scriptPath]=encode(withUnknown(project.scripts[item.id]??fail("BROKEN_REFERENCE",`missing script ${item.id}`)));files[item.layoutPath]=encode(withUnknown(project.layouts[item.id]??fail("BROKEN_REFERENCE",`missing layout ${item.id}`)));}); const docs:[[string,object],...Array<[string,object]>]=[[project.manifest.charactersPath,project.characters],[project.manifest.variablesPath,project.variables],[project.manifest.assetsPath,project.assets],[project.manifest.localizationPath,project.localization],[project.manifest.settingsPath,project.settings],[project.manifest.uiPath,project.ui],[project.manifest.pluginsPath,project.plugins],[project.manifest.testRoutesPath,project.testRoutes]]; docs.forEach(([file,value])=>files[file]=encode(withUnknown(value))); return Object.fromEntries(Object.entries(files).sort(([a],[b])=>a.localeCompare(b))); }
+export function saveProject(project:CanonicalProject):ProjectFiles { const files:Record<string,string>={}; files[PROJECT_MANIFEST_PATH]=encode(withUnknown(project.manifest)); project.chapters.forEach((item,index)=>files[project.manifest.chapterPaths[index]??fail("BROKEN_REFERENCE","chapter path mismatch")]=encode(withUnknown(item))); const scenePaths=project.chapters.flatMap(chapter=>chapter.scenePaths); project.scenes.forEach((item,index)=>{const file=scenePaths[index]??fail("BROKEN_REFERENCE","scene path mismatch");files[file]=encode(withUnknown(item));files[item.scriptPath]=encode(withUnknown(project.scripts[item.id]??fail("BROKEN_REFERENCE",`missing script ${item.id}`)));files[item.layoutPath]=encode(withUnknown(project.layouts[item.id]??fail("BROKEN_REFERENCE",`missing layout ${item.id}`)));}); const docs:[[string,object],...Array<[string,object]>]=[[project.manifest.charactersPath,project.characters],[project.manifest.variablesPath,project.variables],[project.manifest.assetsPath,project.assets],[project.manifest.localizationPath,project.localization],[project.manifest.uiPath,project.ui],[project.manifest.pluginsPath,project.plugins],[project.manifest.testRoutesPath,project.testRoutes]]; docs.forEach(([file,value])=>files[file]=encode(withUnknown(value)));files[project.manifest.settingsPath]=serializeGalSettingsDocument(project.settings); return Object.fromEntries(Object.entries(files).sort(([a],[b])=>a.localeCompare(b))); }
 export function semanticHashProjectFiles(files:ProjectFiles):string { return sha256(JSON.stringify(canonical(files as JsonValue))); }
 export function semanticHash(project:CanonicalProject):string { return semanticHashProjectFiles(saveProject(project)); }

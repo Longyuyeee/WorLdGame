@@ -1,3 +1,4 @@
+import { createGalSettingsDocument } from "@world-studio/gal-settings";
 import { loadProject, saveProject } from "./codec";
 import type { JsonObject, ProjectFiles } from "./types";
 
@@ -15,7 +16,7 @@ const baseDocuments = {
   "domain/variables.json": { schemaVersion: 1, variables: [] },
   "domain/assets.json": { schemaVersion: 1, assets: [] },
   "localization/catalog.json": { schemaVersion: 1, locales: [] },
-  "settings/project.json": { schemaVersion: 1, values: {} },
+  "settings/project.json": createGalSettingsDocument(),
   "ui/screens.json": { schemaVersion: 1, screens: [] },
   "plugins/plugins.json": { schemaVersion: 1, plugins: [] },
   "tests/routes.json": { schemaVersion: 1, routes: [] }

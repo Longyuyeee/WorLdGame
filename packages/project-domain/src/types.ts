@@ -1,3 +1,5 @@
+import type { GalSettingsDocument } from "@world-studio/gal-settings";
+
 export type JsonValue = null | boolean | number | string | readonly JsonValue[] | JsonObject;
 export interface JsonObject { readonly [key: string]: JsonValue; }
 export type StableId = string;
@@ -28,7 +30,7 @@ export interface CharacterDocument { readonly schemaVersion: 1; readonly charact
 export interface VariableDocument { readonly schemaVersion: 1; readonly variables: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface AssetDocument { readonly schemaVersion: 1; readonly assets: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface LocalizationDocument { readonly schemaVersion: 1; readonly locales: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
-export interface SettingsDocument { readonly schemaVersion: 1; readonly values: JsonObject; readonly preservedFields?: JsonObject; }
+export type SettingsDocument = GalSettingsDocument;
 export interface UiDocument { readonly schemaVersion: 1; readonly screens: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface PluginDocument { readonly schemaVersion: 1; readonly plugins: readonly JsonObject[]; readonly preservedFields?: JsonObject; }
 export interface TestRouteDocument { readonly schemaVersion: 1; readonly routes: readonly JsonObject[]; readonly preservedFields?: JsonObject; }

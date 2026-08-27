@@ -85,3 +85,5 @@ npm.cmd run audit:architecture
 N10 不证明新建/打开/最近项目 UI、OS 目录授权、事务命令、导入导出、Compiler、Runtime 或正式 Build 已完成。现有 `ProjectSnapshot` 仍用于原型会话恢复，后续 N11/N12 必须让宿主直接持久化 Canonical Project 文件并把 Session 状态降为可重建派生数据。
 
 N10 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N11：Project Service 与事务命令。
+
+> 2026-08-27 N51-E3 演进说明：N10 原始 `settings/project.json` 是 `{schemaVersion:1,values:{}}` 占位文档。N51-E3 在不改变 Manifest 路径的前提下将其收敛为正式 `GalSettingsDocument`；缺文件和精确空占位可升级，非空旧数据、损坏和 future schema 失败关闭。`project-domain` 现只新增对 dependency-free portable `gal-settings` 的依赖，平台隔离原则不变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
