@@ -1,3 +1,5 @@
+import { getGalSettingDefinition } from "./catalog";
+
 export const GAL_SETTINGS_SCHEMA_VERSION = 1 as const;
 
 export const GAL_SETTINGS_PLATFORMS = ["windows", "web", "android"] as const;
@@ -69,7 +71,10 @@ export type GalSettingsErrorCode =
   | "FUTURE_SCHEMA"
   | "UNKNOWN_FIELD"
   | "INVALID_VALUE"
-  | "INVALID_COMBINATION";
+  | "INVALID_COMBINATION"
+  | "INVALID_EDIT"
+  | "DUPLICATE_EDIT"
+  | "UNKNOWN_SETTING_PATH";
 
 export class GalSettingsError extends Error {
   readonly code: GalSettingsErrorCode;
@@ -157,8 +162,21 @@ function finiteNumber(value: unknown, path: string, minimum: number, maximum: nu
   return Object.is(value, -0) ? 0 : value;
 }
 
+function settingNumber(value: unknown, errorPath: string, settingPath: GalSettingPath): number {
+  const control = getGalSettingDefinition(settingPath).control;
+  if (control.kind !== "number") return fail("INVALID_SCHEMA", settingPath, "catalog control must be number");
+  return finiteNumber(value, errorPath, control.minimum, control.maximum);
+}
+
 function boolean(value: unknown, path: string): boolean {
   return typeof value === "boolean" ? value : fail("INVALID_VALUE", path, "must be boolean");
+}
+
+function settingBoolean(value: unknown, errorPath: string, settingPath: GalSettingPath): boolean {
+  if (getGalSettingDefinition(settingPath).control.kind !== "boolean") {
+    return fail("INVALID_SCHEMA", settingPath, "catalog control must be boolean");
+  }
+  return boolean(value, errorPath);
 }
 
 function enumeration<const Value extends string>(value: unknown, path: string, values: readonly Value[]): Value {
@@ -167,15 +185,21 @@ function enumeration<const Value extends string>(value: unknown, path: string, v
     : fail("INVALID_VALUE", path, `must be one of ${values.join(", ")}`);
 }
 
+function settingEnumeration<const Value extends string>(value: unknown, errorPath: string, settingPath: GalSettingPath): Value {
+  const control = getGalSettingDefinition(settingPath).control;
+  if (control.kind !== "select") return fail("INVALID_SCHEMA", settingPath, "catalog control must be select");
+  return enumeration(value, errorPath, control.options as readonly Value[]);
+}
+
 function parseDisplay(value: unknown, path: string): NonNullable<GalSettingsOverride["display"]> {
   const input = record(value, path);
   assertKnownFields(input, SECTION_FIELDS.display, path);
   return {
-    ...(input.designWidth === undefined ? {} : { designWidth: finiteNumber(input.designWidth, `${path}.designWidth`, 320, 7680) }),
-    ...(input.designHeight === undefined ? {} : { designHeight: finiteNumber(input.designHeight, `${path}.designHeight`, 320, 4320) }),
-    ...(input.orientation === undefined ? {} : { orientation: enumeration(input.orientation, `${path}.orientation`, ["landscape", "portrait", "adaptive"] as const) }),
-    ...(input.safeArea === undefined ? {} : { safeArea: enumeration(input.safeArea, `${path}.safeArea`, ["none", "system"] as const) }),
-    ...(input.quality === undefined ? {} : { quality: enumeration(input.quality, `${path}.quality`, ["low", "balanced", "high"] as const) })
+    ...(input.designWidth === undefined ? {} : { designWidth: settingNumber(input.designWidth, `${path}.designWidth`, "display.designWidth") }),
+    ...(input.designHeight === undefined ? {} : { designHeight: settingNumber(input.designHeight, `${path}.designHeight`, "display.designHeight") }),
+    ...(input.orientation === undefined ? {} : { orientation: settingEnumeration(input.orientation, `${path}.orientation`, "display.orientation") }),
+    ...(input.safeArea === undefined ? {} : { safeArea: settingEnumeration(input.safeArea, `${path}.safeArea`, "display.safeArea") }),
+    ...(input.quality === undefined ? {} : { quality: settingEnumeration(input.quality, `${path}.quality`, "display.quality") })
   };
 }
 
@@ -183,11 +207,11 @@ function parseText(value: unknown, path: string): NonNullable<GalSettingsOverrid
   const input = record(value, path);
   assertKnownFields(input, SECTION_FIELDS.text, path);
   return {
-    ...(input.charactersPerSecond === undefined ? {} : { charactersPerSecond: finiteNumber(input.charactersPerSecond, `${path}.charactersPerSecond`, 1, 200) }),
-    ...(input.minimumDisplayMilliseconds === undefined ? {} : { minimumDisplayMilliseconds: finiteNumber(input.minimumDisplayMilliseconds, `${path}.minimumDisplayMilliseconds`, 0, 10000) }),
-    ...(input.punctuationDelayMilliseconds === undefined ? {} : { punctuationDelayMilliseconds: finiteNumber(input.punctuationDelayMilliseconds, `${path}.punctuationDelayMilliseconds`, 0, 2000) }),
-    ...(input.fontScale === undefined ? {} : { fontScale: finiteNumber(input.fontScale, `${path}.fontScale`, 0.75, 2) }),
-    ...(input.messageWindowOpacity === undefined ? {} : { messageWindowOpacity: finiteNumber(input.messageWindowOpacity, `${path}.messageWindowOpacity`, 0, 1) })
+    ...(input.charactersPerSecond === undefined ? {} : { charactersPerSecond: settingNumber(input.charactersPerSecond, `${path}.charactersPerSecond`, "text.charactersPerSecond") }),
+    ...(input.minimumDisplayMilliseconds === undefined ? {} : { minimumDisplayMilliseconds: settingNumber(input.minimumDisplayMilliseconds, `${path}.minimumDisplayMilliseconds`, "text.minimumDisplayMilliseconds") }),
+    ...(input.punctuationDelayMilliseconds === undefined ? {} : { punctuationDelayMilliseconds: settingNumber(input.punctuationDelayMilliseconds, `${path}.punctuationDelayMilliseconds`, "text.punctuationDelayMilliseconds") }),
+    ...(input.fontScale === undefined ? {} : { fontScale: settingNumber(input.fontScale, `${path}.fontScale`, "text.fontScale") }),
+    ...(input.messageWindowOpacity === undefined ? {} : { messageWindowOpacity: settingNumber(input.messageWindowOpacity, `${path}.messageWindowOpacity`, "text.messageWindowOpacity") })
   };
 }
 
@@ -195,21 +219,21 @@ function parseAdvance(value: unknown, path: string): NonNullable<GalSettingsOver
   const input = record(value, path);
   assertKnownFields(input, SECTION_FIELDS.advance, path);
   return {
-    ...(input.allowHold === undefined ? {} : { allowHold: boolean(input.allowHold, `${path}.allowHold`) }),
-    ...(input.waitForVoice === undefined ? {} : { waitForVoice: boolean(input.waitForVoice, `${path}.waitForVoice`) })
+    ...(input.allowHold === undefined ? {} : { allowHold: settingBoolean(input.allowHold, `${path}.allowHold`, "advance.allowHold") }),
+    ...(input.waitForVoice === undefined ? {} : { waitForVoice: settingBoolean(input.waitForVoice, `${path}.waitForVoice`, "advance.waitForVoice") })
   };
 }
 
 function parseAudio(value: unknown, path: string): NonNullable<GalSettingsOverride["audio"]> {
   const input = record(value, path);
   assertKnownFields(input, SECTION_FIELDS.audio, path);
-  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, finiteNumber(item, `${path}.${key}`, 0, 1)])) as NonNullable<GalSettingsOverride["audio"]>;
+  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, settingNumber(item, `${path}.${key}`, `audio.${key}` as GalSettingPath)])) as NonNullable<GalSettingsOverride["audio"]>;
 }
 
 function parseInput(value: unknown, path: string): NonNullable<GalSettingsOverride["input"]> {
   const input = record(value, path);
   assertKnownFields(input, SECTION_FIELDS.input, path);
-  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, boolean(item, `${path}.${key}`)])) as NonNullable<GalSettingsOverride["input"]>;
+  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, settingBoolean(item, `${path}.${key}`, `input.${key}` as GalSettingPath)])) as NonNullable<GalSettingsOverride["input"]>;
 }
 
 function parseOverride(value: unknown, path: string): GalSettingsOverride {
