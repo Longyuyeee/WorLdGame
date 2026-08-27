@@ -1,32 +1,32 @@
-# 当前开发情况审计（N50-E6 Player 嵌入 API 已通过，总出口未通过）
+# 当前开发情况审计（N50 Engineering 已通过，N51 Settings 治理准入）
 
 > 审计日期：2026-08-27
-> 当前分支：`codex/n50-e6-player-embed-api`；直接基线为 N50-E5 最终头 `e5dac3a`
+> 当前分支：`codex/n50-n51-governance`；直接基线为 N50-E6 最终绿色头 `6580b34`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：`RA-N21-009` 只允许 N50 正式 Player Shell Engineering；2026-09-25 16:07:12（UTC+8）到期
-> 最新节点证据：[N50-E6 Player 嵌入 API 审计](218-n50-e6-player-embed-api-audit.md)、[N50 Engineering 出口复审](219-n50-engineering-exit-reaudit.md)、[N50-E5 Player Web 宿主生命周期审计](217-n50-e5-player-host-lifecycle-audit.md)
+> 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
+> 最新节点证据：[N50–N52 范围消歧](220-n50-n52-scope-reconciliation.md)、[N50→N51 治理检查点](221-n50-n51-governance-checkpoint.md)、[N50 Engineering 出口复审](219-n50-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-27 纠偏结论是：**产品目标和架构没有发生替换性偏移，但产品化仍落后于工程底座。正式 Player 已建立 Core、媒体、输入、生命周期和 v1 嵌入边界，不再是“完全不存在”；Gal Settings、History/Save/Load 玩家 UI、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 `RA-N21-009` 只准入 N50 Engineering；E1–E6 切片通过，但 N50 总出口因冻结功能和三宿主验收缺口未通过，禁止换算成商业完成度。
+2026-08-27 纠偏结论是：**产品目标和架构没有发生替换性偏移，但产品化仍落后于工程底座。正式 Player 已建立 Core、媒体、输入、生命周期和 v1 嵌入边界；范围消歧确认 N50 Engineering 通过、三宿主 Product Acceptance `0/1`，Settings 归 N51，Save/History/Auto/Skip/Back 归 N52。Gal Settings、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-010 只准入 N51 Engineering，禁止换算成商业完成度。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式 Engineering 出口已通过；N50-E1–E6 已建立正式 Player 工程链，但 N50 总出口因 History/Settings/Save-Load UI 与 Windows/Android 宿主缺失而未通过**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51 typed Settings 尚未实现**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43 Engineering：**出口已通过；N43 七模式为 7/7**；N50 Engineering：**E1–E6 切片通过，总出口未通过**；全部 Product Acceptance、N51+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；N51 Engineering：**仅治理准入，尚未开始产品实现**；全部 Product Acceptance、N52+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
 - N50-E4 由 Draft PR #87 承载；实现头 `3901da4` 的 Windows / Node 22 run `33041221691` / job `98415037714` 用时 `9m6s` 绿色，普通回归 `141/801`、N50 `19/19`、VM `5/5`、autosave `2.703s`，Route P95 `112.88ms <500ms`。这只关闭 E4 Engineering，不等于实体输入设备、`main` 集成或 Product Acceptance 通过。
 - N50-E5 由 Draft PR #88 承载；实现头 `8137784` 的 Windows / Node 22 run `33043581781` / job `98422396914` 用时 `11m58s` 绿色，普通回归 `141/804`、N50 `22/22`、VM `67.313s <90s`、autosave `4.153s`、Route P95 `133.25ms <500ms`。这只关闭 E5 Engineering，不等于 Windows/Android 正式宿主、`main` 集成或 Product Acceptance 通过。
-- N50-E6 由 Draft PR #89 承载；实现头 `001a92f` 的 Windows / Node 22 run `33046773968` / job `98432514531` 用时 `10m41s` 绿色，普通回归 `142/808`、N50 `26/26`、VM `53.581s <90s`、Route P95 `122.31ms <500ms`。这只关闭 E6 切片，不改变 N50 总出口失败、`main` 未集成或 Product Acceptance 阻断。
+- N50-E6 由 Draft PR #89 承载；实现头 `001a92f` 与最终头 `6580b34` 的 Windows / Node 22 完整门均绿色。普通回归 `142/808`、N50 `26/26`、VM `53.581s <90s`、Route P95 `122.31ms <500ms`。范围消歧后 N50 Engineering 通过，但 `main` 未集成、三宿主 Product Acceptance 仍失败。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -122,8 +122,8 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
-4. `RA-N21-009` 只准入 N50 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E6 嵌入 API已通过本机、开发/冷生产浏览器和远端 Windows / Node 22 完整门；
-6. N50 总出口复审失败。先裁决 N50 与 N52 对 History/Settings/Save-Load 的重复范围，再决定新的 N50 切片；N51/N52 继续阻断。
+4. `RA-N21-010` 只准入 N51 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
+5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
+6. RA-010 只准入 N51 Engineering；下一步从 portable typed settings schema 和继承解析开始，N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

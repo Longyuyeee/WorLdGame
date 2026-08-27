@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentDeliveryNode": "N50",
+  "currentDeliveryNode": "N51",
   "exceptions": [
     {
       "id": "RA-N21-001",
@@ -372,7 +372,7 @@
     },
     {
       "id": "RA-N21-009",
-      "status": "active",
+      "status": "closed",
       "failedControls": [
         "N21 non-programmer 20-minute product task",
         "N23 product acceptance by two non-implementers",
@@ -416,6 +416,59 @@
       "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N50 Product Acceptance or any N51 work.",
       "verificationMethod": "Keep human records pending; for N50 compare formal Compiler/Runtime/Host identities, Player Core snapshots, input equivalence, responsive safe areas, accessibility states, production-browser outcomes, save/reopen behavior, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
       "evidencePath": "docs/211-n43-n50-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-010",
+      "status": "active",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N51 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Gal Settings discoverability and configuration comprehension may remain undiscovered",
+        "inheritance, reset, and live-preview assumptions may not yet be challenged by non-implementer use",
+        "automated and developer-operated browser evidence cannot establish independent configuration task completion"
+      ],
+      "reason": "N50 formal Player Shell Engineering completed its frozen Core, media, input, lifecycle, and versioned embedding scope with development-browser, cold-production-browser, local full-check, and two Windows / Node 22 checks while every Product Acceptance gate remained pending. The roadmap audit then found duplicated ownership of Settings, Save, History, Auto, Skip, and Back across N50-N52. The Product Owner was told that RA-N21-009 stopped at N50 and that scope reconciliation was required, then on 2026-08-27 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N51 Gal Settings Engineering.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, N42, N43, N50, and N51 Product Acceptance pending rather than passed",
+        "Limit the extension to N51 Gal Settings Engineering; N51 Product Acceptance, N52 Engineering, and every later node remain blocked",
+        "Require one typed settings schema with explicit default-project-platform precedence and no platform-owned semantic forks",
+        "Keep Save, History, Auto, Skip, Back, and Forward product controls assigned to N52 and prohibit implementing them under N51",
+        "Require actual production-browser tests at desktop and mobile viewports, deterministic serialization/inheritance tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block all existing Product Acceptance gates, N51 Product Acceptance, N52 Engineering, M1 Stable, and Public Release until missing evidence is recorded"
+      ],
+      "owner": "gal-settings-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-27T15:07:12+08:00",
+      "expiresAt": "2026-09-26T15:07:12+08:00",
+      "maximumDeliveryNode": "N51",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Product Acceptance",
+        "N50 Product Acceptance",
+        "N51 Product Acceptance",
+        "N52 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N51 Product Acceptance or any N52 work.",
+      "verificationMethod": "Keep human records pending; for N51 compare typed settings defaults, project/platform precedence, serialization, reset, preview application, desktop/mobile production-browser outcomes, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/221-n50-n51-governance-checkpoint.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",
