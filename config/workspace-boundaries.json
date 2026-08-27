@@ -95,6 +95,7 @@
       "stability": "candidate",
       "owner": "Player Experience Owner",
       "allowedWorkspaceDependencies": [
+        "@world-studio/gal-settings",
         "@world-studio/player-core",
         "@world-studio/project-domain"
       ]
