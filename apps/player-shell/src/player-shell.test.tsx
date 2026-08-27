@@ -4,7 +4,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
+import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-settings";
+import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 import { WebPlayerHost } from "./player-host";
@@ -38,6 +39,7 @@ describe("N50-E1 shared Player Shell", () => {
     fireEvent.keyDown(window, { key: "2" });
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
     fireEvent.keyDown(window, { key: " " });
+    fireEvent.keyDown(window, { key: " " });
     expect(screen.getByRole("status")).toHaveTextContent("Right");
   });
 
@@ -48,6 +50,7 @@ describe("N50-E1 shared Player Shell", () => {
     expect(screen.getByRole("button", { name: /Right/u })).toHaveAttribute("data-player-selected", "true");
     fireEvent.keyDown(window, { key: "Enter" });
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: " " });
     fireEvent.keyDown(window, { key: " " });
     expect(screen.getByRole("status")).toHaveTextContent("Right");
     expect(container.querySelector("main")).toHaveAttribute("data-input-source", "keyboard");
@@ -85,8 +88,8 @@ describe("N50-E1 shared Player Shell", () => {
     const audio = container.querySelector<HTMLAudioElement>('audio[data-asset-id="media_theme"]');
     expect(audio).toBeInTheDocument();
     expect(audio).toHaveAttribute("data-volume", "0.6");
-    expect(audio).toHaveAttribute("data-applied-volume", "0.6");
-    expect(audio?.volume).toBe(0.6);
+    expect(audio).toHaveAttribute("data-applied-volume", "0.48");
+    expect(audio?.volume).toBe(0.48);
     expect(container.querySelector("main")).toHaveAttribute("data-effect-operation", "execute");
   });
 
@@ -154,6 +157,7 @@ describe("N50-E1 shared Player Shell", () => {
     expect(play).toHaveBeenCalledTimes(2);
     expect([...view.container.querySelectorAll("audio")].map((node) => node.getAttribute("data-player-playback"))).toEqual(["playing", "playing"]);
     fireEvent.keyDown(window, { key: " " });
+    fireEvent.keyDown(window, { key: " " });
     expect(screen.getByRole("status")).toHaveTextContent("Curtain");
   });
 
@@ -194,5 +198,107 @@ describe("N50-E1 shared Player Shell", () => {
     view.rerender(<PlayerShell project={branching()} hostActivity="active" />);
     await Promise.resolve();
     expect(play).not.toHaveBeenCalled();
+  });
+});
+
+describe("N51-E5 Player settings application", () => {
+  it("hot-applies presentation settings without resetting the active formal Core", () => {
+    const project = branching();
+    const view = render(<PlayerShell project={project} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+
+    const updated = {
+      ...project,
+      settings: withPlatformSettings(project.settings, "web", {
+        display: { designWidth: 1440, designHeight: 1080, orientation: "landscape", quality: "low", safeArea: "none" },
+        text: { fontScale: 1.5, messageWindowOpacity: 0.4 }
+      })
+    };
+    view.rerender(<PlayerShell project={updated} />);
+
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-quality", "low");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-safe-area", "none");
+    expect(view.container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1440 / 1080", "--gal-font-scale": "1.5", "--gal-message-opacity": "0.4" });
+  });
+
+  it("uses the selected platform layer and hot-applies pointer and keyboard gates", () => {
+    const project = branching();
+    const gated = {
+      ...project,
+      settings: withPlatformSettings(project.settings, "web", { input: { pointerAdvance: false, keyboardAdvance: false } })
+    };
+    const view = render(<PlayerShell project={gated} platform="web" />);
+    const shell = view.container.querySelector("main")!;
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(shell).toHaveAttribute("data-player-status", "title");
+    expect(shell).toHaveAttribute("data-input-accepted", "false");
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(shell).toHaveAttribute("data-player-status", "title");
+
+    view.rerender(<PlayerShell project={gated} platform="windows" />);
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(shell).toHaveAttribute("data-player-status", "waiting-choice");
+    expect(shell).toHaveAttribute("data-settings-platform", "windows");
+  });
+
+  it("distinguishes touch from pointer and applies allow-hold to repeated confirms", () => {
+    const project = branching();
+    const touchGated = {
+      ...project,
+      settings: withProjectSettings(project.settings, { input: { touchAdvance: false }, advance: { allowHold: false } })
+    };
+    const view = render(<PlayerShell project={touchGated} />);
+    const start = screen.getByRole("button", { name: /开始故事/u });
+    fireEvent.pointerDown(start, { pointerType: "touch" });
+    fireEvent.click(start);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    fireEvent.keyDown(window, { key: "Enter", repeat: true });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+
+    const holdEnabled = { ...touchGated, settings: withProjectSettings(touchGated.settings, { advance: { allowHold: true } }) };
+    view.rerender(<PlayerShell project={holdEnabled} />);
+    fireEvent.keyDown(window, { key: "Enter", repeat: true });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+  });
+
+  it("applies canonical audio gain and waits for actual voice completion before advancing", () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const configured = {
+      ...demo.project,
+      settings: withProjectSettings(demo.project.settings, { audio: { master: 0.5, bgm: 0.5, voiceDucking: 0.5 } })
+    };
+    const view = render(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const voice = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    const bgm = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="bgm"]')!;
+    expect(bgm.volume).toBeCloseTo(0.15);
+    fireEvent.play(voice);
+    expect(bgm.volume).toBeCloseTo(0.075);
+
+    const dialogue = screen.getByRole("button", { name: "继续下一句" });
+    fireEvent.click(dialogue);
+    fireEvent.click(dialogue);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.ended(voice);
+    fireEvent.click(dialogue);
+    expect(screen.getByRole("status")).toHaveTextContent("Curtain");
+  });
+
+  it("reopens saved platform settings and applies them through the same Player contract", () => {
+    const project = branching();
+    const configured = {
+      ...project,
+      settings: withPlatformSettings(project.settings, "android", {
+        display: { designWidth: 1080, designHeight: 1920, orientation: "portrait" },
+        input: { keyboardAdvance: false }
+      })
+    };
+    const reopened = loadProject(saveProject(configured));
+    const { container } = render(<PlayerShell project={reopened} platform="android" />);
+    expect(container.querySelector("main")).toHaveAttribute("data-settings-orientation", "portrait");
+    expect(container.querySelector("main")).toHaveAttribute("data-settings-input-keyboard", "false");
+    expect(container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1080 / 1920" });
   });
 });

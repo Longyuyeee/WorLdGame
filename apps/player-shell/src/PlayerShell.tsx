@@ -1,4 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createGalSettingsApplicationV1,
+  createGalSettingsDocument,
+  galAdvanceInputEnabledV1,
+  galAudioGainV1,
+  galTextRevealDurationMillisecondsV1,
+  type GalAdvanceInputV1,
+  type GalAudioBusV1,
+  type GalSettingsPlatform
+} from "@world-studio/gal-settings";
 import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
 import {
   createPlayerCore,
@@ -15,24 +25,39 @@ export interface PlayerShellProps {
   readonly mediaAssets?: readonly PlayerMediaAssetSourceV1[];
   readonly onRetryMedia?: () => void;
   readonly hostActivity?: PlayerHostActivityV1;
+  readonly platform?: GalSettingsPlatform;
 }
 
-type PlayerInputSource = "lifecycle" | "pointer" | "keyboard" | "gamepad" | "system";
+type PlayerInputSource = "lifecycle" | GalAdvanceInputV1 | "system";
 export type PlayerHostActivityV1 = "active" | "suspended";
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active" }: PlayerShellProps) {
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web" }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
   const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
+  const [lastInputAccepted, setLastInputAccepted] = useState(true);
+  const [voicePlaying, setVoicePlaying] = useState(false);
+  const [textReady, setTextReady] = useState(true);
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
+  const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
-  const projectSemanticHash = useMemo(() => semanticHash(project), [project]);
+  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
+  const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
   const stage = useMemo(() => derivePlayerStagePresentationV1(snapshot, mediaAssets), [mediaAssets, snapshot]);
+  const appliedAudio = stage.audio.map((track) => ({
+    ...track,
+    appliedVolume: galAudioGainV1(
+      settingsApplication,
+      (["bgm", "voice", "sfx", "ambient", "ui"].includes(track.bus) ? track.bus : "sfx") as GalAudioBusV1,
+      track.volume,
+      voicePlaying
+    )
+  }));
   const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
   const lastEffectOperation = snapshot.effects.operations.at(-1) ?? null;
   const speakerNames = useMemo(() => Object.fromEntries(project.characters.characters.flatMap((character) => {
@@ -40,11 +65,32 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const displayName = typeof character.displayName === "string" ? character.displayName : undefined;
     return id === undefined || displayName === undefined ? [] : [[id, displayName] as const];
   })), [project.characters.characters]);
+  const presentedText = content.kind === "dialogue" || content.kind === "narration" ? content.text : "";
+  const textRevealDuration = useMemo(
+    () => presentedText === "" ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, presentedText),
+    [presentedText, settingsApplication]
+  );
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
     setLastInputSource(source);
+    if ((intent.kind === "primary" || intent.kind === "select-choice")
+      && source !== "lifecycle" && source !== "system"
+      && !galAdvanceInputEnabledV1(settingsApplication, source)) {
+      setLastInputAccepted(false);
+      return;
+    }
+    if (intent.kind === "primary" && (content.kind === "dialogue" || content.kind === "narration") && !textReady) {
+      setTextReady(true);
+      setLastInputAccepted(false);
+      return;
+    }
+    if (intent.kind === "primary" && settingsApplication.advance.waitForVoice && voicePlaying) {
+      setLastInputAccepted(false);
+      return;
+    }
+    setLastInputAccepted(true);
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [projectSemanticHash]);
+  }, [content.kind, project, settingsApplication, textReady, voicePlaying]);
 
   useEffect(() => {
     setState(createPlayerCore(project));
@@ -52,7 +98,19 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setMediaGeneration(0);
     setSelectedChoiceIndex(0);
     setLastInputSource("lifecycle");
-  }, [projectSemanticHash]);
+    setLastInputAccepted(true);
+    setVoicePlaying(false);
+  }, [executableProjectHash]);
+
+  useEffect(() => {
+    if (presentedText === "") {
+      setTextReady(true);
+      return;
+    }
+    setTextReady(false);
+    const timer = window.setTimeout(() => setTextReady(true), textRevealDuration);
+    return () => window.clearTimeout(timer);
+  }, [presentedText, textRevealDuration]);
 
   useEffect(() => {
     setMediaErrors([]);
@@ -73,7 +131,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+      if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
         const delta = event.key === "ArrowUp" ? -1 : 1;
@@ -98,7 +156,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [applyIntent, content, hostActivity, selectedChoiceIndex]);
+  }, [applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -168,7 +226,35 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-runtime-host={snapshot.identities.runtimeHostVersion}
       data-effect-operation={lastEffectOperation?.kind ?? "none"}
       data-input-source={lastInputSource}
+      data-input-accepted={lastInputAccepted}
       data-host-activity={hostActivity}
+      data-settings-platform={platform}
+      data-settings-application={settingsApplication.version}
+      data-settings-quality={settingsApplication.display.quality}
+      data-settings-safe-area={settingsApplication.display.safeArea}
+      data-settings-orientation={settingsApplication.display.orientation}
+      data-settings-input-pointer={settingsApplication.input.pointer}
+      data-settings-input-keyboard={settingsApplication.input.keyboard}
+      data-settings-input-touch={settingsApplication.input.touch}
+      data-settings-input-gamepad={settingsApplication.input.gamepad}
+      data-settings-text-cps={settingsApplication.text.charactersPerSecond}
+      data-settings-text-minimum={settingsApplication.text.minimumDisplayMilliseconds}
+      data-settings-text-punctuation={settingsApplication.text.punctuationDelayMilliseconds}
+      data-settings-allow-hold={settingsApplication.advance.allowHold}
+      data-settings-wait-for-voice={settingsApplication.advance.waitForVoice}
+      data-settings-audio-master={settingsApplication.resolved.values.audio.master}
+      data-settings-audio-bgm={settingsApplication.resolved.values.audio.bgm}
+      data-settings-audio-voice={settingsApplication.resolved.values.audio.voice}
+      data-settings-audio-sfx={settingsApplication.resolved.values.audio.sfx}
+      data-settings-audio-ambient={settingsApplication.resolved.values.audio.ambient}
+      data-settings-audio-ui={settingsApplication.resolved.values.audio.ui}
+      data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
+      style={{
+        "--gal-stage-aspect": settingsApplication.display.aspectRatio,
+        "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
+        "--gal-font-scale": settingsApplication.text.fontScale,
+        "--gal-message-opacity": settingsApplication.text.messageWindowOpacity
+      } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
@@ -200,13 +286,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             />
           ))}
         </div>
-        {stage.audio.map((track) => (
+        {appliedAudio.map((track) => (
           <audio
             key={`${mediaGeneration}:${track.bus}:${track.assetId}`}
             ref={(element) => {
               if (element !== null) {
                 audioElements.current.set(track.bus, element);
-                element.volume = track.volume;
+                element.volume = track.appliedVolume;
                 element.dataset.appliedVolume = String(element.volume);
                 element.dataset.shouldPlay = String(track.status === "playing");
                 element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : track.status;
@@ -216,9 +302,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             data-audio-bus={track.bus}
             data-asset-id={track.assetId}
             data-volume={track.volume}
+            data-applied-volume={track.appliedVolume}
             aria-label={`${track.displayName} · ${track.bus}`}
             autoPlay={hostActivity === "active" && track.status === "playing"}
             loop={track.loop}
+            onPlay={() => { if (track.bus === "voice") setVoicePlaying(true); }}
+            onPause={() => { if (track.bus === "voice") setVoicePlaying(false); }}
+            onEnded={() => { if (track.bus === "voice") setVoicePlaying(false); }}
             onError={() => setMediaErrors((current) => [...new Set([...current, track.assetId])])}
           />
         ))}
@@ -252,7 +342,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <p className="player-eyebrow">A WORLd STUDIO STORY</p>
             <h1>{snapshot.title}</h1>
             <p>同一个故事核心，面向每一块屏幕。</p>
-            <button className="player-primary" type="button" onClick={() => applyIntent({ kind: "primary" }, "pointer")}>
+            <button className="player-primary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
               开始故事
               <span aria-hidden="true">→</span>
             </button>
@@ -261,9 +351,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         )}
 
         {(content.kind === "dialogue" || content.kind === "narration") && (
-          <button className={`player-dialogue player-dialogue--${stage.textboxTemplate}`} type="button" onClick={() => applyIntent({ kind: "primary" }, "pointer")} aria-label="继续下一句">
+          <button
+            className={`player-dialogue player-dialogue--${stage.textboxTemplate}`}
+            type="button"
+            data-text-ready={textReady}
+            data-text-reveal-duration={textRevealDuration}
+            onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
+            onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}
+            aria-label="继续下一句"
+          >
             {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
-            <span aria-live="polite">{content.text}</span>
+            <span key={`${presentedText}:${textRevealDuration}`} aria-live="polite" style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}>{content.text}</span>
             <i aria-hidden="true">⌄</i>
           </button>
         )}
@@ -279,7 +377,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 className={index === selectedChoiceIndex ? "is-selected" : undefined}
                 data-player-selected={index === selectedChoiceIndex ? "true" : "false"}
                 onFocus={() => setSelectedChoiceIndex(index)}
-                onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, "pointer")}
+                onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
+                onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, pointerInput.current)}
               >
                 <span aria-hidden="true">{index + 1}</span>{option.label}
               </button>
@@ -291,7 +390,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <div className="player-ending" role="status">
             <span>ENDING</span>
             <h2>{content.name}</h2>
-            <button className="player-secondary" type="button" onClick={() => applyIntent({ kind: "restart" }, "pointer")}>回到标题</button>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>回到标题</button>
           </div>
         )}
 
@@ -301,7 +400,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <h1>{snapshot.title}</h1>
             <p>{content.diagnostics[0]?.message ?? "未知 Player Core 错误"}</p>
             <code>{content.diagnostics[0]?.code ?? "PLAYER_UNKNOWN_ERROR"}</code>
-            <button className="player-secondary" type="button" onClick={() => applyIntent({ kind: "restart" }, "pointer")}>重新载入工程</button>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>重新载入工程</button>
           </div>
         )}
 
@@ -320,8 +419,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               }}
             />
             <div className="player-boundary__actions">
-              <button type="button" disabled={stage.missingAssetIds.length > 0 || mediaErrors.length > 0} onClick={() => applyIntent({ kind: "primary" }, "pointer")}>完成动效</button>
-              {content.canCancel && <button type="button" onClick={() => applyIntent({ kind: "cancel" }, "pointer")}>跳过动效</button>}
+              <button type="button" disabled={stage.missingAssetIds.length > 0 || mediaErrors.length > 0} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>完成动效</button>
+              {content.canCancel && <button type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "cancel" }, pointerInput.current)}>跳过动效</button>}
             </div>
           </div>
         )}
@@ -329,7 +428,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {content.kind === "barrier" && (
           <div className="player-boundary" role="alertdialog" aria-label={`确认不可逆步骤 ${content.descriptorId}`}>
             <span>不可逆边界</span><strong>{content.reason}</strong><code>{content.descriptorId}</code>
-            <button type="button" onClick={() => applyIntent({ kind: "primary" }, "pointer")}>确认继续</button>
+            <button type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>确认继续</button>
           </div>
         )}
 
