@@ -45,3 +45,36 @@ export function createPlayerMediaDemoV1(): PlayerMediaDemoV1 {
     }))
   };
 }
+
+export function createPlayerMediaMultichannelDemoV1(): PlayerMediaDemoV1 {
+  const base = createPlayerMediaDemoV1();
+  const scene = base.project.scripts.media_stage;
+  if (scene === undefined) throw new Error("Player multichannel demo is missing media_stage");
+  const background = scene.statements.find((statement) => statement.id === "media_background")!;
+  const show = scene.statements.find((statement) => statement.id === "media_show")!;
+  const audio = scene.statements.find((statement) => statement.id === "media_bgm")!;
+  const line = scene.statements.find((statement) => statement.id === "media_line")!;
+  const end = scene.statements.find((statement) => statement.id === "media_end")!;
+  return {
+    ...base,
+    project: {
+      ...base.project,
+      manifest: { ...base.project.manifest, projectId: "player_media_multichannel", title: "WorLd Player · 多通道舞台" },
+      scripts: {
+        ...base.project.scripts,
+        media_stage: {
+          ...scene,
+          statements: [
+            background,
+            { ...show, id: "media_show_left", summary: "asset=media_actor_sprite action=show slot=left x=32 y=100 scale=0.92 anchorX=0.5 anchorY=1 z=10 transition=dissolve duration=300ms" },
+            { ...show, id: "media_show_right", summary: "asset=media_actor_sprite action=show slot=right x=68 y=100 scale=1 anchorX=0.5 anchorY=1 z=20 transition=slide duration=360ms" },
+            { ...audio, id: "media_bgm", summary: "asset=media_theme action=play bus=bgm loop=true volume=0.6 fade=500ms" },
+            { ...audio, id: "media_voice", summary: "asset=media_theme action=play bus=voice loop=false volume=0.8" },
+            line,
+            end
+          ]
+        }
+      }
+    }
+  };
+}

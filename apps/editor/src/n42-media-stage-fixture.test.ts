@@ -65,7 +65,7 @@ describe("N42-E1b production media Stage fixture", () => {
 
     const formal = startFormalPreviewFromStatement(prepared.project, scene.id, "media_show");
     expect(formal).toMatchObject({ status: "presenting", statementId: "media_show" });
-    expect(formal.effectHost.activeByChannel.show?.payload).toMatchObject({
+    expect(formal.effectHost.activeByChannel["show.actor"]?.payload).toMatchObject({
       asset: "media_actor_sprite",
       slot: "actor",
       x: 50,
@@ -77,7 +77,7 @@ describe("N42-E1b production media Stage fixture", () => {
 
     const formalMove = startFormalPreviewFromStatement(prepared.project, scene.id, "media_move");
     expect(formalMove).toMatchObject({ status: "presenting", statementId: "media_move" });
-    expect(formalMove.effectHost.activeByChannel.show?.payload).toMatchObject({
+    expect(formalMove.effectHost.activeByChannel["show.actor"]?.payload).toMatchObject({
       action: "move",
       slot: "actor",
       x: 25,

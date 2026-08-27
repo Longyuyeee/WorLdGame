@@ -30,7 +30,7 @@ describe("N42-E9 Bezier path persistence and formal presentation", () => {
       assets: { ...canonical.assets, assets: [...canonical.assets.assets, { assetId: "hero_asset", kind: "character" }] }
     }, reopened.activeSceneId, "move_curve");
     expect(formal).toMatchObject({ status: "presenting", statementId: "move_curve" });
-    expect(formal.effectHost.activeByChannel.show?.payload).toMatchObject({
+    expect(formal.effectHost.activeByChannel["show.hero"]?.payload).toMatchObject({
       action: "move", slot: "hero", curve: "bezier", x: 80, y: 80,
       control1X: 30, control1Y: 20, control2X: 70, control2Y: 20
     });

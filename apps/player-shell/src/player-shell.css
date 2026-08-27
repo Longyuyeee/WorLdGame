@@ -63,7 +63,8 @@ button { font: inherit; }
 .player-brand__mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 10px; color: white; background: linear-gradient(135deg, #a855f7, #06b6d4); box-shadow: 0 8px 24px rgba(168,85,247,.35); }
 .player-brand__status { padding: 5px 9px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; color: #a5f3fc; font-size: 10px; text-transform: uppercase; }
 .player-brand__effect { padding: 5px 9px; border-radius: 999px; color: #ddd6fe; background: rgba(139,92,246,.14); font-size: 10px; letter-spacing: .04em; }
-.player-media-error { position: absolute; z-index: 6; top: 74px; right: 24px; max-width: min(420px, calc(100% - 48px)); padding: 10px 14px; border: 1px solid rgba(251,113,133,.45); border-radius: 12px; color: #fecdd3; background: rgba(55,10,28,.86); font-size: 12px; }
+.player-media-error { position: absolute; z-index: 6; top: 74px; right: 24px; display: flex; max-width: min(420px, calc(100% - 48px)); align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid rgba(251,113,133,.45); border-radius: 12px; color: #fecdd3; background: rgba(55,10,28,.86); font-size: 12px; }
+.player-media-error button { min-height: 44px; flex: 0 0 auto; padding: 0 12px; border: 1px solid rgba(254,205,211,.34); border-radius: 10px; color: #fff1f2; background: rgba(251,113,133,.12); cursor: pointer; }
 
 .player-title-screen, .player-ending, .player-error { position: relative; z-index: 1; display: flex; align-self: center; justify-self: center; width: min(680px, calc(100% - 48px)); flex-direction: column; align-items: center; text-align: center; }
 .player-eyebrow, .player-ending > span, .player-error > span { margin: 0 0 18px; color: #67e8f9; font-size: 12px; font-weight: 800; letter-spacing: .24em; }

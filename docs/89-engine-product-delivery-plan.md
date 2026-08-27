@@ -452,6 +452,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1 实施状态（2026-08-26）：[N50-E1 审计](212-n50-e1-formal-player-core-audit.md)建立 portable `@world-studio/player-core` 与最小共享 Player Shell，Canonical 工程只经正式 Compiler/Runtime/Host 形成标题、对白/旁白、选择、结局与错误 snapshot。production browser 在 1280×720 和 390×844 完成指针/键盘双路线，窄屏 overflow 0、触控目标 52–56px、console 0；首测旧 Fixture 变量、React 双实例和技术角色 ID 差异均已修正。实现头 `0b1fce0` 的远端完整门 run `32954927678` / job `98134398209` 用时 `11m21s` 绿色，ordinary `139/787`、storage `1/1`、冻结 VM `64.735s <90s`。E1 Engineering 关闭，但不等于三宿主、媒体 Adapter、存档/历史/设置或 Product Acceptance 完成。
 
+> E2/E3 实施状态（2026-08-27）：[N50-E2](214-n50-e2-player-stage-media-presentation-audit.md)已让正式 Player 消费真实 PNG/WAV 与 awaited/cancel Effect；[N50-E3](215-n50-e3-player-media-parity-recovery-audit.md)进一步冻结同一 Media Golden 的 Editor↔Player background/character/audio/camera/textbox 结构差分，将默认 channel 收敛为 `show.<slot>` / `audio.<bus>`，并加入缺资源显式重试。真实桌面保留两角色/两总线；390×844 首测重试按钮仅 34px，修正后 44px 且 overflow 0。本机完整功能/构建门通过，长链末端两个 N40 性能红值在停止负载后原样复跑通过；E3 等待远端 Windows / Node 22 裁决前不关闭。SFX/Ambient/UI 完整矩阵、存档/历史/设置与三端发布仍缺。
+
 - **Goal**：形成可嵌入 Web/Windows/Android 的正式玩家。
 - **Implementation**：标题、开始/继续、对话、选择、历史、设置、存读档、错误页；鼠标/键盘/触摸/基础手柄；响应式安全区；无障碍语义。
 - **Acceptance**：同一 Player Core 被三宿主使用，不复制剧情逻辑。

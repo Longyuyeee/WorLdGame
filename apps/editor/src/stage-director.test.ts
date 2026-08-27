@@ -66,7 +66,7 @@ describe("N42 Stage director canonical placement", () => {
       statementId: "stmt_n42_show",
       currentEvent: { kind: "direction", command: "show", parameters: { action: "show", asset: "character_mio", slot: "lead", x: "75", y: "45" } }
     });
-    expect(formal.effectHost.activeByChannel.show?.payload).toMatchObject({ action: "show", asset: "character_mio", slot: "lead", x: 75, y: 45 });
+    expect(formal.effectHost.activeByChannel["show.lead"]?.payload).toMatchObject({ action: "show", asset: "character_mio", slot: "lead", x: 75, y: 45 });
 
     const invalid = {
       ...canonical,

@@ -275,7 +275,12 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
   const policy = parameters.effectPolicy ?? "pure";
   const awaitMode = parameters.awaitMode ?? "detached";
   const descriptorId = parameters.descriptorId ?? instruction.instructionId;
-  const channel = parameters.channel ?? command;
+  const defaultChannel = command === "show"
+    ? `show.${String(parameters.slot ?? parameters.character ?? parameters.asset ?? "invalid")}`
+    : command === "audio"
+      ? `audio.${String(parameters.bus ?? "sfx")}`
+      : command;
+  const channel = parameters.channel ?? defaultChannel;
   const action = typeof parameters.action === "string" ? parameters.action : command === "background" || command === "textbox" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
   const cancellationScope = parameters.cancellationScope ?? `scope.${state.cursor.sceneId}`;
   const replayKey = parameters.replayKey ?? `replay.${instruction.instructionId}`;
@@ -291,6 +296,23 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
     const normalized = normalizeDirectionPayloadScalar(command, action, key, value);
     if (normalized === undefined) return undefined;
     payload[key] = normalized;
+  }
+  if (command === "show" && action === "move") {
+    const slot = String(parameters.slot ?? parameters.character ?? parameters.asset ?? "");
+    const current = state.sceneState.characters[slot];
+    if (current !== undefined) {
+      payload.asset = current.assetId;
+      if (current.expression !== null) payload.expression = current.expression;
+    }
+  }
+  if (command === "audio" && (action === "pause" || action === "resume")) {
+    const bus = String(parameters.bus ?? "sfx");
+    const current = state.audioState.tracks[bus];
+    if (current !== undefined) {
+      payload.asset = current.assetId;
+      payload.loop = current.loop;
+      payload.volumePermille = current.volumePermille;
+    }
   }
   return {
     effectId: runtimeEffectIdV1(state.executionId, descriptorId, state.nextEffectSequence, originatingRevision),

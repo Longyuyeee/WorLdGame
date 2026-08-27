@@ -92,7 +92,7 @@ describe("N50-E1 formal Player Core", () => {
         pending: { descriptorId: "player.media.actor.enter", awaitMode: "awaited" },
         operations: [
           { sequence: 0, kind: "execute", channel: "background" },
-          { sequence: 1, kind: "execute", channel: "show" }
+          { sequence: 1, kind: "execute", channel: "show.actor" }
         ]
       }
     });
