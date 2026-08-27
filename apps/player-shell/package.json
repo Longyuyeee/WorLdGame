@@ -1,6 +1,6 @@
 {
   "name": "@world-studio/player-shell",
-  "version": "0.2.0-n50",
+  "version": "0.3.0-n50",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
-    "@world-studio/player-core": "0.2.0-n50",
+    "@world-studio/player-core": "0.3.0-n50",
     "@world-studio/project-domain": "0.4.0-n13",
     "react": "19.2.8",
     "react-dom": "19.2.8"

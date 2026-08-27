@@ -6,6 +6,7 @@ import {
   advancePlayerCore,
   createPlayerCore,
   createPlayerCoreSnapshotV1,
+  dispatchPlayerCoreIntentV1,
   selectPlayerCoreChoice,
   settlePlayerCoreEffect,
   startPlayerCore
@@ -82,7 +83,7 @@ describe("N50-E1 formal Player Core", () => {
     const waiting = startPlayerCore(createPlayerCore(project), project);
     expect(createPlayerCoreSnapshotV1(waiting)).toMatchObject({
       status: "waiting-effect",
-      playerCoreVersion: "0.2.0",
+      playerCoreVersion: "0.3.0",
       presentation: { kind: "effect", descriptorId: "player.media.actor.enter" },
       effects: {
         active: [
@@ -127,5 +128,17 @@ describe("N50-E1 formal Player Core", () => {
       status: "error",
       presentation: { kind: "error", diagnostics: expect.arrayContaining([expect.objectContaining({ origin: "player", code: "PLAYER_CHOICE_MISSING" })]) }
     });
+  });
+
+  it("routes platform-neutral intents and creates a fresh formal Core after an ending", () => {
+    const project = fixture("branching");
+    const title = createPlayerCore(project);
+    const choice = dispatchPlayerCoreIntentV1(title, project, { kind: "primary" });
+    const line = dispatchPlayerCoreIntentV1(choice, project, { kind: "select-choice", optionId: "branch_right_option" });
+    const ending = dispatchPlayerCoreIntentV1(line, project, { kind: "primary" });
+    expect(createPlayerCoreSnapshotV1(ending)).toMatchObject({ status: "ended", presentation: { kind: "ending", endingId: "branch_right_end" } });
+    const restarted = dispatchPlayerCoreIntentV1(ending, project, { kind: "restart" });
+    expect(createPlayerCoreSnapshotV1(restarted)).toMatchObject({ status: "title", runtimeStateHash: null, presentation: { kind: "title" } });
+    expect(restarted.hostState.operations).toEqual([]);
   });
 });
