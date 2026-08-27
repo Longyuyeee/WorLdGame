@@ -3,10 +3,13 @@ import { join } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
+import { WebPlayerHost } from "./player-host";
+
+afterEach(() => vi.restoreAllMocks());
 
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -126,5 +129,70 @@ describe("N50-E1 shared Player Shell", () => {
     expect(container.querySelectorAll('img[data-asset-id="media_actor_sprite"]')).toHaveLength(2);
     expect([...container.querySelectorAll("img[data-stage-slot]")].map((node) => node.getAttribute("data-stage-slot"))).toEqual(["left", "right"]);
     expect([...container.querySelectorAll("audio[data-audio-bus]")].map((node) => node.getAttribute("data-audio-bus"))).toEqual(["bgm", "voice"]);
+  });
+
+  it("freezes input and media while the host is suspended, then resumes the same Core", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    const shell = view.container.querySelector("main")!;
+    const runtimeHash = shell.getAttribute("data-player-status");
+
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    expect(shell).toHaveAttribute("data-host-activity", "suspended");
+    expect(screen.getByRole("status")).toHaveTextContent("宿主已暂停");
+    expect(pause).toHaveBeenCalledTimes(2);
+    fireEvent.keyDown(window, { key: " " });
+    expect(shell).toHaveAttribute("data-player-status", runtimeHash);
+
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    await Promise.resolve();
+    expect(shell).toHaveAttribute("data-host-activity", "active");
+    expect(play).toHaveBeenCalledTimes(2);
+    expect([...view.container.querySelectorAll("audio")].map((node) => node.getAttribute("data-player-playback"))).toEqual(["playing", "playing"]);
+    fireEvent.keyDown(window, { key: " " });
+    expect(screen.getByRole("status")).toHaveTextContent("Curtain");
+  });
+
+  it("maps real document visibility to host activity and restores keyboard input on return", () => {
+    const original = Object.getOwnPropertyDescriptor(document, "visibilityState");
+    let visibility: DocumentVisibilityState = "visible";
+    Object.defineProperty(document, "visibilityState", { configurable: true, get: () => visibility });
+    try {
+      const view = render(<WebPlayerHost project={branching()} />);
+      const shell = view.container.querySelector("main")!;
+      expect(shell).toHaveAttribute("data-host-activity", "active");
+      visibility = "hidden";
+      fireEvent(document, new Event("visibilitychange"));
+      expect(shell).toHaveAttribute("data-host-activity", "suspended");
+      fireEvent.keyDown(window, { key: "Enter" });
+      expect(shell).toHaveAttribute("data-player-status", "title");
+      visibility = "visible";
+      fireEvent(document, new Event("visibilitychange"));
+      expect(shell).toHaveAttribute("data-host-activity", "active");
+      fireEvent.keyDown(window, { key: "Enter" });
+      expect(shell).toHaveAttribute("data-player-status", "waiting-choice");
+    } finally {
+      if (original === undefined) delete (document as unknown as Record<string, unknown>).visibilityState;
+      else Object.defineProperty(document, "visibilityState", original);
+    }
+  });
+
+  it("releases removed audio buses instead of resuming detached media", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(view.container.querySelectorAll("audio")).toHaveLength(2);
+    view.rerender(<PlayerShell project={branching()} hostActivity="suspended" />);
+    expect(view.container.querySelectorAll("audio")).toHaveLength(0);
+    expect(pause).not.toHaveBeenCalled();
+    view.rerender(<PlayerShell project={branching()} hostActivity="active" />);
+    await Promise.resolve();
+    expect(play).not.toHaveBeenCalled();
   });
 });

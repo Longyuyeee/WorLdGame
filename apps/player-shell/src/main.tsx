@@ -4,7 +4,7 @@ import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } 
 import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
 import branchingSource from "../../../fixtures/projects/branching/project.s0.json";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
-import { PlayerShell } from "./PlayerShell";
+import { WebPlayerHost } from "./player-host";
 
 const source = benchmarkSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
 const migrated = loadProject(migrateS0Project(source).files);
@@ -21,14 +21,29 @@ function RecoveryDemo() {
   const demo = mediaDemo!;
   const [available, setAvailable] = useState(false);
   const assets = available ? demo.mediaAssets : demo.mediaAssets.filter((asset) => asset.assetId !== "media_actor_sprite");
-  return <PlayerShell project={demo.project} mediaAssets={assets} onRetryMedia={() => setAvailable(true)} />;
+  return <WebPlayerHost project={demo.project} mediaAssets={assets} onRetryMedia={() => setAvailable(true)} />;
 }
 
 function LifecycleDemo() {
   const [showBenchmark, setShowBenchmark] = useState(false);
   return <>
     <button className="player-demo-switch" type="button" onClick={() => setShowBenchmark((current) => !current)}>切换工程身份</button>
-    <PlayerShell project={showBenchmark ? project : inputDemoProject} />
+    <WebPlayerHost project={showBenchmark ? project : inputDemoProject} />
+  </>;
+}
+
+function HostLifecycleDemo() {
+  const demo = createPlayerMediaMultichannelDemoV1();
+  const [mounted, setMounted] = useState(true);
+  const [suspended, setSuspended] = useState(false);
+  return <>
+    <div className="player-demo-controls" aria-label="Web 宿主生命周期控制">
+      <button type="button" onClick={() => setSuspended((current) => !current)}>{suspended ? "恢复宿主" : "暂停宿主"}</button>
+      <button type="button" onClick={() => setMounted((current) => !current)}>{mounted ? "卸载 Player" : "重新挂载 Player"}</button>
+    </div>
+    {mounted
+      ? <WebPlayerHost project={demo.project} mediaAssets={demo.mediaAssets} activityOverride={suspended ? "suspended" : "active"} />
+      : <main className="player-host-unmounted" data-player-mounted="false"><strong>Player 已由宿主卸载</strong><span>正式 Core 与媒体节点均已释放</span></main>}
   </>;
 }
 
@@ -38,6 +53,8 @@ createRoot(document.getElementById("root")!).render(
       ? <RecoveryDemo />
       : demoName === "lifecycle"
         ? <LifecycleDemo />
-      : <PlayerShell project={demoName === "input" ? inputDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
+        : demoName === "host"
+          ? <HostLifecycleDemo />
+          : <WebPlayerHost project={demoName === "input" ? inputDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
   </StrictMode>
 );
