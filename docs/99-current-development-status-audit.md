@@ -1,4 +1,4 @@
-# 当前开发情况审计（N50 Engineering 已通过，N51-E2 Catalog/Editor 实施中）
+# 当前开发情况审计（N50 Engineering 已通过，N51-E2 Catalog/Editor 已关闭）
 
 > 审计日期：2026-08-27
 > 当前分支：`codex/n51-e2-settings-catalog-editor`；直接基线为 N51-E1 最终绿色头 `c2257e4`
@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1 已关闭，E2 Catalog/Editing Service 本机完整门通过、等待远端同头门**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1/E2 Engineering 已关闭，下一切片为 E3 Project settings 与 undo/redo transaction**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -29,7 +29,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N50-E6 由 Draft PR #89 承载；实现头 `001a92f` 与最终头 `6580b34` 的 Windows / Node 22 完整门均绿色。普通回归 `142/808`、N50 `26/26`、VM `53.581s <90s`、Route P95 `122.31ms <500ms`。范围消歧后 N50 Engineering 通过，但 `main` 未集成、三宿主 Product Acceptance 仍失败。
 - N50→N51 治理由 Draft PR #90 承载；治理实现头 `649fc08` 的 Windows / Node 22 完整门 run `33050123723` / job `98443305419` 用时 `12m14s` 绿色，普通回归 `142/808`、VM corpus `68.403s <90s`、Route P95 `146.72ms <500ms`。这只关闭 N51 Engineering 准入检查点，不表示 N51 功能已经实现。
 - N51-E1 由 Draft PR #91 承载；实现头 `963ee1b` 建立 23 字段 portable typed core，default/project/platform 继承、来源、reset、严格解析和序列化专门门 `12/12`。本机完整门普通 `143/820`、VM `69.80s <90s`、Route P95 `122.07ms <500ms`；远端 run `33053868990` / job `98455699350` 用时 `12m9s` 绿色，VM `64.544s`、Route P95 `129.30ms`。E1 Engineering 关闭，不等于完整 N51 或 Product Acceptance。
-- N51-E2 已实现 23 字段 runtime-frozen catalog、Basic `16`/Advanced `23`、双语/NFKC 搜索和原子 editing service；本机最终完整门普通 `144/832`、N51 `24/24`，修改前同切片 VM 精确计时 `53.33s <90s`，最终代码第二轮同预算门通过；证据复核 Route P95 `223.74ms <500ms`、Asset dicing `3458.41ms <5000ms`。远端同头可迁移精确证据待本分支 Draft PR。
+- N51-E2 已实现 23 字段 runtime-frozen catalog、Basic `16`/Advanced `23`、双语/NFKC 搜索和原子 editing service；本机最终完整门普通 `144/832`、N51 `24/24`，修改前同切片 VM 精确计时 `53.33s <90s`，最终代码第二轮同预算门通过；证据复核 Route P95 `223.74ms <500ms`、Asset dicing `3458.41ms <5000ms`。实现头 `e4fa4b5` 的 Draft PR #92 Windows / Node 22 run `33058884556` / job `98472432704` 用时 `11m28s` 绿色，普通 `144/832`、VM `66.876s <90s`、Route P95 `134.46ms <500ms`、Asset dicing `3374.89ms <5000ms`；E2 Engineering 关闭。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 

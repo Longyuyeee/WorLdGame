@@ -475,7 +475,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E1 实施状态（2026-08-27）：[N51-E1 审计](222-n51-e1-typed-gal-settings-core-audit.md)建立 dependency-free `@world-studio/gal-settings` v1，首批 23 字段贯通 default→project→Windows/Web/Android platform 继承、逐字段来源、当前层 reset、严格诊断和确定性 round-trip。首测 `exactOptionalPropertyTypes` 与架构静态门分别暴露可选 `undefined` 契约和 `document` 命名歧义，均在不放宽门限的前提下修正；专门门 `12/12`。实现头 `963ee1b` 的 Draft PR #91 Windows / Node 22 完整门 run `33053868990` / job `98455699350` 用时 `12m9s` 绿色，VM `64.544s <90s`、Route P95 `129.30ms <500ms`。E1 Engineering 关闭；这仍不等于 Basic/Advanced UI、搜索、Project 持久化、Preview 热应用或 N51 Product Acceptance。
 
-> E2 实施状态（2026-08-27）：[N51-E2 审计](223-n51-e2-settings-catalog-editor-audit.md)为 23 字段建立 runtime-frozen 双语 catalog、Basic 16/Advanced 23 可见性、NFKC 多词搜索和共同 parser/control 约束；单层批量 editing service 支持关联字段原子提交、reset/no-op、三平台 before/after value/source。Android portrait 三字段真实事务成功，单字段非法组合整批失败且输入不变；首次架构门英文 `window.` 文案歧义已在不放宽规则下修正，复核又补上非类型宿主多余字段 fail closed。专门门 `24/24`，本机最终完整门通过；尚未接 Project、UI 或 Preview。
+> E2 实施状态（2026-08-27）：[N51-E2 审计](223-n51-e2-settings-catalog-editor-audit.md)为 23 字段建立 runtime-frozen 双语 catalog、Basic 16/Advanced 23 可见性、NFKC 多词搜索和共同 parser/control 约束；单层批量 editing service 支持关联字段原子提交、reset/no-op、三平台 before/after value/source。Android portrait 三字段真实事务成功，单字段非法组合整批失败且输入不变；首次架构门英文 `window.` 文案歧义已在不放宽规则下修正，复核又补上非类型宿主多余字段 fail closed。专门门 `24/24`；实现头 `e4fa4b5` 的 Draft PR #92 Windows / Node 22 完整门 run `33058884556` / job `98472432704` 用时 `11m28s` 绿色，普通回归 `144/832`、VM `66.876s <90s`、Route P95 `134.46ms <500ms`。E2 Engineering 关闭；尚未接 Project、UI 或 Preview。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 

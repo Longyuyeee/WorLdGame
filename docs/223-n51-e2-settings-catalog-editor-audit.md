@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e2-settings-catalog-editor`
 > 直接基线：N51-E1 最终绿色头 `c2257e4`
 > 授权：`RA-N21-010`，最大节点 N51
-> 判定：本地 Engineering 实现与专门门通过；待同头远端 Windows / Node 22 完整门后关闭 E2
+> 判定：实现头 `e4fa4b5` 的本地与远端 Windows / Node 22 完整门均通过；N51-E2 Engineering 关闭
 
 ## 1. 冻结目标与边界
 
@@ -48,10 +48,11 @@ E2 将 E1 的 23 个 typed 字段提升为可供设置界面消费的正式目�
 - `npm run build --workspace @world-studio/gal-settings`：PASS；
 - `npm run audit:architecture`：99 portable files、4 Node adapter files，PASS；
 - 最终代码第二轮完整 `npm run check` 已执行到末项并退出；普通回归 `144 files / 832 tests`，N50 `26/26`，N51 `24/24`；
-- 冻结 VM：修改前一轮同切片 corpus 测试 `53.33 s < 90 s`（测试总时长 `55.38 s`）；最终代码第二轮也通过同一预算门，远端同头日志将作为可迁移精确计时；
+- 冻结 VM：修改前一轮同切片 corpus 测试 `53.33 s < 90 s`（测试总时长 `55.38 s`）；最终代码第二轮也通过同一预算门；远端同头 corpus `66.876 s < 90 s`（测试总时长 `68.58 s`）；
 - 最终代码证据复核：Script 性能 `13/13`；Route 性能 `9/9`、P95 `223.74 ms < 500 ms`；
 - 最终代码证据复核：Asset 性能 `4/4`，dicing 总时长 `3458.41 ms < 5000 ms`；
 - 17-workspace 全构建 PASS；editor 主 bundle 既有 `938.18 kB > 500 kB` 警告继续保留，不把它隐藏或误归因于本 portable service。
+- Draft PR [#92](https://github.com/Longyuyeee/WorLdGame/pull/92) 的实现头 `e4fa4b5` 在 Windows / Node 22 完整门 run `33058884556` / job `98472432704` 用时 `11m28s` 并绿色；普通回归 `144/832`、N51 `24/24`、Route P95 `134.46 ms < 500 ms`、Asset dicing `3374.89 ms < 5000 ms`。
 
 ## 5. 需求对齐与剩余项
 
@@ -63,4 +64,4 @@ E2 直接推进 REQ-GAL/AC-19 的 Basic/Advanced、搜索、控件约束、恢�
 4. 扩展剩余 P0 schema，同时保持 N52 执行功能唯一归属；
 5. 真人 Product Acceptance、实体设备、三端正式产物、M1 与发布继续阻断。
 
-同一实现提交远端完整门绿色后，E2 Engineering 才关闭；否则保持 fail closed。
+E2 Engineering 已由同头本地/远端证据关闭。下一切片是 N51-E3 Canonical Project settings 文件与正式 undo/redo transaction；Settings UI、Preview 热应用和 N51 Product Acceptance 继续保持未完成。
