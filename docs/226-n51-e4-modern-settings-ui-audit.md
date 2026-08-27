@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e4-settings-ui`
 > 直接基线：N51-E3 最终头 `410be14`
 > 授权：`RA-N21-010`，最大节点 N51
-> 判定：本地 Engineering 候选通过；同头远端 Windows / Node 22 完整门待验证；Product Acceptance 仍阻断
+> 判定：Engineering 通过；Product Acceptance 仍阻断
 
 ## 1. 原始需求与本切片边界
 
@@ -63,6 +63,8 @@ Settings UI 作为覆盖左侧创作区的任务面板实现，右侧继续挂�
 - 最终本地 `npm run check`：PASS；普通回归 `147 files / 847 tests`，Editor integration `8 files / 54 tests`，storage `1/1`，VM `5/5`、`27.09s < 90s`；
 - 17 workspaces production build PASS；Editor CSS `138.52/24.70 kB`，JS `969.46/271.59 kB`，既有 >500 kB 拆包 warning 保留；
 - architecture `99 portable / 4 Node adapter`；10k Runtime `7.737s`、Route edit P95 `60.06ms < 500ms`、Asset dicing `1745.71ms < 5000ms`，全部 PASS。
+- 实现头 `9828208` 的 Draft PR #94 Windows / Node 22 完整门：run `33093375273` / job `98591846616`，用时 `12m39s`，PASS；
+- 远端普通回归 `147/847`、N51 `49/49`、VM conformance `27.68s`、10k Runtime `30.667s`、Route edit P95 `153.19ms < 500ms`、Asset dicing `3310.15ms < 5000ms`；Editor `969.64/271.59 kB`，architecture `99/4`，均保持冻结门限并通过。
 
 ## 6. 诚实边界与下一切片
 
@@ -74,4 +76,4 @@ E4 已把首批 23 个 typed settings 变成可搜索、可继承、可恢复、
 4. Windows/Android 正式宿主、实体设备、真人 Product Acceptance、M1 Stable 与发布继续失败关闭；
 5. Editor 大包拆分债未因本轮通过而关闭。
 
-下一切片冻结为 N51-E5 Preview/Player settings hot application。E5 必须从同一 resolved settings 输出驱动现有 Preview 与正式 Player Core/Host，不得建立第二套解释规则；热应用与需要重启的字段必须明确区分，并以 Editor↔Player 对照、保存重开、桌面/390×844 production browser 和失败恢复证据关闭。E4 Engineering 的最终关闭仍等待本实现头的远端 Windows / Node 22 完整门。
+下一切片冻结为 N51-E5 Preview/Player settings hot application。E5 必须从同一 resolved settings 输出驱动现有 Preview 与正式 Player Core/Host，不得建立第二套解释规则；热应用与需要重启的字段必须明确区分，并以 Editor↔Player 对照、保存重开、桌面/390×844 production browser 和失败恢复证据关闭。实现头已通过同头本地与远端完整门，E4 Engineering 关闭；真人、实体设备和 N51 Product Acceptance 继续按权威记录失败关闭。
