@@ -1,10 +1,10 @@
-# 当前开发情况审计（N50 Engineering 已通过，N51 Settings 治理准入）
+# 当前开发情况审计（N50 Engineering 已通过，N51-E1 typed Settings 已关闭）
 
 > 审计日期：2026-08-27
-> 当前分支：`codex/n50-n51-governance`；直接基线为 N50-E6 最终绿色头 `6580b34`
+> 当前分支：`codex/n51-e1-typed-settings`；直接基线为 N51 治理最终绿色头 `e982520`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N50–N52 范围消歧](220-n50-n52-scope-reconciliation.md)、[N50→N51 治理检查点](221-n50-n51-governance-checkpoint.md)、[N50 Engineering 出口复审](219-n50-engineering-exit-reaudit.md)
+> 最新节点证据：[N51-E1 Typed Gal Settings Core](222-n51-e1-typed-gal-settings-core-audit.md)、[N50–N52 范围消歧](220-n50-n52-scope-reconciliation.md)、[N50→N51 治理检查点](221-n50-n51-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -15,12 +15,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51 typed Settings 尚未实现**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1 typed Settings Core 本机与远端完整门均通过**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；N51 Engineering：**仅治理准入，尚未开始产品实现**；全部 Product Acceptance、N52+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；N51 Engineering：**E1 portable typed core 本地门通过，完整 N51 尚未完成**；全部 Product Acceptance、N52+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
@@ -28,6 +28,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N50-E5 由 Draft PR #88 承载；实现头 `8137784` 的 Windows / Node 22 run `33043581781` / job `98422396914` 用时 `11m58s` 绿色，普通回归 `141/804`、N50 `22/22`、VM `67.313s <90s`、autosave `4.153s`、Route P95 `133.25ms <500ms`。这只关闭 E5 Engineering，不等于 Windows/Android 正式宿主、`main` 集成或 Product Acceptance 通过。
 - N50-E6 由 Draft PR #89 承载；实现头 `001a92f` 与最终头 `6580b34` 的 Windows / Node 22 完整门均绿色。普通回归 `142/808`、N50 `26/26`、VM `53.581s <90s`、Route P95 `122.31ms <500ms`。范围消歧后 N50 Engineering 通过，但 `main` 未集成、三宿主 Product Acceptance 仍失败。
 - N50→N51 治理由 Draft PR #90 承载；治理实现头 `649fc08` 的 Windows / Node 22 完整门 run `33050123723` / job `98443305419` 用时 `12m14s` 绿色，普通回归 `142/808`、VM corpus `68.403s <90s`、Route P95 `146.72ms <500ms`。这只关闭 N51 Engineering 准入检查点，不表示 N51 功能已经实现。
+- N51-E1 由 Draft PR #91 承载；实现头 `963ee1b` 建立 23 字段 portable typed core，default/project/platform 继承、来源、reset、严格解析和序列化专门门 `12/12`。本机完整门普通 `143/820`、VM `69.80s <90s`、Route P95 `122.07ms <500ms`；远端 run `33053868990` / job `98455699350` 用时 `12m9s` 绿色，VM `64.544s`、Route P95 `129.30ms`。E1 Engineering 关闭，不等于完整 N51 或 Product Acceptance。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -125,6 +126,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-010` 只准入 N51 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. RA-010 只准入 N51 Engineering；下一步从 portable typed settings schema 和继承解析开始，N52 继续阻断。
+6. RA-010 只准入 N51 Engineering；E1 完成远端裁决后进入字段元数据与 Basic/Advanced/search 编辑服务，N52 继续阻断。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

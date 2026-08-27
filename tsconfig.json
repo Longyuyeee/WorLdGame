@@ -8,6 +8,7 @@
     { "path": "./packages/runtime" },
     { "path": "./packages/runtime-host" },
     { "path": "./packages/player-core" },
+    { "path": "./packages/gal-settings" },
     { "path": "./packages/route-graph" },
     { "path": "./packages/story-core" },
     { "path": "./packages/story-language" },
