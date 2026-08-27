@@ -4,7 +4,7 @@
 > 当前分支：`codex/n51-e5-settings-runtime-application`；直接基线为 N51-E4 最终头 `968a2f7`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N51-E5 Preview / Player Settings 热应用](227-n51-e5-settings-runtime-application-audit.md)、[N51-E4 现代 Settings UI 与保存重开](226-n51-e4-modern-settings-ui-audit.md)、[N51-E3 Canonical Project Settings 与撤销事务](225-n51-e3-project-settings-transaction-audit.md)
+> 最新节点证据：[N51-E5 换机接续与 E6 启动检查点](228-n51-e5-handoff-and-e6-entry-checkpoint.md)、[N51-E5 Preview / Player Settings 热应用](227-n51-e5-settings-runtime-application-audit.md)、[N51-E4 现代 Settings UI 与保存重开](226-n51-e4-modern-settings-ui-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论

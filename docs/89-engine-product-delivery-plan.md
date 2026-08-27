@@ -469,7 +469,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 ### N51 Gal 配置中心
 
 - **Goal**：所有 P0 Gal 行为可配置、可继承、可预览。
-- **Implementation**：Basic/Advanced、搜索、恢复默认；默认/项目/平台层；显示、文本、推进、Auto、Skip、Save、History、Back、画面、音频、选择、路线、输入；Master/BGM/Voice/SFX/Ambient/UI；Windows/Web/Android Profile。
+- **Implementation**：Basic/Advanced、搜索、恢复默认；默认/项目/平台层；显示、文本、普通推进、画面、音频、选择、路线与输入配置；Master/BGM/Voice/SFX/Ambient/UI；Windows/Web/Android Profile。Save/History/Auto/Skip/Back/Forward 的玩家执行策略唯一属于 N52，不在 N51 建立第二套实现。
 - **Tests**：继承优先级、撤销、非法组合、序列化、运行时热应用、平台覆盖。
 - **Acceptance**：REQ-GAL 全部 P0 字段可从 UI 修改并影响 Preview/Player。
 
@@ -482,6 +482,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E3 实施状态（2026-08-27）：[N51-E3 审计](225-n51-e3-project-settings-transaction-audit.md)已把 typed settings 接入 `settings/project.json`、Canonical Project 与正式 Project Service/ChangeSet；缺文件和精确空旧 v1 首次保存安全升级，非空旧数据/损坏/future schema fail closed。settings 原子命令支持 stale、非法组合、no-op、Undo/Redo；Node 原生目录与 Web IndexedDB 已完成保存重开和旧 writer 拒绝。本地完整门普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM/Route/Asset 预算全绿；实现头 `8bae1b8` 的 Draft PR #93 Windows / Node 22 run `33088005806` / job `98572871025` 用时 `11m42s` 绿色，E3 Engineering 关闭。下一切片只能进入 E4 Settings UI，不提前热应用 Preview/Player 或进入 N52。
 
 > E4 Engineering 状态（2026-08-28）：[N51-E4 审计](226-n51-e4-modern-settings-ui-audit.md)已在现有七模式之上增加项目设置任务面板，提供 Basic 16 / Advanced 23、NFKC 搜索、五分区、项目/三平台层、来源/覆盖/草稿、原子应用、整层恢复与 Project Service Undo/Redo；App→Launcher 保存桥已纠正为完整 Canonical Project。真实 IndexedDB 保存重开与 App 精确回调通过。冷 production browser 完成桌面和 390×844，Web `audio.master=0.4` 重开仍为 Web 来源，移动 overflow 0、可见控件均 ≥44px、16:9、focus/reduced-motion 与 console 0 均通过。本地完整门普通 `147/847`、N51 `49/49`、VM/Route/Asset 预算全绿；实现头 `9828208` 的 Draft PR #94 Windows / Node 22 run `33093375273` / job `98591846616` 用时 `12m39s` 绿色，远端普通 `147/847`、N51 `49/49`、Route P95 `153.19ms <500ms`、Asset dicing `3310.15ms <5000ms`。E4 Engineering 关闭，下一切片为 E5 Preview/Player 热应用。
+
+> E5 Engineering 状态（2026-08-28）：[N51-E5 审计](227-n51-e5-settings-runtime-application-audit.md)新增唯一 portable settings application v1，Editor Preview 与正式 Player Core/Host 共用显示/DPR、文字时长、音量/ducking 和四类推进输入规则；settings-only 更新不再错误重建 Player Core，剧情内容变化仍 fail closed 到 fresh Core。保存重开、平台差异和失败路径通过；冷 production browser 在 1440×900 热切 16:9→9:16 时保持 `presenting`，390×844 stage 为 `390×693`、overflow 0、console 0。最终头 `894797d` 的 Draft PR #95 Windows / Node 22 run `33099070555` / job `98611613942` 用时 `12m46s` 绿色；普通回归 `149/856`、N51 `69/69`、Player/Core `31/31`。E5 Engineering 关闭，下一切片为 E6 完整 P0 gap matrix 与出口审计。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 
