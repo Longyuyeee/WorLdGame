@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-26
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32 Preview 已接入正式 Compiler/Runtime 与共享 portable Runtime Host，N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。`RA-N21-009` 只准入 N50 正式 Player Shell Engineering；全部 Product Acceptance、N51+、Android 实体包、M1 与发布继续阻断。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N32 Preview 已接入正式 Compiler/Runtime 与共享 portable Runtime Host，N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。N50-E1–E6 已建立正式 Player Core、媒体/输入/生命周期和 v1 嵌入 API，但 N50 总出口因玩家 History/Settings/Save-Load UI 与 Windows/Android 正式宿主缺失而未通过。`RA-N21-009` 只准入 N50 Engineering；全部 Product Acceptance、N51+、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -50,6 +50,8 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N50-E3 Media Parity/Recovery 审计](docs/215-n50-e3-player-media-parity-recovery-audit.md) | Editor↔Player 同源结构差分、多角色/多音轨 channel、缺失媒体恢复与真实移动触控纠偏 |
 | [N50-E4 Player 输入与生命周期审计](docs/216-n50-e4-player-input-lifecycle-audit.md) | 统一 Core intent、键盘/指针/基础手柄协议、Choice 焦点、Ending restart 与工程身份替换 |
 | [N50-E5 Player Web 宿主生命周期审计](docs/217-n50-e5-player-host-lifecycle-audit.md) | 可见性暂停/恢复、媒体冻结、卸载释放、重挂 fresh Core 与真实浏览器证据 |
+| [N50-E6 Player 宿主嵌入 API 审计](docs/218-n50-e6-player-embed-api-audit.md) | 版本化 mount/update/suspend/unmount、独立 embed 页与开发/冷生产浏览器纠偏 |
+| [N50 Player Engineering 出口复审](docs/219-n50-engineering-exit-reaudit.md) | E1–E6 完成度、N50/N52 范围冲突、三宿主与产品门 fail-closed 判定 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |

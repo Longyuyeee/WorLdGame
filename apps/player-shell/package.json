@@ -1,8 +1,11 @@
 {
   "name": "@world-studio/player-shell",
-  "version": "0.4.0-n50",
+  "version": "0.5.0-n50",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build"
