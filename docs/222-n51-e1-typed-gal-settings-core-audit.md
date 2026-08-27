@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e1-typed-settings`
 > 直接基线：N51 治理最终绿色头 `e982520`
 > 授权：`RA-N21-010`，最大节点 N51
-> 判定：本地 Engineering 实现与专门门通过；待同头远端 Windows / Node 22 完整门后关闭 E1
+> 判定：Engineering 关闭；N51 Product Acceptance 与 E2+ 仍未通过
 
 ## 1. 冻结目标与边界
 
@@ -72,3 +72,9 @@ N51-E1 只建立 Gal Settings 的 portable typed 事实，不铺设置 UI，不�
 5. 真人 Product Acceptance、Windows/Android 实体设备和三端发布继续阻断。
 
 同一实现提交远端完整门绿色后，E1 Engineering 才关闭；否则保持 fail closed。
+
+## 6. 远端裁决与关闭
+
+实现头 `963ee1b` 的 Draft PR #91 Windows / Node 22 完整门 run `33053868990` / job `98455699350` 用时 `12m9s`，结果 PASS。远端普通回归 `143 files / 820 tests`，N51 专门门 `12/12`；VM corpus `64.544 s < 90 s`，Route P95 `129.30 ms < 500 ms`。
+
+远端结果与本机功能预期一致，且 VM/Route 均保有冻结预算余量；没有新增差异需要通过放宽门限处理。N51-E1 Engineering 据此关闭，下一切片只能进入字段元数据与 Basic/Advanced/search 编辑服务；Project 持久化、Preview 热应用、产品 UI 验收以及 N52 玩家控制仍需独立切片和证据。

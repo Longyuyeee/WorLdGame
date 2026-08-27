@@ -473,7 +473,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Tests**：继承优先级、撤销、非法组合、序列化、运行时热应用、平台覆盖。
 - **Acceptance**：REQ-GAL 全部 P0 字段可从 UI 修改并影响 Preview/Player。
 
-> E1 实施状态（2026-08-27）：[N51-E1 审计](222-n51-e1-typed-gal-settings-core-audit.md)建立 dependency-free `@world-studio/gal-settings` v1，首批 23 字段贯通 default→project→Windows/Web/Android platform 继承、逐字段来源、当前层 reset、严格诊断和确定性 round-trip。首测 `exactOptionalPropertyTypes` 与架构静态门分别暴露可选 `undefined` 契约和 `document` 命名歧义，均在不放宽门限的前提下修正；专门门 `12/12`。这只是 portable data core，不等于 Basic/Advanced UI、搜索、Project 持久化、Preview 热应用或 N51 Product Acceptance。
+> E1 实施状态（2026-08-27）：[N51-E1 审计](222-n51-e1-typed-gal-settings-core-audit.md)建立 dependency-free `@world-studio/gal-settings` v1，首批 23 字段贯通 default→project→Windows/Web/Android platform 继承、逐字段来源、当前层 reset、严格诊断和确定性 round-trip。首测 `exactOptionalPropertyTypes` 与架构静态门分别暴露可选 `undefined` 契约和 `document` 命名歧义，均在不放宽门限的前提下修正；专门门 `12/12`。实现头 `963ee1b` 的 Draft PR #91 Windows / Node 22 完整门 run `33053868990` / job `98455699350` 用时 `12m9s` 绿色，VM `64.544s <90s`、Route P95 `129.30ms <500ms`。E1 Engineering 关闭；这仍不等于 Basic/Advanced UI、搜索、Project 持久化、Preview 热应用或 N51 Product Acceptance。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 
