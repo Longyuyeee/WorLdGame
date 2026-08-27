@@ -25,7 +25,7 @@ import {
   type RuntimePresentationHostStateV1
 } from "@world-studio/runtime-host";
 
-export const PLAYER_CORE_VERSION = "0.1.0" as const;
+export const PLAYER_CORE_VERSION = "0.2.0" as const;
 const MAX_PLAYER_DRIVE_STEPS = 10_000;
 
 export type PlayerCoreStatus =
@@ -69,6 +69,11 @@ export interface PlayerCoreSnapshotV1 {
   };
   readonly title: string;
   readonly status: PlayerCoreStatus;
+  readonly effects: {
+    readonly active: readonly PlayerCoreEffectSnapshotV1[];
+    readonly pending: PlayerCoreEffectSnapshotV1 | null;
+    readonly operations: readonly PlayerCoreEffectOperationSnapshotV1[];
+  };
   readonly presentation:
     | { readonly kind: "title" }
     | { readonly kind: "dialogue"; readonly speakerId: string; readonly textId: string; readonly text: string }
@@ -81,6 +86,36 @@ export interface PlayerCoreSnapshotV1 {
     | { readonly kind: "error"; readonly diagnostics: readonly PlayerCoreDiagnostic[] };
   readonly runtimeStateHash: string | null;
   readonly runtimeHostSnapshotHash: string;
+}
+
+export interface PlayerCoreEffectSnapshotV1 {
+  readonly effectId: string;
+  readonly descriptorId: string;
+  readonly channel: string;
+  readonly kind: string;
+  readonly payload: Readonly<Record<string, RuntimeScalar>>;
+  readonly policy: "pure" | "reversible" | "barrier";
+  readonly awaitMode: "detached" | "awaited";
+}
+
+export interface PlayerCoreEffectOperationSnapshotV1 {
+  readonly sequence: number;
+  readonly kind: "execute" | "complete" | "cancel" | "compensate" | "replay";
+  readonly effectId: string;
+  readonly descriptorId: string;
+  readonly channel: string;
+}
+
+function effectSnapshot(effect: import("@world-studio/runtime").RuntimeEffectIntentV1): PlayerCoreEffectSnapshotV1 {
+  return {
+    effectId: effect.effectId,
+    descriptorId: effect.descriptorId,
+    channel: effect.channel,
+    kind: effect.kind,
+    payload: effect.payload,
+    policy: effect.policy,
+    awaitMode: effect.awaitMode
+  };
 }
 
 function scalar(value: JsonValue | undefined): RuntimeScalar | undefined {
@@ -277,6 +312,7 @@ function presentation(state: PlayerCoreState): PlayerCoreSnapshotV1["presentatio
 }
 
 export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSnapshotV1 {
+  const host = createRuntimePresentationHostSnapshotV1(state.hostState);
   return {
     schemaVersion: 1,
     playerCoreVersion: PLAYER_CORE_VERSION,
@@ -289,8 +325,21 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
     },
     title: state.title,
     status: state.status,
+    effects: {
+      active: host.snapshot.activeChannels.map(({ effect }) => effectSnapshot(effect)),
+      pending: state.runtimeState?.pendingEffect === null || state.runtimeState?.pendingEffect === undefined
+        ? null
+        : effectSnapshot(state.runtimeState.pendingEffect),
+      operations: host.snapshot.operations.map((operation) => ({
+        sequence: operation.sequence,
+        kind: operation.kind,
+        effectId: operation.effectId,
+        descriptorId: operation.descriptorId,
+        channel: operation.channel
+      }))
+    },
     presentation: presentation(state),
     runtimeStateHash: state.runtimeState === null ? null : runtimeStateHashV1(state.runtimeState),
-    runtimeHostSnapshotHash: createRuntimePresentationHostSnapshotV1(state.hostState).snapshotHash
+    runtimeHostSnapshotHash: host.snapshotHash
   };
 }

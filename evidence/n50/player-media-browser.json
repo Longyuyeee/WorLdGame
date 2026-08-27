@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "n50-e2-player-media-browser-2026-08-27",
+  "capturedAt": "2026-08-27T10:05:00+08:00",
+  "target": {
+    "url": "http://127.0.0.1:5180/?demo=media",
+    "build": "@world-studio/player-shell production preview",
+    "playerCoreVersion": "0.2.0",
+    "compilerVersion": "0.2.0",
+    "runtimeVersion": "0.6.0",
+    "runtimeHostVersion": "0.1.0"
+  },
+  "expected": {
+    "desktopStageRatio": "16:9",
+    "mobileViewport": "390x844",
+    "horizontalOverflow": 0,
+    "awaitedEffectVisibleBeforeCompletion": true,
+    "imageAssetsDecoded": ["media_sunset", "media_actor_sprite"],
+    "audioAssetPlaying": "media_theme",
+    "touchCancelRemovesPendingCharacter": true,
+    "consoleWarningsOrErrors": 0
+  },
+  "actual": {
+    "desktop": {
+      "viewport": { "width": 1280, "height": 720 },
+      "stage": { "width": 1180, "height": 663.75, "ratio": 1.7777777777777777 },
+      "document": { "clientWidth": 1280, "scrollWidth": 1280 },
+      "background": { "complete": true, "naturalWidth": 16 },
+      "actor": { "complete": true, "naturalWidth": 4 },
+      "audio": { "requestedVolume": 0.6, "appliedVolume": 0.6, "loop": true, "paused": false, "readyState": 4 },
+      "statusAfterTransition": "presenting",
+      "dialogue": "Every cue must remain ordered."
+    },
+    "mobile": {
+      "viewport": { "width": 390, "height": 844 },
+      "stage": { "width": 390, "height": 844 },
+      "document": { "clientWidth": 390, "scrollWidth": 390 },
+      "waitingEffect": {
+        "status": "waiting-effect",
+        "boundary": { "width": 350, "height": 198.5 },
+        "completeButton": { "width": 98, "height": 44 },
+        "mediaErrors": null
+      },
+      "afterTransition": {
+        "status": "presenting",
+        "dialogue": { "width": 362, "height": 188 },
+        "audio": { "paused": false, "readyState": 4 }
+      },
+      "touchCancel": {
+        "status": "presenting",
+        "actorCount": 0,
+        "backgroundCount": 1,
+        "audioPlaying": true
+      }
+    },
+    "consoleWarningsOrErrors": []
+  },
+  "firstDifference": {
+    "expected": "Awaited character Effect completes into the media dialogue and BGM",
+    "actual": "Runtime failed closed with RUNTIME_INVALID_IR when the next audio.play instruction retained authored loop and volume as strings",
+    "rootCause": "Project Compiler forwarded S0 audio loop=true and volume=0.6 without converting them to the formal Runtime boolean and volumePermille contract",
+    "correction": "Compiler now normalizes loop to boolean and volume to an exact 0..1000 integer, rejects non-representable values, and freezes the corrected Media IR hash",
+    "retest": "Compiler 28/28 and Player 10/10 pass; production browser reaches dialogue with decoded images and playing WAV"
+  },
+  "localGateDifferences": [
+    {
+      "gate": "route performance first run",
+      "expected": "10k single-scene edit synchronization P95 < 500ms",
+      "actual": "529.08ms while the full local check and browser/build work were contending for resources",
+      "retest": "206.02ms after stopping the preview workload; all 9 route performance tests passed without changing code or budget"
+    },
+    {
+      "gate": "full local check resource windows",
+      "expected": "frozen 5s UI waits and 90s VM corpus complete",
+      "actual": "duplicate N43 save assertion, storage restore assertion, and VM corpus exceeded their frozen local windows after the long serial run; the same N43 case had passed earlier in that run",
+      "correction": "No timeout, corpus, budget, or assertion was weakened; clean remote Windows / Node 22 CI is the release-of-gate authority"
+    },
+    {
+      "gate": "local Vite/TypeScript output",
+      "expected": "Node can regenerate player-shell dist and Vite temp files",
+      "actual": "this managed Windows sandbox denied Node writes although PowerShell could create the exact files",
+      "correction": "Targeted tests and a source-backed Vite development server passed; clean remote build remains required"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "evidence/n50/player-media-desktop.png",
+      "sha256": "aa9802478dbf53efa6e7976b02b7769a039e394b52062732959d0d2c99d6fee8"
+    },
+    {
+      "path": "evidence/n50/player-media-mobile.png",
+      "sha256": "ec4724da22c0751bfc9add6ef9469c83bfdd28e8c784cfa034361c97b5b085b5"
+    }
+  ],
+  "boundary": "Engineering evidence only; not human Product Acceptance or target-device certification"
+}

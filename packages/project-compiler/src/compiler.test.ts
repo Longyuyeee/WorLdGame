@@ -66,7 +66,7 @@ describe("project compiler N30-E1/E2", () => {
     expect(outputs).toEqual({
       tiny: { buildId: "fc5f19f50068912baf2cf75fa6f18fa595087a07bf76387cb5815cc87760dd42", storyIrHash: "19ed7a308c9762e34765601b3ce090a662bcce5436f4f3d36805783b91b6eb55" },
       branching: { buildId: "73ee4352a05d6a7a352639c39b1b6ddfdd5f9ab6b781c200a43b73099991336f", storyIrHash: "b845ba6270cb506366a7f3000c1823c67db769809bb76d0b53bbce0321266e7c" },
-      media: { buildId: "9bbf574327121021cc3e2a6478565b65149ef21a4e26ff2b1723e9a04be7e68b", storyIrHash: "0a19dec5b213ab50758bdcd1a3483b5db59cd43cd500218339315101d7469c6d" },
+      media: { buildId: "24e4fb2d4003aca1ebdce398dc9fca010e83af93d0d3593c044c770c43c0c9d4", storyIrHash: "b86a7178c3cf45ead3166dbb1fba28639b963af92bc171d4e21107cbfb839aea" },
       cjk: { buildId: "e458aee78288fdfdd84527754c6fe5e6e1d05cffc09cd44407d0e34999bebc30", storyIrHash: "2dbe1079fefb2c8258510738583bf0d96824c2464cfa140d5ee803e608c03d3b" }
     });
   });
@@ -109,6 +109,28 @@ describe("project compiler N30-E1/E2", () => {
     expect(result.artifacts.story.scenes[0]?.instructions.map((item) => item.opcode)).toEqual(["label", "set", "condition", "wait", "end"]);
     expect(result.artifacts.story.scenes[0]?.instructions[3]?.operands).toEqual({ durationMilliseconds: 250 });
     expect(result.artifacts.catalogs.endings).toEqual([{ endingId: "ending", name: "Complete", sceneId: "tiny_start" }]);
+  });
+
+  it("normalizes authored audio booleans and volume into the formal Runtime contract", () => {
+    const result = compileProject(loadFixture("media"), "release");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.story.scenes[0]?.instructions[2]?.operands).toEqual({
+      command: "audio",
+      parameters: { action: "play", asset: "media_theme", bus: "bgm", fade: "500ms", loop: true, volumePermille: 600 }
+    });
+  });
+
+  it("fails closed when authored audio volume cannot be represented by the Runtime contract", () => {
+    const project = loadFixture("media");
+    const script = project.scripts.media_stage!;
+    const malformed: CanonicalProject = {
+      ...project,
+      scripts: { ...project.scripts, media_stage: { ...script, statements: script.statements.map((statement) => statement.id === "media_bgm" ? { ...statement, summary: "asset=media_theme action=play bus=bgm loop=maybe volume=0.1234" } : statement) } }
+    };
+    const result = compileProject(malformed, "release");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.diagnostics).toEqual(expect.arrayContaining([expect.objectContaining({ code: "INVALID_STATEMENT", statementId: "media_bgm", message: expect.stringContaining("loop must be true or false") })]));
   });
 
   it("lowers canonical camera cues without inventing an asset dependency", () => {

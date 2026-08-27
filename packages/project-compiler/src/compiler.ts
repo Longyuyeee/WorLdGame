@@ -60,6 +60,24 @@ function parseDirectiveParameters(summary: string): JsonObject | undefined {
   return parameters;
 }
 
+function normalizeAudioRuntimeParameters(parameters: JsonObject): { readonly parameters: JsonObject; readonly error: string | null } {
+  const normalized: Record<string, JsonValue> = { ...parameters };
+  if (parameters.loop !== undefined) {
+    if (parameters.loop !== "true" && parameters.loop !== "false") return { parameters, error: "loop must be true or false" };
+    normalized.loop = parameters.loop === "true";
+  }
+  if (parameters.volume !== undefined) {
+    if (typeof parameters.volume !== "string" || !/^(?:0(?:\.\d{1,3})?|1(?:\.0{1,3})?)$/u.test(parameters.volume)) {
+      return { parameters, error: "volume must be a number from 0 to 1 with at most three decimal places" };
+    }
+    const volumePermille = Number(parameters.volume) * 1000;
+    if (!Number.isSafeInteger(volumePermille)) return { parameters, error: "volume cannot be represented as permille" };
+    delete normalized.volume;
+    normalized.volumePermille = volumePermille;
+  }
+  return { parameters: normalized, error: null };
+}
+
 function controlFlowEdges(statements: readonly JsonObject[], labels: ReadonlyMap<string, number>): readonly ReadonlySet<number>[] {
   return statements.map((statement, index) => {
     const edges = new Set<number>();
@@ -147,6 +165,7 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
         const parameters = parseDirectiveParameters(summary);
         if (parameters === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has malformed key=value parameters`, ctx));
         else {
+          let runtimeParameters = parameters;
           const action = typeof parameters.action === "string" ? parameters.action : command === "background" || command === "textbox" ? "set" : command === "show" ? "show" : command === "camera" ? "move" : "play";
           if (!allowedActions[command]!.has(action)) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid ${command} action: ${action}`, ctx));
           if (parameters.transition !== undefined && (typeof parameters.transition !== "string" || !isStageTransition(parameters.transition))) {
@@ -179,6 +198,11 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
             if (action === "set" && (typeof parameters.template !== "string" || !isDialogueTemplate(parameters.template))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} textbox set requires an ADV, NVL, or bubble template`, ctx));
             if (action === "reset" && parameters.template !== undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} textbox reset cannot retain a template`, ctx));
           }
+          if (command === "audio") {
+            const normalized = normalizeAudioRuntimeParameters(parameters);
+            runtimeParameters = normalized.parameters;
+            if (normalized.error !== null) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} audio ${normalized.error}`, ctx));
+          }
           const requiresAsset = (command === "background" && action === "set") || (command === "show" && action === "show") || (command === "audio" && action === "play");
           const referenced = [requiresAsset ? parameters.asset : undefined, parameters.transitionAsset].filter((value): value is string => typeof value === "string");
           if (requiresAsset && typeof parameters.asset !== "string") diagnostics.push(diagnostic("MISSING_ASSET", `Direction ${id} requires an asset reference`, ctx));
@@ -187,7 +211,7 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
             if (command === "audio" && parameters.bus === "bgm") musicCandidates.push({ assetId: parameters.asset, statementIndex });
             if (command === "background" || command === "show") galleryCandidates.push({ assetId: parameters.asset, statementIndex });
           }
-          operands = { command, parameters };
+          operands = { command, parameters: runtimeParameters };
         }
       }
     } else if (kind === "choice") {

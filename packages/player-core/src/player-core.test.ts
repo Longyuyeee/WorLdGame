@@ -1,20 +1,23 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
+import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, type S0Project } from "@world-studio/project-domain";
 import {
   advancePlayerCore,
   createPlayerCore,
   createPlayerCoreSnapshotV1,
   selectPlayerCoreChoice,
+  settlePlayerCoreEffect,
   startPlayerCore
 } from "./player-core";
 
-function fixture(name: "branching" | "benchmark"): CanonicalProject {
+function fixture(name: "branching" | "benchmark" | "media"): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), `fixtures/projects/${name}/project.s0.json`), "utf8")) as S0Project;
   const project = loadProject(migrateS0Project(source).files);
   const legacyVariables = (source as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] }).variables ?? [];
-  return { ...project, variables: { schemaVersion: 1, variables: legacyVariables } };
+  if (name !== "media") return { ...project, variables: { schemaVersion: 1, variables: legacyVariables } };
+  const media = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/media/media-golden.json"), "utf8")) as { readonly assets: readonly JsonObject[] };
+  return { ...project, assets: { ...project.assets, assets: media.assets } };
 }
 
 describe("N50-E1 formal Player Core", () => {
@@ -58,6 +61,51 @@ describe("N50-E1 formal Player Core", () => {
     expect(started.hostState.operations.length).toBe(2);
     expect(snapshot.runtimeStateHash).toMatch(/^[a-f0-9]{64}$/u);
     expect(snapshot.runtimeHostSnapshotHash).toMatch(/^[a-f0-9]{64}$/u);
+  });
+
+  it("publishes the formal Stage/Media Effect lifecycle and settles an awaited visual effect before dialogue", () => {
+    const source = fixture("media");
+    const script = source.scripts.media_stage!;
+    const project: CanonicalProject = {
+      ...source,
+      scripts: {
+        ...source.scripts,
+        media_stage: {
+          ...script,
+          statements: script.statements.map((statement) => statement.id === "media_show" ? {
+            ...statement,
+            summary: `${String(statement.summary)} effectPolicy=pure awaitMode=awaited descriptorId=player.media.actor.enter`
+          } : statement)
+        }
+      }
+    };
+    const waiting = startPlayerCore(createPlayerCore(project), project);
+    expect(createPlayerCoreSnapshotV1(waiting)).toMatchObject({
+      status: "waiting-effect",
+      playerCoreVersion: "0.2.0",
+      presentation: { kind: "effect", descriptorId: "player.media.actor.enter" },
+      effects: {
+        active: [
+          { kind: "background.set", payload: { asset: "media_sunset" } },
+          { descriptorId: "player.media.actor.enter", kind: "show.show", payload: { asset: "media_actor_sprite" } }
+        ],
+        pending: { descriptorId: "player.media.actor.enter", awaitMode: "awaited" },
+        operations: [
+          { sequence: 0, kind: "execute", channel: "background" },
+          { sequence: 1, kind: "execute", channel: "show" }
+        ]
+      }
+    });
+    const completed = settlePlayerCoreEffect(waiting, "complete");
+    expect(createPlayerCoreSnapshotV1(completed)).toMatchObject({
+      status: "presenting",
+      presentation: { kind: "dialogue", text: "Every cue must remain ordered." },
+      effects: {
+        active: expect.arrayContaining([expect.objectContaining({ kind: "audio.play", payload: expect.objectContaining({ asset: "media_theme", bus: "bgm", loop: true, volumePermille: 600 }) })]),
+        pending: null,
+        operations: expect.arrayContaining([expect.objectContaining({ sequence: 2, kind: "complete", descriptorId: "player.media.actor.enter" })])
+      }
+    });
   });
 
   it("fails closed on a broken Canonical Project instead of falling back to StoryStatement interpretation", () => {
