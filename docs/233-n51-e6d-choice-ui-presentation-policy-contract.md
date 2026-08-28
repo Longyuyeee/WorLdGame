@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e6-p0-coverage-exit`
 > 直接基线：N51-E6c 最终绿色头 `02988d2`
 > 授权：`RA-N21-010`，最大节点 N51
-> 当前判定：实现、定向测试、双 production browser 与本地完整门修正已完成；等待同头 Windows / Node 22 CI 裁决
+> 当前判定：实现头同头 Windows / Node 22 完整门绿色；E6d Engineering 关闭
 
 ## 1. 目标与字段
 
@@ -72,4 +72,6 @@ E6d 关闭的是现有 Choice 与 UI Host 可真实消费的呈现策略，不�
 - 完整 `npm run check`：普通回归 149 files / 885 tests；App 45/45；autosave 2.69s；固定 VM 5/5、54.39s；17 workspace build 与 100 portable / 4 adapter 架构审计通过；
 - 性能：Script 13/13；Route 9/9，edit P95 `111.06ms < 500ms`；Asset 4/4，dicing total `4021.24ms < 5000ms`。
 
-实现头推送后仍须由 Draft PR #96 的干净 Windows / Node 22 同头完整门裁决；在远端绿色前，E6d 只登记为本地 Engineering 候选。
+实现提交 `6d99928` 已推送到 Draft PR [#96](https://github.com/Longyuyeee/WorLdGame/pull/96)。同头 Windows / Node 22 完整门 run `33147113913` / job `98770473532` 用时约 `12m35s`，PASS：普通回归 `149 files / 885 tests`、App `45/45`、N50 `36/36`、N51 `94/94`、autosave `4.14s`、固定 VM `66.52s < 90s`、Route edit P95 `147.21ms < 500ms`、Asset dicing `3473ms < 5000ms`，100 portable / 4 adapter 架构审计绿色。相同实现、规模、断言和预算在干净远端环境通过，E6d Engineering 关闭。
+
+关闭 E6d 不提升 N51 Product Acceptance，不解除 N52、M1 Stable 或 Public Release 阻断。最终文档提交仍须通过自己的同头完整门；它只证明审计文本没有破坏仓库门，不重复声称新功能证据。
