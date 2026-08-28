@@ -30,6 +30,11 @@ import {
   type WorldPlayerSaveSlotV2,
   type WorldPlayerSaveStoreV2
 } from "./player-save-store";
+import {
+  WorldPlayerSaveWriteCoordinatorV1,
+  worldPlayerAutoSaveAllowedV1,
+  worldPlayerSaveSceneIdentityV1
+} from "./player-save-policy";
 import "./player-shell.css";
 
 export interface PlayerShellProps {
@@ -107,6 +112,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV2[]>([]);
   const [savePage, setSavePage] = useState(0);
+  const [saveView, setSaveView] = useState<"manual" | "auto" | "quick">("manual");
   const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
@@ -115,11 +121,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
+  const autoSavedSceneIdentities = useRef(new Set<string>());
   saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
+  const saveCoordinator = useMemo(() => saveStore === undefined ? undefined : new WorldPlayerSaveWriteCoordinatorV1(saveStore), [saveStore]);
   const content = snapshot.presentation;
+  const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
+  const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
   const stage = useMemo(
     () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage, settingsApplication.ui),
     [mediaAssets, settingsApplication.stage, settingsApplication.ui, snapshot]
@@ -184,19 +194,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [previewCapture]);
 
-  const saveToSlot = useCallback(async (slotId: string) => {
-    if (saveStore === undefined || snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || state.runtimeState === null) return;
-    const created = createPlayerCoreSessionSaveV1(state);
+  const persistCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
+    if (saveStore === undefined || capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
+    const created = createPlayerCoreSessionSaveV1(capturedState);
     if (!created.ok) {
-      setSaveOperation("error");
-      setSaveMessage(created.diagnostics[0]?.message ?? "当前状态无法保存");
-      return;
+      throw new Error(created.diagnostics[0]?.message ?? "WORLD_PLAYER_SAVE_NOT_READY");
     }
-    setSaveOperation("busy");
-    setSaveMessage("正在写入…");
     const projectId = project.manifest.projectId;
-    try {
-      const sceneId = state.runtimeState.cursor.sceneId;
+      const sceneId = capturedState.runtimeState.cursor.sceneId;
       const sceneIndex = project.scenes.findIndex((scene) => scene.id === sceneId);
       const scene = project.scenes[sceneIndex];
       if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
@@ -204,11 +209,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       const chapter = scenePath === undefined ? undefined : project.chapters.find((candidate) => candidate.scenePaths.includes(scenePath));
       const captured = await captureSavePreview(projectId, sceneId);
       await saveStore.write(createWorldPlayerSaveSlotV2({
+        kind,
         slotId,
         projectId,
-        buildId: snapshot.identities.buildId,
+        buildId: capturedSnapshot.identities.buildId,
         savedAtEpochMilliseconds: now(),
-        title: snapshot.title,
+        title: capturedSnapshot.title,
         chapterId: chapter?.id ?? null,
         chapterTitle: chapter?.title ?? null,
         sceneId,
@@ -216,21 +222,31 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         route: null,
         customMetadata: {},
         preview: captured.metadata,
-        presentationKind: snapshot.presentation.kind,
-        runtimeStateHash: snapshot.runtimeStateHash,
+        presentationKind: capturedSnapshot.presentation.kind,
+        runtimeStateHash: capturedSnapshot.runtimeStateHash,
         sessionArtifactHash: created.artifactHash,
         serializedSessionSave: created.serialized
       }), captured.blob);
+      return captured.metadata.status;
+  }, [captureSavePreview, now, project, saveStore, snapshot, state]);
+
+  const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string) => {
+    if (saveCoordinator === undefined) return;
+    setSaveOperation("busy");
+    setSaveMessage("正在写入…");
+    const projectId = project.manifest.projectId;
+    try {
+      const previewStatus = await saveCoordinator.writeFixed(() => persistCurrentSlot(kind, slotId));
       if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
       await refreshSaveSlots();
       setPendingOverwriteSlotId(null);
       setSaveOperation("saved");
-      setSaveMessage(`${slotId} 已保存${captured.metadata.status === "available" ? "（含截图）" : "（预览不可用）"}`);
+      setSaveMessage(`${slotId} 已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}`);
     } catch {
       setSaveOperation("error");
       setSaveMessage("写入失败，原存档保持不变");
     }
-  }, [captureSavePreview, now, previewCapture, project, refreshSaveSlots, saveStore, snapshot, state]);
+  }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore]);
 
   const requestSaveToSlot = useCallback((slotId: string, occupied: boolean) => {
     if (occupied && pendingOverwriteSlotId !== slotId) {
@@ -239,7 +255,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveMessage(`${slotId} 已有存档，请再次确认覆盖`);
       return;
     }
-    void saveToSlot(slotId);
+    void saveToSlot("manual", slotId);
   }, [pendingOverwriteSlotId, saveToSlot]);
 
   const loadFromSlot = useCallback(async (slotId: string) => {
@@ -258,6 +274,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           slot.sceneId !== loaded.savedSceneId || slot.presentationKind !== loadedSnapshot.presentation.kind || slot.title !== loadedSnapshot.title) {
         throw new Error("WORLD_PLAYER_SAVE_METADATA_MISMATCH");
       }
+      if (loadedSnapshot.identities.buildId !== null) autoSavedSceneIdentities.current.add(worldPlayerSaveSceneIdentityV1(loadedSnapshot.identities.buildId, slot.sceneId));
       setState(loaded.state);
       setSaveOperation("loaded");
       setSaveMessage(`${slotId} 已读取`);
@@ -290,6 +307,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [content.kind, project, settingsApplication, textReady, voicePlaying]);
 
   useEffect(() => {
+    autoSavedSceneIdentities.current.clear();
     setState(createPlayerCore(project));
     setMediaErrors([]);
     setMediaGeneration(0);
@@ -302,11 +320,31 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     setSaveSlots([]);
     setSavePage(0);
+    setSaveView("manual");
     setPendingOverwriteSlotId(null);
     setSaveOperation("idle");
     setSaveMessage("请选择槽位");
     void refreshSaveSlots();
   }, [refreshSaveSlots]);
+
+  useEffect(() => {
+    if (saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.runtimeState === null ||
+        !worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind)) return;
+    const sceneIdentity = worldPlayerSaveSceneIdentityV1(snapshot.identities.buildId, state.runtimeState.cursor.sceneId);
+    if (autoSavedSceneIdentities.current.has(sceneIdentity)) return;
+    autoSavedSceneIdentities.current.add(sceneIdentity);
+    const capturedState = state;
+    const capturedSnapshot = snapshot;
+    void saveCoordinator.writeAuto(project.manifest.projectId, sceneIdentity, async (slotId) => { await persistCurrentSlot("auto", slotId, capturedState, capturedSnapshot); }).then(async (result) => {
+      if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+      await refreshSaveSlots();
+      if (result.status === "written") setSaveMessage(`${result.slotId} 已自动保存`);
+    }).catch(() => {
+      if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+      setSaveOperation("error");
+      setSaveMessage("自动保存失败，原存档保持不变");
+    });
+  }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
 
   useEffect(() => {
     if (presentedText === "") {
@@ -572,6 +610,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         </nav>
         {saveStore !== undefined && (
           <aside className="player-save" data-open={savePanelOpen}>
+            <div className="player-save__quick-controls" aria-label="快速存读档">
+              <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>快速保存</button>
+              <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || quickSlot === undefined} onClick={() => void loadFromSlot("quick-1")}>快速读取</button>
+            </div>
             <button
               className="player-save__toggle"
               type="button"
@@ -583,9 +625,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               }}
             >存读档</button>
             {savePanelOpen && (
-              <div id="player-save-panel" className="player-save__panel" aria-label="手动存读档">
-                <header><strong>手动存档</strong><span data-save-message>{saveMessage}</span></header>
-                {Array.from({ length: 6 }, (_, index) => savePage * 6 + index + 1).map((slotNumber) => {
+              <div id="player-save-panel" className="player-save__panel" aria-label="存读档槽位">
+                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : "快速存档"}</strong><span data-save-message>{saveMessage}</span></header>
+                <nav className="player-save__views" aria-label="存档类型">
+                  <button type="button" aria-pressed={saveView === "manual"} onClick={() => setSaveView("manual")}>手动</button>
+                  <button type="button" aria-pressed={saveView === "auto"} onClick={() => setSaveView("auto")}>自动</button>
+                  <button type="button" aria-pressed={saveView === "quick"} onClick={() => setSaveView("quick")}>快速</button>
+                </nav>
+                {saveView === "manual" && Array.from({ length: 6 }, (_, index) => savePage * 6 + index + 1).map((slotNumber) => {
                   const slotId = `manual-${slotNumber}`;
                   const slot = saveSlots.find((candidate) => candidate.slotId === slotId);
                   return <section className="player-save__slot" key={slotId}>
@@ -595,11 +642,26 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || slot === undefined} onClick={() => void loadFromSlot(slotId)}>读取</button>
                   </section>;
                 })}
-                <nav className="player-save__pages" aria-label="手动存档分页">
+                {saveView === "manual" && <nav className="player-save__pages" aria-label="手动存档分页">
                   <button type="button" disabled={savePage === 0 || saveOperation === "busy"} onClick={() => { setSavePage(0); setPendingOverwriteSlotId(null); }}>上一页</button>
                   <span>第 {savePage + 1} / 2 页</span>
                   <button type="button" disabled={savePage === 1 || saveOperation === "busy"} onClick={() => { setSavePage(1); setPendingOverwriteSlotId(null); }}>下一页</button>
-                </nav>
+                </nav>}
+                {saveView === "auto" && Array.from({ length: 5 }, (_, index) => index + 1).map((slotNumber) => {
+                  const slotId = `auto-${slotNumber}`;
+                  const slot = saveSlots.find((candidate) => candidate.slotId === slotId);
+                  return <section className="player-save__slot" key={slotId}>
+                    <PlayerSavePreview projectId={project.manifest.projectId} slot={slot} store={saveStore} />
+                    <div><strong>自动 {slotNumber}</strong><span>{slot === undefined ? "空槽位" : `${slot.chapterTitle ?? "未归属章节"} / ${slot.sceneTitle} · ${new Date(slot.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC`}</span></div>
+                    <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || slot === undefined} onClick={() => void loadFromSlot(slotId)}>读取</button>
+                  </section>;
+                })}
+                {saveView === "quick" && <section className="player-save__slot">
+                  <PlayerSavePreview projectId={project.manifest.projectId} slot={quickSlot} store={saveStore} />
+                  <div><strong>快速槽位</strong><span>{quickSlot === undefined ? "空槽位" : `${quickSlot.chapterTitle ?? "未归属章节"} / ${quickSlot.sceneTitle} · ${new Date(quickSlot.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC`}</span></div>
+                  <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>保存</button>
+                  <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || quickSlot === undefined} onClick={() => void loadFromSlot("quick-1")}>读取</button>
+                </section>}
               </div>
             )}
           </aside>

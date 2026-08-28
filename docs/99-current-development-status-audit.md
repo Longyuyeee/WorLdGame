@@ -4,7 +4,7 @@
 > 当前分支：`codex/n52-e3a-save-metadata-preview`；直接基线为 N52-E3 入口最终绿色头 `f2cf780`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-011` 只允许 N52 Player Control Engineering；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52-E3a v2 元数据与截图](241-n52-e3a-save-metadata-preview-audit.md)、[N52-E3 Save 策略入口](240-n52-e3-save-policy-entry-audit.md)、[N52-E2 Player Save 槽位](239-n52-e2-player-save-slots-audit.md)
+> 最新节点证据：[N52-E3b Auto / Quick 候选](242-n52-e3b-auto-quick-save-audit.md)、[N52-E3a v2 元数据与截图](241-n52-e3a-save-metadata-preview-audit.md)、[N52-E3 Save 策略入口](240-n52-e3-save-policy-entry-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -25,6 +25,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N52-E2 已建立 Core Session Save/Load bridge、三个严格手动槽位、独立 IndexedDB Host、embed API `1.1.0` 和 Load-only rehydrate；本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms`，Autosave 测试体 `4.35s <5s`（长链总时长 `6.40s`、隔离总时长 `2.81s`）；冷 production browser 跨刷新、双视口、overflow/console 与 44px 触控门通过；实现头 `bdb3c73` 已推送至 Draft PR #99，同头 Windows / Node 22 run `33180215962` / job `98879258847` 用时 `12m48s` 绿色，远端普通 `150/898`、N52 `51/51`、Runtime corpus `66.643s <90s`；E2 Engineering 关闭；
 - N52-E3 入口契约已按实际代码冻结：v1 不静默扩展，v2 使用 copy-on-write；chapter/scene 取正式 Canonical，route/custom 在正式来源前 fail closed；截图归 Host compositor 且 Blob 与元数据分离；manual 12/每页 6、auto 5 环形、quick 1、checkpoint 3 但等待 build-authored marker。入口头 `3c319da` 已推送至 Draft PR #100，同头 Windows / Node 22 run `33183970309` / job `98892048310` 用时 `12m40s` 绿色，远端普通 `150/898`、N52 `51/51`、VM `63.321s <90s`；入口只关闭设计与审计前置，不代表 v2、截图、分页或自动/快速保存已实现；下一代码切片为 E3a；
 - N52-E3a v2 元数据与截图 Engineering 已关闭：Store 2.0/DB2 严格兼容 v1 并在下次成功保存 copy-on-write；chapter/scene 只取 Canonical + cursor，route/custom fail closed；12 个手动槽每页 6 个且覆盖二次确认；Host compositor 提供的合规 PNG/WebP 与元数据同事务写入并做 SHA-256 校验，可见槽位延迟读 Blob，捕获失败仍提交明确无预览的有效 Session。Web Host 不伪造截图；E3b 与 Product Acceptance 未开始；
+- N52-E3b Auto / Quick 候选已按实际 Core 边界实现：auto 5 槽空槽优先/最旧轮转，Build+scene 同身份合并；quick 固定 1 槽；所有写入经单 FIFO 串行，失败保留旧槽且不堵塞后续写；Player 提供快速存取及三类槽视图。当前等待本地完整门与同头 Windows CI，尚未关闭 Engineering；E3c checkpoint/recovery/Museum 和 Product Acceptance 均未开始；
 - E3a 提交前复审补回 Preview SHA-256 写前/读取校验与 Blob 篡改反例；最终本地完整门普通 `150/905`、N52 `58/58`、VM `24.48s`。实现头 `2f3e7b2` 已推送至 Draft PR #101，同头 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色：远端普通 `150/905`、N52 `58/58`、Runtime corpus `30.995s`、Route P95 `159.77ms`、Asset `3277.93ms`、build/architecture 均通过；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
@@ -64,7 +65,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
-| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History；N52-E2 Save/Load；N52-E3a v2 元数据与截图、12 槽分页、Host capture、SHA-256 与独立 Blob Store | 真实 Windows/Android compositor、自动/快速/检查点/恢复/Museum、History 页面、Auto/Skip、Gallery、正式宿主与发布材料均缺 |
+| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History；N52-E2 Save/Load；N52-E3a v2 元数据/截图；N52-E3b 候选 auto 5、quick 1、串行写及玩家控件 | 真实 Windows/Android compositor、检查点/恢复/Museum、History 页面、播放 Auto/Skip、Gallery、正式宿主与发布材料均缺；E3b 仍待远端关闭 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。

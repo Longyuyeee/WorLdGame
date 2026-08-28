@@ -74,12 +74,17 @@ button { font: inherit; }
 .player-history-controls button:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
 .player-history-controls button:disabled { color: rgba(255,255,255,.28); border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.03); cursor: not-allowed; }
 .player-history-controls__position { min-width: 44px; color: rgba(255,255,255,.56); font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; }
-.player-save { position: absolute; z-index: 12; right: 24px; bottom: 24px; }
+.player-save { position: absolute; z-index: 12; right: 24px; bottom: 24px; display: flex; align-items: center; gap: 8px; }
+.player-save__quick-controls { display: flex; gap: 6px; }
+.player-save__quick-controls button, .player-save__views button { min-height: 40px; padding: 0 12px; border: 1px solid rgba(103,232,249,.22); border-radius: 10px; color: #cffafe; background: rgba(18,14,42,.82); cursor: pointer; backdrop-filter: blur(18px); }
+.player-save__quick-controls button:disabled { opacity: .35; cursor: not-allowed; }
 .player-save__toggle { min-width: 88px; min-height: 44px; padding: 0 14px; border: 1px solid rgba(196,181,253,.38); border-radius: 13px; color: #ede9fe; background: rgba(18,14,42,.82); cursor: pointer; backdrop-filter: blur(18px); }
 .player-save__toggle:focus-visible, .player-save__panel button:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
 .player-save__panel { position: absolute; right: 0; bottom: 54px; display: grid; width: min(440px, calc(100vw - 48px)); gap: 8px; padding: 16px; border: 1px solid rgba(196,181,253,.28); border-radius: 20px; background: rgba(8,10,25,.94); box-shadow: 0 24px 70px rgba(0,0,0,.48); backdrop-filter: blur(24px); }
 .player-save__panel > header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 2px 4px 8px; }
 .player-save__panel > header span { color: rgba(255,255,255,.55); font-size: 11px; }
+.player-save__views { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.player-save__views button[aria-pressed="true"] { border-color: rgba(196,181,253,.65); color: #fff; background: rgba(139,92,246,.24); }
 .player-save__slot { display: grid; grid-template-columns: 68px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.04); }
 .player-save__preview { display: block; width: 68px; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid rgba(255,255,255,.1); border-radius: 9px; background: linear-gradient(135deg, rgba(139,92,246,.16), rgba(34,211,238,.08)); }
 .player-save__preview[data-preview-status="empty"], .player-save__preview[data-preview-status="unavailable"] { opacity: .5; }

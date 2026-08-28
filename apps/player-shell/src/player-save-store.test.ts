@@ -64,6 +64,7 @@ describe("N52-E2 Web Player Save Store", () => {
 function sourceV2(overrides: Partial<WorldPlayerSaveSlotSourceV2> = {}): WorldPlayerSaveSlotSourceV2 {
   return {
     ...source(),
+    kind: "manual",
     chapterId: "chapter_main",
     chapterTitle: "Main Chapter",
     sceneTitle: "Right Branch",
@@ -150,5 +151,14 @@ describe("N52-E3a Web Player Save Store", () => {
       transaction.onerror = () => reject(transaction.error);
     });
     await expect(store.readPreview("golden_branching", "manual-1")).rejects.toThrow("WORLD_PLAYER_SAVE_CORRUPT");
+  });
+});
+
+describe("N52-E3b slot classes", () => {
+  it("accepts only the frozen manual, auto and quick slot identities", () => {
+    expect(createWorldPlayerSaveSlotV2(sourceV2({ kind: "auto", slotId: "auto-5" }))).toMatchObject({ kind: "auto", slotId: "auto-5" });
+    expect(createWorldPlayerSaveSlotV2(sourceV2({ kind: "quick", slotId: "quick-1" }))).toMatchObject({ kind: "quick", slotId: "quick-1" });
+    expect(() => createWorldPlayerSaveSlotV2(sourceV2({ kind: "auto", slotId: "auto-6" }))).toThrow("WORLD_PLAYER_SAVE_SLOT_INVALID");
+    expect(() => createWorldPlayerSaveSlotV2(sourceV2({ kind: "quick", slotId: "manual-1" }))).toThrow("WORLD_PLAYER_SAVE_SLOT_INVALID");
   });
 });
