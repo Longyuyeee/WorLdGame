@@ -56,8 +56,8 @@ E1 只建立 History-backed Player Core 基础闭环：
 
 1. 正式 Player Core 以 N31 `RuntimeHistorySessionV1` 记录每个可观察剧情边界，同时保持现有标题→对白/Choice→结局行为与 snapshot 兼容；
 2. 新增 Back/Forward intent，直接调用 N31 `backRuntimeHistoryV1/forwardRuntimeHistoryV1`；
-3. 按 Runtime History reconciliation plan 调用正式 Runtime Host compensation/replay，使 state hash 与 presentation host hash 同步回退/前进；
-4. 真实 Golden 路线证明“结局→Back→Forward 回到完全相同 state/host hash”，以及“Back 后改选另一分支会截断旧 Forward”；
+3. 按 Runtime History reconciliation plan 调用正式 Runtime Host compensation/replay，使 Runtime State Hash 回退/前进且 active presentation channels 与目标 checkpoint 等价；Host snapshot hash 包含 append-only reconciliation 操作账本，不能错误要求回到旧值；
+4. 真实 Golden 路线证明“结局→Back→Forward 回到完全相同 Runtime State Hash 与等价 active presentation”，Host 操作账本新增 compensation/replay 证据，以及“Back 后改选另一分支会截断旧 Forward”；
 5. 接入 Web Player Shell 的可访问控制并执行桌面/390×844 冷 production-browser；无历史时必须明确 disabled，不得静默 no-op；
 6. E1 不实现槽位持久化、自动/快速保存、Auto/Skip 或 N52 Product Acceptance。
 

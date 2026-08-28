@@ -9,8 +9,11 @@ import {
   dispatchPlayerCoreIntentV1,
   selectPlayerCoreChoice,
   settlePlayerCoreEffect,
-  startPlayerCore
+  startPlayerCore,
+  type PlayerCoreIntentV1,
+  type PlayerCoreState
 } from "./player-core";
+import type { RuntimeHistorySessionV1 } from "@world-studio/runtime";
 
 function fixture(name: "branching" | "benchmark" | "media"): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), `fixtures/projects/${name}/project.s0.json`), "utf8")) as S0Project;
@@ -140,5 +143,79 @@ describe("N50-E1 formal Player Core", () => {
     const restarted = dispatchPlayerCoreIntentV1(ending, project, { kind: "restart" });
     expect(createPlayerCoreSnapshotV1(restarted)).toMatchObject({ status: "title", runtimeStateHash: null, presentation: { kind: "title" } });
     expect(restarted.hostState.operations).toEqual([]);
+  });
+});
+
+describe("N52-E1 History-backed Player Core contract", () => {
+  const history = (state: PlayerCoreState): RuntimeHistorySessionV1 | null => state.historySession;
+  const historySnapshot = (state: PlayerCoreState) => createPlayerCoreSnapshotV1(state).history;
+  const intent = (kind: "back" | "forward"): PlayerCoreIntentV1 => ({ kind });
+
+  it("restores the exact ending State through Back and Forward without creating a second Runtime", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const line = selectPlayerCoreChoice(choice, "branch_right_option");
+    const ending = advancePlayerCore(line);
+    const endingSnapshot = createPlayerCoreSnapshotV1(ending);
+
+    const backed = dispatchPlayerCoreIntentV1(ending, project, intent("back"));
+    expect(createPlayerCoreSnapshotV1(backed)).toMatchObject({
+      status: "presenting",
+      presentation: { kind: "dialogue", text: "The bright route." }
+    });
+    expect(historySnapshot(backed)).toMatchObject({ canBack: true, canForward: true });
+
+    const forwarded = dispatchPlayerCoreIntentV1(backed, project, intent("forward"));
+    const forwardedSnapshot = createPlayerCoreSnapshotV1(forwarded);
+    expect(forwardedSnapshot).toMatchObject({ status: "ended", presentation: { kind: "ending", endingId: "branch_right_end" } });
+    expect(forwardedSnapshot.runtimeStateHash).toBe(endingSnapshot.runtimeStateHash);
+    expect(historySnapshot(forwarded)).toMatchObject({ canForward: false });
+  });
+
+  it("truncates the recorded Forward branch when the player makes a different choice after Back", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const left = selectPlayerCoreChoice(choice, "branch_left_option");
+    const backed = dispatchPlayerCoreIntentV1(left, project, intent("back"));
+    expect(createPlayerCoreSnapshotV1(backed).presentation).toMatchObject({ kind: "choice" });
+
+    const right = selectPlayerCoreChoice(backed, "branch_right_option");
+    expect(createPlayerCoreSnapshotV1(right).presentation).toMatchObject({ kind: "dialogue", text: "The bright route." });
+    expect(historySnapshot(right)).toMatchObject({ canForward: false });
+    expect(history(right)?.inputTombstones).toHaveLength(1);
+  });
+
+  it("compensates reversible presentation effects on Back and replays the same active channels on Forward", () => {
+    const source = fixture("media");
+    const script = source.scripts.media_stage!;
+    const project: CanonicalProject = {
+      ...source,
+      scripts: {
+        ...source.scripts,
+        media_stage: {
+          ...script,
+          statements: script.statements.map((statement) => statement.id === "media_background" ? {
+            ...statement,
+            summary: `${String(statement.summary)} effectPolicy=reversible compensationKind=background.restore descriptorId=player.history.background`
+          } : statement)
+        }
+      }
+    };
+    const dialogue = startPlayerCore(createPlayerCore(project), project);
+    const before = createPlayerCoreSnapshotV1(dialogue);
+    expect(before.presentation).toMatchObject({ kind: "dialogue" });
+
+    const backed = dispatchPlayerCoreIntentV1(dialogue, project, intent("back"));
+    const backedSnapshot = createPlayerCoreSnapshotV1(backed);
+    expect(backedSnapshot).toMatchObject({ status: "title", presentation: { kind: "title" } });
+    expect(backedSnapshot.effects.operations.at(-1)).toMatchObject({ kind: "compensate", descriptorId: "player.history.background" });
+    expect(backedSnapshot.effects.active).toEqual([]);
+
+    const forwarded = dispatchPlayerCoreIntentV1(backed, project, intent("forward"));
+    const replayed = createPlayerCoreSnapshotV1(forwarded);
+    expect(replayed.presentation).toMatchObject({ kind: "dialogue", text: "Every cue must remain ordered." });
+    expect(replayed.runtimeStateHash).toBe(before.runtimeStateHash);
+    expect(replayed.effects.active).toEqual(before.effects.active);
+    expect(replayed.effects.operations.at(-1)?.kind).toBe("replay");
   });
 });

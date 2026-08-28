@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E1",
+  "scope": "cold-production-history-back-forward-desktop-390x844",
+  "capturedAt": "2026-08-28T21:18:00+08:00",
+  "target": {
+    "url": "http://127.0.0.1:5183/?demo=input",
+    "build": "@world-studio/player-shell production preview",
+    "distIndexSha256": "8801eff76611857e18ecaaf9361103ecfa017aa3375a8c459e6dba2817f1f548"
+  },
+  "actual": {
+    "initial": { "status": "title", "cursor": 0, "length": 0, "canBack": false, "canForward": false },
+    "rightEnding": { "status": "ended", "cursor": 3, "length": 3, "canBack": true, "canForward": false },
+    "afterBack": { "status": "presenting", "cursor": 2, "length": 3, "dialogue": "The bright route.", "canBack": true, "canForward": true },
+    "afterForward": { "status": "ended", "cursor": 3, "length": 3, "ending": "Right", "canBack": true, "canForward": false },
+    "forkAtChoice": { "status": "waiting-choice", "cursor": 1, "length": 3, "canForward": true },
+    "changedBranch": { "status": "presenting", "cursor": 2, "length": 2, "dialogue": "The quiet route.", "canForward": false },
+    "desktop": { "viewport": "1280x720", "buttonMinimum": "74.4x44", "horizontalOverflow": 0 },
+    "mobile": { "viewport": "390x844", "buttonMinimum": "48x48", "horizontalOverflow": 0, "toolbarTop": 18.8 },
+    "focus": { "outline": "rgb(103, 232, 249) solid 2.8px", "outlineOffset": "4px" },
+    "consoleWarningsOrErrors": []
+  },
+  "screenshots": [
+    { "path": "evidence/n52/player-history-desktop.png", "byteLength": 10751, "sha256": "8335a9f8f005e11fd535ae1a5e79b6f13ff338410273346009fa5cef430b60ef" },
+    { "path": "evidence/n52/player-history-mobile.png", "byteLength": 5888, "sha256": "dca0e4f8f3e434f0f00682fa6f7d2d1e1c861c3f8bbbaed3290553d1f8f7b0f7" }
+  ],
+  "firstDifference": {
+    "observed": "The first mobile production render placed the History toolbar over the brand and Choice prompt.",
+    "correction": "The toolbar now uses a safe fixed top position, 48px icon controls with full accessible names, and a compact mobile brand.",
+    "retest": "No document overflow, no toolbar/Choice overlap, 48x48 controls, and zero console warnings or errors."
+  },
+  "result": "PASS",
+  "boundary": "Engineering evidence only; N52 Product Acceptance, human validation, and target-device certification remain blocked."
+}
