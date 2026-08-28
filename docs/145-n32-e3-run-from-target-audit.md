@@ -71,3 +71,5 @@ Draft PR #54 的实现头已通过 Windows / Node 22 `npm run check`：普通回
 > 2026-08-28 N51-E6a 演进说明：Settings schema v2 进入 source identity 后，现行 Scene/Statement State Hash 为 `20eff57b48d0e2ac119b23fa4b4c5c365d96176ecb9d804fab604e747f5937ed` / `fddad8773b88cda486c5669f289a0970857bd1c91a9fa5f7b814c0f52b735dd3`；精确目标和 IR 位置不变。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
 
 > 2026-08-28 N51-E6b 演进说明：Settings schema v3 后 Scene/Statement State Hash 为 `cae5a4475867797572c0bf066b67e4b2886d9bc1155d92ba4973d2339b2c3497` / `a229161ce8fe6f6c3253b2343dbc3b516586c8743f41d2f75164d79861067e75`；精确目标、Source Map 与 IR 位置不变。详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。
+
+> 2026-08-28 N51-E6d 演进说明：Settings schema v5 后 Scene/Statement State Hash 为 `3aafe4f3d5069d17aff06fab52b45c63da1a93e51a51141e26a0195ee83de7a5` / `eee596e61a84dc11b0e2ba6f085c0667171b265e501842cb0bec3bddd9d07117`；精确 Scene/Statement、Source Map 与 IR 位置不变。详见[审计 #233](233-n51-e6d-choice-ui-presentation-policy-contract.md)。

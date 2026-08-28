@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "node": "N51-E6c",
-  "scope": "cold-production-build-audio-policy-edit-save-reopen-desktop-390x844",
-  "generatedAt": "2026-08-28T04:36:44.333Z",
+  "node": "N51-E6d",
+  "scope": "cold-production-build-choice-ui-policy-edit-save-reopen-desktop-390x844",
+  "generatedAt": "2026-08-28T05:41:20.667Z",
   "build": {
-    "editorDistIndexSha256": "212bb874c1d1ca6d4452a71fd380f44687b59f4d5b8386d3c89b639d2a7dbea1"
+    "editorDistIndexSha256": "835d14895571f26625230cdb9edd6ed09fbb6c1f6a21c94426f2b4757c762a85"
   },
   "environment": {
     "product": "Chrome/151.0.7922.174",
@@ -13,12 +13,14 @@
     "url": "http://127.0.0.1:5181/"
   },
   "expectation": {
-    "basicSettings": 21,
+    "basicSettings": 23,
     "workspaceModes": 7,
     "previewProfile": "landscape-16-9",
     "persistedWebMasterVolume": 0.4,
     "persistedResumeAfterInterruption": false,
     "persistedWebHighContrast": true,
+    "persistedShowOptionNumbers": false,
+    "persistedShowInputHints": false,
     "previewHighContrast": true,
     "horizontalOverflow": 0,
     "minimumTouchHeight": 44,
@@ -26,7 +28,7 @@
   },
   "actual": {
     "initial": {
-      "visibleSettings": 21,
+      "visibleSettings": 23,
       "workspaceModes": 7,
       "previewProfile": "landscape-16-9",
       "overflow": 0,
@@ -40,6 +42,10 @@
       "resumeSource": "Web 覆盖",
       "highContrast": true,
       "highContrastSource": "Web 覆盖",
+      "showOptionNumbers": false,
+      "choiceSource": "Web 覆盖",
+      "showInputHints": false,
+      "inputHintsSource": "Web 覆盖",
       "previewHighContrast": "true",
       "previewBackground": "rgb(0, 0, 0)",
       "saveLabel": "已恢复 · s1",
@@ -64,15 +70,15 @@
       "path": "evidence/n51/settings-ui-desktop.png",
       "width": 1440,
       "height": 900,
-      "byteLength": 347402,
-      "sha256": "e632eebb9d29c4c58644749f710b1f6c67e1dcb5c460bbfcbf8380522cb647e0"
+      "byteLength": 347536,
+      "sha256": "5397f746003c0cff28cd812d7bccda9c1c667cdf311623704cf3cb2a7642d64f"
     },
     {
       "path": "evidence/n51/settings-ui-mobile.png",
       "width": 390,
       "height": 844,
-      "byteLength": 103985,
-      "sha256": "090325ce23a4c1a4a220062c4bbd29907f52d84fd6f4c40caa6db3e569c2c18f"
+      "byteLength": 103861,
+      "sha256": "94d8420bc66016f138ea26de3141a718286daccc1a7968c7be72210322eef444"
     }
   ],
   "result": "PASS"

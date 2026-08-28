@@ -49,8 +49,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
   const stage = useMemo(
-    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage),
-    [mediaAssets, settingsApplication.stage, snapshot]
+    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage, settingsApplication.ui),
+    [mediaAssets, settingsApplication.stage, settingsApplication.ui, snapshot]
   );
   const appliedAudio = stage.audio.map((track) => ({
     ...track,
@@ -260,6 +260,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-audio-resume={settingsApplication.audio.resumeAfterInterruption}
       data-settings-stage-duration={settingsApplication.stage.defaultDurationMilliseconds}
       data-settings-stage-easing={settingsApplication.stage.defaultEasing}
+      data-settings-choice-layout={settingsApplication.choice.layout}
+      data-settings-choice-numbers={settingsApplication.choice.showOptionNumbers}
+      data-settings-textbox-default={settingsApplication.ui.defaultTextboxTemplate}
+      data-settings-input-hints={settingsApplication.ui.showInputHints}
       style={{
         "--gal-stage-aspect": settingsApplication.display.aspectRatio,
         "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
@@ -360,7 +364,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               开始故事
               <span aria-hidden="true">→</span>
             </button>
-            <span className="player-hint">Enter / Space</span>
+            {settingsApplication.ui.showInputHints && <span className="player-hint">Enter / Space</span>}
           </div>
         )}
 
@@ -381,7 +385,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         )}
 
         {content.kind === "choice" && (
-          <div className="player-choice" role="group" aria-labelledby="player-choice-prompt">
+          <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
             <p id="player-choice-prompt">{content.prompt}</p>
             {content.options.map((option, index) => (
               <button
@@ -394,7 +398,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
                 onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, pointerInput.current)}
               >
-                <span aria-hidden="true">{index + 1}</span>{option.label}
+                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}{option.label}
               </button>
             ))}
           </div>

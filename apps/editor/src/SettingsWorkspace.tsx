@@ -41,6 +41,8 @@ const SECTION_LABELS = {
   advance: "推进",
   audio: "音频",
   stage: "舞台默认策略",
+  choice: "选项展示",
+  ui: "界面展示",
   input: "输入",
   accessibility: "无障碍"
 } as const;
@@ -67,7 +69,12 @@ const OPTION_LABELS: Readonly<Record<string, string>> = {
   linear: "线性",
   "ease-in": "缓入",
   "ease-out": "缓出",
-  "ease-in-out": "缓入缓出"
+  "ease-in-out": "缓入缓出",
+  vertical: "纵向",
+  "responsive-grid": "响应式网格",
+  adv: "ADV 对话框",
+  nvl: "NVL 文本框",
+  bubble: "气泡对话框"
 };
 
 function layerFromId(id: SettingsLayerId): GalSettingsEditLayer {

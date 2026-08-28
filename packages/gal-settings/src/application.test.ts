@@ -86,4 +86,15 @@ describe("N51-E5 Gal settings runtime application", () => {
     expect(galStageEasingV1(application)).toBe("ease-out");
     expect(galStageEasingV1(application, "ease-in-out")).toBe("ease-in-out");
   });
+
+  it("projects Choice and UI presentation policy without changing story semantics", () => {
+    const application = createGalSettingsApplicationV1(withProjectSettings(createGalSettingsDocument(), {
+      choice: { showOptionNumbers: false, layout: "responsive-grid" },
+      ui: { defaultTextboxTemplate: "bubble", showInputHints: false }
+    }), "web");
+    expect(application).toMatchObject({
+      choice: { showOptionNumbers: false, layout: "responsive-grid" },
+      ui: { defaultTextboxTemplate: "bubble", showInputHints: false }
+    });
+  });
 });

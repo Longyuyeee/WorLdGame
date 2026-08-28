@@ -225,7 +225,7 @@ describe("N50-E1 shared Player Shell", () => {
 });
 
 describe("N51-E5 Player settings application", () => {
-  it("keeps the active Core when a persisted v1 settings document is normalized to current v3", () => {
+  it("keeps the active Core when a persisted v1 settings document is normalized to current v5", () => {
     const project = branching();
     const legacyFiles = { ...saveProject(project) };
     legacyFiles[project.manifest.settingsPath] = JSON.stringify({
@@ -240,7 +240,7 @@ describe("N51-E5 Player settings application", () => {
 
     view.rerender(<PlayerShell project={migrated} />);
 
-    expect(migrated.settings.schemaVersion).toBe(4);
+    expect(migrated.settings.schemaVersion).toBe(5);
     expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
   });
@@ -256,6 +256,8 @@ describe("N51-E5 Player settings application", () => {
       settings: withPlatformSettings(project.settings, "web", {
         display: { designWidth: 1440, designHeight: 1080, orientation: "landscape", quality: "low", safeArea: "none" },
         text: { fontScale: 1.5, messageWindowOpacity: 0.4, revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
+        choice: { showOptionNumbers: false, layout: "responsive-grid" },
+        ui: { defaultTextboxTemplate: "bubble", showInputHints: false },
         accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true }
       })
     };
@@ -267,7 +269,24 @@ describe("N51-E5 Player settings application", () => {
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-high-contrast", "true");
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-reduce-motion", "true");
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-reduce-flashing", "true");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-choice-layout", "responsive-grid");
+    expect(view.container.querySelector(".player-choice")).toHaveAttribute("data-choice-layout", "responsive-grid");
+    expect(view.container.querySelectorAll("[data-choice-number]")).toHaveLength(0);
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Left/u })).toBeInTheDocument();
     expect(view.container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1440 / 1080", "--gal-font-scale": "1.5", "--gal-message-opacity": "0.4", "--gal-line-height": "2", "--gal-letter-spacing": "0.08em" });
+  });
+
+  it("hides only the title input hint while preserving keyboard start", () => {
+    const project = branching();
+    const configured = {
+      ...project,
+      settings: withProjectSettings(project.settings, { ui: { showInputHints: false } })
+    };
+    const { container } = render(<PlayerShell project={configured} />);
+    expect(container.querySelector(".player-hint")).not.toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
   });
 
   it("uses the selected platform layer and hot-applies pointer and keyboard gates", () => {

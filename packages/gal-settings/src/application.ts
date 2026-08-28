@@ -47,6 +47,14 @@ export interface GalSettingsApplicationV1 {
     readonly defaultDurationMilliseconds: number;
     readonly defaultEasing: GalStageEasingV1;
   };
+  readonly choice: {
+    readonly showOptionNumbers: boolean;
+    readonly layout: "vertical" | "responsive-grid";
+  };
+  readonly ui: {
+    readonly defaultTextboxTemplate: "adv" | "nvl" | "bubble";
+    readonly showInputHints: boolean;
+  };
   readonly audio: {
     readonly resumeAfterInterruption: boolean;
   };
@@ -59,7 +67,7 @@ export function createGalSettingsApplicationV1(
   platform: GalSettingsPlatform
 ): GalSettingsApplicationV1 {
   const resolved = resolveGalSettings(settings, platform);
-  const { display, text, advance, stage, audio, input, accessibility } = resolved.values;
+  const { display, text, advance, stage, choice, ui, audio, input, accessibility } = resolved.values;
   return {
     version: GAL_SETTINGS_APPLICATION_VERSION,
     resolved,
@@ -71,6 +79,8 @@ export function createGalSettingsApplicationV1(
     text,
     advance,
     stage,
+    choice,
+    ui,
     audio: { resumeAfterInterruption: audio.resumeAfterInterruption },
     accessibility,
     input: {

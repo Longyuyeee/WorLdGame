@@ -491,6 +491,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6b Engineering 状态（2026-08-28）：[Text / Accessibility 应用审计](231-n51-e6b-text-accessibility-entry-contract.md)新增 6 个可执行字段并把 Settings 当前写入版本提升到 v3；Catalog 为 Basic 20 / Advanced 29。Editor/Player 共用 application 投影即时文本、行高、字距、高对比、减动效和降闪烁；settings-only 热更新保持活跃 Core。首次冻结 57 项实际 47 通过/10 失败，修正后 N51 聚合 80/80；两个冷 production browser 分别验证 UI→IndexedDB→重开与 Player 活跃对白热应用，1440×900/390×844 均 overflow 0、console 0。E6b 不实现 N52 播放控制或 N61/N62 内容生产；下一切片为 E6c Stage/Audio default policy。
 
+> E6c/E6d Engineering 状态（2026-08-28）：[E6c](232-n51-e6c-stage-audio-default-policy-contract.md)已贯通 Stage 默认时长/缓动与 Audio 中断恢复，schema v4、Basic 21/Advanced 32；[E6d](233-n51-e6d-choice-ui-presentation-policy-contract.md)继续把 Choice 编号/响应式布局及 UI 默认 Textbox/输入提示贯通 schema v5、Basic 23/Advanced 36。E6d 首次冻结 88 项中 9 项按预期失败，修正及扩展后 101/101；双冷 production browser 验证 UI 保存重开、同一 waiting-choice Core、编号 2→0、桌面两列/移动单列、标题提示隐藏与 ADV→bubble。Route 玩家页面和 Choice 调度不在现有 Host 中，分别保持 N62/N52 边界；下一切片为 E6e Profile/Host boundary。
+
 ### N52 Save、History、Auto、Skip、Back/Forward
 
 - **Goal**：特色播放控制成为玩家功能而非 VM 测试。

@@ -63,3 +63,5 @@ git diff --check
 > 2026-08-28 N51-E6a 演进说明：Settings 默认源文件提升到 schema v2 后，现行空白工程 semantic hash 为 `9eda3a46e0f93d55bc884b5e6e2cf4b50e7f93d9e6c5a94e75a99c0f3324b3b6`；保存/重开/导出导入相等断言及两路线 Outcome 保持。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
 
 > 2026-08-28 N51-E6b 演进说明：Settings schema v3 与 6 个新默认字段使现行空白工程 semantic hash 更新为 `1b014965583183698984174d4d40c96e69548327f62d8938e78a9cccb9a64cb1`；保存/重开/导出导入相等及两路线 Outcome 断言继续通过。详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。
+
+> 2026-08-28 N51-E6d 演进说明：Settings schema v5 与 Choice/UI 默认字段使现行空白工程 semantic hash 更新为 `1dbb682d737663062483234b1ed17274ec4d1d209ae49ad0e4420a301833c873`；保存/重开/导出导入相等及“晨光抵达/星空抵达”两路线 Outcome 断言继续通过。详见[审计 #233](233-n51-e6d-choice-ui-presentation-policy-contract.md)。

@@ -142,6 +142,7 @@ interface MutableStageState {
   readonly exitingCharacters: Map<string, PreviewVisualLayerPlan>;
   readonly audio: Map<PreviewAudioLayerPlan["bus"], PreviewAudioLayerPlan>;
   dialogueTemplate: DialogueTemplate;
+  readonly defaultDialogueTemplate: DialogueTemplate;
   readonly diagnostics: string[];
 }
 
@@ -370,7 +371,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
       };
     } else if (statement.command === "textbox") {
       if (action === "reset") {
-        state.dialogueTemplate = "adv";
+        state.dialogueTemplate = state.defaultDialogueTemplate;
         return true;
       }
       const template = inspected.parameters.template;
@@ -499,8 +500,11 @@ export function resolvePreviewCameraGeometry(layer: PreviewCameraPlan | undefine
   return { x: layer?.x ?? 0, y: layer?.y ?? 0, zoom: layer?.zoom ?? 1, rotation: layer?.rotation ?? 0 };
 }
 
-export function compilePreviewStageTimeline(statements: readonly StoryStatement[]): readonly PreviewStagePlan[] {
-  const state: MutableStageState = { characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: "adv", diagnostics: [] };
+export function compilePreviewStageTimeline(
+  statements: readonly StoryStatement[],
+  defaultDialogueTemplate: DialogueTemplate = "adv"
+): readonly PreviewStagePlan[] {
+  const state: MutableStageState = { characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: defaultDialogueTemplate, defaultDialogueTemplate, diagnostics: [] };
   const timeline: PreviewStagePlan[] = [];
   let previous: PreviewStagePlan | undefined;
   for (const statement of statements) {
@@ -524,11 +528,12 @@ export function compilePreviewStageTimeline(statements: readonly StoryStatement[
 
 export function derivePreviewStagePlan(
   statements: readonly StoryStatement[],
-  inclusiveIndex: number
+  inclusiveIndex: number,
+  defaultDialogueTemplate: DialogueTemplate = "adv"
 ): PreviewStagePlan {
-  if (statements.length === 0) return snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: "adv", diagnostics: [] });
+  if (statements.length === 0) return snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: defaultDialogueTemplate, defaultDialogueTemplate, diagnostics: [] });
   const index = Math.min(Math.max(inclusiveIndex, 0), statements.length - 1);
-  return compilePreviewStageTimeline(statements)[index] ?? snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: "adv", diagnostics: [] });
+  return compilePreviewStageTimeline(statements, defaultDialogueTemplate)[index] ?? snapshotStageState({ characters: new Map(), exitingCharacters: new Map(), audio: new Map(), dialogueTemplate: defaultDialogueTemplate, defaultDialogueTemplate, diagnostics: [] });
 }
 
 function compatible(entry: AssetIndexEntry, role: "background" | "character" | "audio"): boolean {

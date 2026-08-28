@@ -117,4 +117,32 @@ describe("N50-E3 Editor and Player Media Golden parity", () => {
       characters: [{ durationMilliseconds: 1200, easing: "ease-out" }]
     });
   });
+
+  it("uses the configured Player textbox default while preserving explicit Effect priority", () => {
+    const demo = createPlayerMediaDemoV1();
+    const snapshot = createPlayerCoreSnapshotV1(startPlayerCore(createPlayerCore(demo.project), demo.project));
+    const application = createGalSettingsApplicationV1(withProjectSettings(demo.project.settings, {
+      ui: { defaultTextboxTemplate: "bubble" }
+    }), "web");
+    expect(derivePlayerStagePresentationV1(snapshot, demo.mediaAssets, application.stage, application.ui).textboxTemplate).toBe("bubble");
+
+    const explicit = {
+      ...snapshot,
+      effects: {
+        ...snapshot.effects,
+        active: [...snapshot.effects.active, {
+          effectId: "explicit_textbox",
+          descriptorId: "textbox.set",
+          channel: "textbox",
+          kind: "textbox.set",
+          replayKey: "textbox",
+          payload: { action: "set", template: "nvl" },
+          policy: "pure",
+          awaitMode: "detached",
+          compensation: null
+        }]
+      }
+    } as typeof snapshot;
+    expect(derivePlayerStagePresentationV1(explicit, demo.mediaAssets, application.stage, application.ui).textboxTemplate).toBe("nvl");
+  });
 });

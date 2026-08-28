@@ -3882,6 +3882,14 @@ textarea[data-input-state="composing"] {
   padding: 13px;
 }
 
+.choice-preview[data-choice-layout="responsive-grid"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choice-preview[data-choice-layout="responsive-grid"] > strong {
+  grid-column: 1 / -1;
+}
+
 .choice-preview strong {
   margin-bottom: 2px;
   font-size: 11px;
@@ -3903,6 +3911,15 @@ textarea[data-input-state="composing"] {
 .choice-preview button {
   cursor: pointer;
   transition: border-color var(--wg-motion-duration-fast) ease, background var(--wg-motion-duration-fast) ease;
+}
+
+.choice-preview [data-choice-number] {
+  margin-right: 6px;
+  color: var(--wg-color-accent, #55d98a);
+}
+
+@media (max-width: 640px) {
+  .choice-preview[data-choice-layout="responsive-grid"] { grid-template-columns: minmax(0, 1fr); }
 }
 
 .choice-preview button:hover,

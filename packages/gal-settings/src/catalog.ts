@@ -1,6 +1,6 @@
 import type { GalSettingPath } from "./settings";
 
-export type GalSettingSection = "display" | "text" | "advance" | "audio" | "stage" | "input" | "accessibility";
+export type GalSettingSection = "display" | "text" | "advance" | "audio" | "stage" | "choice" | "ui" | "input" | "accessibility";
 export type GalSettingLevel = "basic" | "advanced";
 export type GalSettingsCatalogMode = "basic" | "advanced";
 
@@ -52,6 +52,12 @@ const RAW_GAL_SETTING_DEFINITIONS = [
 
   { path: "stage.defaultDurationMilliseconds", section: "stage", level: "advanced", label: { zhHans: "默认舞台时长", en: "Default stage duration" }, description: { zhHans: "舞台效果未声明 duration 或 fade 时使用的默认时长。", en: "Default duration used when a stage effect omits duration or fade." }, keywords: ["舞台", "动效", "时长", "stage", "animation", "duration"], control: { kind: "number", minimum: 1, maximum: 10000, step: 10, unit: "ms" } },
   { path: "stage.defaultEasing", section: "stage", level: "advanced", label: { zhHans: "默认舞台缓动", en: "Default stage easing" }, description: { zhHans: "舞台效果未声明 easing 时使用的默认缓动。", en: "Default easing used when a stage effect omits easing." }, keywords: ["舞台", "缓动", "曲线", "stage", "easing", "curve"], control: { kind: "select", options: ["linear", "ease-in", "ease-out", "ease-in-out"] } },
+
+  { path: "choice.showOptionNumbers", section: "choice", level: "basic", label: { zhHans: "显示选项序号", en: "Show choice numbers" }, description: { zhHans: "在选项前显示稳定的一位起始序号。", en: "Show stable one-based numbers before choice options." }, keywords: ["选项", "序号", "编号", "choice", "option", "number"], control: booleanControl },
+  { path: "choice.layout", section: "choice", level: "advanced", label: { zhHans: "选项布局", en: "Choice layout" }, description: { zhHans: "使用纵向布局，或在宽屏上使用响应式双列布局。", en: "Use a vertical layout or a responsive two-column layout on wide screens." }, keywords: ["选项", "布局", "响应式", "choice", "layout", "responsive", "grid"], control: { kind: "select", options: ["vertical", "responsive-grid"] } },
+
+  { path: "ui.defaultTextboxTemplate", section: "ui", level: "advanced", label: { zhHans: "默认对话框模板", en: "Default textbox template" }, description: { zhHans: "脚本未显式设置对话框时使用的模板。", en: "Textbox template used when the script does not set one explicitly." }, keywords: ["默认", "对话框", "文本框", "ui", "textbox", "template"], control: { kind: "select", options: ["adv", "nvl", "bubble"] } },
+  { path: "ui.showInputHints", section: "ui", level: "basic", label: { zhHans: "显示输入提示", en: "Show input hints" }, description: { zhHans: "在标题界面显示键盘输入提示，不改变输入能力。", en: "Show keyboard hints on the title screen without changing input behavior." }, keywords: ["输入", "提示", "键盘", "ui", "input", "hint", "keyboard"], control: booleanControl },
 
   { path: "input.pointerAdvance", section: "input", level: "basic", label: { zhHans: "鼠标推进", en: "Pointer advance" }, description: { zhHans: "允许鼠标或指针点击推进。", en: "Allow mouse or pointer clicks to advance." }, keywords: ["鼠标", "点击", "pointer", "mouse", "click"], control: booleanControl },
   { path: "input.keyboardAdvance", section: "input", level: "basic", label: { zhHans: "键盘推进", en: "Keyboard advance" }, description: { zhHans: "允许键盘确认键推进。", en: "Allow keyboard confirm keys to advance." }, keywords: ["键盘", "空格", "回车", "keyboard", "space", "enter"], control: booleanControl },
@@ -130,7 +136,7 @@ export function searchGalSettingDefinitions(
   if (unknownOption !== undefined) throw new TypeError(`Unknown Gal settings search option: ${unknownOption}`);
   const mode = options.mode ?? "advanced";
   if (mode !== "basic" && mode !== "advanced") throw new TypeError("Gal settings catalog mode must be basic or advanced");
-  if (options.section !== undefined && !["display", "text", "advance", "audio", "stage", "input", "accessibility"].includes(options.section)) {
+  if (options.section !== undefined && !["display", "text", "advance", "audio", "stage", "choice", "ui", "input", "accessibility"].includes(options.section)) {
     throw new TypeError("Gal settings catalog section is invalid");
   }
   const terms = normalizedTerms(query);

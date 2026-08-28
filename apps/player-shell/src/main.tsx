@@ -58,6 +58,8 @@ function SettingsApplicationDemo() {
       accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true },
       advance: { allowHold: false, waitForVoice: false },
       stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
+      choice: { showOptionNumbers: false, layout: "responsive-grid" },
+      ui: { defaultTextboxTemplate: "bubble", showInputHints: false },
       audio: { master: 0.6, bgm: 0.5, voice: 0.7, sfx: 0.4, ambient: 0.3, ui: 0.2, voiceDucking: 0.25, resumeAfterInterruption: false },
       input: { pointerAdvance: false, keyboardAdvance: false, touchAdvance: false, gamepadAdvance: false }
     })

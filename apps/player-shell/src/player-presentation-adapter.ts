@@ -21,6 +21,10 @@ export interface PlayerStageDefaultPolicyV1 {
   readonly defaultEasing: "linear" | "ease-in" | "ease-out" | "ease-in-out";
 }
 
+export interface PlayerUiDefaultPolicyV1 {
+  readonly defaultTextboxTemplate: "adv" | "nvl" | "bubble";
+}
+
 export interface PlayerStageCharacterV1 extends PlayerStageImageV1 {
   readonly slot: string;
   readonly x: number;
@@ -89,7 +93,8 @@ function easing(effect: PlayerCoreEffectSnapshotV1, fallback: PlayerStageImageV1
 export function derivePlayerStagePresentationV1(
   snapshot: PlayerCoreSnapshotV1,
   sources: readonly PlayerMediaAssetSourceV1[] = [],
-  policy: PlayerStageDefaultPolicyV1 = { defaultDurationMilliseconds: 360, defaultEasing: "linear" }
+  policy: PlayerStageDefaultPolicyV1 = { defaultDurationMilliseconds: 360, defaultEasing: "linear" },
+  uiPolicy: PlayerUiDefaultPolicyV1 = { defaultTextboxTemplate: "adv" }
 ): PlayerStagePresentationV1 {
   const assets = new Map(sources.map((source) => [source.assetId, source]));
   const missing = new Set<string>();
@@ -97,7 +102,7 @@ export function derivePlayerStagePresentationV1(
   const characters: PlayerStageCharacterV1[] = [];
   const audio: PlayerStageAudioV1[] = [];
   let cameraTransform = "translate(0%, 0%) scale(1) rotate(0deg)";
-  let textboxTemplate: PlayerStagePresentationV1["textboxTemplate"] = "adv";
+  let textboxTemplate: PlayerStagePresentationV1["textboxTemplate"] = uiPolicy.defaultTextboxTemplate;
   let sceneDescription: string | null = null;
 
   for (const effect of snapshot.effects.active) {
@@ -150,9 +155,12 @@ export function derivePlayerStagePresentationV1(
       });
     } else if (effect.kind.startsWith("camera.")) {
       cameraTransform = `translate(${number(effect, "x", 0)}%, ${number(effect, "y", 0)}%) scale(${number(effect, "zoom", 1)}) rotate(${number(effect, "rotation", 0)}deg)`;
-    } else if (effect.kind.startsWith("textbox.") && currentAction === "set") {
-      const template = text(effect, "template");
-      if (template === "nvl" || template === "bubble") textboxTemplate = template;
+    } else if (effect.kind.startsWith("textbox.")) {
+      if (currentAction === "reset") textboxTemplate = uiPolicy.defaultTextboxTemplate;
+      else if (currentAction === "set") {
+        const template = text(effect, "template");
+        if (template === "adv" || template === "nvl" || template === "bubble") textboxTemplate = template;
+      }
     }
   }
 
