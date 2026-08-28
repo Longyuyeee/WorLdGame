@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3a",
+  "engineeringStatus": "implemented-awaiting-remote-evidence",
+  "productAcceptance": "blocked",
+  "baseCommit": "f2cf7803efc7519c2fc58b8186a38a5464a90a85",
+  "saveSchema": {
+    "current": 2,
+    "strictLegacyRead": 1,
+    "migration": "normalize-in-memory-copy-on-write-on-next-save",
+    "databaseVersion": 2,
+    "metadataStore": "save-slots",
+    "previewStore": "save-previews"
+  },
+  "metadata": {
+    "chapterAndSceneSource": "canonical-project-and-runtime-cursor",
+    "route": null,
+    "customMetadata": {},
+    "forbiddenSources": ["testRoutes", "preservedFields"]
+  },
+  "manualSlots": {
+    "count": 12,
+    "pageSize": 6,
+    "pageCount": 2,
+    "overwrite": "second-explicit-click"
+  },
+  "preview": {
+    "owner": "player-host-compositor",
+    "mimeTypes": ["image/webp", "image/png"],
+    "maximumWidth": 512,
+    "maximumHeight": 512,
+    "maximumBytes": 524288,
+    "storage": "separate-blob-store-same-transaction",
+    "integrity": "sha256-write-and-read-verification",
+    "loading": "visible-slot-lazy-read",
+    "failure": "commit-v2-save-with-explicit-unavailable-reason"
+  },
+  "acceptance": [
+    "strict-v1-record-normalizes-without-mutating-storage",
+    "successful-v2-write-replaces-v1-only-at-transaction-commit",
+    "metadata-and-preview-blob-commit-or-abort-together",
+    "metadata-list-does-not-read-preview-store",
+    "capture-unavailable-failed-or-invalid-still-commits-valid-save",
+    "manual-overwrite-requires-explicit-confirmation"
+  ],
+  "blocked": [
+    "auto-and-quick-save-execution",
+    "persistent-checkpoint-slots",
+    "crash-recovery-store",
+    "migration-museum",
+    "cloud-sync-and-conflict-resolution",
+    "n52-product-acceptance"
+  ],
+  "nextSlice": "N52-E3b",
+  "requiredDocuments": [
+    { "path": "docs/241-n52-e3a-save-metadata-preview-audit.md", "token": "N52-E3a 本地实现候选" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3a 状态（2026-08-28）" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3a v2 元数据与截图" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3a v2 元数据与截图" }
+  ]
+}

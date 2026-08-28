@@ -20,7 +20,16 @@ import {
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
-import { createWorldPlayerSaveSlotV1, type WorldPlayerSaveSlotV1, type WorldPlayerSaveStoreV1 } from "./player-save-store";
+import {
+  WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
+  WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT,
+  WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH,
+  createWorldPlayerSaveSlotV2,
+  worldPlayerSavePreviewSha256V1,
+  type WorldPlayerSavePreviewV2,
+  type WorldPlayerSaveSlotV2,
+  type WorldPlayerSaveStoreV2
+} from "./player-save-store";
 import "./player-shell.css";
 
 export interface PlayerShellProps {
@@ -29,14 +38,64 @@ export interface PlayerShellProps {
   readonly onRetryMedia?: () => void;
   readonly hostActivity?: PlayerHostActivityV1;
   readonly platform?: GalSettingsPlatform;
-  readonly saveStore?: WorldPlayerSaveStoreV1;
+  readonly saveStore?: WorldPlayerSaveStoreV2;
+  readonly previewCapture?: WorldPlayerPreviewCaptureV1;
   readonly now?: () => number;
 }
 
 type PlayerInputSource = "lifecycle" | GalAdvanceInputV1 | "system";
 export type PlayerHostActivityV1 = "active" | "suspended";
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, now = Date.now }: PlayerShellProps) {
+export interface WorldPlayerPreviewCaptureRequestV1 {
+  readonly projectId: string;
+  readonly sceneId: string;
+  readonly maximumWidth: typeof WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH;
+  readonly maximumHeight: typeof WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT;
+  readonly maximumBytes: typeof WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES;
+  readonly mimeTypes: readonly ["image/webp", "image/png"];
+}
+
+export interface WorldPlayerPreviewCaptureResultV1 {
+  readonly blob: Blob;
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface WorldPlayerPreviewCaptureV1 {
+  readonly version: "1.0.0";
+  readonly owner: "player-host-compositor";
+  capture(request: WorldPlayerPreviewCaptureRequestV1): Promise<WorldPlayerPreviewCaptureResultV1 | null>;
+}
+
+function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV2 | undefined; readonly store: WorldPlayerSaveStoreV2 }) {
+  const [source, setSource] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (slot?.preview.status !== "available") {
+      setSource(null);
+      return;
+    }
+    let disposed = false;
+    let objectUrl: string | null = null;
+    void store.readPreview(projectId, slot.slotId).then((blob) => {
+      if (disposed || blob === null || typeof URL.createObjectURL !== "function") return;
+      objectUrl = URL.createObjectURL(blob);
+      setSource(objectUrl);
+    }).catch(() => {
+      if (!disposed) setSource(null);
+    });
+    return () => {
+      disposed = true;
+      if (objectUrl !== null && typeof URL.revokeObjectURL === "function") URL.revokeObjectURL(objectUrl);
+    };
+  }, [projectId, slot, store]);
+
+  return source === null
+    ? <span className="player-save__preview" data-preview-status={slot?.preview.status ?? "empty"} aria-label={slot?.preview.status === "available" ? "截图正在读取" : "没有存档截图"} />
+    : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
+}
+
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, previewCapture, now = Date.now }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
@@ -46,15 +105,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [voicePlaying, setVoicePlaying] = useState(false);
   const [textReady, setTextReady] = useState(true);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
-  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV1[]>([]);
+  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV2[]>([]);
+  const [savePage, setSavePage] = useState(0);
+  const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
-  const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore });
-  saveContext.current = { projectId: project.manifest.projectId, store: saveStore };
+  const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
+  saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
@@ -98,6 +159,31 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [project.manifest.projectId, saveStore]);
 
+  const captureSavePreview = useCallback(async (projectId: string, sceneId: string): Promise<{ readonly metadata: WorldPlayerSavePreviewV2; readonly blob?: Blob }> => {
+    if (previewCapture === undefined) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
+    try {
+      const captured = await previewCapture.capture({
+        projectId,
+        sceneId,
+        maximumWidth: WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH,
+        maximumHeight: WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT,
+        maximumBytes: WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
+        mimeTypes: ["image/webp", "image/png"]
+      });
+      if (captured === null) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
+      const valid = (captured.blob.type === "image/webp" || captured.blob.type === "image/png") && captured.blob.size > 0 && captured.blob.size <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES &&
+        Number.isSafeInteger(captured.width) && captured.width > 0 && captured.width <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH &&
+        Number.isSafeInteger(captured.height) && captured.height > 0 && captured.height <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT;
+      if (!valid) return { metadata: { status: "unavailable", reason: "capture-invalid" } };
+      return {
+        metadata: { status: "available", mimeType: captured.blob.type, width: captured.width, height: captured.height, byteLength: captured.blob.size, sha256: await worldPlayerSavePreviewSha256V1(captured.blob) },
+        blob: captured.blob
+      };
+    } catch {
+      return { metadata: { status: "unavailable", reason: "capture-failed" } };
+    }
+  }, [previewCapture]);
+
   const saveToSlot = useCallback(async (slotId: string) => {
     if (saveStore === undefined || snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || state.runtimeState === null) return;
     const created = createPlayerCoreSessionSaveV1(state);
@@ -110,27 +196,51 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setSaveMessage("正在写入…");
     const projectId = project.manifest.projectId;
     try {
-      await saveStore.write(createWorldPlayerSaveSlotV1({
+      const sceneId = state.runtimeState.cursor.sceneId;
+      const sceneIndex = project.scenes.findIndex((scene) => scene.id === sceneId);
+      const scene = project.scenes[sceneIndex];
+      if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
+      const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
+      const chapter = scenePath === undefined ? undefined : project.chapters.find((candidate) => candidate.scenePaths.includes(scenePath));
+      const captured = await captureSavePreview(projectId, sceneId);
+      await saveStore.write(createWorldPlayerSaveSlotV2({
         slotId,
         projectId,
         buildId: snapshot.identities.buildId,
         savedAtEpochMilliseconds: now(),
         title: snapshot.title,
-        sceneId: state.runtimeState.cursor.sceneId,
+        chapterId: chapter?.id ?? null,
+        chapterTitle: chapter?.title ?? null,
+        sceneId,
+        sceneTitle: scene.title,
+        route: null,
+        customMetadata: {},
+        preview: captured.metadata,
         presentationKind: snapshot.presentation.kind,
         runtimeStateHash: snapshot.runtimeStateHash,
         sessionArtifactHash: created.artifactHash,
         serializedSessionSave: created.serialized
-      }));
-      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      }), captured.blob);
+      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
       await refreshSaveSlots();
+      setPendingOverwriteSlotId(null);
       setSaveOperation("saved");
-      setSaveMessage(`${slotId} 已保存`);
+      setSaveMessage(`${slotId} 已保存${captured.metadata.status === "available" ? "（含截图）" : "（预览不可用）"}`);
     } catch {
       setSaveOperation("error");
       setSaveMessage("写入失败，原存档保持不变");
     }
-  }, [now, project.manifest.projectId, refreshSaveSlots, saveStore, snapshot, state]);
+  }, [captureSavePreview, now, previewCapture, project, refreshSaveSlots, saveStore, snapshot, state]);
+
+  const requestSaveToSlot = useCallback((slotId: string, occupied: boolean) => {
+    if (occupied && pendingOverwriteSlotId !== slotId) {
+      setPendingOverwriteSlotId(slotId);
+      setSaveOperation("idle");
+      setSaveMessage(`${slotId} 已有存档，请再次确认覆盖`);
+      return;
+    }
+    void saveToSlot(slotId);
+  }, [pendingOverwriteSlotId, saveToSlot]);
 
   const loadFromSlot = useCallback(async (slotId: string) => {
     if (saveStore === undefined) return;
@@ -191,6 +301,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     setSaveSlots([]);
+    setSavePage(0);
+    setPendingOverwriteSlotId(null);
     setSaveOperation("idle");
     setSaveMessage("请选择槽位");
     void refreshSaveSlots();
@@ -465,19 +577,29 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               type="button"
               aria-expanded={savePanelOpen}
               aria-controls="player-save-panel"
-              onClick={() => setSavePanelOpen((open) => !open)}
+              onClick={() => {
+                setPendingOverwriteSlotId(null);
+                setSavePanelOpen((open) => !open);
+              }}
             >存读档</button>
             {savePanelOpen && (
               <div id="player-save-panel" className="player-save__panel" aria-label="手动存读档">
                 <header><strong>手动存档</strong><span data-save-message>{saveMessage}</span></header>
-                {["manual-1", "manual-2", "manual-3"].map((slotId, index) => {
+                {Array.from({ length: 6 }, (_, index) => savePage * 6 + index + 1).map((slotNumber) => {
+                  const slotId = `manual-${slotNumber}`;
                   const slot = saveSlots.find((candidate) => candidate.slotId === slotId);
                   return <section className="player-save__slot" key={slotId}>
-                    <div><strong>槽位 {index + 1}</strong><span>{slot === undefined ? "空槽位" : `${slot.sceneId} · ${new Date(slot.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC`}</span></div>
-                    <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || snapshot.history === null} onClick={() => void saveToSlot(slotId)}>保存</button>
+                    <PlayerSavePreview projectId={project.manifest.projectId} slot={slot} store={saveStore} />
+                    <div><strong>槽位 {slotNumber}</strong><span>{slot === undefined ? "空槽位" : `${slot.chapterTitle === null ? "未归属章节" : slot.chapterTitle} / ${slot.sceneTitle} · ${new Date(slot.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC · ${slot.preview.status === "available" ? "有截图" : "无预览"}`}</span></div>
+                    <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || snapshot.history === null} onClick={() => requestSaveToSlot(slotId, slot !== undefined)}>{pendingOverwriteSlotId === slotId ? "确认覆盖" : "保存"}</button>
                     <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || slot === undefined} onClick={() => void loadFromSlot(slotId)}>读取</button>
                   </section>;
                 })}
+                <nav className="player-save__pages" aria-label="手动存档分页">
+                  <button type="button" disabled={savePage === 0 || saveOperation === "busy"} onClick={() => { setSavePage(0); setPendingOverwriteSlotId(null); }}>上一页</button>
+                  <span>第 {savePage + 1} / 2 页</span>
+                  <button type="button" disabled={savePage === 1 || saveOperation === "busy"} onClick={() => { setSavePage(1); setPendingOverwriteSlotId(null); }}>下一页</button>
+                </nav>
               </div>
             )}
           </aside>

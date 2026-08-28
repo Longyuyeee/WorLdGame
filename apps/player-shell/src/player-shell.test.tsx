@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { Blob as NodeBlob } from "node:buffer";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
@@ -9,7 +10,7 @@ import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
-import type { WorldPlayerSaveSlotV1, WorldPlayerSaveStoreV1 } from "./player-save-store";
+import type { WorldPlayerSaveSlotV2, WorldPlayerSaveStoreV2 } from "./player-save-store";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -415,13 +416,20 @@ describe("N51-E5 Player settings application", () => {
   });
 
   it("saves and loads a manual Host slot through the formal Session Save bridge", async () => {
-    const records = new Map<string, WorldPlayerSaveSlotV1>();
-    const store: WorldPlayerSaveStoreV1 = {
-      version: "1.0.0",
+    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    const previews = new Map<string, Blob>();
+    const store: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0",
       backend: "memory-test",
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
-      async write(slot) { records.set(`${slot.projectId}\0${slot.slotId}`, slot); }
+      async readPreview(projectId, slotId) { return previews.get(`${projectId}\0${slotId}`) ?? null; },
+      async write(slot, preview) {
+        if (slot.schemaVersion !== 2) throw new Error("unexpected legacy write");
+        records.set(`${slot.projectId}\0${slot.slotId}`, slot);
+        if (preview === undefined) previews.delete(`${slot.projectId}\0${slot.slotId}`);
+        else previews.set(`${slot.projectId}\0${slot.slotId}`, preview);
+      }
     };
     const { container } = render(<PlayerShell project={branching()} saveStore={store} now={() => 1_788_000_000_000} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
@@ -429,7 +437,7 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
-    expect(screen.getByText(/branch_start/u)).toBeInTheDocument();
+    expect(screen.getByText(/Main \/ Fork/u)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
@@ -445,5 +453,85 @@ describe("N51-E5 Player settings application", () => {
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "error"));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
     expect(screen.getByText("存档损坏或与当前构建不兼容")).toBeInTheDocument();
+  });
+
+  it("paginates twelve manual slots six at a time", () => {
+    const store: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0",
+      backend: "memory-test",
+      async list() { return []; },
+      async read() { return null; },
+      async readPreview() { return null; },
+      async write() {}
+    };
+    render(<PlayerShell project={branching()} saveStore={store} />);
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    expect(screen.getByText("槽位 1")).toBeInTheDocument();
+    expect(screen.getByText("槽位 6")).toBeInTheDocument();
+    expect(screen.queryByText("槽位 7")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "下一页" }));
+    expect(screen.getByText("第 2 / 2 页")).toBeInTheDocument();
+    expect(screen.getByText("槽位 7")).toBeInTheDocument();
+    expect(screen.getByText("槽位 12")).toBeInTheDocument();
+    expect(screen.queryByText("槽位 6")).not.toBeInTheDocument();
+  });
+
+  it("requires explicit overwrite confirmation and commits Host-composited preview metadata", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    const writes: Array<{ readonly slot: WorldPlayerSaveSlotV2; readonly preview?: Blob }> = [];
+    const store: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0",
+      backend: "memory-test",
+      async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
+      async readPreview() { return null; },
+      async write(slot, preview) {
+        if (slot.schemaVersion !== 2) throw new Error("unexpected legacy write");
+        records.set(`${slot.projectId}\0${slot.slotId}`, slot);
+        writes.push({ slot, ...(preview === undefined ? {} : { preview }) });
+      }
+    };
+    const preview = new NodeBlob([new Uint8Array([1, 2, 3])], { type: "image/webp" }) as Blob;
+    const previewCapture = { version: "1.0.0" as const, owner: "player-host-compositor" as const, capture: vi.fn(async () => ({ blob: preview, width: 320, height: 180 })) };
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={previewCapture} now={() => 1_788_000_000_000} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
+    expect(writes).toHaveLength(1);
+    expect(writes[0]).toMatchObject({
+      slot: { schemaVersion: 2, sceneId: "branch_start", sceneTitle: "Fork", route: null, customMetadata: {}, preview: { status: "available", mimeType: "image/webp", width: 320, height: 180, byteLength: 3, sha256: "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81" } },
+      preview
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    expect(screen.getByRole("button", { name: "确认覆盖" })).toBeInTheDocument();
+    expect(writes).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "确认覆盖" }));
+    await waitFor(() => expect(writes).toHaveLength(2));
+    expect(previewCapture.capture).toHaveBeenCalledWith(expect.objectContaining({ maximumWidth: 512, maximumHeight: 512, maximumBytes: 524288 }));
+  });
+
+  it("keeps a valid v2 save when preview capture fails", async () => {
+    const writes: WorldPlayerSaveSlotV2[] = [];
+    const store: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0",
+      backend: "memory-test",
+      async list() { return writes; },
+      async read() { return null; },
+      async readPreview() { return null; },
+      async write(slot, preview) {
+        if (slot.schemaVersion !== 2 || preview !== undefined) throw new Error("unexpected write");
+        writes.push(slot);
+      }
+    };
+    const previewCapture = { version: "1.0.0" as const, owner: "player-host-compositor" as const, async capture(): Promise<never> { throw new Error("capture failed"); } };
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={previewCapture} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
+    expect(writes[0]?.preview).toEqual({ status: "unavailable", reason: "capture-failed" });
+    expect(screen.getByText(/预览不可用/u)).toBeInTheDocument();
   });
 });
