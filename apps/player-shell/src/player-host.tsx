@@ -1,7 +1,7 @@
 import { useEffect, useState, type ComponentProps } from "react";
 import { PlayerShell, type PlayerHostActivityV1 } from "./PlayerShell";
 
-export interface WebPlayerHostProps extends Omit<ComponentProps<typeof PlayerShell>, "hostActivity"> {
+export interface WebPlayerHostProps extends Omit<ComponentProps<typeof PlayerShell>, "hostActivity" | "platform"> {
   readonly activityOverride?: PlayerHostActivityV1;
 }
 
@@ -18,5 +18,5 @@ export function WebPlayerHost({ activityOverride, ...props }: WebPlayerHostProps
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, []);
 
-  return <PlayerShell {...props} hostActivity={activityOverride ?? activity} />;
+  return <PlayerShell {...props} platform="web" hostActivity={activityOverride ?? activity} />;
 }

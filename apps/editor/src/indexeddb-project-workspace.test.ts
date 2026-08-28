@@ -184,4 +184,32 @@ describe("E8b IndexedDB atomic project workspace", () => {
     expect((await workspace.readFiles()).files[settingsPath]).toBe(expectedSettings);
     expect(saved.hostVersion).not.toBe(created.hostVersion);
   });
+
+  it("migrates and reopens a non-empty v1 settings file in the managed Web workspace", async () => {
+    const indexedDb = new IDBFactory();
+    const workspace = new IndexedDbProjectWorkspace(indexedDb, "n51_settings_v1", "N51 Settings v1");
+    const created = await createProject(workspace, "Web V1 Settings", "018f08d8-71a1-7bc2-a627-2f4a843ee215");
+    const settingsPath = created.project!.manifest.settingsPath;
+    const legacySource = JSON.stringify({
+      schemaVersion: 1,
+      project: { audio: { voice: 0.6 } },
+      platforms: { windows: {}, web: { text: { fontScale: 1.25 } }, android: {} }
+    });
+    const legacyWrite = await workspace.writeFiles({ ...created.baseFiles, [settingsPath]: legacySource }, created.hostVersion);
+
+    const opened = await openProject(workspace);
+    expect(opened.project?.settings).toMatchObject({
+      schemaVersion: 5,
+      project: { audio: { voice: 0.6 } },
+      platforms: { web: { text: { fontScale: 1.25 } } }
+    });
+    await saveLifecycleProject(workspace, opened);
+    const firstSave = (await workspace.readFiles()).files[settingsPath]!;
+    expect(firstSave).toContain('"schemaVersion": 5');
+    const reopened = await openProject(workspace);
+    expect(reopened.project?.settings).toEqual(opened.project?.settings);
+    await saveLifecycleProject(workspace, reopened);
+    expect((await workspace.readFiles()).files[settingsPath]).toBe(firstSave);
+    expect(legacyWrite.version).not.toBe(created.hostVersion);
+  });
 });

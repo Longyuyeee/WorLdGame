@@ -13,6 +13,16 @@ export interface PlayerStageImageV1 {
   readonly url: string;
   readonly transition: string;
   readonly durationMilliseconds: number;
+  readonly easing: "linear" | "ease-in" | "ease-out" | "ease-in-out";
+}
+
+export interface PlayerStageDefaultPolicyV1 {
+  readonly defaultDurationMilliseconds: number;
+  readonly defaultEasing: "linear" | "ease-in" | "ease-out" | "ease-in-out";
+}
+
+export interface PlayerUiDefaultPolicyV1 {
+  readonly defaultTextboxTemplate: "adv" | "nvl" | "bubble";
 }
 
 export interface PlayerStageCharacterV1 extends PlayerStageImageV1 {
@@ -66,18 +76,25 @@ function action(effect: PlayerCoreEffectSnapshotV1): string {
   return text(effect, "action") ?? effect.kind.split(".").at(-1) ?? "set";
 }
 
-function duration(effect: PlayerCoreEffectSnapshotV1): number {
+function duration(effect: PlayerCoreEffectSnapshotV1, fallback: number): number {
   const source = text(effect, "duration") ?? text(effect, "fade");
-  if (source === undefined) return 320;
+  if (source === undefined) return fallback;
   const matched = /^(\d+(?:\.\d+)?)(ms|s)$/u.exec(source);
-  if (matched === null) return 320;
+  if (matched === null) return fallback;
   const value = Number(matched[1]) * (matched[2] === "s" ? 1000 : 1);
   return Math.max(1, Math.min(10_000, value));
 }
 
+function easing(effect: PlayerCoreEffectSnapshotV1, fallback: PlayerStageImageV1["easing"]): PlayerStageImageV1["easing"] {
+  const value = text(effect, "easing");
+  return value === "linear" || value === "ease-in" || value === "ease-out" || value === "ease-in-out" ? value : fallback;
+}
+
 export function derivePlayerStagePresentationV1(
   snapshot: PlayerCoreSnapshotV1,
-  sources: readonly PlayerMediaAssetSourceV1[] = []
+  sources: readonly PlayerMediaAssetSourceV1[] = [],
+  policy: PlayerStageDefaultPolicyV1 = { defaultDurationMilliseconds: 360, defaultEasing: "linear" },
+  uiPolicy: PlayerUiDefaultPolicyV1 = { defaultTextboxTemplate: "adv" }
 ): PlayerStagePresentationV1 {
   const assets = new Map(sources.map((source) => [source.assetId, source]));
   const missing = new Set<string>();
@@ -85,7 +102,7 @@ export function derivePlayerStagePresentationV1(
   const characters: PlayerStageCharacterV1[] = [];
   const audio: PlayerStageAudioV1[] = [];
   let cameraTransform = "translate(0%, 0%) scale(1) rotate(0deg)";
-  let textboxTemplate: PlayerStagePresentationV1["textboxTemplate"] = "adv";
+  let textboxTemplate: PlayerStagePresentationV1["textboxTemplate"] = uiPolicy.defaultTextboxTemplate;
   let sceneDescription: string | null = null;
 
   for (const effect of snapshot.effects.active) {
@@ -99,7 +116,7 @@ export function derivePlayerStagePresentationV1(
       } else {
         const asset = assets.get(assetId);
         if (asset === undefined || !asset.mimeType.startsWith("image/")) missing.add(assetId);
-        else background = { assetId, displayName: asset.displayName, url: asset.url, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect) };
+        else background = { assetId, displayName: asset.displayName, url: asset.url, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds), easing: easing(effect, policy.defaultEasing) };
       }
     } else if (effect.kind.startsWith("show.") && currentAction !== "hide") {
       const assetId = text(effect, "asset");
@@ -119,7 +136,8 @@ export function derivePlayerStagePresentationV1(
         anchorY: number(effect, "anchorY", 1),
         z: number(effect, "z", 0),
         transition: text(effect, "transition") ?? "none",
-        durationMilliseconds: duration(effect)
+        durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds),
+        easing: easing(effect, policy.defaultEasing)
       });
     } else if (effect.kind.startsWith("audio.") && currentAction !== "stop") {
       const assetId = text(effect, "asset");
@@ -137,9 +155,12 @@ export function derivePlayerStagePresentationV1(
       });
     } else if (effect.kind.startsWith("camera.")) {
       cameraTransform = `translate(${number(effect, "x", 0)}%, ${number(effect, "y", 0)}%) scale(${number(effect, "zoom", 1)}) rotate(${number(effect, "rotation", 0)}deg)`;
-    } else if (effect.kind.startsWith("textbox.") && currentAction === "set") {
-      const template = text(effect, "template");
-      if (template === "nvl" || template === "bubble") textboxTemplate = template;
+    } else if (effect.kind.startsWith("textbox.")) {
+      if (currentAction === "reset") textboxTemplate = uiPolicy.defaultTextboxTemplate;
+      else if (currentAction === "set") {
+        const template = text(effect, "template");
+        if (template === "adv" || template === "nvl" || template === "bubble") textboxTemplate = template;
+      }
     }
   }
 
@@ -151,6 +172,6 @@ export function derivePlayerStagePresentationV1(
     textboxTemplate,
     sceneDescription,
     missingAssetIds: [...missing].sort(),
-    pendingDurationMilliseconds: snapshot.effects.pending === null ? 0 : duration(snapshot.effects.pending)
+    pendingDurationMilliseconds: snapshot.effects.pending === null ? 0 : duration(snapshot.effects.pending, policy.defaultDurationMilliseconds)
   };
 }

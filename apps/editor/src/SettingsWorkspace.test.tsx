@@ -32,17 +32,66 @@ function renderSettings(project: CanonicalProject = createProjectTemplate("Setti
 describe("N51-E4 Settings workspace", () => {
   it("provides Basic/Advanced search, sections, platform layers, and visible inheritance sources", () => {
     const { container } = renderSettings(projectWithSources());
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(16);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(23);
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("项目值")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(23);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(36);
     fireEvent.change(screen.getByPlaceholderText("搜索名称、说明或路径…"), { target: { value: "音量" } });
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(7);
 
     fireEvent.click(screen.getByRole("radio", { name: "Web" }));
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("Web 覆盖")).toBeInTheDocument();
     expect(container.querySelector(".settings-layer-summary")).toHaveTextContent("1 当前层覆盖 · 0 待应用");
+  });
+
+  it("commits Stage defaults through one real Project ChangeSet", () => {
+    const { onProjectChange } = renderSettings();
+    fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "stage" } });
+    fireEvent.change(screen.getByRole("spinbutton", { name: "默认舞台时长" }), { target: { value: "720" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "默认舞台缓动" }), { target: { value: "ease-out" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用修改 · 2" }));
+    const committed = onProjectChange.mock.calls.at(-1)?.[0] as CanonicalProject;
+    expect(resolveGalSettings(committed.settings, "web").values.stage).toEqual({ defaultDurationMilliseconds: 720, defaultEasing: "ease-out" });
+    expect(screen.getByText(/ChangeSet r1/)).toBeInTheDocument();
+  });
+
+  it("commits the accessibility section through one real Project ChangeSet", () => {
+    const { container, onProjectChange } = renderSettings();
+    fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "accessibility" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "高对比度" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "减少动效" }));
+    fireEvent.click(screen.getByRole("button", { name: "应用修改 · 2" }));
+
+    const committed = onProjectChange.mock.calls.at(-1)?.[0] as CanonicalProject;
+    expect(resolveGalSettings(committed.settings, "web").values.accessibility).toMatchObject({
+      highContrast: true,
+      reduceMotion: true,
+      reduceFlashing: false
+    });
+    expect(container.querySelectorAll('[data-setting-path^="accessibility."]')).toHaveLength(3);
+    expect(screen.getByText(/ChangeSet r1/)).toBeInTheDocument();
+  });
+
+  it("commits Choice and UI policies through real section ChangeSets", () => {
+    const { onProjectChange, rerender } = renderSettings();
+    fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "choice" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "显示选项序号" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "选项布局" }), { target: { value: "responsive-grid" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用修改 · 2" }));
+    const choiceCommitted = onProjectChange.mock.calls.at(-1)?.[0] as CanonicalProject;
+    expect(resolveGalSettings(choiceCommitted.settings, "web").values.choice).toEqual({ showOptionNumbers: false, layout: "responsive-grid" });
+
+    rerender(<SettingsWorkspace project={choiceCommitted} saveStatus="dirty" onProjectChange={onProjectChange} onSave={() => undefined} onClose={() => undefined} />);
+    fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "ui" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "默认对话框模板" }), { target: { value: "bubble" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "显示输入提示" }));
+    fireEvent.click(screen.getByRole("button", { name: "应用修改 · 2" }));
+    const uiCommitted = onProjectChange.mock.calls.at(-1)?.[0] as CanonicalProject;
+    expect(resolveGalSettings(uiCommitted.settings, "web").values.ui).toEqual({ defaultTextboxTemplate: "bubble", showInputHints: false });
+    expect(screen.getByText(/ChangeSet r2/)).toBeInTheDocument();
   });
 
   it("commits linked Android display fields in one ChangeSet and supports exact undo/redo", () => {

@@ -2920,10 +2920,15 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   );
   const speedProfile = findPreviewSpeedProfile(transport.speedId);
   const previousTransportSceneId = useRef(session.activeSceneId);
-  const stageTimeline = useMemo(() => compilePreviewStageTimeline(scene.statements), [scene.statements]);
+  const stageTimeline = useMemo(
+    () => compilePreviewStageTimeline(scene.statements, settingsApplication.ui.defaultTextboxTemplate),
+    [scene.statements, settingsApplication.ui.defaultTextboxTemplate]
+  );
   const hostCommitPending = previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null;
   const committedPreviewIndex = playableActive && hostCommitPending ? previewIndex - 1 : previewIndex;
-  const stagePlan = committedPreviewIndex < 0 ? derivePreviewStagePlan([], 0) : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0);
+  const stagePlan = committedPreviewIndex < 0
+    ? derivePreviewStagePlan([], 0, settingsApplication.ui.defaultTextboxTemplate)
+    : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0, settingsApplication.ui.defaultTextboxTemplate);
   const dialoguePresentation = deriveDialoguePresentation(scene.statements, committedPreviewIndex, stagePlan.dialogueTemplate);
   const dialogueText = dialoguePresentation.lines.map((line) => line.text).join("\n");
   const dialogueRevealDuration = dialogueText === "" ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, dialogueText);
@@ -3264,6 +3269,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           data-settings-input-keyboard={settingsApplication.input.keyboard}
           data-settings-input-touch={settingsApplication.input.touch}
           data-settings-input-gamepad={settingsApplication.input.gamepad}
+          data-settings-high-contrast={settingsApplication.accessibility.highContrast}
+          data-settings-reduce-motion={settingsApplication.accessibility.reduceMotion}
+          data-settings-reduce-flashing={settingsApplication.accessibility.reduceFlashing}
           data-settings-audio-master={settingsApplication.resolved.values.audio.master}
           data-settings-audio-bgm={settingsApplication.resolved.values.audio.bgm}
           data-settings-audio-voice={settingsApplication.resolved.values.audio.voice}
@@ -3271,12 +3279,21 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           data-settings-audio-ambient={settingsApplication.resolved.values.audio.ambient}
           data-settings-audio-ui={settingsApplication.resolved.values.audio.ui}
           data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
+          data-settings-stage-duration={settingsApplication.stage.defaultDurationMilliseconds}
+          data-settings-stage-easing={settingsApplication.stage.defaultEasing}
+          data-settings-choice-layout={settingsApplication.choice.layout}
+          data-settings-choice-numbers={settingsApplication.choice.showOptionNumbers}
+          data-settings-textbox-default={settingsApplication.ui.defaultTextboxTemplate}
+          data-settings-input-hints={settingsApplication.ui.showInputHints}
+          data-settings-audio-resume={settingsApplication.audio.resumeAfterInterruption}
           data-text-reveal-duration={dialogueRevealDuration}
           onPointerDown={placeOnStage}
           style={{
             "--preview-aspect": `${viewport.width} / ${viewport.height}`,
             "--gal-font-scale": settingsApplication.text.fontScale,
             "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
+            "--gal-line-height": settingsApplication.text.lineHeight,
+            "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`,
             "--gal-text-reveal-duration": `${dialogueRevealDuration}ms`
           } as CSSProperties}
         >
@@ -3301,6 +3318,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
             onStagePoint={setLastStagePoint}
             onRuntimeError={reportRuntimeMediaError}
+            defaultDurationMilliseconds={settingsApplication.stage.defaultDurationMilliseconds}
+            defaultEasing={settingsApplication.stage.defaultEasing}
           />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
@@ -3337,11 +3356,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
             {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
-              <div className="choice-preview">
+              <div className="choice-preview" data-choice-layout={settingsApplication.choice.layout}>
                 <strong>{statement.prompt}</strong>
-                {statement.options.map((option) => playable.status === "waiting-choice"
-                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{option.label}</button>
-                  : <span key={option.id}>{option.label}</span>)}
+                {statement.options.map((option, optionIndex) => playable.status === "waiting-choice"
+                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
+                  : <span key={option.id}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</span>)}
               </div>
             )}
             {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}

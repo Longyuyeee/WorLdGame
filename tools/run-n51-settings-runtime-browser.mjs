@@ -98,6 +98,15 @@ async function snapshot(client) {
     const shell = document.querySelector('.player-shell');
     const stage = document.querySelector('.player-stage');
     const dialogue = document.querySelector('.player-dialogue');
+    const dialogueStyle = dialogue === null ? null : getComputedStyle(dialogue);
+    const dialogueText = dialogue?.querySelector('span');
+    const dialogueTextStyle = dialogueText === null || dialogueText === undefined ? null : getComputedStyle(dialogueText);
+    const flashingProbe = document.createElement('div');
+    flashingProbe.className = 'player-transition--dissolve';
+    shell?.append(flashingProbe);
+    const flashingStyle = getComputedStyle(flashingProbe);
+    const flashing = { animationName: flashingStyle.animationName, animationDuration: flashingStyle.animationDuration, filter: flashingStyle.filter };
+    flashingProbe.remove();
     const rect = stage?.getBoundingClientRect();
     return {
       status: shell?.getAttribute('data-player-status'),
@@ -108,8 +117,42 @@ async function snapshot(client) {
       accepted: shell?.getAttribute('data-input-accepted'),
       fontScale: shell?.style.getPropertyValue('--gal-font-scale'),
       opacity: shell?.style.getPropertyValue('--gal-message-opacity'),
+      lineHeightVariable: shell?.style.getPropertyValue('--gal-line-height'),
+      letterSpacingVariable: shell?.style.getPropertyValue('--gal-letter-spacing'),
+      highContrast: shell?.getAttribute('data-settings-high-contrast'),
+      reduceMotion: shell?.getAttribute('data-settings-reduce-motion'),
+      reduceFlashing: shell?.getAttribute('data-settings-reduce-flashing'),
+      stageDuration: shell?.getAttribute('data-settings-stage-duration'),
+      stageEasing: shell?.getAttribute('data-settings-stage-easing'),
+      audioResume: shell?.getAttribute('data-settings-audio-resume'),
+      choiceLayout: shell?.getAttribute('data-settings-choice-layout'),
+      choiceNumbers: shell?.getAttribute('data-settings-choice-numbers'),
+      textboxDefault: shell?.getAttribute('data-settings-textbox-default'),
+      inputHints: shell?.getAttribute('data-settings-input-hints'),
+      hintCount: document.querySelectorAll('.player-hint').length,
+      choiceNumberCount: document.querySelectorAll('[data-choice-number]').length,
+      choiceColumns: document.querySelector('.player-choice') === null ? null : getComputedStyle(document.querySelector('.player-choice')).gridTemplateColumns,
+      choicePrompt: document.querySelector('.player-choice p')?.textContent?.trim(),
+      choiceOptions: Array.from(document.querySelectorAll('.player-choice button')).map((button) => {
+        const clone = button.cloneNode(true);
+        clone.querySelectorAll('[data-choice-number]').forEach((number) => number.remove());
+        return clone.textContent?.trim();
+      }),
       aspect: shell?.style.getPropertyValue('--gal-stage-aspect'),
       dialogue: dialogue?.textContent?.trim(),
+      dialogueTemplate: dialogue === null ? null : ['adv', 'nvl', 'bubble'].find((template) => dialogue.classList.contains('player-dialogue--' + template)) ?? null,
+      textReady: dialogue?.getAttribute('data-text-ready'),
+      revealDuration: dialogue?.getAttribute('data-text-reveal-duration'),
+      dialogueStyle: dialogueStyle === null ? null : {
+        backgroundColor: dialogueStyle.backgroundColor,
+        borderTopWidth: dialogueStyle.borderTopWidth
+      },
+      dialogueTextStyle: dialogueTextStyle === null ? null : {
+        fontSize: dialogueTextStyle.fontSize,
+        lineHeight: dialogueTextStyle.lineHeight,
+        letterSpacing: dialogueTextStyle.letterSpacing
+      },
+      flashing,
       stageWidth: Math.round(rect?.width ?? 0),
       stageHeight: Math.round(rect?.height ?? 0),
       viewportWidth: innerWidth,
@@ -131,7 +174,7 @@ async function waitForExit(child) {
   await Promise.race([new Promise((resolvePromise) => child.once("exit", resolvePromise)), delay(5_000)]);
 }
 
-const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e5-"));
+const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6e-"));
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5182", "--strictPort"], {
   cwd: join(root, "apps", "player-shell"), stdio: ["ignore", "pipe", "pipe"]
 });
@@ -161,13 +204,27 @@ try {
   await client.send("Page.navigate", { url: baseUrl });
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'title'", "Player title");
   const before = await snapshot(client);
+  await click(client, "document.querySelector('.player-demo-switch')", "hot apply title UI settings");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-settings-input-hints') === 'false'", "applied title UI settings");
+  const appliedTitle = await snapshot(client);
+  await click(client, "document.querySelector('.player-demo-switch')", "restore title settings");
   await click(client, "Array.from(document.querySelectorAll('button')).find((item) => item.textContent?.includes('开始故事'))", "start story");
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'waiting-choice'", "choice");
+  const defaultChoice = await snapshot(client);
+  await click(client, "document.querySelector('.player-demo-switch')", "hot apply Choice settings");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-settings-choice-layout') === 'responsive-grid'", "applied Choice settings");
+  const appliedChoice = await snapshot(client);
+  await client.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
+  await delay(300);
+  const mobileChoice = await snapshot(client);
+  await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  await click(client, "document.querySelector('.player-demo-switch')", "restore settings for route selection");
   await click(client, "Array.from(document.querySelectorAll('.player-choice button')).find((item) => item.textContent?.includes('Left'))", "left route");
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'presenting'", "dialogue");
   const active = await snapshot(client);
   await click(client, "document.querySelector('.player-demo-switch')", "hot apply settings");
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-settings-quality') === 'low'", "applied settings");
+  await waitFor(client, "getComputedStyle(document.querySelector('.player-dialogue')).backgroundColor === 'rgb(0, 0, 0)'", "high contrast style");
   const applied = await snapshot(client);
   await waitFor(client, "document.querySelector('.player-dialogue')?.getAttribute('data-text-ready') === 'true'", "configured text reveal");
   await click(client, "document.querySelector('.player-dialogue')", "blocked pointer advance");
@@ -179,20 +236,51 @@ try {
   const mobile = await snapshot(client);
   const mobileScreenshot = await capture(client, mobilePath);
   const portraitRatio = 1080 / 1920;
-  const passed = before.status === "title" && before.aspect === "1920 / 1080" && active.status === "presenting"
+  const webHostSnapshots = [before, appliedTitle, defaultChoice, appliedChoice, mobileChoice, active, applied, blocked, mobile];
+  const passed = webHostSnapshots.every((item) => item.platform === "web")
+    && before.status === "title" && before.aspect === "1920 / 1080" && before.hintCount === 1
+    && appliedTitle.status === "title" && appliedTitle.hintCount === 0 && appliedTitle.inputHints === "false" && active.status === "presenting"
     && applied.status === "presenting" && applied.dialogue === active.dialogue && applied.quality === "low"
     && applied.orientation === "portrait" && applied.pointer === "false" && applied.fontScale === "1.4" && applied.opacity === "0.45"
+    && applied.lineHeightVariable === "2" && applied.letterSpacingVariable === "0.08em"
+    && applied.highContrast === "true" && applied.reduceMotion === "true" && applied.reduceFlashing === "true"
+    && defaultChoice.choiceNumberCount === 2 && appliedChoice.status === "waiting-choice" && appliedChoice.choiceNumberCount === 0
+    && appliedChoice.choiceLayout === "responsive-grid" && appliedChoice.choiceColumns?.split(' ').length === 2
+    && appliedChoice.choicePrompt === defaultChoice.choicePrompt && JSON.stringify(appliedChoice.choiceOptions) === JSON.stringify(defaultChoice.choiceOptions)
+    && mobileChoice.choiceColumns?.split(' ').length === 1 && mobileChoice.overflow === 0
+    && applied.stageDuration === "720" && applied.stageEasing === "ease-out" && applied.audioResume === "false"
+    && applied.textboxDefault === "bubble" && applied.dialogueTemplate === "bubble" && applied.inputHints === "false"
+    && applied.textReady === "true" && applied.revealDuration === "0"
+    && Math.abs(Number.parseFloat(applied.dialogueTextStyle?.lineHeight ?? "0") / Number.parseFloat(applied.dialogueTextStyle?.fontSize ?? "1") - 2) < 0.001
+    && Math.abs(Number.parseFloat(applied.dialogueTextStyle?.letterSpacing ?? "0") / Number.parseFloat(applied.dialogueTextStyle?.fontSize ?? "1") - 0.08) < 0.001
+    && applied.dialogueStyle?.backgroundColor === "rgb(0, 0, 0)"
+    && applied.dialogueStyle?.borderTopWidth === "2px" && applied.flashing.animationName === "player-media-fade"
+    && applied.flashing.animationDuration === "1e-05s" && applied.flashing.filter === "none"
     && blocked.status === "presenting" && blocked.accepted === "false" && mobile.viewportWidth === 390
     && mobile.overflow === 0 && Math.abs(mobile.stageWidth / mobile.stageHeight - portraitRatio) < 0.02 && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N51-E5",
-    scope: "cold-production-player-settings-hot-application-desktop-390x844",
+    node: "N51-E6e",
+    scope: "cold-production-web-host-identity-and-settings-hot-application-desktop-390x844",
     generatedAt: new Date().toISOString(),
     build: { playerDistIndexSha256: hash(await readFile(join(root, "apps", "player-shell", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
-    expectation: { settingsOnlyRetainsCore: true, pointerGate: false, portraitRatio, horizontalOverflow: 0, browserErrors: 0 },
-    actual: { before, active, applied, blocked, mobile, failures },
+    expectation: {
+      host: { settingsPlatform: "web", snapshots: webHostSnapshots.length },
+      settingsOnlyRetainsCore: true,
+      pointerGate: false,
+      revealDuration: 0,
+      text: { lineHeight: 2, letterSpacingEm: 0.08 },
+      accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true, dissolveFallback: "player-media-fade" },
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
+      audio: { resumeAfterInterruption: false },
+      choice: { showOptionNumbers: false, desktopColumns: 2, mobileColumns: 1, coreStatusRetained: "waiting-choice" },
+      ui: { defaultTextboxTemplate: "bubble", showInputHints: false },
+      portraitRatio,
+      horizontalOverflow: 0,
+      browserErrors: 0
+    },
+    actual: { before, appliedTitle, defaultChoice, appliedChoice, mobileChoice, active, applied, blocked, mobile, failures },
     screenshots: [
       { path: "evidence/n51/settings-runtime-player-desktop.png", width: 1440, height: 900, ...desktopScreenshot },
       { path: "evidence/n51/settings-runtime-player-mobile.png", width: 390, height: 844, ...mobileScreenshot }

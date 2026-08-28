@@ -21,6 +21,7 @@ export interface WorldPlayerObservationV1 {
   readonly mounted: true;
   readonly status: PlayerCoreStatus;
   readonly hostActivity: PlayerHostActivityV1;
+  readonly settingsPlatform: "web";
   readonly playerCoreVersion: string;
   readonly compilerVersion: string;
   readonly runtimeVersion: string;
@@ -103,6 +104,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
         mounted: true,
         status: requiredAttribute(shell, "playerStatus") as PlayerCoreStatus,
         hostActivity: requiredAttribute(shell, "hostActivity") as PlayerHostActivityV1,
+        settingsPlatform: "web",
         playerCoreVersion: requiredAttribute(shell, "playerCore"),
         compilerVersion: requiredAttribute(shell, "compiler"),
         runtimeVersion: requiredAttribute(shell, "runtime"),

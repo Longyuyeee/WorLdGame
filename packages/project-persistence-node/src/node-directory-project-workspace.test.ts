@@ -53,10 +53,28 @@ describe("NodeDirectoryProjectWorkspace", () => {
     const { [settingsPath]: _, ...legacyFiles }=created.baseFiles;
     const legacyWrite=await workspace.writeFiles(legacyFiles,created.hostVersion);
     const opened=await openProject(workspace);
-    expect(opened.project?.settings).toMatchObject({schemaVersion:1,project:{},platforms:{windows:{},web:{},android:{}}});
+    expect(opened.project?.settings).toMatchObject({schemaVersion:5,project:{},platforms:{windows:{},web:{},android:{}}});
     const upgraded=await saveLifecycleProject(workspace,opened);
     expect((await workspace.readFiles()).files[settingsPath]).toBe(saveProject(opened.project!)[settingsPath]);
     expect(upgraded.hostVersion).not.toBe(legacyWrite.version);
+  });
+  it("migrates and reopens a non-empty v1 settings file in a native directory",async()=>{
+    const root=await mkdtemp(join(tmpdir(),"world-project-"));roots.push(root);
+    const workspace=new NodeDirectoryProjectWorkspace(root,"windows_settings_v1");
+    const created=await createProject(workspace,"V1 Settings","018f08d8-71a1-7bc2-a627-2f4a843ee179");
+    const settingsPath=created.project!.manifest.settingsPath;
+    const legacySource=JSON.stringify({schemaVersion:1,project:{audio:{voice:0.6}},platforms:{windows:{audio:{master:0.5}},web:{},android:{}}});
+    await writeFile(join(root,...settingsPath.split("/")),legacySource,"utf8");
+
+    const opened=await openProject(workspace);
+    expect(opened.project?.settings).toMatchObject({schemaVersion:5,project:{audio:{voice:0.6}},platforms:{windows:{audio:{master:0.5}}}});
+    await saveLifecycleProject(workspace,opened);
+    const firstSave=(await workspace.readFiles()).files[settingsPath]!;
+    expect(firstSave).toContain('"schemaVersion": 5');
+    const reopened=await openProject(workspace);
+    expect(reopened.project?.settings).toEqual(opened.project?.settings);
+    await saveLifecycleProject(workspace,reopened);
+    expect((await workspace.readFiles()).files[settingsPath]).toBe(firstSave);
   });
   it("preserves corrupt and future settings bytes when native project opening fails",async()=>{
     const root=await mkdtemp(join(tmpdir(),"world-project-"));roots.push(root);

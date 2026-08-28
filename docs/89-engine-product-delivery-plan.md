@@ -485,6 +485,18 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E5 Engineering 状态（2026-08-28）：[N51-E5 审计](227-n51-e5-settings-runtime-application-audit.md)新增唯一 portable settings application v1，Editor Preview 与正式 Player Core/Host 共用显示/DPR、文字时长、音量/ducking 和四类推进输入规则；settings-only 更新不再错误重建 Player Core，剧情内容变化仍 fail closed 到 fresh Core。保存重开、平台差异和失败路径通过；冷 production browser 在 1440×900 热切 16:9→9:16 时保持 `presenting`，390×844 stage 为 `390×693`、overflow 0、console 0。最终头 `894797d` 的 Draft PR #95 Windows / Node 22 run `33099070555` / job `98611613942` 用时 `12m46s` 绿色；普通回归 `149/856`、N51 `69/69`、Player/Core `31/31`。E5 Engineering 关闭，下一切片为 E6 完整 P0 gap matrix 与出口审计。
 
+> E6 入口状态（2026-08-28）：[P0 Gap Matrix 与入口审计](229-n51-e6-p0-gap-matrix-and-entry-audit.md)已把规格 2.1–2.9 与真实 23 字段、application v1、Project/Editor/Player 链逐项比较，并纠正“全部原始条目都在 N51 实现”的范围误读：播放控制归 N52、本地化生产归 N61、自动附加页归 N62、构建发布归 N80–N83。审计同时发现严格 Settings v1 不能在不改版本的情况下安全追加字段，所以下一代码切片冻结为 E6a Schema v2 与迁移安全。入口提交 `ec35570` 的 Draft PR #96 Windows / Node 22 完整门 run `33133914830` / job `98729511942` 用时 `12m5s` 绿色，关闭本机 autosave/VM 负载差异；字段实现尚未开始，N51 Engineering 与 Product Acceptance 均未关闭。
+
+> E6a Engineering 状态（2026-08-28）：[Settings Schema v2 迁移安全审计](230-n51-e6a-settings-schema-v2-migration-audit.md)已实现合法 v1/v2 严格读取、内存统一 v2、首次保存升级、二次保存字节幂等和 v3+ 失败关闭。真实 Node 临时目录、Web IndexedDB、Canonical Project 与 Player 活跃 choice Core 均纳入测试；首次 52 项实际有 7 项按预期因旧 parser 失败，修正后 52/52。实现头 `1b21508` 的 Draft PR #96 Windows / Node 22 run `33136866897` / job `98738665580` 用时 `11m50s` 绿色：普通 `149/861`、N51 `74/74`、Player/Core `32/32`、autosave `3.642s`、VM `63.71s`、Route P95 `130.55ms`、Asset dicing `3363.87ms`。E6a Engineering 关闭，下一切片为 E6b Text/Accessibility application。
+
+> E6b Engineering 状态（2026-08-28）：[Text / Accessibility 应用审计](231-n51-e6b-text-accessibility-entry-contract.md)新增 6 个可执行字段并把 Settings 当前写入版本提升到 v3；Catalog 为 Basic 20 / Advanced 29。Editor/Player 共用 application 投影即时文本、行高、字距、高对比、减动效和降闪烁；settings-only 热更新保持活跃 Core。首次冻结 57 项实际 47 通过/10 失败，修正后 N51 聚合 80/80；两个冷 production browser 分别验证 UI→IndexedDB→重开与 Player 活跃对白热应用，1440×900/390×844 均 overflow 0、console 0。E6b 不实现 N52 播放控制或 N61/N62 内容生产；下一切片为 E6c Stage/Audio default policy。
+
+> E6c/E6d Engineering 状态（2026-08-28）：[E6c](232-n51-e6c-stage-audio-default-policy-contract.md)已贯通 Stage 默认时长/缓动与 Audio 中断恢复，schema v4、Basic 21/Advanced 32；[E6d](233-n51-e6d-choice-ui-presentation-policy-contract.md)继续把 Choice 编号/响应式布局及 UI 默认 Textbox/输入提示贯通 schema v5、Basic 23/Advanced 36。E6d 首次冻结 88 项中 9 项按预期失败，修正及扩展后 101/101；双冷 production browser 验证 UI 保存重开、同一 waiting-choice Core、编号 2→0、桌面两列/移动单列、标题提示隐藏与 ADV→bubble。Route 玩家页面和 Choice 调度不在现有 Host 中，分别保持 N62/N52 边界；下一切片为 E6e Profile/Host boundary。
+
+> E6e Engineering 状态（2026-08-28）：[E6e](234-n51-e6e-profile-host-boundary-contract.md)冻结 Settings 三层、Runtime 显式指令、Compiler debug/release 与后续 Optimization Profile 的独立所有权。修正 WebPlayerHost 可被注入为 Android/Windows 的假平台缺口，并让嵌入观察值公开固定 `settingsPlatform: web`；首次 22/24，修正后 24/24，定向 81/81、N50 37/37、N51 95/95，Chrome 151 production 9/9 状态快照为 Web。实现头同头 Windows 完整门 run `33151182320` 绿色，E6e Engineering 关闭。Windows conformance 仍只有存储桥、Android Player Host 不存在，二者继续阻断；下一切片只进入 E6f 总出口。
+
+> E6f Engineering 状态（2026-08-28）：[出口复审](235-n51-e6f-engineering-exit-reaudit.md)新增机器可读 N51 出口合同与根级审计，核验 schema v5、Advanced 36 / Basic 23、application v1、Web Host 固定身份、双 production evidence，并冻结 N52/N61/N62/N70–N72/N80–N83 所有权。首次实际只暴露 5 项权威文档状态滞后，代码与 evidence 全部通过；实现头 `40c14a4` 的 Windows / Node 22 完整门 run `33155226168` / job `98796294530` 用时 `14m18s` 绿色，普通 `149/886`、N51 `95/95`、VM `69.85s < 90s`、Route P95 `186.04ms < 500ms`。E6f 与 N51 Engineering 关闭；N51 Product Acceptance、Windows/Android 实机和跨节点范围仍阻断。
+
 ### N52 Save、History、Auto、Skip、Back/Forward
 
 - **Goal**：特色播放控制成为玩家功能而非 VM 测试。

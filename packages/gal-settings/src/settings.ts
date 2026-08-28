@@ -1,6 +1,7 @@
 import { getGalSettingDefinition } from "./catalog";
 
-export const GAL_SETTINGS_SCHEMA_VERSION = 1 as const;
+export const GAL_SETTINGS_SCHEMA_VERSION = 5 as const;
+const GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION = 1;
 
 export const GAL_SETTINGS_PLATFORMS = ["windows", "web", "android"] as const;
 export type GalSettingsPlatform = (typeof GAL_SETTINGS_PLATFORMS)[number];
@@ -19,6 +20,9 @@ export interface GalSettings {
     readonly punctuationDelayMilliseconds: number;
     readonly fontScale: number;
     readonly messageWindowOpacity: number;
+    readonly revealMode: "typewriter" | "instant";
+    readonly lineHeight: number;
+    readonly letterSpacingEm: number;
   };
   readonly advance: {
     readonly allowHold: boolean;
@@ -32,12 +36,30 @@ export interface GalSettings {
     readonly ambient: number;
     readonly ui: number;
     readonly voiceDucking: number;
+    readonly resumeAfterInterruption: boolean;
+  };
+  readonly stage: {
+    readonly defaultDurationMilliseconds: number;
+    readonly defaultEasing: "linear" | "ease-in" | "ease-out" | "ease-in-out";
+  };
+  readonly choice: {
+    readonly showOptionNumbers: boolean;
+    readonly layout: "vertical" | "responsive-grid";
+  };
+  readonly ui: {
+    readonly defaultTextboxTemplate: "adv" | "nvl" | "bubble";
+    readonly showInputHints: boolean;
   };
   readonly input: {
     readonly pointerAdvance: boolean;
     readonly keyboardAdvance: boolean;
     readonly touchAdvance: boolean;
     readonly gamepadAdvance: boolean;
+  };
+  readonly accessibility: {
+    readonly highContrast: boolean;
+    readonly reduceMotion: boolean;
+    readonly reduceFlashing: boolean;
   };
 }
 
@@ -101,7 +123,10 @@ export const DEFAULT_GAL_SETTINGS: GalSettings = Object.freeze({
     minimumDisplayMilliseconds: 350,
     punctuationDelayMilliseconds: 120,
     fontScale: 1,
-    messageWindowOpacity: 0.88
+    messageWindowOpacity: 0.88,
+    revealMode: "typewriter" as const,
+    lineHeight: 1.75,
+    letterSpacingEm: 0
   }),
   advance: Object.freeze({ allowHold: true, waitForVoice: true }),
   audio: Object.freeze({
@@ -111,25 +136,48 @@ export const DEFAULT_GAL_SETTINGS: GalSettings = Object.freeze({
     sfx: 0.9,
     ambient: 0.8,
     ui: 0.9,
-    voiceDucking: 0.35
+    voiceDucking: 0.35,
+    resumeAfterInterruption: true
   }),
+  stage: Object.freeze({ defaultDurationMilliseconds: 360, defaultEasing: "linear" as const }),
+  choice: Object.freeze({ showOptionNumbers: true, layout: "vertical" as const }),
+  ui: Object.freeze({ defaultTextboxTemplate: "adv" as const, showInputHints: true }),
   input: Object.freeze({
     pointerAdvance: true,
     keyboardAdvance: true,
     touchAdvance: true,
     gamepadAdvance: true
-  })
+  }),
+  accessibility: Object.freeze({ highContrast: false, reduceMotion: false, reduceFlashing: false })
 });
 
 type UnknownRecord = Record<string, unknown>;
 type Section = keyof GalSettings;
 
-const SECTION_FIELDS = {
+const LEGACY_SECTION_FIELDS = {
   display: ["designWidth", "designHeight", "orientation", "safeArea", "quality"],
   text: ["charactersPerSecond", "minimumDisplayMilliseconds", "punctuationDelayMilliseconds", "fontScale", "messageWindowOpacity"],
   advance: ["allowHold", "waitForVoice"],
   audio: ["master", "bgm", "voice", "sfx", "ambient", "ui", "voiceDucking"],
   input: ["pointerAdvance", "keyboardAdvance", "touchAdvance", "gamepadAdvance"]
+} as const;
+
+const V3_SECTION_FIELDS = {
+  ...LEGACY_SECTION_FIELDS,
+  text: [...LEGACY_SECTION_FIELDS.text, "revealMode", "lineHeight", "letterSpacingEm"],
+  accessibility: ["highContrast", "reduceMotion", "reduceFlashing"]
+} as const;
+
+const V4_SECTION_FIELDS = {
+  ...V3_SECTION_FIELDS,
+  audio: [...V3_SECTION_FIELDS.audio, "resumeAfterInterruption"],
+  stage: ["defaultDurationMilliseconds", "defaultEasing"]
+} as const;
+
+const SECTION_FIELDS = {
+  ...V4_SECTION_FIELDS,
+  choice: ["showOptionNumbers", "layout"],
+  ui: ["defaultTextboxTemplate", "showInputHints"]
 } as const satisfies { readonly [Key in Section]: readonly (keyof GalSettings[Key] & string)[] };
 
 const SETTING_PATHS = (Object.entries(SECTION_FIELDS) as Array<[Section, readonly string[]]>)
@@ -152,7 +200,7 @@ function record(value: unknown, path: string): UnknownRecord {
 
 function assertKnownFields(value: UnknownRecord, fields: readonly string[], path: string): void {
   const unknown = Object.keys(value).find((key) => !fields.includes(key));
-  if (unknown !== undefined) fail("UNKNOWN_FIELD", `${path}.${unknown}`, "is not supported by schema v1");
+  if (unknown !== undefined) fail("UNKNOWN_FIELD", `${path}.${unknown}`, "is not supported by this schema version");
 }
 
 function finiteNumber(value: unknown, path: string, minimum: number, maximum: number): number {
@@ -203,15 +251,18 @@ function parseDisplay(value: unknown, path: string): NonNullable<GalSettingsOver
   };
 }
 
-function parseText(value: unknown, path: string): NonNullable<GalSettingsOverride["text"]> {
+function parseText(value: unknown, path: string, fields: readonly string[]): NonNullable<GalSettingsOverride["text"]> {
   const input = record(value, path);
-  assertKnownFields(input, SECTION_FIELDS.text, path);
+  assertKnownFields(input, fields, path);
   return {
     ...(input.charactersPerSecond === undefined ? {} : { charactersPerSecond: settingNumber(input.charactersPerSecond, `${path}.charactersPerSecond`, "text.charactersPerSecond") }),
     ...(input.minimumDisplayMilliseconds === undefined ? {} : { minimumDisplayMilliseconds: settingNumber(input.minimumDisplayMilliseconds, `${path}.minimumDisplayMilliseconds`, "text.minimumDisplayMilliseconds") }),
     ...(input.punctuationDelayMilliseconds === undefined ? {} : { punctuationDelayMilliseconds: settingNumber(input.punctuationDelayMilliseconds, `${path}.punctuationDelayMilliseconds`, "text.punctuationDelayMilliseconds") }),
     ...(input.fontScale === undefined ? {} : { fontScale: settingNumber(input.fontScale, `${path}.fontScale`, "text.fontScale") }),
-    ...(input.messageWindowOpacity === undefined ? {} : { messageWindowOpacity: settingNumber(input.messageWindowOpacity, `${path}.messageWindowOpacity`, "text.messageWindowOpacity") })
+    ...(input.messageWindowOpacity === undefined ? {} : { messageWindowOpacity: settingNumber(input.messageWindowOpacity, `${path}.messageWindowOpacity`, "text.messageWindowOpacity") }),
+    ...(input.revealMode === undefined ? {} : { revealMode: settingEnumeration(input.revealMode, `${path}.revealMode`, "text.revealMode") }),
+    ...(input.lineHeight === undefined ? {} : { lineHeight: settingNumber(input.lineHeight, `${path}.lineHeight`, "text.lineHeight") }),
+    ...(input.letterSpacingEm === undefined ? {} : { letterSpacingEm: settingNumber(input.letterSpacingEm, `${path}.letterSpacingEm`, "text.letterSpacingEm") })
   };
 }
 
@@ -224,10 +275,42 @@ function parseAdvance(value: unknown, path: string): NonNullable<GalSettingsOver
   };
 }
 
-function parseAudio(value: unknown, path: string): NonNullable<GalSettingsOverride["audio"]> {
+function parseAudio(value: unknown, path: string, fields: readonly string[]): NonNullable<GalSettingsOverride["audio"]> {
   const input = record(value, path);
-  assertKnownFields(input, SECTION_FIELDS.audio, path);
-  return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, settingNumber(item, `${path}.${key}`, `audio.${key}` as GalSettingPath)])) as NonNullable<GalSettingsOverride["audio"]>;
+  assertKnownFields(input, fields, path);
+  return Object.fromEntries(Object.entries(input).map(([key, item]) => [
+    key,
+    key === "resumeAfterInterruption"
+      ? settingBoolean(item, `${path}.${key}`, "audio.resumeAfterInterruption")
+      : settingNumber(item, `${path}.${key}`, `audio.${key}` as GalSettingPath)
+  ])) as NonNullable<GalSettingsOverride["audio"]>;
+}
+
+function parseStage(value: unknown, path: string): NonNullable<GalSettingsOverride["stage"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.stage, path);
+  return {
+    ...(input.defaultDurationMilliseconds === undefined ? {} : { defaultDurationMilliseconds: settingNumber(input.defaultDurationMilliseconds, `${path}.defaultDurationMilliseconds`, "stage.defaultDurationMilliseconds") }),
+    ...(input.defaultEasing === undefined ? {} : { defaultEasing: settingEnumeration(input.defaultEasing, `${path}.defaultEasing`, "stage.defaultEasing") })
+  };
+}
+
+function parseChoice(value: unknown, path: string): NonNullable<GalSettingsOverride["choice"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.choice, path);
+  return {
+    ...(input.showOptionNumbers === undefined ? {} : { showOptionNumbers: settingBoolean(input.showOptionNumbers, `${path}.showOptionNumbers`, "choice.showOptionNumbers") }),
+    ...(input.layout === undefined ? {} : { layout: settingEnumeration(input.layout, `${path}.layout`, "choice.layout") })
+  };
+}
+
+function parseUi(value: unknown, path: string): NonNullable<GalSettingsOverride["ui"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.ui, path);
+  return {
+    ...(input.defaultTextboxTemplate === undefined ? {} : { defaultTextboxTemplate: settingEnumeration(input.defaultTextboxTemplate, `${path}.defaultTextboxTemplate`, "ui.defaultTextboxTemplate") }),
+    ...(input.showInputHints === undefined ? {} : { showInputHints: settingBoolean(input.showInputHints, `${path}.showInputHints`, "ui.showInputHints") })
+  };
 }
 
 function parseInput(value: unknown, path: string): NonNullable<GalSettingsOverride["input"]> {
@@ -236,15 +319,29 @@ function parseInput(value: unknown, path: string): NonNullable<GalSettingsOverri
   return Object.fromEntries(Object.entries(input).map(([key, item]) => [key, settingBoolean(item, `${path}.${key}`, `input.${key}` as GalSettingPath)])) as NonNullable<GalSettingsOverride["input"]>;
 }
 
-function parseOverride(value: unknown, path: string): GalSettingsOverride {
+function parseAccessibility(value: unknown, path: string): NonNullable<GalSettingsOverride["accessibility"]> {
   const input = record(value, path);
-  assertKnownFields(input, Object.keys(SECTION_FIELDS), path);
+  assertKnownFields(input, SECTION_FIELDS.accessibility, path);
+  return Object.fromEntries(Object.entries(input).map(([key, item]) => [
+    key,
+    settingBoolean(item, `${path}.${key}`, `accessibility.${key}` as GalSettingPath)
+  ])) as NonNullable<GalSettingsOverride["accessibility"]>;
+}
+
+function parseOverride(value: unknown, path: string, schemaVersion: number = GAL_SETTINGS_SCHEMA_VERSION): GalSettingsOverride {
+  const input = record(value, path);
+  const sectionFields = schemaVersion >= 5 ? SECTION_FIELDS : schemaVersion >= 4 ? V4_SECTION_FIELDS : schemaVersion >= 3 ? V3_SECTION_FIELDS : LEGACY_SECTION_FIELDS;
+  assertKnownFields(input, Object.keys(sectionFields), path);
   return {
     ...(input.display === undefined ? {} : { display: parseDisplay(input.display, `${path}.display`) }),
-    ...(input.text === undefined ? {} : { text: parseText(input.text, `${path}.text`) }),
+    ...(input.text === undefined ? {} : { text: parseText(input.text, `${path}.text`, sectionFields.text) }),
     ...(input.advance === undefined ? {} : { advance: parseAdvance(input.advance, `${path}.advance`) }),
-    ...(input.audio === undefined ? {} : { audio: parseAudio(input.audio, `${path}.audio`) }),
-    ...(input.input === undefined ? {} : { input: parseInput(input.input, `${path}.input`) })
+    ...(input.audio === undefined ? {} : { audio: parseAudio(input.audio, `${path}.audio`, sectionFields.audio) }),
+    ...(schemaVersion < 4 || input.stage === undefined ? {} : { stage: parseStage(input.stage, `${path}.stage`) }),
+    ...(schemaVersion < 5 || input.choice === undefined ? {} : { choice: parseChoice(input.choice, `${path}.choice`) }),
+    ...(schemaVersion < 5 || input.ui === undefined ? {} : { ui: parseUi(input.ui, `${path}.ui`) }),
+    ...(input.input === undefined ? {} : { input: parseInput(input.input, `${path}.input`) }),
+    ...(schemaVersion < 3 || input.accessibility === undefined ? {} : { accessibility: parseAccessibility(input.accessibility, `${path}.accessibility`) })
   };
 }
 
@@ -254,7 +351,11 @@ function mergeSettings(...overrides: readonly GalSettingsOverride[]): GalSetting
     text: { ...current.text, ...override.text },
     advance: { ...current.advance, ...override.advance },
     audio: { ...current.audio, ...override.audio },
-    input: { ...current.input, ...override.input }
+    stage: { ...current.stage, ...override.stage },
+    choice: { ...current.choice, ...override.choice },
+    ui: { ...current.ui, ...override.ui },
+    input: { ...current.input, ...override.input },
+    accessibility: { ...current.accessibility, ...override.accessibility }
   }), DEFAULT_GAL_SETTINGS);
 }
 
@@ -282,24 +383,32 @@ export function createGalSettingsDocument(): GalSettingsDocument {
 export function parseGalSettingsDocument(value: unknown): GalSettingsDocument {
   const input = record(value, "settings");
   assertKnownFields(input, ["schemaVersion", "project", "platforms"], "settings");
-  if (input.schemaVersion !== GAL_SETTINGS_SCHEMA_VERSION) {
-    if (typeof input.schemaVersion === "number" && Number.isSafeInteger(input.schemaVersion) && input.schemaVersion > GAL_SETTINGS_SCHEMA_VERSION) {
-      fail("FUTURE_SCHEMA", "settings.schemaVersion", `schema ${input.schemaVersion} is read-only until migrated`);
-    }
-    fail("INVALID_SCHEMA", "settings.schemaVersion", `must equal ${GAL_SETTINGS_SCHEMA_VERSION}`);
+  if (typeof input.schemaVersion !== "number" || !Number.isSafeInteger(input.schemaVersion)) {
+    fail("INVALID_SCHEMA", "settings.schemaVersion", "must be a safe integer");
   }
+  if (input.schemaVersion > GAL_SETTINGS_SCHEMA_VERSION) {
+    fail("FUTURE_SCHEMA", "settings.schemaVersion", `schema ${input.schemaVersion} is read-only until migrated`);
+  }
+  if (input.schemaVersion < GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION) {
+    fail(
+      "INVALID_SCHEMA",
+      "settings.schemaVersion",
+      `must be between ${GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION} and ${GAL_SETTINGS_SCHEMA_VERSION}`
+    );
+  }
+  const schemaVersion = input.schemaVersion;
   const platforms = record(input.platforms, "settings.platforms");
   assertKnownFields(platforms, GAL_SETTINGS_PLATFORMS, "settings.platforms");
   for (const platform of GAL_SETTINGS_PLATFORMS) {
     if (platforms[platform] === undefined) fail("INVALID_SCHEMA", `settings.platforms.${platform}`, "is required");
   }
-  const project = normalizedOverride(parseOverride(input.project, "settings.project"));
+  const project = normalizedOverride(parseOverride(input.project, "settings.project", schemaVersion));
   const settingsDocument: GalSettingsDocument = {
     schemaVersion: GAL_SETTINGS_SCHEMA_VERSION,
     project,
     platforms: Object.fromEntries(GAL_SETTINGS_PLATFORMS.map((platform) => [
       platform,
-      normalizedOverride(parseOverride(platforms[platform], `settings.platforms.${platform}`))
+      normalizedOverride(parseOverride(platforms[platform], `settings.platforms.${platform}`, schemaVersion))
     ])) as Record<GalSettingsPlatform, GalSettingsOverride>
   };
   validateCombination(mergeSettings(settingsDocument.project), "settings.project");

@@ -25,6 +25,8 @@ describe("Preview Stage character interaction", () => {
       <div data-stage-surface="design-pixels">
         <PreviewStageCharacter
           character={character}
+          defaultDurationMilliseconds={720}
+          defaultEasing="ease-out"
           selected={false}
           designWidth={1920}
           designHeight={1080}
@@ -57,6 +59,8 @@ describe("Preview Stage character interaction", () => {
     expect(onDecodeError).toHaveBeenCalledOnce();
     expect(target).toHaveAttribute("aria-pressed", "false");
     expect(target).toHaveAttribute("data-stage-x", "25");
+    expect(target).toHaveAttribute("data-stage-easing", "ease-out");
+    expect(target).toHaveStyle({ animationDuration: "720ms", animationTimingFunction: "ease-out" });
   });
 
   it("renders synchronized selection feedback", () => {

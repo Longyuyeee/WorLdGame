@@ -1,8 +1,8 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-08-26
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。N50 Engineering 通过，三宿主 Product Acceptance 仍为 `0/1`。N51-E1–E4 Engineering 已关闭，下一切片冻结为 E5 Preview/Player 热应用。`RA-N21-010` 只准入 N51 Engineering，全部 Product Acceptance、N52+、Android 实体包、M1 与发布继续阻断。
+> 文档基线：2026-08-28
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式 Engineering 出口已通过。N50 Engineering 通过，三宿主 Product Acceptance 仍为 `0/1`。N51-E1–E6a Engineering 已关闭，Settings v1→v2 严格迁移的同头 Windows / Node 22 完整门绿色；下一切片为 E6b Text/Accessibility application。`RA-N21-010` 只准入 N51 Engineering，全部 Product Acceptance、N52+、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -59,6 +59,10 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N51-E2 暂停与后续步骤检查点](docs/224-n51-e2-pause-and-next-step-checkpoint.md) | 当前完成度、可迁移证据、未完成边界、E3–E6 顺序与换电脑恢复步骤 |
 | [N51-E3 Canonical Project Settings 与撤销事务审计](docs/225-n51-e3-project-settings-transaction-audit.md) | typed settings 正式文件、旧占位安全升级、ChangeSet/Undo/Redo、Node/IndexedDB 保存重开与冲突拒绝 |
 | [N51-E4 现代 Settings UI 与保存重开审计](docs/226-n51-e4-modern-settings-ui-audit.md) | Basic/Advanced、搜索/分区、平台继承来源、原子事务、Canonical 保存重开与桌面/390×844 production-browser 纠偏 |
+| [N51-E5 Preview / Player Settings 热应用审计](docs/227-n51-e5-settings-runtime-application-audit.md) | 同一 application v1、settings-only Core 保持、显示/文本/音频/输入实际应用与 production-browser 证据 |
+| [N51-E6 P0 Gap Matrix 与入口审计](docs/229-n51-e6-p0-gap-matrix-and-entry-audit.md) | 2.1–2.9 逐项真实缺口、N51/N52/N61/N62/N80+ 唯一归属、Schema v2 风险与 E6a 冻结验收合同 |
+| [N51-E6a Settings Schema v2 迁移安全审计](docs/230-n51-e6a-settings-schema-v2-migration-audit.md) | v1/v2 严格读取、统一 v2 写回、Node/IndexedDB 真实重开、Player Core 身份保持与首次差异 |
+| [N51-E6b Text / Accessibility 应用审计](docs/231-n51-e6b-text-accessibility-entry-contract.md) | schema v3、29/20 字段、文本排版/即时显示、高对比/减动效/降闪烁与双 production-browser 证据 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |

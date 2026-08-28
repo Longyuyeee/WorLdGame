@@ -40,7 +40,11 @@ const SECTION_LABELS = {
   text: "文本与消息窗",
   advance: "推进",
   audio: "音频",
-  input: "输入"
+  stage: "舞台默认策略",
+  choice: "选项展示",
+  ui: "界面展示",
+  input: "输入",
+  accessibility: "无障碍"
 } as const;
 
 const SOURCE_LABELS = {
@@ -59,7 +63,18 @@ const OPTION_LABELS: Readonly<Record<string, string>> = {
   system: "跟随系统安全区",
   low: "低",
   balanced: "均衡",
-  high: "高"
+  high: "高",
+  typewriter: "逐字显示",
+  instant: "立即显示",
+  linear: "线性",
+  "ease-in": "缓入",
+  "ease-out": "缓出",
+  "ease-in-out": "缓入缓出",
+  vertical: "纵向",
+  "responsive-grid": "响应式网格",
+  adv: "ADV 对话框",
+  nvl: "NVL 文本框",
+  bubble: "气泡对话框"
 };
 
 function layerFromId(id: SettingsLayerId): GalSettingsEditLayer {

@@ -87,3 +87,11 @@ N10 不证明新建/打开/最近项目 UI、OS 目录授权、事务命令、�
 N10 已完成实现、自审、本地完整门、推送和远端 Windows CI。下一节点进入 N11：Project Service 与事务命令。
 
 > 2026-08-27 N51-E3 演进说明：N10 原始 `settings/project.json` 是 `{schemaVersion:1,values:{}}` 占位文档。N51-E3 在不改变 Manifest 路径的前提下将其收敛为正式 `GalSettingsDocument`；缺文件和精确空占位可升级，非空旧数据、损坏和 future schema 失败关闭。`project-domain` 现只新增对 dependency-free portable `gal-settings` 的依赖，平台隔离原则不变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
+
+> 2026-08-28 N51-E6a 演进说明：正式 `GalSettingsDocument` 当前写入 schema v2；合法非空 v1/v2 都通过同一严格字段校验并在内存归一化为 v2，首次保存确定性升级，future v3+ 继续失败关闭。Node Directory 与 IndexedDB 均以真实打开、保存、重开验证覆盖值及字节幂等；其他 Canonical Project 文件仍保持各自 v1，不得把 Settings 的版本提升误套到全工程。默认 Settings 源字节变化会按 Canonical identity 规则更新 Compiler Build ID，但 Story IR Hash 不变，不能为兼容旧 Golden 隐藏真实源码变化。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
+
+> 2026-08-28 N51-E6b 演进说明：`GalSettingsDocument` 当前写入 schema v3，新增 `text.revealMode/lineHeight/letterSpacingEm` 与 `accessibility.highContrast/reduceMotion/reduceFlashing`。v1/v2 仍只接受各自历史字段并统一升级 v3；把 v3 字段伪装进 v1/v2 会以 `UNKNOWN_FIELD` 失败关闭，v4+ 为 `FUTURE_SCHEMA`。其他 Canonical 文件版本不变；新增默认源字节再次更新 Build ID/State identity，但四个 Story IR Hash、路线和 Outcome 不变。详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。
+
+> 2026-08-28 N51-E6c 演进说明：`GalSettingsDocument` 当前写入 schema v4，新增 `stage.defaultDurationMilliseconds/defaultEasing` 与 `audio.resumeAfterInterruption`。v1/v2/v3 继续按历史字段白名单读取并统一升级 v4；v3 携带 v4 字段以 `UNKNOWN_FIELD` 失败，v5+ 为 `FUTURE_SCHEMA`。其他 Canonical 文件版本不变；四个 Build ID 随默认源字节更新，四个 Story IR Hash、路线和 Outcome 不变。详见[审计 #232](232-n51-e6c-stage-audio-default-policy-contract.md)。
+
+> 2026-08-28 N51-E6d/E6f 演进说明：`GalSettingsDocument` 当前写入 schema v5，新增 `choice.showOptionNumbers/layout` 与 `ui.defaultTextboxTemplate/showInputHints`。v1–v4 继续按各自历史字段白名单读取并统一升级 v5；v4 携带 v5 字段以 `UNKNOWN_FIELD` 失败，v6+ 为 `FUTURE_SCHEMA`。E6f 出口审计冻结 Advanced 36 / Basic 23 及同一 Canonical 保存链；其他 Canonical 文件版本、Story IR、路线与 Outcome 语义不变。详见[审计 #233](233-n51-e6d-choice-ui-presentation-policy-contract.md)与[出口复审 #235](235-n51-e6f-engineering-exit-reaudit.md)。

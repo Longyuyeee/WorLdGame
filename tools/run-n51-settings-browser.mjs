@@ -189,7 +189,7 @@ async function openSettings(client) {
   await waitForCondition(client, "document.querySelector('[data-testid=workspace-shell]')?.getAttribute('data-settings-open') === 'true'", "settings workspace");
 }
 
-const browserProfile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e4-"));
+const browserProfile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6d-"));
 const browser = await executablePath();
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5181", "--strictPort"], {
   cwd: join(root, "apps", "editor"), stdio: ["ignore", "pipe", "pipe"]
@@ -239,8 +239,18 @@ try {
   }))()`);
   await click(client, "Array.from(document.querySelectorAll('.settings-layer-switch [role=radio]')).find((element) => element.textContent?.trim() === 'Web')", "Web settings layer");
   await setControlValue(client, "document.querySelector('[data-setting-path=\"audio.master\"] input')", "0.4", "Web master volume");
-  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 1'))", "Apply audio ChangeSet");
+  await click(client, "document.querySelector('[data-setting-path=\"audio.resumeAfterInterruption\"] input')", "Web interruption resume");
+  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 2'))", "Apply audio ChangeSet");
   await waitForCondition(client, "document.querySelector('.settings-feedback')?.textContent?.includes('ChangeSet r1') === true", "settings ChangeSet r1");
+  await click(client, "document.querySelector('[data-setting-path=\"accessibility.highContrast\"] input')", "Web high contrast");
+  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 1'))", "Apply accessibility ChangeSet");
+  await waitForCondition(client, "document.querySelector('.settings-feedback')?.textContent?.includes('ChangeSet r2') === true", "settings ChangeSet r2");
+  await click(client, "document.querySelector('[data-setting-path=\"choice.showOptionNumbers\"] input')", "Hide choice numbers");
+  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 1'))", "Apply Choice ChangeSet");
+  await waitForCondition(client, "document.querySelector('.settings-feedback')?.textContent?.includes('ChangeSet r3') === true", "settings ChangeSet r3");
+  await click(client, "document.querySelector('[data-setting-path=\"ui.showInputHints\"] input')", "Hide input hints");
+  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 1'))", "Apply UI ChangeSet");
+  await waitForCondition(client, "document.querySelector('.settings-feedback')?.textContent?.includes('ChangeSet r4') === true", "settings ChangeSet r4");
   await click(client, "Array.from(document.querySelectorAll('.settings-workspace button')).find((element) => element.textContent?.trim() === '保存工程')", "Save canonical project");
   await waitForCondition(client, "document.querySelector('.local-save-button')?.textContent?.includes('已保存 · s1') === true", "verified settings save s1");
   const desktopScreenshot = await capture(client, desktopScreenshotPath);
@@ -252,12 +262,30 @@ try {
   await waitForCondition(client, "document.querySelector('.local-save-button')?.textContent?.includes('已恢复 · s1') === true", "verified settings reopen s1");
   await openSettings(client);
   await click(client, "Array.from(document.querySelectorAll('.settings-layer-switch [role=radio]')).find((element) => element.textContent?.trim() === 'Web')", "Reopened Web settings layer");
-  const reopened = await evaluate(client, `(() => ({
-    masterVolume: document.querySelector('[data-setting-path="audio.master"] input')?.value,
-    source: document.querySelector('[data-setting-path="audio.master"] .settings-source')?.textContent?.trim(),
-    saveLabel: document.querySelector('.local-save-button')?.textContent?.trim(),
-    previewProfile: document.querySelector('[data-preview-profile]')?.getAttribute('data-preview-profile')
-  }))()`);
+  const reopened = await evaluate(client, `(() => {
+    const preview = document.querySelector('.stage-preview');
+    const contrastProbe = document.createElement('div');
+    contrastProbe.className = 'dialogue-presentation';
+    preview?.append(contrastProbe);
+    const previewBackground = getComputedStyle(contrastProbe).backgroundColor;
+    contrastProbe.remove();
+    return {
+      masterVolume: document.querySelector('[data-setting-path="audio.master"] input')?.value,
+      source: document.querySelector('[data-setting-path="audio.master"] .settings-source')?.textContent?.trim(),
+      resumeAfterInterruption: document.querySelector('[data-setting-path="audio.resumeAfterInterruption"] input')?.checked,
+      resumeSource: document.querySelector('[data-setting-path="audio.resumeAfterInterruption"] .settings-source')?.textContent?.trim(),
+      highContrast: document.querySelector('[data-setting-path="accessibility.highContrast"] input')?.checked,
+      highContrastSource: document.querySelector('[data-setting-path="accessibility.highContrast"] .settings-source')?.textContent?.trim(),
+      showOptionNumbers: document.querySelector('[data-setting-path="choice.showOptionNumbers"] input')?.checked,
+      choiceSource: document.querySelector('[data-setting-path="choice.showOptionNumbers"] .settings-source')?.textContent?.trim(),
+      showInputHints: document.querySelector('[data-setting-path="ui.showInputHints"] input')?.checked,
+      inputHintsSource: document.querySelector('[data-setting-path="ui.showInputHints"] .settings-source')?.textContent?.trim(),
+      previewHighContrast: preview?.getAttribute('data-settings-high-contrast'),
+      previewBackground,
+      saveLabel: document.querySelector('.local-save-button')?.textContent?.trim(),
+      previewProfile: document.querySelector('[data-preview-profile]')?.getAttribute('data-preview-profile')
+    };
+  })()`);
 
   await client.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
   await client.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
@@ -288,20 +316,23 @@ try {
   })()`);
   const mobileScreenshot = await capture(client, mobileScreenshotPath);
 
-  const passed = initial.visibleSettings === 16 && initial.workspaceModes === 7 && initial.previewProfile === "landscape-16-9" &&
+  const passed = initial.visibleSettings === 23 && initial.workspaceModes === 7 && initial.previewProfile === "landscape-16-9" &&
     initial.overflow === 0 && initial.settingsWidth > initial.previewWidth && reopened.masterVolume === "0.4" &&
-    reopened.source === "Web 覆盖" && reopened.saveLabel === "已恢复 · s1" && reopened.previewProfile === "landscape-16-9" &&
+    reopened.source === "Web 覆盖" && reopened.resumeAfterInterruption === false && reopened.resumeSource === "Web 覆盖" && reopened.highContrast === true && reopened.highContrastSource === "Web 覆盖" &&
+    reopened.showOptionNumbers === false && reopened.choiceSource === "Web 覆盖" && reopened.showInputHints === false && reopened.inputHintsSource === "Web 覆盖" &&
+    reopened.previewHighContrast === "true" && reopened.previewBackground === "rgb(0, 0, 0)" &&
+    reopened.saveLabel === "已恢复 · s1" && reopened.previewProfile === "landscape-16-9" &&
     mobile.width === 390 && mobile.height === 844 && mobile.overflow === 0 && mobile.settingsWidth === 390 &&
     mobile.previewWidth === 390 && Math.abs(mobile.previewRatio - 16 / 9) < 0.03 && mobile.undersizedControls.length === 0 &&
     mobile.focusedSearch && Number.parseFloat(mobile.reducedMotionDuration) <= 0.001 && browserFailures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N51-E4",
-    scope: "cold-production-build-settings-edit-save-reopen-desktop-390x844",
+    node: "N51-E6d",
+    scope: "cold-production-build-choice-ui-policy-edit-save-reopen-desktop-390x844",
     generatedAt: new Date().toISOString(),
     build: { editorDistIndexSha256: hash(await readFile(join(root, "apps", "editor", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
-    expectation: { basicSettings: 16, workspaceModes: 7, previewProfile: "landscape-16-9", persistedWebMasterVolume: 0.4, horizontalOverflow: 0, minimumTouchHeight: 44, browserErrors: 0 },
+    expectation: { basicSettings: 23, workspaceModes: 7, previewProfile: "landscape-16-9", persistedWebMasterVolume: 0.4, persistedResumeAfterInterruption: false, persistedWebHighContrast: true, persistedShowOptionNumbers: false, persistedShowInputHints: false, previewHighContrast: true, horizontalOverflow: 0, minimumTouchHeight: 44, browserErrors: 0 },
     actual: { initial, reopened, mobile, browserFailures },
     screenshots: [
       { path: "evidence/n51/settings-ui-desktop.png", width: 1440, height: 900, ...desktopScreenshot },

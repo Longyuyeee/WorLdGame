@@ -1,10 +1,10 @@
-# 当前开发情况审计（N50 Engineering 已通过，N51-E5 Settings 热应用已关闭）
+# 当前开发情况审计（N51 Engineering 已关闭；Product Acceptance 阻断）
 
-> 审计日期：2026-08-27
-> 当前分支：`codex/n51-e5-settings-runtime-application`；直接基线为 N51-E4 最终头 `968a2f7`
+> 审计日期：2026-08-28
+> 当前分支：`codex/n51-e6-p0-coverage-exit`；直接基线为 N51-E6e 最终绿色头 `b057973`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N51-E5 换机接续与 E6 启动检查点](228-n51-e5-handoff-and-e6-entry-checkpoint.md)、[N51-E5 Preview / Player Settings 热应用](227-n51-e5-settings-runtime-application-audit.md)、[N51-E4 现代 Settings UI 与保存重开](226-n51-e4-modern-settings-ui-audit.md)
+> 最新节点证据：[N51-E6f Engineering 出口复审](235-n51-e6f-engineering-exit-reaudit.md)、[N51-E6e Profile / Host 边界审计](234-n51-e6e-profile-host-boundary-contract.md)、[N51-E6d Choice / UI 审计](233-n51-e6d-choice-ui-presentation-policy-contract.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -15,12 +15,12 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E5 Engineering 已关闭，下一切片冻结为 E6 完整 P0 覆盖与出口审计**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell 与 N51 Gal Settings Engineering 出口已通过；N50/N51 Product Acceptance 仍被实体 Host、跨节点和真人证据阻断**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；N51 Engineering：**E1 portable typed core 本地门通过，完整 N51 尚未完成**；全部 Product Acceptance、N52+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；全部 Product Acceptance、N52+、M1 Stable、Public Release：**被阻断**；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
@@ -33,6 +33,19 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N51-E3 已把 typed settings 接入 Canonical Project 文件、Project Service ChangeSet 与 Undo/Redo；缺文件/精确空旧 v1 可升级，非空旧数据、损坏和 future schema 失败关闭；Node Directory 与 Web IndexedDB 保存重开、stale writer 和字节保持已通过。本地完整门普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM `27.14s`、Route P95 `70.68ms`、Asset dicing `2122.83ms`；实现头 `8bae1b8` 的 Draft PR #93 Windows / Node 22 run `33088005806` / job `98572871025` 用时 `11m42s` 绿色，远端普通 `145/841`、N51 `43/43`、Compiler `29/29`、VM `63.76s <90s`、Route P95 `148.65ms <500ms`、Asset dicing `3382.11ms <5000ms`。E3 Engineering 关闭。
 - N51-E4 已提供现代 Settings UI：Basic 16 / Advanced 23、NFKC 搜索、五分区、项目/Windows/Web/Android、来源与覆盖、原子 ChangeSet、恢复、Undo/Redo 和完整 Canonical 保存桥。真实 UI→IndexedDB→Lifecycle 重开通过；冷 production browser 在 1440×900 与 390×844 完成保存重开、16:9、触控 ≥44px、overflow 0、focus/reduced-motion 和 console 0。首次 36px 恢复按钮、10px 顶栏溢出与固定返回按钮遮挡均按实际纠正。本地完整门普通 `147/847`、N51 `49/49`、VM `27.09s`、Route P95 `60.06ms`、Asset dicing `1745.71ms` 全绿；实现头 `9828208` 的 Draft PR #94 Windows / Node 22 run `33093375273` / job `98591846616` 用时 `12m39s` 绿色，远端普通 `147/847`、N51 `49/49`、VM `27.68s`、Route P95 `153.19ms`、Asset dicing `3310.15ms`。E4 Engineering 关闭。
 - N51-E5 新增唯一 portable settings application v1，Editor Preview 与正式 Player Core/Host 共用平台解析、显示/DPR、文字时长、六类音量、voice ducking 与四类推进输入；纠正了 settings 纳入 canonical hash 后会错误重置 Player Core 的偏移。23 项 v1 设置均可 Host 热应用，剧情内容变化仍重建 Core。保存重开、平台差异、pointer/touch、keyboard/gamepad、allow-hold、实际 voice wait 与音量均有测试；冷 Player production browser 在 1440×900 热切 16:9→9:16 时保持 `presenting` 与对白，pointer 关闭后拒绝推进，390×844 stage `390×693`、overflow 0、console 0。本地完整门普通 `149/856`、N51 `69/69`、Player/Core `31/31`、VM `30.38s`、Route P95 `57.55ms`、Asset dicing `1544.16ms` 全绿；实现头 `c018602` 的 Draft PR #95 Windows / Node 22 run `33097845390` / job `98607353801` 用时 `12m47s` 绿色，远端普通 `149/856`、N51 `69/69`、Player/Core `31/31`、VM `66.13s`、Route P95 `143.09ms`、Asset dicing `3280.23ms`。E5 Engineering 关闭；正式 Windows/Android Host 和完整 P0 仍阻断。
+- N51-E6 入口审计已把规格 2.1–2.9 与真实 23 字段、严格 v1 parser、Catalog controls、Canonical Project、Editor Preview 和 Player application 逐项比较。首次实际发现两项不能直接编码的差异：原始范围中播放控制、本地化生产、自动附加页和构建发布分别归 N52/N61/N62/N80–N83；严格 v1 旧读取器会拒绝新增 unknown field，不能在同一 schemaVersion 下静默扩字段。入口提交 `ec35570` 的 Draft PR #96 Windows / Node 22 完整门 run `33133914830` / job `98729511942` 用时 `12m5s` 绿色：autosave `3.744s <5s`、VM `64.00s <90s`、普通 `149/856`、Route P95 `133.34ms`、Asset dicing `3255ms`，关闭本机负载差异。下一代码切片冻结为 v1→v2 默认升级、确定性 round-trip、future schema 拒绝、Node/IndexedDB 保存重开和 settings-only Core 保持；字段实现尚未开始，详见[#229](229-n51-e6-p0-gap-matrix-and-entry-audit.md)。
+- N51-E6a 已把 Settings 当前写入版本提升为 v2，合法 v1/v2 经同一严格校验后统一为 v2，v3+ 失败关闭。首次冻结测试为 5 files / 52 tests，实际 45 通过、7 项按预期因旧 parser 失败；修正后 52/52，N51 聚合门 10 files / 74 tests。真实 Node 临时目录与 IndexedDB 均验证非空 v1 打开、保存、重开和二次字节幂等；Player 验证 schema-only 迁移保持活跃 choice Core。类型门首次发现只读测试夹具写入并改为复制注入后通过。完整门和同头远端证据待补，详见[#230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
+- E6a 本机完整门首次因旧 Compiler Build ID Golden 停止，修正后 29/29；第二次从头运行在 N41 长链累积负载下出现 3 个 5s/10s 超时，两个受影响文件原门限隔离复跑 16/16。后半门中普通回归的 4 个 source identity Golden 已按“语义不变、身份更新”冻结，2 个 Preview 超时连同身份项隔离复测 3 files / 22 tests 全绿；Build、architecture、Script 13/13、Route 9/9（P95 `194.16ms`）、Asset 4/4（Dicing `3313.33ms`）均通过。单次本机完整门仍不记绿，等待同头 Windows / Node 22 裁决。
+- 实现头 `1b21508` 的 Draft PR #96 Windows / Node 22 完整门 run `33136866897` / job `98738665580` 用时 `11m50s` 并绿色：普通 `149/861`、N51 `74/74`、Player/Core `32/32`、Runtime corpus `27.946s`、autosave `3.642s <5s`、VM `63.71s <90s`、Route P95 `130.55ms <500ms`、Asset dicing `3363.87ms <5000ms`。相同规模和预算关闭本机累积负载差异，E6a Engineering 关闭；N51 Product Acceptance 与 E6b+ 仍未完成。
+- N51-E6b 新增 `text.revealMode/lineHeight/letterSpacingEm` 与 `accessibility.highContrast/reduceMotion/reduceFlashing`，Settings 当前写入 schema 提升为 v3，Catalog 达到 Basic `20` / Advanced `29`。冻结 6 files / 57 tests 首次实际为 47 通过、10 项按预期暴露旧 v2/parser/catalog/application 缺口；修正后 N51 聚合 10 files / 80 tests。编译器 Golden 首次只改变四个 Build ID，四个 Story IR Hash 不变；正式 Preview 的路线、结局、定位和 History 等价断言保持。冷 Editor production browser 完成 Web Audio+Accessibility 两个分区 ChangeSet `r1→r2`、IndexedDB 保存重开、高对比计算样式，Basic 20；冷 Player production browser 在活跃对白中热应用即时显示、2.0 行高、0.08em 字距、高对比、0.01ms 减动效和 dissolve→fade，Core/对白保持，1440×900 与 390×844 overflow 0、console 0。完整门与同头 CI 尚待本切片后续补证，详见[#231](231-n51-e6b-text-accessibility-entry-contract.md)。
+- E6b 首次本机完整门在通过前序治理、Compiler/Runtime/corpus 与 N41 多项门后，既有 `App.test.tsx` 2/45 项于累计负载下超过冻结 5s；未修改 timeout，原命令隔离复跑整个文件 45/45。该次完整门保持红色，等待第二次从头运行与同头 Windows / Node 22 裁决。
+- E6b 第二次本机完整门穿过 App 红点并通过普通回归 `149/867`、N51 `80/80`、Player/Core `32/32`、autosave，但固定重型 VM corpus 为 `95.93s > 90s`；原命令隔离复跑 `5/5`、`70.84s <90s`。后续 17 workspace build、architecture 100/4、Script `13/13`、Route `9/9`（P95 `111.15ms`）、Asset `4/4`（dicing `2344.23ms`）通过。预算未放宽，本机仍不记单次完整门绿色，等待同头 Windows / Node 22 裁决。
+- E6b 实现头 `7d8bac1` 的 Draft PR #96 Windows / Node 22 完整门 run `33140441747` / job `98749884222` 用时 `12m33s` 绿色：普通 `149/867`、N51 `80/80`、Player/Core `32/32`、autosave `4.041s <5s`、VM `65.67s <90s`、Runtime shard `30.222s`、Route P95 `157.41ms`、Asset dicing `3246.27ms`。同规模同预算关闭本机累积负载差异，E6b Engineering 关闭；N51 Product Acceptance 和 E6c+ 仍未完成。
+- N51-E6c 新增 `stage.defaultDurationMilliseconds/defaultEasing` 与 `audio.resumeAfterInterruption`，Settings 当前写入 schema v4，Catalog 达到 Basic `21` / Advanced `32`。冻结 9 files / 82 tests 首次实际 68 通过、14 项准确暴露旧 schema/catalog/Preview/Player 缺口；首轮修正后 81/82，旧 300ms fallback 按统一 360ms 契约纠正；代码复审再补 Canvas easing 真实执行反例，最终 83/83；N51 聚合 10 files / 87 tests。四个 Build ID 更新而 Story IR Hash 完全不变。冷 Editor production browser实际编辑 Web master+resume 两字段、保存 `s1`、释放并重开恢复；冷 Player production browser 热应用 `360/linear/true → 720/ease-out/false` 且活跃对白/Core 保持。双端 1440×900/390×844 overflow 0、console 0。首次全门另暴露 6 个 source identity 并修正，第二次全门仅既有 App 5s 累积负载超时；预算未放宽，等待同头 CI 裁决，详见[#232](232-n51-e6c-stage-audio-default-policy-contract.md)。
+- E6c 实现头 `3a1cbed` 的 Draft PR #96 Windows / Node 22 完整门 run `33143471100` / job `98759295354` 用时 `12m33s` 绿色：普通 `149/876`、App `45/45`、N50 `34/34`、N51 `87/87`、autosave `1/1`（`5.095s`）、VM `65.93s <90s`、Route P95 `132.69ms`、Asset dicing `3272ms`。同规模同预算关闭本机累积负载差异，E6c Engineering 关闭；N51 Product Acceptance、N52 与 E6d+ 仍未完成。
+- N51-E6d 把 Choice 编号/响应式布局与 UI 默认 Textbox/输入提示贯通 schema v5、Catalog、Canonical、Editor 与 Player；Advanced 36 / Basic 23。首次 79/88，修正扩展后 101/101；双 production browser 验证保存重开、同 Core、桌面/移动布局与 ADV→bubble。实现头 `6d99928` 的 Windows 完整门 run `33147113913` 绿色，E6d Engineering 关闭。
+- N51-E6e 冻结 Settings/Runtime/Compiler Profile 所有权，WebPlayerHost 类型与运行时固定为 Web，嵌入观察值公开 `settingsPlatform: web`。首次 22/24，修正后 24/24；Chrome 151 production 9/9 快照为 Web。实现头 `b7d7c5c` 的 Windows 完整门 run `33151182320` 用时 13m01s 绿色，E6e Engineering 关闭。
+- N51-E6f 新增机器可读出口合同与根级审计，逐项核验 schema v5、36/23、application v1、Web Host、双 production evidence 和 N52/N61/N62/N70–N72/N80–N83 所有权。首次代码事实全部通过，仅 5 项权威文档状态滞后；实现头 `40c14a4` 的 Windows / Node 22 完整门 run `33155226168` / job `98796294530` 用时 `14m18s` 绿色：普通 `149/886`、N51 `95/95`、Autosave `4.788s < 5s`、VM `69.85s < 90s`、Route P95 `186.04ms < 500ms`、Asset dicing `3323.81ms < 5000ms`。N51 Engineering 关闭；N51 Product Acceptance、AC-19、REQ-GAL、N52+、M1 Stable 与 Public Release 继续阻断。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
@@ -73,7 +86,7 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 | 检查 | 预期 | 实际 | 判定 |
 |---|---|---|---|
 | 定向 Editor | 正式流程与旧兼容均不回归 | 4 files / 40 tests | 通过 |
-| 双路线 State | 路线/Source Map/Hash 固定 | N51-E3 source identity 后：广播室 `137bb121…595fa`；天台 `8704bf52…eddd1` | 通过 |
+| 双路线 State | 路线/Source Map/Hash 固定 | N51-E6c source identity 后：广播室 `b9f122e8…e2fc4`；天台 `5a7da5a5…7a861` | 通过 |
 | 编译失败 | fail closed，不回退 | `MISSING_LABEL` | 通过 |
 | 生产浏览器 | 两路线正确 Ending、console 0 error | 入口至 Choice 3 次 Continue；两分支各 2 次；两个结局正确；0 error | 通过 |
 | 工作区/架构/风险/需求 | 当前节点 N32 且不越权 | 四项审计 PASS；RA-N21-004 唯一 active | 通过 |
@@ -85,11 +98,11 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 | E2 本机全仓 | 普通回归全绿；串行 autosave ≤5 秒 | 98 files / 592 tests 通过；autosave 约 23.10 秒仍“保存中…” | 功能通过；已知主机负载差异保留给远端裁决 |
 | E2 production build | 成功并报告增量 | 692.05 kB，gzip 198.42 kB；较 E1 约 +9.7/+2.1 kB | 构建通过，拆包债保留 |
 | E2 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #53，run `32459445287` / job `96703241983`，4 分 16 秒；autosave 3.086 秒 | 通过；本机负载差异关闭 |
-| E3 定向 | 精确目标、Fresh State、结构化负例和 UI 路径 | 2 files / 9 tests；N51-E3 source identity 后 Scene Hash `67eda61e…fccc4`；Statement Hash `04c2d201…d0622` | 通过 |
+| E3 定向 | 精确目标、Fresh State、结构化负例和 UI 路径 | 2 files / 9 tests；N51-E6c source identity 后 Scene Hash `869bd36b…b951e`；Statement Hash `719d1729…5fdda` | 通过 |
 | E3 全仓与构建 | 普通回归、串行 storage、审计和 production build 通过 | 98 files / 595 tests；storage 1/1；JS 694.55 kB / gzip 199.03 kB | 通过；>500 kB 拆包债保留 |
 | E3 生产浏览器 | Scene/Statement 精确位置、同目标重启、console 0 error | `stmt_radio_bg #0`、`stmt_radio_001 #1`；结局后重启仍为 `#1`；`[]` | 通过 |
 | E3 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #54，run `32461345815` / job `96708731870`，4 分 16 秒；98/595；autosave 3.049 秒；Runtime corpus 32.593 秒 | 通过；E3 Engineering 关闭 |
-| E4 定向 | History/Scheduler 控制、内部光标、调用栈、阻断和 fork | 2 files / 14 tests；N51-E3 source identity 后 History Hash `3863ae18…98c32` | 通过 |
+| E4 定向 | History/Scheduler 控制、内部光标、调用栈、阻断和 fork | 2 files / 14 tests；N51-E6c source identity 后 History Hash `184f619b…17266` | 通过 |
 | E4 本机全仓 | 普通回归、串行 storage、审计和 production build | 98 files / 600 tests；storage 1/1（5.18 秒）；JS 721.30/205.42 kB | 通过；拆包债扩大并保留 |
 | E4 生产浏览器 | Cursor/Back/Forward/Choice/fork/布局/console | h2/2 transient；h1/2↔h2/2；Choice h3/3→h4/4；route fork h5/5；352×46；`[]` | 通过 |
 | E4 GitHub CI | Windows / Node 22 完整门绿色 | Draft PR #55，run `32464584207` / job `96718382563`，4 分 15 秒；98/600；autosave 2.961 秒；Runtime corpus 30.334 秒 | 通过；E4 Engineering 关闭 |
@@ -130,6 +143,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
 4. `RA-N21-010` 只准入 N51 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. RA-010 只准入 N51 Engineering；E5 已由本地完整门与 production browser 关闭，下一步按[审计 #227](227-n51-e5-settings-runtime-application-audit.md)进入 E6 完整 P0 覆盖与出口审计；N52 继续阻断。
+6. RA-010 只准入 N51 Engineering；N51 Engineering 已关闭，N51 Product Acceptance 与 N52 继续阻断；进入后续节点前必须取得新的明确授权并完成对应准入审计。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

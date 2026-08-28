@@ -88,11 +88,12 @@ function cubicStageCoordinate(start: number, control1: number, control2: number,
 
 export function resolvePreviewCharacterGeometryAtProgress(
   character: LoadedPreviewCharacter,
-  progress: number
+  progress: number,
+  defaultEasing: StageEasing = "linear"
 ): PreviewCharacterGeometry {
   const target = resolvePreviewCharacterGeometry(character);
   if (character.movementFrom === undefined) return target;
-  const temporalProgress = previewStageEasingProgress(character.easing, progress);
+  const temporalProgress = previewStageEasingProgress(character.easing ?? defaultEasing, progress);
   const geometry = interpolateGeometry(character.movementFrom, target, temporalProgress);
   if (character.curve !== "bezier" || character.control1X === undefined || character.control1Y === undefined ||
       character.control2X === undefined || character.control2Y === undefined) return geometry;
@@ -134,10 +135,10 @@ export function previewStageEasingProgress(easing: StageEasing | undefined, prog
   return cubicBezierCoordinate((lower + upper) / 2, y1, y2);
 }
 
-export function previewCanvasDurationMs(source: string | undefined): number {
-  if (source === undefined) return 300;
+export function previewCanvasDurationMs(source: string | undefined, defaultDurationMilliseconds = 360): number {
+  if (source === undefined) return defaultDurationMilliseconds;
   const match = /^(\d+(?:\.\d+)?)(ms|s)$/u.exec(source);
-  if (match === null) return 300;
+  if (match === null) return defaultDurationMilliseconds;
   const milliseconds = Number(match[1]) * (match[2] === "s" ? 1000 : 1);
   return Math.min(10_000, Math.max(0, milliseconds));
 }
@@ -180,7 +181,8 @@ function drawTransitionBackgrounds(
   designWidth: number,
   designHeight: number,
   selectedStatementId: string,
-  progress: number
+  progress: number,
+  defaultEasing: StageEasing
 ): void {
   const transitionLayer = frame.background?.statementId === selectedStatementId
     ? frame.background
@@ -188,7 +190,7 @@ function drawTransitionBackgrounds(
       ? frame.previousBackground
       : undefined;
   const transition = transitionLayer?.transition;
-  const bounded = Math.min(1, Math.max(0, progress));
+  const bounded = previewStageEasingProgress(transitionLayer?.easing ?? defaultEasing, progress);
   const previous = images.previousBackground;
   const current = images.background;
   if (transition === "fade") {
@@ -227,29 +229,30 @@ export function drawPreviewCanvasFrame(
   pixelWidth: number,
   pixelHeight: number,
   selectedStatementId: string,
-  movementProgress = 1
+  movementProgress = 1,
+  defaultEasing: StageEasing = "linear"
 ): void {
   context.setTransform(pixelWidth / designWidth, 0, 0, pixelHeight / designHeight, 0, 0);
   context.clearRect(0, 0, designWidth, designHeight);
   const cameraTarget = resolvePreviewCameraGeometry(frame.camera);
-  const camera = frame.camera?.movementFrom === undefined ? cameraTarget : interpolateCameraGeometry(frame.camera.movementFrom, cameraTarget, previewStageEasingProgress(frame.camera.easing, movementProgress));
+  const camera = frame.camera?.movementFrom === undefined ? cameraTarget : interpolateCameraGeometry(frame.camera.movementFrom, cameraTarget, previewStageEasingProgress(frame.camera.easing ?? defaultEasing, movementProgress));
   context.save();
   context.translate(designWidth * (0.5 + camera.x / 100), designHeight * (0.5 + camera.y / 100));
   context.rotate(camera.rotation * Math.PI / 180);
   context.scale(camera.zoom, camera.zoom);
   context.translate(-designWidth * 0.5, -designHeight * 0.5);
-  drawTransitionBackgrounds(context, frame, images, designWidth, designHeight, selectedStatementId, movementProgress);
+  drawTransitionBackgrounds(context, frame, images, designWidth, designHeight, selectedStatementId, movementProgress, defaultEasing);
   for (const character of frame.characters) {
     const image = images.characters.get(character.statementId);
     if (image === undefined) continue;
-    let geometry = resolvePreviewCharacterGeometryAtProgress(character, movementProgress);
+    const characterProgress = previewStageEasingProgress(character.easing ?? defaultEasing, movementProgress);
+    let geometry = resolvePreviewCharacterGeometryAtProgress(character, movementProgress, defaultEasing);
     if (character.entering === true && character.transition === "slide") {
-      geometry = { ...geometry, x: geometry.x + 7 * (1 - Math.min(1, Math.max(0, movementProgress))) };
+      geometry = { ...geometry, x: geometry.x + 7 * (1 - characterProgress) };
     }
     const rect = resolveCanvasCharacterRect(geometry, image.width, image.height, designWidth, designHeight);
     context.save();
-    const boundedProgress = Math.min(1, Math.max(0, movementProgress));
-    context.globalAlpha = character.exiting === true ? 1 - boundedProgress : character.entering === true ? boundedProgress : 1;
+    context.globalAlpha = character.exiting === true ? 1 - characterProgress : character.entering === true ? characterProgress : 1;
     context.translate(designWidth * geometry.x / 100, designHeight * geometry.y / 100);
     context.rotate(geometry.rotation * Math.PI / 180);
     if (selectedStatementId === character.statementId) {
@@ -273,6 +276,8 @@ interface PreviewCanvasHitProxyProps {
   readonly designHeight: number;
   readonly onSelect: (statementId: string) => void;
   readonly onStagePoint: (point: StageDesignPoint) => void;
+  readonly defaultDurationMilliseconds?: number;
+  readonly defaultEasing?: StageEasing;
 }
 
 export function PreviewCanvasHitProxy({
@@ -281,7 +286,9 @@ export function PreviewCanvasHitProxy({
   designWidth,
   designHeight,
   onSelect,
-  onStagePoint
+  onStagePoint,
+  defaultDurationMilliseconds = 360,
+  defaultEasing = "linear"
 }: PreviewCanvasHitProxyProps) {
   const geometry = resolvePreviewCharacterGeometry(character);
   const movementFrom = character.movementFrom;
@@ -296,7 +303,7 @@ export function PreviewCanvasHitProxy({
     data-stage-slot={character.slot}
     data-stage-x={geometry.x}
     data-stage-y={geometry.y}
-    data-stage-easing={character.easing ?? "linear"}
+    data-stage-easing={character.easing ?? defaultEasing}
     data-stage-curve={character.curve}
     aria-label={label}
     aria-pressed={selected}
@@ -316,8 +323,8 @@ export function PreviewCanvasHitProxy({
       left: bezierPath === undefined ? `${geometry.x}%` : 0,
       top: bezierPath === undefined ? `${geometry.y}%` : 0,
       transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) rotate(${geometry.rotation}deg)`,
-      animationDuration: character.duration ?? "300ms",
-      animationTimingFunction: character.easing ?? "linear",
+      animationDuration: character.duration ?? `${defaultDurationMilliseconds}ms`,
+      animationTimingFunction: character.easing ?? defaultEasing,
       ...(bezierPath === undefined ? {} : { offsetPath: bezierPath, offsetDistance: "100%", offsetRotate: "0deg", offsetAnchor: "0 0" }),
       ...(movementFrom === undefined ? {} : {
         "--stage-move-from-left": `${movementFrom.x}%`,
@@ -341,6 +348,8 @@ interface PreviewCanvasHostProps {
     role: PreviewMediaRole,
     layer: { readonly statementId: string; readonly assetId: string }
   ) => void;
+  readonly defaultDurationMilliseconds?: number;
+  readonly defaultEasing?: StageEasing;
 }
 
 function loadCanvasImage(url: string, signal: AbortSignal): Promise<PreviewCanvasImage> {
@@ -374,7 +383,9 @@ export function PreviewCanvasHost({
   selectedStatementId,
   onSelect,
   onStagePoint,
-  onRuntimeError
+  onRuntimeError,
+  defaultDurationMilliseconds = 360,
+  defaultEasing = "linear"
 }: PreviewCanvasHostProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const runtimeErrorRef = useRef(onRuntimeError);
@@ -422,7 +433,8 @@ export function PreviewCanvasHost({
         pixelWidth,
         pixelHeight,
         selectedStatementId,
-        movementProgress
+        movementProgress,
+        defaultEasing
       );
     };
     draw();
@@ -461,9 +473,9 @@ export function PreviewCanvasHost({
     void Promise.allSettled(imageTasks).then(() => {
       if (controller.signal.aborted || movementProgress === 1) return;
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
-      const duration = Math.max(0, ...(activeTransition?.transition === undefined ? [] : [previewCanvasDurationMs(activeTransition.duration)]), ...(frame.camera?.movementFrom === undefined ? [] : [previewCanvasDurationMs(frame.camera.duration)]), ...frame.characters
+      const duration = Math.max(0, ...(activeTransition?.transition === undefined ? [] : [previewCanvasDurationMs(activeTransition.duration, defaultDurationMilliseconds)]), ...(frame.camera?.movementFrom === undefined ? [] : [previewCanvasDurationMs(frame.camera.duration, defaultDurationMilliseconds)]), ...frame.characters
         .filter((character) => character.entering === true || character.movementFrom !== undefined || character.exiting === true)
-        .map((character) => previewCanvasDurationMs(character.duration)));
+        .map((character) => previewCanvasDurationMs(character.duration, defaultDurationMilliseconds)));
       if (reducedMotion || duration === 0) {
         movementProgress = 1;
         draw();
@@ -483,7 +495,7 @@ export function PreviewCanvasHost({
       controller.abort();
       if (animationFrame !== 0) window.cancelAnimationFrame(animationFrame);
     };
-  }, [designHeight, designWidth, frame.generation, frame.planKey, pixelHeight, pixelWidth, selectedStatementId]);
+  }, [defaultDurationMilliseconds, defaultEasing, designHeight, designWidth, frame.generation, frame.planKey, pixelHeight, pixelWidth, selectedStatementId]);
 
   if (fallback) return <PreviewVisualHost
     frame={{ ...frame, backend: PREVIEW_RENDER_HOST_CAPABILITIES.fallbackBackend }}
@@ -493,6 +505,8 @@ export function PreviewCanvasHost({
     onSelect={onSelect}
     onStagePoint={onStagePoint}
     onRuntimeError={onRuntimeError}
+    defaultDurationMilliseconds={defaultDurationMilliseconds}
+    defaultEasing={defaultEasing}
   />;
 
   return <div
@@ -516,7 +530,7 @@ export function PreviewCanvasHost({
     <div className="stage-canvas-hit-plane" data-camera-statement={frame.camera?.statementId} style={frame.camera === undefined ? undefined : {
       transformOrigin: "50% 50%",
       transform: `translate(${frame.camera.x}%, ${frame.camera.y}%) scale(${frame.camera.zoom}) rotate(${frame.camera.rotation}deg)`,
-      transition: `transform ${frame.camera.duration ?? "360ms"} ${frame.camera.easing ?? "linear"}`
+      transition: `transform ${frame.camera.duration ?? `${defaultDurationMilliseconds}ms`} ${frame.camera.easing ?? defaultEasing}`
     }}>
       {frame.characters.map((character) => <PreviewCanvasHitProxy
         key={character.slot}
@@ -526,6 +540,8 @@ export function PreviewCanvasHost({
         designHeight={designHeight}
         onSelect={onSelect}
         onStagePoint={onStagePoint}
+        defaultDurationMilliseconds={defaultDurationMilliseconds}
+        defaultEasing={defaultEasing}
       />)}
     </div>
   </div>;

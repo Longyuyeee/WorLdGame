@@ -48,7 +48,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
-  const stage = useMemo(() => derivePlayerStagePresentationV1(snapshot, mediaAssets), [mediaAssets, snapshot]);
+  const stage = useMemo(
+    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage, settingsApplication.ui),
+    [mediaAssets, settingsApplication.stage, settingsApplication.ui, snapshot]
+  );
   const appliedAudio = stage.audio.map((track) => ({
     ...track,
     appliedVolume: galAudioGainV1(
@@ -198,7 +201,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (hostActivity === "suspended") {
         element.dataset.playerPlayback = "suspended";
         element.pause();
-      } else if (element.dataset.shouldPlay === "true") {
+      } else if (element.dataset.shouldPlay === "true" && settingsApplication.audio.resumeAfterInterruption) {
         element.dataset.playerPlayback = "resuming";
         const resumed = element.play();
         resumed?.then(() => {
@@ -206,9 +209,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         }).catch(() => {
           element.dataset.playerPlayback = "blocked";
         });
+      } else if (element.dataset.shouldPlay === "true") {
+        element.dataset.playerPlayback = "paused-by-policy";
       }
     }
-  }, [hostActivity]);
+  }, [hostActivity, settingsApplication.audio.resumeAfterInterruption]);
 
   useEffect(() => () => {
     for (const element of audioElements.current.values()) {
@@ -237,6 +242,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-input-keyboard={settingsApplication.input.keyboard}
       data-settings-input-touch={settingsApplication.input.touch}
       data-settings-input-gamepad={settingsApplication.input.gamepad}
+      data-settings-high-contrast={settingsApplication.accessibility.highContrast}
+      data-settings-reduce-motion={settingsApplication.accessibility.reduceMotion}
+      data-settings-reduce-flashing={settingsApplication.accessibility.reduceFlashing}
       data-settings-text-cps={settingsApplication.text.charactersPerSecond}
       data-settings-text-minimum={settingsApplication.text.minimumDisplayMilliseconds}
       data-settings-text-punctuation={settingsApplication.text.punctuationDelayMilliseconds}
@@ -249,11 +257,20 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-audio-ambient={settingsApplication.resolved.values.audio.ambient}
       data-settings-audio-ui={settingsApplication.resolved.values.audio.ui}
       data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
+      data-settings-audio-resume={settingsApplication.audio.resumeAfterInterruption}
+      data-settings-stage-duration={settingsApplication.stage.defaultDurationMilliseconds}
+      data-settings-stage-easing={settingsApplication.stage.defaultEasing}
+      data-settings-choice-layout={settingsApplication.choice.layout}
+      data-settings-choice-numbers={settingsApplication.choice.showOptionNumbers}
+      data-settings-textbox-default={settingsApplication.ui.defaultTextboxTemplate}
+      data-settings-input-hints={settingsApplication.ui.showInputHints}
       style={{
         "--gal-stage-aspect": settingsApplication.display.aspectRatio,
         "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
         "--gal-font-scale": settingsApplication.text.fontScale,
-        "--gal-message-opacity": settingsApplication.text.messageWindowOpacity
+        "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
+        "--gal-line-height": settingsApplication.text.lineHeight,
+        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`
       } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />
@@ -267,6 +284,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               src={stage.background.url}
               alt={stage.background.displayName}
               data-asset-id={stage.background.assetId}
+              style={{ animationDuration: `${stage.background.durationMilliseconds}ms`, animationTimingFunction: stage.background.easing }}
               onError={() => setMediaErrors((current) => [...new Set([...current, stage.background!.assetId])])}
             />
           )}
@@ -281,7 +299,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               alt={character.displayName}
               data-asset-id={character.assetId}
               data-stage-slot={character.slot}
-              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)` }}
+              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)`, animationDuration: `${character.durationMilliseconds}ms`, animationTimingFunction: character.easing }}
               onError={() => setMediaErrors((current) => [...new Set([...current, character.assetId])])}
             />
           ))}
@@ -346,7 +364,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               开始故事
               <span aria-hidden="true">→</span>
             </button>
-            <span className="player-hint">Enter / Space</span>
+            {settingsApplication.ui.showInputHints && <span className="player-hint">Enter / Space</span>}
           </div>
         )}
 
@@ -367,7 +385,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         )}
 
         {content.kind === "choice" && (
-          <div className="player-choice" role="group" aria-labelledby="player-choice-prompt">
+          <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
             <p id="player-choice-prompt">{content.prompt}</p>
             {content.options.map((option, index) => (
               <button
@@ -380,7 +398,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
                 onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, pointerInput.current)}
               >
-                <span aria-hidden="true">{index + 1}</span>{option.label}
+                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}{option.label}
               </button>
             ))}
           </div>

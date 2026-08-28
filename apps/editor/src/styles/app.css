@@ -3882,6 +3882,14 @@ textarea[data-input-state="composing"] {
   padding: 13px;
 }
 
+.choice-preview[data-choice-layout="responsive-grid"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.choice-preview[data-choice-layout="responsive-grid"] > strong {
+  grid-column: 1 / -1;
+}
+
 .choice-preview strong {
   margin-bottom: 2px;
   font-size: 11px;
@@ -3903,6 +3911,15 @@ textarea[data-input-state="composing"] {
 .choice-preview button {
   cursor: pointer;
   transition: border-color var(--wg-motion-duration-fast) ease, background var(--wg-motion-duration-fast) ease;
+}
+
+.choice-preview [data-choice-number] {
+  margin-right: 6px;
+  color: var(--wg-color-accent, #55d98a);
+}
+
+@media (max-width: 640px) {
+  .choice-preview[data-choice-layout="responsive-grid"] { grid-template-columns: minmax(0, 1fr); }
 }
 
 .choice-preview button:hover,
@@ -4101,9 +4118,19 @@ textarea[data-input-state="composing"] {
 .dialogue-presentation__line p {
   margin: 0;
   font-size: calc(12px * var(--gal-font-scale, 1));
-  line-height: 1.65;
+  line-height: var(--gal-line-height, 1.65);
+  letter-spacing: var(--gal-letter-spacing, 0);
   animation: preview-text-reveal var(--gal-text-reveal-duration, 0ms) linear both;
 }
+
+.stage-preview[data-settings-high-contrast="true"] .dialogue-presentation,
+.stage-preview[data-settings-high-contrast="true"] .choice-preview { border: 2px solid #fff; color: #fff; background: #000; box-shadow: none; backdrop-filter: none; }
+.stage-preview[data-settings-high-contrast="true"] .speaker-name { color: #00ffff; }
+.stage-preview[data-settings-reduce-motion="true"] .dialogue-presentation *,
+.stage-preview[data-settings-reduce-motion="true"] .stage-transition--fade,
+.stage-preview[data-settings-reduce-motion="true"] .stage-transition--dissolve,
+.stage-preview[data-settings-reduce-motion="true"] .stage-transition--slide { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+.stage-preview[data-settings-reduce-flashing="true"] .stage-transition--dissolve { animation-name: stage-media-fade; filter: none; }
 
 .dialogue-presentation--nvl {
   display: grid;

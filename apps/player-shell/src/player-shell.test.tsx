@@ -8,7 +8,7 @@ import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-set
 import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
-import { WebPlayerHost } from "./player-host";
+import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -161,6 +161,29 @@ describe("N50-E1 shared Player Shell", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Curtain");
   });
 
+  it("always pauses on interruption but keeps media paused when automatic resume is disabled", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const configured = {
+      ...demo.project,
+      settings: withProjectSettings(demo.project.settings, { audio: { resumeAfterInterruption: false } })
+    };
+    const view = render(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const shell = view.container.querySelector("main")!;
+    expect(shell).toHaveAttribute("data-player-status", "presenting");
+
+    view.rerender(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    expect(pause).toHaveBeenCalledTimes(2);
+    view.rerender(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    await Promise.resolve();
+
+    expect(play).not.toHaveBeenCalled();
+    expect(shell).toHaveAttribute("data-player-status", "presenting");
+    expect([...view.container.querySelectorAll("audio")].map((node) => node.getAttribute("data-player-playback"))).toEqual(["paused-by-policy", "paused-by-policy"]);
+  });
+
   it("maps real document visibility to host activity and restores keyboard input on return", () => {
     const original = Object.getOwnPropertyDescriptor(document, "visibilityState");
     let visibility: DocumentVisibilityState = "visible";
@@ -185,6 +208,27 @@ describe("N50-E1 shared Player Shell", () => {
     }
   });
 
+  it("pins the Web host to the Web settings layer even when an untyped caller injects another platform", () => {
+    type WebHostOwnsSettingsPlatform = "platform" extends keyof WebPlayerHostProps ? false : true;
+    const webHostOwnsSettingsPlatform: WebHostOwnsSettingsPlatform = true;
+    const project = branching();
+    const configured = {
+      ...project,
+      settings: withPlatformSettings(
+        withPlatformSettings(project.settings, "web", { display: { quality: "high" } }),
+        "android",
+        { display: { quality: "low" } }
+      )
+    };
+    const untypedHostProps = { project: configured, platform: "android" as const };
+
+    const { container } = render(<WebPlayerHost {...untypedHostProps} />);
+
+    expect(webHostOwnsSettingsPlatform).toBe(true);
+    expect(container.querySelector("main")).toHaveAttribute("data-settings-platform", "web");
+    expect(container.querySelector("main")).toHaveAttribute("data-settings-quality", "high");
+  });
+
   it("releases removed audio buses instead of resuming detached media", async () => {
     const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
     const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
@@ -202,6 +246,26 @@ describe("N50-E1 shared Player Shell", () => {
 });
 
 describe("N51-E5 Player settings application", () => {
+  it("keeps the active Core when a persisted v1 settings document is normalized to current v5", () => {
+    const project = branching();
+    const legacyFiles = { ...saveProject(project) };
+    legacyFiles[project.manifest.settingsPath] = JSON.stringify({
+      schemaVersion: 1,
+      project: {},
+      platforms: { windows: {}, web: {}, android: {} }
+    });
+    const migrated = loadProject(legacyFiles);
+    const view = render(<PlayerShell project={project} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+
+    view.rerender(<PlayerShell project={migrated} />);
+
+    expect(migrated.settings.schemaVersion).toBe(5);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+  });
+
   it("hot-applies presentation settings without resetting the active formal Core", () => {
     const project = branching();
     const view = render(<PlayerShell project={project} />);
@@ -212,7 +276,10 @@ describe("N51-E5 Player settings application", () => {
       ...project,
       settings: withPlatformSettings(project.settings, "web", {
         display: { designWidth: 1440, designHeight: 1080, orientation: "landscape", quality: "low", safeArea: "none" },
-        text: { fontScale: 1.5, messageWindowOpacity: 0.4 }
+        text: { fontScale: 1.5, messageWindowOpacity: 0.4, revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
+        choice: { showOptionNumbers: false, layout: "responsive-grid" },
+        ui: { defaultTextboxTemplate: "bubble", showInputHints: false },
+        accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true }
       })
     };
     view.rerender(<PlayerShell project={updated} />);
@@ -220,7 +287,27 @@ describe("N51-E5 Player settings application", () => {
     expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-quality", "low");
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-safe-area", "none");
-    expect(view.container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1440 / 1080", "--gal-font-scale": "1.5", "--gal-message-opacity": "0.4" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-high-contrast", "true");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-reduce-motion", "true");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-reduce-flashing", "true");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-choice-layout", "responsive-grid");
+    expect(view.container.querySelector(".player-choice")).toHaveAttribute("data-choice-layout", "responsive-grid");
+    expect(view.container.querySelectorAll("[data-choice-number]")).toHaveLength(0);
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Left/u })).toBeInTheDocument();
+    expect(view.container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1440 / 1080", "--gal-font-scale": "1.5", "--gal-message-opacity": "0.4", "--gal-line-height": "2", "--gal-letter-spacing": "0.08em" });
+  });
+
+  it("hides only the title input hint while preserving keyboard start", () => {
+    const project = branching();
+    const configured = {
+      ...project,
+      settings: withProjectSettings(project.settings, { ui: { showInputHints: false } })
+    };
+    const { container } = render(<PlayerShell project={configured} />);
+    expect(container.querySelector(".player-hint")).not.toBeInTheDocument();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
   });
 
   it("uses the selected platform layer and hot-applies pointer and keyboard gates", () => {

@@ -11,11 +11,11 @@ import {
 } from "./index";
 
 describe("N51-E2 Gal settings catalog", () => {
-  it("covers all 23 setting paths exactly once with frozen Basic/Advanced visibility", () => {
-    expect(GAL_SETTING_DEFINITIONS).toHaveLength(23);
-    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(23);
-    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(16);
-    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(23);
+  it("covers all 36 setting paths exactly once with frozen Basic/Advanced visibility", () => {
+    expect(GAL_SETTING_DEFINITIONS).toHaveLength(36);
+    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(36);
+    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(23);
+    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(36);
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       definition.label.zhHans.length > 0 &&
       definition.label.en.length > 0 &&
@@ -26,6 +26,27 @@ describe("N51-E2 Gal settings catalog", () => {
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       Object.isFrozen(definition) && Object.isFrozen(definition.label) && Object.isFrozen(definition.control)
     )).toBe(true);
+  });
+
+  it("finds Stage defaults and the Player interruption policy without inventing audio fade", () => {
+    expect(searchGalSettingDefinitions("默认 舞台 时长", { mode: "advanced" }).map((definition) => definition.path)).toEqual(["stage.defaultDurationMilliseconds"]);
+    expect(searchGalSettingDefinitions("interruption resume").map((definition) => definition.path)).toEqual(["audio.resumeAfterInterruption"]);
+    expect(GAL_SETTING_DEFINITIONS.some((definition) => definition.path === ("audio.defaultFadeMilliseconds" as never))).toBe(false);
+  });
+
+  it("finds Choice and UI presentation policies without claiming Route or scheduler ownership", () => {
+    expect(searchGalSettingDefinitions("选项 序号").map((definition) => definition.path)).toEqual(["choice.showOptionNumbers"]);
+    expect(searchGalSettingDefinitions("responsive choice layout", { mode: "advanced" }).map((definition) => definition.path)).toEqual(["choice.layout"]);
+    expect(searchGalSettingDefinitions("默认 对话框", { mode: "advanced" }).map((definition) => definition.path)).toEqual(["ui.defaultTextboxTemplate"]);
+    expect(searchGalSettingDefinitions("输入 提示").map((definition) => definition.path)).toEqual(["ui.showInputHints"]);
+    expect(GAL_SETTING_DEFINITIONS.some((definition) => definition.path === ("route.spoilerPolicy" as never))).toBe(false);
+    expect(GAL_SETTING_DEFINITIONS.some((definition) => definition.path === ("choice.timeoutMilliseconds" as never))).toBe(false);
+  });
+
+  it("finds the portable accessibility policies without returning Editor-only preferences", () => {
+    expect(searchGalSettingDefinitions("减少 动效").map((definition) => definition.path)).toEqual(["accessibility.reduceMotion"]);
+    expect(searchGalSettingDefinitions("high contrast").map((definition) => definition.path)).toEqual(["accessibility.highContrast"]);
+    expect(searchGalSettingDefinitions("字体 行高", { mode: "advanced" }).map((definition) => definition.path)).toEqual(["text.lineHeight"]);
   });
 
   it("normalizes full-width Latin search and requires every query term", () => {

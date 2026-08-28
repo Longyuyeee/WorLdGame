@@ -1,29 +1,34 @@
 {
   "schemaVersion": 1,
-  "node": "N51-E4",
-  "scope": "cold-production-build-settings-edit-save-reopen-desktop-390x844",
-  "generatedAt": "2026-08-27T16:18:29.978Z",
+  "node": "N51-E6d",
+  "scope": "cold-production-build-choice-ui-policy-edit-save-reopen-desktop-390x844",
+  "generatedAt": "2026-08-28T07:54:59.600Z",
   "build": {
-    "editorDistIndexSha256": "856eca82679b6e053c106bfec297273f28f076ef0ab78a0814982f075e235bde"
+    "editorDistIndexSha256": "835d14895571f26625230cdb9edd6ed09fbb6c1f6a21c94426f2b4757c762a85"
   },
   "environment": {
-    "product": "Edg/137.0.3296.68",
+    "product": "Chrome/151.0.7922.174",
     "protocolVersion": "1.3",
     "headless": true,
     "url": "http://127.0.0.1:5181/"
   },
   "expectation": {
-    "basicSettings": 16,
+    "basicSettings": 23,
     "workspaceModes": 7,
     "previewProfile": "landscape-16-9",
     "persistedWebMasterVolume": 0.4,
+    "persistedResumeAfterInterruption": false,
+    "persistedWebHighContrast": true,
+    "persistedShowOptionNumbers": false,
+    "persistedShowInputHints": false,
+    "previewHighContrast": true,
     "horizontalOverflow": 0,
     "minimumTouchHeight": 44,
     "browserErrors": 0
   },
   "actual": {
     "initial": {
-      "visibleSettings": 16,
+      "visibleSettings": 23,
       "workspaceModes": 7,
       "previewProfile": "landscape-16-9",
       "overflow": 0,
@@ -33,6 +38,16 @@
     "reopened": {
       "masterVolume": "0.4",
       "source": "Web 覆盖",
+      "resumeAfterInterruption": false,
+      "resumeSource": "Web 覆盖",
+      "highContrast": true,
+      "highContrastSource": "Web 覆盖",
+      "showOptionNumbers": false,
+      "choiceSource": "Web 覆盖",
+      "showInputHints": false,
+      "inputHintsSource": "Web 覆盖",
+      "previewHighContrast": "true",
+      "previewBackground": "rgb(0, 0, 0)",
       "saveLabel": "已恢复 · s1",
       "previewProfile": "landscape-16-9"
     },
@@ -55,15 +70,15 @@
       "path": "evidence/n51/settings-ui-desktop.png",
       "width": 1440,
       "height": 900,
-      "byteLength": 338167,
-      "sha256": "410c002c561b6b2daf2d7b05dd01d6fbd09e5c80bac730987717c3dd660c5af4"
+      "byteLength": 347536,
+      "sha256": "5397f746003c0cff28cd812d7bccda9c1c667cdf311623704cf3cb2a7642d64f"
     },
     {
       "path": "evidence/n51/settings-ui-mobile.png",
       "width": 390,
       "height": 844,
-      "byteLength": 115056,
-      "sha256": "4c3256888be068cd09d1f8d0b6e5640d4ae0ecf8c0c3b522d25e7543849b65d5"
+      "byteLength": 103861,
+      "sha256": "94d8420bc66016f138ea26de3141a718286daccc1a7968c7be72210322eef444"
     }
   ],
   "result": "PASS"

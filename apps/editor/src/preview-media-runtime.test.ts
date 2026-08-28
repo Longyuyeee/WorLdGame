@@ -38,6 +38,18 @@ describe("preview media runtime", () => {
     expect(rejected.diagnostics.at(-1)).toContain("requires adv, nvl, or bubble");
   });
 
+  it("uses the configured textbox default only when no explicit template owns the stage", () => {
+    const controlled: readonly StoryStatement[] = [
+      { kind: "direction", id: "nvl", command: "textbox", summary: "action=set template=nvl" },
+      { kind: "dialogue", id: "line", speakerId: "hero", textId: "text", text: "hello" },
+      { kind: "direction", id: "reset", command: "textbox", summary: "action=reset" }
+    ];
+    expect(derivePreviewStagePlan([], 0, "bubble").dialogueTemplate).toBe("bubble");
+    expect(derivePreviewStagePlan(controlled, 1, "bubble").dialogueTemplate).toBe("nvl");
+    expect(derivePreviewStagePlan(controlled, 2, "bubble").dialogueTemplate).toBe("bubble");
+    expect(compilePreviewStageTimeline(controlled, "bubble")[2]?.dialogueTemplate).toBe("bubble");
+  });
+
   it("derives cumulative stage state and rewinds deterministically", () => {
     const dialoguePlan = derivePreviewStagePlan(statements, 1);
     expect(dialoguePlan).toMatchObject({ background: { assetId: "bg_gate" }, audio: [] });
