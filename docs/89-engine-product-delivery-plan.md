@@ -489,6 +489,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6a Engineering 状态（2026-08-28）：[Settings Schema v2 迁移安全审计](230-n51-e6a-settings-schema-v2-migration-audit.md)已实现合法 v1/v2 严格读取、内存统一 v2、首次保存升级、二次保存字节幂等和 v3+ 失败关闭。真实 Node 临时目录、Web IndexedDB、Canonical Project 与 Player 活跃 choice Core 均纳入测试；首次 52 项实际有 7 项按预期因旧 parser 失败，修正后 52/52。实现头 `1b21508` 的 Draft PR #96 Windows / Node 22 run `33136866897` / job `98738665580` 用时 `11m50s` 绿色：普通 `149/861`、N51 `74/74`、Player/Core `32/32`、autosave `3.642s`、VM `63.71s`、Route P95 `130.55ms`、Asset dicing `3363.87ms`。E6a Engineering 关闭，下一切片为 E6b Text/Accessibility application。
 
+> E6b Engineering 状态（2026-08-28）：[Text / Accessibility 应用审计](231-n51-e6b-text-accessibility-entry-contract.md)新增 6 个可执行字段并把 Settings 当前写入版本提升到 v3；Catalog 为 Basic 20 / Advanced 29。Editor/Player 共用 application 投影即时文本、行高、字距、高对比、减动效和降闪烁；settings-only 热更新保持活跃 Core。首次冻结 57 项实际 47 通过/10 失败，修正后 N51 聚合 80/80；两个冷 production browser 分别验证 UI→IndexedDB→重开与 Player 活跃对白热应用，1440×900/390×844 均 overflow 0、console 0。E6b 不实现 N52 播放控制或 N61/N62 内容生产；下一切片为 E6c Stage/Audio default policy。
+
 ### N52 Save、History、Auto、Skip、Back/Forward
 
 - **Goal**：特色播放控制成为玩家功能而非 VM 测试。

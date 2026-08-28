@@ -28,12 +28,20 @@ export interface GalSettingsApplicationV1 {
     readonly punctuationDelayMilliseconds: number;
     readonly fontScale: number;
     readonly messageWindowOpacity: number;
+    readonly revealMode: "typewriter" | "instant";
+    readonly lineHeight: number;
+    readonly letterSpacingEm: number;
   };
   readonly advance: {
     readonly allowHold: boolean;
     readonly waitForVoice: boolean;
   };
   readonly input: Readonly<Record<GalAdvanceInputV1, boolean>>;
+  readonly accessibility: {
+    readonly highContrast: boolean;
+    readonly reduceMotion: boolean;
+    readonly reduceFlashing: boolean;
+  };
 }
 
 const PUNCTUATION = /[,.!?;:\u3001\u3002\uff01\uff1f\uff0c\uff1b\uff1a\u2026]/gu;
@@ -43,7 +51,7 @@ export function createGalSettingsApplicationV1(
   platform: GalSettingsPlatform
 ): GalSettingsApplicationV1 {
   const resolved = resolveGalSettings(settings, platform);
-  const { display, text, advance, input } = resolved.values;
+  const { display, text, advance, input, accessibility } = resolved.values;
   return {
     version: GAL_SETTINGS_APPLICATION_VERSION,
     resolved,
@@ -54,6 +62,7 @@ export function createGalSettingsApplicationV1(
     },
     text,
     advance,
+    accessibility,
     input: {
       pointer: input.pointerAdvance,
       keyboard: input.keyboardAdvance,
@@ -64,6 +73,7 @@ export function createGalSettingsApplicationV1(
 }
 
 export function galTextRevealDurationMillisecondsV1(application: GalSettingsApplicationV1, text: string): number {
+  if (application.text.revealMode === "instant" || application.accessibility.reduceMotion) return 0;
   const characters = Array.from(text).length;
   const punctuation = text.match(PUNCTUATION)?.length ?? 0;
   const reveal = Math.ceil(characters / application.text.charactersPerSecond * 1000)

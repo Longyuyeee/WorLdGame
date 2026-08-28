@@ -3264,6 +3264,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           data-settings-input-keyboard={settingsApplication.input.keyboard}
           data-settings-input-touch={settingsApplication.input.touch}
           data-settings-input-gamepad={settingsApplication.input.gamepad}
+          data-settings-high-contrast={settingsApplication.accessibility.highContrast}
+          data-settings-reduce-motion={settingsApplication.accessibility.reduceMotion}
+          data-settings-reduce-flashing={settingsApplication.accessibility.reduceFlashing}
           data-settings-audio-master={settingsApplication.resolved.values.audio.master}
           data-settings-audio-bgm={settingsApplication.resolved.values.audio.bgm}
           data-settings-audio-voice={settingsApplication.resolved.values.audio.voice}
@@ -3277,6 +3280,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             "--preview-aspect": `${viewport.width} / ${viewport.height}`,
             "--gal-font-scale": settingsApplication.text.fontScale,
             "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
+            "--gal-line-height": settingsApplication.text.lineHeight,
+            "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`,
             "--gal-text-reveal-duration": `${dialogueRevealDuration}ms`
           } as CSSProperties}
         >

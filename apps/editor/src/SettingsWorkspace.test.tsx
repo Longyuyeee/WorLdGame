@@ -32,17 +32,34 @@ function renderSettings(project: CanonicalProject = createProjectTemplate("Setti
 describe("N51-E4 Settings workspace", () => {
   it("provides Basic/Advanced search, sections, platform layers, and visible inheritance sources", () => {
     const { container } = renderSettings(projectWithSources());
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(16);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(20);
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("项目值")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(23);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(29);
     fireEvent.change(screen.getByPlaceholderText("搜索名称、说明或路径…"), { target: { value: "音量" } });
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(7);
 
     fireEvent.click(screen.getByRole("radio", { name: "Web" }));
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("Web 覆盖")).toBeInTheDocument();
     expect(container.querySelector(".settings-layer-summary")).toHaveTextContent("1 当前层覆盖 · 0 待应用");
+  });
+
+  it("commits the accessibility section through one real Project ChangeSet", () => {
+    const { container, onProjectChange } = renderSettings();
+    fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "accessibility" } });
+    fireEvent.click(screen.getByRole("checkbox", { name: "高对比度" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "减少动效" }));
+    fireEvent.click(screen.getByRole("button", { name: "应用修改 · 2" }));
+
+    const committed = onProjectChange.mock.calls.at(-1)?.[0] as CanonicalProject;
+    expect(resolveGalSettings(committed.settings, "web").values.accessibility).toMatchObject({
+      highContrast: true,
+      reduceMotion: true,
+      reduceFlashing: false
+    });
+    expect(container.querySelectorAll('[data-setting-path^="accessibility."]')).toHaveLength(3);
+    expect(screen.getByText(/ChangeSet r1/)).toBeInTheDocument();
   });
 
   it("commits linked Android display fields in one ChangeSet and supports exact undo/redo", () => {

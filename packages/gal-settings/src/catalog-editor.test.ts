@@ -11,11 +11,11 @@ import {
 } from "./index";
 
 describe("N51-E2 Gal settings catalog", () => {
-  it("covers all 23 setting paths exactly once with frozen Basic/Advanced visibility", () => {
-    expect(GAL_SETTING_DEFINITIONS).toHaveLength(23);
-    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(23);
-    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(16);
-    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(23);
+  it("covers all 29 setting paths exactly once with frozen Basic/Advanced visibility", () => {
+    expect(GAL_SETTING_DEFINITIONS).toHaveLength(29);
+    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(29);
+    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(20);
+    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(29);
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       definition.label.zhHans.length > 0 &&
       definition.label.en.length > 0 &&
@@ -26,6 +26,12 @@ describe("N51-E2 Gal settings catalog", () => {
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       Object.isFrozen(definition) && Object.isFrozen(definition.label) && Object.isFrozen(definition.control)
     )).toBe(true);
+  });
+
+  it("finds the portable accessibility policies without returning Editor-only preferences", () => {
+    expect(searchGalSettingDefinitions("减少 动效").map((definition) => definition.path)).toEqual(["accessibility.reduceMotion"]);
+    expect(searchGalSettingDefinitions("high contrast").map((definition) => definition.path)).toEqual(["accessibility.highContrast"]);
+    expect(searchGalSettingDefinitions("字体 行高", { mode: "advanced" }).map((definition) => definition.path)).toEqual(["text.lineHeight"]);
   });
 
   it("normalizes full-width Latin search and requires every query term", () => {

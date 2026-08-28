@@ -237,6 +237,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-input-keyboard={settingsApplication.input.keyboard}
       data-settings-input-touch={settingsApplication.input.touch}
       data-settings-input-gamepad={settingsApplication.input.gamepad}
+      data-settings-high-contrast={settingsApplication.accessibility.highContrast}
+      data-settings-reduce-motion={settingsApplication.accessibility.reduceMotion}
+      data-settings-reduce-flashing={settingsApplication.accessibility.reduceFlashing}
       data-settings-text-cps={settingsApplication.text.charactersPerSecond}
       data-settings-text-minimum={settingsApplication.text.minimumDisplayMilliseconds}
       data-settings-text-punctuation={settingsApplication.text.punctuationDelayMilliseconds}
@@ -253,7 +256,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         "--gal-stage-aspect": settingsApplication.display.aspectRatio,
         "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
         "--gal-font-scale": settingsApplication.text.fontScale,
-        "--gal-message-opacity": settingsApplication.text.messageWindowOpacity
+        "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
+        "--gal-line-height": settingsApplication.text.lineHeight,
+        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`
       } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />

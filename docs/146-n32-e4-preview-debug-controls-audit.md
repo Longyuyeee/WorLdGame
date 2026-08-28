@@ -72,3 +72,5 @@ Draft PR #55 的实现头已通过 Windows / Node 22 完整 `npm run check`：�
 > 2026-08-27 N51-E3 演进说明：上文保留 N32-E4 当时的 History Hash。Canonical source identity 纳入正式 Gal settings defaults 后，现行三步 History Session Hash 为 `3863ae1835ba5f1f8972e1960d930347f1fbb9fbc2278805599b97c6c2d98c32`；Back/Forward 光标和 Runtime State 等价语义未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
 
 > 2026-08-28 N51-E6a 演进说明：Settings schema v2 更新 source/build identity 后，现行三步 History Session Hash 为 `ff1aeb4630ae56604b28f5f09680c6eb7d88c465907095b906b131b5daef0a6b`；Back/Forward 光标和前后 Runtime State 等价断言不变。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
+
+> 2026-08-28 N51-E6b 演进说明：Settings schema v3 后三步 History Session Hash 为 `db1d0b308fdafd5764b6b222f682f7ef4cfecdb6901ae7f00a1a0f59a4bdc475`；Back/Forward 光标、调用栈和前后 Runtime State 等价断言不变。详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。

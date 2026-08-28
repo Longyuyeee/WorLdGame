@@ -202,7 +202,7 @@ describe("N50-E1 shared Player Shell", () => {
 });
 
 describe("N51-E5 Player settings application", () => {
-  it("keeps the active Core when a persisted v1 settings document is normalized to v2", () => {
+  it("keeps the active Core when a persisted v1 settings document is normalized to current v3", () => {
     const project = branching();
     const legacyFiles = { ...saveProject(project) };
     legacyFiles[project.manifest.settingsPath] = JSON.stringify({
@@ -217,7 +217,7 @@ describe("N51-E5 Player settings application", () => {
 
     view.rerender(<PlayerShell project={migrated} />);
 
-    expect(migrated.settings.schemaVersion).toBe(2);
+    expect(migrated.settings.schemaVersion).toBe(3);
     expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
   });
@@ -232,7 +232,8 @@ describe("N51-E5 Player settings application", () => {
       ...project,
       settings: withPlatformSettings(project.settings, "web", {
         display: { designWidth: 1440, designHeight: 1080, orientation: "landscape", quality: "low", safeArea: "none" },
-        text: { fontScale: 1.5, messageWindowOpacity: 0.4 }
+        text: { fontScale: 1.5, messageWindowOpacity: 0.4, revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
+        accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true }
       })
     };
     view.rerender(<PlayerShell project={updated} />);
@@ -240,7 +241,10 @@ describe("N51-E5 Player settings application", () => {
     expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-quality", "low");
     expect(view.container.querySelector("main")).toHaveAttribute("data-settings-safe-area", "none");
-    expect(view.container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1440 / 1080", "--gal-font-scale": "1.5", "--gal-message-opacity": "0.4" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-high-contrast", "true");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-reduce-motion", "true");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-settings-reduce-flashing", "true");
+    expect(view.container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1440 / 1080", "--gal-font-scale": "1.5", "--gal-message-opacity": "0.4", "--gal-line-height": "2", "--gal-letter-spacing": "0.08em" });
   });
 
   it("uses the selected platform layer and hot-applies pointer and keyboard gates", () => {

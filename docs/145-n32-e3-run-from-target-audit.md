@@ -69,3 +69,5 @@ Draft PR #54 的实现头已通过 Windows / Node 22 `npm run check`：普通回
 > 2026-08-27 N51-E3 演进说明：上文保留 N32-E3 当时的固定向量。Canonical source identity 纳入正式 Gal settings defaults 后，现行 Scene/Statement State Hash 分别为 `67eda61ebbd7124de768a28a80c2306334b5c635f567cd29999b11bb889fccc4` 与 `04c2d20153d9552b1ff2549c2194b0a5f1ac753eb6b790872846bc3d607d0622`；精确目标、IR 位置和 Source Map 未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
 
 > 2026-08-28 N51-E6a 演进说明：Settings schema v2 进入 source identity 后，现行 Scene/Statement State Hash 为 `20eff57b48d0e2ac119b23fa4b4c5c365d96176ecb9d804fab604e747f5937ed` / `fddad8773b88cda486c5669f289a0970857bd1c91a9fa5f7b814c0f52b735dd3`；精确目标和 IR 位置不变。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
+
+> 2026-08-28 N51-E6b 演进说明：Settings schema v3 后 Scene/Statement State Hash 为 `cae5a4475867797572c0bf066b67e4b2886d9bc1155d92ba4973d2339b2c3497` / `a229161ce8fe6f6c3253b2343dbc3b516586c8743f41d2f75164d79861067e75`；精确目标、Source Map 与 IR 位置不变。详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。

@@ -139,3 +139,5 @@ E6 后续必须按以下小切片推进，每个切片独立审计、需求对�
 - 下一步只允许进入 E6a Schema v2 与迁移安全。
 
 > 2026-08-28 接续：E6a 已按本合同实现；实现头 `1b21508` 的同头 Windows / Node 22 完整门绿色，E6a Engineering 关闭。下一切片进入 E6b Text/Accessibility application，详见[迁移安全审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
+
+> 2026-08-28 E6b 接续：Text/Accessibility 六字段已贯通 schema v3、Catalog、Project、Settings UI、Editor Preview 与 Player Host；Basic/Advanced 更新为 20/29。双 production browser 已验证保存重开、即时文本、排版计算样式、高对比、减动效和 dissolve→fade；N52/N61/N62/N80+ 边界未移动。下一切片为 E6c Stage/Audio default policy，详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。

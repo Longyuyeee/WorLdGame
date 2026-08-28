@@ -62,6 +62,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N51-E5 Preview / Player Settings 热应用审计](docs/227-n51-e5-settings-runtime-application-audit.md) | 同一 application v1、settings-only Core 保持、显示/文本/音频/输入实际应用与 production-browser 证据 |
 | [N51-E6 P0 Gap Matrix 与入口审计](docs/229-n51-e6-p0-gap-matrix-and-entry-audit.md) | 2.1–2.9 逐项真实缺口、N51/N52/N61/N62/N80+ 唯一归属、Schema v2 风险与 E6a 冻结验收合同 |
 | [N51-E6a Settings Schema v2 迁移安全审计](docs/230-n51-e6a-settings-schema-v2-migration-audit.md) | v1/v2 严格读取、统一 v2 写回、Node/IndexedDB 真实重开、Player Core 身份保持与首次差异 |
+| [N51-E6b Text / Accessibility 应用审计](docs/231-n51-e6b-text-accessibility-entry-contract.md) | schema v3、29/20 字段、文本排版/即时显示、高对比/减动效/降闪烁与双 production-browser 证据 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
 | [N40-E1 Canonical Route Graph 审计](docs/153-n40-e1-route-graph-core-audit.md) | Compiler 图事实、Project Service 改名、跨视图同步、production browser 与剩余 N40 阻断 |

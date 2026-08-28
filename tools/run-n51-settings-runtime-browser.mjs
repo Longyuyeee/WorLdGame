@@ -98,6 +98,15 @@ async function snapshot(client) {
     const shell = document.querySelector('.player-shell');
     const stage = document.querySelector('.player-stage');
     const dialogue = document.querySelector('.player-dialogue');
+    const dialogueStyle = dialogue === null ? null : getComputedStyle(dialogue);
+    const dialogueText = dialogue?.querySelector('span');
+    const dialogueTextStyle = dialogueText === null || dialogueText === undefined ? null : getComputedStyle(dialogueText);
+    const flashingProbe = document.createElement('div');
+    flashingProbe.className = 'player-transition--dissolve';
+    shell?.append(flashingProbe);
+    const flashingStyle = getComputedStyle(flashingProbe);
+    const flashing = { animationName: flashingStyle.animationName, animationDuration: flashingStyle.animationDuration, filter: flashingStyle.filter };
+    flashingProbe.remove();
     const rect = stage?.getBoundingClientRect();
     return {
       status: shell?.getAttribute('data-player-status'),
@@ -108,8 +117,25 @@ async function snapshot(client) {
       accepted: shell?.getAttribute('data-input-accepted'),
       fontScale: shell?.style.getPropertyValue('--gal-font-scale'),
       opacity: shell?.style.getPropertyValue('--gal-message-opacity'),
+      lineHeightVariable: shell?.style.getPropertyValue('--gal-line-height'),
+      letterSpacingVariable: shell?.style.getPropertyValue('--gal-letter-spacing'),
+      highContrast: shell?.getAttribute('data-settings-high-contrast'),
+      reduceMotion: shell?.getAttribute('data-settings-reduce-motion'),
+      reduceFlashing: shell?.getAttribute('data-settings-reduce-flashing'),
       aspect: shell?.style.getPropertyValue('--gal-stage-aspect'),
       dialogue: dialogue?.textContent?.trim(),
+      textReady: dialogue?.getAttribute('data-text-ready'),
+      revealDuration: dialogue?.getAttribute('data-text-reveal-duration'),
+      dialogueStyle: dialogueStyle === null ? null : {
+        backgroundColor: dialogueStyle.backgroundColor,
+        borderTopWidth: dialogueStyle.borderTopWidth
+      },
+      dialogueTextStyle: dialogueTextStyle === null ? null : {
+        fontSize: dialogueTextStyle.fontSize,
+        lineHeight: dialogueTextStyle.lineHeight,
+        letterSpacing: dialogueTextStyle.letterSpacing
+      },
+      flashing,
       stageWidth: Math.round(rect?.width ?? 0),
       stageHeight: Math.round(rect?.height ?? 0),
       viewportWidth: innerWidth,
@@ -131,7 +157,7 @@ async function waitForExit(child) {
   await Promise.race([new Promise((resolvePromise) => child.once("exit", resolvePromise)), delay(5_000)]);
 }
 
-const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e5-"));
+const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6b-"));
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5182", "--strictPort"], {
   cwd: join(root, "apps", "player-shell"), stdio: ["ignore", "pipe", "pipe"]
 });
@@ -168,6 +194,7 @@ try {
   const active = await snapshot(client);
   await click(client, "document.querySelector('.player-demo-switch')", "hot apply settings");
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-settings-quality') === 'low'", "applied settings");
+  await waitFor(client, "getComputedStyle(document.querySelector('.player-dialogue')).backgroundColor === 'rgb(0, 0, 0)'", "high contrast style");
   const applied = await snapshot(client);
   await waitFor(client, "document.querySelector('.player-dialogue')?.getAttribute('data-text-ready') === 'true'", "configured text reveal");
   await click(client, "document.querySelector('.player-dialogue')", "blocked pointer advance");
@@ -182,16 +209,33 @@ try {
   const passed = before.status === "title" && before.aspect === "1920 / 1080" && active.status === "presenting"
     && applied.status === "presenting" && applied.dialogue === active.dialogue && applied.quality === "low"
     && applied.orientation === "portrait" && applied.pointer === "false" && applied.fontScale === "1.4" && applied.opacity === "0.45"
+    && applied.lineHeightVariable === "2" && applied.letterSpacingVariable === "0.08em"
+    && applied.highContrast === "true" && applied.reduceMotion === "true" && applied.reduceFlashing === "true"
+    && applied.textReady === "true" && applied.revealDuration === "0"
+    && Math.abs(Number.parseFloat(applied.dialogueTextStyle?.lineHeight ?? "0") / Number.parseFloat(applied.dialogueTextStyle?.fontSize ?? "1") - 2) < 0.001
+    && Math.abs(Number.parseFloat(applied.dialogueTextStyle?.letterSpacing ?? "0") / Number.parseFloat(applied.dialogueTextStyle?.fontSize ?? "1") - 0.08) < 0.001
+    && applied.dialogueStyle?.backgroundColor === "rgb(0, 0, 0)"
+    && applied.dialogueStyle?.borderTopWidth === "2px" && applied.flashing.animationName === "player-media-fade"
+    && applied.flashing.animationDuration === "1e-05s" && applied.flashing.filter === "none"
     && blocked.status === "presenting" && blocked.accepted === "false" && mobile.viewportWidth === 390
     && mobile.overflow === 0 && Math.abs(mobile.stageWidth / mobile.stageHeight - portraitRatio) < 0.02 && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N51-E5",
-    scope: "cold-production-player-settings-hot-application-desktop-390x844",
+    node: "N51-E6b",
+    scope: "cold-production-player-text-accessibility-hot-application-desktop-390x844",
     generatedAt: new Date().toISOString(),
     build: { playerDistIndexSha256: hash(await readFile(join(root, "apps", "player-shell", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
-    expectation: { settingsOnlyRetainsCore: true, pointerGate: false, portraitRatio, horizontalOverflow: 0, browserErrors: 0 },
+    expectation: {
+      settingsOnlyRetainsCore: true,
+      pointerGate: false,
+      revealDuration: 0,
+      text: { lineHeight: 2, letterSpacingEm: 0.08 },
+      accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true, dissolveFallback: "player-media-fade" },
+      portraitRatio,
+      horizontalOverflow: 0,
+      browserErrors: 0
+    },
     actual: { before, active, applied, blocked, mobile, failures },
     screenshots: [
       { path: "evidence/n51/settings-runtime-player-desktop.png", width: 1440, height: 900, ...desktopScreenshot },

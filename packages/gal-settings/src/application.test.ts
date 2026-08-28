@@ -41,6 +41,23 @@ describe("N51-E5 Gal settings runtime application", () => {
     expect(galTextRevealDurationMillisecondsV1(application, "短")).toBe(800);
   });
 
+  it("projects text layout and accessibility policies and disables reveal motion deterministically", () => {
+    const instant = createGalSettingsApplicationV1(withProjectSettings(createGalSettingsDocument(), {
+      text: { revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
+      accessibility: { highContrast: true, reduceMotion: false, reduceFlashing: true }
+    }), "web");
+    expect(instant).toMatchObject({
+      text: { revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
+      accessibility: { highContrast: true, reduceMotion: false, reduceFlashing: true }
+    });
+    expect(galTextRevealDurationMillisecondsV1(instant, "仍然立即显示。" )).toBe(0);
+
+    const reducedMotion = createGalSettingsApplicationV1(withProjectSettings(createGalSettingsDocument(), {
+      accessibility: { reduceMotion: true }
+    }), "web");
+    expect(galTextRevealDurationMillisecondsV1(reducedMotion, "动画也必须关闭。" )).toBe(0);
+  });
+
   it("combines source, master, bus and voice-ducking gains without exceeding browser bounds", () => {
     const settings = withProjectSettings(createGalSettingsDocument(), {
       audio: { master: 0.5, bgm: 0.8, voice: 0.9, voiceDucking: 0.25 }

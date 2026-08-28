@@ -1,12 +1,12 @@
 import type { GalSettingPath } from "./settings";
 
-export type GalSettingSection = "display" | "text" | "advance" | "audio" | "input";
+export type GalSettingSection = "display" | "text" | "advance" | "audio" | "input" | "accessibility";
 export type GalSettingLevel = "basic" | "advanced";
 export type GalSettingsCatalogMode = "basic" | "advanced";
 
 export type GalSettingControl =
   | { readonly kind: "boolean" }
-  | { readonly kind: "number"; readonly minimum: number; readonly maximum: number; readonly step: number; readonly unit?: "px" | "ms" | "ratio" | "characters-per-second" }
+  | { readonly kind: "number"; readonly minimum: number; readonly maximum: number; readonly step: number; readonly unit?: "px" | "ms" | "ratio" | "em" | "characters-per-second" }
   | { readonly kind: "select"; readonly options: readonly string[] };
 
 export interface GalSettingDefinition {
@@ -34,6 +34,9 @@ const RAW_GAL_SETTING_DEFINITIONS = [
   { path: "text.punctuationDelayMilliseconds", section: "text", level: "advanced", label: { zhHans: "标点停顿", en: "Punctuation pause" }, description: { zhHans: "遇到标点时追加的阅读停顿。", en: "Additional reading pause applied at punctuation." }, keywords: ["逗号", "句号", "阅读", "comma", "period", "pause"], control: { kind: "number", minimum: 0, maximum: 2000, step: 10, unit: "ms" } },
   { path: "text.fontScale", section: "text", level: "basic", label: { zhHans: "字体缩放", en: "Font scale" }, description: { zhHans: "消息文字相对基础字号的缩放比例。", en: "Message text scale relative to the base font size." }, keywords: ["字号", "大小", "font", "size", "accessibility"], control: { kind: "number", minimum: 0.75, maximum: 2, step: 0.05, unit: "ratio" } },
   { path: "text.messageWindowOpacity", section: "text", level: "basic", label: { zhHans: "消息窗透明度", en: "Message window opacity" }, description: { zhHans: "对白消息窗口的背景不透明度。", en: "Background opacity of the dialogue message panel." }, keywords: ["对话框", "透明", "textbox", "window", "opacity"], control: { kind: "number", minimum: 0, maximum: 1, step: 0.01, unit: "ratio" } },
+  { path: "text.revealMode", section: "text", level: "basic", label: { zhHans: "文字显示方式", en: "Text reveal mode" }, description: { zhHans: "选择逐字显示或立即显示整句文本。", en: "Reveal text progressively or show the complete line instantly." }, keywords: ["瞬显", "逐字", "打字", "instant", "typewriter", "reveal"], control: { kind: "select", options: ["typewriter", "instant"] } },
+  { path: "text.lineHeight", section: "text", level: "advanced", label: { zhHans: "文字行高", en: "Text line height" }, description: { zhHans: "对白与旁白文字的行高比例。", en: "Line-height ratio for dialogue and narration text." }, keywords: ["字体", "行高", "行距", "font", "line", "spacing"], control: { kind: "number", minimum: 1.2, maximum: 2.5, step: 0.05, unit: "ratio" } },
+  { path: "text.letterSpacingEm", section: "text", level: "advanced", label: { zhHans: "文字字距", en: "Text letter spacing" }, description: { zhHans: "对白与旁白字符间距，单位为 em。", en: "Letter spacing for dialogue and narration text in em." }, keywords: ["字体", "字距", "字符", "font", "letter", "spacing"], control: { kind: "number", minimum: 0, maximum: 0.2, step: 0.01, unit: "em" } },
 
   { path: "advance.allowHold", section: "advance", level: "basic", label: { zhHans: "允许长按推进", en: "Allow hold to advance" }, description: { zhHans: "允许持续按住输入来推进普通文本。", en: "Allow holding an input to advance normal text." }, keywords: ["长按", "连续", "hold", "advance", "input"], control: booleanControl },
   { path: "advance.waitForVoice", section: "advance", level: "basic", label: { zhHans: "等待语音结束", en: "Wait for voice" }, description: { zhHans: "推进前等待当前语音播放完成。", en: "Wait for the current voice line before advancing." }, keywords: ["语音", "自动推进", "voice", "speech", "advance"], control: booleanControl },
@@ -49,7 +52,11 @@ const RAW_GAL_SETTING_DEFINITIONS = [
   { path: "input.pointerAdvance", section: "input", level: "basic", label: { zhHans: "鼠标推进", en: "Pointer advance" }, description: { zhHans: "允许鼠标或指针点击推进。", en: "Allow mouse or pointer clicks to advance." }, keywords: ["鼠标", "点击", "pointer", "mouse", "click"], control: booleanControl },
   { path: "input.keyboardAdvance", section: "input", level: "basic", label: { zhHans: "键盘推进", en: "Keyboard advance" }, description: { zhHans: "允许键盘确认键推进。", en: "Allow keyboard confirm keys to advance." }, keywords: ["键盘", "空格", "回车", "keyboard", "space", "enter"], control: booleanControl },
   { path: "input.touchAdvance", section: "input", level: "basic", label: { zhHans: "触摸推进", en: "Touch advance" }, description: { zhHans: "允许触摸屏点击推进。", en: "Allow touchscreen taps to advance." }, keywords: ["手机", "触摸", "点击", "touch", "tap", "mobile"], control: booleanControl },
-  { path: "input.gamepadAdvance", section: "input", level: "advanced", label: { zhHans: "手柄推进", en: "Gamepad advance" }, description: { zhHans: "允许手柄确认键推进。", en: "Allow gamepad confirm buttons to advance." }, keywords: ["手柄", "控制器", "gamepad", "controller", "button"], control: booleanControl }
+  { path: "input.gamepadAdvance", section: "input", level: "advanced", label: { zhHans: "手柄推进", en: "Gamepad advance" }, description: { zhHans: "允许手柄确认键推进。", en: "Allow gamepad confirm buttons to advance." }, keywords: ["手柄", "控制器", "gamepad", "controller", "button"], control: booleanControl },
+
+  { path: "accessibility.highContrast", section: "accessibility", level: "basic", label: { zhHans: "高对比度", en: "High contrast" }, description: { zhHans: "增强文字、消息窗、选择与焦点边界的对比度。", en: "Increase contrast for text, message panels, choices, and focus boundaries." }, keywords: ["无障碍", "对比", "高对比", "accessibility", "high", "contrast"], control: booleanControl },
+  { path: "accessibility.reduceMotion", section: "accessibility", level: "basic", label: { zhHans: "减少动效", en: "Reduce motion" }, description: { zhHans: "将非必要动画和转场缩短为最小呈现。", en: "Reduce non-essential animation and transition duration." }, keywords: ["无障碍", "减少", "动效", "动画", "accessibility", "reduce", "motion", "animation"], control: booleanControl },
+  { path: "accessibility.reduceFlashing", section: "accessibility", level: "basic", label: { zhHans: "减少闪烁", en: "Reduce flashing" }, description: { zhHans: "将可能产生高频视觉变化的效果降级为平滑淡入。", en: "Replace potentially flashing visual effects with a steady fade." }, keywords: ["无障碍", "减少", "闪烁", "闪光", "accessibility", "reduce", "flashing", "flash"], control: booleanControl }
 ] as const satisfies readonly GalSettingDefinition[];
 
 function freezeDefinition(definition: GalSettingDefinition): GalSettingDefinition {
@@ -119,7 +126,7 @@ export function searchGalSettingDefinitions(
   if (unknownOption !== undefined) throw new TypeError(`Unknown Gal settings search option: ${unknownOption}`);
   const mode = options.mode ?? "advanced";
   if (mode !== "basic" && mode !== "advanced") throw new TypeError("Gal settings catalog mode must be basic or advanced");
-  if (options.section !== undefined && !["display", "text", "advance", "audio", "input"].includes(options.section)) {
+  if (options.section !== undefined && !["display", "text", "advance", "audio", "input", "accessibility"].includes(options.section)) {
     throw new TypeError("Gal settings catalog section is invalid");
   }
   const terms = normalizedTerms(query);
