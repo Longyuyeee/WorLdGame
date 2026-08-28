@@ -4,7 +4,7 @@
 > 分支：`codex/n52-e3a-save-metadata-preview`  
 > 直接基线：N52-E3 入口最终绿色头 `f2cf780` / Draft PR #100  
 > 授权：`RA-N21-011`，最大节点 N52  
-> 当前判定：N52-E3a 本地实现候选；Engineering 关闭必须等待实现头完整本地门、推送及同头 Windows / Node 22 CI，Product Acceptance 持续阻断。
+> 当前判定：N52-E3a Engineering 关闭；实现、本地完整门与实现头 Windows / Node 22 CI 同时绿色。Product Acceptance 持续阻断。
 
 ## 1. 开发前实际代码复核
 
@@ -42,7 +42,9 @@ E3a 机器审计首次运行因审计脚本正则中的未转义 `}` 发生语�
 
 补 SHA-256 前的首次完整 `npm run check` 已单次通过，但提交前需求复审发现入口 #240 明确要求 Blob Hash 篡改拒绝，因此没有使用该绿色结果收口。增加写前/读取时 SHA-256 校验及篡改反例后，定向 Store/PlayerShell/mount 为 `3 files / 35 tests`，最终本地完整门再次从头单次通过：普通回归 `150 files / 905 tests`，N50 `49/49`、N51 `100/100`、N52 `58/58`；Runtime corpus digest 保持 `20e9a842…92ef2`，墙钟 `7.410s`；冻结 VM `24.48s <90s`；17 workspace build、portable architecture `100 / 4` 通过；Route rename P95 `53.92ms <500ms`，lazy structure `246.70ms <500ms`，Asset dicing 总计 `1624.46ms <5000ms`。Player production JS 为 `352.00 kB / gzip 107.20 kB`；Editor 既有 `982.10 kB` chunk warning 未隐藏或放宽。
 
-实现提交 SHA、Draft PR 和远端 run/job 将于推送后回填；在同头 CI 绿色前仍不得写成 Engineering 关闭。
+实现提交 `2f3e7b2` 已推送至 Draft PR #101。同头 Windows / Node 22 `product-baseline` run `33188226007` / job `98906671499` 用时 `13m51s` 绿色，head SHA 精确为 `2f3e7b27e1ad84fbb16be104db431304a07c8e6b`。远端普通回归 `150 files / 905 tests`、N51 `100/100`、N52 `58/58`，E3 入口与 E3a 机器审计 PASS；Runtime corpus `30.995s` 且 digest 未变；Route rename P95 `159.77ms <500ms`；Asset dicing `1479.23 + 1798.70 = 3277.93ms <5000ms`；17 workspace build 与 architecture 均通过。Player production JS `352.01 kB / gzip 107.21 kB`。
+
+以上证据关闭 E3a Engineering，不能外推为真实 Windows/Android compositor、完整 E3 或 N52 Product Acceptance。
 
 ## 5. 剩余边界与下一接续点
 

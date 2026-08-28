@@ -509,7 +509,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3 入口状态（2026-08-28）：[入口审计 #240](240-n52-e3-save-policy-entry-audit.md)重新对齐 Gal 2.4、稳定性 7.2 与 E2 实际 Store，确认 strict v1 不能静默扩字段，`testRoutes` 不是玩家路线元数据，`preservedFields` 不是 custom metadata API，Runtime History checkpoint 也不是永久 checkpoint 槽。机器合同冻结 v2 copy-on-write、chapter/scene 来源、route/custom fail-closed、Host compositor 截图 Blob 分离与 512 KiB 上限，以及 manual 12/每页 6、auto 5 环形、quick 1、checkpoint 3 但等待显式 marker 的策略。入口头 `3c319da` 的 Draft PR #100 Windows / Node 22 run `33183970309` / job `98892048310` 用时 `12m40s` 绿色，普通 `150/898`、N52 `51/51`、VM `63.321s <90s`；实现顺序固定 E3a 元数据/截图/分页 → E3b auto/quick → E3c checkpoint/recovery/migration，入口本身不登记产品能力。
 
-> E3a 状态（2026-08-28）：[实现审计 #241](241-n52-e3a-save-metadata-preview-audit.md)已按真实代码建立本地候选：Store 2.0/DB2、strict v1 内存归一化与下次保存 copy-on-write、Canonical chapter/scene、route `null`、custom `{}`、独立 Preview Blob Store 同事务、Host compositor 捕获合同、失败仍保存、12 槽每页 6 与覆盖二次确认。Web Host 不伪造 DOM/媒体合成截图；只有正式 Host 提供合规 PNG/WebP 时才登记和显示截图。当前等待完整本地门、推送与同头 CI，E3b 及 Product Acceptance 未开始。
+> E3a 状态（2026-08-28）：[实现审计 #241](241-n52-e3a-save-metadata-preview-audit.md)已关闭 Engineering：Store 2.0/DB2、strict v1 内存归一化与下次保存 copy-on-write、Canonical chapter/scene、route `null`、custom `{}`、独立 Preview Blob Store 同事务、SHA-256 读写校验、Host compositor 捕获合同、失败仍保存、12 槽每页 6 与覆盖二次确认。Web Host 不伪造 DOM/媒体合成截图；只有正式 Host 提供合规 PNG/WebP 时才登记和显示截图。实现头 `2f3e7b2` 的 Draft PR #101 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色，远端普通 `150/905`、N52 `58/58`、Route P95 `159.77ms`、Asset `3277.93ms`。下一切片为 E3b，Product Acceptance 未开始。
 
 ## 11. R6：制作自动化、QA 与本地化
 

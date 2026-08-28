@@ -6,10 +6,11 @@ const read = (path) => readFile(join(root, path), "utf8");
 const contract = JSON.parse(await read("config/n52-e3a-save-metadata-preview.json"));
 const violations = [];
 
-if (contract.schemaVersion !== 1 || contract.node !== "N52-E3a" || contract.productAcceptance !== "blocked") violations.push("N52-E3a identity or gate status drifted");
+if (contract.schemaVersion !== 1 || contract.node !== "N52-E3a" || contract.engineeringStatus !== "complete" || contract.productAcceptance !== "blocked") violations.push("N52-E3a identity or gate status drifted");
 if (contract.saveSchema?.current !== 2 || contract.saveSchema?.strictLegacyRead !== 1 || contract.saveSchema?.databaseVersion !== 2) violations.push("save schema/database migration contract drifted");
 if (contract.manualSlots?.count !== 12 || contract.manualSlots?.pageSize !== 6 || contract.manualSlots?.overwrite !== "second-explicit-click") violations.push("manual slot pagination or overwrite policy drifted");
 if (contract.preview?.owner !== "player-host-compositor" || contract.preview?.maximumBytes !== 524288 || contract.preview?.storage !== "separate-blob-store-same-transaction" || contract.preview?.integrity !== "sha256-write-and-read-verification") violations.push("preview ownership, limit, integrity, or atomic storage drifted");
+if (!/^[0-9a-f]{40}$/u.test(contract.engineeringEvidence?.implementationCommit ?? "") || contract.engineeringEvidence?.pullRequest !== 101 || contract.engineeringEvidence?.workflowRun !== 33188226007 || contract.engineeringEvidence?.workflowJob !== 98906671499 || contract.engineeringEvidence?.conclusion !== "success") violations.push("N52-E3a same-head remote evidence is incomplete");
 
 const store = await read("apps/player-shell/src/player-save-store.ts");
 const shell = await read("apps/player-shell/src/PlayerShell.tsx");
@@ -49,6 +50,6 @@ for (const item of contract.requiredDocuments ?? []) {
   }
 }
 
-const result = { status: violations.length === 0 ? "PASS" : "FAIL", node: contract.node, engineeringStatus: contract.engineeringStatus, productAcceptance: contract.productAcceptance, saveSchema: contract.saveSchema, manualSlots: contract.manualSlots, preview: contract.preview, nextSlice: contract.nextSlice, blocked: contract.blocked, violations };
+const result = { status: violations.length === 0 ? "PASS" : "FAIL", node: contract.node, engineeringStatus: contract.engineeringStatus, productAcceptance: contract.productAcceptance, saveSchema: contract.saveSchema, manualSlots: contract.manualSlots, preview: contract.preview, engineeringEvidence: contract.engineeringEvidence, nextSlice: contract.nextSlice, blocked: contract.blocked, violations };
 console[violations.length === 0 ? "log" : "error"](JSON.stringify(result, null, 2));
 if (violations.length > 0) process.exitCode = 1;

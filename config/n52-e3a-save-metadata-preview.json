@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E3a",
-  "engineeringStatus": "implemented-awaiting-remote-evidence",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "f2cf7803efc7519c2fc58b8186a38a5464a90a85",
   "saveSchema": {
@@ -52,8 +52,15 @@
     "n52-product-acceptance"
   ],
   "nextSlice": "N52-E3b",
+  "engineeringEvidence": {
+    "implementationCommit": "2f3e7b27e1ad84fbb16be104db431304a07c8e6b",
+    "pullRequest": 101,
+    "workflowRun": 33188226007,
+    "workflowJob": 98906671499,
+    "conclusion": "success"
+  },
   "requiredDocuments": [
-    { "path": "docs/241-n52-e3a-save-metadata-preview-audit.md", "token": "N52-E3a 本地实现候选" },
+    { "path": "docs/241-n52-e3a-save-metadata-preview-audit.md", "token": "N52-E3a Engineering 关闭" },
     { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3a 状态（2026-08-28）" },
     { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3a v2 元数据与截图" },
     { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3a v2 元数据与截图" }
