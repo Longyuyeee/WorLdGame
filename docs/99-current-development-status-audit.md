@@ -1,4 +1,4 @@
-# 当前开发情况审计（N51-E6a Settings v2 迁移实现完成，完整门待补）
+# 当前开发情况审计（N51-E6a Settings v2 迁移 Engineering 已关闭）
 
 > 审计日期：2026-08-28
 > 当前分支：`codex/n51-e6-p0-coverage-exit`；直接基线为 N51-E5 检查点 `0b4acbf`
@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E5 Engineering 已关闭，E6a Settings v1→v2 迁移实现与本机定向门已通过，完整门和同头远端证据待补**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E6a Engineering 已关闭，下一切片为 E6b Text/Accessibility application**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -36,6 +36,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N51-E6 入口审计已把规格 2.1–2.9 与真实 23 字段、严格 v1 parser、Catalog controls、Canonical Project、Editor Preview 和 Player application 逐项比较。首次实际发现两项不能直接编码的差异：原始范围中播放控制、本地化生产、自动附加页和构建发布分别归 N52/N61/N62/N80–N83；严格 v1 旧读取器会拒绝新增 unknown field，不能在同一 schemaVersion 下静默扩字段。入口提交 `ec35570` 的 Draft PR #96 Windows / Node 22 完整门 run `33133914830` / job `98729511942` 用时 `12m5s` 绿色：autosave `3.744s <5s`、VM `64.00s <90s`、普通 `149/856`、Route P95 `133.34ms`、Asset dicing `3255ms`，关闭本机负载差异。下一代码切片冻结为 v1→v2 默认升级、确定性 round-trip、future schema 拒绝、Node/IndexedDB 保存重开和 settings-only Core 保持；字段实现尚未开始，详见[#229](229-n51-e6-p0-gap-matrix-and-entry-audit.md)。
 - N51-E6a 已把 Settings 当前写入版本提升为 v2，合法 v1/v2 经同一严格校验后统一为 v2，v3+ 失败关闭。首次冻结测试为 5 files / 52 tests，实际 45 通过、7 项按预期因旧 parser 失败；修正后 52/52，N51 聚合门 10 files / 74 tests。真实 Node 临时目录与 IndexedDB 均验证非空 v1 打开、保存、重开和二次字节幂等；Player 验证 schema-only 迁移保持活跃 choice Core。类型门首次发现只读测试夹具写入并改为复制注入后通过。完整门和同头远端证据待补，详见[#230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
 - E6a 本机完整门首次因旧 Compiler Build ID Golden 停止，修正后 29/29；第二次从头运行在 N41 长链累积负载下出现 3 个 5s/10s 超时，两个受影响文件原门限隔离复跑 16/16。后半门中普通回归的 4 个 source identity Golden 已按“语义不变、身份更新”冻结，2 个 Preview 超时连同身份项隔离复测 3 files / 22 tests 全绿；Build、architecture、Script 13/13、Route 9/9（P95 `194.16ms`）、Asset 4/4（Dicing `3313.33ms`）均通过。单次本机完整门仍不记绿，等待同头 Windows / Node 22 裁决。
+- 实现头 `1b21508` 的 Draft PR #96 Windows / Node 22 完整门 run `33136866897` / job `98738665580` 用时 `11m50s` 并绿色：普通 `149/861`、N51 `74/74`、Player/Core `32/32`、Runtime corpus `27.946s`、autosave `3.642s <5s`、VM `63.71s <90s`、Route P95 `130.55ms <500ms`、Asset dicing `3363.87ms <5000ms`。相同规模和预算关闭本机累积负载差异，E6a Engineering 关闭；N51 Product Acceptance 与 E6b+ 仍未完成。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 

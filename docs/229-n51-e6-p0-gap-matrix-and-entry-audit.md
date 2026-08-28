@@ -138,4 +138,4 @@ E6 后续必须按以下小切片推进，每个切片独立审计、需求对�
 - E5 最新 Draft PR #95 和远端绿色门不能换算为 `main` 已集成；
 - 下一步只允许进入 E6a Schema v2 与迁移安全。
 
-> 2026-08-28 接续：E6a 已按本合同实现并通过本机定向测试，详见[迁移安全审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。完整门与同头远端证据补齐前仍不提前关闭该切片。
+> 2026-08-28 接续：E6a 已按本合同实现；实现头 `1b21508` 的同头 Windows / Node 22 完整门绿色，E6a Engineering 关闭。下一切片进入 E6b Text/Accessibility application，详见[迁移安全审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。

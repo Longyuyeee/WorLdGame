@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e6-p0-coverage-exit`
 > 直接基线：N51-E6 入口最终头 `562a4f7`
 > 授权：`RA-N21-010`，最大节点 N51
-> 当前判定：实现与本机定向/后半门通过；本机完整串行门存在累积负载红项，同头远端 Windows / Node 22 证据待补
+> 当前判定：实现头 `1b21508` 的本机真实差异已由同头 Windows / Node 22 完整门关闭；E6a Engineering 关闭
 
 ## 1. 目标、边界与版本纪律
 
@@ -55,4 +55,6 @@ E6a 关闭必须同时满足：完整 `npm run check`、同一最终提交的 Gi
 
 ## 6. 下一步
 
-远端同头绿色后，E6a Engineering 才关闭。下一允许切片为 E6b Text/Accessibility application；必须先冻结字段、schema 版本和可观察 Host 效果，再按“预期→首次实际→差异→修正”执行。N52 Save/History/Auto/Skip/Back/Forward、N61 本地化生产、N62 附加页生成和 N80–N83 构建发布继续阻断。
+实现头 `1b21508` 的 Draft PR [#96](https://github.com/Longyuyeee/WorLdGame/pull/96) Windows / Node 22 完整门 run `33136866897` / job `98738665580` 用时 `11m50s`，PASS：普通回归 `149 files / 861 tests`、Player/Core `32/32`、N51 `74/74`、Runtime corpus `27.946s`、autosave `3.642s < 5s`、重型 VM `63.71s < 90s`、Route edit P95 `130.55ms < 500ms`、Asset dicing `3363.87ms < 5000ms`，完整 build 与 architecture 绿色。
+
+远端使用相同代码、测试规模和原预算，关闭本机 N41/Preview 累积负载差异；E6a Engineering 据此关闭。下一允许切片为 E6b Text/Accessibility application；必须先冻结字段、schema 版本和可观察 Host 效果，再按“预期→首次实际→差异→修正”执行。N52 Save/History/Auto/Skip/Back/Forward、N61 本地化生产、N62 附加页生成和 N80–N83 构建发布继续阻断。
