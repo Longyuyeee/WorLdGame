@@ -174,7 +174,7 @@ async function waitForExit(child) {
   await Promise.race([new Promise((resolvePromise) => child.once("exit", resolvePromise)), delay(5_000)]);
 }
 
-const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6d-"));
+const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6e-"));
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5182", "--strictPort"], {
   cwd: join(root, "apps", "player-shell"), stdio: ["ignore", "pipe", "pipe"]
 });
@@ -236,7 +236,9 @@ try {
   const mobile = await snapshot(client);
   const mobileScreenshot = await capture(client, mobilePath);
   const portraitRatio = 1080 / 1920;
-  const passed = before.status === "title" && before.aspect === "1920 / 1080" && before.hintCount === 1
+  const webHostSnapshots = [before, appliedTitle, defaultChoice, appliedChoice, mobileChoice, active, applied, blocked, mobile];
+  const passed = webHostSnapshots.every((item) => item.platform === "web")
+    && before.status === "title" && before.aspect === "1920 / 1080" && before.hintCount === 1
     && appliedTitle.status === "title" && appliedTitle.hintCount === 0 && appliedTitle.inputHints === "false" && active.status === "presenting"
     && applied.status === "presenting" && applied.dialogue === active.dialogue && applied.quality === "low"
     && applied.orientation === "portrait" && applied.pointer === "false" && applied.fontScale === "1.4" && applied.opacity === "0.45"
@@ -258,12 +260,13 @@ try {
     && mobile.overflow === 0 && Math.abs(mobile.stageWidth / mobile.stageHeight - portraitRatio) < 0.02 && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N51-E6d",
-    scope: "cold-production-player-choice-ui-policy-hot-application-desktop-390x844",
+    node: "N51-E6e",
+    scope: "cold-production-web-host-identity-and-settings-hot-application-desktop-390x844",
     generatedAt: new Date().toISOString(),
     build: { playerDistIndexSha256: hash(await readFile(join(root, "apps", "player-shell", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
     expectation: {
+      host: { settingsPlatform: "web", snapshots: webHostSnapshots.length },
       settingsOnlyRetainsCore: true,
       pointerGate: false,
       revealDuration: 0,

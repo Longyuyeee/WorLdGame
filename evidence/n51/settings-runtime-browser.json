@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "node": "N51-E6d",
-  "scope": "cold-production-player-choice-ui-policy-hot-application-desktop-390x844",
-  "generatedAt": "2026-08-28T05:42:40.474Z",
+  "node": "N51-E6e",
+  "scope": "cold-production-web-host-identity-and-settings-hot-application-desktop-390x844",
+  "generatedAt": "2026-08-28T06:40:40.010Z",
   "build": {
-    "playerDistIndexSha256": "b38ccd27cf3b2fdbf4ea056ee4b3c248ee6f91762e7192313204f14e14d8d821"
+    "playerDistIndexSha256": "5e05107b4eac6060f0d6153083cabfbebc0c866834ccdd7466c00592b3cf475f"
   },
   "environment": {
     "product": "Chrome/151.0.7922.174",
@@ -13,6 +13,10 @@
     "url": "http://127.0.0.1:5182/?demo=settings"
   },
   "expectation": {
+    "host": {
+      "settingsPlatform": "web",
+      "snapshots": 9
+    },
     "settingsOnlyRetainsCore": true,
     "pointerGate": false,
     "revealDuration": 0,

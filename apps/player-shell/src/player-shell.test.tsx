@@ -8,7 +8,7 @@ import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-set
 import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
-import { WebPlayerHost } from "./player-host";
+import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -206,6 +206,27 @@ describe("N50-E1 shared Player Shell", () => {
       if (original === undefined) delete (document as unknown as Record<string, unknown>).visibilityState;
       else Object.defineProperty(document, "visibilityState", original);
     }
+  });
+
+  it("pins the Web host to the Web settings layer even when an untyped caller injects another platform", () => {
+    type WebHostOwnsSettingsPlatform = "platform" extends keyof WebPlayerHostProps ? false : true;
+    const webHostOwnsSettingsPlatform: WebHostOwnsSettingsPlatform = true;
+    const project = branching();
+    const configured = {
+      ...project,
+      settings: withPlatformSettings(
+        withPlatformSettings(project.settings, "web", { display: { quality: "high" } }),
+        "android",
+        { display: { quality: "low" } }
+      )
+    };
+    const untypedHostProps = { project: configured, platform: "android" as const };
+
+    const { container } = render(<WebPlayerHost {...untypedHostProps} />);
+
+    expect(webHostOwnsSettingsPlatform).toBe(true);
+    expect(container.querySelector("main")).toHaveAttribute("data-settings-platform", "web");
+    expect(container.querySelector("main")).toHaveAttribute("data-settings-quality", "high");
   });
 
   it("releases removed audio buses instead of resuming detached media", async () => {
