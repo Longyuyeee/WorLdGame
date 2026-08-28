@@ -498,17 +498,17 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
-    expect(writes).toHaveLength(1);
-    expect(writes[0]).toMatchObject({
+    expect(writes.filter((write) => write.slot.kind === "manual")).toHaveLength(1);
+    expect(writes.find((write) => write.slot.kind === "manual")).toMatchObject({
       slot: { schemaVersion: 2, sceneId: "branch_start", sceneTitle: "Fork", route: null, customMetadata: {}, preview: { status: "available", mimeType: "image/webp", width: 320, height: 180, byteLength: 3, sha256: "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81" } },
       preview
     });
 
     fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
     expect(screen.getByRole("button", { name: "确认覆盖" })).toBeInTheDocument();
-    expect(writes).toHaveLength(1);
+    expect(writes.filter((write) => write.slot.kind === "manual")).toHaveLength(1);
     fireEvent.click(screen.getByRole("button", { name: "确认覆盖" }));
-    await waitFor(() => expect(writes).toHaveLength(2));
+    await waitFor(() => expect(writes.filter((write) => write.slot.kind === "manual")).toHaveLength(2));
     expect(previewCapture.capture).toHaveBeenCalledWith(expect.objectContaining({ maximumWidth: 512, maximumHeight: 512, maximumBytes: 524288 }));
   });
 
@@ -533,5 +533,52 @@ describe("N51-E5 Player settings application", () => {
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(writes[0]?.preview).toEqual({ status: "unavailable", reason: "capture-failed" });
     expect(screen.getByText(/预览不可用/u)).toBeInTheDocument();
+  });
+
+  it("writes one automatic save per scene identity and exposes the five-slot view", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    let clock = 1_788_000_000_000;
+    const store: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0", backend: "memory-test",
+      async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
+      async readPreview() { return null; },
+      async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
+    };
+    render(<PlayerShell project={branching()} saveStore={store} now={() => clock++} />);
+    expect(screen.getByRole("button", { name: "快速保存" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(records.get("golden_branching\0auto-1")).toMatchObject({ kind: "auto", sceneId: "branch_start", presentationKind: "choice" }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    await waitFor(() => expect(records.get("golden_branching\0auto-2")).toMatchObject({ kind: "auto", sceneId: "branch_left" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    await Promise.resolve();
+    expect([...records.values()].filter((slot) => slot.kind === "auto")).toHaveLength(2);
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "自动" }));
+    expect(screen.getByText("自动 1")).toBeInTheDocument();
+    expect(screen.getByText("自动 5")).toBeInTheDocument();
+  });
+
+  it("replaces and loads the fixed quick slot without overwrite confirmation", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    const store: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0", backend: "memory-test",
+      async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
+      async readPreview() { return null; },
+      async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
+    };
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(records.has("golden_branching\0auto-1")).toBe(true));
+    fireEvent.click(screen.getByRole("button", { name: "快速保存" }));
+    await waitFor(() => expect(records.get("golden_branching\0quick-1")).toMatchObject({ kind: "quick", sceneId: "branch_start" }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
+    expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
   });
 });

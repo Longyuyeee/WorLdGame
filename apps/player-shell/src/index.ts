@@ -25,6 +25,7 @@ export {
 } from "./player-save-store";
 export type {
   WorldPlayerSavePreviewV2,
+  WorldPlayerSaveKindV2,
   WorldPlayerSaveSlotSourceV1,
   WorldPlayerSaveSlotSourceV2,
   WorldPlayerSaveSlotV1,

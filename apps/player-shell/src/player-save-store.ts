@@ -36,7 +36,10 @@ export type WorldPlayerSavePreviewV2 =
   | { readonly status: "available"; readonly mimeType: "image/webp" | "image/png"; readonly width: number; readonly height: number; readonly byteLength: number; readonly sha256: string }
   | { readonly status: "unavailable"; readonly reason: "capture-unavailable" | "capture-failed" | "capture-invalid" | "legacy-v1" };
 
+export type WorldPlayerSaveKindV2 = "manual" | "auto" | "quick";
+
 export interface WorldPlayerSaveSlotSourceV2 extends WorldPlayerSaveSlotSourceV1 {
+  readonly kind: WorldPlayerSaveKindV2;
   readonly chapterId: string | null;
   readonly chapterTitle: string | null;
   readonly sceneTitle: string;
@@ -49,7 +52,6 @@ export interface WorldPlayerSaveSlotSourceV2 extends WorldPlayerSaveSlotSourceV1
 export interface WorldPlayerSaveSlotV2 extends WorldPlayerSaveSlotSourceV2 {
   readonly schemaVersion: 2;
   readonly format: "world.player-save-slot";
-  readonly kind: "manual";
   readonly migratedFromSchemaVersion: 1 | null;
 }
 
@@ -109,7 +111,9 @@ function validPreviewMetadata(value: unknown): value is WorldPlayerSavePreviewV2
 
 function validSlotV2(value: unknown): value is WorldPlayerSaveSlotV2 {
   if (!isRecord(value) || !hasExactKeys(value, slotV2Keys) || !validCommonSlot(value)) return false;
-  return value.schemaVersion === 2 && value.format === "world.player-save-slot" && value.kind === "manual" &&
+  const validSlotIdentity = value.kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
+    value.kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || value.kind === "quick" && value.slotId === "quick-1";
+  return value.schemaVersion === 2 && value.format === "world.player-save-slot" && validSlotIdentity &&
     validNullableId(value.chapterId) && (value.chapterTitle === null || typeof value.chapterTitle === "string" && value.chapterTitle.length > 0 && value.chapterTitle.length <= 256) &&
     typeof value.sceneTitle === "string" && value.sceneTitle.length > 0 && value.sceneTitle.length <= 256 && value.route === null &&
     isRecord(value.customMetadata) && Object.keys(value.customMetadata).length === 0 && validPreviewMetadata(value.preview) &&
@@ -123,7 +127,7 @@ export function createWorldPlayerSaveSlotV1(source: WorldPlayerSaveSlotSourceV1)
 }
 
 export function createWorldPlayerSaveSlotV2(source: WorldPlayerSaveSlotSourceV2): WorldPlayerSaveSlotV2 {
-  const slot: WorldPlayerSaveSlotV2 = { ...source, schemaVersion: 2, format: "world.player-save-slot", kind: "manual", migratedFromSchemaVersion: source.migratedFromSchemaVersion ?? null };
+  const slot: WorldPlayerSaveSlotV2 = { ...source, schemaVersion: 2, format: "world.player-save-slot", migratedFromSchemaVersion: source.migratedFromSchemaVersion ?? null };
   if (!validSlotV2(slot)) throw new TypeError("WORLD_PLAYER_SAVE_SLOT_INVALID");
   return slot;
 }
@@ -132,7 +136,7 @@ function normalizeSlot(value: unknown): WorldPlayerSaveSlotV2 {
   if (validSlotV2(value)) return value;
   if (!validSlotV1(value)) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
   return createWorldPlayerSaveSlotV2({
-    slotId: value.slotId, projectId: value.projectId, buildId: value.buildId, savedAtEpochMilliseconds: value.savedAtEpochMilliseconds,
+    kind: "manual", slotId: value.slotId, projectId: value.projectId, buildId: value.buildId, savedAtEpochMilliseconds: value.savedAtEpochMilliseconds,
     title: value.title, sceneId: value.sceneId, presentationKind: value.presentationKind, runtimeStateHash: value.runtimeStateHash,
     sessionArtifactHash: value.sessionArtifactHash, serializedSessionSave: value.serializedSessionSave,
     chapterId: null, chapterTitle: null, sceneTitle: value.sceneId, route: null, customMetadata: {},
