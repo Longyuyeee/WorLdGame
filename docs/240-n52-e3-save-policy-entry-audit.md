@@ -59,6 +59,8 @@ E3a 必须冻结并验证：v1 正常升级、future/unknown v2 拒绝、Blob Ha
 
 本地完整 `npm run check` 在未拆分或放宽预算的情况下单次通过：普通回归 `150 files / 898 tests`，N50 `46/46`、N51 `97/97`、N52 `51/51`；Runtime 10,000 seeds / 20,000 replay digest 保持 `20e9a842…92ef2`，本机分片总墙钟 `7.348s`；冻结 VM `29.62s <90s`；17 workspace build、portable architecture `100 / 4` 均通过；Route P95 `59.55ms <500ms`，Asset dicing `1503.59ms <5000ms`。Player production JS 保持 `345.54 kB / gzip 105.46 kB`；Editor 既有 `982.10 kB` chunk warning 未被隐藏或调高阈值。
 
+入口提交 `3c319da` 已进入 Draft PR #100；同头 Windows / Node 22 `product-baseline` run `33183970309` / job `98892048310` 用时 `12m40s` 并绿色。远端普通回归 `150/898`、N50 `46/46`、N51 `97/97`、N52 `51/51`，新增入口审计 PASS；冻结 VM corpus `63.321s <90s`，Autosave 测试体 `3.66s <5s`，Route P95 `164.11ms <500ms`，Asset dicing `3398.61ms <5000ms`，build/architecture 均通过。首次常规 Git push 与 REST create-ref 均遇到 GitHub 服务端 `commit_refs` / HTTP 500；提交对象已存在后使用官方 GraphQL `createRef` 创建同一 SHA 引用，fetch 后本地正常跟踪远端，未重写或覆盖 E2 分支。
+
 ## 6. 仍被阻断
 
 E3 入口不实现 v2 存档、真实截图、分页、auto/quick/checkpoint、恢复区、迁移 Museum 或云冲突；Windows/Android Host、History 页面、Auto/Skip、N52 Product Acceptance、N60+、M1 Stable 与 Public Release 均保持阻断。下一代码接续点唯一为 **N52-E3a**，开始前必须以本合同和 E2 实际代码为基线。
