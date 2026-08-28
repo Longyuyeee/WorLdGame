@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e6-p0-coverage-exit`
 > 直接基线：N51-E6d 最终绿色头 `37e404c`
 > 授权：`RA-N21-010`，最大节点 N51
-> 当前判定：E6e 实现与真实 Web production 证据完成；等待同头 Windows / Node 22 完整门裁决
+> 当前判定：实现头同头 Windows / Node 22 完整门绿色；E6e Engineering 关闭
 
 ## 1. 真实代码审计结论
 
@@ -58,10 +58,10 @@ Editor Preview 的 viewport preset 是编辑器本地观察状态，不是平台
 - production browser：Chrome 151，9/9 Web 身份快照，原有桌面/移动行为与错误门全部 PASS。
 - 连续 `npm run check` 本机尚未登记绿色：第一轮在两个既有 Stage App 测试触发 5 s 超时，独立复现分别 1.71 s / 2.53 s 且 App 45/45；第二轮通过该处后在既有 Autosave 恢复 5 s 等待超时，独立完整 Autosave 8.18 s 且原断言通过；随后 VM corpus 在当前负载下 94.64 s 超过冻结 90 s（E6d 本机同门约 54.39 s）。没有提高超时、缩减 corpus 或放宽预算。
 
-进程审计未发现遗留项目 Node/Vite 进程；本机已有 Chrome 会话包含多个高内存 renderer，不能擅自终止用户进程。故实现提交推送后必须以干净 GitHub Windows / Node 22 同头 `npm run check` 为最终工程裁决；CI 未绿前不得关闭 E6e Engineering。
+进程审计未发现遗留项目 Node/Vite 进程；本机已有 Chrome 会话包含多个高内存 renderer，不能擅自终止用户进程。实现头 `b7d7c5c` 推送后，干净 GitHub Windows / Node 22 同头 `npm run check` 用时 13m01s 并完整通过：N50 37/37、N51 95/95、普通回归 149 files / 886 tests、App 45/45、Autosave 4.084s、VM 5/5 且 66.748s < 90s、Route edit P95 148.26ms < 500ms、Asset dicing 3.401s < 5s、100 portable / 4 adapter 架构审计绿色。run `33151182320` / job `98783287679` 是最终工程裁决，证明本地超时来自环境负载而非实现回归；E6e Engineering 关闭。
 
 ## 6. 需求对齐与下一步
 
 E6e 关闭的是“Web Host 不能伪装其他平台”和“build/runtime/settings profile 所有权必须分层”的工程边界，不是多平台产品验收。Windows/Android Player Host、实体设备生命周期、图形性能、输入与包体证据仍不存在；`apps/windows-shell-conformance` 也不得提升为正式 Player Host。
 
-若同头 CI 绿色，下一切片只能进入 **N51-E6f 总出口审计**：逐项重查 P0 矩阵、字段覆盖、文档、真实 Web 证据与未完成边界。E6f 仍不能凭 Web 证据解除 Windows/Android、N52、M1 Stable 或 Public Release 阻断。
+下一切片只能进入 **N51-E6f 总出口审计**：逐项重查 P0 矩阵、字段覆盖、文档、真实 Web 证据与未完成边界。E6f 仍不能凭 Web 证据解除 Windows/Android、N52、M1 Stable 或 Public Release 阻断。

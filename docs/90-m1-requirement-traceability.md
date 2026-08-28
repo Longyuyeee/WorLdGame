@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N50 Engineering 出口不得换算成 Product Acceptance；`RA-N21-010` 只准入 N51 Gal Settings Engineering，持续阻断 N51 Product Acceptance、N52 及以后、M1 Stable 与发布。N51-E6a–E6d Engineering 已关闭；E6e 已完成实现与 Web 证据、等待同头 CI 裁决，E6f 和产品出口仍未完成。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N50 Engineering 出口不得换算成 Product Acceptance；`RA-N21-010` 只准入 N51 Gal Settings Engineering，持续阻断 N51 Product Acceptance、N52 及以后、M1 Stable 与发布。N51-E6a–E6e Engineering 已关闭；E6f 和产品出口仍未完成。
 
 ## 1. 状态和证据规则
 
@@ -76,7 +76,7 @@
 | AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | 正式 Runtime checkpoint/截断/tombstone/reconciliation/Session Save/永久 Meta 保持有效；E7 共享 Host Golden 覆盖 compensation/replay，Benchmark production 实际 Back 后 Forward 返回同一结局。正式 Player/三端和真人证据仍缺 | [N32-E7](150-n32-e7-shared-runtime-host-audit.md)、玩家 History E2E |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | N40 Engineering 已通过：E1–E8n 建立自动图、10k/64 窗口、缓存、Runtime 高亮、trusted Route-first、全局索引、narration 结构事务、topology 分页、结局审阅、诊断/目标导航及 Choice 修复闭环。N40 Product Acceptance 仍阻断，N62 玩家自动图未开始 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
 | AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2 记录 Gallery/Ending，E12 又确保 Back/Forward 与旧存档加载不回退该永久 Meta。覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 仍待 N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |
-| AC-19 | Gal 配置中心覆盖 P0 | N51 | 实现中 | E6d 达到 36 字段、Basic 23，并由真实 Editor/Player production browser 验证 Choice/UI；E6e 又冻结 Settings/Runtime/Compiler Profile 所有权，Web Host 类型与运行时均固定为 Web，Chrome production 9/9 快照通过。E6e 同头 CI、E6f 出口、附加页执行及正式 Windows/Android Host 仍缺，不能登记通过 | [N51-E6a #230](230-n51-e6a-settings-schema-v2-migration-audit.md)–[N51-E6e #234](234-n51-e6e-profile-host-boundary-contract.md)、配置追踪全覆盖 |
+| AC-19 | Gal 配置中心覆盖 P0 | N51 | 实现中 | E6d 达到 36 字段、Basic 23，并由真实 Editor/Player production browser 验证 Choice/UI；E6e 又冻结 Settings/Runtime/Compiler Profile 所有权，Web Host 类型与运行时均固定为 Web，Chrome production 9/9 快照与同头 Windows 完整门通过。E6f 出口、附加页执行及正式 Windows/Android Host 仍缺，不能登记通过 | [N51-E6a #230](230-n51-e6a-settings-schema-v2-migration-audit.md)–[N51-E6e #234](234-n51-e6e-profile-host-boundary-contract.md)、配置追踪全覆盖 |
 | AC-20 | 自动页和状态三端一致 | N62/N92 | 未开始 | AC-18、三端 Player | Catalog/Meta Hash 0 差异 |
 | AC-21 | Optimization 显示联合预算 | N71 | 未开始 | 真机/构建数据 | Center 报告 |
 | AC-22 | Safe Auto 不改源、可重建回退 | N70–N72 | 实现中 | 构建未接入 | 删除派生重建和回退 E2E |

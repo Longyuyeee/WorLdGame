@@ -493,7 +493,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6c/E6d Engineering 状态（2026-08-28）：[E6c](232-n51-e6c-stage-audio-default-policy-contract.md)已贯通 Stage 默认时长/缓动与 Audio 中断恢复，schema v4、Basic 21/Advanced 32；[E6d](233-n51-e6d-choice-ui-presentation-policy-contract.md)继续把 Choice 编号/响应式布局及 UI 默认 Textbox/输入提示贯通 schema v5、Basic 23/Advanced 36。E6d 首次冻结 88 项中 9 项按预期失败，修正及扩展后 101/101；双冷 production browser 验证 UI 保存重开、同一 waiting-choice Core、编号 2→0、桌面两列/移动单列、标题提示隐藏与 ADV→bubble。Route 玩家页面和 Choice 调度不在现有 Host 中，分别保持 N62/N52 边界；下一切片为 E6e Profile/Host boundary。
 
-> E6e Engineering 状态（2026-08-28）：[E6e](234-n51-e6e-profile-host-boundary-contract.md)冻结 Settings 三层、Runtime 显式指令、Compiler debug/release 与后续 Optimization Profile 的独立所有权。修正 WebPlayerHost 可被注入为 Android/Windows 的假平台缺口，并让嵌入观察值公开固定 `settingsPlatform: web`；首次 22/24，修正后 24/24，定向 81/81、N50 37/37、N51 95/95，Chrome 151 production 9/9 状态快照为 Web。Windows conformance 仍只有存储桥、Android Player Host 不存在，二者继续阻断；同头 Windows CI 绿色前不关闭 E6e，之后只进入 E6f 总出口。
+> E6e Engineering 状态（2026-08-28）：[E6e](234-n51-e6e-profile-host-boundary-contract.md)冻结 Settings 三层、Runtime 显式指令、Compiler debug/release 与后续 Optimization Profile 的独立所有权。修正 WebPlayerHost 可被注入为 Android/Windows 的假平台缺口，并让嵌入观察值公开固定 `settingsPlatform: web`；首次 22/24，修正后 24/24，定向 81/81、N50 37/37、N51 95/95，Chrome 151 production 9/9 状态快照为 Web。实现头同头 Windows 完整门 run `33151182320` 绿色，E6e Engineering 关闭。Windows conformance 仍只有存储桥、Android Player Host 不存在，二者继续阻断；下一切片只进入 E6f 总出口。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 
