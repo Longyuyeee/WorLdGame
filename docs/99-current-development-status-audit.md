@@ -1,15 +1,15 @@
-# 当前开发情况审计（N51 Engineering 已关闭；Product Acceptance 阻断）
+# 当前开发情况审计（N52 治理已提交并暂停；Product Acceptance 阻断）
 
 > 审计日期：2026-08-28
-> 当前分支：`codex/n51-e6-p0-coverage-exit`；直接基线为 N51-E6e 最终绿色头 `b057973`
+> 当前分支：`codex/n51-n52-governance`；直接基线为 N51-E6f 最终绿色头 `7bc7b78`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：`RA-N21-010` 只允许 N51 Gal Settings Engineering；2026-09-26 15:07:12（UTC+8）到期
-> 最新节点证据：[N51-E6f Engineering 出口复审](235-n51-e6f-engineering-exit-reaudit.md)、[N51-E6e Profile / Host 边界审计](234-n51-e6e-profile-host-boundary-contract.md)、[N51-E6d Choice / UI 审计](233-n51-e6d-choice-ui-presentation-policy-contract.md)
+> 当前授权：`RA-N21-011` 只允许 N52 Player Control Engineering；2026-09-27 16:00:00（UTC+8）到期
+> 最新节点证据：[N52 暂停与接续交接](237-n52-development-pause-and-handoff.md)、[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)、[N51-E6f Engineering 出口复审](235-n51-e6f-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-27 纠偏结论是：**产品目标和架构没有发生替换性偏移，但产品化仍落后于工程底座。正式 Player 已建立 Core、媒体、输入、生命周期和 v1 嵌入边界；范围消歧确认 N50 Engineering 通过、三宿主 Product Acceptance `0/1`，Settings 归 N51，Save/History/Auto/Skip/Back 归 N52。Gal Settings、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-010 只准入 N51 Engineering，禁止换算成商业完成度。
+2026-08-28 纠偏结论是：**产品目标和架构没有发生替换性偏移，但产品化仍落后于工程底座。正式 Player 已建立 Core、媒体、输入、生命周期和 v1 嵌入边界；N51 Gal Settings Engineering 已关闭。N31 已有 Save/History/Scheduler 内核，但正式 Player 尚未产品化 Save/Load、History、Auto、Skip、Back/Forward。Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-011 只准入 N52 Engineering，禁止换算成商业完成度。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,8 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；全部 Product Acceptance、N52+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；N52 Engineering：**已准入、功能尚未开始**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
@@ -141,8 +142,9 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
-4. `RA-N21-010` 只准入 N51 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
+4. `RA-N21-011` 只准入 N52 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. RA-010 只准入 N51 Engineering；N51 Engineering 已关闭，N51 Product Acceptance 与 N52 继续阻断；进入后续节点前必须取得新的明确授权并完成对应准入审计。
+6. N51 Engineering 已关闭；RA-011 准入 N52 Engineering，E1 只允许建立 History-backed Player Core Back/Forward、Host compensation/replay 和分支截断闭环；N52 Product Acceptance 与 N60+ 继续阻断。
+7. [交接 #237](237-n52-development-pause-and-handoff.md)的治理 CI 已按真实终态收束：旧实现 run 被后续提交取消，最终头 `1cf6458` 的 run `33159131108` 同头完整门绿色；产品负责人已恢复开发，当前只能进入 N52-E1，不直接跳到 Save/Auto/Skip。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

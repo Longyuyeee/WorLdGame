@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N50 Engineering 出口不得换算成 Product Acceptance；`RA-N21-010` 只准入 N51 Gal Settings Engineering，持续阻断 N51 Product Acceptance、N52 及以后、M1 Stable 与发布。N51 Engineering 已关闭；产品出口和后续节点仍未完成。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；`RA-N21-011` 只准入 N52 Player Control Engineering，持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N51 Engineering 已关闭；N52 只完成治理准入，产品功能尚未开始。
 
 ## 1. 状态和证据规则
 
@@ -21,7 +21,7 @@
 
 ## 2. 产品支柱
 
-最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N50 E1–E6 完成 Core/媒体/输入/生命周期/嵌入后，[范围消歧 #220](220-n50-n52-scope-reconciliation.md)把 Settings 唯一归 N51、播放控制唯一归 N52，N50 Engineering 通过而 Product Acceptance `0/1`。产品负责人在获知 RA-009 截止于 N50 后于 2026-08-27 再次明确要求进入后续步骤，因此关闭 RA-009，建立 2026-09-26 到期的 `RA-N21-010`：只允许 N51 Settings Engineering，并持续阻断全部 Product Acceptance、N52+、M1 与发布。证据见[治理 #221](221-n50-n51-governance-checkpoint.md)。
+最近按产品顺序通过的节点仍是 `N20`；后续工程门不跨越 N21 产品门，不能登记对应产品通过。N21 与 N23 真人记录分别为 `pending-participant`（0/1）和 `pending-participants`（0/2）。N50 E1–E6 完成 Core/媒体/输入/生命周期/嵌入，[范围消歧 #220](220-n50-n52-scope-reconciliation.md)把 Settings 唯一归 N51、播放控制唯一归 N52；N51 E1–E6f 随后关闭 Settings Engineering。产品负责人在获知 RA-010 截止 N51、N52 仍被阻断后于 2026-08-28 再次明确要求进入后续步骤，因此关闭 RA-010，建立 2026-09-27 到期的 `RA-N21-011`：只允许 N52 Player Control Engineering，并持续阻断全部 Product Acceptance、N60+、M1 与发布。证据见[治理 #236](236-n51-n52-governance-checkpoint.md)。
 
 | ID | 需求 | 交付节点 | 当前状态 | 当前证据 | 完成证据 |
 |---|---|---|---|---|---|

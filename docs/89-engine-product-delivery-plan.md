@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N50–N52 范围消歧](220-n50-n52-scope-reconciliation.md)确认 N50 Engineering 通过、Product Acceptance `0/1`；[N50→N51 治理检查点](221-n50-n51-governance-checkpoint.md)建立的 `RA-N21-010` 只授权 N51 Gal Settings Engineering。工程底座仍明显领先于 Gal Settings、Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N52+、M1/发布继续阻断。
+> 当前审计：[N51-E6f 出口复审](235-n51-e6f-engineering-exit-reaudit.md)确认 N51 Engineering 关闭；[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)建立的 `RA-N21-011` 只授权 N52 Player Control Engineering。工程底座仍明显领先于 Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N60+、M1/发布继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义
@@ -496,6 +496,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 > E6e Engineering 状态（2026-08-28）：[E6e](234-n51-e6e-profile-host-boundary-contract.md)冻结 Settings 三层、Runtime 显式指令、Compiler debug/release 与后续 Optimization Profile 的独立所有权。修正 WebPlayerHost 可被注入为 Android/Windows 的假平台缺口，并让嵌入观察值公开固定 `settingsPlatform: web`；首次 22/24，修正后 24/24，定向 81/81、N50 37/37、N51 95/95，Chrome 151 production 9/9 状态快照为 Web。实现头同头 Windows 完整门 run `33151182320` 绿色，E6e Engineering 关闭。Windows conformance 仍只有存储桥、Android Player Host 不存在，二者继续阻断；下一切片只进入 E6f 总出口。
 
 > E6f Engineering 状态（2026-08-28）：[出口复审](235-n51-e6f-engineering-exit-reaudit.md)新增机器可读 N51 出口合同与根级审计，核验 schema v5、Advanced 36 / Basic 23、application v1、Web Host 固定身份、双 production evidence，并冻结 N52/N61/N62/N70–N72/N80–N83 所有权。首次实际只暴露 5 项权威文档状态滞后，代码与 evidence 全部通过；实现头 `40c14a4` 的 Windows / Node 22 完整门 run `33155226168` / job `98796294530` 用时 `14m18s` 绿色，普通 `149/886`、N51 `95/95`、VM `69.85s < 90s`、Route P95 `186.04ms < 500ms`。E6f 与 N51 Engineering 关闭；N51 Product Acceptance、Windows/Android 实机和跨节点范围仍阻断。
+
+> N52 准入状态（2026-08-28）：产品负责人在获知 RA-010 截止 N51、N52 仍被阻断后再次明确要求进入后续步骤。[治理检查点 #236](236-n51-n52-governance-checkpoint.md)关闭 RA-010 并建立最大节点 N52 的 `RA-N21-011`。真实代码确认 N31 已有 Save/Session Save/History/Scheduler 与 Host reconciliation，而正式 Player 尚未产品化这些能力；E1 冻结为同一 Player Core 的 History-backed Back/Forward、媒体 compensation/replay 和分支截断闭环。N52 Product Acceptance、N60+、真人、实体设备、M1 与发布继续阻断。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 
