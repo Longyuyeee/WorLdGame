@@ -7,11 +7,16 @@ import {
 import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
 import {
   RUNTIME_VERSION,
+  advanceRuntimeHistoryV1,
+  backRuntimeHistoryV1,
+  createRuntimeHistorySessionV1,
   createRuntimeState,
-  runRuntime,
+  forwardRuntimeHistoryV1,
   runtimeStateHashV1,
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
+  type RuntimeHistoryReconciliationPlanV1,
+  type RuntimeHistorySessionV1,
   type RuntimeInputV1,
   type RuntimeScalar,
   type RuntimeStateV1
@@ -21,6 +26,7 @@ import {
   consumeRuntimePresentationEffectsV1,
   createRuntimePresentationHostSnapshotV1,
   createRuntimePresentationHostStateV1,
+  reconcileRuntimePresentationHostV1,
   settleRuntimePresentationEffectV1,
   type RuntimePresentationHostStateV1
 } from "@world-studio/runtime-host";
@@ -52,6 +58,7 @@ export interface PlayerCoreState {
   readonly title: string;
   readonly artifacts: CompilerArtifactsV1 | null;
   readonly runtimeState: RuntimeStateV1 | null;
+  readonly historySession: RuntimeHistorySessionV1 | null;
   readonly hostState: RuntimePresentationHostStateV1;
   readonly currentEvent: RuntimeEventV1 | null;
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
@@ -74,6 +81,12 @@ export interface PlayerCoreSnapshotV1 {
     readonly pending: PlayerCoreEffectSnapshotV1 | null;
     readonly operations: readonly PlayerCoreEffectOperationSnapshotV1[];
   };
+  readonly history: {
+    readonly cursor: number;
+    readonly length: number;
+    readonly canBack: boolean;
+    readonly canForward: boolean;
+  } | null;
   readonly presentation:
     | { readonly kind: "title" }
     | { readonly kind: "dialogue"; readonly speakerId: string; readonly textId: string; readonly text: string }
@@ -110,6 +123,8 @@ export type PlayerCoreIntentV1 =
   | { readonly kind: "primary" }
   | { readonly kind: "select-choice"; readonly optionId: string }
   | { readonly kind: "cancel" }
+  | { readonly kind: "back" }
+  | { readonly kind: "forward" }
   | { readonly kind: "restart" };
 
 function effectSnapshot(effect: import("@world-studio/runtime").RuntimeEffectIntentV1): PlayerCoreEffectSnapshotV1 {
@@ -178,6 +193,7 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
       title: project.manifest.title,
       artifacts: null,
       runtimeState: null,
+      historySession: null,
       hostState,
       currentEvent: null,
       diagnostics: compiled.diagnostics.map(compilerDiagnostic)
@@ -189,24 +205,27 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
     title: project.manifest.title,
     artifacts: compiled.artifacts,
     runtimeState: null,
+    historySession: null,
     hostState,
     currentEvent: null,
     diagnostics: compiled.diagnostics.map(compilerDiagnostic)
   };
 }
 
-function drivePlayerCore(base: PlayerCoreState, initialState: RuntimeStateV1, input?: RuntimeInputV1): PlayerCoreState {
+function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySessionV1, input?: RuntimeInputV1): PlayerCoreState {
   const artifacts = base.artifacts;
   if (artifacts === null) return playerError(base, "PLAYER_BUILD_MISSING", "Player Core has no verified Compiler artifacts");
-  let runtimeState = initialState;
+  let historySession = initialHistory;
+  let runtimeState = historySession.checkpoints[historySession.cursor]!.state;
   let hostState = base.hostState;
   let nextInput = input;
   for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
-    const result = runRuntime(artifacts.story, runtimeState, nextInput === undefined ? {} : { input: nextInput });
+    const result = advanceRuntimeHistoryV1(artifacts.story, historySession, nextInput === undefined ? {} : { input: nextInput });
     nextInput = undefined;
+    historySession = result.session;
     runtimeState = result.state;
     hostState = consumeRuntimePresentationEffectsV1(hostState, result.effects);
-    const current = { ...base, runtimeState, hostState, currentEvent: result.event };
+    const current = { ...base, runtimeState, historySession, hostState, currentEvent: result.event };
     if (result.diagnostics.length > 0) {
       return { ...current, status: "error", currentEvent: null, diagnostics: [...base.diagnostics, ...result.diagnostics.map(runtimeDiagnostic)] };
     }
@@ -216,7 +235,7 @@ function drivePlayerCore(base: PlayerCoreState, initialState: RuntimeStateV1, in
     if (result.event?.kind === "ending" || runtimeState.terminal.kind === "ended") return { ...current, status: "ended" };
     if (result.event !== null && result.event.kind !== "direction") return { ...current, status: "presenting" };
   }
-  return playerError({ ...base, runtimeState, hostState }, "PLAYER_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} internal steps without a presentation boundary`);
+  return playerError({ ...base, runtimeState, historySession, hostState }, "PLAYER_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} internal steps without a presentation boundary`);
 }
 
 export function startPlayerCore(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
@@ -229,12 +248,14 @@ export function startPlayerCore(state: PlayerCoreState, project: CanonicalProjec
     initialVariables: initialVariables(project)
   });
   if (!created.ok) return { ...state, status: "error", diagnostics: [...state.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
-  return drivePlayerCore(state, created.state);
+  const history = createRuntimeHistorySessionV1(state.artifacts.story, created.state);
+  if (history.diagnostics.length > 0) return { ...state, status: "error", diagnostics: [...state.diagnostics, ...history.diagnostics.map(runtimeDiagnostic)] };
+  return drivePlayerCore(state, history.session);
 }
 
 export function advancePlayerCore(state: PlayerCoreState): PlayerCoreState {
-  return state.status === "presenting" && state.runtimeState !== null
-    ? drivePlayerCore(state, state.runtimeState)
+  return state.status === "presenting" && state.historySession !== null
+    ? drivePlayerCore(state, state.historySession)
     : state;
 }
 
@@ -245,7 +266,7 @@ export function selectPlayerCoreChoice(state: PlayerCoreState, optionId: string)
   const input: RuntimeInputV1 = {
     schemaVersion: 1,
     kind: "choiceSelected",
-    inputId: `player.input.${state.runtimeState.nextInputSequence}`,
+    inputId: `player.input.${state.runtimeState.nextInputSequence}.choice.${optionId}`,
     executionId: state.runtimeState.executionId,
     expectedStateRevision: state.runtimeState.stateRevision,
     logicalSequence: pending.logicalSequence,
@@ -253,7 +274,8 @@ export function selectPlayerCoreChoice(state: PlayerCoreState, optionId: string)
     instructionId: pending.instructionId,
     optionId
   };
-  return drivePlayerCore(state, state.runtimeState, input);
+  if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
+  return drivePlayerCore(state, state.historySession, input);
 }
 
 export function settlePlayerCoreEffect(state: PlayerCoreState, outcome: "complete" | "cancel"): PlayerCoreState {
@@ -279,7 +301,8 @@ export function settlePlayerCoreEffect(state: PlayerCoreState, outcome: "complet
     cancellationScope: pending.cancellationScope
   };
   const hostState = settleRuntimePresentationEffectV1(state.hostState, pending, outcome);
-  return drivePlayerCore({ ...state, hostState }, state.runtimeState, input);
+  if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
+  return drivePlayerCore({ ...state, hostState }, state.historySession, input);
 }
 
 export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreState {
@@ -295,14 +318,66 @@ export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreStat
     requestId: pending.requestId,
     descriptorId: pending.descriptorId
   };
-  return drivePlayerCore(state, state.runtimeState, input);
+  if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
+  return drivePlayerCore(state, state.historySession, input);
+}
+
+function eventAtHistoryCursor(history: RuntimeHistorySessionV1): RuntimeEventV1 | null {
+  return history.cursor === 0 ? null : history.entries[history.cursor - 1]?.event ?? null;
+}
+
+function checkpointEffects(history: RuntimeHistorySessionV1) {
+  return history.entries.slice(0, history.cursor).flatMap((entry) => entry.effects);
+}
+
+function navigatedStatus(history: RuntimeHistorySessionV1, event: RuntimeEventV1 | null): PlayerCoreStatus | "continue" {
+  const state = history.checkpoints[history.cursor]!.state;
+  if (history.cursor === 0) return "title";
+  if (state.pendingEffect !== null) return "waiting-effect";
+  if (state.pendingBarrier !== null) return "waiting-barrier";
+  if (event?.kind === "choice") return "waiting-choice";
+  if (event?.kind === "ending" || state.terminal.kind === "ended") return "ended";
+  if (event !== null && event.kind !== "direction") return "presenting";
+  return "continue";
+}
+
+function navigatePlayerHistory(state: PlayerCoreState, direction: "back" | "forward"): PlayerCoreState {
+  if (state.artifacts === null || state.historySession === null) return state;
+  let current = state;
+  for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
+    const history = current.historySession!;
+    const moved = direction === "back"
+      ? backRuntimeHistoryV1(current.artifacts!.story, history)
+      : forwardRuntimeHistoryV1(current.artifacts!.story, history);
+    if (moved.diagnostics.length > 0) {
+      const boundary = moved.diagnostics[0]?.code === "RUNTIME_HISTORY_AT_START" || moved.diagnostics[0]?.code === "RUNTIME_HISTORY_AT_END";
+      return boundary ? current : playerError(current, moved.diagnostics[0]!.code, moved.diagnostics[0]!.message);
+    }
+    const plan = moved.reconciliationPlan as RuntimeHistoryReconciliationPlanV1;
+    const hostState = reconcileRuntimePresentationHostV1(current.hostState, plan, checkpointEffects(moved.session));
+    const event = eventAtHistoryCursor(moved.session);
+    const status = navigatedStatus(moved.session, event);
+    current = { ...current, status: status === "continue" ? current.status : status, runtimeState: moved.state, historySession: moved.session, hostState, currentEvent: event };
+    if (status !== "continue") return current;
+  }
+  return playerError(current, "PLAYER_HISTORY_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} History boundaries without a presentation`);
+}
+
+export function backPlayerCore(state: PlayerCoreState): PlayerCoreState {
+  return navigatePlayerHistory(state, "back");
+}
+
+export function forwardPlayerCore(state: PlayerCoreState): PlayerCoreState {
+  return navigatePlayerHistory(state, "forward");
 }
 
 export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: CanonicalProject, intent: PlayerCoreIntentV1): PlayerCoreState {
   if (intent.kind === "select-choice") return selectPlayerCoreChoice(state, intent.optionId);
   if (intent.kind === "cancel") return settlePlayerCoreEffect(state, "cancel");
+  if (intent.kind === "back") return backPlayerCore(state);
+  if (intent.kind === "forward") return forwardPlayerCore(state);
   if (intent.kind === "restart") return state.status === "ended" || state.status === "error" ? createPlayerCore(project) : state;
-  if (state.status === "title") return startPlayerCore(state, project);
+  if (state.status === "title") return state.historySession === null ? startPlayerCore(state, project) : forwardPlayerCore(state);
   if (state.status === "presenting") return advancePlayerCore(state);
   if (state.status === "waiting-effect") return settlePlayerCoreEffect(state, "complete");
   if (state.status === "waiting-barrier") return approvePlayerCoreBarrier(state);
@@ -331,6 +406,8 @@ function presentation(state: PlayerCoreState): PlayerCoreSnapshotV1["presentatio
 
 export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSnapshotV1 {
   const host = createRuntimePresentationHostSnapshotV1(state.hostState);
+  const history = state.historySession;
+  const previous = history === null || history.cursor === 0 ? null : history.entries[history.cursor - 1] ?? null;
   return {
     schemaVersion: 1,
     playerCoreVersion: PLAYER_CORE_VERSION,
@@ -355,6 +432,12 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
         descriptorId: operation.descriptorId,
         channel: operation.channel
       }))
+    },
+    history: history === null ? null : {
+      cursor: history.cursor,
+      length: history.entries.length,
+      canBack: history.cursor > 0 && state.runtimeState?.pendingEffect === null && previous?.barriers.length === 0,
+      canForward: history.cursor < history.entries.length && state.runtimeState?.pendingEffect === null
     },
     presentation: presentation(state),
     runtimeStateHash: state.runtimeState === null ? null : runtimeStateHashV1(state.runtimeState),

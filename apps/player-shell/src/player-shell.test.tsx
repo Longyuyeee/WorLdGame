@@ -245,6 +245,30 @@ describe("N50-E1 shared Player Shell", () => {
   });
 });
 
+describe("N52-E1 Player History controls", () => {
+  it("exposes accessible Back and Forward controls with truthful disabled state", () => {
+    const { container } = render(<PlayerShell project={branching()} />);
+    const back = screen.getByRole("button", { name: "后退一步" });
+    const forward = screen.getByRole("button", { name: "前进一步" });
+    expect(back).toBeDisabled();
+    expect(forward).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(back).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: /Right/u }));
+    expect(screen.getByText("The bright route.")).toBeInTheDocument();
+
+    fireEvent.click(back);
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+    expect(forward).toBeEnabled();
+
+    fireEvent.click(forward);
+    expect(screen.getByText("The bright route.")).toBeInTheDocument();
+    expect(forward).toBeDisabled();
+  });
+});
+
 describe("N51-E5 Player settings application", () => {
   it("keeps the active Core when a persisted v1 settings document is normalized to current v5", () => {
     const project = branching();

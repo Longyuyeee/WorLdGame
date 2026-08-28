@@ -230,6 +230,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-runtime={snapshot.identities.runtimeVersion}
       data-runtime-host={snapshot.identities.runtimeHostVersion}
       data-effect-operation={lastEffectOperation?.kind ?? "none"}
+      data-history-cursor={snapshot.history?.cursor ?? 0}
+      data-history-length={snapshot.history?.length ?? 0}
+      data-history-can-back={snapshot.history?.canBack ?? false}
+      data-history-can-forward={snapshot.history?.canForward ?? false}
       data-input-source={lastInputSource}
       data-input-accepted={lastInputAccepted}
       data-host-activity={hostActivity}
@@ -343,6 +347,23 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <span className="player-brand__status">{snapshot.status}</span>
           {lastEffectOperation !== null && <span className="player-brand__effect">FX {lastEffectOperation.sequence + 1} · {lastEffectOperation.kind}</span>}
         </header>
+        <nav className="player-history-controls" aria-label="剧情历史控制">
+          <button
+            type="button"
+            aria-label="后退一步"
+            disabled={hostActivity !== "active" || snapshot.history?.canBack !== true}
+            onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
+            onClick={() => applyIntent({ kind: "back" }, pointerInput.current)}
+          ><span aria-hidden="true">←</span><span>后退</span></button>
+          <span className="player-history-controls__position" aria-label="历史位置">{snapshot.history?.cursor ?? 0}/{snapshot.history?.length ?? 0}</span>
+          <button
+            type="button"
+            aria-label="前进一步"
+            disabled={hostActivity !== "active" || snapshot.history?.canForward !== true}
+            onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
+            onClick={() => applyIntent({ kind: "forward" }, pointerInput.current)}
+          ><span>前进</span><span aria-hidden="true">→</span></button>
+        </nav>
 
         {(stage.missingAssetIds.length > 0 || mediaErrors.length > 0) && (
           <div className="player-media-error" role="alert">

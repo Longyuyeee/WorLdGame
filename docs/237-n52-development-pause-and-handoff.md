@@ -47,7 +47,7 @@ E1 只做以下闭环：
 - 同一正式 Player Core 以 N31 `RuntimeHistorySessionV1` 记录可观察剧情边界；
 - Back/Forward intent 直接调用 N31 History API；
 - Runtime Host 按 reconciliation plan 执行 Back compensation / Forward replay；
-- Golden 路线验证“结局→Back→Forward”的 Runtime state hash 与 Host hash 完全恢复；
+- Golden 路线验证“结局→Back→Forward”的 Runtime State Hash 完全恢复、active presentation channels 等价，并保留 Host append-only compensation/replay 操作证据；原“Host hash 完全恢复”与真实 Host hash 包含操作审计账本的实现冲突，由 N52-E1 审计纠偏；
 - Back 后改选另一分支必须截断旧 Forward；
 - Web Player Shell 提供可访问、状态正确的 Back/Forward 控件，并执行桌面与 390×844 冷 production-browser；
 - 不在 E1 实现 Save 槽位、Auto、Skip，也不宣称 N52 Product Acceptance。
@@ -74,3 +74,5 @@ E1 只做以下闭环：
 - 产品负责人随后明确要求按接续点继续开发，因此本交接的暂停条件解除。
 
 治理最终头的同头裁决已经满足，第 2 节步骤 1–3 关闭。下一动作严格执行步骤 4–5：从最终治理头建立 `codex/n52-e1-history-backed-player-core`，先提交可审计的失败冻结测试，再实现 E1；Save 槽位、Auto、Skip 和 N52 Product Acceptance 继续不在本切片范围内。
+
+> 2026-08-28 后续状态：N52-E1 已按该顺序实施并完成本地审计，最新权威接续点改由[N52-E1 审计 #238](238-n52-e1-history-backed-player-core-audit.md)维护；本文件保留为恢复前暂停快照。
