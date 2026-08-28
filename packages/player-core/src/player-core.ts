@@ -10,8 +10,10 @@ import {
   advanceRuntimeHistoryV1,
   backRuntimeHistoryV1,
   createRuntimeHistorySessionV1,
+  createRuntimeSessionSaveV1,
   createRuntimeState,
   forwardRuntimeHistoryV1,
+  loadRuntimeSessionSaveV1,
   runtimeStateHashV1,
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
@@ -26,12 +28,13 @@ import {
   consumeRuntimePresentationEffectsV1,
   createRuntimePresentationHostSnapshotV1,
   createRuntimePresentationHostStateV1,
+  rehydrateRuntimePresentationHostV1,
   reconcileRuntimePresentationHostV1,
   settleRuntimePresentationEffectV1,
   type RuntimePresentationHostStateV1
 } from "@world-studio/runtime-host";
 
-export const PLAYER_CORE_VERSION = "0.3.0" as const;
+export const PLAYER_CORE_VERSION = "0.4.0" as const;
 const MAX_PLAYER_DRIVE_STEPS = 10_000;
 
 export type PlayerCoreStatus =
@@ -113,7 +116,7 @@ export interface PlayerCoreEffectSnapshotV1 {
 
 export interface PlayerCoreEffectOperationSnapshotV1 {
   readonly sequence: number;
-  readonly kind: "execute" | "complete" | "cancel" | "compensate" | "replay";
+  readonly kind: "execute" | "complete" | "cancel" | "compensate" | "replay" | "rehydrate";
   readonly effectId: string;
   readonly descriptorId: string;
   readonly channel: string;
@@ -238,6 +241,14 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
   return playerError({ ...base, runtimeState, historySession, hostState }, "PLAYER_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} internal steps without a presentation boundary`);
 }
 
+export type CreatePlayerCoreSessionSaveResultV1 =
+  | { readonly ok: true; readonly serialized: string; readonly artifactHash: string }
+  | { readonly ok: false; readonly diagnostics: readonly PlayerCoreDiagnostic[] };
+
+export type LoadPlayerCoreSessionSaveResultV1 =
+  | { readonly ok: true; readonly state: PlayerCoreState; readonly artifactHash: string; readonly savedRuntimeStateHash: string; readonly savedSceneId: string }
+  | { readonly ok: false; readonly diagnostics: readonly PlayerCoreDiagnostic[] };
+
 export function startPlayerCore(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
   if (state.status !== "title" || state.artifacts === null) return state;
   if (project.manifest.projectId !== state.projectId) return playerError(state, "PLAYER_PROJECT_MISMATCH", "Player Core project identity changed before Start");
@@ -327,7 +338,52 @@ function eventAtHistoryCursor(history: RuntimeHistorySessionV1): RuntimeEventV1 
 }
 
 function checkpointEffects(history: RuntimeHistorySessionV1) {
-  return history.entries.slice(0, history.cursor).flatMap((entry) => entry.effects);
+  const activeByChannel = new Map<string, import("@world-studio/runtime").RuntimeEffectIntentV1>();
+  for (const entry of history.entries.slice(0, history.cursor)) {
+    for (const effect of entry.effects) activeByChannel.set(effect.channel, effect);
+    if (entry.input?.kind === "effectCancelled") {
+      for (const [channel, effect] of activeByChannel) {
+        if (effect.effectId === entry.input.effectId) activeByChannel.delete(channel);
+      }
+    }
+  }
+  return [...activeByChannel.values()];
+}
+
+export function createPlayerCoreSessionSaveV1(state: PlayerCoreState): CreatePlayerCoreSessionSaveResultV1 {
+  if (state.artifacts === null || state.historySession === null || state.runtimeState === null) {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_UNAVAILABLE", message: "Player Core has no active Runtime History Session to save", sceneId: null, statementId: null, instructionId: null }] };
+  }
+  const created = createRuntimeSessionSaveV1(state.artifacts.story, state.historySession);
+  return created.ok
+    ? { ok: true, serialized: created.serialized, artifactHash: created.artifactHash }
+    : { ok: false, diagnostics: created.diagnostics.map(runtimeDiagnostic) };
+}
+
+export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: string): LoadPlayerCoreSessionSaveResultV1 {
+  if (state.artifacts === null) {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_BUILD_MISSING", message: "Player Core has no verified Compiler artifacts", sceneId: null, statementId: null, instructionId: null }] };
+  }
+  const loaded = loadRuntimeSessionSaveV1(state.artifacts.story, serialized, {
+    expectedBuildId: state.artifacts.manifest.buildId,
+    ...(state.runtimeState === null ? {} : { currentMetaProgress: state.runtimeState.metaProgress })
+  });
+  if (!loaded.ok) return { ok: false, diagnostics: loaded.diagnostics.map(runtimeDiagnostic) };
+  const event = eventAtHistoryCursor(loaded.session);
+  const status = navigatedStatus(loaded.session, event);
+  if (status === "continue") {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_BOUNDARY_INVALID", message: "Player Session Save does not point at a presentable boundary", sceneId: loaded.state.cursor.sceneId, statementId: null, instructionId: null }] };
+  }
+  const checkpoint = loaded.session.checkpoints[loaded.session.cursor]!;
+  const savedCheckpoint = loaded.save.history.checkpoints[loaded.save.cursor]!;
+  const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(loaded.session), checkpoint.checkpointId);
+  return {
+    ok: true,
+    artifactHash: loaded.artifactHash,
+    savedRuntimeStateHash: runtimeStateHashV1(savedCheckpoint.state),
+    savedSceneId: savedCheckpoint.state.cursor.sceneId,
+    state: { ...state, status, runtimeState: loaded.state, historySession: loaded.session, hostState, currentEvent: event }
+  };
 }
 
 function navigatedStatus(history: RuntimeHistorySessionV1, event: RuntimeEventV1 | null): PlayerCoreStatus | "continue" {

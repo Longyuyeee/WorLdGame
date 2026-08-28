@@ -5,11 +5,13 @@ import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, 
 import {
   advancePlayerCore,
   createPlayerCore,
+  createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
   dispatchPlayerCoreIntentV1,
   selectPlayerCoreChoice,
   settlePlayerCoreEffect,
   startPlayerCore,
+  loadPlayerCoreSessionSaveV1,
   type PlayerCoreIntentV1,
   type PlayerCoreState
 } from "./player-core";
@@ -86,7 +88,7 @@ describe("N50-E1 formal Player Core", () => {
     const waiting = startPlayerCore(createPlayerCore(project), project);
     expect(createPlayerCoreSnapshotV1(waiting)).toMatchObject({
       status: "waiting-effect",
-      playerCoreVersion: "0.3.0",
+      playerCoreVersion: "0.4.0",
       presentation: { kind: "effect", descriptorId: "player.media.actor.enter" },
       effects: {
         active: [
@@ -217,5 +219,92 @@ describe("N52-E1 History-backed Player Core contract", () => {
     expect(replayed.runtimeStateHash).toBe(before.runtimeStateHash);
     expect(replayed.effects.active).toEqual(before.effects.active);
     expect(replayed.effects.operations.at(-1)?.kind).toBe("replay");
+  });
+});
+
+describe("N52-E2 Player Session Save bridge", () => {
+  it("restores the exact History cursor, presentation, State Hash, and Forward branch", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const line = selectPlayerCoreChoice(choice, "branch_right_option");
+    const ending = advancePlayerCore(line);
+    const backed = dispatchPlayerCoreIntentV1(ending, project, { kind: "back" });
+    const saved = createPlayerCoreSessionSaveV1(backed);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+
+    const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), saved.serialized);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    expect(createPlayerCoreSnapshotV1(loaded.state)).toMatchObject({
+      status: "presenting",
+      runtimeStateHash: createPlayerCoreSnapshotV1(backed).runtimeStateHash,
+      presentation: { kind: "dialogue", text: "The bright route." },
+      history: { cursor: 2, length: 3, canBack: true, canForward: true }
+    });
+    const forwarded = dispatchPlayerCoreIntentV1(loaded.state, project, { kind: "forward" });
+    expect(createPlayerCoreSnapshotV1(forwarded)).toMatchObject({ status: "ended", presentation: { kind: "ending", endingId: "branch_right_end" } });
+  });
+
+  it("fails closed for title-only state, tampering, and a different Build", () => {
+    const project = fixture("branching");
+    expect(createPlayerCoreSessionSaveV1(createPlayerCore(project))).toMatchObject({ ok: false });
+    const running = startPlayerCore(createPlayerCore(project), project);
+    const saved = createPlayerCoreSessionSaveV1(running);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+    expect(loadPlayerCoreSessionSaveV1(createPlayerCore(project), `${saved.serialized} `)).toMatchObject({ ok: false });
+    const [scriptId, script] = Object.entries(project.scripts)[0]!;
+    const changed = {
+      ...project,
+      scripts: {
+        ...project.scripts,
+        [scriptId]: { ...script, statements: script.statements.map((statement, index) => index === 0 ? { ...statement, summary: `${String(statement.summary)} changed` } : statement) }
+      }
+    };
+    expect(loadPlayerCoreSessionSaveV1(createPlayerCore(changed), saved.serialized)).toMatchObject({ ok: false });
+  });
+
+  it("rehydrates presentation Effects without replaying or executing them during Load", () => {
+    const project = fixture("media");
+    const running = startPlayerCore(createPlayerCore(project), project);
+    const saved = createPlayerCoreSessionSaveV1(running);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+    const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), saved.serialized);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    const snapshot = createPlayerCoreSnapshotV1(loaded.state);
+    expect(snapshot.effects.active.length).toBeGreaterThan(0);
+    expect(snapshot.effects.operations.every((operation) => operation.kind === "rehydrate")).toBe(true);
+  });
+
+  it("does not revive an Effect that was cancelled before the saved checkpoint", () => {
+    const source = fixture("media");
+    const script = source.scripts.media_stage!;
+    const project: CanonicalProject = {
+      ...source,
+      scripts: {
+        ...source.scripts,
+        media_stage: {
+          ...script,
+          statements: script.statements.map((statement) => statement.id === "media_show" ? {
+            ...statement,
+            summary: `${String(statement.summary)} effectPolicy=pure awaitMode=awaited descriptorId=player.media.actor.cancel`
+          } : statement)
+        }
+      }
+    };
+    const waiting = startPlayerCore(createPlayerCore(project), project);
+    const cancelledEffectId = waiting.runtimeState?.pendingEffect?.effectId;
+    expect(cancelledEffectId).toBeDefined();
+    const afterCancel = settlePlayerCoreEffect(waiting, "cancel");
+    const saved = createPlayerCoreSessionSaveV1(afterCancel);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+    const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), saved.serialized);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    expect(createPlayerCoreSnapshotV1(loaded.state).effects.active.some((effect) => effect.effectId === cancelledEffectId)).toBe(false);
   });
 });

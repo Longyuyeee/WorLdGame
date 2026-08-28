@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E2",
+  "date": "2026-08-28",
+  "build": "player-shell production preview",
+  "route": "title -> waiting-choice -> save manual-1 -> right branch -> load -> reload -> load",
+  "storage": {
+    "backend": "indexeddb",
+    "storeVersion": "1.0.0",
+    "survivesReload": true,
+    "restoredStatus": "waiting-choice",
+    "restoredHistoryCursor": 1,
+    "slotSceneId": "branch_start"
+  },
+  "desktop": {
+    "viewport": [1280, 720],
+    "document": [1280, 720],
+    "horizontalOverflow": 0,
+    "consoleWarningsOrErrors": 0
+  },
+  "mobile": {
+    "viewport": [390, 844],
+    "document": [390, 844],
+    "horizontalOverflow": 0,
+    "panelBounds": { "left": 10, "right": 380, "top": 486.4, "bottom": 772 },
+    "minimumSaveControlHeight": 44,
+    "toggleHeight": 48,
+    "consoleWarningsOrErrors": 0
+  }
+}

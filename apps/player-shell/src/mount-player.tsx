@@ -5,14 +5,16 @@ import type { PlayerCoreStatus } from "@world-studio/player-core";
 import { WebPlayerHost } from "./player-host";
 import type { PlayerHostActivityV1 } from "./PlayerShell";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import type { WorldPlayerSaveStoreV1 } from "./player-save-store";
 
-export const WORLD_PLAYER_EMBED_API_VERSION = "1.0.0" as const;
+export const WORLD_PLAYER_EMBED_API_VERSION = "1.1.0" as const;
 
 export interface WorldPlayerMountOptionsV1 {
   readonly project: CanonicalProject;
   readonly mediaAssets?: readonly PlayerMediaAssetSourceV1[];
   readonly hostActivity?: PlayerHostActivityV1;
   readonly onRetryMedia?: () => void;
+  readonly saveStore?: WorldPlayerSaveStoreV1;
 }
 
 export interface WorldPlayerObservationV1 {
@@ -26,6 +28,8 @@ export interface WorldPlayerObservationV1 {
   readonly compilerVersion: string;
   readonly runtimeVersion: string;
   readonly runtimeHostVersion: string;
+  readonly saveStoreBackend: string;
+  readonly saveStoreVersion: string | null;
 }
 
 export interface WorldPlayerHandleV1 {
@@ -42,6 +46,7 @@ interface ResolvedWorldPlayerMountOptionsV1 {
   readonly mediaAssets: readonly PlayerMediaAssetSourceV1[];
   readonly hostActivity: PlayerHostActivityV1;
   readonly onRetryMedia: (() => void) | undefined;
+  readonly saveStore: WorldPlayerSaveStoreV1 | undefined;
 }
 
 const mountedContainers = new WeakMap<HTMLElement, WorldPlayerHandleV1>();
@@ -62,7 +67,8 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
       project: initial.project,
       mediaAssets: initial.mediaAssets ?? [],
       hostActivity: initial.hostActivity ?? "active",
-      onRetryMedia: initial.onRetryMedia
+      onRetryMedia: initial.onRetryMedia,
+      saveStore: initial.saveStore
     };
 
   const assertActive = () => {
@@ -76,6 +82,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
         mediaAssets={options.mediaAssets}
         activityOverride={options.hostActivity}
         {...(options.onRetryMedia === undefined ? {} : { onRetryMedia: options.onRetryMedia })}
+        {...(options.saveStore === undefined ? {} : { saveStore: options.saveStore })}
       />
     ));
   };
@@ -108,7 +115,9 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
         playerCoreVersion: requiredAttribute(shell, "playerCore"),
         compilerVersion: requiredAttribute(shell, "compiler"),
         runtimeVersion: requiredAttribute(shell, "runtime"),
-        runtimeHostVersion: requiredAttribute(shell, "runtimeHost")
+        runtimeHostVersion: requiredAttribute(shell, "runtimeHost"),
+        saveStoreBackend: requiredAttribute(shell, "saveStore"),
+        saveStoreVersion: requiredAttribute(shell, "saveStoreVersion") === "none" ? null : requiredAttribute(shell, "saveStoreVersion")
       };
     },
     unmount() {

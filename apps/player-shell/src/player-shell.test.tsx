@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -9,6 +9,7 @@ import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
+import type { WorldPlayerSaveSlotV1, WorldPlayerSaveStoreV1 } from "./player-save-store";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -21,7 +22,7 @@ describe("N50-E1 shared Player Shell", () => {
   it("exposes formal identities and supports pointer input from title through choice", () => {
     const { container } = render(<PlayerShell project={branching()} />);
     const shell = container.querySelector("main");
-    expect(shell).toHaveAttribute("data-player-core", "0.3.0");
+    expect(shell).toHaveAttribute("data-player-core", "0.4.0");
     expect(shell).toHaveAttribute("data-compiler", "0.2.0");
     expect(shell).toHaveAttribute("data-runtime", "0.6.0");
     expect(shell).toHaveAttribute("data-runtime-host", "0.1.0");
@@ -411,5 +412,38 @@ describe("N51-E5 Player settings application", () => {
     expect(container.querySelector("main")).toHaveAttribute("data-settings-orientation", "portrait");
     expect(container.querySelector("main")).toHaveAttribute("data-settings-input-keyboard", "false");
     expect(container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1080 / 1920" });
+  });
+
+  it("saves and loads a manual Host slot through the formal Session Save bridge", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV1>();
+    const store: WorldPlayerSaveStoreV1 = {
+      version: "1.0.0",
+      backend: "memory-test",
+      async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
+      async write(slot) { records.set(`${slot.projectId}\0${slot.slotId}`, slot); }
+    };
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} now={() => 1_788_000_000_000} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
+    expect(screen.getByText(/branch_start/u)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
+    expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
+
+    const stored = records.get("golden_branching\0manual-1")!;
+    records.set("golden_branching\0manual-1", { ...stored, sceneId: "tampered-scene" });
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "error"));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    expect(screen.getByText("存档损坏或与当前构建不兼容")).toBeInTheDocument();
   });
 });

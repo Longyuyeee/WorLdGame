@@ -4,6 +4,7 @@ import {
   consumeRuntimePresentationEffectsV1,
   createRuntimePresentationHostSnapshotV1,
   createRuntimePresentationHostStateV1,
+  rehydrateRuntimePresentationHostV1,
   reconcileRuntimePresentationHostV1,
   settleRuntimePresentationEffectV1,
   validateRuntimePresentationHostStateV1
@@ -70,6 +71,16 @@ describe("portable Runtime Presentation Host", () => {
     const replayed = reconcileRuntimePresentationHostV1(compensated, { ...back, direction: "forward", fromCheckpointId: "cp.1", toCheckpointId: "cp.2", restoreCheckpointId: "cp.2", compensations: [], replayEffects: [intent] }, [intent]);
     expect(replayed.operations.at(-1)?.kind).toBe("replay");
     expect(replayed.activeByChannel.background?.effectId).toBe(intent.effectId);
+  });
+
+  it("rehydrates active presentation channels without reporting external Effect execution", () => {
+    const intent = effect();
+    const state = rehydrateRuntimePresentationHostV1([intent], "cp.loaded");
+    expect(state.checkpointId).toBe("cp.loaded");
+    expect(state.activeByChannel.background).toEqual(intent);
+    expect(state.operations).toEqual([expect.objectContaining({ kind: "rehydrate", effectId: intent.effectId })]);
+    expect(state.operations.some((operation) => operation.kind === "execute" || operation.kind === "replay")).toBe(false);
+    expect(validateRuntimePresentationHostStateV1(state)).toEqual([]);
   });
 
   it("freezes a canonical snapshot and SHA-256 independent of record member insertion order", () => {
