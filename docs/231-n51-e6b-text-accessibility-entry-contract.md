@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e6-p0-coverage-exit`
 > 直接基线：N51-E6a 最终绿色头 `cc05b4b`
 > 授权：`RA-N21-010`，最大节点 N51
-> 当前判定：实现、定向测试、双 production-browser 与除本机累积负载差异外的完整门均已审计；等待同头 Windows / Node 22 CI 裁决
+> 当前判定：实现头同头 Windows / Node 22 完整门绿色；E6b Engineering 关闭
 
 ## 1. 本切片目标
 
@@ -79,3 +79,13 @@ E6b 只补当前 Preview 与正式 Player Host 可以执行和观察的文字呈
 首次从头运行 `npm run check` 时，治理、需求、Golden、Compiler `29/29`、Runtime `60/60`、10,000-seed/20,000-replay corpus（`25.667s`，digest 不变）、N41 scale/lazy 与退出矩阵第一段 `49/49` 均通过；随后既有 `apps/editor/src/App.test.tsx` 在累计负载下有 2/45 项分别于约 `5.037s`、`7.283s` 超过冻结 5 秒，其余 43 项通过，完整门在此停止。本切片没有修改失败的 Stage 复制/区间选择逻辑，也没有放宽 timeout。原命令隔离复跑整个文件为 45/45、用时 `63.55s`。该差异暂记为本机累积负载候选，仍须第二次完整门及同头 Windows / Node 22 CI 裁决，不能据隔离绿灯直接宣称完整门通过。
 
 第二次从头运行穿过该位置：N41 `49/49 + App 45/45`、N42 `152/152 + App 45/45`、N43、Player/Core `32/32`、N51 `80/80`、普通回归 `149 files / 867 tests`、Editor integration、autosave 均通过；随后固定重型 VM corpus 语义 `4/5` 通过但用时约 `95.93s > 90s`，完整门再次保持红色并停止。未修改规模、digest 或 timeout；原命令隔离复跑 `5/5`，corpus 测试 `70.84s < 90s`。停止点之后的 17 workspace build、architecture（100 portable / 4 Node adapter files）、Script `13/13`、Route `9/9`（edit P95 `111.15ms`）、Asset `4/4`（dicing `2344.23ms`）另行按原命令通过。最终本机判定仍不是“单次完整门全绿”，而是两个既有长链在累计负载下各出现一次超时、原门限隔离绿；必须由同头干净 CI 关闭或确认回归。
+
+实现提交 `7d8bac1` 推送到 Draft PR [#96](https://github.com/Longyuyeee/WorLdGame/pull/96) 后，同头 Windows / Node 22 `product-baseline` run `33140441747` / job `98749884222` 用时 `12m33s` 并绿色。远端普通回归 `149/867`、N51 `80/80`、Player/Core `32/32`；autosave `4.041s < 5s`，固定 VM 测试 `65.67s < 90s`，Runtime shard runner `30.222s`；Route edit P95 `157.41ms < 500ms`，Asset dicing `3246.27ms < 5000ms`。同一代码、同一规模和未放宽预算关闭了本机两个累积负载差异，E6b Engineering 可以关闭。
+
+## 10. 出口审计与下一步
+
+- 开发目标：六字段全部具备 schema、Catalog、Project transaction、UI、Preview/Player application 和真实浏览器效果，满足。
+- 需求对齐：REQ-GAL/AC-19 更新为 29/20；没有把 N52/N61/N62/N80+ 需求错误计入 N51，满足。
+- 测试纪律：保留 10 项首红、浏览器两类观测错误、分区 ChangeSet 差异及本机两次完整门红灯；同头 CI 以原门限关闭，满足。
+- 推送与远端：实现头 `7d8bac1` 已推送，PR #96 同头完整门绿色；本审计最终证据提交后仍需再次确认文档头远端绿色。
+- 下一代码切片只进入 E6c Stage/Audio default policy；E6d–E6f、N51 Product Acceptance、N52 与正式 Windows/Android Host 继续阻断。

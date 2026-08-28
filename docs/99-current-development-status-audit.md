@@ -1,4 +1,4 @@
-# 当前开发情况审计（N51-E6b Text / Accessibility 本地实现与真实浏览器已通过）
+# 当前开发情况审计（N51-E6b Text / Accessibility Engineering 已关闭）
 
 > 审计日期：2026-08-28
 > 当前分支：`codex/n51-e6-p0-coverage-exit`；直接基线为 N51-E6a 最终绿色头 `cc05b4b`
@@ -15,7 +15,7 @@ Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler
 
 N32 的历史出口复审发生在正式 Player 建立之前；其中“Player 不存在”只描述当时事实。N50-E1–E6 现已补上正式 Core、真实媒体 adapter 与 Web 嵌入边界，但旧 `playable-web-export` 独立解释器仍不能冒充新 Player，N32/N50 Product Acceptance 也不会因此自动通过。
 
-- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E6a 已关闭，E6b 本地实现/双浏览器已通过并等待完整门与同头 CI；下一切片为 E6c Stage/Audio default policy**；
+- 当前工程节点：**N40 Route Map、N41 Sequence、N42 Stage、N43 七模式、N50 Player Shell Engineering 出口已通过；N50 三宿主 Product Acceptance 仍为 `0/1`；N51-E1–E6b Engineering 已关闭，下一切片为 E6c Stage/Audio default policy**；
 - N21 真人：**0/1，pending-participant**；
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
@@ -40,6 +40,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N51-E6b 新增 `text.revealMode/lineHeight/letterSpacingEm` 与 `accessibility.highContrast/reduceMotion/reduceFlashing`，Settings 当前写入 schema 提升为 v3，Catalog 达到 Basic `20` / Advanced `29`。冻结 6 files / 57 tests 首次实际为 47 通过、10 项按预期暴露旧 v2/parser/catalog/application 缺口；修正后 N51 聚合 10 files / 80 tests。编译器 Golden 首次只改变四个 Build ID，四个 Story IR Hash 不变；正式 Preview 的路线、结局、定位和 History 等价断言保持。冷 Editor production browser 完成 Web Audio+Accessibility 两个分区 ChangeSet `r1→r2`、IndexedDB 保存重开、高对比计算样式，Basic 20；冷 Player production browser 在活跃对白中热应用即时显示、2.0 行高、0.08em 字距、高对比、0.01ms 减动效和 dissolve→fade，Core/对白保持，1440×900 与 390×844 overflow 0、console 0。完整门与同头 CI 尚待本切片后续补证，详见[#231](231-n51-e6b-text-accessibility-entry-contract.md)。
 - E6b 首次本机完整门在通过前序治理、Compiler/Runtime/corpus 与 N41 多项门后，既有 `App.test.tsx` 2/45 项于累计负载下超过冻结 5s；未修改 timeout，原命令隔离复跑整个文件 45/45。该次完整门保持红色，等待第二次从头运行与同头 Windows / Node 22 裁决。
 - E6b 第二次本机完整门穿过 App 红点并通过普通回归 `149/867`、N51 `80/80`、Player/Core `32/32`、autosave，但固定重型 VM corpus 为 `95.93s > 90s`；原命令隔离复跑 `5/5`、`70.84s <90s`。后续 17 workspace build、architecture 100/4、Script `13/13`、Route `9/9`（P95 `111.15ms`）、Asset `4/4`（dicing `2344.23ms`）通过。预算未放宽，本机仍不记单次完整门绿色，等待同头 Windows / Node 22 裁决。
+- E6b 实现头 `7d8bac1` 的 Draft PR #96 Windows / Node 22 完整门 run `33140441747` / job `98749884222` 用时 `12m33s` 绿色：普通 `149/867`、N51 `80/80`、Player/Core `32/32`、autosave `4.041s <5s`、VM `65.67s <90s`、Runtime shard `30.222s`、Route P95 `157.41ms`、Asset dicing `3246.27ms`。同规模同预算关闭本机累积负载差异，E6b Engineering 关闭；N51 Product Acceptance 和 E6c+ 仍未完成。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 
