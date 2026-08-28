@@ -189,7 +189,7 @@ async function openSettings(client) {
   await waitForCondition(client, "document.querySelector('[data-testid=workspace-shell]')?.getAttribute('data-settings-open') === 'true'", "settings workspace");
 }
 
-const browserProfile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6b-"));
+const browserProfile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6c-"));
 const browser = await executablePath();
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5181", "--strictPort"], {
   cwd: join(root, "apps", "editor"), stdio: ["ignore", "pipe", "pipe"]
@@ -239,7 +239,8 @@ try {
   }))()`);
   await click(client, "Array.from(document.querySelectorAll('.settings-layer-switch [role=radio]')).find((element) => element.textContent?.trim() === 'Web')", "Web settings layer");
   await setControlValue(client, "document.querySelector('[data-setting-path=\"audio.master\"] input')", "0.4", "Web master volume");
-  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 1'))", "Apply audio ChangeSet");
+  await click(client, "document.querySelector('[data-setting-path=\"audio.resumeAfterInterruption\"] input')", "Web interruption resume");
+  await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 2'))", "Apply audio ChangeSet");
   await waitForCondition(client, "document.querySelector('.settings-feedback')?.textContent?.includes('ChangeSet r1') === true", "settings ChangeSet r1");
   await click(client, "document.querySelector('[data-setting-path=\"accessibility.highContrast\"] input')", "Web high contrast");
   await click(client, "Array.from(document.querySelectorAll('.settings-section header button')).find((element) => element.textContent?.includes('应用修改 · 1'))", "Apply accessibility ChangeSet");
@@ -265,6 +266,8 @@ try {
     return {
       masterVolume: document.querySelector('[data-setting-path="audio.master"] input')?.value,
       source: document.querySelector('[data-setting-path="audio.master"] .settings-source')?.textContent?.trim(),
+      resumeAfterInterruption: document.querySelector('[data-setting-path="audio.resumeAfterInterruption"] input')?.checked,
+      resumeSource: document.querySelector('[data-setting-path="audio.resumeAfterInterruption"] .settings-source')?.textContent?.trim(),
       highContrast: document.querySelector('[data-setting-path="accessibility.highContrast"] input')?.checked,
       highContrastSource: document.querySelector('[data-setting-path="accessibility.highContrast"] .settings-source')?.textContent?.trim(),
       previewHighContrast: preview?.getAttribute('data-settings-high-contrast'),
@@ -303,9 +306,9 @@ try {
   })()`);
   const mobileScreenshot = await capture(client, mobileScreenshotPath);
 
-  const passed = initial.visibleSettings === 20 && initial.workspaceModes === 7 && initial.previewProfile === "landscape-16-9" &&
+  const passed = initial.visibleSettings === 21 && initial.workspaceModes === 7 && initial.previewProfile === "landscape-16-9" &&
     initial.overflow === 0 && initial.settingsWidth > initial.previewWidth && reopened.masterVolume === "0.4" &&
-    reopened.source === "Web 覆盖" && reopened.highContrast === true && reopened.highContrastSource === "Web 覆盖" &&
+    reopened.source === "Web 覆盖" && reopened.resumeAfterInterruption === false && reopened.resumeSource === "Web 覆盖" && reopened.highContrast === true && reopened.highContrastSource === "Web 覆盖" &&
     reopened.previewHighContrast === "true" && reopened.previewBackground === "rgb(0, 0, 0)" &&
     reopened.saveLabel === "已恢复 · s1" && reopened.previewProfile === "landscape-16-9" &&
     mobile.width === 390 && mobile.height === 844 && mobile.overflow === 0 && mobile.settingsWidth === 390 &&
@@ -313,12 +316,12 @@ try {
     mobile.focusedSearch && Number.parseFloat(mobile.reducedMotionDuration) <= 0.001 && browserFailures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N51-E6b",
-    scope: "cold-production-build-text-accessibility-edit-save-reopen-desktop-390x844",
+    node: "N51-E6c",
+    scope: "cold-production-build-audio-policy-edit-save-reopen-desktop-390x844",
     generatedAt: new Date().toISOString(),
     build: { editorDistIndexSha256: hash(await readFile(join(root, "apps", "editor", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
-    expectation: { basicSettings: 20, workspaceModes: 7, previewProfile: "landscape-16-9", persistedWebMasterVolume: 0.4, persistedWebHighContrast: true, previewHighContrast: true, horizontalOverflow: 0, minimumTouchHeight: 44, browserErrors: 0 },
+    expectation: { basicSettings: 21, workspaceModes: 7, previewProfile: "landscape-16-9", persistedWebMasterVolume: 0.4, persistedResumeAfterInterruption: false, persistedWebHighContrast: true, previewHighContrast: true, horizontalOverflow: 0, minimumTouchHeight: 44, browserErrors: 0 },
     actual: { initial, reopened, mobile, browserFailures },
     screenshots: [
       { path: "evidence/n51/settings-ui-desktop.png", width: 1440, height: 900, ...desktopScreenshot },

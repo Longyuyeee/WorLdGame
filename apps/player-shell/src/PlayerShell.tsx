@@ -48,7 +48,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const content = snapshot.presentation;
-  const stage = useMemo(() => derivePlayerStagePresentationV1(snapshot, mediaAssets), [mediaAssets, snapshot]);
+  const stage = useMemo(
+    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage),
+    [mediaAssets, settingsApplication.stage, snapshot]
+  );
   const appliedAudio = stage.audio.map((track) => ({
     ...track,
     appliedVolume: galAudioGainV1(
@@ -198,7 +201,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (hostActivity === "suspended") {
         element.dataset.playerPlayback = "suspended";
         element.pause();
-      } else if (element.dataset.shouldPlay === "true") {
+      } else if (element.dataset.shouldPlay === "true" && settingsApplication.audio.resumeAfterInterruption) {
         element.dataset.playerPlayback = "resuming";
         const resumed = element.play();
         resumed?.then(() => {
@@ -206,9 +209,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         }).catch(() => {
           element.dataset.playerPlayback = "blocked";
         });
+      } else if (element.dataset.shouldPlay === "true") {
+        element.dataset.playerPlayback = "paused-by-policy";
       }
     }
-  }, [hostActivity]);
+  }, [hostActivity, settingsApplication.audio.resumeAfterInterruption]);
 
   useEffect(() => () => {
     for (const element of audioElements.current.values()) {
@@ -252,6 +257,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-audio-ambient={settingsApplication.resolved.values.audio.ambient}
       data-settings-audio-ui={settingsApplication.resolved.values.audio.ui}
       data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
+      data-settings-audio-resume={settingsApplication.audio.resumeAfterInterruption}
+      data-settings-stage-duration={settingsApplication.stage.defaultDurationMilliseconds}
+      data-settings-stage-easing={settingsApplication.stage.defaultEasing}
       style={{
         "--gal-stage-aspect": settingsApplication.display.aspectRatio,
         "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
@@ -272,6 +280,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               src={stage.background.url}
               alt={stage.background.displayName}
               data-asset-id={stage.background.assetId}
+              style={{ animationDuration: `${stage.background.durationMilliseconds}ms`, animationTimingFunction: stage.background.easing }}
               onError={() => setMediaErrors((current) => [...new Set([...current, stage.background!.assetId])])}
             />
           )}
@@ -286,7 +295,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               alt={character.displayName}
               data-asset-id={character.assetId}
               data-stage-slot={character.slot}
-              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)` }}
+              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)`, animationDuration: `${character.durationMilliseconds}ms`, animationTimingFunction: character.easing }}
               onError={() => setMediaErrors((current) => [...new Set([...current, character.assetId])])}
             />
           ))}

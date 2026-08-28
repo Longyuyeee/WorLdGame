@@ -78,6 +78,7 @@ describe("Preview Canvas host", () => {
   });
 
   it("interpolates authored move geometry and bounds animation duration", () => {
+    expect(previewCanvasDurationMs(undefined, 720)).toBe(720);
     const translate = vi.fn();
     const context = {
       setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
@@ -96,7 +97,7 @@ describe("Preview Canvas host", () => {
     expect(previewCanvasDurationMs("600ms")).toBe(600);
     expect(previewCanvasDurationMs("0.5s")).toBe(500);
     expect(previewCanvasDurationMs("999s")).toBe(10_000);
-    expect(previewCanvasDurationMs("invalid")).toBe(300);
+    expect(previewCanvasDurationMs("invalid")).toBe(360);
   });
 
   it("uses the same frozen CSS easing semantics for deterministic Canvas movement", () => {
@@ -106,6 +107,11 @@ describe("Preview Canvas host", () => {
     expect(previewStageEasingProgress("ease-in-out", 0.5)).toBeCloseTo(0.5, 5);
     expect(previewStageEasingProgress("ease-in-out", -1)).toBe(0);
     expect(previewStageEasingProgress("ease-in-out", 2)).toBe(1);
+    expect(resolvePreviewCharacterGeometryAtProgress({
+      ...character,
+      x: 75,
+      movementFrom: { x: 25, y: 75, scale: 1.2, rotation: 10, anchorX: 0.5, anchorY: 1 }
+    }, 0.5, "ease-out").x).toBeCloseTo(59.232, 2);
   });
 
   it("evaluates spatial cubic Bezier geometry after temporal easing", () => {
@@ -169,6 +175,27 @@ describe("Preview Canvas host", () => {
     expect(draws.find((draw) => draw.source === "old-background")?.alpha).toBe(1);
     expect(draws.find((draw) => draw.source === "new-background")?.alpha).toBe(0.5);
     expect(draws.find((draw) => draw.source === "hero")?.alpha).toBe(1);
+  });
+
+  it("applies the configured default easing to Canvas background progress", () => {
+    const draws: Array<{ source: unknown; alpha: number }> = [];
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      drawImage(source: unknown) { draws.push({ source, alpha: (this as unknown as { globalAlpha: number }).globalAlpha }); },
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    drawPreviewCanvasFrame(context, {
+      ...frame,
+      background: { statementId: "new_bg", assetId: "new", url: "blob:new", transition: "dissolve" },
+      previousBackground: { statementId: "old_bg", assetId: "old", url: "blob:old" },
+      characters: []
+    }, {
+      background: { source: "new-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      previousBackground: { source: "old-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      characters: new Map()
+    }, 1920, 1080, 3840, 2160, "new_bg", 0.5, "ease-out");
+    expect(draws.find((draw) => draw.source === "new-background")?.alpha).toBeCloseTo(0.684643, 5);
   });
 
   it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {

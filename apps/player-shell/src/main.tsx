@@ -57,7 +57,8 @@ function SettingsApplicationDemo() {
       text: { charactersPerSecond: 12, minimumDisplayMilliseconds: 900, punctuationDelayMilliseconds: 240, fontScale: 1.4, messageWindowOpacity: 0.45, revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
       accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true },
       advance: { allowHold: false, waitForVoice: false },
-      audio: { master: 0.6, bgm: 0.5, voice: 0.7, sfx: 0.4, ambient: 0.3, ui: 0.2, voiceDucking: 0.25 },
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
+      audio: { master: 0.6, bgm: 0.5, voice: 0.7, sfx: 0.4, ambient: 0.3, ui: 0.2, voiceDucking: 0.25, resumeAfterInterruption: false },
       input: { pointerAdvance: false, keyboardAdvance: false, touchAdvance: false, gamepadAdvance: false }
     })
   } : inputDemoProject;

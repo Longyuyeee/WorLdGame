@@ -161,6 +161,29 @@ describe("N50-E1 shared Player Shell", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Curtain");
   });
 
+  it("always pauses on interruption but keeps media paused when automatic resume is disabled", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const configured = {
+      ...demo.project,
+      settings: withProjectSettings(demo.project.settings, { audio: { resumeAfterInterruption: false } })
+    };
+    const view = render(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const shell = view.container.querySelector("main")!;
+    expect(shell).toHaveAttribute("data-player-status", "presenting");
+
+    view.rerender(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    expect(pause).toHaveBeenCalledTimes(2);
+    view.rerender(<PlayerShell project={configured} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    await Promise.resolve();
+
+    expect(play).not.toHaveBeenCalled();
+    expect(shell).toHaveAttribute("data-player-status", "presenting");
+    expect([...view.container.querySelectorAll("audio")].map((node) => node.getAttribute("data-player-playback"))).toEqual(["paused-by-policy", "paused-by-policy"]);
+  });
+
   it("maps real document visibility to host activity and restores keyboard input on return", () => {
     const original = Object.getOwnPropertyDescriptor(document, "visibilityState");
     let visibility: DocumentVisibilityState = "visible";
@@ -217,7 +240,7 @@ describe("N51-E5 Player settings application", () => {
 
     view.rerender(<PlayerShell project={migrated} />);
 
-    expect(migrated.settings.schemaVersion).toBe(3);
+    expect(migrated.settings.schemaVersion).toBe(4);
     expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
   });

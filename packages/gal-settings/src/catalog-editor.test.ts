@@ -11,11 +11,11 @@ import {
 } from "./index";
 
 describe("N51-E2 Gal settings catalog", () => {
-  it("covers all 29 setting paths exactly once with frozen Basic/Advanced visibility", () => {
-    expect(GAL_SETTING_DEFINITIONS).toHaveLength(29);
-    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(29);
-    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(20);
-    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(29);
+  it("covers all 32 setting paths exactly once with frozen Basic/Advanced visibility", () => {
+    expect(GAL_SETTING_DEFINITIONS).toHaveLength(32);
+    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(32);
+    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(21);
+    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(32);
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       definition.label.zhHans.length > 0 &&
       definition.label.en.length > 0 &&
@@ -26,6 +26,12 @@ describe("N51-E2 Gal settings catalog", () => {
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       Object.isFrozen(definition) && Object.isFrozen(definition.label) && Object.isFrozen(definition.control)
     )).toBe(true);
+  });
+
+  it("finds Stage defaults and the Player interruption policy without inventing audio fade", () => {
+    expect(searchGalSettingDefinitions("默认 舞台 时长", { mode: "advanced" }).map((definition) => definition.path)).toEqual(["stage.defaultDurationMilliseconds"]);
+    expect(searchGalSettingDefinitions("interruption resume").map((definition) => definition.path)).toEqual(["audio.resumeAfterInterruption"]);
+    expect(GAL_SETTING_DEFINITIONS.some((definition) => definition.path === ("audio.defaultFadeMilliseconds" as never))).toBe(false);
   });
 
   it("finds the portable accessibility policies without returning Editor-only preferences", () => {

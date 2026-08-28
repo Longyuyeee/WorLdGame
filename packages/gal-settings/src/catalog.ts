@@ -1,6 +1,6 @@
 import type { GalSettingPath } from "./settings";
 
-export type GalSettingSection = "display" | "text" | "advance" | "audio" | "input" | "accessibility";
+export type GalSettingSection = "display" | "text" | "advance" | "audio" | "stage" | "input" | "accessibility";
 export type GalSettingLevel = "basic" | "advanced";
 export type GalSettingsCatalogMode = "basic" | "advanced";
 
@@ -48,6 +48,10 @@ const RAW_GAL_SETTING_DEFINITIONS = [
   { path: "audio.ambient", section: "audio", level: "basic", label: { zhHans: "环境声音量", en: "Ambient volume" }, description: { zhHans: "控制环境声总线音量。", en: "Controls the ambient sound bus." }, keywords: ["音量", "环境声", "ambient", "atmosphere", "volume"], control: volumeControl },
   { path: "audio.ui", section: "audio", level: "basic", label: { zhHans: "界面音量", en: "UI volume" }, description: { zhHans: "控制按钮与界面反馈声音量。", en: "Controls button and interface feedback sounds." }, keywords: ["音量", "按钮", "界面", "ui", "button", "volume"], control: volumeControl },
   { path: "audio.voiceDucking", section: "audio", level: "advanced", label: { zhHans: "语音压低背景音", en: "Voice ducking" }, description: { zhHans: "语音播放时降低其他音频的比例。", en: "Amount other audio is reduced while voice is playing." }, keywords: ["音量", "压低", "侧链", "ducking", "sidechain", "voice"], control: volumeControl },
+  { path: "audio.resumeAfterInterruption", section: "audio", level: "basic", label: { zhHans: "中断后自动恢复", en: "Resume after interruption" }, description: { zhHans: "宿主恢复活动状态后，继续播放中断前仍处于播放态的音频。", en: "Resume audio that was still playing when the host becomes active again." }, keywords: ["中断", "恢复", "暂停", "interruption", "resume", "suspend"], control: booleanControl },
+
+  { path: "stage.defaultDurationMilliseconds", section: "stage", level: "advanced", label: { zhHans: "默认舞台时长", en: "Default stage duration" }, description: { zhHans: "舞台效果未声明 duration 或 fade 时使用的默认时长。", en: "Default duration used when a stage effect omits duration or fade." }, keywords: ["舞台", "动效", "时长", "stage", "animation", "duration"], control: { kind: "number", minimum: 1, maximum: 10000, step: 10, unit: "ms" } },
+  { path: "stage.defaultEasing", section: "stage", level: "advanced", label: { zhHans: "默认舞台缓动", en: "Default stage easing" }, description: { zhHans: "舞台效果未声明 easing 时使用的默认缓动。", en: "Default easing used when a stage effect omits easing." }, keywords: ["舞台", "缓动", "曲线", "stage", "easing", "curve"], control: { kind: "select", options: ["linear", "ease-in", "ease-out", "ease-in-out"] } },
 
   { path: "input.pointerAdvance", section: "input", level: "basic", label: { zhHans: "鼠标推进", en: "Pointer advance" }, description: { zhHans: "允许鼠标或指针点击推进。", en: "Allow mouse or pointer clicks to advance." }, keywords: ["鼠标", "点击", "pointer", "mouse", "click"], control: booleanControl },
   { path: "input.keyboardAdvance", section: "input", level: "basic", label: { zhHans: "键盘推进", en: "Keyboard advance" }, description: { zhHans: "允许键盘确认键推进。", en: "Allow keyboard confirm keys to advance." }, keywords: ["键盘", "空格", "回车", "keyboard", "space", "enter"], control: booleanControl },
@@ -126,7 +130,7 @@ export function searchGalSettingDefinitions(
   if (unknownOption !== undefined) throw new TypeError(`Unknown Gal settings search option: ${unknownOption}`);
   const mode = options.mode ?? "advanced";
   if (mode !== "basic" && mode !== "advanced") throw new TypeError("Gal settings catalog mode must be basic or advanced");
-  if (options.section !== undefined && !["display", "text", "advance", "audio", "input", "accessibility"].includes(options.section)) {
+  if (options.section !== undefined && !["display", "text", "advance", "audio", "stage", "input", "accessibility"].includes(options.section)) {
     throw new TypeError("Gal settings catalog section is invalid");
   }
   const terms = normalizedTerms(query);

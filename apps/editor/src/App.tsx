@@ -3274,6 +3274,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           data-settings-audio-ambient={settingsApplication.resolved.values.audio.ambient}
           data-settings-audio-ui={settingsApplication.resolved.values.audio.ui}
           data-settings-audio-voice-ducking={settingsApplication.resolved.values.audio.voiceDucking}
+          data-settings-stage-duration={settingsApplication.stage.defaultDurationMilliseconds}
+          data-settings-stage-easing={settingsApplication.stage.defaultEasing}
+          data-settings-audio-resume={settingsApplication.audio.resumeAfterInterruption}
           data-text-reveal-duration={dialogueRevealDuration}
           onPointerDown={placeOnStage}
           style={{
@@ -3306,6 +3309,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
             onStagePoint={setLastStagePoint}
             onRuntimeError={reportRuntimeMediaError}
+            defaultDurationMilliseconds={settingsApplication.stage.defaultDurationMilliseconds}
+            defaultEasing={settingsApplication.stage.defaultEasing}
           />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {

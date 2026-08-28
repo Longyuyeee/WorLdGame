@@ -32,17 +32,29 @@ function renderSettings(project: CanonicalProject = createProjectTemplate("Setti
 describe("N51-E4 Settings workspace", () => {
   it("provides Basic/Advanced search, sections, platform layers, and visible inheritance sources", () => {
     const { container } = renderSettings(projectWithSources());
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(20);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(21);
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("项目值")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(29);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(32);
     fireEvent.change(screen.getByPlaceholderText("搜索名称、说明或路径…"), { target: { value: "音量" } });
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(7);
 
     fireEvent.click(screen.getByRole("radio", { name: "Web" }));
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("Web 覆盖")).toBeInTheDocument();
     expect(container.querySelector(".settings-layer-summary")).toHaveTextContent("1 当前层覆盖 · 0 待应用");
+  });
+
+  it("commits Stage defaults through one real Project ChangeSet", () => {
+    const { onProjectChange } = renderSettings();
+    fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "stage" } });
+    fireEvent.change(screen.getByRole("spinbutton", { name: "默认舞台时长" }), { target: { value: "720" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "默认舞台缓动" }), { target: { value: "ease-out" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用修改 · 2" }));
+    const committed = onProjectChange.mock.calls.at(-1)?.[0] as CanonicalProject;
+    expect(resolveGalSettings(committed.settings, "web").values.stage).toEqual({ defaultDurationMilliseconds: 720, defaultEasing: "ease-out" });
+    expect(screen.getByText(/ChangeSet r1/)).toBeInTheDocument();
   });
 
   it("commits the accessibility section through one real Project ChangeSet", () => {

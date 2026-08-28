@@ -14,6 +14,8 @@ interface PreviewStageCharacterProps {
   readonly onSelect: (statementId: string) => void;
   readonly onStagePoint: (point: StageDesignPoint) => void;
   readonly onDecodeError: () => void;
+  readonly defaultDurationMilliseconds?: number;
+  readonly defaultEasing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
 }
 
 export function PreviewStageCharacter({
@@ -23,7 +25,9 @@ export function PreviewStageCharacter({
   designHeight,
   onSelect,
   onStagePoint,
-  onDecodeError
+  onDecodeError,
+  defaultDurationMilliseconds = 360,
+  defaultEasing = "linear"
 }: PreviewStageCharacterProps) {
   const geometry = resolvePreviewCharacterGeometry(character);
   const movementFrom = character.movementFrom;
@@ -42,7 +46,7 @@ export function PreviewStageCharacter({
     data-stage-scale={geometry.scale}
     data-stage-rotation={geometry.rotation}
     data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
-    data-stage-easing={character.easing ?? "linear"}
+    data-stage-easing={character.easing ?? defaultEasing}
     data-stage-curve={character.curve}
     aria-label={label}
     aria-pressed={selected}
@@ -63,8 +67,8 @@ export function PreviewStageCharacter({
     }}
     onClick={() => onSelect(character.statementId)}
     style={{
-      animationDuration: character.duration ?? "360ms",
-      animationTimingFunction: character.easing ?? "linear",
+      animationDuration: character.duration ?? `${defaultDurationMilliseconds}ms`,
+      animationTimingFunction: character.easing ?? defaultEasing,
       zIndex: character.z ?? 0,
       left: bezierPath === undefined ? `${geometry.x}%` : 0,
       top: bezierPath === undefined ? `${geometry.y}%` : 0,
@@ -100,6 +104,8 @@ interface PreviewVisualHostProps {
     role: PreviewMediaRole,
     layer: { readonly statementId: string; readonly assetId: string }
   ) => void;
+  readonly defaultDurationMilliseconds?: number;
+  readonly defaultEasing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
 }
 
 export function PreviewVisualHost({
@@ -109,7 +115,9 @@ export function PreviewVisualHost({
   selectedStatementId,
   onSelect,
   onStagePoint,
-  onRuntimeError
+  onRuntimeError,
+  defaultDurationMilliseconds = 360,
+  defaultEasing = "linear"
 }: PreviewVisualHostProps) {
   return <div
     className="stage-visual-host"
@@ -122,7 +130,7 @@ export function PreviewVisualHost({
     <div className="stage-camera-plane" data-camera-statement={frame.camera?.statementId} style={frame.camera === undefined ? undefined : {
       transformOrigin: "50% 50%",
       transform: `translate(${frame.camera.x}%, ${frame.camera.y}%) scale(${frame.camera.zoom}) rotate(${frame.camera.rotation}deg)`,
-      transition: `transform ${frame.camera.duration ?? "360ms"} ${frame.camera.easing ?? "linear"}`
+      transition: `transform ${frame.camera.duration ?? `${defaultDurationMilliseconds}ms`} ${frame.camera.easing ?? defaultEasing}`
     } as CSSProperties}>
     <div className="stage-background-plane" aria-hidden={frame.background === undefined && frame.previousBackground === undefined ? "true" : undefined}>
       {frame.previousBackground !== undefined && <img
@@ -130,7 +138,7 @@ export function PreviewVisualHost({
         data-testid="preview-previous-background"
         src={frame.previousBackground.url}
         alt=""
-        style={{ animationDuration: frame.previousBackground.duration ?? "360ms" } as CSSProperties}
+        style={{ animationDuration: frame.previousBackground.duration ?? `${defaultDurationMilliseconds}ms`, animationTimingFunction: frame.previousBackground.easing ?? defaultEasing } as CSSProperties}
         onError={() => onRuntimeError("background", frame.previousBackground!)}
       />}
       {frame.background === undefined ? (
@@ -145,7 +153,7 @@ export function PreviewVisualHost({
           data-testid="preview-background"
           src={frame.background.url}
           alt={`背景资源 ${frame.background.assetId}`}
-          style={{ animationDuration: frame.background.duration ?? "360ms" } as CSSProperties}
+          style={{ animationDuration: frame.background.duration ?? `${defaultDurationMilliseconds}ms`, animationTimingFunction: frame.background.easing ?? defaultEasing } as CSSProperties}
           onError={() => onRuntimeError("background", frame.background!)}
         />
       )}
@@ -160,6 +168,8 @@ export function PreviewVisualHost({
         onSelect={onSelect}
         onStagePoint={onStagePoint}
         onDecodeError={() => onRuntimeError("character", character)}
+        defaultDurationMilliseconds={defaultDurationMilliseconds}
+        defaultEasing={defaultEasing}
       />)}
     </div>
     </div>

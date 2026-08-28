@@ -18,8 +18,9 @@ describe("N51-E5 Editor Preview settings application", () => {
         display: { designWidth: 1080, designHeight: 1920, orientation: "portrait", safeArea: "none", quality: "low" },
         text: { charactersPerSecond: 12, minimumDisplayMilliseconds: 900, punctuationDelayMilliseconds: 240, fontScale: 1.4, messageWindowOpacity: 0.45, revealMode: "instant", lineHeight: 2, letterSpacingEm: 0.08 },
         accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true },
+        stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
         advance: { allowHold: false, waitForVoice: false },
-        audio: { master: 0.6, bgm: 0.5, voice: 0.7, sfx: 0.4, ambient: 0.3, ui: 0.2, voiceDucking: 0.25 },
+        audio: { master: 0.6, bgm: 0.5, voice: 0.7, sfx: 0.4, ambient: 0.3, ui: 0.2, voiceDucking: 0.25, resumeAfterInterruption: false },
         input: { pointerAdvance: true, keyboardAdvance: false, touchAdvance: true, gamepadAdvance: false }
       })
     };
@@ -40,6 +41,9 @@ describe("N51-E5 Editor Preview settings application", () => {
     expect(stage).toHaveAttribute("data-settings-high-contrast", "true");
     expect(stage).toHaveAttribute("data-settings-reduce-motion", "true");
     expect(stage).toHaveAttribute("data-settings-reduce-flashing", "true");
+    expect(stage).toHaveAttribute("data-settings-stage-duration", "720");
+    expect(stage).toHaveAttribute("data-settings-stage-easing", "ease-out");
+    expect(stage).toHaveAttribute("data-settings-audio-resume", "false");
     expect(stage).toHaveAttribute("data-text-reveal-duration", "0");
     expect(stage).toHaveStyle({ "--gal-font-scale": "1.4", "--gal-message-opacity": "0.45", "--gal-line-height": "2", "--gal-letter-spacing": "0.08em" });
     expect(view.container.querySelector("[data-testid='preview-safe-area']")).not.toBeInTheDocument();

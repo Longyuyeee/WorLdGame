@@ -8,6 +8,8 @@ import {
   createGalSettingsApplicationV1,
   galAdvanceInputEnabledV1,
   galAudioGainV1,
+  galStageDurationMillisecondsV1,
+  galStageEasingV1,
   galTextRevealDurationMillisecondsV1
 } from "./application";
 
@@ -67,5 +69,21 @@ describe("N51-E5 Gal settings runtime application", () => {
     expect(galAudioGainV1(application, "bgm", 0.6, true)).toBeCloseTo(0.18);
     expect(galAudioGainV1(application, "voice", 0.6, true)).toBeCloseTo(0.27);
     expect(galAudioGainV1(application, "ui", 1)).toBe(0.45);
+  });
+
+  it("applies Stage defaults only when an Effect omits explicit timing and projects audio resume policy", () => {
+    const application = createGalSettingsApplicationV1(withProjectSettings(createGalSettingsDocument(), {
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
+      audio: { resumeAfterInterruption: false }
+    }), "web");
+    expect(application).toMatchObject({
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
+      audio: { resumeAfterInterruption: false }
+    });
+    expect(galStageDurationMillisecondsV1(application)).toBe(720);
+    expect(galStageDurationMillisecondsV1(application, "400ms")).toBe(400);
+    expect(galStageDurationMillisecondsV1(application, "1.2s")).toBe(1_200);
+    expect(galStageEasingV1(application)).toBe("ease-out");
+    expect(galStageEasingV1(application, "ease-in-out")).toBe("ease-in-out");
   });
 });

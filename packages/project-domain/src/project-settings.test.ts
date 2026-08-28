@@ -41,7 +41,7 @@ describe("Canonical Project Gal settings", () => {
     });
 
     const migrated = loadProject(files);
-    expect(migrated.settings.schemaVersion).toBe(3);
+    expect(migrated.settings.schemaVersion).toBe(4);
     expect(resolveGalSettings(migrated.settings, "web")).toMatchObject({
       values: { text: { fontScale: 1.25 }, audio: { master: 0.5, voice: 0.6 } },
       sources: { "text.fontScale": "project", "audio.master": "web", "audio.voice": "project" }
@@ -49,7 +49,7 @@ describe("Canonical Project Gal settings", () => {
     expect(resolveGalSettings(migrated.settings, "android").values.display.orientation).toBe("portrait");
 
     const firstSave = saveProject(migrated);
-    expect(firstSave[settingsPath]).toContain('"schemaVersion": 3');
+    expect(firstSave[settingsPath]).toContain('"schemaVersion": 4');
     expect(saveProject(loadProject(firstSave))).toEqual(firstSave);
   });
 

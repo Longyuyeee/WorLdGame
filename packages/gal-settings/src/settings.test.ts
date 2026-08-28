@@ -82,7 +82,7 @@ describe("N51-E1 typed Gal settings", () => {
     expect(serialized.endsWith("\n")).toBe(true);
   });
 
-  it("migrates non-empty schema v1 settings through v2 to current v3 without changing resolved facts", () => {
+  it("migrates non-empty schema v1 settings through v2/v3 to current v4 without changing resolved facts", () => {
     const migrated = parseGalSettingsDocument({
       schemaVersion: 1,
       project: { text: { fontScale: 1.25 }, audio: { master: 0.75, voice: 0.6 } },
@@ -93,8 +93,8 @@ describe("N51-E1 typed Gal settings", () => {
       }
     });
 
-    expect(GAL_SETTINGS_SCHEMA_VERSION).toBe(3);
-    expect(migrated.schemaVersion).toBe(3);
+    expect(GAL_SETTINGS_SCHEMA_VERSION).toBe(4);
+    expect(migrated.schemaVersion).toBe(4);
     expect(resolveGalSettings(migrated, "web")).toMatchObject({
       values: { text: { fontScale: 1.25 }, audio: { master: 0.5, voice: 0.6 } },
       sources: { "text.fontScale": "project", "audio.master": "web", "audio.voice": "project" }
@@ -106,7 +106,7 @@ describe("N51-E1 typed Gal settings", () => {
     });
 
     const firstSave = serializeGalSettingsDocument(migrated);
-    expect(firstSave).toContain('"schemaVersion": 3');
+    expect(firstSave).toContain('"schemaVersion": 4');
     expect(serializeGalSettingsDocument(parseSerializedGalSettingsDocument(firstSave))).toBe(firstSave);
   });
 
@@ -133,6 +133,34 @@ describe("N51-E1 typed Gal settings", () => {
     });
   });
 
+  it("resolves v4 stage and audio lifecycle defaults with exact platform sources", () => {
+    const project = withProjectSettings(createGalSettingsDocument(), {
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-in-out" },
+      audio: { resumeAfterInterruption: false }
+    });
+    const configured = withPlatformSettings(project, "web", {
+      stage: { defaultDurationMilliseconds: 480 }
+    });
+    expect(resolveGalSettings(configured, "web")).toMatchObject({
+      values: {
+        stage: { defaultDurationMilliseconds: 480, defaultEasing: "ease-in-out" },
+        audio: { resumeAfterInterruption: false }
+      },
+      sources: {
+        "stage.defaultDurationMilliseconds": "web",
+        "stage.defaultEasing": "project",
+        "audio.resumeAfterInterruption": "project"
+      }
+    });
+  });
+
+  it.each([
+    { schemaVersion: 3, project: { stage: { defaultDurationMilliseconds: 500 } }, platforms: { windows: {}, web: {}, android: {} } },
+    { schemaVersion: 3, project: { audio: { resumeAfterInterruption: false } }, platforms: { windows: {}, web: {}, android: {} } }
+  ])("rejects v4 fields disguised as schema v3 %#", (input) => {
+    expect(() => parseGalSettingsDocument(input)).toThrowError(expect.objectContaining({ code: "UNKNOWN_FIELD" }) as GalSettingsError);
+  });
+
   it.each([
     { schemaVersion: 1, project: { accessibility: { highContrast: true } }, platforms: { windows: {}, web: {}, android: {} } },
     { schemaVersion: 2, project: { text: { lineHeight: 2 } }, platforms: { windows: {}, web: {}, android: {} } }
@@ -144,7 +172,7 @@ describe("N51-E1 typed Gal settings", () => {
     [{ schemaVersion: 1, project: { audio: { music: 0.5 } }, platforms: { windows: {}, web: {}, android: {} } }, "UNKNOWN_FIELD", "settings.project.audio.music"],
     [{ schemaVersion: 1, project: { audio: { master: 1.1 } }, platforms: { windows: {}, web: {}, android: {} } }, "INVALID_VALUE", "settings.project.audio.master"],
     [{ schemaVersion: 1, project: {}, platforms: { windows: {}, web: {} } }, "INVALID_SCHEMA", "settings.platforms.android"],
-    [{ schemaVersion: 4, project: {}, platforms: { windows: {}, web: {}, android: {} } }, "FUTURE_SCHEMA", "settings.schemaVersion"],
+    [{ schemaVersion: 5, project: {}, platforms: { windows: {}, web: {}, android: {} } }, "FUTURE_SCHEMA", "settings.schemaVersion"],
     [{ schemaVersion: 1, project: { display: { designWidth: 1080, designHeight: 1920 } }, platforms: { windows: {}, web: {}, android: {} } }, "INVALID_COMBINATION", "settings.project.display"]
   ])("rejects invalid document %# with stable diagnostics", (input, code, path) => {
     expect(() => parseGalSettingsDocument(input)).toThrowError(expect.objectContaining({ code, path }) as GalSettingsError);

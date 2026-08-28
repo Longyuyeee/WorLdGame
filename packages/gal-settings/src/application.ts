@@ -9,6 +9,7 @@ export const GAL_SETTINGS_APPLICATION_VERSION = 1 as const;
 
 export type GalAudioBusV1 = "bgm" | "voice" | "sfx" | "ambient" | "ui";
 export type GalAdvanceInputV1 = "pointer" | "keyboard" | "touch" | "gamepad";
+export type GalStageEasingV1 = "linear" | "ease-in" | "ease-out" | "ease-in-out";
 
 export interface GalSettingsApplicationV1 {
   readonly version: typeof GAL_SETTINGS_APPLICATION_VERSION;
@@ -42,6 +43,13 @@ export interface GalSettingsApplicationV1 {
     readonly reduceMotion: boolean;
     readonly reduceFlashing: boolean;
   };
+  readonly stage: {
+    readonly defaultDurationMilliseconds: number;
+    readonly defaultEasing: GalStageEasingV1;
+  };
+  readonly audio: {
+    readonly resumeAfterInterruption: boolean;
+  };
 }
 
 const PUNCTUATION = /[,.!?;:\u3001\u3002\uff01\uff1f\uff0c\uff1b\uff1a\u2026]/gu;
@@ -51,7 +59,7 @@ export function createGalSettingsApplicationV1(
   platform: GalSettingsPlatform
 ): GalSettingsApplicationV1 {
   const resolved = resolveGalSettings(settings, platform);
-  const { display, text, advance, input, accessibility } = resolved.values;
+  const { display, text, advance, stage, audio, input, accessibility } = resolved.values;
   return {
     version: GAL_SETTINGS_APPLICATION_VERSION,
     resolved,
@@ -62,6 +70,8 @@ export function createGalSettingsApplicationV1(
     },
     text,
     advance,
+    stage,
+    audio: { resumeAfterInterruption: audio.resumeAfterInterruption },
     accessibility,
     input: {
       pointer: input.pointerAdvance,
@@ -70,6 +80,26 @@ export function createGalSettingsApplicationV1(
       gamepad: input.gamepadAdvance
     }
   };
+}
+
+export function galStageDurationMillisecondsV1(
+  application: GalSettingsApplicationV1,
+  source?: string
+): number {
+  if (source === undefined) return application.stage.defaultDurationMilliseconds;
+  const matched = /^(\d+(?:\.\d+)?)(ms|s)$/u.exec(source);
+  if (matched === null) return application.stage.defaultDurationMilliseconds;
+  const value = Number(matched[1]) * (matched[2] === "s" ? 1000 : 1);
+  return Math.max(1, Math.min(10_000, value));
+}
+
+export function galStageEasingV1(
+  application: GalSettingsApplicationV1,
+  source?: string
+): GalStageEasingV1 {
+  return source === "linear" || source === "ease-in" || source === "ease-out" || source === "ease-in-out"
+    ? source
+    : application.stage.defaultEasing;
 }
 
 export function galTextRevealDurationMillisecondsV1(application: GalSettingsApplicationV1, text: string): number {

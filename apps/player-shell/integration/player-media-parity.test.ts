@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type JsonObject, type S0Project } from "@world-studio/project-domain";
+import { createGalSettingsApplicationV1, withProjectSettings } from "@world-studio/gal-settings";
 import { createPlayerCore, createPlayerCoreSnapshotV1, startPlayerCore } from "@world-studio/player-core";
 import { derivePreviewStagePlan, resolvePreviewCharacterGeometry } from "../../editor/src/preview-media-runtime";
 import { createPlayerMediaDemoV1 } from "../src/media-demo";
@@ -92,9 +93,28 @@ describe("N50-E3 Editor and Player Media Golden parity", () => {
     };
     const snapshot = createPlayerCoreSnapshotV1(startPlayerCore(createPlayerCore(synthetic), synthetic));
     expect(snapshot.effects.active.map((effect) => effect.channel)).toEqual(["audio.bgm", "audio.voice", "background", "show.left", "show.right"]);
-    expect(derivePlayerStagePresentationV1(snapshot, demo.mediaAssets)).toMatchObject({
-      characters: [{ slot: "left" }, { slot: "right" }],
+    const application = createGalSettingsApplicationV1(withProjectSettings(project.settings, {
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" }
+    }), "web");
+    expect(derivePlayerStagePresentationV1(snapshot, demo.mediaAssets, application.stage)).toMatchObject({
+      background: { durationMilliseconds: 720, easing: "ease-out" },
+      characters: [
+        { slot: "left", durationMilliseconds: 720, easing: "ease-out" },
+        { slot: "right", durationMilliseconds: 720, easing: "ease-out" }
+      ],
       audio: [{ bus: "bgm" }, { bus: "voice" }]
+    });
+  });
+
+  it("keeps explicit Effect timing above configured Stage defaults", () => {
+    const demo = createPlayerMediaDemoV1();
+    const snapshot = createPlayerCoreSnapshotV1(startPlayerCore(createPlayerCore(demo.project), demo.project));
+    const application = createGalSettingsApplicationV1(withProjectSettings(demo.project.settings, {
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" }
+    }), "web");
+    expect(derivePlayerStagePresentationV1(snapshot, demo.mediaAssets, application.stage)).toMatchObject({
+      background: { durationMilliseconds: 400, easing: "ease-out" },
+      characters: [{ durationMilliseconds: 1200, easing: "ease-out" }]
     });
   });
 });

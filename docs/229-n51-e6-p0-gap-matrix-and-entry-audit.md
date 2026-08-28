@@ -141,3 +141,5 @@ E6 后续必须按以下小切片推进，每个切片独立审计、需求对�
 > 2026-08-28 接续：E6a 已按本合同实现；实现头 `1b21508` 的同头 Windows / Node 22 完整门绿色，E6a Engineering 关闭。下一切片进入 E6b Text/Accessibility application，详见[迁移安全审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。
 
 > 2026-08-28 E6b 接续：Text/Accessibility 六字段已贯通 schema v3、Catalog、Project、Settings UI、Editor Preview 与 Player Host；Basic/Advanced 更新为 20/29。双 production browser 已验证保存重开、即时文本、排版计算样式、高对比、减动效和 dissolve→fade；N52/N61/N62/N80+ 边界未移动。下一切片为 E6c Stage/Audio default policy，详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。
+
+> 2026-08-28 E6c 接续：Stage 默认时长/缓动与 Audio 中断恢复策略已贯通 schema v4、Catalog、Project、Settings UI、Editor Preview 与 Player Host；Basic/Advanced 更新为 21/32。冻结测试首次 68/82，修正并补 Canvas easing 执行反例后 83/83；N51 聚合 87/87，双 production browser 验证保存重开与 `360/linear/true → 720/ease-out/false` 热应用。完整门本机保留既有 App 累积负载超时，等待同头 CI 关闭；随后只进入 E6d Choice/Route/UI presentation policy。详见[审计 #232](232-n51-e6c-stage-audio-default-policy-contract.md)。

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "node": "N51-E6b",
-  "scope": "cold-production-player-text-accessibility-hot-application-desktop-390x844",
-  "generatedAt": "2026-08-28T03:26:42.884Z",
+  "node": "N51-E6c",
+  "scope": "cold-production-player-stage-audio-policy-hot-application-desktop-390x844",
+  "generatedAt": "2026-08-28T04:36:54.076Z",
   "build": {
-    "playerDistIndexSha256": "011980a6dd1a87defa6730cd49d24da64ff096f84f4e40677e10697de61f62a1"
+    "playerDistIndexSha256": "60e7d26c007f45e397175cbc285aeeb77ee260b12fecf69e7efb062f7e855d61"
   },
   "environment": {
     "product": "Chrome/151.0.7922.174",
@@ -26,6 +26,13 @@
       "reduceFlashing": true,
       "dissolveFallback": "player-media-fade"
     },
+    "stage": {
+      "defaultDurationMilliseconds": 720,
+      "defaultEasing": "ease-out"
+    },
+    "audio": {
+      "resumeAfterInterruption": false
+    },
     "portraitRatio": 0.5625,
     "horizontalOverflow": 0,
     "browserErrors": 0
@@ -45,6 +52,9 @@
       "highContrast": "false",
       "reduceMotion": "false",
       "reduceFlashing": "false",
+      "stageDuration": "360",
+      "stageEasing": "linear",
+      "audioResume": "true",
       "aspect": "1920 / 1080",
       "dialogueStyle": null,
       "dialogueTextStyle": null,
@@ -73,6 +83,9 @@
       "highContrast": "false",
       "reduceMotion": "false",
       "reduceFlashing": "false",
+      "stageDuration": "360",
+      "stageEasing": "linear",
+      "audioResume": "true",
       "aspect": "1920 / 1080",
       "dialogue": "GuideThe quiet route.⌄",
       "textReady": "false",
@@ -111,6 +124,9 @@
       "highContrast": "true",
       "reduceMotion": "true",
       "reduceFlashing": "true",
+      "stageDuration": "720",
+      "stageEasing": "ease-out",
+      "audioResume": "false",
       "aspect": "1080 / 1920",
       "dialogue": "GuideThe quiet route.⌄",
       "textReady": "true",
@@ -149,6 +165,9 @@
       "highContrast": "true",
       "reduceMotion": "true",
       "reduceFlashing": "true",
+      "stageDuration": "720",
+      "stageEasing": "ease-out",
+      "audioResume": "false",
       "aspect": "1080 / 1920",
       "dialogue": "GuideThe quiet route.⌄",
       "textReady": "true",
@@ -187,6 +206,9 @@
       "highContrast": "true",
       "reduceMotion": "true",
       "reduceFlashing": "true",
+      "stageDuration": "720",
+      "stageEasing": "ease-out",
+      "audioResume": "false",
       "aspect": "1080 / 1920",
       "dialogue": "GuideThe quiet route.⌄",
       "textReady": "true",

@@ -122,6 +122,9 @@ async function snapshot(client) {
       highContrast: shell?.getAttribute('data-settings-high-contrast'),
       reduceMotion: shell?.getAttribute('data-settings-reduce-motion'),
       reduceFlashing: shell?.getAttribute('data-settings-reduce-flashing'),
+      stageDuration: shell?.getAttribute('data-settings-stage-duration'),
+      stageEasing: shell?.getAttribute('data-settings-stage-easing'),
+      audioResume: shell?.getAttribute('data-settings-audio-resume'),
       aspect: shell?.style.getPropertyValue('--gal-stage-aspect'),
       dialogue: dialogue?.textContent?.trim(),
       textReady: dialogue?.getAttribute('data-text-ready'),
@@ -157,7 +160,7 @@ async function waitForExit(child) {
   await Promise.race([new Promise((resolvePromise) => child.once("exit", resolvePromise)), delay(5_000)]);
 }
 
-const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6b-"));
+const profile = await mkdtemp(join(tmpdir(), "worldstudio-n51-e6c-"));
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5182", "--strictPort"], {
   cwd: join(root, "apps", "player-shell"), stdio: ["ignore", "pipe", "pipe"]
 });
@@ -211,6 +214,7 @@ try {
     && applied.orientation === "portrait" && applied.pointer === "false" && applied.fontScale === "1.4" && applied.opacity === "0.45"
     && applied.lineHeightVariable === "2" && applied.letterSpacingVariable === "0.08em"
     && applied.highContrast === "true" && applied.reduceMotion === "true" && applied.reduceFlashing === "true"
+    && applied.stageDuration === "720" && applied.stageEasing === "ease-out" && applied.audioResume === "false"
     && applied.textReady === "true" && applied.revealDuration === "0"
     && Math.abs(Number.parseFloat(applied.dialogueTextStyle?.lineHeight ?? "0") / Number.parseFloat(applied.dialogueTextStyle?.fontSize ?? "1") - 2) < 0.001
     && Math.abs(Number.parseFloat(applied.dialogueTextStyle?.letterSpacing ?? "0") / Number.parseFloat(applied.dialogueTextStyle?.fontSize ?? "1") - 0.08) < 0.001
@@ -221,8 +225,8 @@ try {
     && mobile.overflow === 0 && Math.abs(mobile.stageWidth / mobile.stageHeight - portraitRatio) < 0.02 && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N51-E6b",
-    scope: "cold-production-player-text-accessibility-hot-application-desktop-390x844",
+    node: "N51-E6c",
+    scope: "cold-production-player-stage-audio-policy-hot-application-desktop-390x844",
     generatedAt: new Date().toISOString(),
     build: { playerDistIndexSha256: hash(await readFile(join(root, "apps", "player-shell", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
@@ -232,6 +236,8 @@ try {
       revealDuration: 0,
       text: { lineHeight: 2, letterSpacingEm: 0.08 },
       accessibility: { highContrast: true, reduceMotion: true, reduceFlashing: true, dissolveFallback: "player-media-fade" },
+      stage: { defaultDurationMilliseconds: 720, defaultEasing: "ease-out" },
+      audio: { resumeAfterInterruption: false },
       portraitRatio,
       horizontalOverflow: 0,
       browserErrors: 0
