@@ -15,16 +15,16 @@ const shellSource = await read("apps/player-shell/src/PlayerShell.tsx");
 const projectTypes = await read("packages/project-domain/src/types.ts");
 
 for (const token of [
-  'WORLD_PLAYER_SAVE_STORE_VERSION = "1.0.0" as const',
   'readonly schemaVersion: 1',
   'readonly kind: "manual"',
   'readonly previewImage: null',
-  'factory.open(WORLD_PLAYER_SAVE_DATABASE_NAME, 1)'
+  'const slotV1Keys =',
+  'function validSlotV1'
 ]) {
-  if (!storeSource.includes(token)) violations.push(`E2 baseline Save Store fact is missing: ${token}`);
+  if (!storeSource.includes(token)) violations.push(`strict E2 v1 compatibility fact is missing: ${token}`);
 }
-if (!shellSource.includes('["manual-1", "manual-2", "manual-3"]')) {
-  violations.push("E2 baseline must still expose exactly three manual slots at the E3 entry point");
+if (!shellSource.includes('Array.from({ length: 6 }, (_, index) => savePage * 6 + index + 1)')) {
+  violations.push("implemented manual slot pagination no longer matches the frozen E3 entry policy");
 }
 if (!projectTypes.includes("readonly testRoutes: TestRouteDocument") || !projectTypes.includes("readonly preservedFields?: JsonObject")) {
   violations.push("Canonical Project route/preserved-field facts changed and the E3 metadata correction must be re-audited");

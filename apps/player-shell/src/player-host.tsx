@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ComponentProps } from "react";
 import { PlayerShell, type PlayerHostActivityV1 } from "./PlayerShell";
-import { IndexedDbWorldPlayerSaveStoreV1 } from "./player-save-store";
+import { IndexedDbWorldPlayerSaveStoreV2 } from "./player-save-store";
 
 export interface WebPlayerHostProps extends Omit<ComponentProps<typeof PlayerShell>, "hostActivity" | "platform"> {
   readonly activityOverride?: PlayerHostActivityV1;
@@ -12,7 +12,7 @@ function documentActivity(): PlayerHostActivityV1 {
 
 export function WebPlayerHost({ activityOverride, saveStore, ...props }: WebPlayerHostProps) {
   const [activity, setActivity] = useState(documentActivity);
-  const resolvedSaveStore = useMemo(() => saveStore ?? (typeof indexedDB === "undefined" ? undefined : new IndexedDbWorldPlayerSaveStoreV1(indexedDB)), [saveStore]);
+  const resolvedSaveStore = useMemo(() => saveStore ?? (typeof indexedDB === "undefined" ? undefined : new IndexedDbWorldPlayerSaveStoreV2(indexedDB)), [saveStore]);
 
   useEffect(() => {
     const onVisibilityChange = () => setActivity(documentActivity());

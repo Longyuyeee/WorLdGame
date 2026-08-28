@@ -36,6 +36,7 @@
     "audit:n51-engineering-exit": "node tools/audit-n51-engineering-exit.mjs",
     "audit:n52-player-history": "vitest run packages/runtime-host/src/host.test.ts packages/player-core/src/player-core.test.ts apps/player-shell/src/player-save-store.test.ts apps/player-shell/src/player-shell.test.tsx apps/player-shell/src/mount-player.test.tsx --maxWorkers=1",
     "audit:n52-save-policy-entry": "node tools/audit-n52-save-policy-entry.mjs",
+    "audit:n52-e3a-save-metadata-preview": "node tools/audit-n52-e3a-save-metadata-preview.mjs",
     "audit:n51-settings-browser": "npm run build --workspace @world-studio/editor && node tools/run-n51-settings-browser.mjs",
     "audit:n51-settings-runtime-browser": "npm run build --workspace @world-studio/player-shell && node tools/run-n51-settings-runtime-browser.mjs",
     "audit:n43-workspace-context-browser": "node tools/run-n43-workspace-context-browser.mjs",
@@ -51,7 +52,7 @@
     "audit:route-performance": "vitest run --config vitest.route-performance.config.ts",
     "audit:asset-performance": "vitest run --config vitest.asset-performance.config.ts",
     "demo:empty-to-web": "node tools/run-empty-to-web-build.mjs",
-    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:n23-product-acceptance && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run audit:n30-compiler && npm run audit:n31-runtime && npm run audit:n41-sequence-scale && npm run audit:n41-lazy-dialogue && npm run audit:n41-sequence-exit && npm run audit:n42-stage-exit && npm run audit:n43-workspace-modes && npm run audit:n50-player-core && npm run audit:n51-gal-settings && npm run audit:n51-engineering-exit && npm run audit:n52-player-history && npm run audit:n52-save-policy-entry && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:route-performance && npm run audit:asset-performance"
+    "check": "npm run audit:workspaces && npm run audit:requirements && npm run audit:risk-acceptances && npm run audit:n21-human-validation && npm run audit:n23-product-acceptance && npm run audit:risk-acceptance-policy && npm run audit:delivery-baseline && npm run audit:delivery-baseline-policy && npm run audit:pr-traceability && npm run audit:goldens && npm run audit:n23-content && npm run audit:n30-compiler && npm run audit:n31-runtime && npm run audit:n41-sequence-scale && npm run audit:n41-lazy-dialogue && npm run audit:n41-sequence-exit && npm run audit:n42-stage-exit && npm run audit:n43-workspace-modes && npm run audit:n50-player-core && npm run audit:n51-gal-settings && npm run audit:n51-engineering-exit && npm run audit:n52-player-history && npm run audit:n52-save-policy-entry && npm run audit:n52-e3a-save-metadata-preview && npm run typecheck && npm run test && npm run build && npm run audit:architecture && npm run audit:script-performance && npm run audit:route-performance && npm run audit:asset-performance"
   },
   "engines": {
     "node": ">=22.12.0"
