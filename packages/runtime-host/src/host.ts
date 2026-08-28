@@ -9,7 +9,7 @@ import {
 export const RUNTIME_PRESENTATION_HOST_VERSION = "0.1.0" as const;
 export const MAX_RUNTIME_PRESENTATION_HOST_OPERATIONS = 1_000;
 
-export type RuntimePresentationHostOperationKindV1 = "execute" | "complete" | "cancel" | "compensate" | "replay";
+export type RuntimePresentationHostOperationKindV1 = "execute" | "complete" | "cancel" | "compensate" | "replay" | "rehydrate";
 
 export interface RuntimePresentationHostOperationV1 {
   readonly sequence: number;
@@ -89,6 +89,21 @@ export function consumeRuntimePresentationEffectsV1(
   return next;
 }
 
+export function rehydrateRuntimePresentationHostV1(
+  checkpointEffects: readonly RuntimeEffectIntentV1[],
+  checkpointId: string
+): RuntimePresentationHostStateV1 {
+  let next: RuntimePresentationHostStateV1 = {
+    ...createRuntimePresentationHostStateV1(),
+    checkpointId
+  };
+  for (const effect of checkpointEffects) {
+    const appended = appendOperation(next, "rehydrate", effect);
+    if (appended !== next) next = activateEffect(appended, effect);
+  }
+  return next;
+}
+
 export function settleRuntimePresentationEffectV1(
   state: RuntimePresentationHostStateV1,
   effect: RuntimeEffectIntentV1,
@@ -154,7 +169,7 @@ export function validateRuntimePresentationHostStateV1(state: RuntimePresentatio
     if (effect.channel !== channel) violations.push("HOST_CHANNEL_MISMATCH");
     if (
       state.nextSequence <= MAX_RUNTIME_PRESENTATION_HOST_OPERATIONS &&
-      !state.operations.some((operation) => operation.kind === "execute" && operation.effectId === effect.effectId)
+      !state.operations.some((operation) => (operation.kind === "execute" || operation.kind === "rehydrate") && operation.effectId === effect.effectId)
     ) violations.push("HOST_ACTIVE_EFFECT_MISSING_EXECUTE");
   }
   return [...new Set(violations)];

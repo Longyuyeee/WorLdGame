@@ -1,15 +1,15 @@
-# 当前开发情况审计（N52-E1 Engineering 关闭；Product Acceptance 阻断）
+# 当前开发情况审计（N52-E2 Engineering 已关闭）
 
 > 审计日期：2026-08-28
-> 当前分支：`codex/n51-n52-governance`；直接基线为 N51-E6f 最终绿色头 `7bc7b78`
+> 当前分支：`codex/n52-e2-player-save-slots`；直接基线为 N52-E1 最终绿色头 `4e3e8ba`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-011` 只允许 N52 Player Control Engineering；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52-E1 History-backed Player Core](238-n52-e1-history-backed-player-core-audit.md)、[N52 暂停与接续交接](237-n52-development-pause-and-handoff.md)、[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)
+> 最新节点证据：[N52-E2 Player Save 槽位](239-n52-e2-player-save-slots-audit.md)、[N52-E1 History-backed Player Core](238-n52-e1-history-backed-player-core-audit.md)、[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-28 纠偏结论是：**产品目标和架构没有发生替换性偏移。正式 Player 已在同一 Core 上接入 N31 History、Back/Forward 与 Runtime Host reconciliation；N52-E1 Web 闭环完成。Save/Load 槽位、Auto、Skip、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-011 只准入 N52 Engineering，禁止换算成商业完成度。
+2026-08-28 纠偏结论是：**产品目标和架构没有发生替换性偏移。正式 Player 已在同一 Core 上接入 N31 History/Session Save、Back/Forward、三个手动槽位与独立 Web IndexedDB Host；N52-E2 本地闭环完成。截图/分页、自动/快速/检查点、迁移、Auto、Skip、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-011 只准入 N52 Engineering，禁止换算成商业完成度。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,9 +20,9 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；N52 Engineering：**E1 切片已关闭**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；N52 Engineering：**E1、E2 已关闭**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
 - N52-E1 本地完整门：普通 `149/890`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s`、Route P95 `72.55ms`、Asset dicing `1667.44ms`，全部未调整预算；桌面/390×844 cold production-browser overflow/console 均为 0；
-- N52-E1 实现头 `5a3a322` 已推送至 Draft PR #98；Windows / Node 22 run `33175293968` / job `98862223958` 同头 success，job 约 `13m04s`；下一切片只能进入 N52-E2 Save 槽位合同；
+- N52-E2 已建立 Core Session Save/Load bridge、三个严格手动槽位、独立 IndexedDB Host、embed API `1.1.0` 和 Load-only rehydrate；本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms`，Autosave 测试体 `4.35s <5s`（长链总时长 `6.40s`、隔离总时长 `2.81s`）；冷 production browser 跨刷新、双视口、overflow/console 与 44px 触控门通过；实现头 `bdb3c73` 已推送至 Draft PR #99，同头 Windows / Node 22 run `33180215962` / job `98879258847` 用时 `12m48s` 绿色，远端普通 `150/898`、N52 `51/51`、Runtime corpus `66.643s <90s`；E2 Engineering 关闭；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
@@ -61,7 +61,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
-| Player/Build | N50-E1 portable Core/共享 Shell；E2/E3 正式媒体与 parity/recovery；E4/E5 输入和 lifecycle；E6 v1 mount/update/suspend/unmount API、公开包入口与独立 Web embed 页 | 实体手柄/触屏、存档/历史/设置/Auto/Skip/Back、Gallery、Windows/Android 正式宿主、PWA、APK/AAB、签名、安装、升级与发布材料均缺 |
+| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History/Back/Forward；N52-E2 三个手动槽位、Session Save/Load、独立 Web IndexedDB Host 与 embed API 1.1 | 实体手柄/触屏、截图/分页、自动/快速/检查点/迁移、History 页面、Auto/Skip、Gallery、Windows/Android 正式宿主、PWA、APK/AAB、签名、安装、升级与发布材料均缺 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。

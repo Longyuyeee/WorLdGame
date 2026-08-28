@@ -74,6 +74,17 @@ button { font: inherit; }
 .player-history-controls button:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
 .player-history-controls button:disabled { color: rgba(255,255,255,.28); border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.03); cursor: not-allowed; }
 .player-history-controls__position { min-width: 44px; color: rgba(255,255,255,.56); font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; }
+.player-save { position: absolute; z-index: 12; right: 24px; bottom: 24px; }
+.player-save__toggle { min-width: 88px; min-height: 44px; padding: 0 14px; border: 1px solid rgba(196,181,253,.38); border-radius: 13px; color: #ede9fe; background: rgba(18,14,42,.82); cursor: pointer; backdrop-filter: blur(18px); }
+.player-save__toggle:focus-visible, .player-save__panel button:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
+.player-save__panel { position: absolute; right: 0; bottom: 54px; display: grid; width: min(440px, calc(100vw - 48px)); gap: 8px; padding: 16px; border: 1px solid rgba(196,181,253,.28); border-radius: 20px; background: rgba(8,10,25,.94); box-shadow: 0 24px 70px rgba(0,0,0,.48); backdrop-filter: blur(24px); }
+.player-save__panel > header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 2px 4px 8px; }
+.player-save__panel > header span { color: rgba(255,255,255,.55); font-size: 11px; }
+.player-save__slot { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.04); }
+.player-save__slot > div { display: grid; min-width: 0; gap: 3px; }
+.player-save__slot > div span { overflow: hidden; color: rgba(255,255,255,.55); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.player-save__slot button { min-width: 54px; min-height: 44px; padding: 0 10px; border: 1px solid rgba(103,232,249,.22); border-radius: 10px; color: #cffafe; background: rgba(34,211,238,.08); cursor: pointer; }
+.player-save__slot button:disabled { opacity: .35; cursor: not-allowed; }
 .player-media-error { position: absolute; z-index: 6; top: 74px; right: 24px; display: flex; max-width: min(420px, calc(100% - 48px)); align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid rgba(251,113,133,.45); border-radius: 12px; color: #fecdd3; background: rgba(55,10,28,.86); font-size: 12px; }
 .player-media-error button { min-height: 44px; flex: 0 0 auto; padding: 0 12px; border: 1px solid rgba(254,205,211,.34); border-radius: 10px; color: #fff1f2; background: rgba(251,113,133,.12); cursor: pointer; }
 .player-host-suspended { position: absolute; z-index: 25; inset: 0; display: grid; place-content: center; justify-items: center; padding: 28px; color: white; text-align: center; background: rgba(6,8,20,.74); backdrop-filter: blur(18px) saturate(.7); }
@@ -156,6 +167,10 @@ button { font: inherit; }
   .player-history-controls button { min-width: 48px; min-height: 48px; padding: 0; }
   .player-history-controls button span:not([aria-hidden="true"]) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .player-history-controls__position { min-width: 32px; }
+  .player-save { position: fixed; z-index: 31; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
+  .player-save__toggle { min-height: 48px; }
+  .player-save__panel { position: fixed; right: max(10px, env(safe-area-inset-right)); bottom: calc(max(14px, env(safe-area-inset-bottom)) + 58px); left: max(10px, env(safe-area-inset-left)); width: auto; }
+  .player-save__slot { grid-template-columns: minmax(0, 1fr) 52px 52px; }
   .player-title-screen { width: calc(100% - 36px); }
   .player-primary { min-height: 52px; }
   .player-dialogue { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); left: max(14px, env(safe-area-inset-left)); min-height: 188px; padding: 24px 22px; border-radius: 22px; }

@@ -39,15 +39,17 @@ describe("N50-E6 versioned Player host embedding API", () => {
     expect(handle.apiVersion).toBe(WORLD_PLAYER_EMBED_API_VERSION);
     expect(handle.getObservation()).toEqual({
       schemaVersion: 1,
-      embedApiVersion: "1.0.0",
+      embedApiVersion: "1.1.0",
       mounted: true,
       status: "title",
       hostActivity: "active",
       settingsPlatform: "web",
-      playerCoreVersion: "0.3.0",
+      playerCoreVersion: "0.4.0",
       compilerVersion: "0.2.0",
       runtimeVersion: "0.6.0",
-      runtimeHostVersion: "0.1.0"
+      runtimeHostVersion: "0.1.0",
+      saveStoreBackend: "unavailable",
+      saveStoreVersion: null
     });
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(handle.getObservation().status).toBe("waiting-choice");
