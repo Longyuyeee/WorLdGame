@@ -83,8 +83,10 @@ N51 Engineering 关闭只表示当前授权范围内的 portable Settings、Cano
 - VM conformance 5/5 PASS（测试 `75.62s`）；所有 workspace production build PASS；架构审计 PASS（portable 100 files、Node adapter 4 files）；
 - script performance 13/13 PASS；route performance 9/9 PASS，真实编辑链 p95 `174.67ms < 500ms`；asset performance 4/4 PASS，dicing 总计 `2492.69ms < 5000ms`。
 
-因此本地结论是“所有分段真实门绿色，但一体化命令受累计环境长尾影响未得到完整绿色”，不能写作本地 `npm run check` PASS。最终 Engineering 关闭仍须由推送后的同提交 Windows / Node 22 CI 完整门仲裁；若 CI 不绿，本切片继续阻断。
+因此本地结论是“所有分段真实门绿色，但一体化命令受累计环境长尾影响未得到完整绿色”，不能写作本地 `npm run check` PASS。最终 Engineering 关闭由下节同提交 Windows / Node 22 CI 完整门完成仲裁。
 
 ### 6.3 同头 CI
 
-待实现提交与最终文档提交推送后回填运行、job、提交与实际结果。任何门失败时必须保留首次实际并修正或继续阻断，不得删除断言、减少 corpus、提高预算或提前进入 N52。
+实现头 `40c14a4` 的 Draft PR #96 `product-baseline` run `33155226168` / job `98796294530` 在 Windows / Node 22 用时 `14m18s`，完整 `npm run check` 绿色。远端同规模实际包括：N50 `37/37`、N51 `95/95`、E6f exit `PASS / 0 violations`、普通回归 `149 files / 886 tests`、Autosave `4.788s < 5s`、VM `5/5`（`69.85s < 90s`）、Route 编辑链 p95 `186.04ms < 500ms`、Asset dicing `3323.81ms < 5000ms`，以及 production build、架构和其余性能门全部通过。
+
+同一代码和不变预算在稳定 runner 完整通过，关闭了本机累计环境长尾差异。实现头满足 E6f 与 N51 Engineering 出口；N51 Product Acceptance、N52 Engineering、M1 Stable 和 Public Release 仍保持阻断。最终文档头推送后还必须取得自己的同头 CI，不能复用本运行替代。

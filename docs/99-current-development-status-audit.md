@@ -45,7 +45,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - E6c 实现头 `3a1cbed` 的 Draft PR #96 Windows / Node 22 完整门 run `33143471100` / job `98759295354` 用时 `12m33s` 绿色：普通 `149/876`、App `45/45`、N50 `34/34`、N51 `87/87`、autosave `1/1`（`5.095s`）、VM `65.93s <90s`、Route P95 `132.69ms`、Asset dicing `3272ms`。同规模同预算关闭本机累积负载差异，E6c Engineering 关闭；N51 Product Acceptance、N52 与 E6d+ 仍未完成。
 - N51-E6d 把 Choice 编号/响应式布局与 UI 默认 Textbox/输入提示贯通 schema v5、Catalog、Canonical、Editor 与 Player；Advanced 36 / Basic 23。首次 79/88，修正扩展后 101/101；双 production browser 验证保存重开、同 Core、桌面/移动布局与 ADV→bubble。实现头 `6d99928` 的 Windows 完整门 run `33147113913` 绿色，E6d Engineering 关闭。
 - N51-E6e 冻结 Settings/Runtime/Compiler Profile 所有权，WebPlayerHost 类型与运行时固定为 Web，嵌入观察值公开 `settingsPlatform: web`。首次 22/24，修正后 24/24；Chrome 151 production 9/9 快照为 Web。实现头 `b7d7c5c` 的 Windows 完整门 run `33151182320` 用时 13m01s 绿色，E6e Engineering 关闭。
-- N51-E6f 新增机器可读出口合同与根级审计，逐项核验 schema v5、36/23、application v1、Web Host、双 production evidence 和 N52/N61/N62/N70–N72/N80–N83 所有权。首次代码事实全部通过，仅 5 项权威文档状态滞后；修正后 N51 Engineering 关闭。N51 Product Acceptance、AC-19、REQ-GAL、N52+、M1 Stable 与 Public Release 继续阻断。
+- N51-E6f 新增机器可读出口合同与根级审计，逐项核验 schema v5、36/23、application v1、Web Host、双 production evidence 和 N52/N61/N62/N70–N72/N80–N83 所有权。首次代码事实全部通过，仅 5 项权威文档状态滞后；实现头 `40c14a4` 的 Windows / Node 22 完整门 run `33155226168` / job `98796294530` 用时 `14m18s` 绿色：普通 `149/886`、N51 `95/95`、Autosave `4.788s < 5s`、VM `69.85s < 90s`、Route P95 `186.04ms < 500ms`、Asset dicing `3323.81ms < 5000ms`。N51 Engineering 关闭；N51 Product Acceptance、AC-19、REQ-GAL、N52+、M1 Stable 与 Public Release 继续阻断。
 
 最新 E8n 远端证据为 `product-baseline` run `32684809412` / job `97307842092`，Windows / Node 22 用时 `4m56s`，实现头 `7857ca9` 全绿；本机冻结 VM 因当前资源负载为 `102.1s >90s`，预算未放宽，远端同门为 `61.81s`。
 

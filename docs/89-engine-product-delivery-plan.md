@@ -495,7 +495,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6e Engineering 状态（2026-08-28）：[E6e](234-n51-e6e-profile-host-boundary-contract.md)冻结 Settings 三层、Runtime 显式指令、Compiler debug/release 与后续 Optimization Profile 的独立所有权。修正 WebPlayerHost 可被注入为 Android/Windows 的假平台缺口，并让嵌入观察值公开固定 `settingsPlatform: web`；首次 22/24，修正后 24/24，定向 81/81、N50 37/37、N51 95/95，Chrome 151 production 9/9 状态快照为 Web。实现头同头 Windows 完整门 run `33151182320` 绿色，E6e Engineering 关闭。Windows conformance 仍只有存储桥、Android Player Host 不存在，二者继续阻断；下一切片只进入 E6f 总出口。
 
-> E6f Engineering 状态（2026-08-28）：[出口复审](235-n51-e6f-engineering-exit-reaudit.md)新增机器可读 N51 出口合同与根级审计，核验 schema v5、Advanced 36 / Basic 23、application v1、Web Host 固定身份、双 production evidence，并冻结 N52/N61/N62/N70–N72/N80–N83 所有权。首次实际只暴露 5 项权威文档状态滞后，代码与 evidence 全部通过；修正后 E6f 与 N51 Engineering 关闭。N51 Product Acceptance、Windows/Android 实机和跨节点范围仍阻断。
+> E6f Engineering 状态（2026-08-28）：[出口复审](235-n51-e6f-engineering-exit-reaudit.md)新增机器可读 N51 出口合同与根级审计，核验 schema v5、Advanced 36 / Basic 23、application v1、Web Host 固定身份、双 production evidence，并冻结 N52/N61/N62/N70–N72/N80–N83 所有权。首次实际只暴露 5 项权威文档状态滞后，代码与 evidence 全部通过；实现头 `40c14a4` 的 Windows / Node 22 完整门 run `33155226168` / job `98796294530` 用时 `14m18s` 绿色，普通 `149/886`、N51 `95/95`、VM `69.85s < 90s`、Route P95 `186.04ms < 500ms`。E6f 与 N51 Engineering 关闭；N51 Product Acceptance、Windows/Android 实机和跨节点范围仍阻断。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 
