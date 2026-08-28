@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3",
+  "engineeringStatus": "entry-frozen",
+  "productAcceptance": "blocked",
+  "baseline": {
+    "branch": "codex/n52-e2-player-save-slots",
+    "commit": "a1a21c15841189989e2ce4912f95c63ed41deb9e",
+    "slotSchemaVersion": 1,
+    "storeVersion": "1.0.0",
+    "databaseVersion": 1,
+    "manualSlotCount": 3,
+    "preview": "null"
+  },
+  "corrections": [
+    "runtime-history-checkpoint-is-not-a-persistent-player-checkpoint-slot",
+    "test-route-document-is-not-player-route-save-metadata",
+    "preserved-fields-are-not-a-custom-save-metadata-api",
+    "preview-image-null-is-not-screenshot-support",
+    "responsive-web-evidence-is-not-windows-or-android-host-evidence"
+  ],
+  "slotPolicy": {
+    "manual": { "count": 12, "pageSize": 6, "selection": "explicit", "overwrite": "explicit-confirmation" },
+    "auto": { "count": 5, "pageSize": 5, "selection": "oldest-first-ring", "trigger": "first-stable-presentable-boundary-after-scene-change" },
+    "quick": { "count": 1, "pageSize": 1, "selection": "fixed-replace", "trigger": "explicit-player-command" },
+    "checkpoint": { "count": 3, "pageSize": 3, "selection": "oldest-first-ring", "trigger": "explicit-build-authored-marker", "implementation": "blocked-until-marker-exists" },
+    "recovery": { "implementation": "separate-store-and-policy", "mustNotAlias": ["manual", "auto", "quick", "checkpoint"] }
+  },
+  "saveBoundary": {
+    "allowedPresentationKinds": ["dialogue", "narration", "choice", "ending"],
+    "blockedStatuses": ["title", "error", "waiting-effect", "waiting-barrier"],
+    "autoCoalescing": "one-write-per-scene-identity",
+    "loadEffectPolicy": "rehydrate-without-execute-or-replay"
+  },
+  "slotSchemaV2": {
+    "migration": "strict-v1-read-normalize-copy-on-write-v2",
+    "preserveV1UntilV2Commit": true,
+    "metadata": {
+      "chapter": "canonical-project-structure",
+      "scene": "canonical-project-structure-and-saved-runtime-cursor",
+      "route": "null-until-formal-runtime-route-source",
+      "custom": "empty-until-versioned-provider-contract",
+      "mustNotReadFrom": ["testRoutes", "preservedFields"]
+    },
+    "preview": {
+      "storage": "separate-indexeddb-blob-store-same-transaction",
+      "captureOwner": "player-host-compositor",
+      "mimeTypes": ["image/webp", "image/png"],
+      "maximumWidth": 512,
+      "maximumHeight": 512,
+      "maximumBytes": 524288,
+      "failurePolicy": "commit-save-with-explicit-preview-unavailable",
+      "listMustNotReadBlob": true
+    }
+  },
+  "implementationSlices": [
+    { "node": "N52-E3a", "scope": "v2 metadata, strict v1 compatibility, manual pagination, preview Host contract and atomic Blob storage" },
+    { "node": "N52-E3b", "scope": "auto and quick execution with serialized writes, rotation, failure retention and product controls" },
+    { "node": "N52-E3c", "scope": "explicit persistent checkpoint marker, recovery isolation and migration/corruption museum" }
+  ],
+  "blocked": [
+    "cloud-sync-and-conflict-resolution",
+    "windows-and-android-production-hosts",
+    "history-page-auto-skip-and-gallery",
+    "n52-product-acceptance",
+    "n60-and-later",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    { "path": "docs/240-n52-e3-save-policy-entry-audit.md", "token": "N52-E3 入口 Engineering 关闭" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3 入口状态（2026-08-28）" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3 入口契约" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3 入口契约" }
+  ]
+}
