@@ -4,7 +4,7 @@
 > 分支：`codex/n52-e2-player-save-slots`  
 > 直接基线：N52-E1 最终绿色头 `4e3e8ba` / Draft PR #98  
 > 授权：`RA-N21-011`，最大节点 N52  
-> 判定：N52-E2 本地 Engineering 实现与完整门通过；同头 Windows CI 待推送后回填。N52 Product Acceptance、三端一致性、N60+ 与发布继续阻断。
+> 判定：N52-E2 Engineering 已关闭；实现提交 `bdb3c73` 的同头 Windows / Node 22 完整门 run `33180215962` / job `98879258847` 用时 `12m48s` 并绿色。N52 Product Acceptance、三端一致性、N60+ 与发布继续阻断。
 
 ## 1. 需求对齐与范围纠偏
 
@@ -65,6 +65,8 @@
 
 既有 Editor `982.10 kB` 大 chunk warning 保留为既有债务；Player production JS 为 `344.74 kB / gzip 105.28 kB`。本步没有以调整预算或忽略 warning 换取绿色。
 
+实现提交 `bdb3c73` 推送至 Draft PR #99 后，同头 Windows / Node 22 `product-baseline` run `33180215962` / job `98879258847` 用时 `12m48s` 并绿色。远端保持同一规模与预算：普通回归 `150 files / 898 tests`、N52 `5 files / 51 tests`、N50 `46/46`、N51 `97/97`，17 workspace build 与 architecture 均通过；远端 Runtime 10,000-seed corpus 用时 `66.643s < 90s`。这份证据关闭跨机器 Engineering 差异，但不替代生产浏览器、实体设备或真人 Product Acceptance。
+
 ## 6. 状态与下一接续点
 
-E2 只在实现提交推送且同头 Windows / Node 22 完整门绿色后关闭 Engineering。下一切片冻结为 **N52-E3 Save metadata/screenshot 与自动/快速槽位策略入口审计**；开始前必须重新核对 Gal 2.4 的截图、分页、自动/快速/检查点与损坏恢复要求，不得直接进入 Auto/Skip，也不得把三个固定手动槽位冒充完整存档系统。
+E2 Engineering 已由实现提交、冷 production-browser、本地完整门与同头 Windows CI 共同关闭。下一切片冻结为 **N52-E3 Save metadata/screenshot 与自动/快速槽位策略入口审计**；开始前必须重新核对 Gal 2.4 的截图、分页、自动/快速/检查点与损坏恢复要求，不得直接进入 Auto/Skip，也不得把三个固定手动槽位冒充完整存档系统。

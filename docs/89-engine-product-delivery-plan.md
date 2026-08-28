@@ -505,7 +505,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Implementation**：存档槽、自动/快速保存、截图和元数据；历史；独立 Auto 策略；四种 Skip；玩家速度；媒体分类策略；Stop Point；已读集合；分支改变截断 Forward；Barrier 解释。
 - **Acceptance**：AC-15、16 在 Web Player 通过，随后在三端复用同一向量。
 
-> E2 实施状态（2026-08-28）：[N52-E2 审计](239-n52-e2-player-save-slots-audit.md)复用 N31 Session Save，在同一 Player Core 上建立三个手动槽位、独立 Web IndexedDB Host、跨刷新 Load 与明确 `rehydrate` Effect 恢复；修正了 cancelled Effect 可能被展平历史错误复活的偏差。冷 production browser 在 1280×720 / 390×844 完成保存、分支推进、读取、刷新、再次读取，overflow/console 为 0，触控目标 44–48px。本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms` 全绿；Autosave 长链总时长 `6.40s`，测试体 `4.35s <5s`，隔离原命令总时长 `2.81s`。同头 CI 待推送后回填。截图/分页、自动/快速/检查点、迁移/损坏恢复、云冲突、History 页面与 Auto/Skip 仍缺，N52 Product Acceptance 不变。
+> E2 实施状态（2026-08-28）：[N52-E2 审计](239-n52-e2-player-save-slots-audit.md)复用 N31 Session Save，在同一 Player Core 上建立三个手动槽位、独立 Web IndexedDB Host、跨刷新 Load 与明确 `rehydrate` Effect 恢复；修正了 cancelled Effect 可能被展平历史错误复活的偏差。冷 production browser 在 1280×720 / 390×844 完成保存、分支推进、读取、刷新、再次读取，overflow/console 为 0，触控目标 44–48px。本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms` 全绿；Autosave 长链总时长 `6.40s`，测试体 `4.35s <5s`，隔离原命令总时长 `2.81s`。实现头 `bdb3c73` 的 Draft PR #99 Windows / Node 22 完整门 run `33180215962` / job `98879258847` 用时 `12m48s` 绿色，普通 `150/898`、N52 `51/51`、Runtime corpus `66.643s <90s`；E2 Engineering 关闭。截图/分页、自动/快速/检查点、迁移/损坏恢复、云冲突、History 页面与 Auto/Skip 仍缺，N52 Product Acceptance 不变。
 
 ## 11. R6：制作自动化、QA 与本地化
 
