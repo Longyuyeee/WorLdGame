@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N50 Engineering 出口不得换算成 Product Acceptance；`RA-N21-010` 只准入 N51 Gal Settings Engineering，持续阻断 N51 Product Acceptance、N52 及以后、M1 Stable 与发布。N51-E6a/E6b 已关闭；E6c 已完成本地实现与真实浏览器证据，完整门/同头 CI 尚待关闭；E6d–E6f 和产品出口仍未完成。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N50 Engineering 出口不得换算成 Product Acceptance；`RA-N21-010` 只准入 N51 Gal Settings Engineering，持续阻断 N51 Product Acceptance、N52 及以后、M1 Stable 与发布。N51-E6a–E6c Engineering 已关闭；E6d–E6f 和产品出口仍未完成。
 
 ## 1. 状态和证据规则
 

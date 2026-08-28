@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e6-p0-coverage-exit`
 > 直接基线：N51-E6b 最终绿色头 `53f0acd`
 > 授权：`RA-N21-010`，最大节点 N51
-> 当前判定：实现与本地真实证据已完成；等待完整门、推送及同头 Windows / Node 22 CI 裁决
+> 当前判定：实现头同头 Windows / Node 22 完整门绿色；E6c Engineering 关闭
 
 ## 1. 目标与字段
 
@@ -72,4 +72,6 @@ E6c 完成后下一切片只能进入 **E6d Choice/Route/UI presentation policy*
 - TypeScript project references：PASS；
 - 双 production browser：PASS；
 - 首次完整门普通回归为 149 files / 875 tests，其中 871 通过，4 个冻结 source identity 断言失败；更新两条路线 State、Scene/Statement、History 与空白工程 semantic hash 后对应 2 files / 15 tests 全绿。第二次从头全门在前序重负载后，既有 `App.test.tsx` 2/45 项分别 6.45s/8.17s 超过冻结 5s；隔离复跑仍因本机负载为 42/45。未修改 timeout，等待同头 Windows / Node 22 CI 裁决；
-- 提交/推送与同头 Windows / Node 22 CI：待完成，完成前不得把 E6c Engineering 标为关闭。
+- 实现提交 `3a1cbed` 已推送到 Draft PR [#96](https://github.com/Longyuyeee/WorLdGame/pull/96)。同头 Windows / Node 22 完整门 run `33143471100` / job `98759295354` 用时 `12m33s`，PASS：普通回归 `149 files / 876 tests`、App `45/45`、N50 `34/34`、N51 `87/87`、autosave `1/1`（测试 `5.095s`）、固定 VM `5/5`（`65.93s <90s`）、Route edit P95 `132.69ms <500ms`、Asset dicing `3272ms <5000ms`。相同代码、规模、断言和预算关闭本机累积负载差异；E6c Engineering 关闭。
+
+关闭 E6c 不改变 `RA-N21-010`：N51 Product Acceptance、N52 Engineering、M1 Stable 和 Public Release 继续阻断。下一切片为 E6d，必须重新执行冻结目标、首次实际、差异修正、文档、全门与同头 CI。
