@@ -1,4 +1,4 @@
-# 当前开发情况审计（N52-E1 本地工程审计完成；Product Acceptance 阻断）
+# 当前开发情况审计（N52-E1 Engineering 关闭；Product Acceptance 阻断）
 
 > 审计日期：2026-08-28
 > 当前分支：`codex/n51-n52-governance`；直接基线为 N51-E6f 最终绿色头 `7bc7b78`
@@ -20,8 +20,9 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；N52 Engineering：**E1 本地审计完成，远端同头 CI 待回填**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；N52 Engineering：**E1 切片已关闭**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
 - N52-E1 本地完整门：普通 `149/890`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s`、Route P95 `72.55ms`、Asset dicing `1667.44ms`，全部未调整预算；桌面/390×844 cold production-browser overflow/console 均为 0；
+- N52-E1 实现头 `5a3a322` 已推送至 Draft PR #98；Windows / Node 22 run `33175293968` / job `98862223958` 同头 success，job 约 `13m04s`；下一切片只能进入 N52-E2 Save 槽位合同；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。

@@ -1,7 +1,7 @@
 # N52-E1 History-backed Player Core 审计
 
 > 日期：2026-08-28
-> 分支：`codex/n52-e1-history-backed-player-core`
+> 分支：`codex/n52-e1-history-backed-player-core`，Draft PR #98
 > 授权：`RA-N21-011`，只登记 Engineering；N52 Product Acceptance、真人/实体设备、N60+、M1 与发布继续阻断
 
 ## 1. 原始需求与实际代码
@@ -34,4 +34,6 @@
 
 E1 不包含 Save 槽位、自动/快速保存、Load、History 页面、Auto、Skip 或 Choice scheduling，也不登记 N52 Product Acceptance。下一切片必须先冻结 N52-E2 Save 槽位/Host 持久化合同，复用 N31 Save/Session Save；不得以 localStorage demo 或新格式绕过正式内核。
 
-本地完整 `npm run check` 已一次通过：普通回归 `149 files / 890 tests`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s <90s`、Route P95 `72.55ms <500ms`、Asset dicing `1667.44ms <5000ms`；Editor `982.10kB / gzip 275.54kB` 的既有大 chunk warning 保留，Player 主 bundle `332.52kB / gzip 102.05kB`。推送后同头 Windows / Node 22 CI 仍待回填；在远端绿色前，E1 只称“本地 Engineering 审计完成”。
+本地完整 `npm run check` 已一次通过：普通回归 `149 files / 890 tests`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s <90s`、Route P95 `72.55ms <500ms`、Asset dicing `1667.44ms <5000ms`；Editor `982.10kB / gzip 275.54kB` 的既有大 chunk warning 保留，Player 主 bundle `332.52kB / gzip 102.05kB`。
+
+实现提交 `5a3a322` 已推送到 Draft PR #98；同一 SHA 的 Windows / Node 22 run `33175293968` / job `98862223958` 于 2026-08-28 success，job 用时约 `13m04s`，其中完整 `Verify workspace and product baseline` 为 success。由此 N52-E1 Engineering 切片关闭；N52 Product Acceptance 与第 4 节边界不变。
