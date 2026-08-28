@@ -1,6 +1,7 @@
 import { getGalSettingDefinition } from "./catalog";
 
-export const GAL_SETTINGS_SCHEMA_VERSION = 1 as const;
+export const GAL_SETTINGS_SCHEMA_VERSION = 2 as const;
+const GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION = 1;
 
 export const GAL_SETTINGS_PLATFORMS = ["windows", "web", "android"] as const;
 export type GalSettingsPlatform = (typeof GAL_SETTINGS_PLATFORMS)[number];
@@ -282,11 +283,18 @@ export function createGalSettingsDocument(): GalSettingsDocument {
 export function parseGalSettingsDocument(value: unknown): GalSettingsDocument {
   const input = record(value, "settings");
   assertKnownFields(input, ["schemaVersion", "project", "platforms"], "settings");
-  if (input.schemaVersion !== GAL_SETTINGS_SCHEMA_VERSION) {
-    if (typeof input.schemaVersion === "number" && Number.isSafeInteger(input.schemaVersion) && input.schemaVersion > GAL_SETTINGS_SCHEMA_VERSION) {
-      fail("FUTURE_SCHEMA", "settings.schemaVersion", `schema ${input.schemaVersion} is read-only until migrated`);
-    }
-    fail("INVALID_SCHEMA", "settings.schemaVersion", `must equal ${GAL_SETTINGS_SCHEMA_VERSION}`);
+  if (typeof input.schemaVersion !== "number" || !Number.isSafeInteger(input.schemaVersion)) {
+    fail("INVALID_SCHEMA", "settings.schemaVersion", "must be a safe integer");
+  }
+  if (input.schemaVersion > GAL_SETTINGS_SCHEMA_VERSION) {
+    fail("FUTURE_SCHEMA", "settings.schemaVersion", `schema ${input.schemaVersion} is read-only until migrated`);
+  }
+  if (input.schemaVersion < GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION) {
+    fail(
+      "INVALID_SCHEMA",
+      "settings.schemaVersion",
+      `must be between ${GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION} and ${GAL_SETTINGS_SCHEMA_VERSION}`
+    );
   }
   const platforms = record(input.platforms, "settings.platforms");
   assertKnownFields(platforms, GAL_SETTINGS_PLATFORMS, "settings.platforms");

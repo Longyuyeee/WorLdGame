@@ -25,7 +25,7 @@ E6 的目标不是把《Gal 基础系统与自动化生产规格》2.1–2.9 中
 
 ## 2. 真实代码基线
 
-当前 `@world-studio/gal-settings` 只有 23 个 scalar 字段，分为 display 5、text 5、advance 2、audio 7、input 4。它们已经具备：
+本入口审计时 `@world-studio/gal-settings` 只有 23 个 scalar 字段，分为 display 5、text 5、advance 2、audio 7、input 4。它们已经具备：
 
 - `schemaVersion: 1` 严格解析，未知 section/field 失败关闭；
 - default → project → Windows/Web/Android 覆盖和逐字段来源；
@@ -137,3 +137,5 @@ E6 后续必须按以下小切片推进，每个切片独立审计、需求对�
 - N21 `0/1`、N23 `0/2` 真人记录保持 pending；
 - E5 最新 Draft PR #95 和远端绿色门不能换算为 `main` 已集成；
 - 下一步只允许进入 E6a Schema v2 与迁移安全。
+
+> 2026-08-28 接续：E6a 已按本合同实现并通过本机定向测试，详见[迁移安全审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。完整门与同头远端证据补齐前仍不提前关闭该切片。

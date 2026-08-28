@@ -59,3 +59,5 @@ git diff --check
 ```
 
 > 2026-08-27 N51-E3 演进说明：上文保留 N23-E2 当时的 semantic hash 与浏览器证据。Canonical Project 纳入正式 Gal settings defaults 后，现行自动 Golden semantic hash 为 `16e57309f5152bb8f9a7a11aa5b3bda06f9598fa946f100dcd41f0c64044fc69`；保存、重开、导出/导入与两路线语义未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
+
+> 2026-08-28 N51-E6a 演进说明：Settings 默认源文件提升到 schema v2 后，现行空白工程 semantic hash 为 `9eda3a46e0f93d55bc884b5e6e2cf4b50e7f93d9e6c5a94e75a99c0f3324b3b6`；保存/重开/导出导入相等断言及两路线 Outcome 保持。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。

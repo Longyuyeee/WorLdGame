@@ -50,3 +50,5 @@ E1 不包含 Run from Scene/Statement、Step Back/Forward/Over、变量与调用
 下一步 N32-E2 应冻结并实现可观察 Preview Session：变量、调用栈、当前指令/语句、Runtime diagnostic，以及从场景/语句启动的合法状态构造；继续使用固定 State Hash、诊断位置与生产浏览器预期—实际对照。
 
 > 2026-08-27 N51-E3 演进说明：上文保留 N32-E1 当时的 State Hash。Canonical source identity 纳入正式 Gal settings defaults 后，现行广播室/天台结束 State Hash 分别为 `137bb121a345a9ae99a2917d4f29c6dbb6bba42e2bc15a4d4689ef507c2595fa` 与 `8704bf523fa62d736bb799cebc092fbf09ef2093e1d039e63418b6b6e05eddd1`；路线、结局、Story IR 与 Source Map 未改变。详见[审计 #225](225-n51-e3-project-settings-transaction-audit.md)。
+
+> 2026-08-28 N51-E6a 演进说明：Settings schema v2 改变 Canonical source/build identity 后，现行广播室/天台 State Hash 为 `868417ff5d5f506dad7ae373cb3ec5691911efe1dbeafec22abaed3cd0c06a57` / `48ce4af53d14f97ec6681169f5ba5db84e85b63a42bb624a261cbfee7c7b20f4`；路线、结局与 Story IR Hash 保持。详见[审计 #230](230-n51-e6a-settings-schema-v2-migration-audit.md)。

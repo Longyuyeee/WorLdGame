@@ -202,6 +202,26 @@ describe("N50-E1 shared Player Shell", () => {
 });
 
 describe("N51-E5 Player settings application", () => {
+  it("keeps the active Core when a persisted v1 settings document is normalized to v2", () => {
+    const project = branching();
+    const legacyFiles = { ...saveProject(project) };
+    legacyFiles[project.manifest.settingsPath] = JSON.stringify({
+      schemaVersion: 1,
+      project: {},
+      platforms: { windows: {}, web: {}, android: {} }
+    });
+    const migrated = loadProject(legacyFiles);
+    const view = render(<PlayerShell project={project} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+
+    view.rerender(<PlayerShell project={migrated} />);
+
+    expect(migrated.settings.schemaVersion).toBe(2);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+  });
+
   it("hot-applies presentation settings without resetting the active formal Core", () => {
     const project = branching();
     const view = render(<PlayerShell project={project} />);

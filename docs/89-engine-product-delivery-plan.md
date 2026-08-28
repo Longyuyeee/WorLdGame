@@ -487,6 +487,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E6 入口状态（2026-08-28）：[P0 Gap Matrix 与入口审计](229-n51-e6-p0-gap-matrix-and-entry-audit.md)已把规格 2.1–2.9 与真实 23 字段、application v1、Project/Editor/Player 链逐项比较，并纠正“全部原始条目都在 N51 实现”的范围误读：播放控制归 N52、本地化生产归 N61、自动附加页归 N62、构建发布归 N80–N83。审计同时发现严格 Settings v1 不能在不改版本的情况下安全追加字段，所以下一代码切片冻结为 E6a Schema v2 与迁移安全。入口提交 `ec35570` 的 Draft PR #96 Windows / Node 22 完整门 run `33133914830` / job `98729511942` 用时 `12m5s` 绿色，关闭本机 autosave/VM 负载差异；字段实现尚未开始，N51 Engineering 与 Product Acceptance 均未关闭。
 
+> E6a 实施状态（2026-08-28）：[Settings Schema v2 迁移安全审计](230-n51-e6a-settings-schema-v2-migration-audit.md)已实现合法 v1/v2 严格读取、内存统一 v2、首次保存升级、二次保存字节幂等和 v3+ 失败关闭。真实 Node 临时目录、Web IndexedDB、Canonical Project 与 Player 活跃 choice Core 均纳入测试；首次 52 项实际有 7 项按预期因旧 parser 失败，修正后 52/52，N51 聚合 74/74。完整门与同头远端证据仍待补，因此 E6a 尚不提前关闭。
+
 ### N52 Save、History、Auto、Skip、Back/Forward
 
 - **Goal**：特色播放控制成为玩家功能而非 VM 测试。

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_GAL_SETTINGS,
+  GAL_SETTINGS_SCHEMA_VERSION,
   GalSettingsError,
   createGalSettingsDocument,
   parseGalSettingsDocument,
@@ -71,7 +72,7 @@ describe("N51-E1 typed Gal settings", () => {
       schemaVersion: 1
     });
     const right = parseGalSettingsDocument({
-      schemaVersion: 1,
+      schemaVersion: 2,
       project: { audio: { master: 0.9 }, text: { fontScale: 1.25 } },
       platforms: { windows: {}, android: {}, web: { audio: { ui: 0.7 } } }
     });
@@ -81,11 +82,39 @@ describe("N51-E1 typed Gal settings", () => {
     expect(serialized.endsWith("\n")).toBe(true);
   });
 
+  it("migrates non-empty schema v1 settings to v2 without changing resolved facts", () => {
+    const migrated = parseGalSettingsDocument({
+      schemaVersion: 1,
+      project: { text: { fontScale: 1.25 }, audio: { master: 0.75, voice: 0.6 } },
+      platforms: {
+        windows: {},
+        web: { audio: { master: 0.5 } },
+        android: { display: { designWidth: 1080, designHeight: 1920, orientation: "portrait" } }
+      }
+    });
+
+    expect(GAL_SETTINGS_SCHEMA_VERSION).toBe(2);
+    expect(migrated.schemaVersion).toBe(2);
+    expect(resolveGalSettings(migrated, "web")).toMatchObject({
+      values: { text: { fontScale: 1.25 }, audio: { master: 0.5, voice: 0.6 } },
+      sources: { "text.fontScale": "project", "audio.master": "web", "audio.voice": "project" }
+    });
+    expect(resolveGalSettings(migrated, "android").values.display).toMatchObject({
+      designWidth: 1080,
+      designHeight: 1920,
+      orientation: "portrait"
+    });
+
+    const firstSave = serializeGalSettingsDocument(migrated);
+    expect(firstSave).toContain('"schemaVersion": 2');
+    expect(serializeGalSettingsDocument(parseSerializedGalSettingsDocument(firstSave))).toBe(firstSave);
+  });
+
   it.each([
     [{ schemaVersion: 1, project: { audio: { music: 0.5 } }, platforms: { windows: {}, web: {}, android: {} } }, "UNKNOWN_FIELD", "settings.project.audio.music"],
     [{ schemaVersion: 1, project: { audio: { master: 1.1 } }, platforms: { windows: {}, web: {}, android: {} } }, "INVALID_VALUE", "settings.project.audio.master"],
     [{ schemaVersion: 1, project: {}, platforms: { windows: {}, web: {} } }, "INVALID_SCHEMA", "settings.platforms.android"],
-    [{ schemaVersion: 2, project: {}, platforms: { windows: {}, web: {}, android: {} } }, "FUTURE_SCHEMA", "settings.schemaVersion"],
+    [{ schemaVersion: 3, project: {}, platforms: { windows: {}, web: {}, android: {} } }, "FUTURE_SCHEMA", "settings.schemaVersion"],
     [{ schemaVersion: 1, project: { display: { designWidth: 1080, designHeight: 1920 } }, platforms: { windows: {}, web: {}, android: {} } }, "INVALID_COMBINATION", "settings.project.display"]
   ])("rejects invalid document %# with stable diagnostics", (input, code, path) => {
     expect(() => parseGalSettingsDocument(input)).toThrowError(expect.objectContaining({ code, path }) as GalSettingsError);

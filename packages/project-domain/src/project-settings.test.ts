@@ -28,6 +28,31 @@ describe("Canonical Project Gal settings", () => {
     expect(saveProject(legacyLoaded)[settingsPath]).toBe(serializeGalSettingsDocument(project.settings));
   });
 
+  it("upgrades a real non-empty v1 settings file once and preserves every override", () => {
+    const files = { ...saveProject(createProjectTemplate("V1 migration", "018f08d8-71a1-7bc2-a627-2f4a843ee214")) };
+    files[settingsPath] = JSON.stringify({
+      schemaVersion: 1,
+      project: { text: { fontScale: 1.25 }, audio: { voice: 0.6 } },
+      platforms: {
+        windows: {},
+        web: { audio: { master: 0.5 } },
+        android: { display: { designWidth: 1080, designHeight: 1920, orientation: "portrait" } }
+      }
+    });
+
+    const migrated = loadProject(files);
+    expect(migrated.settings.schemaVersion).toBe(2);
+    expect(resolveGalSettings(migrated.settings, "web")).toMatchObject({
+      values: { text: { fontScale: 1.25 }, audio: { master: 0.5, voice: 0.6 } },
+      sources: { "text.fontScale": "project", "audio.master": "web", "audio.voice": "project" }
+    });
+    expect(resolveGalSettings(migrated.settings, "android").values.display.orientation).toBe("portrait");
+
+    const firstSave = saveProject(migrated);
+    expect(firstSave[settingsPath]).toContain('"schemaVersion": 2');
+    expect(saveProject(loadProject(firstSave))).toEqual(firstSave);
+  });
+
   it("fails closed for non-empty legacy, corrupt, and future settings without changing source bytes", () => {
     const files = saveProject(createProjectTemplate("Invalid", "018f08d8-71a1-7bc2-a627-2f4a843ee211"));
     const cases = [
