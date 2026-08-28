@@ -4,7 +4,7 @@
 > 分支：`codex/n51-e6-p0-coverage-exit`
 > 直接基线：N51-E5 检查点 `0b4acbf`
 > 授权：`RA-N21-010`，最大节点 N51
-> 当前判定：E6 设计入口已冻结；字段实现尚未开始，N51 Engineering 与 Product Acceptance 均未关闭
+> 当前判定：E6a–E6f 已完成，N51 Engineering 关闭；N51 Product Acceptance 继续阻断
 
 ## 1. 开发目标与停止边界
 
@@ -147,3 +147,5 @@ E6 后续必须按以下小切片推进，每个切片独立审计、需求对�
 > 2026-08-28 E6d 接续：真实代码审计确认 Player 尚无 Route 页面、Choice 倒计时依赖 N52，因此本切片只实现已有 Host 可执行的 Choice/UI 四字段。schema v5、Basic/Advanced 更新为 23/36；冻结首次 79/88，修正与扩展后 101/101，N51 聚合 94/94。双 production browser 验证保存重开、同一 waiting-choice Core、编号 2→0、桌面双列/移动单列、标题提示隐藏和 ADV→bubble。Route/N62 与调度/N52 边界不变；下一切片只进入 E6e Profile/Host boundary。详见[审计 #233](233-n51-e6d-choice-ui-presentation-policy-contract.md)。
 
 > 2026-08-28 E6e 接续：真实代码确认 Settings 只有 default/project/platform 三层，Compiler debug/release 是正交调用参数，Editor viewport preset 只是本地观察状态；Windows conformance 仅有存储桥且无 Android Player Host。首次冻结 24 项中 2 项按预期失败，修正后 WebPlayerHost 类型与运行时都强制 `web`，嵌入观察值公开 `settingsPlatform: "web"`；5 files / 81、N50 37、N51 95 全绿，Chrome 151 production 9/9 快照为 Web。同头 Windows 完整门 run `33151182320` 绿色，E6e Engineering 关闭；Windows/Android 继续 fail-closed，下一切片只进入 E6f 总出口。详见[审计 #234](234-n51-e6e-profile-host-boundary-contract.md)。
+
+> 2026-08-28 E6f 接续：机器可读出口合同逐项核验 schema v5、36/23 Catalog、application v1、Web Host 固定身份、双 production evidence 与 N52/N61/N62/N70–N72/N80–N83 后续所有者。首次实际仅 5 项文档出口缺失，代码事实全部通过；修正文档并把审计接入根 `npm run check`。E6f Engineering 关闭，N51 Engineering 关闭；Windows/Android、跨节点执行与 Product Acceptance 继续阻断。详见[出口复审 #235](235-n51-e6f-engineering-exit-reaudit.md)。
