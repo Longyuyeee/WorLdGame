@@ -485,7 +485,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E5 Engineering 状态（2026-08-28）：[N51-E5 审计](227-n51-e5-settings-runtime-application-audit.md)新增唯一 portable settings application v1，Editor Preview 与正式 Player Core/Host 共用显示/DPR、文字时长、音量/ducking 和四类推进输入规则；settings-only 更新不再错误重建 Player Core，剧情内容变化仍 fail closed 到 fresh Core。保存重开、平台差异和失败路径通过；冷 production browser 在 1440×900 热切 16:9→9:16 时保持 `presenting`，390×844 stage 为 `390×693`、overflow 0、console 0。最终头 `894797d` 的 Draft PR #95 Windows / Node 22 run `33099070555` / job `98611613942` 用时 `12m46s` 绿色；普通回归 `149/856`、N51 `69/69`、Player/Core `31/31`。E5 Engineering 关闭，下一切片为 E6 完整 P0 gap matrix 与出口审计。
 
-> E6 入口状态（2026-08-28）：[P0 Gap Matrix 与入口审计](229-n51-e6-p0-gap-matrix-and-entry-audit.md)已把规格 2.1–2.9 与真实 23 字段、application v1、Project/Editor/Player 链逐项比较，并纠正“全部原始条目都在 N51 实现”的范围误读：播放控制归 N52、本地化生产归 N61、自动附加页归 N62、构建发布归 N80–N83。审计同时发现严格 Settings v1 不能在不改版本的情况下安全追加字段，所以下一代码切片冻结为 E6a Schema v2 与迁移安全；字段实现尚未开始，N51 Engineering 与 Product Acceptance 均未关闭。
+> E6 入口状态（2026-08-28）：[P0 Gap Matrix 与入口审计](229-n51-e6-p0-gap-matrix-and-entry-audit.md)已把规格 2.1–2.9 与真实 23 字段、application v1、Project/Editor/Player 链逐项比较，并纠正“全部原始条目都在 N51 实现”的范围误读：播放控制归 N52、本地化生产归 N61、自动附加页归 N62、构建发布归 N80–N83。审计同时发现严格 Settings v1 不能在不改版本的情况下安全追加字段，所以下一代码切片冻结为 E6a Schema v2 与迁移安全。入口提交 `ec35570` 的 Draft PR #96 Windows / Node 22 完整门 run `33133914830` / job `98729511942` 用时 `12m5s` 绿色，关闭本机 autosave/VM 负载差异；字段实现尚未开始，N51 Engineering 与 Product Acceptance 均未关闭。
 
 ### N52 Save、History、Auto、Skip、Back/Forward
 

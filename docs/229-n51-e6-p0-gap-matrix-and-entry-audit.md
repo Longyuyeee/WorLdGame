@@ -126,6 +126,8 @@ E6 后续必须按以下小切片推进，每个切片独立审计、需求对�
 
 这两个红项都位于 E5 基线已有代码，本切片没有修改 autosave、VM、测试、规模或预算；但本机仍不得记为完整门通过。按照既有项目裁决规则，本切片推送后必须由干净 Windows / Node 22 CI 对同一提交执行完整门：若远端任一红灯，本入口切片不关闭并停止 E6a；只有同头远端绿色才可把本机差异登记为环境负载差异。
 
+入口提交 `ec35570` 推送后，Draft PR [#96](https://github.com/Longyuyeee/WorLdGame/pull/96) 的 Windows / Node 22 完整门 run `33133914830` / job `98729511942` 用时 `12m5s`，PASS：普通回归 `149/856`，autosave 实际测试 `3.744s < 5s`，重型 VM `64.00s < 90s`，Runtime shard runner `30.356s`；Editor `972.25/272.55 kB`、Player Host `308.65/95.88 kB`，Route edit P95 `133.34ms < 500ms`，Asset dicing `3255ms < 5000ms`。因此本机两项红灯由同一代码、同一规模、未放宽预算的权威环境关闭为本机负载差异；E6 入口设计切片可以关闭，但不代表 E6a 代码、N51 Engineering 或任何 Product Acceptance 已完成。
+
 ## 8. 当前诚实状态
 
 本入口切片只完成代码/需求审计和设计冻结，没有新增字段、没有关闭 E6，也没有改变任何 Product Acceptance：
