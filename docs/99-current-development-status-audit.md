@@ -145,6 +145,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N51 Engineering 已关闭；RA-011 准入 N52 Engineering，E1 只允许建立 History-backed Player Core Back/Forward、Host compensation/replay 和分支截断闭环；N52 Product Acceptance 与 N60+ 继续阻断。
-7. 当前按产品负责人要求暂停；恢复时严格从[交接 #237](237-n52-development-pause-and-handoff.md)记录的治理 CI 收束步骤开始，不直接跳到 Save/Auto/Skip。
+7. [交接 #237](237-n52-development-pause-and-handoff.md)的治理 CI 已按真实终态收束：旧实现 run 被后续提交取消，最终头 `1cf6458` 的 run `33159131108` 同头完整门绿色；产品负责人已恢复开发，当前只能进入 N52-E1，不直接跳到 Save/Auto/Skip。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-08-28
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player 与 N51 Gal Settings Engineering 出口已通过。`RA-N21-011` 只准入 N52 Player Control Engineering；全部 Product Acceptance、N60+、Android 实体包、M1 与发布继续阻断。当前按产品负责人指令暂停在治理提交 `568da54` / Draft PR #97；N52 产品代码尚未开始，恢复点见交接 #237。
+> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player 与 N51 Gal Settings Engineering 出口已通过。`RA-N21-011` 只准入 N52 Player Control Engineering；全部 Product Acceptance、N60+、Android 实体包、M1 与发布继续阻断。N51→N52 治理最终头 `1cf6458` / Draft PR #97 的 Windows / Node 22 完整门已绿色，产品负责人已恢复开发；当前唯一入口是 N52-E1 History-backed Player Core，Save 槽位、Auto、Skip 与 N60+ 不得提前进入。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

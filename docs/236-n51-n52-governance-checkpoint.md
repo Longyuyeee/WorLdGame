@@ -85,4 +85,8 @@ E1 只建立 History-backed Player Core 基础闭环：
 
 ### 7.2 同头 CI
 
-治理实现提交 `568da54` 已推送至 Draft PR #97。暂停快照时 Windows / Node 22 run `33158924466` / job `98808364766` 仍为 `in_progress`，因此本检查点尚未登记远端绿色或关闭；详细接续状态见[暂停交接 #237](237-n52-development-pause-and-handoff.md)。恢复后必须读取真实终态并回填，任何失败必须保留首次实际并修正或继续阻断，不得减少测试、删除断言、提高预算或提前写 N52 产品代码。
+治理实现提交 `568da54` 已推送至 Draft PR #97。其 Windows / Node 22 run `33158924466` / job `98808364766` 在后续文档提交到来后于 Checkout 阶段被取消；它没有执行完整门，因此不登记为成功或失败裁决。
+
+最终文档头 `1cf6458` 随后触发独立同头 `product-baseline` run `33159131108` / job `98809082514`，Windows / Node 22 完整门于 2026-08-28 17:33（UTC+8）成功结束，用时约 `10m09s`。远端实际包括治理 `3 files / 20 tests`、N50 `37/37`、N51 `95/95`、普通回归 `149 files / 886 tests`、主 App `45/45`、Autosave `3.079s <5s`、VM `5/5`（`52.647s <90s`）、100 portable / 4 Node adapter files、Route 编辑链 P95 `122.34ms <500ms`、Asset dicing `2601ms <5000ms`；Editor JS `982.28 kB / gzip 275.54 kB`，既有大包债继续保留。
+
+PR #97 当前为 Draft、OPEN、CLEAN，最终头与远端一致。治理的实现、文档和同头 CI 已闭环，因此 N51→N52 Engineering 治理检查点关闭；这只解除 N52 Engineering 入口，不改变 N52 Product Acceptance、N60+、真人、实体设备、M1 与发布阻断。
