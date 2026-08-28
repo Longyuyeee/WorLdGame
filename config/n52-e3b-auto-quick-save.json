@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E3b",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "fb452e3613208cbe4bd0e70622bc8ae1910ea4c2",
   "slotClasses": {
@@ -38,16 +38,16 @@
   ],
   "nextSlice": "N52-E3c",
   "engineeringEvidence": {
-    "implementationCommit": "pending",
-    "pullRequest": "pending",
-    "workflowRun": "pending",
-    "workflowJob": "pending",
-    "conclusion": "pending"
+    "implementationCommit": "b6eec8b312fd8dfc86214ea693789bb34c6ce8e9",
+    "pullRequest": 102,
+    "workflowRun": 33191955073,
+    "workflowJob": 98919399001,
+    "conclusion": "success"
   },
   "requiredDocuments": [
-    { "path": "docs/242-n52-e3b-auto-quick-save-audit.md", "token": "N52-E3b Engineering 候选" },
-    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3b 候选状态（2026-08-29）" },
-    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3b Auto / Quick 候选" },
-    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3b Auto / Quick 候选" }
+    { "path": "docs/242-n52-e3b-auto-quick-save-audit.md", "token": "N52-E3b Engineering 关闭" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3b 状态（2026-08-29）" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3b Auto / Quick Engineering 已关闭" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3b Auto / Quick Engineering 已关闭" }
   ]
 }

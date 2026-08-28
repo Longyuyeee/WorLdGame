@@ -4,7 +4,7 @@
 > 分支：`codex/n52-e3b-auto-quick-save`  
 > 直接基线：N52-E3a 最终绿色头 `fb452e3` / Draft PR #101  
 > 授权：`RA-N21-011`，最大节点 N52  
-> 当前判定：N52-E3b Engineering 候选；本地实现与定向测试已通过，等待本地完整门及同头远端 CI 后关闭。Product Acceptance 持续阻断。
+> 当前判定：N52-E3b Engineering 关闭；实现、本地完整门与实现头 Windows / Node 22 CI 同时绿色。Product Acceptance 持续阻断。
 
 ## 1. 开发前对齐与纠偏
 
@@ -30,8 +30,10 @@
 
 本地完整 `npm run check` 已从头单次通过：普通回归 `151 files / 911 tests`，N50 `51/51`、N51 `102/102`、N52 `61/61`；Runtime corpus digest 保持 `20e9a842…92ef2`，墙钟 `8.842s`；冻结 VM `29.21s <90s`；17 workspace build 与 portable architecture `100 / 4` 通过；Route rename P95 `88.32ms <500ms`，lazy structure `159.00ms <500ms`，Asset dicing `1616.73ms <5000ms`。Player production JS 为 `356.64 kB / gzip 108.19 kB`；Editor 既有 `982.10 kB` chunk warning 未隐藏或放宽。
 
-实现提交、Draft PR 与同头 Windows / Node 22 证据将在本文件同一切片内补齐；远端证据完成前不得把候选写成 Engineering 关闭。
+实现提交 `b6eec8b` 已推送至 Draft PR #102。同头 Windows / Node 22 `full check` run `33191955073` / job `98919399001` 用时 `11m53s` 绿色，head SHA 精确为 `b6eec8b312fd8dfc86214ea693789bb34c6ce8e9`。远端普通回归 `151 files / 911 tests`，E3b 机器审计 PASS；Runtime corpus `23.226s` 且 digest 未变；Route rename P95 `124.04ms <500ms`；Asset dicing `1799.81 + 2186.85 = 3986.66ms <5000ms`；17 workspace build 与 architecture 均通过。Player production JS `356.64 kB / gzip 108.19 kB`。
+
+以上证据关闭 E3b Engineering，不能外推为 E3c、真实 Windows/Android Host 或 N52 Product Acceptance。
 
 ## 4. 剩余边界与下一接续点
 
-E3b 不实现永久 checkpoint、隔离 crash recovery Store、Migration Museum、云同步/冲突、Windows/Android 正式 Host 验证或 N52 Product Acceptance。远端同头绿色后，下一唯一切片为 **N52-E3c**：显式 build-authored checkpoint、crash recovery 隔离与旧版本 Migration Museum。
+E3b 不实现永久 checkpoint、隔离 crash recovery Store、Migration Museum、云同步/冲突、Windows/Android 正式 Host 验证或 N52 Product Acceptance。下一唯一切片为 **N52-E3c**：显式 build-authored checkpoint、crash recovery 隔离与旧版本 Migration Museum。
