@@ -1,10 +1,10 @@
-# 当前开发情况审计（N52 Engineering 已准入；Product Acceptance 阻断）
+# 当前开发情况审计（N52 治理已提交并暂停；Product Acceptance 阻断）
 
 > 审计日期：2026-08-28
 > 当前分支：`codex/n51-n52-governance`；直接基线为 N51-E6f 最终绿色头 `7bc7b78`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：`RA-N21-011` 只允许 N52 Player Control Engineering；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)、[N51-E6f Engineering 出口复审](235-n51-e6f-engineering-exit-reaudit.md)、[N51-E6e Profile / Host 边界审计](234-n51-e6e-profile-host-boundary-contract.md)
+> 最新节点证据：[N52 暂停与接续交接](237-n52-development-pause-and-handoff.md)、[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)、[N51-E6f Engineering 出口复审](235-n51-e6f-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -21,6 +21,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42/N43/N50/N51 Engineering：**出口已通过**；N52 Engineering：**已准入、功能尚未开始**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
 - GitHub 集成：**N00–N41 集中 Authority 在 main-target Draft PR #61，尚未合入 `main`；N43-E1a–E7 分别由堆叠 Draft PR #75–#82 承载，N50 治理由 Draft PR #83 承载，N50-E1 与 E2 分别由 Draft PR #84、#85 承载。#85 的 Windows / Node 22 完整门 run `33035133175` / job `98396096516` 用时 `11m5s` 并绿色。不得把堆叠 PR、本地/远端绿门换算为 main 已集成**。
 - N50-E3 由 Draft PR #86 承载；Windows / Node 22 run `33038517971` / job `98406610224` 用时 `11m23s` 绿色，普通回归 `140/796`，Route P95 `138.75ms`，两个本机长链性能首红项远端为 `311.47/260.58ms <500ms`。这仍不等于 `main` 已集成或 Product Acceptance 通过。
@@ -144,5 +145,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N51 Engineering 已关闭；RA-011 准入 N52 Engineering，E1 只允许建立 History-backed Player Core Back/Forward、Host compensation/replay 和分支截断闭环；N52 Product Acceptance 与 N60+ 继续阻断。
+7. 当前按产品负责人要求暂停；恢复时严格从[交接 #237](237-n52-development-pause-and-handoff.md)记录的治理 CI 收束步骤开始，不直接跳到 Save/Auto/Skip。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
