@@ -60,6 +60,7 @@ function contentPatch(node: StorySyntaxNode, iteration: number): Readonly<Record
     case "set": return { expressionRaw: `trust + ${iteration + 2}` };
     case "condition": return { expressionRaw: `trust >= ${iteration + 2}` };
     case "wait": return { durationRaw: `${250 + iteration}ms` };
+    case "checkpoint": throw new Error("Checkpoint uses a stable-ID structural move instead of a synthetic content field");
     case "directive": return { argumentsRaw: `${node.argumentsRaw.replace(/ n41=\d+/u, "")} n41=${iteration}` };
     case "end": return { nameRaw: JSON.stringify(`Ending ${iteration}`) };
     case "scene":

@@ -49,6 +49,7 @@ function statementLabel(statement: StoryStatement): string {
     case "set": return `变量 · ${statement.variable} = ${statement.expression}`;
     case "condition": return `条件 · ${statement.expression} → ${statement.targetLabel}`;
     case "wait": return `等待 · ${statement.duration}`;
+    case "checkpoint": return `检查点 · ${statement.id}`;
   }
 }
 
@@ -67,6 +68,7 @@ function relatedIds(statement: StoryStatement): readonly string[] {
     case "label":
     case "return":
     case "wait":
+    case "checkpoint":
     case "end":
       return [];
   }
@@ -89,6 +91,7 @@ function searchableText(statement: StoryStatement, label: string): string {
     case "set":
     case "condition":
     case "wait":
+    case "checkpoint":
       return label;
   }
 }

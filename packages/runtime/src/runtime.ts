@@ -28,7 +28,7 @@ import { canonicalRuntimeStringify } from "./canonical";
 import { runtimeBarrierRequestIdV1, runtimeChoiceRequestIdV1, runtimeEffectIdV1 } from "./effect";
 
 const supportedOpcodes = new Set([
-  "dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"
+  "dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "checkpoint", "end"
 ]);
 const canonicalId = /^[A-Za-z][A-Za-z0-9._:-]{0,127}$/;
 const runtimeStateKeys = ["audioState", "barrierLedger", "buildId", "callStack", "cursor", "executionId", "inputReceipts", "irVersion", "logicalTimeMilliseconds", "metaProgress", "nextEffectSequence", "nextInputSequence", "pendingBarrier", "pendingChoice", "pendingEffect", "prng", "projectId", "runtimeVersion", "sceneState", "schemaVersion", "stateRevision", "terminal", "variables"] as const;
@@ -70,8 +70,8 @@ function scenesById(program: RuntimeProgramV1): Map<string, RuntimeSceneV1> {
 }
 
 export function validateRuntimeProgramV1(program: RuntimeProgramV1): readonly RuntimeDiagnosticV1[] {
-  if (program.schemaVersion !== 1 || program.irVersion !== "1.0.0") {
-    return [diagnostic("RUNTIME_INCOMPATIBLE_IR", `Expected Runtime IR 1.0.0/schema 1, received ${String(program.irVersion)}/schema ${String(program.schemaVersion)}`)];
+  if (program.schemaVersion !== 1 || (program.irVersion !== "1.0.0" && program.irVersion !== "1.1.0")) {
+    return [diagnostic("RUNTIME_INCOMPATIBLE_IR", `Expected Runtime IR 1.0.0 or 1.1.0/schema 1, received ${String(program.irVersion)}/schema ${String(program.schemaVersion)}`)];
   }
   if (program.projectId.length === 0 || program.entrySceneId.length === 0 || program.scenes.length === 0) {
     return [diagnostic("RUNTIME_INVALID_IR", "Runtime IR requires project, entry scene, and at least one scene")];
@@ -84,6 +84,9 @@ export function validateRuntimeProgramV1(program: RuntimeProgramV1): readonly Ru
     for (const instruction of scene.instructions) {
       if (instruction.instructionId.length === 0 || instructionIds.has(instruction.instructionId) || !supportedOpcodes.has(instruction.opcode)) {
         return [diagnostic("RUNTIME_INVALID_IR", `Instruction is empty, duplicated, or unsupported: ${instruction.instructionId}`, { sceneId: scene.sceneId, instructionIndex: 0 }, instruction.instructionId)];
+      }
+      if (instruction.opcode === "checkpoint" && program.irVersion !== "1.1.0") {
+        return [diagnostic("RUNTIME_INVALID_IR", `Checkpoint requires Runtime IR 1.1.0: ${instruction.instructionId}`, { sceneId: scene.sceneId, instructionIndex: 0 }, instruction.instructionId)];
       }
       instructionIds.add(instruction.instructionId);
     }
@@ -163,7 +166,7 @@ export function createRuntimeState(program: RuntimeProgramV1, options: CreateRun
     state: {
       schemaVersion: RUNTIME_STATE_SCHEMA_VERSION,
       runtimeVersion: RUNTIME_VERSION,
-      irVersion: "1.0.0",
+      irVersion: program.irVersion,
       projectId: program.projectId,
       buildId: options.buildId,
       executionId: options.executionId,
@@ -642,6 +645,11 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
       const duration = operands.durationMilliseconds;
       if (typeof duration !== "number" || !Number.isSafeInteger(duration) || duration < 0) return failure(state, "RUNTIME_INVALID_IR", "Wait duration is malformed", instruction, executed);
       return advance({ kind: "wait", instructionId: instruction.instructionId, durationMilliseconds: duration }, { logicalTimeMilliseconds: state.logicalTimeMilliseconds + duration })!;
+    }
+    if (instruction.opcode === "checkpoint") {
+      const stepId = stringOperand(instruction, "stepId");
+      if (stepId === undefined || !canonicalId.test(stepId) || stepId !== instruction.instructionId) return failure(state, "RUNTIME_INVALID_IR", "Checkpoint step identity is malformed", instruction, executed);
+      return advance({ kind: "checkpoint-reached", instructionId: instruction.instructionId, stepId })!;
     }
     if (instruction.opcode === "end") {
       const endingId = stringOperand(instruction, "endingId"), name = stringOperand(instruction, "name");

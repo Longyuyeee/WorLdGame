@@ -64,7 +64,15 @@ export interface PlayerCoreState {
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly hostState: RuntimePresentationHostStateV1;
   readonly currentEvent: RuntimeEventV1 | null;
+  readonly checkpointSaveCandidates: readonly PlayerCheckpointSaveCandidateV1[];
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
+}
+
+export interface PlayerCheckpointSaveCandidateV1 {
+  readonly stepId: string;
+  readonly serializedSessionSave: string;
+  readonly artifactHash: string;
+  readonly runtimeStateHash: string;
 }
 
 export interface PlayerCoreSnapshotV1 {
@@ -199,6 +207,7 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
       historySession: null,
       hostState,
       currentEvent: null,
+      checkpointSaveCandidates: [],
       diagnostics: compiled.diagnostics.map(compilerDiagnostic)
     };
   }
@@ -211,6 +220,7 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
     historySession: null,
     hostState,
     currentEvent: null,
+    checkpointSaveCandidates: [],
     diagnostics: compiled.diagnostics.map(compilerDiagnostic)
   };
 }
@@ -221,6 +231,7 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
   let historySession = initialHistory;
   let runtimeState = historySession.checkpoints[historySession.cursor]!.state;
   let hostState = base.hostState;
+  const checkpointSaveCandidates: PlayerCheckpointSaveCandidateV1[] = [];
   let nextInput = input;
   for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
     const result = advanceRuntimeHistoryV1(artifacts.story, historySession, nextInput === undefined ? {} : { input: nextInput });
@@ -228,7 +239,12 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
     historySession = result.session;
     runtimeState = result.state;
     hostState = consumeRuntimePresentationEffectsV1(hostState, result.effects);
-    const current = { ...base, runtimeState, historySession, hostState, currentEvent: result.event };
+    if (result.event?.kind === "checkpoint-reached") {
+      const created = createRuntimeSessionSaveV1(artifacts.story, historySession);
+      if (!created.ok) return { ...base, runtimeState, historySession, hostState, currentEvent: null, checkpointSaveCandidates, status: "error", diagnostics: [...base.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
+      checkpointSaveCandidates.push({ stepId: result.event.stepId, serializedSessionSave: created.serialized, artifactHash: created.artifactHash, runtimeStateHash: runtimeStateHashV1(runtimeState) });
+    }
+    const current = { ...base, runtimeState, historySession, hostState, currentEvent: result.event, checkpointSaveCandidates };
     if (result.diagnostics.length > 0) {
       return { ...current, status: "error", currentEvent: null, diagnostics: [...base.diagnostics, ...result.diagnostics.map(runtimeDiagnostic)] };
     }
@@ -236,7 +252,7 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
     if (runtimeState.pendingBarrier !== null) return { ...current, status: "waiting-barrier" };
     if (result.event?.kind === "choice") return { ...current, status: "waiting-choice" };
     if (result.event?.kind === "ending" || runtimeState.terminal.kind === "ended") return { ...current, status: "ended" };
-    if (result.event !== null && result.event.kind !== "direction") return { ...current, status: "presenting" };
+    if (result.event !== null && result.event.kind !== "direction" && result.event.kind !== "checkpoint-reached") return { ...current, status: "presenting" };
   }
   return playerError({ ...base, runtimeState, historySession, hostState }, "PLAYER_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} internal steps without a presentation boundary`);
 }
@@ -371,18 +387,19 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   if (!loaded.ok) return { ok: false, diagnostics: loaded.diagnostics.map(runtimeDiagnostic) };
   const event = eventAtHistoryCursor(loaded.session);
   const status = navigatedStatus(loaded.session, event);
-  if (status === "continue") {
+  if (status === "continue" && event?.kind !== "checkpoint-reached") {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_BOUNDARY_INVALID", message: "Player Session Save does not point at a presentable boundary", sceneId: loaded.state.cursor.sceneId, statementId: null, instructionId: null }] };
   }
   const checkpoint = loaded.session.checkpoints[loaded.session.cursor]!;
   const savedCheckpoint = loaded.save.history.checkpoints[loaded.save.cursor]!;
   const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(loaded.session), checkpoint.checkpointId);
+  const loadedState: PlayerCoreState = { ...state, status: status === "continue" ? "presenting" : status, runtimeState: loaded.state, historySession: loaded.session, hostState, currentEvent: event, checkpointSaveCandidates: [] };
   return {
     ok: true,
     artifactHash: loaded.artifactHash,
     savedRuntimeStateHash: runtimeStateHashV1(savedCheckpoint.state),
     savedSceneId: savedCheckpoint.state.cursor.sceneId,
-    state: { ...state, status, runtimeState: loaded.state, historySession: loaded.session, hostState, currentEvent: event }
+    state: status === "continue" ? drivePlayerCore(loadedState, loaded.session) : loadedState
   };
 }
 
@@ -393,6 +410,7 @@ function navigatedStatus(history: RuntimeHistorySessionV1, event: RuntimeEventV1
   if (state.pendingBarrier !== null) return "waiting-barrier";
   if (event?.kind === "choice") return "waiting-choice";
   if (event?.kind === "ending" || state.terminal.kind === "ended") return "ended";
+  if (event?.kind === "checkpoint-reached") return "continue";
   if (event !== null && event.kind !== "direction") return "presenting";
   return "continue";
 }
@@ -413,7 +431,7 @@ function navigatePlayerHistory(state: PlayerCoreState, direction: "back" | "forw
     const hostState = reconcileRuntimePresentationHostV1(current.hostState, plan, checkpointEffects(moved.session));
     const event = eventAtHistoryCursor(moved.session);
     const status = navigatedStatus(moved.session, event);
-    current = { ...current, status: status === "continue" ? current.status : status, runtimeState: moved.state, historySession: moved.session, hostState, currentEvent: event };
+    current = { ...current, status: status === "continue" ? current.status : status, runtimeState: moved.state, historySession: moved.session, hostState, currentEvent: event, checkpointSaveCandidates: [] };
     if (status !== "continue") return current;
   }
   return playerError(current, "PLAYER_HISTORY_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} History boundaries without a presentation`);

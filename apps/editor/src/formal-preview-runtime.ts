@@ -249,6 +249,7 @@ function execute(base: FormalPreviewState): FormalPreviewState {
       return failed({ ...base, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, `${first.code} · ${first.message}`, runtimeDiagnostics(base, result.diagnostics));
     }
     const event = result.events.at(-1) ?? null;
+    if (event?.kind === "checkpoint-reached") continue;
     if (event !== null || result.stopReason === "effect" || result.stopReason === "barrier") return presentHistory(base, result.session.history, result.session, result.state, event, null, false, result.effects);
     if (result.stopReason !== "budget") return sessionFailure({ ...base, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, "PREVIEW_EVENT_MISSING", `Runtime 在 ${result.stopReason} 停止但没有产生可呈现事件`);
   }
@@ -371,6 +372,10 @@ function eventAtCursor(history: RuntimeHistorySessionV1): RuntimeEventV1 | null 
   return history.cursor === 0 ? null : history.entries[history.cursor - 1]?.event ?? null;
 }
 
+function isCheckpointHistoryPosition(history: RuntimeHistorySessionV1): boolean {
+  return eventAtCursor(history)?.kind === "checkpoint-reached";
+}
+
 function hasTransientPosition(state: FormalPreviewState): boolean {
   return (state.schedulerSession?.accumulatedInstructions ?? 0) > 0 ||
     state.status === "paused" && state.currentEvent === null && (state.historySession?.cursor ?? 0) > 0;
@@ -392,17 +397,27 @@ function presentNavigation(base: FormalPreviewState, history: RuntimeHistorySess
 export function forwardFormalPreview(state: FormalPreviewState): FormalPreviewState {
   if (state.program === null || state.historySession === null) return controlDiagnostic(state, "PREVIEW_HISTORY_MISSING", "正式 Preview History 尚未建立");
   if (hasTransientPosition(state)) return controlDiagnostic(state, "PREVIEW_FORWARD_TRANSIENT", "Run to Cursor 的临时位置没有已记录的 Forward");
-  const moved = forwardRuntimeHistoryV1(state.program, state.historySession);
-  if (moved.diagnostics.length > 0) return controlDiagnostic(state, moved.diagnostics[0]!.code, moved.diagnostics[0]!.message);
-  return presentNavigation(state, moved.session, moved.reconciliationPlan);
+  let current = state;
+  for (let step = 0; step < 10_000; step += 1) {
+    const moved = forwardRuntimeHistoryV1(current.program!, current.historySession!);
+    if (moved.diagnostics.length > 0) return controlDiagnostic(current, moved.diagnostics[0]!.code, moved.diagnostics[0]!.message);
+    current = presentNavigation(current, moved.session, moved.reconciliationPlan);
+    if (!isCheckpointHistoryPosition(moved.session)) return current;
+  }
+  return controlDiagnostic(current, "PREVIEW_FORWARD_LIMIT", "Forward 跨越 checkpoint 超过 10,000 条 History 安全上限");
 }
 
 export function backFormalPreview(state: FormalPreviewState): FormalPreviewState {
   if (state.program === null || state.historySession === null) return controlDiagnostic(state, "PREVIEW_HISTORY_MISSING", "正式 Preview History 尚未建立");
   if (hasTransientPosition(state)) return presentNavigation(state, state.historySession, null);
-  const moved = backRuntimeHistoryV1(state.program, state.historySession);
-  if (moved.diagnostics.length > 0) return controlDiagnostic(state, moved.diagnostics[0]!.code, moved.diagnostics[0]!.message);
-  return presentNavigation(state, moved.session, moved.reconciliationPlan);
+  let current = state;
+  for (let step = 0; step < 10_000; step += 1) {
+    const moved = backRuntimeHistoryV1(current.program!, current.historySession!);
+    if (moved.diagnostics.length > 0) return controlDiagnostic(current, moved.diagnostics[0]!.code, moved.diagnostics[0]!.message);
+    current = presentNavigation(current, moved.session, moved.reconciliationPlan);
+    if (!isCheckpointHistoryPosition(moved.session)) return current;
+  }
+  return controlDiagnostic(current, "PREVIEW_BACK_LIMIT", "Back 跨越 checkpoint 超过 10,000 条 History 安全上限");
 }
 
 export function advanceFormalPreview(state: FormalPreviewState): FormalPreviewState {

@@ -29,6 +29,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - **N52-E3c1 Recovery / Migration Museum Engineering 已关闭**：DB3 新增隔离 `recovery-sessions` 且 DB2 正式槽无损保留；稳定可呈现 State Hash 写最新恢复，启动必须显式恢复/清除；Session/Build/State/scene/presentation/title 校验、FIFO 失败保留、损坏隔离及五个 Museum 原始向量已有证据。实际代码没有 build-authored checkpoint marker，故 checkpoint 转入 E3c2 跨节点入口合同。本地完整门普通 `153/919`、Runtime corpus `14.621s`、VM `28.75s` 全绿；实现头 `2130c49` 的 Draft PR #103 Windows run `33257145099` / job `99112755230` 用时 `10m17s` 绿色，远端普通 `153/919`、Runtime corpus `21.109s`、VM `51.864s`、Route P95 `102.52ms`、Asset dicing `3666.92ms`。真实强杀与 Product Acceptance 未完成；
 - **N52-E3c2 checkpoint 入口合同已关闭**：最初 Gal/CL-04 需求和 VM Spike 的 `checkpoint(stepId)` 已核实，正式链路遗漏已登记为实现偏移；冻结显式 `checkpoint @id(statementId)`、IR `1.1.0`、非表现 marker event、Save v3 严格迁移与 checkpoint 3 槽策略。现有 RA-011 不覆盖 Story Language/Compiler/Runtime IR/Save schema 修改，故本步未改产品代码；入口头 `65f7879` 的 Draft PR #104 Windows run `33259082765` / job `99117811154` 用时 `13m0s` 绿色；E3c3 等待产品负责人明确扩展跨层授权；
 - **E3c3 跨层授权已建立并完成审计**：产品负责人在获知精确授权条件后要求从该接续点继续；RA-011 仅增加 checkpoint 所需的 Story Language、Compiler IR 1.1、Runtime 双读/非表现事件和 Save v3/三槽权限，最大节点仍为 N52，其他语义与全部产品门继续阻断。治理头 `59b975e` 的 Draft PR #105 Windows run `33260853201` / job `99122426648` 用时 `13m2s` 绿色；
+- **N52-E3c3 checkpoint marker 已进入候选审计**：正式 Story 语法、Compiler IR 1.1/Source Map、Runtime 1.0/1.1 双读与非表现事件、Player 精确 Session candidate/继续播放/History 跳过已贯通；Save 仍严格保持 v2 且没有 checkpoint 槽，下一步为独立 E3c4；
 - E3a 提交前复审补回 Preview SHA-256 写前/读取校验与 Blob 篡改反例；最终本地完整门普通 `150/905`、N52 `58/58`、VM `24.48s`。实现头 `2f3e7b2` 已推送至 Draft PR #101，同头 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色：远端普通 `150/905`、N52 `58/58`、Runtime corpus `30.995s`、Route P95 `159.77ms`、Asset `3277.93ms`、build/architecture 均通过；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
@@ -154,6 +155,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. 下一唯一切片是 N52-E3c3 checkpoint marker implementation；跨层窄授权已经建立，按 Story→Compiler IR 1.1→Runtime→Player→Save v3 顺序编码。仍不得用内部 History checkpoint、scene ID、数组下标或墙钟替代。N60+ 与全部 Product Acceptance 阻断不变。
+7. 当前关闭 N52-E3c3 checkpoint marker 的完整门与远端证据；随后唯一切片是 E3c4 Save v3 + 三 checkpoint 槽。仍不得用内部 History checkpoint、scene ID、数组下标或墙钟替代。N60+ 与全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -17,13 +17,23 @@ import {
 } from "./player-core";
 import type { RuntimeHistorySessionV1 } from "@world-studio/runtime";
 
-function fixture(name: "branching" | "benchmark" | "media"): CanonicalProject {
+function fixture(name: "tiny" | "branching" | "benchmark" | "media"): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), `fixtures/projects/${name}/project.s0.json`), "utf8")) as S0Project;
   const project = loadProject(migrateS0Project(source).files);
   const legacyVariables = (source as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] }).variables ?? [];
   if (name !== "media") return { ...project, variables: { schemaVersion: 1, variables: legacyVariables } };
   const media = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/media/media-golden.json"), "utf8")) as { readonly assets: readonly JsonObject[] };
   return { ...project, assets: { ...project.assets, assets: media.assets } };
+}
+
+function checkpointProject(): CanonicalProject {
+  const project = fixture("tiny");
+  const script = project.scripts.tiny_start!;
+  return { ...project, scripts: { ...project.scripts, tiny_start: { ...script, statements: [
+    { id: "checkpoint_arrival", kind: "checkpoint" },
+    { id: "tiny_line", kind: "dialogue", speakerId: "tiny_narrator", textId: "tiny_text", text: "After checkpoint" },
+    { id: "tiny_end", kind: "end", endingName: "Done" }
+  ] } } };
 }
 
 describe("N50-E1 formal Player Core", () => {
@@ -152,6 +162,26 @@ describe("N52-E1 History-backed Player Core contract", () => {
   const history = (state: PlayerCoreState): RuntimeHistorySessionV1 | null => state.historySession;
   const historySnapshot = (state: PlayerCoreState) => createPlayerCoreSnapshotV1(state).history;
   const intent = (kind: "back" | "forward"): PlayerCoreIntentV1 => ({ kind });
+
+  it("captures an exact non-presentational checkpoint save and skips its History entry", () => {
+    const project = checkpointProject();
+    const line = startPlayerCore(createPlayerCore(project), project);
+    expect(createPlayerCoreSnapshotV1(line)).toMatchObject({ status: "presenting", presentation: { kind: "dialogue", text: "After checkpoint" } });
+    expect(line.checkpointSaveCandidates).toHaveLength(1);
+    const candidate = line.checkpointSaveCandidates[0]!;
+    expect(candidate).toMatchObject({ stepId: "checkpoint_arrival", artifactHash: expect.stringMatching(/^[a-f0-9]{64}$/u), runtimeStateHash: expect.stringMatching(/^[a-f0-9]{64}$/u) });
+
+    const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), candidate.serializedSessionSave);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    expect(loaded.savedRuntimeStateHash).toBe(candidate.runtimeStateHash);
+    expect(createPlayerCoreSnapshotV1(loaded.state)).toMatchObject({ status: "presenting", presentation: { kind: "dialogue", text: "After checkpoint" } });
+
+    const backed = dispatchPlayerCoreIntentV1(line, project, intent("back"));
+    expect(createPlayerCoreSnapshotV1(backed)).toMatchObject({ status: "title", presentation: { kind: "title" } });
+    const forwarded = dispatchPlayerCoreIntentV1(backed, project, intent("forward"));
+    expect(createPlayerCoreSnapshotV1(forwarded)).toMatchObject({ status: "presenting", presentation: { kind: "dialogue", text: "After checkpoint" } });
+  });
 
   it("restores the exact ending State through Back and Forward without creating a second Runtime", () => {
     const project = fixture("branching");

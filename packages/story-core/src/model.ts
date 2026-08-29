@@ -53,6 +53,7 @@ export interface ReturnStatement extends StatementBase { readonly kind: "return"
 export interface SetStatement extends StatementBase { readonly kind: "set"; readonly variable: string; readonly expression: string; }
 export interface ConditionStatement extends StatementBase { readonly kind: "condition"; readonly expression: string; readonly targetLabel: string; }
 export interface WaitStatement extends StatementBase { readonly kind: "wait"; readonly duration: string; }
+export interface CheckpointStatement extends StatementBase { readonly kind: "checkpoint"; }
 
 export type StoryStatement =
   | DialogueStatement
@@ -66,6 +67,7 @@ export type StoryStatement =
   | SetStatement
   | ConditionStatement
   | WaitStatement
+  | CheckpointStatement
   | EndStatement;
 
 export interface StoryScene {

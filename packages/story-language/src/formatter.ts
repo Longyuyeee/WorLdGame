@@ -44,6 +44,7 @@ function formatNode(node: StorySyntaxNode): string {
     case "return":return `return${node.id===undefined?"":` @id(${node.id})`}${node.trailingMetadata.length===0?"":` ${node.trailingMetadata}`}`;
     case "condition":return `if ${node.expressionRaw} -> ${node.targetLabel}${node.id===undefined?"":` @id(${node.id})`}${node.trailingMetadata.length===0?"":` ${node.trailingMetadata}`}`;
     case "wait":return `wait ${node.durationRaw}${node.id===undefined?"":` @id(${node.id})`}${node.trailingMetadata.length===0?"":` ${node.trailingMetadata}`}`;
+    case "checkpoint":return `checkpoint${node.id===undefined?"":` @id(${node.id})`}${node.trailingMetadata.length===0?"":` ${node.trailingMetadata}`}`;
     case "end": {
       const metadata = withMetadata(node.id, node.trailingMetadata);
       return `end ${node.nameRaw}${metadata.length === 0 ? "" : ` ${metadata}`}`;

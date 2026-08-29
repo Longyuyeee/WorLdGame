@@ -1,4 +1,4 @@
-import type { RuntimeSourceMapV1 as CompilerRuntimeSourceMapV1, RuntimeStoryIrV1 } from "@world-studio/project-compiler";
+import type { RuntimeIrVersionV1, RuntimeSourceMapV1 as CompilerRuntimeSourceMapV1, RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 
 export const RUNTIME_VERSION = "0.6.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
@@ -117,7 +117,7 @@ export interface RuntimeMetaProgressV1 {
 export interface RuntimeStateV1 {
   readonly schemaVersion: typeof RUNTIME_STATE_SCHEMA_VERSION;
   readonly runtimeVersion: typeof RUNTIME_VERSION;
-  readonly irVersion: "1.0.0";
+  readonly irVersion: RuntimeIrVersionV1;
   readonly projectId: string;
   readonly buildId: string;
   readonly executionId: string;
@@ -216,6 +216,7 @@ export type RuntimeEventV1 =
   | { readonly kind: "direction"; readonly instructionId: string; readonly command: string; readonly parameters: Readonly<Record<string, unknown>> }
   | { readonly kind: "choice"; readonly instructionId: string; readonly prompt: string; readonly options: readonly RuntimeChoiceOptionV1[] }
   | { readonly kind: "wait"; readonly instructionId: string; readonly durationMilliseconds: number }
+  | { readonly kind: "checkpoint-reached"; readonly instructionId: string; readonly stepId: string }
   | { readonly kind: "ending"; readonly instructionId: string; readonly endingId: string; readonly name: string };
 
 export const RUNTIME_DIAGNOSTIC_CODES = [
@@ -278,7 +279,7 @@ export interface RuntimeSaveV1 {
   readonly schemaVersion: typeof RUNTIME_SAVE_SCHEMA_VERSION;
   readonly format: "world.runtime-save";
   readonly runtimeVersion: typeof RUNTIME_VERSION;
-  readonly irVersion: "1.0.0";
+  readonly irVersion: RuntimeIrVersionV1;
   readonly projectId: string;
   readonly buildId: string;
   readonly stateRevision: number;
@@ -327,7 +328,7 @@ export interface RuntimeHistoryEntryV1 {
 export interface RuntimeHistorySessionV1 {
   readonly schemaVersion: 1;
   readonly runtimeVersion: typeof RUNTIME_VERSION;
-  readonly irVersion: "1.0.0";
+  readonly irVersion: RuntimeIrVersionV1;
   readonly projectId: string;
   readonly buildId: string;
   readonly executionId: string;
@@ -341,7 +342,7 @@ export interface RuntimeSessionSaveV1 {
   readonly schemaVersion: typeof RUNTIME_SESSION_SAVE_SCHEMA_VERSION;
   readonly format: "world.runtime-session-save";
   readonly runtimeVersion: typeof RUNTIME_VERSION;
-  readonly irVersion: "1.0.0";
+  readonly irVersion: RuntimeIrVersionV1;
   readonly projectId: string;
   readonly buildId: string;
   readonly executionId: string;
@@ -398,7 +399,7 @@ export interface RuntimeHistoryResultV1 {
 
 export interface RuntimeStoryOutcomeV1 {
   readonly schemaVersion: 1;
-  readonly irVersion: "1.0.0";
+  readonly irVersion: RuntimeIrVersionV1;
   readonly projectId: string;
   readonly buildId: string;
   readonly position:

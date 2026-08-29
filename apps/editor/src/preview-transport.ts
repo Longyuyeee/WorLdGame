@@ -90,6 +90,7 @@ function baseStepDelayMs(statement: StoryStatement): number {
     case "return":
     case "set":
     case "condition":
+    case "checkpoint":
     case "choice":
     case "end":
       return 0;

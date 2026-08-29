@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3c3-marker",
+  "engineeringStatus": "candidate",
+  "productAcceptance": "blocked",
+  "baseCommit": "902d7b6d1ec2900878a0fabc314f1c09793abbbb",
+  "authority": "RA-N21-011 checkpoint 窄范围修订",
+  "contract": {
+    "sourceSyntax": "checkpoint @id(statementId)",
+    "emittedRuntimeIr": "1.1.0",
+    "readableRuntimeIr": ["1.0.0", "1.1.0"],
+    "runtimeEvent": "checkpoint-reached",
+    "playerBehavior": "capture-exact-session-save-candidate-and-continue-without-presentation",
+    "historyNavigation": "skip-checkpoint-event",
+    "legacyPreviewBehavior": "skip-checkpoint"
+  },
+  "persistenceBoundary": {
+    "saveSchema": 2,
+    "checkpointSlots": 0,
+    "nextSlice": "N52-E3c4-save-v3-three-checkpoint-slots"
+  },
+  "acceptance": [
+    "compiler-emits-checkpoint-step-id-and-source-map",
+    "runtime-1.0-remains-readable",
+    "runtime-1.0-rejects-checkpoint",
+    "runtime-1.1-emits-non-presentational-event",
+    "player-candidate-restores-and-continues-at-next-visible-boundary",
+    "back-forward-skips-checkpoint-history-entry"
+  ],
+  "engineeringEvidence": {
+    "implementationCommit": null,
+    "pullRequest": null,
+    "workflowRun": null,
+    "workflowJob": null,
+    "conclusion": null
+  },
+  "requiredDocuments": [
+    { "path": "docs/246-n52-e3c3-checkpoint-marker-audit.md", "token": "N52-E3c3 checkpoint marker Engineering 关闭" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3c3 checkpoint marker" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3c3 checkpoint marker" }
+  ]
+}

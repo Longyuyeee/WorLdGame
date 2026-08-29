@@ -120,7 +120,7 @@ function parseArguments(node: DirectiveNode, sceneId: string, diagnostics: Resou
 }
 
 function statementId(node: StorySyntaxNode): string | undefined {
-  if (node.kind === "directive" || node.kind === "choice" || node.kind === "end") return node.id;
+  if (node.kind === "directive" || node.kind === "choice" || node.kind === "checkpoint" || node.kind === "end") return node.id;
   if (node.kind === "dialogue") return node.statementId;
   return undefined;
 }
@@ -171,6 +171,7 @@ export function compileSceneResourceManifest(
           (node.kind === "directive" && projected.kind === "direction" && node.command === projected.command) ||
           (node.kind === "dialogue" && projected.kind === "dialogue") ||
           (node.kind === "choice" && projected.kind === "choice") ||
+          (node.kind === "checkpoint" && projected.kind === "checkpoint") ||
           (node.kind === "end" && projected.kind === "end")
         );
         if (projected?.id === id && !semanticsMatch) diagnostics.push({ code: "STATEMENT_SEMANTICS_MISMATCH", severity: "error",

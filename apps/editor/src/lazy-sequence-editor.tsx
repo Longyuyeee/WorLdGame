@@ -4,7 +4,7 @@ import { deleteLazyDialogue, deleteLazyNarration, insertLazyDialogue, insertLazy
 import { createStageWindow, moveStageWindow, revealStageIndex } from "./stage-window";
 
 function kindLabel(statement: StoryStatement): string {
-  return ({ dialogue: "对白", narration: "旁白", direction: "演出", choice: "选择", label: "标签", jump: "跳转", call: "调用", return: "返回", set: "变量", condition: "条件", wait: "等待", end: "结局" } as const)[statement.kind];
+  return ({ dialogue: "对白", narration: "旁白", direction: "演出", choice: "选择", label: "标签", jump: "跳转", call: "调用", return: "返回", set: "变量", condition: "条件", wait: "等待", checkpoint: "检查点", end: "结局" } as const)[statement.kind];
 }
 
 function contentLabel(statement: StoryStatement): string {
@@ -17,6 +17,7 @@ function contentLabel(statement: StoryStatement): string {
   if (statement.kind === "set") return `${statement.variable} = ${statement.expression}`;
   if (statement.kind === "condition") return `${statement.expression} → ${statement.targetLabel}`;
   if (statement.kind === "wait") return statement.duration;
+  if (statement.kind === "checkpoint") return `检查点 · ${statement.id}`;
   return statement.endingName;
 }
 

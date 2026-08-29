@@ -105,7 +105,7 @@ function knownExactInput(session: RuntimeHistorySessionV1, input: RuntimeInputV1
 export function createRuntimeHistorySessionV1(program: RuntimeProgramV1, state: RuntimeStateV1): RuntimeHistoryResultV1 {
   const diagnostics = validateRuntimeStateV1(program, state);
   const initial = checkpoint(state);
-  const session: RuntimeHistorySessionV1 = { schemaVersion: 1, runtimeVersion: RUNTIME_VERSION, irVersion: "1.0.0", projectId: state.projectId, buildId: state.buildId, executionId: state.executionId, cursor: 0, checkpoints: [initial], entries: [], inputTombstones: [] };
+  const session: RuntimeHistorySessionV1 = { schemaVersion: 1, runtimeVersion: RUNTIME_VERSION, irVersion: state.irVersion, projectId: state.projectId, buildId: state.buildId, executionId: state.executionId, cursor: 0, checkpoints: [initial], entries: [], inputTombstones: [] };
   return result(session, diagnostics.length === 0 ? [] : [diagnostic("RUNTIME_HISTORY_INVALID", diagnostics[0]!.message, state)]);
 }
 

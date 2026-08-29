@@ -62,6 +62,7 @@ function label(statement: StoryStatement): string {
   if (statement.kind === "return") return "返回";
   if (statement.kind === "set") return `变量 · ${statement.variable} = ${statement.expression}`;
   if (statement.kind === "condition") return `条件 · ${statement.expression} → ${statement.targetLabel}`;
+  if (statement.kind === "checkpoint") return `检查点 · ${statement.id}`;
   return `等待 · ${statement.duration}`;
 }
 

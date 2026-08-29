@@ -64,10 +64,10 @@ describe("project compiler N30-E1/E2", () => {
       }];
     }));
     expect(outputs).toEqual({
-      tiny: { buildId: "3322d6ff5bc555ae5eb61fdf1d8748a100a7c75a6cad42e611c074c6a71e58ae", storyIrHash: "19ed7a308c9762e34765601b3ce090a662bcce5436f4f3d36805783b91b6eb55" },
-      branching: { buildId: "7109794d7ca87721d8aef467dfb9bde7e5cc1f4f5876109a515ff8b9816aa3c7", storyIrHash: "b845ba6270cb506366a7f3000c1823c67db769809bb76d0b53bbce0321266e7c" },
-      media: { buildId: "9dd386a1c2bfbc4fe4dd0503baac3a67bae0637495eb0d5114cc08064631d298", storyIrHash: "b86a7178c3cf45ead3166dbb1fba28639b963af92bc171d4e21107cbfb839aea" },
-      cjk: { buildId: "401be86f079c12a2decdd76f716bd64628ec5e6b352b96c35dd178653e6e4410", storyIrHash: "2dbe1079fefb2c8258510738583bf0d96824c2464cfa140d5ee803e608c03d3b" }
+      tiny: { buildId: "39a781056bdbe119126d2a4de4e5ce94ac56c1562fa5b545ecb68478797edc7c", storyIrHash: "e0a7445cc893cd9ede388747a365c90a417e4c44f618b68184fac7ba2ea53b42" },
+      branching: { buildId: "2514e0ce010c671cae31aae1b1df0a5cf824ecd476286336e439cef9618dbd73", storyIrHash: "bb7e605baf4c47ad9b6cb4666f406ae463936fb80f6bf07d9a60b8506174b548" },
+      media: { buildId: "ee143594dcd1f8339e5a7db87b671c63edbd372f970beb831150eab4d248f2b7", storyIrHash: "0c4a582b94afba6ff0d6793303168e99c4184f13fd9b7c25c1bcfd8a126263a2" },
+      cjk: { buildId: "ab54dc22a6aa2fba90ecb828f2fc68361f0f735599f49618896a8853a5a45623", storyIrHash: "adfd8cc36965a343e18b99737ced8d719b67919b7180866c9aa5d7587e2ae1da" }
     });
   });
 
@@ -131,6 +131,22 @@ describe("project compiler N30-E1/E2", () => {
     expect(result.artifacts.story.scenes[0]?.instructions.map((item) => item.opcode)).toEqual(["label", "set", "condition", "wait", "end"]);
     expect(result.artifacts.story.scenes[0]?.instructions[3]?.operands).toEqual({ durationMilliseconds: 250 });
     expect(result.artifacts.catalogs.endings).toEqual([{ endingId: "ending", name: "Complete", sceneId: "tiny_start" }]);
+  });
+
+  it("emits Runtime IR 1.1 and lowers a checkpoint with its stable step ID", () => {
+    const result = compileProject(replaceScript(loadFixture("tiny"), "tiny_start", [
+      { id: "checkpoint_arrival", kind: "checkpoint" },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
+      instructionId: "checkpoint_arrival",
+      opcode: "checkpoint",
+      operands: { stepId: "checkpoint_arrival" }
+    });
+    expect(result.artifacts.sourceMap.entries[0]).toMatchObject({ instructionId: "checkpoint_arrival", statementId: "checkpoint_arrival" });
   });
 
   it("normalizes authored audio booleans and volume into the formal Runtime contract", () => {

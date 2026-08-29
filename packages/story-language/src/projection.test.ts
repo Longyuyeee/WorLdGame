@@ -153,11 +153,12 @@ jump local_branch @id(stmt_jump)
 call local_branch @id(stmt_call)
 return @id(stmt_return)
 wait 500ms @id(stmt_wait)
+checkpoint @id(stmt_checkpoint)
 end "Done" @id(stmt_end)
 `));
     expect(result.ok).toBe(true);if(!result.ok)return;
-    expect(result.scene.statements.map((item)=>item.kind)).toEqual(["narration","label","set","condition","jump","call","return","wait","end"]);
-    expect(result.scene.statements.map((item)=>item.id)).toEqual(["stmt_narrate","stmt_label","stmt_set","stmt_if","stmt_jump","stmt_call","stmt_return","stmt_wait","stmt_end"]);
+    expect(result.scene.statements.map((item)=>item.kind)).toEqual(["narration","label","set","condition","jump","call","return","wait","checkpoint","end"]);
+    expect(result.scene.statements.map((item)=>item.id)).toEqual(["stmt_narrate","stmt_label","stmt_set","stmt_if","stmt_jump","stmt_call","stmt_return","stmt_wait","stmt_checkpoint","stmt_end"]);
   });
 
   it("still rejects unknown executable plugin nodes", () => {
