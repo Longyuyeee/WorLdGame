@@ -4,7 +4,7 @@
 > 分支：`codex/n52-e3c1-recovery-museum`  
 > 直接基线：N52-E3b 最终绿色头 `86f053c` / Draft PR #102  
 > 授权：`RA-N21-011`，最大节点 N52  
-> 当前判定：**N52-E3c1 Engineering 候选**；本地定向证据已通过，等待完整门、实现提交与同头 Windows / Node 22 CI。Product Acceptance 持续阻断。
+> 当前判定：**N52-E3c1 Engineering 关闭**；实现、本地完整门与实现头 Windows / Node 22 CI 同时绿色。Product Acceptance 持续阻断。
 
 ## 1. 开发前实际代码审计与路线纠偏
 
@@ -29,7 +29,9 @@
 
 本地完整 `npm run check` 已从头单次通过：普通回归 `153 files / 919 tests`，N50 `53/53`、N51 `104/104`、N52 历史聚合 `63/63`；Runtime 10k corpus 用时 `14.621s` 且 digest 保持 `20e9a842…92ef2`，冻结 VM `28.75s <90s`；17 workspace build、portable architecture `100 / 4` 通过；Route rename P95 `108.31ms <500ms`、lazy structure `285.98ms <500ms`、Asset dicing `1820.52ms <5000ms`。Player production JS 为 `364.55 kB / gzip 109.55 kB`；Editor 既有 `982.10 kB` chunk warning 未隐藏或放宽。
 
-实现提交、远端 PR 与同头 CI 尚未完成，因此本文件现在只登记 Engineering 候选，不提前声称关闭。
+实现提交 `2130c49` 已推送至 Draft PR #103。同头 Windows / Node 22 `full check` run `33257145099` / job `99112755230` 用时 `10m17s` 绿色，head SHA 精确为 `2130c4951d51c3dcd217b18f7225c5057279223d`。远端普通回归 `153 files / 919 tests`；Runtime corpus `21.109s` 且 digest 未变；冻结 VM 测试体 `51.864s <90s`；Route rename P95 `102.52ms <500ms`、lazy structure `340.52ms <500ms`、Global Lazy Index `291.90ms <500ms`、Asset dicing `3666.92ms <5000ms`；17 workspace build 与 architecture 均通过。Player production JS `364.55 kB / gzip 109.55 kB`。
+
+以上证据关闭 E3c1 Engineering，不能外推为永久 checkpoint、真实进程强杀、Windows/Android Host 或 N52 Product Acceptance。
 
 ## 4. 明确保留的阻断项与接续点
 

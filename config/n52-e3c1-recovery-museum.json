@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E3c1",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "86f053c36c757fa02772a1b2401fe82da39a9789",
   "database": {
@@ -52,11 +52,17 @@
     "n52-product-acceptance"
   ],
   "nextSlice": "N52-E3c2-checkpoint-entry-contract",
-  "engineeringEvidence": null,
+  "engineeringEvidence": {
+    "implementationCommit": "2130c4951d51c3dcd217b18f7225c5057279223d",
+    "pullRequest": 103,
+    "workflowRun": 33257145099,
+    "workflowJob": 99112755230,
+    "conclusion": "success"
+  },
   "requiredDocuments": [
-    { "path": "docs/243-n52-e3c1-recovery-migration-museum-audit.md", "token": "N52-E3c1 Engineering 候选" },
+    { "path": "docs/243-n52-e3c1-recovery-migration-museum-audit.md", "token": "N52-E3c1 Engineering 关闭" },
     { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3c1 状态（2026-08-29）" },
-    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3c1 Recovery / Migration Museum Engineering 候选" },
-    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3c1 Recovery / Migration Museum Engineering 候选" }
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3c1 Recovery / Migration Museum Engineering 已关闭" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3c1 Recovery / Migration Museum Engineering 已关闭" }
   ]
 }
