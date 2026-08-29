@@ -6,7 +6,7 @@
 >
 > 直接基线：E3c3 权限最终绿色头 `902d7b6`
 >
-> 判定：**N52-E3c3 checkpoint marker Engineering 关闭**（候选，待完整门与同头 CI）；N52 Product Acceptance 不变
+> 判定：**N52-E3c3 checkpoint marker Engineering 关闭**；N52 Product Acceptance 不变
 
 ## 1. 需求对齐与纠偏
 
@@ -29,7 +29,7 @@
 - VM conformance：5/5；全部 workspace build 与 architecture audit（portable 100 / Node adapter 4）通过。
 - 性能门：10k route 与 script 门全部 PASS；16 MiB asset 检查总耗时 358.05 ms，图集分析总耗时 1,526.01 ms，均在预算内。
 
-上述证据为提交前本地证据；implementation commit、PR 和 exact-head GitHub Actions 证据由推送后的闭环提交补录。
+实现提交 `196a028f26ed73a7552293c796b94f594168fd35` 已推送至 Draft PR #106。该精确提交的 Windows / Node 22 `product-baseline` run `33263549231` / job `99129464102` 用时 `13m22s` 并成功，E3c3 marker 因此由 candidate 转为 complete；本最终证据提交仍须由后续同头 CI 复验。
 
 ## 4. 下一边界
 

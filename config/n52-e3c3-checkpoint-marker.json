@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E3c3-marker",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "902d7b6d1ec2900878a0fabc314f1c09793abbbb",
   "authority": "RA-N21-011 checkpoint 窄范围修订",
@@ -28,11 +28,11 @@
     "back-forward-skips-checkpoint-history-entry"
   ],
   "engineeringEvidence": {
-    "implementationCommit": null,
-    "pullRequest": null,
-    "workflowRun": null,
-    "workflowJob": null,
-    "conclusion": null
+    "implementationCommit": "196a028f26ed73a7552293c796b94f594168fd35",
+    "pullRequest": 106,
+    "workflowRun": 33263549231,
+    "workflowJob": 99129464102,
+    "conclusion": "success"
   },
   "requiredDocuments": [
     { "path": "docs/246-n52-e3c3-checkpoint-marker-audit.md", "token": "N52-E3c3 checkpoint marker Engineering 关闭" },
