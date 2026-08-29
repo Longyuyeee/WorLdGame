@@ -3,7 +3,7 @@
 > 审计日期：2026-08-29
 > 当前分支：`codex/n52-e3c2-checkpoint-entry`；直接基线为 N52-E3c1 最终绿色头 `7b5998c`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：`RA-N21-011` 只允许 N52 Player Control Engineering；2026-09-27 16:00:00（UTC+8）到期
+> 当前授权：**RA-N21-011 checkpoint 窄范围修订**允许仅为 N52 checkpoint 修改 N20/N30/N31/Save 契约；2026-09-27 16:00:00（UTC+8）到期
 > 最新节点证据：[N52-E3c2 Checkpoint 入口合同](244-n52-e3c2-checkpoint-entry-contract-audit.md)、[N52-E3c1 Recovery / Migration Museum](243-n52-e3c1-recovery-migration-museum-audit.md)、[N52-E3b Auto / Quick](242-n52-e3b-auto-quick-save-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
@@ -28,6 +28,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N52-E3b Auto / Quick Engineering 已关闭：auto 5 槽空槽优先/最旧轮转，Build+scene 同身份合并；quick 固定 1 槽；所有写入经单 FIFO 串行，失败保留旧槽且不堵塞后续写；Player 提供快速存取及三类槽视图。最终头 `86f053c` 的 Draft PR #102 Windows run `33193037698` / job `98923083117` 用时 `13m35s` 绿色；
 - **N52-E3c1 Recovery / Migration Museum Engineering 已关闭**：DB3 新增隔离 `recovery-sessions` 且 DB2 正式槽无损保留；稳定可呈现 State Hash 写最新恢复，启动必须显式恢复/清除；Session/Build/State/scene/presentation/title 校验、FIFO 失败保留、损坏隔离及五个 Museum 原始向量已有证据。实际代码没有 build-authored checkpoint marker，故 checkpoint 转入 E3c2 跨节点入口合同。本地完整门普通 `153/919`、Runtime corpus `14.621s`、VM `28.75s` 全绿；实现头 `2130c49` 的 Draft PR #103 Windows run `33257145099` / job `99112755230` 用时 `10m17s` 绿色，远端普通 `153/919`、Runtime corpus `21.109s`、VM `51.864s`、Route P95 `102.52ms`、Asset dicing `3666.92ms`。真实强杀与 Product Acceptance 未完成；
 - **N52-E3c2 checkpoint 入口合同已关闭**：最初 Gal/CL-04 需求和 VM Spike 的 `checkpoint(stepId)` 已核实，正式链路遗漏已登记为实现偏移；冻结显式 `checkpoint @id(statementId)`、IR `1.1.0`、非表现 marker event、Save v3 严格迁移与 checkpoint 3 槽策略。现有 RA-011 不覆盖 Story Language/Compiler/Runtime IR/Save schema 修改，故本步未改产品代码；入口头 `65f7879` 的 Draft PR #104 Windows run `33259082765` / job `99117811154` 用时 `13m0s` 绿色；E3c3 等待产品负责人明确扩展跨层授权；
+- **E3c3 跨层授权已建立**：产品负责人在获知精确授权条件后要求从该接续点继续；RA-011 仅增加 checkpoint 所需的 Story Language、Compiler IR 1.1、Runtime 双读/非表现事件和 Save v3/三槽权限，最大节点仍为 N52，其他语义与全部产品门继续阻断；
 - E3a 提交前复审补回 Preview SHA-256 写前/读取校验与 Blob 篡改反例；最终本地完整门普通 `150/905`、N52 `58/58`、VM `24.48s`。实现头 `2f3e7b2` 已推送至 Draft PR #101，同头 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色：远端普通 `150/905`、N52 `58/58`、Runtime corpus `30.995s`、Route P95 `159.77ms`、Asset `3277.93ms`、build/architecture 均通过；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
@@ -150,9 +151,9 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
 2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
 3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
-4. `RA-N21-011` 只准入 N52 Engineering；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
+4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. 下一唯一切片是 N52-E3c3 checkpoint marker implementation；必须先取得仅针对该能力的 N20/N30/N31 跨层授权扩展，再按 Story→Compiler IR 1.1→Runtime→Player→Save v3 顺序编码。未授权前不得用内部 History checkpoint、scene ID、数组下标或墙钟替代。N60+ 与全部 Product Acceptance 阻断不变。
+7. 下一唯一切片是 N52-E3c3 checkpoint marker implementation；跨层窄授权已经建立，按 Story→Compiler IR 1.1→Runtime→Player→Save v3 顺序编码。仍不得用内部 History checkpoint、scene ID、数组下标或墙钟替代。N60+ 与全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前审计：[N51-E6f 出口复审](235-n51-e6f-engineering-exit-reaudit.md)确认 N51 Engineering 关闭；[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)建立的 `RA-N21-011` 只授权 N52 Player Control Engineering。工程底座仍明显领先于 Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N60+、M1/发布继续阻断。
+> 当前审计：[N51-E6f 出口复审](235-n51-e6f-engineering-exit-reaudit.md)确认 N51 Engineering 关闭；[N51→N52 治理检查点](236-n51-n52-governance-checkpoint.md)建立的 `RA-N21-011` 只授权 N52 Player Control Engineering，[E3c3 修订 #245](245-n52-e3c3-checkpoint-authority-amendment.md)进一步只允许 checkpoint 所需的 N20/N30/N31/Save 合同变化。工程底座仍明显领先于 Android、三端构建与商业 Benchmark 产品闭环；Authority 未合入 `main`，全部 Product Acceptance、N60+、M1/发布继续阻断。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 ## 1. 最终交付定义

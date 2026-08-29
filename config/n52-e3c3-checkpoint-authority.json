@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3c3-authority",
+  "engineeringStatus": "candidate",
+  "productAcceptance": "blocked",
+  "baseCommit": "0f0f16bd2db06b296b26ca11d4ead6fa5dd8225a",
+  "authority": {
+    "riskAcceptance": "RA-N21-011",
+    "approvedBy": "Product Owner",
+    "approvedAt": "2026-08-29T23:31:01+08:00",
+    "maximumDeliveryNode": "N52",
+    "scope": [
+      "N20-story-language-checkpoint-only",
+      "N30-compiler-runtime-ir-1.1-checkpoint-only",
+      "N31-runtime-dual-ir-and-checkpoint-event-only",
+      "N52-player-save-schema-v3-and-three-checkpoint-slots-only"
+    ]
+  },
+  "forbidden": [
+    "non-checkpoint-story-language-or-runtime-semantic-change",
+    "runtime-history-checkpoint-as-persistent-slot",
+    "scene-id-or-instruction-index-or-wall-clock-substitute",
+    "second-runtime-player-core-or-save-format",
+    "n52-product-acceptance",
+    "n60-or-later-engineering"
+  ],
+  "nextSlice": "N52-E3c3-checkpoint-marker-implementation",
+  "engineeringEvidence": {
+    "implementationCommit": null,
+    "pullRequest": null,
+    "workflowRun": null,
+    "workflowJob": null,
+    "conclusion": null
+  },
+  "requiredDocuments": [
+    { "path": "docs/245-n52-e3c3-checkpoint-authority-amendment.md", "token": "E3c3 跨层授权修订关闭" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "RA-N21-011 checkpoint 窄范围修订" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "RA-N21-011 checkpoint 窄范围修订" }
+  ]
+}

@@ -9,13 +9,24 @@ const blockedGates = [
 ];
 
 function exception(id: string, status: "active" | "closed", maximumDeliveryNode: string) {
-  return {
+  const value = {
     id, status, failedControls: ["human task"], impact: ["usability risk"], reason: "participant unavailable",
     compensatingControls: ["bounded work"], owner: "compiler-runtime", approver: "Product Owner",
     approvedAt: "2026-08-28T16:58:00+08:00", expiresAt: "2026-09-27T16:00:00+08:00",
     maximumDeliveryNode, blockedGates, remediationPlan: "run the task", verificationMethod: "record evidence",
     evidencePath: "docs/126-n31-e1-runtime-kernel-audit.md"
   };
+  if (id === "RA-N21-011") return {
+    ...value,
+    scopeAmendedAt: "2026-08-29T23:31:01+08:00",
+    compensatingControls: [
+      ...value.compensatingControls,
+      "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
+      "Require checkpoint to use explicit stable source identity, Runtime IR 1.1 dual-read compatibility, a non-presentational Runtime event, strict Save v3 migration, and three deterministic slots",
+      "Forbid using Runtime History checkpoints, scene IDs, instruction indexes, wall clock, or a second Save/Runtime implementation as persistent checkpoint substitutes"
+    ]
+  };
+  return value;
 }
 
 function registry(overrides: Record<string, unknown> = {}) {
@@ -69,5 +80,11 @@ describe("risk acceptance policy", () => {
     value.exceptions[9]!.status = "active";
     expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-010: only the approved RA-N21-011 exception may be active");
     expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-011 requires the superseded RA-N21-010 exception to be closed");
+  });
+
+  it("fails when the checkpoint scope amendment is removed", () => {
+    const value = registry();
+    value.exceptions[10]!.compensatingControls = ["bounded work"];
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-011: missing checkpoint scope control: Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract");
   });
 });

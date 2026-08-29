@@ -70,6 +70,17 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     }
   }
   const playerControlExtension = registry?.exceptions?.find((entry) => entry?.id === "RA-N21-011");
+  if (playerControlExtension?.status === "active") {
+    const requiredCheckpointControls = [
+      "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
+      "Require checkpoint to use explicit stable source identity, Runtime IR 1.1 dual-read compatibility, a non-presentational Runtime event, strict Save v3 migration, and three deterministic slots",
+      "Forbid using Runtime History checkpoints, scene IDs, instruction indexes, wall clock, or a second Save/Runtime implementation as persistent checkpoint substitutes"
+    ];
+    for (const control of requiredCheckpointControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing checkpoint scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.scopeAmendedAt)) violations.push("RA-N21-011: scopeAmendedAt must record the checkpoint authorization amendment");
+  }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);
     if (playerControlExtension?.status === "active" && superseded?.status !== "closed") {

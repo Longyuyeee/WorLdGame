@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；`RA-N21-011` 只准入 N52 Player Control Engineering，持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N51 Engineering 已关闭；N52-E3 入口契约保持有效，N52-E1 History/Back/Forward、N52-E2 手动 Save/Load、N52-E3a v2 元数据与截图已关闭，**N52-E3b Auto / Quick Engineering 已关闭**，N52-E3c1 Recovery / Migration Museum Engineering 已关闭，且 **N52-E3c2 checkpoint 入口合同已关闭**。入口确认 checkpoint 是正式化遗漏并冻结 IR/Save 升版路线；跨层代码等待 RA-011 明确扩展，完整 E3 与 Product Acceptance 均未完成。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 checkpoint 窄范围修订**只允许为 N52 checkpoint 修改 Story Language、Compiler、Runtime IR 与 Save schema，持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N51 Engineering 已关闭；N52-E3 入口契约保持有效，N52-E1 History/Back/Forward、N52-E2 手动 Save/Load、N52-E3a v2 元数据与截图已关闭，**N52-E3b Auto / Quick Engineering 已关闭**，N52-E3c1 Recovery / Migration Museum Engineering 已关闭，且 **N52-E3c2 checkpoint 入口合同已关闭**。E3c3 可按冻结路线进入跨层实现，完整 E3 与 Product Acceptance 均未完成。
 
 ## 1. 状态和证据规则
 
