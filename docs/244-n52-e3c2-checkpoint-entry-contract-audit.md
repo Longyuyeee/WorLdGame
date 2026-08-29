@@ -41,4 +41,6 @@
 
 机器合同 `config/n52-e3c2-checkpoint-entry.json` 与根级 `audit:n52-e3c2-checkpoint-entry` 核对最初需求来源、Spike checkpoint 证据、正式链路缺口、版本提升、三槽策略和授权停止线。首次完整门在 E3b 历史审计发现需求矩阵缺少精确令牌 `N52-E3b Auto / Quick Engineering 已关闭`；恢复令牌后 E3b/E3c1/E3c2 三门均通过，证明差异只在文档压缩，不在产品代码。
 
-修正后的第二轮 `npm run check` 完整通过：普通回归 `153 files / 919 tests`，Runtime corpus `10,000 seeds / 20,000 replay` 且 digest 保持 `20e9a842...92ef2`，VM `5/5` 用时 `25.16s < 90s`，Compiler `29/29`、Runtime `60/60`、N50 `53/53`、N51 `104/104`、N52 `63/63`；全 workspace build 与 100 portable / 4 Node adapter 架构门通过，Route 编辑链 P95 `59.17ms < 500ms`，Asset dicing `1505.78ms < 5000ms`。同头 Windows / Node 22 CI 结果在推送后回填；只有同头绿色时才把合同状态从 candidate 改为 complete。
+修正后的第二轮 `npm run check` 完整通过：普通回归 `153 files / 919 tests`，Runtime corpus `10,000 seeds / 20,000 replay` 且 digest 保持 `20e9a842...92ef2`，VM `5/5` 用时 `25.16s < 90s`，Compiler `29/29`、Runtime `60/60`、N50 `53/53`、N51 `104/104`、N52 `63/63`；全 workspace build 与 100 portable / 4 Node adapter 架构门通过，Route 编辑链 P95 `59.17ms < 500ms`，Asset dicing `1505.78ms < 5000ms`。
+
+入口提交 `65f7879` 已推送至 Draft PR #104；同头 Windows / Node 22 `product-baseline` run `33259082765` / job `99117811154` 用时 `13m0s` 并成功。远端普通回归仍为 `153 files / 919 tests`，Route 编辑链 P95 `146.95ms < 500ms`，Asset 分组重建 `1613.14ms < 3000ms`，build、架构和全部门通过。合同据此从 candidate 转为 complete；最终证据文档头仍需独立同头 CI 复验。

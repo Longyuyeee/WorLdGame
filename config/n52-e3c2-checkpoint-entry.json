@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E3c2",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "7b5998c65371dfc5cd4295a9b11ab34d78e562be",
   "requirementAlignment": {
@@ -76,11 +76,11 @@
   ],
   "nextSlice": "N52-E3c3-checkpoint-marker-implementation-after-authority",
   "engineeringEvidence": {
-    "implementationCommit": null,
-    "pullRequest": null,
-    "workflowRun": null,
-    "workflowJob": null,
-    "conclusion": null
+    "implementationCommit": "65f78793bbf3b9f36bdacca869b5b045691d2141",
+    "pullRequest": 104,
+    "workflowRun": 33259082765,
+    "workflowJob": 99117811154,
+    "conclusion": "success"
   },
   "requiredDocuments": [
     { "path": "docs/244-n52-e3c2-checkpoint-entry-contract-audit.md", "token": "N52-E3c2 入口合同关闭" },
