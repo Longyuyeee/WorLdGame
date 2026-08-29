@@ -9,7 +9,7 @@ import {
   type SourceMapEntryV1
 } from "./types";
 
-const statementKinds = new Set<RuntimeOpcodeV1>(["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"]);
+const statementKinds = new Set<RuntimeOpcodeV1>(["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "checkpoint", "end"]);
 const interactiveKinds = new Set(["dialogue", "narration", "direction", "choice", "wait", "end"]);
 const allowedActions: Readonly<Record<string, ReadonlySet<string>>> = {
   background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), camera: new Set(["move", "reset"]), audio: new Set(["play", "stop", "pause", "resume"]), textbox: new Set(["set", "reset"])
@@ -243,6 +243,7 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
         const expressionAst = parsed.root === null ? null : jsonClone(parsed.root as unknown as JsonValue); operands = kind === "set" ? { variableId: variableId!, expressionAst } : { targetLabel: targetLabel!, expressionAst };
       }
     } else if (kind === "wait") { const duration = stringField(statement, "duration"); const durationMilliseconds = duration === undefined ? undefined : parseWaitMilliseconds(duration); if (durationMilliseconds === undefined) diagnostics.push(diagnostic("INVALID_WAIT_DURATION", `Wait ${id} has invalid duration: ${duration ?? "missing"}`, ctx)); else operands = { durationMilliseconds }; }
+    else if (kind === "checkpoint") operands = { stepId: id };
     else { const endingName = stringField(statement, "endingName"); if (endingName === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `End ${id} is malformed`, ctx)); else operands = { endingId: id, name: endingName }; }
     if (operands !== undefined) { instructions.push({ instructionId: id, opcode: kind, operands }); sourceEntries.push({ instructionId: id, sceneId: scene.id, statementId: id, statementIndex }); }
   });

@@ -22,6 +22,10 @@ function program(instructions: RuntimeStoryIrV1["scenes"][number]["instructions"
   return { schemaVersion: 1, irVersion: "1.0.0", projectId: "runtime-test", entrySceneId: "main", scenes: [{ sceneId: "main", instructions }] };
 }
 
+function program11(instructions: RuntimeStoryIrV1["scenes"][number]["instructions"]): RuntimeStoryIrV1 {
+  return { schemaVersion: 1, irVersion: "1.1.0", projectId: "runtime-test", entrySceneId: "main", scenes: [{ sceneId: "main", instructions }] };
+}
+
 function select(state: RuntimeStateV1, optionId: string, inputId = "input-choice"): RuntimeChoiceInputV1 {
   const pending = state.pendingChoice;
   if (pending === null) throw new Error("choice is not pending");
@@ -86,6 +90,24 @@ describe("N31-E1 formal narrative runtime", () => {
     const story = program([{ instructionId: "future", opcode: "teleport" as never, operands: {} }]);
     const result = createRuntimeState(story, { buildId: "build", executionId: "execution" });
     expect(result).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_INVALID_IR" }] });
+  });
+
+  it("dual-reads legacy IR 1.0 but permits checkpoint only in IR 1.1", () => {
+    const legacy = program([{ instructionId: "legacy-end", opcode: "end", operands: { endingId: "legacy-end", name: "Legacy" } }]);
+    expect(start(legacy).irVersion).toBe("1.0.0");
+
+    const invalidLegacy = program([{ instructionId: "checkpoint_arrival", opcode: "checkpoint", operands: { stepId: "checkpoint_arrival" } }]);
+    expect(createRuntimeState(invalidLegacy, { buildId: "build", executionId: "execution" })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_INVALID_IR" }] });
+
+    const current = program11([
+      { instructionId: "checkpoint_arrival", opcode: "checkpoint", operands: { stepId: "checkpoint_arrival" } },
+      { instructionId: "done", opcode: "end", operands: { endingId: "done", name: "Done" } }
+    ]);
+    const checkpoint = runRuntime(current, start(current));
+    expect(checkpoint.event).toEqual({ kind: "checkpoint-reached", instructionId: "checkpoint_arrival", stepId: "checkpoint_arrival" });
+    expect(checkpoint.state).toMatchObject({ irVersion: "1.1.0", stateRevision: 1, cursor: { sceneId: "main", instructionIndex: 1 } });
+    expect(checkpoint.effects).toEqual([]);
+    expect(runRuntime(current, checkpoint.state).event).toMatchObject({ kind: "ending", endingId: "done" });
   });
 
   it("halts a closed internal loop at the deterministic instruction budget", () => {

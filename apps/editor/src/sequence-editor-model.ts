@@ -48,6 +48,7 @@ export function duplicateSequencePlan(statement: StoryStatement, afterId: string
   if(statement.kind==="set")return [{afterId,node:{kind:"set",variable:statement.variable,expressionRaw:statement.expression,id:statementId,trailingMetadata:""}}];
   if(statement.kind==="condition")return [{afterId,node:{kind:"condition",expressionRaw:statement.expression,targetLabel:statement.targetLabel,id:statementId,trailingMetadata:""}}];
   if(statement.kind==="wait")return [{afterId,node:{kind:"wait",durationRaw:statement.duration,id:statementId,trailingMetadata:""}}];
+  if(statement.kind==="checkpoint")return [{afterId,node:{kind:"checkpoint",id:statementId,trailingMetadata:""}}];
   return [{afterId,node:{kind:"end",nameRaw:quote(statement.endingName),id:statementId,trailingMetadata:""}}];
 }
 

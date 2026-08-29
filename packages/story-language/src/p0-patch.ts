@@ -1,10 +1,10 @@
 import { formatStory, semanticSnapshot } from "./formatter";
-import type { CallNode, ChoiceNode, ChoiceOptionNode, ConditionNode, DialogueNode, DirectiveNode, EndNode, JumpNode, LabelNode, NarrationNode, ReturnNode, SetNode, SourceRange, StoryDocument, StorySyntaxNode, WaitNode } from "./model";
+import type { CallNode, CheckpointNode, ChoiceNode, ChoiceOptionNode, ConditionNode, DialogueNode, DirectiveNode, EndNode, JumpNode, LabelNode, NarrationNode, ReturnNode, SetNode, SourceRange, StoryDocument, StorySyntaxNode, WaitNode } from "./model";
 import { parseStory } from "./parser";
 
 export type P0PatchErrorCode="SOURCE_INVALID"|"STALE_DOCUMENT"|"TARGET_NOT_FOUND"|"ANCHOR_NOT_FOUND"|"DUPLICATE_ID"|"MISSING_ID"|"INVALID_PATCH";
 export type P0PatchResult={readonly ok:true;readonly changed:boolean;readonly source:string;readonly storyDocument:StoryDocument;readonly documentHash:string;readonly affectedIds:readonly string[]}|{readonly ok:false;readonly code:P0PatchErrorCode;readonly message:string};
-export type P0EditableNode=Omit<DialogueNode,"range">|Omit<NarrationNode,"range">|Omit<ChoiceNode,"range">|Omit<ChoiceOptionNode,"range">|Omit<LabelNode,"range">|Omit<JumpNode,"range">|Omit<CallNode,"range">|Omit<ReturnNode,"range">|Omit<SetNode,"range">|Omit<ConditionNode,"range">|Omit<WaitNode,"range">|Omit<DirectiveNode,"range">|Omit<EndNode,"range">;
+export type P0EditableNode=Omit<DialogueNode,"range">|Omit<NarrationNode,"range">|Omit<ChoiceNode,"range">|Omit<ChoiceOptionNode,"range">|Omit<LabelNode,"range">|Omit<JumpNode,"range">|Omit<CallNode,"range">|Omit<ReturnNode,"range">|Omit<SetNode,"range">|Omit<ConditionNode,"range">|Omit<WaitNode,"range">|Omit<CheckpointNode,"range">|Omit<DirectiveNode,"range">|Omit<EndNode,"range">;
 const zeroRange:SourceRange={start:{line:1,column:1,offset:0},end:{line:1,column:1,offset:0}};
 export function p0NodeId(node:StorySyntaxNode|P0EditableNode):string|undefined{if(node.kind==="dialogue"||node.kind==="narration")return node.statementId;if("id" in node&&typeof node.id==="string")return node.id;return undefined;}
 export function storyDocumentHash(storyDocument:StoryDocument):string{const source=JSON.stringify(semanticSnapshot(storyDocument));let hash=2166136261;for(let index=0;index<source.length;index++)hash=Math.imul(hash^source.charCodeAt(index),16777619);return (hash>>>0).toString(16).padStart(8,"0");}

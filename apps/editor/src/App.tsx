@@ -307,6 +307,7 @@ function statementLabel(statement: StoryStatement): string {
     case "set": return `${statement.variable} = ${statement.expression}`;
     case "condition": return `${statement.expression} → ${statement.targetLabel}`;
     case "wait": return statement.duration;
+    case "checkpoint": return `检查点 · ${statement.id}`;
   }
 }
 
@@ -328,6 +329,7 @@ function statementKindLabel(statement: StoryStatement): string {
     case "set": return "变量";
     case "condition": return "条件";
     case "wait": return "等待";
+    case "checkpoint": return "检查点";
   }
 }
 

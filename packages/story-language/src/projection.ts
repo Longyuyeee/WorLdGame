@@ -282,6 +282,10 @@ export function projectStoryScene(
         if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Wait requires @id(...)", node));
         else statements.push({ id: node.id, kind: "wait", duration: node.durationRaw });
         break;
+      case "checkpoint":
+        if (node.id === undefined) diagnostics.push(projectionDiagnostic("MISSING_STATEMENT_ID", "Checkpoint requires @id(...)", node));
+        else statements.push({ id: node.id, kind: "checkpoint" });
+        break;
       case "opaque":
         diagnostics.push(
           projectionDiagnostic(

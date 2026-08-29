@@ -8,7 +8,7 @@ function character(value: JsonObject): Character {
 }
 function statement(value: JsonObject): StoryStatement {
   const candidate = value as unknown as StoryStatement;
-  if (typeof candidate.id !== "string" || !["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "end"].includes(candidate.kind)) throw new Error("Canonical statement is not supported by the current editor projection");
+  if (typeof candidate.id !== "string" || !["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "checkpoint", "end"].includes(candidate.kind)) throw new Error("Canonical statement is not supported by the current editor projection");
   return candidate;
 }
 function variable(value: JsonObject): StoryVariable {
@@ -32,6 +32,7 @@ function sourceLine(value: StoryStatement): string {
   if (value.kind === "jump") return `jump ${value.targetLabel} @id(${value.id})`;
   if (value.kind === "call") return `call ${value.targetLabel} @id(${value.id})`;
   if (value.kind === "return") return `return @id(${value.id})`;
+  if (value.kind === "checkpoint") return `checkpoint @id(${value.id})`;
   if (value.kind === "set") return `set ${value.variable} = ${value.expression} @id(${value.id})`;
   if (value.kind === "condition") return `if ${value.expression} -> ${value.targetLabel} @id(${value.id})`;
   return `wait ${value.duration} @id(${value.id})`;

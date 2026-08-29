@@ -124,7 +124,7 @@ const playerScript = String.raw`
         const statement = scene.statements[state.index]; if (!statement) throw new Error("场景没有到达结局：" + scene.title);
         if (["dialogue", "narration", "direction", "wait", "choice", "end"].includes(statement.kind)) { show(statement, scene); return; }
         state.steps += 1;
-        if (statement.kind === "label") { state.index += 1; continue; }
+        if (statement.kind === "label" || statement.kind === "checkpoint") { state.index += 1; continue; }
         if (statement.kind === "set") { state.variables[statement.variable] = value(statement.expressionAst); state.index += 1; continue; }
         if (statement.kind === "condition") { const result = value(statement.expressionAst); if (typeof result !== "boolean") throw new Error("条件表达式必须返回布尔值"); state.index = result ? labelIndex(scene, statement.targetLabel) : state.index + 1; continue; }
         if (statement.kind === "jump" || statement.kind === "call") { if (statement.kind === "call") state.stack.push({ sceneId: scene.id, index: state.index + 1 }); state.index = labelIndex(scene, statement.targetLabel); continue; }

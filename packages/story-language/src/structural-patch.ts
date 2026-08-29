@@ -136,6 +136,7 @@ function stableId(node: StorySyntaxNode): EntityId | undefined {
     case "directive":
     case "choice":
     case "choice-option":
+    case "checkpoint":
     case "end":
       return node.id;
     case "dialogue":

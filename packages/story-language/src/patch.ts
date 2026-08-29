@@ -116,6 +116,7 @@ export function patchDialogueText(
         case "choice-option":
         case "end":
         case "directive":
+        case "checkpoint":
           return node.id === statementId;
         case "dialogue":
         case "blank":

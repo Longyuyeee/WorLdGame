@@ -468,6 +468,7 @@ function documentIds(storyDocument: StoryDocument): ReadonlySet<EntityId> {
       case "set":
       case "condition":
       case "wait":
+      case "checkpoint":
         if (node.id !== undefined) result.add(node.id);
         break;
       case "blank":

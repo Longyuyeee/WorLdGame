@@ -4,6 +4,7 @@ import { join } from "node:path";
 const root = process.cwd();
 const read = (path) => readFile(join(root, path), "utf8");
 const contract = JSON.parse(await read("config/n52-e3c2-checkpoint-entry.json"));
+const authority = JSON.parse(await read("config/n52-e3c3-checkpoint-authority.json"));
 const violations = [];
 
 if (contract.schemaVersion !== 1 || contract.node !== "N52-E3c2" || !["candidate", "complete"].includes(contract.engineeringStatus) || contract.productAcceptance !== "blocked") violations.push("N52-E3c2 identity or gate status drifted");
@@ -20,10 +21,12 @@ const runtime = await read("packages/runtime/src/runtime.ts");
 const playerCore = await read("packages/player-core/src/player-core.ts");
 const saveStore = await read("apps/player-shell/src/player-save-store.ts");
 const spikeTypes = await read("packages/narrative-vm-spike/src/types.ts");
-if (storyModel.includes('readonly kind: "checkpoint"')) violations.push("formal Story model changed before cross-layer authority");
-if (!compilerTypes.includes('RUNTIME_IR_VERSION = "1.0.0" as const') || compilerTypes.includes('| "checkpoint"')) violations.push("formal Compiler IR baseline changed before cross-layer authority");
-if (!runtime.includes('program.irVersion !== "1.0.0"') || runtime.includes('opcode === "checkpoint"')) violations.push("formal Runtime baseline changed before cross-layer authority");
-if (!playerCore.includes('result.event.kind !== "direction"')) violations.push("Player presentation-boundary baseline drifted");
+if (authority.engineeringStatus !== "complete") {
+  if (storyModel.includes('readonly kind: "checkpoint"')) violations.push("formal Story model changed before cross-layer authority");
+  if (!compilerTypes.includes('RUNTIME_IR_VERSION = "1.0.0" as const') || compilerTypes.includes('| "checkpoint"')) violations.push("formal Compiler IR baseline changed before cross-layer authority");
+  if (!runtime.includes('program.irVersion !== "1.0.0"') || runtime.includes('opcode === "checkpoint"')) violations.push("formal Runtime baseline changed before cross-layer authority");
+  if (!playerCore.includes('result.event.kind !== "direction"')) violations.push("Player presentation-boundary baseline drifted");
+}
 if (!saveStore.includes('WorldPlayerSaveKindV2 = "manual" | "auto" | "quick"') || saveStore.includes('| "checkpoint"')) violations.push("strict Save v2 baseline changed before cross-layer authority");
 if (!spikeTypes.includes('readonly opcode: "checkpoint"') || !spikeTypes.includes('readonly operands: { readonly stepId: string }')) violations.push("original VM Spike checkpoint evidence missing");
 

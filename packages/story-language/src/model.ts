@@ -90,6 +90,7 @@ export interface CallNode extends SyntaxNodeBase { readonly kind:"call";readonly
 export interface ReturnNode extends SyntaxNodeBase { readonly kind:"return";readonly id?:EntityId;readonly trailingMetadata:string; }
 export interface ConditionNode extends SyntaxNodeBase { readonly kind:"condition";readonly expressionRaw:string;readonly targetLabel:string;readonly id?:EntityId;readonly trailingMetadata:string; }
 export interface WaitNode extends SyntaxNodeBase { readonly kind:"wait";readonly durationRaw:string;readonly id?:EntityId;readonly trailingMetadata:string; }
+export interface CheckpointNode extends SyntaxNodeBase { readonly kind:"checkpoint";readonly id?:EntityId;readonly trailingMetadata:string; }
 
 export interface EndNode extends SyntaxNodeBase {
   readonly kind: "end";
@@ -120,6 +121,7 @@ export type StorySyntaxNode =
   | ReturnNode
   | ConditionNode
   | WaitNode
+  | CheckpointNode
   | EndNode
   | OpaqueNode;
 
@@ -136,6 +138,7 @@ export type StoryDiagnosticCode =
   | "MALFORMED_FLOW"
   | "MALFORMED_CONDITION"
   | "MALFORMED_WAIT"
+  | "MALFORMED_CHECKPOINT"
   | "MALFORMED_ID"
   | "DUPLICATE_ID"
   | "UNRECOGNIZED_SYNTAX";

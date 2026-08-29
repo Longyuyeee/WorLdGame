@@ -141,7 +141,7 @@ function settle(project: StoryProject, initial: PlayablePreviewState): PlayableP
     }
     if (state.controlStepCount >= MAX_CONTROL_STEPS) return fail(state, "控制流超过 1000 步，可能存在无限循环");
     const nextCount = state.controlStepCount + 1;
-    if (statement.kind === "label") {
+    if (statement.kind === "label" || statement.kind === "checkpoint") {
       state = { ...state, statementIndex: state.statementIndex + 1, controlStepCount: nextCount };
       continue;
     }
