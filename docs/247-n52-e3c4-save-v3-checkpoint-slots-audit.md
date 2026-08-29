@@ -6,7 +6,7 @@
 >
 > 直接基线：E3c3 最终绿色头 `5ae1d97`
 >
-> 判定：**N52-E3c4 Save v3 + 三 checkpoint 槽 Engineering 候选**；远端精确提交 CI 收口前不得登记 complete，N52 Product Acceptance 不变
+> 判定：**N52-E3c4 Save v3 + 三 checkpoint 槽 Engineering 关闭**；N52 Product Acceptance 不变
 
 ## 1. 最初需求与实际代码对齐
 
@@ -29,8 +29,8 @@
 - 生产浏览器 1440×900 证明 Save `3.0.0`、三槽、读取按钮 44px、横向 overflow 0、console warning/error 0；390×844 首轮发现四个存档类型标签仅 40px，纠正后重构建复验为四标签及三个读取按钮均 44px、overflow 0、console warning/error 0。
 - 完整全仓 `npm run check`：PASS；普通回归 `153 files / 929 tests`，Compiler `30/30`、Runtime `61/61`、Player `55/55`、Settings `105/105`、N52 History `67/67`、VM `5/5`；Runtime corpus `10,000 seeds / 20,000 replay`，digest `20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc992ef2`。
 - 所有 workspace build 与 architecture audit（portable 100 / Node adapter 4）通过；Route 10k 全链 P95 `61.74ms < 500ms`，16 MiB asset 总耗时 `367.38ms < 10,000ms`，Dicing/Atlas `1543.68ms < 5,000ms`。
-- 实现提交、Draft PR 与同头 Windows / Node 22 CI 仍待本轮后续收口；这些证据回填前状态保持 candidate。
+- 实现提交 `612578e34418abb05954b4dffede7f107883bbff` 已推送至 Draft PR #107；该精确提交的 Windows / Node 22 `product-baseline` run `33266310582` / job `99136878399` 用时 `13m20s` 并成功，因此 E3c4 Engineering 由 candidate 转为 complete。本最终证据提交仍须由后续同头 CI 复验。
 
 ## 4. 后续边界
 
-E3c4 只关闭 Save v3 与三槽 Engineering，不代表真实浏览器/进程强杀、Windows/Android 正式宿主、真人任务或 N52 Product Acceptance 通过。收口后应回到 N52 总路线继续播放 Auto/Skip 与余下跨宿主工程，不得扩展到 N60+、M1 Stable 或发布。
+E3c4 只关闭 Save v3 与三槽 Engineering，不代表真实进程强杀、Windows/Android 正式宿主、真人任务或 N52 Product Acceptance 通过。下一接续点回到 N52 总路线，先复核并冻结 E4 播放 Auto/Skip 的 Player 策略、媒体停止点与 N31 Scheduler 复用边界；不得扩展到 N60+、M1 Stable 或发布。
