@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3c2",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseCommit": "7b5998c65371dfc5cd4295a9b11ab34d78e562be",
+  "requirementAlignment": {
+    "decision": "restore-original-build-authored-checkpoint-route",
+    "sources": [
+      "docs/11-gal-foundation-and-automation.md#5.1",
+      "docs/64-cl04-narrative-vm-evidence-contract.md#2",
+      "docs/64-cl04-narrative-vm-evidence-contract.md#6"
+    ],
+    "formalizationGap": "checkpoint-exists-in-original-vm-contract-and-spike-but-is-absent-from-formal-story-compiler-runtime-player-chain"
+  },
+  "markerContract": {
+    "sourceSyntax": "checkpoint @id(statementId)",
+    "sourceSemantics": "explicit-non-presentational-build-authored-story-step",
+    "stableIdentity": "statement-id-is-checkpoint-step-id",
+    "storyLanguageVersion": 0,
+    "oldReaderBehavior": "preserve-as-opaque-and-fail-canonical-projection",
+    "compilerOpcode": "checkpoint",
+    "runtimeIrCurrent": "1.0.0",
+    "runtimeIrTarget": "1.1.0",
+    "runtimeCompatibility": "read-1.0.0-and-1.1.0-emit-1.1.0-only",
+    "runtimeEvent": "checkpoint-reached",
+    "playerBehavior": "consume-without-presentation-save-session-after-marker-then-continue",
+    "forbiddenSubstitutes": [
+      "runtime-history-checkpoint",
+      "scene-id",
+      "array-index",
+      "wall-clock-trigger"
+    ]
+  },
+  "persistenceContract": {
+    "slotCount": 3,
+    "rotation": "empty-first-then-oldest-saved-at-then-slot-id",
+    "slotIds": ["checkpoint-1", "checkpoint-2", "checkpoint-3"],
+    "saveSchemaCurrent": 2,
+    "saveSchemaTarget": 3,
+    "migration": "strict-v1-v2-read-normalize-v3-copy-on-write-future-fail-closed",
+    "writeBoundary": "verified-runtime-session-after-checkpoint-marker",
+    "failure": "retain-prior-valid-slots-and-continue-player",
+    "deduplication": "same-build-and-checkpoint-step-id-coalesces-newest"
+  },
+  "implementationOrder": [
+    "story-language-and-canonical-projection",
+    "compiler-ir-1.1.0-and-source-map",
+    "runtime-dual-ir-read-and-checkpoint-event",
+    "player-core-non-presentational-consumption",
+    "save-schema-v3-migration-and-three-slot-ring",
+    "player-shell-list-load-and-production-browser"
+  ],
+  "governance": {
+    "currentAuthority": "RA-N21-011",
+    "decision": "contract-only-stop-before-cross-layer-code",
+    "reason": "RA-N21-011-authorizes-bounded-player-control-and-consumption-of-formal-n31-contracts-but-does-not-authorize-changing-story-language-compiler-runtime-ir-or-save-schema",
+    "requiredAuthority": "explicit-amendment-covering-n20-n30-n31-contract-changes-solely-for-n52-checkpoint",
+    "maximumDeliveryNode": "N52"
+  },
+  "acceptance": [
+    "old-checkpoint-free-projects-compile-and-run-with-unchanged-story-outcome",
+    "old-runtime-ir-1.0.0-and-save-v1-v2-remain-readable",
+    "future-ir-and-save-schemas-fail-closed",
+    "checkpoint-is-not-presented-and-does-not-duplicate-effects",
+    "three-slots-rotate-deterministically-and-failed-write-retains-old-slot",
+    "back-forward-load-and-rehydrate-preserve-runtime-state-hash",
+    "desktop-and-mobile-cold-production-browser-have-zero-console-and-overflow"
+  ],
+  "blocked": [
+    "checkpoint-implementation-until-explicit-cross-layer-authority",
+    "n52-product-acceptance",
+    "real-process-kill-ac09-validation",
+    "windows-and-android-host-validation",
+    "cloud-sync-and-conflict-resolution"
+  ],
+  "nextSlice": "N52-E3c3-checkpoint-marker-implementation-after-authority",
+  "engineeringEvidence": {
+    "implementationCommit": "65f78793bbf3b9f36bdacca869b5b045691d2141",
+    "pullRequest": 104,
+    "workflowRun": 33259082765,
+    "workflowJob": 99117811154,
+    "conclusion": "success"
+  },
+  "requiredDocuments": [
+    { "path": "docs/244-n52-e3c2-checkpoint-entry-contract-audit.md", "token": "N52-E3c2 入口合同关闭" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3c2 入口状态（2026-08-29）" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3c2 checkpoint 入口合同已关闭" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3c2 checkpoint 入口合同已关闭" }
+  ]
+}
