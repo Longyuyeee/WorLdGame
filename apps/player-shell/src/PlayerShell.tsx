@@ -31,10 +31,16 @@ import {
   type WorldPlayerSaveStoreV2
 } from "./player-save-store";
 import {
+  WorldPlayerRecoveryWriteCoordinatorV1,
   WorldPlayerSaveWriteCoordinatorV1,
   worldPlayerAutoSaveAllowedV1,
   worldPlayerSaveSceneIdentityV1
 } from "./player-save-policy";
+import {
+  createWorldPlayerRecoveryRecordV1,
+  type WorldPlayerRecoveryRecordV1,
+  type WorldPlayerRecoveryStoreV1
+} from "./player-recovery-store";
 import "./player-shell.css";
 
 export interface PlayerShellProps {
@@ -44,6 +50,7 @@ export interface PlayerShellProps {
   readonly hostActivity?: PlayerHostActivityV1;
   readonly platform?: GalSettingsPlatform;
   readonly saveStore?: WorldPlayerSaveStoreV2;
+  readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
   readonly now?: () => number;
 }
@@ -100,7 +107,7 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
 }
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, previewCapture, now = Date.now }: PlayerShellProps) {
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
@@ -116,17 +123,25 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
+  const [recoveryCandidate, setRecoveryCandidate] = useState<WorldPlayerRecoveryRecordV1 | null>(null);
+  const [recoveryOperation, setRecoveryOperation] = useState<"scanning" | "idle" | "available" | "ready" | "loaded" | "error">("scanning");
+  const [recoveryMessage, setRecoveryMessage] = useState("正在检查恢复记录…");
+  const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | null>(null);
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
+  const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
+  const lastRecoveryRuntimeStateHash = useRef<string | null>(null);
   saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
+  recoveryContext.current = { projectId: project.manifest.projectId, store: recoveryStore };
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const saveCoordinator = useMemo(() => saveStore === undefined ? undefined : new WorldPlayerSaveWriteCoordinatorV1(saveStore), [saveStore]);
+  const recoveryCoordinator = useMemo(() => recoveryStore === undefined ? undefined : new WorldPlayerRecoveryWriteCoordinatorV1(recoveryStore), [recoveryStore]);
   const content = snapshot.presentation;
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
@@ -285,6 +300,52 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [project.manifest.projectId, saveStore, state]);
 
+  const restoreRecovery = useCallback(async () => {
+    if (recoveryCandidate === null || recoveryStore === undefined) return;
+    setRecoveryOperation("scanning");
+    setRecoveryMessage("正在校验恢复记录…");
+    try {
+      const loaded = loadPlayerCoreSessionSaveV1(state, recoveryCandidate.serializedSessionSave);
+      if (!loaded.ok || loaded.artifactHash !== recoveryCandidate.sessionArtifactHash) throw new Error("WORLD_PLAYER_RECOVERY_REJECTED");
+      const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
+      if (recoveryCandidate.projectId !== project.manifest.projectId || recoveryCandidate.buildId !== loadedSnapshot.identities.buildId ||
+          recoveryCandidate.runtimeStateHash !== loaded.savedRuntimeStateHash || recoveryCandidate.sceneId !== loaded.savedSceneId ||
+          recoveryCandidate.presentationKind !== loadedSnapshot.presentation.kind || recoveryCandidate.title !== loadedSnapshot.title) {
+        throw new Error("WORLD_PLAYER_RECOVERY_METADATA_MISMATCH");
+      }
+      if (recoveryContext.current.projectId !== project.manifest.projectId || recoveryContext.current.store !== recoveryStore) return;
+      lastRecoveryRuntimeStateHash.current = recoveryCandidate.runtimeStateHash;
+      if (loadedSnapshot.identities.buildId !== null) autoSavedSceneIdentities.current.add(worldPlayerSaveSceneIdentityV1(loadedSnapshot.identities.buildId, recoveryCandidate.sceneId));
+      setState(loaded.state);
+      setRecoveryCandidate(null);
+      setRecoveryOperation("loaded");
+      setRecoveryMessage("已恢复上次安全进度");
+      setRecoveryErrorAction(null);
+    } catch {
+      setRecoveryOperation("error");
+      setRecoveryMessage("恢复记录损坏或与当前构建不兼容，正式存档未受影响");
+      setRecoveryErrorAction("clear");
+    }
+  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state]);
+
+  const clearRecovery = useCallback(async () => {
+    if (recoveryCoordinator === undefined || recoveryStore === undefined) return;
+    const projectId = project.manifest.projectId;
+    try {
+      await recoveryCoordinator.clear(projectId);
+      if (recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
+      setRecoveryCandidate(null);
+      setRecoveryOperation("idle");
+      setRecoveryMessage("恢复记录已清除");
+      setRecoveryErrorAction(null);
+      lastRecoveryRuntimeStateHash.current = null;
+    } catch {
+      setRecoveryOperation("error");
+      setRecoveryMessage("恢复记录无法清除，未修改正式存档");
+      setRecoveryErrorAction("retry");
+    }
+  }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
+
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
     setLastInputSource(source);
     if ((intent.kind === "primary" || intent.kind === "select-choice")
@@ -308,6 +369,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     autoSavedSceneIdentities.current.clear();
+    lastRecoveryRuntimeStateHash.current = null;
     setState(createPlayerCore(project));
     setMediaErrors([]);
     setMediaGeneration(0);
@@ -316,6 +378,30 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setLastInputAccepted(true);
     setVoicePlaying(false);
   }, [executableProjectHash]);
+
+  useEffect(() => {
+    const projectId = project.manifest.projectId;
+    setRecoveryCandidate(null);
+    setRecoveryErrorAction(null);
+    if (recoveryStore === undefined) {
+      setRecoveryOperation("idle");
+      setRecoveryMessage("恢复存储不可用");
+      return;
+    }
+    setRecoveryOperation("scanning");
+    setRecoveryMessage("正在检查恢复记录…");
+    void recoveryStore.read(projectId).then((candidate) => {
+      if (recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
+      setRecoveryCandidate(candidate);
+      setRecoveryOperation(candidate === null ? "idle" : "available");
+      setRecoveryMessage(candidate === null ? "没有待恢复进度" : "发现上次未完成的安全进度");
+    }).catch(() => {
+      if (recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
+      setRecoveryOperation("error");
+      setRecoveryMessage("恢复记录损坏，已与正式存档隔离");
+      setRecoveryErrorAction("clear");
+    });
+  }, [project.manifest.projectId, recoveryStore]);
 
   useEffect(() => {
     setSaveSlots([]);
@@ -345,6 +431,38 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveMessage("自动保存失败，原存档保持不变");
     });
   }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
+
+  useEffect(() => {
+    if (recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
+        snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || !saveBoundaryAllowed || recoveryCandidate !== null ||
+        !["idle", "ready", "loaded"].includes(recoveryOperation) || lastRecoveryRuntimeStateHash.current === snapshot.runtimeStateHash) return;
+    const created = createPlayerCoreSessionSaveV1(state);
+    if (!created.ok) return;
+    const record = createWorldPlayerRecoveryRecordV1({
+      projectId: project.manifest.projectId,
+      buildId: snapshot.identities.buildId,
+      savedAtEpochMilliseconds: now(),
+      title: snapshot.title,
+      sceneId: state.runtimeState.cursor.sceneId,
+      presentationKind: snapshot.presentation.kind,
+      runtimeStateHash: snapshot.runtimeStateHash,
+      sessionArtifactHash: created.artifactHash,
+      serializedSessionSave: created.serialized
+    });
+    lastRecoveryRuntimeStateHash.current = snapshot.runtimeStateHash;
+    void recoveryCoordinator.write(record).then(() => {
+      if (recoveryContext.current.projectId !== record.projectId || recoveryContext.current.store !== recoveryStore) return;
+      setRecoveryOperation("ready");
+      setRecoveryMessage("当前进度已写入独立恢复区");
+      setRecoveryErrorAction(null);
+    }).catch(() => {
+      if (recoveryContext.current.projectId !== record.projectId || recoveryContext.current.store !== recoveryStore) return;
+      lastRecoveryRuntimeStateHash.current = null;
+      setRecoveryOperation("error");
+      setRecoveryMessage("恢复保护写入失败，旧恢复点和正式存档保持不变");
+      setRecoveryErrorAction("retry");
+    });
+  }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, saveBoundaryAllowed, snapshot, state]);
 
   useEffect(() => {
     if (presentedText === "") {
@@ -478,6 +596,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-save-store={saveStore?.backend ?? "unavailable"}
       data-save-store-version={saveStore?.version ?? "none"}
       data-save-operation={saveOperation}
+      data-recovery-store={recoveryStore?.backend ?? "unavailable"}
+      data-recovery-store-version={recoveryStore?.version ?? "none"}
+      data-recovery-operation={recoveryOperation}
       data-input-source={lastInputSource}
       data-input-accepted={lastInputAccepted}
       data-host-activity={hostActivity}
@@ -664,6 +785,22 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 </section>}
               </div>
             )}
+          </aside>
+        )}
+        {recoveryStore !== undefined && (recoveryCandidate !== null || recoveryOperation === "error") && (
+          <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
+            <div>
+              <strong>{recoveryOperation === "error" ? "恢复保护需要处理" : "发现可恢复进度"}</strong>
+              <span>{recoveryMessage}</span>
+              {recoveryCandidate !== null && <small>{recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC</small>}
+            </div>
+            {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || recoveryCandidate.buildId !== state.artifacts?.manifest.buildId} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
+            <button type="button" onClick={() => {
+              if (recoveryErrorAction === "retry") {
+                setRecoveryOperation("idle");
+                setRecoveryErrorAction(null);
+              } else void clearRecovery();
+            }}>{recoveryErrorAction === "retry" ? "重试恢复保护" : "放弃并清除"}</button>
           </aside>
         )}
 

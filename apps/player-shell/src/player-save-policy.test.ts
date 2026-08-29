@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createWorldPlayerSaveSlotV2, type WorldPlayerSaveSlotV2, type WorldPlayerSaveStoreV2 } from "./player-save-store";
-import { WorldPlayerSaveWriteCoordinatorV1, worldPlayerAutoSaveAllowedV1, worldPlayerSaveSceneIdentityV1 } from "./player-save-policy";
+import { createWorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
+import { WorldPlayerRecoveryWriteCoordinatorV1, WorldPlayerSaveWriteCoordinatorV1, worldPlayerAutoSaveAllowedV1, worldPlayerSaveSceneIdentityV1 } from "./player-save-policy";
 
 const hash = "a".repeat(64);
 
@@ -66,5 +67,38 @@ describe("N52-E3b save policy", () => {
     await succeeded;
     expect(events).toEqual(["first-start", "first-fail", "second-start", "second-end"]);
     expect(records.get("golden_branching\0quick-1")?.sceneId).toBe("next");
+  });
+});
+
+describe("N52-E3c1 recovery write policy", () => {
+  it("serializes recovery mutations and continues after a failed write", async () => {
+    let current: WorldPlayerRecoveryRecordV1 | null = createWorldPlayerRecoveryRecordV1({
+      projectId: "golden_branching", buildId: hash, savedAtEpochMilliseconds: 1, title: "Branching Golden",
+      sceneId: "prior", presentationKind: "dialogue", runtimeStateHash: hash, sessionArtifactHash: hash,
+      serializedSessionSave: "{}"
+    });
+    const events: string[] = [];
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const store: WorldPlayerRecoveryStoreV1 = {
+      version: "1.0.0", backend: "memory-test", async read() { return current; },
+      async write(value) {
+        if (value.sceneId === "failed") { events.push("first-start"); await gate; events.push("first-fail"); throw new Error("disk full"); }
+        events.push("second-start"); current = value; events.push("second-end");
+      },
+      async clear() { current = null; }
+    };
+    const coordinator = new WorldPlayerRecoveryWriteCoordinatorV1(store);
+    const failed = coordinator.write(createWorldPlayerRecoveryRecordV1({ ...current, sceneId: "failed" }));
+    const next = createWorldPlayerRecoveryRecordV1({ ...current, sceneId: "next", savedAtEpochMilliseconds: 2 });
+    const succeeded = coordinator.write(next);
+    await Promise.resolve();
+    expect(events).toEqual(["first-start"]);
+    expect(current?.sceneId).toBe("prior");
+    release();
+    await expect(failed).rejects.toThrow("disk full");
+    await succeeded;
+    expect(events).toEqual(["first-start", "first-fail", "second-start", "second-end"]);
+    expect(current).toEqual(next);
   });
 });

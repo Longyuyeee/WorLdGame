@@ -11,6 +11,7 @@ import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 import type { WorldPlayerSaveSlotV2, WorldPlayerSaveStoreV2 } from "./player-save-store";
+import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -580,5 +581,59 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
+  });
+
+  it("writes isolated recovery boundaries and restores them only after an explicit player decision", async () => {
+    const saves = new Map<string, WorldPlayerSaveSlotV2>();
+    let recovery: WorldPlayerRecoveryRecordV1 | null = null;
+    let clock = 1_788_000_000_000;
+    const saveStore: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0", backend: "memory-save",
+      async list(projectId) { return [...saves.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return saves.get(`${projectId}\0${slotId}`) ?? null; },
+      async readPreview() { return null; },
+      async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); saves.set(`${value.projectId}\0${value.slotId}`, value); }
+    };
+    const recoveryStore: WorldPlayerRecoveryStoreV1 = {
+      version: "1.0.0", backend: "memory-recovery",
+      async read(projectId) { return recovery?.projectId === projectId ? recovery : null; },
+      async write(value) { recovery = value; },
+      async clear() { recovery = null; }
+    };
+    const first = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(recovery).toMatchObject({ format: "world.player-recovery", sceneId: "branch_start", presentationKind: "choice" }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    await waitFor(() => expect(recovery).toMatchObject({ sceneId: "branch_left", presentationKind: "dialogue" }));
+    first.unmount();
+
+    const second = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
+    expect(second.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    expect(await screen.findByText("发现上次未完成的安全进度")).toBeInTheDocument();
+    expect(second.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "available");
+    fireEvent.click(screen.getByRole("button", { name: "恢复上次进度" }));
+    await waitFor(() => expect(second.container.querySelector("main")).toHaveAttribute("data-player-status", "presenting"));
+    expect(screen.getByText("The quiet route.")).toBeInTheDocument();
+    expect(second.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "loaded");
+  });
+
+  it("isolates corrupt recovery and lets the player clear it without touching formal slots", async () => {
+    const clear = vi.fn(async () => undefined);
+    const recoveryStore: WorldPlayerRecoveryStoreV1 = {
+      version: "1.0.0", backend: "memory-recovery",
+      async read() { throw new Error("corrupt"); },
+      async write() {},
+      clear
+    };
+    const saveStore: WorldPlayerSaveStoreV2 = {
+      version: "2.0.0", backend: "memory-save",
+      async list() { return []; }, async read() { return null; }, async readPreview() { return null; }, async write() {}
+    };
+    const { container } = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} />);
+    expect(await screen.findByText("恢复记录损坏，已与正式存档隔离")).toBeInTheDocument();
+    expect(container.querySelector("main")).toHaveAttribute("data-recovery-operation", "error");
+    fireEvent.click(screen.getByRole("button", { name: "放弃并清除" }));
+    await waitFor(() => expect(clear).toHaveBeenCalledWith("golden_branching"));
+    expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "idle");
   });
 });

@@ -17,7 +17,6 @@ const shell = await read("apps/player-shell/src/PlayerShell.tsx");
 const host = await read("apps/player-shell/src/player-host.tsx");
 for (const token of [
   'WORLD_PLAYER_SAVE_STORE_VERSION = "2.0.0" as const',
-  'WORLD_PLAYER_SAVE_DATABASE_VERSION = 2',
   'WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME = "save-previews"',
   'const slotV1Keys =',
   'function validSlotV1',
@@ -26,6 +25,8 @@ for (const token of [
   'async readPreview(projectId: string, slotId: string)'
   ,'worldPlayerSavePreviewSha256V1'
 ]) if (!store.includes(token)) violations.push(`Save Store implementation token missing: ${token}`);
+const currentDatabaseVersion = Number(store.match(/WORLD_PLAYER_SAVE_DATABASE_VERSION\s*=\s*(\d+)/u)?.[1] ?? Number.NaN);
+if (!Number.isSafeInteger(currentDatabaseVersion) || currentDatabaseVersion < contract.saveSchema.databaseVersion) violations.push("current Save Database must preserve or advance the E3a DB2 migration boundary");
 
 const listStart = store.indexOf("async list(projectId: string)");
 const listEnd = store.indexOf("async read(projectId: string", listStart);

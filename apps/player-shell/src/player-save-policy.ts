@@ -1,4 +1,5 @@
 import type { WorldPlayerSaveSlotV2, WorldPlayerSaveStoreV2 } from "./player-save-store";
+import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
 export const WORLD_PLAYER_AUTO_SAVE_SLOT_COUNT = 5;
 export const WORLD_PLAYER_QUICK_SAVE_SLOT_ID = "quick-1" as const;
@@ -47,6 +48,26 @@ export class WorldPlayerSaveWriteCoordinatorV1 {
   }
 
   private enqueue<T>(task: () => Promise<T>): Promise<T> {
+    const current = this.tail.then(task, task);
+    this.tail = current.then(() => undefined, () => undefined);
+    return current;
+  }
+}
+
+export class WorldPlayerRecoveryWriteCoordinatorV1 {
+  private tail: Promise<void> = Promise.resolve();
+
+  constructor(private readonly store: WorldPlayerRecoveryStoreV1) {}
+
+  write(record: WorldPlayerRecoveryRecordV1): Promise<void> {
+    return this.enqueue(() => this.store.write(record));
+  }
+
+  clear(projectId: string): Promise<void> {
+    return this.enqueue(() => this.store.clear(projectId));
+  }
+
+  private enqueue(task: () => Promise<void>): Promise<void> {
     const current = this.tail.then(task, task);
     this.tail = current.then(() => undefined, () => undefined);
     return current;

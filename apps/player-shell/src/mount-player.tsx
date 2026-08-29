@@ -6,6 +6,7 @@ import { WebPlayerHost } from "./player-host";
 import type { PlayerHostActivityV1, WorldPlayerPreviewCaptureV1 } from "./PlayerShell";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import type { WorldPlayerSaveStoreV2 } from "./player-save-store";
+import type { WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
 export const WORLD_PLAYER_EMBED_API_VERSION = "1.1.0" as const;
 
@@ -15,6 +16,7 @@ export interface WorldPlayerMountOptionsV1 {
   readonly hostActivity?: PlayerHostActivityV1;
   readonly onRetryMedia?: () => void;
   readonly saveStore?: WorldPlayerSaveStoreV2;
+  readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
 }
 
@@ -48,6 +50,7 @@ interface ResolvedWorldPlayerMountOptionsV1 {
   readonly hostActivity: PlayerHostActivityV1;
   readonly onRetryMedia: (() => void) | undefined;
   readonly saveStore: WorldPlayerSaveStoreV2 | undefined;
+  readonly recoveryStore: WorldPlayerRecoveryStoreV1 | undefined;
   readonly previewCapture: WorldPlayerPreviewCaptureV1 | undefined;
 }
 
@@ -71,6 +74,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
       hostActivity: initial.hostActivity ?? "active",
       onRetryMedia: initial.onRetryMedia,
       saveStore: initial.saveStore,
+      recoveryStore: initial.recoveryStore,
       previewCapture: initial.previewCapture
     };
 
@@ -86,6 +90,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
         activityOverride={options.hostActivity}
         {...(options.onRetryMedia === undefined ? {} : { onRetryMedia: options.onRetryMedia })}
         {...(options.saveStore === undefined ? {} : { saveStore: options.saveStore })}
+        {...(options.recoveryStore === undefined ? {} : { recoveryStore: options.recoveryStore })}
         {...(options.previewCapture === undefined ? {} : { previewCapture: options.previewCapture })}
       />
     ));

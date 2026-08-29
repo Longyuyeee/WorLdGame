@@ -23,6 +23,16 @@ export {
   createWorldPlayerSaveSlotV2,
   worldPlayerSavePreviewSha256V1
 } from "./player-save-store";
+export {
+  IndexedDbWorldPlayerRecoveryStoreV1,
+  WORLD_PLAYER_RECOVERY_STORE_VERSION,
+  createWorldPlayerRecoveryRecordV1
+} from "./player-recovery-store";
+export type {
+  WorldPlayerRecoveryRecordSourceV1,
+  WorldPlayerRecoveryRecordV1,
+  WorldPlayerRecoveryStoreV1
+} from "./player-recovery-store";
 export type {
   WorldPlayerSavePreviewV2,
   WorldPlayerSaveKindV2,
