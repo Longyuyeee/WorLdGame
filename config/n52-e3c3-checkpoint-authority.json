@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E3c3-authority",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "0f0f16bd2db06b296b26ca11d4ead6fa5dd8225a",
   "authority": {
@@ -26,11 +26,11 @@
   ],
   "nextSlice": "N52-E3c3-checkpoint-marker-implementation",
   "engineeringEvidence": {
-    "implementationCommit": null,
-    "pullRequest": null,
-    "workflowRun": null,
-    "workflowJob": null,
-    "conclusion": null
+    "implementationCommit": "59b975e9be312141826acc392836d4dfa00bd8a6",
+    "pullRequest": 105,
+    "workflowRun": 33260853201,
+    "workflowJob": 99122426648,
+    "conclusion": "success"
   },
   "requiredDocuments": [
     { "path": "docs/245-n52-e3c3-checkpoint-authority-amendment.md", "token": "E3c3 跨层授权修订关闭" },
