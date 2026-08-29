@@ -511,7 +511,9 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3a 状态（2026-08-28）：[实现审计 #241](241-n52-e3a-save-metadata-preview-audit.md)已关闭 Engineering：Store 2.0/DB2、strict v1 内存归一化与下次保存 copy-on-write、Canonical chapter/scene、route `null`、custom `{}`、独立 Preview Blob Store 同事务、SHA-256 读写校验、Host compositor 捕获合同、失败仍保存、12 槽每页 6 与覆盖二次确认。Web Host 不伪造 DOM/媒体合成截图；只有正式 Host 提供合规 PNG/WebP 时才登记和显示截图。实现头 `2f3e7b2` 的 Draft PR #101 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色，远端普通 `150/905`、N52 `58/58`、Route P95 `159.77ms`、Asset `3277.93ms`。下一切片为 E3b，Product Acceptance 未开始。
 
-> E3b 状态（2026-08-29）：[Auto / Quick 审计 #242](242-n52-e3b-auto-quick-save-audit.md)已关闭 Engineering：实际 Player Core 稳定边界接入 auto 5 环形与 quick 1 固定槽，v2 严格绑定 kind/ID；单 FIFO 写队列、同 Build/scene 合并、最旧优先轮转、失败保留旧槽和失败后队列继续均有反例。Player 提供常驻快速存取及手动/自动/快速槽视图，加载仍走 Session Save rehydrate。实现头 `b6eec8b` 的 Draft PR #102 Windows run `33191955073` / job `98919399001` 用时 `11m53s` 绿色；E3c、三端 Host 与 Product Acceptance 未开始。
+> E3b 状态（2026-08-29）：[Auto / Quick 审计 #242](242-n52-e3b-auto-quick-save-audit.md)已关闭 Engineering：实际 Player Core 稳定边界接入 auto 5 环形与 quick 1 固定槽，v2 严格绑定 kind/ID；单 FIFO 写队列、同 Build/scene 合并、最旧优先轮转、失败保留旧槽和失败后队列继续均有反例。Player 提供常驻快速存取及手动/自动/快速槽视图，加载仍走 Session Save rehydrate。最终头 `86f053c` 的 Draft PR #102 Windows run `33193037698` / job `98923083117` 用时 `13m35s` 绿色；三端 Host 与 Product Acceptance 未开始。
+
+> E3c1 状态（2026-08-29）：[Recovery / Migration Museum 审计 #243](243-n52-e3c1-recovery-migration-museum-audit.md)为 Engineering 候选：DB3 只新增隔离 `recovery-sessions`，保留 DB2 正式槽位与 Save schema v2；每个稳定可呈现 Runtime State Hash 更新单一恢复记录，启动后必须由玩家显式恢复或清除，加载继续严格校验 Session/Build/State/scene/presentation/title 并只 rehydrate。Migration Museum 冻结 legacy v1、current v2、future v3、kind/ID 错配与 unknown field 五个原始向量。实际 Story Language/Compiler/Runtime 没有 build-authored 永久 checkpoint marker，故 E3c 已纠偏拆分：checkpoint 未被删除，下一 E3c2 先建立跨节点入口合同，禁止把 Runtime History checkpoint 冒充永久玩家检查点。本地完整门 `153 files / 919 tests`、Runtime corpus `14.621s`、VM `28.75s`、17 workspace build 与性能预算均绿色；当前等待同头远端 CI。真实强杀、三端 Host 与 Product Acceptance 继续阻断。
 
 ## 11. R6：制作自动化、QA 与本地化
 

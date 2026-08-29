@@ -3,6 +3,7 @@ import { Blob as NodeBlob } from "node:buffer";
 import { describe, expect, it } from "vitest";
 import {
   IndexedDbWorldPlayerSaveStoreV2,
+  WORLD_PLAYER_SAVE_DATABASE_VERSION,
   createWorldPlayerSaveSlotV1,
   createWorldPlayerSaveSlotV2,
   type WorldPlayerSaveSlotSourceV1,
@@ -47,7 +48,7 @@ describe("N52-E2 Web Player Save Store", () => {
     const store = new IndexedDbWorldPlayerSaveStoreV2(indexedDb);
     await store.write(createWorldPlayerSaveSlotV1(source()));
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDb.open("world-player-saves", 2);
+      const request = indexedDb.open("world-player-saves", WORLD_PLAYER_SAVE_DATABASE_VERSION);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -96,7 +97,7 @@ describe("N52-E3a Web Player Save Store", () => {
     expect(await store.read("golden_branching", "manual-1")).toMatchObject({ schemaVersion: 2, migratedFromSchemaVersion: 1, preview: { status: "unavailable", reason: "legacy-v1" } });
 
     const beforeWrite = await new Promise<unknown>((resolve, reject) => {
-      const request = indexedDb.open("world-player-saves", 2);
+      const request = indexedDb.open("world-player-saves", WORLD_PLAYER_SAVE_DATABASE_VERSION);
       request.onsuccess = () => {
         const read = request.result.transaction("save-slots").objectStore("save-slots").get("golden_branching\0manual-1");
         read.onsuccess = () => resolve(read.result);
@@ -140,7 +141,7 @@ describe("N52-E3a Web Player Save Store", () => {
       preview: { status: "available", mimeType: "image/webp", width: 320, height: 180, byteLength: 4, sha256: "9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a" }
     })), preview);
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDb.open("world-player-saves", 2);
+      const request = indexedDb.open("world-player-saves", WORLD_PLAYER_SAVE_DATABASE_VERSION);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });

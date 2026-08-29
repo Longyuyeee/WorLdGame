@@ -95,6 +95,11 @@ button { font: inherit; }
 .player-save__pages { display: flex; align-items: center; justify-content: center; gap: 12px; padding-top: 4px; color: rgba(255,255,255,.62); font-size: 12px; }
 .player-save__pages button { min-width: 72px; min-height: 40px; padding: 0 12px; border: 1px solid rgba(196,181,253,.24); border-radius: 10px; color: #ede9fe; background: rgba(139,92,246,.08); cursor: pointer; }
 .player-save__pages button:disabled { opacity: .35; cursor: not-allowed; }
+.player-recovery { position: absolute; z-index: 14; top: 74px; left: 50%; display: flex; width: min(620px, calc(100% - 40px)); align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid rgba(103,232,249,.35); border-radius: 16px; background: rgba(8,10,25,.94); box-shadow: 0 18px 50px rgba(0,0,0,.4); transform: translateX(-50%); backdrop-filter: blur(20px); }
+.player-recovery > div { display: grid; min-width: 0; flex: 1; gap: 2px; }
+.player-recovery span, .player-recovery small { color: rgba(255,255,255,.62); }
+.player-recovery button { min-height: 44px; padding: 0 12px; border: 1px solid rgba(103,232,249,.28); border-radius: 10px; color: #cffafe; background: rgba(34,211,238,.08); cursor: pointer; }
+.player-recovery button:disabled { opacity: .35; cursor: not-allowed; }
 .player-media-error { position: absolute; z-index: 6; top: 74px; right: 24px; display: flex; max-width: min(420px, calc(100% - 48px)); align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid rgba(251,113,133,.45); border-radius: 12px; color: #fecdd3; background: rgba(55,10,28,.86); font-size: 12px; }
 .player-media-error button { min-height: 44px; flex: 0 0 auto; padding: 0 12px; border: 1px solid rgba(254,205,211,.34); border-radius: 10px; color: #fff1f2; background: rgba(251,113,133,.12); cursor: pointer; }
 .player-host-suspended { position: absolute; z-index: 25; inset: 0; display: grid; place-content: center; justify-items: center; padding: 28px; color: white; text-align: center; background: rgba(6,8,20,.74); backdrop-filter: blur(18px) saturate(.7); }

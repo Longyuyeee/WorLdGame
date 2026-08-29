@@ -1,8 +1,9 @@
 export const WORLD_PLAYER_SAVE_STORE_VERSION = "2.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
-export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 2;
+export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 3;
 export const WORLD_PLAYER_SAVE_STORE_NAME = "save-slots";
 export const WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME = "save-previews";
+export const WORLD_PLAYER_RECOVERY_STORE_NAME = "recovery-sessions";
 export const WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES = 512 * 1024;
 export const WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH = 512;
 export const WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT = 512;
@@ -170,6 +171,7 @@ function openDatabase(factory: IDBFactory): Promise<IDBDatabase> {
     request.addEventListener("upgradeneeded", () => {
       if (!request.result.objectStoreNames.contains(WORLD_PLAYER_SAVE_STORE_NAME)) request.result.createObjectStore(WORLD_PLAYER_SAVE_STORE_NAME);
       if (!request.result.objectStoreNames.contains(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME)) request.result.createObjectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME);
+      if (!request.result.objectStoreNames.contains(WORLD_PLAYER_RECOVERY_STORE_NAME)) request.result.createObjectStore(WORLD_PLAYER_RECOVERY_STORE_NAME);
     });
     request.addEventListener("success", () => {
       request.result.addEventListener("versionchange", () => request.result.close());
