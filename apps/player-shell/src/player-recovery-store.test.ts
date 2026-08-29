@@ -5,7 +5,7 @@ import {
   createWorldPlayerRecoveryRecordV1,
   type WorldPlayerRecoveryRecordSourceV1
 } from "./player-recovery-store";
-import { IndexedDbWorldPlayerSaveStoreV2, createWorldPlayerSaveSlotV2 } from "./player-save-store";
+import { IndexedDbWorldPlayerSaveStoreV3, createWorldPlayerSaveSlotV3 } from "./player-save-store";
 
 const hash = "a".repeat(64);
 
@@ -20,11 +20,11 @@ function source(overrides: Partial<WorldPlayerRecoveryRecordSourceV1> = {}): Wor
 describe("N52-E3c1 isolated Player recovery store", () => {
   it("persists one strict recovery record without aliasing formal slots", async () => {
     const indexedDb = new IDBFactory();
-    const saves = new IndexedDbWorldPlayerSaveStoreV2(indexedDb);
+    const saves = new IndexedDbWorldPlayerSaveStoreV3(indexedDb);
     const recovery = new IndexedDbWorldPlayerRecoveryStoreV1(indexedDb);
-    await saves.write(createWorldPlayerSaveSlotV2({
+    await saves.write(createWorldPlayerSaveSlotV3({
       kind: "auto", slotId: "auto-1", ...source(), chapterId: null, chapterTitle: null, sceneTitle: "Fork", route: null,
-      customMetadata: {}, preview: { status: "unavailable", reason: "capture-unavailable" }
+      customMetadata: {}, preview: { status: "unavailable", reason: "capture-unavailable" }, checkpointStepId: null
     }));
     const record = createWorldPlayerRecoveryRecordV1(source());
     await recovery.write(record);
@@ -36,9 +36,9 @@ describe("N52-E3c1 isolated Player recovery store", () => {
 
   it("upgrades the existing DB2 additively and preserves formal saves", async () => {
     const indexedDb = new IDBFactory();
-    const prior = createWorldPlayerSaveSlotV2({
+    const prior = createWorldPlayerSaveSlotV3({
       kind: "manual", slotId: "manual-1", ...source(), chapterId: null, chapterTitle: null, sceneTitle: "Fork", route: null,
-      customMetadata: {}, preview: { status: "unavailable", reason: "capture-unavailable" }
+      customMetadata: {}, preview: { status: "unavailable", reason: "capture-unavailable" }, checkpointStepId: null
     });
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDb.open("world-player-saves", 2);
@@ -59,7 +59,7 @@ describe("N52-E3c1 isolated Player recovery store", () => {
 
     const recovery = new IndexedDbWorldPlayerRecoveryStoreV1(indexedDb);
     await recovery.write(createWorldPlayerRecoveryRecordV1(source()));
-    expect(await new IndexedDbWorldPlayerSaveStoreV2(indexedDb).read("golden_branching", "manual-1")).toEqual(prior);
+    expect(await new IndexedDbWorldPlayerSaveStoreV3(indexedDb).read("golden_branching", "manual-1")).toEqual(prior);
     expect(await recovery.read("golden_branching")).not.toBeNull();
   });
 

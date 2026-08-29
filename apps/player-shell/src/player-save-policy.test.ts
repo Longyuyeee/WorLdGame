@@ -1,26 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { createWorldPlayerSaveSlotV2, type WorldPlayerSaveSlotV2, type WorldPlayerSaveStoreV2 } from "./player-save-store";
+import { createWorldPlayerSaveSlotV3, type WorldPlayerSaveKindV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
 import { createWorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import { WorldPlayerRecoveryWriteCoordinatorV1, WorldPlayerSaveWriteCoordinatorV1, worldPlayerAutoSaveAllowedV1, worldPlayerSaveSceneIdentityV1 } from "./player-save-policy";
 
 const hash = "a".repeat(64);
 
-function slot(kind: "manual" | "auto" | "quick", slotId: string, sceneId: string, savedAtEpochMilliseconds: number): WorldPlayerSaveSlotV2 {
-  return createWorldPlayerSaveSlotV2({
+function slot(kind: WorldPlayerSaveKindV3, slotId: string, sceneId: string, savedAtEpochMilliseconds: number, checkpointStepId: string | null = null): WorldPlayerSaveSlotV3 {
+  return createWorldPlayerSaveSlotV3({
     kind, slotId, projectId: "golden_branching", buildId: hash, savedAtEpochMilliseconds, title: "Branching Golden",
     chapterId: "chapter_main", chapterTitle: "Main", sceneId, sceneTitle: sceneId, route: null, customMetadata: {},
     preview: { status: "unavailable", reason: "capture-unavailable" }, presentationKind: "dialogue", runtimeStateHash: hash,
-    sessionArtifactHash: hash, serializedSessionSave: "{}"
+    sessionArtifactHash: hash, serializedSessionSave: "{}", checkpointStepId
   });
 }
 
-function memoryStore(records = new Map<string, WorldPlayerSaveSlotV2>()): WorldPlayerSaveStoreV2 {
+function memoryStore(records = new Map<string, WorldPlayerSaveSlotV3>()): WorldPlayerSaveStoreV3 {
   return {
-    version: "2.0.0", backend: "memory-test",
+    version: "3.0.0", backend: "memory-test",
     async list(projectId) { return [...records.values()].filter((value) => value.projectId === projectId); },
     async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
     async readPreview() { return null; },
-    async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
+    async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
   };
 }
 
@@ -37,7 +37,7 @@ describe("N52-E3b save policy", () => {
   });
 
   it("coalesces the newest scene and rotates five automatic slots oldest-first", async () => {
-    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
     const coordinator = new WorldPlayerSaveWriteCoordinatorV1(memoryStore(records));
     let clock = 100;
     const writeScene = (sceneId: string) => coordinator.writeAuto("golden_branching", worldPlayerSaveSceneIdentityV1(hash, sceneId), async (slotId) => {
@@ -67,6 +67,38 @@ describe("N52-E3b save policy", () => {
     await succeeded;
     expect(events).toEqual(["first-start", "first-fail", "second-start", "second-end"]);
     expect(records.get("golden_branching\0quick-1")?.sceneId).toBe("next");
+  });
+});
+
+describe("N52-E3c4 checkpoint save policy", () => {
+  it("fills three slots, rotates oldest by timestamp and slot ID, and coalesces the same build and step", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
+    const coordinator = new WorldPlayerSaveWriteCoordinatorV1(memoryStore(records));
+    let clock = 100;
+    const write = (stepId: string) => coordinator.writeCheckpoint("golden_branching", hash, stepId, async (slotId) => {
+      records.set(`golden_branching\0${slotId}`, slot("checkpoint", slotId, `scene-${stepId}`, clock++, stepId));
+    });
+    expect(await write("step-a")).toEqual({ status: "written", slotId: "checkpoint-1" });
+    expect(await write("step-b")).toEqual({ status: "written", slotId: "checkpoint-2" });
+    expect(await write("step-c")).toEqual({ status: "written", slotId: "checkpoint-3" });
+    expect(await write("step-b")).toEqual({ status: "coalesced", slotId: "checkpoint-2" });
+    expect(await write("step-d")).toEqual({ status: "written", slotId: "checkpoint-1" });
+    expect([...records.values()].filter((value) => value.kind === "checkpoint")).toHaveLength(3);
+    expect(records.get("golden_branching\0checkpoint-1")?.checkpointStepId).toBe("step-d");
+    expect(records.get("golden_branching\0checkpoint-2")?.savedAtEpochMilliseconds).toBe(103);
+  });
+
+  it("retains the prior checkpoint and continues the serialized queue after a failed replacement", async () => {
+    const prior = slot("checkpoint", "checkpoint-1", "prior", 1, "step-prior");
+    const records = new Map([["golden_branching\0checkpoint-1", prior]]);
+    const coordinator = new WorldPlayerSaveWriteCoordinatorV1(memoryStore(records));
+    const failed = coordinator.writeCheckpoint("golden_branching", hash, "step-next", async () => { throw new Error("disk full"); });
+    const succeeded = coordinator.writeCheckpoint("golden_branching", hash, "step-later", async (slotId) => {
+      records.set(`golden_branching\0${slotId}`, slot("checkpoint", slotId, "later", 2, "step-later"));
+    });
+    await expect(failed).rejects.toThrow("disk full");
+    expect(records.get("golden_branching\0checkpoint-1")).toEqual(prior);
+    await expect(succeeded).resolves.toEqual({ status: "written", slotId: "checkpoint-2" });
   });
 });
 

@@ -13,7 +13,7 @@ export type {
 } from "./PlayerShell";
 export type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 export {
-  IndexedDbWorldPlayerSaveStoreV2,
+  IndexedDbWorldPlayerSaveStoreV3,
   WORLD_PLAYER_SAVE_DATABASE_VERSION,
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT,
@@ -21,6 +21,7 @@ export {
   WORLD_PLAYER_SAVE_STORE_VERSION,
   createWorldPlayerSaveSlotV1,
   createWorldPlayerSaveSlotV2,
+  createWorldPlayerSaveSlotV3,
   worldPlayerSavePreviewSha256V1
 } from "./player-save-store";
 export {
@@ -36,9 +37,12 @@ export type {
 export type {
   WorldPlayerSavePreviewV2,
   WorldPlayerSaveKindV2,
+  WorldPlayerSaveKindV3,
   WorldPlayerSaveSlotSourceV1,
   WorldPlayerSaveSlotSourceV2,
+  WorldPlayerSaveSlotSourceV3,
   WorldPlayerSaveSlotV1,
   WorldPlayerSaveSlotV2,
-  WorldPlayerSaveStoreV2
+  WorldPlayerSaveSlotV3,
+  WorldPlayerSaveStoreV3
 } from "./player-save-store";

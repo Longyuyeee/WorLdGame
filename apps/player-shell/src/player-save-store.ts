@@ -1,4 +1,4 @@
-export const WORLD_PLAYER_SAVE_STORE_VERSION = "2.0.0" as const;
+export const WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
 export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 3;
 export const WORLD_PLAYER_SAVE_STORE_NAME = "save-slots";
@@ -12,6 +12,7 @@ const idPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/u;
 const hashPattern = /^[0-9a-f]{64}$/u;
 const slotV1Keys = ["buildId", "format", "kind", "presentationKind", "previewImage", "projectId", "runtimeStateHash", "savedAtEpochMilliseconds", "sceneId", "schemaVersion", "serializedSessionSave", "sessionArtifactHash", "slotId", "title"] as const;
 const slotV2Keys = ["buildId", "chapterId", "chapterTitle", "customMetadata", "format", "kind", "migratedFromSchemaVersion", "presentationKind", "preview", "projectId", "route", "runtimeStateHash", "savedAtEpochMilliseconds", "sceneId", "sceneTitle", "schemaVersion", "serializedSessionSave", "sessionArtifactHash", "slotId", "title"] as const;
+const slotV3Keys = ["buildId", "chapterId", "chapterTitle", "checkpointStepId", "customMetadata", "format", "kind", "migratedFromSchemaVersion", "presentationKind", "preview", "projectId", "route", "runtimeStateHash", "savedAtEpochMilliseconds", "sceneId", "sceneTitle", "schemaVersion", "serializedSessionSave", "sessionArtifactHash", "slotId", "title"] as const;
 
 export interface WorldPlayerSaveSlotSourceV1 {
   readonly slotId: string;
@@ -56,13 +57,33 @@ export interface WorldPlayerSaveSlotV2 extends WorldPlayerSaveSlotSourceV2 {
   readonly migratedFromSchemaVersion: 1 | null;
 }
 
-export interface WorldPlayerSaveStoreV2 {
+export type WorldPlayerSaveKindV3 = WorldPlayerSaveKindV2 | "checkpoint";
+
+export interface WorldPlayerSaveSlotSourceV3 extends WorldPlayerSaveSlotSourceV1 {
+  readonly kind: WorldPlayerSaveKindV3;
+  readonly chapterId: string | null;
+  readonly chapterTitle: string | null;
+  readonly sceneTitle: string;
+  readonly route: null;
+  readonly customMetadata: Readonly<Record<string, never>>;
+  readonly preview: WorldPlayerSavePreviewV2;
+  readonly checkpointStepId: string | null;
+  readonly migratedFromSchemaVersion?: 1 | 2 | null;
+}
+
+export interface WorldPlayerSaveSlotV3 extends WorldPlayerSaveSlotSourceV3 {
+  readonly schemaVersion: 3;
+  readonly format: "world.player-save-slot";
+  readonly migratedFromSchemaVersion: 1 | 2 | null;
+}
+
+export interface WorldPlayerSaveStoreV3 {
   readonly version: typeof WORLD_PLAYER_SAVE_STORE_VERSION;
   readonly backend: string;
-  list(projectId: string): Promise<readonly WorldPlayerSaveSlotV2[]>;
-  read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV2 | null>;
+  list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]>;
+  read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null>;
   readPreview(projectId: string, slotId: string): Promise<Blob | null>;
-  write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2, preview?: Blob): Promise<void>;
+  write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void>;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -121,6 +142,20 @@ function validSlotV2(value: unknown): value is WorldPlayerSaveSlotV2 {
     (value.migratedFromSchemaVersion === null || value.migratedFromSchemaVersion === 1);
 }
 
+function validSlotV3(value: unknown): value is WorldPlayerSaveSlotV3 {
+  if (!isRecord(value) || !hasExactKeys(value, slotV3Keys) || !validCommonSlot(value)) return false;
+  const kind = value.kind;
+  const validSlotIdentity = kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
+    kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || kind === "quick" && value.slotId === "quick-1" ||
+    kind === "checkpoint" && /^checkpoint-[1-3]$/u.test(String(value.slotId));
+  const validCheckpointIdentity = kind === "checkpoint" ? validId(value.checkpointStepId) : value.checkpointStepId === null;
+  return value.schemaVersion === 3 && value.format === "world.player-save-slot" && validSlotIdentity && validCheckpointIdentity &&
+    validNullableId(value.chapterId) && (value.chapterTitle === null || typeof value.chapterTitle === "string" && value.chapterTitle.length > 0 && value.chapterTitle.length <= 256) &&
+    typeof value.sceneTitle === "string" && value.sceneTitle.length > 0 && value.sceneTitle.length <= 256 && value.route === null &&
+    isRecord(value.customMetadata) && Object.keys(value.customMetadata).length === 0 && validPreviewMetadata(value.preview) &&
+    (value.migratedFromSchemaVersion === null || value.migratedFromSchemaVersion === 1 || value.migratedFromSchemaVersion === 2);
+}
+
 export function createWorldPlayerSaveSlotV1(source: WorldPlayerSaveSlotSourceV1): WorldPlayerSaveSlotV1 {
   const slot: WorldPlayerSaveSlotV1 = { schemaVersion: 1, format: "world.player-save-slot", kind: "manual", previewImage: null, ...source };
   if (!validSlotV1(slot)) throw new TypeError("WORLD_PLAYER_SAVE_SLOT_INVALID");
@@ -133,16 +168,29 @@ export function createWorldPlayerSaveSlotV2(source: WorldPlayerSaveSlotSourceV2)
   return slot;
 }
 
-function normalizeSlot(value: unknown): WorldPlayerSaveSlotV2 {
-  if (validSlotV2(value)) return value;
-  if (!validSlotV1(value)) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
-  return createWorldPlayerSaveSlotV2({
+export function createWorldPlayerSaveSlotV3(source: WorldPlayerSaveSlotSourceV3): WorldPlayerSaveSlotV3 {
+  const slot: WorldPlayerSaveSlotV3 = { ...source, schemaVersion: 3, format: "world.player-save-slot", migratedFromSchemaVersion: source.migratedFromSchemaVersion ?? null };
+  if (!validSlotV3(slot)) throw new TypeError("WORLD_PLAYER_SAVE_SLOT_INVALID");
+  return slot;
+}
+
+function normalizeSlot(value: unknown): WorldPlayerSaveSlotV3 {
+  if (validSlotV3(value)) return value;
+  if (validSlotV2(value)) return createWorldPlayerSaveSlotV3({
+    kind: value.kind, slotId: value.slotId, projectId: value.projectId, buildId: value.buildId, savedAtEpochMilliseconds: value.savedAtEpochMilliseconds,
+    title: value.title, sceneId: value.sceneId, presentationKind: value.presentationKind, runtimeStateHash: value.runtimeStateHash,
+    sessionArtifactHash: value.sessionArtifactHash, serializedSessionSave: value.serializedSessionSave,
+    chapterId: value.chapterId, chapterTitle: value.chapterTitle, sceneTitle: value.sceneTitle, route: null, customMetadata: {}, preview: value.preview,
+    checkpointStepId: null, migratedFromSchemaVersion: 2
+  });
+  if (validSlotV1(value)) return createWorldPlayerSaveSlotV3({
     kind: "manual", slotId: value.slotId, projectId: value.projectId, buildId: value.buildId, savedAtEpochMilliseconds: value.savedAtEpochMilliseconds,
     title: value.title, sceneId: value.sceneId, presentationKind: value.presentationKind, runtimeStateHash: value.runtimeStateHash,
     sessionArtifactHash: value.sessionArtifactHash, serializedSessionSave: value.serializedSessionSave,
     chapterId: null, chapterTitle: null, sceneTitle: value.sceneId, route: null, customMetadata: {},
-    preview: { status: "unavailable", reason: "legacy-v1" }, migratedFromSchemaVersion: 1
+    preview: { status: "unavailable", reason: "legacy-v1" }, checkpointStepId: null, migratedFromSchemaVersion: 1
   });
+  throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
 }
 
 function key(projectId: string, slotId: string): string {
@@ -182,12 +230,12 @@ function openDatabase(factory: IDBFactory): Promise<IDBDatabase> {
   });
 }
 
-function checkedWrite(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2): WorldPlayerSaveSlotV2 {
-  if (!validSlotV1(slot) && !validSlotV2(slot)) throw new TypeError("WORLD_PLAYER_SAVE_SLOT_INVALID");
+function checkedWrite(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3): WorldPlayerSaveSlotV3 {
+  if (!validSlotV1(slot) && !validSlotV2(slot) && !validSlotV3(slot)) throw new TypeError("WORLD_PLAYER_SAVE_SLOT_INVALID");
   return normalizeSlot(slot);
 }
 
-function validPreviewBlobShape(slot: WorldPlayerSaveSlotV2, preview: Blob | undefined): boolean {
+function validPreviewBlobShape(slot: WorldPlayerSaveSlotV3, preview: Blob | undefined): boolean {
   if (slot.preview.status === "unavailable") return preview === undefined;
   return preview !== undefined && preview.type === slot.preview.mimeType && preview.size === slot.preview.byteLength && preview.size <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES;
 }
@@ -197,7 +245,7 @@ export async function worldPlayerSavePreviewSha256V1(blob: Blob, subtle: SubtleC
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export class IndexedDbWorldPlayerSaveStoreV2 implements WorldPlayerSaveStoreV2 {
+export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   readonly version = WORLD_PLAYER_SAVE_STORE_VERSION;
   readonly backend = "indexeddb";
   private readonly database: Promise<IDBDatabase>;
@@ -208,7 +256,7 @@ export class IndexedDbWorldPlayerSaveStoreV2 implements WorldPlayerSaveStoreV2 {
     this.subtle = subtle;
   }
 
-  async list(projectId: string): Promise<readonly WorldPlayerSaveSlotV2[]> {
+  async list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]> {
     if (!validId(projectId)) throw new TypeError("WORLD_PLAYER_SAVE_ID_INVALID");
     const database = await this.database;
     const transaction = database.transaction(WORLD_PLAYER_SAVE_STORE_NAME, "readonly");
@@ -218,7 +266,7 @@ export class IndexedDbWorldPlayerSaveStoreV2 implements WorldPlayerSaveStoreV2 {
     return records.map(normalizeSlot).filter((slot) => slot.projectId === projectId).sort((left, right) => left.slotId.localeCompare(right.slotId));
   }
 
-  async read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV2 | null> {
+  async read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null> {
     const database = await this.database;
     const transaction = database.transaction(WORLD_PLAYER_SAVE_STORE_NAME, "readonly");
     const done = transactionDone(transaction);
@@ -259,7 +307,7 @@ export class IndexedDbWorldPlayerSaveStoreV2 implements WorldPlayerSaveStoreV2 {
     return blob;
   }
 
-  async write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2, preview?: Blob): Promise<void> {
+  async write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void> {
     const checked = checkedWrite(slot);
     if (!validPreviewBlobShape(checked, preview)) throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
     if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {

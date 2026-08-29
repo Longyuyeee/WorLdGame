@@ -5,7 +5,7 @@ import type { PlayerCoreStatus } from "@world-studio/player-core";
 import { WebPlayerHost } from "./player-host";
 import type { PlayerHostActivityV1, WorldPlayerPreviewCaptureV1 } from "./PlayerShell";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
-import type { WorldPlayerSaveStoreV2 } from "./player-save-store";
+import type { WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
 export const WORLD_PLAYER_EMBED_API_VERSION = "1.1.0" as const;
@@ -15,7 +15,7 @@ export interface WorldPlayerMountOptionsV1 {
   readonly mediaAssets?: readonly PlayerMediaAssetSourceV1[];
   readonly hostActivity?: PlayerHostActivityV1;
   readonly onRetryMedia?: () => void;
-  readonly saveStore?: WorldPlayerSaveStoreV2;
+  readonly saveStore?: WorldPlayerSaveStoreV3;
   readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
 }
@@ -49,7 +49,7 @@ interface ResolvedWorldPlayerMountOptionsV1 {
   readonly mediaAssets: readonly PlayerMediaAssetSourceV1[];
   readonly hostActivity: PlayerHostActivityV1;
   readonly onRetryMedia: (() => void) | undefined;
-  readonly saveStore: WorldPlayerSaveStoreV2 | undefined;
+  readonly saveStore: WorldPlayerSaveStoreV3 | undefined;
   readonly recoveryStore: WorldPlayerRecoveryStoreV1 | undefined;
   readonly previewCapture: WorldPlayerPreviewCaptureV1 | undefined;
 }

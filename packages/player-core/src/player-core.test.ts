@@ -169,12 +169,13 @@ describe("N52-E1 History-backed Player Core contract", () => {
     expect(createPlayerCoreSnapshotV1(line)).toMatchObject({ status: "presenting", presentation: { kind: "dialogue", text: "After checkpoint" } });
     expect(line.checkpointSaveCandidates).toHaveLength(1);
     const candidate = line.checkpointSaveCandidates[0]!;
-    expect(candidate).toMatchObject({ stepId: "checkpoint_arrival", artifactHash: expect.stringMatching(/^[a-f0-9]{64}$/u), runtimeStateHash: expect.stringMatching(/^[a-f0-9]{64}$/u) });
+    expect(candidate).toMatchObject({ stepId: "checkpoint_arrival", sceneId: "tiny_start", artifactHash: expect.stringMatching(/^[a-f0-9]{64}$/u), runtimeStateHash: expect.stringMatching(/^[a-f0-9]{64}$/u) });
 
     const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), candidate.serializedSessionSave);
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
     expect(loaded.savedRuntimeStateHash).toBe(candidate.runtimeStateHash);
+    expect(loaded.state.checkpointSaveCandidates).toEqual([]);
     expect(createPlayerCoreSnapshotV1(loaded.state)).toMatchObject({ status: "presenting", presentation: { kind: "dialogue", text: "After checkpoint" } });
 
     const backed = dispatchPlayerCoreIntentV1(line, project, intent("back"));

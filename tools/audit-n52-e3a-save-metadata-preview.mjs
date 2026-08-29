@@ -16,7 +16,7 @@ const store = await read("apps/player-shell/src/player-save-store.ts");
 const shell = await read("apps/player-shell/src/PlayerShell.tsx");
 const host = await read("apps/player-shell/src/player-host.tsx");
 for (const token of [
-  'WORLD_PLAYER_SAVE_STORE_VERSION = "2.0.0" as const',
+  'WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const',
   'WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME = "save-previews"',
   'const slotV1Keys =',
   'function validSlotV1',
@@ -40,7 +40,7 @@ for (const token of [
   'customMetadata: {}',
   '<PlayerSavePreview'
 ]) if (!shell.includes(token)) violations.push(`Player E3a implementation token missing: ${token}`);
-if (!host.includes("IndexedDbWorldPlayerSaveStoreV2")) violations.push("Web Host is not using the v2 Save Store");
+if (!host.includes("IndexedDbWorldPlayerSaveStoreV3")) violations.push("Web Host is not using the current Save Store");
 if (shell.includes("project.testRoutes") || shell.includes("preservedFields")) violations.push("route/custom metadata must not read forbidden Canonical fields");
 
 for (const item of contract.requiredDocuments ?? []) {
