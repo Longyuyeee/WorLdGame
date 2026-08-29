@@ -488,11 +488,14 @@
         "Back, Forward, Save, Load, Auto, and Skip behavior may not yet be challenged by non-implementer product use",
         "automated and developer-operated browser evidence cannot establish independent control comprehension or device acceptance"
       ],
-      "reason": "N51 Gal Settings Engineering closed its schema v5, Catalog, Canonical persistence, Editor, Web Player application, production-browser, machine-readable exit, and two Windows / Node 22 full-check heads while every Product Acceptance gate remained pending. The Product Owner was told that RA-N21-010 stopped at N51 and that N52 remained blocked, then on 2026-08-28 again explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N52 Player Save, History, Auto, Skip, Back, Forward, and Choice scheduling Engineering.",
+      "reason": "N51 Gal Settings Engineering closed its schema v5, Catalog, Canonical persistence, Editor, Web Player application, production-browser, machine-readable exit, and two Windows / Node 22 full-check heads while every Product Acceptance gate remained pending. The Product Owner was told that RA-N21-010 stopped at N51 and that N52 remained blocked, then on 2026-08-28 explicitly instructed the team to enter N52. E3c2 later proved that the original checkpoint requirement and VM Spike were not promoted into the formal Story Language, Compiler, Runtime, Player, or strict Save chain; after being told that E3c3 required an explicit N20/N30/N31/Save contract amendment solely for N52 checkpoint, the Product Owner on 2026-08-29 instructed the team to continue from that exact continuation point with requirement alignment, correction, documentation, per-step audit, and push. This authorizes bounded N52 Player control Engineering plus only the cross-layer contract changes necessary to restore build-authored checkpoint.",
       "compensatingControls": [
         "Keep N21, N23, N30, N31, N32, N40, N41, N42, N43, N50, N51, and N52 Product Acceptance pending rather than passed",
         "Limit the extension to N52 Player control Engineering; N52 Product Acceptance, N60 Engineering, and every later node remain blocked",
         "Require N52 to consume the formal N31 Runtime Save, Session Save, History, Scheduler, and Runtime Host reconciliation contracts without a second Runtime or Player Core",
+        "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
+        "Require checkpoint to use explicit stable source identity, Runtime IR 1.1 dual-read compatibility, a non-presentational Runtime event, strict Save v3 migration, and three deterministic slots",
+        "Forbid using Runtime History checkpoints, scene IDs, instruction indexes, wall clock, or a second Save/Runtime implementation as persistent checkpoint substitutes",
         "Require E1 to establish a History-backed Player Core Back and Forward loop with deterministic state and presentation reconciliation before Save slots, Auto, or Skip UI",
         "Require actual production-browser tests at desktop and mobile viewports for every Player UI slice, deterministic state and artifact tests, frozen expected-versus-actual evidence, and Windows CI",
         "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
@@ -501,6 +504,7 @@
       "owner": "player-control-runtime",
       "approver": "Product Owner",
       "approvedAt": "2026-08-28T16:58:00+08:00",
+      "scopeAmendedAt": "2026-08-29T23:31:01+08:00",
       "expiresAt": "2026-09-27T16:00:00+08:00",
       "maximumDeliveryNode": "N52",
       "blockedGates": [
@@ -521,8 +525,8 @@
         "Public Release"
       ],
       "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N52 Product Acceptance or any N60 work.",
-      "verificationMethod": "Keep human records pending; for N52 compare History-backed Player state and presentation hashes, Back and Forward reconciliation, branch truncation, Save and Session Save artifacts, Auto and Skip scheduling, stop reasons, desktop/mobile production-browser outcomes, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
-      "evidencePath": "docs/236-n51-n52-governance-checkpoint.md",
+      "verificationMethod": "Keep human records pending; for N52 compare History-backed Player state and presentation hashes, Back and Forward reconciliation, branch truncation, versioned Story/IR/Save checkpoint artifacts, old IR and Save compatibility, Auto and Skip scheduling, stop reasons, desktop/mobile production-browser outcomes, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/245-n52-e3c3-checkpoint-authority-amendment.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",
