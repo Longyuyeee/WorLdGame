@@ -1,15 +1,15 @@
-# 当前开发情况审计（N52-E3c2 checkpoint 入口合同已关闭）
+# 当前开发情况审计（N52-E3c4 Save v3 + 三 checkpoint 槽 Engineering 已关闭）
 
-> 审计日期：2026-08-29
-> 当前分支：`codex/n52-e3c2-checkpoint-entry`；直接基线为 N52-E3c1 最终绿色头 `7b5998c`
+> 审计日期：2026-08-30
+> 当前分支：`codex/n52-e3c4-save-v3-checkpoint-slots`；直接基线为 N52-E3c3 最终绿色头 `5ae1d97`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：**RA-N21-011 checkpoint 窄范围修订**允许仅为 N52 checkpoint 修改 N20/N30/N31/Save 契约；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52-E3c2 Checkpoint 入口合同](244-n52-e3c2-checkpoint-entry-contract-audit.md)、[N52-E3c1 Recovery / Migration Museum](243-n52-e3c1-recovery-migration-museum-audit.md)、[N52-E3b Auto / Quick](242-n52-e3b-auto-quick-save-audit.md)
+> 最新节点证据：[N52-E3c4 换机接续审计](248-n52-e3c4-cross-device-handoff.md)、[N52-E3c4 Save v3 / 三 Checkpoint 槽](247-n52-e3c4-save-v3-checkpoint-slots-audit.md)、[N52-E3c3 Checkpoint Marker](246-n52-e3c3-checkpoint-marker-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-29 纠偏结论是：**产品目标和架构没有发生替换性偏移。正式 Player 已在同一 Core 上接入 History/Session Save、Back/Forward、12 手动槽、auto 5、quick 1、截图/元数据、隔离恢复与迁移/损坏向量。E3c2 复核确认最初 VM 合同与 Spike 已有显式 checkpoint，缺口来自正式 Story/Compiler/Runtime 提升时的遗漏；现已冻结 Runtime IR 1.1、Save v3 和三槽修复路线，但 RA-011 尚未授权跨层契约修改，因此代码继续 fail closed。播放 Auto/Skip、真实强杀、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-011 只准入 N52 Engineering，禁止换算成商业完成度。
+2026-08-30 纠偏结论是：**产品目标和架构没有发生替换性偏移。E3c3 已恢复最初 VM 合同与 Spike 要求的 build-authored checkpoint 正式链；E3c4 又在原有正式 Save Store 内完成 strict v3、三槽轮转/合并、失败保留和 Shell 读档候选，不使用 Runtime History、scene ID、数组下标或墙钟冒充 checkpoint。读档反向触发写入与移动端 40px 标签两项实际偏差已在生产验证前纠正。播放 Auto/Skip、真实强杀、Gallery、Windows/Android 正式宿主、三端构建与商业 Benchmark 仍明显滞后。** 当前 RA-011 只准入 N52 Engineering，禁止换算成商业完成度。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1、E2、E3a、E3b、E3c1 已关闭，E3c2 入口合同已关闭**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1、E2、E3a、E3b、E3c1、E3c3、E3c4 已关闭，E3c2 入口合同已关闭**；下一接续点为 E4 Auto/Skip 入口复核；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
 - N52-E1 本地完整门：普通 `149/890`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s`、Route P95 `72.55ms`、Asset dicing `1667.44ms`，全部未调整预算；桌面/390×844 cold production-browser overflow/console 均为 0；
 - N52-E2 已建立 Core Session Save/Load bridge、三个严格手动槽位、独立 IndexedDB Host、embed API `1.1.0` 和 Load-only rehydrate；本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms`，Autosave 测试体 `4.35s <5s`（长链总时长 `6.40s`、隔离总时长 `2.81s`）；冷 production browser 跨刷新、双视口、overflow/console 与 44px 触控门通过；实现头 `bdb3c73` 已推送至 Draft PR #99，同头 Windows / Node 22 run `33180215962` / job `98879258847` 用时 `12m48s` 绿色，远端普通 `150/898`、N52 `51/51`、Runtime corpus `66.643s <90s`；E2 Engineering 关闭；
 - N52-E3 入口契约已按实际代码冻结：v1 不静默扩展，v2 使用 copy-on-write；chapter/scene 取正式 Canonical，route/custom 在正式来源前 fail closed；截图归 Host compositor 且 Blob 与元数据分离；manual 12/每页 6、auto 5 环形、quick 1、checkpoint 3 但等待 build-authored marker。入口头 `3c319da` 已推送至 Draft PR #100，同头 Windows / Node 22 run `33183970309` / job `98892048310` 用时 `12m40s` 绿色，远端普通 `150/898`、N52 `51/51`、VM `63.321s <90s`；入口只关闭设计与审计前置，不代表 v2、截图、分页或自动/快速保存已实现；下一代码切片为 E3a；
@@ -30,6 +30,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - **N52-E3c2 checkpoint 入口合同已关闭**：最初 Gal/CL-04 需求和 VM Spike 的 `checkpoint(stepId)` 已核实，正式链路遗漏已登记为实现偏移；冻结显式 `checkpoint @id(statementId)`、IR `1.1.0`、非表现 marker event、Save v3 严格迁移与 checkpoint 3 槽策略。现有 RA-011 不覆盖 Story Language/Compiler/Runtime IR/Save schema 修改，故本步未改产品代码；入口头 `65f7879` 的 Draft PR #104 Windows run `33259082765` / job `99117811154` 用时 `13m0s` 绿色；E3c3 等待产品负责人明确扩展跨层授权；
 - **E3c3 跨层授权已建立并完成审计**：产品负责人在获知精确授权条件后要求从该接续点继续；RA-011 仅增加 checkpoint 所需的 Story Language、Compiler IR 1.1、Runtime 双读/非表现事件和 Save v3/三槽权限，最大节点仍为 N52，其他语义与全部产品门继续阻断。治理头 `59b975e` 的 Draft PR #105 Windows run `33260853201` / job `99122426648` 用时 `13m2s` 绿色；
 - **N52-E3c3 checkpoint marker Engineering 已关闭**：正式 Story 语法、Compiler IR 1.1/Source Map、Runtime 1.0/1.1 双读与非表现事件、Player 精确 Session candidate/继续播放/History 跳过已贯通，并由 PR #106、run `33263549231` / job `99129464102` 证明；Save 仍严格保持 v2 且没有 checkpoint 槽，下一步为独立 E3c4；
+- **N52-E3c4 Save v3 + 三 checkpoint 槽 Engineering 已关闭**：在既有 DB3 正式槽中增加 strict schema v3，v1/v2 只读归一且成功事务后 copy-on-write；三个 checkpoint 槽空槽优先、满槽按时间/槽 ID 替换，同 Build+step 合并；Shell 消费 E3c3 精确 candidate 并列出/读取，失败保留且剧情继续，读档不反向再写。Migration Museum v2 七向量与定向 `6 files / 66 tests` 已通过；1440×900 与 390×844 production browser 三槽/Save 3.0/44px/overflow/console 门通过；本地完整门普通 `153 files / 929 tests`、Runtime corpus `10,000 seeds / 20,000 replay`、VM `5/5`、Route P95 `61.74ms`、Asset dicing `1543.68ms` 全绿。实现头 `612578e` 已推送至 Draft PR #107，同头 Windows / Node 22 run `33266310582` / job `99136878399` 用时 `13m20s` 绿色；
 - E3a 提交前复审补回 Preview SHA-256 写前/读取校验与 Blob 篡改反例；最终本地完整门普通 `150/905`、N52 `58/58`、VM `24.48s`。实现头 `2f3e7b2` 已推送至 Draft PR #101，同头 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色：远端普通 `150/905`、N52 `58/58`、Runtime corpus `30.995s`、Route P95 `159.77ms`、Asset `3277.93ms`、build/architecture 均通过；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
@@ -69,7 +70,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
-| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History；E2 Save/Load；E3a v2 元数据/截图；E3b auto 5、quick 1；E3c1 隔离恢复与 Migration Museum | 真实 Windows/Android compositor、build-authored checkpoint、真实强杀、History 页面、播放 Auto/Skip、Gallery、正式宿主与发布材料均缺 |
+| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History；E2 Save/Load；E3a–E3c4 已完成 v2/v3 元数据/截图、auto 5、quick 1、隔离恢复、Migration Museum、build-authored marker 与三个 checkpoint 槽 | 真实 Windows/Android compositor、真实强杀、History 页面、播放 Auto/Skip、Gallery、正式宿主与发布材料仍缺 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。
@@ -155,6 +156,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52-E3c3 checkpoint marker 已关闭；当前唯一切片是 E3c4 Save v3 + 三 checkpoint 槽。仍不得用内部 History checkpoint、scene ID、数组下标或墙钟替代。N60+ 与全部 Product Acceptance 阻断不变。
+7. N52-E3c3 marker 与 N52-E3c4 Save v3 + 三 checkpoint 槽均已关闭；下一接续点是 E4 Auto/Skip 入口复核，先对齐 N31 Scheduler、Player 控件、媒体策略与 Stop Point，不直接写第二套调度器。N60+ 与全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

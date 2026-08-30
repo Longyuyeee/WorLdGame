@@ -517,6 +517,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E3c2 入口状态（2026-08-29）：[Checkpoint 入口合同审计 #244](244-n52-e3c2-checkpoint-entry-contract-audit.md)确认最初 Gal/CL-04 需求与 VM Spike 已定义显式 `checkpoint(stepId)`，偏移来自正式 Story Language→Compiler→Runtime→Player 提升时的遗漏。合同冻结 `checkpoint @id(statementId)`、Runtime IR `1.0.0→1.1.0`（双读、只写新版本）、非表现 `checkpoint-reached`、Save schema `v2→v3` 严格迁移及 checkpoint 3 槽最旧优先轮转。`RA-N21-011` 只授权 N52 Player 消费既有 N31 合同，未授权改动 N20/N30/N31 契约，因此本入口只关闭设计/审计，代码须等待仅针对 N52 checkpoint 的明确跨层授权扩展；禁止内部 History checkpoint、scene ID、数组下标或墙钟替代。入口头 `65f7879` 的 Draft PR #104 Windows run `33259082765` / job `99117811154` 用时 `13m0s` 绿色。
 
+> E3c3/E3c4 关闭状态（2026-08-30）：产品负责人明确延续该接续点后，RA-N21-011 只为 N52 checkpoint 增加 N20/N30/N31/Save 窄范围权限。E3c3 已贯通正式 `checkpoint @id(statementId)`、Compiler IR 1.1/Source Map、Runtime 双读/非表现事件和 Player 精确 Session candidate；E3c4 在原 DB3 正式槽内升级 strict Save v3，完成 v1/v2 内存归一与成功事务 copy-on-write、三个 checkpoint 槽确定性轮转/合并、失败保留、Shell 列表/读取和 Migration Museum v2。最终头 `964621b` 的 Draft PR #107 Windows / Node 22 run `33266946961` / job `99138566202` 用时 `10m40s` 绿色；详见[换机接续审计 #248](248-n52-e3c4-cross-device-handoff.md)。下一唯一入口为 E4 Auto/Skip 复核，必须复用 N31 Scheduler，不建立第二套调度器；N52 Product Acceptance 与 N60+ 阻断不变。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

@@ -70,6 +70,7 @@ export interface PlayerCoreState {
 
 export interface PlayerCheckpointSaveCandidateV1 {
   readonly stepId: string;
+  readonly sceneId: string;
   readonly serializedSessionSave: string;
   readonly artifactHash: string;
   readonly runtimeStateHash: string;
@@ -242,7 +243,7 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
     if (result.event?.kind === "checkpoint-reached") {
       const created = createRuntimeSessionSaveV1(artifacts.story, historySession);
       if (!created.ok) return { ...base, runtimeState, historySession, hostState, currentEvent: null, checkpointSaveCandidates, status: "error", diagnostics: [...base.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
-      checkpointSaveCandidates.push({ stepId: result.event.stepId, serializedSessionSave: created.serialized, artifactHash: created.artifactHash, runtimeStateHash: runtimeStateHashV1(runtimeState) });
+      checkpointSaveCandidates.push({ stepId: result.event.stepId, sceneId: runtimeState.cursor.sceneId, serializedSessionSave: created.serialized, artifactHash: created.artifactHash, runtimeStateHash: runtimeStateHashV1(runtimeState) });
     }
     const current = { ...base, runtimeState, historySession, hostState, currentEvent: result.event, checkpointSaveCandidates };
     if (result.diagnostics.length > 0) {
@@ -394,12 +395,13 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   const savedCheckpoint = loaded.save.history.checkpoints[loaded.save.cursor]!;
   const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(loaded.session), checkpoint.checkpointId);
   const loadedState: PlayerCoreState = { ...state, status: status === "continue" ? "presenting" : status, runtimeState: loaded.state, historySession: loaded.session, hostState, currentEvent: event, checkpointSaveCandidates: [] };
+  const restoredState = status === "continue" ? drivePlayerCore(loadedState, loaded.session) : loadedState;
   return {
     ok: true,
     artifactHash: loaded.artifactHash,
     savedRuntimeStateHash: runtimeStateHashV1(savedCheckpoint.state),
     savedSceneId: savedCheckpoint.state.cursor.sceneId,
-    state: status === "continue" ? drivePlayerCore(loadedState, loaded.session) : loadedState
+    state: { ...restoredState, checkpointSaveCandidates: [] }
   };
 }
 

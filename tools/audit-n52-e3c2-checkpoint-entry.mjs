@@ -27,7 +27,7 @@ if (authority.engineeringStatus !== "complete") {
   if (!runtime.includes('program.irVersion !== "1.0.0"') || runtime.includes('opcode === "checkpoint"')) violations.push("formal Runtime baseline changed before cross-layer authority");
   if (!playerCore.includes('result.event.kind !== "direction"')) violations.push("Player presentation-boundary baseline drifted");
 }
-if (!saveStore.includes('WorldPlayerSaveKindV2 = "manual" | "auto" | "quick"') || saveStore.includes('| "checkpoint"')) violations.push("strict Save v2 baseline changed before cross-layer authority");
+if (!saveStore.includes('WorldPlayerSaveKindV2 = "manual" | "auto" | "quick"')) violations.push("strict Save v2 compatibility baseline changed");
 if (!spikeTypes.includes('readonly opcode: "checkpoint"') || !spikeTypes.includes('readonly operands: { readonly stepId: string }')) violations.push("original VM Spike checkpoint evidence missing");
 
 for (const forbidden of contract.markerContract?.forbiddenSubstitutes ?? []) {

@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3c4-save-v3-checkpoint-slots",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseCommit": "5ae1d9751eaf0f170e8258d7561fdf364900dd1c",
+  "authority": "RA-N21-011 checkpoint 窄范围修订",
+  "contract": {
+    "saveSchema": 3,
+    "storeVersion": "3.0.0",
+    "databaseVersion": 3,
+    "checkpointSlots": ["checkpoint-1", "checkpoint-2", "checkpoint-3"],
+    "rotation": "empty-first-then-oldest-savedAt-and-slotId",
+    "coalescing": "same-buildId-and-checkpointStepId-reuses-newest-match",
+    "candidateSource": "player-exact-checkpoint-session-save-candidate",
+    "loadBehavior": "restore-and-continue-without-new-checkpoint-write",
+    "failureBehavior": "retain-prior-slots-and-continue-player"
+  },
+  "migration": {
+    "readableSchemas": [1, 2, 3],
+    "normalization": "strict-in-memory-v3",
+    "writePolicy": "copy-on-write-after-successful-transaction",
+    "futureAndCorrupt": "fail-closed",
+    "recoveryStore": "isolated-v1-unchanged"
+  },
+  "acceptance": [
+    "strict-v1-v2-to-v3-normalization-without-read-mutation",
+    "future-unknown-and-kind-slot-mismatch-fail-closed",
+    "three-checkpoint-slots-fill-rotate-and-coalesce-deterministically",
+    "failed-checkpoint-replacement-retains-prior-slot-and-queue-continues",
+    "shell-consumes-marker-candidate-once-and-lists-loads-three-slots",
+    "checkpoint-load-does-not-create-a-second-checkpoint-write",
+    "formal-save-and-recovery-persistence-remain-isolated"
+  ],
+  "engineeringEvidence": {
+    "implementationCommit": "612578e34418abb05954b4dffede7f107883bbff",
+    "pullRequest": 107,
+    "workflowRun": 33266310582,
+    "workflowJob": 99136878399,
+    "conclusion": "success"
+  },
+  "requiredDocuments": [
+    { "path": "docs/247-n52-e3c4-save-v3-checkpoint-slots-audit.md", "token": "N52-E3c4 Save v3 + 三 checkpoint 槽 Engineering 关闭" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3c4 Save v3 + 三 checkpoint 槽" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3c4 Save v3 + 三 checkpoint 槽" }
+  ]
+}

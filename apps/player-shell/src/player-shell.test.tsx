@@ -10,7 +10,7 @@ import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
-import type { WorldPlayerSaveSlotV2, WorldPlayerSaveStoreV2 } from "./player-save-store";
+import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
 afterEach(() => vi.restoreAllMocks());
@@ -18,6 +18,18 @@ afterEach(() => vi.restoreAllMocks());
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
   return loadProject(migrateS0Project(source).files);
+}
+
+function branchingWithCheckpoint(): CanonicalProject {
+  const project = branching();
+  const script = project.scripts.branch_start!;
+  return {
+    ...project,
+    scripts: {
+      ...project.scripts,
+      branch_start: { ...script, statements: [{ id: "checkpoint_fork", kind: "checkpoint" }, ...script.statements] }
+    }
+  };
 }
 
 describe("N50-E1 shared Player Shell", () => {
@@ -417,16 +429,16 @@ describe("N51-E5 Player settings application", () => {
   });
 
   it("saves and loads a manual Host slot through the formal Session Save bridge", async () => {
-    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
     const previews = new Map<string, Blob>();
-    const store: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0",
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0",
       backend: "memory-test",
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview(projectId, slotId) { return previews.get(`${projectId}\0${slotId}`) ?? null; },
       async write(slot, preview) {
-        if (slot.schemaVersion !== 2) throw new Error("unexpected legacy write");
+        if (slot.schemaVersion !== 3) throw new Error("unexpected legacy write");
         records.set(`${slot.projectId}\0${slot.slotId}`, slot);
         if (preview === undefined) previews.delete(`${slot.projectId}\0${slot.slotId}`);
         else previews.set(`${slot.projectId}\0${slot.slotId}`, preview);
@@ -457,8 +469,8 @@ describe("N51-E5 Player settings application", () => {
   });
 
   it("paginates twelve manual slots six at a time", () => {
-    const store: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0",
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0",
       backend: "memory-test",
       async list() { return []; },
       async read() { return null; },
@@ -478,16 +490,16 @@ describe("N51-E5 Player settings application", () => {
   });
 
   it("requires explicit overwrite confirmation and commits Host-composited preview metadata", async () => {
-    const records = new Map<string, WorldPlayerSaveSlotV2>();
-    const writes: Array<{ readonly slot: WorldPlayerSaveSlotV2; readonly preview?: Blob }> = [];
-    const store: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0",
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
+    const writes: Array<{ readonly slot: WorldPlayerSaveSlotV3; readonly preview?: Blob }> = [];
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0",
       backend: "memory-test",
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview() { return null; },
       async write(slot, preview) {
-        if (slot.schemaVersion !== 2) throw new Error("unexpected legacy write");
+        if (slot.schemaVersion !== 3) throw new Error("unexpected legacy write");
         records.set(`${slot.projectId}\0${slot.slotId}`, slot);
         writes.push({ slot, ...(preview === undefined ? {} : { preview }) });
       }
@@ -501,7 +513,7 @@ describe("N51-E5 Player settings application", () => {
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     expect(writes.filter((write) => write.slot.kind === "manual")).toHaveLength(1);
     expect(writes.find((write) => write.slot.kind === "manual")).toMatchObject({
-      slot: { schemaVersion: 2, sceneId: "branch_start", sceneTitle: "Fork", route: null, customMetadata: {}, preview: { status: "available", mimeType: "image/webp", width: 320, height: 180, byteLength: 3, sha256: "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81" } },
+      slot: { schemaVersion: 3, checkpointStepId: null, sceneId: "branch_start", sceneTitle: "Fork", route: null, customMetadata: {}, preview: { status: "available", mimeType: "image/webp", width: 320, height: 180, byteLength: 3, sha256: "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81" } },
       preview
     });
 
@@ -513,16 +525,16 @@ describe("N51-E5 Player settings application", () => {
     expect(previewCapture.capture).toHaveBeenCalledWith(expect.objectContaining({ maximumWidth: 512, maximumHeight: 512, maximumBytes: 524288 }));
   });
 
-  it("keeps a valid v2 save when preview capture fails", async () => {
-    const writes: WorldPlayerSaveSlotV2[] = [];
-    const store: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0",
+  it("keeps a valid v3 save when preview capture fails", async () => {
+    const writes: WorldPlayerSaveSlotV3[] = [];
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0",
       backend: "memory-test",
       async list() { return writes; },
       async read() { return null; },
       async readPreview() { return null; },
       async write(slot, preview) {
-        if (slot.schemaVersion !== 2 || preview !== undefined) throw new Error("unexpected write");
+        if (slot.schemaVersion !== 3 || preview !== undefined) throw new Error("unexpected write");
         writes.push(slot);
       }
     };
@@ -537,14 +549,14 @@ describe("N51-E5 Player settings application", () => {
   });
 
   it("writes one automatic save per scene identity and exposes the five-slot view", async () => {
-    const records = new Map<string, WorldPlayerSaveSlotV2>();
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
     let clock = 1_788_000_000_000;
-    const store: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0", backend: "memory-test",
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0", backend: "memory-test",
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview() { return null; },
-      async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
+      async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
     };
     render(<PlayerShell project={branching()} saveStore={store} now={() => clock++} />);
     expect(screen.getByRole("button", { name: "快速保存" })).toBeDisabled();
@@ -563,13 +575,13 @@ describe("N51-E5 Player settings application", () => {
   });
 
   it("replaces and loads the fixed quick slot without overwrite confirmation", async () => {
-    const records = new Map<string, WorldPlayerSaveSlotV2>();
-    const store: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0", backend: "memory-test",
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0", backend: "memory-test",
       async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview() { return null; },
-      async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
+      async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
     };
     const { container } = render(<PlayerShell project={branching()} saveStore={store} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
@@ -583,16 +595,47 @@ describe("N51-E5 Player settings application", () => {
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
   });
 
+  it("persists, lists, and loads an exact build-authored checkpoint without stopping presentation", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
+    let clock = 1_788_000_000_000;
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0", backend: "memory-test",
+      async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
+      async readPreview() { return null; },
+      async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
+    };
+    const { container } = render(<PlayerShell project={branchingWithCheckpoint()} saveStore={store} now={() => clock++} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    await waitFor(() => expect(records.get("golden_branching\0checkpoint-1")).toMatchObject({
+      schemaVersion: 3, kind: "checkpoint", checkpointStepId: "checkpoint_fork", sceneId: "branch_start", presentationKind: "choice"
+    }));
+
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "检查点" }));
+    expect(screen.getByText("检查点 1")).toBeInTheDocument();
+    expect(screen.getByText(/Fork · checkpoint_fork/u)).toBeInTheDocument();
+    expect(screen.getByText("检查点 3")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
+    expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
+    expect([...records.values()].filter((slot) => slot.kind === "checkpoint")).toHaveLength(1);
+  });
+
   it("writes isolated recovery boundaries and restores them only after an explicit player decision", async () => {
-    const saves = new Map<string, WorldPlayerSaveSlotV2>();
+    const saves = new Map<string, WorldPlayerSaveSlotV3>();
     let recovery: WorldPlayerRecoveryRecordV1 | null = null;
     let clock = 1_788_000_000_000;
-    const saveStore: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0", backend: "memory-save",
+    const saveStore: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0", backend: "memory-save",
       async list(projectId) { return [...saves.values()].filter((slot) => slot.projectId === projectId); },
       async read(projectId, slotId) { return saves.get(`${projectId}\0${slotId}`) ?? null; },
       async readPreview() { return null; },
-      async write(value) { if (value.schemaVersion !== 2) throw new Error("legacy"); saves.set(`${value.projectId}\0${value.slotId}`, value); }
+      async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); saves.set(`${value.projectId}\0${value.slotId}`, value); }
     };
     const recoveryStore: WorldPlayerRecoveryStoreV1 = {
       version: "1.0.0", backend: "memory-recovery",
@@ -625,8 +668,8 @@ describe("N51-E5 Player settings application", () => {
       async write() {},
       clear
     };
-    const saveStore: WorldPlayerSaveStoreV2 = {
-      version: "2.0.0", backend: "memory-save",
+    const saveStore: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0", backend: "memory-save",
       async list() { return []; }, async read() { return null; }, async readPreview() { return null; }, async write() {}
     };
     const { container } = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} />);

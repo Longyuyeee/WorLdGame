@@ -24,11 +24,11 @@ import {
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT,
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH,
-  createWorldPlayerSaveSlotV2,
+  createWorldPlayerSaveSlotV3,
   worldPlayerSavePreviewSha256V1,
   type WorldPlayerSavePreviewV2,
-  type WorldPlayerSaveSlotV2,
-  type WorldPlayerSaveStoreV2
+  type WorldPlayerSaveSlotV3,
+  type WorldPlayerSaveStoreV3
 } from "./player-save-store";
 import {
   WorldPlayerRecoveryWriteCoordinatorV1,
@@ -49,7 +49,7 @@ export interface PlayerShellProps {
   readonly onRetryMedia?: () => void;
   readonly hostActivity?: PlayerHostActivityV1;
   readonly platform?: GalSettingsPlatform;
-  readonly saveStore?: WorldPlayerSaveStoreV2;
+  readonly saveStore?: WorldPlayerSaveStoreV3;
   readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
   readonly now?: () => number;
@@ -79,7 +79,7 @@ export interface WorldPlayerPreviewCaptureV1 {
   capture(request: WorldPlayerPreviewCaptureRequestV1): Promise<WorldPlayerPreviewCaptureResultV1 | null>;
 }
 
-function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV2 | undefined; readonly store: WorldPlayerSaveStoreV2 }) {
+function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
   const [source, setSource] = useState<string | null>(null);
 
   useEffect(() => {
@@ -117,9 +117,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [voicePlaying, setVoicePlaying] = useState(false);
   const [textReady, setTextReady] = useState(true);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
-  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV2[]>([]);
+  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
-  const [saveView, setSaveView] = useState<"manual" | "auto" | "quick">("manual");
+  const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint">("manual");
   const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
@@ -134,6 +134,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
+  const consumedCheckpointCandidates = useRef(new Set<string>());
   const lastRecoveryRuntimeStateHash = useRef<string | null>(null);
   saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
   recoveryContext.current = { projectId: project.manifest.projectId, store: recoveryStore };
@@ -223,7 +224,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
       const chapter = scenePath === undefined ? undefined : project.chapters.find((candidate) => candidate.scenePaths.includes(scenePath));
       const captured = await captureSavePreview(projectId, sceneId);
-      await saveStore.write(createWorldPlayerSaveSlotV2({
+      await saveStore.write(createWorldPlayerSaveSlotV3({
         kind,
         slotId,
         projectId,
@@ -240,7 +241,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         presentationKind: capturedSnapshot.presentation.kind,
         runtimeStateHash: capturedSnapshot.runtimeStateHash,
         sessionArtifactHash: created.artifactHash,
-        serializedSessionSave: created.serialized
+        serializedSessionSave: created.serialized,
+        checkpointStepId: null
       }), captured.blob);
       return captured.metadata.status;
   }, [captureSavePreview, now, project, saveStore, snapshot, state]);
@@ -369,6 +371,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     autoSavedSceneIdentities.current.clear();
+    consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
     setState(createPlayerCore(project));
     setMediaErrors([]);
@@ -431,6 +434,39 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveMessage("自动保存失败，原存档保持不变");
     });
   }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
+
+  useEffect(() => {
+    if (saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
+    const buildId = snapshot.identities.buildId;
+    for (const candidate of state.checkpointSaveCandidates) {
+      const identity = `${buildId}\0${candidate.stepId}\0${candidate.artifactHash}`;
+      if (consumedCheckpointCandidates.current.has(identity)) continue;
+      consumedCheckpointCandidates.current.add(identity);
+      void saveCoordinator.writeCheckpoint(project.manifest.projectId, buildId, candidate.stepId, async (slotId) => {
+        const sceneIndex = project.scenes.findIndex((scene) => scene.id === candidate.sceneId);
+        const scene = project.scenes[sceneIndex];
+        if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
+        const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
+        const chapter = scenePath === undefined ? undefined : project.chapters.find((item) => item.scenePaths.includes(scenePath));
+        const captured = await captureSavePreview(project.manifest.projectId, state.runtimeState?.cursor.sceneId ?? candidate.sceneId);
+        await saveStore.write(createWorldPlayerSaveSlotV3({
+          kind: "checkpoint", slotId, projectId: project.manifest.projectId, buildId, savedAtEpochMilliseconds: now(), title: snapshot.title,
+          chapterId: chapter?.id ?? null, chapterTitle: chapter?.title ?? null, sceneId: candidate.sceneId, sceneTitle: scene.title,
+          route: null, customMetadata: {}, preview: captured.metadata, presentationKind: snapshot.presentation.kind,
+          runtimeStateHash: candidate.runtimeStateHash, sessionArtifactHash: candidate.artifactHash,
+          serializedSessionSave: candidate.serializedSessionSave, checkpointStepId: candidate.stepId
+        }), captured.blob);
+      }).then(async (result) => {
+        if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+        await refreshSaveSlots();
+        setSaveMessage(`${result.slotId} 已写入剧情检查点`);
+      }).catch(() => {
+        if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+        setSaveOperation("error");
+        setSaveMessage("检查点写入失败，旧检查点保持不变，剧情继续");
+      });
+    }
+  }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state.checkpointSaveCandidates, state.runtimeState]);
 
   useEffect(() => {
     if (recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
@@ -747,11 +783,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             >存读档</button>
             {savePanelOpen && (
               <div id="player-save-panel" className="player-save__panel" aria-label="存读档槽位">
-                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : "快速存档"}</strong><span data-save-message>{saveMessage}</span></header>
+                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : saveView === "quick" ? "快速存档" : "剧情检查点"}</strong><span data-save-message>{saveMessage}</span></header>
                 <nav className="player-save__views" aria-label="存档类型">
                   <button type="button" aria-pressed={saveView === "manual"} onClick={() => setSaveView("manual")}>手动</button>
                   <button type="button" aria-pressed={saveView === "auto"} onClick={() => setSaveView("auto")}>自动</button>
                   <button type="button" aria-pressed={saveView === "quick"} onClick={() => setSaveView("quick")}>快速</button>
+                  <button type="button" aria-pressed={saveView === "checkpoint"} onClick={() => setSaveView("checkpoint")}>检查点</button>
                 </nav>
                 {saveView === "manual" && Array.from({ length: 6 }, (_, index) => savePage * 6 + index + 1).map((slotNumber) => {
                   const slotId = `manual-${slotNumber}`;
@@ -783,6 +820,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>保存</button>
                   <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || quickSlot === undefined} onClick={() => void loadFromSlot("quick-1")}>读取</button>
                 </section>}
+                {saveView === "checkpoint" && Array.from({ length: 3 }, (_, index) => index + 1).map((slotNumber) => {
+                  const slotId = `checkpoint-${slotNumber}`;
+                  const slot = saveSlots.find((candidate) => candidate.slotId === slotId);
+                  return <section className="player-save__slot" key={slotId}>
+                    <PlayerSavePreview projectId={project.manifest.projectId} slot={slot} store={saveStore} />
+                    <div><strong>检查点 {slotNumber}</strong><span>{slot === undefined ? "空槽位" : `${slot.sceneTitle} · ${slot.checkpointStepId} · ${new Date(slot.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC`}</span></div>
+                    <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || slot === undefined} onClick={() => void loadFromSlot(slotId)}>读取</button>
+                  </section>;
+                })}
               </div>
             )}
           </aside>

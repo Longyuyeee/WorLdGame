@@ -25,7 +25,7 @@ for (const [ok, message] of [
   [compilerTypes.includes('RUNTIME_IR_VERSION = "1.1.0" as const') && compilerTypes.includes('| "checkpoint"') && compiler.includes('operands = { stepId: id }'), "Compiler IR 1.1 checkpoint lowering is missing"],
   [runtime.includes('program.irVersion !== "1.0.0" && program.irVersion !== "1.1.0"') && runtime.includes('opcode === "checkpoint"') && runtime.includes('kind: "checkpoint-reached"'), "Runtime dual-read checkpoint event is missing"],
   [player.includes('checkpointSaveCandidates') && player.includes('createRuntimeSessionSaveV1(artifacts.story, historySession)') && player.includes('event?.kind === "checkpoint-reached"'), "Player exact checkpoint candidate is missing"],
-  [saveStore.includes('WorldPlayerSaveKindV2 = "manual" | "auto" | "quick"') && !saveStore.includes('| "checkpoint"'), "marker slice changed Save v2 before E3c4"]
+  [saveStore.includes('WorldPlayerSaveKindV2 = "manual" | "auto" | "quick"'), "strict Save v2 compatibility baseline is missing"]
 ]) if (!ok) violations.push(message);
 
 if (contract.engineeringStatus === "complete" && (!/^[0-9a-f]{40}$/u.test(contract.engineeringEvidence?.implementationCommit ?? "") || !Number.isSafeInteger(contract.engineeringEvidence?.pullRequest) || !Number.isSafeInteger(contract.engineeringEvidence?.workflowRun) || !Number.isSafeInteger(contract.engineeringEvidence?.workflowJob) || contract.engineeringEvidence?.conclusion !== "success")) violations.push("complete marker requires exact remote evidence");
