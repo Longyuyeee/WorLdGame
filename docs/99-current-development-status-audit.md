@@ -4,7 +4,7 @@
 > 当前分支：`codex/n52-e3c4-save-v3-checkpoint-slots`；直接基线为 N52-E3c3 最终绿色头 `5ae1d97`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：**RA-N21-011 checkpoint 窄范围修订**允许仅为 N52 checkpoint 修改 N20/N30/N31/Save 契约；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52-E3c4 Save v3 / 三 Checkpoint 槽](247-n52-e3c4-save-v3-checkpoint-slots-audit.md)、[N52-E3c3 Checkpoint Marker](246-n52-e3c3-checkpoint-marker-audit.md)、[N52-E3c2 Checkpoint 入口合同](244-n52-e3c2-checkpoint-entry-contract-audit.md)
+> 最新节点证据：[N52-E3c4 换机接续审计](248-n52-e3c4-cross-device-handoff.md)、[N52-E3c4 Save v3 / 三 Checkpoint 槽](247-n52-e3c4-save-v3-checkpoint-slots-audit.md)、[N52-E3c3 Checkpoint Marker](246-n52-e3c3-checkpoint-marker-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -70,7 +70,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 | Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
-| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History；E2 Save/Load；E3a v2 元数据/截图；E3b auto 5、quick 1；E3c1 隔离恢复与 Migration Museum | 真实 Windows/Android compositor、build-authored checkpoint、真实强杀、History 页面、播放 Auto/Skip、Gallery、正式宿主与发布材料均缺 |
+| Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52-E1 History；E2 Save/Load；E3a–E3c4 已完成 v2/v3 元数据/截图、auto 5、quick 1、隔离恢复、Migration Museum、build-authored marker 与三个 checkpoint 槽 | 真实 Windows/Android compositor、真实强杀、History 页面、播放 Auto/Skip、Gallery、正式宿主与发布材料仍缺 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。
