@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4-auto-skip-entry",
+  "engineeringStatus": "entry-frozen",
+  "productAcceptance": "blocked",
+  "baseline": {
+    "branch": "codex/n52-e3c4-save-v3-checkpoint-slots",
+    "commit": "e9bc7141be65e89d39253633962f7bf6ca40c01d",
+    "runtimeSchedulerVersion": 1,
+    "playerCoreVersion": "0.4.0",
+    "embedApiVersion": "1.1.0"
+  },
+  "corrections": [
+    "auto-save-is-not-auto-playback",
+    "advance-allow-hold-is-not-hold-skip",
+    "manual-wait-for-voice-is-not-auto-timing",
+    "runtime-stop-instruction-ids-are-not-yet-build-authored-player-stop-points",
+    "runtime-scheduler-evidence-is-not-player-or-device-acceptance"
+  ],
+  "ownership": {
+    "runtime": "single-deterministic-scheduler-and-stop-reasons",
+    "playerCore": "scheduler-session-policy-dispatch-history-and-host-effect-bridge",
+    "playerShell": "clock-input-controls-media-policy-and-accessible-status",
+    "host": "activity-resource-availability-and-real-media-duration-provider",
+    "settings": "versioned-player-playback-policy-owned-by-n52-without-silent-gal-settings-v5-extension"
+  },
+  "runtimeContract": {
+    "modes": ["normal", "auto", "skipRead", "skipAll"],
+    "skipActivations": ["hold", "toggle"],
+    "speeds": [5, 10, 20, 40, "instant"],
+    "requiredStopReasons": [
+      "unreadBoundary",
+      "stopPoint",
+      "input",
+      "effect",
+      "barrier",
+      "resourceUnavailable",
+      "diagnostic",
+      "terminal",
+      "history"
+    ],
+    "sameBoundaryRule": "normal-auto-skip-must-preserve-state-and-history-at-the-same-stop",
+    "historyRule": "scheduler-requires-latest-history-checkpoint-and-must-not-guess-across-forward-history"
+  },
+  "playerEntryGaps": {
+    "playerCoreSchedulerIntegration": "absent",
+    "playerCorePlaybackIntents": "absent",
+    "playerSnapshotPlaybackState": "absent",
+    "shellAutoSkipControls": "absent",
+    "embedPlaybackObservation": "absent",
+    "buildAuthoredStopPointSource": "absent",
+    "realVoiceDurationProvider": "absent",
+    "videoPlaybackPolicy": "absent"
+  },
+  "stopPolicy": {
+    "mustStop": [
+      "choice-or-input",
+      "awaited-effect",
+      "barrier",
+      "resource-unavailable",
+      "diagnostic",
+      "terminal",
+      "build-authored-stop-point",
+      "host-suspend",
+      "history-navigation"
+    ],
+    "skipRead": "stop-after-committing-first-unread-dialogue-or-narration-boundary",
+    "forwardHistory": "playback-cannot-start-until-forward-history-is-explicitly-resolved",
+    "cleanup": "stop-restores-normal-text-stage-audio-video-and-clears-owned-timers"
+  },
+  "autoPolicy": {
+    "separateFromSkip": true,
+    "delay": "max-readable-text-delay-and-real-voice-duration-plus-tail",
+    "clockOwner": "player-shell-or-host-not-runtime-state",
+    "mustNotAdvanceWhile": ["text-reveal-incomplete", "required-voice-playing", "host-suspended"]
+  },
+  "skipPolicy": {
+    "readSource": "runtime-meta-progress-read-text-ids",
+    "holdLifecycle": ["pointer-or-key-down-start", "pointer-up-key-up-cancel-blur-or-suspend-stop"],
+    "toggleLifecycle": ["explicit-start", "explicit-second-action-or-stop-reason-stop"],
+    "mediaClasses": ["text", "wait", "stage-transition", "character-motion", "audio", "video"]
+  },
+  "implementationSlices": [
+    {
+      "node": "N52-E4a",
+      "scope": "Player Core Scheduler bridge, canonical playback policy, History boundary and structured stop snapshot"
+    },
+    {
+      "node": "N52-E4b",
+      "scope": "Auto playback controls with real Shell clock, text reveal and voice-duration stop behavior"
+    },
+    {
+      "node": "N52-E4c",
+      "scope": "Skip Read/All, Hold/Toggle, 5/10/20/40/Instant, media cleanup and embed observation"
+    }
+  ],
+  "testEvidencePolicy": {
+    "recordExpectedBeforeExecution": true,
+    "recordFirstActualAndDifference": true,
+    "runtime": "real-compiled-program-runtime-scheduler-history-and-state-hash",
+    "player": "real-player-core-runtime-host-and-branch-history",
+    "browser": "cold-production-build-real-timers-input-media-and-two-viewports",
+    "forbiddenSubstitutes": [
+      "mock-timer-only-product-claim",
+      "synthetic-button-click-without-runtime-state-evidence",
+      "development-server-as-production-evidence",
+      "responsive-browser-as-physical-device-evidence"
+    ]
+  },
+  "blocked": [
+    "n52-auto-skip-implementation-until-entry-audit-closes",
+    "windows-and-android-production-hosts",
+    "physical-device-and-human-evidence",
+    "n52-product-acceptance",
+    "n60-and-later",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    {
+      "path": "docs/249-n52-e4-auto-skip-entry-audit.md",
+      "token": "N52-E4 Auto/Skip 入口 Engineering 关闭"
+    },
+    {
+      "path": "docs/89-engine-product-delivery-plan.md",
+      "token": "E4 Auto/Skip 入口状态"
+    },
+    {
+      "path": "docs/90-m1-requirement-traceability.md",
+      "token": "N52-E4 Auto/Skip 入口合同"
+    },
+    {
+      "path": "docs/99-current-development-status-audit.md",
+      "token": "N52-E4 Auto/Skip 入口合同"
+    }
+  ]
+}
