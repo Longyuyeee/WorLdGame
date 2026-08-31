@@ -9,6 +9,8 @@
 
 > 换机接续（2026-08-31）：[交接 #255](255-n52-e4d-cross-device-development-handoff.md)冻结实现头 `663f317`、PR #113、首次差异、第三次完整门和暂停时仍运行的精确头 CI。新电脑必须先关闭最新文档头的远端证据，再进入 E4e；旧 run 不得跨 head 复用。
 
+> N52-E4e Player video（2026-08-31）：正式 Player 现按 Canonical MIME 渲染现有 background awaited Effect 中的 video；Playback Policy `1.2.0` 固定 Auto 等 ended、Skip 取消并继续，Host suspend/resume、错误 fail closed 与媒体清理均已接线。Compiler→Policy→Shell 定向 `96/96`，cold production 真实 Blob WebM 覆盖 Auto、两种 Skip 与 Host 生命周期，console/overflow 0。该项由 blocked 转 complete；E4 仅余 390×844 E4c cold production 复验，接续 N52-E4f，AC-15 与全部 Product Acceptance 不变。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。
@@ -37,7 +39,7 @@
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | N43-E1–E4 建立统一上下文、Beginner/Pro、Motion 与输入/同步；E5–E7 依次开放 Production、Debug & QA 与 Mobile Focus，Engineering 真实任务达到 7/7。Utage 级本地化/配音批量列、真人与商业 Product 门仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
 | USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；Compiler 已生成 Gallery/Music/Ending 等 Catalog，Runtime 已记录 Gallery/Ending 永久 Meta | 覆盖配置、玩家 Gallery/Replay/Music/Ending 页面与三端一致 |
-| USP-09 | Skip / History / Back | N31/N52 | 实现中 | E4 出口复审为 `完整 4 / 阻断 3`：E4c 已把 Skip Read/All、Hold/Toggle、五档速度、text/stage/audio 清理与 embed observation 接到唯一 Scheduler；Shell 两处 stop list 仍为空，完整 video、手机 E4c cold rerun、三端与真人仍缺；下一步 E4d | [N52-E4 出口复审](253-n52-e4-engineering-exit-reaudit.md)、三端状态一致 |
+| USP-09 | Skip / History / Back | N31/N52 | 实现中 | E4 矩阵现为 `完整 6 / 阻断 1`：作者 Stop Point 与正式 video Auto/Skip/Host 生命周期均已闭环；仅余 390×844 E4c cold production 复验，三端与真人仍缺；下一步 E4f | [N52-E4e Player video](256-n52-e4e-player-video-policy-audit.md)、三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
 ## 3. P0 模块需求
@@ -76,7 +78,7 @@
 | AC-12 | 动效不阻塞且有减少动效 | N43 | 实现中 | E3 已建立完整/简化/静止三级、系统 reduce 强制静止、全局 `0.01ms` 中断、非颜色状态和真实页面 1.2s rAF 门；完整/简化/静止 P95 `12.30/12.20/6.20ms` 均通过。内嵌浏览器不能模拟真实 OS 媒体设置，目标设备/OS 矩阵和真人任务仍缺 | [N43-E3](206-n43-e3-motion-state-semantics-audit.md)、目标设备 Motion 矩阵 |
 | AC-13 | 镜头/角色/转场/BGM/Voice/SFX | N42/N50 | 验收中 | N50-E3 已把 Editor↔Player Media Golden 结构差分和左右角色/BGM/Voice 多 channel 写成可执行 contract，并实测缺媒体恢复。短 Voice 在采样前自然结束，故只证明独立 bus/解码/音量，不虚报同时播放。仍缺 SFX/Ambient/UI 全矩阵、三端目标设备和 Product Acceptance | [N50-E3](215-n50-e3-player-media-parity-recovery-audit.md)、[N50-E2](214-n50-e2-player-stage-media-presentation-audit.md)、Media Golden 三端快照 |
 | AC-14 | 编辑器和玩家设备预算 | N90–N92/N102 | 未开始 | 实体设备 | WIN-L/AND-L/AND-R 报告 |
-| AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | Web Engineering 已覆盖 Auto、Skip Read/All × Hold/Toggle、五档速度、现有媒体恢复及 embed；N52-E4 出口复审因作者 Stop Point→Build→Shell 链、E4c 手机 cold rerun、video、Windows/Android、实体设备与真人缺失而未通过，不能登记产品通过 | [N52-E4 出口复审](253-n52-e4-engineering-exit-reaudit.md)、玩家输入向量和 State Hash |
+| AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | Web Engineering 已覆盖 Auto、Skip Read/All × Hold/Toggle、五档速度、作者 Stop Point、现有媒体及正式 video 策略；E4 仍缺 390×844 E4c cold rerun，Windows/Android、实体设备与真人也未完成，不能登记产品通过 | [N52-E4e Player video](256-n52-e4e-player-video-policy-audit.md)、玩家输入向量和 State Hash |
 | AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | N52-E1 已在正式 Web Player 证明结局→Back→Forward Runtime State Hash 完全恢复、active presentation 等价、Host compensation/replay 留痕，以及 Back 后改选截断旧 Forward；三端和真人证据仍缺 | [N52-E1](238-n52-e1-history-backed-player-core-audit.md)、三端玩家 History E2E |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | N40 Engineering 已通过：E1–E8n 建立自动图、10k/64 窗口、缓存、Runtime 高亮、trusted Route-first、全局索引、narration 结构事务、topology 分页、结局审阅、诊断/目标导航及 Choice 修复闭环。N40 Product Acceptance 仍阻断，N62 玩家自动图未开始 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
 | AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2 记录 Gallery/Ending，E12 又确保 Back/Forward 与旧存档加载不回退该永久 Meta。覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 仍待 N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |

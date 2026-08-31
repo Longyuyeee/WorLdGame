@@ -13,7 +13,7 @@
     "skipModesActivationsAndSpeeds": "complete",
     "textStageCharacterAndAudioCleanup": "complete",
     "buildAuthoredStopPointSource": "complete",
-    "formalVideoPolicyEvidence": "blocked",
+    "formalVideoPolicyEvidence": "complete",
     "e4cMobileColdProduction": "blocked"
   },
   "firstAudit": {
@@ -30,17 +30,15 @@
     "correction": "record-the-infrastructure-long-tail-without-changing-product-code-or-timeouts-and-require-a-new-exact-head-Windows-full-check"
   },
   "continuation": {
-    "node": "N52-E4e",
-    "scope": "formal-player-video-renderer-and-skip-policy-evidence",
+    "node": "N52-E4f",
+    "scope": "390x844-e4c-cold-production-rerun-and-e4-exit-reaudit",
     "mustProve": [
-      "formal-player-can-render-an-authored-video-asset",
-      "auto-and-skip-have-an-explicit-video-wait-or-skip-policy",
-      "video-exit-cleans-up-playback-and-media-state",
-      "production-evidence-records-the-real-video-policy-outcome"
+      "390x844-production-rerun-covers-auto-and-four-skip-vectors",
+      "mobile-layout-has-zero-horizontal-overflow-and-usable-controls",
+      "fresh-e4-exit-audit-has-no-remaining-engineering-blocker"
     ]
   },
   "deferredWithoutClaim": [
-    "formal-player-video-renderer-and-video-skip-policy-evidence",
     "390x844-e4c-cold-production-rerun",
     "windows-and-android-production-hosts",
     "physical-device-and-human-evidence",

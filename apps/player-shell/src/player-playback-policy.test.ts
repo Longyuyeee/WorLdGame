@@ -6,7 +6,7 @@ import {
   type WorldPlayerPlaybackPolicyV1
 } from "./player-playback-policy";
 
-describe("N52-E4b/E4c Player Playback Policy", () => {
+describe("N52-E4b/E4c/E4e Player Playback Policy", () => {
   it("publishes one versioned, valid default Auto policy", () => {
     expect(DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1).toEqual({
       schemaVersion: 1,
@@ -15,9 +15,10 @@ describe("N52-E4b/E4c Player Playback Policy", () => {
         baseDelayMilliseconds: 500,
         millisecondsPerReadableUnit: 30,
         voiceTailMilliseconds: 200,
-        instantInstructionBudget: 128
+        instantInstructionBudget: 128,
+        video: "wait-for-end"
       },
-      skip: { defaultActivation: "toggle", defaultSpeed: 20, instantInstructionBudget: 128 }
+      skip: { defaultActivation: "toggle", defaultSpeed: 20, instantInstructionBudget: 128, video: "cancel-and-continue" }
     });
     expect(validateWorldPlayerPlaybackPolicyV1(DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1)).toBe(true);
   });

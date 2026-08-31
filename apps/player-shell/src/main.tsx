@@ -1,10 +1,10 @@
-import { StrictMode, useState } from "react";
+import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-settings";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
 import branchingSource from "../../../fixtures/projects/branching/project.s0.json";
-import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
+import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost } from "./player-host";
 
 const source = benchmarkSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
@@ -86,6 +86,75 @@ function SettingsApplicationDemo() {
   </>;
 }
 
+async function createGeneratedVideoUrl(): Promise<string> {
+  const canvas = document.createElement("canvas");
+  canvas.width = 640;
+  canvas.height = 360;
+  const context = canvas.getContext("2d");
+  if (context === null || typeof canvas.captureStream !== "function" || typeof MediaRecorder === "undefined") throw new Error("VIDEO_DEMO_CAPTURE_UNAVAILABLE");
+  const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp8") ? "video/webm;codecs=vp8" : "video/webm";
+  const stream = canvas.captureStream(12);
+  const recorder = new MediaRecorder(stream, { mimeType });
+  const chunks: Blob[] = [];
+  recorder.addEventListener("dataavailable", (event) => { if (event.data.size > 0) chunks.push(event.data); });
+  const stopped = new Promise<void>((resolve, reject) => {
+    recorder.addEventListener("stop", () => resolve(), { once: true });
+    recorder.addEventListener("error", () => reject(new Error("VIDEO_DEMO_RECORD_FAILED")), { once: true });
+  });
+  recorder.start();
+  const startedAt = performance.now();
+  await new Promise<void>((resolve) => {
+    const draw = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / 6000);
+      const gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, `hsl(${260 + progress * 50} 72% 22%)`);
+      gradient.addColorStop(1, `hsl(${185 + progress * 35} 78% 28%)`);
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.fillStyle = "rgba(255,255,255,.92)";
+      context.font = "700 34px system-ui";
+      context.textAlign = "center";
+      context.fillText("WorLd Player · VIDEO", canvas.width / 2, canvas.height / 2);
+      context.fillStyle = "rgba(255,255,255,.55)";
+      context.fillRect(80, 235, 480 * progress, 6);
+      if (progress >= 1) resolve(); else requestAnimationFrame(draw);
+    };
+    requestAnimationFrame(draw);
+  });
+  recorder.stop();
+  await stopped;
+  stream.getTracks().forEach((track) => track.stop());
+  return URL.createObjectURL(new Blob(chunks, { type: "video/webm" }));
+}
+
+function VideoDemo() {
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [suspended, setSuspended] = useState(false);
+  useEffect(() => {
+    let disposed = false;
+    let created: string | null = null;
+    void createGeneratedVideoUrl().then((url) => {
+      created = url;
+      if (disposed) URL.revokeObjectURL(url); else setVideoUrl(url);
+    }).catch(() => { if (!disposed) setError(true); });
+    return () => {
+      disposed = true;
+      if (created !== null) URL.revokeObjectURL(created);
+    };
+  }, []);
+  if (error) return <main className="player-host-unmounted" data-video-demo="error"><strong>Video demo unavailable</strong></main>;
+  if (videoUrl === null) return <main className="player-host-unmounted" data-video-demo="generating"><strong>正在生成确定性视频资产…</strong></main>;
+  const demo = createPlayerVideoDemoV1(videoUrl);
+  const configured = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
+  return <>
+    <div className="player-demo-controls" aria-label="视频宿主生命周期控制">
+      <button type="button" onClick={() => setSuspended((current) => !current)}>{suspended ? "恢复视频宿主" : "暂停视频宿主"}</button>
+    </div>
+    <WebPlayerHost project={configured} mediaAssets={demo.mediaAssets} activityOverride={suspended ? "suspended" : "active"} />
+  </>;
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {demoName === "recovery"
@@ -96,6 +165,8 @@ createRoot(document.getElementById("root")!).render(
           ? <HostLifecycleDemo />
           : demoName === "settings"
             ? <SettingsApplicationDemo />
+          : demoName === "video"
+            ? <VideoDemo />
           : <WebPlayerHost project={demoName === "input" ? inputDemoProject : demoName === "stop" ? stopPointDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
   </StrictMode>
 );

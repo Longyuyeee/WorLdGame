@@ -44,7 +44,7 @@ E4 出口矩阵由 `完整 4 / 阻断 3` 更新为 `完整 5 / 阻断 2`。剩�
 
 ## 5. 退出门
 
-本切片必须在机器审计、风险策略、定向测试、完整 `npm run check` 全绿后提交推送；推送后只接受该精确头的 Windows / Node 22 CI 作为远端结论。远端 run/job 和最终完整门统计待精确头产生后回填，不复用 E4 出口旧 run。
+本切片已在机器审计、风险策略、定向测试、完整 `npm run check` 全绿后提交推送。最终交接头 `25f040ba20ac9271e91ef6886a8195dd2573e8ac` 的 Windows / Node 22 `product-baseline` run `33379185779` / job `99447416930` 已成功；该精确头关闭 E4d 远端证据，不复用 E4 出口旧 run。
 
 本机完整门首次执行在 E4d、N42 `15 files / 157 tests` 均通过后，于既有 Editor `App.test.tsx` 出现 `44/45`：唯一 same-command range keyboard/touch lane control 用例超过未改的 5 秒预算，实际 9.543 秒。该用例在同一代码、同一命令过滤条件下隔离复跑为 `1 passed / 44 skipped`，测试体 3.11 秒。它与本切片文件及 Player 路径无交集，因此不修改 Editor 产品代码或 timeout；该长尾作为首次实际保留，并要求重新运行完整门取得最终裁决。
 

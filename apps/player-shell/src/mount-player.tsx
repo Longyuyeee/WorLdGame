@@ -147,7 +147,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
           mode: requiredAttribute(shell, "playbackMode") as WorldPlayerObservationV1["playback"]["mode"],
           activation: requiredAttribute(shell, "playbackActivation") === "none" ? null : requiredAttribute(shell, "playbackActivation") as "hold" | "toggle",
           speed: observationSpeed(requiredAttribute(shell, "playbackSpeed")),
-          active: requiredAttribute(shell, "skipActive") === "true" || requiredAttribute(shell, "autoPlayback") === "waiting" || requiredAttribute(shell, "autoPlayback") === "waiting-text" || requiredAttribute(shell, "autoPlayback") === "waiting-voice-metadata" || requiredAttribute(shell, "autoPlayback") === "advancing",
+          active: requiredAttribute(shell, "skipActive") === "true" || requiredAttribute(shell, "autoPlayback") === "waiting" || requiredAttribute(shell, "autoPlayback") === "waiting-text" || requiredAttribute(shell, "autoPlayback") === "waiting-voice-metadata" || requiredAttribute(shell, "autoPlayback") === "waiting-video" || requiredAttribute(shell, "autoPlayback") === "advancing",
           stopReason: requiredAttribute(shell, "playbackStopReason") === "none" ? null : requiredAttribute(shell, "playbackStopReason")
         }
       };

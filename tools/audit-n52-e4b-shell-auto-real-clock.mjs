@@ -26,7 +26,7 @@ for (const token of [
   "data-playback-stop-reason"
 ]) if (!shell.includes(token)) violations.push(`Shell Auto bridge token is missing: ${token}`);
 for (const token of [
-  'WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.1.0"',
+  'WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.2.0"',
   "voiceTailMilliseconds",
   "instantInstructionBudget",
   "validateWorldPlayerPlaybackPolicyV1"

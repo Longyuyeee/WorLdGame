@@ -170,6 +170,30 @@ describe("project compiler N30-E1/E2", () => {
     });
   });
 
+  it("keeps an authored video asset in the build manifest and existing awaited background Effect", () => {
+    const base = loadFixture("media");
+    const scene = base.scripts.media_stage!;
+    const background = scene.statements.find((statement) => statement.id === "media_background")!;
+    const project: CanonicalProject = {
+      ...base,
+      assets: { ...base.assets, assets: [...base.assets.assets, { assetId: "media_intro_video", kind: "video", displayName: "Intro", mimeType: "video/webm" }] },
+      scripts: { ...base.scripts, media_stage: { ...scene, statements: [
+        { ...background, id: "video_effect", summary: "asset=media_intro_video action=set effectPolicy=pure awaitMode=awaited descriptorId=player.media.video.intro" },
+        { id: "video_end", kind: "end", endingName: "Done" }
+      ] } }
+    };
+    const result = compileProject(project, "release");
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.assetManifest.assets).toContainEqual(expect.objectContaining({ assetId: "media_intro_video", kind: "video", mimeType: "video/webm" }));
+    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.scenes[0]?.instructions[0]).toMatchObject({
+      instructionId: "video_effect",
+      opcode: "direction",
+      operands: { command: "background", parameters: { asset: "media_intro_video", awaitMode: "awaited" } }
+    });
+  });
+
   it("normalizes authored audio booleans and volume into the formal Runtime contract", () => {
     const result = compileProject(loadFixture("media"), "release");
     expect(result.ok).toBe(true);
