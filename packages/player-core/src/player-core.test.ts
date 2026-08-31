@@ -397,13 +397,29 @@ describe("N52-E4a Player Core Scheduler bridge", () => {
   });
 
   it("exposes a build instruction stop point without advancing beyond the same History boundary", () => {
-    const project = fixture("benchmark");
+    const source = fixture("benchmark");
+    const script = source.scripts.benchmark_opening!;
+    const project = {
+      ...source,
+      scripts: {
+        ...source.scripts,
+        benchmark_opening: {
+          ...script,
+          statements: script.statements.map((statement) => statement.id === "benchmark_opening_01" ? { ...statement, playerStopPoint: true } : statement)
+        }
+      }
+    };
     const opening = startPlayerCore(createPlayerCore(project), project);
-    const stopped = schedulePlayerCorePlaybackV1(opening, playbackPolicy({ stopInstructionIds: ["benchmark_opening_01"] }));
-    expect(createPlayerCoreSnapshotV1(stopped)).toMatchObject({
+    const normal = advancePlayerCore(opening);
+    const stopped = schedulePlayerCorePlaybackV1(opening, playbackPolicy({ stopInstructionIds: opening.artifacts?.playerPlaybackPolicy.stopInstructionIds ?? [] }));
+    const normalSnapshot = createPlayerCoreSnapshotV1(normal);
+    const stoppedSnapshot = createPlayerCoreSnapshotV1(stopped);
+    expect(stoppedSnapshot).toMatchObject({
       presentation: { kind: "dialogue", textId: "benchmark_opening_01_text" },
       playback: { stopReason: "stopPoint", autoAdvanceDelayMilliseconds: null }
     });
+    expect(stoppedSnapshot.runtimeStateHash).toBe(normalSnapshot.runtimeStateHash);
+    expect(stoppedSnapshot.history).toEqual(normalSnapshot.history);
   });
 
   it("fails closed with a structured History stop while a recorded Forward branch exists", () => {

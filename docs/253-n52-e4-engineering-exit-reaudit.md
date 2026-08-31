@@ -25,6 +25,8 @@ E4a–E4c 已建立真实的 Runtime→Player Core→Web Shell 播放链：N31 R
 | 视频策略实证 | 正式 Player 无 video renderer，不能实测跳过/等待/恢复 | 阻断，不冒充 P0 完整 |
 | E4c 手机 cold production | E4b 有 390×844；E4c 本轮仅可复验 1280×720 | 阻断证据项 |
 
+> E4d 后更新（2026-08-31）：[审计 #254](254-n52-e4d-build-stop-point-source-audit.md)已贯通 `@stop()`→Canonical `playerStopPoint`→versioned `player-playback-policy.json`→Shell Auto/Skip。定向 `3 files / 84 tests` 与 cold production Auto/Toggle Skip Read/All 均在 `history=2 / stopPoint` 停止，Shell 空列表归零。该矩阵项现为完整；E4 总矩阵变为 `完整 5 / 阻断 2`，video policy 和 390×844 E4c 证据仍阻断，下一唯一切片为 N52-E4e。
+
 矩阵为 `完整 4 / 阻断 3`。这不是把 E4c 已完成工作推翻，而是区分“子切片完成”和“E4 总目标完成”。AC-15、N52 Product Acceptance、Windows/Android 与真人证据继续保持 blocked。
 
 ## 3. 预期—首次实际—修正

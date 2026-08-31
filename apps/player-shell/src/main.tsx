@@ -1,6 +1,6 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { withPlatformSettings } from "@world-studio/gal-settings";
+import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-settings";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
 import branchingSource from "../../../fixtures/projects/branching/project.s0.json";
@@ -13,6 +13,22 @@ const project: CanonicalProject = { ...migrated, variables: { schemaVersion: 1, 
 const branchingRaw = branchingSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
 const branchingMigrated = loadProject(migrateS0Project(branchingRaw).files);
 const inputDemoProject: CanonicalProject = { ...branchingMigrated, variables: { schemaVersion: 1, variables: branchingRaw.variables ?? [] } };
+const stopPointSceneId = inputDemoProject.manifest.entrySceneId;
+const stopPointDemoProject: CanonicalProject = {
+  ...inputDemoProject,
+  settings: withProjectSettings(inputDemoProject.settings, { text: { revealMode: "instant" } }),
+  scripts: {
+    ...inputDemoProject.scripts,
+    [stopPointSceneId]: {
+      ...inputDemoProject.scripts[stopPointSceneId]!,
+      statements: [
+        { id: "stop_demo_a", kind: "narration", textId: "stop_demo_a_text", text: "Before the authored stop." },
+        { id: "stop_demo_b", kind: "narration", textId: "stop_demo_b_text", text: "Build-authored Stop Point reached.", playerStopPoint: true },
+        { id: "stop_demo_end", kind: "end", endingName: "Stop Point was bypassed" }
+      ]
+    }
+  }
+};
 const demoName = new URLSearchParams(window.location.search).get("demo");
 const mediaDemo = demoName === "media" || demoName === "recovery" ? createPlayerMediaDemoV1()
   : demoName === "multi" ? createPlayerMediaMultichannelDemoV1()
@@ -80,6 +96,6 @@ createRoot(document.getElementById("root")!).render(
           ? <HostLifecycleDemo />
           : demoName === "settings"
             ? <SettingsApplicationDemo />
-          : <WebPlayerHost project={demoName === "input" ? inputDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
+          : <WebPlayerHost project={demoName === "input" ? inputDemoProject : demoName === "stop" ? stopPointDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
   </StrictMode>
 );

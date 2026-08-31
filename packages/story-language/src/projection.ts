@@ -31,8 +31,17 @@ export type StorySceneProjectionResult =
 interface PendingChoice {
   readonly id: string;
   readonly prompt: string;
+  readonly playerStopPoint: boolean;
   readonly options: ChoiceOption[];
   readonly range: SourceRange;
+}
+
+function isPlayerStopPoint(trailingMetadata: string): boolean {
+  return /(?:^|\s)@stop\(\)(?=\s|$)/u.test(trailingMetadata);
+}
+
+function playerStopPointField(trailingMetadata: string): { readonly playerStopPoint: true } | Record<string, never> {
+  return isPlayerStopPoint(trailingMetadata) ? { playerStopPoint: true } : {};
 }
 
 function decodeQuoted(raw: string): string {
@@ -134,6 +143,7 @@ export function projectStoryScene(
       id: pendingChoice.id,
       kind: "choice",
       prompt: pendingChoice.prompt,
+      ...playerStopPointField(pendingChoice.playerStopPoint ? "@stop()" : ""),
       options: pendingChoice.options
     };
     statements.push(choice);
@@ -191,7 +201,8 @@ export function projectStoryScene(
             kind: "dialogue",
             speakerId: node.speakerId,
             textId: node.textId,
-            text: node.textRaw
+            text: node.textRaw,
+            ...playerStopPointField(node.trailingMetadata)
           });
         }
         break;
@@ -203,7 +214,7 @@ export function projectStoryScene(
           diagnostics.push(projectionDiagnostic("MISSING_TEXT_ID", "Narration requires @id(...)", node));
         }
         if (node.statementId !== undefined && node.textId !== undefined) {
-          statements.push({ id: node.statementId, kind: "narration", textId: node.textId, text: decodeQuoted(node.textRaw) });
+          statements.push({ id: node.statementId, kind: "narration", textId: node.textId, text: decodeQuoted(node.textRaw), ...playerStopPointField(node.trailingMetadata) });
         }
         break;
       case "choice":
@@ -215,6 +226,7 @@ export function projectStoryScene(
           pendingChoice = {
             id: node.id,
             prompt: decodeQuoted(node.promptRaw),
+            playerStopPoint: isPlayerStopPoint(node.trailingMetadata),
             options: [],
             range: node.range
           };
@@ -250,7 +262,8 @@ export function projectStoryScene(
           statements.push({
             id: node.id,
             kind: "end",
-            endingName: decodeQuoted(node.nameRaw)
+            endingName: decodeQuoted(node.nameRaw),
+            ...playerStopPointField(node.trailingMetadata)
           });
         }
         break;

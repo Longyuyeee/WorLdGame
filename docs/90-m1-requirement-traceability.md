@@ -5,6 +5,10 @@
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
 > 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 checkpoint 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock** 与 **N52-E4c Skip / media / embed** 子切片均已关闭；**N52-E4 出口复审**因 build-authored Stop Point source、video policy 与 E4c 手机 cold production 证据缺失而未通过，下一代码切片为 E4d。Product Acceptance 不变。
 
+> N52-E4d build-authored Stop Point（2026-08-31）：`@stop()` 已由正式 Source 投影到稳定 statement identity，Compiler 输出独立 policy v1，Shell Auto 与四种 Skip 消费同一列表并由既有 N31 Scheduler 返回 `stopPoint`；Runtime IR 1.1、Save checkpoint 和 golden build identity 边界未漂移。首次 `77/84`、竞态修正前 `81/84`、最终 `84/84`，cold production Auto/Toggle Skip Read/All 同停 history 2。该项由 blocked 转 complete；E4 仍因 video policy 与 390×844 证据为 blocked，接续 N52-E4e，全部 Product Acceptance 不变。
+
+> 换机接续（2026-08-31）：[交接 #255](255-n52-e4d-cross-device-development-handoff.md)冻结实现头 `663f317`、PR #113、首次差异、第三次完整门和暂停时仍运行的精确头 CI。新电脑必须先关闭最新文档头的远端证据，再进入 E4e；旧 run 不得跨 head 复用。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。

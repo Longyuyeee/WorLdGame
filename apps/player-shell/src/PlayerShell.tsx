@@ -159,6 +159,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
+  const buildStopInstructionIds = state.artifacts?.playerPlaybackPolicy.stopInstructionIds ?? [];
   const saveCoordinator = useMemo(() => saveStore === undefined ? undefined : new WorldPlayerSaveWriteCoordinatorV1(saveStore), [saveStore]);
   const recoveryCoordinator = useMemo(() => recoveryStore === undefined ? undefined : new WorldPlayerRecoveryWriteCoordinatorV1(recoveryStore), [recoveryStore]);
   const content = snapshot.presentation;
@@ -585,7 +586,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       mode: "auto" as const,
       skipActivation: null,
       speed: "normal" as const,
-      stopInstructionIds: [],
+      stopInstructionIds: buildStopInstructionIds,
       unavailableEffectDescriptorIds: [],
       instantInstructionBudget: canonicalPlaybackPolicy.auto.instantInstructionBudget,
       autoTiming: {
@@ -606,7 +607,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [autoEnabled, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -623,6 +624,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       stopSkip();
       return;
     }
+    if (snapshot.playback.mode === skipMode && snapshot.playback.stopReason !== null && snapshot.playback.stopReason !== "budget") {
+      stopSkip();
+      return;
+    }
     setTextReady(true);
     const timer = window.setTimeout(() => {
       skipAwaitingDispatch.current = false;
@@ -631,7 +636,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         mode: skipMode,
         skipActivation,
         speed: skipSpeed,
-        stopInstructionIds: [],
+        stopInstructionIds: buildStopInstructionIds,
         unavailableEffectDescriptorIds: [],
         instantInstructionBudget: canonicalPlaybackPolicy.skip.instantInstructionBudget,
         autoTiming: {
@@ -644,7 +649,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [canonicalPlaybackPolicy.skip.instantInstructionBudget, hostActivity, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.status, stopSkip]);
+  }, [buildStopInstructionIds, canonicalPlaybackPolicy.skip.instantInstructionBudget, hostActivity, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stopSkip]);
 
   useEffect(() => {
     if (!skipActive) return;

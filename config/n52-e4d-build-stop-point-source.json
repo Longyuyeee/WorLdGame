@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4d-build-stop-point-source",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "authority": {
+    "riskAcceptance": "RA-N21-011",
+    "amendment": "build-authored-player-stop-point-only",
+    "maximumDeliveryNode": "N52",
+    "runtimeIr": "1.1.0-unchanged"
+  },
+  "contract": {
+    "sourceSyntax": "@stop()",
+    "canonicalField": "playerStopPoint:true",
+    "artifact": "player-playback-policy.json",
+    "artifactSchemaVersion": 1,
+    "artifactPolicyVersion": 1,
+    "runtimeConsumer": "existing-N31-scheduler-stopInstructionIds",
+    "shellSource": "state.artifacts.playerPlaybackPolicy.stopInstructionIds"
+  },
+  "expectedVersusActual": [
+    {
+      "phase": "frozen-first-run",
+      "expected": "new-source-compiler-auto-and-four-skip-assertions-fail-while-existing-tests-pass",
+      "actual": "3-files-84-tests-collected-77-passed-7-failed; source-field-and-compiler-artifact-were-undefined; Auto-and-four-Skip-paths-did-not-retain-stopPoint",
+      "correction": "project-exact-source-marker-to-canonical-field; emit-versioned-build-policy; feed-one-build-list-to-both-Shell-policies"
+    },
+    {
+      "phase": "first-correction-run",
+      "expected": "all-five-Shell-modes-stop-on-B-without-reaching-ending",
+      "actual": "81-of-84-passed; three-Skip-cases-reported-stopPoint-but-a-zero-ms-follow-up-dispatch-raced-to-ending",
+      "correction": "guard-the-Shell-Skip-dispatch-effect-synchronously-on-a-current-non-budget-stop-reason"
+    },
+    {
+      "phase": "final-targeted-run",
+      "expected": "Source-Compiler-Shell-chain-is-green-with-no-timeout-or-budget-change",
+      "actual": "source-compiler-shell-run-3-files-84-tests-passed-in-12.01s; final-source-compiler-core-shell-run-4-files-104-tests-passed-in-52.61s",
+      "difference": "none"
+    }
+  ],
+  "coldProduction": {
+    "viewport": "1280x720",
+    "build": "Vite-8.2.1-90-modules",
+    "auto": "presenting/history-2/auto/stopPoint/ending-false/overflow-0",
+    "skipReadToggle": "presenting/history-2/skipRead/toggle/stopPoint/ending-false",
+    "skipAllToggle": "presenting/history-2/skipAll/toggle/stopPoint/ending-false",
+    "consoleWarningsOrErrors": 0,
+    "operationDifference": "first-Skip-Read-driver-click-landed-during-title-to-presenting-transition-and-remained-normal/none; waiting-for-the-enabled-control-then-retrying-produced-the-frozen-result",
+    "holdEvidence": "real-pointer-unit-tests-only; browser-driver-cannot-retain-pointer-down-across-the-zero-ms-dispatch-without-fabrication"
+  },
+  "localFullCheckFirstAttempt": {
+    "actual": "N42-targeted-15-files-157-tests-passed; existing-Editor-App-suite-passed-44-of-45-and-the-same-command-range-keyboard-touch-test-exceeded-its-unchanged-5s-budget-at-9.543s",
+    "isolatedActual": "same-exact-test-passed-with-3.11s-test-body; 1-passed-and-44-skipped",
+    "correction": "record-the-local-long-tail-without-changing-Editor-product-code-or-timeout-and-require-a-fresh-complete-check"
+  },
+  "localFullCheckSecondAttempt": {
+    "actual": "the-previous-Editor-App-suite-passed-45-of-45-twice; N43-workspace-context-lease-probe-then-observed-held-instead-of-acquired",
+    "isolatedActual": "the-same-N43-file-passed-1-of-1-with-a-5.79s-test-body",
+    "correction": "stop-the-completed-production-preview-to-reduce-local-contention; retain-lease-semantics-and-budget; require-a-third-fresh-complete-check"
+  },
+  "localFullCheckFinal": {
+    "status": "PASS",
+    "ordinary": "154-files-961-tests",
+    "n50": 73,
+    "n51": 118,
+    "n52History": 85,
+    "runtime": "61-tests-10000-seeds-20000-replays",
+    "vm": "5-tests-test-body-66.09s",
+    "productionBuilds": 17,
+    "routeP95Milliseconds": 121.55,
+    "assetDicingAtlasTotalMilliseconds": [1107.09, 1335.69, 2442.78]
+  },
+  "remainingE4Blockers": [
+    "formal-player-video-renderer-and-video-skip-policy-evidence",
+    "390x844-e4c-cold-production-rerun"
+  ],
+  "nextSlice": "N52-E4e-formal-player-video-renderer-and-skip-policy-evidence",
+  "requiredDocuments": [
+    { "path": "docs/254-n52-e4d-build-stop-point-source-audit.md", "token": "E4d Engineering：完成" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4d Stop Point source bridge 关闭状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4d build-authored Stop Point" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4e formal Player video" }
+  ]
+}

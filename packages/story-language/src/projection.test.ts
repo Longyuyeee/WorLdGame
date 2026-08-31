@@ -25,6 +25,26 @@ end "晚风\\n终章" @id(stmt_rooftop_end)
 `;
 
 describe("CST to StoryScene projection", () => {
+  it("projects an explicit @stop() author marker without changing the visible narration", () => {
+    const source = `scene "Stop source" @id(stop_scene)
+narrate "Pause here" @stop() @sid(stop_line) @id(stop_text)
+end "Done" @id(stop_end)
+`;
+    const document = parseStory(source);
+    const result = projectStoryScene(document);
+
+    expect(formatStory(document)).toContain('narrate "Pause here" @stop() @sid(stop_line) @id(stop_text)');
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.scene.statements[0]).toEqual({
+      id: "stop_line",
+      kind: "narration",
+      textId: "stop_text",
+      text: "Pause here",
+      playerStopPoint: true
+    });
+  });
+
   it("projects the supported subset with independent statement and text IDs", () => {
     const result = projectStoryScene(parseStory(entrySource));
 

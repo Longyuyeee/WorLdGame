@@ -529,6 +529,10 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4 出口复审状态（2026-08-31）：[出口复审 #253](253-n52-e4-engineering-exit-reaudit.md)从 E4c 最终绿色头逐项核对真实代码与 PRD。Runtime/Core/Shell、Auto、四种 Skip、五档速度及现有媒体清理为 `完整 4`；Shell 的 Auto/Skip 仍各自硬编码 `stopInstructionIds: []`，正式作者/Build Stop Point source 不存在，video policy 和 E4c 390×844 cold production 证据也缺，故 E4 总出口为 `阻断 3`、未通过。首次机器审计 5 项失败中四项是文档缺口，一项是审计器正则误报并已修正；定向真实回归 `6 files / 139 tests` 全绿，cold production 1280×720 再次得到 Skip Read `5/unreadBoundary`、Skip All `17/waiting-choice/input`、overflow `0`。下一唯一代码切片为 **N52-E4d build-authored Stop Point source bridge**；E4、AC-15 与 Product Acceptance 均不得提前关闭。
 
+> E4d Stop Point source bridge 关闭状态（2026-08-31）：[审计 #254](254-n52-e4d-build-stop-point-source-audit.md)在 RA-N21-011 第二个窄修订下建立作者 `@stop()`、Canonical `playerStopPoint:true`、Compiler policy v1 / `player-playback-policy.json` 与 Shell 同源列表，Runtime IR 1.1 和既有 Scheduler 不变。真实测试首次 `77/84`、修正后 `81/84` 暴露 Skip 0ms 后续 dispatch 竞态，最终 `84/84`；cold production Auto、Toggle Skip Read/All 均在 `history=2 / presenting / stopPoint` 停止且未到 ending。E4 矩阵现为 `完整 5 / 阻断 2`，下一唯一切片为 **N52-E4e formal Player video renderer and skip policy evidence**；390×844 复验、E4 总出口、AC-15 与 Product Acceptance 继续阻断。
+
+> E4d 换机暂停状态（2026-08-31）：实现头 `663f317` 已推送至 Draft PR #113，本地第三次完整门 `154 files / 961 tests`、17 builds、全部性能预算绿色；暂停时该精确头 Windows run `33378384542` / job `99444914077` 仍在 full check，不能登记远端通过。换机拉取、精确头核验、差异处理和 E4e 接续顺序见[交接 #255](255-n52-e4d-cross-device-development-handoff.md)。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

@@ -115,6 +115,12 @@ export interface RuntimeBuildManifestV1 {
   readonly artifacts: Readonly<Record<string, string>>;
 }
 
+export interface PlayerPlaybackBuildPolicyV1 {
+  readonly schemaVersion: 1;
+  readonly policyVersion: 1;
+  readonly stopInstructionIds: readonly string[];
+}
+
 export interface CompilerArtifactsV1 {
   readonly manifest: RuntimeBuildManifestV1;
   readonly story: RuntimeStoryIrV1;
@@ -122,6 +128,7 @@ export interface CompilerArtifactsV1 {
   readonly assetManifest: RuntimeAssetManifestV1;
   readonly catalogs: RuntimeCatalogsV1;
   readonly releaseInputs: RuntimeReleaseInputsV1;
+  readonly playerPlaybackPolicy: PlayerPlaybackBuildPolicyV1;
   readonly files: Readonly<Record<string, string>>;
 }
 

@@ -19,11 +19,16 @@ function exception(id: string, status: "active" | "closed", maximumDeliveryNode:
   if (id === "RA-N21-011") return {
     ...value,
     scopeAmendedAt: "2026-08-29T23:31:01+08:00",
+    playbackScopeAmendedAt: "2026-08-31T16:35:00+08:00",
+    playbackEvidencePath: "docs/254-n52-e4d-build-stop-point-source-audit.md",
     compensatingControls: [
       ...value.compensatingControls,
       "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
       "Require checkpoint to use explicit stable source identity, Runtime IR 1.1 dual-read compatibility, a non-presentational Runtime event, strict Save v3 migration, and three deterministic slots",
       "Forbid using Runtime History checkpoints, scene IDs, instruction indexes, wall clock, or a second Save/Runtime implementation as persistent checkpoint substitutes"
+      ,"Permit N20 Story Language and N30 Compiler additive contract changes only for the E4d-frozen build-authored Player Stop Point source bridge"
+      ,"Require Player Stop Point to use exact stable source identity, an independently versioned Player build policy artifact, unchanged Runtime IR 1.1, and the existing N31 Scheduler"
+      ,"Forbid reusing Save checkpoint, Runtime History checkpoint, scene IDs, instruction indexes, or a second scheduler as Player Stop Point substitutes"
     ]
   };
   return value;
@@ -86,5 +91,11 @@ describe("risk acceptance policy", () => {
     const value = registry();
     value.exceptions[10]!.compensatingControls = ["bounded work"];
     expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-011: missing checkpoint scope control: Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract");
+  });
+
+  it("fails when the Player Stop Point scope amendment is removed", () => {
+    const value = registry();
+    value.exceptions[10]!.playbackScopeAmendedAt = undefined;
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-011: playbackScopeAmendedAt must record the Player Stop Point authorization amendment");
   });
 });
