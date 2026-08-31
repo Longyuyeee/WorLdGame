@@ -74,6 +74,12 @@ button { font: inherit; }
 .player-history-controls button:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
 .player-history-controls button:disabled { color: rgba(255,255,255,.28); border-color: rgba(255,255,255,.08); background: rgba(255,255,255,.03); cursor: not-allowed; }
 .player-history-controls__position { min-width: 44px; color: rgba(255,255,255,.56); font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; }
+.player-playback-controls { position: absolute; z-index: 5; top: 82px; right: 24px; display: flex; align-items: center; gap: 9px; padding: 5px; border: 1px solid rgba(196,181,253,.2); border-radius: 14px; color: rgba(255,255,255,.58); font-size: 11px; background: rgba(8,10,25,.72); backdrop-filter: blur(18px); }
+.player-playback-controls button { min-width: 72px; min-height: 44px; padding: 0 12px; border: 1px solid rgba(196,181,253,.34); border-radius: 10px; color: #ede9fe; background: rgba(139,92,246,.12); cursor: pointer; }
+.player-playback-controls button[aria-pressed="true"] { border-color: #a78bfa; color: white; background: rgba(139,92,246,.34); box-shadow: 0 0 0 1px rgba(167,139,250,.18), 0 8px 24px rgba(76,29,149,.28); }
+.player-playback-controls button:focus-visible { outline: 3px solid #67e8f9; outline-offset: 3px; }
+.player-playback-controls button:disabled { opacity: .35; cursor: not-allowed; }
+.player-playback-controls > span { min-width: 72px; padding-right: 6px; }
 .player-save { position: absolute; z-index: 12; right: 24px; bottom: 24px; display: flex; align-items: center; gap: 8px; }
 .player-save__quick-controls { display: flex; gap: 6px; }
 .player-save__quick-controls button, .player-save__views button { min-height: 44px; padding: 0 12px; border: 1px solid rgba(103,232,249,.22); border-radius: 10px; color: #cffafe; background: rgba(18,14,42,.82); cursor: pointer; backdrop-filter: blur(18px); }
@@ -182,6 +188,9 @@ button { font: inherit; }
   .player-history-controls button { min-width: 48px; min-height: 48px; padding: 0; }
   .player-history-controls button span:not([aria-hidden="true"]) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .player-history-controls__position { min-width: 32px; }
+  .player-playback-controls { position: fixed; z-index: 30; top: calc(max(14px, env(safe-area-inset-top)) + 62px); right: max(14px, env(safe-area-inset-right)); padding: 4px; }
+  .player-playback-controls button { min-width: 64px; min-height: 48px; }
+  .player-playback-controls > span { position: absolute; width: 1px; height: 1px; min-width: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .player-save { position: fixed; z-index: 31; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
   .player-save__toggle { min-height: 48px; }
   .player-save__panel { position: fixed; right: max(10px, env(safe-area-inset-right)); bottom: calc(max(14px, env(safe-area-inset-bottom)) + 58px); left: max(10px, env(safe-area-inset-left)); width: auto; }

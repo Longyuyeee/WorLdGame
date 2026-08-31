@@ -16,6 +16,7 @@ import {
   createPlayerCoreSnapshotV1,
   dispatchPlayerCoreIntentV1,
   loadPlayerCoreSessionSaveV1,
+  schedulePlayerCorePlaybackV1,
   type PlayerCoreIntentV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
@@ -41,6 +42,11 @@ import {
   type WorldPlayerRecoveryRecordV1,
   type WorldPlayerRecoveryStoreV1
 } from "./player-recovery-store";
+import {
+  DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1,
+  validateWorldPlayerPlaybackPolicyV1,
+  type WorldPlayerPlaybackPolicyV1
+} from "./player-playback-policy";
 import "./player-shell.css";
 
 export interface PlayerShellProps {
@@ -53,6 +59,7 @@ export interface PlayerShellProps {
   readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
   readonly now?: () => number;
+  readonly playbackPolicy?: WorldPlayerPlaybackPolicyV1;
 }
 
 type PlayerInputSource = "lifecycle" | GalAdvanceInputV1 | "system";
@@ -107,7 +114,7 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
 }
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now }: PlayerShellProps) {
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 }: PlayerShellProps) {
   const [state, setState] = useState(() => createPlayerCore(project));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
@@ -115,7 +122,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
   const [lastInputAccepted, setLastInputAccepted] = useState(true);
   const [voicePlaying, setVoicePlaying] = useState(false);
+  const [voiceEnded, setVoiceEnded] = useState(false);
+  const [voiceMetadataRevision, setVoiceMetadataRevision] = useState(0);
   const [textReady, setTextReady] = useState(true);
+  const [autoEnabled, setAutoEnabled] = useState(false);
+  const [autoPlayback, setAutoPlayback] = useState<"off" | "waiting-text" | "waiting-voice-metadata" | "waiting" | "advancing" | "suspended" | "stopped">("off");
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -171,6 +182,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     () => presentedText === "" ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, presentedText),
     [presentedText, settingsApplication]
   );
+  const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
 
   const refreshSaveSlots = useCallback(async () => {
     if (saveStore === undefined) return;
@@ -349,6 +361,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
+    if (source !== "system") {
+      setAutoEnabled(false);
+      setAutoPlayback("off");
+    }
     setLastInputSource(source);
     if ((intent.kind === "primary" || intent.kind === "select-choice")
       && source !== "lifecycle" && source !== "system"
@@ -380,6 +396,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setLastInputSource("lifecycle");
     setLastInputAccepted(true);
     setVoicePlaying(false);
+    setVoiceEnded(false);
+    setVoiceMetadataRevision(0);
+    setAutoEnabled(false);
+    setAutoPlayback("off");
   }, [executableProjectHash]);
 
   useEffect(() => {
@@ -511,6 +531,73 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [presentedText, textRevealDuration]);
 
   useEffect(() => {
+    if (!autoEnabled) return;
+    if (hostActivity !== "active") {
+      setAutoPlayback("suspended");
+      return;
+    }
+    if (snapshot.status !== "presenting" || (content.kind !== "dialogue" && content.kind !== "narration")) {
+      setAutoEnabled(false);
+      setAutoPlayback("stopped");
+      return;
+    }
+    if (!textReady) {
+      setAutoPlayback("waiting-text");
+      return;
+    }
+
+    const voice = audioElements.current.get("voice");
+    let voiceDurationMilliseconds = 0;
+    const voiceShouldContinue = voice !== undefined
+      && !voiceEnded
+      && (voicePlaying || voice.dataset.shouldPlay === "true");
+    if (voiceShouldContinue) {
+      const remainingSeconds = voice.duration - voice.currentTime;
+      if (!Number.isFinite(remainingSeconds) || remainingSeconds < 0) {
+        setAutoPlayback("waiting-voice-metadata");
+        return;
+      }
+      voiceDurationMilliseconds = Math.ceil(remainingSeconds * 1000);
+    }
+    const readableUnits = Array.from(content.text).length;
+    const policy = {
+      schemaVersion: 1 as const,
+      mode: "auto" as const,
+      skipActivation: null,
+      speed: "normal" as const,
+      stopInstructionIds: [],
+      unavailableEffectDescriptorIds: [],
+      instantInstructionBudget: canonicalPlaybackPolicy.auto.instantInstructionBudget,
+      autoTiming: {
+        baseDelayMilliseconds: canonicalPlaybackPolicy.auto.baseDelayMilliseconds,
+        millisecondsPerReadableUnit: canonicalPlaybackPolicy.auto.millisecondsPerReadableUnit,
+        readableUnits,
+        voiceDurationMilliseconds,
+        voiceTailMilliseconds: voiceDurationMilliseconds > 0 ? canonicalPlaybackPolicy.auto.voiceTailMilliseconds : 0
+      }
+    };
+    const delay = Math.max(
+      policy.autoTiming.baseDelayMilliseconds + policy.autoTiming.millisecondsPerReadableUnit * readableUnits,
+      policy.autoTiming.voiceDurationMilliseconds + policy.autoTiming.voiceTailMilliseconds
+    );
+    setAutoPlayback("waiting");
+    const timer = window.setTimeout(() => {
+      setAutoPlayback("advancing");
+      setState((current) => schedulePlayerCorePlaybackV1(current, policy));
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [autoEnabled, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+
+  useEffect(() => {
+    if (!autoEnabled) return;
+    const reason = snapshot.playback.stopReason;
+    if (reason !== null && reason !== "storyBoundary" && reason !== "budget") {
+      setAutoEnabled(false);
+      setAutoPlayback("stopped");
+    }
+  }, [autoEnabled, snapshot.playback.stopReason]);
+
+  useEffect(() => {
     setMediaErrors([]);
   }, [mediaSignature]);
 
@@ -638,6 +725,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-input-source={lastInputSource}
       data-input-accepted={lastInputAccepted}
       data-host-activity={hostActivity}
+      data-playback-policy={canonicalPlaybackPolicy.policyVersion}
+      data-playback-mode={autoEnabled ? "auto" : snapshot.playback.mode}
+      data-playback-stop-reason={snapshot.playback.stopReason ?? "none"}
+      data-auto-playback={autoPlayback}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -729,9 +820,25 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-label={`${track.displayName} · ${track.bus}`}
             autoPlay={hostActivity === "active" && track.status === "playing"}
             loop={track.loop}
-            onPlay={() => { if (track.bus === "voice") setVoicePlaying(true); }}
+            onLoadedMetadata={() => {
+              if (track.bus === "voice") {
+                setVoiceEnded(false);
+                setVoiceMetadataRevision((revision) => revision + 1);
+              }
+            }}
+            onPlay={() => {
+              if (track.bus === "voice") {
+                setVoiceEnded(false);
+                setVoicePlaying(true);
+              }
+            }}
             onPause={() => { if (track.bus === "voice") setVoicePlaying(false); }}
-            onEnded={() => { if (track.bus === "voice") setVoicePlaying(false); }}
+            onEnded={() => {
+              if (track.bus === "voice") {
+                setVoiceEnded(true);
+                setVoicePlaying(false);
+              }
+            }}
             onError={() => setMediaErrors((current) => [...new Set([...current, track.assetId])])}
           />
         ))}
@@ -765,6 +872,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             onClick={() => applyIntent({ kind: "forward" }, pointerInput.current)}
           ><span>前进</span><span aria-hidden="true">→</span></button>
         </nav>
+        <div className="player-playback-controls" aria-label="播放控制">
+          <button
+            type="button"
+            aria-label="自动播放"
+            aria-pressed={autoEnabled}
+            disabled={snapshot.status !== "presenting" || (content.kind !== "dialogue" && content.kind !== "narration")}
+            onClick={() => {
+              setAutoEnabled((enabled) => {
+                setAutoPlayback(enabled ? "off" : hostActivity === "active" ? (textReady ? "waiting" : "waiting-text") : "suspended");
+                return !enabled;
+              });
+            }}
+          >自动</button>
+          <span aria-live="polite">{autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
+        </div>
         {saveStore !== undefined && (
           <aside className="player-save" data-open={savePanelOpen}>
             <div className="player-save__quick-controls" aria-label="快速存读档">

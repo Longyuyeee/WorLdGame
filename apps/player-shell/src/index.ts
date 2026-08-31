@@ -13,6 +13,12 @@ export type {
 } from "./PlayerShell";
 export type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 export {
+  DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1,
+  WORLD_PLAYER_PLAYBACK_POLICY_VERSION,
+  validateWorldPlayerPlaybackPolicyV1
+} from "./player-playback-policy";
+export type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
+export {
   IndexedDbWorldPlayerSaveStoreV3,
   WORLD_PLAYER_SAVE_DATABASE_VERSION,
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,

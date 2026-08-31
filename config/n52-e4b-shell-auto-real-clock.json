@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4b-shell-auto-real-clock",
+  "engineeringStatus": "candidate",
+  "productAcceptance": "blocked",
+  "baseCommit": "7c430d35c54f064ab816967ed9d6d5ecd03f2190",
+  "versions": {
+    "playerCore": "0.5.0",
+    "playerShell": "0.6.0-n52",
+    "playbackPolicy": "1.0.0"
+  },
+  "contract": {
+    "schedulerAuthority": "runtime-only-through-player-core",
+    "clockAuthority": "shell-owned-window-timeout",
+    "textReveal": "auto-delay-starts-after-real-reveal-completion",
+    "voiceTiming": "actual-media-duration-minus-current-time-plus-versioned-tail",
+    "hostSuspend": "owned-timer-cleared-and-fresh-delay-after-resume",
+    "manualInput": "disables-auto-before-dispatch",
+    "terminalAndStop": "structured-core-stop-disables-auto",
+    "policyValidation": "invalid-version-or-range-fails-closed-to-canonical-default"
+  },
+  "acceptance": [
+    "real-shell-clock-advances-one-formal-scheduler-boundary",
+    "real-text-reveal-completes-before-auto-delay",
+    "actual-audio-element-duration-and-tail-control-delay",
+    "host-suspend-clears-timer-and-resume-starts-fresh-delay",
+    "cold-production-desktop-and-390x844-browser-evidence"
+  ],
+  "firstTest": {
+    "expected": "existing-30-pass-and-new-4-fail-only-because-auto-control-is-absent",
+    "actual": "30-pass-4-fail-all-unable-to-find-accessible-button-auto-playback",
+    "difference": "shell-had-real-reveal-and-audio-elements-but-no-auto-control-versioned-policy-or-core-scheduler-call"
+  },
+  "engineeringEvidence": null,
+  "blocked": [
+    "n52-e4c-skip-controls-media-cleanup-and-embed-observation",
+    "build-authored-stop-point-source-bridge",
+    "windows-and-android-production-hosts",
+    "physical-device-and-human-evidence",
+    "n52-product-acceptance",
+    "n60-and-later",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    { "path": "docs/251-n52-e4b-shell-auto-real-clock-audit.md", "token": "N52-E4b Shell Auto real clock Engineering" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4b Shell Auto real clock 状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4b Shell Auto real clock" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4b Shell Auto real clock" }
+  ]
+}
