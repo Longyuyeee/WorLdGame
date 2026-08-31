@@ -7,6 +7,8 @@
 
 > N52-E4d build-authored Stop Point（2026-08-31）：`@stop()` 已由正式 Source 投影到稳定 statement identity，Compiler 输出独立 policy v1，Shell Auto 与四种 Skip 消费同一列表并由既有 N31 Scheduler 返回 `stopPoint`；Runtime IR 1.1、Save checkpoint 和 golden build identity 边界未漂移。首次 `77/84`、竞态修正前 `81/84`、最终 `84/84`，cold production Auto/Toggle Skip Read/All 同停 history 2。该项由 blocked 转 complete；E4 仍因 video policy 与 390×844 证据为 blocked，接续 N52-E4e，全部 Product Acceptance 不变。
 
+> 换机接续（2026-08-31）：[交接 #255](255-n52-e4d-cross-device-development-handoff.md)冻结实现头 `663f317`、PR #113、首次差异、第三次完整门和暂停时仍运行的精确头 CI。新电脑必须先关闭最新文档头的远端证据，再进入 E4e；旧 run 不得跨 head 复用。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。
