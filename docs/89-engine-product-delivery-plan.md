@@ -537,6 +537,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4f 移动端 cold production 关闭状态（2026-08-31）：[审计 #257](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)在真实 `390×844` production 中覆盖 Auto、Toggle/Hold × Skip Read/All 五向量。首次布局实测 document overflow `0`、按钮 48px，但两个播放 select 仅 30px 高；按 mobile-first 触控门纠偏为 48px 后，全部可见控件至少 44px、五向量准确停在 story/unread/input 边界、overflow 与 console 均为 0。E4 矩阵最终 `完整 7 / 阻断 0`，**N52-E4 Engineering 出口关闭**。下一步只做 **N52 Engineering 总出口与 N60 治理 checkpoint**；Windows/Android、真机/真人、AC-15、N52 Product Acceptance 与 N60+ 仍阻断。
 
+> N52 总出口治理复审（2026-09-01）：[checkpoint #258](258-n52-engineering-exit-and-n60-governance-checkpoint.md)重新逐条对齐 PRD 3.8 与 Gal 5.2 后，确认 E4 `7/7` 只关闭 Auto/Skip 子域，不能代表 N52 全部完成。实际 Runtime 在分支改变时删除旧 Forward entries、只保留输入 tombstone；Core 只投影位置/Back/Forward，Shell 没有可选行回退的 History 页面，也没有把已提交 Barrier 的不可逆原因和 History Forward 项目策略交给玩家。N52 总 Engineering 出口因此 fail closed。下一唯一代码切片为 **N52-E5 Player History 与 Barrier 解释**；完成 Runtime 分支归档、Core 定点导航/原因投影和移动 History 页面后再复审，N60 继续阻断。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA
