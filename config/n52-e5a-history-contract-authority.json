@@ -79,7 +79,14 @@
     "initialWorkflowJob": 99576212493,
     "initialConclusion": "failure-single-existing-windows-filesystem-test-timeout",
     "rerunWorkflowJob": 99579120717,
-    "rerunConclusion": "success"
+    "rerunConclusion": "success",
+    "evidenceHeadWorkflowRun": 33421175931,
+    "evidenceHeadWorkflowJob": 99583651284,
+    "evidenceHeadConclusion": "failure-second-windows-filesystem-test-timeout-and-cleanup-race",
+    "stabilizationCommit": "f7483a7dcca5a032cfd36d55b2c52483ebfb59ae",
+    "stabilizationWorkflowRun": 33422870060,
+    "stabilizationWorkflowJob": 99589275850,
+    "stabilizationConclusion": "success"
   },
   "continuation": {
     "node": "N52-E5b-runtime-branch-archive-and-session-save-v2",

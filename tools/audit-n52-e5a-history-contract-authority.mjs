@@ -23,6 +23,7 @@ for (const token of ["second-runtime-or-shell-owned-history-ledger", "navigation
 }
 if (contract.continuation?.node !== "N52-E5b-runtime-branch-archive-and-session-save-v2") violations.push("E5a continuation is not frozen");
 if (contract.engineeringEvidence?.implementationCommit !== "8d2c6d5271ee68ca365d7e13617eb19711727b99" || contract.engineeringEvidence?.pullRequest !== 117 || contract.engineeringEvidence?.workflowRun !== 33418919492 || contract.engineeringEvidence?.rerunWorkflowJob !== 99579120717 || contract.engineeringEvidence?.rerunConclusion !== "success") violations.push("E5a exact implementation-head CI evidence is missing");
+if (contract.engineeringEvidence?.stabilizationCommit !== "f7483a7dcca5a032cfd36d55b2c52483ebfb59ae" || contract.engineeringEvidence?.stabilizationWorkflowRun !== 33422870060 || contract.engineeringEvidence?.stabilizationWorkflowJob !== 99589275850 || contract.engineeringEvidence?.stabilizationConclusion !== "success") violations.push("E5a Windows filesystem stabilization evidence is missing");
 
 for (const item of contract.requiredDocuments ?? []) {
   try {
