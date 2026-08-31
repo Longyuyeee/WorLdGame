@@ -41,4 +41,6 @@
 
 2026-09-01 在本分支执行 `npm run check`，退出码为 0：新增 E5a 机器审计与全部既有治理审计通过；TypeScript、17 个 workspace production build、架构边界均通过；普通回归为 154 files / 967 tests，N50/N51/N52 专项分别为 78/123/90 tests，VM conformance 为 5/5；Script、Route、Asset 性能组分别为 13/13、9/9、4/4，均未放宽预算。首次全门曾因 #90/#99 更新时移除既有 E3c3 审计所需的历史锚点 `RA-N21-011 checkpoint 窄范围修订` 而失败；恢复兼容锚点后，E3c3 定向审计与第二轮完整门均通过。
 
+实现头 `8d2c6d5271ee68ca365d7e13617eb19711727b99` 已推送至 Draft PR [#117](https://github.com/Longyuyeee/WorLdGame/pull/117)。Windows / Node 22 run `33418919492` 的首次 job `99576212493` 在普通回归得到 `153/154 files`、`966/967 tests`：唯一失败是既有 Node Directory cache 用例在累积 I/O 下耗时 `5.824s > 5s`，其余 8 个同文件用例通过；相同代码、命令和原预算本机隔离复跑为 `9/9`、测试体 `656ms`。未修改 Persistence 代码或 timeout，同一 SHA 的完整复跑 job `99579120717` 用时 `13m17s` 全绿：普通 `154/967`，该文件在 N51 聚合/普通回归分别为 `3.874s/2.035s`，Runtime corpus `27.995s` 且 digest 未变，VM `65.19s <90s`，Route P95 `150.15ms <500ms`，Asset dicing/atlas/总计 `1577.39/1939.91/3517.30ms`，build、100 portable / 4 adapters 与其余门全部通过。首轮红灯保留为环境差异审计记录，不被绿色复跑抹除。
+
 下一唯一代码切片为 **N52-E5b Runtime branch archive and Session Save v2**。本步机器合同为 `config/n52-e5a-history-contract-authority.json`，审计命令为 `npm run audit:n52-e5a-history-contract-authority`。
