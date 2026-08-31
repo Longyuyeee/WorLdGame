@@ -3,7 +3,7 @@
 > 日期：2026-08-31  
 > 分支：`codex/n52-e4c-skip-media-embed`  
 > 直接基线：E4b 最终绿色头 `f994604bfa08c49bf7650c3410efc46d8c89d371` / Draft PR #110  
-> 当前判定：**N52-E4c Skip / media / embed Engineering candidate**；远端精确头 CI 成功前不转 complete，AC-15 与 Product Acceptance 仍阻断。
+> 当前判定：**N52-E4c Skip / media / embed Engineering complete**；AC-15 与 Product Acceptance 仍阻断。
 
 ## 1. 目标与真实实现
 
@@ -21,6 +21,8 @@ cold production 首轮又发现单测短故事未覆盖的真实差异：预期�
 
 完整门前两轮分别诚实停在 90 文档丢失历史 required token `N52-E3 入口契约` 与 `N52-E3a v2 元数据与截图`，产品代码和对应测试均已绿。修正为按全部 N52 机器合同一次性恢复精确 token，不删除历史状态。第三轮未改预算、timeout 或范围并完整通过：普通 `154 files / 954 tests`、N50 `68/68`、N51 `113/113`、N52 History `80/80`、Runtime `61/61` 与 `10,000 seeds / 20,000 replay`、VM `5/5`（测试体 `84.03s <90s`）、17 workspace build、architecture 与全部性能门；Route P95 `185.69ms <500ms`，Asset Dicing/Atlas/总计 `1875.45/1654.86/3530.31ms`。
 
+实现头 `be7335838156de9de51d2cda6e27d4a1a274285b` 已推送至 Draft PR #111。该精确 SHA 的 Windows / Node 22 `product-baseline` run `33364046411` / job `99400937472` 用时约 `14m14s` 并成功：普通 `154/954`、N50 `68/68`、N51 `113/113`、N52 `80/80`；VM 测试体 `69.00s <90s`；Route P95 `154.41ms <500ms`；Asset Dicing/Atlas/总计 `1485.30/1801.15/3286.45ms`，17 workspace build、architecture 与全部性能门通过。因此 E4c 从 candidate 转为 complete。
+
 ## 3. 目标审计
 
 | 目标 | 结果 |
@@ -35,4 +37,4 @@ cold production 首轮又发现单测短故事未覆盖的真实差异：预期�
 
 ## 4. 诚实边界与接续点
 
-正式 Player 目前没有 `<video>` renderer，且 PRD 将视频/复杂动效列为 P1；本步不能把通用清理意图冒充视频实测。build-authored Stop Point source 也仍未接到 Shell policy。远端精确头成功后，E4c Engineering 可关闭；随后必须先做 **N52-E4 出口复审与接续审计**，统一核对 E4a–E4c、补 390×844 cold production，并决定 Stop Point source/video 是否属于 N52 后续窄切片。不得直接登记 AC-15、三端或产品完成。
+正式 Player 目前没有 `<video>` renderer，且 PRD 将视频/复杂动效列为 P1；本步不能把通用清理意图冒充视频实测。build-authored Stop Point source 也仍未接到 Shell policy。下一唯一切片是 **N52-E4 出口复审与接续审计**：统一核对 E4a–E4c、补 390×844 cold production，并决定 Stop Point source/video 是否属于 N52 后续窄切片。不得直接登记 AC-15、三端或产品完成。

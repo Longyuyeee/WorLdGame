@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E4c-skip-media-embed",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "f994604bfa08c49bf7650c3410efc46d8c89d371",
   "versions": {
@@ -32,11 +32,11 @@
     "finalActual": "history-17-input-active-false"
   },
   "engineeringEvidence": {
-    "implementationCommit": null,
-    "pullRequest": null,
-    "workflowRun": null,
-    "workflowJob": null,
-    "conclusion": null
+    "implementationCommit": "be7335838156de9de51d2cda6e27d4a1a274285b",
+    "pullRequest": 111,
+    "workflowRun": 33364046411,
+    "workflowJob": 99400937472,
+    "conclusion": "success"
   },
   "blocked": [
     "build-authored-stop-point-source-bridge",
