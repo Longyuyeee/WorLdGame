@@ -1,15 +1,15 @@
-# 当前开发情况审计（N52-E4e 已完成，接续 E4f）
+# 当前开发情况审计（N52-E4 Engineering 已关闭，接续 N52 总出口治理）
 
 > 审计日期：2026-08-31
-> 当前分支：`codex/n52-e4e-player-video-policy`；直接基线为 E4d 最终绿色头 `25f040b`
+> 当前分支：`codex/n52-e4f-mobile-cold-production-exit`；直接基线为 E4e 最终绿色头 `569a4d3`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：**RA-N21-011 checkpoint 窄范围修订**允许仅为 N52 checkpoint 修改 N20/N30/N31/Save 契约；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52-E4e Player video](256-n52-e4e-player-video-policy-audit.md)、[N52-E4d Stop Point source](254-n52-e4d-build-stop-point-source-audit.md)、[N52-E4 出口复审](253-n52-e4-engineering-exit-reaudit.md)
+> 最新节点证据：[N52-E4f 移动端出口](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)、[N52-E4e Player video](256-n52-e4e-player-video-policy-audit.md)、[N52-E4 出口复审](253-n52-e4-engineering-exit-reaudit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-08-31 最新纠偏结论是：**E4a–E4e 已关闭唯一 Scheduler、Shell 真实 Auto、四种 Skip、五档速度、作者 `@stop()`→Build→Shell Stop Point 链与正式 Player video renderer / Auto-Skip-Host 生命周期；E4d 最终头 `25f040b` 的 Windows / Node 22 完整门已绿色，E4e 本地跨层与 cold production 已绿色。仅 E4c 390×844 cold production 复验证据仍缺，因此 N52-E4 Engineering 总出口未通过。** 下一唯一切片是 **N52-E4f 390×844 E4c cold production rerun and E4 exit reaudit**；当前 RA-011 只准入 N52 Engineering，禁止换算成 AC-15 或商业完成度。
+2026-08-31 最新纠偏结论是：**E4a–E4f 已关闭唯一 Scheduler、Shell 真实 Auto、四种 Skip、五档速度、作者 `@stop()`→Build→Shell Stop Point、正式 Player video 与 390×844 五向量 cold production；首次移动实测发现两个 select 仅 30px 高，已纠偏至 48px。E4 七项矩阵现为完整 7 / 阻断 0，N52-E4 Engineering 总出口通过。** 下一唯一接续点是 **N52 Engineering 总出口与 N60 治理 checkpoint**；RA-011 只准入 N52，禁止直接开始 N60，也不得换算成 AC-15 或商业完成度。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,8 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E3c4、E4 入口与 E4a–E4e 子切片已关闭，但 E4 总出口未通过**；下一步是 N52-E4f 移动 cold production 与出口复审；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E3c4 与 E4a–E4f 子切片已关闭，E4 总出口通过，N52 总出口待审计**；下一步是 N52 Engineering 总出口与 N60 治理 checkpoint；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- **N52-E4f 移动端 cold production 与 E4 Engineering 出口已关闭**：390×844 Auto、Toggle/Hold × Skip Read/All 五向量准确停止，首次发现的两个 30px select 已纠偏为 48px；document overflow 与 console 均为 0。实现头 `b5681a7` 的 Draft PR #115 Windows run `33408391033` / job `99541585012` 用时 `15m04s` 绿色，远端普通 `154/967`、VM `74.02s <90s`、Route P95 `162.72ms`、Asset 总计 `3494.96ms`。E4 矩阵 `7/7`；N52 总出口、Product Acceptance 与 N60 授权仍待下一 checkpoint；
 - N52-E1 本地完整门：普通 `149/890`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s`、Route P95 `72.55ms`、Asset dicing `1667.44ms`，全部未调整预算；桌面/390×844 cold production-browser overflow/console 均为 0；
 - N52-E2 已建立 Core Session Save/Load bridge、三个严格手动槽位、独立 IndexedDB Host、embed API `1.1.0` 和 Load-only rehydrate；本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms`，Autosave 测试体 `4.35s <5s`（长链总时长 `6.40s`、隔离总时长 `2.81s`）；冷 production browser 跨刷新、双视口、overflow/console 与 44px 触控门通过；实现头 `bdb3c73` 已推送至 Draft PR #99，同头 Windows / Node 22 run `33180215962` / job `98879258847` 用时 `12m48s` 绿色，远端普通 `150/898`、N52 `51/51`、Runtime corpus `66.643s <90s`；E2 Engineering 关闭；
 - N52-E3 入口契约已按实际代码冻结：v1 不静默扩展，v2 使用 copy-on-write；chapter/scene 取正式 Canonical，route/custom 在正式来源前 fail closed；截图归 Host compositor 且 Blob 与元数据分离；manual 12/每页 6、auto 5 环形、quick 1、checkpoint 3 但等待 build-authored marker。入口头 `3c319da` 已推送至 Draft PR #100，同头 Windows / Node 22 run `33183970309` / job `98892048310` 用时 `12m40s` 绿色，远端普通 `150/898`、N52 `51/51`、VM `63.321s <90s`；入口只关闭设计与审计前置，不代表 v2、截图、分页或自动/快速保存已实现；下一代码切片为 E3a；
@@ -162,6 +163,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52-E4d 最新文档头 `25f040b` 的 Windows CI 已绿色；N52-E4e formal Player video 已完成本地实现、跨层回归与 cold production。下一唯一切片为 **N52-E4f 390×844 E4c cold production 复验与 E4 出口复审**；完成前不得关闭 E4，N60+ 与全部 Product Acceptance 阻断不变。
+7. N52-E4f 已以真实 390×844 production 关闭最后证据缺口并纠正 select 触控高度，E4 Engineering 出口通过；下一唯一接续点为 **N52 Engineering 总出口与 N60 治理 checkpoint**，在新授权前不得进入 N60，全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

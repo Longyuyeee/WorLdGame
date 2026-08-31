@@ -197,6 +197,7 @@ button { font: inherit; }
   .player-playback-controls { max-width: calc(100vw - 28px); flex-wrap: wrap; justify-content: flex-end; }
   .player-playback-controls button { min-width: 58px; min-height: 48px; }
   .player-playback-controls label { min-width: 58px; }
+  .player-playback-controls select { min-height: 48px; }
   .player-playback-controls > span { position: absolute; width: 1px; height: 1px; min-width: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .player-save { position: fixed; z-index: 31; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
   .player-save__toggle { min-height: 48px; }

@@ -535,6 +535,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4e formal Player video 关闭状态（2026-08-31）：[审计 #256](256-n52-e4e-player-video-policy-audit.md)复用 Canonical video asset、现有 `@background` 与 awaited reversible Effect，不新增语法、Scheduler 或 Runtime IR。Playback Policy `1.2.0` 明确 Auto `wait-for-end`、Skip `cancel-and-continue`；Shell 建立正式 `<video>` renderer、Host suspend/resume、error fail-closed 和替换/跳过/卸载清理。首次 `49/60`，修正视频缺口与 strict 1.2 fixture 后又纠正 Skip Read 0ms 竞态，最终跨层 `96/96`。cold production 真实 Blob WebM 验证 Auto ended、Host suspend/resume、Skip Read 未读边界、Skip All terminal、overflow/console 0；完整门普通 `154 files / 967 tests`、17 builds、Route P95 `62.59ms`、Asset 总计 `1560.71ms` 全绿。实现头 `3eb8f35` 的 Draft PR #114 Windows run `33395026116` / job `99497387582` 用时 `12m31s` 绿色。E4 矩阵现为 `完整 6 / 阻断 1`；下一唯一切片为 **N52-E4f 390×844 E4c cold production 复验与 E4 出口复审**，Product Acceptance 不变。
 
+> E4f 移动端 cold production 关闭状态（2026-08-31）：[审计 #257](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)在真实 `390×844` production 中覆盖 Auto、Toggle/Hold × Skip Read/All 五向量。首次布局实测 document overflow `0`、按钮 48px，但两个播放 select 仅 30px 高；按 mobile-first 触控门纠偏为 48px 后，全部可见控件至少 44px、五向量准确停在 story/unread/input 边界、overflow 与 console 均为 0。E4 矩阵最终 `完整 7 / 阻断 0`，**N52-E4 Engineering 出口关闭**。下一步只做 **N52 Engineering 总出口与 N60 治理 checkpoint**；Windows/Android、真机/真人、AC-15、N52 Product Acceptance 与 N60+ 仍阻断。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

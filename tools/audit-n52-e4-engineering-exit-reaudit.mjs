@@ -7,7 +7,7 @@ const contract = JSON.parse(await read("config/n52-e4-engineering-exit-reaudit.j
 const violations = [];
 
 if (contract.schemaVersion !== 1 || contract.node !== "N52-E4-engineering-exit-reaudit") violations.push("E4 exit contract identity is invalid");
-if (contract.engineeringStatus !== "blocked" || contract.productAcceptance !== "blocked") violations.push("E4 Engineering and Product Acceptance must remain blocked");
+if (contract.engineeringStatus !== "complete" || contract.productAcceptance !== "blocked") violations.push("E4 Engineering must be complete while Product Acceptance remains blocked");
 
 const runtime = await read("packages/runtime/src/scheduler.ts");
 const core = await read("packages/player-core/src/player-core.ts");
@@ -36,10 +36,10 @@ if (emptyStopLists !== 0) violations.push(`Shell still exposes ${emptyStopLists}
 const stopListAssignments = [...shell.matchAll(/stopInstructionIds:\s*([^,\n]+)/gu)].map((match) => match[1].trim());
 if (stopListAssignments.length !== 2 || stopListAssignments.some((value) => value !== "buildStopInstructionIds")) violations.push("Shell Auto and Skip must consume the same build Stop Point list");
 if (!/<video\b/iu.test(shell)) violations.push("Shell formal video renderer is missing after E4e evidence");
-if (contract.matrix?.buildAuthoredStopPointSource !== "complete" || contract.matrix?.formalVideoPolicyEvidence !== "complete" || contract.matrix?.e4cMobileColdProduction !== "blocked") {
-  violations.push("E4 exit blockers were weakened");
+if (Object.values(contract.matrix ?? {}).some((value) => value !== "complete") || Object.keys(contract.matrix ?? {}).length !== 7) {
+  violations.push("E4 exit matrix is not fully complete");
 }
-if (contract.continuation?.node !== "N52-E4f" || !contract.continuation?.scope?.includes("390x844")) violations.push("unique E4f continuation is not frozen");
+if (contract.continuation?.node !== "N52-engineering-exit-and-N60-governance-checkpoint" || !contract.continuation?.scope?.includes("explicit-authority")) violations.push("post-E4 governance continuation is not frozen");
 
 for (const item of contract.requiredDocuments ?? []) {
   try {
