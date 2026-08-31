@@ -3,7 +3,7 @@
 > 日期：2026-08-31  
 > 分支：`codex/n52-e4b-shell-auto-real-clock`  
 > 直接基线：E4a 最终绿色头 `7c430d35c54f064ab816967ed9d6d5ecd03f2190` / Draft PR #109  
-> 当前判定：**N52-E4b Shell Auto real clock Engineering 为 candidate**，等待精确实现头远端 Windows 门；本步不实现 Skip，也不登记 AC-15 或 Product Acceptance 通过。
+> 判定：**N52-E4b Shell Auto real clock Engineering 关闭**；本步不实现 Skip，也不登记 AC-15 或 Product Acceptance 通过。
 
 ## 1. 目标、需求与真实实现
 
@@ -20,6 +20,8 @@ Auto 必须先等待现有真实文字揭示完成，再按 `max(base + readable
 cold production build 实测不是 mock timer：1440×900 页面 Auto 开启 1 秒仍为原句/`waiting`，约 7.4 秒后到下一句并公开 `mode=auto`、`stopReason=storyBoundary`；Auto 按钮 `72×44px`，横向 overflow 0、History 重叠 false、console warning/error 0。390×844 为 `64×48px`、overflow 0、重叠 false。Host 多通道真实 voice duration 为 `0.1s`；暂停 4 秒文本完全不变且 `suspended`，恢复 0.5 秒仍为原句，随后到 `Curtain` 并最终 `terminal/stopped`，console 0。
 
 首次完整 `npm run check` 在旧 E4 入口审计处停止：实际实现已出现合法 Auto 控件，但历史审计仍强制入口时的“控件 absent”永久成立；同时 90 顶部改写丢失精确 token `N52-E4 Auto/Skip 入口合同`。修正不是放宽 E4b，而是让旧入口审计保留 baseline snapshot，并在发现后续 Shell Auto 时要求正式 E4b candidate/complete 合同；同时恢复 required token。E4 入口与 E4b 审计随后同时 PASS。第二次完整门未修改预算、timeout 或测试范围并全绿：普通 `154 files / 946 tests`、N50 `64/64`、N51 `109/109`、N52 `76/76`、Runtime `61/61` 与 `10,000 seeds / 20,000 replay` 固定 digest、VM `5/5`（测试体 `76.12s <90s`）、17 workspace production build、architecture 与全部性能门通过；Route P95 `177.64ms <500ms`，Dicing/Atlas/总计 `1062.18/1577.95/2640.13ms`。
+
+实现头 `02d4e6c1d9b7000763766a490133d1a023823a44` 已推送至 Draft PR #110。该精确 SHA 的 Windows / Node 22 `product-baseline` run `33359334689` / job `99387522859` 用时 `12m46s` 并成功：普通 `154/946`、N50 `64/64`、N51 `109/109`、N52 `76/76`；VM 测试体 `68.25s <90s`；Route P95 `127.47ms <500ms`；Dicing/Atlas/总计 `1465.96/1760.29/3226.25ms`，17 workspace build、architecture 与全部性能门通过。因此 E4b 从 candidate 转为 complete。
 
 ## 3. 开发目标审计
 

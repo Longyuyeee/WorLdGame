@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E4b-shell-auto-real-clock",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "7c430d35c54f064ab816967ed9d6d5ecd03f2190",
   "versions": {
@@ -31,7 +31,13 @@
     "actual": "30-pass-4-fail-all-unable-to-find-accessible-button-auto-playback",
     "difference": "shell-had-real-reveal-and-audio-elements-but-no-auto-control-versioned-policy-or-core-scheduler-call"
   },
-  "engineeringEvidence": null,
+  "engineeringEvidence": {
+    "implementationCommit": "02d4e6c1d9b7000763766a490133d1a023823a44",
+    "pullRequest": 110,
+    "workflowRun": 33359334689,
+    "workflowJob": 99387522859,
+    "conclusion": "success"
+  },
   "blocked": [
     "n52-e4c-skip-controls-media-cleanup-and-embed-observation",
     "build-authored-stop-point-source-bridge",
