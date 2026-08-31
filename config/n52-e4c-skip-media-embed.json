@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4c-skip-media-embed",
+  "engineeringStatus": "candidate",
+  "productAcceptance": "blocked",
+  "baseCommit": "f994604bfa08c49bf7650c3410efc46d8c89d371",
+  "versions": {
+    "playerCore": "0.5.0",
+    "playerShell": "0.6.0-n52",
+    "playbackPolicy": "1.1.0",
+    "embedApi": "1.2.0"
+  },
+  "contract": {
+    "schedulerAuthority": "runtime-only-through-player-core",
+    "modes": ["skipRead", "skipAll"],
+    "activations": ["hold", "toggle"],
+    "speeds": [5, 10, 20, 40, "instant"],
+    "budgetContinuation": "new-zero-delay-shell-task-calls-player-core-again",
+    "holdStop": ["pointer-up", "pointer-cancel", "key-up", "blur", "host-suspend"],
+    "mediaCleanup": "stop-restores-normal-text-stage-and-owned-audio-state",
+    "embedObservation": "versioned-playback-mode-activation-speed-active-and-stop-reason"
+  },
+  "firstTest": {
+    "expected": "existing-tests-pass-and-new-eight-fail-only-for-absent-skip-policy-controls-media-and-observation",
+    "actual": "40-pass-14-fail; eight-feature-gaps-plus-six-policy-version-migration-collateral-failures",
+    "difference": "policy-1.1-test-input-fell-back-through-old-1.0-validator; runtime-core-scheduler-remained-canonical"
+  },
+  "realCorrection": {
+    "expected": "five-times-skip-all-after-skip-read-reaches-choice-input-stop",
+    "firstActual": "history-9-budget-active-false",
+    "fix": "ignore-stale-prior-stop-until-current-dispatch-and-continue-each-runtime-budget-in-a-new-shell-task",
+    "finalActual": "history-17-input-active-false"
+  },
+  "engineeringEvidence": {
+    "implementationCommit": null,
+    "pullRequest": null,
+    "workflowRun": null,
+    "workflowJob": null,
+    "conclusion": null
+  },
+  "blocked": [
+    "build-authored-stop-point-source-bridge",
+    "formal-player-video-renderer-and-video-policy-evidence",
+    "390x844-e4c-cold-production-rerun",
+    "windows-and-android-production-hosts",
+    "physical-device-and-human-evidence",
+    "n52-product-acceptance",
+    "n60-and-later",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    { "path": "docs/252-n52-e4c-skip-media-embed-audit.md", "token": "N52-E4c Skip / media / embed Engineering" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4c Skip / media / embed 状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4c Skip / media / embed" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4c Skip / media / embed" }
+  ]
+}

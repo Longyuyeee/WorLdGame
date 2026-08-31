@@ -8,7 +8,7 @@ import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import type { WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 
-export const WORLD_PLAYER_EMBED_API_VERSION = "1.1.0" as const;
+export const WORLD_PLAYER_EMBED_API_VERSION = "1.2.0" as const;
 
 export interface WorldPlayerMountOptionsV1 {
   readonly project: CanonicalProject;
@@ -33,6 +33,14 @@ export interface WorldPlayerObservationV1 {
   readonly runtimeHostVersion: string;
   readonly saveStoreBackend: string;
   readonly saveStoreVersion: string | null;
+  readonly playback: {
+    readonly schemaVersion: 1;
+    readonly mode: "normal" | "auto" | "skipRead" | "skipAll";
+    readonly activation: "hold" | "toggle" | null;
+    readonly speed: "normal" | 5 | 10 | 20 | 40 | "instant";
+    readonly active: boolean;
+    readonly stopReason: string | null;
+  };
 }
 
 export interface WorldPlayerHandleV1 {
@@ -60,6 +68,13 @@ function requiredAttribute(element: HTMLElement, name: string): string {
   const value = element.dataset[name];
   if (value === undefined) throw new Error(`WORLD_PLAYER_OBSERVATION_MISSING:${name}`);
   return value;
+}
+
+function observationSpeed(value: string): WorldPlayerObservationV1["playback"]["speed"] {
+  if (value === "normal" || value === "instant") return value;
+  const speed = Number(value);
+  if (speed === 5 || speed === 10 || speed === 20 || speed === 40) return speed;
+  throw new Error("WORLD_PLAYER_OBSERVATION_INVALID:playbackSpeed");
 }
 
 export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerMountOptionsV1): WorldPlayerHandleV1 {
@@ -126,7 +141,15 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
         runtimeVersion: requiredAttribute(shell, "runtime"),
         runtimeHostVersion: requiredAttribute(shell, "runtimeHost"),
         saveStoreBackend: requiredAttribute(shell, "saveStore"),
-        saveStoreVersion: requiredAttribute(shell, "saveStoreVersion") === "none" ? null : requiredAttribute(shell, "saveStoreVersion")
+        saveStoreVersion: requiredAttribute(shell, "saveStoreVersion") === "none" ? null : requiredAttribute(shell, "saveStoreVersion"),
+        playback: {
+          schemaVersion: 1,
+          mode: requiredAttribute(shell, "playbackMode") as WorldPlayerObservationV1["playback"]["mode"],
+          activation: requiredAttribute(shell, "playbackActivation") === "none" ? null : requiredAttribute(shell, "playbackActivation") as "hold" | "toggle",
+          speed: observationSpeed(requiredAttribute(shell, "playbackSpeed")),
+          active: requiredAttribute(shell, "skipActive") === "true" || requiredAttribute(shell, "autoPlayback") === "waiting" || requiredAttribute(shell, "autoPlayback") === "waiting-text" || requiredAttribute(shell, "autoPlayback") === "waiting-voice-metadata" || requiredAttribute(shell, "autoPlayback") === "advancing",
+          stopReason: requiredAttribute(shell, "playbackStopReason") === "none" ? null : requiredAttribute(shell, "playbackStopReason")
+        }
       };
     },
     unmount() {

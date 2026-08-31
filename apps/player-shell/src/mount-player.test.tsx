@@ -39,7 +39,7 @@ describe("N50-E6 versioned Player host embedding API", () => {
     expect(handle.apiVersion).toBe(WORLD_PLAYER_EMBED_API_VERSION);
     expect(handle.getObservation()).toEqual({
       schemaVersion: 1,
-      embedApiVersion: "1.1.0",
+      embedApiVersion: "1.2.0",
       mounted: true,
       status: "title",
       hostActivity: "active",
@@ -49,10 +49,19 @@ describe("N50-E6 versioned Player host embedding API", () => {
       runtimeVersion: "0.6.0",
       runtimeHostVersion: "0.1.0",
       saveStoreBackend: "unavailable",
-      saveStoreVersion: null
+      saveStoreVersion: null,
+      playback: {
+        schemaVersion: 1,
+        mode: "normal",
+        activation: null,
+        speed: "normal",
+        active: false,
+        stopReason: null
+      }
     });
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(handle.getObservation().status).toBe("waiting-choice");
+    expect(handle.getObservation().playback).toMatchObject({ mode: "normal", active: false });
   });
 
   it("updates activity without losing progress and resets only for a changed project identity", () => {

@@ -19,15 +19,16 @@ let handle: WorldPlayerHandleV1 | null = null;
 let suspended = false;
 
 function updateObservation() {
+  const current = handle?.getObservation();
   observationLabel.textContent = handle === null
     ? "mounted=false"
-    : `mounted=true · ${handle.getObservation().status} · ${handle.getObservation().hostActivity}`;
+    : `mounted=true · ${current!.status} · ${current!.hostActivity} · ${current!.playback.mode}/${current!.playback.activation ?? "none"}/${current!.playback.speed} · active=${current!.playback.active} · stop=${current!.playback.stopReason ?? "none"}`;
 }
 
 const playerObservation = new MutationObserver(updateObservation);
 playerObservation.observe(playerContainer, {
   attributes: true,
-  attributeFilter: ["data-player-status", "data-host-activity"],
+  attributeFilter: ["data-player-status", "data-host-activity", "data-playback-mode", "data-playback-activation", "data-playback-speed", "data-playback-stop-reason", "data-skip-active", "data-auto-playback"],
   childList: true,
   subtree: true
 });

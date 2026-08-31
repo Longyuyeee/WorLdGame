@@ -45,6 +45,8 @@ import {
 import {
   DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1,
   validateWorldPlayerPlaybackPolicyV1,
+  type WorldPlayerSkipActivationV1,
+  type WorldPlayerSkipSpeedV1,
   type WorldPlayerPlaybackPolicyV1
 } from "./player-playback-policy";
 import "./player-shell.css";
@@ -127,6 +129,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [textReady, setTextReady] = useState(true);
   const [autoEnabled, setAutoEnabled] = useState(false);
   const [autoPlayback, setAutoPlayback] = useState<"off" | "waiting-text" | "waiting-voice-metadata" | "waiting" | "advancing" | "suspended" | "stopped">("off");
+  const [skipMode, setSkipMode] = useState<"skipRead" | "skipAll" | null>(null);
+  const [skipActivation, setSkipActivation] = useState<WorldPlayerSkipActivationV1>(() => playbackPolicy.skip?.defaultActivation ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultActivation);
+  const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -142,6 +147,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
+  const previousSkipActive = useRef(false);
+  const skipAwaitingDispatch = useRef(false);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
@@ -183,6 +190,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     [presentedText, settingsApplication]
   );
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
+  const skipActive = skipMode !== null;
+
+  const stopSkip = useCallback(() => setSkipMode(null), []);
+  const startSkip = useCallback((mode: "skipRead" | "skipAll") => {
+    skipAwaitingDispatch.current = true;
+    setAutoEnabled(false);
+    setAutoPlayback("off");
+    setSkipMode(mode);
+  }, []);
 
   const refreshSaveSlots = useCallback(async () => {
     if (saveStore === undefined) return;
@@ -364,6 +380,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     if (source !== "system") {
       setAutoEnabled(false);
       setAutoPlayback("off");
+      stopSkip();
     }
     setLastInputSource(source);
     if ((intent.kind === "primary" || intent.kind === "select-choice")
@@ -383,7 +400,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setLastInputAccepted(true);
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [content.kind, project, settingsApplication, textReady, voicePlaying]);
+  }, [content.kind, project, settingsApplication, stopSkip, textReady, voicePlaying]);
 
   useEffect(() => {
     autoSavedSceneIdentities.current.clear();
@@ -400,6 +417,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setVoiceMetadataRevision(0);
     setAutoEnabled(false);
     setAutoPlayback("off");
+    setSkipMode(null);
+    setSkipActivation(canonicalPlaybackPolicy.skip.defaultActivation);
+    setSkipSpeed(canonicalPlaybackPolicy.skip.defaultSpeed);
   }, [executableProjectHash]);
 
   useEffect(() => {
@@ -598,6 +618,56 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [autoEnabled, snapshot.playback.stopReason]);
 
   useEffect(() => {
+    if (!skipActive || skipMode === null) return;
+    if (hostActivity !== "active" || snapshot.status !== "presenting") {
+      stopSkip();
+      return;
+    }
+    setTextReady(true);
+    const timer = window.setTimeout(() => {
+      skipAwaitingDispatch.current = false;
+      setState((current) => schedulePlayerCorePlaybackV1(current, {
+        schemaVersion: 1,
+        mode: skipMode,
+        skipActivation,
+        speed: skipSpeed,
+        stopInstructionIds: [],
+        unavailableEffectDescriptorIds: [],
+        instantInstructionBudget: canonicalPlaybackPolicy.skip.instantInstructionBudget,
+        autoTiming: {
+          baseDelayMilliseconds: 0,
+          millisecondsPerReadableUnit: 0,
+          readableUnits: 0,
+          voiceDurationMilliseconds: 0,
+          voiceTailMilliseconds: 0
+        }
+      }));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [canonicalPlaybackPolicy.skip.instantInstructionBudget, hostActivity, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.status, stopSkip]);
+
+  useEffect(() => {
+    if (!skipActive) return;
+    const reason = snapshot.playback.stopReason;
+    if (!skipAwaitingDispatch.current && snapshot.playback.mode === skipMode && reason !== null && reason !== "budget") stopSkip();
+  }, [skipActive, skipMode, snapshot.playback.mode, snapshot.playback.stopReason, stopSkip]);
+
+  useEffect(() => {
+    if (skipActivation !== "hold" || !skipActive) return;
+    const stop = () => stopSkip();
+    window.addEventListener("pointerup", stop);
+    window.addEventListener("pointercancel", stop);
+    window.addEventListener("keyup", stop);
+    window.addEventListener("blur", stop);
+    return () => {
+      window.removeEventListener("pointerup", stop);
+      window.removeEventListener("pointercancel", stop);
+      window.removeEventListener("keyup", stop);
+      window.removeEventListener("blur", stop);
+    };
+  }, [skipActivation, skipActive, stopSkip]);
+
+  useEffect(() => {
     setMediaErrors([]);
   }, [mediaSignature]);
 
@@ -697,6 +767,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [hostActivity, settingsApplication.audio.resumeAfterInterruption]);
 
+  useEffect(() => {
+    const wasActive = previousSkipActive.current;
+    previousSkipActive.current = skipActive;
+    for (const element of audioElements.current.values()) {
+      if (skipActive) {
+        element.dataset.playerPlayback = "skipped";
+        element.pause();
+      } else if (wasActive && hostActivity === "active" && element.dataset.shouldPlay === "true") {
+        element.dataset.playerPlayback = "resuming-after-skip";
+        const resumed = element.play();
+        resumed?.then(() => { element.dataset.playerPlayback = "playing"; }).catch(() => { element.dataset.playerPlayback = "blocked"; });
+      }
+    }
+  }, [hostActivity, skipActive]);
+
   useEffect(() => () => {
     for (const element of audioElements.current.values()) {
       if (!element.paused) element.pause();
@@ -726,9 +811,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-input-accepted={lastInputAccepted}
       data-host-activity={hostActivity}
       data-playback-policy={canonicalPlaybackPolicy.policyVersion}
-      data-playback-mode={autoEnabled ? "auto" : snapshot.playback.mode}
+      data-playback-mode={autoEnabled ? "auto" : skipMode ?? snapshot.playback.mode}
+      data-playback-activation={skipMode === null ? snapshot.playback.skipActivation ?? "none" : skipActivation}
+      data-playback-speed={skipMode === null ? snapshot.playback.speed : skipSpeed}
       data-playback-stop-reason={snapshot.playback.stopReason ?? "none"}
       data-auto-playback={autoPlayback}
+      data-skip-active={skipActive}
+      data-skip-media={skipActive ? "accelerated" : "normal"}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -772,7 +861,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
       <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
-        <div className="player-stage-world" style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
+        <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
             <img
               key={`${mediaGeneration}:background:${stage.background.assetId}`}
@@ -879,12 +968,33 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-pressed={autoEnabled}
             disabled={snapshot.status !== "presenting" || (content.kind !== "dialogue" && content.kind !== "narration")}
             onClick={() => {
+              stopSkip();
               setAutoEnabled((enabled) => {
                 setAutoPlayback(enabled ? "off" : hostActivity === "active" ? (textReady ? "waiting" : "waiting-text") : "suspended");
                 return !enabled;
               });
             }}
           >自动</button>
+          <button
+            type="button"
+            aria-label="快进已读"
+            aria-pressed={skipMode === "skipRead"}
+            disabled={snapshot.status !== "presenting"}
+            onPointerDown={() => { if (skipActivation === "hold") startSkip("skipRead"); }}
+            onKeyDown={(event) => { if (skipActivation === "hold" && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); event.stopPropagation(); startSkip("skipRead"); } }}
+            onClick={() => { if (skipActivation === "toggle") { if (skipMode === "skipRead") stopSkip(); else startSkip("skipRead"); } }}
+          >已读</button>
+          <button
+            type="button"
+            aria-label="快进全部"
+            aria-pressed={skipMode === "skipAll"}
+            disabled={snapshot.status !== "presenting"}
+            onPointerDown={() => { if (skipActivation === "hold") startSkip("skipAll"); }}
+            onKeyDown={(event) => { if (skipActivation === "hold" && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); event.stopPropagation(); startSkip("skipAll"); } }}
+            onClick={() => { if (skipActivation === "toggle") { if (skipMode === "skipAll") stopSkip(); else startSkip("skipAll"); } }}
+          >全部</button>
+          <label>方式<select aria-label="快进激活方式" value={skipActivation} onChange={(event) => { stopSkip(); setSkipActivation(event.target.value as WorldPlayerSkipActivationV1); }}><option value="toggle">切换</option><option value="hold">按住</option></select></label>
+          <label>速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
           <span aria-live="polite">{autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
         {saveStore !== undefined && (

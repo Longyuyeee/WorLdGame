@@ -525,6 +525,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4b Shell Auto real clock 状态（2026-08-31）：[实现审计 #251](251-n52-e4b-shell-auto-real-clock-audit.md)已在 Web Shell 建立独立 Auto 控件与 Playback Policy `1.0.0`，只以真实 `window.setTimeout` 调用 E4a Core bridge；文字揭示完成、实际 voice `duration-currentTime+tail`、metadata、ended 与 Host suspend/resume 均进入状态机。首轮按预期旧 `30/30`、新 `0/4` 且均缺 Auto 按钮；修正无障碍角色及 React 两阶段观测后 Shell `34/34`，含策略为 `42/42`。cold production 1440×900 与 390×844 证明真实经过时间、4 秒 suspend 零推进、恢复 fresh delay、`terminal/stopped`、44/48px、overflow/console 0。旧入口审计偏差修正后本地完整门普通 `154/946`、N52 `76/76`、VM `76.12s` 全绿；实现头 `02d4e6c` 的 Draft PR #110 Windows run `33359334689` / job `99387522859` 用时 `12m46s` 绿色，远端 VM `68.25s`、Route P95 `127.47ms`、Asset 总计 `3226.25ms`。E4b Engineering 关闭；下一唯一切片为 E4c Skip/速度/媒体/embed，所有产品门仍阻断。
 
+> E4c Skip / media / embed 状态（2026-08-31）：[实现审计 #252](252-n52-e4c-skip-media-embed-audit.md)已接入 Skip Read/All、Hold/Toggle、5/10/20/40/Instant、现有 text/stage/audio 加速与停止恢复，并把结构化 playback 纳入 Embed API `1.2.0`；Shell 仍只调用 Core bridge。首次 `40/54` 暴露八项真实功能缺口及 Policy 1.1 迁移连带差异，修正后定向 `54/54`。cold production 首轮又真实发现旧 `unreadBoundary` 被新 Skip 消费、5× 在 `budget` 后停住；修正后 history `4→17`，准确停在 `waiting-choice/input/active=false`。第三轮完整门普通 `154/954`、N50 `68/68`、N51 `113/113`、N52 `80/80`、VM `84.03s`、Route P95 `185.69ms`、Asset 总计 `3530.31ms` 全绿。当前为 candidate，等待精确远端 CI；390×844 E4c rerun、video、Stop Point、三端与 Product Acceptance 均未完成。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA
