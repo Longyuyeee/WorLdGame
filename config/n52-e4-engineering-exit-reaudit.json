@@ -21,6 +21,14 @@
     "actual": "machine-audit-first-run-found-five-violations: four-missing-exit-document-tokens-and-one-auditor-negative-regex-false-positive; code-matrix-matched-the-frozen-4-complete-and-3-blocked-result",
     "difference": "authoritative-documents-had-not-yet-recorded-the-fail-closed-E4-exit-or-unique-E4d-continuation-and-the-first-auditor-regex-backtracked-inside-empty-arrays"
   },
+  "remoteFirstAttempt": {
+    "workflowRun": 33368530247,
+    "workflowJob": 99414218090,
+    "head": "15f55fd6b20b6087d0af4daef67135db512999fe",
+    "actual": "153-files-and-945-tests-passed; all-nine-existing-node-directory-workspace-tests-timed-out-at-5s-with-Windows-temp-directory-ENOTEMPTY-cleanup-races",
+    "isolatedLocalActual": "1-file-9-tests-pass; test-body-1.02s; unchanged-5s-budget",
+    "correction": "record-the-infrastructure-long-tail-without-changing-product-code-or-timeouts-and-require-a-new-exact-head-Windows-full-check"
+  },
   "continuation": {
     "node": "N52-E4d",
     "scope": "build-authored-player-stop-point-source-and-shell-policy-bridge",

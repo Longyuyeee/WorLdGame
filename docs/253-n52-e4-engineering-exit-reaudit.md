@@ -67,3 +67,5 @@ N52-E4d 只实现 **build-authored Player Stop Point source 与 Shell policy bri
 本审计切片的目标是得出可重复、诚实的出口裁决，而不是关闭 E4。退出前必须满足：机器审计 PASS 且仍报告 `engineeringStatus=blocked`；定向真实回归与 cold production 结果写入本文；#89/#90/#99 对齐；完整仓库门通过；提交推送后取得精确头 Windows / Node 22 CI。远端证据在最终头绿色后回填，不得复用 E4c 的旧 run 冒充本头。
 
 本地 `npm run check` 首次实际即完整绿色，没有修改预算或测试范围：普通回归 `154 files / 954 tests`；N50 `68/68`、N51 `113/113`、N52 History `80/80`；Runtime `61/61` 与 `10,000 seeds / 20,000 replay` 固定 digest；VM `5/5`（测试体 `62.00s <90s`）；17 workspace production build 与 architecture 全部 PASS。Route 10k 正式编辑链 P95 `204.14ms <500ms`，Asset Dicing/Atlas/总计 `1391.39/1684.89/3076.28ms`，均在原预算内。完整门和定向预期一致，没有出现需要修改产品代码的新差异。
+
+首次精确头 `15f55fd` 的 Windows / Node 22 run `33368530247` / job `99414218090` 在普通回归阶段失败：实际为 `153 files / 945 tests PASS`，唯一失败文件是既有 `node-directory-project-workspace.test.ts`，其中 9 个真实文件系统用例全部超过原 5 秒预算，并伴随 Windows 临时目录 `ENOTEMPTY` 清理竞争。该文件在本机按完全相同命令、同一未改代码隔离复跑为 `1 file / 9 tests PASS`，测试体 `1.02s`。因此没有证据授权修改 E4、Persistence 业务代码或放宽 timeout；原始远端失败写入机器合同，最终裁决必须由后续精确头完整 CI 取得，不能把隔离复跑单独写成远端通过。
