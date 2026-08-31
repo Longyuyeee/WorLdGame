@@ -17,6 +17,7 @@ const playerCore = await read("packages/player-core/src/player-core.ts");
 const shell = await read("apps/player-shell/src/PlayerShell.tsx");
 const mount = await read("apps/player-shell/src/mount-player.tsx");
 const galSettings = await read("packages/gal-settings/src/settings.ts");
+const e4a = JSON.parse(await read("config/n52-e4a-player-core-scheduler-bridge.json"));
 
 for (const token of [
   'export type RuntimeRunModeV1 = "normal" | "auto" | "skipRead" | "skipAll"',
@@ -38,8 +39,11 @@ for (const token of [
 }
 
 const entryGaps = contract.playerEntryGaps ?? {};
-if (entryGaps.playerCoreSchedulerIntegration !== "absent" || playerCore.includes("scheduleRuntimeBatchV1")) {
-  violations.push("Player Core Scheduler entry baseline changed and must be re-audited");
+if (entryGaps.playerCoreSchedulerIntegration !== "absent") {
+  violations.push("Player Core Scheduler entry baseline snapshot drifted");
+}
+if (playerCore.includes("scheduleRuntimeBatchV1") && (e4a.node !== "N52-E4a-player-core-scheduler-bridge" || !["candidate", "complete"].includes(e4a.engineeringStatus))) {
+  violations.push("Player Core Scheduler integration requires the formal E4a audit contract");
 }
 if (entryGaps.playerCorePlaybackIntents !== "absent" || /kind: "(?:auto|skip-read|skip-all|playback)/u.test(playerCore)) {
   violations.push("Player Core playback intent entry baseline changed and must be re-audited");

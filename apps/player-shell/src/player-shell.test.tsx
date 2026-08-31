@@ -36,7 +36,7 @@ describe("N50-E1 shared Player Shell", () => {
   it("exposes formal identities and supports pointer input from title through choice", () => {
     const { container } = render(<PlayerShell project={branching()} />);
     const shell = container.querySelector("main");
-    expect(shell).toHaveAttribute("data-player-core", "0.4.0");
+    expect(shell).toHaveAttribute("data-player-core", "0.5.0");
     expect(shell).toHaveAttribute("data-compiler", "0.2.0");
     expect(shell).toHaveAttribute("data-runtime", "0.6.0");
     expect(shell).toHaveAttribute("data-runtime-host", "0.1.0");

@@ -44,7 +44,7 @@ describe("N50-E6 versioned Player host embedding API", () => {
       status: "title",
       hostActivity: "active",
       settingsPlatform: "web",
-      playerCoreVersion: "0.4.0",
+      playerCoreVersion: "0.5.0",
       compilerVersion: "0.2.0",
       runtimeVersion: "0.6.0",
       runtimeHostVersion: "0.1.0",
