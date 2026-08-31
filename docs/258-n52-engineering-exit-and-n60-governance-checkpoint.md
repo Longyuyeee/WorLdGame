@@ -1,9 +1,13 @@
 # N52 Engineering 总出口与 N60 治理 checkpoint
 
-> 日期：2026-09-01  
-> 分支：`codex/n52-engineering-exit-governance`  
-> 直接基线：N52-E4f 最终绿色头 `fe138ae2b88a54e8f91a4f23a4b829a545684bcb` / Draft PR #115  
-> 授权：`RA-N21-011`，最大交付节点 N52  
+> 日期：2026-09-01
+>
+> 分支：`codex/n52-engineering-exit-governance`
+>
+> 直接基线：N52-E4f 最终绿色头 `fe138ae2b88a54e8f91a4f23a4b829a545684bcb` / Draft PR #115
+>
+> 授权：`RA-N21-011`，最大交付节点 N52
+>
 > 当前判定：**N52 总 Engineering 出口：失败；N52 Product Acceptance 与 N60 Engineering 均阻断。**
 
 ## 1. 先回到原始需求
