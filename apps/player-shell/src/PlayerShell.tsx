@@ -128,10 +128,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [voiceMetadataRevision, setVoiceMetadataRevision] = useState(0);
   const [textReady, setTextReady] = useState(true);
   const [autoEnabled, setAutoEnabled] = useState(false);
-  const [autoPlayback, setAutoPlayback] = useState<"off" | "waiting-text" | "waiting-voice-metadata" | "waiting" | "advancing" | "suspended" | "stopped">("off");
+  const [autoPlayback, setAutoPlayback] = useState<"off" | "waiting-text" | "waiting-voice-metadata" | "waiting-video" | "waiting" | "advancing" | "suspended" | "stopped">("off");
   const [skipMode, setSkipMode] = useState<"skipRead" | "skipAll" | null>(null);
   const [skipActivation, setSkipActivation] = useState<WorldPlayerSkipActivationV1>(() => playbackPolicy.skip?.defaultActivation ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultActivation);
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
+  const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -145,9 +146,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | null>(null);
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
+  const videoElement = useRef<HTMLVideoElement | null>(null);
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
   const previousSkipActive = useRef(false);
+  const skipModeCurrent = useRef<"skipRead" | "skipAll" | null>(null);
   const skipAwaitingDispatch = useRef(false);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
@@ -193,9 +196,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
 
-  const stopSkip = useCallback(() => setSkipMode(null), []);
+  const stopSkip = useCallback(() => {
+    skipModeCurrent.current = null;
+    setSkipMode(null);
+  }, []);
   const startSkip = useCallback((mode: "skipRead" | "skipAll") => {
     skipAwaitingDispatch.current = true;
+    skipModeCurrent.current = mode;
+    setVideoPolicyStopReason("none");
     setAutoEnabled(false);
     setAutoPlayback("off");
     setSkipMode(mode);
@@ -557,6 +565,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("suspended");
       return;
     }
+    if (snapshot.status === "waiting-effect" && stage.video?.awaited === true && canonicalPlaybackPolicy.auto.video === "wait-for-end") {
+      setAutoPlayback("waiting-video");
+      return;
+    }
     if (snapshot.status !== "presenting" || (content.kind !== "dialogue" && content.kind !== "narration")) {
       setAutoEnabled(false);
       setAutoPlayback("stopped");
@@ -607,19 +619,27 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
 
   useEffect(() => {
     if (!autoEnabled) return;
     const reason = snapshot.playback.stopReason;
-    if (reason !== null && reason !== "storyBoundary" && reason !== "budget") {
+    if (reason !== null && reason !== "storyBoundary" && reason !== "budget" && !(reason === "effect" && stage.video?.awaited === true)) {
       setAutoEnabled(false);
       setAutoPlayback("stopped");
     }
-  }, [autoEnabled, snapshot.playback.stopReason]);
+  }, [autoEnabled, snapshot.playback.stopReason, stage.video]);
 
   useEffect(() => {
     if (!skipActive || skipMode === null) return;
+    if (snapshot.status === "waiting-effect" && stage.video?.awaited === true && canonicalPlaybackPolicy.skip.video === "cancel-and-continue") {
+      setState((current) => dispatchPlayerCoreIntentV1(current, project, { kind: "cancel" }));
+      if (skipMode === "skipRead") {
+        setVideoPolicyStopReason("unreadBoundary");
+        stopSkip();
+      }
+      return;
+    }
     if (hostActivity !== "active" || snapshot.status !== "presenting") {
       stopSkip();
       return;
@@ -630,6 +650,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setTextReady(true);
     const timer = window.setTimeout(() => {
+      if (skipModeCurrent.current !== skipMode) return;
       skipAwaitingDispatch.current = false;
       setState((current) => schedulePlayerCorePlaybackV1(current, {
         schemaVersion: 1,
@@ -649,13 +670,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [buildStopInstructionIds, canonicalPlaybackPolicy.skip.instantInstructionBudget, hostActivity, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stopSkip]);
+  }, [buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip]);
 
   useEffect(() => {
     if (!skipActive) return;
     const reason = snapshot.playback.stopReason;
-    if (!skipAwaitingDispatch.current && snapshot.playback.mode === skipMode && reason !== null && reason !== "budget") stopSkip();
-  }, [skipActive, skipMode, snapshot.playback.mode, snapshot.playback.stopReason, stopSkip]);
+    if (!skipAwaitingDispatch.current && snapshot.playback.mode === skipMode && reason !== null && reason !== "budget" && !(reason === "effect" && stage.video?.awaited === true)) stopSkip();
+  }, [skipActive, skipMode, snapshot.playback.mode, snapshot.playback.stopReason, stage.video, stopSkip]);
 
   useEffect(() => {
     if (skipActivation !== "hold" || !skipActive) return;
@@ -770,6 +791,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         element.dataset.playerPlayback = "paused-by-policy";
       }
     }
+    const video = videoElement.current;
+    if (video !== null) {
+      if (hostActivity === "suspended") {
+        video.dataset.playerPlayback = "suspended";
+        video.pause();
+      } else if (video.dataset.shouldPlay === "true" && settingsApplication.audio.resumeAfterInterruption) {
+        video.dataset.playerPlayback = "resuming";
+        const resumed = video.play();
+        resumed?.then(() => { video.dataset.playerPlayback = "playing"; }).catch(() => { video.dataset.playerPlayback = "blocked"; });
+      } else if (video.dataset.shouldPlay === "true") video.dataset.playerPlayback = "paused-by-policy";
+    }
   }, [hostActivity, settingsApplication.audio.resumeAfterInterruption]);
 
   useEffect(() => {
@@ -791,6 +823,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     for (const element of audioElements.current.values()) {
       if (!element.paused) element.pause();
     }
+    const video = videoElement.current;
+    if (video !== null && !video.paused) video.pause();
   }, []);
 
   return (
@@ -823,6 +857,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-auto-playback={autoPlayback}
       data-skip-active={skipActive}
       data-skip-media={skipActive ? "accelerated" : "normal"}
+      data-video-policy-stop-reason={videoPolicyStopReason}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -876,6 +911,46 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               data-asset-id={stage.background.assetId}
               style={{ animationDuration: `${stage.background.durationMilliseconds}ms`, animationTimingFunction: stage.background.easing }}
               onError={() => setMediaErrors((current) => [...new Set([...current, stage.background!.assetId])])}
+            />
+          )}
+          {stage.video !== null && (
+            <video
+              key={`${mediaGeneration}:video:${stage.video.effectId}`}
+              className="player-stage-background player-stage-video"
+              src={stage.video.url}
+              aria-label={stage.video.displayName}
+              data-asset-id={stage.video.assetId}
+              data-video-policy={stage.video.awaited ? "awaited" : "active"}
+              autoPlay={hostActivity === "active" && stage.video.status === "playing"}
+              playsInline
+              ref={(element) => {
+                if (element !== null) {
+                  videoElement.current = element;
+                  element.dataset.shouldPlay = String(stage.video?.status === "playing");
+                  element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : stage.video?.status ?? "ended";
+                } else {
+                  const previous = videoElement.current;
+                  if (previous !== null && !previous.paused) previous.pause();
+                  videoElement.current = null;
+                }
+              }}
+              onEnded={() => {
+                const video = videoElement.current;
+                if (video !== null) {
+                  video.dataset.shouldPlay = "false";
+                  video.dataset.playerPlayback = "ended";
+                }
+                if (stage.video?.awaited === true && hostActivity === "active") applyIntent({ kind: "primary" }, "system");
+              }}
+              onError={() => {
+                const video = videoElement.current;
+                if (video !== null) {
+                  video.dataset.shouldPlay = "false";
+                  video.dataset.playerPlayback = "error";
+                  video.pause();
+                }
+                setMediaErrors((current) => [...new Set([...current, stage.video!.assetId])]);
+              }}
             />
           )}
           {stage.background === null && stage.sceneDescription !== null && (
@@ -1168,9 +1243,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {content.kind === "effect" && (
           <div className="player-boundary" role="status" aria-label={`正在呈现动效 ${content.descriptorId}`}>
             <span>正式 Runtime Host</span>
-            <strong>正在呈现动效</strong>
+            <strong>{stage.video?.awaited === true ? "视频播放中" : "正在呈现动效"}</strong>
             <code>{content.descriptorId}</code>
-            <div
+            {stage.video?.awaited !== true && <div
               key={snapshot.effects.pending?.effectId}
               className="player-effect-progress"
               data-testid="player-effect-progress"
@@ -1178,7 +1253,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               onAnimationEnd={() => {
                 if (hostActivity === "active" && stage.missingAssetIds.length === 0 && mediaErrors.length === 0) applyIntent({ kind: "primary" }, "system");
               }}
-            />
+            />}
             <div className="player-boundary__actions">
               <button type="button" disabled={stage.missingAssetIds.length > 0 || mediaErrors.length > 0} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>完成动效</button>
               {content.canCancel && <button type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "cancel" }, pointerInput.current)}>跳过动效</button>}

@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-settings";
 import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
-import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
+import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
@@ -85,9 +85,17 @@ function longSkipStory(): CanonicalProject {
 function playbackPolicy(baseDelayMilliseconds: number, voiceTailMilliseconds = 20): WorldPlayerPlaybackPolicyV1 {
   return {
     schemaVersion: 1,
-    policyVersion: "1.1.0",
-    auto: { baseDelayMilliseconds, millisecondsPerReadableUnit: 0, voiceTailMilliseconds, instantInstructionBudget: 128 },
-    skip: { defaultActivation: "toggle", defaultSpeed: 20, instantInstructionBudget: 128 }
+    policyVersion: "1.2.0",
+    auto: { baseDelayMilliseconds, millisecondsPerReadableUnit: 0, voiceTailMilliseconds, instantInstructionBudget: 128, video: "wait-for-end" },
+    skip: { defaultActivation: "toggle", defaultSpeed: 20, instantInstructionBudget: 128, video: "cancel-and-continue" }
+  };
+}
+
+function videoStory() {
+  const demo = createPlayerVideoDemoV1("data:video/webm;base64,AAAA");
+  return {
+    ...demo,
+    project: { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) } satisfies CanonicalProject
   };
 }
 
@@ -519,6 +527,79 @@ describe("N52-E4c Shell Skip controls and cleanup", () => {
     expect(container.querySelector("main")).toHaveAttribute("data-skip-media", "normal");
     expect(container.querySelector(".player-stage-world")).toHaveAttribute("data-skip-media", "normal");
     expect(play).toHaveBeenCalled();
+  });
+});
+
+describe("N52-E4e formal Player video policy", () => {
+  it("renders an authored video asset at the existing awaited Effect boundary", async () => {
+    const demo = videoStory();
+    const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-effect");
+    expect(container.querySelector('video[data-asset-id="media_intro_video"]')).toHaveAttribute("data-video-policy", "awaited");
+    expect(screen.getByText("视频播放中")).toBeInTheDocument();
+  });
+
+  it("keeps Auto waiting for real video ended and then continues the formal Scheduler", async () => {
+    const demo = videoStory();
+    const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    await waitFor(() => expect(container.querySelector('video[data-asset-id="media_intro_video"]')).toBeInTheDocument());
+    const video = container.querySelector<HTMLVideoElement>('video[data-asset-id="media_intro_video"]')!;
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "waiting-video"));
+    expect(screen.queryByText("After video")).not.toBeInTheDocument();
+
+    fireEvent.ended(video);
+    await screen.findByText("After video", {}, { timeout: 500 });
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-mode", "auto");
+  });
+
+  it.each(["skipRead", "skipAll"] as const)("uses %s video cancel-and-continue without leaving a media element", async (mode) => {
+    const demo = videoStory();
+    const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: mode === "skipRead" ? "快进已读" : "快进全部" }));
+
+    if (mode === "skipRead") {
+      await realDelay(100);
+      expect(screen.getByText("After video")).toBeInTheDocument();
+      expect(container.querySelector("main")).toHaveAttribute("data-video-policy-stop-reason", "unreadBoundary");
+      expect(container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    } else {
+      await screen.findByText("Video done", {}, { timeout: 500 });
+      expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "terminal");
+    }
+    expect(container.querySelector("video")).not.toBeInTheDocument();
+  });
+
+  it("pauses on Host suspend, resumes by policy, fails closed on error, and cleans up on unmount", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector<HTMLVideoElement>("video")!;
+
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    expect(pause).toHaveBeenCalled();
+    expect(video).toHaveAttribute("data-player-playback", "suspended");
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    await waitFor(() => expect(play).toHaveBeenCalled());
+
+    fireEvent.error(video);
+    expect(screen.getByRole("alert")).toHaveTextContent("media_intro_video");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-effect");
+    fireEvent.click(screen.getByRole("button", { name: "重试媒体" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(view.container.querySelector("video")).not.toBe(video);
+    view.unmount();
+    expect(pause).toHaveBeenCalled();
   });
 });
 

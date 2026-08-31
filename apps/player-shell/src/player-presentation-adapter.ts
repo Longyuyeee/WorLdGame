@@ -46,10 +46,20 @@ export interface PlayerStageAudioV1 {
   readonly status: "playing" | "paused";
 }
 
+export interface PlayerStageVideoV1 {
+  readonly assetId: string;
+  readonly displayName: string;
+  readonly url: string;
+  readonly effectId: string;
+  readonly awaited: boolean;
+  readonly status: "playing" | "ended";
+}
+
 export interface PlayerStagePresentationV1 {
   readonly background: PlayerStageImageV1 | null;
   readonly characters: readonly PlayerStageCharacterV1[];
   readonly audio: readonly PlayerStageAudioV1[];
+  readonly video: PlayerStageVideoV1 | null;
   readonly cameraTransform: string;
   readonly textboxTemplate: "adv" | "nvl" | "bubble";
   readonly sceneDescription: string | null;
@@ -101,6 +111,7 @@ export function derivePlayerStagePresentationV1(
   let background: PlayerStageImageV1 | null = null;
   const characters: PlayerStageCharacterV1[] = [];
   const audio: PlayerStageAudioV1[] = [];
+  let video: PlayerStageVideoV1 | null = null;
   let cameraTransform = "translate(0%, 0%) scale(1) rotate(0deg)";
   let textboxTemplate: PlayerStagePresentationV1["textboxTemplate"] = uiPolicy.defaultTextboxTemplate;
   let sceneDescription: string | null = null;
@@ -115,7 +126,8 @@ export function derivePlayerStagePresentationV1(
         background = null;
       } else {
         const asset = assets.get(assetId);
-        if (asset === undefined || !asset.mimeType.startsWith("image/")) missing.add(assetId);
+        if (asset === undefined || (!asset.mimeType.startsWith("image/") && !asset.mimeType.startsWith("video/"))) missing.add(assetId);
+        else if (asset.mimeType.startsWith("video/")) video = { assetId, displayName: asset.displayName, url: asset.url, effectId: effect.effectId, awaited: false, status: "ended" };
         else background = { assetId, displayName: asset.displayName, url: asset.url, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds), easing: easing(effect, policy.defaultEasing) };
       }
     } else if (effect.kind.startsWith("show.") && currentAction !== "hide") {
@@ -164,10 +176,21 @@ export function derivePlayerStagePresentationV1(
     }
   }
 
+  const pending = snapshot.effects.pending;
+  if (pending !== null && pending.kind.startsWith("background.")) {
+    const assetId = text(pending, "asset");
+    if (assetId !== undefined) {
+      const asset = assets.get(assetId);
+      if (asset === undefined || !asset.mimeType.startsWith("video/")) missing.add(assetId);
+      else video = { assetId, displayName: asset.displayName, url: asset.url, effectId: pending.effectId, awaited: true, status: "playing" };
+    }
+  }
+
   return {
     background,
     characters: characters.sort((left, right) => left.z - right.z || left.slot.localeCompare(right.slot)),
     audio,
+    video,
     cameraTransform,
     textboxTemplate,
     sceneDescription,

@@ -1,6 +1,7 @@
 # N52-E4d 换机暂停与开发接续说明
 
 > 暂停时间：2026-08-31 17:42（UTC+8）
+> 远端收束更新：最终交接头 `25f040ba20ac9271e91ef6886a8195dd2573e8ac` 的 Windows / Node 22 `product-baseline` run `33379185779` / job `99447416930` 已成功；下文“运行中”只保留暂停时的历史快照，不再是当前阻断项。
 > 当前分支：`codex/n52-e4d-build-stop-point-source`
 > 已推送实现头：`663f317264a12584a38bea96fefcc5e30871fadc`
 > Draft PR：[PR #113](https://github.com/Longyuyeee/WorLdGame/pull/113)

@@ -24,7 +24,7 @@ for (const token of ["schedulePlayerCorePlaybackV1", "scheduleRuntimeBatchV1", "
 for (const token of ["schedulePlayerCorePlaybackV1", 'mode: "auto"', 'mode: skipMode', "skipRead", "skipAll", "pointercancel", "data-skip-media"]) {
   if (!shell.includes(token)) violations.push(`Player Shell playback token missing: ${token}`);
 }
-for (const token of ['WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.1.0"', "defaultActivation", "defaultSpeed"]) {
+for (const token of ['WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.2.0"', "defaultActivation", "defaultSpeed", 'video: "wait-for-end"', 'video: "cancel-and-continue"']) {
   if (!policy.includes(token)) violations.push(`Playback policy token missing: ${token}`);
 }
 for (const token of ["N52-E4b Shell Auto real clock", "N52-E4c Shell Skip controls and cleanup", "real voice element duration", "restores audio and presentation policy"]) {
@@ -35,11 +35,11 @@ const emptyStopLists = shell.match(/stopInstructionIds:\s*\[\]/gu)?.length ?? 0;
 if (emptyStopLists !== 0) violations.push(`Shell still exposes ${emptyStopLists} empty Stop Point list(s)`);
 const stopListAssignments = [...shell.matchAll(/stopInstructionIds:\s*([^,\n]+)/gu)].map((match) => match[1].trim());
 if (stopListAssignments.length !== 2 || stopListAssignments.some((value) => value !== "buildStopInstructionIds")) violations.push("Shell Auto and Skip must consume the same build Stop Point list");
-if (/<video\b/iu.test(shell)) violations.push("Shell unexpectedly gained a formal video renderer without dedicated policy evidence");
-if (contract.matrix?.buildAuthoredStopPointSource !== "complete" || contract.matrix?.formalVideoPolicyEvidence !== "blocked" || contract.matrix?.e4cMobileColdProduction !== "blocked") {
+if (!/<video\b/iu.test(shell)) violations.push("Shell formal video renderer is missing after E4e evidence");
+if (contract.matrix?.buildAuthoredStopPointSource !== "complete" || contract.matrix?.formalVideoPolicyEvidence !== "complete" || contract.matrix?.e4cMobileColdProduction !== "blocked") {
   violations.push("E4 exit blockers were weakened");
 }
-if (contract.continuation?.node !== "N52-E4e" || !contract.continuation?.scope?.includes("video")) violations.push("unique E4e continuation is not frozen");
+if (contract.continuation?.node !== "N52-E4f" || !contract.continuation?.scope?.includes("390x844")) violations.push("unique E4f continuation is not frozen");
 
 for (const item of contract.requiredDocuments ?? []) {
   try {

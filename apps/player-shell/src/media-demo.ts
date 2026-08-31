@@ -78,3 +78,25 @@ export function createPlayerMediaMultichannelDemoV1(): PlayerMediaDemoV1 {
     }
   };
 }
+
+export function createPlayerVideoDemoV1(videoUrl: string): PlayerMediaDemoV1 {
+  const base = createPlayerMediaDemoV1();
+  const scene = base.project.scripts.media_stage;
+  if (scene === undefined) throw new Error("Player video demo is missing media_stage");
+  const background = scene.statements.find((statement) => statement.id === "media_background")!;
+  const videoAsset = { assetId: "media_intro_video", kind: "video", displayName: "Deterministic Intro", mimeType: "video/webm" } as const;
+  return {
+    project: {
+      ...base.project,
+      manifest: { ...base.project.manifest, projectId: "player_video_demo", title: "WorLd Player · Video" },
+      assets: { ...base.project.assets, assets: [...base.project.assets.assets, videoAsset] },
+      scripts: { ...base.project.scripts, media_stage: { ...scene, statements: [
+        { id: "video_before", kind: "narration", textId: "video_before_text", text: "Before video" },
+        { ...background, id: "video_effect", summary: "asset=media_intro_video action=set effectPolicy=pure awaitMode=awaited descriptorId=player.media.video.intro" },
+        { id: "video_after", kind: "narration", textId: "video_after_text", text: "After video" },
+        { id: "video_end", kind: "end", endingName: "Video done" }
+      ] } }
+    },
+    mediaAssets: [...base.mediaAssets, { assetId: videoAsset.assetId, displayName: videoAsset.displayName, mimeType: videoAsset.mimeType, url: videoUrl }]
+  };
+}
