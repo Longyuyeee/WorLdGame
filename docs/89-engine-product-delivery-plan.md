@@ -527,6 +527,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4c Skip / media / embed 状态（2026-08-31）：[实现审计 #252](252-n52-e4c-skip-media-embed-audit.md)已接入 Skip Read/All、Hold/Toggle、5/10/20/40/Instant、现有 text/stage/audio 加速与停止恢复，并把结构化 playback 纳入 Embed API `1.2.0`；Shell 仍只调用 Core bridge。首次 `40/54` 暴露八项真实功能缺口及 Policy 1.1 迁移连带差异，修正后定向 `54/54`。cold production 首轮又真实发现旧 `unreadBoundary` 被新 Skip 消费、5× 在 `budget` 后停住；修正后 history `4→17`，准确停在 `waiting-choice/input/active=false`。本地第三轮完整门普通 `154/954`；实现头 `be73358` 的 Draft PR #111 run `33364046411` / job `99400937472` 用时 `14m14s` 绿色，远端 VM `69.00s`、Route P95 `154.41ms`、Asset 总计 `3286.45ms`。E4c Engineering 关闭；下一唯一切片为 E4 出口复审，390×844 E4c rerun、video、Stop Point、三端与 Product Acceptance 仍未完成。
 
+> E4 出口复审状态（2026-08-31）：[出口复审 #253](253-n52-e4-engineering-exit-reaudit.md)从 E4c 最终绿色头逐项核对真实代码与 PRD。Runtime/Core/Shell、Auto、四种 Skip、五档速度及现有媒体清理为 `完整 4`；Shell 的 Auto/Skip 仍各自硬编码 `stopInstructionIds: []`，正式作者/Build Stop Point source 不存在，video policy 和 E4c 390×844 cold production 证据也缺，故 E4 总出口为 `阻断 3`、未通过。首次机器审计 5 项失败中四项是文档缺口，一项是审计器正则误报并已修正；定向真实回归 `6 files / 139 tests` 全绿，cold production 1280×720 再次得到 Skip Read `5/unreadBoundary`、Skip All `17/waiting-choice/input`、overflow `0`。下一唯一代码切片为 **N52-E4d build-authored Stop Point source bridge**；E4、AC-15 与 Product Acceptance 均不得提前关闭。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA
