@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4-engineering-exit-reaudit",
+  "engineeringStatus": "blocked",
+  "productAcceptance": "blocked",
+  "baseline": {
+    "branch": "codex/n52-e4c-skip-media-embed",
+    "commit": "9e17bb260786c2ca07c51887fe231082d480533d"
+  },
+  "matrix": {
+    "schedulerAuthority": "complete",
+    "autoRealClock": "complete",
+    "skipModesActivationsAndSpeeds": "complete",
+    "textStageCharacterAndAudioCleanup": "complete",
+    "buildAuthoredStopPointSource": "blocked",
+    "formalVideoPolicyEvidence": "blocked",
+    "e4cMobileColdProduction": "blocked"
+  },
+  "firstAudit": {
+    "expected": "E4a-E4c-code-and-targeted-tests-pass; E4-exit-remains-blocked-by-build-authored-stop-point-source-with-video-and-mobile-evidence-honestly-retained",
+    "actual": "machine-audit-first-run-found-five-violations: four-missing-exit-document-tokens-and-one-auditor-negative-regex-false-positive; code-matrix-matched-the-frozen-4-complete-and-3-blocked-result",
+    "difference": "authoritative-documents-had-not-yet-recorded-the-fail-closed-E4-exit-or-unique-E4d-continuation-and-the-first-auditor-regex-backtracked-inside-empty-arrays"
+  },
+  "continuation": {
+    "node": "N52-E4d",
+    "scope": "build-authored-player-stop-point-source-and-shell-policy-bridge",
+    "mustProve": [
+      "author-can-declare-a-stable-player-stop-point-in-canonical-source",
+      "compiler-artifact-preserves-the-exact-stop-instruction-identity",
+      "auto-and-all-four-skip-modes-stop-at-the-same-history-boundary",
+      "state-and-history-before-the-stop-match-normal-execution",
+      "shell-does-not-hardcode-an-empty-stop-instruction-list"
+    ]
+  },
+  "deferredWithoutClaim": [
+    "formal-player-video-renderer-and-video-skip-policy-evidence",
+    "390x844-e4c-cold-production-rerun",
+    "windows-and-android-production-hosts",
+    "physical-device-and-human-evidence",
+    "n52-product-acceptance",
+    "n60-and-later",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    { "path": "docs/253-n52-e4-engineering-exit-reaudit.md", "token": "N52-E4 Engineering 总出口未通过" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4 出口复审状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4 出口复审" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4d Stop Point source bridge" }
+  ]
+}
