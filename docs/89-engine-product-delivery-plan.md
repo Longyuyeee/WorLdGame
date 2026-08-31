@@ -523,6 +523,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > E4a Player Core Scheduler bridge 状态（2026-08-31）：[实现审计 #250](250-n52-e4a-player-core-scheduler-bridge-audit.md)已把 N31 唯一 Scheduler 接入 Player Core `0.5.0`，Player policy 直接别名 canonical Runtime policy，snapshot 公开 mode/activation/speed/stop/count/delay。Forward History 以 `history` 停止且不改 State；内部 Direction/checkpoint 原子桥接，checkpoint candidate 可真实加载；不可用 Stage effect 在 History/Host 提交前回滚。首轮按预期为旧 15 通过、新 3 项因 API 不存在失败；修正后 Player Core `20/20`。完整门先后检出 90 文档两个旧 required token 回归，按全 N52 合同枚举恢复后第三轮全绿。实现头 `ed37edd` 的 Draft PR #109 Windows run `33355351685` / job `99376310859` 用时 `13m32s` 绿色：普通 `153/934`、N52 `72/72`、VM `67.53s`、Route P95 `141.4ms`、Asset 总计 `3282.46ms`。E4a Engineering 关闭；下一切片仅 E4b Shell 真实时钟/文字揭示/真实语音时长，不提前实现 E4c。
 
+> E4b Shell Auto real clock 状态（2026-08-31）：[实现审计 #251](251-n52-e4b-shell-auto-real-clock-audit.md)已在 Web Shell 建立独立 Auto 控件与 Playback Policy `1.0.0`，只以真实 `window.setTimeout` 调用 E4a Core bridge；文字揭示完成、实际 voice `duration-currentTime+tail`、metadata、ended 与 Host suspend/resume 均进入状态机。首轮按预期旧 `30/30`、新 `0/4` 且均缺 Auto 按钮；修正无障碍角色及 React 两阶段观测后 Shell `34/34`，含策略为 `42/42`。cold production 1440×900 与 390×844 证明真实经过时间、4 秒 suspend 零推进、恢复 fresh delay、`terminal/stopped`、44/48px、overflow/console 0。旧入口审计偏差修正后本地完整门普通 `154/946`、N52 `76/76`、VM `76.12s` 全绿；实现头 `02d4e6c` 的 Draft PR #110 Windows run `33359334689` / job `99387522859` 用时 `12m46s` 绿色，远端 VM `68.25s`、Route P95 `127.47ms`、Asset 总计 `3226.25ms`。E4b Engineering 关闭；下一唯一切片为 E4c Skip/速度/媒体/embed，所有产品门仍阻断。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

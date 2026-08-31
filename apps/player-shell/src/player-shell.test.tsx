@@ -12,6 +12,7 @@ import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
+import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -31,6 +32,33 @@ function branchingWithCheckpoint(): CanonicalProject {
     }
   };
 }
+
+function autoStory(): CanonicalProject {
+  const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/tiny/project.s0.json"), "utf8")) as S0Project;
+  const project = loadProject(migrateS0Project(source).files);
+  const script = project.scripts.tiny_start!;
+  return {
+    ...project,
+    scripts: {
+      ...project.scripts,
+      tiny_start: { ...script, statements: [
+        { id: "auto_a", kind: "narration", textId: "auto_a_text", text: "A" },
+        { id: "auto_b", kind: "narration", textId: "auto_b_text", text: "B" },
+        { id: "auto_end", kind: "end", endingName: "Auto done" }
+      ] }
+    }
+  };
+}
+
+function playbackPolicy(baseDelayMilliseconds: number, voiceTailMilliseconds = 20): WorldPlayerPlaybackPolicyV1 {
+  return {
+    schemaVersion: 1,
+    policyVersion: "1.0.0",
+    auto: { baseDelayMilliseconds, millisecondsPerReadableUnit: 0, voiceTailMilliseconds, instantInstructionBudget: 128 }
+  };
+}
+
+const realDelay = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 
 describe("N50-E1 shared Player Shell", () => {
   it("exposes formal identities and supports pointer input from title through choice", () => {
@@ -281,6 +309,71 @@ describe("N52-E1 Player History controls", () => {
     fireEvent.click(forward);
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
     expect(forward).toBeDisabled();
+  });
+});
+
+describe("N52-E4b Shell Auto real clock", () => {
+  it("uses a real Shell timer to advance one formal Scheduler boundary and exposes truthful playback state", async () => {
+    const project = { ...autoStory(), settings: withProjectSettings(autoStory().settings, { text: { revealMode: "instant" } }) };
+    const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(40)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByText("A")).toBeInTheDocument();
+
+    const auto = screen.getByRole("button", { name: "自动播放" });
+    fireEvent.click(auto);
+    expect(auto).toHaveAttribute("aria-pressed", "true");
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "waiting"));
+    await screen.findByText("B", {}, { timeout: 500 });
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-mode", "auto");
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "storyBoundary");
+    fireEvent.click(auto);
+  });
+
+  it("does not start the Auto delay until the real text reveal has completed", async () => {
+    const source = autoStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { charactersPerSecond: 200, minimumDisplayMilliseconds: 80, punctuationDelayMilliseconds: 0, revealMode: "typewriter" } }) };
+    const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(30)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "waiting-text");
+    await realDelay(55);
+    expect(screen.getByText("A")).toBeInTheDocument();
+    await screen.findByText("B", {}, { timeout: 350 });
+  });
+
+  it("uses the real voice element duration plus tail and stops Auto at the terminal boundary", async () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
+    const { container } = render(<PlayerShell project={project} mediaAssets={demo.mediaAssets} playbackPolicy={playbackPolicy(10, 40)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const voice = container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    Object.defineProperty(voice, "duration", { configurable: true, value: 0.12 });
+    Object.defineProperty(voice, "currentTime", { configurable: true, value: 0 });
+    fireEvent.loadedMetadata(voice);
+    fireEvent.play(voice);
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+
+    await realDelay(80);
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    await screen.findByText("Curtain", {}, { timeout: 350 });
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "terminal");
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "stopped"));
+  });
+
+  it("clears its owned timer during Host suspend and only starts a fresh delay after resume", async () => {
+    const source = autoStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
+    const view = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(100)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    await realDelay(30);
+    view.rerender(<PlayerShell project={project} playbackPolicy={playbackPolicy(100)} hostActivity="suspended" />);
+    await realDelay(120);
+    expect(screen.getByText("A")).toBeInTheDocument();
+    expect(view.container.querySelector("main")).toHaveAttribute("data-auto-playback", "suspended");
+
+    view.rerender(<PlayerShell project={project} playbackPolicy={playbackPolicy(100)} hostActivity="active" />);
+    await screen.findByText("B", {}, { timeout: 350 });
   });
 });
 
