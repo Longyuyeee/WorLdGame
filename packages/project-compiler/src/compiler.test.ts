@@ -149,6 +149,27 @@ describe("project compiler N30-E1/E2", () => {
     expect(result.artifacts.sourceMap.entries[0]).toMatchObject({ instructionId: "checkpoint_arrival", statementId: "checkpoint_arrival" });
   });
 
+  it("emits a versioned Player playback policy artifact while leaving Runtime IR unchanged", () => {
+    const result = compileProject(replaceScript(loadFixture("tiny"), "tiny_start", [
+      { id: "stop_line", kind: "narration", textId: "stop_text", text: "Pause here", playerStopPoint: true },
+      { id: "ending", kind: "end", endingName: "Complete" }
+    ]));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.artifacts.playerPlaybackPolicy).toEqual({
+      schemaVersion: 1,
+      policyVersion: 1,
+      stopInstructionIds: ["stop_line"]
+    });
+    expect(JSON.parse(result.artifacts.files["player-playback-policy.json"]!)).toEqual(result.artifacts.playerPlaybackPolicy);
+    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
+      instructionId: "stop_line",
+      opcode: "narration",
+      operands: { textId: "stop_text", text: "Pause here" }
+    });
+  });
+
   it("normalizes authored audio booleans and volume into the formal Runtime contract", () => {
     const result = compileProject(loadFixture("media"), "release");
     expect(result.ok).toBe(true);

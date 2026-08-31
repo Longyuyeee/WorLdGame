@@ -12,7 +12,7 @@
     "autoRealClock": "complete",
     "skipModesActivationsAndSpeeds": "complete",
     "textStageCharacterAndAudioCleanup": "complete",
-    "buildAuthoredStopPointSource": "blocked",
+    "buildAuthoredStopPointSource": "complete",
     "formalVideoPolicyEvidence": "blocked",
     "e4cMobileColdProduction": "blocked"
   },
@@ -30,14 +30,13 @@
     "correction": "record-the-infrastructure-long-tail-without-changing-product-code-or-timeouts-and-require-a-new-exact-head-Windows-full-check"
   },
   "continuation": {
-    "node": "N52-E4d",
-    "scope": "build-authored-player-stop-point-source-and-shell-policy-bridge",
+    "node": "N52-E4e",
+    "scope": "formal-player-video-renderer-and-skip-policy-evidence",
     "mustProve": [
-      "author-can-declare-a-stable-player-stop-point-in-canonical-source",
-      "compiler-artifact-preserves-the-exact-stop-instruction-identity",
-      "auto-and-all-four-skip-modes-stop-at-the-same-history-boundary",
-      "state-and-history-before-the-stop-match-normal-execution",
-      "shell-does-not-hardcode-an-empty-stop-instruction-list"
+      "formal-player-can-render-an-authored-video-asset",
+      "auto-and-skip-have-an-explicit-video-wait-or-skip-policy",
+      "video-exit-cleans-up-playback-and-media-state",
+      "production-evidence-records-the-real-video-policy-outcome"
     ]
   },
   "deferredWithoutClaim": [

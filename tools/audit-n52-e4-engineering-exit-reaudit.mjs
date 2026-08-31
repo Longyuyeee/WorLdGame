@@ -32,14 +32,14 @@ for (const token of ["N52-E4b Shell Auto real clock", "N52-E4c Shell Skip contro
 }
 
 const emptyStopLists = shell.match(/stopInstructionIds:\s*\[\]/gu)?.length ?? 0;
-if (emptyStopLists !== 2) violations.push(`expected both Auto and Skip Shell policies to expose the known empty Stop Point source gap, actual ${emptyStopLists}`);
+if (emptyStopLists !== 0) violations.push(`Shell still exposes ${emptyStopLists} empty Stop Point list(s)`);
 const stopListAssignments = [...shell.matchAll(/stopInstructionIds:\s*([^,\n]+)/gu)].map((match) => match[1].trim());
-if (stopListAssignments.some((value) => value !== "[]")) violations.push("Shell unexpectedly gained a non-empty Stop Point source without an E4d audit");
+if (stopListAssignments.length !== 2 || stopListAssignments.some((value) => value !== "buildStopInstructionIds")) violations.push("Shell Auto and Skip must consume the same build Stop Point list");
 if (/<video\b/iu.test(shell)) violations.push("Shell unexpectedly gained a formal video renderer without dedicated policy evidence");
-if (contract.matrix?.buildAuthoredStopPointSource !== "blocked" || contract.matrix?.formalVideoPolicyEvidence !== "blocked" || contract.matrix?.e4cMobileColdProduction !== "blocked") {
+if (contract.matrix?.buildAuthoredStopPointSource !== "complete" || contract.matrix?.formalVideoPolicyEvidence !== "blocked" || contract.matrix?.e4cMobileColdProduction !== "blocked") {
   violations.push("E4 exit blockers were weakened");
 }
-if (contract.continuation?.node !== "N52-E4d" || !contract.continuation?.scope?.includes("stop-point")) violations.push("unique E4d continuation is not frozen");
+if (contract.continuation?.node !== "N52-E4e" || !contract.continuation?.scope?.includes("video")) violations.push("unique E4e continuation is not frozen");
 
 for (const item of contract.requiredDocuments ?? []) {
   try {

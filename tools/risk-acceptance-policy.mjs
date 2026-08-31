@@ -80,6 +80,16 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing checkpoint scope control: ${control}`);
     }
     if (!validDate(playerControlExtension.scopeAmendedAt)) violations.push("RA-N21-011: scopeAmendedAt must record the checkpoint authorization amendment");
+    const requiredPlaybackControls = [
+      "Permit N20 Story Language and N30 Compiler additive contract changes only for the E4d-frozen build-authored Player Stop Point source bridge",
+      "Require Player Stop Point to use exact stable source identity, an independently versioned Player build policy artifact, unchanged Runtime IR 1.1, and the existing N31 Scheduler",
+      "Forbid reusing Save checkpoint, Runtime History checkpoint, scene IDs, instruction indexes, or a second scheduler as Player Stop Point substitutes"
+    ];
+    for (const control of requiredPlaybackControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing Player Stop Point scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.playbackScopeAmendedAt)) violations.push("RA-N21-011: playbackScopeAmendedAt must record the Player Stop Point authorization amendment");
+    if (playerControlExtension.playbackEvidencePath !== "docs/254-n52-e4d-build-stop-point-source-audit.md") violations.push("RA-N21-011: Player Stop Point evidence path drifted");
   }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);

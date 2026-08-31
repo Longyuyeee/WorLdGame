@@ -8,6 +8,7 @@ export interface Character {
 
 interface StatementBase {
   readonly id: EntityId;
+  readonly playerStopPoint?: boolean;
 }
 
 export interface DialogueStatement extends StatementBase {

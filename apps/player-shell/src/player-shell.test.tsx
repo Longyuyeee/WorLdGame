@@ -50,6 +50,23 @@ function autoStory(): CanonicalProject {
   };
 }
 
+function stopPointStory(): CanonicalProject {
+  const project = autoStory();
+  const script = project.scripts.tiny_start!;
+  return {
+    ...project,
+    scripts: {
+      ...project.scripts,
+      tiny_start: {
+        ...script,
+        statements: script.statements.map((statement) => statement.id === "auto_b"
+          ? { ...statement, playerStopPoint: true }
+          : statement)
+      }
+    }
+  };
+}
+
 function longSkipStory(): CanonicalProject {
   const project = autoStory();
   const script = project.scripts.tiny_start!;
@@ -329,6 +346,18 @@ describe("N52-E1 Player History controls", () => {
 });
 
 describe("N52-E4b Shell Auto real clock", () => {
+  it("stops Auto on the build-authored Player Stop Point", async () => {
+    const source = stopPointStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
+    const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+
+    await screen.findByText("B", {}, { timeout: 500 });
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "stopPoint"));
+    expect(screen.queryByText("Auto done")).not.toBeInTheDocument();
+  });
+
   it("uses a real Shell timer to advance one formal Scheduler boundary and exposes truthful playback state", async () => {
     const project = { ...autoStory(), settings: withProjectSettings(autoStory().settings, { text: { revealMode: "instant" } }) };
     const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(40)} />);
@@ -394,6 +423,27 @@ describe("N52-E4b Shell Auto real clock", () => {
 });
 
 describe("N52-E4c Shell Skip controls and cleanup", () => {
+  it.each([
+    ["skipRead", "toggle"],
+    ["skipAll", "toggle"],
+    ["skipRead", "hold"],
+    ["skipAll", "hold"]
+  ] as const)("stops %s/%s on the same build-authored Player Stop Point", async (mode, activation) => {
+    const source = stopPointStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
+    const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.change(screen.getByRole("combobox", { name: "快进激活方式" }), { target: { value: activation } });
+    const skip = screen.getByRole("button", { name: mode === "skipRead" ? "快进已读" : "快进全部" });
+    if (activation === "hold") fireEvent.pointerDown(skip, { pointerId: 1, pointerType: "mouse" });
+    else fireEvent.click(skip);
+
+    await screen.findByText("B", {}, { timeout: 500 });
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "stopPoint"));
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-mode", mode);
+    expect(screen.queryByText("Auto done")).not.toBeInTheDocument();
+  });
+
   it("runs Skip Read through the formal Scheduler and stops on the first unread text", async () => {
     const source = autoStory();
     const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };

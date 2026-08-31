@@ -161,6 +161,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52-E4 出口复审已完成但总出口未通过；下一唯一代码切片是 N52-E4d Stop Point source bridge。完成后重新执行 E4 出口复审；N60+ 与全部 Product Acceptance 阻断不变。
+7. N52-E4d Stop Point source bridge 已完成：正式 `@stop()`、Compiler policy artifact、Auto/四种 Skip 同边界与 cold production 证据均已登记；E4 总出口仍有 video policy 和手机证据两项阻断。下一唯一代码切片是 **N52-E4e formal Player video renderer and skip policy evidence**；完成后仍须补 390×844 并重新执行 E4 出口复审，N60+ 与全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
