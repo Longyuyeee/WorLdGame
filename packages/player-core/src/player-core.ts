@@ -10,16 +10,21 @@ import {
   advanceRuntimeHistoryV1,
   backRuntimeHistoryV1,
   createRuntimeHistorySessionV1,
+  createRuntimeSchedulerSessionV1,
   createRuntimeSessionSaveV1,
   createRuntimeState,
   forwardRuntimeHistoryV1,
   loadRuntimeSessionSaveV1,
   runtimeStateHashV1,
+  scheduleRuntimeBatchV1,
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
   type RuntimeHistoryReconciliationPlanV1,
   type RuntimeHistorySessionV1,
   type RuntimeInputV1,
+  type RuntimeSchedulePolicyV1,
+  type RuntimeScheduleStopReasonV1,
+  type RuntimeSchedulerSessionV1,
   type RuntimeScalar,
   type RuntimeStateV1
 } from "@world-studio/runtime";
@@ -34,7 +39,7 @@ import {
   type RuntimePresentationHostStateV1
 } from "@world-studio/runtime-host";
 
-export const PLAYER_CORE_VERSION = "0.4.0" as const;
+export const PLAYER_CORE_VERSION = "0.5.0" as const;
 const MAX_PLAYER_DRIVE_STEPS = 10_000;
 
 export type PlayerCoreStatus =
@@ -62,11 +67,26 @@ export interface PlayerCoreState {
   readonly artifacts: CompilerArtifactsV1 | null;
   readonly runtimeState: RuntimeStateV1 | null;
   readonly historySession: RuntimeHistorySessionV1 | null;
+  readonly schedulerSession: RuntimeSchedulerSessionV1 | null;
+  readonly playback: PlayerCorePlaybackSnapshotV1;
   readonly hostState: RuntimePresentationHostStateV1;
   readonly currentEvent: RuntimeEventV1 | null;
   readonly checkpointSaveCandidates: readonly PlayerCheckpointSaveCandidateV1[];
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
 }
+
+export interface PlayerCorePlaybackSnapshotV1 {
+  readonly schemaVersion: 1;
+  readonly mode: RuntimeSchedulePolicyV1["mode"];
+  readonly skipActivation: RuntimeSchedulePolicyV1["skipActivation"];
+  readonly speed: RuntimeSchedulePolicyV1["speed"];
+  readonly stopReason: RuntimeScheduleStopReasonV1 | null;
+  readonly executedInstructions: number;
+  readonly accumulatedInstructions: number;
+  readonly autoAdvanceDelayMilliseconds: number | null;
+}
+
+export type PlayerCorePlaybackPolicyV1 = RuntimeSchedulePolicyV1;
 
 export interface PlayerCheckpointSaveCandidateV1 {
   readonly stepId: string;
@@ -99,6 +119,7 @@ export interface PlayerCoreSnapshotV1 {
     readonly canBack: boolean;
     readonly canForward: boolean;
   } | null;
+  readonly playback: PlayerCorePlaybackSnapshotV1;
   readonly presentation:
     | { readonly kind: "title" }
     | { readonly kind: "dialogue"; readonly speakerId: string; readonly textId: string; readonly text: string }
@@ -138,6 +159,14 @@ export type PlayerCoreIntentV1 =
   | { readonly kind: "back" }
   | { readonly kind: "forward" }
   | { readonly kind: "restart" };
+
+function idlePlayback(): PlayerCorePlaybackSnapshotV1 {
+  return { schemaVersion: 1, mode: "normal", skipActivation: null, speed: "normal", stopReason: null, executedInstructions: 0, accumulatedInstructions: 0, autoAdvanceDelayMilliseconds: null };
+}
+
+function resetPlayback(state: PlayerCoreState): PlayerCoreState {
+  return { ...state, schedulerSession: null, playback: idlePlayback() };
+}
 
 function effectSnapshot(effect: import("@world-studio/runtime").RuntimeEffectIntentV1): PlayerCoreEffectSnapshotV1 {
   return {
@@ -206,6 +235,8 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
       artifacts: null,
       runtimeState: null,
       historySession: null,
+      schedulerSession: null,
+      playback: idlePlayback(),
       hostState,
       currentEvent: null,
       checkpointSaveCandidates: [],
@@ -219,6 +250,8 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
     artifacts: compiled.artifacts,
     runtimeState: null,
     historySession: null,
+    schedulerSession: null,
+    playback: idlePlayback(),
     hostState,
     currentEvent: null,
     checkpointSaveCandidates: [],
@@ -278,12 +311,12 @@ export function startPlayerCore(state: PlayerCoreState, project: CanonicalProjec
   if (!created.ok) return { ...state, status: "error", diagnostics: [...state.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
   const history = createRuntimeHistorySessionV1(state.artifacts.story, created.state);
   if (history.diagnostics.length > 0) return { ...state, status: "error", diagnostics: [...state.diagnostics, ...history.diagnostics.map(runtimeDiagnostic)] };
-  return drivePlayerCore(state, history.session);
+  return drivePlayerCore(resetPlayback(state), history.session);
 }
 
 export function advancePlayerCore(state: PlayerCoreState): PlayerCoreState {
   return state.status === "presenting" && state.historySession !== null
-    ? drivePlayerCore(state, state.historySession)
+    ? drivePlayerCore(resetPlayback(state), state.historySession)
     : state;
 }
 
@@ -303,7 +336,7 @@ export function selectPlayerCoreChoice(state: PlayerCoreState, optionId: string)
     optionId
   };
   if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
-  return drivePlayerCore(state, state.historySession, input);
+  return drivePlayerCore(resetPlayback(state), state.historySession, input);
 }
 
 export function settlePlayerCoreEffect(state: PlayerCoreState, outcome: "complete" | "cancel"): PlayerCoreState {
@@ -330,7 +363,7 @@ export function settlePlayerCoreEffect(state: PlayerCoreState, outcome: "complet
   };
   const hostState = settleRuntimePresentationEffectV1(state.hostState, pending, outcome);
   if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
-  return drivePlayerCore({ ...state, hostState }, state.historySession, input);
+  return drivePlayerCore(resetPlayback({ ...state, hostState }), state.historySession, input);
 }
 
 export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreState {
@@ -347,7 +380,109 @@ export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreStat
     descriptorId: pending.descriptorId
   };
   if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
-  return drivePlayerCore(state, state.historySession, input);
+  return drivePlayerCore(resetPlayback(state), state.historySession, input);
+}
+
+function playbackSnapshot(policy: RuntimeSchedulePolicyV1, stopReason: RuntimeScheduleStopReasonV1, executedInstructions: number, session: RuntimeSchedulerSessionV1, autoAdvanceDelayMilliseconds: number | null): PlayerCorePlaybackSnapshotV1 {
+  return {
+    schemaVersion: 1,
+    mode: policy.mode,
+    skipActivation: policy.skipActivation,
+    speed: policy.speed,
+    stopReason,
+    executedInstructions,
+    accumulatedInstructions: session.accumulatedInstructions,
+    autoAdvanceDelayMilliseconds
+  };
+}
+
+function checkpointCandidateAtCursor(artifacts: CompilerArtifactsV1, history: RuntimeHistorySessionV1, cursor: number): PlayerCheckpointSaveCandidateV1 | null {
+  const entry = history.entries[cursor - 1];
+  if (entry?.event?.kind !== "checkpoint-reached") return null;
+  const exactHistory: RuntimeHistorySessionV1 = {
+    ...history,
+    cursor,
+    entries: history.entries.slice(0, cursor),
+    checkpoints: history.checkpoints.slice(0, cursor + 1)
+  };
+  const created = createRuntimeSessionSaveV1(artifacts.story, exactHistory);
+  if (!created.ok) return null;
+  const runtimeState = exactHistory.checkpoints[cursor]!.state;
+  return {
+    stepId: entry.event.stepId,
+    sceneId: runtimeState.cursor.sceneId,
+    serializedSessionSave: created.serialized,
+    artifactHash: created.artifactHash,
+    runtimeStateHash: runtimeStateHashV1(runtimeState)
+  };
+}
+
+/** Executes one formal playback batch. Runtime remains the sole scheduler authority. */
+export function schedulePlayerCorePlaybackV1(state: PlayerCoreState, policy: PlayerCorePlaybackPolicyV1): PlayerCoreState {
+  if (state.status !== "presenting" || state.artifacts === null || state.historySession === null || state.runtimeState === null) return state;
+  const created = state.schedulerSession !== null && state.schedulerSession.history === state.historySession
+    ? { ok: true as const, session: state.schedulerSession }
+    : createRuntimeSchedulerSessionV1(state.artifacts.story, state.historySession);
+  if (!created.ok) {
+    const stopReason: RuntimeScheduleStopReasonV1 = created.diagnostics.some((item) => item.code === "RUNTIME_HISTORY_FORWARD_REQUIRED") ? "history" : "diagnostic";
+    return {
+      ...state,
+      schedulerSession: null,
+      playback: {
+        schemaVersion: 1,
+        mode: policy.mode,
+        skipActivation: policy.skipActivation,
+        speed: policy.speed,
+        stopReason,
+        executedInstructions: 0,
+        accumulatedInstructions: 0,
+        autoAdvanceDelayMilliseconds: null
+      },
+      ...(stopReason === "diagnostic" ? { status: "error" as const, currentEvent: null, diagnostics: [...state.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] } : {})
+    };
+  }
+
+  let scheduler = created.session;
+  let current = state;
+  let executedInstructions = 0;
+  let checkpointSaveCandidates = [...state.checkpointSaveCandidates];
+  for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
+    const beforeCursor = scheduler.history.cursor;
+    const result = scheduleRuntimeBatchV1(state.artifacts.story, scheduler, policy);
+    scheduler = result.session;
+    executedInstructions += result.executedInstructions;
+    const hostState = consumeRuntimePresentationEffectsV1(current.hostState, result.effects);
+    for (let cursor = beforeCursor + 1; cursor <= scheduler.history.cursor; cursor += 1) {
+      const candidate = checkpointCandidateAtCursor(state.artifacts, scheduler.history, cursor);
+      if (candidate !== null) checkpointSaveCandidates.push(candidate);
+    }
+    const visibleEvent = [...result.events].reverse().find((event) => event.kind !== "direction" && event.kind !== "checkpoint-reached") ?? null;
+    const event = visibleEvent ?? current.currentEvent;
+    const playback = playbackSnapshot(policy, result.stopReason, executedInstructions, scheduler, result.autoAdvanceDelayMilliseconds);
+    current = {
+      ...current,
+      runtimeState: result.state,
+      historySession: scheduler.history,
+      schedulerSession: scheduler,
+      hostState,
+      currentEvent: event,
+      checkpointSaveCandidates,
+      playback
+    };
+
+    if (result.stopReason === "diagnostic" || result.stopReason === "history") {
+      return { ...current, status: "error", currentEvent: null, diagnostics: [...current.diagnostics, ...result.diagnostics.map(runtimeDiagnostic)] };
+    }
+    if (result.stopReason === "resourceUnavailable" || result.stopReason === "budget") return current;
+    if (result.state.pendingEffect !== null) return { ...current, status: "waiting-effect" };
+    if (result.state.pendingBarrier !== null) return { ...current, status: "waiting-barrier" };
+    if (visibleEvent?.kind === "choice" || result.stopReason === "input") return { ...current, status: "waiting-choice" };
+    if (visibleEvent?.kind === "ending" || result.state.terminal.kind === "ended") return { ...current, status: "ended" };
+    if (visibleEvent !== null || result.stopReason === "stopPoint" || result.stopReason === "unreadBoundary") return { ...current, status: "presenting" };
+    // Normal/Auto may stop on internal Direction or Checkpoint boundaries. They are
+    // bridged inside Core so Shell observes the next presentable story boundary.
+  }
+  return playerError(resetPlayback(current), "PLAYER_SCHEDULER_DRIVE_LIMIT", `Player Core exceeded ${MAX_PLAYER_DRIVE_STEPS} Scheduler boundaries without a presentation`);
 }
 
 function eventAtHistoryCursor(history: RuntimeHistorySessionV1): RuntimeEventV1 | null {
@@ -394,7 +529,7 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   const checkpoint = loaded.session.checkpoints[loaded.session.cursor]!;
   const savedCheckpoint = loaded.save.history.checkpoints[loaded.save.cursor]!;
   const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(loaded.session), checkpoint.checkpointId);
-  const loadedState: PlayerCoreState = { ...state, status: status === "continue" ? "presenting" : status, runtimeState: loaded.state, historySession: loaded.session, hostState, currentEvent: event, checkpointSaveCandidates: [] };
+  const loadedState: PlayerCoreState = { ...state, status: status === "continue" ? "presenting" : status, runtimeState: loaded.state, historySession: loaded.session, schedulerSession: null, playback: idlePlayback(), hostState, currentEvent: event, checkpointSaveCandidates: [] };
   const restoredState = status === "continue" ? drivePlayerCore(loadedState, loaded.session) : loadedState;
   return {
     ok: true,
@@ -419,7 +554,7 @@ function navigatedStatus(history: RuntimeHistorySessionV1, event: RuntimeEventV1
 
 function navigatePlayerHistory(state: PlayerCoreState, direction: "back" | "forward"): PlayerCoreState {
   if (state.artifacts === null || state.historySession === null) return state;
-  let current = state;
+  let current = resetPlayback(state);
   for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
     const history = current.historySession!;
     const moved = direction === "back"
@@ -515,6 +650,7 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
       canBack: history.cursor > 0 && state.runtimeState?.pendingEffect === null && previous?.barriers.length === 0,
       canForward: history.cursor < history.entries.length && state.runtimeState?.pendingEffect === null
     },
+    playback: state.playback,
     presentation: presentation(state),
     runtimeStateHash: state.runtimeState === null ? null : runtimeStateHashV1(state.runtimeState),
     runtimeHostSnapshotHash: host.snapshotHash

@@ -10,12 +10,13 @@ import {
   dispatchPlayerCoreIntentV1,
   selectPlayerCoreChoice,
   settlePlayerCoreEffect,
+  schedulePlayerCorePlaybackV1,
   startPlayerCore,
   loadPlayerCoreSessionSaveV1,
   type PlayerCoreIntentV1,
   type PlayerCoreState
 } from "./player-core";
-import type { RuntimeHistorySessionV1 } from "@world-studio/runtime";
+import type { RuntimeHistorySessionV1, RuntimeSchedulePolicyV1 } from "@world-studio/runtime";
 
 function fixture(name: "tiny" | "branching" | "benchmark" | "media"): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), `fixtures/projects/${name}/project.s0.json`), "utf8")) as S0Project;
@@ -34,6 +35,37 @@ function checkpointProject(): CanonicalProject {
     { id: "tiny_line", kind: "dialogue", speakerId: "tiny_narrator", textId: "tiny_text", text: "After checkpoint" },
     { id: "tiny_end", kind: "end", endingName: "Done" }
   ] } } };
+}
+
+function scheduledCheckpointProject(): CanonicalProject {
+  const project = fixture("tiny");
+  const script = project.scripts.tiny_start!;
+  return { ...project, scripts: { ...project.scripts, tiny_start: { ...script, statements: [
+    { id: "before_checkpoint", kind: "narration", textId: "before_checkpoint_text", text: "Before checkpoint" },
+    { id: "scheduled_checkpoint", kind: "checkpoint" },
+    { id: "after_checkpoint", kind: "dialogue", speakerId: "tiny_narrator", textId: "after_checkpoint_text", text: "After scheduled checkpoint" },
+    { id: "scheduled_end", kind: "end", endingName: "Done" }
+  ] } } };
+}
+
+function playbackPolicy(overrides: Partial<RuntimeSchedulePolicyV1> = {}): RuntimeSchedulePolicyV1 {
+  return {
+    schemaVersion: 1,
+    mode: "auto",
+    skipActivation: null,
+    speed: "normal",
+    stopInstructionIds: [],
+    unavailableEffectDescriptorIds: [],
+    instantInstructionBudget: 128,
+    autoTiming: {
+      baseDelayMilliseconds: 20,
+      millisecondsPerReadableUnit: 3,
+      readableUnits: 10,
+      voiceDurationMilliseconds: 80,
+      voiceTailMilliseconds: 10
+    },
+    ...overrides
+  };
 }
 
 describe("N50-E1 formal Player Core", () => {
@@ -98,7 +130,7 @@ describe("N50-E1 formal Player Core", () => {
     const waiting = startPlayerCore(createPlayerCore(project), project);
     expect(createPlayerCoreSnapshotV1(waiting)).toMatchObject({
       status: "waiting-effect",
-      playerCoreVersion: "0.4.0",
+      playerCoreVersion: "0.5.0",
       presentation: { kind: "effect", descriptorId: "player.media.actor.enter" },
       effects: {
         active: [
@@ -337,5 +369,103 @@ describe("N52-E2 Player Session Save bridge", () => {
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
     expect(createPlayerCoreSnapshotV1(loaded.state).effects.active.some((effect) => effect.effectId === cancelledEffectId)).toBe(false);
+  });
+});
+
+describe("N52-E4a Player Core Scheduler bridge", () => {
+  it("advances a real compiled story through the Runtime Scheduler and publishes the exact Auto stop snapshot", () => {
+    const project = fixture("benchmark");
+    const opening = startPlayerCore(createPlayerCore(project), project);
+    const before = createPlayerCoreSnapshotV1(opening);
+    expect(before.presentation).toMatchObject({ kind: "narration", textId: "benchmark_opening_narration_text" });
+
+    const next = schedulePlayerCorePlaybackV1(opening, playbackPolicy());
+    expect(createPlayerCoreSnapshotV1(next)).toMatchObject({
+      status: "presenting",
+      presentation: { kind: "dialogue", textId: "benchmark_opening_01_text" },
+      history: { cursor: (before.history?.cursor ?? 0) + 1, canForward: false },
+      playback: {
+        mode: "auto",
+        skipActivation: null,
+        speed: "normal",
+        stopReason: "storyBoundary",
+        autoAdvanceDelayMilliseconds: 90,
+        executedInstructions: expect.any(Number)
+      }
+    });
+    expect(createPlayerCoreSnapshotV1(next).playback.executedInstructions).toBeGreaterThan(0);
+  });
+
+  it("exposes a build instruction stop point without advancing beyond the same History boundary", () => {
+    const project = fixture("benchmark");
+    const opening = startPlayerCore(createPlayerCore(project), project);
+    const stopped = schedulePlayerCorePlaybackV1(opening, playbackPolicy({ stopInstructionIds: ["benchmark_opening_01"] }));
+    expect(createPlayerCoreSnapshotV1(stopped)).toMatchObject({
+      presentation: { kind: "dialogue", textId: "benchmark_opening_01_text" },
+      playback: { stopReason: "stopPoint", autoAdvanceDelayMilliseconds: null }
+    });
+  });
+
+  it("fails closed with a structured History stop while a recorded Forward branch exists", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const line = selectPlayerCoreChoice(choice, "branch_right_option");
+    const ending = advancePlayerCore(line);
+    const backed = dispatchPlayerCoreIntentV1(ending, project, { kind: "back" });
+    const before = createPlayerCoreSnapshotV1(backed);
+
+    const stopped = schedulePlayerCorePlaybackV1(backed, playbackPolicy());
+    expect(createPlayerCoreSnapshotV1(stopped)).toMatchObject({
+      status: "presenting",
+      presentation: before.presentation,
+      runtimeStateHash: before.runtimeStateHash,
+      history: before.history,
+      playback: {
+        mode: "auto",
+        stopReason: "history",
+        executedInstructions: 0,
+        autoAdvanceDelayMilliseconds: null
+      }
+    });
+  });
+
+  it("preserves an exact loadable checkpoint save while bridging an internal Scheduler boundary", () => {
+    const project = scheduledCheckpointProject();
+    const before = startPlayerCore(createPlayerCore(project), project);
+    const after = schedulePlayerCorePlaybackV1(before, playbackPolicy());
+    expect(createPlayerCoreSnapshotV1(after)).toMatchObject({
+      presentation: { kind: "dialogue", text: "After scheduled checkpoint" },
+      playback: { stopReason: "storyBoundary" }
+    });
+    expect(after.checkpointSaveCandidates).toHaveLength(1);
+    const candidate = after.checkpointSaveCandidates[0]!;
+    expect(candidate.stepId).toBe("scheduled_checkpoint");
+    const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), candidate.serializedSessionSave);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+    expect(loaded.savedRuntimeStateHash).toBe(candidate.runtimeStateHash);
+    expect(createPlayerCoreSnapshotV1(loaded.state).presentation).toMatchObject({ kind: "dialogue", text: "After scheduled checkpoint" });
+  });
+
+  it("rolls back an unavailable real presentation effect and exposes resourceUnavailable without Host side effects", () => {
+    const source = fixture("media");
+    const script = source.scripts.media_stage!;
+    const background = script.statements.find((statement) => statement.id === "media_background")!;
+    const project: CanonicalProject = { ...source, scripts: { ...source.scripts, media_stage: { ...script, statements: [
+      { id: "media_preflight", kind: "narration", textId: "media_preflight_text", text: "Preflight" },
+      { ...background, summary: `${String(background.summary)} descriptorId=player.media.background.unavailable` },
+      ...script.statements.filter((statement) => statement.id !== "media_background")
+    ] } } };
+    const before = startPlayerCore(createPlayerCore(project), project);
+    const beforeSnapshot = createPlayerCoreSnapshotV1(before);
+    const stopped = schedulePlayerCorePlaybackV1(before, playbackPolicy({ unavailableEffectDescriptorIds: ["player.media.background.unavailable"] }));
+    expect(createPlayerCoreSnapshotV1(stopped)).toMatchObject({
+      status: "presenting",
+      presentation: beforeSnapshot.presentation,
+      runtimeStateHash: beforeSnapshot.runtimeStateHash,
+      history: beforeSnapshot.history,
+      effects: { operations: [] },
+      playback: { stopReason: "resourceUnavailable", executedInstructions: 0, autoAdvanceDelayMilliseconds: null }
+    });
   });
 });
