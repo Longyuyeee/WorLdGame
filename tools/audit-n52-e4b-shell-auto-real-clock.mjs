@@ -7,7 +7,7 @@ const contract = JSON.parse(await read("config/n52-e4b-shell-auto-real-clock.jso
 const violations = [];
 
 if (contract.schemaVersion !== 1 || contract.node !== "N52-E4b-shell-auto-real-clock" || !["candidate", "complete"].includes(contract.engineeringStatus) || contract.productAcceptance !== "blocked") violations.push("E4b identity or gate status drifted");
-if (contract.versions?.playerCore !== "0.5.0" || contract.versions?.playerShell !== "0.6.0-n52" || contract.versions?.playbackPolicy !== "1.0.0") violations.push("E4b version boundary drifted");
+if (contract.versions?.playerCore !== "0.5.0" || contract.versions?.playerShell !== "0.6.0-n52" || contract.versions?.playbackPolicy !== "1.0.0") violations.push("E4b recorded version boundary drifted");
 if (contract.contract?.schedulerAuthority !== "runtime-only-through-player-core" || contract.contract?.clockAuthority !== "shell-owned-window-timeout" || contract.contract?.hostSuspend !== "owned-timer-cleared-and-fresh-delay-after-resume") violations.push("E4b scheduler, clock, or suspend ownership drifted");
 
 const shell = await read("apps/player-shell/src/PlayerShell.tsx");
@@ -26,7 +26,7 @@ for (const token of [
   "data-playback-stop-reason"
 ]) if (!shell.includes(token)) violations.push(`Shell Auto bridge token is missing: ${token}`);
 for (const token of [
-  'WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.0.0"',
+  'WORLD_PLAYER_PLAYBACK_POLICY_VERSION = "1.1.0"',
   "voiceTailMilliseconds",
   "instantInstructionBudget",
   "validateWorldPlayerPlaybackPolicyV1"

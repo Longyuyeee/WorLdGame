@@ -19,6 +19,7 @@ const mount = await read("apps/player-shell/src/mount-player.tsx");
 const galSettings = await read("packages/gal-settings/src/settings.ts");
 const e4a = JSON.parse(await read("config/n52-e4a-player-core-scheduler-bridge.json"));
 const e4b = JSON.parse(await read("config/n52-e4b-shell-auto-real-clock.json"));
+const e4c = JSON.parse(await read("config/n52-e4c-skip-media-embed.json"));
 
 for (const token of [
   'export type RuntimeRunModeV1 = "normal" | "auto" | "skipRead" | "skipAll"',
@@ -55,8 +56,11 @@ if (entryGaps.shellAutoSkipControls !== "absent") {
 if (shell.includes("data-playback-mode") && (e4b.node !== "N52-E4b-shell-auto-real-clock" || !["candidate", "complete"].includes(e4b.engineeringStatus))) {
   violations.push("Player Shell Auto integration requires the formal E4b audit contract");
 }
-if (entryGaps.embedPlaybackObservation !== "absent" || mount.includes("playbackMode")) {
-  violations.push("embed playback observation entry baseline changed and must be re-audited");
+if (entryGaps.embedPlaybackObservation !== "absent") {
+  violations.push("embed playback observation entry baseline snapshot drifted");
+}
+if (mount.includes("playbackMode") && (e4c.node !== "N52-E4c-skip-media-embed" || !["candidate", "complete"].includes(e4c.engineeringStatus))) {
+  violations.push("embed playback observation requires the formal E4c audit contract");
 }
 if (!shell.includes('saveView === "auto"') || !shell.includes("writeAuto")) {
   violations.push("existing auto-save facts changed; auto-save versus auto-playback correction must be re-audited");

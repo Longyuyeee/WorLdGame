@@ -50,11 +50,27 @@ function autoStory(): CanonicalProject {
   };
 }
 
+function longSkipStory(): CanonicalProject {
+  const project = autoStory();
+  const script = project.scripts.tiny_start!;
+  return {
+    ...project,
+    scripts: {
+      ...project.scripts,
+      tiny_start: { ...script, statements: [
+        ...Array.from({ length: 12 }, (_, index) => ({ id: `skip_${index}`, kind: "narration" as const, textId: `skip_text_${index}`, text: `Line ${index}` })),
+        { id: "skip_end", kind: "end" as const, endingName: "Skip done" }
+      ] }
+    }
+  };
+}
+
 function playbackPolicy(baseDelayMilliseconds: number, voiceTailMilliseconds = 20): WorldPlayerPlaybackPolicyV1 {
   return {
     schemaVersion: 1,
-    policyVersion: "1.0.0",
-    auto: { baseDelayMilliseconds, millisecondsPerReadableUnit: 0, voiceTailMilliseconds, instantInstructionBudget: 128 }
+    policyVersion: "1.1.0",
+    auto: { baseDelayMilliseconds, millisecondsPerReadableUnit: 0, voiceTailMilliseconds, instantInstructionBudget: 128 },
+    skip: { defaultActivation: "toggle", defaultSpeed: 20, instantInstructionBudget: 128 }
   };
 }
 
@@ -374,6 +390,85 @@ describe("N52-E4b Shell Auto real clock", () => {
 
     view.rerender(<PlayerShell project={project} playbackPolicy={playbackPolicy(100)} hostActivity="active" />);
     await screen.findByText("B", {}, { timeout: 350 });
+  });
+});
+
+describe("N52-E4c Shell Skip controls and cleanup", () => {
+  it("runs Skip Read through the formal Scheduler and stops on the first unread text", async () => {
+    const source = autoStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
+    const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "快进已读" }));
+
+    await screen.findByText("B", {}, { timeout: 500 });
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-mode", "skipRead");
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "unreadBoundary");
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-skip-active", "false"));
+  });
+
+  it("runs Toggle Skip All at the selected speed and stops cleanly at terminal", async () => {
+    const source = longSkipStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
+    const { container } = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.change(screen.getByRole("combobox", { name: "快进速度" }), { target: { value: "5" } });
+    fireEvent.click(screen.getByRole("button", { name: "快进全部" }));
+
+    await screen.findByText("Skip done", {}, { timeout: 500 });
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-mode", "skipAll");
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-activation", "toggle");
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-speed", "5");
+    expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "terminal");
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-skip-active", "false"));
+  });
+
+  it("ends Hold Skip on pointer release, cancel, blur, and host suspend without a stale timer", async () => {
+    const source = autoStory();
+    const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
+    const view = render(<PlayerShell project={project} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.change(screen.getByRole("combobox", { name: "快进激活方式" }), { target: { value: "hold" } });
+    const skip = screen.getByRole("button", { name: "快进全部" });
+    fireEvent.pointerDown(skip, { pointerId: 1, pointerType: "mouse" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "true");
+    fireEvent.pointerUp(skip, { pointerId: 1, pointerType: "mouse" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    await realDelay(30);
+    expect(screen.getByText("A")).toBeInTheDocument();
+
+    fireEvent.pointerDown(skip, { pointerId: 2, pointerType: "mouse" });
+    fireEvent.pointerCancel(skip, { pointerId: 2, pointerType: "mouse" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    fireEvent.keyDown(skip, { key: " " });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "true");
+    fireEvent.keyUp(window, { key: " " });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    fireEvent.pointerDown(skip, { pointerId: 3, pointerType: "mouse" });
+    fireEvent.blur(window);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    fireEvent.pointerDown(skip, { pointerId: 4, pointerType: "mouse" });
+    view.rerender(<PlayerShell project={project} playbackPolicy={playbackPolicy(10)} hostActivity="suspended" />);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+  });
+
+  it("accelerates real text/stage media and restores audio and presentation policy on stop", async () => {
+    const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.change(screen.getByRole("combobox", { name: "快进激活方式" }), { target: { value: "hold" } });
+    const skip = screen.getByRole("button", { name: "快进全部" });
+    fireEvent.pointerDown(skip, { pointerId: 1, pointerType: "mouse" });
+    expect(container.querySelector("main")).toHaveAttribute("data-skip-media", "accelerated");
+    expect(container.querySelector(".player-stage-world")).toHaveAttribute("data-skip-media", "accelerated");
+    expect(pause).toHaveBeenCalled();
+    fireEvent.pointerUp(skip, { pointerId: 1, pointerType: "mouse" });
+    await Promise.resolve();
+    expect(container.querySelector("main")).toHaveAttribute("data-skip-media", "normal");
+    expect(container.querySelector(".player-stage-world")).toHaveAttribute("data-skip-media", "normal");
+    expect(play).toHaveBeenCalled();
   });
 });
 
