@@ -32,6 +32,8 @@
 
 专项回归为 `6 files / 149 tests`，E4f 与聚合 E4 机器审计均 PASS，`npm run typecheck` 通过。完整 `npm run check` 前两次分别在历史 `N52-E3 入口契约` 与 `N52-E3a v2 元数据与截图` 文档 token 处 fail closed：原因是更新追踪矩阵顶部摘要时过度压缩了旧节点名称；集中恢复 E3/E4 稳定历史索引后，全部 N52 合同连续 PASS，没有修改产品逻辑、timeout 或预算。第三次完整门退出 0：普通回归 `154 files / 967 tests`，N50 `78/78`、N51 `123/123`、N52 History `90/90`，Runtime `61/61 + 10,000 seeds / 20,000 replays`，VM `5/5` 测试体 `26.10s`，17 个 workspace production build 和 architecture 全绿；Route 10k 正式编辑链 P95 `54.90ms <500ms`，Asset Dicing / Atlas / 总计 `699.44 / 848.44 / 1547.88ms`，均在原预算内。
 
+实现头 `b5681a711f6ff8798a3320543e15481c89dd8f06` 已推送至 Draft PR #115；同一精确 head 的 Windows / Node 22 `product-baseline` run `33408391033` / job `99541585012` 用时 `15m04s`，结论 `success`。远端普通回归 `154 files / 967 tests`、N51 `123/123`、N52 History `90/90`、VM `5/5` 测试体 `74.02s <90s`、Route P95 `162.72ms <500ms`、Asset Dicing / Atlas / 总计 `1571.18 / 1923.78 / 3494.96ms`，均在冻结预算内。
+
 ## 4. 出口边界与接续
 
 本步只关闭 **N52-E4 Engineering**。Windows/Android 正式宿主、实体设备、真人向量、AC-15 和 N52 Product Acceptance 均未完成；响应式 Chrome 证据不能冒充 Android 真机。`RA-N21-011` 最大节点仍为 N52，因此不得直接开始 N60。
