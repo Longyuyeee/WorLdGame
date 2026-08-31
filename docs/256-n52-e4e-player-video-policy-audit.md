@@ -28,6 +28,8 @@
 
 本地完整 `npm run check` 一次通过：普通全量 `154 files / 967 tests`，N50 `78/78`、N51 `123/123`、N52 History `90/90`，Runtime `61/61 + 10,000 seeds / 20,000 replays`，VM `5/5` test body `26.09s`，17 个 production builds；Route P95 `62.59ms < 500ms`，Asset Dicing / Atlas / 总计 `708.64 / 852.07 / 1560.71ms`，全部预算绿色。
 
+实现头 `3eb8f3564b88652d2f1f66f08586c726745b287a` 已推送至 Draft PR #114；同一精确 head 的 Windows / Node 22 `product-baseline` run `33395026116` / job `99497387582` 用时 `12m31s`，结论 `success`。这组证据只关闭 E4e Engineering，不关闭 E4 总出口或 Product Acceptance。
+
 机器合同：[config/n52-e4e-player-video-policy.json](../config/n52-e4e-player-video-policy.json)；专项审计：`npm run audit:n52-e4e-player-video-policy`。
 
 ## 4. 出口与接续点

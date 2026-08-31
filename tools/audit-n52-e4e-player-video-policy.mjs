@@ -10,6 +10,7 @@ if (contract.schemaVersion !== 1 || contract.node !== "N52-E4e-player-video-poli
 if (contract.authority?.runtimeIr !== "1.1.0-unchanged" || contract.authority?.newScheduler !== false) violations.push("E4e authority drifted");
 if (contract.contract?.autoVideoPolicy !== "wait-for-end" || contract.contract?.skipVideoPolicy !== "cancel-and-continue" || contract.contract?.renderer !== "formal-player-html-video") violations.push("E4e video policy drifted");
 if (contract.nextSlice !== "N52-E4f-390x844-e4c-cold-production-rerun-and-e4-exit-reaudit") violations.push("E4e continuation drifted");
+if (!/^[0-9a-f]{40}$/u.test(contract.engineeringEvidence?.implementationCommit ?? "") || !Number.isSafeInteger(contract.engineeringEvidence?.pullRequest) || !Number.isSafeInteger(contract.engineeringEvidence?.workflowRun) || !Number.isSafeInteger(contract.engineeringEvidence?.workflowJob) || contract.engineeringEvidence?.conclusion !== "success") violations.push("complete E4e requires exact remote evidence");
 
 const compilerTests = await read("packages/project-compiler/src/compiler.test.ts");
 const adapter = await read("apps/player-shell/src/player-presentation-adapter.ts");
