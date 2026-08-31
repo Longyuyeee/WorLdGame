@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4f-mobile-cold-production-exit",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseline": {
+    "branch": "codex/n52-e4e-player-video-policy",
+    "commit": "569a4d30fd3b60caf9209ae7b72ce3b43bd045ca"
+  },
+  "authority": {
+    "id": "RA-N21-011",
+    "maximumDeliveryNode": "N52"
+  },
+  "firstProductionDifference": {
+    "expected": "all-E4c-controls-and-five-cold-production-vectors-pass-at-390x844-without-product-change",
+    "actual": "document-overflow-was-zero-and-buttons-were-48px-high-but-both-playback-selects-were-only-30px-high",
+    "correction": "set-mobile-playback-select-min-height-to-48px-without-changing-playback-semantics"
+  },
+  "coldProduction": {
+    "viewport": "390x844",
+    "documentHorizontalOverflowPixels": 0,
+    "minimumInteractiveControlHeightPixels": 44,
+    "consoleErrorsAndWarnings": 0,
+    "auto": "history-3-to-5-presenting-storyBoundary-waiting-text",
+    "toggleSkipRead": "history-3-to-4-presenting-unreadBoundary-inactive",
+    "toggleSkipAll": "history-3-to-17-waiting-choice-input-inactive-speed-5",
+    "holdSkipRead": "history-3-to-4-presenting-unreadBoundary-inactive",
+    "holdSkipAll": "history-3-to-17-waiting-choice-input-inactive-speed-instant"
+  },
+  "matrix": {
+    "schedulerAuthority": "complete",
+    "autoRealClock": "complete",
+    "skipModesActivationsAndSpeeds": "complete",
+    "textStageCharacterAndAudioCleanup": "complete",
+    "buildAuthoredStopPointSource": "complete",
+    "formalVideoPolicyEvidence": "complete",
+    "e4cMobileColdProduction": "complete"
+  },
+  "continuation": {
+    "node": "N52-engineering-exit-and-N60-governance-checkpoint",
+    "scope": "audit-the-whole-N52-engineering-goal-and-request-explicit-authority-before-any-N60-work"
+  },
+  "deferredWithoutClaim": [
+    "windows-and-android-production-hosts",
+    "physical-device-and-human-evidence",
+    "n52-product-acceptance",
+    "n60-and-later-without-new-authority",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    { "path": "docs/257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md", "token": "E4 Engineering 出口通过" },
+    { "path": "docs/253-n52-e4-engineering-exit-reaudit.md", "token": "E4f 后最终更新" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4f 移动端 cold production 关闭状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4f 移动端出口" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52 Engineering 总出口与 N60 治理 checkpoint" }
+  ]
+}

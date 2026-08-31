@@ -3,7 +3,7 @@
 > 日期：2026-08-31
 > 分支：`codex/n52-e4-engineering-exit-reaudit`
 > 直接基线：E4c 最终绿色头 `9e17bb260786c2ca07c51887fe231082d480533d`
-> 当前判定：**N52-E4 Engineering 总出口未通过**；E4a–E4c 子切片结论保持有效，下一唯一代码切片为 N52-E4d。
+> 当前判定：历史首次复审未通过；经 E4d–E4f 逐项关闭后，**N52-E4 Engineering 总出口现已通过**，Product Acceptance 仍阻断。
 
 ## 1. 出口结论
 
@@ -26,6 +26,8 @@ E4a–E4c 已建立真实的 Runtime→Player Core→Web Shell 播放链：N31 R
 | E4c 手机 cold production | E4b 有 390×844；E4c 本轮仅可复验 1280×720 | 阻断证据项 |
 
 > E4d 后更新（2026-08-31）：[审计 #254](254-n52-e4d-build-stop-point-source-audit.md)已贯通 `@stop()`→Canonical `playerStopPoint`→versioned `player-playback-policy.json`→Shell Auto/Skip。定向 `3 files / 84 tests` 与 cold production Auto/Toggle Skip Read/All 均在 `history=2 / stopPoint` 停止，Shell 空列表归零。该矩阵项现为完整；E4 总矩阵变为 `完整 5 / 阻断 2`，video policy 和 390×844 E4c 证据仍阻断，下一唯一切片为 N52-E4e。
+
+> E4f 后最终更新（2026-08-31）：E4e 已关闭正式 video policy；[审计 #257](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)以真实 390×844 production 覆盖 Auto、Toggle/Hold × Skip Read/All。首次实测发现两个 select 仅 30px 高，按 mobile-first 门纠偏为 48px 后，五向量、全部可见控件、overflow 与 console 均通过。矩阵最终为 `完整 7 / 阻断 0`，N52-E4 Engineering 出口关闭；AC-15、N52 Product Acceptance、真机/真人及 N60+ 不随之关闭。
 
 矩阵为 `完整 4 / 阻断 3`。这不是把 E4c 已完成工作推翻，而是区分“子切片完成”和“E4 总目标完成”。AC-15、N52 Product Acceptance、Windows/Android 与真人证据继续保持 blocked。
 

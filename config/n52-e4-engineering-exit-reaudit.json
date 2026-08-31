@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E4-engineering-exit-reaudit",
-  "engineeringStatus": "blocked",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseline": {
     "branch": "codex/n52-e4c-skip-media-embed",
@@ -14,7 +14,7 @@
     "textStageCharacterAndAudioCleanup": "complete",
     "buildAuthoredStopPointSource": "complete",
     "formalVideoPolicyEvidence": "complete",
-    "e4cMobileColdProduction": "blocked"
+    "e4cMobileColdProduction": "complete"
   },
   "firstAudit": {
     "expected": "E4a-E4c-code-and-targeted-tests-pass; E4-exit-remains-blocked-by-build-authored-stop-point-source-with-video-and-mobile-evidence-honestly-retained",
@@ -30,16 +30,15 @@
     "correction": "record-the-infrastructure-long-tail-without-changing-product-code-or-timeouts-and-require-a-new-exact-head-Windows-full-check"
   },
   "continuation": {
-    "node": "N52-E4f",
-    "scope": "390x844-e4c-cold-production-rerun-and-e4-exit-reaudit",
+    "node": "N52-engineering-exit-and-N60-governance-checkpoint",
+    "scope": "audit-the-whole-N52-engineering-goal-and-request-explicit-authority-before-any-N60-work",
     "mustProve": [
-      "390x844-production-rerun-covers-auto-and-four-skip-vectors",
-      "mobile-layout-has-zero-horizontal-overflow-and-usable-controls",
-      "fresh-e4-exit-audit-has-no-remaining-engineering-blocker"
+      "N52-History-Save-Load-Auto-Skip-Back-Forward-match-the-original-goal",
+      "N52-engineering-gaps-are-closed-or-explicitly-retained",
+      "N60-remains-blocked-until-new-authority-is-recorded"
     ]
   },
   "deferredWithoutClaim": [
-    "390x844-e4c-cold-production-rerun",
     "windows-and-android-production-hosts",
     "physical-device-and-human-evidence",
     "n52-product-acceptance",
@@ -47,9 +46,9 @@
     "m1-stable-and-public-release"
   ],
   "requiredDocuments": [
-    { "path": "docs/253-n52-e4-engineering-exit-reaudit.md", "token": "N52-E4 Engineering 总出口未通过" },
-    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4 出口复审状态" },
-    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4 出口复审" },
-    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4d Stop Point source bridge" }
+    { "path": "docs/253-n52-e4-engineering-exit-reaudit.md", "token": "E4f 后最终更新" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4f 移动端 cold production 关闭状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4f 移动端出口" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52 Engineering 总出口与 N60 治理 checkpoint" }
   ]
 }
