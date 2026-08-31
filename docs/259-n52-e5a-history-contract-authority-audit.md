@@ -43,4 +43,6 @@
 
 实现头 `8d2c6d5271ee68ca365d7e13617eb19711727b99` 已推送至 Draft PR [#117](https://github.com/Longyuyeee/WorLdGame/pull/117)。Windows / Node 22 run `33418919492` 的首次 job `99576212493` 在普通回归得到 `153/154 files`、`966/967 tests`：唯一失败是既有 Node Directory cache 用例在累积 I/O 下耗时 `5.824s > 5s`，其余 8 个同文件用例通过；相同代码、命令和原预算本机隔离复跑为 `9/9`、测试体 `656ms`。未修改 Persistence 代码或 timeout，同一 SHA 的完整复跑 job `99579120717` 用时 `13m17s` 全绿：普通 `154/967`，该文件在 N51 聚合/普通回归分别为 `3.874s/2.035s`，Runtime corpus `27.995s` 且 digest 未变，VM `65.19s <90s`，Route P95 `150.15ms <500ms`，Asset dicing/atlas/总计 `1577.39/1939.91/3517.30ms`，build、100 portable / 4 adapters 与其余门全部通过。首轮红灯保留为环境差异审计记录，不被绿色复跑抹除。
 
+证据头 `b153d51` 的 run `33421175931` 又在同一文件、另一条首用例得到 `5.373s >5s`，并在超时后产生 Windows `ENOTEMPTY` 清理竞争；该文件此前已在 #253 出现相同模式，故第二次独立重现后不再归类为单次偶发。本步仅把这个真实磁盘 suite 的局部测试 timeout 明确为 15 秒，并为测试临时目录清理启用 Node `rm` 的 5 次 Windows retry；业务实现、断言、数据规模、全仓默认 5 秒门限与所有性能预算均不变。最终修正头及 CI 证据在下次绿色门后登记。
+
 下一唯一代码切片为 **N52-E5b Runtime branch archive and Session Save v2**。本步机器合同为 `config/n52-e5a-history-contract-authority.json`，审计命令为 `npm run audit:n52-e5a-history-contract-authority`。
