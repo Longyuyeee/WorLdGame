@@ -3,7 +3,7 @@
 > 日期：2026-08-31  
 > 分支：`codex/n52-e4a-player-core-scheduler-bridge`  
 > 直接基线：E4 入口最终绿色头 `172c3b2b79a61ba0857f7999e43a21bf015ecfa6` / Draft PR #108  
-> 判定：**N52-E4a Player Core Scheduler bridge Engineering 候选**；等待精确实现头的远端完整门后关闭。本步不是 Shell Auto、Skip UI 或 Product Acceptance。
+> 判定：**N52-E4a Player Core Scheduler bridge Engineering 关闭**。本步不是 Shell Auto、Skip UI 或 Product Acceptance。
 
 ## 1. 目标对齐与真实实现
 
@@ -23,7 +23,7 @@ E4a 的目标不是在 Player 内重写 Auto/Skip 循环，而是把已有 N31 `
 
 首次完整 `npm run check` 在 E3a 旧合同处停止：预期全部旧机器合同继续通过，实际因本轮压缩 90 顶部状态句而缺少精确 token `N52-E3a v2 元数据与截图`。恢复后第二次完整门又暴露同类 `N52-E3 入口契约` token；随后不再逐项猜测，而是从全部 N52 JSON 合同枚举 90 文档 required token，一次恢复 E3/E3a/E3b/E3c1/E3c2/E3c3/E3c4/E4/E4a 全集并机器核对 `ALL_N52_DOC90_TOKENS_PASS`。第三次完整门全绿，未修改测试数据、timeout 或预算：普通 `153 files / 934 tests`、N50 `60/60`、N51 `105/105`、N52 `72/72`、Runtime `61/61` 与 `10,000 seeds / 20,000 replay` digest 不变、VM `5/5`（测试体 `72.77s <90s`）、17 workspace production build、architecture 与 Script/Route/Asset 性能全部通过；Route P95 `158.30ms <500ms`，Dicing/Atlas/总计 `1048.36/1803.37/2851.73ms`，均保持原预算。
 
-精确远端 CI 结果将在候选提交推送后写回，不提前登记完成。
+实现头 `ed37edd6321ae207de9b53847a1eac7bc87ed863` 已推送至 Draft PR #109。该精确 SHA 的 Windows / Node 22 `product-baseline` run `33355351685` / job `99376310859` 用时 `13m32s` 并成功：普通 `153/934`、N50 `60/60`、N51 `105/105`、N52 `72/72`；Runtime corpus `10,000 seeds / 20,000 replay` 且 digest 不变；VM 测试体 `67.53s <90s`；Route P95 `141.4ms <500ms`；Dicing/Atlas/总计 `1480.71/1801.75/3282.46ms`，17 workspace build、架构与全部性能门均通过。由此 E4a Engineering 从 candidate 转为 complete。
 
 ## 3. 开发目标审计
 

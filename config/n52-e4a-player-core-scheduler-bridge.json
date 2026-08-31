@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "node": "N52-E4a-player-core-scheduler-bridge",
-  "engineeringStatus": "candidate",
+  "engineeringStatus": "complete",
   "productAcceptance": "blocked",
   "baseCommit": "172c3b2b79a61ba0857f7999e43a21bf015ecfa6",
   "versions": {
@@ -30,7 +30,13 @@
     "actual": "15-pass-3-fail-schedulePlayerCorePlaybackV1-is-not-a-function",
     "difference": "player-core-had-no-runtime-scheduler-bridge-or-playback-snapshot"
   },
-  "engineeringEvidence": null,
+  "engineeringEvidence": {
+    "implementationCommit": "ed37edd6321ae207de9b53847a1eac7bc87ed863",
+    "pullRequest": 109,
+    "workflowRun": 33355351685,
+    "workflowJob": 99376310859,
+    "conclusion": "success"
+  },
   "blocked": [
     "n52-e4b-shell-auto-real-clock-and-voice-duration",
     "n52-e4c-skip-controls-media-cleanup-and-embed-observation",
@@ -41,7 +47,7 @@
     "m1-stable-and-public-release"
   ],
   "requiredDocuments": [
-    { "path": "docs/250-n52-e4a-player-core-scheduler-bridge-audit.md", "token": "N52-E4a Player Core Scheduler bridge Engineering 候选" },
+    { "path": "docs/250-n52-e4a-player-core-scheduler-bridge-audit.md", "token": "N52-E4a Player Core Scheduler bridge Engineering 关闭" },
     { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4a Player Core Scheduler bridge 状态" },
     { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4a Player Core Scheduler bridge" },
     { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4a Player Core Scheduler bridge" }

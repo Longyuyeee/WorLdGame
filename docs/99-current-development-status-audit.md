@@ -1,4 +1,4 @@
-# 当前开发情况审计（N52-E4a Player Core Scheduler bridge 候选）
+# 当前开发情况审计（N52-E4a Player Core Scheduler bridge 已关闭）
 
 > 审计日期：2026-08-31
 > 当前分支：`codex/n52-e4a-player-core-scheduler-bridge`；直接基线为 E4 入口最终绿色头 `172c3b2`
@@ -20,7 +20,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E3c4 与 E4 入口已关闭，E4a Player Core Scheduler bridge 为 candidate**；精确远端门后下一代码切片为 E4b Shell Auto real clock/voice；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E3c4、E4 入口与 E4a Player Core Scheduler bridge 已关闭**；下一代码切片为 E4b Shell Auto real clock/voice；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
 - N52-E1 本地完整门：普通 `149/890`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s`、Route P95 `72.55ms`、Asset dicing `1667.44ms`，全部未调整预算；桌面/390×844 cold production-browser overflow/console 均为 0；
 - N52-E2 已建立 Core Session Save/Load bridge、三个严格手动槽位、独立 IndexedDB Host、embed API `1.1.0` 和 Load-only rehydrate；本机最终完整门普通 `150/898`、N52 `51/51`、VM `28.30s`、Route P95 `56.82ms`、Asset dicing `1482.87ms`，Autosave 测试体 `4.35s <5s`（长链总时长 `6.40s`、隔离总时长 `2.81s`）；冷 production browser 跨刷新、双视口、overflow/console 与 44px 触控门通过；实现头 `bdb3c73` 已推送至 Draft PR #99，同头 Windows / Node 22 run `33180215962` / job `98879258847` 用时 `12m48s` 绿色，远端普通 `150/898`、N52 `51/51`、Runtime corpus `66.643s <90s`；E2 Engineering 关闭；
 - N52-E3 入口契约已按实际代码冻结：v1 不静默扩展，v2 使用 copy-on-write；chapter/scene 取正式 Canonical，route/custom 在正式来源前 fail closed；截图归 Host compositor 且 Blob 与元数据分离；manual 12/每页 6、auto 5 环形、quick 1、checkpoint 3 但等待 build-authored marker。入口头 `3c319da` 已推送至 Draft PR #100，同头 Windows / Node 22 run `33183970309` / job `98892048310` 用时 `12m40s` 绿色，远端普通 `150/898`、N52 `51/51`、VM `63.321s <90s`；入口只关闭设计与审计前置，不代表 v2、截图、分页或自动/快速保存已实现；下一代码切片为 E3a；
@@ -32,7 +32,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - **N52-E3c3 checkpoint marker Engineering 已关闭**：正式 Story 语法、Compiler IR 1.1/Source Map、Runtime 1.0/1.1 双读与非表现事件、Player 精确 Session candidate/继续播放/History 跳过已贯通，并由 PR #106、run `33263549231` / job `99129464102` 证明；Save 仍严格保持 v2 且没有 checkpoint 槽，下一步为独立 E3c4；
 - **N52-E3c4 Save v3 + 三 checkpoint 槽 Engineering 已关闭**：在既有 DB3 正式槽中增加 strict schema v3，v1/v2 只读归一且成功事务后 copy-on-write；三个 checkpoint 槽空槽优先、满槽按时间/槽 ID 替换，同 Build+step 合并；Shell 消费 E3c3 精确 candidate 并列出/读取，失败保留且剧情继续，读档不反向再写。Migration Museum v2 七向量与定向 `6 files / 66 tests` 已通过；1440×900 与 390×844 production browser 三槽/Save 3.0/44px/overflow/console 门通过；本地完整门普通 `153 files / 929 tests`、Runtime corpus `10,000 seeds / 20,000 replay`、VM `5/5`、Route P95 `61.74ms`、Asset dicing `1543.68ms` 全绿。实现头 `612578e` 已推送至 Draft PR #107，同头 Windows / Node 22 run `33266310582` / job `99136878399` 用时 `13m20s` 绿色；
 - **N52-E4 Auto/Skip 入口合同已关闭**：真实代码确认 N31 Scheduler 已有 Normal/Auto/Skip Read/All、Hold/Toggle、5/10/20/40/Instant 与 stop reason，但 Player Core intent/State/Snapshot、Shell 控件和 embed observation 均未接线。机器合同冻结 Runtime/Core/Shell/Host/Playback Policy 所有权、Forward History、真实语音时长、媒体分类和停止清理。首次审计预期只缺四份文档，实际恰为四项且无额外代码偏差；Runtime `61/61`、10k corpus、N52 `67/67` 通过。两次本地完整门分别暴露 App 5 秒与 Asset 3/3/5 秒累积负载差异，同规模同预算隔离复跑为 App `1.31s`、Dicing/Atlas/总计 `1261.79/1857.91/3119.70ms` 并通过。入口头 `e7bd5cc` 的 Draft PR #108 Windows run `33351442390` / job `99365490775` 用时 `14m06s` 全绿，关闭本机差异；入口不登记播放功能完成，下一唯一代码切片为 E4a；
-- **N52-E4a Player Core Scheduler bridge 为 Engineering candidate**：Player Core `0.5.0` 直接复用 N31 Scheduler，policy 是 canonical Runtime policy 别名，snapshot 发布 mode/activation/speed/stop/count/delay；Forward History 返回 `history` 且 State/History/presentation 不变，内部 checkpoint candidate 可真实加载，不可用 Stage effect 不提交 Host operation。首轮预期旧 15 通过、新 3 因 API 缺失失败，实际完全一致；修正和扩展后 Core `20/20`。完整门两次检出 90 文档旧 required token 回归，按全部 N52 合同枚举恢复后第三轮全绿：普通 `153/934`、N52 `72/72`、Runtime corpus `10,000/20,000`、VM `72.77s <90s`、Route P95 `158.30ms`、Asset 总计 `2851.73ms`。等待精确远端实现头，之后接续 E4b，不提前登记 Shell Auto 或 AC-15；
+- **N52-E4a Player Core Scheduler bridge Engineering 已关闭**：Player Core `0.5.0` 直接复用 N31 Scheduler，policy 是 canonical Runtime policy 别名，snapshot 发布 mode/activation/speed/stop/count/delay；Forward History 返回 `history` 且 State/History/presentation 不变，内部 checkpoint candidate 可真实加载，不可用 Stage effect 不提交 Host operation。首轮预期旧 15 通过、新 3 因 API 缺失失败，实际完全一致；修正和扩展后 Core `20/20`。完整门两次检出 90 文档旧 required token 回归，按全部 N52 合同枚举恢复后第三轮全绿。实现头 `ed37edd` 的 Draft PR #109 Windows run `33355351685` / job `99376310859` 用时 `13m32s` 绿色：普通 `153/934`、N52 `72/72`、Runtime corpus `10,000/20,000`、VM `67.53s <90s`、Route P95 `141.4ms`、Asset 总计 `3282.46ms`。下一步接续 E4b，不提前登记 Shell Auto 或 AC-15；
 - E3a 提交前复审补回 Preview SHA-256 写前/读取校验与 Blob 篡改反例；最终本地完整门普通 `150/905`、N52 `58/58`、VM `24.48s`。实现头 `2f3e7b2` 已推送至 Draft PR #101，同头 Windows run `33188226007` / job `98906671499` 用时 `13m51s` 绿色：远端普通 `150/905`、N52 `58/58`、Runtime corpus `30.995s`、Route P95 `159.77ms`、Asset `3277.93ms`、build/architecture 均通过；
 - 暂停点：治理提交 `568da54` 已推送至 Draft PR #97；run `33158924466` 在暂停快照时仍为 `in_progress`，N52 产品代码为零改动；恢复时先收束治理同头 CI，再进入 E1；
 - M1 纵向验收：**0/27 完整通过**；
@@ -158,6 +158,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52-E4a Player Core Scheduler bridge 已形成 candidate；完成本地完整门与精确远端 CI 后，下一唯一代码切片是 E4b Shell Auto real clock/text reveal/real voice duration。E4c Skip 控件/媒体/embed、N60+ 与全部 Product Acceptance 阻断不变。
+7. N52-E4a Player Core Scheduler bridge 已关闭；下一唯一代码切片是 E4b Shell Auto real clock/text reveal/real voice duration。E4c Skip 控件/媒体/embed、N60+ 与全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
