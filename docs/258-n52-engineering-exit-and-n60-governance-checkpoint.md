@@ -62,3 +62,5 @@
 第一次完整门随后在既有 E4f 审计处 fail closed：更新当前状态时删掉了旧合同要求永久保留的 `N52 Engineering 总出口与 N60 治理 checkpoint` 精确历史身份。恢复该 token 并明确标记“checkpoint 已完成、N52 总出口失败”后，E4f 与新治理门均 PASS。
 
 第二次 `npm run check` 从头退出 0：普通回归 `154 files / 967 tests`，N50 `78/78`、N51 `123/123`、N52 History `90/90`，Runtime `61/61 + 10,000 seeds / 20,000 replays` 且 digest 不变，VM `5/5` 测试体 `25.51s`，17 个 workspace build 与 architecture 全绿。Route 正式 10k 编辑链 P95 `60.07ms <500ms`，Global Lazy Index `135.26ms <500ms`，Asset Dicing / Atlas / 总计 `704.86 / 851.93 / 1556.79ms`，全部保持原预算。Editor 大包 warning 仍为既有债务，没有在本 checkpoint 冒充解决。
+
+治理实现头 `89c0a0f21b61fdfab3be6e8b9114c254529c11d5` 已推送至 Draft PR #116；同一精确 head 的 Windows / Node 22 `product-baseline` run `33414483328` / job `99561750228` 用时 `13m39s`，结论 `success`。该证据证明治理合同、全部历史 N52 门和完整产品基线可在干净远端环境复现；它不改变 N52 总出口失败、Product Acceptance 阻断或 N60 禁止准入的结论。

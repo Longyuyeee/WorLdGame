@@ -32,6 +32,14 @@
     "actual": "original-Gal-history-and-barrier-requirements-remain-unimplemented-across-runtime-core-and-shell",
     "decision": "fail-N52-total-exit-closed-and-continue-with-N52-E5"
   },
+  "remoteImplementationEvidence": {
+    "commit": "89c0a0f21b61fdfab3be6e8b9114c254529c11d5",
+    "pullRequest": 116,
+    "workflowRun": 33414483328,
+    "workflowJob": 99561750228,
+    "conclusion": "success",
+    "duration": "13m39s"
+  },
   "continuation": {
     "node": "N52-E5-player-history-and-barrier-explanation",
     "scope": "archive-truncated-forward-branches-project-readable-history-and-barrier-boundaries-then-add-selectable-mobile-history-ui-with-explicit-forward-policy"

@@ -17,6 +17,7 @@ for (const key of ["selectableHistoryPage", "truncatedForwardBranchVisibleInHist
   if (contract.requirementAlignment?.[key] !== "blocked") violations.push(`open N52 requirement is not fail closed: ${key}`);
 }
 if (contract.continuation?.node !== "N52-E5-player-history-and-barrier-explanation") violations.push("the unique N52 continuation is not frozen");
+if (contract.remoteImplementationEvidence?.commit !== "89c0a0f21b61fdfab3be6e8b9114c254529c11d5" || contract.remoteImplementationEvidence?.workflowRun !== 33414483328 || contract.remoteImplementationEvidence?.workflowJob !== 99561750228 || contract.remoteImplementationEvidence?.conclusion !== "success") violations.push("exact governance implementation head CI evidence is missing");
 
 const authority = riskAcceptances.exceptions?.find?.((item) => item.id === "RA-N21-011");
 if (authority?.maximumDeliveryNode !== "N52") violations.push("risk authority does not cap delivery at N52");
