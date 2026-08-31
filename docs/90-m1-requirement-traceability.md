@@ -3,9 +3,9 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 checkpoint 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。**N52-E3 入口契约**及 E1–E3c4、E4a–E4f 子切片均已关闭，**N52-E4 Engineering 出口已通过**；但 2026-09-01 的 N52 总出口治理复审发现原始 History/Barrier 玩家需求仍有四项缺口，因此 N52 总 Engineering 出口失败，下一步只允许 N52-E5，不能直接进入 N60。Product Acceptance 不变。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。**N52-E3 入口契约**及 E1–E3c4、E4a–E4f 子切片均已关闭，**N52-E4 Engineering 出口已通过**；N52 总出口因 History/Barrier 四项缺口失败，E5a 已冻结兼容与授权边界，下一步只允许 E5b Runtime branch archive，不能直接进入 N60。Product Acceptance 不变。
 
-> 历史节点索引（机器可追溯）：**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**。这些 token 保留历史合同身份，不改变上方当前状态。
+> 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
 > N52-E4d build-authored Stop Point（2026-08-31）：`@stop()` 已由正式 Source 投影到稳定 statement identity，Compiler 输出独立 policy v1，Shell Auto 与四种 Skip 消费同一列表并由既有 N31 Scheduler 返回 `stopPoint`；Runtime IR 1.1、Save checkpoint 和 golden build identity 边界未漂移。首次 `77/84`、竞态修正前 `81/84`、最终 `84/84`，cold production Auto/Toggle Skip Read/All 同停 history 2。该项由 blocked 转 complete；E4 仍因 video policy 与 390×844 证据为 blocked，接续 N52-E4e，全部 Product Acceptance 不变。
 
@@ -16,6 +16,8 @@
 > N52-E4f 移动端出口（2026-08-31）：真实 390×844 production 已覆盖 Auto、Toggle/Hold × Skip Read/All；首次发现两个 select 高度 `30px`，纠偏至 `48px` 后全部交互控件至少 `44px`，五向量 stop reason、overflow `0`、console `0`。E4 七项矩阵全部 complete，N52-E4 Engineering 出口关闭。响应式 Web 不等于 Android 真机；AC-15、N52 Product Acceptance、N60+ 均保持阻断。
 
 > N52 总出口治理复审（2026-09-01）：[checkpoint #258](258-n52-engineering-exit-and-n60-governance-checkpoint.md)确认 Runtime 分支改变只保留输入 tombstone、旧 Forward entries 不可查看；Core 没有条目/归档/Barrier 原因投影和定点导航；Shell 只有 Back/Forward 控件而没有可选行 History 页面；History Forward 项目策略也未实现。因此 USP-09、REQ-RUNTIME 与 AC-16 继续为“实现中”，N52 总 Engineering 出口 fail closed；唯一接续为 N52-E5 Player History / Barrier，N60 不准入。
+
+> N52-E5a History 入口（2026-09-01）：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)按实际 strict schema 冻结 Gal Settings v6 History Forward 策略、Runtime History/Session Save v2 只读归档与 v1 dual-read；Player Save v3/DB3、Runtime State/IR/Scheduler 均明确不变。E5a 只关闭跨层授权与兼容合同，功能仍未实现；接续 E5b Runtime branch archive，USP-09、REQ-RUNTIME、AC-16 与全部产品门状态不变。
 
 ## 1. 状态和证据规则
 

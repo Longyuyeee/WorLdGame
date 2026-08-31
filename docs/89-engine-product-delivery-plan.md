@@ -539,6 +539,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N52 总出口治理复审（2026-09-01）：[checkpoint #258](258-n52-engineering-exit-and-n60-governance-checkpoint.md)重新逐条对齐 PRD 3.8 与 Gal 5.2 后，确认 E4 `7/7` 只关闭 Auto/Skip 子域，不能代表 N52 全部完成。实际 Runtime 在分支改变时删除旧 Forward entries、只保留输入 tombstone；Core 只投影位置/Back/Forward，Shell 没有可选行回退的 History 页面，也没有把已提交 Barrier 的不可逆原因和 History Forward 项目策略交给玩家。N52 总 Engineering 出口因此 fail closed。下一唯一代码切片为 **N52-E5 Player History 与 Barrier 解释**；完成 Runtime 分支归档、Core 定点导航/原因投影和移动 History 页面后再复审，N60 继续阻断。
 
+> N52-E5a History 跨层授权与入口合同（2026-09-01）：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)确认 E5 不能在 Shell 建立第二套历史，且 Player Save v3 对 Session Save 是透明完整性载荷、无需升版。产品负责人在收到 #258 的精确 E5 范围后要求继续，RA-011 因而只增加 Gal Settings v6 的 `history.allowForwardAfterBack` 与 N31 History/Session Save v2 归档所需权限。v1 必须按旧 hash 验证后归一到 archives 为空的 v2；Runtime State/IR/Scheduler、Player Save v3/DB3 和 active Back/Forward 语义不变。下一唯一代码切片为 **N52-E5b Runtime branch archive**，Product Acceptance 与 N60 继续阻断。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

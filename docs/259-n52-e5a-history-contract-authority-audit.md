@@ -1,0 +1,44 @@
+# N52-E5a History 跨层授权与入口合同审计
+
+> 日期：2026-09-01
+>
+> 分支：`codex/n52-e5a-history-contract-authority`
+>
+> 直接基线：N52 总出口治理最终头 `ec5daa677472fe62292403b4e2e988fd9e44cc79` / Draft PR #116
+>
+> 当前判定：**E5a Engineering：完成；E5 功能未实现；N52 Product Acceptance 与 N60 继续阻断。**
+
+## 1. 原始需求与实际代码
+
+[Gal 5.2](11-gal-foundation-and-automation.md)要求改选分支后旧 Forward 分支仍保留在历史记录中供查看、History 可选择某句回退、不可逆原因可见，并由项目策略决定 History 回退后能否 Forward。[N52 总出口治理 #258](258-n52-engineering-exit-and-n60-governance-checkpoint.md)已证明实际代码不满足这些要求。
+
+本步继续核对发现：Runtime History Session 与 Runtime Session Save 都是 strict schema v1，分支改变时只把旧输入写入 `inputTombstones`；Gal Settings strict schema v5 没有 History section；Player Save v3 则只校验 Runtime Session Save 字符串的长度、artifact hash 与加载结果，并不解释内部 schema。由此纠正三个可能偏移：
+
+1. 不能只在 Shell 留一份旧分支数组，否则形成第二套 Runtime History；
+2. 不能为了 Runtime Session Save v2 无理由升级 Player Save v3 或 IndexedDB v3；
+3. 不能把 History Forward 项目策略塞进 E4d 的 Compiler Stop Point artifact，Shell 已从 Canonical Gal Settings 解析平台值。
+
+## 2. 授权修订
+
+原 RA-N21-011 只允许 N52 消费 N31 History，跨层修改此前仅覆盖 checkpoint 和 Stop Point。产品负责人在收到 #258 明确列出的 E5 Runtime→Core→Shell 范围后，于 2026-09-01 再次要求从该接续点继续，因此登记第三次窄修订：
+
+- Gal Settings 只允许升级到 v6 并增加 `history.allowForwardAfterBack`；v1–v5 严格读取后归一到默认 `true`；
+- N31 只允许 Runtime History Session v2 与 Runtime Session Save v2，为被截断 Forward 建立确定性、只读、受界限保护的分支摘要；
+- v1 Session Save 必须先按 v1 hash domain 验证，再以内存迁移为 archives 为空的 v2；新写只发 v2；
+- Runtime State schema/hash、IR 1.0/1.1、Scheduler、active Back/Forward/Barrier 语义保持不变；
+- Player Save v3/DB3 保持不变；归档分支不可导航，只能查看；不得使用 wall clock 或数组位置作为 archive identity。
+
+这份修订不允许 Story Language、Compiler IR、Gallery、N60 或任何 Product Acceptance 工作。
+
+## 3. E5 分片顺序
+
+1. **E5b Runtime branch archive**：History/Session Save v2、v1 dual-read、hash/tamper/bounds/branch 正反例；
+2. **E5c Settings + Core**：Gal Settings v6 Forward 策略、只读主线/归档投影、定点回退、Barrier 原因与距离；
+3. **E5d Shell**：History 页面、移动入口、选择某句、旧分支与不可逆边界、桌面和 390×844 production；
+4. **E5e 总出口复审**：重新对齐 N52 原始 Goal/Implementation，仍缺即 fail closed。
+
+## 4. 本地审计证据
+
+2026-09-01 在本分支执行 `npm run check`，退出码为 0：新增 E5a 机器审计与全部既有治理审计通过；TypeScript、17 个 workspace production build、架构边界均通过；普通回归为 154 files / 967 tests，N50/N51/N52 专项分别为 78/123/90 tests，VM conformance 为 5/5；Script、Route、Asset 性能组分别为 13/13、9/9、4/4，均未放宽预算。首次全门曾因 #90/#99 更新时移除既有 E3c3 审计所需的历史锚点 `RA-N21-011 checkpoint 窄范围修订` 而失败；恢复兼容锚点后，E3c3 定向审计与第二轮完整门均通过。
+
+下一唯一代码切片为 **N52-E5b Runtime branch archive and Session Save v2**。本步机器合同为 `config/n52-e5a-history-contract-authority.json`，审计命令为 `npm run audit:n52-e5a-history-contract-authority`。

@@ -1,15 +1,15 @@
-# 当前开发情况审计（N52 总出口 fail closed，接续 N52-E5）
+# 当前开发情况审计（N52-E5a 入口关闭，接续 E5b Runtime archive）
 
 > 审计日期：2026-09-01
-> 当前分支：`codex/n52-engineering-exit-governance`；直接基线为 E4f 最终绿色头 `fe138ae`
+> 当前分支：`codex/n52-e5a-history-contract-authority`；直接基线为 N52 总出口治理最终头 `ec5daa6`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：**RA-N21-011 checkpoint 窄范围修订**允许仅为 N52 checkpoint 修改 N20/N30/N31/Save 契约；2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52 总出口治理 checkpoint](258-n52-engineering-exit-and-n60-governance-checkpoint.md)、[N52-E4f 移动端出口](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)、[N52-E4 出口复审](253-n52-e4-engineering-exit-reaudit.md)
+> 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订** 已扩展为 checkpoint、Stop Point 与 History 三次窄修订；最大节点仍为 N52，2026-09-27 16:00:00（UTC+8）到期
+> 最新节点证据：[N52-E5a History 入口](259-n52-e5a-history-contract-authority-audit.md)、[N52 总出口治理 checkpoint](258-n52-engineering-exit-and-n60-governance-checkpoint.md)、[N52-E4f 移动端出口](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-09-01 最新纠偏结论是：**E4 七项矩阵 `7/7` 与 N52-E4 Engineering 通过保持有效，但它只覆盖 Auto/Skip 子域。总出口逐条回看 PRD 3.8、Gal 5.2 和实际代码后，发现 Runtime 不保留可查看的旧 Forward 分支，Core 没有历史条目/定点导航/Barrier 原因投影，Shell 没有可选行 History 页面，History Forward 项目策略也不存在。因此 N52 总 Engineering 出口失败。** 下一唯一接续点是 **N52-E5 Player History / Barrier**；RA-011 只准入 N52，禁止直接开始 N60，也不得换算成 AC-16 或商业完成度。
+2026-09-01 最新纠偏结论是：**N52 总出口仍因 History/Barrier 四项原始需求缺口失败；E5a 已根据实际 strict schema 关闭跨层授权与入口合同。Runtime History/Session Save 由 v1→v2 保存只读旧分支摘要，Gal Settings v6 只增加 History Forward 项目策略；Player Save v3/DB3、Runtime State/IR/Scheduler 不升版。** 下一唯一代码切片是 **N52-E5b Runtime branch archive**；RA-011 只准入 N52，禁止直接开始 N60，也不得换算成 AC-16 或商业完成度。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,8 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E3c4 与 E4a–E4f 子切片已关闭，E4 出口通过，但 N52 总出口因 History/Barrier 原始需求缺口失败**；下一步是 N52-E5；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E4f 与 E5a 已关闭，E4 出口通过，但 N52 总出口因 History/Barrier 原始需求缺口失败**；下一步是 E5b；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- **N52-E5a History 跨层授权与入口合同已关闭**：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)确认 Player Save 只封装 opaque Session Save，故不升 v4；冻结 Runtime History/Session Save v2 只读 branch summary、v1 hash 后归一、Gal Settings v6 Forward 项目策略，以及不改 Runtime State/IR/Scheduler 的禁止边界。下一唯一代码切片为 N52-E5b Runtime branch archive；
 - **N52 Engineering 总出口与 N60 治理 checkpoint 已完成**：[审计 #258](258-n52-engineering-exit-and-n60-governance-checkpoint.md)确认旧 Forward entries 被删除而非归档、Core snapshot 只有四个位置字段、Shell 只有三段 Back/Forward 控件；纠正了“子切片全绿即可关闭总出口”的假设，结论为 N52 总出口失败。冻结 N52-E5 Player History / Barrier 跨 Runtime→Core→Shell 契约，N60 仍不准入；
 - **N52-E4f 移动端 cold production 与 E4 Engineering 出口已关闭**：390×844 Auto、Toggle/Hold × Skip Read/All 五向量准确停止，首次发现的两个 30px select 已纠偏为 48px；document overflow 与 console 均为 0。实现头 `b5681a7` 的 Draft PR #115 Windows run `33408391033` / job `99541585012` 用时 `15m04s` 绿色，远端普通 `154/967`、VM `74.02s <90s`、Route P95 `162.72ms`、Asset 总计 `3494.96ms`。E4 矩阵 `7/7`；N52 总出口、Product Acceptance 与 N60 授权仍待下一 checkpoint；
 - N52-E1 本地完整门：普通 `149/890`、N50 `41/41`、N51 `96/96`、N52 `31/31`、VM `28.69s`、Route P95 `72.55ms`、Asset dicing `1667.44ms`，全部未调整预算；桌面/390×844 cold production-browser overflow/console 均为 0；
@@ -164,6 +165,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52-E4f 已关闭 Auto/Skip 的 E4 Engineering；总出口治理 #258 又发现并冻结 History/Barrier 四项原始需求缺口。下一唯一代码切片为 **N52-E5 Player History / Barrier**；完成并重新复审 N52 总出口前不得进入 N60，全部 Product Acceptance 阻断不变。
+7. N52-E4f 已关闭 Auto/Skip 的 E4 Engineering；总出口治理 #258 发现 History/Barrier 四项缺口，E5a #259 已冻结跨层权限与兼容合同。下一唯一代码切片为 **N52-E5b Runtime branch archive**；完成 E5b–E5e 并重新复审总出口前不得进入 N60，全部 Product Acceptance 阻断不变。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

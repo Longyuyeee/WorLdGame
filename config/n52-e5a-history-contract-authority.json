@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E5a-history-contract-authority",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseline": {
+    "branch": "codex/n52-engineering-exit-governance",
+    "commit": "ec5daa677472fe62292403b4e2e988fd9e44cc79"
+  },
+  "authority": {
+    "id": "RA-N21-011",
+    "approvedAt": "2026-09-01T01:02:18+08:00",
+    "maximumDeliveryNode": "N52",
+    "scope": [
+      "gal-settings-v6-history-forward-policy-only",
+      "runtime-history-session-v2-truncated-forward-archive-only",
+      "runtime-session-save-v2-dual-read-only",
+      "player-core-history-projection-and-point-navigation",
+      "player-shell-history-page-and-barrier-explanation"
+    ]
+  },
+  "actualBaseline": {
+    "galSettingsSchema": 5,
+    "historySettingsSection": "absent",
+    "runtimeHistorySchema": 1,
+    "runtimeSessionSaveSchema": 1,
+    "runtimeVersion": "0.6.0",
+    "playerSaveSchema": 3,
+    "playerSaveSessionPayload": "opaque-integrity-checked-string"
+  },
+  "runtimeV2Contract": {
+    "activeChain": "unchanged-checkpoints-entries-cursor-and-navigation",
+    "archive": "deterministic-read-only-summary-of-each-truncated-forward-branch",
+    "archiveIdentity": "canonical-content-hash-without-wall-clock",
+    "archiveEntryEvidence": [
+      "original-entry-id-and-history-index",
+      "input-and-event",
+      "barriers",
+      "after-state-hash"
+    ],
+    "navigation": "active-chain-only",
+    "bounds": "active-plus-archived-entry-summaries-must-remain-within-versioned-deterministic-limits",
+    "legacyRead": "schema-v1-hash-verifies-under-v1-domain-then-normalizes-in-memory-to-v2-with-empty-archives",
+    "write": "schema-v2-only",
+    "unchanged": [
+      "runtime-state-schema-and-state-hashes",
+      "runtime-ir-1.0-and-1.1-readability",
+      "active-back-forward-and-barrier-semantics",
+      "runtime-scheduler",
+      "player-save-v3-and-database-v3"
+    ]
+  },
+  "historyPolicyContract": {
+    "canonicalOwner": "gal-settings-v6",
+    "field": "history.allowForwardAfterBack",
+    "default": true,
+    "legacyRead": "settings-v1-through-v5-normalize-to-v6-default",
+    "runtimeOwnership": "player-core-enforces-policy-without-changing-runtime-navigation-authority"
+  },
+  "implementationSequence": [
+    "N52-E5b-runtime-branch-archive-and-session-save-v2",
+    "N52-E5c-gal-history-policy-and-player-core-projection",
+    "N52-E5d-shell-history-page-barrier-and-production-evidence",
+    "N52-E5e-total-engineering-exit-reaudit"
+  ],
+  "forbidden": [
+    "second-runtime-or-shell-owned-history-ledger",
+    "navigation-into-archived-branches",
+    "wall-clock-or-array-position-as-archive-identity",
+    "player-save-schema-or-database-bump",
+    "story-language-compiler-ir-or-scheduler-change",
+    "n60-or-later-engineering",
+    "n52-product-acceptance-claim"
+  ],
+  "continuation": {
+    "node": "N52-E5b-runtime-branch-archive-and-session-save-v2",
+    "scope": "implement-and-test-only-the-versioned-runtime-history-archive-and-v1-to-v2-session-save-boundary"
+  },
+  "requiredDocuments": [
+    {
+      "path": "docs/259-n52-e5a-history-contract-authority-audit.md",
+      "token": "E5a Engineering：完成"
+    },
+    {
+      "path": "docs/89-engine-product-delivery-plan.md",
+      "token": "N52-E5a History 跨层授权与入口合同"
+    },
+    {
+      "path": "docs/90-m1-requirement-traceability.md",
+      "token": "N52-E5a History 入口"
+    },
+    {
+      "path": "docs/99-current-development-status-audit.md",
+      "token": "N52-E5b Runtime branch archive"
+    }
+  ]
+}
