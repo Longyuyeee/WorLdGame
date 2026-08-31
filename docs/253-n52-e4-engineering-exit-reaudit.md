@@ -1,8 +1,8 @@
 # N52-E4 Engineering 出口复审与接续审计
 
-> 日期：2026-08-31  
-> 分支：`codex/n52-e4-engineering-exit-reaudit`  
-> 直接基线：E4c 最终绿色头 `9e17bb260786c2ca07c51887fe231082d480533d`  
+> 日期：2026-08-31
+> 分支：`codex/n52-e4-engineering-exit-reaudit`
+> 直接基线：E4c 最终绿色头 `9e17bb260786c2ca07c51887fe231082d480533d`
 > 当前判定：**N52-E4 Engineering 总出口未通过**；E4a–E4c 子切片结论保持有效，下一唯一代码切片为 N52-E4d。
 
 ## 1. 出口结论
