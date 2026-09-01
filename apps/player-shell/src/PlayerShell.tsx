@@ -14,10 +14,12 @@ import {
   createPlayerCore,
   createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
+  configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
   loadPlayerCoreSessionSaveV1,
   schedulePlayerCorePlaybackV1,
-  type PlayerCoreIntentV1
+  type PlayerCoreIntentV1,
+  type PlayerHistoryVisibleEventV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
@@ -88,6 +90,26 @@ export interface WorldPlayerPreviewCaptureV1 {
   capture(request: WorldPlayerPreviewCaptureRequestV1): Promise<WorldPlayerPreviewCaptureResultV1 | null>;
 }
 
+function playerHistoryEventLabel(event: PlayerHistoryVisibleEventV1): string {
+  switch (event.kind) {
+    case "dialogue": return event.text;
+    case "narration": return event.text;
+    case "choice": return event.prompt;
+    case "wait": return `等待 ${event.durationMilliseconds} 毫秒`;
+    case "ending": return event.name;
+  }
+}
+
+function playerHistoryEventKind(event: PlayerHistoryVisibleEventV1): string {
+  switch (event.kind) {
+    case "dialogue": return "对白";
+    case "narration": return "旁白";
+    case "choice": return "选择";
+    case "wait": return "等待";
+    case "ending": return "结局";
+  }
+}
+
 function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
   const [source, setSource] = useState<string | null>(null);
 
@@ -117,7 +139,8 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
 }
 
 export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 }: PlayerShellProps) {
-  const [state, setState] = useState(() => createPlayerCore(project));
+  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
+  const [state, setState] = useState(() => createPlayerCore(project, settingsApplication.history));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
@@ -133,6 +156,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [skipActivation, setSkipActivation] = useState<WorldPlayerSkipActivationV1>(() => playbackPolicy.skip?.defaultActivation ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultActivation);
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -159,7 +183,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const lastRecoveryRuntimeStateHash = useRef<string | null>(null);
   saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
   recoveryContext.current = { projectId: project.manifest.projectId, store: recoveryStore };
-  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const buildStopInstructionIds = state.artifacts?.playerPlaybackPolicy.stopInstructionIds ?? [];
@@ -415,7 +438,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     autoSavedSceneIdentities.current.clear();
     consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
-    setState(createPlayerCore(project));
+    setState(createPlayerCore(project, settingsApplication.history));
     setMediaErrors([]);
     setMediaGeneration(0);
     setSelectedChoiceIndex(0);
@@ -426,10 +449,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setVoiceMetadataRevision(0);
     setAutoEnabled(false);
     setAutoPlayback("off");
+    setHistoryPanelOpen(false);
     setSkipMode(null);
     setSkipActivation(canonicalPlaybackPolicy.skip.defaultActivation);
     setSkipSpeed(canonicalPlaybackPolicy.skip.defaultSpeed);
   }, [executableProjectHash]);
+
+  useEffect(() => {
+    setState((current) => configurePlayerCoreHistoryPolicyV1(current, settingsApplication.history));
+  }, [settingsApplication.history]);
 
   useEffect(() => {
     const projectId = project.manifest.projectId;
@@ -840,6 +868,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-history-length={snapshot.history?.length ?? 0}
       data-history-can-back={snapshot.history?.canBack ?? false}
       data-history-can-forward={snapshot.history?.canForward ?? false}
+      data-history-panel={historyPanelOpen ? "open" : "closed"}
+      data-history-archives={snapshot.history?.archives.length ?? 0}
+      data-history-forward-policy={snapshot.history?.forwardPolicy.allowForwardAfterBack ?? settingsApplication.history.allowForwardAfterBack}
       data-save-store={saveStore?.backend ?? "unavailable"}
       data-save-store-version={saveStore?.version ?? "none"}
       data-save-operation={saveOperation}
@@ -889,6 +920,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-settings-choice-numbers={settingsApplication.choice.showOptionNumbers}
       data-settings-textbox-default={settingsApplication.ui.defaultTextboxTemplate}
       data-settings-input-hints={settingsApplication.ui.showInputHints}
+      data-settings-history-forward={settingsApplication.history.allowForwardAfterBack}
       style={{
         "--gal-stage-aspect": settingsApplication.display.aspectRatio,
         "--gal-stage-ratio": settingsApplication.display.designWidth / settingsApplication.display.designHeight,
@@ -1040,7 +1072,62 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
             onClick={() => applyIntent({ kind: "forward" }, pointerInput.current)}
           ><span>前进</span><span aria-hidden="true">→</span></button>
+          <button
+            type="button"
+            className="player-history-controls__open"
+            aria-label={historyPanelOpen ? "关闭剧情历史" : "打开剧情历史"}
+            aria-expanded={historyPanelOpen}
+            onClick={() => setHistoryPanelOpen((open) => !open)}
+          ><span aria-hidden="true">☰</span><span>历史</span></button>
         </nav>
+        {historyPanelOpen && (
+          <aside className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
+            <header>
+              <div><span>HISTORY</span><h2>剧情历史</h2></div>
+              <button type="button" aria-label="关闭剧情历史" onClick={() => setHistoryPanelOpen(false)}>关闭</button>
+            </header>
+            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <>
+              {snapshot.history.forwardPolicy.blocked && <p className="player-history-panel__notice" role="status">项目设置禁止在回退后沿原分支前进。</p>}
+              {snapshot.history.backwardBarrier !== null && (
+                <p className="player-history-panel__barrier" role="status">
+                  <strong>不可逆边界</strong>
+                  <span>{snapshot.history.backwardBarrier.reason}</span>
+                  <small>距离当前位置 {snapshot.history.backwardBarrier.distance} 步 · {snapshot.history.backwardBarrier.descriptorId}</small>
+                </p>
+              )}
+              <section className="player-history-panel__section">
+                <h3>当前主线</h3>
+                {snapshot.history.activeEntries.length === 0 ? <p className="player-history-panel__empty">尚无可显示条目。</p> : (
+                  <ol className="player-history-list">
+                    {snapshot.history.activeEntries.map((entry) => {
+                      const label = playerHistoryEventLabel(entry.event);
+                      return <li key={entry.entryId} data-history-position={entry.position}>
+                        {entry.canNavigateBack ? (
+                          <button type="button" aria-label={`回退到：${label}`} disabled={hostActivity !== "active"} onClick={() => {
+                            applyIntent({ kind: "history-back-to", entryId: entry.entryId }, pointerInput.current);
+                            setHistoryPanelOpen(false);
+                          }}>
+                            <span>{playerHistoryEventKind(entry.event)} · {entry.position === "past" ? "已读" : entry.position === "current" ? "当前" : "前方"}</span>
+                            <strong>{label}</strong>
+                          </button>
+                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong>{label}</strong></div>}
+                      </li>;
+                    })}
+                  </ol>
+                )}
+              </section>
+              {snapshot.history.archives.map((archive, archiveIndex) => (
+                <section className="player-history-panel__section player-history-panel__archive" key={archive.archiveId} data-archive-id={archive.archiveId}>
+                  <h3>旧分支 {archiveIndex + 1}</h3>
+                  <p>从历史位置 {archive.branchPointHistoryIndex} 分岔 · 只读</p>
+                  <ol className="player-history-list">
+                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong>{playerHistoryEventLabel(entry.event)}</strong></div></li>)}
+                  </ol>
+                </section>
+              ))}
+            </>}
+          </aside>
+        )}
         <div className="player-playback-controls" aria-label="播放控制">
           <button
             type="button"

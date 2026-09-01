@@ -426,6 +426,12 @@ export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreStat
   return drivePlayerCore(resetPlayback(state), state.historySession, input);
 }
 
+export function configurePlayerCoreHistoryPolicyV1(state: PlayerCoreState, historyPolicy: PlayerCoreHistoryPolicyV1): PlayerCoreState {
+  return state.historyPolicy.allowForwardAfterBack === historyPolicy.allowForwardAfterBack
+    ? state
+    : { ...state, historyPolicy };
+}
+
 function playbackSnapshot(policy: RuntimeSchedulePolicyV1, stopReason: RuntimeScheduleStopReasonV1, executedInstructions: number, session: RuntimeSchedulerSessionV1, autoAdvanceDelayMilliseconds: number | null): PlayerCorePlaybackSnapshotV1 {
   return {
     schemaVersion: 1,

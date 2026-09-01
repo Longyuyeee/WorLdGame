@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N52 E1–E4f、E5a、E5b、E5c Settings/Core Engineering 已关闭；N52 总出口仍因 E5d Shell 与真实桌面/390×844 用户闭环缺口失败。下一实现继续按 #262 完成同一个 Player History 用户闭环，不能直接进入 N60。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N52 E1–E4f、E5a、E5b、E5c Engineering 已关闭，E5d Shell/production 候选已完成；N52 总出口等待 E5d 精确头 CI 与 E5e 复审，不能直接进入 N60。
 
 > 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
@@ -24,6 +24,8 @@
 > 产品目标对齐与交付节奏纠偏（2026-09-01）：[审计 #262](262-product-goal-alignment-and-delivery-correction.md)确认产品功能语义仍对齐最初 PRD，但 Engineering 子门、合同和证据更新已取代用户任务成为主要进度代理。后续主要判据改为真实用户路径、目标环境与预期/首次实际/修正后差异；E5c Settings/Core 与 E5d Shell 共同构成一个 Player History 纵向切片，在桌面和 390×844 完成旧分支查看、选行回退、Barrier 解释、Forward 项目策略与保存重开以前，不登记 History 产品完成。E5e 后优先收束 main-target 集成与长期欠缺的 N21/N23 真人任务，不以新增 N60 工程切片回避产品验证。
 
 > N52-E5c Settings/Core（2026-09-01）：[实现审计 #263](263-n52-e5c-gal-history-policy-player-core-projection-audit.md)已把 Gal Settings 升至 strict v6，仅增加默认 true 的 `history.allowForwardAfterBack` 并保持 v1–v5 读取；Core 从 Runtime 单一权威投影活动主线、只读 archive、稳定 ID、Barrier 原因/距离并提供定点回退与 Forward 策略执行。实现前新路径 `0/5` 按预期失败，修正后受影响范围 `147/147`、Core `25/25`、TypeScript 通过。实现头 `cce203b` 的 Draft PR #119 Windows run `33465730199` / job `99725069881` 用时 `13m38s` 成功，E5c Engineering 已关闭；Shell、桌面/390×844、完整用户任务、USP-09、REQ-RUNTIME、AC-16 与全部产品门仍阻断。
+
+> N52-E5d Player History Shell（2026-09-01）：[实现审计 #264](264-n52-e5d-player-history-shell-production-audit.md)已实现活动/旧分支页面、稳定 ID 选行回退、Barrier 原因/距离、Forward true/false 与热应用反馈及真实 IndexedDB 保存刷新读取。实现前新增 `0/3`，修正与扩展后 E5d `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 production overflow `0`、控件 `44/48px`、console `0`。当前为等待精确头远端门的候选；通过后进入 E5e 总出口复审，USP-09、REQ-RUNTIME、AC-16 与全部产品门仍不得提前登记通过。
 
 ## 1. 状态和证据规则
 

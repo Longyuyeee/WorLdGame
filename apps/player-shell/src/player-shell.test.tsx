@@ -33,6 +33,22 @@ function branchingWithCheckpoint(): CanonicalProject {
   };
 }
 
+function barrierStory() {
+  const demo = createPlayerMediaDemoV1();
+  const script = demo.project.scripts.media_stage!;
+  return {
+    ...demo,
+    project: {
+      ...demo.project,
+      scripts: { ...demo.project.scripts, media_stage: { ...script, statements: [
+        { id: "published_background", kind: "direction" as const, command: "background", summary: "asset=media_sunset action=set effectPolicy=barrier descriptorId=published-background barrierReason=Published_content_cannot_be_reversed." },
+        { id: "after_publish", kind: "narration" as const, textId: "after_publish_text", text: "After publishing" },
+        { id: "after_publish_end", kind: "end" as const, endingName: "Done" }
+      ] } }
+    }
+  };
+}
+
 function autoStory(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/tiny/project.s0.json"), "utf8")) as S0Project;
   const project = loadProject(migrateS0Project(source).files);
@@ -350,6 +366,111 @@ describe("N52-E1 Player History controls", () => {
     fireEvent.click(forward);
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
     expect(forward).toBeDisabled();
+  });
+});
+
+describe("N52-E5d Shell History user journey", () => {
+  it("opens a readable History page and backs to a selected active line", () => {
+    const { container } = render(<PlayerShell project={branching()} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: /Right/u }));
+    const dialogue = screen.getByRole("button", { name: "继续下一句" });
+    fireEvent.click(dialogue);
+    fireEvent.click(dialogue);
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "ended");
+
+    fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
+    expect(screen.getByRole("dialog", { name: "剧情历史" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "当前主线" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "回退到：The bright route." }));
+
+    expect(screen.getByText("The bright route.")).toBeInTheDocument();
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+  });
+
+  it("shows a truncated route as a read-only old branch", () => {
+    render(<PlayerShell project={branching()} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
+    fireEvent.click(screen.getByRole("button", { name: /Right/u }));
+
+    fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
+    expect(screen.getByRole("heading", { name: "旧分支 1" })).toBeInTheDocument();
+    expect(screen.getByText("The quiet route.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "回退到：The quiet route." })).not.toBeInTheDocument();
+  });
+
+  it("applies the project Forward policy and explains why Forward is blocked", () => {
+    const source = branching();
+    const project = { ...source, settings: withProjectSettings(source.settings, { history: { allowForwardAfterBack: false } }) };
+    render(<PlayerShell project={project} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: /Right/u }));
+    fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
+
+    expect(screen.getByRole("button", { name: "前进一步" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
+    expect(screen.getByText("项目设置禁止在回退后沿原分支前进。" )).toBeInTheDocument();
+  });
+
+  it("hot-applies a changed Forward policy without resetting the current History position", async () => {
+    const source = branching();
+    const view = render(<PlayerShell project={source} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: /Right/u }));
+    fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
+    expect(screen.getByRole("button", { name: "前进一步" })).toBeEnabled();
+
+    const configured = { ...source, settings: withProjectSettings(source.settings, { history: { allowForwardAfterBack: false } }) };
+    view.rerender(<PlayerShell project={configured} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "前进一步" })).toBeDisabled());
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
+  });
+
+  it("explains the nearest committed Barrier reason and distance", () => {
+    const demo = barrierStory();
+    render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "确认继续" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
+    expect(screen.getByText("Published_content_cannot_be_reversed.")).toBeInTheDocument();
+    expect(screen.getByText(/距离当前位置 \d+ 步 · published-background/u)).toBeInTheDocument();
+  });
+
+  it("keeps the archived branch after save, unmount, remount, and load", async () => {
+    const records = new Map<string, WorldPlayerSaveSlotV3>();
+    const store: WorldPlayerSaveStoreV3 = {
+      version: "3.0.0",
+      backend: "memory-test",
+      async list(projectId) { return [...records.values()].filter((slot) => slot.projectId === projectId); },
+      async read(projectId, slotId) { return records.get(`${projectId}\0${slotId}`) ?? null; },
+      async readPreview() { return null; },
+      async write(slot) {
+        if (slot.schemaVersion !== 3) throw new Error("unexpected legacy write");
+        records.set(`${slot.projectId}\0${slot.slotId}`, slot);
+      }
+    };
+    const first = render(<PlayerShell project={branching()} saveStore={store} now={() => 1_788_000_000_000} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
+    fireEvent.click(screen.getByRole("button", { name: /Right/u }));
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    await waitFor(() => expect(records.has("golden_branching\0manual-1")).toBe(true));
+    first.unmount();
+
+    render(<PlayerShell project={branching()} saveStore={store} />);
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
+    fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    await waitFor(() => expect(screen.getByText("The bright route.")).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
+    expect(screen.getByRole("heading", { name: "旧分支 1" })).toBeInTheDocument();
+    expect(screen.getByText("The quiet route.")).toBeInTheDocument();
   });
 });
 

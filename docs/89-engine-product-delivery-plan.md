@@ -547,6 +547,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N52-E5c Settings/Core Engineering 已关闭（2026-09-01）：[实现审计 #263](263-n52-e5c-gal-history-policy-player-core-projection-audit.md)以真实差距 `0/5` 为起点，完成 Gal Settings strict v6 唯一 History Forward 字段，以及 Core 对 Runtime active/archive 稳定身份、Barrier 原因/距离、定点回退和 true/false Forward 的直接投影与执行；Session Save 重开保持投影一致，archive 不可导航。受影响范围 `147/147`、Core `25/25`、TypeScript 通过；实现头 `cce203b` 的 Draft PR #119 Windows run `33465730199` / job `99725069881` 用时 `13m38s` 成功。该结果只关闭 E5c 内部 Engineering，不登记 History 产品完成；下一步 E5d 必须完成 Shell 及桌面/390×844 真实用户路径。
 
+> N52-E5d Shell/production 候选（2026-09-01）：[实现审计 #264](264-n52-e5d-player-history-shell-production-audit.md)从真实 Shell 新路径 `0/3` 出发，接通 Settings History policy、活动/旧分支页面、稳定 ID 选行回退、Barrier 原因/距离与 Forward false 反馈；扩展后 E5d `6/6`、N52 `101/101`、N51 `131/131`。1440×900 与 390×844 production overflow `0`、最小控件 `44/48px`；首次移动路径受到同项目真实 Recovery 记录影响，改用独立演示身份后通过。IndexedDB 保存—cold load—读取后 archive 仍为 `1`。等待精确实现头远端门后关闭 E5d，再进入一次 E5e 总出口复审。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

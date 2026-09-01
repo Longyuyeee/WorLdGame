@@ -7,6 +7,8 @@
 > 当前判定：**E5c Settings/Core Engineering 已关闭；Player History 用户闭环尚未完成，E5d Shell、N52 Product Acceptance 与 N60 继续阻断。**
 >
 > 实现证据：`cce203bbdc9010cdbb8168ed1e358d0c6b49c049` / Draft PR #119 / Windows run `33465730199` / job `99725069881`，`13m38s` 成功。
+>
+> 文档闭环证据：`49abe33414a6f6a8a8889f8108e738a55404bbeb` / Windows run `33466686883` / job `99727902748`，`14m39s` 成功。
 
 ## 1. 用户目标与实现前实际差异
 
