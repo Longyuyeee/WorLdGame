@@ -6,7 +6,13 @@
 >
 > 基线：E5a 最终头 `788f93fb892136f045765279f240bb811e05e8a9`
 >
-> 状态：**E5b 实现、本地审计和完整仓库门已通过；正在推送并等待精确头 Windows CI。暂停开发，不进入 E5c。**
+> 实现提交：`78a19eccbf141e19bf362028d5cc13dfad58c3f4`
+>
+> 远端入口：[Draft PR #118](https://github.com/Longyuyeee/WorLdGame/pull/118)
+>
+> Windows 证据：run `33457956272` / job `99701844659`，Windows / Node 22 完整门 **SUCCESS**，用时 `9m45s`
+>
+> 状态：**E5b 实现头、本地完整门和远端 Windows CI 均已通过。按用户要求暂停开发，不进入 E5c；本次只保留交接文档，不继续做证据回填或新功能。**
 
 ## 1. 当前已经完成
 
@@ -38,12 +44,15 @@ npm run audit:n52-e5b-runtime-history-v2
 
 恢复后先核对 [E5b 实现审计](260-n52-e5b-runtime-history-v2-audit.md)、本文件、`config/n52-e5b-runtime-history-v2.json`、远端 Draft PR 与 Windows CI。若 CI 尚未完成，只等待或修正 E5b，不能开始下一切片。
 
+当前精确实现头的 CI 已经成功。由于用户在成功后明确要求停止额外动作、只写交接文档，以下文件仍保留推送前的 `implemented-local-ci-pending` / “等待 CI”措辞：`config/n52-e5b-runtime-history-v2.json`、#260、#89、#90、#99。这不是功能或 CI 缺口，而是刻意留给换机后的第一项文档同步工作；不得把这些旧措辞误判为需要重做 E5b 实现。
+
 ## 4. 后续开发顺序
 
-1. **先关闭 E5b 远端证据**：精确实现头 Windows / Node 22 完整门绿色后，把 commit/run/job/conclusion 回填 #260、本文件、#89/#90/#99 与机器合同，再推送证据提交。
-2. **E5c Settings + Core**：Gal Settings v6 只增加 `history.allowForwardAfterBack`；strict v1–v5 读取后归一默认 `true`。Player Core 从 Runtime History 投影活动主线、只读 archive、Barrier 原因/距离，并提供稳定 ID 的定点回退；Core 执行项目 Forward 策略，不另建历史账本。
-3. **E5d Shell**：实现桌面与 390×844 History 页面/入口、选择某句回退、旧分支只读查看、不可逆 Barrier 原因和 Forward 策略反馈；完成 cold production 浏览器证据。
-4. **E5e 总出口复审**：重新逐项对齐 Gal 5.2、PRD 3.8、USP-09、REQ-RUNTIME 与 AC-16。仍有缺口则 fail closed，不能进入 N60。
+1. **只做 E5b 证据同步**：把实现提交 `78a19ec`、PR #118、run `33457956272`、job `99701844659`、`success / 9m45s` 回填 #260、#89、#90、#99 与 `config/n52-e5b-runtime-history-v2.json`；把 E5b Engineering 状态从 `implemented-local-ci-pending` 改为 `complete`。运行 E5b 机器审计，提交并推送证据文档。该动作不得修改 Runtime 业务代码。
+2. **证据同步后重新核对接续点**：确认远端分支、Draft PR、机器合同和状态文档一致，工作树干净；不要因为证据文档提交触发新 CI 就重做已经通过的实现头测试。若项目治理要求证据头也绿，则只等待该文档头 CI 并记录，不开始并行开发。
+3. **E5c Settings + Core**：Gal Settings v6 只增加 `history.allowForwardAfterBack`；strict v1–v5 读取后归一默认 `true`。Player Core 从 Runtime History 投影活动主线、只读 archive、Barrier 原因/距离，并提供稳定 ID 的定点回退；Core 执行项目 Forward 策略，不另建历史账本。
+4. **E5d Shell**：实现桌面与 390×844 History 页面/入口、选择某句回退、旧分支只读查看、不可逆 Barrier 原因和 Forward 策略反馈；完成 cold production 浏览器证据。
+5. **E5e 总出口复审**：重新逐项对齐 Gal 5.2、PRD 3.8、USP-09、REQ-RUNTIME 与 AC-16。仍有缺口则 fail closed，不能进入 N60。
 
 ## 5. 明确禁止
 
@@ -51,4 +60,13 @@ npm run audit:n52-e5b-runtime-history-v2
 - 不升级 Player Save v3/IndexedDB v3，不修改 Runtime State/IR/Scheduler，不提前做 Gal Settings/Core/Shell；
 - 不把 E5b Engineering 换算成 N52 Product Acceptance、AC-16、M1 Stable、发布完成或 N60 授权。
 
-精确提交、Draft PR 和 Windows CI 编号将在本次推送完成后回填。本文件标题 token：**E5b 跨电脑接续点**。
+## 6. 当前仓库与远端事实
+
+- 可拉取分支：`origin/codex/n52-e5b-runtime-history-v2`；
+- E5b 实现头：`78a19eccbf141e19bf362028d5cc13dfad58c3f4`；
+- 堆叠基线：`origin/codex/n52-e5a-history-contract-authority` / `788f93f`；
+- Draft PR：#118，base 为 E5a 分支；
+- 实现头 Windows CI：`33457956272 / 99701844659 / success / 9m45s`；
+- 下一台电脑无需重新实现 E5b，也无需先启动界面；先完成第 4 节第 1–2 项的证据同步，再按授权决定是否进入 E5c。
+
+本文件标题 token：**E5b 跨电脑接续点**。
