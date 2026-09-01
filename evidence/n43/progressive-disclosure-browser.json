@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "node": "N43-E2",
+  "scope": "real-chromium-beginner-edit-pro-restore-advanced-context-save-reopen-mobile",
+  "generatedAt": "2026-08-26T02:02:53.599Z",
+  "environment": {
+    "product": "Chrome/151.0.7922.170",
+    "protocolVersion": "1.3",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "headless": true,
+    "url": "http://127.0.0.1:5177/"
+  },
+  "expectation": {
+    "beginner": {
+      "visibleEditorTabs": [
+        "Sequence"
+      ],
+      "visibleWorkspaceModes": 3,
+      "hiddenAdvancedSurfaces": true
+    },
+    "edit": {
+      "statementId": "stmt_rooftop_001",
+      "revision": "r1",
+      "text": "留言里的星星仍在风里发亮。"
+    },
+    "pro": {
+      "visibleEditorTabs": 3,
+      "visibleWorkspaceModes": 7,
+      "contextUnchanged": true
+    },
+    "advancedContext": {
+      "beginnerRetainsCurrentScriptView": true
+    },
+    "reopen": {
+      "experienceLevel": "beginner",
+      "saveLabel": "已恢复 · s2",
+      "contextUnchanged": true
+    },
+    "mobile": {
+      "width": 390,
+      "horizontalOverflow": 0,
+      "previewRatio": "16:9 ± 0.03"
+    },
+    "browserFailures": 0
+  },
+  "actual": {
+    "beginnerBeforeEdit": {
+      "experienceLevel": "beginner",
+      "mode": "director",
+      "view": "sequence",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "revision": "本地事务 · r0",
+      "editorTabs": [
+        "Sequence"
+      ],
+      "workspaceModes": [
+        "Writer",
+        "Director",
+        "Quick Start"
+      ],
+      "stageMounted": true,
+      "stageDisplay": "none",
+      "projectSearchDisplay": "none",
+      "advancedToolbarDisplay": "none",
+      "dialogue": "留言里提到的那颗星，也许只有从这里才能看见。",
+      "previewRatio": 1.7777820562187139
+    },
+    "beginnerAfterEdit": {
+      "experienceLevel": "beginner",
+      "statementId": "stmt_rooftop_001",
+      "inspectorObjectId": "stmt_rooftop_001",
+      "runtimeStatementId": "stmt_rooftop_001",
+      "revision": "本地事务 · r1",
+      "dialogue": "留言里的星星仍在风里发亮。"
+    },
+    "proRestored": {
+      "experienceLevel": "pro",
+      "mode": "director",
+      "view": "sequence",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "revision": "本地事务 · r1",
+      "editorTabs": [
+        "Sequence",
+        "Script",
+        "Flow"
+      ],
+      "workspaceModeCount": 7,
+      "stageDisplay": "block",
+      "projectSearchDisplay": "grid",
+      "advancedToolbarDisplay": "flex",
+      "dialogue": "留言里的星星仍在风里发亮。"
+    },
+    "retainedAdvancedView": {
+      "experienceLevel": "beginner",
+      "view": "script",
+      "statementId": "stmt_rooftop_001",
+      "tabs": [
+        {
+          "label": "Sequence",
+          "selected": "false"
+        },
+        {
+          "label": "Script",
+          "selected": "true"
+        }
+      ]
+    },
+    "reopenedBeginner": {
+      "experienceLevel": "beginner",
+      "mode": "director",
+      "view": "sequence",
+      "sceneId": "scn_rooftop",
+      "statementId": "stmt_rooftop_001",
+      "inspectorObjectId": "stmt_rooftop_001",
+      "runtimeStatementId": "stmt_rooftop_001",
+      "dialogue": "留言里的星星仍在风里发亮。",
+      "saveLabel": "已恢复 · s2"
+    },
+    "mobile": {
+      "experienceLevel": "beginner",
+      "width": 390,
+      "height": 844,
+      "documentScrollWidth": 390,
+      "horizontalOverflow": 0,
+      "previewWidth": 352,
+      "previewHeight": 198,
+      "previewRatio": 1.7777777777777777
+    },
+    "browserFailures": []
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n43/progressive-disclosure-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 186472,
+      "sha256": "872b860ecb819449d2114f26898033cc5e70dd751d3f61715c113981d121331a"
+    },
+    {
+      "path": "evidence/n43/progressive-disclosure-mobile.png",
+      "width": 390,
+      "height": 844,
+      "bytes": 86721,
+      "sha256": "75e8f64d3ae784ac065755275621ee829f6abe5e7faf5d4ffcd8711d18a3488d"
+    }
+  ],
+  "result": "PASS"
+}

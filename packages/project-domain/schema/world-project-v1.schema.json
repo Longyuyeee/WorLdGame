@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-studio.local/schema/world-project-v1.schema.json",
+  "title": "World Studio Project Manifest v1",
+  "type": "object",
+  "required": ["schemaVersion", "fileVersion", "projectId", "title", "defaultLocale", "entrySceneId", "chapterPaths", "charactersPath", "variablesPath", "assetsPath", "localizationPath", "settingsPath", "uiPath", "pluginsPath", "testRoutesPath"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "fileVersion": { "const": "1.0.0" },
+    "projectId": { "$ref": "#/$defs/stableId" },
+    "title": { "type": "string", "minLength": 1 },
+    "defaultLocale": { "type": "string", "minLength": 1 },
+    "entrySceneId": { "$ref": "#/$defs/stableId" },
+    "chapterPaths": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/path" } },
+    "charactersPath": { "$ref": "#/$defs/path" }, "variablesPath": { "$ref": "#/$defs/path" }, "assetsPath": { "$ref": "#/$defs/path" }, "localizationPath": { "$ref": "#/$defs/path" }, "settingsPath": { "$ref": "#/$defs/path" }, "uiPath": { "$ref": "#/$defs/path" }, "pluginsPath": { "$ref": "#/$defs/path" }, "testRoutesPath": { "$ref": "#/$defs/path" }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "stableId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$" },
+    "path": { "type": "string", "pattern": "^(?:[a-z0-9._-]+/)*[a-z0-9._-]+\\.json$" }
+  }
+}

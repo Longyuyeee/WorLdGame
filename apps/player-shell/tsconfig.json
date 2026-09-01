@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node", "vitest/globals", "vite/client", "@testing-library/jest-dom"]
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../../packages/gal-settings" },
+    { "path": "../../packages/project-domain" },
+    { "path": "../../packages/player-core" }
+  ]
+}

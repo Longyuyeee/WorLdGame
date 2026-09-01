@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-27T11:39:00+08:00",
+  "build": "player-shell-vite-dev-from-current-source",
+  "desktopMultichannel": {
+    "viewport": { "width": 1280, "height": 720 },
+    "expected": {
+      "stageAspectRatio": "16:9",
+      "characterSlots": ["left", "right"],
+      "audioBuses": ["bgm", "voice"],
+      "horizontalOverflow": 0
+    },
+    "actual": {
+      "stage": { "width": 1178, "height": 662, "aspectRatio": 1.7794561933534745 },
+      "characterSlots": [
+        { "slot": "left", "decoded": true, "naturalWidth": 4, "z": 10 },
+        { "slot": "right", "decoded": true, "naturalWidth": 4, "z": 20 }
+      ],
+      "audioBuses": [
+        { "bus": "bgm", "readyState": 4, "loop": true, "appliedVolume": 0.6, "pausedAtSample": false },
+        { "bus": "voice", "readyState": 4, "loop": false, "appliedVolume": 0.8, "pausedAtSample": true, "note": "short fixture completed before the 1.5 second sample" }
+      ],
+      "documentClientWidth": 1280,
+      "documentScrollWidth": 1280,
+      "mediaAlerts": []
+    },
+    "difference": "Voice had naturally ended at the sampling instant; channel presence, decode readiness and configured volume were verified separately instead of claiming simultaneous playback."
+  },
+  "mediaRecovery": {
+    "expectedBeforeRetry": {
+      "status": "waiting-effect",
+      "mediaErrorVisible": true,
+      "effectCompletionBlocked": true
+    },
+    "actualBeforeRetry": {
+      "status": "waiting-effect",
+      "mediaError": "media_actor_sprite",
+      "retryVisible": true,
+      "effectCompletionDisabled": true
+    },
+    "expectedAfterRetry": {
+      "mediaErrorVisible": false,
+      "actorDecoded": true,
+      "runtimeCanContinue": true
+    },
+    "actualAfterRetry": {
+      "status": "presenting",
+      "mediaErrors": [],
+      "actor": { "slot": "actor", "decoded": true, "naturalWidth": 4 }
+    },
+    "difference": "none"
+  },
+  "mobileRecovery": {
+    "viewport": { "width": 390, "height": 844 },
+    "expected": {
+      "horizontalOverflow": 0,
+      "minimumRetryTouchHeight": 44
+    },
+    "firstActual": {
+      "documentClientWidth": 390,
+      "documentScrollWidth": 390,
+      "retryWidth": 74,
+      "retryHeight": 34
+    },
+    "correction": "Raised the recovery action minimum height from 34px to the 44px mobile touch baseline.",
+    "retestActual": {
+      "documentClientWidth": 390,
+      "documentScrollWidth": 390,
+      "retryWidth": 74,
+      "retryHeight": 44
+    }
+  },
+  "earlierImplementationDifference": {
+    "expected": "Editor may start formal preview from an arbitrary statement while Player still keeps deterministic channel semantics.",
+    "firstActual": "Requiring an existing character slot for show.move broke the N42 arbitrary-statement Editor preview fixture.",
+    "correction": "Restored sparse-start move compatibility while retaining slot-scoped channels and enriching payloads only when prior scene state exists.",
+    "retest": "N42 Stage exit 15 files / 151 tests plus App 45 / 45 passed."
+  }
+}

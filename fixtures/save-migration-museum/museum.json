@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "museumId": "world.player-save-migration-museum.v1",
+  "cases": [
+    {
+      "id": "legacy-v1-manual",
+      "expect": "normalized-v2",
+      "record": {
+        "schemaVersion": 1,
+        "format": "world.player-save-slot",
+        "kind": "manual",
+        "slotId": "manual-1",
+        "projectId": "museum_project",
+        "buildId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "savedAtEpochMilliseconds": 1788000000000,
+        "title": "Migration Museum",
+        "sceneId": "museum_scene",
+        "presentationKind": "dialogue",
+        "runtimeStateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sessionArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "serializedSessionSave": "{}",
+        "previewImage": null
+      }
+    },
+    {
+      "id": "current-v2-auto",
+      "expect": "accepted-v2",
+      "record": {
+        "schemaVersion": 2,
+        "format": "world.player-save-slot",
+        "kind": "auto",
+        "slotId": "auto-1",
+        "projectId": "museum_project",
+        "buildId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "savedAtEpochMilliseconds": 1788000000001,
+        "title": "Migration Museum",
+        "chapterId": null,
+        "chapterTitle": null,
+        "sceneId": "museum_scene",
+        "sceneTitle": "Museum Scene",
+        "route": null,
+        "customMetadata": {},
+        "preview": { "status": "unavailable", "reason": "capture-unavailable" },
+        "presentationKind": "dialogue",
+        "runtimeStateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sessionArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "serializedSessionSave": "{}",
+        "migratedFromSchemaVersion": null
+      }
+    },
+    {
+      "id": "future-v3",
+      "expect": "rejected",
+      "record": {
+        "schemaVersion": 3,
+        "format": "world.player-save-slot",
+        "kind": "auto",
+        "slotId": "auto-1",
+        "projectId": "museum_project"
+      }
+    },
+    {
+      "id": "v2-kind-id-mismatch",
+      "expect": "rejected",
+      "record": {
+        "schemaVersion": 2,
+        "format": "world.player-save-slot",
+        "kind": "quick",
+        "slotId": "auto-1",
+        "projectId": "museum_project",
+        "buildId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "savedAtEpochMilliseconds": 1788000000002,
+        "title": "Migration Museum",
+        "chapterId": null,
+        "chapterTitle": null,
+        "sceneId": "museum_scene",
+        "sceneTitle": "Museum Scene",
+        "route": null,
+        "customMetadata": {},
+        "preview": { "status": "unavailable", "reason": "capture-unavailable" },
+        "presentationKind": "dialogue",
+        "runtimeStateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sessionArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "serializedSessionSave": "{}",
+        "migratedFromSchemaVersion": null
+      }
+    },
+    {
+      "id": "v2-unknown-field",
+      "expect": "rejected",
+      "record": {
+        "schemaVersion": 2,
+        "format": "world.player-save-slot",
+        "kind": "manual",
+        "slotId": "manual-2",
+        "projectId": "museum_project",
+        "buildId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "savedAtEpochMilliseconds": 1788000000003,
+        "title": "Migration Museum",
+        "chapterId": null,
+        "chapterTitle": null,
+        "sceneId": "museum_scene",
+        "sceneTitle": "Museum Scene",
+        "route": null,
+        "customMetadata": {},
+        "preview": { "status": "unavailable", "reason": "capture-unavailable" },
+        "presentationKind": "dialogue",
+        "runtimeStateHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sessionArtifactHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "serializedSessionSave": "{}",
+        "migratedFromSchemaVersion": null,
+        "untrusted": true
+      }
+    }
+  ]
+}

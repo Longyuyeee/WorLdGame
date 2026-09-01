@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3b",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseCommit": "fb452e3613208cbe4bd0e70622bc8ae1910ea4c2",
+  "slotClasses": {
+    "manual": { "count": 12, "pattern": "manual-1..manual-12" },
+    "auto": { "count": 5, "pattern": "auto-1..auto-5", "rotation": "empty-first-then-oldest-first" },
+    "quick": { "count": 1, "pattern": "quick-1", "replacement": "fixed-explicit-command" }
+  },
+  "automaticSave": {
+    "trigger": "first-stable-presentable-boundary-after-scene-change",
+    "allowed": ["presenting/dialogue", "presenting/narration", "waiting-choice/choice", "ended/ending"],
+    "blocked": ["title", "error", "waiting-effect", "waiting-barrier", "wait"],
+    "coalescing": "one-write-per-build-and-scene-identity"
+  },
+  "writePolicy": {
+    "serialization": "single-fifo-per-store-instance",
+    "failure": "retain-prior-valid-slot-and-continue-queue",
+    "load": "session-save-rehydrate-without-effect-reexecution"
+  },
+  "acceptance": [
+    "strict-slot-kind-and-id-pairing",
+    "five-slot-auto-rotation-oldest-first",
+    "same-scene-auto-coalescing",
+    "fixed-quick-slot-replacement-and-load",
+    "failed-write-retains-prior-slot-and-does-not-poison-queue",
+    "player-controls-expose-manual-auto-and-quick-slots"
+  ],
+  "blocked": [
+    "persistent-checkpoint-slots",
+    "crash-recovery-store",
+    "migration-museum",
+    "cloud-sync-and-conflict-resolution",
+    "windows-and-android-host-validation",
+    "n52-product-acceptance"
+  ],
+  "nextSlice": "N52-E3c",
+  "engineeringEvidence": {
+    "implementationCommit": "b6eec8b312fd8dfc86214ea693789bb34c6ce8e9",
+    "pullRequest": 102,
+    "workflowRun": 33191955073,
+    "workflowJob": 98919399001,
+    "conclusion": "success"
+  },
+  "requiredDocuments": [
+    { "path": "docs/242-n52-e3b-auto-quick-save-audit.md", "token": "N52-E3b Engineering 关闭" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3b 状态（2026-08-29）" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3b Auto / Quick Engineering 已关闭" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3b Auto / Quick Engineering 已关闭" }
+  ]
+}

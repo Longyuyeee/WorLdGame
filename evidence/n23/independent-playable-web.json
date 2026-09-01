@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "deliveryNode": "N23-E4",
+  "status": "engineering-pass",
+  "recordedAt": "2026-08-15T15:21:00+08:00",
+  "sourceProject": "fixtures/projects/branching/project.s0.json",
+  "projectDigest": "470ed977c72fd550668c4b1e1a6ac52b8d84937cc77a630e97f94fb746dd507b",
+  "artifact": {
+    "path": "index.html",
+    "bytes": 9588,
+    "sha256": "4e8c4bb19412b9bc87ff6cb07ca54b60f68ffeeace5af7f543476b19f9fc1e0c",
+    "selfContained": true,
+    "networkRequired": false
+  },
+  "routes": [
+    { "optionId": "branch_left_option", "ending": "Left", "status": "passed" },
+    { "optionId": "branch_right_option", "ending": "Right", "status": "passed" }
+  ],
+  "verification": {
+    "tests": "2 files / 7 tests passed",
+    "command": "npm.cmd run demo:empty-to-web",
+    "result": "PASS",
+    "visualBrowser": "blocked-by-local-url-security-policy",
+    "executableDom": "jsdom runScripts=dangerously; both routes passed"
+  },
+  "blockedGates": [
+    "N21 Product Acceptance",
+    "N23 Acceptance",
+    "M1 Stable",
+    "Public Release"
+  ],
+  "formalTargets": {
+    "compiler": "pending N30",
+    "runtime": "pending N31",
+    "sharedPreview": "pending N32",
+    "playerShell": "pending N50",
+    "webBuild": "pending N80"
+  }
+}

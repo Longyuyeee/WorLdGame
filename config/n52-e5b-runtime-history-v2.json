@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E5b-runtime-history-v2",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "authority": "RA-N21-011",
+  "implementation": {
+    "runtimeHistorySchema": 2,
+    "runtimeSessionSaveSchema": 2,
+    "publicApiGeneration": 1,
+    "archive": {
+      "ownership": "runtime-history-only",
+      "mode": "deterministic-read-only-summary",
+      "identity": "canonical-content-hash",
+      "entryEvidence": [
+        "original-entry-id-and-history-index",
+        "input-and-event",
+        "barriers",
+        "after-state-hash"
+      ],
+      "navigation": "active-chain-only",
+      "bound": 10000,
+      "boundAppliesTo": "active-entries-plus-all-archived-entry-summaries"
+    },
+    "sessionSave": {
+      "write": "schema-v2-only",
+      "read": [1, 2],
+      "legacyOrder": "verify-v1-history-hash-before-normalizing-to-v2",
+      "legacyArtifactHash": "original-v1-envelope",
+      "futureSchema": "fail-closed"
+    },
+    "hashDomains": {
+      "historyV1": "WORLd-RUNTIME-HISTORY\\0v1\\0",
+      "historyV2": "WORLd-RUNTIME-HISTORY\\0v2\\0",
+      "sessionSaveV1": "WORLd-RUNTIME-SESSION-SAVE\\0v1\\0",
+      "sessionSaveV2": "WORLd-RUNTIME-SESSION-SAVE\\0v2\\0",
+      "archiveV1": "WORLd-RUNTIME-HISTORY-ARCHIVE\\0v1\\0"
+    }
+  },
+  "unchanged": {
+    "runtimeVersion": "0.6.0",
+    "runtimeStateSchema": 1,
+    "runtimeSaveSchema": 1,
+    "runtimeIr": ["1.0.0", "1.1.0"],
+    "runtimeScheduler": "unchanged",
+    "activeNavigation": "unchanged",
+    "playerSaveSchema": 3,
+    "playerDatabaseSchema": 3
+  },
+  "determinismEvidence": {
+    "runtimeTests": 63,
+    "formalPreviewTests": 15,
+    "corpusSeeds": 10000,
+    "corpusReplays": 20000,
+    "corpusDigestV2": "01556a8c979e080cc653817713ad26f7d2882445e9ebdc727049f415da4863a9",
+    "unchangedStateHash": "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
+    "unchangedOutcomeHash": "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
+    "historyV2Hash": "ab6229b34781295bde594c1e3e2f19891e7c2db8d30fe282a61bc66002e6d905"
+  },
+  "forbidden": [
+    "archived-branch-navigation",
+    "second-shell-history-ledger",
+    "wall-clock-archive-identity",
+    "silent-archive-eviction",
+    "player-save-or-database-version-bump",
+    "gal-settings-or-player-core-e5c-work",
+    "n52-product-acceptance-claim",
+    "n60-or-later-engineering"
+  ],
+  "requiredDocuments": [
+    {
+      "path": "docs/260-n52-e5b-runtime-history-v2-audit.md",
+      "token": "E5b Runtime History v2 Engineering"
+    },
+    {
+      "path": "docs/89-engine-product-delivery-plan.md",
+      "token": "N52-E5b Runtime History v2"
+    },
+    {
+      "path": "docs/90-m1-requirement-traceability.md",
+      "token": "N52-E5b Runtime History v2"
+    },
+    {
+      "path": "docs/99-current-development-status-audit.md",
+      "token": "N52-E5b Runtime History v2"
+    },
+    {
+      "path": "docs/261-n52-e5b-cross-device-development-handoff.md",
+      "token": "E5b 跨电脑接续点"
+    }
+  ],
+  "continuation": {
+    "node": "N52-E5c-gal-history-policy-and-player-core-projection",
+    "gate": "only-after-e5b-exact-head-windows-ci-is-green"
+  },
+  "engineeringEvidence": {
+    "implementationCommit": "78a19eccbf141e19bf362028d5cc13dfad58c3f4",
+    "pullRequest": 118,
+    "workflowRun": 33457956272,
+    "workflowJob": 99701844659,
+    "conclusion": "success"
+  }
+}

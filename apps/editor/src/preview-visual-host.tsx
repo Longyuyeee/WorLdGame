@@ -1,0 +1,177 @@
+import type { CSSProperties } from "react";
+import { resolvePreviewCharacterGeometry, type LoadedPreviewMedia } from "./preview-media-runtime";
+import type { PreviewMediaRole } from "./preview-media-host";
+import type { PreviewRenderFrame } from "./preview-render-host";
+import { mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
+
+type LoadedPreviewCharacter = LoadedPreviewMedia["characters"][number];
+
+interface PreviewStageCharacterProps {
+  readonly character: LoadedPreviewCharacter;
+  readonly selected: boolean;
+  readonly designWidth: number;
+  readonly designHeight: number;
+  readonly onSelect: (statementId: string) => void;
+  readonly onStagePoint: (point: StageDesignPoint) => void;
+  readonly onDecodeError: () => void;
+  readonly defaultDurationMilliseconds?: number;
+  readonly defaultEasing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
+}
+
+export function PreviewStageCharacter({
+  character,
+  selected,
+  designWidth,
+  designHeight,
+  onSelect,
+  onStagePoint,
+  onDecodeError,
+  defaultDurationMilliseconds = 360,
+  defaultEasing = "linear"
+}: PreviewStageCharacterProps) {
+  const geometry = resolvePreviewCharacterGeometry(character);
+  const movementFrom = character.movementFrom;
+  const hasTransition = character.entering === true || movementFrom !== undefined;
+  const bezierPath = movementFrom !== undefined && character.curve === "bezier" && character.control1X !== undefined && character.control1Y !== undefined && character.control2X !== undefined && character.control2Y !== undefined
+    ? `path("M ${movementFrom.x * designWidth / 100} ${movementFrom.y * designHeight / 100} C ${character.control1X * designWidth / 100} ${character.control1Y * designHeight / 100}, ${character.control2X * designWidth / 100} ${character.control2Y * designHeight / 100}, ${geometry.x * designWidth / 100} ${geometry.y * designHeight / 100}")`
+    : undefined;
+  const label = `选择 Stage 角色 ${character.assetId}${character.expression === undefined ? "" : `，表情 ${character.expression}`}`;
+  return <button
+    type="button"
+    className={`stage-media-character${hasTransition ? ` stage-transition--${character.transition ?? "slide"}` : ""}${character.entering === true ? " stage-media-character--entering" : ""}${movementFrom === undefined ? "" : " stage-media-character--moving"}${bezierPath === undefined ? "" : " stage-media-character--bezier"}${character.exiting === true ? " stage-media-character--exiting" : ""}${selected ? " is-selected" : ""}`}
+    data-testid={`preview-character-${character.slot}`}
+    data-stage-slot={character.slot}
+    data-stage-x={geometry.x}
+    data-stage-y={geometry.y}
+    data-stage-scale={geometry.scale}
+    data-stage-rotation={geometry.rotation}
+    data-stage-anchor={`${geometry.anchorX},${geometry.anchorY}`}
+    data-stage-easing={character.easing ?? defaultEasing}
+    data-stage-curve={character.curve}
+    aria-label={label}
+    aria-pressed={selected}
+    aria-hidden={character.exiting === true ? true : undefined}
+    tabIndex={character.exiting === true ? -1 : undefined}
+    disabled={character.exiting === true}
+    onPointerDown={(event) => {
+      const stage = event.currentTarget.closest<HTMLElement>("[data-stage-surface]");
+      if (stage === null) return;
+      const point = mapClientPointToStage(
+        event.clientX,
+        event.clientY,
+        stage.getBoundingClientRect(),
+        designWidth,
+        designHeight
+      );
+      if (point !== null) onStagePoint(point);
+    }}
+    onClick={() => onSelect(character.statementId)}
+    style={{
+      animationDuration: character.duration ?? `${defaultDurationMilliseconds}ms`,
+      animationTimingFunction: character.easing ?? defaultEasing,
+      zIndex: character.z ?? 0,
+      left: bezierPath === undefined ? `${geometry.x}%` : 0,
+      top: bezierPath === undefined ? `${geometry.y}%` : 0,
+      right: "auto",
+      bottom: "auto",
+      transform: `translate(${-geometry.anchorX * 100}%, ${-geometry.anchorY * 100}%) scale(${geometry.scale}) rotate(${geometry.rotation}deg)`,
+      transformOrigin: `${geometry.anchorX * 100}% ${geometry.anchorY * 100}%`,
+      ...(bezierPath === undefined ? {} : { offsetPath: bezierPath, offsetDistance: "100%", offsetRotate: "0deg", offsetAnchor: "0 0" }),
+      ...(movementFrom === undefined ? {} : {
+        "--stage-move-from-left": `${movementFrom.x}%`,
+        "--stage-move-from-top": `${movementFrom.y}%`,
+        "--stage-move-from-transform": `translate(${-movementFrom.anchorX * 100}%, ${-movementFrom.anchorY * 100}%) scale(${movementFrom.scale}) rotate(${movementFrom.rotation}deg)`
+      })
+    } as CSSProperties}
+  >
+    <img
+      src={character.url}
+      alt={`角色资源 ${character.assetId}${character.expression === undefined ? "" : ` · ${character.expression}`}`}
+      draggable={false}
+      onError={onDecodeError}
+    />
+  </button>;
+}
+
+interface PreviewVisualHostProps {
+  readonly frame: PreviewRenderFrame;
+  readonly designWidth: number;
+  readonly designHeight: number;
+  readonly selectedStatementId: string;
+  readonly onSelect: (statementId: string) => void;
+  readonly onStagePoint: (point: StageDesignPoint) => void;
+  readonly onRuntimeError: (
+    role: PreviewMediaRole,
+    layer: { readonly statementId: string; readonly assetId: string }
+  ) => void;
+  readonly defaultDurationMilliseconds?: number;
+  readonly defaultEasing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
+}
+
+export function PreviewVisualHost({
+  frame,
+  designWidth,
+  designHeight,
+  selectedStatementId,
+  onSelect,
+  onStagePoint,
+  onRuntimeError,
+  defaultDurationMilliseconds = 360,
+  defaultEasing = "linear"
+}: PreviewVisualHostProps) {
+  return <div
+    className="stage-visual-host"
+    data-testid="preview-visual-host"
+    data-render-contract={frame.contractVersion}
+    data-render-backend={frame.backend}
+    data-render-status={frame.status}
+    data-render-generation={frame.generation}
+  >
+    <div className="stage-camera-plane" data-camera-statement={frame.camera?.statementId} style={frame.camera === undefined ? undefined : {
+      transformOrigin: "50% 50%",
+      transform: `translate(${frame.camera.x}%, ${frame.camera.y}%) scale(${frame.camera.zoom}) rotate(${frame.camera.rotation}deg)`,
+      transition: `transform ${frame.camera.duration ?? `${defaultDurationMilliseconds}ms`} ${frame.camera.easing ?? defaultEasing}`
+    } as CSSProperties}>
+    <div className="stage-background-plane" aria-hidden={frame.background === undefined && frame.previousBackground === undefined ? "true" : undefined}>
+      {frame.previousBackground !== undefined && <img
+        className={`stage-media-background stage-media-background--previous${frame.background === undefined ? ` stage-media-background--outgoing stage-transition--${frame.previousBackground.transition ?? "fade"}` : ""}`}
+        data-testid="preview-previous-background"
+        src={frame.previousBackground.url}
+        alt=""
+        style={{ animationDuration: frame.previousBackground.duration ?? `${defaultDurationMilliseconds}ms`, animationTimingFunction: frame.previousBackground.easing ?? defaultEasing } as CSSProperties}
+        onError={() => onRuntimeError("background", frame.previousBackground!)}
+      />}
+      {frame.background === undefined ? (
+        frame.previousBackground === undefined && <div className="stage-sky" aria-hidden="true">
+          <span className="sun" /><span className="school-building" />
+          <span className="character-silhouette character-silhouette--left" />
+          <span className="character-silhouette character-silhouette--right" />
+        </div>
+      ) : (
+        <img
+          className={`stage-media-background stage-transition--${frame.background.transition ?? "none"}`}
+          data-testid="preview-background"
+          src={frame.background.url}
+          alt={`背景资源 ${frame.background.assetId}`}
+          style={{ animationDuration: frame.background.duration ?? `${defaultDurationMilliseconds}ms`, animationTimingFunction: frame.background.easing ?? defaultEasing } as CSSProperties}
+          onError={() => onRuntimeError("background", frame.background!)}
+        />
+      )}
+    </div>
+    <div className="stage-character-plane" data-layer-count={frame.characters.length}>
+      {frame.characters.map((character) => <PreviewStageCharacter
+        key={character.slot}
+        character={character}
+        selected={selectedStatementId === character.statementId}
+        designWidth={designWidth}
+        designHeight={designHeight}
+        onSelect={onSelect}
+        onStagePoint={onStagePoint}
+        onDecodeError={() => onRuntimeError("character", character)}
+        defaultDurationMilliseconds={defaultDurationMilliseconds}
+        defaultEasing={defaultEasing}
+      />)}
+    </div>
+    </div>
+  </div>;
+}

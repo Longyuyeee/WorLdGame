@@ -1,0 +1,288 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import {
+  PreviewCanvasHitProxy,
+  PreviewCanvasHost,
+  drawPreviewCanvasFrame,
+  previewStageEasingProgress,
+  previewCanvasDurationMs,
+  resolvePreviewCharacterGeometryAtProgress,
+  resolvePreviewCanvasCharacterRect,
+  type PreviewCanvasImageSet
+} from "./preview-canvas-host";
+import type { PreviewRenderFrame } from "./preview-render-host";
+
+const character = {
+  statementId: "stmt_hero",
+  assetId: "hero",
+  slot: "primary",
+  url: "blob:hero",
+  x: 25,
+  y: 75,
+  scale: 1.2,
+  rotation: 10,
+  anchorX: 0.5,
+  anchorY: 1,
+  z: 4
+} as const;
+
+const frame: PreviewRenderFrame = {
+  contractVersion: 2,
+  backend: "canvas-2d-v1",
+  status: "ready",
+  generation: 3,
+  planKey: "frame-3",
+  background: { statementId: "stmt_bg", assetId: "school", url: "blob:bg" },
+  characters: [character],
+  errorCount: 0
+};
+
+describe("Preview Canvas host", () => {
+  it("fits character geometry into design pixels before applying the authored scale", () => {
+    const rect = resolvePreviewCanvasCharacterRect(character, 1000, 2000, 1920, 1080);
+    expect(rect.width).toBeCloseTo(583.2);
+    expect(rect.height).toBeCloseTo(1166.4);
+    expect(rect.offsetX).toBeCloseTo(-291.6);
+    expect(rect.offsetY).toBeCloseTo(-1166.4);
+  });
+
+  it("draws background before ordered characters at the frozen DPR pixel budget", () => {
+    const calls: string[] = [];
+    const gradient = { addColorStop: vi.fn() };
+    const context = {
+      setTransform: (...args: unknown[]) => calls.push(`transform:${args.join(",")}`),
+      clearRect: () => calls.push("clear"),
+      createLinearGradient: () => gradient,
+      fillRect: () => calls.push("fill"),
+      drawImage: (...args: unknown[]) => calls.push(`draw:${String(args[0])}`),
+      save: () => calls.push("save"),
+      translate: () => calls.push("translate"),
+      rotate: () => calls.push("rotate"),
+      scale: () => calls.push("scale"),
+      restore: () => calls.push("restore"),
+      fillStyle: "",
+      shadowColor: "",
+      shadowBlur: 0,
+      shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const images: PreviewCanvasImageSet = {
+      background: { source: "background-source" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      characters: new Map([["stmt_hero", { source: "hero-source" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    };
+
+    drawPreviewCanvasFrame(context, frame, images, 1920, 1080, 3840, 2160, "stmt_hero");
+
+    expect(calls[0]).toBe("transform:2,0,0,2,0,0");
+    expect(calls.indexOf("draw:background-source")).toBeLessThan(calls.indexOf("draw:hero-source"));
+    expect(context.shadowColor).toBe("rgba(98, 215, 255, 0.85)");
+  });
+
+  it("interpolates authored move geometry and bounds animation duration", () => {
+    expect(previewCanvasDurationMs(undefined, 720)).toBe(720);
+    const translate = vi.fn();
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate, rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const movedFrame: PreviewRenderFrame = {
+      ...frame,
+      background: undefined,
+      characters: [{ ...character, x: 75, movementFrom: { x: 25, y: 75, scale: 1.2, rotation: 10, anchorX: 0.5, anchorY: 1 } }]
+    };
+    drawPreviewCanvasFrame(context, movedFrame, {
+      characters: new Map([["stmt_hero", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "stmt_hero", 0.5);
+    expect(translate).toHaveBeenCalledWith(960, 810);
+    expect(previewCanvasDurationMs("600ms")).toBe(600);
+    expect(previewCanvasDurationMs("0.5s")).toBe(500);
+    expect(previewCanvasDurationMs("999s")).toBe(10_000);
+    expect(previewCanvasDurationMs("invalid")).toBe(360);
+  });
+
+  it("uses the same frozen CSS easing semantics for deterministic Canvas movement", () => {
+    expect(previewStageEasingProgress("linear", 0.25)).toBeCloseTo(0.25, 5);
+    expect(previewStageEasingProgress("ease-in", 0.5)).toBeCloseTo(0.315357, 5);
+    expect(previewStageEasingProgress("ease-out", 0.5)).toBeCloseTo(0.684643, 5);
+    expect(previewStageEasingProgress("ease-in-out", 0.5)).toBeCloseTo(0.5, 5);
+    expect(previewStageEasingProgress("ease-in-out", -1)).toBe(0);
+    expect(previewStageEasingProgress("ease-in-out", 2)).toBe(1);
+    expect(resolvePreviewCharacterGeometryAtProgress({
+      ...character,
+      x: 75,
+      movementFrom: { x: 25, y: 75, scale: 1.2, rotation: 10, anchorX: 0.5, anchorY: 1 }
+    }, 0.5, "ease-out").x).toBeCloseTo(59.232, 2);
+  });
+
+  it("evaluates spatial cubic Bezier geometry after temporal easing", () => {
+    const geometry = resolvePreviewCharacterGeometryAtProgress({
+      ...character, x: 80, y: 80, curve: "bezier",
+      control1X: 30, control1Y: 20, control2X: 70, control2Y: 20,
+      movementFrom: { x: 20, y: 80, scale: 1.2, rotation: 10, anchorX: 0.5, anchorY: 1 },
+      easing: "linear"
+    }, 0.5);
+    expect(geometry.x).toBeCloseTo(50);
+    expect(geometry.y).toBeCloseTo(35);
+    expect(resolvePreviewCharacterGeometryAtProgress({ ...character, x: 80, y: 80 }, 0.5)).toMatchObject({ x: 80, y: 80 });
+  });
+
+  it("fades an exiting character while retaining its final authored geometry", () => {
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const exiting = { ...character, statementId: "stmt_hide", exiting: true, duration: "450ms" } as const;
+    drawPreviewCanvasFrame(context, { ...frame, background: undefined, characters: [exiting] }, {
+      characters: new Map([["stmt_hide", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "stmt_hide", 0.5);
+    expect(context.globalAlpha).toBe(0.5);
+    expect(context.translate).toHaveBeenCalledWith(480, 810);
+  });
+
+  it("animates an entering character without applying its transition to the whole Canvas", () => {
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), drawImage: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const entering = { ...character, entering: true, transition: "slide", duration: "450ms" } as const;
+    drawPreviewCanvasFrame(context, { ...frame, background: undefined, characters: [entering] }, {
+      characters: new Map([["stmt_hero", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "stmt_hero", 0.5);
+    expect(context.globalAlpha).toBe(0.5);
+    expect(context.translate).toHaveBeenCalledWith(547.2, 810);
+  });
+
+  it("crossfades only background pixels while keeping characters fully opaque", () => {
+    const draws: Array<{ source: unknown; alpha: number }> = [];
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      drawImage(source: unknown) { draws.push({ source, alpha: (this as unknown as { globalAlpha: number }).globalAlpha }); },
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    const transitionFrame: PreviewRenderFrame = {
+      ...frame,
+      background: { statementId: "new_bg", assetId: "new", url: "blob:new", transition: "dissolve", duration: "600ms" },
+      previousBackground: { statementId: "old_bg", assetId: "old", url: "blob:old" }
+    };
+    drawPreviewCanvasFrame(context, transitionFrame, {
+      background: { source: "new-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      previousBackground: { source: "old-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      characters: new Map([["stmt_hero", { source: "hero" as unknown as CanvasImageSource, width: 1000, height: 2000 }]])
+    }, 1920, 1080, 3840, 2160, "new_bg", 0.5);
+    expect(draws.find((draw) => draw.source === "old-background")?.alpha).toBe(1);
+    expect(draws.find((draw) => draw.source === "new-background")?.alpha).toBe(0.5);
+    expect(draws.find((draw) => draw.source === "hero")?.alpha).toBe(1);
+  });
+
+  it("applies the configured default easing to Canvas background progress", () => {
+    const draws: Array<{ source: unknown; alpha: number }> = [];
+    const context = {
+      setTransform: vi.fn(), clearRect: vi.fn(), createLinearGradient: () => ({ addColorStop: vi.fn() }),
+      fillRect: vi.fn(), save: vi.fn(), translate: vi.fn(), rotate: vi.fn(), scale: vi.fn(), restore: vi.fn(),
+      drawImage(source: unknown) { draws.push({ source, alpha: (this as unknown as { globalAlpha: number }).globalAlpha }); },
+      globalAlpha: 1, fillStyle: "", shadowColor: "", shadowBlur: 0, shadowOffsetY: 0
+    } as unknown as CanvasRenderingContext2D;
+    drawPreviewCanvasFrame(context, {
+      ...frame,
+      background: { statementId: "new_bg", assetId: "new", url: "blob:new", transition: "dissolve" },
+      previousBackground: { statementId: "old_bg", assetId: "old", url: "blob:old" },
+      characters: []
+    }, {
+      background: { source: "new-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      previousBackground: { source: "old-background" as unknown as CanvasImageSource, width: 1600, height: 900 },
+      characters: new Map()
+    }, 1920, 1080, 3840, 2160, "new_bg", 0.5, "ease-out");
+    expect(draws.find((draw) => draw.source === "new-background")?.alpha).toBeCloseTo(0.684643, 5);
+  });
+
+  it("keeps Canvas visuals separate from a keyboard and touch operable DOM proxy", () => {
+    const onSelect = vi.fn();
+    const onStagePoint = vi.fn();
+    const movingCharacter = { ...character, duration: "600ms", easing: "ease-in-out", movementFrom: {
+      x: 10, y: 75, scale: 1.2, rotation: 0, anchorX: 0.5, anchorY: 1
+    } } as const;
+    render(<div data-stage-surface="design-pixels">
+      <PreviewCanvasHitProxy
+        character={movingCharacter}
+        selected
+        designWidth={1920}
+        designHeight={1080}
+        onSelect={onSelect}
+        onStagePoint={onStagePoint}
+      />
+    </div>);
+    const target = screen.getByRole("button", { name: "选择 Stage 角色 hero" });
+    const surface = target.parentElement as HTMLElement;
+    surface.getBoundingClientRect = () => ({
+      x: 10, y: 20, left: 10, top: 20, right: 970, bottom: 560,
+      width: 960, height: 540, toJSON: () => ({})
+    });
+    fireEvent.pointerDown(target, { pointerType: "touch", clientX: 490, clientY: 290 });
+    fireEvent.click(target);
+    expect(onStagePoint).toHaveBeenCalledWith({ x: 960, y: 540 });
+    expect(onSelect).toHaveBeenCalledWith("stmt_hero");
+    expect(target).toHaveAttribute("aria-pressed", "true");
+    expect(target).toHaveStyle({ zIndex: 4 });
+    expect(target).toHaveClass("stage-canvas-hit-proxy--moving");
+    expect(target.style.animationDuration).toBe("600ms");
+    expect(target.style.animationTimingFunction).toBe("ease-in-out");
+    expect(target).toHaveAttribute("data-stage-easing", "ease-in-out");
+    expect(target.style.getPropertyValue("--stage-move-from-left")).toBe("10%");
+  });
+
+  it("makes an exiting Canvas hit proxy inert while its visual fades", () => {
+    render(<PreviewCanvasHitProxy
+      character={{ ...character, statementId: "stmt_hide", exiting: true, transition: "fade", duration: "450ms" }}
+      selected={false}
+      designWidth={1920}
+      designHeight={1080}
+      onSelect={() => undefined}
+      onStagePoint={() => undefined}
+    />);
+    const target = screen.getByTestId("preview-character-primary");
+    expect(target).toBeDisabled();
+    expect(target).toHaveAttribute("aria-hidden", "true");
+    expect(target).toHaveAttribute("tabindex", "-1");
+    expect(target).toHaveClass("stage-canvas-hit-proxy--exiting");
+    expect(target.style.animationDuration).toBe("450ms");
+  });
+
+  it("keeps an entering Canvas hit proxy interactive and scoped to the character layer", () => {
+    render(<PreviewCanvasHitProxy
+      character={{ ...character, entering: true, transition: "fade", duration: "450ms" }}
+      selected={false}
+      designWidth={1920}
+      designHeight={1080}
+      onSelect={() => undefined}
+      onStagePoint={() => undefined}
+    />);
+    const target = screen.getByTestId("preview-character-primary");
+    expect(target).toBeEnabled();
+    expect(target).toHaveClass("stage-canvas-hit-proxy--entering", "stage-transition--fade");
+    expect(target.style.animationDuration).toBe("450ms");
+  });
+
+  it("falls back to the DOM media host when Canvas 2D is unavailable", async () => {
+    const context = vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null);
+    render(<div data-stage-surface="design-pixels">
+      <PreviewCanvasHost
+        frame={frame}
+        designWidth={1920}
+        designHeight={1080}
+        pixelWidth={3840}
+        pixelHeight={2160}
+        selectedStatementId="stmt_hero"
+        onSelect={() => undefined}
+        onStagePoint={() => undefined}
+        onRuntimeError={() => undefined}
+      />
+    </div>);
+    await waitFor(() => expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-backend", "dom-media-v1"));
+    expect(screen.getByRole("img", { name: "背景资源 school" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "选择 Stage 角色 hero" })).toBeInTheDocument();
+    context.mockRestore();
+  });
+});

@@ -1,0 +1,6 @@
+npm.cmd exec vitest run packages/narrative-vm-spike/src/vm-spike09.test.ts
+npm.cmd run build --workspace @world-studio/vm-conformance-harness
+npm.cmd run dev --workspace @world-studio/vm-conformance-harness -- --host 127.0.0.1 --port 4174 --strictPort
+Browser: require Spike 10/11 28 record digests plus Spike 12 summary equal to Node Golden
+npm.cmd run check
+git diff --check

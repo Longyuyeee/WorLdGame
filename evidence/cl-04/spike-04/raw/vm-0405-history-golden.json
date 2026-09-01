@@ -1,0 +1,20 @@
+{
+  "sourceRevision": "6d8f61dfc75ba6ddf5ab8f239bb5775963b9d2bc",
+  "executionId": "execution.vm0405",
+  "historySemantics": {
+    "checkpoint": "full canonical RuntimeStateV0 at every approved boundary",
+    "forward": "restore recorded checkpoint without host input",
+    "fork": "changed input after Back atomically truncates forward entries and checkpoints",
+    "inputLedger": "tombstones remain monotonic across forks"
+  },
+  "stateHashes": {
+    "root": "c32759bd59a1eb1b36fc858aa4d46a3c70070876756488df9dbedec8b59f9316",
+    "choicePrompt": "cb920f082a4254de5e5d6eb72606fcc4dade57085eaa4d627b747690378de403",
+    "leftCommit": "e33b8eebe4e400ee2a8299e2e0862698cc8e42ce71fb9a6613c0490f9d9bcbb9",
+    "rightForkCommit": "cb1fbf40a9847042086146052803e75e11670f7281f27e46b514cfb177be5d23"
+  },
+  "limits": {
+    "historyEntries": 256,
+    "inputTombstones": 1024
+  }
+}

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+.typecheck/
+target/
+apps/windows-shell-conformance/src-tauri/gen/
+apps/windows-shell-conformance/src-tauri/icons/*
+!apps/windows-shell-conformance/src-tauri/icons/icon.ico
+!apps/windows-shell-conformance/src-tauri/icons/source-icon.svg

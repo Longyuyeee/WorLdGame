@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "auditId": "N23-E3-BROWSER-01",
+  "date": "2026-08-15",
+  "baseCommit": "444233de05568ad0ea47a688ee5176ec8a92604c",
+  "branch": "agent/n22-stage-media",
+  "applicationUrl": "http://127.0.0.1:5174/",
+  "bundle": {
+    "generator": "tools/materialize-portable-project-golden.ts",
+    "byteLength": 9852,
+    "sha256": "d8f6de276ac3cab1ceea42c977ec454451d1ae4676eb118fc8cefe8aa7487450",
+    "canonicalProjectId": "project_f201c445244390f3e1eb",
+    "assetCount": 2,
+    "blobCount": 2,
+    "assetIndexRevision": 2,
+    "backgroundDigest": "sha256:978b8e7cdec44c5a9eea31553005d074cf884dfeb9d7d1bc0eefb9c89a83cd95",
+    "audioDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423"
+  },
+  "browserFlow": {
+    "importMethod": "project-home-native-file-chooser",
+    "newWorkspaceReference": "project-2f8ef855-c77e-41e4-b85b-14aa8fceec18",
+    "projectTitle": "N23 E3 Portable Audit",
+    "sceneCount": 3,
+    "characterCount": 2,
+    "entryStepCount": 4,
+    "assetRail": "2 项资源 · Index r2",
+    "canvasBackgroundDecoded": true,
+    "bgmPlaybackObserved": true,
+    "endingsReached": ["晨光抵达", "星空抵达"],
+    "reloadAndRecentOpenPassed": true,
+    "assetsPresentAfterReload": true
+  },
+  "scope": {
+    "sourceBlobsIncluded": true,
+    "derivativesIncluded": false,
+    "legacyTextOnlyZipCompatible": true,
+    "formalPlayerRuntimeIncluded": false,
+    "n23ProductGatePassed": false
+  }
+}

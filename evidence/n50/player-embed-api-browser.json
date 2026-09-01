@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "audit": "N50-E6",
+  "date": "2026-08-27",
+  "scope": "Versioned host embedding API and independent embed page",
+  "developmentBrowser": {
+    "url": "http://127.0.0.1:5173/embed.html",
+    "initial": "mounted=true · title · active",
+    "started": "mounted=true · presenting · active",
+    "suspended": "mounted=true · presenting · suspended",
+    "resumed": "mounted=true · presenting · active",
+    "unmounted": "mounted=false",
+    "playerNodeCountAfterUnmount": 0,
+    "remounted": "mounted=true · title · active",
+    "consoleErrors": []
+  },
+  "responsiveBrowser": {
+    "mobile": {
+      "requestedViewport": [390, 844],
+      "actualViewport": [390, 844],
+      "documentClientAndScrollWidth": [390, 390],
+      "documentScrollHeight": 844,
+      "hostControls": { "left": 20, "right": 370, "top": 8, "bottom": 102.5, "width": 350 },
+      "playerStatus": "title"
+    },
+    "desktop": {
+      "requestedViewport": [1280, 720],
+      "actualViewport": [1280, 720],
+      "documentClientAndScrollWidth": [1280, 1280],
+      "documentScrollHeight": 720
+    }
+  },
+  "coldProductionPreview": {
+    "url": "http://127.0.0.1:4173/embed.html",
+    "initial": "mounted=true · title · active",
+    "started": "mounted=true · presenting · active",
+    "suspended": "mounted=true · presenting · suspended",
+    "unmounted": "mounted=false",
+    "remounted": "mounted=true · title · active",
+    "consoleErrors": []
+  },
+  "remoteVerification": {
+    "pullRequest": 89,
+    "implementationCommit": "001a92ff5dfb80e60f80bf8fee469c4ecf116563",
+    "runId": 33046773968,
+    "jobId": 98432514531,
+    "environment": "Windows / Node 22 / full check",
+    "duration": "10m41s",
+    "result": "success",
+    "ordinaryTests": { "files": 142, "tests": 808 },
+    "n50Tests": { "files": 5, "tests": 26 },
+    "vmConformanceMilliseconds": 53581,
+    "routeP95Milliseconds": 122.31,
+    "auditedPortableFiles": 95
+  },
+  "expectedActualCorrections": [
+    {
+      "expected": "Typecheck and dual-entry production build pass on the first implementation",
+      "actual": "Closure nullability and exactOptionalPropertyTypes rejected nullable host nodes and explicit undefined callbacks",
+      "correction": "Created stable non-null aliases and omitted onRetryMedia when absent; typecheck and build passed"
+    },
+    {
+      "expected": "The independent host observation label follows internal Player progress",
+      "actual": "The Player reached presenting while the label remained title",
+      "correction": "Observed the public data-player-status/host-activity attributes and refreshed the host label"
+    },
+    {
+      "expected": "The host resume control remains pointer-operable above the suspended Player",
+      "actual": "The Player suspended overlay z-index 25 covered the host control layer z-index 20",
+      "correction": "Raised the external host control layer to z-index 40 and passed pause/resume regression"
+    },
+    {
+      "expected": "Repository-root Vite preview finds the Player production dist",
+      "actual": "Preview resolved dist relative to the repository root and refused to start",
+      "correction": "Started preview from apps/player-shell and verified the cold production artifact"
+    },
+    {
+      "expected": "Vite config is forward-compatible with native config loading",
+      "actual": "The first successful build warned that __dirname is unsupported by the future native loader",
+      "correction": "Replaced __dirname with import.meta.dirname; the clean rebuild emitted no Player config warning"
+    }
+  ],
+  "physicalBoundary": {
+    "realBrowser": true,
+    "coldProductionArtifact": true,
+    "physicalTouchscreen": false,
+    "physicalGamepad": false,
+    "windowsApplicationHost": false,
+    "androidApplicationHost": false,
+    "humanParticipant": false
+  }
+}

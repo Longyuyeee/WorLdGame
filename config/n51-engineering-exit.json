@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "node": "N51",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "settings": {
+    "schemaVersion": 5,
+    "applicationVersion": 1,
+    "advancedFields": 36,
+    "basicFields": 23,
+    "platforms": ["windows", "web", "android"],
+    "verifiedProductionHosts": ["web"],
+    "blockedProductHosts": ["windows", "android"]
+  },
+  "deferredOwners": [
+    { "node": "N52", "scope": "Player Save/Load/History/Back/Forward/Auto/Skip and Choice scheduling" },
+    { "node": "N61", "scope": "Localization production, language switching, Ruby and language-specific media" },
+    { "node": "N62", "scope": "Player Route, Gallery, Replay, Music, Ending and other generated pages" },
+    { "node": "N70-N72", "scope": "Asset and optimization profiles, budgets and fallback reports" },
+    { "node": "N80-N83", "scope": "Formal Windows/Android Player hosts, packages, build profiles and release metadata" }
+  ],
+  "productionEvidence": [
+    { "path": "evidence/n51/settings-ui-browser.json", "minimumNode": "N51-E6d" },
+    { "path": "evidence/n51/settings-runtime-browser.json", "minimumNode": "N51-E6e" }
+  ],
+  "requiredDocuments": [
+    { "path": "docs/229-n51-e6-p0-gap-matrix-and-entry-audit.md", "token": "E6f Engineering 关闭" },
+    { "path": "docs/235-n51-e6f-engineering-exit-reaudit.md", "token": "N51 Engineering 关闭" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E6f Engineering 状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N51 Engineering 已关闭" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N51 Engineering 已关闭" }
+  ]
+}

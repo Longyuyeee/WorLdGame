@@ -1,0 +1,548 @@
+{
+  "schemaVersion": 1,
+  "currentDeliveryNode": "N52",
+  "exceptions": [
+    {
+      "id": "RA-N21-001",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "REQ-SEQ human usability evidence"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "automated interaction coverage cannot measure comprehension or assistance demand"
+      ],
+      "reason": "No eligible non-programmer participant is currently available; the Product Owner explicitly approved a temporary exception on 2026-08-14.",
+      "compensatingControls": [
+        "Keep N21 in product acceptance rather than passed",
+        "Retain the automated complete P0 authoring, save-close-reopen, keyboard and touch-equivalence gates",
+        "Limit the exception to N22 engineering implementation",
+        "Block N23 acceptance, M1 Stable and public release until the human task evidence is recorded"
+      ],
+      "owner": "editor-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-14T00:00:00+08:00",
+      "expiresAt": "2026-09-14T00:00:00+08:00",
+      "maximumDeliveryNode": "N22",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit an eligible participant and execute the frozen N21 task without developer operation or coaching.",
+      "verificationMethod": "Record start/end time, input device, assistance count, blockers and final project snapshot; then save, close and reopen to verify text, stable IDs, order, selection and Inspector data.",
+      "evidencePath": "docs/100-n21-human-validation-risk-acceptance.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json"
+    },
+    {
+      "id": "RA-N21-002",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N30 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "the N30 compiler remains an engineering candidate and no formal Player Runtime or release candidate exists"
+      ],
+      "reason": "The Product Owner clarified on 2026-08-14 that human acceptance is not meaningful before the software can execute one complete playable flow, then repeatedly instructed sequential core-engine development on 2026-08-15 because no participant could yet test the product. Engineering may therefore build and verify the bounded N30 compiler candidate while all deferred product gates remain blocked.",
+      "compensatingControls": [
+        "Keep N21 in product acceptance rather than passed",
+        "Limit the extension to N30 Project Compiler engineering; N31 Runtime and every later node remain blocked",
+        "Keep the compiler portable and prohibit dependencies on the VM spike, editor, browser, filesystem or platform shell",
+        "Provide the fixed localhost N23 acceptance launcher so participants do not need workspace or Vite knowledge",
+        "Require N21-HV-01 to include playing a route to an ending and N23-PA-01 to cover both routes in editor and standalone HTML with two distinct participants",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Engineering, M1 Stable and Public Release until human evidence is recorded"
+      ],
+      "owner": "editor-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-14T23:50:00+08:00",
+      "expiresAt": "2026-09-14T23:50:00+08:00",
+      "maximumDeliveryNode": "N30",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before any N31 work.",
+      "verificationMethod": "Keep N21/N23 records pending, audit the portable N30 dependency boundary, and verify deterministic Tiny/Branching/Media/CJK IR hashes plus failure diagnostics; human evidence still requires authoring, save-close-reopen, route selection and reached-ending artifacts.",
+      "evidencePath": "docs/124-n30-e2-compiler-completion-audit.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-003",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N31 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "the formal Runtime may encode assumptions not yet challenged by non-implementer product use"
+      ],
+      "reason": "After N30 completed local and cross-machine verification, the Product Owner again explicitly instructed sequential development with audit, push, and requirement alignment on 2026-08-15 despite the documented human-resource blocker. This authorizes only the bounded N31 formal Runtime engineering candidate while every deferred product gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, and N30 in product acceptance rather than passed",
+        "Limit the extension to N31 formal Runtime engineering; N32 Editor integration and every later node remain blocked",
+        "Create a new portable runtime package that consumes N30 Runtime IR and never imports the experimental VM Spike, editor, filesystem, browser, or platform shell",
+        "Migrate behavior through fixed vectors and explicit version rejection instead of renaming or publishing the Spike package",
+        "Keep N21-HV-01 and N23-PA-01 records pending and require both before closing the exception",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Engineering, M1 Stable, and Public Release until human evidence is recorded"
+      ],
+      "owner": "compiler-runtime",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-15T17:20:00+08:00",
+      "expiresAt": "2026-09-14T23:50:00+08:00",
+      "maximumDeliveryNode": "N31",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N32 or any product acceptance declaration.",
+      "verificationMethod": "Keep human records pending; audit the formal Runtime dependency boundary; execute Compiler-IR fixed vectors, deterministic transition equality, malformed/future version rejection, and bounded-loop tests; do not treat these as usability evidence.",
+      "evidencePath": "docs/126-n31-e1-runtime-kernel-audit.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-004",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N32 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "Editor Preview integration assumptions may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish discoverability or independent task completion"
+      ],
+      "reason": "After N31 Engineering passed VM-01 through VM-15 and two independent Windows / Node 22 full checks, the Product Owner was told that a new bounded authorization was required because human participants remain unavailable, then explicitly instructed the team on 2026-08-20 to enter the next step with real expected-versus-actual testing, audit, requirement alignment, documentation, and push. This authorizes only N32 Editor Preview engineering while every product and release gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, and N31 product acceptance pending rather than passed",
+        "Limit the extension to N32 Editor Preview engineering; N32 Product Acceptance, N40, and every later node remain blocked",
+        "Require Preview to consume the formal N30 Compiler output and execute through the formal N31 Runtime rather than retaining a parallel product interpreter",
+        "Require real production-browser tests with frozen expected outcomes, actual outcomes, hashes, diagnostics, and correction records",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Keep the consolidated N31 integration baseline reviewable against main and prohibit claims that a Draft PR is already merged",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-runtime-integration",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-20T16:49:49+08:00",
+      "expiresAt": "2026-09-20T16:49:49+08:00",
+      "maximumDeliveryNode": "N32",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N32 Product Acceptance or any N40 work.",
+      "verificationMethod": "Keep human records pending; audit the consolidated N31 ancestor chain; for N32 execute formal Compiler-to-Runtime Preview flows in a production browser and compare frozen State, Outcome, History, diagnostic location, cancellation, save, back, forward, auto, and skip expectations against actual results.",
+      "evidencePath": "docs/141-n31-n32-governance-integration-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-005",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N40 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "Route Map interaction assumptions may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish discoverability or independent task completion"
+      ],
+      "reason": "After N32-E7 completed shared Runtime Host engineering, production-browser flows, and two independent Windows / Node 22 full checks, the Product Owner was told that the prior authorization stopped at N32 and on 2026-08-22 explicitly instructed the team to continue the ordered plan with drift correction, document correction, per-step audit and push, and only actually executed tests. This authorizes only N40 Route Map engineering while every product and later-node gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, and N32 product acceptance pending rather than passed",
+        "Limit the extension to N40 Route Map engineering; N40 Product Acceptance, N41, and every later node remain blocked",
+        "Require Route Map to project the canonical project and compiler control-flow facts rather than introduce a second story model",
+        "Require graph edits to use the existing project command/service boundary and preserve stable entity IDs",
+        "Require actual production-browser tests with frozen expected graph, selection, edit, and navigation outcomes",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Product Acceptance, N41 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-flow-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-22T01:00:00+08:00",
+      "expiresAt": "2026-09-22T01:00:00+08:00",
+      "maximumDeliveryNode": "N40",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N40 Product Acceptance or any N41 work.",
+      "verificationMethod": "Keep human records pending; for N40 compare frozen canonical route projections, diagnostics, stable IDs, graph edits, cross-view selection, and production-browser interaction outcomes against actual results; record every difference before updating evidence.",
+      "evidencePath": "docs/152-n32-n40-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-006",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N41 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Writer/Sequence usability defects may remain undiscovered",
+        "Sequence editing assumptions may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish discoverability or independent task completion"
+      ],
+      "reason": "After N40 Route Map Engineering passed its frozen Goal, Implementation, Tests, and Acceptance engineering exit with current production-browser and Windows / Node 22 evidence, the Product Owner was told that RA-N21-005 stopped at N40 and on 2026-08-24 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N41 Sequence engineering while every product and later-node gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, and N41 product acceptance pending rather than passed",
+        "Limit the extension to N41 Sequence engineering; N41 Product Acceptance, N42 Engineering, and every later node remain blocked",
+        "Require Sequence and Script to edit the same canonical story source through stable-ID Story Language and Project Service transactions rather than introduce a second content model",
+        "Require all P0 structural edits to preserve unknown fields, fail closed on stale revisions or unsupported references, and rebuild through the formal Compiler and Route projection",
+        "Require actual production-browser tests plus 1,000-cycle semantic/stable-ID stress evidence with frozen expected and actual outcomes",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Product Acceptance, N41 Product Acceptance, N42 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-sequence-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-24T11:35:40+08:00",
+      "expiresAt": "2026-09-24T11:35:40+08:00",
+      "maximumDeliveryNode": "N41",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N41 Product Acceptance or any N42 work.",
+      "verificationMethod": "Keep human records pending; for N41 compare frozen Script/Sequence semantic documents, stable IDs, selection, history, diagnostics, formal Compiler/Route outputs, save/reopen state, 1,000-cycle stress results, and production-browser interaction outcomes against actual results; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/180-n40-n41-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-007",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N42 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Director and Stage usability defects may remain undiscovered",
+        "timeline and canvas interaction assumptions may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish discoverability or independent task completion"
+      ],
+      "reason": "After N41 Sequence Engineering passed its frozen Goal, Implementation, and Acceptance engineering exit with current production-browser and Windows / Node 22 evidence, the Product Owner was told that RA-N21-006 stopped at N41 and on 2026-08-24 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N42 Stage engineering while every product and later-node gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, and N42 product acceptance pending rather than passed",
+        "Limit the extension to N42 Stage engineering; N42 Product Acceptance, N43 Engineering, and every later node remain blocked",
+        "Require Stage edits to generate canonical stable-ID semantic commands rather than introduce a second timeline model",
+        "Require current Runtime state and Stage timeline projection to share formal Runtime observation and presentation Host receipts",
+        "Require actual production-browser tests, deterministic timeline/state tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Product Acceptance, N41 Product Acceptance, N42 Product Acceptance, N43 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-stage-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-24T14:08:25+08:00",
+      "expiresAt": "2026-09-24T14:08:25+08:00",
+      "maximumDeliveryNode": "N42",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N42 Product Acceptance or any N43 work.",
+      "verificationMethod": "Keep human records pending; for N42 compare frozen Stage semantic commands, stable IDs, timeline state, formal Runtime observation, presentation Host receipts, save/reopen state, production-browser interaction outcomes, and performance budgets against actual results; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/186-n41-n42-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-008",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N43 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Seven-mode discoverability and mode-switching assumptions may remain undiscovered",
+        "mobile-focus and reduced-motion workflows may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish independent task completion"
+      ],
+      "reason": "N42 Stage Engineering passed its frozen Goal 1/1 and Implementation 8/8 exit with local and Windows / Node 22 evidence while formal Player parity correctly remained 0/1. The Product Owner was told that RA-N21-007 stopped at N42 and on 2026-08-25 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N43 seven-mode and cross-view Engineering while every product and later-node gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, N42, and N43 product acceptance pending rather than passed",
+        "Limit the extension to N43 Engineering; N43 Product Acceptance, N50 Engineering, and every later node remain blocked",
+        "Require all modes to project the same Canonical Project and prohibit mode-owned semantic documents",
+        "Require reversible mode changes, stable cross-view selection/context, reduced-motion behavior, and bounded desktop/mobile layouts",
+        "Require actual production-browser tests at desktop and mobile viewports, deterministic state tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Product Acceptance, N41 Product Acceptance, N42 Product Acceptance, N43 Product Acceptance, N50 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "editor-ux-modes",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-25T15:12:18+08:00",
+      "expiresAt": "2026-09-24T15:12:18+08:00",
+      "maximumDeliveryNode": "N43",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Product Acceptance",
+        "N50 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N43 Product Acceptance or any N50 work.",
+      "verificationMethod": "Keep human records pending; for N43 compare frozen mode layouts, Canonical Project hashes, stable selection/context, keyboard/touch alternatives, reduced-motion state, desktop/mobile production-browser outcomes, and performance budgets against actual results; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/201-n42-n43-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-009",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N50 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Player discoverability and first-run comprehension may remain undiscovered",
+        "input, safe-area, and accessibility assumptions may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish independent player task completion"
+      ],
+      "reason": "N43 seven-mode Engineering passed its frozen 7/7 real-task exit with production-browser evidence and two green Windows / Node 22 full checks while every Product Acceptance gate correctly remained pending. The Product Owner was told that RA-N21-008 stopped at N43 and on 2026-08-26 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N50 formal Player Shell Engineering while every product and later-node gate remains blocked.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, N42, N43, and N50 product acceptance pending rather than passed",
+        "Limit the extension to N50 Engineering; N50 Product Acceptance, N51 Engineering, and every later node remain blocked",
+        "Require the Player to consume the formal Compiler IR, portable Runtime, and Runtime Host instead of introducing a parallel StoryStatement interpreter",
+        "Require one shared Player Core contract for future Web, Windows, and Android hosts without claiming those host packages already exist",
+        "Require actual production-browser tests at desktop and mobile viewports, deterministic runtime/state tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block N21 Product Acceptance, N23 Acceptance, N30 Product Acceptance, N31 Product Acceptance, N32 Product Acceptance, N40 Product Acceptance, N41 Product Acceptance, N42 Product Acceptance, N43 Product Acceptance, N50 Product Acceptance, N51 Engineering, M1 Stable, and Public Release until the missing evidence is recorded"
+      ],
+      "owner": "player-shell-runtime",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-26T16:07:12+08:00",
+      "expiresAt": "2026-09-25T16:07:12+08:00",
+      "maximumDeliveryNode": "N50",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Product Acceptance",
+        "N50 Product Acceptance",
+        "N51 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N50 Product Acceptance or any N51 work.",
+      "verificationMethod": "Keep human records pending; for N50 compare formal Compiler/Runtime/Host identities, Player Core snapshots, input equivalence, responsive safe areas, accessibility states, production-browser outcomes, save/reopen behavior, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/211-n43-n50-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-010",
+      "status": "closed",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N51 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Gal Settings discoverability and configuration comprehension may remain undiscovered",
+        "inheritance, reset, and live-preview assumptions may not yet be challenged by non-implementer use",
+        "automated and developer-operated browser evidence cannot establish independent configuration task completion"
+      ],
+      "reason": "N50 formal Player Shell Engineering completed its frozen Core, media, input, lifecycle, and versioned embedding scope with development-browser, cold-production-browser, local full-check, and two Windows / Node 22 checks while every Product Acceptance gate remained pending. The roadmap audit then found duplicated ownership of Settings, Save, History, Auto, Skip, and Back across N50-N52. The Product Owner was told that RA-N21-009 stopped at N50 and that scope reconciliation was required, then on 2026-08-27 explicitly instructed the team to enter the subsequent step with real expected-versus-actual testing, correction, documentation, per-step audit, requirement alignment, and push. This authorizes only bounded N51 Gal Settings Engineering.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, N42, N43, N50, and N51 Product Acceptance pending rather than passed",
+        "Limit the extension to N51 Gal Settings Engineering; N51 Product Acceptance, N52 Engineering, and every later node remain blocked",
+        "Require one typed settings schema with explicit default-project-platform precedence and no platform-owned semantic forks",
+        "Keep Save, History, Auto, Skip, Back, and Forward product controls assigned to N52 and prohibit implementing them under N51",
+        "Require actual production-browser tests at desktop and mobile viewports, deterministic serialization/inheritance tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block all existing Product Acceptance gates, N51 Product Acceptance, N52 Engineering, M1 Stable, and Public Release until missing evidence is recorded"
+      ],
+      "owner": "gal-settings-experience",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-27T15:07:12+08:00",
+      "expiresAt": "2026-09-26T15:07:12+08:00",
+      "maximumDeliveryNode": "N51",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Product Acceptance",
+        "N50 Product Acceptance",
+        "N51 Product Acceptance",
+        "N52 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N51 Product Acceptance or any N52 work.",
+      "verificationMethod": "Keep human records pending; for N51 compare typed settings defaults, project/platform precedence, serialization, reset, preview application, desktop/mobile production-browser outcomes, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/221-n50-n51-governance-checkpoint.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    },
+    {
+      "id": "RA-N21-011",
+      "status": "active",
+      "failedControls": [
+        "N21 non-programmer 20-minute product task",
+        "N23 product acceptance by two non-implementers",
+        "N52 engineering start before the deferred human acceptance gates"
+      ],
+      "impact": [
+        "Player history and playback-control discoverability may remain undiscovered",
+        "Back, Forward, Save, Load, Auto, and Skip behavior may not yet be challenged by non-implementer product use",
+        "automated and developer-operated browser evidence cannot establish independent control comprehension or device acceptance"
+      ],
+      "reason": "N51 Gal Settings Engineering closed its schema v5, Catalog, Canonical persistence, Editor, Web Player application, production-browser, machine-readable exit, and two Windows / Node 22 full-check heads while every Product Acceptance gate remained pending. The Product Owner was told that RA-N21-010 stopped at N51 and that N52 remained blocked, then on 2026-08-28 explicitly instructed the team to enter N52. E3c2 later proved that the original checkpoint requirement and VM Spike were not promoted into the formal Story Language, Compiler, Runtime, Player, or strict Save chain; after being told that E3c3 required an explicit N20/N30/N31/Save contract amendment solely for N52 checkpoint, the Product Owner on 2026-08-29 instructed the team to continue from that exact continuation point. E4 exit review then froze E4d as build-authored Player Stop Point source and disclosed that its N20/N30 additive contract bridge required a second narrow amendment; on 2026-08-31 the Product Owner again explicitly instructed the team to enter the continuation step with requirement alignment, real expected-versus-actual tests, documentation, audit, and push. The N52 total-exit checkpoint then disclosed that selectable History, viewable truncated branches, Barrier navigation reasons, and the project Forward policy require a narrow Gal Settings and N31 History/Session Save amendment; after receiving that exact scope, the Product Owner on 2026-09-01 explicitly instructed the team to continue from the recorded N52-E5 point with the same audit and push controls. This authorizes bounded N52 Player control Engineering plus only the recorded checkpoint, Player Stop Point, and E5 History cross-layer changes.",
+      "compensatingControls": [
+        "Keep N21, N23, N30, N31, N32, N40, N41, N42, N43, N50, N51, and N52 Product Acceptance pending rather than passed",
+        "Limit the extension to N52 Player control Engineering; N52 Product Acceptance, N60 Engineering, and every later node remain blocked",
+        "Require N52 to consume the formal N31 Runtime Save, Session Save, History, Scheduler, and Runtime Host reconciliation contracts without a second Runtime or Player Core",
+        "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
+        "Require checkpoint to use explicit stable source identity, Runtime IR 1.1 dual-read compatibility, a non-presentational Runtime event, strict Save v3 migration, and three deterministic slots",
+        "Forbid using Runtime History checkpoints, scene IDs, instruction indexes, wall clock, or a second Save/Runtime implementation as persistent checkpoint substitutes",
+        "Permit N20 Story Language and N30 Compiler additive contract changes only for the E4d-frozen build-authored Player Stop Point source bridge",
+        "Require Player Stop Point to use exact stable source identity, an independently versioned Player build policy artifact, unchanged Runtime IR 1.1, and the existing N31 Scheduler",
+        "Forbid reusing Save checkpoint, Runtime History checkpoint, scene IDs, instruction indexes, or a second scheduler as Player Stop Point substitutes",
+        "Require E1 to establish a History-backed Player Core Back and Forward loop with deterministic state and presentation reconciliation before Save slots, Auto, or Skip UI",
+        "Permit Gal Settings schema v6 changes only for the N52 History Forward project policy and require strict v1-v5 read normalization without changing unrelated settings semantics",
+        "Permit N31 Runtime History Session and Runtime Session Save schema v2 changes only to retain deterministic read-only summaries of truncated Forward branches",
+        "Require Runtime Session Save v1 dual-read normalization to v2, unchanged Runtime State/IR identities, version-specific hash verification, bounded deterministic archives, and unchanged active Back/Forward semantics",
+        "Require Player Save v3 and its database schema to remain unchanged because the versioned Runtime Session Save is an integrity-checked opaque payload",
+        "Forbid navigating an archived branch, duplicating Runtime History in Shell, adding wall-clock archive identity, or expanding E5 into Story Language, Compiler IR, Scheduler, Gallery, N60, or Product Acceptance",
+        "Require actual production-browser tests at desktop and mobile viewports for every Player UI slice, deterministic state and artifact tests, frozen expected-versus-actual evidence, and Windows CI",
+        "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
+        "Block all existing Product Acceptance gates, N52 Product Acceptance, N60 Engineering, M1 Stable, and Public Release until missing evidence is recorded"
+      ],
+      "owner": "player-control-runtime",
+      "approver": "Product Owner",
+      "approvedAt": "2026-08-28T16:58:00+08:00",
+      "scopeAmendedAt": "2026-08-29T23:31:01+08:00",
+      "playbackScopeAmendedAt": "2026-08-31T16:35:00+08:00",
+      "historyScopeAmendedAt": "2026-09-01T01:02:18+08:00",
+      "expiresAt": "2026-09-27T16:00:00+08:00",
+      "maximumDeliveryNode": "N52",
+      "blockedGates": [
+        "N21 Product Acceptance",
+        "N23 Acceptance",
+        "N30 Product Acceptance",
+        "N31 Product Acceptance",
+        "N32 Product Acceptance",
+        "N40 Product Acceptance",
+        "N41 Product Acceptance",
+        "N42 Product Acceptance",
+        "N43 Product Acceptance",
+        "N50 Product Acceptance",
+        "N51 Product Acceptance",
+        "N52 Product Acceptance",
+        "N60 Engineering",
+        "M1 Stable",
+        "Public Release"
+      ],
+      "remediationPlan": "Recruit the required participants and execute N21-HV-01 followed by N23-PA-01 without developer operation or coaching; close the exception before N52 Product Acceptance or any N60 work.",
+      "verificationMethod": "Keep human records pending; for N52 compare History-backed Player state and presentation hashes, Back and Forward reconciliation, branch truncation, versioned Story/IR/Save checkpoint artifacts, old IR and Save compatibility, Auto and Skip scheduling, stop reasons, desktop/mobile production-browser outcomes, and performance budgets against frozen expectations; record and correct every difference before updating evidence.",
+      "evidencePath": "docs/245-n52-e3c3-checkpoint-authority-amendment.md",
+      "playbackEvidencePath": "docs/254-n52-e4d-build-stop-point-source-audit.md",
+      "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
+      "protocolPath": "config/n21-human-validation-protocol.json",
+      "recordPath": "evidence/n21/human-validation.json",
+      "n23ProtocolPath": "config/n23-product-acceptance-protocol.json",
+      "n23RecordPath": "evidence/n23/product-acceptance.json"
+    }
+  ]
+}

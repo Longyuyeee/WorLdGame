@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 0,
+  "corpusId": "corpus.generated.spike12.v0",
+  "seedCount": 10000,
+  "replayExecutions": 20000,
+  "chunkCount": 40,
+  "scenarioCounts": {
+    "nested-condition": 1667,
+    "call-return": 1667,
+    "random": 1667,
+    "effect-cancellation": 1667,
+    "save-load": 1666,
+    "choice-back-forward": 1666
+  },
+  "failedSeeds": [],
+  "outcomeDigest": "770920d96fdcb3388c3f7aead30ee45385ec9cd0c435960a6981b5cb6c92e048",
+  "webWorkerElapsedMilliseconds": 37598.29999999888,
+  "elapsedClassification": "development-host observation only; excluded from deterministic comparison"
+}

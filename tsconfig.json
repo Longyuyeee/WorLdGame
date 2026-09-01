@@ -1,0 +1,22 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./apps/player-shell" },
+    { "path": "./packages/narrative-vm-spike" },
+    { "path": "./packages/project-domain" },
+    { "path": "./packages/project-compiler" },
+    { "path": "./packages/runtime" },
+    { "path": "./packages/runtime-host" },
+    { "path": "./packages/player-core" },
+    { "path": "./packages/gal-settings" },
+    { "path": "./packages/route-graph" },
+    { "path": "./packages/story-core" },
+    { "path": "./packages/story-language" },
+    { "path": "./packages/project-persistence" },
+    { "path": "./packages/project-persistence-node" },
+    { "path": "./apps/editor" },
+    { "path": "./apps/vm-conformance" },
+    { "path": "./apps/vm-conformance-cli" },
+    { "path": "./apps/windows-shell-conformance" }
+  ]
+}

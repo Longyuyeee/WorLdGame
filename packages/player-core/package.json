@@ -1,0 +1,16 @@
+{
+  "name": "@world-studio/player-core",
+  "version": "0.5.0-n52",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@world-studio/project-compiler": "0.2.0-n30",
+    "@world-studio/project-domain": "0.4.0-n13",
+    "@world-studio/runtime": "0.12.0-n31",
+    "@world-studio/runtime-host": "0.1.0-n32"
+  }
+}

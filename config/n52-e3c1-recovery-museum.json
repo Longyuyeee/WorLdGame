@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E3c1",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseCommit": "86f053c36c757fa02772a1b2401fe82da39a9789",
+  "database": {
+    "currentVersion": 3,
+    "formalSaveSchema": 2,
+    "recoverySchema": 1,
+    "recoveryStore": "recovery-sessions",
+    "upgrade": "additive-db2-to-db3-preserve-formal-slots"
+  },
+  "recovery": {
+    "cardinality": "one-latest-record-per-project",
+    "trigger": "each-new-stable-presentable-runtime-state-hash",
+    "decision": "explicit-restore-or-discard-only",
+    "load": "verified-session-save-rehydrate-without-effect-reexecution",
+    "serialization": "single-fifo-per-store-instance",
+    "failure": "retain-prior-valid-recovery-and-isolate-from-formal-saves",
+    "corruption": "fail-closed-and-explicit-clear"
+  },
+  "migrationMuseum": {
+    "path": "fixtures/save-migration-museum/museum.json",
+    "museumId": "world.player-save-migration-museum.v1",
+    "cases": [
+      "legacy-v1-manual",
+      "current-v2-auto",
+      "future-v3",
+      "v2-kind-id-mismatch",
+      "v2-unknown-field"
+    ]
+  },
+  "routeCorrection": {
+    "finding": "story-language-compiler-runtime-have-no-build-authored-persistent-checkpoint-marker",
+    "decision": "split-e3c-and-block-checkpoint-implementation-until-cross-node-contract",
+    "historyCheckpoint": "runtime-back-forward-internal-only-not-a-persistent-player-checkpoint"
+  },
+  "acceptance": [
+    "db2-to-db3-additive-upgrade-preserves-formal-saves",
+    "recovery-store-does-not-alias-formal-slots",
+    "stable-boundary-recovery-write-and-explicit-remount-restore",
+    "corrupt-recovery-isolated-and-clear-does-not-touch-formal-saves",
+    "failed-recovery-write-retains-prior-record-and-queue-continues",
+    "museum-freezes-valid-legacy-current-and-invalid-future-corrupt-vectors"
+  ],
+  "blocked": [
+    "build-authored-persistent-checkpoint-marker-and-slots",
+    "real-process-kill-ac09-validation",
+    "windows-and-android-host-validation",
+    "cloud-sync-and-conflict-resolution",
+    "n52-product-acceptance"
+  ],
+  "nextSlice": "N52-E3c2-checkpoint-entry-contract",
+  "engineeringEvidence": {
+    "implementationCommit": "2130c4951d51c3dcd217b18f7225c5057279223d",
+    "pullRequest": 103,
+    "workflowRun": 33257145099,
+    "workflowJob": 99112755230,
+    "conclusion": "success"
+  },
+  "requiredDocuments": [
+    { "path": "docs/243-n52-e3c1-recovery-migration-museum-audit.md", "token": "N52-E3c1 Engineering 关闭" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E3c1 状态（2026-08-29）" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E3c1 Recovery / Migration Museum Engineering 已关闭" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E3c1 Recovery / Migration Museum Engineering 已关闭" }
+  ]
+}

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WorLdGame Player Embed Contract</title>
+  </head>
+  <body>
+    <aside class="embed-host-controls" aria-label="独立宿主控制">
+      <strong>Embed API v1</strong>
+      <span id="embed-observation" role="status">等待挂载</span>
+      <button id="toggle-activity" type="button">暂停宿主</button>
+      <button id="toggle-mount" type="button">卸载 Player</button>
+    </aside>
+    <div id="player-root"></div>
+    <script type="module" src="/src/embed-main.ts"></script>
+  </body>
+</html>

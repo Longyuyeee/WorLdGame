@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-14T15:34:47+08:00",
+  "sourceBaseRevision": "fe6baf47a0387752c0009c88143e64565fecf064",
+  "fixtureHash": "7cada6dc88b812c61bde612b9431fb8a1d7c302f84b8aa3eb0812301b64ba747",
+  "environment": {
+    "os": "Windows 11",
+    "browser": "Codex In-app Browser",
+    "viewportWidth": 1280,
+    "viewportHeight": 720,
+    "devicePixelRatio": 2
+  },
+  "productFlow": {
+    "projectReference": "project-814108fd-b092-48c8-a448-e630442f6670",
+    "assetIndexRevision": 3,
+    "savedStorageRevision": 4,
+    "insertedStatementCount": 6,
+    "insertedDirection": "action=hide slot=actor transition=fade duration=300ms",
+    "renderBackend": "canvas-2d-v1",
+    "runtimeErrorCount": 0
+  },
+  "exitTransition": {
+    "slot": "actor",
+    "intermediateOpacity": 0.311682,
+    "finalOpacity": 0,
+    "animationName": "stage-media-exit",
+    "animationDurationMs": 300,
+    "animationPlayStateAtSample": "running",
+    "exitProxyDisabled": true,
+    "exitProxyAriaHidden": true,
+    "backRestoresCharacter": {
+      "opacity": 1,
+      "disabled": false,
+      "xPercent": 80,
+      "yPercent": 90
+    },
+    "forwardRestoresExitState": true
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n22/hide-browser-workspace.png",
+      "width": 1280,
+      "height": 720,
+      "byteLength": 68696,
+      "sha256": "87974c9b9efd63b86b46b915a82430a3ac2257221da60f623622aadc4184d763"
+    }
+  ],
+  "status": "pass",
+  "scope": "graphical-insert-hide-exit-fade-rewind"
+}

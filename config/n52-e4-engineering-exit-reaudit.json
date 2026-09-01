@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4-engineering-exit-reaudit",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "baseline": {
+    "branch": "codex/n52-e4c-skip-media-embed",
+    "commit": "9e17bb260786c2ca07c51887fe231082d480533d"
+  },
+  "matrix": {
+    "schedulerAuthority": "complete",
+    "autoRealClock": "complete",
+    "skipModesActivationsAndSpeeds": "complete",
+    "textStageCharacterAndAudioCleanup": "complete",
+    "buildAuthoredStopPointSource": "complete",
+    "formalVideoPolicyEvidence": "complete",
+    "e4cMobileColdProduction": "complete"
+  },
+  "firstAudit": {
+    "expected": "E4a-E4c-code-and-targeted-tests-pass; E4-exit-remains-blocked-by-build-authored-stop-point-source-with-video-and-mobile-evidence-honestly-retained",
+    "actual": "machine-audit-first-run-found-five-violations: four-missing-exit-document-tokens-and-one-auditor-negative-regex-false-positive; code-matrix-matched-the-frozen-4-complete-and-3-blocked-result",
+    "difference": "authoritative-documents-had-not-yet-recorded-the-fail-closed-E4-exit-or-unique-E4d-continuation-and-the-first-auditor-regex-backtracked-inside-empty-arrays"
+  },
+  "remoteFirstAttempt": {
+    "workflowRun": 33368530247,
+    "workflowJob": 99414218090,
+    "head": "15f55fd6b20b6087d0af4daef67135db512999fe",
+    "actual": "153-files-and-945-tests-passed; all-nine-existing-node-directory-workspace-tests-timed-out-at-5s-with-Windows-temp-directory-ENOTEMPTY-cleanup-races",
+    "isolatedLocalActual": "1-file-9-tests-pass; test-body-1.02s; unchanged-5s-budget",
+    "correction": "record-the-infrastructure-long-tail-without-changing-product-code-or-timeouts-and-require-a-new-exact-head-Windows-full-check"
+  },
+  "continuation": {
+    "node": "N52-engineering-exit-and-N60-governance-checkpoint",
+    "scope": "audit-the-whole-N52-engineering-goal-and-request-explicit-authority-before-any-N60-work",
+    "mustProve": [
+      "N52-History-Save-Load-Auto-Skip-Back-Forward-match-the-original-goal",
+      "N52-engineering-gaps-are-closed-or-explicitly-retained",
+      "N60-remains-blocked-until-new-authority-is-recorded"
+    ]
+  },
+  "deferredWithoutClaim": [
+    "windows-and-android-production-hosts",
+    "physical-device-and-human-evidence",
+    "n52-product-acceptance",
+    "n60-and-later",
+    "m1-stable-and-public-release"
+  ],
+  "requiredDocuments": [
+    { "path": "docs/253-n52-e4-engineering-exit-reaudit.md", "token": "E4f 后最终更新" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4f 移动端 cold production 关闭状态" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4f 移动端出口" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52 Engineering 总出口与 N60 治理 checkpoint" }
+  ]
+}

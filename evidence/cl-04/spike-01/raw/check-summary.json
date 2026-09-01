@@ -1,0 +1,32 @@
+{
+  "sourceRevision": "498ae94f386c6d7ca614d8afb5ea0726a4987631",
+  "command": "npm.cmd run check",
+  "status": "PASS",
+  "typecheck": "PASS",
+  "unitAndIntegration": {
+    "testFiles": 50,
+    "tests": 331,
+    "failed": 0
+  },
+  "vmTargeted": {
+    "testFiles": 1,
+    "tests": 8,
+    "failed": 0,
+    "goldenStateHashes": 6
+  },
+  "build": "PASS",
+  "architecture": {
+    "status": "PASS",
+    "auditedPortableFiles": 41,
+    "auditedNodeAdapterFiles": 3
+  },
+  "scriptPerformance": {
+    "status": "PASS",
+    "tests": 9
+  },
+  "assetPerformance": {
+    "status": "PASS",
+    "tests": 4
+  },
+  "note": "This structured summary records observed command output. Performance timings remain environment-specific and are not CL-04 cross-host evidence."
+}

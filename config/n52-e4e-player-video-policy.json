@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "node": "N52-E4e-player-video-policy",
+  "engineeringStatus": "complete",
+  "productAcceptance": "blocked",
+  "authority": {
+    "riskAcceptance": "RA-N21-011",
+    "maximumDeliveryNode": "N52",
+    "runtimeIr": "1.1.0-unchanged",
+    "newScheduler": false
+  },
+  "contract": {
+    "authoring": "existing-background-directive-referencing-canonical-video-asset",
+    "buildEvidence": "asset-manifest.json-kind-video",
+    "renderer": "formal-player-html-video",
+    "effectBoundary": "existing-awaited-reversible-effect",
+    "autoVideoPolicy": "wait-for-end",
+    "skipVideoPolicy": "cancel-and-continue",
+    "hostSuspend": "pause",
+    "hostResume": "resume-if-policy-allows",
+    "error": "fail-closed-with-retry",
+    "cleanup": "pause-on-skip-replacement-and-unmount"
+  },
+  "expectedVersusActual": [
+    {
+      "phase": "frozen-first-run",
+      "expected": "existing-tests-pass-and-new-video-policy-renderer-auto-skip-host-error-cleanup-tests-fail-only-for-absent-video-support",
+      "actual": "2-files-60-tests-collected-49-passed-11-failed; six-video-policy-gaps-plus-five-strict-policy-1.2-migration-collateral-failures",
+      "correction": "add-formal-video-projection-renderer-and-lifecycle; migrate-all-canonical-policy-fixtures-to-strict-1.2"
+    },
+    {
+      "phase": "skip-read-race-correction",
+      "expected": "skip-read-cancels-video-and-stops-at-first-post-video-unread-text",
+      "actual": "cancel-exposed-the-next-line-before-the-react-skip-state-commit-and-raced-to-terminal",
+      "correction": "guard-zero-ms-dispatch-with-a-synchronous-current-skip-mode-ref-and-record-a-shell-owned-unreadBoundary"
+    },
+    {
+      "phase": "final-targeted-run",
+      "expected": "compiler-policy-shell-video-chain-is-green-without-a-new-scheduler-or-ir-change",
+      "actual": "4-files-96-tests-passed; player-shell-build-and-typecheck-passed",
+      "difference": "none"
+    }
+  ],
+  "coldProduction": {
+    "viewport": "desktop-responsive",
+    "build": "Vite-8.2.1-90-modules",
+    "auto": "real-blob-webm-playing/waiting-effect/waiting-video-then-ended/history-4/terminal",
+    "hostLifecycle": "awaited-video-suspended-node-retained-then-playing-after-resume",
+    "skipRead": "video-removed/presenting-after-video/unreadBoundary/skip-false",
+    "skipAll": "video-removed/ended/terminal/skip-false",
+    "horizontalOverflowPixels": 0,
+    "consoleWarningsOrErrors": 0
+  },
+  "localFullCheck": {
+    "status": "PASS",
+    "ordinary": "154-files-967-tests",
+    "n50": 78,
+    "n51": 123,
+    "n52History": 90,
+    "runtime": "61-tests-10000-seeds-20000-replays",
+    "vm": "5-tests-test-body-26.09s",
+    "productionBuilds": 17,
+    "routeP95Milliseconds": 62.59,
+    "assetDicingAtlasTotalMilliseconds": [708.64, 852.07, 1560.71]
+  },
+  "engineeringEvidence": {
+    "implementationCommit": "3eb8f3564b88652d2f1f66f08586c726745b287a",
+    "pullRequest": 114,
+    "workflowRun": 33395026116,
+    "workflowJob": 99497387582,
+    "duration": "12m31s",
+    "conclusion": "success"
+  },
+  "remainingE4Blockers": [
+    "390x844-e4c-cold-production-rerun"
+  ],
+  "nextSlice": "N52-E4f-390x844-e4c-cold-production-rerun-and-e4-exit-reaudit",
+  "requiredDocuments": [
+    { "path": "docs/256-n52-e4e-player-video-policy-audit.md", "token": "N52-E4e" },
+    { "path": "docs/89-engine-product-delivery-plan.md", "token": "E4e formal Player video" },
+    { "path": "docs/90-m1-requirement-traceability.md", "token": "N52-E4e Player video" },
+    { "path": "docs/99-current-development-status-audit.md", "token": "N52-E4e formal Player video" }
+  ]
+}
