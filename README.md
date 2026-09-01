@@ -44,7 +44,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [产品目标对齐与交付节奏纠偏审计](docs/262-product-goal-alignment-and-delivery-correction.md) | 最初需求复核、验证/治理偏移证据、E5 后续纵向交付规则 |
 | [N52-E5d Player History Shell 与 production 用户路径审计](docs/264-n52-e5d-player-history-shell-production-audit.md) | History 页面、活动/旧分支、选行回退、Barrier/Forward 反馈、保存刷新读取及桌面/390×844 真实差异闭环 |
 | [N52-E5e History Engineering 总出口复审](docs/265-n52-e5e-history-engineering-exit-reaudit.md) | 原始需求逐项复核、N52 Engineering 关闭、产品验收/N60 边界与集成接续点 |
-| [N52 main-target 集成候选与真人门就绪审计](docs/266-n52-main-target-integration-candidate-audit.md) | main/N41 Authority 祖先审计、463 提交聚合审阅策略、N21/N23 真实 pending 状态与接续顺序 |
+| [N52 main-target 集成候选与真人门就绪审计](docs/266-n52-main-target-integration-candidate-audit.md) | main/N41 Authority 祖先审计、E5e 基线 463 提交的聚合审阅策略、N21/N23 真实 pending 状态与接续顺序 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |

@@ -26,7 +26,7 @@
 - `origin/main` 精确头为 `60121d35dfdf509b190f1576475acaf5d40003df`，是 N52-E5e tip 的祖先；behind `0`。
 - N41 集中 Authority 当前远端头 `644a38026265ca67bea254c154530d00c32a6680` 是 N52-E5e tip 的祖先；原节点提交 `11bf313` 仍由冻结交付基线登记。
 - 当前开放 PR #1–#121 的 121 个 head 全部是 N52-E5e tip 的祖先，没有发现平行遗漏。
-- 相对 `main` 的实际审阅面是 `463 commits / 972 files / 114135 insertions / 173 deletions`。技术祖先关系没有差异，但“只继续依赖 121 个串联 PR 即可完成集成”的方式已经不可持续。
+- 在追加本候选审计文档前，N52-E5e 基线相对 `main` 的实际产品/历史审阅面是 `463 commits / 972 files / 114135 insertions / 173 deletions`。候选后续只追加审计文档提交，因此不把自增的文档提交数冒充固定产品规模；技术祖先关系没有差异，但“只继续依赖 121 个串联 PR 即可完成集成”的方式已经不可持续。
 
 修正方式不是 squash、强推或关闭分片记录，而是从同一通过 CI 的 tip 建立 `codex/m1-integration-n52-candidate`，新增一个直接面向 `main` 的 Draft 聚合 PR。聚合 PR 负责给出最终差异和完整门；原 PR 保留为逐段审阅索引。未经维护者审阅，本文件不得把 Draft 写成“已集成”。
 

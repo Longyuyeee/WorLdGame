@@ -29,7 +29,7 @@
 
 > N52-E5e History 总出口（2026-09-01）：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)确认 Runtime 只读 archive、Core 稳定 ID/Barrier/策略投影、Shell 可选行页面及保存重开已共同关闭 E5 前四项缺口；七项 N52 工程矩阵均 complete，N52 Engineering 已关闭。候选头 `9ea1666` 的 Draft PR #121 Windows run `33471267182` / job `99741333074` 用时 `10m21s` 成功。USP-09、REQ-RUNTIME 与 AC-16 仍保持“实现中”，因为 Windows/Android 正式 Host、实体设备、真人 Product Acceptance 与 main 集成尚未完成；N60 不准入。
 
-> N52 main-target 集成候选（2026-09-01）：[审计 #266](266-n52-main-target-integration-candidate-audit.md)记录 main/N41 Authority 祖先检查、behind `0`、121 个开放 PR head 全部纳入，以及 `463 commits / 972 files / +114135/-173` 的真实聚合审阅面。Draft PR #122 只作为 main-target 总入口；候选头 `3ce53f5` 的 Windows run `33473899313` / job `99749040172` 用时 `12m55s` 成功，现有分片 PR 继续作为逐段索引，仍没有登记“已合入”。N21-HV-01 仍 `pending-participant 0/1`，N23-PA-01 仍 `pending-participants 0/2` 且必须等待 N21 pass；全部 Product Acceptance 与 N60 不变。
+> N52 main-target 集成候选（2026-09-01）：[审计 #266](266-n52-main-target-integration-candidate-audit.md)记录 main/N41 Authority 祖先检查、behind `0`、121 个开放 PR head 全部纳入，以及追加候选审计文档前 N52-E5e 基线 `463 commits / 972 files / +114135/-173` 的真实聚合审阅面；后续文档提交不冒充固定产品规模。Draft PR #122 只作为 main-target 总入口；候选头 `3ce53f5` 的 Windows run `33473899313` / job `99749040172` 用时 `12m55s` 成功，现有分片 PR 继续作为逐段索引，仍没有登记“已合入”。N21-HV-01 仍 `pending-participant 0/1`，N23-PA-01 仍 `pending-participants 0/2` 且必须等待 N21 pass；全部 Product Acceptance 与 N60 不变。
 
 ## 1. 状态和证据规则
 
