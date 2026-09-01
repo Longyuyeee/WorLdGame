@@ -551,6 +551,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N52-E5e History 总出口复审（2026-09-01）：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)逐项核对 PRD 3.8、Gal 5.2 与真实 Runtime/Core/Shell/Settings。首次预期—实际差异为四项 History 能力及总状态仍停留在 E5 前 blocked 快照，而现头 N52 History `101/101`；更新治理合同后，新增门首次只暴露一个错误代码 token 和四份文档缺口，按真实 `backwardBarrier.distance` 与权威状态修正。七项 N52 工程能力现均 complete，**N52 Engineering 出口关闭**。候选头 `9ea1666` 的 Draft PR #121 Windows run `33471267182` / job `99741333074` 用时 `10m21s` 成功；Product Acceptance 与 N60 不随之通过。下一步先收束 main-target 集成候选并执行 N21/N23 真人验证。
 
+> N52 main-target 集成候选（2026-09-01）：[审计 #266](266-n52-main-target-integration-candidate-audit.md)确认 `main` 与 N41 Authority 均为当前 tip 祖先、behind `0`，开放 PR #1–#121 的 121 个 head 全部纳入；相对 main 的真实规模为 `463 commits / 972 files / +114135/-173`。为纠正 121 层串联审阅，建立一个直接面向 `main` 的 Draft 聚合候选，同时保留分片 PR 为审阅索引；这不等于已合入。N21/N23 记录仍为 `0/1`、`0/2`，下一唯一产品动作是先执行 N21-HV-01，再执行 N23-PA-01；N60 继续阻断。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

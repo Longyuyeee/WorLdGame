@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N52 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N52 Engineering 已关闭；下一步先收束 main-target 集成候选并执行 N21/N23 真人产品验证，不能直接进入 N60。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并正在建立直接面向 main 的聚合 Draft 候选。N40–N52 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，不能直接进入 N60。
 
 > 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
@@ -28,6 +28,8 @@
 > N52-E5d Player History Shell（2026-09-01）：[实现审计 #264](264-n52-e5d-player-history-shell-production-audit.md)已实现活动/旧分支页面、稳定 ID 选行回退、Barrier 原因/距离、Forward true/false 与热应用反馈及真实 IndexedDB 保存刷新读取。实现前新增 `0/3`，修正与扩展后 E5d `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 production overflow `0`、控件 `44/48px`、console `0`。实现头 `08bfb5c` 的 Draft PR #120 Windows run `33468762702` / job `99734003643` 用时 `9m26s` 成功，E5d Engineering 已关闭；下一步 E5e 总出口复审，USP-09、REQ-RUNTIME、AC-16 与全部产品门仍不得提前登记通过。
 
 > N52-E5e History 总出口（2026-09-01）：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)确认 Runtime 只读 archive、Core 稳定 ID/Barrier/策略投影、Shell 可选行页面及保存重开已共同关闭 E5 前四项缺口；七项 N52 工程矩阵均 complete，N52 Engineering 已关闭。候选头 `9ea1666` 的 Draft PR #121 Windows run `33471267182` / job `99741333074` 用时 `10m21s` 成功。USP-09、REQ-RUNTIME 与 AC-16 仍保持“实现中”，因为 Windows/Android 正式 Host、实体设备、真人 Product Acceptance 与 main 集成尚未完成；N60 不准入。
+
+> N52 main-target 集成候选（2026-09-01）：[审计 #266](266-n52-main-target-integration-candidate-audit.md)记录 main/N41 Authority 祖先检查、behind `0`、121 个开放 PR head 全部纳入，以及 `463 commits / 972 files / +114135/-173` 的真实聚合审阅面。新 Draft 只作为 main-target 总入口，现有分片 PR 继续作为逐段索引；没有登记“已合入”。N21-HV-01 仍 `pending-participant 0/1`，N23-PA-01 仍 `pending-participants 0/2` 且必须等待 N21 pass；全部 Product Acceptance 与 N60 不变。
 
 ## 1. 状态和证据规则
 
