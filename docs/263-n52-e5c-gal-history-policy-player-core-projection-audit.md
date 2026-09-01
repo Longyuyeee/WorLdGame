@@ -4,7 +4,9 @@
 >
 > 直接基线：N52-E5b 最终整理头 `372e8a6b6c22883e128b2f82199b557b8c19c412` / Draft PR #118
 >
-> 当前判定：**E5c Settings/Core 实现候选已完成；Player History 用户闭环尚未完成，E5d Shell、N52 Product Acceptance 与 N60 继续阻断。**
+> 当前判定：**E5c Settings/Core Engineering 已关闭；Player History 用户闭环尚未完成，E5d Shell、N52 Product Acceptance 与 N60 继续阻断。**
+>
+> 实现证据：`cce203bbdc9010cdbb8168ed1e358d0c6b49c049` / Draft PR #119 / Windows run `33465730199` / job `99725069881`，`13m38s` 成功。
 
 ## 1. 用户目标与实现前实际差异
 
@@ -33,6 +35,6 @@
 
 第三次全仓门进入普通回归后为 `152/154 files`、`970/974 tests`：Formal Preview 三项 State/History hash 和 Blank Project semantic hash仍冻结 v5 Build identity。实际 Story IR、路线 Outcome、保存重开相等关系均未变化；按新 v6 Build identity 更新这些 Golden，不删除断言。
 
-最终本地 `npm run check` 从头完整通过：普通回归 `154 files / 974 tests`，N50 Player `83/83`、N51 Settings `125/125`、N52 Player History `95/95`，Runtime corpus 10,000 seeds / 20,000 replays 零失败且 digest 不变；VM `5/5` 用时 `84.72s < 90s`。17 workspace production build、架构 `100 portable / 4 adapters`、Script `13/13`、Route `9/9`、Asset `4/4` 全绿；Route 编辑链 P95 `143.78ms < 500ms`，Asset dicing/atlas/总计 `1549.12/1740.30/3289.42ms`。Editor 既有大 chunk warning继续保留，没有提高阈值。
+最终本地 `npm run check` 从头完整通过：普通回归 `154 files / 974 tests`，N50 Player `83/83`、N51 Settings `125/125`、N52 Player History `95/95`，Runtime corpus 10,000 seeds / 20,000 replays 零失败且 digest 不变；VM `5/5` 用时 `84.72s < 90s`。17 workspace production build、架构 `100 portable / 4 adapters`、Script `13/13`、Route `9/9`、Asset `4/4` 全绿；Route 编辑链 P95 `143.78ms < 500ms`，Asset dicing/atlas/总计 `1549.12/1740.30/3289.42ms`。Editor 既有大 chunk warning继续保留，没有提高阈值。实现提交 `cce203b` 推送到 Draft PR #119 后，精确同头 Windows 完整产品基线 run `33465730199` / job `99725069881` 用时 `13m38s` 成功，因此 E5c Engineering 证据已闭环。
 
 E5c 仍不是 Player History 产品完成点。下一接续是 **N52-E5d Shell History 用户界面与 production 路径**：在桌面和 390×844 的真实 Branching 工程完成 History 入口、活动/旧分支展示、选行回退、Barrier 原因与距离、Forward 策略反馈，以及保存—刷新—读取。完成前 USP-09、REQ-RUNTIME、AC-16、N52 Product Acceptance、N60 与发布保持 blocked。
