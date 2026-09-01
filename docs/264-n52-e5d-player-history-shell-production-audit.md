@@ -6,6 +6,8 @@
 >
 > 当前判定：**E5d Shell/production Engineering 已关闭。History 纵向用户路径已实现，但 N52 总出口须由 E5e 复审，Product Acceptance 与 N60 继续阻断。**
 >
+> 后续演进：E5e 复审已完成，当前 N52 Engineering 状态以 [#265](265-n52-e5e-history-engineering-exit-reaudit.md)为准；Product Acceptance 与 N60 仍阻断。
+>
 > 实现证据：`08bfb5c95bb9a87a49de854b1673c6c3a5a06cde` / Draft PR #120 / Windows run `33468762702` / job `99734003643`，`9m26s` 成功。
 
 ## 1. 用户目标与首次实际差异
@@ -39,3 +41,5 @@
 ## 4. 接续与阻断
 
 精确实现头 `08bfb5c` 的远端 Windows 完整产品基线已成功，因此 E5d Engineering 关闭；本步仍不直接宣告 N52 总出口。下一接续是 **N52-E5e History 总出口复审**：逐项重跑 History 矩阵并更新 N52 治理状态。E5e 通过以前，USP-09、REQ-RUNTIME、AC-16、N52 Product Acceptance、N60、M1 Stable 与发布继续 blocked。
+
+最终文档闭环头 `3be839d` 的同一 Windows 产品基线 run `33469449751` / job `99736028759` 用时约 `13m37s` 成功；该精确 head 可作为 E5e 的干净直接基线。

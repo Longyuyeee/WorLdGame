@@ -549,6 +549,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N52-E5d Shell/production Engineering 已关闭（2026-09-01）：[实现审计 #264](264-n52-e5d-player-history-shell-production-audit.md)从真实 Shell 新路径 `0/3` 出发，接通 Settings History policy、活动/旧分支页面、稳定 ID 选行回退、Barrier 原因/距离与 Forward false 反馈；扩展后 E5d `6/6`、N52 `101/101`、N51 `131/131`。1440×900 与 390×844 production overflow `0`、最小控件 `44/48px`；首次移动路径受到同项目真实 Recovery 记录影响，改用独立演示身份后通过。IndexedDB 保存—cold load—读取后 archive 仍为 `1`。实现头 `08bfb5c` 的 Draft PR #120 Windows run `33468762702` / job `99734003643` 用时 `9m26s` 成功；下一步 E5e 总出口复审。
 
+> N52-E5e History 总出口复审（2026-09-01）：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)逐项核对 PRD 3.8、Gal 5.2 与真实 Runtime/Core/Shell/Settings。首次预期—实际差异为四项 History 能力及总状态仍停留在 E5 前 blocked 快照，而现头 N52 History `101/101`；更新治理合同后，新增门首次只暴露一个错误代码 token 和四份文档缺口，按真实 `backwardBarrier.distance` 与权威状态修正。七项 N52 工程能力现均 complete，**N52 Engineering 出口关闭**；Product Acceptance 与 N60 不随之通过。下一步先收束 main-target 集成候选并执行 N21/N23 真人验证。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA
