@@ -47,4 +47,6 @@ E5e 自身不修改产品代码，因此不重复制造一套 UI 测试或假装
 
 N52 Engineering 现在可以关闭，但这只说明当前节点授权范围内的 Web 工程实现完整。USP-09、REQ-RUNTIME 与 AC-16 仍保持“实现中”：Windows/Android 正式 Player Host、实体设备、真人任务和 Product Acceptance 尚未完成，不能由 Web 响应式测试或自动化绿色代替。
 
-下一接续点不是 N60 新功能，而是 **收束堆叠 Draft PR，形成 main-target 集成候选，并执行 N21/N23 长期欠缺的真人产品验证**。`RA-N21-011` 的最大节点仍为 N52；没有新的明确授权不得进入 N60。E5e 远端精确候选头证据将在本步提交推送后补记。
+下一接续点不是 N60 新功能，而是 **收束堆叠 Draft PR，形成 main-target 集成候选，并执行 N21/N23 长期欠缺的真人产品验证**。`RA-N21-011` 的最大节点仍为 N52；没有新的明确授权不得进入 N60。
+
+E5e 精确候选头 `9ea166697e829a43094f8369c6020f8d2d639108` 已推送至 Draft PR #121；同一 head 的 Windows / Node 22 `product-baseline` run `33471267182` / job `99741333074` 用时 `10m21s`，结论 `success`。这证明 N52 Engineering 总出口状态、真实代码核验、全部历史门和完整产品基线能在干净远端环境复现；它不改变 Product Acceptance、N60、M1 Stable 或发布的阻断状态。
