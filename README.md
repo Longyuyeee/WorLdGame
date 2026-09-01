@@ -47,6 +47,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N52 main-target 集成候选与真人门就绪审计](docs/266-n52-main-target-integration-candidate-audit.md) | main/N41 Authority 祖先审计、E5e 基线 463 提交的聚合审阅策略、N21/N23 真实 pending 状态与接续顺序 |
 | [N60-E1 正式调试会话审计](docs/267-n60-e1-debugger-session-audit.md) | 正式 Runtime 调试入口、断点/单步/观察器、desktop/mobile 差异修正与 N60-E2 接续点 |
 | [N60-E2 断点集合与运行边界审计](docs/268-n60-e2-breakpoint-boundary-audit.md) | 多断点启停/移除、五类正式停止原因、源码返回、真实差异与 N60-E3 接续点 |
+| [N60-E2 换机暂停与 N60-E3 接续交接](docs/269-n60-e2-cross-device-handoff.md) | 精确分支/提交/PR/CI、真实测试差异、重要开发规则与下一台电脑恢复顺序 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |

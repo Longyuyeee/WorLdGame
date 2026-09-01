@@ -4,7 +4,7 @@
 > 当前分支：`codex/n60-e1-debugger-session`；直接基线为 N52 main-target 集成候选头 `6ad912e02843c080f5c482dd4a075110e96a3cfd`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；当前 **RA-N21-011 Debug QA 修订**只准入 N60 Engineering，N60 Product Acceptance 与 N61 继续阻断，2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N60-E2 断点集合与运行边界 #268](268-n60-e2-breakpoint-boundary-audit.md)、[N60-E1 正式调试会话 #267](267-n60-e1-debugger-session-audit.md)、[N52 main-target 集成候选 #266](266-n52-main-target-integration-candidate-audit.md)
+> 最新节点证据：[N60-E2 换机交接 #269](269-n60-e2-cross-device-handoff.md)、[N60-E2 断点集合与运行边界 #268](268-n60-e2-breakpoint-boundary-audit.md)、[N60-E1 正式调试会话 #267](267-n60-e1-debugger-session-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -172,5 +172,7 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
 7. N52 Engineering complete，main-target 聚合候选及其精确头 CI 已完成；N60-E1/E2 正式调试会话、断点集合和运行边界已实现。下一开发点是 **N60-E3 Watch 与变量来源/变化**，之后进入 Story Solver/覆盖率/QA 报告。真人在功能与整体 UI 就绪后再接入；全部 Product Acceptance 阻断不变，N61 不得进入。
+
+换机恢复必须先按[交接 #269](269-n60-e2-cross-device-handoff.md)拉取 `origin/codex/n60-e1-debugger-session` 的最新 tip、核对工作区与最终 CI，再冻结 E3 的真实用户路径；不得从旧 `4e29559` 实现头或本地缓存继续写代码。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
