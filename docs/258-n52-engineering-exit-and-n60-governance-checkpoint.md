@@ -10,6 +10,8 @@
 >
 > 当前判定：**N52 总 Engineering 出口：失败；N52 Product Acceptance 与 N60 Engineering 均阻断。**
 
+> 后续演进：本文件保留 E5 开始前的历史失败快照；E5a–E5d 已关闭下述四项缺口，当前状态以 [N52-E5e 总出口复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)为准。N52 Engineering 已关闭，但 Product Acceptance 与 N60 仍阻断。
+
 ## 1. 先回到原始需求
 
 [PRD 3.8](03-prd.md)把 History、Auto、四种 Skip、Back/Forward 与 Save/Load 一并列为 P0 玩家能力；[Gal 基础系统 5.2](11-gal-foundation-and-automation.md)进一步要求：History 页面可选择某行回退，改选分支时旧 Forward 分支截断但仍保留在历史记录中供查看，边界、剩余步数和不可逆原因对玩家可见，并由项目策略决定从 History 回退后是否允许 Forward。N52 路线的原始 Goal 是把这些能力交付给玩家，而不是只在 Runtime/VM 测试中存在。
