@@ -1,15 +1,15 @@
-# 当前开发情况审计（N60-E1 正式调试会话）
+# 当前开发情况审计（N60-E2 断点集合与运行边界）
 
 > 审计日期：2026-09-01
 > 当前分支：`codex/n60-e1-debugger-session`；直接基线为 N52 main-target 集成候选头 `6ad912e02843c080f5c482dd4a075110e96a3cfd`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；当前 **RA-N21-011 Debug QA 修订**只准入 N60 Engineering，N60 Product Acceptance 与 N61 继续阻断，2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N60-E1 正式调试会话 #267](267-n60-e1-debugger-session-audit.md)、[N52 main-target 集成候选 #266](266-n52-main-target-integration-candidate-audit.md)、[产品目标与交付节奏纠偏 #262](262-product-goal-alignment-and-delivery-correction.md)
+> 最新节点证据：[N60-E2 断点集合与运行边界 #268](268-n60-e2-breakpoint-boundary-audit.md)、[N60-E1 正式调试会话 #267](267-n60-e1-debugger-session-audit.md)、[N52 main-target 集成候选 #266](266-n52-main-target-integration-candidate-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-09-01 最新结论是：**N52 Engineering 已关闭，main-target Draft 聚合集成候选尚未合入 main；N60-E1 已把正式 Runtime 调试会话接入 Debug & QA。** 产品负责人取消了过早开始的 T01 探索，不登记该操作和时间，要求先完成后续功能与整体 UI；因此 N21/N23 仍真实保持 `0/1`、`0/2`，并未伪造通过。当前接续是 N60-E2 多断点与运行边界产品化；N60 Product Acceptance、N61、M1 和发布仍阻断。
+2026-09-01 最新结论是：**N52 Engineering 已关闭，main-target Draft 聚合集成候选尚未合入 main；N60-E1/E2 已把正式 Runtime 调试会话、断点集合与运行边界接入 Debug & QA。** 产品负责人取消了过早开始的 T01 探索，不登记该操作和时间，要求先完成后续功能与整体 UI；因此 N21/N23 仍真实保持 `0/1`、`0/2`，并未伪造通过。当前接续是 N60-E3 Watch 与变量来源；N60 Product Acceptance、N61、M1 和发布仍阻断。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -21,6 +21,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
 - N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭，N52 Engineering 已关闭**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- **N60-E2 断点集合与运行边界已实现**：[审计 #268](268-n60-e2-breakpoint-boundary-audit.md)以 stable ID 管理多断点启停/移除/定位；Continue 通过正式 Source Map 和 Runtime History 命中下一断点，并明确呈现 Choice、awaited Effect、Barrier、Ending、Error。新产品路径首次 `0/1`，实现中真实暴露“重复命中当前断点”差异并修复；定向 `3 files / 19 tests`，production desktop/mobile overflow `0`、E2 移动控件 `44px`。本机完整门仅既有 VM 10k 为 `94.671s > 90s`、隔离 `96.507s`，未放宽预算，等待精确头 Windows CI；N60 总 Engineering 与所有产品门不提前关闭；
 - **N52 main-target 聚合集成候选已建立**：[审计 #266](266-n52-main-target-integration-candidate-audit.md)确认 main/N41 Authority 祖先、behind `0`、121 个开放 PR head 无遗漏；直接面向 `main` 的 Draft PR #122 为 mergeable，候选头 `3ce53f5` 的 Windows run `33473899313` / job `99749040172` 用时 `12m55s` 成功。原分片 PR 保留为审阅索引；该动作不等于合并，也不改变 N21/N23 pending 与全部产品阻断；
 - **N52-E5e History 总出口复审已关闭 N52 Engineering**：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)逐项核对七项工程矩阵、真实代码所有权、N52 `101/101` 及 E5b–E5d 精确远端证据；四项 History 状态从旧 checkpoint 的 blocked 更新为 complete。候选头 `9ea1666` 的 Draft PR #121 Windows run `33471267182` / job `99741333074` 用时 `10m21s` 成功。USP-09、REQ-RUNTIME、AC-16 仍为“实现中”，下一步是 main-target 集成候选与 N21/N23 真人验证，不进入 N60；
 - **N52-E5d Shell/production Engineering 已关闭**：[审计 #264](264-n52-e5d-player-history-shell-production-audit.md)记录新增路径 `0/3→3/3`、扩展 `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 overflow `0`、控件 `44/48px`，false 策略/热应用、Barrier、真实 IndexedDB 保存刷新读取及 console `0` 均通过。实现头 `08bfb5c` 的 Draft PR #120 Windows run `33468762702` / job `99734003643` 用时 `9m26s` 成功。下一步 E5e，不提前换算 Product Acceptance；
@@ -81,7 +82,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠、跨视图定位与 Formal Runtime statement 高亮；1,000 次全 P0 Sequence/Script 互改和 84 项退出矩阵已通过；N40/N41 Engineering 出口均通过 | N21/N23 真人、N40/N41 Product Acceptance、完整 Stage/Player 仍阻断；Route-first lazy 控制流是后续大型工程增强，不是 N41 出口缺口 |
-| Preview / Debugger | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新；N60-E1 已提供单 statement 断点与正式观察器 UI | 多断点集合、Watch、停止原因产品化、Solver/QA 报告、正式 Player Adapter 与 Editor↔Player 画面 Golden |
+| Preview / Debugger | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新；N60-E1/E2 已提供正式观察器、多断点集合、六类停止原因与源码返回 UI | Watch/变量来源、Solver/QA 报告、正式 Player Adapter 与 Editor↔Player 画面 Golden |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
 | Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52 已完成 Back/Forward、Save/Load、v2/v3 元数据/截图、auto 5、quick 1、隔离恢复、checkpoint 三槽、Auto/Skip/Stop Point/video，以及旧分支归档、可选行 History、Barrier 原因/距离和 Forward 项目策略 Web 工程链 | 真实 Windows/Android compositor、真实强杀、Gallery、正式宿主、真人 Product Acceptance 与发布材料仍缺 |
@@ -170,6 +171,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
 5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
 6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52 Engineering complete，main-target 聚合候选及其精确头 CI 已完成；N60-E1 正式调试会话已实现。下一开发点是 **N60-E2 多断点集合与 Choice/Effect/Barrier/Ending/Error 停止原因产品化**，之后进入 Watch/变量来源与 Story Solver/QA 报告。真人在功能与整体 UI 就绪后再接入；全部 Product Acceptance 阻断不变，N61 不得进入。
+7. N52 Engineering complete，main-target 聚合候选及其精确头 CI 已完成；N60-E1/E2 正式调试会话、断点集合和运行边界已实现。下一开发点是 **N60-E3 Watch 与变量来源/变化**，之后进入 Story Solver/覆盖率/QA 报告。真人在功能与整体 UI 就绪后再接入；全部 Product Acceptance 阻断不变，N61 不得进入。
 
 每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。

@@ -24,7 +24,7 @@ describe("N60-E1 Debugger session real creator path", () => {
     expect(screen.getByRole("heading", { name: "调用栈" })).toBeVisible();
     expect(screen.getByRole("heading", { name: "可见对象" })).toBeVisible();
 
-    const breakpoint = screen.getByRole("button", { name: "设置当前语句断点" });
+    const breakpoint = screen.getByRole("button", { name: "添加选择语句断点" });
     fireEvent.click(breakpoint);
     expect(breakpoint).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "从入口启动调试" }));

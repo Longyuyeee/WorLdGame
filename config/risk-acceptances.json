@@ -542,7 +542,7 @@
       "verificationMethod": "Keep human records pending; for N52 retain the frozen History/Player evidence, and for N60 compare start targets, breakpoint continuation, step navigation, Runtime observations, source identity, desktop/mobile production-browser outcomes, and performance budgets against explicit expectations; record and correct every difference before updating evidence.",
       "evidencePath": "docs/245-n52-e3c3-checkpoint-authority-amendment.md",
       "playbackEvidencePath": "docs/254-n52-e4d-build-stop-point-source-audit.md",
-      "debugQaEvidencePath": "docs/267-n60-e1-debugger-session-audit.md",
+      "debugQaEvidencePath": "docs/268-n60-e2-breakpoint-boundary-audit.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",

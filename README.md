@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-09-01
-> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings 与 N52 Engineering 出口已通过；N52 main-target Draft PR #122 已建立且精确候选头 Windows 全门绿色，但尚未合入 `main`。N60-E1 已进入正式 Debugger Engineering；N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。N52/N60 Product Acceptance、N61+、Android 实体包、M1 与发布继续阻断。
+> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings 与 N52 Engineering 出口已通过；N52 main-target Draft PR #122 已建立且精确候选头 Windows 全门绿色，但尚未合入 `main`。N60-E1/E2 已完成正式调试会话、断点集合和运行边界产品化；N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。N52/N60 Product Acceptance、N61+、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -46,6 +46,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N52-E5e History Engineering 总出口复审](docs/265-n52-e5e-history-engineering-exit-reaudit.md) | 原始需求逐项复核、N52 Engineering 关闭、产品验收/N60 边界与集成接续点 |
 | [N52 main-target 集成候选与真人门就绪审计](docs/266-n52-main-target-integration-candidate-audit.md) | main/N41 Authority 祖先审计、E5e 基线 463 提交的聚合审阅策略、N21/N23 真实 pending 状态与接续顺序 |
 | [N60-E1 正式调试会话审计](docs/267-n60-e1-debugger-session-audit.md) | 正式 Runtime 调试入口、断点/单步/观察器、desktop/mobile 差异修正与 N60-E2 接续点 |
+| [N60-E2 断点集合与运行边界审计](docs/268-n60-e2-breakpoint-boundary-audit.md) | 多断点启停/移除、五类正式停止原因、源码返回、真实差异与 N60-E3 接续点 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |

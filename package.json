@@ -54,7 +54,7 @@
     "audit:n52-engineering-exit-governance": "node tools/audit-n52-engineering-exit-governance.mjs",
     "audit:n52-e5a-history-contract-authority": "node tools/audit-n52-e5a-history-contract-authority.mjs",
     "audit:n52-e5b-runtime-history-v2": "node tools/audit-n52-e5b-runtime-history-v2.mjs",
-    "audit:n60-debugger-session": "vitest run apps/editor/src/n60-debugger-session-app.test.tsx apps/editor/src/debug-qa-workspace.test.ts apps/editor/src/n43-debug-qa-workspace-app.test.tsx --maxWorkers=1",
+    "audit:n60-debugger-session": "vitest run apps/editor/src/formal-preview-runtime.test.ts apps/editor/src/n60-debugger-session-app.test.tsx apps/editor/src/n60-debugger-breakpoints-app.test.tsx apps/editor/src/debug-qa-workspace.test.ts apps/editor/src/n43-debug-qa-workspace-app.test.tsx --maxWorkers=1",
     "audit:n51-settings-browser": "npm run build --workspace @world-studio/editor && node tools/run-n51-settings-browser.mjs",
     "audit:n51-settings-runtime-browser": "npm run build --workspace @world-studio/player-shell && node tools/run-n51-settings-runtime-browser.mjs",
     "audit:n43-workspace-context-browser": "node tools/run-n43-workspace-context-browser.mjs",

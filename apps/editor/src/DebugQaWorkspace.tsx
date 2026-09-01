@@ -10,15 +10,21 @@ import {
 import {
   advanceFormalPreview,
   backFormalPreview,
+  continueFormalPreviewToBreakpoints,
   createIdleFormalPreviewState,
   forwardFormalPreview,
   observeFormalPreview,
-  runFormalPreviewToStatement,
   startFormalPreview,
   startFormalPreviewFromStatement,
   stepOverFormalPreview,
   type FormalPreviewState
 } from "./formal-preview-runtime";
+
+export interface DebuggerBreakpoint {
+  readonly sceneId: string;
+  readonly statementId: string;
+  readonly enabled: boolean;
+}
 
 interface DebugQaWorkspaceProps {
   readonly project: CanonicalProject;
@@ -54,26 +60,36 @@ function FindingCard({ finding, onOpenSource }: {
   </li>;
 }
 
+export function describeDebuggerStopReason(state: FormalPreviewState, breakpoints: readonly DebuggerBreakpoint[]) {
+  const current = state.statementId === null || state.sceneId === null ? null : `${state.sceneId}/${state.statementId}`;
+  const hitBreakpoint = state.status === "paused" && breakpoints.some((item) => item.enabled && `${item.sceneId}/${item.statementId}` === current);
+  if (hitBreakpoint) return { kind: "breakpoint", title: "命中断点", detail: `${state.sceneId} / ${state.statementId}` };
+  if (state.status === "waiting-choice") return { kind: "choice", title: "等待选择", detail: state.currentEvent?.kind === "choice" ? state.currentEvent.prompt : "正式 Runtime 正在等待一个 Choice 输入" };
+  if (state.status === "waiting-effect") return { kind: "effect", title: "等待 Effect Host", detail: state.runtimeState?.pendingEffect === null || state.runtimeState?.pendingEffect === undefined ? "awaited Effect 尚未完成" : `${state.runtimeState.pendingEffect.descriptorId} · ${state.runtimeState.pendingEffect.awaitMode}` };
+  if (state.status === "waiting-barrier") return { kind: "barrier", title: "等待 Barrier 批准", detail: state.runtimeState?.pendingBarrier?.reason ?? "不可逆操作需要明确批准" };
+  if (state.status === "ended") return { kind: "ending", title: "到达结局", detail: state.endingName ?? "Runtime 已终止" };
+  if (state.status === "error") return { kind: "error", title: "运行错误", detail: state.diagnostics.find((item) => item.severity === "error")?.message ?? state.error ?? "未知 Runtime 错误" };
+  if (state.status === "paused") return { kind: "paused", title: "调试器已暂停", detail: current === null ? "等待下一条调试命令" : current.replace("/", " / ") };
+  if (state.status === "presenting") return { kind: "ready", title: "可继续运行", detail: "当前停在可呈现 Story Step" };
+  return { kind: "idle", title: "尚未启动", detail: "选择入口或当前语句建立正式调试会话" };
+}
+
 export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onOpenSource }: DebugQaWorkspaceProps) {
   const [report, setReport] = useState<DebugQaReport | null>(null);
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
   const [debuggerState, setDebuggerState] = useState<FormalPreviewState>(() => createIdleFormalPreviewState());
-  const [breakpoint, setBreakpoint] = useState<{ readonly sceneId: string; readonly statementId: string } | null>(null);
+  const [breakpoints, setBreakpoints] = useState<readonly DebuggerBreakpoint[]>([]);
   const authoringDiagnostics = useMemo(() => Object.entries(diagnostics).map(([sceneId, items]) => ({ sceneId, diagnostics: items })), [diagnostics]);
   const visibleFindings = report?.findings.filter((item) => filter === "all" || item.severity === filter) ?? [];
   const observation = useMemo(() => observeFormalPreview(debuggerState), [debuggerState]);
   const runInspection = () => setReport(runDebugQaInspection(project, authoringDiagnostics, selectedSceneId, selectedStatementId));
-  const breakpointMatchesSelection = breakpoint?.sceneId === selectedSceneId && breakpoint.statementId === selectedStatementId;
-  const continueDebugger = () => setDebuggerState((state) => {
-    if (breakpoint !== null) return runFormalPreviewToStatement(state, breakpoint.sceneId, breakpoint.statementId);
-    let current = state;
-    for (let step = 0; step < 10_000 && (current.status === "presenting" || current.status === "paused"); step += 1) {
-      const next = advanceFormalPreview(current);
-      if (next === current) break;
-      current = next;
-    }
-    return current;
-  });
+  const breakpointMatchesSelection = breakpoints.some((item) => item.sceneId === selectedSceneId && item.statementId === selectedStatementId);
+  const currentRuntimeBreakpoint = debuggerState.sceneId === null || debuggerState.statementId === null ? null : { sceneId: debuggerState.sceneId, statementId: debuggerState.statementId };
+  const addBreakpoint = (sceneId: string, statementId: string) => setBreakpoints((current) => current.some((item) => item.sceneId === sceneId && item.statementId === statementId)
+    ? current.map((item) => item.sceneId === sceneId && item.statementId === statementId ? { ...item, enabled: true } : item)
+    : [...current, { sceneId, statementId, enabled: true }]);
+  const continueDebugger = () => setDebuggerState((state) => continueFormalPreviewToBreakpoints(state, breakpoints.filter((item) => item.enabled)));
+  const stopReason = describeDebuggerStopReason(debuggerState, breakpoints);
 
   return <section className="debug-qa-workspace view-enter" aria-labelledby="debug-qa-workspace-title">
     <header className="debug-qa-workspace__hero">
@@ -104,8 +120,10 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
           <button
             type="button"
             aria-pressed={breakpointMatchesSelection}
-            onClick={() => setBreakpoint(breakpointMatchesSelection ? null : { sceneId: selectedSceneId, statementId: selectedStatementId })}
-          >{breakpointMatchesSelection ? "移除当前语句断点" : "设置当前语句断点"}</button>
+            disabled={breakpointMatchesSelection}
+            onClick={() => addBreakpoint(selectedSceneId, selectedStatementId)}
+          >{breakpointMatchesSelection ? "选择语句断点已添加" : "添加选择语句断点"}</button>
+          <button type="button" disabled={currentRuntimeBreakpoint === null || breakpoints.some((item) => item.sceneId === currentRuntimeBreakpoint.sceneId && item.statementId === currentRuntimeBreakpoint.statementId)} onClick={() => currentRuntimeBreakpoint !== null && addBreakpoint(currentRuntimeBreakpoint.sceneId, currentRuntimeBreakpoint.statementId)}>添加运行位置断点</button>
         </div>
       </div>
 
@@ -123,8 +141,27 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
         <span><small>Opcode</small><strong>{observation.current?.opcode ?? "—"}</strong></span>
         <span><small>State / Time</small><strong>{observation.stateRevision ?? "—"} / {observation.logicalTimeMilliseconds ?? "—"}ms</strong></span>
         <span><small>History</small><strong>{observation.history === null ? "—" : `${observation.history.cursor}/${observation.history.length}`}</strong></span>
-        <span><small>断点</small><strong>{breakpoint === null ? "未设置" : `${breakpoint.sceneId} / ${breakpoint.statementId}`}</strong></span>
+        <span><small>断点</small><strong>{breakpoints.filter((item) => item.enabled).length} active / {breakpoints.length} total</strong></span>
       </div>
+
+      <section className="debugger-stop-reason" data-kind={stopReason.kind} data-testid="debugger-stop-reason" aria-live="polite">
+        <span aria-hidden="true">{stopReason.kind === "error" ? "×" : stopReason.kind === "breakpoint" ? "●" : "◆"}</span>
+        <div><small>停止原因</small><strong>{stopReason.title}</strong><p>{stopReason.detail}</p></div>
+        {debuggerState.sceneId !== null && <button type="button" onClick={() => onOpenSource(debuggerState.sceneId!, debuggerState.statementId ?? undefined)}>返回当前源码</button>}
+      </section>
+
+      <section className="debugger-breakpoints" aria-labelledby="debugger-breakpoints-title">
+        <div><h4 id="debugger-breakpoints-title">断点列表</h4><small>按稳定 Scene / Statement ID 管理；停用不会删除。</small></div>
+        {breakpoints.length === 0 ? <p>还没有断点</p> : <ul aria-label="断点列表">{breakpoints.map((item) => {
+          const label = `${item.sceneId} / ${item.statementId}`;
+          return <li key={`${item.sceneId}:${item.statementId}`} data-enabled={item.enabled}>
+            <span aria-hidden="true">●</span><code>{item.sceneId}</code><strong>{item.statementId}</strong>
+            <button type="button" aria-pressed={item.enabled} aria-label={`${item.enabled ? "停用" : "启用"}断点 ${label}`} onClick={() => setBreakpoints((current) => current.map((candidate) => candidate === item ? { ...candidate, enabled: !candidate.enabled } : candidate))}>{item.enabled ? "已启用" : "已停用"}</button>
+            <button type="button" aria-label={`定位断点 ${label}`} onClick={() => onOpenSource(item.sceneId, item.statementId)}>定位</button>
+            <button type="button" aria-label={`移除断点 ${label}`} onClick={() => setBreakpoints((current) => current.filter((candidate) => candidate !== item))}>移除</button>
+          </li>;
+        })}</ul>}
+      </section>
 
       <div className="debugger-session__inspectors">
         <section aria-labelledby="debugger-variables-title">

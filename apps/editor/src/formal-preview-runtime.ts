@@ -93,6 +93,11 @@ export interface FormalPreviewState {
   readonly error?: string;
 }
 
+export interface FormalPreviewBreakpoint {
+  readonly sceneId: string;
+  readonly statementId: string;
+}
+
 export function createIdleFormalPreviewState(): FormalPreviewState {
   return {
     status: "idle",
@@ -516,6 +521,52 @@ export function runFormalPreviewToStatement(state: FormalPreviewState, sceneId: 
     current = { ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session, currentEvent: event ?? current.currentEvent };
   }
   return controlDiagnostic(current, "PREVIEW_RUN_TO_CURSOR_LIMIT", "运行到光标超过 10,000 条指令安全上限");
+}
+
+export function continueFormalPreviewToBreakpoints(state: FormalPreviewState, breakpoints: readonly FormalPreviewBreakpoint[]): FormalPreviewState {
+  if (state.program === null || state.sourceMap === null || state.historySession === null) return controlDiagnostic(state, "PREVIEW_HISTORY_MISSING", "正式 Preview History 尚未建立");
+  const program = state.program;
+  const sourceMap = state.sourceMap;
+  const targetInstructionIds = new Set(breakpoints.flatMap((breakpoint) => {
+    const source = sourceMap.entries.find((entry) => entry.sceneId === breakpoint.sceneId && entry.statementId === breakpoint.statementId);
+    return source === undefined ? [] : [source.instructionId];
+  }));
+  const currentInstructionId = state.currentEvent?.instructionId ?? sourceAtCursor(state, state.runtimeState!)?.instructionId;
+  if (state.status !== "paused" && currentInstructionId !== undefined && targetInstructionIds.has(currentInstructionId)) return { ...state, status: "paused" };
+
+  let current = state;
+  while (!hasTransientPosition(current) && current.historySession !== null && current.historySession.cursor < current.historySession.entries.length) {
+    current = forwardFormalPreview(current);
+    const instructionId = current.currentEvent?.instructionId ?? (current.runtimeState === null ? undefined : sourceAtCursor(current, current.runtimeState)?.instructionId);
+    if (instructionId !== undefined && targetInstructionIds.has(instructionId)) return { ...current, status: "paused" };
+    if (!["presenting", "paused"].includes(current.status)) return current;
+    if (current.diagnostics.some((item) => item.severity === "error")) return current;
+  }
+
+  let scheduler = current.schedulerSession;
+  if (scheduler === null) {
+    const created = schedulerFromHistory(current, current.historySession!);
+    if (!("schemaVersion" in created)) return created;
+    scheduler = created;
+  }
+  const policy = { ...normalPolicy, mode: "skipAll" as const, skipActivation: "toggle" as const, speed: "instant" as const, instantInstructionBudget: 1 };
+  for (let instruction = 0; instruction < 10_000; instruction += 1) {
+    const cursorInstruction = program.scenes.find((scene) => scene.sceneId === scheduler!.workingState.cursor.sceneId)?.instructions[scheduler!.workingState.cursor.instructionIndex];
+    if (!(instruction === 0 && state.status === "paused") && cursorInstruction !== undefined && targetInstructionIds.has(cursorInstruction.instructionId)) return presentHistory(current, scheduler.history, scheduler, scheduler.workingState, null, null, true);
+    const result = scheduleRuntimeBatchV1(program, scheduler, policy);
+    scheduler = result.session;
+    if (result.diagnostics.length > 0) {
+      const first = result.diagnostics[0]!;
+      return failed({ ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, `${first.code} · ${first.message}`, runtimeDiagnostics(current, result.diagnostics));
+    }
+    const event = result.events.at(-1) ?? null;
+    if (!(instruction === 0 && state.status === "paused") && event !== null && targetInstructionIds.has(event.instructionId)) return presentHistory(current, result.session.history, result.session, result.state, event, null, true, result.effects);
+    if (["input", "effect", "barrier", "terminal"].includes(result.stopReason)) return presentHistory(current, result.session.history, result.session, result.state, event, null, false, result.effects);
+    if (result.stopReason === "resourceUnavailable") return sessionFailure({ ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, "PREVIEW_RESOURCE_UNAVAILABLE", "正式 Runtime 在资源不可用边界停止");
+    if (result.stopReason === "history") return controlDiagnostic({ ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session }, "PREVIEW_CONTINUE_HISTORY_BLOCKED", "Continue 被 History 边界阻断");
+    current = { ...current, runtimeState: result.state, historySession: result.session.history, schedulerSession: result.session, currentEvent: event ?? current.currentEvent };
+  }
+  return controlDiagnostic(current, "PREVIEW_CONTINUE_LIMIT", "Continue 超过 10,000 条指令安全上限");
 }
 
 export function selectFormalPreviewChoice(state: FormalPreviewState, optionId: string): FormalPreviewState {
