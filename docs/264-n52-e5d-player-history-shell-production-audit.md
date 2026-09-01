@@ -4,7 +4,9 @@
 >
 > 直接基线：N52-E5c 文档闭环头 `49abe33414a6f6a8a8889f8108e738a55404bbeb` / Draft PR #119
 >
-> 当前判定：**E5d Shell/production 实现候选已完成；等待精确提交远端完整门后关闭 Engineering。History 纵向用户路径已实现，但 N52 总出口须由 E5e 复审，Product Acceptance 与 N60 继续阻断。**
+> 当前判定：**E5d Shell/production Engineering 已关闭。History 纵向用户路径已实现，但 N52 总出口须由 E5e 复审，Product Acceptance 与 N60 继续阻断。**
+>
+> 实现证据：`08bfb5c95bb9a87a49de854b1673c6c3a5a06cde` / Draft PR #120 / Windows run `33468762702` / job `99734003643`，`9m26s` 成功。
 
 ## 1. 用户目标与首次实际差异
 
@@ -36,4 +38,4 @@
 
 ## 4. 接续与阻断
 
-本步不直接宣告 N52 总出口。精确实现头远端完整门绿色后关闭 E5d Engineering，并进入 **N52-E5e History 总出口复审**：逐项重跑 History 矩阵并更新 N52 治理状态。E5e 通过以前，USP-09、REQ-RUNTIME、AC-16、N52 Product Acceptance、N60、M1 Stable 与发布继续 blocked。
+精确实现头 `08bfb5c` 的远端 Windows 完整产品基线已成功，因此 E5d Engineering 关闭；本步仍不直接宣告 N52 总出口。下一接续是 **N52-E5e History 总出口复审**：逐项重跑 History 矩阵并更新 N52 治理状态。E5e 通过以前，USP-09、REQ-RUNTIME、AC-16、N52 Product Acceptance、N60、M1 Stable 与发布继续 blocked。

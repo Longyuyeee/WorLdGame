@@ -1,7 +1,7 @@
-# 当前开发情况审计（N52-E5d Shell/production 候选，接续总出口复审）
+# 当前开发情况审计（N52-E5d 已关闭，接续 History 总出口复审）
 
 > 审计日期：2026-09-01
-> 当前分支：`codex/n52-e5d-player-history-shell`；E5d 候选由本次实现提交冻结，直接基线 `49abe33414a6f6a8a8889f8108e738a55404bbeb`
+> 当前分支：`codex/n52-e5d-player-history-shell`；当前实现头 `08bfb5c95bb9a87a49de854b1673c6c3a5a06cde`，Draft PR #120
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订** 已扩展为 checkpoint、Stop Point 与 History 三次窄修订；最大节点仍为 N52，2026-09-27 16:00:00（UTC+8）到期
 > 最新节点证据：[N52-E5d Shell/production #264](264-n52-e5d-player-history-shell-production-audit.md)、[N52-E5c Settings/Core #263](263-n52-e5c-gal-history-policy-player-core-projection-audit.md)、[产品目标与交付节奏纠偏 #262](262-product-goal-alignment-and-delivery-correction.md)
@@ -9,7 +9,7 @@
 
 ## 1. 当前结论
 
-2026-09-01 最新结论是：**E5d Shell/production 已形成实现候选：玩家可查看活动主线和只读旧分支、按稳定 ID 选行回退、理解 Barrier 原因/距离和 Forward 项目策略，并在真实保存刷新读取后保留 archive；桌面和 390×844 已完成实际操作。** 本地受影响门与 production 用户路径已通过，等待精确实现头远端完整门后关闭 E5d，再进入 E5e 总出口复审；N52 Product Acceptance 与 N60 仍阻断。
+2026-09-01 最新结论是：**E5d Shell/production Engineering 已关闭：玩家可查看活动主线和只读旧分支、按稳定 ID 选行回退、理解 Barrier 原因/距离和 Forward 项目策略，并在真实保存刷新读取后保留 archive；桌面和 390×844 已完成实际操作。** 实现头 `08bfb5c` 的远端完整门用时 `9m26s` 成功。下一步进入 E5e History 总出口复审；N52 Product Acceptance 与 N60 仍阻断。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,8 +20,8 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E4f、E5a、E5b、E5c 已关闭，E5d 为完成候选，N52 总出口等待精确头 CI 与 E5e 复审**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
-- **N52-E5d Shell/production 实现候选**：[审计 #264](264-n52-e5d-player-history-shell-production-audit.md)记录新增路径 `0/3→3/3`、扩展 `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 overflow `0`、控件 `44/48px`，false 策略/热应用、Barrier、真实 IndexedDB 保存刷新读取及 console `0` 均通过。等待远端精确头后进入 E5e，不提前换算 Product Acceptance；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭**；N52 Engineering：**E1–E4f、E5a、E5b、E5c、E5d 已关闭，N52 总出口等待 E5e 复审**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- **N52-E5d Shell/production Engineering 已关闭**：[审计 #264](264-n52-e5d-player-history-shell-production-audit.md)记录新增路径 `0/3→3/3`、扩展 `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 overflow `0`、控件 `44/48px`，false 策略/热应用、Barrier、真实 IndexedDB 保存刷新读取及 console `0` 均通过。实现头 `08bfb5c` 的 Draft PR #120 Windows run `33468762702` / job `99734003643` 用时 `9m26s` 成功。下一步 E5e，不提前换算 Product Acceptance；
 - **N52-E5c Settings/Core Engineering 已关闭**：[审计 #263](263-n52-e5c-gal-history-policy-player-core-projection-audit.md)记录实现前新结果 `0/5`、原有 `42/42`，修正后受影响范围 `147/147`、Core `25/25`。Settings strict v6 只增加 Forward 策略；Core 不复制 History，直接投影 Runtime active/archive identity，archive 不可导航，Barrier 和策略阻断可解释，Session Save 重开一致。实现头 `cce203b` 的 Draft PR #119 Windows run `33465730199` / job `99725069881` 用时 `13m38s` 成功。下一步 E5d 完成 Shell 与桌面/390×844，产品状态不提前换算；
 - **N52-E5b Runtime History v2 Engineering 已关闭**：[审计 #260](260-n52-e5b-runtime-history-v2-audit.md)证明旧 Forward 已由 Runtime 保存为确定性、只读、不可导航且含完整要求证据的摘要；10,000 总界限 fail closed。Session Save v2 新写、v1/v2 双读，v1 保留旧 artifact identity。Runtime `63/63`、Formal Preview `15/15`、10k seeds/20k replay 零失败，v2 digest `01556a8c…63a9`，State/Outcome 金标不变。实现头 `78a19ec` 的 run `33457956272` / job `99701844659` 用时 `9m45s` 成功；交接头 `1a39394` 的 run `33458762331` / job `99704253946` 用时 `12m41s` 亦成功；
 - **N52-E5a History 跨层授权与入口合同已关闭**：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)确认 Player Save 只封装 opaque Session Save，故不升 v4；冻结 Runtime History/Session Save v2 只读 branch summary、v1 hash 后归一、Gal Settings v6 Forward 项目策略，以及不改 Runtime State/IR/Scheduler 的禁止边界。实现头 `8d2c6d5` 的 Draft PR #117 Windows run `33418919492` 复跑全绿；后续证据头又使同一真实磁盘 suite 在另一用例复现 5 秒超时/`ENOTEMPTY`，已纠偏为局部 15 秒与清理 retry。稳定头 `f7483a7` 的 run `33422870060` / job `99589275850` 用时 `13m41s` 全绿：两次 Node Directory `9/9`，普通 `154/967`、VM `65.87s`、Route P95 `204.28ms`、Asset 总计 `3240.49ms`。下一唯一代码切片为 N52-E5b Runtime branch archive；
