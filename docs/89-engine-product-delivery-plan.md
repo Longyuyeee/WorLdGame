@@ -541,6 +541,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N52-E5a History 跨层授权与入口合同（2026-09-01）：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)确认 E5 不能在 Shell 建立第二套历史，且 Player Save v3 对 Session Save 是透明完整性载荷、无需升版。产品负责人在收到 #258 的精确 E5 范围后要求继续，RA-011 因而只增加 Gal Settings v6 的 `history.allowForwardAfterBack` 与 N31 History/Session Save v2 归档所需权限。v1 必须按旧 hash 验证后归一到 archives 为空的 v2；Runtime State/IR/Scheduler、Player Save v3/DB3 和 active Back/Forward 语义不变。下一唯一代码切片为 **N52-E5b Runtime branch archive**，Product Acceptance 与 N60 继续阻断。
 
+> N52-E5b Runtime History v2（2026-09-01）：[审计 #260](260-n52-e5b-runtime-history-v2-audit.md)已按实际 API/磁盘 schema 差异实现 Runtime History 与 Session Save v2。rewound 改选新分支时，旧 Forward 形成 canonical content-hash 身份的只读摘要，保留 entry/index、input/event、Barrier 与 after-state hash；active+archive 共用 10,000 上限，Back/Forward 仍只导航活动链。Session Save strict dual-read v1/v2，v1 先用旧域验 History hash、再归一为空 archives 的 v2，并保留原 v1 envelope artifact identity；新写只发 v2。10k/20k corpus 零失败，v2 digest 冻结为 `01556a8c…63a9`，State/Outcome 金标不变。当前等待精确提交 Windows CI，绿色后才允许进入 E5c Settings/Core；Product Acceptance 与 N60 继续阻断。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

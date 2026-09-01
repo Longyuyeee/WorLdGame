@@ -19,6 +19,8 @@
 
 > N52-E5a History 入口（2026-09-01）：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)按实际 strict schema 冻结 Gal Settings v6 History Forward 策略、Runtime History/Session Save v2 只读归档与 v1 dual-read；Player Save v3/DB3、Runtime State/IR/Scheduler 均明确不变。E5a 只关闭跨层授权与兼容合同，功能仍未实现；接续 E5b Runtime branch archive，USP-09、REQ-RUNTIME、AC-16 与全部产品门状态不变。
 
+> N52-E5b Runtime History v2（2026-09-01）：[审计 #260](260-n52-e5b-runtime-history-v2-audit.md)已实现 Runtime 所有的确定性只读 branch archive、active+archive 10,000 总界限、活动链唯一导航，以及 Session Save v2 新写 / strict v1-v2 双读；旧 v1 必须先按旧域验 hash 再归一，Player Save v3/DB3 不变。10k corpus 七类计数与 State/Outcome 金标不变，History v2 使汇总 digest 合法更新为 `01556a8c…63a9`。本地 Engineering 已通过，仍待精确提交 Windows CI；E5c/E5d/E5e、USP-09、REQ-RUNTIME、AC-16、Product Acceptance 与 N60 继续阻断。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。

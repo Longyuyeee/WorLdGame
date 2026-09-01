@@ -1,6 +1,6 @@
 import { canonicalRuntimeStringify, utf8Encode } from "./canonical";
-import { runtimeHistorySessionHashV1, runtimeSessionSaveArtifactHashV1 } from "./hash";
-import { mergeRuntimeHistoryMetaProgressV1, validateRuntimeHistorySessionV1 } from "./history";
+import { runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeSessionSaveArtifactHashV1 } from "./hash";
+import { mergeRuntimeHistoryMetaProgressV1, normalizeRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionV1 } from "./history";
 import { validateRuntimeProgramV1 } from "./runtime";
 import {
   MAX_RUNTIME_SESSION_SAVE_BYTES,
@@ -12,9 +12,11 @@ import {
   type RuntimeDiagnosticCode,
   type RuntimeDiagnosticV1,
   type RuntimeHistorySessionV1,
+  type RuntimeHistorySessionLegacyV1,
   type RuntimeProgramV1,
   type RuntimeRehydrationV1,
   type RuntimeSessionSaveV1,
+  type RuntimeSessionSaveLegacyV1,
   type RuntimeStateV1
 } from "./types";
 
@@ -89,7 +91,7 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
   if (!plainRecord(parsed) || !exactSessionSaveKeys(parsed) || parsed.format !== "world.runtime-session-save") {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save envelope is malformed")] };
   }
-  if (parsed.schemaVersion !== RUNTIME_SESSION_SAVE_SCHEMA_VERSION || parsed.runtimeVersion !== RUNTIME_VERSION || parsed.irVersion !== program.irVersion || parsed.projectId !== program.projectId) {
+  if ((parsed.schemaVersion !== 1 && parsed.schemaVersion !== RUNTIME_SESSION_SAVE_SCHEMA_VERSION) || parsed.runtimeVersion !== RUNTIME_VERSION || parsed.irVersion !== program.irVersion || parsed.projectId !== program.projectId) {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INCOMPATIBLE", "Runtime Session Save schema, Runtime, IR, or Project identity is incompatible")] };
   }
   if (parsed.buildId !== options.expectedBuildId) {
@@ -98,14 +100,43 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
   if (typeof parsed.executionId !== "string" || parsed.executionId.length === 0 || !Number.isSafeInteger(parsed.cursor) || typeof parsed.historyHash !== "string" || !hashPattern.test(parsed.historyHash) || !plainRecord(parsed.history)) {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save cursor, execution identity, History Hash, or History payload is malformed")] };
   }
-  const history = parsed.history as unknown as RuntimeHistorySessionV1;
   try {
+    let history: RuntimeHistorySessionV1;
+    let save: RuntimeSessionSaveV1;
+    let artifactHash: string;
+    if (parsed.schemaVersion === 1) {
+      const legacyHistory = parsed.history as unknown as RuntimeHistorySessionLegacyV1;
+      const legacySave = parsed as unknown as RuntimeSessionSaveLegacyV1;
+      if (runtimeHistorySessionHashSchemaV1(legacyHistory) !== parsed.historyHash) {
+        return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Session Save v1 History Hash verification failed before normalization")] };
+      }
+      const legacyDiagnostics = validateRuntimeHistorySessionSchemaV1(program, legacyHistory);
+      if (legacyDiagnostics.length > 0) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save contains an invalid legacy Runtime History Session"), ...legacyDiagnostics] };
+      history = normalizeRuntimeHistorySessionSchemaV1(legacyHistory);
+      save = {
+        schemaVersion: RUNTIME_SESSION_SAVE_SCHEMA_VERSION,
+        format: "world.runtime-session-save",
+        runtimeVersion: RUNTIME_VERSION,
+        irVersion: history.irVersion,
+        projectId: history.projectId,
+        buildId: history.buildId,
+        executionId: history.executionId,
+        cursor: history.cursor,
+        historyHash: runtimeHistorySessionHashV1(history),
+        history
+      };
+      artifactHash = runtimeSessionSaveArtifactHashSchemaV1(legacySave);
+    } else {
+      history = parsed.history as unknown as RuntimeHistorySessionV1;
+      save = parsed as unknown as RuntimeSessionSaveV1;
+      artifactHash = runtimeSessionSaveArtifactHashV1(save);
+    }
     const historyDiagnostics = validateRuntimeHistorySessionV1(program, history);
     if (historyDiagnostics.length > 0) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save contains an invalid Runtime History Session"), ...historyDiagnostics] };
     if (history.buildId !== parsed.buildId || history.executionId !== parsed.executionId || history.cursor !== parsed.cursor || history.projectId !== parsed.projectId || history.irVersion !== parsed.irVersion || history.runtimeVersion !== parsed.runtimeVersion) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save envelope does not match its History identity")] };
     }
-    if (runtimeHistorySessionHashV1(history) !== parsed.historyHash) {
+    if (parsed.schemaVersion === RUNTIME_SESSION_SAVE_SCHEMA_VERSION && runtimeHistorySessionHashV1(history) !== parsed.historyHash) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Session Save History Hash verification failed")] };
     }
     let loadedHistory = history;
@@ -116,8 +147,7 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
     }
     const state = loadedHistory.checkpoints[loadedHistory.cursor]?.state;
     if (state === undefined) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save cursor has no matching checkpoint")] };
-    const save = parsed as unknown as RuntimeSessionSaveV1;
-    return { ok: true, save, session: loadedHistory, state, rehydration: rehydration(state), artifactHash: runtimeSessionSaveArtifactHashV1(save) };
+    return { ok: true, save, session: loadedHistory, state, rehydration: rehydration(state), artifactHash };
   } catch {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save contains a structurally invalid Runtime History Session")] };
   }
