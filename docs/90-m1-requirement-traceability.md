@@ -33,7 +33,7 @@
 
 > N60-E1 正式调试会话（2026-09-01）：[审计 #267](267-n60-e1-debugger-session-audit.md)复用正式 Compiler/Runtime/History/Host/Source Map，增加 Entry/当前语句启动、当前 statement 断点、Back/Forward/Step/Step Over/Continue，以及变量、调用栈和可见 Host 通道观察。新路径首次 `0/1` 精确证明产品入口缺失，修正后相关 `3 files / 4 tests`；production desktop/mobile 实测断点暂停与单步历史，移动端首次 document overflow `10px`、按真实根宽重测为 `25px`，修正 header 后为 `0`、调试按钮最小 `44px`。N21 协议取消计时通过代理且保持 `0/1`；N60 总 Engineering、全部 Product Acceptance 与 N61 不变。
 
-> N60-E2 断点集合与运行边界（2026-09-01）：[审计 #268](268-n60-e2-breakpoint-boundary-audit.md)以 stable Scene/Statement ID 实现多断点新增、启停、定位和移除；Continue 继续复用正式 Runtime/History/Source Map，并明确投影 Breakpoint、Choice、awaited Effect、Barrier、Ending 与 Error 停止原因。新增产品路径首次 `0/1`，修正中又以“预期 Choice、实际重复命中当前断点”发现并修复 transient History resume 语义；定向最终 `3 files / 19 tests`。production 真实示例工程证明命中下一断点后继续到 Choice，1440×900 与 390×844 均无横向溢出，E2 移动交互为 `44px`。本机全链除既有 VM 10k 在 90 秒门限下为 `94.671s`、隔离 `96.507s` 外均通过，未改预算并等待精确头 Windows CI 裁决。N60 仍为实现中，下一步 E3 Watch/变量来源；Product Acceptance、N61 与真人状态不变。
+> N60-E2 断点集合与运行边界（2026-09-01）：[审计 #268](268-n60-e2-breakpoint-boundary-audit.md)以 stable Scene/Statement ID 实现多断点新增、启停、定位和移除；Continue 继续复用正式 Runtime/History/Source Map，并明确投影 Breakpoint、Choice、awaited Effect、Barrier、Ending 与 Error 停止原因。新增产品路径首次 `0/1`，修正中又以“预期 Choice、实际重复命中当前断点”发现并修复 transient History resume 语义；定向最终 `3 files / 19 tests`。production 真实示例工程证明命中下一断点后继续到 Choice，1440×900 与 390×844 均无横向溢出，E2 移动交互为 `44px`。本机全链仅既有 VM 10k 在 90 秒门限下为 `94.671s`、隔离 `96.507s`；未改预算，精确实现头 `4e29559` 的 Windows run `33491890189` / job `99805042362` 用时 `14m36s` 全绿，VM `69.36s`，关闭环境差异。N60 仍为实现中，下一步 E3 Watch/变量来源；Product Acceptance、N61 与真人状态不变。
 
 ## 1. 状态和证据规则
 

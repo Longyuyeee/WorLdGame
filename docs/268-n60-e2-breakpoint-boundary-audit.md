@@ -25,6 +25,7 @@ E2 接续 [N60-E1](267-n60-e1-debugger-session-audit.md) 的正式调试会话�
 | Desktop production | 新 UI 无横向溢出 | 无 E2 UI | 1440×900 document `1440/1440`，overflow `0`；停止原因面板 `1301/1301` |
 | Mobile production | 390×844 无横向溢出，E2 操作至少 44px | 无 E2 UI | 请求 390×844、实际根宽 375；document `375/375`、overflow `0`；新增断点、Continue、源码返回、启停/定位/移除均为 `44px` |
 | 本机完整门 | 沿用既有 90 秒 VM 预算，全链通过 | 普通回归 `156 files / 984 tests`、N60 `5 files / 22 tests`、构建/架构/Script/Route/Asset 均通过；但 VM 10k 长链实际 `94.671s > 90s`，完整门停止 | 不改预算；同命令隔离复跑仍为 `96.507s > 90s`，故本机完整门诚实记红，交由干净 Windows CI 裁决 |
+| 精确实现头 Windows CI | 同一 90 秒预算裁决本机 VM 差异，完整仓库门绿色 | 本机 VM 两次超时，不跨环境伪造结论 | 实现头 `4e29559` 的 run `33491890189` / job `99805042362` 用时 `14m36s` 成功；VM `69.36s < 90s`，N60 `5 files / 22 tests`、普通回归 `156 files / 984 tests`、Route P95 `170.44ms < 500ms`、Asset Dicing 总计 `3259.15ms < 5000ms` |
 
 生产测试运行 production build 与真实校园示例工程：新增两个断点、停用首个、重新启动、Continue 命中 `stmt_gate_001`，再 Continue 到 `waiting-choice`，提示为“先去哪里调查？”。这不是静态截图或只检查 DOM 是否存在。
 
@@ -37,6 +38,8 @@ E2 接续 [N60-E1](267-n60-e1-debugger-session-audit.md) 的正式调试会话�
 - `audit:n60-debugger-session` 已纳入正式 Runtime、E1/E2 App、QA model 与既有 Debug & QA 回归，避免只跑新增正例。
 
 被完整门早停跳过的后半段已按原脚本补跑：17 个 workspace production build、architecture、Script `13/13`、Route `9/9` 与 Asset `4/4` 全部通过；Route 10k 编辑 P95 `170.46ms < 500ms`，Asset Dicing 总计 `4089.05ms < 5000ms`。这不能把完整门改记为绿色，最终裁决仍需要精确提交头的 Windows CI。
+
+精确实现头的 Windows CI 随后在未改变预算下完整通过，VM 为 `69.36s`，因此本机两次超时归类为当前机器负载/环境差异，而非以放宽门限关闭。追加本证据的文档头仍需自己的 CI，不跨提交复用实现头结论。
 
 实现中还出现一次 TypeScript 实际差异：循环内 `current.program` 可能为空。修正为进入 Continue 前捕获已验证的 `program` 与 `sourceMap`，没有使用非空断言掩盖状态变化。
 
