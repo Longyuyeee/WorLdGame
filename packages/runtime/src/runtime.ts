@@ -478,6 +478,20 @@ function validInput(input: unknown): input is RuntimeInputV1 {
   return candidate.kind === "effectCancelled" && typeof candidate.effectId === "string" && canonicalId.test(candidate.effectId) && typeof candidate.cancellationScope === "string" && canonicalId.test(candidate.cancellationScope);
 }
 
+export function validateRuntimeInputStructureV1(input: unknown): input is RuntimeInputV1 {
+  try {
+    if (!validRecord(input) || !validInput(input)) return false;
+    const common = ["executionId", "expectedStateRevision", "inputId", "kind", "logicalSequence", "schemaVersion"];
+    const variant = input.kind === "choiceSelected" ? ["instructionId", "optionId", "requestId"]
+      : input.kind === "barrierApproved" ? ["descriptorId", "requestId"]
+        : input.kind === "effectCompleted" ? ["effectId", "replayKey"]
+          : ["cancellationScope", "effectId"];
+    return exactRecordKeys(input, [...common, ...variant].sort());
+  } catch {
+    return false;
+  }
+}
+
 function instructionAt(program: RuntimeProgramV1, state: RuntimeStateV1): RuntimeInstructionV1 | undefined {
   return scenesById(program).get(state.cursor.sceneId)?.instructions[state.cursor.instructionIndex];
 }

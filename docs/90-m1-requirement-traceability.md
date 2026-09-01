@@ -3,9 +3,9 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。**N52-E3 入口契约**及 E1–E3c4、E4a–E4f 子切片均已关闭，**N52-E4 Engineering 出口已通过**；N52 总出口因 History/Barrier 四项缺口失败，E5a 已冻结兼容与授权边界，下一步只允许 E5b Runtime branch archive，不能直接进入 N60。Product Acceptance 不变。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，仍等待维护者审阅与合并。N40–N51 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N52 E1–E4f、E5a 与 E5b Runtime History v2 Engineering 已关闭，但 N52 总出口仍因 Player Core/Shell History、Barrier 解释与 Forward 项目策略缺口失败。下一实现按 #262 作为一个 Player History 用户闭环推进，不能直接进入 N60。
 
-> 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
+> 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
 > N52-E4d build-authored Stop Point（2026-08-31）：`@stop()` 已由正式 Source 投影到稳定 statement identity，Compiler 输出独立 policy v1，Shell Auto 与四种 Skip 消费同一列表并由既有 N31 Scheduler 返回 `stopPoint`；Runtime IR 1.1、Save checkpoint 和 golden build identity 边界未漂移。首次 `77/84`、竞态修正前 `81/84`、最终 `84/84`，cold production Auto/Toggle Skip Read/All 同停 history 2。该项由 blocked 转 complete；E4 仍因 video policy 与 390×844 证据为 blocked，接续 N52-E4e，全部 Product Acceptance 不变。
 
@@ -18,6 +18,10 @@
 > N52 总出口治理复审（2026-09-01）：[checkpoint #258](258-n52-engineering-exit-and-n60-governance-checkpoint.md)确认 Runtime 分支改变只保留输入 tombstone、旧 Forward entries 不可查看；Core 没有条目/归档/Barrier 原因投影和定点导航；Shell 只有 Back/Forward 控件而没有可选行 History 页面；History Forward 项目策略也未实现。因此 USP-09、REQ-RUNTIME 与 AC-16 继续为“实现中”，N52 总 Engineering 出口 fail closed；唯一接续为 N52-E5 Player History / Barrier，N60 不准入。
 
 > N52-E5a History 入口（2026-09-01）：[审计 #259](259-n52-e5a-history-contract-authority-audit.md)按实际 strict schema 冻结 Gal Settings v6 History Forward 策略、Runtime History/Session Save v2 只读归档与 v1 dual-read；Player Save v3/DB3、Runtime State/IR/Scheduler 均明确不变。E5a 只关闭跨层授权与兼容合同，功能仍未实现；接续 E5b Runtime branch archive，USP-09、REQ-RUNTIME、AC-16 与全部产品门状态不变。
+
+> N52-E5b Runtime History v2（2026-09-01）：[审计 #260](260-n52-e5b-runtime-history-v2-audit.md)已实现 Runtime 所有的确定性只读 branch archive、active+archive 10,000 总界限、活动链唯一导航，以及 Session Save v2 新写 / strict v1-v2 双读；旧 v1 必须先按旧域验 hash 再归一，Player Save v3/DB3 不变。10k corpus 七类计数与 State/Outcome 金标不变，History v2 使汇总 digest 合法更新为 `01556a8c…63a9`。实现头 `78a19ec` 与交接头 `1a39394` 的 Windows 完整门均成功，E5b Engineering 已关闭；E5c/E5d/E5e、USP-09、REQ-RUNTIME、AC-16、Product Acceptance 与 N60 继续阻断。
+
+> 产品目标对齐与交付节奏纠偏（2026-09-01）：[审计 #262](262-product-goal-alignment-and-delivery-correction.md)确认产品功能语义仍对齐最初 PRD，但 Engineering 子门、合同和证据更新已取代用户任务成为主要进度代理。后续主要判据改为真实用户路径、目标环境与预期/首次实际/修正后差异；E5c Settings/Core 与 E5d Shell 共同构成一个 Player History 纵向切片，在桌面和 390×844 完成旧分支查看、选行回退、Barrier 解释、Forward 项目策略与保存重开以前，不登记 History 产品完成。E5e 后优先收束 main-target 集成与长期欠缺的 N21/N23 真人任务，不以新增 N60 工程切片回避产品验证。
 
 ## 1. 状态和证据规则
 

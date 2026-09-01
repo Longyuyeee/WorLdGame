@@ -30,7 +30,7 @@
 
 真实宿主为 Windows 11 开发机上的 Chrome 151 模块 Web Worker。全仓 `npm.cmd run check` 同时通过：60 files / 412 tests、全 workspace build、49 portable files / 3 Node adapter files 架构审计、9 项脚本性能测试和 4 项资源性能测试。
 
-证据包位于 [`evidence/cl-04/spike-12`](../evidence/cl-04/spike-12/result.md)。
+证据包位于 [`evidence/cl-04/spike-12`](../../evidence/cl-04/spike-12/result.md)。
 
 ## 3. 审计限制与下一步
 

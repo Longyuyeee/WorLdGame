@@ -148,7 +148,7 @@ describe("formal editor preview runtime", () => {
     expect(observeFormalPreview(back).history).toMatchObject({ cursor: 2, length: 3, canForward: true });
     expect(runtimeStateHashV1(forward.runtimeState!)).toBe(runtimeStateHashV1(third.runtimeState!));
     expect(forward).toMatchObject({ statementId: "stmt_gate_002" });
-    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("35a1ef1fad4286c8c6d8c5b4139165dc2a360ef9e100d97e002607a47c0b738d");
+    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("abb1262c403454d54df4ecf1dca5f2d4998b0463addd7b02febde379831ec804");
   });
 
   it("records checkpoint markers without presenting or stopping History navigation on them", () => {

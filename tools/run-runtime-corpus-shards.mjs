@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 
 const SHARD_COUNT = 4;
-const EXPECTED_DIGEST = "20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2";
+const EXPECTED_DIGEST = "01556a8c979e080cc653817713ad26f7d2882445e9ebdc727049f415da4863a9";
 const EXPECTED_COUNTS = { "control-flow": 1429, random: 1429, "effect-cancellation": 1429, "save-load": 1429, "choice-history": 1428, "scheduler-equivalence": 1428, "diagnostic-rollback": 1428 };
 const vitest = resolve("node_modules/vitest/vitest.mjs");
 const temporaryRoot = await mkdtemp(join(tmpdir(), "world-runtime-corpus-"));

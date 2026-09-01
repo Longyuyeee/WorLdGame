@@ -89,7 +89,7 @@ export const RUNTIME_GENERATED_CORPUS_NODE_GOLDEN_V1: RuntimeGeneratedCorpusSumm
     "diagnostic-rollback": 1428
   },
   failedSeeds: [],
-  outcomeDigest: "20e9a842cd1e70b012d2307b37209f63192f4e463df7e15cf5beed8c5fc92ef2"
+  outcomeDigest: "01556a8c979e080cc653817713ad26f7d2882445e9ebdc727049f415da4863a9"
 };
 
 export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
@@ -111,10 +111,10 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   historyBackStateHash: "57a2ced75466c817204a4086ad43af65a76a9935f330a63b1e48d6b31e8b0a4b",
   historyForwardStateHash: "4753549ffbaf6c03b97c55894b1731e4dc095603d7b30417e6cf5c7e09db4d58",
   historyForkStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
-  historySessionHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
+  historySessionHash: "406e95213b083c89e36ca8a6788b938bf49cb76df8887342f765746e0a7d9e3d",
   historyTombstoneInputId: "input-history-left",
-  sessionSaveArtifactHash: "45ffc3f41cc27b9134d5cffab4eec0952f4c58cb35026fce45d7478da5c173e5",
-  sessionSaveHistoryHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
+  sessionSaveArtifactHash: "7bf4ec266313f5d82049cbdd74a645cebc9b991b7d7072b2a989ceb9ae813c0a",
+  sessionSaveHistoryHash: "406e95213b083c89e36ca8a6788b938bf49cb76df8887342f765746e0a7d9e3d",
   sessionSaveCursor: 2,
   sessionSaveBackStateHash: "f93c1dc5cbc0e83439f5462a1aa51337b8bf400809a4cfc1096fdac134f00f72",
   sessionSaveForwardStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
@@ -123,8 +123,8 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
   metaLoadProgressHash: "346bcc949e6e08fa3de252e4afe7a01816a61c8ed56c47aac35806c9603cb1f8",
   historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
   schedulerFinalStateHash: "4817233c4c9113e2d35b1aae0d33600d1210d44e6accd1bccc2abc29d308f0e4",
-  schedulerNormalHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
-  schedulerInstantHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
+  schedulerNormalHistoryHash: "393588b64b14153eb5e84aac640ebd7f4b31d28e4c3481090d6f6db6dafa2d1f",
+  schedulerInstantHistoryHash: "393588b64b14153eb5e84aac640ebd7f4b31d28e4c3481090d6f6db6dafa2d1f",
   schedulerAutoDelayMilliseconds: 90,
   schedulerYieldAccumulatedInstructions: 1,
   schedulerBarrierStopReason: "barrier",
@@ -144,7 +144,7 @@ export const RUNTIME_NODE_GOLDEN_V1: RuntimeConformanceResultV1 = {
     finalCounter: 10_000,
     finalStateHash: "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
     finalOutcomeHash: "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
-    finalHistoryHash: "28207f6823e05033e702e80911d81f6be5bf293232d72afa2f13839a8eabe6de"
+    finalHistoryHash: "ab6229b34781295bde594c1e3e2f19891e7c2db8d30fe282a61bc66002e6d905"
   },
   formalVmParity: {
     schemaVersion: 1,

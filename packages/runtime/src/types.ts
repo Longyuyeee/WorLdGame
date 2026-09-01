@@ -3,7 +3,8 @@ import type { RuntimeIrVersionV1, RuntimeSourceMapV1 as CompilerRuntimeSourceMap
 export const RUNTIME_VERSION = "0.6.0" as const;
 export const RUNTIME_STATE_SCHEMA_VERSION = 1 as const;
 export const RUNTIME_SAVE_SCHEMA_VERSION = 1 as const;
-export const RUNTIME_SESSION_SAVE_SCHEMA_VERSION = 1 as const;
+export const RUNTIME_HISTORY_SESSION_SCHEMA_VERSION = 2 as const;
+export const RUNTIME_SESSION_SAVE_SCHEMA_VERSION = 2 as const;
 export const MAX_RUNTIME_SAVE_BYTES = 16 * 1024 * 1024;
 export const MAX_RUNTIME_SESSION_SAVE_BYTES = 64 * 1024 * 1024;
 export const MAX_CALL_STACK_DEPTH = 64;
@@ -325,7 +326,8 @@ export interface RuntimeHistoryEntryV1 {
   readonly barriers: readonly RuntimeBarrierRecordV1[];
 }
 
-export interface RuntimeHistorySessionV1 {
+/** Persisted N31 History schema retained only for strict Session Save v1 reads. */
+export interface RuntimeHistorySessionLegacyV1 {
   readonly schemaVersion: 1;
   readonly runtimeVersion: typeof RUNTIME_VERSION;
   readonly irVersion: RuntimeIrVersionV1;
@@ -338,7 +340,54 @@ export interface RuntimeHistorySessionV1 {
   readonly inputTombstones: readonly RuntimeInputV1[];
 }
 
-export interface RuntimeSessionSaveV1 {
+export interface RuntimeArchivedHistoryEntryV2 {
+  readonly originalEntryId: string;
+  readonly originalHistoryIndex: number;
+  readonly input: RuntimeInputV1 | null;
+  readonly event: RuntimeEventV1 | null;
+  readonly barriers: readonly RuntimeBarrierRecordV1[];
+  readonly afterStateHash: string;
+}
+
+export interface RuntimeHistoryArchiveV2 {
+  readonly schemaVersion: 1;
+  readonly archiveId: string;
+  readonly branchPointCheckpointId: string;
+  readonly branchPointHistoryIndex: number;
+  readonly entries: readonly RuntimeArchivedHistoryEntryV2[];
+}
+
+export interface RuntimeHistorySessionV2 {
+  readonly schemaVersion: typeof RUNTIME_HISTORY_SESSION_SCHEMA_VERSION;
+  readonly runtimeVersion: typeof RUNTIME_VERSION;
+  readonly irVersion: RuntimeIrVersionV1;
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly executionId: string;
+  readonly cursor: number;
+  readonly checkpoints: readonly RuntimeHistoryCheckpointV1[];
+  readonly entries: readonly RuntimeHistoryEntryV1[];
+  readonly inputTombstones: readonly RuntimeInputV1[];
+  readonly archives: readonly RuntimeHistoryArchiveV2[];
+}
+
+/** Public Runtime API generation remains V1; its current persisted History schema is v2. */
+export type RuntimeHistorySessionV1 = RuntimeHistorySessionV2;
+
+export interface RuntimeSessionSaveLegacyV1 {
+  readonly schemaVersion: 1;
+  readonly format: "world.runtime-session-save";
+  readonly runtimeVersion: typeof RUNTIME_VERSION;
+  readonly irVersion: RuntimeIrVersionV1;
+  readonly projectId: string;
+  readonly buildId: string;
+  readonly executionId: string;
+  readonly cursor: number;
+  readonly historyHash: string;
+  readonly history: RuntimeHistorySessionLegacyV1;
+}
+
+export interface RuntimeSessionSaveV2 {
   readonly schemaVersion: typeof RUNTIME_SESSION_SAVE_SCHEMA_VERSION;
   readonly format: "world.runtime-session-save";
   readonly runtimeVersion: typeof RUNTIME_VERSION;
@@ -348,8 +397,11 @@ export interface RuntimeSessionSaveV1 {
   readonly executionId: string;
   readonly cursor: number;
   readonly historyHash: string;
-  readonly history: RuntimeHistorySessionV1;
+  readonly history: RuntimeHistorySessionV2;
 }
+
+/** Public Runtime API generation remains V1; its current persisted Session Save schema is v2. */
+export type RuntimeSessionSaveV1 = RuntimeSessionSaveV2;
 
 export type CreateRuntimeSessionSaveResultV1 =
   | { readonly ok: true; readonly save: RuntimeSessionSaveV1; readonly serialized: string; readonly artifactHash: string }

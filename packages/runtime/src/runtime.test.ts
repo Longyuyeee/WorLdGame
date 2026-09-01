@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeStateV1 } from "./index";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionLegacyV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeSessionSaveLegacyV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -220,10 +220,10 @@ describe("N31-E2 deterministic state foundations", () => {
       historyBackStateHash: "57a2ced75466c817204a4086ad43af65a76a9935f330a63b1e48d6b31e8b0a4b",
       historyForwardStateHash: "4753549ffbaf6c03b97c55894b1731e4dc095603d7b30417e6cf5c7e09db4d58",
       historyForkStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
-      historySessionHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
+      historySessionHash: "406e95213b083c89e36ca8a6788b938bf49cb76df8887342f765746e0a7d9e3d",
       historyTombstoneInputId: "input-history-left",
-      sessionSaveArtifactHash: "45ffc3f41cc27b9134d5cffab4eec0952f4c58cb35026fce45d7478da5c173e5",
-      sessionSaveHistoryHash: "075c7ed5b0b45c860a28ba9efa6e026f6dd6e38b3bba0c7d388aec9b88335a0f",
+      sessionSaveArtifactHash: "7bf4ec266313f5d82049cbdd74a645cebc9b991b7d7072b2a989ceb9ae813c0a",
+      sessionSaveHistoryHash: "406e95213b083c89e36ca8a6788b938bf49cb76df8887342f765746e0a7d9e3d",
       sessionSaveCursor: 2,
       sessionSaveBackStateHash: "f93c1dc5cbc0e83439f5462a1aa51337b8bf400809a4cfc1096fdac134f00f72",
       sessionSaveForwardStateHash: "32ddaa3542d151b5301c8441cd8dfee007ccf5e1bdc2afb61549e29f235c9d0b",
@@ -232,8 +232,8 @@ describe("N31-E2 deterministic state foundations", () => {
       metaLoadProgressHash: "346bcc949e6e08fa3de252e4afe7a01816a61c8ed56c47aac35806c9603cb1f8",
       historyBarrierCode: "RUNTIME_BARRIER_BLOCKED",
       schedulerFinalStateHash: "4817233c4c9113e2d35b1aae0d33600d1210d44e6accd1bccc2abc29d308f0e4",
-      schedulerNormalHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
-      schedulerInstantHistoryHash: "93bd7599a52295678809ba508806d921e64d263ceb2013079d7f1e234f3d7407",
+      schedulerNormalHistoryHash: "393588b64b14153eb5e84aac640ebd7f4b31d28e4c3481090d6f6db6dafa2d1f",
+      schedulerInstantHistoryHash: "393588b64b14153eb5e84aac640ebd7f4b31d28e4c3481090d6f6db6dafa2d1f",
       schedulerAutoDelayMilliseconds: 90,
       schedulerYieldAccumulatedInstructions: 1,
       schedulerBarrierStopReason: "barrier",
@@ -253,7 +253,7 @@ describe("N31-E2 deterministic state foundations", () => {
         finalCounter: 10_000,
         finalStateHash: "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
         finalOutcomeHash: "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
-        finalHistoryHash: "28207f6823e05033e702e80911d81f6be5bf293232d72afa2f13839a8eabe6de"
+        finalHistoryHash: "ab6229b34781295bde594c1e3e2f19891e7c2db8d30fe282a61bc66002e6d905"
       },
       formalVmParity: {
         schemaVersion: 1,
@@ -497,8 +497,43 @@ describe("N31-E5 canonical Runtime History", () => {
     expect(right.event).toMatchObject({ kind: "dialogue", text: "The bright route." });
     expect(right.session.entries).toHaveLength(2);
     expect(right.session.inputTombstones).toEqual([oldInput]);
+    expect(right.session.archives).toHaveLength(1);
+    expect(right.session.archives[0]).toMatchObject({
+      schemaVersion: 1,
+      branchPointCheckpointId: back.session.checkpoints[back.session.cursor]!.checkpointId,
+      branchPointHistoryIndex: 1,
+      entries: [{
+        originalEntryId: back.session.entries[1]!.entryId,
+        originalHistoryIndex: 1,
+        input: oldInput,
+        event: left.session.entries[1]!.event,
+        barriers: left.session.entries[1]!.barriers,
+        afterStateHash: left.session.checkpoints[2]!.stateHash
+      }]
+    });
+    expect(right.session.archives[0]!.archiveId).toMatch(/^archive\.[0-9a-f]{64}$/u);
+    const repeated = advanceRuntimeHistoryV1(story, back.session, { input: rightInput });
+    expect(repeated.session.archives[0]!.archiveId).toBe(right.session.archives[0]!.archiveId);
+    expect(validateRuntimeHistorySessionV1(story, right.session)).toEqual([]);
     expect(advanceRuntimeHistoryV1(story, right.session, { input: rightInput }).session).toBe(right.session);
     expect(forwardRuntimeHistoryV1(story, right.session).diagnostics[0]?.code).toBe("RUNTIME_HISTORY_AT_END");
+  });
+
+  it("keeps archived branches read-only and rejects archive evidence tampering", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const left = advanceRuntimeHistoryV1(story, waiting.session, { input: select(waiting.state, "branch_left_option", "input-archive-left") });
+    const fork = backRuntimeHistoryV1(story, left.session);
+    const right = advanceRuntimeHistoryV1(story, fork.session, { input: select(fork.state, "branch_right_option", "input-archive-right") });
+    const archive = right.session.archives[0]!;
+    const back = backRuntimeHistoryV1(story, right.session);
+    const forward = forwardRuntimeHistoryV1(story, back.session);
+    expect(back.session.archives).toEqual([archive]);
+    expect(forward.session.archives).toEqual([archive]);
+    expect(forward.state).toEqual(right.state);
+    const tampered = { ...right.session, archives: [{ ...archive, entries: [{ ...archive.entries[0]!, afterStateHash: "0".repeat(64) }] }] };
+    expect(validateRuntimeHistorySessionV1(story, tampered)).toEqual([expect.objectContaining({ code: "RUNTIME_HISTORY_INVALID" })]);
+    expect(backRuntimeHistoryV1(story, tampered).session).toBe(tampered);
   });
 
   it("rejects a conflicting reused tombstone ID without mutating the branched Session", () => {
@@ -678,13 +713,45 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     expect(runtimeStateHashV1(loaded.state)).toBe(runtimeStateHashV1(waiting.state));
   });
 
+  it("dual-reads a strict v1 artifact, verifies its v1 hash before normalization, and writes only v2", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const current = save(story, waiting.session);
+    expect(current.save.schemaVersion).toBe(2);
+    expect(current.save.history.schemaVersion).toBe(2);
+    expect(current.save.history.archives).toEqual([]);
+    const { archives: _archives, ...legacyMembers } = waiting.session;
+    const legacyHistory = { ...legacyMembers, schemaVersion: 1 } as RuntimeHistorySessionLegacyV1;
+    const legacySave: RuntimeSessionSaveLegacyV1 = {
+      schemaVersion: 1,
+      format: "world.runtime-session-save",
+      runtimeVersion: legacyHistory.runtimeVersion,
+      irVersion: legacyHistory.irVersion,
+      projectId: legacyHistory.projectId,
+      buildId: legacyHistory.buildId,
+      executionId: legacyHistory.executionId,
+      cursor: legacyHistory.cursor,
+      historyHash: runtimeHistorySessionHashSchemaV1(legacyHistory),
+      history: legacyHistory
+    };
+    const serialized = canonicalRuntimeStringify(legacySave);
+    const loaded = loadRuntimeSessionSaveV1(story, serialized, { expectedBuildId: buildId });
+    if (!loaded.ok) throw new Error(JSON.stringify(loaded.diagnostics));
+    expect(loaded.artifactHash).toBe(runtimeSessionSaveArtifactHashSchemaV1(legacySave));
+    expect(loaded.save.schemaVersion).toBe(2);
+    expect(loaded.session).toEqual(waiting.session);
+    expect(loaded.save.historyHash).toBe(runtimeHistorySessionHashV1(waiting.session));
+    const tamperedLegacy = { ...legacySave, history: { ...legacyHistory, cursor: 0 } };
+    expect(loadRuntimeSessionSaveV1(story, canonicalRuntimeStringify(tamperedLegacy), { expectedBuildId: buildId })).toMatchObject({ ok: false, diagnostics: [{ code: "RUNTIME_SAVE_HASH_MISMATCH" }] });
+  });
+
   it("fails closed for incompatible, noncanonical, unknown, hash-tampered, and structurally corrupt saves", () => {
     const { story, buildId } = branching();
     const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
     const created = save(story, waiting.session);
     const raw = JSON.parse(created.serialized) as Record<string, unknown>;
     const cases: ReadonlyArray<readonly [unknown, string]> = [
-      [{ ...raw, schemaVersion: 2 }, "RUNTIME_SAVE_INCOMPATIBLE"],
+      [{ ...raw, schemaVersion: 3 }, "RUNTIME_SAVE_INCOMPATIBLE"],
       [{ ...raw, futureMember: true }, "RUNTIME_SAVE_INVALID"],
       [{ ...raw, executionId: "execution-foreign" }, "RUNTIME_SAVE_INVALID"],
       [{ ...raw, cursor: 0 }, "RUNTIME_SAVE_INVALID"],
@@ -805,7 +872,7 @@ describe("N31-E13 bounded 10,000-step conformance", () => {
       finalCounter: 10_000,
       finalStateHash: "42110c453cb13998f4701bfd177075f607b25ba127c8b943889cff30a2702a8f",
       finalOutcomeHash: "b03e5becefe06de891422ebaf767ff11b50bd7b4951ceb7f5225456cf441d327",
-      finalHistoryHash: "28207f6823e05033e702e80911d81f6be5bf293232d72afa2f13839a8eabe6de"
+      finalHistoryHash: "ab6229b34781295bde594c1e3e2f19891e7c2db8d30fe282a61bc66002e6d905"
     });
   });
 });
