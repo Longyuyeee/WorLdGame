@@ -46,6 +46,7 @@ PRD 3.10 要求从入口、场景或语句运行，支持断点、单步、继�
 | Mobile UI | 调试区单列、触控按钮至少 44px、页面无横溢出 | 第一次调试区 overflow `0`、按钮 `44px`，但旧 workspace header 使 document overflow `10px`；首次修正后按根 clientWidth 重测实际为 `25px` | 追到 header 的 `114px + 264px` 固定列后，在 420px 以下收为单列；390×844 实际 client/scroll 均 `375`、overflow `0`、调试按钮最小 `44px`、console error `0` |
 | 治理回归 | 当前 N60 授权通过，历史 N52 审计继续可复验 | 风险审计通过；旧 N52 checkpoint 审计因硬编码“N60 Engineering 必须阻断”而失败；首次用普通 Vitest 配置运行治理测试又得到“未发现测试文件” | 历史审计兼容 N52/N60 当前节点，正确 governance 配置 `3 files / 23 tests`、两个 N52 历史审计均 PASS |
 | 本机完整门 | 不改既有 5 秒预算，仓库全链通过 | 首轮在 N41 Sequence 聚合第 1 个用例 `5030ms` 超时；单文件复跑时原用例通过、另一个用例因 transform/import 约 31 秒的主机负载在 `5953ms` 超时 | 未改 timeout；同一单文件再次冷复跑 `2/2`。第二轮完整门的 N41 聚合 `49/49`、首个 App `45/45` 已通过，随后 N42 再次运行同一 App 时两个既有 Stage 用例分别在 `5955ms`、`20376ms` 超时。功能断言没有稳定失败，完整本机门仍记红并交由干净 Windows CI 裁决 |
+| Windows CI 首轮 | 完整门识别当前 N60 授权，同时保留 N52 历史合同 | run `33485571617` / job `99784733897` 在 `4m36s` 明确失败：`audit:n52-e4d-build-stop-point-source` 仍要求 active authority 最大节点精确等于 N52 | 只放宽历史审计对当前 registry 的读取为 `N52` 或有界 `N60`，没有修改 E4d 历史合同、功能或通过证据；E4d→E5b 与 N60 定向审计本地全部 PASS，推送后由新 head CI 重跑 |
 
 生产浏览器测试运行的是 production build 和真实示例工程，不是静态截图或仅 jsdom 代理。移动端溢出差异没有通过扩大 viewport、隐藏根滚动或放宽触控标准处理，而是修正真正超宽的 header/navigation 布局。
 
