@@ -1,6 +1,6 @@
 import type { GalSettingPath } from "./settings";
 
-export type GalSettingSection = "display" | "text" | "advance" | "audio" | "stage" | "choice" | "ui" | "input" | "accessibility";
+export type GalSettingSection = "display" | "text" | "advance" | "history" | "audio" | "stage" | "choice" | "ui" | "input" | "accessibility";
 export type GalSettingLevel = "basic" | "advanced";
 export type GalSettingsCatalogMode = "basic" | "advanced";
 
@@ -40,6 +40,8 @@ const RAW_GAL_SETTING_DEFINITIONS = [
 
   { path: "advance.allowHold", section: "advance", level: "basic", label: { zhHans: "允许长按推进", en: "Allow hold to advance" }, description: { zhHans: "允许持续按住输入来推进普通文本。", en: "Allow holding an input to advance normal text." }, keywords: ["长按", "连续", "hold", "advance", "input"], control: booleanControl },
   { path: "advance.waitForVoice", section: "advance", level: "basic", label: { zhHans: "等待语音结束", en: "Wait for voice" }, description: { zhHans: "推进前等待当前语音播放完成。", en: "Wait for the current voice line before advancing." }, keywords: ["语音", "自动推进", "voice", "speech", "advance"], control: booleanControl },
+
+  { path: "history.allowForwardAfterBack", section: "history", level: "basic", label: { zhHans: "回退后允许前进", en: "Allow forward after back" }, description: { zhHans: "回退到历史内容后，允许沿尚未改写的当前分支前进。", en: "Allow forward navigation along the unchanged active branch after going back." }, keywords: ["历史", "回退", "前进", "history", "back", "forward"], control: booleanControl },
 
   { path: "audio.master", section: "audio", level: "basic", label: { zhHans: "主音量", en: "Master volume" }, description: { zhHans: "控制所有音频总输出。", en: "Controls the overall audio output." }, keywords: ["音量", "声音", "volume", "audio", "master"], control: volumeControl },
   { path: "audio.bgm", section: "audio", level: "basic", label: { zhHans: "背景音乐音量", en: "BGM volume" }, description: { zhHans: "控制背景音乐总线音量。", en: "Controls the background music bus." }, keywords: ["音量", "音乐", "bgm", "music", "volume"], control: volumeControl },
@@ -136,7 +138,7 @@ export function searchGalSettingDefinitions(
   if (unknownOption !== undefined) throw new TypeError(`Unknown Gal settings search option: ${unknownOption}`);
   const mode = options.mode ?? "advanced";
   if (mode !== "basic" && mode !== "advanced") throw new TypeError("Gal settings catalog mode must be basic or advanced");
-  if (options.section !== undefined && !["display", "text", "advance", "audio", "stage", "choice", "ui", "input", "accessibility"].includes(options.section)) {
+  if (options.section !== undefined && !["display", "text", "advance", "history", "audio", "stage", "choice", "ui", "input", "accessibility"].includes(options.section)) {
     throw new TypeError("Gal settings catalog section is invalid");
   }
   const terms = normalizedTerms(query);

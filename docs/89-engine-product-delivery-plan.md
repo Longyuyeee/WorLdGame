@@ -545,6 +545,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > 产品目标与交付节奏纠偏（2026-09-01）：[审计 #262](262-product-goal-alignment-and-delivery-correction.md)重新对照 PRD、Gal 5.2、真实代码与当前产品状态，确认 E5 功能语义没有偏离，但开发过程已过度使用入口合同、证据提交和全量门作为进度代理；M1 纵向验收仍为 `0/27`，N21/N23 真人仍为 `0/1`、`0/2`，开发链也尚未合入 `main`。从 E5c 起恢复用户任务驱动：Settings/Core 与 Shell 保留内部实现顺序，但共同形成一个 Player History 纵向切片；必须在真实 Branching 工程完成旧分支查看、选行回退、Barrier 原因/距离、Forward 策略 true/false、保存刷新读取和桌面/390×844 预期—实际差异闭环后，才进入一次 E5e 总出口复审。普通 UI/投影切片不再默认新增独立合同或重复完整门。
 
+> N52-E5c Settings/Core Engineering 已关闭（2026-09-01）：[实现审计 #263](263-n52-e5c-gal-history-policy-player-core-projection-audit.md)以真实差距 `0/5` 为起点，完成 Gal Settings strict v6 唯一 History Forward 字段，以及 Core 对 Runtime active/archive 稳定身份、Barrier 原因/距离、定点回退和 true/false Forward 的直接投影与执行；Session Save 重开保持投影一致，archive 不可导航。受影响范围 `147/147`、Core `25/25`、TypeScript 通过；实现头 `cce203b` 的 Draft PR #119 Windows run `33465730199` / job `99725069881` 用时 `13m38s` 成功。该结果只关闭 E5c 内部 Engineering，不登记 History 产品完成；下一步 E5d 必须完成 Shell 及桌面/390×844 真实用户路径。
+
 ## 11. R6：制作自动化、QA 与本地化
 
 ### N60 Debugger 与 Story QA

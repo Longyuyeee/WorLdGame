@@ -64,10 +64,10 @@ describe("project compiler N30-E1/E2", () => {
       }];
     }));
     expect(outputs).toEqual({
-      tiny: { buildId: "39a781056bdbe119126d2a4de4e5ce94ac56c1562fa5b545ecb68478797edc7c", storyIrHash: "e0a7445cc893cd9ede388747a365c90a417e4c44f618b68184fac7ba2ea53b42" },
-      branching: { buildId: "2514e0ce010c671cae31aae1b1df0a5cf824ecd476286336e439cef9618dbd73", storyIrHash: "bb7e605baf4c47ad9b6cb4666f406ae463936fb80f6bf07d9a60b8506174b548" },
-      media: { buildId: "ee143594dcd1f8339e5a7db87b671c63edbd372f970beb831150eab4d248f2b7", storyIrHash: "0c4a582b94afba6ff0d6793303168e99c4184f13fd9b7c25c1bcfd8a126263a2" },
-      cjk: { buildId: "ab54dc22a6aa2fba90ecb828f2fc68361f0f735599f49618896a8853a5a45623", storyIrHash: "adfd8cc36965a343e18b99737ced8d719b67919b7180866c9aa5d7587e2ae1da" }
+      tiny: { buildId: "39c0985c76f19d99e9e5ef0d082754264881a51d18f23572375c69b4c3ecd180", storyIrHash: "e0a7445cc893cd9ede388747a365c90a417e4c44f618b68184fac7ba2ea53b42" },
+      branching: { buildId: "7f7510c48f71cb8e2d56e00bd39a445d95f2dff5ff6b133b7365d16e0cc68a8f", storyIrHash: "bb7e605baf4c47ad9b6cb4666f406ae463936fb80f6bf07d9a60b8506174b548" },
+      media: { buildId: "7cb8a6e1835f71f24d16719cb64b4203397da7ce8622c523ddbb41437c7adf8f", storyIrHash: "0c4a582b94afba6ff0d6793303168e99c4184f13fd9b7c25c1bcfd8a126263a2" },
+      cjk: { buildId: "53a0e5f05f49cd55f1d09ce5461ae4ce2d1fdeeda70d416cfb53089b59d44d75", storyIrHash: "adfd8cc36965a343e18b99737ced8d719b67919b7180866c9aa5d7587e2ae1da" }
     });
   });
 

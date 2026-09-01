@@ -4,6 +4,7 @@ import { join } from "node:path";
 const root = process.cwd();
 const read = (path) => readFile(join(root, path), "utf8");
 const contract = JSON.parse(await read("config/n51-engineering-exit.json"));
+const n52HistoryAuthority = JSON.parse(await read("config/n52-e5a-history-contract-authority.json"));
 const violations = [];
 
 if (contract.schemaVersion !== 1 || contract.node !== "N51") violations.push("N51 exit contract identity is invalid");
@@ -17,9 +18,11 @@ const applicationSource = await read("packages/gal-settings/src/application.ts")
 const webHostSource = await read("apps/player-shell/src/player-host.tsx");
 const mountSource = await read("apps/player-shell/src/mount-player.tsx");
 
-if (!settingsSource.includes(`GAL_SETTINGS_SCHEMA_VERSION = ${contract.settings.schemaVersion} as const`)) {
-  violations.push(`Gal Settings schema must be v${contract.settings.schemaVersion}`);
-}
+const currentSchema = Number(/GAL_SETTINGS_SCHEMA_VERSION = (\d+) as const/u.exec(settingsSource)?.[1]);
+const authorizedHistoryEvolution = n52HistoryAuthority.authority?.scope?.includes("gal-settings-v6-history-forward-policy-only")
+  && n52HistoryAuthority.historyPolicyContract?.field === "history.allowForwardAfterBack";
+const expectedCurrentSchema = authorizedHistoryEvolution ? contract.settings.schemaVersion + 1 : contract.settings.schemaVersion;
+if (currentSchema !== expectedCurrentSchema) violations.push(`Gal Settings current schema must be authorized v${expectedCurrentSchema}, actual v${currentSchema}`);
 if (!applicationSource.includes(`GAL_SETTINGS_APPLICATION_VERSION = ${contract.settings.applicationVersion} as const`)) {
   violations.push(`Gal Settings application must be v${contract.settings.applicationVersion}`);
 }
@@ -32,11 +35,13 @@ const definitions = [...catalogSource.matchAll(/\{\s*path:\s*"([^"]+)"[\s\S]*?le
   .map((match) => ({ path: match[1], level: match[2] }));
 const uniquePaths = new Set(definitions.map((item) => item.path));
 const basicFields = definitions.filter((item) => item.level === "basic").length;
-if (definitions.length !== contract.settings.advancedFields || uniquePaths.size !== definitions.length) {
-  violations.push(`catalog fields expected ${contract.settings.advancedFields} unique, actual ${definitions.length}/${uniquePaths.size}`);
+const expectedAdvancedFields = contract.settings.advancedFields + (authorizedHistoryEvolution ? 1 : 0);
+const expectedBasicFields = contract.settings.basicFields + (authorizedHistoryEvolution ? 1 : 0);
+if (definitions.length !== expectedAdvancedFields || uniquePaths.size !== definitions.length) {
+  violations.push(`catalog fields expected authorized ${expectedAdvancedFields} unique, actual ${definitions.length}/${uniquePaths.size}`);
 }
-if (basicFields !== contract.settings.basicFields) {
-  violations.push(`basic catalog fields expected ${contract.settings.basicFields}, actual ${basicFields}`);
+if (basicFields !== expectedBasicFields) {
+  violations.push(`basic catalog fields expected authorized ${expectedBasicFields}, actual ${basicFields}`);
 }
 
 for (const token of [
@@ -91,7 +96,8 @@ const result = {
   engineeringStatus: contract.engineeringStatus,
   productAcceptance: contract.productAcceptance,
   settings: {
-    schemaVersion: contract.settings.schemaVersion,
+    historicalExitSchemaVersion: contract.settings.schemaVersion,
+    currentSchemaVersion: currentSchema,
     applicationVersion: contract.settings.applicationVersion,
     advancedFields: definitions.length,
     basicFields,

@@ -619,7 +619,7 @@ describe("N51-E5 Player settings application", () => {
 
     view.rerender(<PlayerShell project={migrated} />);
 
-    expect(migrated.settings.schemaVersion).toBe(5);
+    expect(migrated.settings.schemaVersion).toBe(6);
     expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
     expect(screen.getByRole("group", { name: "Choose a route" })).toBeInTheDocument();
   });

@@ -82,7 +82,7 @@ describe("N51-E1 typed Gal settings", () => {
     expect(serialized.endsWith("\n")).toBe(true);
   });
 
-  it("migrates non-empty schema v1 settings through v2/v3/v4 to current v5 without changing resolved facts", () => {
+  it("migrates non-empty schema v1 settings through v2/v3/v4/v5 to current v6 without changing resolved facts", () => {
     const migrated = parseGalSettingsDocument({
       schemaVersion: 1,
       project: { text: { fontScale: 1.25 }, audio: { master: 0.75, voice: 0.6 } },
@@ -93,8 +93,9 @@ describe("N51-E1 typed Gal settings", () => {
       }
     });
 
-    expect(GAL_SETTINGS_SCHEMA_VERSION).toBe(5);
-    expect(migrated.schemaVersion).toBe(5);
+    expect(GAL_SETTINGS_SCHEMA_VERSION).toBe(6);
+    expect(migrated.schemaVersion).toBe(6);
+    expect(resolveGalSettings(migrated, "web").values.history.allowForwardAfterBack).toBe(true);
     expect(resolveGalSettings(migrated, "web")).toMatchObject({
       values: { text: { fontScale: 1.25 }, audio: { master: 0.5, voice: 0.6 } },
       sources: { "text.fontScale": "project", "audio.master": "web", "audio.voice": "project" }
@@ -106,8 +107,40 @@ describe("N51-E1 typed Gal settings", () => {
     });
 
     const firstSave = serializeGalSettingsDocument(migrated);
-    expect(firstSave).toContain('"schemaVersion": 5');
+    expect(firstSave).toContain('"schemaVersion": 6');
     expect(serializeGalSettingsDocument(parseSerializedGalSettingsDocument(firstSave))).toBe(firstSave);
+  });
+
+  it("resolves the v6 History Forward policy and keeps v1-v5 reads on the true default", () => {
+    const configured = withPlatformSettings(withProjectSettings(createGalSettingsDocument(), {
+      history: { allowForwardAfterBack: false }
+    }), "android", {
+      history: { allowForwardAfterBack: true }
+    });
+
+    expect(resolveGalSettings(configured, "web")).toMatchObject({
+      values: { history: { allowForwardAfterBack: false } },
+      sources: { "history.allowForwardAfterBack": "project" }
+    });
+    expect(resolveGalSettings(configured, "android")).toMatchObject({
+      values: { history: { allowForwardAfterBack: true } },
+      sources: { "history.allowForwardAfterBack": "android" }
+    });
+    for (const schemaVersion of [1, 2, 3, 4, 5]) {
+      expect(resolveGalSettings(parseGalSettingsDocument({
+        schemaVersion,
+        project: {},
+        platforms: { windows: {}, web: {}, android: {} }
+      }), "web").values.history.allowForwardAfterBack).toBe(true);
+    }
+  });
+
+  it("rejects a v6 History field disguised as schema v5", () => {
+    expect(() => parseGalSettingsDocument({
+      schemaVersion: 5,
+      project: { history: { allowForwardAfterBack: false } },
+      platforms: { windows: {}, web: {}, android: {} }
+    })).toThrowError(expect.objectContaining({ code: "UNKNOWN_FIELD", path: "settings.project.history" }) as GalSettingsError);
   });
 
   it("resolves v3 text and accessibility overrides with exact platform sources", () => {
@@ -201,7 +234,7 @@ describe("N51-E1 typed Gal settings", () => {
     [{ schemaVersion: 1, project: { audio: { music: 0.5 } }, platforms: { windows: {}, web: {}, android: {} } }, "UNKNOWN_FIELD", "settings.project.audio.music"],
     [{ schemaVersion: 1, project: { audio: { master: 1.1 } }, platforms: { windows: {}, web: {}, android: {} } }, "INVALID_VALUE", "settings.project.audio.master"],
     [{ schemaVersion: 1, project: {}, platforms: { windows: {}, web: {} } }, "INVALID_SCHEMA", "settings.platforms.android"],
-    [{ schemaVersion: 6, project: {}, platforms: { windows: {}, web: {}, android: {} } }, "FUTURE_SCHEMA", "settings.schemaVersion"],
+    [{ schemaVersion: 7, project: {}, platforms: { windows: {}, web: {}, android: {} } }, "FUTURE_SCHEMA", "settings.schemaVersion"],
     [{ schemaVersion: 1, project: { display: { designWidth: 1080, designHeight: 1920 } }, platforms: { windows: {}, web: {}, android: {} } }, "INVALID_COMBINATION", "settings.project.display"]
   ])("rejects invalid document %# with stable diagnostics", (input, code, path) => {
     expect(() => parseGalSettingsDocument(input)).toThrowError(expect.objectContaining({ code, path }) as GalSettingsError);

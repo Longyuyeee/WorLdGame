@@ -13,6 +13,7 @@ import {
   schedulePlayerCorePlaybackV1,
   startPlayerCore,
   loadPlayerCoreSessionSaveV1,
+  backPlayerCoreToHistoryEntryV1,
   type PlayerCoreIntentV1,
   type PlayerCoreState
 } from "./player-core";
@@ -369,6 +370,102 @@ describe("N52-E2 Player Session Save bridge", () => {
     expect(loaded.ok).toBe(true);
     if (!loaded.ok) return;
     expect(createPlayerCoreSnapshotV1(loaded.state).effects.active.some((effect) => effect.effectId === cancelledEffectId)).toBe(false);
+  });
+});
+
+describe("N52-E5c Player History user projection", () => {
+  it("projects the active Branching route and the truncated route archive from Runtime-owned stable identities", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const left = selectPlayerCoreChoice(choice, "branch_left_option");
+    const rewound = dispatchPlayerCoreIntentV1(left, project, { kind: "back" });
+    const right = selectPlayerCoreChoice(rewound, "branch_right_option");
+    const history = createPlayerCoreSnapshotV1(right).history!;
+
+    expect(history.activeEntries.map((entry) => entry.event)).toEqual([
+      expect.objectContaining({ kind: "choice", prompt: "Choose a route" }),
+      expect.objectContaining({ kind: "dialogue", text: "The bright route." })
+    ]);
+    expect(history.archives).toHaveLength(1);
+    expect(history.archives[0]).toMatchObject({
+      archiveId: expect.stringMatching(/^archive\.[0-9a-f]{64}$/u),
+      entries: [{
+        entryId: expect.stringMatching(/^entry\.[0-9a-f]{64}$/u),
+        event: { kind: "dialogue", text: "The quiet route." }
+      }]
+    });
+    expect(history.archives[0]!.entries[0]!.entryId).toBe(right.historySession!.archives[0]!.entries.find((entry) => entry.event?.kind === "dialogue")!.originalEntryId);
+    expect(createPlayerCoreSnapshotV1(backPlayerCoreToHistoryEntryV1(right, history.archives[0]!.entries[0]!.entryId))).toEqual(createPlayerCoreSnapshotV1(right));
+  });
+
+  it("preserves the active and archived projections through the real Session Save load path", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const left = selectPlayerCoreChoice(choice, "branch_left_option");
+    const rewound = dispatchPlayerCoreIntentV1(left, project, { kind: "back" });
+    const right = selectPlayerCoreChoice(rewound, "branch_right_option");
+    const saved = createPlayerCoreSessionSaveV1(right);
+    expect(saved.ok).toBe(true);
+    if (!saved.ok) return;
+    const loaded = loadPlayerCoreSessionSaveV1(createPlayerCore(project), saved.serialized);
+    expect(loaded.ok).toBe(true);
+    if (!loaded.ok) return;
+
+    expect(createPlayerCoreSnapshotV1(loaded.state).history).toEqual(createPlayerCoreSnapshotV1(right).history);
+  });
+
+  it("backs to a selected active entry by stable Runtime entry ID", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project), project);
+    const line = selectPlayerCoreChoice(choice, "branch_right_option");
+    const ending = advancePlayerCore(line);
+    const target = createPlayerCoreSnapshotV1(ending).history!.activeEntries.find((entry) => entry.event.kind === "dialogue")!;
+
+    const backed = backPlayerCoreToHistoryEntryV1(ending, target.entryId);
+    expect(createPlayerCoreSnapshotV1(backed)).toMatchObject({
+      status: "presenting",
+      presentation: { kind: "dialogue", text: "The bright route." },
+      history: { cursor: target.historyIndex + 1 }
+    });
+  });
+
+  it("enforces allowForwardAfterBack=false while preserving the recorded Runtime Forward branch", () => {
+    const project = fixture("branching");
+    const choice = startPlayerCore(createPlayerCore(project, { allowForwardAfterBack: false }), project);
+    const line = selectPlayerCoreChoice(choice, "branch_right_option");
+    const ending = advancePlayerCore(line);
+    const backed = dispatchPlayerCoreIntentV1(ending, project, { kind: "back" });
+    const before = createPlayerCoreSnapshotV1(backed);
+    const blocked = dispatchPlayerCoreIntentV1(backed, project, { kind: "forward" });
+
+    expect(before.history).toMatchObject({
+      hasForward: true,
+      canForward: false,
+      forwardPolicy: { allowForwardAfterBack: false, blocked: true }
+    });
+    expect(createPlayerCoreSnapshotV1(blocked)).toEqual(before);
+    expect(backed.historySession!.cursor).toBeLessThan(backed.historySession!.entries.length);
+  });
+
+  it("projects the nearest committed Barrier reason and its real History distance", () => {
+    const source = fixture("media");
+    const script = source.scripts.media_stage!;
+    const project: CanonicalProject = { ...source, scripts: { ...source.scripts, media_stage: { ...script, statements: [
+      { id: "published_background", kind: "direction", command: "background", summary: "asset=media_sunset action=set effectPolicy=barrier descriptorId=published-background barrierReason=Published_content_cannot_be_reversed." },
+      { id: "after_publish", kind: "narration", textId: "after_publish_text", text: "After publishing" },
+      { id: "after_publish_end", kind: "end", endingName: "Done" }
+    ] } } };
+    const waiting = startPlayerCore(createPlayerCore(project), project);
+    expect(createPlayerCoreSnapshotV1(waiting).presentation).toMatchObject({ kind: "barrier" });
+    const after = dispatchPlayerCoreIntentV1(waiting, project, { kind: "primary" });
+    const history = createPlayerCoreSnapshotV1(after).history!;
+
+    expect(history.backwardBarrier).toMatchObject({
+      descriptorId: "published-background",
+      reason: "Published_content_cannot_be_reversed.",
+      distance: expect.any(Number)
+    });
+    expect(history.backwardBarrier!.distance).toBeGreaterThan(0);
   });
 });
 

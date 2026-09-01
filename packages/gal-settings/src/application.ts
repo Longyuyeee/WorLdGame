@@ -43,6 +43,9 @@ export interface GalSettingsApplicationV1 {
     readonly reduceMotion: boolean;
     readonly reduceFlashing: boolean;
   };
+  readonly history: {
+    readonly allowForwardAfterBack: boolean;
+  };
   readonly stage: {
     readonly defaultDurationMilliseconds: number;
     readonly defaultEasing: GalStageEasingV1;
@@ -67,7 +70,7 @@ export function createGalSettingsApplicationV1(
   platform: GalSettingsPlatform
 ): GalSettingsApplicationV1 {
   const resolved = resolveGalSettings(settings, platform);
-  const { display, text, advance, stage, choice, ui, audio, input, accessibility } = resolved.values;
+  const { display, text, advance, history, stage, choice, ui, audio, input, accessibility } = resolved.values;
   return {
     version: GAL_SETTINGS_APPLICATION_VERSION,
     resolved,
@@ -78,6 +81,7 @@ export function createGalSettingsApplicationV1(
     },
     text,
     advance,
+    history,
     stage,
     choice,
     ui,

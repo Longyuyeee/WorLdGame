@@ -54,7 +54,7 @@ describe("NodeDirectoryProjectWorkspace", { timeout: WINDOWS_FILESYSTEM_TEST_TIM
     const { [settingsPath]: _, ...legacyFiles }=created.baseFiles;
     const legacyWrite=await workspace.writeFiles(legacyFiles,created.hostVersion);
     const opened=await openProject(workspace);
-    expect(opened.project?.settings).toMatchObject({schemaVersion:5,project:{},platforms:{windows:{},web:{},android:{}}});
+    expect(opened.project?.settings).toMatchObject({schemaVersion:6,project:{},platforms:{windows:{},web:{},android:{}}});
     const upgraded=await saveLifecycleProject(workspace,opened);
     expect((await workspace.readFiles()).files[settingsPath]).toBe(saveProject(opened.project!)[settingsPath]);
     expect(upgraded.hostVersion).not.toBe(legacyWrite.version);
@@ -68,10 +68,10 @@ describe("NodeDirectoryProjectWorkspace", { timeout: WINDOWS_FILESYSTEM_TEST_TIM
     await writeFile(join(root,...settingsPath.split("/")),legacySource,"utf8");
 
     const opened=await openProject(workspace);
-    expect(opened.project?.settings).toMatchObject({schemaVersion:5,project:{audio:{voice:0.6}},platforms:{windows:{audio:{master:0.5}}}});
+    expect(opened.project?.settings).toMatchObject({schemaVersion:6,project:{audio:{voice:0.6}},platforms:{windows:{audio:{master:0.5}}}});
     await saveLifecycleProject(workspace,opened);
     const firstSave=(await workspace.readFiles()).files[settingsPath]!;
-    expect(firstSave).toContain('"schemaVersion": 5');
+    expect(firstSave).toContain('"schemaVersion": 6');
     const reopened=await openProject(workspace);
     expect(reopened.project?.settings).toEqual(opened.project?.settings);
     await saveLifecycleProject(workspace,reopened);

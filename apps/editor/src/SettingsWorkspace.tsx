@@ -39,6 +39,7 @@ const SECTION_LABELS = {
   display: "显示与平台",
   text: "文本与消息窗",
   advance: "推进",
+  history: "历史记录",
   audio: "音频",
   stage: "舞台默认策略",
   choice: "选项展示",
