@@ -5,7 +5,7 @@ const blockedGates = [
   "N21 Product Acceptance", "N23 Acceptance", "N30 Product Acceptance", "N31 Product Acceptance",
   "N32 Product Acceptance", "N40 Product Acceptance", "N41 Product Acceptance", "N42 Product Acceptance",
   "N43 Product Acceptance", "N50 Product Acceptance", "N51 Product Acceptance", "N52 Product Acceptance",
-  "N60 Engineering", "M1 Stable", "Public Release"
+  "N60 Product Acceptance", "N61 Engineering", "M1 Stable", "Public Release"
 ];
 
 function exception(id: string, status: "active" | "closed", maximumDeliveryNode: string) {
@@ -20,7 +20,9 @@ function exception(id: string, status: "active" | "closed", maximumDeliveryNode:
     ...value,
     scopeAmendedAt: "2026-08-29T23:31:01+08:00",
     playbackScopeAmendedAt: "2026-08-31T16:35:00+08:00",
+    debugQaScopeAmendedAt: "2026-09-01T15:35:00+08:00",
     playbackEvidencePath: "docs/254-n52-e4d-build-stop-point-source-audit.md",
+    debugQaEvidencePath: "docs/267-n60-e1-debugger-session-audit.md",
     compensatingControls: [
       ...value.compensatingControls,
       "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
@@ -29,6 +31,8 @@ function exception(id: string, status: "active" | "closed", maximumDeliveryNode:
       ,"Permit N20 Story Language and N30 Compiler additive contract changes only for the E4d-frozen build-authored Player Stop Point source bridge"
       ,"Require Player Stop Point to use exact stable source identity, an independently versioned Player build policy artifact, unchanged Runtime IR 1.1, and the existing N31 Scheduler"
       ,"Forbid reusing Save checkpoint, Runtime History checkpoint, scene IDs, instruction indexes, or a second scheduler as Player Stop Point substitutes"
+      ,"Require N60 to reuse the formal Compiler, Runtime, Runtime History, Runtime Host, and Source Map contracts without a second interpreter or debugger-only state model"
+      ,"Require N60 creator paths to prove start targets, breakpoint continuation, step navigation, variables, call stack, visible host state, source return, desktop and mobile layout in production builds"
     ]
   };
   return value;
@@ -37,7 +41,7 @@ function exception(id: string, status: "active" | "closed", maximumDeliveryNode:
 function registry(overrides: Record<string, unknown> = {}) {
   return {
     schemaVersion: 1,
-    currentDeliveryNode: "N52",
+    currentDeliveryNode: "N60",
     exceptions: [
       exception("RA-N21-001", "closed", "N22"),
       exception("RA-N21-002", "closed", "N30"),
@@ -49,7 +53,7 @@ function registry(overrides: Record<string, unknown> = {}) {
       exception("RA-N21-008", "closed", "N43"),
       exception("RA-N21-009", "closed", "N50"),
       exception("RA-N21-010", "closed", "N51"),
-      exception("RA-N21-011", "active", "N52")
+      exception("RA-N21-011", "active", "N60")
     ],
     ...overrides
   };
@@ -58,7 +62,7 @@ function registry(overrides: Record<string, unknown> = {}) {
 describe("risk acceptance policy", () => {
   const now = new Date("2026-08-28T17:00:00+08:00");
 
-  it("accepts the bounded N52 engineering exception", () => {
+  it("accepts the bounded N60 engineering exception", () => {
     expect(validateRiskAcceptanceRegistry(registry(), now)).toEqual([]);
   });
 
@@ -66,12 +70,12 @@ describe("risk acceptance policy", () => {
     expect(validateRiskAcceptanceRegistry(registry(), new Date("2026-09-27T16:00:01+08:00"))).toContain("RA-N21-011: active exception has expired");
   });
 
-  it("accepts N52 as the maximum delivery node", () => {
-    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N52" }), now)).toEqual([]);
+  it("accepts N60 as the maximum delivery node", () => {
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N60" }), now)).toEqual([]);
   });
 
-  it("fails when delivery advances beyond N52", () => {
-    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N60" }), now)).toContain("RA-N21-011: current delivery node exceeds the accepted maximum");
+  it("fails when delivery advances beyond N60", () => {
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N61" }), now)).toContain("RA-N21-011: current delivery node exceeds the accepted maximum");
   });
 
   it("fails when N52 Product Acceptance is no longer blocked", () => {
@@ -97,5 +101,11 @@ describe("risk acceptance policy", () => {
     const value = registry();
     value.exceptions[10]!.playbackScopeAmendedAt = undefined;
     expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-011: playbackScopeAmendedAt must record the Player Stop Point authorization amendment");
+  });
+
+  it("fails when the N60 Debug QA scope amendment is removed", () => {
+    const value = registry();
+    value.exceptions[10]!.debugQaScopeAmendedAt = undefined;
+    expect(validateRiskAcceptanceRegistry(value, now)).toContain("RA-N21-011: debugQaScopeAmendedAt must record the N60 authorization amendment");
   });
 });

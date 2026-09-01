@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocolId": "N21-HV-01",
-  "protocolHash": "21dd1f8bc207545881b5d4ef1e4aae10eae3fb9634b2cf98ad0f6d9e2ef5e093",
+  "protocolHash": "a7e9b1d13fbe1ebc523df92b31c632796a32367da6c03fec795ca5f9fa7ad165",
   "sourceBaseRevision": "b86de83dbed2654d3b12b1095077694ac837807a",
   "status": "pending-participant",
   "participant": {
@@ -11,9 +11,6 @@
     "unfamiliarWithStoryScriptSyntax": null
   },
   "session": {
-    "startedAt": null,
-    "endedAt": null,
-    "durationSeconds": null,
     "inputDevices": [],
     "helpRequestCount": null,
     "blockers": [],

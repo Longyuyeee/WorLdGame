@@ -129,6 +129,7 @@
 }
 
 .workspace-header {
+  box-sizing: border-box;
   display: grid;
   width: 100%;
   min-width: 0;
@@ -4902,6 +4903,30 @@ textarea[data-input-state="composing"] {
 .debug-qa-target button:hover,
 .debug-qa-target button:focus-visible { border-color: rgb(139 124 255 / 68%); background: rgb(139 124 255 / 17%); }
 
+.debugger-session { display: grid; gap: 14px; padding: 18px; border: 1px solid rgb(139 124 255 / 24%); border-radius: 16px; background: linear-gradient(145deg, rgb(18 24 39 / 94%), rgb(11 16 27 / 94%)); }
+.debugger-session__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.debugger-session__heading h3 { margin: 3px 0 5px; font-size: 21px; }
+.debugger-session__heading p:last-child { max-width: 680px; margin: 0; color: var(--wg-color-text-muted); }
+.debugger-session__launchers,
+.debugger-session__transport { display: flex; flex-wrap: wrap; gap: 8px; }
+.debugger-session__launchers { justify-content: flex-end; }
+.debugger-session__launchers button,
+.debugger-session__transport button { min-height: 40px; border-color: rgb(139 124 255 / 34%); }
+.debugger-session__launchers button[aria-pressed="true"] { border-color: rgb(255 189 84 / 65%); background: rgb(255 189 84 / 13%); color: #ffe1a4; }
+.debugger-session__transport { padding: 10px; border-radius: 12px; background: rgb(6 10 18 / 62%); }
+.debugger-session__summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.debugger-session__summary > span { display: grid; min-width: 0; gap: 3px; padding: 10px 12px; border: 1px solid var(--wg-color-border-subtle); border-radius: 10px; background: rgb(22 29 43 / 72%); }
+.debugger-session__summary small,
+.debugger-session__inspectors small { color: var(--wg-color-text-muted); }
+.debugger-session__summary strong { overflow: hidden; font: 600 12px/1.4 "IBM Plex Mono", Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
+.debugger-session__inspectors { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.debugger-session__inspectors > section { min-width: 0; padding: 12px; border: 1px solid var(--wg-color-border-subtle); border-radius: 12px; background: rgb(14 20 31 / 74%); }
+.debugger-session__inspectors h4 { margin: 0 0 10px; }
+.debugger-session__inspectors p { margin: 0; color: var(--wg-color-text-muted); }
+.debugger-session__inspectors ul { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.debugger-session__inspectors li { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; min-width: 0; }
+.debugger-session__inspectors li span { overflow: hidden; color: var(--wg-color-text-muted); text-overflow: ellipsis; }
+
 .debug-qa-empty,
 .debug-qa-clear {
   display: flex;
@@ -5335,6 +5360,14 @@ textarea[data-input-state="composing"] {
   .debug-qa-target { align-items: stretch; flex-wrap: wrap; }
   .debug-qa-target div { flex: 1 1 calc(100% - 40px); }
   .debug-qa-target button { width: 100%; min-height: 44px; margin-left: 0; }
+  .debugger-session__heading { flex-direction: column; }
+  .debugger-session__launchers { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .debugger-session__launchers button,
+  .debugger-session__transport button { min-height: 44px; }
+  .debugger-session__transport { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .debugger-session__transport button:last-child { grid-column: 1 / -1; }
+  .debugger-session__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .debugger-session__inspectors { grid-template-columns: 1fr; }
   .debug-qa-results__heading { align-items: stretch; flex-direction: column; }
   .debug-qa-results__heading [role="radiogroup"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .debug-qa-results__heading [role="radio"] { min-height: 44px; }
@@ -5610,5 +5643,32 @@ textarea[data-input-state="composing"] {
 
   .stage-viewport {
     padding: 6px;
+  }
+}
+
+@media (max-width: 420px) {
+  .workspace-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .brand-lockup,
+  .history-actions,
+  .workspace-navigation {
+    grid-column: 1;
+    max-width: 100%;
+  }
+
+  .history-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .workspace-navigation,
+  .workspace-mode-switcher,
+  .workspace-navigation__lower,
+  .experience-switcher,
+  .motion-preference {
+    width: 100%;
+    max-width: 100%;
   }
 }

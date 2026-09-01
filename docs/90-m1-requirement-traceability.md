@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并由直接面向 main 的 Draft PR #122 聚合，候选精确头 Windows 全门绿色。N40–N52 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 checkpoint、Stop Point 与 History 窄范围修订**持续阻断 N52 Product Acceptance、N60 及以后、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，不能直接进入 N60。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并由直接面向 main 的 Draft PR #122 聚合，候选精确头 Windows 全门绿色。N40–N52 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 Debug QA 修订**只准入 N60 Engineering，持续阻断 N60 Product Acceptance、N61 及以后、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，延后到功能与整体 UI 就绪后执行。
 
 > 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
@@ -31,6 +31,8 @@
 
 > N52 main-target 集成候选（2026-09-01）：[审计 #266](266-n52-main-target-integration-candidate-audit.md)记录 main/N41 Authority 祖先检查、behind `0`、121 个开放 PR head 全部纳入，以及追加候选审计文档前 N52-E5e 基线 `463 commits / 972 files / +114135/-173` 的真实聚合审阅面；后续文档提交不冒充固定产品规模。Draft PR #122 只作为 main-target 总入口；候选头 `3ce53f5` 的 Windows run `33473899313` / job `99749040172` 用时 `12m55s` 成功，现有分片 PR 继续作为逐段索引，仍没有登记“已合入”。N21-HV-01 仍 `pending-participant 0/1`，N23-PA-01 仍 `pending-participants 0/2` 且必须等待 N21 pass；全部 Product Acceptance 与 N60 不变。
 
+> N60-E1 正式调试会话（2026-09-01）：[审计 #267](267-n60-e1-debugger-session-audit.md)复用正式 Compiler/Runtime/History/Host/Source Map，增加 Entry/当前语句启动、当前 statement 断点、Back/Forward/Step/Step Over/Continue，以及变量、调用栈和可见 Host 通道观察。新路径首次 `0/1` 精确证明产品入口缺失，修正后相关 `3 files / 4 tests`；production desktop/mobile 实测断点暂停与单步历史，移动端首次 document overflow `10px`、按真实根宽重测为 `25px`，修正 header 后为 `0`、调试按钮最小 `44px`。N21 协议取消计时通过代理且保持 `0/1`；N60 总 Engineering、全部 Product Acceptance 与 N61 不变。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。
@@ -53,7 +55,7 @@
 |---|---|---|---|---|---|
 | USP-01 | One Story, Many Views | N40–N43 | 实现中 | N43-E1b 冻结统一上下文，E5/E6 让 Production 与 Debug & QA 消费同一权威工程；E7 Mobile Focus 又以同一 stable ID 和 `patch-dialogue` 完成手机专注写入、前后句往返和保存重开。完整时间写入与 Product E2E 仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、任意工程七模式+Preview+Debugger 同源 E2E |
 | USP-02 | Mobile First Editor | N91 | 未开始 | CL-02 契约 | AND-L/AND-R 完整创作任务 |
-| USP-03 | Narrative Intelligence | N30/N60 | 实现中 | N30 Compiler 已有语句级 CFG/SCC、结构/资源/表达式诊断与 Source Map；Solver/Debugger 仍待 N60 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden、Debugger |
+| USP-03 | Narrative Intelligence | N30/N60 | 实现中 | N30 Compiler 已有语句级 CFG/SCC、结构/资源/表达式诊断与 Source Map；N60-E1 已把正式 Runtime 调试入口、单断点、单步/历史与状态观察器接入 Debug & QA。多断点、Watch、Solver 和完整 QA 报告仍缺 | [N60-E1](267-n60-e1-debugger-session-audit.md)、[N30-E2](124-n30-e2-compiler-completion-audit.md)、QA Golden |
 | USP-04 | Local First / No Lock-in | N10–N13 | 实现中 | IndexedDB 保存/恢复、备份，以及 Canonical 文档/Asset Index/源 Blob 的确定性 ZIP 自包含迁移与重载已通过 | 正式双端壳离线导入导出、Git diff、外部编辑与强杀恢复 |
 | USP-05 | Local Multi-platform Build | N80–N83 | 未开始 | 开发构建不计 | Windows 本地三端正式产物 |
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | N43-E1–E4 建立统一上下文、Beginner/Pro、Motion 与输入/同步；E5–E7 依次开放 Production、Debug & QA 与 Mobile Focus，Engineering 真实任务达到 7/7。Utage 级本地化/配音批量列、真人与商业 Product 门仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、商业演出、Benchmark Episode |
@@ -75,7 +77,7 @@
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
 | REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | N52 Engineering 已关闭：Save/Back/Forward、Auto/Skip、Stop Point、video、截断分支 archive、可选行 History、Barrier 原因和项目策略已接正式 Web Player；Windows/Android 正式宿主、实体设备与真人 Product Acceptance 仍缺 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、[N31-E6](131-n31-e6-runtime-scheduler-audit.md) |
 | REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
-| REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler/Runtime 已有 CFG/SCC、Source Map 与结构化诊断；N43-E6 已提供当前 stable ID 的正式检查、错误草稿阻断、严重级别筛选和 Sequence 定位修复闭环。仍缺断点管理、Watch、Solver、覆盖率和完整 Debugger E2E | [N43-E6](209-n43-e6-debug-qa-workspace-audit.md)、QA Golden、Debugger E2E |
+| REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | Compiler/Runtime 已有 CFG/SCC、Source Map 与结构化诊断；N60-E1 新增 Entry/当前语句启动、单 statement 断点、Back/Forward/Step/Step Over/Continue、变量/栈/可见 Host 状态，并保留 QA→Sequence 定位。仍缺多断点管理、停止原因产品化、Watch、Solver、覆盖率和完整 QA 报告 | [N60-E1](267-n60-e1-debugger-session-audit.md)、[N43-E6](209-n43-e6-debug-qa-workspace-audit.md)、QA Golden |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N50-E6 已生成消费正式 Compiler/Runtime/Player Core 的双入口 Web 工程产物并以冷 production preview 通过独立 embed 页；这不是 PWA、Windows/APK/AAB 发布包。两名参与者证据、资源构建、安装、签名和发布材料均缺 | [N50-E6](218-n50-e6-player-embed-api-audit.md)、[N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、三端 Artifact Manifest、安装/签名报告 |
 | REQ-GAL | 可搜索设置、继承/撤销/预览、完整 Gal P0、附加页模板、六类音量、三平台 Profile | N51/N52/N61/N62/N80–N83 | N10/N31/N50/N51 | 实现中 | N51 Engineering 已关闭：schema v5、Basic 23/Advanced 36、Project/UI/application/Web Host 与双 production evidence 完成，Profile 所有权已冻结。REQ-GAL 是跨节点产品需求；Player 控制=N52、本地化=N61、自动页=N62、Optimization=N70–N72、正式 Windows/Android Host 与构建=N80–N83，仍未完成 | [N51-E6 入口 #229](229-n51-e6-p0-gap-matrix-and-entry-audit.md)、[N51-E6f 出口 #235](235-n51-e6f-engineering-exit-reaudit.md)、配置追踪全覆盖 |
 | REQ-OPT | 联合预算、Profile、去重、报告、依赖、加载调度、稳定性诊断、可解释回退 | N71/N72/N102 | N70/N83 | 实现中 | 算法分散，无 Center/真机 | Optimization Golden、三端性能报告 |
@@ -88,7 +90,7 @@
 | AC-02 | 两端编辑对白/角色/选择/条件 | N91/N92 | 未开始 | N13/N21 | 双端任务 E2E |
 | AC-03 | Route/Sequence/Script/Stage 同源 | N40–N43 | 实现中 | N43-E1b 保存统一上下文，E5/E6 投影同一资源与诊断；E7 Mobile Focus 以同一 `stmt_gate_001` 写入、前后句往返并保存重开。完整时间写入仍未关闭 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、ChangeSet/Runtime 对照 |
 | AC-04 | 任一视图修改 500 ms 同步 | N43 | 实现中 | E6e 10k Route P95 `64.10ms`；N43-E4 又以真实浏览器实测对白 `r0→r1` 到 Script/Preview layout commit `26.20ms`，stable ID 不变。这里只关闭一个高频文本任务子门，不外推为任意视图/目标设备全部通过 | [N43-E4](207-n43-e4-input-sync-and-exit-audit.md)、[N40-E6e](162-n40-e6e-route-edit-sync-performance-audit.md)、完整跨视图/设备 E2E |
-| AC-05 | 任意语句预览和变量 | N32/N60 | 实现中 | Editor 正式执行、状态观察、Fresh Run、Effect/Barrier Host 与安全热更新已完成；N50-E1–E6 又建立正式 Player、媒体结构差分和公开嵌入观察值。仍缺断点/Watch、完整 Debugger E2E、像素视觉矩阵与产品验收 | [N50-E6](218-n50-e6-player-embed-api-audit.md)、[N32-E7](150-n32-e7-shared-runtime-host-audit.md)、Debugger E2E |
+| AC-05 | 任意语句预览和变量 | N32/N60 | 实现中 | Editor 正式执行、Fresh Run、Effect/Barrier Host 与安全热更新已完成；N60-E1 已提供当前语句启动、当前源码/变量/栈/可见对象和调试历史产品 UI。仍缺多断点/Watch、完整 Debugger E2E、像素视觉矩阵与产品验收 | [N60-E1](267-n60-e1-debugger-session-audit.md)、[N50-E6](218-n50-e6-player-embed-api-audit.md)、[N32-E7](150-n32-e7-shared-runtime-host-audit.md) |
 | AC-06 | 不可达结局和缺失资源 | N30/N60 | 实现中 | N30 Compiler 已拒绝不可达结局、无出口、无交互闭环和缺失资源；仍缺 N60 产品 QA 呈现、抑制与 Solver | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、QA Golden 报告 |
 | AC-07 | 三端结局/Save/Back 一致 | N31/N80–N82/N92 | 实现中 | Web 已证明 Session Save/load-only rehydrate、12 manual、auto 5、quick 1、截图 Blob 与隔离恢复；E3c3/E3c4 又关闭 build-authored marker、strict v1/v2→v3、三个 checkpoint 槽和新版 Museum。Web 默认没有正式 compositor；真实强杀与 Windows/Android Host/设备仍未完成 | [N52-E3c4](247-n52-e3c4-save-v3-checkpoint-slots-audit.md)、[N52-E3c3](246-n52-e3c3-checkpoint-marker-audit.md)、[N31-E11](137-n31-e11-runtime-session-save-audit.md)、三端 Session Save/Outcome Hash 0 差异 |
 | AC-08 | 导出后无账户离线重开 | N12/N90/N91 | 验收中 | Web 新工作区资源自包含导入、运行和重载已通过；尚待正式 Windows/Android 壳、断网设备和远端 CI 证据 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、离线导出导入 E2E |

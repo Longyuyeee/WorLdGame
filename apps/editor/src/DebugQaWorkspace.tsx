@@ -7,6 +7,18 @@ import {
   type DebugQaFindingOrigin,
   type DebugQaReport
 } from "./debug-qa-workspace";
+import {
+  advanceFormalPreview,
+  backFormalPreview,
+  createIdleFormalPreviewState,
+  forwardFormalPreview,
+  observeFormalPreview,
+  runFormalPreviewToStatement,
+  startFormalPreview,
+  startFormalPreviewFromStatement,
+  stepOverFormalPreview,
+  type FormalPreviewState
+} from "./formal-preview-runtime";
 
 interface DebugQaWorkspaceProps {
   readonly project: CanonicalProject;
@@ -45,9 +57,23 @@ function FindingCard({ finding, onOpenSource }: {
 export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onOpenSource }: DebugQaWorkspaceProps) {
   const [report, setReport] = useState<DebugQaReport | null>(null);
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
+  const [debuggerState, setDebuggerState] = useState<FormalPreviewState>(() => createIdleFormalPreviewState());
+  const [breakpoint, setBreakpoint] = useState<{ readonly sceneId: string; readonly statementId: string } | null>(null);
   const authoringDiagnostics = useMemo(() => Object.entries(diagnostics).map(([sceneId, items]) => ({ sceneId, diagnostics: items })), [diagnostics]);
   const visibleFindings = report?.findings.filter((item) => filter === "all" || item.severity === filter) ?? [];
+  const observation = useMemo(() => observeFormalPreview(debuggerState), [debuggerState]);
   const runInspection = () => setReport(runDebugQaInspection(project, authoringDiagnostics, selectedSceneId, selectedStatementId));
+  const breakpointMatchesSelection = breakpoint?.sceneId === selectedSceneId && breakpoint.statementId === selectedStatementId;
+  const continueDebugger = () => setDebuggerState((state) => {
+    if (breakpoint !== null) return runFormalPreviewToStatement(state, breakpoint.sceneId, breakpoint.statementId);
+    let current = state;
+    for (let step = 0; step < 10_000 && (current.status === "presenting" || current.status === "paused"); step += 1) {
+      const next = advanceFormalPreview(current);
+      if (next === current) break;
+      current = next;
+    }
+    return current;
+  });
 
   return <section className="debug-qa-workspace view-enter" aria-labelledby="debug-qa-workspace-title">
     <header className="debug-qa-workspace__hero">
@@ -64,6 +90,58 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
       <div><small>当前检查目标</small><strong>{selectedSceneId} / {selectedStatementId}</strong></div>
       <button type="button" onClick={() => onOpenSource(selectedSceneId, selectedStatementId)}>在 Sequence 检查当前语句</button>
     </div>
+
+    <section className="debugger-session" data-testid="debugger-session" data-status={observation.status} aria-labelledby="debugger-session-title">
+      <div className="debugger-session__heading">
+        <div>
+          <p className="eyebrow">FORMAL RUNTIME · HISTORY · SOURCE MAP</p>
+          <h3 id="debugger-session-title">调试会话</h3>
+          <p>直接运行当前 Canonical 工程；单步、历史与观察器共享正式 Runtime 状态，不建立第二套解释器。</p>
+        </div>
+        <div className="debugger-session__launchers">
+          <button type="button" onClick={() => setDebuggerState(startFormalPreview(project))}>从入口启动调试</button>
+          <button type="button" onClick={() => setDebuggerState(startFormalPreviewFromStatement(project, selectedSceneId, selectedStatementId))}>从当前语句启动</button>
+          <button
+            type="button"
+            aria-pressed={breakpointMatchesSelection}
+            onClick={() => setBreakpoint(breakpointMatchesSelection ? null : { sceneId: selectedSceneId, statementId: selectedStatementId })}
+          >{breakpointMatchesSelection ? "移除当前语句断点" : "设置当前语句断点"}</button>
+        </div>
+      </div>
+
+      <div className="debugger-session__transport" aria-label="调试控制">
+        <button type="button" onClick={() => setDebuggerState((state) => backFormalPreview(state))} disabled={!observation.history?.canBack}>后退一步</button>
+        <button type="button" onClick={() => setDebuggerState((state) => forwardFormalPreview(state))} disabled={!observation.history?.canForward}>前进一步</button>
+        <button type="button" onClick={() => setDebuggerState((state) => advanceFormalPreview(state))} disabled={observation.status !== "presenting" && observation.status !== "paused"}>单步前进</button>
+        <button type="button" onClick={() => setDebuggerState((state) => stepOverFormalPreview(state))} disabled={observation.status !== "presenting" && observation.status !== "paused"}>单步越过</button>
+        <button type="button" onClick={continueDebugger} disabled={observation.status === "idle" || observation.status === "ended" || observation.status === "error"}>继续运行</button>
+      </div>
+
+      <div className="debugger-session__summary">
+        <span><small>状态</small><strong>{observation.status}</strong></span>
+        <span data-testid="debugger-current-source"><small>当前位置</small><strong>{observation.current === null ? "尚未启动" : `${observation.current.sceneId} / ${observation.current.statementId ?? observation.current.instructionId ?? "cursor"}`}</strong></span>
+        <span><small>Opcode</small><strong>{observation.current?.opcode ?? "—"}</strong></span>
+        <span><small>State / Time</small><strong>{observation.stateRevision ?? "—"} / {observation.logicalTimeMilliseconds ?? "—"}ms</strong></span>
+        <span><small>History</small><strong>{observation.history === null ? "—" : `${observation.history.cursor}/${observation.history.length}`}</strong></span>
+        <span><small>断点</small><strong>{breakpoint === null ? "未设置" : `${breakpoint.sceneId} / ${breakpoint.statementId}`}</strong></span>
+      </div>
+
+      <div className="debugger-session__inspectors">
+        <section aria-labelledby="debugger-variables-title">
+          <h4 id="debugger-variables-title">变量</h4>
+          {observation.variables.length === 0 ? <p>当前没有变量</p> : <ul>{observation.variables.map((item) => <li key={item.id}><code>{item.id}</code><span>{item.type}</span><strong>{String(item.value)}</strong></li>)}</ul>}
+        </section>
+        <section aria-labelledby="debugger-call-stack-title">
+          <h4 id="debugger-call-stack-title">调用栈</h4>
+          {observation.callStack.length === 0 ? <p>当前在顶层场景</p> : <ul>{observation.callStack.map((item) => <li key={`${item.depth}:${item.sceneId}:${item.instructionIndex}`}><code>#{item.depth}</code><strong>{item.sceneId}</strong><span>{item.statementId ?? item.instructionId ?? item.instructionIndex}</span></li>)}</ul>}
+        </section>
+        <section aria-labelledby="debugger-visible-title">
+          <h4 id="debugger-visible-title">可见对象</h4>
+          {observation.effectHost.activeChannels.length === 0 ? <p>当前没有活动舞台通道</p> : <ul>{observation.effectHost.activeChannels.map((channel) => <li key={channel}><code>{channel}</code><strong>active</strong></li>)}</ul>}
+          <small>Host 操作 {observation.effectHost.operationCount} · 最近 {observation.effectHost.lastOperation ?? "—"}</small>
+        </section>
+      </div>
+    </section>
 
     {report === null ? <div className="debug-qa-empty">
       <strong>尚未运行检查</strong>

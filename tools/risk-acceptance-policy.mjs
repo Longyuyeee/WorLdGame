@@ -18,7 +18,8 @@ const requiredActiveBlockedGates = Object.freeze([
   "N50 Product Acceptance",
   "N51 Product Acceptance",
   "N52 Product Acceptance",
-  "N60 Engineering",
+  "N60 Product Acceptance",
+  "N61 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -65,7 +66,7 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N52") violations.push(`${prefix}: active N21 exception may not extend beyond N52`);
+      if (exception.maximumDeliveryNode !== "N60") violations.push(`${prefix}: active N21 exception must stop at N60`);
       if (prefix !== "RA-N21-011") violations.push(`${prefix}: only the approved RA-N21-011 exception may be active`);
     }
   }
@@ -90,6 +91,15 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     }
     if (!validDate(playerControlExtension.playbackScopeAmendedAt)) violations.push("RA-N21-011: playbackScopeAmendedAt must record the Player Stop Point authorization amendment");
     if (playerControlExtension.playbackEvidencePath !== "docs/254-n52-e4d-build-stop-point-source-audit.md") violations.push("RA-N21-011: Player Stop Point evidence path drifted");
+    const requiredDebugQaControls = [
+      "Require N60 to reuse the formal Compiler, Runtime, Runtime History, Runtime Host, and Source Map contracts without a second interpreter or debugger-only state model",
+      "Require N60 creator paths to prove start targets, breakpoint continuation, step navigation, variables, call stack, visible host state, source return, desktop and mobile layout in production builds"
+    ];
+    for (const control of requiredDebugQaControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N60 Debug QA scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.debugQaScopeAmendedAt)) violations.push("RA-N21-011: debugQaScopeAmendedAt must record the N60 authorization amendment");
+    if (playerControlExtension.debugQaEvidencePath !== "docs/267-n60-e1-debugger-session-audit.md") violations.push("RA-N21-011: N60 Debug QA evidence path drifted");
   }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);
