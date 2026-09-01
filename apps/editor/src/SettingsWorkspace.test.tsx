@@ -32,11 +32,11 @@ function renderSettings(project: CanonicalProject = createProjectTemplate("Setti
 describe("N51-E4 Settings workspace", () => {
   it("provides Basic/Advanced search, sections, platform layers, and visible inheritance sources", () => {
     const { container } = renderSettings(projectWithSources());
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(23);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(24);
     expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("项目值")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: "Advanced" }));
-    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(36);
+    expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(37);
     fireEvent.change(screen.getByPlaceholderText("搜索名称、说明或路径…"), { target: { value: "音量" } });
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(7);
 

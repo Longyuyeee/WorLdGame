@@ -199,13 +199,13 @@ describe("E8b IndexedDB atomic project workspace", () => {
 
     const opened = await openProject(workspace);
     expect(opened.project?.settings).toMatchObject({
-      schemaVersion: 5,
+      schemaVersion: 6,
       project: { audio: { voice: 0.6 } },
       platforms: { web: { text: { fontScale: 1.25 } } }
     });
     await saveLifecycleProject(workspace, opened);
     const firstSave = (await workspace.readFiles()).files[settingsPath]!;
-    expect(firstSave).toContain('"schemaVersion": 5');
+    expect(firstSave).toContain('"schemaVersion": 6');
     const reopened = await openProject(workspace);
     expect(reopened.project?.settings).toEqual(opened.project?.settings);
     await saveLifecycleProject(workspace, reopened);

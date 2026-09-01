@@ -67,6 +67,7 @@ export interface PlayerCoreState {
   readonly artifacts: CompilerArtifactsV1 | null;
   readonly runtimeState: RuntimeStateV1 | null;
   readonly historySession: RuntimeHistorySessionV1 | null;
+  readonly historyPolicy: PlayerCoreHistoryPolicyV1;
   readonly schedulerSession: RuntimeSchedulerSessionV1 | null;
   readonly playback: PlayerCorePlaybackSnapshotV1;
   readonly hostState: RuntimePresentationHostStateV1;
@@ -87,6 +88,37 @@ export interface PlayerCorePlaybackSnapshotV1 {
 }
 
 export type PlayerCorePlaybackPolicyV1 = RuntimeSchedulePolicyV1;
+
+export interface PlayerCoreHistoryPolicyV1 {
+  readonly allowForwardAfterBack: boolean;
+}
+
+export type PlayerHistoryVisibleEventV1 = Exclude<RuntimeEventV1,
+  { readonly kind: "direction" } | { readonly kind: "checkpoint-reached" }>;
+
+export interface PlayerHistoryEntrySnapshotV1 {
+  readonly entryId: string;
+  readonly historyIndex: number;
+  readonly position: "past" | "current" | "future";
+  readonly canNavigateBack: boolean;
+  readonly event: PlayerHistoryVisibleEventV1;
+}
+
+export interface PlayerHistoryArchiveSnapshotV1 {
+  readonly archiveId: string;
+  readonly branchPointHistoryIndex: number;
+  readonly entries: readonly {
+    readonly entryId: string;
+    readonly historyIndex: number;
+    readonly event: PlayerHistoryVisibleEventV1;
+  }[];
+}
+
+export interface PlayerHistoryBarrierSnapshotV1 {
+  readonly descriptorId: string;
+  readonly reason: string;
+  readonly distance: number;
+}
 
 export interface PlayerCheckpointSaveCandidateV1 {
   readonly stepId: string;
@@ -118,6 +150,14 @@ export interface PlayerCoreSnapshotV1 {
     readonly length: number;
     readonly canBack: boolean;
     readonly canForward: boolean;
+    readonly hasForward: boolean;
+    readonly forwardPolicy: {
+      readonly allowForwardAfterBack: boolean;
+      readonly blocked: boolean;
+    };
+    readonly backwardBarrier: PlayerHistoryBarrierSnapshotV1 | null;
+    readonly activeEntries: readonly PlayerHistoryEntrySnapshotV1[];
+    readonly archives: readonly PlayerHistoryArchiveSnapshotV1[];
   } | null;
   readonly playback: PlayerCorePlaybackSnapshotV1;
   readonly presentation:
@@ -158,6 +198,7 @@ export type PlayerCoreIntentV1 =
   | { readonly kind: "cancel" }
   | { readonly kind: "back" }
   | { readonly kind: "forward" }
+  | { readonly kind: "history-back-to"; readonly entryId: string }
   | { readonly kind: "restart" };
 
 function idlePlayback(): PlayerCorePlaybackSnapshotV1 {
@@ -224,7 +265,7 @@ function playerError(state: PlayerCoreState, code: string, message: string): Pla
   };
 }
 
-export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
+export function createPlayerCore(project: CanonicalProject, historyPolicy: PlayerCoreHistoryPolicyV1 = { allowForwardAfterBack: true }): PlayerCoreState {
   const hostState = createRuntimePresentationHostStateV1();
   const compiled = compileProject(project, "release");
   if (!compiled.ok) {
@@ -235,6 +276,7 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
       artifacts: null,
       runtimeState: null,
       historySession: null,
+      historyPolicy,
       schedulerSession: null,
       playback: idlePlayback(),
       hostState,
@@ -250,6 +292,7 @@ export function createPlayerCore(project: CanonicalProject): PlayerCoreState {
     artifacts: compiled.artifacts,
     runtimeState: null,
     historySession: null,
+    historyPolicy,
     schedulerSession: null,
     playback: idlePlayback(),
     hostState,
@@ -489,6 +532,10 @@ function eventAtHistoryCursor(history: RuntimeHistorySessionV1): RuntimeEventV1 
   return history.cursor === 0 ? null : history.entries[history.cursor - 1]?.event ?? null;
 }
 
+function visibleHistoryEvent(event: RuntimeEventV1 | null): event is PlayerHistoryVisibleEventV1 {
+  return event !== null && event.kind !== "direction" && event.kind !== "checkpoint-reached";
+}
+
 function checkpointEffects(history: RuntimeHistorySessionV1) {
   const activeByChannel = new Map<string, import("@world-studio/runtime").RuntimeEffectIntentV1>();
   for (const entry of history.entries.slice(0, history.cursor)) {
@@ -579,7 +626,25 @@ export function backPlayerCore(state: PlayerCoreState): PlayerCoreState {
 }
 
 export function forwardPlayerCore(state: PlayerCoreState): PlayerCoreState {
+  if (!state.historyPolicy.allowForwardAfterBack && state.historySession !== null && state.historySession.cursor < state.historySession.entries.length) return state;
   return navigatePlayerHistory(state, "forward");
+}
+
+export function backPlayerCoreToHistoryEntryV1(state: PlayerCoreState, entryId: string): PlayerCoreState {
+  if (state.artifacts === null || state.historySession === null) return state;
+  const target = state.historySession.entries.find((entry) => entry.entryId === entryId && visibleHistoryEvent(entry.event));
+  if (target === undefined || target.historyIndex + 1 > state.historySession.cursor) return state;
+  let current = resetPlayback(state);
+  const targetCursor = target.historyIndex + 1;
+  while (current.historySession!.cursor > targetCursor) {
+    const moved = backRuntimeHistoryV1(current.artifacts!.story, current.historySession!);
+    if (moved.diagnostics.length > 0) return playerError(current, moved.diagnostics[0]!.code, moved.diagnostics[0]!.message);
+    const hostState = reconcileRuntimePresentationHostV1(current.hostState, moved.reconciliationPlan!, checkpointEffects(moved.session));
+    current = { ...current, runtimeState: moved.state, historySession: moved.session, hostState, currentEvent: eventAtHistoryCursor(moved.session), checkpointSaveCandidates: [] };
+  }
+  const event = eventAtHistoryCursor(current.historySession!);
+  const status = navigatedStatus(current.historySession!, event);
+  return { ...current, status: status === "continue" ? current.status : status, currentEvent: event };
 }
 
 export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: CanonicalProject, intent: PlayerCoreIntentV1): PlayerCoreState {
@@ -587,12 +652,13 @@ export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: Cano
   if (intent.kind === "cancel") return settlePlayerCoreEffect(state, "cancel");
   if (intent.kind === "back") return backPlayerCore(state);
   if (intent.kind === "forward") return forwardPlayerCore(state);
-  if (intent.kind === "restart") return state.status === "ended" || state.status === "error" ? createPlayerCore(project) : state;
+  if (intent.kind === "history-back-to") return backPlayerCoreToHistoryEntryV1(state, intent.entryId);
+  if (intent.kind === "restart") return state.status === "ended" || state.status === "error" ? createPlayerCore(project, state.historyPolicy) : state;
   if (state.status === "title") return state.historySession === null ? startPlayerCore(state, project) : forwardPlayerCore(state);
   if (state.status === "presenting") return advancePlayerCore(state);
   if (state.status === "waiting-effect") return settlePlayerCoreEffect(state, "complete");
   if (state.status === "waiting-barrier") return approvePlayerCoreBarrier(state);
-  if (state.status === "ended" || state.status === "error") return createPlayerCore(project);
+  if (state.status === "ended" || state.status === "error") return createPlayerCore(project, state.historyPolicy);
   return state;
 }
 
@@ -619,6 +685,8 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
   const host = createRuntimePresentationHostSnapshotV1(state.hostState);
   const history = state.historySession;
   const previous = history === null || history.cursor === 0 ? null : history.entries[history.cursor - 1] ?? null;
+  const hasForward = history !== null && history.cursor < history.entries.length;
+  const backwardBarrier = history === null ? null : [...history.entries.slice(0, history.cursor)].reverse().find((entry) => entry.barriers.length > 0) ?? null;
   return {
     schemaVersion: 1,
     playerCoreVersion: PLAYER_CORE_VERSION,
@@ -648,7 +716,38 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
       cursor: history.cursor,
       length: history.entries.length,
       canBack: history.cursor > 0 && state.runtimeState?.pendingEffect === null && previous?.barriers.length === 0,
-      canForward: history.cursor < history.entries.length && state.runtimeState?.pendingEffect === null
+      canForward: hasForward && state.historyPolicy.allowForwardAfterBack && state.runtimeState?.pendingEffect === null,
+      hasForward,
+      forwardPolicy: {
+        allowForwardAfterBack: state.historyPolicy.allowForwardAfterBack,
+        blocked: hasForward && !state.historyPolicy.allowForwardAfterBack
+      },
+      backwardBarrier: backwardBarrier === null ? null : {
+        descriptorId: backwardBarrier.barriers.at(-1)!.descriptorId,
+        reason: backwardBarrier.barriers.at(-1)!.reason,
+        distance: history.cursor - backwardBarrier.historyIndex
+      },
+      activeEntries: history.entries.flatMap((entry): readonly PlayerHistoryEntrySnapshotV1[] => {
+        if (!visibleHistoryEvent(entry.event)) return [];
+        const targetCursor = entry.historyIndex + 1;
+        const barrierBetween = history.entries.slice(targetCursor, history.cursor).some((candidate) => candidate.barriers.length > 0);
+        return [{
+          entryId: entry.entryId,
+          historyIndex: entry.historyIndex,
+          position: targetCursor < history.cursor ? "past" : targetCursor === history.cursor ? "current" : "future",
+          canNavigateBack: targetCursor <= history.cursor && !barrierBetween,
+          event: entry.event
+        }];
+      }),
+      archives: history.archives.map((archive) => ({
+        archiveId: archive.archiveId,
+        branchPointHistoryIndex: archive.branchPointHistoryIndex,
+        entries: archive.entries.flatMap((entry) => visibleHistoryEvent(entry.event) ? [{
+          entryId: entry.originalEntryId,
+          historyIndex: entry.originalHistoryIndex,
+          event: entry.event
+        }] : [])
+      }))
     },
     playback: state.playback,
     presentation: presentation(state),

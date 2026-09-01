@@ -11,11 +11,11 @@ import {
 } from "./index";
 
 describe("N51-E2 Gal settings catalog", () => {
-  it("covers all 36 setting paths exactly once with frozen Basic/Advanced visibility", () => {
-    expect(GAL_SETTING_DEFINITIONS).toHaveLength(36);
-    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(36);
-    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(23);
-    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(36);
+  it("covers all 37 setting paths exactly once with frozen Basic/Advanced visibility", () => {
+    expect(GAL_SETTING_DEFINITIONS).toHaveLength(37);
+    expect(new Set(GAL_SETTING_DEFINITIONS.map((definition) => definition.path)).size).toBe(37);
+    expect(searchGalSettingDefinitions("", { mode: "basic" })).toHaveLength(24);
+    expect(searchGalSettingDefinitions("", { mode: "advanced" })).toHaveLength(37);
     expect(GAL_SETTING_DEFINITIONS.every((definition) =>
       definition.label.zhHans.length > 0 &&
       definition.label.en.length > 0 &&

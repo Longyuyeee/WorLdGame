@@ -1,6 +1,6 @@
 import { getGalSettingDefinition } from "./catalog";
 
-export const GAL_SETTINGS_SCHEMA_VERSION = 5 as const;
+export const GAL_SETTINGS_SCHEMA_VERSION = 6 as const;
 const GAL_SETTINGS_MIN_READABLE_SCHEMA_VERSION = 1;
 
 export const GAL_SETTINGS_PLATFORMS = ["windows", "web", "android"] as const;
@@ -27,6 +27,9 @@ export interface GalSettings {
   readonly advance: {
     readonly allowHold: boolean;
     readonly waitForVoice: boolean;
+  };
+  readonly history: {
+    readonly allowForwardAfterBack: boolean;
   };
   readonly audio: {
     readonly master: number;
@@ -129,6 +132,7 @@ export const DEFAULT_GAL_SETTINGS: GalSettings = Object.freeze({
     letterSpacingEm: 0
   }),
   advance: Object.freeze({ allowHold: true, waitForVoice: true }),
+  history: Object.freeze({ allowForwardAfterBack: true }),
   audio: Object.freeze({
     master: 1,
     bgm: 0.8,
@@ -174,10 +178,15 @@ const V4_SECTION_FIELDS = {
   stage: ["defaultDurationMilliseconds", "defaultEasing"]
 } as const;
 
-const SECTION_FIELDS = {
+const V5_SECTION_FIELDS = {
   ...V4_SECTION_FIELDS,
   choice: ["showOptionNumbers", "layout"],
   ui: ["defaultTextboxTemplate", "showInputHints"]
+} as const;
+
+const SECTION_FIELDS = {
+  ...V5_SECTION_FIELDS,
+  history: ["allowForwardAfterBack"]
 } as const satisfies { readonly [Key in Section]: readonly (keyof GalSettings[Key] & string)[] };
 
 const SETTING_PATHS = (Object.entries(SECTION_FIELDS) as Array<[Section, readonly string[]]>)
@@ -275,6 +284,16 @@ function parseAdvance(value: unknown, path: string): NonNullable<GalSettingsOver
   };
 }
 
+function parseHistory(value: unknown, path: string): NonNullable<GalSettingsOverride["history"]> {
+  const input = record(value, path);
+  assertKnownFields(input, SECTION_FIELDS.history, path);
+  return {
+    ...(input.allowForwardAfterBack === undefined ? {} : {
+      allowForwardAfterBack: settingBoolean(input.allowForwardAfterBack, `${path}.allowForwardAfterBack`, "history.allowForwardAfterBack")
+    })
+  };
+}
+
 function parseAudio(value: unknown, path: string, fields: readonly string[]): NonNullable<GalSettingsOverride["audio"]> {
   const input = record(value, path);
   assertKnownFields(input, fields, path);
@@ -330,12 +349,13 @@ function parseAccessibility(value: unknown, path: string): NonNullable<GalSettin
 
 function parseOverride(value: unknown, path: string, schemaVersion: number = GAL_SETTINGS_SCHEMA_VERSION): GalSettingsOverride {
   const input = record(value, path);
-  const sectionFields = schemaVersion >= 5 ? SECTION_FIELDS : schemaVersion >= 4 ? V4_SECTION_FIELDS : schemaVersion >= 3 ? V3_SECTION_FIELDS : LEGACY_SECTION_FIELDS;
+  const sectionFields = schemaVersion >= 6 ? SECTION_FIELDS : schemaVersion >= 5 ? V5_SECTION_FIELDS : schemaVersion >= 4 ? V4_SECTION_FIELDS : schemaVersion >= 3 ? V3_SECTION_FIELDS : LEGACY_SECTION_FIELDS;
   assertKnownFields(input, Object.keys(sectionFields), path);
   return {
     ...(input.display === undefined ? {} : { display: parseDisplay(input.display, `${path}.display`) }),
     ...(input.text === undefined ? {} : { text: parseText(input.text, `${path}.text`, sectionFields.text) }),
     ...(input.advance === undefined ? {} : { advance: parseAdvance(input.advance, `${path}.advance`) }),
+    ...(schemaVersion < 6 || input.history === undefined ? {} : { history: parseHistory(input.history, `${path}.history`) }),
     ...(input.audio === undefined ? {} : { audio: parseAudio(input.audio, `${path}.audio`, sectionFields.audio) }),
     ...(schemaVersion < 4 || input.stage === undefined ? {} : { stage: parseStage(input.stage, `${path}.stage`) }),
     ...(schemaVersion < 5 || input.choice === undefined ? {} : { choice: parseChoice(input.choice, `${path}.choice`) }),
@@ -350,6 +370,7 @@ function mergeSettings(...overrides: readonly GalSettingsOverride[]): GalSetting
     display: { ...current.display, ...override.display },
     text: { ...current.text, ...override.text },
     advance: { ...current.advance, ...override.advance },
+    history: { ...current.history, ...override.history },
     audio: { ...current.audio, ...override.audio },
     stage: { ...current.stage, ...override.stage },
     choice: { ...current.choice, ...override.choice },

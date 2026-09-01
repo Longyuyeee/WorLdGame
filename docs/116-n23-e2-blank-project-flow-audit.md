@@ -65,3 +65,5 @@ git diff --check
 > 2026-08-28 N51-E6b 演进说明：Settings schema v3 与 6 个新默认字段使现行空白工程 semantic hash 更新为 `1b014965583183698984174d4d40c96e69548327f62d8938e78a9cccb9a64cb1`；保存/重开/导出导入相等及两路线 Outcome 断言继续通过。详见[审计 #231](231-n51-e6b-text-accessibility-entry-contract.md)。
 
 > 2026-08-28 N51-E6d 演进说明：Settings schema v5 与 Choice/UI 默认字段使现行空白工程 semantic hash 更新为 `1dbb682d737663062483234b1ed17274ec4d1d209ae49ad0e4420a301833c873`；保存/重开/导出导入相等及“晨光抵达/星空抵达”两路线 Outcome 断言继续通过。详见[审计 #233](233-n51-e6d-choice-ui-presentation-policy-contract.md)。
+
+> 2026-09-01 N52-E5c 演进说明：Settings schema v6 的默认 History Forward 项目策略使现行空白工程 semantic hash 合法更新为 `e3cef645f049de26a7359a022f0026ae604218d254eede25f44928debb34b443`；正式 Story IR、保存/重开/导出导入相等与两路线 Outcome 均不变。详见[审计 #263](263-n52-e5c-gal-history-policy-player-core-projection-audit.md)。
