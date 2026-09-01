@@ -42,6 +42,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [路线图与评审门](docs/08-roadmap.md) | 阶段、里程碑、退出条件与指标 |
 | [当前开发状态审计](docs/99-current-development-status-audit.md) | 当前真实代码、能力、阻断项与下一步 |
 | [产品目标对齐与交付节奏纠偏审计](docs/262-product-goal-alignment-and-delivery-correction.md) | 最初需求复核、验证/治理偏移证据、E5 后续纵向交付规则 |
+| [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |
 | [N43-E7 Mobile Focus 与 Engineering 出口审计](docs/210-n43-e7-mobile-focus-and-engineering-exit-audit.md) | Canonical 手机专注写作、IME/触控替代、真实窄屏差异修正、七模式 7/7 与出口边界 |

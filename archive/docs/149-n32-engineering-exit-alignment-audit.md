@@ -1,6 +1,6 @@
 # N32 Engineering 出口与开发方向对齐审计
 
-> 后续更新：本文件保留 E6 时点的 `5/6` 原始审计。E7 已关闭 Editor 私有 Host 偏移并建立浏览器 Worker Host Golden；最新判定见 [N32-E7 审计](150-n32-e7-shared-runtime-host-audit.md)与 [N32 出口复审](151-n32-engineering-exit-reaudit.md)。正式 Player 与画面差分仍未完成。
+> 后续更新：本文件保留 E6 时点的 `5/6` 原始审计。E7 已关闭 Editor 私有 Host 偏移并建立浏览器 Worker Host Golden；最新判定见 [N32-E7 审计](../../docs/150-n32-e7-shared-runtime-host-audit.md)与 [N32 出口复审](../../docs/151-n32-engineering-exit-reaudit.md)。正式 Player 与画面差分仍未完成。
 
 > 日期：2026-08-21
 > 审计分支：`codex/n32-e6-preview-hot-update`
@@ -12,7 +12,7 @@
 
 ## 1. 审计问题与判定规则
 
-本审计不以提交数、测试总数或界面完成度代替产品目标，而是把 [交付计划 N32](89-engine-product-delivery-plan.md) 的六项 Implementation 和一项 Acceptance 逐条映射到实际产品入口、代码依赖、自动化、production browser 与远端 CI。状态只使用：`完整`、`部分`、`未对齐`。
+本审计不以提交数、测试总数或界面完成度代替产品目标，而是把 [交付计划 N32](../../docs/89-engine-product-delivery-plan.md) 的六项 Implementation 和一项 Acceptance 逐条映射到实际产品入口、代码依赖、自动化、production browser 与远端 CI。状态只使用：`完整`、`部分`、`未对齐`。
 
 额外核对四条方向约束：产品 Preview 必须消费 N30 Compiler/N31 Runtime；不允许平行解释器成为正式运行权威；自动化不得冒充真人；N32 Engineering 不得越权进入 N40、正式 Player 或发布。
 

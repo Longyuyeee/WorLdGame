@@ -31,7 +31,7 @@ E5 的实现提交顺序为：
 - `c018602 docs(audit): close N51 E5 engineering`；
 - `894797d docs(audit): record N51 E5 remote gate`。
 
-详细事实以 [E5 审计 #227](227-n51-e5-settings-runtime-application-audit.md)为准，机器浏览器证据为 `evidence/n51/settings-runtime-browser.json`。
+详细事实以 [E5 审计 #227](../../docs/227-n51-e5-settings-runtime-application-audit.md)为准，机器浏览器证据为 `evidence/n51/settings-runtime-browser.json`。
 
 ## 3. 最终验证事实
 
@@ -43,7 +43,7 @@ E5 的实现提交顺序为：
 
 ## 4. 本次开发情况复审发现的文档漂移
 
-代码边界没有越过 N51，但 `docs/89-engine-product-delivery-plan.md` 的 N51 Implementation 仍把 Auto、Skip、Save、History、Back 列为 N51 内容，与 [范围消歧 #220](220-n50-n52-scope-reconciliation.md)冲突。本检查点已纠正为：N51 只负责 typed configuration 与 application 边界；Save/History/Auto/Skip/Back/Forward 的玩家执行策略唯一属于 N52。
+代码边界没有越过 N51，但 `docs/89-engine-product-delivery-plan.md` 的 N51 Implementation 仍把 Auto、Skip、Save、History、Back 列为 N51 内容，与 [范围消歧 #220](../../docs/220-n50-n52-scope-reconciliation.md)冲突。本检查点已纠正为：N51 只负责 typed configuration 与 application 边界；Save/History/Auto/Skip/Back/Forward 的玩家执行策略唯一属于 N52。
 
 不得因 N51 UI 中未来可能出现相关配置字段，就在 N51 实现这些玩家执行系统。字段所有权与执行策略所有权必须分别追踪。
 
