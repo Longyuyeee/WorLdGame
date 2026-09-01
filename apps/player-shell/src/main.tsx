@@ -13,6 +13,19 @@ const project: CanonicalProject = { ...migrated, variables: { schemaVersion: 1, 
 const branchingRaw = branchingSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
 const branchingMigrated = loadProject(migrateS0Project(branchingRaw).files);
 const inputDemoProject: CanonicalProject = { ...branchingMigrated, variables: { schemaVersion: 1, variables: branchingRaw.variables ?? [] } };
+const historyDesktopDemoProject: CanonicalProject = {
+  ...inputDemoProject,
+  manifest: { ...inputDemoProject.manifest, projectId: "player_history_desktop", title: "WorLd Player · History Desktop" }
+};
+const historyMobileDemoProject: CanonicalProject = {
+  ...inputDemoProject,
+  manifest: { ...inputDemoProject.manifest, projectId: "player_history_mobile", title: "WorLd Player · History Mobile" }
+};
+const historyBlockedDemoProject: CanonicalProject = {
+  ...inputDemoProject,
+  manifest: { ...inputDemoProject.manifest, projectId: "player_history_blocked", title: "WorLd Player · History Forward Blocked" },
+  settings: withProjectSettings(inputDemoProject.settings, { history: { allowForwardAfterBack: false } })
+};
 const stopPointSceneId = inputDemoProject.manifest.entrySceneId;
 const stopPointDemoProject: CanonicalProject = {
   ...inputDemoProject,
@@ -33,6 +46,22 @@ const demoName = new URLSearchParams(window.location.search).get("demo");
 const mediaDemo = demoName === "media" || demoName === "recovery" ? createPlayerMediaDemoV1()
   : demoName === "multi" ? createPlayerMediaMultichannelDemoV1()
     : null;
+const historyBarrierDemo = demoName === "history-barrier" ? (() => {
+  const demo = createPlayerMediaDemoV1();
+  const scene = demo.project.scripts.media_stage!;
+  return {
+    ...demo,
+    project: {
+      ...demo.project,
+      manifest: { ...demo.project.manifest, projectId: "player_history_barrier", title: "WorLd Player · History Barrier" },
+      scripts: { ...demo.project.scripts, media_stage: { ...scene, statements: [
+        { id: "published_background", kind: "direction" as const, command: "background", summary: "asset=media_sunset action=set effectPolicy=barrier descriptorId=published-background barrierReason=Published_content_cannot_be_reversed." },
+        { id: "after_publish", kind: "narration" as const, textId: "after_publish_text", text: "After publishing" },
+        { id: "after_publish_end", kind: "end" as const, endingName: "Done" }
+      ] } }
+    }
+  };
+})() : null;
 
 function RecoveryDemo() {
   const demo = mediaDemo!;
@@ -167,6 +196,11 @@ createRoot(document.getElementById("root")!).render(
             ? <SettingsApplicationDemo />
           : demoName === "video"
             ? <VideoDemo />
-          : <WebPlayerHost project={demoName === "input" ? inputDemoProject : demoName === "stop" ? stopPointDemoProject : mediaDemo?.project ?? project} mediaAssets={mediaDemo?.mediaAssets ?? []} />}
+          : <WebPlayerHost project={demoName === "input" ? inputDemoProject
+            : demoName === "history-desktop" ? historyDesktopDemoProject
+              : demoName === "history-mobile" ? historyMobileDemoProject
+                : demoName === "history-blocked" ? historyBlockedDemoProject
+                  : demoName === "history-barrier" ? historyBarrierDemo!.project
+                    : demoName === "stop" ? stopPointDemoProject : mediaDemo?.project ?? project} mediaAssets={historyBarrierDemo?.mediaAssets ?? mediaDemo?.mediaAssets ?? []} />}
   </StrictMode>
 );
