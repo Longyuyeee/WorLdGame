@@ -6,7 +6,7 @@
 >
 > 直接基线：E5a 最终证据头 `788f93fb892136f045765279f240bb811e05e8a9` / Draft PR #117
 >
-> 当前判定：**E5b Runtime History v2 Engineering 已在本地实现并通过定向审计，等待精确提交的 Windows CI；Product Acceptance、E5c 与 N60 仍阻断。**
+> 当前判定：**E5b Runtime History v2 Engineering 已完成；实现头与后续交接头的 Windows / Node 22 完整门均成功。Product Acceptance 与 N60 仍阻断，后续按 #262 的纵向用户闭环方式进入 Settings/Core/Shell。**
 
 ## 1. 开发前实际代码复核与纠偏
 
@@ -26,8 +26,10 @@ E5a #259 冻结的是磁盘 schema v2，而实际公共函数和类型名中的 
 
 正式 generated corpus 保持 10,000 seeds、20,000 deterministic replays、40 shards、七类计数与零失败；因 History/Session Save 正式升至 v2，冻结 digest 从旧 v1 的 `20e9a842…92ef2` 合法变更为 `01556a8c979e080cc653817713ad26f7d2882445e9ebdc727049f415da4863a9`。用于证明未偏移 Runtime State/Outcome 的基准分别仍为 `42110c45…a8f` 与 `b03e5bec…327`，只有版本化 History/Session Save 及其汇总 digest 变化。
 
-机器合同为 `config/n52-e5b-runtime-history-v2.json`，审计命令为 `npm run audit:n52-e5b-runtime-history-v2`。完整本地 `npm run check` 已从头单次通过：普通回归 `154 files / 967 tests`，Runtime `63/63`，Player History 跨层 `90/90`，N50/N51 分别 `78/78`、`123/123`，VM `5/5` 用时 `34.25s <90s`；17 workspace build、100 portable / 4 adapters、Script `13/13`、Route `9/9`、Asset `4/4` 全绿。Route 编辑链 P95 `55.79ms <500ms`，Asset Dicing/Atlas/总计 `677.57/818.05/1495.62ms`。Editor 既有 `989.40 kB` chunk warning 继续作为拆包债，没有隐藏或提高阈值。精确提交 Windows / Node 22 证据将在本分支推送与 CI 后回填；在此之前不得开始 E5c。
+机器合同为 `config/n52-e5b-runtime-history-v2.json`，审计命令为 `npm run audit:n52-e5b-runtime-history-v2`。完整本地 `npm run check` 已从头单次通过：普通回归 `154 files / 967 tests`，Runtime `63/63`，Player History 跨层 `90/90`，N50/N51 分别 `78/78`、`123/123`，VM `5/5` 用时 `34.25s <90s`；17 workspace build、100 portable / 4 adapters、Script `13/13`、Route `9/9`、Asset `4/4` 全绿。Route 编辑链 P95 `55.79ms <500ms`，Asset Dicing/Atlas/总计 `677.57/818.05/1495.62ms`。Editor 既有 `989.40 kB` chunk warning 继续作为拆包债，没有隐藏或提高阈值。
+
+实现提交 `78a19eccbf141e19bf362028d5cc13dfad58c3f4` 已推送至 Draft PR #118；同头 Windows run `33457956272` / job `99701844659` 用时 `9m45s`，结论 `success`。交接文档头 `1a39394f02fe5090d2d2cab205c8e66cd5c1abca` 的 run `33458762331` / job `99704253946` 亦于 `12m41s` 后成功。E5b Engineering 据此关闭。
 
 ## 4. 接续点
 
-精确 E5b 提交通过 Windows CI 后，下一唯一切片是 **N52-E5c Gal Settings v6 History Forward policy + Player Core read-only projection/point navigation**。History 页面、390×844 production 与 Barrier 玩家解释属于 E5d；N52 总出口复审属于 E5e。任何 Product Acceptance、N60 或发布结论仍为 blocked。
+按[产品目标对齐与交付节奏纠偏审计 #262](262-product-goal-alignment-and-delivery-correction.md)，E5c Settings/Core 与 E5d Shell 保留内部顺序，但共同构成一个 **Player History 用户闭环**；在真实 Branching 工程完成旧分支查看、选行回退、Barrier 解释、Forward 策略差异及保存重开以前，不登记 History 产品完成。之后只进行一次 E5e 总出口复审。任何 Product Acceptance、N60 或发布结论仍为 blocked。

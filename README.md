@@ -1,11 +1,12 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-08-28
-> 当前阶段边界：N31 Engineering 已完成 VM-01–VM-15 `15/15`；N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player 与 N51 Gal Settings Engineering 出口已通过。`RA-N21-011` 只准入 N52 Player Control Engineering；全部 Product Acceptance、N60+、Android 实体包、M1 与发布继续阻断。N52-E1 已建立 History-backed Player Core、Back/Forward、Host compensation/replay、分支截断与桌面/390×844 production-browser 证据；当前后续入口是 N52-E2 Save 槽位合同，不得提前进入 Auto/Skip 或 N60+。
+> 文档基线：2026-09-01
+> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player 与 N51 Gal Settings Engineering 出口已通过；N52 E1–E4f、E5a 与 E5b Runtime History v2 Engineering 已完成。N52 总出口仍因 Player Core/Shell History、Barrier 解释与 Forward 项目策略缺口失败；下一实现是 E5 Player History 用户闭环，N60+、全部 Product Acceptance、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
+> 产品节奏纠偏：2026-09-01 [产品目标对齐审计](docs/262-product-goal-alignment-and-delivery-correction.md)确认功能语义仍对齐最初 PRD，但开发过程已过度偏向工程证明；从 E5c 起以真实用户任务、预期/实际差异和纵向可操作闭环作为主要完成判据。
 
 WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制作器，而是建立一套兼顾新手、职业编剧、美术、程序、翻译和 QA 的跨平台视觉小说生产系统。
 
@@ -40,6 +41,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [质量与发布体系](docs/07-quality-and-release.md) | 测试、性能、可访问性、安全和发布门禁 |
 | [路线图与评审门](docs/08-roadmap.md) | 阶段、里程碑、退出条件与指标 |
 | [当前开发状态审计](docs/99-current-development-status-audit.md) | 当前真实代码、能力、阻断项与下一步 |
+| [产品目标对齐与交付节奏纠偏审计](docs/262-product-goal-alignment-and-delivery-correction.md) | 最初需求复核、验证/治理偏移证据、E5 后续纵向交付规则 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |
 | [N43-E7 Mobile Focus 与 Engineering 出口审计](docs/210-n43-e7-mobile-focus-and-engineering-exit-audit.md) | Canonical 手机专注写作、IME/触控替代、真实窄屏差异修正、七模式 7/7 与出口边界 |
