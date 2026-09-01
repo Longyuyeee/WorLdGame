@@ -6,7 +6,7 @@
 >
 > 当前分支：`codex/m1-integration-n52-candidate`
 >
-> 判定：**可以建立 main-target Draft 集成候选；尚未合入 main。N21/N23 真人记录仍为 0/1、0/2，N52 Product Acceptance 与 N60 继续阻断。**
+> 判定：**main-target Draft PR #122 已建立、mergeable 且精确候选头 Windows 全门绿色；尚未合入 main。N21/N23 真人记录仍为 0/1、0/2，N52 Product Acceptance 与 N60 继续阻断。**
 
 ## 1. 本步用户目标
 
@@ -65,6 +65,6 @@
 | 构建与架构 | 17 个工作区构建、便携边界审计通过 | 17 个 build 全部成功；架构审计 PASS（portable `100`、Node adapter `4`） | 无功能差异；仅保留 Vite 对编辑器 `990.39 kB` 主 chunk 的既有 `>500 kB` 非阻断警告 |
 | 性能 | 所有既有规模与预算通过，不调宽预算 | Script `13/13`、Route `9/9`、Asset `4/4` 全部 PASS；Route rename P95 `127.11ms < 500ms`，Asset 总计 `2781.90ms < 5000ms` | 无预算差异 |
 
-以上是代码候选的工程实测，不是 N21/N23 的产品效果结论。推送后还必须由 GitHub main-target PR 在干净 Windows 环境复现同一完整门；若远端出现差异，不修改预算或记录绕过，而是保留精确提交、预期、实际与修正。
+以上是代码候选的工程实测，不是 N21/N23 的产品效果结论。推送后 GitHub 已创建直接面向 `main` 的 Draft PR #122，并将它判定为 mergeable；精确候选头 `3ce53f514b2206983c1b78c1488f1a854263f4f2` 的 Windows / Node 22 run `33473899313`、job `99749040172` 用时 `12m55s`，完整门成功。远端实际与本机预期一致，没有修改预算、测试或记录绕过差异。
 
-本步关闭条件：Draft main-target PR 已创建且 mergeable、候选头完整门绿色、文档与需求状态同步、分支推送完成。之后唯一接续动作是安排一名合格非程序参与者执行 [N21-HV-01](114-n21-human-validation-execution-kit.md)；N21 pass 后再安排两名不同非实现者执行 [N23-PA-01](121-n23-product-acceptance-execution-kit.md)。真人不可用期间保持 blocked，不进入 N60。
+本步关闭条件已满足：Draft main-target PR 已创建且 mergeable、候选头完整门绿色、文档与需求状态同步、分支已推送。之后唯一接续动作是安排一名合格非程序参与者执行 [N21-HV-01](114-n21-human-validation-execution-kit.md)；N21 pass 后再安排两名不同非实现者执行 [N23-PA-01](121-n23-product-acceptance-execution-kit.md)。真人不可用期间保持 blocked，不进入 N60。
