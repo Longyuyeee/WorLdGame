@@ -575,6 +575,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N61-E1 状态（2026-09-02）：[审计 #274](274-n61-e1-localization-production-audit.md)已在现有 Production 内接通 Canonical `localization.json`，从真实脚本抽取稳定文本键，完成源/目标语言、missing/draft/reviewed/outdated/locked、非法语言恢复、保存重开与源文变化过期。真实 App 首次 `0/1`、修正后 `1/1`；production desktop/390×844 无横向溢出且 console 为 0。N61 Engineering 尚未关闭；下一切片是 CSV/XLSX 翻译往返，不提前做配音或 P1。
 
+> N61-E2 状态（2026-09-02）：[审计 #275](275-n61-e2-localization-csv-xlsx-exchange-audit.md)完成稳定键/源文/译文/状态的真实 CSV 与 XLSX 导出、导入差异预览、显式确认和 Canonical 重开；重复/未知键、语言不符、源文变化、表头和状态错误整批阻断。产品红测首次因入口缺失为 `1/2`，修正及 FileReader 兼容纠偏后定向 `2 files / 3 tests`；production 390×844 无溢出且三个入口均 44px。下一步 N61-E3 接正式 Runtime 语言选择与回退，不提前做 Product Acceptance。
+
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 
 - **Goal**：把核心差异化自动化真正接入 Compiler 和 Player。

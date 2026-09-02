@@ -19,6 +19,14 @@ import {
   updateLocalizationTranslation,
   type LocalizationReviewStatus
 } from "./localization-production";
+import {
+  applyLocalizationImport,
+  encodeLocalizationCsv,
+  localizationExchangeMatrix,
+  parseLocalizationCsv,
+  previewLocalizationImport,
+  type LocalizationImportPreview
+} from "./localization-exchange";
 
 type ProductionStorageStatus = "loading" | "unavailable" | "ready" | "importing" | "success" | "cancelled" | "error";
 
@@ -50,6 +58,27 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function downloadLocalizationFile(data: BlobPart, type: string, fileName: string): void {
+  const url = URL.createObjectURL(new Blob([data], { type }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function readLocalizationFile(file: File, mode: "text"): Promise<string>;
+function readLocalizationFile(file: File, mode: "arrayBuffer"): Promise<ArrayBuffer>;
+function readLocalizationFile(file: File, mode: "text" | "arrayBuffer"): Promise<string | ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("文件读取失败"));
+    reader.onload = () => resolve(reader.result as string | ArrayBuffer);
+    if (mode === "text") reader.readAsText(file);
+    else reader.readAsArrayBuffer(file);
+  });
+}
+
 const PHASE_STATE_LABEL = {
   blocked: "等待前置",
   current: "当前任务",
@@ -73,6 +102,8 @@ export function ProductionWorkspace({
   const [newTargetLocale, setNewTargetLocale] = useState("");
   const [selectedLocale, setSelectedLocale] = useState(locales[0] ?? "");
   const [localizationMessage, setLocalizationMessage] = useState("");
+  const [importPreview, setImportPreview] = useState<LocalizationImportPreview | null>(null);
+  const [exchangeBusy, setExchangeBusy] = useState(false);
   useEffect(() => {
     if (selectedLocale === "" && locales[0] !== undefined) setSelectedLocale(locales[0]);
   }, [locales, selectedLocale]);
@@ -146,14 +177,79 @@ export function ProductionWorkspace({
             setSourceLocale(normalizedSource);
             setSelectedLocale(locale);
             setNewTargetLocale("");
+            setImportPreview(null);
             setLocalizationMessage(existed ? `${locale} 已存在，已切换到该语言。` : `已添加 ${locale}，可开始翻译。`);
           }}>添加目标语言</button>
-          {locales.length > 0 && <label><span>当前目标语言</span><select aria-label="当前目标语言" value={selectedLocale} onChange={(event) => setSelectedLocale(event.target.value)}>{locales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>}
+          {locales.length > 0 && <label><span>当前目标语言</span><select aria-label="当前目标语言" value={selectedLocale} onChange={(event) => { setSelectedLocale(event.target.value); setImportPreview(null); }}>{locales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>}
         </div>
         {localizationMessage !== "" && <p className="localization-production__message" role="status">{localizationMessage}</p>}
         {selectedLocale === "" ? <p className="localization-production__empty">先设定源语言并添加一个目标语言，随后可直接翻译当前工程的稳定文本。</p> : (
-          <div className="localization-production__scroll">
-            <table>
+          <>
+            <div className="localization-exchange" aria-label="翻译文件交换">
+              <button type="button" disabled={exchangeBusy} onClick={() => {
+                const csv = encodeLocalizationCsv(localizationExchangeMatrix(project, selectedLocale));
+                downloadLocalizationFile(csv, "text/csv;charset=utf-8", `localization-${selectedLocale}.csv`);
+                setLocalizationMessage(`已导出 ${selectedLocale} CSV。`);
+              }}>导出 CSV</button>
+              <button type="button" disabled={exchangeBusy} onClick={async () => {
+                setExchangeBusy(true);
+                try {
+                  const { encodeLocalizationXlsx } = await import("./localization-xlsx");
+                  const bytes = encodeLocalizationXlsx(localizationExchangeMatrix(project, selectedLocale));
+                  downloadLocalizationFile(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", `localization-${selectedLocale}.xlsx`);
+                  setLocalizationMessage(`已导出 ${selectedLocale} XLSX。`);
+                } catch (error) {
+                  setLocalizationMessage(`XLSX 导出失败：${error instanceof Error ? error.message : "未知错误"}`);
+                } finally {
+                  setExchangeBusy(false);
+                }
+              }}>导出 XLSX</button>
+              <label className="localization-exchange__import">
+                <span>{exchangeBusy ? "正在读取…" : "导入 CSV 或 XLSX"}</span>
+                <input aria-label="导入 CSV 或 XLSX" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" disabled={exchangeBusy} onChange={async (event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = "";
+                  if (file === undefined) return;
+                  setExchangeBusy(true);
+                  try {
+                    const lowerName = file.name.toLocaleLowerCase();
+                    const matrix = lowerName.endsWith(".csv")
+                      ? parseLocalizationCsv(await readLocalizationFile(file, "text"))
+                      : lowerName.endsWith(".xlsx")
+                        ? (await import("./localization-xlsx")).parseLocalizationXlsx(await readLocalizationFile(file, "arrayBuffer"))
+                        : (() => { throw new Error("仅支持 .csv 或 .xlsx 文件"); })();
+                    setImportPreview(previewLocalizationImport(project, selectedLocale, file.name, matrix));
+                  } catch (error) {
+                    setImportPreview({
+                      fileName: file.name,
+                      changes: [],
+                      unchangedCount: 0,
+                      errors: [error instanceof Error ? error.message : "文件读取失败"]
+                    });
+                  } finally {
+                    setExchangeBusy(false);
+                  }
+                }} />
+              </label>
+            </div>
+            {importPreview !== null && <section className="localization-import-preview" aria-labelledby="localization-import-preview-title">
+              <div className="localization-import-preview__heading">
+                <div><h4 id="localization-import-preview-title">翻译导入预览</h4><small>{importPreview.fileName}</small></div>
+                <strong>{importPreview.changes.length} 项更新 · {importPreview.unchangedCount} 项不变 · {importPreview.errors.length} 项错误</strong>
+              </div>
+              {importPreview.errors.length > 0 && <ul className="localization-import-preview__errors">{importPreview.errors.map((error, index) => <li key={`${error}-${index}`}>{error}</li>)}</ul>}
+              {importPreview.changes.length > 0 && <ul className="localization-import-preview__changes">{importPreview.changes.map((change) => <li key={change.key}><code>{change.key}</code><span>{change.beforeTranslation || "（空）"} → {change.translation || "（空）"}</span><small>{change.beforeStatus} → {change.status}</small></li>)}</ul>}
+              <div className="localization-import-preview__actions">
+                <button type="button" disabled={importPreview.errors.length > 0 || importPreview.changes.length === 0} onClick={() => {
+                  onProjectChange(applyLocalizationImport(project, selectedLocale, importPreview));
+                  setLocalizationMessage(`已将 ${importPreview.changes.length} 项翻译写入 ${selectedLocale}。`);
+                  setImportPreview(null);
+                }}>确认写入 {importPreview.changes.length} 项</button>
+                <button type="button" onClick={() => setImportPreview(null)}>取消导入</button>
+              </div>
+            </section>}
+            <div className="localization-production__scroll">
+              <table>
               <thead><tr><th>稳定文本键</th><th>源文</th><th>{selectedLocale} 翻译</th><th>状态</th></tr></thead>
               <tbody>{localizationTranslations(project, selectedLocale).map((entry) => {
                 const statusLabel: Record<LocalizationReviewStatus, string> = { missing: "缺失", draft: "草稿", reviewed: "已审阅", outdated: "已过期", locked: "已锁定" };
@@ -164,8 +260,9 @@ export function ProductionWorkspace({
                   <td><span className="localization-review-status" data-status={entry.status}>{statusLabel[entry.status]}</span><select aria-label={`${entry.key} 的状态`} value={entry.status === "missing" || entry.status === "outdated" ? "draft" : entry.status} disabled={entry.translation.trim() === ""} onChange={(event) => onProjectChange(updateLocalizationTranslation(project, selectedLocale, entry.key, entry.translation, event.target.value as "draft" | "reviewed" | "locked"))}><option value="draft">草稿</option><option value="reviewed">已审阅</option><option value="locked">已锁定</option></select></td>
                 </tr>;
               })}</tbody>
-            </table>
-          </div>
+              </table>
+            </div>
+          </>
         )}
       </section>
 

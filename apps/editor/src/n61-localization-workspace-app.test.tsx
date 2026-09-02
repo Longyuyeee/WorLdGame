@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { utils, write } from "xlsx";
 import type { CanonicalProject } from "@world-studio/project-domain";
 import type { StoryProject } from "@world-studio/story-core";
 import { App } from "./App";
@@ -77,4 +78,51 @@ describe("N61-E1 Localization production path", () => {
     expect(reopenedHelloRow).not.toBeNull();
     expect(within(reopenedHelloRow!).getByText("已过期")).toBeVisible();
   });
+
+  it("blocks a duplicate CSV and applies a real XLSX only after difference preview", async () => {
+    const project = projectCanonicalFromStory(localizationGoldenProject(), "n61-e2-localization-exchange");
+    let changedProject: CanonicalProject | undefined;
+    const session = render(<App initialProject={project} autosaveDebounceMs={60_000} onCanonicalProjectChange={(changed) => { changedProject = changed; }} />);
+    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    const localization = screen.getByRole("region", { name: "本地化生产" });
+    fireEvent.change(within(localization).getByRole("textbox", { name: "源语言" }), { target: { value: "zh-Hans" } });
+    fireEvent.change(within(localization).getByRole("textbox", { name: "新目标语言" }), { target: { value: "en" } });
+    fireEvent.click(within(localization).getByRole("button", { name: "添加目标语言" }));
+
+    const duplicateCsv = [
+      "key,source_locale,target_locale,source_text,translation,status,scene_id,statement_id,kind",
+      "text_hello,zh-Hans,en,欢迎回来。,Welcome back.,reviewed,scene_entry,statement_hello,dialogue",
+      "text_hello,zh-Hans,en,欢迎回来。,Duplicate,reviewed,scene_entry,statement_hello,dialogue"
+    ].join("\r\n");
+    fireEvent.change(within(localization).getByLabelText("导入 CSV 或 XLSX"), {
+      target: { files: [new File([duplicateCsv], "duplicate.csv", { type: "text/csv" })] }
+    });
+    const blockedPreview = await within(localization).findByRole("region", { name: "翻译导入预览" });
+    expect(within(blockedPreview).getByText(/重复稳定键 text_hello/)).toBeVisible();
+    expect(within(blockedPreview).getByRole("button", { name: "确认写入 0 项" })).toBeDisabled();
+
+    const sheet = utils.aoa_to_sheet([
+      ["key", "source_locale", "target_locale", "source_text", "translation", "status", "scene_id", "statement_id", "kind"],
+      ["text_hello", "zh-Hans", "en", "欢迎回来。", "Welcome back.\nGood to see you.", "reviewed", "scene_entry", "statement_hello", "dialogue"]
+    ]);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, sheet, "Localization");
+    const workbookBytes = write(workbook, { type: "array", bookType: "xlsx" });
+    fireEvent.change(within(localization).getByLabelText("导入 CSV 或 XLSX"), {
+      target: { files: [new File([workbookBytes], "translations.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })] }
+    });
+
+    const readyPreview = await within(localization).findByRole("region", { name: "翻译导入预览" });
+    await waitFor(() => expect(within(readyPreview).getByText("1 项更新 · 0 项不变 · 0 项错误")).toBeVisible());
+    expect(within(readyPreview).getByText(/Welcome back./)).toBeVisible();
+    fireEvent.click(within(readyPreview).getByRole("button", { name: "确认写入 1 项" }));
+    expect(within(localization).getByRole("textbox", { name: "text_hello 的 en 翻译" })).toHaveValue("Welcome back.\nGood to see you.");
+    expect(changedProject).toBeDefined();
+    expect(changedProject!.localization.locales[0]).toMatchObject({ locale: "en" });
+
+    session.unmount();
+    render(<App initialProject={changedProject!} autosaveDebounceMs={60_000} />);
+    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    expect(screen.getByRole("textbox", { name: "text_hello 的 en 翻译" })).toHaveValue("Welcome back.\nGood to see you.");
+  }, 30_000);
 });
