@@ -45,6 +45,8 @@ production 验证运行 production build，并在真实校园示例工程中从�
 - 其余后半段已按原脚本补跑：17 个 workspace production build、architecture、Script `13/13`、Route `9/9`、Asset `4/4` 全部通过；Route 10k 编辑 P95 `393.83ms < 500ms`，Asset Dicing 总计 `4839.99ms < 5000ms`；Editor 产物 CSS `146.69/26.02 kB`、JS `1005.20/280.96 kB`，既有 >500 kB 拆包债保留；
 - 因 autosave 与 VM 两个本机冻结门失败，本机完整门诚实记红；精确提交头 Windows CI 必须在相同预算下独立裁决，不跨提交复用旧绿色。
 
+精确实现头 `9d5d597e16ff98268cb228a07fabe70e4c699ba1` 随后由 Windows / Node 22 run `33580208407` / job `100092698639` 在 `10m17s` 内完整通过。相同预算下 autosave 实际 `2.312s < 5s`、冻结 VM 10k `40.656s < 90s`，关闭本机连续红点的环境差异；N60 `7 files / 87 tests`、普通回归 `157 files / 985 tests`、Runtime corpus `17.991s`、Route 10k 编辑 P95 `89.33ms < 500ms`、Asset Dicing 总计 `2963.54ms < 5000ms` 均为绿色。追加本段的文档头仍需自己的 CI，不跨提交复用实现头结论。
+
 ## 4. 需求与开发目标审计
 
 E3 继续服务创作者的可观察调试任务，而不是把验证、安全或治理本身作为主要产物。它补足 Gal 5.3“按步骤查看变量变化”，并让 `USP-03`、`REQ-QA`、`AC-05` 的正式 Debugger 主干增加 Watch 与变量写入来源；这些条目仍保持“实现中”。

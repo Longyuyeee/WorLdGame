@@ -35,7 +35,7 @@
 
 > N60-E2 断点集合与运行边界（2026-09-01）：[审计 #268](268-n60-e2-breakpoint-boundary-audit.md)以 stable Scene/Statement ID 实现多断点新增、启停、定位和移除；Continue 继续复用正式 Runtime/History/Source Map，并明确投影 Breakpoint、Choice、awaited Effect、Barrier、Ending 与 Error 停止原因。新增产品路径首次 `0/1`，修正中又以“预期 Choice、实际重复命中当前断点”发现并修复 transient History resume 语义；定向最终 `3 files / 19 tests`。production 真实示例工程证明命中下一断点后继续到 Choice，1440×900 与 390×844 均无横向溢出，E2 移动交互为 `44px`。本机全链仅既有 VM 10k 在 90 秒门限下为 `94.671s`、隔离 `96.507s`；未改预算，精确实现头 `4e29559` 的 Windows run `33491890189` / job `99805042362` 用时 `14m36s` 全绿，VM `69.36s`，关闭环境差异。N60 仍为实现中，下一步 E3 Watch/变量来源；Product Acceptance、N61 与真人状态不变。
 
-> N60-E3 Watch 与变量来源/变化（2026-09-02）：[审计 #270](270-n60-e3-debugger-watch-audit.md)让 Story Language parser、正式 Runtime evaluator、History checkpoint 与 Compiler IR/Source Map 共同驱动 Watch，不在 UI 建立第二求值器。产品红测首次 `0/1` 精确暴露 Watch 输入缺失；修正后聚合 `7 files / 87 tests`，production 真实工程显示表达式 `1 → 2`、依赖变量 `0 → 1`、stable 写入来源，并让非法表达式保持会话可用。390×844 根宽 `375/375`、新增交互 `44px`、console `0 error`。下一步先完成 PRD 3.10 P0 Story QA 产品闭环；Solver/覆盖率为 P1，不抢跑。
+> N60-E3 Watch 与变量来源/变化（2026-09-02）：[审计 #270](270-n60-e3-debugger-watch-audit.md)让 Story Language parser、正式 Runtime evaluator、History checkpoint 与 Compiler IR/Source Map 共同驱动 Watch，不在 UI 建立第二求值器。产品红测首次 `0/1` 精确暴露 Watch 输入缺失；修正后聚合 `7 files / 87 tests`，production 真实工程显示表达式 `1 → 2`、依赖变量 `0 → 1`、stable 写入来源，并让非法表达式保持会话可用。390×844 根宽 `375/375`、新增交互 `44px`、console `0 error`。本机 autosave/VM 冻结门保持红色后，精确实现头 `9d5d597` 的 Windows run `33580208407` / job `100092698639` 用时 `10m17s` 全绿：autosave `2.312s < 5s`、VM `40.656s < 90s`、普通回归 `157/985`。下一步先完成 PRD 3.10 P0 Story QA 产品闭环；Solver/覆盖率为 P1，不抢跑。
 
 ## 1. 状态和证据规则
 
