@@ -3,7 +3,7 @@
 > 审计日期：2026-09-02
 > 当前分支：`codex/n60-e1-debugger-session`；直接基线为 N52 main-target 集成候选头 `6ad912e02843c080f5c482dd4a075110e96a3cfd`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：历史 **RA-N21-011** 身份继续保留；2026-09-02 Localization 窄范围修订只准入 N61 Engineering，N61 Product Acceptance、N62 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
+> 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；2026-09-02 Localization 窄范围修订只准入 N61 Engineering，N61 Product Acceptance、N62 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
 > 最新节点证据：[N61-E1 本地化生产 #274](274-n61-e1-localization-production-audit.md)、[N60-E6 诊断抑制与总出口 #273](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 

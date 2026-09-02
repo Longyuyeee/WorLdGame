@@ -30,6 +30,7 @@
 | 状态 | 缺失→草稿→已审阅/锁定；源文变化过期 | 无状态产品路径 | 五种状态由当前源文、译文和审阅值共同投影 |
 | 持久化 | 保存/关闭/重开保留译文与审阅 | 无产品路径 | Canonical `localization.json` 保留；App 重建后译文仍在 |
 | 响应式 | 桌面无溢出；390×844 可操作 | 未知 | 1280 宽 `scrollWidth/clientWidth=1280/1280`；390×844 为 `375/375`，区域 351 px，顶部控件均 44 px |
+| Windows 全门 | 当前状态文档更新后历史治理仍可追溯 | 精确头 `21df3e5` 的 run `33589937190` 在 N52-E3c3 审计失败：当前状态文档缺失历史 token `RA-N21-011 checkpoint 窄范围修订` | 恢复历史身份 token，不回退 N61 当前授权；本地完整 `npm run check` 随后全绿 |
 
 ## 4. 实现结果
 
@@ -46,6 +47,7 @@
 - Editor production build：通过，CSS `151.89 kB / gzip 26.64 kB`，JS `1016.17 kB / gzip 283.70 kB`；既有大 chunk 警告未伪装成新通过项；
 - production browser：真实示例工程抽取 9 个文本键，非法语言提示、添加 `en`、翻译 `opt_broadcast`、标记已审阅并自动保存；桌面和 390×844 无横向溢出，console error/warning 为 0；
 - 风险登记与历史边界审计通过：RA-N21-011 只扩展至 N61 Engineering，N61 Product Acceptance、N62 Engineering、M1 与发布仍阻断。
+- 首次远端全门如实保留为失败而非重跑掩盖；修正后本地完整门通过：普通 `159 files / 987 tests`、N60 `8 files / 88 tests`、Runtime corpus `10,000 seeds / 20,000 replay` 零失败、VM `5/5`（53.70 秒）、Script `13/13`、Route `9/9`、Asset `4/4`，所有预算保持原值。
 
 ## 6. 需求对齐与下一接续点
 
