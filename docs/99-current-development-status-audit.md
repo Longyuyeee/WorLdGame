@@ -9,7 +9,7 @@
 
 ## 1. 当前结论
 
-2026-09-02 最新结论是：**N52 与 N60 Engineering 已关闭；N61-E1–E4 已完成语言生产/交换、正式 Player 消费及 CJK/Ruby/字体失败回退的功能代码。** E4 产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript 与 Player production build 通过；桌面/390px 实际断行视觉复验因本机没有浏览器控制接口未冒充完成证据。当前先闭合该视觉差异，再进入 N61-E5 语言专属媒体与 Voice Asset 映射。N21/N23 仍为 `0/1`、`0/2`；N61 Product Acceptance、N62 Engineering、M1 和发布继续阻断。
+2026-09-02 最新结论是：**N52 与 N60 Engineering 已关闭；N61-E1–E4 已完成语言生产/交换、正式 Player 消费及 CJK/Ruby/字体失败回退的功能代码。** E4 产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript 与 Player production build 通过；1280×720 production 实测禁止行首/行尾 `0/0`、overflow `0`，并按截图暴露的提示拥挤完成纠偏。390×844 实际断行因当前浏览器控制面不能调整视口仍未冒充完成证据。当前先闭合移动视觉差异，再进入 N61-E5。N21/N23 仍为 `0/1`、`0/2`；N61 Product Acceptance、N62 Engineering、M1 和发布继续阻断。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -181,6 +181,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 ## 6. 下一步顺序
 
 1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[最新 N61-E4 审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)；
-2. 用 `?demo=cjk-typography` 补桌面与 390×844 production 实际断行/Ruby/overflow 证据，有差异先修正；闭合后进入 N61-E5 语言专属媒体与 Voice Asset 映射；
+2. 用 `?demo=cjk-typography` 补 390×844 production 实际断行/Ruby/overflow 证据（1280×720 已闭合），有差异先修正；闭合后进入 N61-E5 语言专属媒体与 Voice Asset 映射；
 3. N60 P1 不抢跑，N60 Product Acceptance 不用 Engineering 或自动化结果替代；
 4. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。

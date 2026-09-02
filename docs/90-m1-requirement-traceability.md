@@ -49,7 +49,7 @@
 
 > N61-E3 Runtime 语言切换与回退（2026-09-02）：[审计 #276](276-n61-e3-runtime-localization-switch-audit.md)由正式 Player Core 消费 Compiler catalog，在不改变 Runtime/History/Save 的前提下即时投影当前画面和历史；缺失、非法、空白及源文过期译文回退源语言，Web 按工程恢复语言偏好。产品红测 `0/1→1/1`，受影响 `4 files / 81 tests`，production 手机 select 由 44px 修正至 48px。下一步 N61-E4 CJK/Ruby/禁则与字体回退。
 
-> N61-E4 CJK/Ruby/禁则与字体回退（2026-09-02）：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)在正式 Player 显示层把 `｜基底《注音》` 渲染为语义 Ruby，对对白、Choice、Ending、History 应用语言字体栈和严格 CJK 换行，并在项目字体加载失败时继续阅读且显示回退。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript/production build 通过；production 双视口实际断行复验仍待闭合，故 N61 保持实现中。
+> N61-E4 CJK/Ruby/禁则与字体回退（2026-09-02）：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)在正式 Player 显示层把 `｜基底《注音》` 渲染为语义 Ruby，对对白、Choice、Ending、History 应用语言字体栈和严格 CJK 换行，并在项目字体加载失败时继续阅读且显示回退。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript/production build 通过；1280×720 production 禁止行首/行尾与 overflow 均为 `0`，字体提示拥挤已按真实截图纠偏；390×844 实际断行仍待闭合，故 N61 保持实现中。
 
 ## 1. 状态和证据规则
 

@@ -1202,6 +1202,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             </>}
           </aside>
         )}
+        {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">
+          {fontStatus === "ready" ? `${typography.projectFont.displayName} · 项目字体已加载`
+            : fontStatus === "loading" ? `${typography.projectFont.displayName} · 正在加载项目字体`
+              : `${typography.projectFont.displayName} 加载失败，已回退到 ${typography.locale} 可读字体`}
+        </output>}
         <div className="player-playback-controls" aria-label="播放控制">
           {snapshot.localization.availableLocales.length > 1 && <>
             <label className="player-locale-control">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
@@ -1215,11 +1220,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 ? `${snapshot.localization.selectedLocale} · ${snapshot.localization.missingTranslationCount} 项缺失译文继续显示 ${snapshot.localization.sourceLocale} 原文`
                 : `${snapshot.localization.selectedLocale} · 翻译完整`}</span>
           </>}
-          {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">
-            {fontStatus === "ready" ? `${typography.projectFont.displayName} · 项目字体已加载`
-              : fontStatus === "loading" ? `${typography.projectFont.displayName} · 正在加载项目字体`
-                : `${typography.projectFont.displayName} 加载失败，已回退到 ${typography.locale} 可读字体`}
-          </output>}
           <button
             type="button"
             aria-label="自动播放"

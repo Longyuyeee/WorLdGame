@@ -171,7 +171,7 @@ button { font: inherit; }
 .player-typography-text { overflow-wrap: anywhere; font-family: var(--player-font-family, "Noto Sans", system-ui, sans-serif); line-break: strict; word-break: normal; hanging-punctuation: allow-end; }
 .player-typography-text ruby { ruby-align: space-around; ruby-position: over; }
 .player-typography-text rt { font-size: .5em; font-weight: 600; letter-spacing: 0; }
-.player-font-status { max-width: 240px; color: rgba(255,255,255,.58); font-size: 10px; line-height: 1.35; }
+.player-font-status { position: absolute; z-index: 5; top: 104px; left: 24px; max-width: min(320px, calc(100% - 48px)); padding: 8px 11px; border: 1px solid rgba(251,191,36,.24); border-radius: 10px; color: rgba(254,243,199,.82); font-size: 10px; line-height: 1.35; background: rgba(38,25,8,.72); backdrop-filter: blur(16px); }
 .player-dialogue i { position: absolute; right: 24px; bottom: 14px; color: #67e8f9; font-style: normal; animation: player-pulse 1.4s ease-in-out infinite; }
 .player-dialogue--nvl { top: 90px; bottom: 30px; left: 30px; width: min(520px, calc(100% - 60px)); align-content: end; }
 .player-dialogue--bubble { right: 8%; bottom: 18%; left: auto; width: min(440px, 84%); min-height: 118px; border-radius: 30px 30px 8px 30px; }
@@ -235,6 +235,7 @@ button { font: inherit; }
   .player-history-panel > header button { min-height: 48px; }
   .player-history-list li > button, .player-history-list li > div { min-height: 52px; }
   .player-playback-controls { position: fixed; z-index: 30; top: calc(max(14px, env(safe-area-inset-top)) + 62px); right: max(14px, env(safe-area-inset-right)); padding: 4px; }
+  .player-font-status { position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 132px); right: auto; left: max(14px, env(safe-area-inset-left)); max-width: calc(100vw - 28px); }
   .player-playback-controls { max-width: calc(100vw - 28px); flex-wrap: wrap; justify-content: flex-end; }
   .player-playback-controls button { min-width: 58px; min-height: 48px; }
   .player-playback-controls label { min-width: 58px; }

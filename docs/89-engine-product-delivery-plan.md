@@ -579,7 +579,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N61-E3 状态（2026-09-02）：[审计 #276](276-n61-e3-runtime-localization-switch-audit.md)让正式 Player Core 消费 Compiler localization catalog，在 snapshot 层投影对白、旁白、Choice、Ending 与 History；缺失、非法和过期条目回退源文且 Shell 显示数量。红测 `0/1` 精确暴露 Player 无语言入口；修正后受影响 Core/Shell `4 files / 81 tests`，源/目标语言 Runtime hash 相同，Web 按工程恢复偏好。production 390×844 页面 `390/390`、select 纠偏至 48px。下一步 N61-E4 CJK/Ruby/禁则与字体回退。
 
-> N61-E4 状态（2026-09-02）：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)已在正式 Player 显示层实现显式 Ruby、语言字体栈、严格 CJK 换行及项目字体失败的可见回退，并覆盖对白/旁白、Choice、Ending、History。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript 与 Player production build 通过。当前机器没有浏览器控制接口，故双视口实际断行/Ruby/overflow 证据明确待补；闭合后进入 N61-E5 语言专属媒体与 Voice Asset 映射，不提前关闭 N61 Engineering 或 Product Acceptance。
+> N61-E4 状态（2026-09-02）：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)已在正式 Player 显示层实现显式 Ruby、语言字体栈、严格 CJK 换行及项目字体失败的可见回退，并覆盖对白/旁白、Choice、Ending、History。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript 与 Player production build 通过。1280×720 production 实测禁止行首/行尾 `0/0`、overflow `0`，并修正截图发现的字体提示挤压控制条；390×844 视口仍待可调整视口的浏览器环境闭合。完成后进入 N61-E5，不提前关闭 N61 Engineering 或 Product Acceptance。
 
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 

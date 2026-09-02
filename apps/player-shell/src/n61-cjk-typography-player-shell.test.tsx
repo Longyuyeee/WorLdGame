@@ -37,7 +37,9 @@ describe("N61-E4 CJK Player typography path", () => {
     const text = container.querySelector(".player-dialogue__text");
     expect(text).toHaveAttribute("lang", "ja");
     expect(text).toHaveAttribute("data-cjk-line-break", "strict");
-    expect(await screen.findByRole("status", { name: "字体状态" })).toHaveTextContent("Project Japanese 加载失败，已回退");
+    const fontStatus = await screen.findByRole("status", { name: "字体状态" });
+    expect(fontStatus).toHaveTextContent("Project Japanese 加载失败，已回退");
+    expect(fontStatus.closest(".player-playback-controls")).toBeNull();
     expect(container.querySelector(".player-shell")).toHaveAttribute("data-player-font", "fallback");
   });
 });
