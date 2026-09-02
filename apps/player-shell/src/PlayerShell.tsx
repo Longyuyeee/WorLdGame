@@ -14,6 +14,7 @@ import {
   createPlayerCore,
   createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
+  configurePlayerCoreLocaleV1,
   configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
   loadPlayerCoreSessionSaveV1,
@@ -138,9 +139,31 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
 }
 
+function playerLocalePreferenceKey(projectId: string): string {
+  return `world-player.locale.${projectId}`;
+}
+
+function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1]) {
+  const core = createPlayerCore(project, historyPolicy);
+  try {
+    const preferred = globalThis.localStorage?.getItem(playerLocalePreferenceKey(project.manifest.projectId));
+    return preferred === null || preferred === undefined ? core : configurePlayerCoreLocaleV1(core, preferred);
+  } catch {
+    return core;
+  }
+}
+
+function storePlayerLocalePreference(projectId: string, locale: string): void {
+  try {
+    globalThis.localStorage?.setItem(playerLocalePreferenceKey(projectId), locale);
+  } catch {
+    // Player preferences are fail-soft; the active session still switches language.
+  }
+}
+
 export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 }: PlayerShellProps) {
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
-  const [state, setState] = useState(() => createPlayerCore(project, settingsApplication.history));
+  const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
@@ -438,7 +461,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     autoSavedSceneIdentities.current.clear();
     consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
-    setState(createPlayerCore(project, settingsApplication.history));
+    setState(createLocalizedPlayerCore(project, settingsApplication.history));
     setMediaErrors([]);
     setMediaGeneration(0);
     setSelectedChoiceIndex(0);
@@ -859,6 +882,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     <main
       className="player-shell"
       data-player-status={snapshot.status}
+      data-player-locale={snapshot.localization.selectedLocale}
+      data-player-locale-fallbacks={snapshot.localization.missingTranslationCount}
       data-player-core={snapshot.playerCoreVersion}
       data-compiler={snapshot.identities.compilerVersion}
       data-runtime={snapshot.identities.runtimeVersion}
@@ -1129,6 +1154,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           </aside>
         )}
         <div className="player-playback-controls" aria-label="播放控制">
+          {snapshot.localization.availableLocales.length > 1 && <>
+            <label className="player-locale-control">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
+              const locale = event.target.value;
+              setState((current) => configurePlayerCoreLocaleV1(current, locale));
+              storePlayerLocalePreference(project.manifest.projectId, locale);
+            }}>{snapshot.localization.availableLocales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>
+            <span role="status" aria-label="语言状态">{snapshot.localization.selectedLocale === snapshot.localization.sourceLocale
+              ? `${snapshot.localization.sourceLocale} · 工程源语言`
+              : snapshot.localization.missingTranslationCount > 0
+                ? `${snapshot.localization.selectedLocale} · ${snapshot.localization.missingTranslationCount} 项缺失译文继续显示 ${snapshot.localization.sourceLocale} 原文`
+                : `${snapshot.localization.selectedLocale} · 翻译完整`}</span>
+          </>}
           <button
             type="button"
             aria-label="自动播放"

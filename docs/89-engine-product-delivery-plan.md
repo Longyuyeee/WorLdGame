@@ -577,6 +577,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N61-E2 状态（2026-09-02）：[审计 #275](275-n61-e2-localization-csv-xlsx-exchange-audit.md)完成稳定键/源文/译文/状态的真实 CSV 与 XLSX 导出、导入差异预览、显式确认和 Canonical 重开；重复/未知键、语言不符、源文变化、表头和状态错误整批阻断。产品红测首次因入口缺失为 `1/2`，修正及 FileReader 兼容纠偏后定向 `2 files / 3 tests`；production 390×844 无溢出且三个入口均 44px。下一步 N61-E3 接正式 Runtime 语言选择与回退，不提前做 Product Acceptance。
 
+> N61-E3 状态（2026-09-02）：[审计 #276](276-n61-e3-runtime-localization-switch-audit.md)让正式 Player Core 消费 Compiler localization catalog，在 snapshot 层投影对白、旁白、Choice、Ending 与 History；缺失、非法和过期条目回退源文且 Shell 显示数量。红测 `0/1` 精确暴露 Player 无语言入口；修正后受影响 Core/Shell `4 files / 81 tests`，源/目标语言 Runtime hash 相同，Web 按工程恢复偏好。production 390×844 页面 `390/390`、select 纠偏至 48px。下一步 N61-E4 CJK/Ruby/禁则与字体回退。
+
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 
 - **Goal**：把核心差异化自动化真正接入 Compiler 和 Player。

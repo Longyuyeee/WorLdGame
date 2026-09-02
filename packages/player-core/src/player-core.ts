@@ -4,7 +4,7 @@ import {
   type CompilerArtifactsV1,
   type CompilerDiagnostic
 } from "@world-studio/project-compiler";
-import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
+import type { CanonicalProject, JsonObject, JsonValue } from "@world-studio/project-domain";
 import {
   RUNTIME_VERSION,
   advanceRuntimeHistoryV1,
@@ -68,12 +68,18 @@ export interface PlayerCoreState {
   readonly runtimeState: RuntimeStateV1 | null;
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly historyPolicy: PlayerCoreHistoryPolicyV1;
+  readonly localization: PlayerCoreLocalizationStateV1;
   readonly schedulerSession: RuntimeSchedulerSessionV1 | null;
   readonly playback: PlayerCorePlaybackSnapshotV1;
   readonly hostState: RuntimePresentationHostStateV1;
   readonly currentEvent: RuntimeEventV1 | null;
   readonly checkpointSaveCandidates: readonly PlayerCheckpointSaveCandidateV1[];
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
+}
+
+export interface PlayerCoreLocalizationStateV1 {
+  readonly sourceLocale: string;
+  readonly selectedLocale: string;
 }
 
 export interface PlayerCorePlaybackSnapshotV1 {
@@ -140,6 +146,13 @@ export interface PlayerCoreSnapshotV1 {
   };
   readonly title: string;
   readonly status: PlayerCoreStatus;
+  readonly localization: {
+    readonly sourceLocale: string;
+    readonly selectedLocale: string;
+    readonly availableLocales: readonly string[];
+    readonly missingTranslationCount: number;
+    readonly fallbackUsed: boolean;
+  };
   readonly effects: {
     readonly active: readonly PlayerCoreEffectSnapshotV1[];
     readonly pending: PlayerCoreEffectSnapshotV1 | null;
@@ -234,6 +247,67 @@ function initialVariables(project: CanonicalProject): Readonly<Record<string, Ru
   }));
 }
 
+function objectValue(value: JsonValue | undefined): JsonObject | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? value as JsonObject : undefined;
+}
+
+function stringValue(value: JsonValue | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function availablePlayerLocales(state: PlayerCoreState): readonly string[] {
+  const targets = state.artifacts?.catalogs.localization.flatMap((record) => {
+    const locale = stringValue(record.locale);
+    return stringValue(record.sourceLocale) === state.localization.sourceLocale && locale !== undefined ? [locale] : [];
+  }) ?? [];
+  return [state.localization.sourceLocale, ...targets].filter((locale, index, values) => values.indexOf(locale) === index);
+}
+
+function localeEntries(state: PlayerCoreState): ReadonlyMap<string, JsonObject> {
+  if (state.localization.selectedLocale === state.localization.sourceLocale) return new Map();
+  const record = state.artifacts?.catalogs.localization.find((candidate) =>
+    stringValue(candidate.locale) === state.localization.selectedLocale && stringValue(candidate.sourceLocale) === state.localization.sourceLocale
+  );
+  const entries = Array.isArray(record?.entries) ? record.entries : [];
+  return new Map(entries.flatMap((value) => {
+    const entry = objectValue(value);
+    const key = stringValue(entry?.key);
+    return entry === undefined || key === undefined ? [] : [[key, entry] as const];
+  }));
+}
+
+function translatedPlayerText(state: PlayerCoreState, entries: ReadonlyMap<string, JsonObject>, key: string, sourceText: string): { readonly text: string; readonly fallback: boolean } {
+  if (state.localization.selectedLocale === state.localization.sourceLocale) return { text: sourceText, fallback: false };
+  const entry = entries.get(key);
+  const translation = stringValue(entry?.translation);
+  const status = stringValue(entry?.status);
+  const valid = translation !== undefined && translation.trim() !== "" && stringValue(entry?.sourceText) === sourceText && (status === "draft" || status === "reviewed" || status === "locked");
+  return valid ? { text: translation, fallback: false } : { text: sourceText, fallback: true };
+}
+
+function playerSourceTexts(state: PlayerCoreState): readonly { readonly key: string; readonly text: string }[] {
+  return state.artifacts?.story.scenes.flatMap((scene) => scene.instructions.flatMap((instruction) => {
+    const operands = instruction.operands;
+    if (instruction.opcode === "dialogue" || instruction.opcode === "narration") {
+      const key = stringValue(operands.textId); const text = stringValue(operands.text);
+      return key === undefined || text === undefined ? [] : [{ key, text }];
+    }
+    if (instruction.opcode === "choice") {
+      const prompt = stringValue(operands.prompt);
+      const options = Array.isArray(operands.options) ? operands.options.flatMap((value) => {
+        const option = objectValue(value); const key = stringValue(option?.optionId); const text = stringValue(option?.label);
+        return key === undefined || text === undefined ? [] : [{ key, text }];
+      }) : [];
+      return [...(prompt === undefined ? [] : [{ key: instruction.instructionId, text: prompt }]), ...options];
+    }
+    if (instruction.opcode === "end") {
+      const key = stringValue(operands.endingId); const text = stringValue(operands.name);
+      return key === undefined || text === undefined ? [] : [{ key, text }];
+    }
+    return [];
+  })) ?? [];
+}
+
 function compilerDiagnostic(item: CompilerDiagnostic): PlayerCoreDiagnostic {
   return {
     origin: "compiler",
@@ -277,6 +351,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
       runtimeState: null,
       historySession: null,
       historyPolicy,
+      localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
       schedulerSession: null,
       playback: idlePlayback(),
       hostState,
@@ -293,6 +368,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
     runtimeState: null,
     historySession: null,
     historyPolicy,
+    localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
     schedulerSession: null,
     playback: idlePlayback(),
     hostState,
@@ -430,6 +506,12 @@ export function configurePlayerCoreHistoryPolicyV1(state: PlayerCoreState, histo
   return state.historyPolicy.allowForwardAfterBack === historyPolicy.allowForwardAfterBack
     ? state
     : { ...state, historyPolicy };
+}
+
+export function configurePlayerCoreLocaleV1(state: PlayerCoreState, locale: string): PlayerCoreState {
+  return locale === state.localization.selectedLocale || !availablePlayerLocales(state).includes(locale)
+    ? state
+    : { ...state, localization: { ...state.localization, selectedLocale: locale } };
 }
 
 function playbackSnapshot(policy: RuntimeSchedulePolicyV1, stopReason: RuntimeScheduleStopReasonV1, executedInstructions: number, session: RuntimeSchedulerSessionV1, autoAdvanceDelayMilliseconds: number | null): PlayerCorePlaybackSnapshotV1 {
@@ -659,32 +741,65 @@ export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: Cano
   if (intent.kind === "back") return backPlayerCore(state);
   if (intent.kind === "forward") return forwardPlayerCore(state);
   if (intent.kind === "history-back-to") return backPlayerCoreToHistoryEntryV1(state, intent.entryId);
-  if (intent.kind === "restart") return state.status === "ended" || state.status === "error" ? createPlayerCore(project, state.historyPolicy) : state;
+  if (intent.kind === "restart") return state.status === "ended" || state.status === "error"
+    ? configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale)
+    : state;
   if (state.status === "title") return state.historySession === null ? startPlayerCore(state, project) : forwardPlayerCore(state);
   if (state.status === "presenting") return advancePlayerCore(state);
   if (state.status === "waiting-effect") return settlePlayerCoreEffect(state, "complete");
   if (state.status === "waiting-barrier") return approvePlayerCoreBarrier(state);
-  if (state.status === "ended" || state.status === "error") return createPlayerCore(project, state.historyPolicy);
+  if (state.status === "ended" || state.status === "error") return configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale);
   return state;
 }
 
-function presentation(state: PlayerCoreState): PlayerCoreSnapshotV1["presentation"] {
-  if (state.status === "title") return { kind: "title" };
-  if (state.status === "error") return { kind: "error", diagnostics: state.diagnostics };
+function presentation(state: PlayerCoreState): { readonly value: PlayerCoreSnapshotV1["presentation"]; readonly fallbackUsed: boolean } {
+  if (state.status === "title") return { value: { kind: "title" }, fallbackUsed: false };
+  if (state.status === "error") return { value: { kind: "error", diagnostics: state.diagnostics }, fallbackUsed: false };
   if (state.status === "waiting-effect" && state.runtimeState?.pendingEffect !== null && state.runtimeState?.pendingEffect !== undefined) {
-    return { kind: "effect", descriptorId: state.runtimeState.pendingEffect.descriptorId, canCancel: true };
+    return { value: { kind: "effect", descriptorId: state.runtimeState.pendingEffect.descriptorId, canCancel: true }, fallbackUsed: false };
   }
   if (state.status === "waiting-barrier" && state.runtimeState?.pendingBarrier !== null && state.runtimeState?.pendingBarrier !== undefined) {
-    return { kind: "barrier", descriptorId: state.runtimeState.pendingBarrier.descriptorId, reason: state.runtimeState.pendingBarrier.reason };
+    return { value: { kind: "barrier", descriptorId: state.runtimeState.pendingBarrier.descriptorId, reason: state.runtimeState.pendingBarrier.reason }, fallbackUsed: false };
   }
   const event = state.currentEvent;
-  if (event?.kind === "dialogue") return { kind: "dialogue", speakerId: event.speakerId, textId: event.textId, text: event.text };
-  if (event?.kind === "narration") return { kind: "narration", textId: event.textId, text: event.text };
-  if (event?.kind === "choice") return { kind: "choice", prompt: event.prompt, options: event.options.map(({ optionId, label }) => ({ optionId, label })) };
-  if (event?.kind === "wait") return { kind: "wait", durationMilliseconds: event.durationMilliseconds };
-  if (event?.kind === "ending") return { kind: "ending", endingId: event.endingId, name: event.name };
-  if (state.runtimeState?.terminal.kind === "ended") return { kind: "ending", endingId: state.runtimeState.terminal.endingId, name: state.runtimeState.terminal.name };
-  return { kind: "error", diagnostics: [...state.diagnostics, { origin: "player", code: "PLAYER_PRESENTATION_MISSING", message: "Player Core reached a state without a presentable boundary", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
+  const entries = localeEntries(state);
+  if (event?.kind === "dialogue") {
+    const text = translatedPlayerText(state, entries, event.textId, event.text);
+    return { value: { kind: "dialogue", speakerId: event.speakerId, textId: event.textId, text: text.text }, fallbackUsed: text.fallback };
+  }
+  if (event?.kind === "narration") {
+    const text = translatedPlayerText(state, entries, event.textId, event.text);
+    return { value: { kind: "narration", textId: event.textId, text: text.text }, fallbackUsed: text.fallback };
+  }
+  if (event?.kind === "choice") {
+    const prompt = translatedPlayerText(state, entries, event.instructionId, event.prompt);
+    const options = event.options.map(({ optionId, label }) => ({ optionId, ...translatedPlayerText(state, entries, optionId, label) }));
+    return { value: { kind: "choice", prompt: prompt.text, options: options.map(({ optionId, text }) => ({ optionId, label: text })) }, fallbackUsed: prompt.fallback || options.some((option) => option.fallback) };
+  }
+  if (event?.kind === "wait") return { value: { kind: "wait", durationMilliseconds: event.durationMilliseconds }, fallbackUsed: false };
+  if (event?.kind === "ending") {
+    const name = translatedPlayerText(state, entries, event.endingId, event.name);
+    return { value: { kind: "ending", endingId: event.endingId, name: name.text }, fallbackUsed: name.fallback };
+  }
+  if (state.runtimeState?.terminal.kind === "ended") {
+    const terminal = state.runtimeState.terminal;
+    const name = translatedPlayerText(state, entries, terminal.endingId, terminal.name);
+    return { value: { kind: "ending", endingId: terminal.endingId, name: name.text }, fallbackUsed: name.fallback };
+  }
+  return { value: { kind: "error", diagnostics: [...state.diagnostics, { origin: "player", code: "PLAYER_PRESENTATION_MISSING", message: "Player Core reached a state without a presentable boundary", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] }, fallbackUsed: false };
+}
+
+function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisibleEventV1): PlayerHistoryVisibleEventV1 {
+  const entries = localeEntries(state);
+  if (event.kind === "dialogue") return { ...event, text: translatedPlayerText(state, entries, event.textId, event.text).text };
+  if (event.kind === "narration") return { ...event, text: translatedPlayerText(state, entries, event.textId, event.text).text };
+  if (event.kind === "choice") return {
+    ...event,
+    prompt: translatedPlayerText(state, entries, event.instructionId, event.prompt).text,
+    options: event.options.map((option) => ({ ...option, label: translatedPlayerText(state, entries, option.optionId, option.label).text }))
+  };
+  if (event.kind === "ending") return { ...event, name: translatedPlayerText(state, entries, event.endingId, event.name).text };
+  return event;
 }
 
 export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSnapshotV1 {
@@ -693,6 +808,9 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
   const previous = history === null || history.cursor === 0 ? null : history.entries[history.cursor - 1] ?? null;
   const hasForward = history !== null && history.cursor < history.entries.length;
   const backwardBarrier = history === null ? null : [...history.entries.slice(0, history.cursor)].reverse().find((entry) => entry.barriers.length > 0) ?? null;
+  const presented = presentation(state);
+  const entries = localeEntries(state);
+  const missingTranslationCount = state.localization.selectedLocale === state.localization.sourceLocale ? 0 : playerSourceTexts(state).filter(({ key, text }) => translatedPlayerText(state, entries, key, text).fallback).length;
   return {
     schemaVersion: 1,
     playerCoreVersion: PLAYER_CORE_VERSION,
@@ -705,6 +823,13 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
     },
     title: state.title,
     status: state.status,
+    localization: {
+      sourceLocale: state.localization.sourceLocale,
+      selectedLocale: state.localization.selectedLocale,
+      availableLocales: availablePlayerLocales(state),
+      missingTranslationCount,
+      fallbackUsed: presented.fallbackUsed
+    },
     effects: {
       active: host.snapshot.activeChannels.map(({ effect }) => effectSnapshot(effect)),
       pending: state.runtimeState?.pendingEffect === null || state.runtimeState?.pendingEffect === undefined
@@ -742,7 +867,7 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
           historyIndex: entry.historyIndex,
           position: targetCursor < history.cursor ? "past" : targetCursor === history.cursor ? "current" : "future",
           canNavigateBack: targetCursor <= history.cursor && !barrierBetween,
-          event: entry.event
+          event: localizedHistoryEvent(state, entry.event)
         }];
       }),
       archives: history.archives.map((archive) => ({
@@ -751,12 +876,12 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
         entries: archive.entries.flatMap((entry) => visibleHistoryEvent(entry.event) ? [{
           entryId: entry.originalEntryId,
           historyIndex: entry.originalHistoryIndex,
-          event: entry.event
+          event: localizedHistoryEvent(state, entry.event)
         }] : [])
       }))
     },
     playback: state.playback,
-    presentation: presentation(state),
+    presentation: presented.value,
     runtimeStateHash: state.runtimeState === null ? null : runtimeStateHashV1(state.runtimeState),
     runtimeHostSnapshotHash: host.snapshotHash
   };

@@ -68,6 +68,8 @@ button { font: inherit; }
 .player-brand__mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 10px; color: white; background: linear-gradient(135deg, #a855f7, #06b6d4); box-shadow: 0 8px 24px rgba(168,85,247,.35); }
 .player-brand__status { padding: 5px 9px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; color: #a5f3fc; font-size: 10px; text-transform: uppercase; }
 .player-brand__effect { padding: 5px 9px; border-radius: 999px; color: #ddd6fe; background: rgba(139,92,246,.14); font-size: 10px; letter-spacing: .04em; }
+.player-playback-controls .player-locale-control { min-width: 88px; }
+.player-playback-controls .player-locale-control select { min-width: 88px; min-height: 44px; padding: 0 9px; border-color: rgba(103,232,249,.34); color: #cffafe; }
 .player-history-controls { position: absolute; z-index: 5; top: 22px; right: 24px; display: flex; align-items: center; gap: 7px; padding: 5px; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; background: rgba(8,10,25,.72); backdrop-filter: blur(18px); box-shadow: 0 12px 32px rgba(0,0,0,.2); }
 .player-history-controls button { display: inline-flex; min-width: 72px; min-height: 44px; align-items: center; justify-content: center; gap: 7px; padding: 0 10px; border: 1px solid rgba(103,232,249,.22); border-radius: 10px; color: #cffafe; background: rgba(34,211,238,.08); cursor: pointer; }
 .player-history-controls button:hover:not(:disabled) { border-color: rgba(103,232,249,.72); background: rgba(34,211,238,.16); }
@@ -233,6 +235,7 @@ button { font: inherit; }
   .player-playback-controls button { min-width: 58px; min-height: 48px; }
   .player-playback-controls label { min-width: 58px; }
   .player-playback-controls select { min-height: 48px; }
+  .player-playback-controls .player-locale-control select { min-height: 48px; }
   .player-playback-controls > span { position: absolute; width: 1px; height: 1px; min-width: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .player-save { position: fixed; z-index: 31; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); }
   .player-save__toggle { min-height: 48px; }

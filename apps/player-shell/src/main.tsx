@@ -13,6 +13,23 @@ const project: CanonicalProject = { ...migrated, variables: { schemaVersion: 1, 
 const branchingRaw = branchingSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
 const branchingMigrated = loadProject(migrateS0Project(branchingRaw).files);
 const inputDemoProject: CanonicalProject = { ...branchingMigrated, variables: { schemaVersion: 1, variables: branchingRaw.variables ?? [] } };
+const localizationDemoProject: CanonicalProject = {
+  ...inputDemoProject,
+  manifest: { ...inputDemoProject.manifest, projectId: "player_localization_demo", title: "WorLd Player · Localization", defaultLocale: "en" },
+  localization: {
+    schemaVersion: 1,
+    locales: [{
+      id: "locale_zh_hans",
+      locale: "zh-Hans",
+      sourceLocale: "en",
+      entries: [
+        { key: "branch_prompt", sourceText: "Choose a route", translation: "选择路线", status: "reviewed" },
+        { key: "branch_left_option", sourceText: "Left", translation: "左侧", status: "reviewed" },
+        { key: "branch_left_text", sourceText: "The quiet route.", translation: "安静的路线。", status: "reviewed" }
+      ]
+    }]
+  }
+};
 const historyDesktopDemoProject: CanonicalProject = {
   ...inputDemoProject,
   manifest: { ...inputDemoProject.manifest, projectId: "player_history_desktop", title: "WorLd Player · History Desktop" }
@@ -197,6 +214,7 @@ createRoot(document.getElementById("root")!).render(
           : demoName === "video"
             ? <VideoDemo />
           : <WebPlayerHost project={demoName === "input" ? inputDemoProject
+            : demoName === "localization" ? localizationDemoProject
             : demoName === "history-desktop" ? historyDesktopDemoProject
               : demoName === "history-mobile" ? historyMobileDemoProject
                 : demoName === "history-blocked" ? historyBlockedDemoProject
