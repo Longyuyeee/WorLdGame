@@ -23,6 +23,7 @@ import {
   type PlayerHistoryVisibleEventV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
 import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
 import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
 import {
@@ -221,11 +222,25 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const content = snapshot.presentation;
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
-  const stage = useMemo(
-    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage, settingsApplication.ui),
-    [mediaAssets, settingsApplication.stage, settingsApplication.ui, snapshot]
+  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
+  const presentedTextId = content.kind === "dialogue" || content.kind === "narration" ? content.textId : null;
+  const localizedMedia = useMemo(
+    () => resolvePlayerLocalizedMediaV1(snapshot.localization.selectedLocale, snapshot.localization.sourceLocale, presentedTextId, project.assets.assets, mediaAssets),
+    [mediaAssets, mediaSignature, presentedTextId, project.assets.assets, snapshot.localization.selectedLocale, snapshot.localization.sourceLocale]
   );
-  const appliedAudio = stage.audio.map((track) => ({
+  const stage = useMemo(
+    () => derivePlayerStagePresentationV1(snapshot, localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui),
+    [localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui, snapshot]
+  );
+  const localizedVoice = localizedMedia.voice === null ? [] : [{
+    ...localizedMedia.voice,
+    bus: "voice",
+    loop: false,
+    volume: 1,
+    status: "playing" as const
+  }];
+  const audibleTracks = [...stage.audio.filter((track) => !(localizedMedia.voiceMapped && track.bus === "voice")), ...localizedVoice];
+  const appliedAudio = audibleTracks.map((track) => ({
     ...track,
     appliedVolume: galAudioGainV1(
       settingsApplication,
@@ -234,7 +249,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       voicePlaying
     )
   }));
-  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
   const typography = useMemo(
     () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets),
     [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale]
@@ -285,6 +299,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (loadedFace !== null) fontSet.delete(loadedFace);
     };
   }, [typography]);
+
+  useEffect(() => {
+    setVoicePlaying(false);
+    setVoiceEnded(false);
+    setVoiceMetadataRevision((revision) => revision + 1);
+  }, [localizedMedia.voice?.assetId]);
 
   const stopSkip = useCallback(() => {
     skipModeCurrent.current = null;
@@ -927,6 +947,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       className="player-shell"
       data-player-status={snapshot.status}
       data-player-locale={snapshot.localization.selectedLocale}
+      data-player-media-locale={snapshot.localization.selectedLocale}
+      data-player-media-fallbacks={localizedMedia.fallbackResourceIds.length}
+      data-player-media-missing={localizedMedia.missingResourceIds.length}
       data-player-locale-fallbacks={snapshot.localization.missingTranslationCount}
       data-player-font={fontStatus}
       data-player-typography={typography.cjk ? "cjk-strict" : "standard"}
@@ -1207,6 +1230,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             : fontStatus === "loading" ? `${typography.projectFont.displayName} · 正在加载项目字体`
               : `${typography.projectFont.displayName} 加载失败，已回退到 ${typography.locale} 可读字体`}
         </output>}
+        {(localizedMedia.fallbackResourceIds.length > 0 || localizedMedia.missingResourceIds.length > 0) && (
+          <output className={`player-media-locale-status${typography.projectFont === null ? " player-media-locale-status--first" : ""}`} role="status" aria-label="语言资源状态">
+            {localizedMedia.fallbackResourceIds.length > 0
+              ? `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.fallbackResourceIds.length} 个语言资源，已使用 ${snapshot.localization.sourceLocale} 资源`
+              : `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.missingResourceIds.length} 个语言资源，当前资源不可用`}
+          </output>
+        )}
         <div className="player-playback-controls" aria-label="播放控制">
           {snapshot.localization.availableLocales.length > 1 && <>
             <label className="player-locale-control">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {

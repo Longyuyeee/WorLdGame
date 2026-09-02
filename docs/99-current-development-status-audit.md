@@ -30,6 +30,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - **N61-E2 CSV/XLSX 翻译交换已实现**：[审计 #275](275-n61-e2-localization-csv-xlsx-exchange-audit.md)以真实 CSV/XLSX 完成稳定键导出、外部修改、导入差异预览、错误批次阻断、确认写入及 Canonical 重开；首次入口 `1/2`，修正后定向 `2 files / 3 tests`，下一步 N61-E3 Runtime 语言选择与缺失译文回退；
 - **N61-E3 Runtime 语言切换与回退已实现**：[审计 #276](276-n61-e3-runtime-localization-switch-audit.md)由正式 Player Core 消费 Compiler catalog 并只在 snapshot 投影语言；画面/History 即时切换，缺失/过期回退且显示数量，Web 重开恢复偏好。产品红测 `0/1→1/1`、受影响 `4 files / 81 tests`，下一步 N61-E4 CJK/Ruby/禁则与字体回退；
 - **N61-E4 CJK/Ruby/禁则与字体回退功能已实现**：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)把 Story `｜基底《注音》` 安全渲染为语义 Ruby，并在对白、Choice、Ending、History 应用语言字体栈与严格 CJK 换行；项目字体失败时不中断剧情且显示回退。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`；production 双视口实际断行复验保留为接续首项，不提前关闭 N61；
+- **N61-E5 语言媒体与 Voice Asset 映射已实现**：[审计 #278](278-n61-e5-localized-media-voice-mapping-audit.md)让正式 Player 按 Canonical locale 变体选择图片/视频、按 stable text ID 选择 Voice，并在目标语言缺失时回退源语言且显示数量。真实路径 `0/1→1/1`、受影响 Player/Localization `5 files / 61 tests`、production build 通过；真实 PNG/SVG/WAV 已跑通 `en → zh-Hans → ja`。下一步 N61-E6 Production 绑定/状态闭环；
 - **N52 main-target 聚合集成候选已建立**：[审计 #266](266-n52-main-target-integration-candidate-audit.md)确认 main/N41 Authority 祖先、behind `0`、121 个开放 PR head 无遗漏；直接面向 `main` 的 Draft PR #122 为 mergeable，候选头 `3ce53f5` 的 Windows run `33473899313` / job `99749040172` 用时 `12m55s` 成功。原分片 PR 保留为审阅索引；该动作不等于合并，也不改变 N21/N23 pending 与全部产品阻断；
 - **N52-E5e History 总出口复审已关闭 N52 Engineering**：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)逐项核对七项工程矩阵、真实代码所有权、N52 `101/101` 及 E5b–E5d 精确远端证据；四项 History 状态从旧 checkpoint 的 blocked 更新为 complete。候选头 `9ea1666` 的 Draft PR #121 Windows run `33471267182` / job `99741333074` 用时 `10m21s` 成功。USP-09、REQ-RUNTIME、AC-16 仍为“实现中”，下一步是 main-target 集成候选与 N21/N23 真人验证，不进入 N60；
 - **N52-E5d Shell/production Engineering 已关闭**：[审计 #264](264-n52-e5d-player-history-shell-production-audit.md)记录新增路径 `0/3→3/3`、扩展 `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 overflow `0`、控件 `44/48px`，false 策略/热应用、Barrier、真实 IndexedDB 保存刷新读取及 console `0` 均通过。实现头 `08bfb5c` 的 Draft PR #120 Windows run `33468762702` / job `99734003643` 用时 `9m26s` 成功。下一步 E5e，不提前换算 Product Acceptance；
@@ -180,7 +181,8 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 
 ## 6. 下一步顺序
 
-1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[最新 N61-E4 审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)；
-2. 用 `?demo=cjk-typography` 补 390×844 production 实际断行/Ruby/overflow 证据（1280×720 已闭合），有差异先修正；闭合后进入 N61-E5 语言专属媒体与 Voice Asset 映射；
-3. N60 P1 不抢跑，N60 Product Acceptance 不用 Engineering 或自动化结果替代；
-4. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。
+1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[最新 N61-E5 审计 #278](278-n61-e5-localized-media-voice-mapping-audit.md)；
+2. 进入 N61-E6 Production 语言媒体与配音生产闭环：stable text ID/基础媒体选择、各 locale 绑定与状态、保存重开、缺失恢复；
+3. 在支持视口调整的环境补 `?demo=cjk-typography` 390×844 实际断行/Ruby/overflow 证据；它保持 pending，但不反复阻塞独立功能；
+4. N60 P1 不抢跑，N60 Product Acceptance 不用 Engineering 或自动化结果替代；
+5. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。

@@ -5,7 +5,7 @@ import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } 
 import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
 import branchingSource from "../../../fixtures/projects/branching/project.s0.json";
 import cjkSource from "../../../fixtures/projects/cjk/project.s0.json";
-import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
+import { createPlayerLocalizedMediaDemoV1, createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost } from "./player-host";
 
 const source = benchmarkSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
@@ -77,6 +77,7 @@ const stopPointDemoProject: CanonicalProject = {
 const demoName = new URLSearchParams(window.location.search).get("demo");
 const mediaDemo = demoName === "media" || demoName === "recovery" ? createPlayerMediaDemoV1()
   : demoName === "multi" ? createPlayerMediaMultichannelDemoV1()
+    : demoName === "localized-media" ? createPlayerLocalizedMediaDemoV1()
     : null;
 const historyBarrierDemo = demoName === "history-barrier" ? (() => {
   const demo = createPlayerMediaDemoV1();
