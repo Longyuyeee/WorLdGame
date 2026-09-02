@@ -4946,6 +4946,24 @@ textarea[data-input-state="composing"] {
 .debugger-breakpoints code,
 .debugger-breakpoints strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .debugger-breakpoints button { min-height: 36px; }
+.debugger-watch { display: grid; gap: 12px; padding: 14px; border: 1px solid var(--wg-color-border-subtle); border-radius: 12px; background: rgb(6 10 18 / 48%); }
+.debugger-watch__heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .8fr); gap: 16px; align-items: end; }
+.debugger-watch h4,
+.debugger-watch p { margin: 0; }
+.debugger-watch small { color: var(--wg-color-text-muted); }
+.debugger-watch form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.debugger-watch form label { grid-column: 1 / -1; color: var(--wg-color-text-muted); font-size: 12px; }
+.debugger-watch form input { min-width: 0; }
+.debugger-watch > ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.debugger-watch > ul > li { display: grid; gap: 8px; padding: 10px; border-radius: 10px; background: rgb(22 29 43 / 72%); }
+.debugger-watch > ul > li[data-status="error"] { border: 1px solid rgb(255 105 128 / 42%); }
+.debugger-watch > ul > li > header { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+.debugger-watch__value { display: flex; gap: 10px; align-items: baseline; }
+.debugger-watch__value strong { font-size: 20px; }
+.debugger-watch__value span { color: #b9afff; }
+.debugger-watch__dependencies { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.debugger-watch__dependencies li { display: grid; grid-template-columns: minmax(100px, .4fr) minmax(100px, .4fr) minmax(0, 1fr); gap: 8px; align-items: center; }
+.debugger-watch__dependencies small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .debug-qa-empty,
 .debug-qa-clear {
@@ -5395,6 +5413,14 @@ textarea[data-input-state="composing"] {
   .debugger-breakpoints li code,
   .debugger-breakpoints li strong { grid-column: 2; }
   .debugger-breakpoints li button { grid-column: 1 / -1; min-height: 44px; }
+  .debugger-watch__heading { grid-template-columns: 1fr; }
+  .debugger-watch form { grid-template-columns: 1fr; }
+  .debugger-watch form label { grid-column: auto; }
+  .debugger-watch form input,
+  .debugger-watch form button,
+  .debugger-watch > ul > li > header button { min-height: 44px; }
+  .debugger-watch__dependencies li { grid-template-columns: 1fr; }
+  .debugger-watch__dependencies small { white-space: normal; }
   .debug-qa-results__heading { align-items: stretch; flex-direction: column; }
   .debug-qa-results__heading [role="radiogroup"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .debug-qa-results__heading [role="radio"] { min-height: 44px; }

@@ -6,6 +6,7 @@ import {
   createRuntimeSchedulerSessionV1,
   forwardRuntimeHistoryV1,
   createRuntimeState,
+  evaluateRuntimeExpressionV1,
   mapRuntimeDiagnosticsV1,
   scheduleRuntimeBatchV1,
   validateRuntimeStateV1,
@@ -19,6 +20,7 @@ import {
   type RuntimeSchedulerSessionV1,
   type RuntimeStateV1
 } from "@world-studio/runtime";
+import { parseTypedExpression, type ExpressionValueType } from "@world-studio/story-language";
 import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
 import {
   consumeRuntimePresentationEffectsV1,
@@ -97,6 +99,18 @@ export interface FormalPreviewBreakpoint {
   readonly sceneId: string;
   readonly statementId: string;
 }
+
+export interface FormalPreviewWatchDependency {
+  readonly id: string;
+  readonly value: null | boolean | number | string;
+  readonly previousValue: null | boolean | number | string | undefined;
+  readonly changed: boolean;
+  readonly sources: readonly { readonly sceneId: string; readonly statementId: string }[];
+}
+
+export type FormalPreviewWatchInspection =
+  | { readonly status: "ready"; readonly expression: string; readonly value: null | boolean | number | string; readonly valueType: "null" | "boolean" | "number" | "string"; readonly previousValue: null | boolean | number | string | undefined; readonly changed: boolean; readonly dependencies: readonly FormalPreviewWatchDependency[] }
+  | { readonly status: "error" | "unavailable"; readonly expression: string; readonly error: string; readonly dependencies: readonly FormalPreviewWatchDependency[] };
 
 export function createIdleFormalPreviewState(): FormalPreviewState {
   return {
@@ -366,6 +380,62 @@ export function observeFormalPreview(state: FormalPreviewState): FormalPreviewOb
       lastOperation: state.effectHost.operations.at(-1)?.kind ?? null,
       checkpointId: state.effectHost.checkpointId
     }
+  };
+}
+
+function watchVariableType(value: null | boolean | number | string): ExpressionValueType {
+  return value === null ? "unknown" : typeof value === "boolean" ? "boolean" : typeof value === "number" ? "number" : "string";
+}
+
+function watchSources(state: FormalPreviewState, variableId: string): readonly { readonly sceneId: string; readonly statementId: string }[] {
+  if (state.program === null || state.sourceMap === null) return [];
+  const instructionIds = new Set(state.program.scenes.flatMap((scene) => scene.instructions
+    .filter((instruction) => instruction.opcode === "set" && instruction.operands.variableId === variableId)
+    .map((instruction) => instruction.instructionId)));
+  const seen = new Set<string>();
+  return state.sourceMap.entries.flatMap((entry) => {
+    const key = `${entry.sceneId}\u0000${entry.statementId}`;
+    if (!instructionIds.has(entry.instructionId) || seen.has(key)) return [];
+    seen.add(key);
+    return [{ sceneId: entry.sceneId, statementId: entry.statementId }];
+  });
+}
+
+/** Combines the official Story parser, Runtime evaluator, History checkpoints, and Source Map for debugger Watch. */
+export function inspectFormalPreviewWatch(state: FormalPreviewState, expression: string): FormalPreviewWatchInspection {
+  const runtime = state.runtimeState;
+  if (runtime === null) return { status: "unavailable", expression, error: "启动正式调试会话后才能求值", dependencies: [] };
+  const symbols = Object.fromEntries(Object.entries(runtime.variables).map(([id, value]) => [id, watchVariableType(value)]));
+  const parsed = parseTypedExpression(expression, symbols);
+  const dependencyIds = [...new Set(parsed.identifiers.map((item) => item.name))];
+  const history = state.historySession;
+  const previousState = history === null
+    ? undefined
+    : hasTransientPosition(state)
+      ? history.checkpoints[history.cursor]?.state
+      : history.cursor > 0
+        ? history.checkpoints[history.cursor - 1]?.state
+        : undefined;
+  const dependencies = dependencyIds.flatMap((id): FormalPreviewWatchDependency[] => id in runtime.variables ? [{
+    id,
+    value: runtime.variables[id]!,
+    previousValue: previousState?.variables[id],
+    changed: previousState !== undefined && !Object.is(previousState.variables[id], runtime.variables[id]),
+    sources: watchSources(state, id)
+  }] : []);
+  if (parsed.issues.length > 0 || parsed.root === null) return { status: "error", expression, error: parsed.issues[0]?.message ?? "Expression is empty", dependencies };
+  const evaluated = evaluateRuntimeExpressionV1(parsed.root, runtime.variables);
+  if (!evaluated.ok) return { status: "error", expression, error: evaluated.message, dependencies };
+  const previous = previousState === undefined ? undefined : evaluateRuntimeExpressionV1(parsed.root, previousState.variables);
+  const previousValue = previous?.ok ? previous.value : undefined;
+  return {
+    status: "ready",
+    expression,
+    value: evaluated.value,
+    valueType: evaluated.valueType,
+    previousValue,
+    changed: previousValue !== undefined && !Object.is(previousValue, evaluated.value),
+    dependencies
   };
 }
 

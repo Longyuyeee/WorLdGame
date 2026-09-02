@@ -13,6 +13,7 @@ import {
   continueFormalPreviewToBreakpoints,
   createIdleFormalPreviewState,
   forwardFormalPreview,
+  inspectFormalPreviewWatch,
   observeFormalPreview,
   startFormalPreview,
   startFormalPreviewFromStatement,
@@ -79,6 +80,8 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
   const [debuggerState, setDebuggerState] = useState<FormalPreviewState>(() => createIdleFormalPreviewState());
   const [breakpoints, setBreakpoints] = useState<readonly DebuggerBreakpoint[]>([]);
+  const [watchDraft, setWatchDraft] = useState("");
+  const [watchExpressions, setWatchExpressions] = useState<readonly string[]>([]);
   const authoringDiagnostics = useMemo(() => Object.entries(diagnostics).map(([sceneId, items]) => ({ sceneId, diagnostics: items })), [diagnostics]);
   const visibleFindings = report?.findings.filter((item) => filter === "all" || item.severity === filter) ?? [];
   const observation = useMemo(() => observeFormalPreview(debuggerState), [debuggerState]);
@@ -90,6 +93,13 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
     : [...current, { sceneId, statementId, enabled: true }]);
   const continueDebugger = () => setDebuggerState((state) => continueFormalPreviewToBreakpoints(state, breakpoints.filter((item) => item.enabled)));
   const stopReason = describeDebuggerStopReason(debuggerState, breakpoints);
+  const watchResults = useMemo(() => watchExpressions.map((expression) => inspectFormalPreviewWatch(debuggerState, expression)), [debuggerState, watchExpressions]);
+  const normalizedWatchDraft = watchDraft.trim();
+  const addWatch = () => {
+    if (normalizedWatchDraft.length === 0 || normalizedWatchDraft.length > 256 || watchExpressions.length >= 32 || watchExpressions.includes(normalizedWatchDraft)) return;
+    setWatchExpressions((current) => [...current, normalizedWatchDraft]);
+    setWatchDraft("");
+  };
 
   return <section className="debug-qa-workspace view-enter" aria-labelledby="debug-qa-workspace-title">
     <header className="debug-qa-workspace__hero">
@@ -161,6 +171,28 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
             <button type="button" aria-label={`移除断点 ${label}`} onClick={() => setBreakpoints((current) => current.filter((candidate) => candidate !== item))}>移除</button>
           </li>;
         })}</ul>}
+      </section>
+
+      <section className="debugger-watch" aria-labelledby="debugger-watch-title">
+        <div className="debugger-watch__heading">
+          <div><h4 id="debugger-watch-title">Watch 表达式</h4><small>由正式 Story Language 解析并交给 Runtime 只读求值；来源取 Compiler IR 与 Source Map。</small></div>
+          <form onSubmit={(event) => { event.preventDefault(); addWatch(); }}>
+            <label htmlFor="debugger-watch-expression">Watch 表达式</label>
+            <input id="debugger-watch-expression" value={watchDraft} maxLength={256} placeholder="score + 1" onChange={(event) => setWatchDraft(event.target.value)} />
+            <button type="submit" disabled={normalizedWatchDraft.length === 0 || normalizedWatchDraft.length > 256 || watchExpressions.length >= 32 || watchExpressions.includes(normalizedWatchDraft)}>添加 Watch</button>
+          </form>
+        </div>
+        {watchResults.length === 0 ? <p>还没有 Watch；最多 32 项，每项 256 字符。</p> : <ul aria-label="Watch 列表">{watchResults.map((result) => <li key={result.expression} data-status={result.status}>
+          <header><code>{result.expression}</code><button type="button" aria-label={`移除 Watch ${result.expression}`} onClick={() => setWatchExpressions((current) => current.filter((item) => item !== result.expression))}>移除</button></header>
+          {result.status === "ready" ? <>
+            <div className="debugger-watch__value"><strong>{String(result.value)}</strong><span>{result.valueType}</span>{result.changed && <small>表达式 {String(result.previousValue)} → {String(result.value)}</small>}</div>
+            {result.dependencies.length === 0 ? <small>常量表达式 · 无变量来源</small> : <ul className="debugger-watch__dependencies">{result.dependencies.map((dependency) => <li key={dependency.id}>
+              <code>{dependency.id}</code>
+              <span>{dependency.changed ? `${String(dependency.previousValue)} → ${String(dependency.value)}` : `当前 ${String(dependency.value)}`}</span>
+              <small>{dependency.sources.length === 0 ? "初始状态 / 无写入语句" : dependency.sources.map((source) => `${source.sceneId} / ${source.statementId}`).join("；")}</small>
+            </li>)}</ul>}
+          </> : <p role="status">{result.error}</p>}
+        </li>)}</ul>}
       </section>
 
       <div className="debugger-session__inspectors">
