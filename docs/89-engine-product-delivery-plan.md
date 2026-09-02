@@ -585,6 +585,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N61-E6 状态（2026-09-02）：[审计 #279](279-n61-e6-localized-media-production-audit.md)已在正式 Production 复用 Blob/媒体检查/Asset Index，以 stable text ID 和基础 Asset ID 完成各 locale 的 Voice/视觉资源绑定、草稿/已审阅/已锁定状态、失效绑定缺失恢复及 Canonical 保存重开。真实 App 在四项 PNG/WAV 导入成功后首次 `0/1` 精确失败于入口缺失，修正后新路径 `1/1`、受影响 `5 files / 8 tests`、TypeScript 与 production build 通过；1280×720 和实际 375×844 页面 overflow 0，移动交互至少 44px。下一步 N61-E7 直接把 Production 保存的 Canonical 交给 Compiler/Player，并补 E4 移动证据，再复审 N61 Engineering；三端 Product Acceptance 不提前关闭。
 
+> N61-E7 / Engineering 出口（2026-09-02）：[审计 #280](280-n61-e7-localization-engineering-exit-audit.md)新增跨应用真实测试，直接用 Editor Production 保存的同一 Canonical 和 IndexedDB PNG/WAV Blob 经过 Compiler 后交给正式 Player；`en → zh-Hans → ja` 文本、视觉、Voice 和缺失回退首次即与预期一致。E4 的真实 390×844 证据同步闭合：overflow 0、五行无禁止标点行首、Ruby 正确、控件至少 44px、console 0。N61 Goal 与 8 项 Implementation 全部完成，N61 Engineering 出口关闭；三端 Acceptance、PRD P1/P2 余项和 N62 Engineering 不随之通过。
+
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 
 - **Goal**：把核心差异化自动化真正接入 Compiler 和 Player。
