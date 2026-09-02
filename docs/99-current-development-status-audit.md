@@ -1,15 +1,15 @@
-# 当前开发情况审计（N61 Engineering 出口关闭）
+# 当前开发情况审计（N61 → N62 换机交接）
 
 > 审计日期：2026-09-02
-> 当前分支：`codex/n60-e1-debugger-session`；直接实现基线为 N61-E6 文档头 `422b1513adde41f28b9926919e6d37a34ece1cda`
+> 当前分支：`codex/n60-e1-debugger-session`；已验证产品/文档基线为 `bbead3b1e46722c35b83267e9a4e9446da2e527e`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；2026-09-02 Localization 窄范围修订只准入 N61 Engineering，N61 Product Acceptance、N62 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N61-E7 Engineering 出口 #280](280-n61-e7-localization-engineering-exit-audit.md)、[N61-E6 Production 语言媒体与配音 #279](279-n61-e6-localized-media-production-audit.md)
+> 最新交接证据：[N61→N62 跨电脑开发交接 #281](281-n61-to-n62-cross-device-handoff.md)、[N61-E7 Engineering 出口 #280](280-n61-e7-localization-engineering-exit-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-09-02 最新结论是：**N52、N60 与 N61 Engineering 已关闭。** N61-E7 新增跨应用真实路径，直接把 Editor Production 保存的同一 Canonical 和 IndexedDB PNG/WAV Blob 交给 Compiler 与正式 Player，首次 `1/1` 即与预期一致；`en → zh-Hans → ja` 的文本、视觉、Voice 和缺失回退没有跨层断点。真实 390×844 production 同时闭合 E4：页面 `390/390`、overflow `0`、五行无禁止标点行首、Ruby `放送室/ほうそうしつ`、交互至少 44px、console `0`。最终受影响 `4 files / 4 tests`、双端 TypeScript/build 通过。N61 Product Acceptance、PRD P1/P2 余项、N62 Engineering、M1 和发布继续阻断；下一功能点是 N62-E1，但开始前需确认现有窄范围授权。
+2026-09-02 最新结论是：**N52、N60 与 N61 Engineering 已关闭，功能开发现已暂停并完成换机交接。** N61-E7 新增跨应用真实路径，直接把 Editor Production 保存的同一 Canonical 和 IndexedDB PNG/WAV Blob 交给 Compiler 与正式 Player，首次 `1/1` 即与预期一致；`en → zh-Hans → ja` 的文本、视觉、Voice 和缺失回退没有跨层断点。真实 390×844 production 同时闭合 E4：页面 `390/390`、overflow `0`、五行无禁止标点行首、Ruby `放送室/ほうそうしつ`、交互至少 44px、console `0`。代码复核确认 Compiler 已生成 Gallery/Music/Replay/Ending Catalog，Runtime 已保存 Gallery/Ending Meta，但正式 Player 没有附加入口和页面。N61 Product Acceptance、PRD P1/P2 余项、N62 Engineering、M1 和发布继续阻断；唯一接续功能是 N62-E1，开始前需确认现有窄范围授权。完整恢复步骤、真实差异与首条测试合同见[#281](281-n61-to-n62-cross-device-handoff.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -184,7 +184,7 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 
 ## 6. 下一步顺序
 
-1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[最新 N61-E7 出口审计 #280](280-n61-e7-localization-engineering-exit-audit.md)；
+1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[跨电脑交接 #281](281-n61-to-n62-cross-device-handoff.md)，并核验本地/远端 exact head 相同、工作区干净；
 2. N61 Engineering 已关闭，不重复增加本地化证明；N61 Product Acceptance 等 Windows/Android 正式 Host 和实体设备；
 3. 功能顺序下一点为 N62-E1：从 Compiler 已有 Gallery/Music/Replay/Ending Catalog 与 Runtime Meta 出发，先实现正式 Player 的自动附加页入口和一条真实玩家路径；
 4. 当前 Localization 窄范围授权仍阻断 N62 Engineering，进入 N62 前先确认准入，不用新增治理文档替代功能；

@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-09-02
-> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings、N52、N60 与 N61 Engineering 出口已通过。N61-E7 已用 Production 保存的同一 Canonical 和 IndexedDB 真实 Blob 贯通 Compiler/正式 Player，并在真实 390×844 闭合 CJK/Ruby/禁则证据。下一功能点是 N62-E1 自动附加页 Catalog 的正式 Player 入口，但当前窄范围授权仍阻断 N62 Engineering。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。全部 Product Acceptance、Android 实体包、M1 与发布继续阻断。
+> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings、N52、N60 与 N61 Engineering 出口已通过。项目现已暂停并形成[跨电脑交接 #281](docs/281-n61-to-n62-cross-device-handoff.md)：下一功能点是 N62-E1 自动附加页 Catalog 的正式 Player 入口，但当前窄范围授权仍阻断 N62 Engineering。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。全部 Product Acceptance、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -59,6 +59,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N61-E5 语言媒体与 Voice Asset 映射审计](docs/278-n61-e5-localized-media-voice-mapping-audit.md) | 语言视觉变体、stable-text-ID Voice、播放中即时切换与缺失资源可见回退 |
 | [N61-E6 Production 语言媒体与配音生产审计](docs/279-n61-e6-localized-media-production-audit.md) | 真实资源导入、稳定文本/基础媒体绑定、状态、缺失恢复、保存重开与移动卡片 |
 | [N61-E7 本地化与配音 Engineering 出口审计](docs/280-n61-e7-localization-engineering-exit-audit.md) | 同一 Canonical/Blob 跨 Editor、Compiler、Player 交付，390×844 CJK 证据与 N61 出口结论 |
+| [N61→N62 跨电脑开发交接](docs/281-n61-to-n62-cross-device-handoff.md) | 远端恢复点、真实代码能力、N62-E1 用户路径、测试合同、授权边界与换机命令 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |
