@@ -563,6 +563,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N60-E1–E4 状态（2026-09-02）：正式 Debug & QA 已接通 Entry/Statement 启动、Back/Forward/Step/Step Over/Continue、多断点、六类停止原因、变量/栈/舞台、Watch 与变量来源变化；E4 又把 Compiler 的不可达、无出口、悬空引用、缺失资源、非交互循环投影为五类可筛选产品结果，并能返回 stable source。故障/正常 Golden 形成正反对照，N60 聚合为 `8 files / 88 tests`；production 1440×900 五列、390×844 单列，横向 overflow 与 console error/warning 均为 0。详见[审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)。下一步先做 N60 Engineering 总出口复审，逐项判断“抑制需有理由/完整报告”等剩余合同，不抢跑 P1 Solver/覆盖率。
 
+> N60-E5 场景启动修正（2026-09-02）：总出口核对发现正式 Runtime 已支持 Scene Fresh Run，但 Debug & QA 没有产品入口。现已增加“从当前场景启动”，与 Entry/Statement 共用同一正式 Runtime；现有真实 App 测试首次 `0/1` 精确失败于按钮缺失，修正后 `1/1`，N60 聚合仍为 `8 files / 88 tests`。详见[审计 #272](272-n60-e5-scene-debugger-start-audit.md)。N60 总出口仍需按真实用户任务核对诊断抑制理由/报告交付，不直接进入 P1。
+
 ### N61 本地化与配音
 
 - **Goal**：同一稳定文本 ID 支持多语言生产和运行切换。

@@ -39,6 +39,8 @@
 
 > N60-E4 P0 Story QA（2026-09-02）：[审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)复用 N30 Compiler/Source Map，把不可达、无出口、悬空引用、缺失资源、非交互循环投影为五类产品总览、组合筛选和 stable source 修复入口。真实 App 红测首次 `0/1` 精确暴露分类 UI 缺失；修正后 N60 `8 files / 88 tests`，故障 Golden 五类均检出，正常校园工程五类均为 0。production 1440×900 与 390×844 横向 overflow `0`、console error/warning `0`。下一步是 N60 Engineering 总出口复审，不直接把 E4 换算为 Product Acceptance，也不抢跑 P1。
 
+> N60-E5 当前场景启动（2026-09-02）：[审计 #272](272-n60-e5-scene-debugger-start-audit.md)确认模型层 Scene Fresh Run 已存在但 Debug & QA 产品入口缺失；真实 App 路径首次 `0/1` 精确失败于找不到“从当前场景启动”，修正后可停在 `scn_school_gate / stmt_gate_bg`，并继续复用正式 Runtime 的结构化失败恢复。N60 聚合 `8 files / 88 tests`、TypeScript 均通过。该项只关闭 PRD“从任意入口运行”的 Scene UI 缺口；N60 总 Engineering、Product Acceptance、N61 与 P1 仍未关闭。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。

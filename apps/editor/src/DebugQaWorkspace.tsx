@@ -18,6 +18,7 @@ import {
   inspectFormalPreviewWatch,
   observeFormalPreview,
   startFormalPreview,
+  startFormalPreviewFromScene,
   startFormalPreviewFromStatement,
   stepOverFormalPreview,
   type FormalPreviewState
@@ -83,7 +84,7 @@ export function describeDebuggerStopReason(state: FormalPreviewState, breakpoint
   if (state.status === "error") return { kind: "error", title: "运行错误", detail: state.diagnostics.find((item) => item.severity === "error")?.message ?? state.error ?? "未知 Runtime 错误" };
   if (state.status === "paused") return { kind: "paused", title: "调试器已暂停", detail: current === null ? "等待下一条调试命令" : current.replace("/", " / ") };
   if (state.status === "presenting") return { kind: "ready", title: "可继续运行", detail: "当前停在可呈现 Story Step" };
-  return { kind: "idle", title: "尚未启动", detail: "选择入口或当前语句建立正式调试会话" };
+  return { kind: "idle", title: "尚未启动", detail: "选择入口、当前场景或当前语句建立正式调试会话" };
 }
 
 export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onOpenSource }: DebugQaWorkspaceProps) {
@@ -140,6 +141,7 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
         </div>
         <div className="debugger-session__launchers">
           <button type="button" onClick={() => setDebuggerState(startFormalPreview(project))}>从入口启动调试</button>
+          <button type="button" onClick={() => setDebuggerState(startFormalPreviewFromScene(project, selectedSceneId))}>从当前场景启动</button>
           <button type="button" onClick={() => setDebuggerState(startFormalPreviewFromStatement(project, selectedSceneId, selectedStatementId))}>从当前语句启动</button>
           <button
             type="button"

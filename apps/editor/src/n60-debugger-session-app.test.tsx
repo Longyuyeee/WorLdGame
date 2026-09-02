@@ -6,14 +6,18 @@ import { App } from "./App";
 afterEach(() => vi.unstubAllGlobals());
 
 describe("N60-E1 Debugger session real creator path", () => {
-  it("starts from the selected stable statement and exposes formal controls and state inspectors", async () => {
+  it("starts from the selected scene or stable statement and exposes formal controls and state inspectors", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App autosaveDebounceMs={60_000} />);
 
     fireEvent.click(await screen.findByRole("radio", { name: "Debug & QA" }));
-    fireEvent.click(screen.getByRole("button", { name: "从当前语句启动" }));
+    fireEvent.click(screen.getByRole("button", { name: "从当前场景启动" }));
 
     expect(screen.getByRole("heading", { name: "调试会话" })).toBeVisible();
+    expect(screen.getByTestId("debugger-current-source")).toHaveTextContent("scn_school_gate / stmt_gate_bg");
+
+    fireEvent.click(screen.getByRole("button", { name: "从当前语句启动" }));
+
     expect(screen.getByTestId("debugger-current-source")).toHaveTextContent("stmt_gate_bg");
     expect(screen.getByRole("button", { name: "单步前进" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "单步越过" })).toBeEnabled();
