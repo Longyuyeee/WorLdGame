@@ -44,6 +44,8 @@ Golden 不是静态断言 Compiler 函数：`n60-story-qa-app.test.tsx` 构造�
 
 完整 `npm run check` 已在原预算下通过：普通回归 `158 files / 986 tests`，Editor 主 App `45/45`，autosave 测试体 `4.71s < 5s`，冻结 VM `85.68s < 90s`，Runtime corpus `10,000 seeds / 20,000 replay` 用时 `18.734s`；Script `13/13`、Route `9/9`、Asset `4/4` 全绿，Route 10k 编辑 P95 `171.85ms < 500ms`，Asset Dicing 总计 `3511.41ms < 5000ms`。精确提交 Windows / Node 22 CI 仍须在推送后回填，不跨提交复用 E3 绿色结论。
 
+精确实现头 `0e3f7363e65cd16daeedf889c3c9fdd46ecc8537` 随后由 Draft PR #123 的 Windows / Node 22 run `33583516296` / job `100102687001` 在 `14m34s` 内完整通过。相同冻结预算下，N60 为 `8 files / 88 tests`、普通回归为 `158 files / 986 tests`、Runtime corpus 用时 `30.973s`、autosave 测试体 `4.47s < 5s`、VM 测试体 `67.44s < 90s`、Route 10k 编辑 P95 `164.42ms < 500ms`、Asset Dicing 总计 `3677.54ms < 5000ms`。追加本段的纯证据提交仍须自己的精确 head CI，不复用实现头结论。
+
 ## 4. 需求与开发目标审计
 
 E4 直接服务“创作者发布前发现剧情结构错误并回源修复”，没有陷入只增加安全、治理或测试数量的循环。PRD 3.10 P0 的运行入口、断点/单步/继续、状态观察、五类剧情错误和源跳转现在都有产品实现；因此 **P0 功能范围可进入 N60 总 Engineering 出口复审**，但不能仅凭本切片自动宣布整个 N60 Engineering 或 Product Acceptance 通过。
