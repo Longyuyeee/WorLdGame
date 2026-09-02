@@ -99,7 +99,7 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N60 Debug QA scope control: ${control}`);
     }
     if (!validDate(playerControlExtension.debugQaScopeAmendedAt)) violations.push("RA-N21-011: debugQaScopeAmendedAt must record the N60 authorization amendment");
-    if (playerControlExtension.debugQaEvidencePath !== "docs/270-n60-e3-debugger-watch-audit.md") violations.push("RA-N21-011: N60 Debug QA evidence path drifted");
+    if (playerControlExtension.debugQaEvidencePath !== "docs/271-n60-e4-p0-story-qa-product-closure-audit.md") violations.push("RA-N21-011: N60 Debug QA evidence path drifted");
   }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);

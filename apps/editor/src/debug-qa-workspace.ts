@@ -7,16 +7,28 @@ import {
 } from "./formal-preview-runtime";
 
 export type DebugQaFindingOrigin = "authoring" | FormalPreviewDiagnostic["origin"];
+export type StoryQaCategory = "reachability" | "exit" | "reference" | "resource" | "loop";
+
+export const STORY_QA_CATEGORIES: readonly StoryQaCategory[] = ["reachability", "exit", "reference", "resource", "loop"];
 
 export interface DebugQaFinding {
   readonly id: string;
   readonly origin: DebugQaFindingOrigin;
+  readonly category: StoryQaCategory;
   readonly severity: "warning" | "error";
   readonly code: string;
   readonly message: string;
   readonly sceneId: string | null;
   readonly statementId: string | null;
   readonly line: number | null;
+}
+
+export interface StoryQaCategorySummary {
+  readonly category: StoryQaCategory;
+  readonly findingCount: number;
+  readonly errorCount: number;
+  readonly warningCount: number;
+  readonly status: "clear" | "warning" | "error";
 }
 
 export interface DebugQaReport {
@@ -28,6 +40,7 @@ export interface DebugQaReport {
   readonly findings: readonly DebugQaFinding[];
   readonly errorCount: number;
   readonly warningCount: number;
+  readonly categories: readonly StoryQaCategorySummary[];
   readonly nextAction: string;
 }
 
@@ -36,10 +49,19 @@ export interface DebugQaAuthoringDiagnostics {
   readonly diagnostics: readonly StudioDiagnostic[];
 }
 
+export function storyQaCategoryForCode(code: string): StoryQaCategory {
+  if (["MISSING_ENTRY_SCENE", "NO_REACHABLE_ENDING", "UNREACHABLE_SCENE", "UNREACHABLE_STATEMENT"].includes(code)) return "reachability";
+  if (code === "SCENE_NO_EXIT") return "exit";
+  if (["MISSING_ASSET", "INVALID_ASSET"].includes(code)) return "resource";
+  if (code === "NON_INTERACTIVE_LOOP") return "loop";
+  return "reference";
+}
+
 function authoringFinding(sceneId: string, item: StudioDiagnostic, index: number): DebugQaFinding {
   return {
     id: `authoring:${sceneId}:${item.code}:${item.line ?? index}`,
     origin: "authoring",
+    category: storyQaCategoryForCode(item.code),
     severity: item.severity,
     code: item.code,
     message: item.message,
@@ -53,6 +75,7 @@ function formalFinding(item: FormalPreviewDiagnostic, index: number): DebugQaFin
   return {
     id: `${item.origin}:${item.sceneId ?? "project"}:${item.statementId ?? item.instructionId ?? index}:${item.code}`,
     origin: item.origin,
+    category: storyQaCategoryForCode(item.code),
     severity: item.severity,
     code: item.code,
     message: item.message,
@@ -71,6 +94,18 @@ function summarize(
 ): DebugQaReport {
   const errorCount = findings.filter((item) => item.severity === "error").length;
   const warningCount = findings.length - errorCount;
+  const categories = STORY_QA_CATEGORIES.map((category): StoryQaCategorySummary => {
+    const categoryFindings = findings.filter((item) => item.category === category);
+    const categoryErrorCount = categoryFindings.filter((item) => item.severity === "error").length;
+    const categoryWarningCount = categoryFindings.length - categoryErrorCount;
+    return {
+      category,
+      findingCount: categoryFindings.length,
+      errorCount: categoryErrorCount,
+      warningCount: categoryWarningCount,
+      status: categoryErrorCount > 0 ? "error" : categoryWarningCount > 0 ? "warning" : "clear"
+    };
+  });
   const status = errorCount > 0 ? "error" : sourceMapReady ? "ready" : "blocked";
   const nextAction = errorCount > 0
     ? "定位首个阻断问题并回到同一稳定 ID 修复"
@@ -79,7 +114,7 @@ function summarize(
       : sourceMapReady
         ? "当前目标已通过 Compiler → Runtime → Source Map 检查"
         : "先提交当前错误草稿，再运行正式检查";
-  return { status, runtimeStatus, sourceMapReady, targetSceneId, targetStatementId, findings, errorCount, warningCount, nextAction };
+  return { status, runtimeStatus, sourceMapReady, targetSceneId, targetStatementId, findings, errorCount, warningCount, categories, nextAction };
 }
 
 export function runDebugQaInspection(

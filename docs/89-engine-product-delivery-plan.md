@@ -561,7 +561,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Implementation**：从任意入口运行；断点、单步、继续；变量、调用栈、舞台；不可达、无出口、悬空、缺失资源、无交互循环；错误跳源码；诊断抑制需有理由。
 - **Acceptance**：QA Golden Project 必须检出预置错误且无误报阻断正常路线。
 
-> N60-E1/E2/E3 状态（2026-09-02）：正式 Debug & QA 已接通 Entry/Statement 启动、Back/Forward/Step/Step Over/Continue、多断点启停/定位/移除、六类停止原因、变量/栈/舞台观察，以及复用 Story Language parser、Runtime evaluator、History 和 Source Map 的 Watch 与变量写入来源/变化。E3 产品红测从 `0/1` 修正，N60 聚合 `7 files / 87 tests`；production 真实工程显示表达式 `1 → 2`、变量 `0 → 1`、stable 来源，390×844 无横溢出且新增交互 44px。详见[审计 #270](270-n60-e3-debugger-watch-audit.md)。下一步必须优先完成本节点 P0 的结构/资源/循环诊断产品路径和 QA Golden；结局可达性 Solver、分支覆盖率属于 PRD P1，不抢在 P0 之前。
+> N60-E1–E4 状态（2026-09-02）：正式 Debug & QA 已接通 Entry/Statement 启动、Back/Forward/Step/Step Over/Continue、多断点、六类停止原因、变量/栈/舞台、Watch 与变量来源变化；E4 又把 Compiler 的不可达、无出口、悬空引用、缺失资源、非交互循环投影为五类可筛选产品结果，并能返回 stable source。故障/正常 Golden 形成正反对照，N60 聚合为 `8 files / 88 tests`；production 1440×900 五列、390×844 单列，横向 overflow 与 console error/warning 均为 0。详见[审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)。下一步先做 N60 Engineering 总出口复审，逐项判断“抑制需有理由/完整报告”等剩余合同，不抢跑 P1 Solver/覆盖率。
 
 ### N61 本地化与配音
 

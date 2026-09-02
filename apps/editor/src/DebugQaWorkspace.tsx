@@ -3,9 +3,11 @@ import type { CanonicalProject } from "@world-studio/project-domain";
 import type { StudioDiagnostic } from "./studio-session";
 import {
   runDebugQaInspection,
+  STORY_QA_CATEGORIES,
   type DebugQaFinding,
   type DebugQaFindingOrigin,
-  type DebugQaReport
+  type DebugQaReport,
+  type StoryQaCategory
 } from "./debug-qa-workspace";
 import {
   advanceFormalPreview,
@@ -43,6 +45,14 @@ const ORIGIN_LABEL: Readonly<Record<DebugQaFindingOrigin, string>> = {
   session: "Preview Session"
 };
 
+const STORY_QA_CATEGORY_LABEL: Readonly<Record<StoryQaCategory, string>> = {
+  reachability: "可达性",
+  exit: "出口",
+  reference: "引用完整性",
+  resource: "资源",
+  loop: "循环"
+};
+
 function FindingCard({ finding, onOpenSource }: {
   readonly finding: DebugQaFinding;
   readonly onOpenSource: (sceneId: string, statementId?: string) => void;
@@ -51,6 +61,7 @@ function FindingCard({ finding, onOpenSource }: {
     <div className="debug-qa-finding__heading">
       <span>{finding.severity === "error" ? "× 阻断" : "! 警告"}</span>
       <code>{finding.code}</code>
+      <small className="debug-qa-finding__category">{STORY_QA_CATEGORY_LABEL[finding.category]}</small>
       <small>{ORIGIN_LABEL[finding.origin]}</small>
     </div>
     <p>{finding.message}</p>
@@ -78,12 +89,15 @@ export function describeDebuggerStopReason(state: FormalPreviewState, breakpoint
 export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onOpenSource }: DebugQaWorkspaceProps) {
   const [report, setReport] = useState<DebugQaReport | null>(null);
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | StoryQaCategory>("all");
   const [debuggerState, setDebuggerState] = useState<FormalPreviewState>(() => createIdleFormalPreviewState());
   const [breakpoints, setBreakpoints] = useState<readonly DebuggerBreakpoint[]>([]);
   const [watchDraft, setWatchDraft] = useState("");
   const [watchExpressions, setWatchExpressions] = useState<readonly string[]>([]);
   const authoringDiagnostics = useMemo(() => Object.entries(diagnostics).map(([sceneId, items]) => ({ sceneId, diagnostics: items })), [diagnostics]);
-  const visibleFindings = report?.findings.filter((item) => filter === "all" || item.severity === filter) ?? [];
+  const visibleFindings = report?.findings.filter((item) =>
+    (filter === "all" || item.severity === filter) && (categoryFilter === "all" || item.category === categoryFilter)
+  ) ?? [];
   const observation = useMemo(() => observeFormalPreview(debuggerState), [debuggerState]);
   const runInspection = () => setReport(runDebugQaInspection(project, authoringDiagnostics, selectedSceneId, selectedStatementId));
   const breakpointMatchesSelection = breakpoints.some((item) => item.sceneId === selectedSceneId && item.statementId === selectedStatementId);
@@ -223,6 +237,29 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
         <span data-state={report.status}><strong>{report.runtimeStatus}</strong>Runtime<small>正式检查边界</small></span>
       </div>
       <div className="debug-qa-next" role="status"><span aria-hidden="true">→</span><div><small>建议下一步</small><strong>{report.nextAction}</strong></div></div>
+      <section className="story-qa-categories" aria-label="P0 Story QA 分类">
+        <header>
+          <div><p className="eyebrow">P0 STORY QA · COMPILER FACTS</p><h3>五类剧情风险</h3></div>
+          <button type="button" aria-pressed={categoryFilter === "all"} onClick={() => setCategoryFilter("all")}>全部 · {report.findings.length}</button>
+        </header>
+        <div className="story-qa-categories__grid">
+          {STORY_QA_CATEGORIES.map((category) => {
+            const summary = report.categories.find((item) => item.category === category)!;
+            return <button
+              type="button"
+              key={category}
+              data-state={summary.status}
+              aria-pressed={categoryFilter === category}
+              aria-label={`${STORY_QA_CATEGORY_LABEL[category]} · ${summary.findingCount} 个问题`}
+              onClick={() => setCategoryFilter((current) => current === category ? "all" : category)}
+            >
+              <span>{STORY_QA_CATEGORY_LABEL[category]}</span>
+              <strong>{summary.findingCount}</strong>
+              <small>{summary.status === "clear" ? "已检查 · 无问题" : `${summary.errorCount} 阻断 · ${summary.warningCount} 警告`}</small>
+            </button>;
+          })}
+        </div>
+      </section>
       <section className="debug-qa-results" aria-labelledby="debug-qa-results-title">
         <div className="debug-qa-results__heading">
           <div><p className="eyebrow">LOCATE · REPAIR · RERUN</p><h3 id="debug-qa-results-title">检查结果</h3></div>

@@ -4890,6 +4890,20 @@ textarea[data-input-state="composing"] {
 .debug-qa-next div { display: grid; min-width: 0; gap: 2px; }
 .debug-qa-target small,
 .debug-qa-next small { color: var(--wg-color-text-muted); }
+
+.story-qa-categories { overflow: hidden; border: 1px solid var(--wg-color-border-subtle); border-radius: 16px; background: rgb(12 17 27 / 86%); }
+.story-qa-categories > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border-bottom: 1px solid var(--wg-color-border-subtle); }
+.story-qa-categories > header h3 { margin: 3px 0 0; }
+.story-qa-categories > header button { min-height: 36px; }
+.story-qa-categories > header button[aria-pressed="true"] { border-color: rgb(139 124 255 / 52%); background: rgb(139 124 255 / 14%); color: #ded9ff; }
+.story-qa-categories__grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; padding: 12px; }
+.story-qa-categories__grid > button { display: grid; min-width: 0; min-height: 78px; align-content: center; justify-items: start; gap: 3px; padding: 10px; text-align: left; }
+.story-qa-categories__grid > button[data-state="error"] { border-color: rgb(255 90 116 / 48%); }
+.story-qa-categories__grid > button[data-state="warning"] { border-color: rgb(255 189 84 / 48%); }
+.story-qa-categories__grid > button[data-state="clear"] { border-color: rgb(78 214 160 / 34%); }
+.story-qa-categories__grid > button[aria-pressed="true"] { outline: 2px solid rgb(139 124 255 / 70%); background: rgb(139 124 255 / 14%); }
+.story-qa-categories__grid strong { color: var(--wg-color-text-primary); font: 700 18px/1.2 "IBM Plex Mono", Consolas, monospace; }
+.story-qa-categories__grid small { overflow: hidden; max-width: 100%; color: var(--wg-color-text-muted); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .debug-qa-target strong { overflow: hidden; text-overflow: ellipsis; font-family: "IBM Plex Mono", Consolas, monospace; }
 .debug-qa-target button {
   margin-left: auto;
@@ -5015,7 +5029,9 @@ textarea[data-input-state="composing"] {
 .debug-qa-finding[data-severity="error"] { border-left: 3px solid #ff5a74; }
 .debug-qa-finding[data-severity="warning"] { border-left: 3px solid #ffbd54; }
 .debug-qa-finding__heading { display: flex; align-items: center; gap: 10px; }
-.debug-qa-finding__heading small { margin-left: auto; color: var(--wg-color-text-muted); }
+.debug-qa-finding__heading small { color: var(--wg-color-text-muted); }
+.debug-qa-finding__heading small:last-child { margin-left: auto; }
+.debug-qa-finding__category { padding: 2px 6px; border: 1px solid var(--wg-color-border-subtle); border-radius: 999px; }
 .debug-qa-finding p { margin: 0; color: var(--wg-color-text-secondary); }
 .debug-qa-finding footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .debug-qa-finding footer code { min-width: 0; overflow: hidden; color: #9beeff; text-overflow: ellipsis; }
@@ -5395,6 +5411,7 @@ textarea[data-input-state="composing"] {
   .debug-qa-workspace__hero { align-items: stretch; flex-direction: column; gap: 14px; }
   .debug-qa-workspace__primary { width: 100%; min-height: 48px; }
   .debug-qa-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .story-qa-categories__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .debug-qa-target { align-items: stretch; flex-wrap: wrap; }
   .debug-qa-target div { flex: 1 1 calc(100% - 40px); }
   .debug-qa-target button { width: 100%; min-height: 44px; margin-left: 0; }
@@ -5422,6 +5439,9 @@ textarea[data-input-state="composing"] {
   .debugger-watch__dependencies li { grid-template-columns: 1fr; }
   .debugger-watch__dependencies small { white-space: normal; }
   .debug-qa-results__heading { align-items: stretch; flex-direction: column; }
+  .story-qa-categories > header { align-items: stretch; flex-direction: column; }
+  .story-qa-categories__grid { grid-template-columns: 1fr; }
+  .story-qa-categories__grid > button { min-height: 56px; }
   .debug-qa-results__heading [role="radiogroup"] { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .debug-qa-results__heading [role="radio"] { min-height: 44px; }
   .debug-qa-finding footer { align-items: stretch; flex-direction: column; }

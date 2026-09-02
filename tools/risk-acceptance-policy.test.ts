@@ -22,7 +22,7 @@ function exception(id: string, status: "active" | "closed", maximumDeliveryNode:
     playbackScopeAmendedAt: "2026-08-31T16:35:00+08:00",
     debugQaScopeAmendedAt: "2026-09-01T15:35:00+08:00",
     playbackEvidencePath: "docs/254-n52-e4d-build-stop-point-source-audit.md",
-    debugQaEvidencePath: "docs/270-n60-e3-debugger-watch-audit.md",
+    debugQaEvidencePath: "docs/271-n60-e4-p0-story-qa-product-closure-audit.md",
     compensatingControls: [
       ...value.compensatingControls,
       "Permit N20 Story Language, N30 Compiler, N31 Runtime IR, and Player Save schema changes only for the E3c2-frozen build-authored checkpoint contract",
