@@ -565,6 +565,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N60-E5 场景启动修正（2026-09-02）：总出口核对发现正式 Runtime 已支持 Scene Fresh Run，但 Debug & QA 没有产品入口。现已增加“从当前场景启动”，与 Entry/Statement 共用同一正式 Runtime；现有真实 App 测试首次 `0/1` 精确失败于按钮缺失，修正后 `1/1`，N60 聚合仍为 `8 files / 88 tests`。详见[审计 #272](272-n60-e5-scene-debugger-start-audit.md)。N60 总出口仍需按真实用户任务核对诊断抑制理由/报告交付，不直接进入 P1。
 
+> N60-E6 诊断抑制与 Engineering 总出口（2026-09-02）：[审计 #273](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)以真实创作者“刻意保留诊断但必须留下理由”的任务完成工程内抑制、活动计数重算、Canonical 重开追溯和恢复。真实 App 首次 `0/1` 精确失败于入口缺失，修正后 `1/1`；N60 `8 files / 88 tests`、TypeScript、production 双视口均通过。逐项复核 PRD 3.10 与本节 Implementation 后，N60 Engineering 出口关闭；“完整报告”不是权威 P0 合同，不扩张实现。Product Acceptance、P1、N61 与真人门不随之通过。
+
 ### N61 本地化与配音
 
 - **Goal**：同一稳定文本 ID 支持多语言生产和运行切换。

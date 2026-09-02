@@ -3812,15 +3812,16 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
   const deleteRouteGroupFromMap=(groupId:string)=>applyRouteLayoutMutation(deleteRouteGroup(previewCanonicalProject,createCommandId(),groupId));
   const assignRouteSceneGroupFromMap=(sceneId:string,groupId?:string)=>applyRouteLayoutMutation(assignRouteSceneGroup(previewCanonicalProject,createCommandId(),sceneId,groupId));
   const setRouteViewportFromMap=(x:number,y:number,zoom:number)=>applyRouteLayoutMutation(setRouteViewport(previewCanonicalProject,createCommandId(),x,y,zoom));
-  const applySettingsProject = (project: CanonicalProject) => {
+  const applyCanonicalProjectMutation = (project: CanonicalProject, detail: string) => {
     setCanonicalBase(project);
     onCanonicalProjectChange?.(project);
     editGeneration.current += 1;
     setEditVersion((value) => value + 1);
     setPersistence((current) => current.status === "unavailable" || current.status === "conflict" || current.status === "readonly" || current.status === "blocked" || current.status === "loading" || current.status === "migrating"
       ? current
-      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }), detail: "设置 ChangeSet 已进入 Canonical Project，等待保存。" });
+      : { status: "dirty", revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }), detail });
   };
+  const applySettingsProject = (project: CanonicalProject) => applyCanonicalProjectMutation(project, "设置 ChangeSet 已进入 Canonical Project，等待保存。");
 
   useEffect(() => {
     if (!storageAvailable) return;
@@ -4887,6 +4888,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             diagnostics={session.diagnostics}
             selectedSceneId={session.activeSceneId}
             selectedStatementId={session.selectedStatementId}
+            onProjectChange={(project) => applyCanonicalProjectMutation(project, "QA 诊断抑制已进入 Canonical Project，等待保存。")}
             onOpenSource={(sceneId, statementId) => {
               if (statementId === undefined) dispatch({ type: "select-scene", sceneId });
               else {

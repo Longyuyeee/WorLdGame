@@ -3,7 +3,9 @@ import type { CanonicalProject } from "@world-studio/project-domain";
 import type { StudioDiagnostic } from "./studio-session";
 import {
   runDebugQaInspection,
+  restoreDebugQaFinding,
   STORY_QA_CATEGORIES,
+  suppressDebugQaFinding,
   type DebugQaFinding,
   type DebugQaFindingOrigin,
   type DebugQaReport,
@@ -35,6 +37,7 @@ interface DebugQaWorkspaceProps {
   readonly diagnostics: Readonly<Record<string, readonly StudioDiagnostic[]>>;
   readonly selectedSceneId: string;
   readonly selectedStatementId: string;
+  readonly onProjectChange: (project: CanonicalProject) => void;
   readonly onOpenSource: (sceneId: string, statementId?: string) => void;
 }
 
@@ -54,9 +57,10 @@ const STORY_QA_CATEGORY_LABEL: Readonly<Record<StoryQaCategory, string>> = {
   loop: "循环"
 };
 
-function FindingCard({ finding, onOpenSource }: {
+function FindingCard({ finding, onOpenSource, onSuppress }: {
   readonly finding: DebugQaFinding;
   readonly onOpenSource: (sceneId: string, statementId?: string) => void;
+  readonly onSuppress: (finding: DebugQaFinding) => void;
 }) {
   return <li className="debug-qa-finding" data-severity={finding.severity}>
     <div className="debug-qa-finding__heading">
@@ -68,6 +72,7 @@ function FindingCard({ finding, onOpenSource }: {
     <p>{finding.message}</p>
     <footer>
       <code>{finding.sceneId ?? "project"}{finding.statementId === null ? "" : ` / ${finding.statementId}`}{finding.line === null ? "" : ` · line ${finding.line}`}</code>
+      <button type="button" onClick={() => onSuppress(finding)}>抑制此诊断</button>
       {finding.sceneId !== null && <button type="button" onClick={() => onOpenSource(finding.sceneId!, finding.statementId ?? undefined)}>定位并修复</button>}
     </footer>
   </li>;
@@ -87,10 +92,12 @@ export function describeDebuggerStopReason(state: FormalPreviewState, breakpoint
   return { kind: "idle", title: "尚未启动", detail: "选择入口、当前场景或当前语句建立正式调试会话" };
 }
 
-export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onOpenSource }: DebugQaWorkspaceProps) {
+export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onProjectChange, onOpenSource }: DebugQaWorkspaceProps) {
   const [report, setReport] = useState<DebugQaReport | null>(null);
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
   const [categoryFilter, setCategoryFilter] = useState<"all" | StoryQaCategory>("all");
+  const [pendingSuppression, setPendingSuppression] = useState<DebugQaFinding | null>(null);
+  const [suppressionReason, setSuppressionReason] = useState("");
   const [debuggerState, setDebuggerState] = useState<FormalPreviewState>(() => createIdleFormalPreviewState());
   const [breakpoints, setBreakpoints] = useState<readonly DebuggerBreakpoint[]>([]);
   const [watchDraft, setWatchDraft] = useState("");
@@ -101,6 +108,19 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
   ) ?? [];
   const observation = useMemo(() => observeFormalPreview(debuggerState), [debuggerState]);
   const runInspection = () => setReport(runDebugQaInspection(project, authoringDiagnostics, selectedSceneId, selectedStatementId));
+  const confirmSuppression = () => {
+    if (pendingSuppression === null || suppressionReason.trim().length === 0) return;
+    const updatedProject = suppressDebugQaFinding(project, pendingSuppression.id, suppressionReason);
+    onProjectChange(updatedProject);
+    setReport(runDebugQaInspection(updatedProject, authoringDiagnostics, selectedSceneId, selectedStatementId));
+    setPendingSuppression(null);
+    setSuppressionReason("");
+  };
+  const restoreSuppression = (findingId: string) => {
+    const updatedProject = restoreDebugQaFinding(project, findingId);
+    onProjectChange(updatedProject);
+    setReport(runDebugQaInspection(updatedProject, authoringDiagnostics, selectedSceneId, selectedStatementId));
+  };
   const breakpointMatchesSelection = breakpoints.some((item) => item.sceneId === selectedSceneId && item.statementId === selectedStatementId);
   const currentRuntimeBreakpoint = debuggerState.sceneId === null || debuggerState.statementId === null ? null : { sceneId: debuggerState.sceneId, statementId: debuggerState.statementId };
   const addBreakpoint = (sceneId: string, statementId: string) => setBreakpoints((current) => current.some((item) => item.sceneId === sceneId && item.statementId === statementId)
@@ -269,9 +289,23 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
             {(["all", "error", "warning"] as const).map((item) => <button type="button" role="radio" aria-checked={filter === item} key={item} onClick={() => setFilter(item)}>{item === "all" ? "全部" : item === "error" ? "阻断" : "警告"}</button>)}
           </div>
         </div>
+        {pendingSuppression !== null && <section className="debug-qa-suppression-form" aria-label={`抑制诊断 ${pendingSuppression.code}`}>
+          <div><strong>抑制 {pendingSuppression.code}</strong><small>理由会随工程保存，并可随时恢复诊断。</small></div>
+          <label htmlFor="debug-qa-suppression-reason">抑制理由</label>
+          <input id="debug-qa-suppression-reason" value={suppressionReason} maxLength={500} onChange={(event) => setSuppressionReason(event.target.value)} />
+          <button type="button" disabled={suppressionReason.trim().length === 0} onClick={confirmSuppression}>确认抑制</button>
+          <button type="button" onClick={() => { setPendingSuppression(null); setSuppressionReason(""); }}>取消</button>
+        </section>}
         {visibleFindings.length === 0 ? <div className="debug-qa-clear"><span aria-hidden="true">✓</span><div><strong>{report.findings.length === 0 ? "当前正式检查无诊断" : "当前筛选无结果"}</strong><p>{report.findings.length === 0 ? "Compiler、Runtime 与 Source Map 已到达当前稳定 ID。" : "切换筛选查看其它严重级别。"}</p></div></div>
-          : <ul>{visibleFindings.map((finding) => <FindingCard key={finding.id} finding={finding} onOpenSource={onOpenSource} />)}</ul>}
+          : <ul>{visibleFindings.map((finding) => <FindingCard key={finding.id} finding={finding} onOpenSource={onOpenSource} onSuppress={(item) => { setPendingSuppression(item); setSuppressionReason(""); }} />)}</ul>}
       </section>
+      {report.suppressedFindings.length > 0 && <section className="debug-qa-suppressions" aria-label="已抑制诊断">
+        <div><p className="eyebrow">REASON REQUIRED · RESTORABLE</p><h3>已抑制诊断</h3></div>
+        <ul>{report.suppressedFindings.map(({ finding, reason }) => <li key={finding.id}>
+          <div><code>{finding.code}</code><strong>{finding.sceneId ?? "project"}{finding.statementId === null ? "" : ` / ${finding.statementId}`}</strong><p>{reason}</p></div>
+          <button type="button" aria-label={`恢复诊断 ${finding.code}`} onClick={() => restoreSuppression(finding.id)}>恢复诊断</button>
+        </li>)}</ul>
+      </section>}
     </>}
   </section>;
 }

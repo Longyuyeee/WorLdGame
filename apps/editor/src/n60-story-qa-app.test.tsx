@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import type { CanonicalProject } from "@world-studio/project-domain";
 import type { StoryProject } from "@world-studio/story-core";
 import { App } from "./App";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
@@ -40,10 +41,11 @@ function storyQaGoldenProject(): StoryProject {
   };
 }
 
-describe("N60-E4 P0 Story QA product closure", () => {
-  it("classifies all five P0 story risks, filters them, and returns to the stable source", async () => {
+describe("N60 P0 Story QA product closure", () => {
+  it("classifies, suppresses with a persisted reason, restores, and returns to the stable source", async () => {
     const project = projectCanonicalFromStory(storyQaGoldenProject(), "n60-e4-story-qa-golden");
-    render(<App initialProject={project} autosaveDebounceMs={60_000} />);
+    let changedProject: CanonicalProject | undefined;
+    const app = render(<App initialProject={project} autosaveDebounceMs={60_000} onCanonicalProjectChange={(changed) => { changedProject = changed; }} />);
 
     fireEvent.click(screen.getByRole("radio", { name: "Debug & QA" }));
     fireEvent.click(screen.getByRole("button", { name: "运行正式 QA 检查" }));
@@ -62,7 +64,26 @@ describe("N60-E4 P0 Story QA product closure", () => {
 
     const resourceFinding = screen.getByText("MISSING_ASSET").closest("li");
     expect(resourceFinding).not.toBeNull();
-    fireEvent.click(within(resourceFinding!).getByRole("button", { name: "定位并修复" }));
+    fireEvent.click(within(resourceFinding!).getByRole("button", { name: "抑制此诊断" }));
+    expect(screen.getByRole("button", { name: "确认抑制" })).toBeDisabled();
+    fireEvent.change(screen.getByRole("textbox", { name: "抑制理由" }), { target: { value: "该背景由发布流水线在最终构建时注入" } });
+    fireEvent.click(screen.getByRole("button", { name: "确认抑制" }));
+
+    const activeResults = screen.getByRole("region", { name: "检查结果" });
+    expect(within(activeResults).queryByText("MISSING_ASSET")).not.toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "已抑制诊断" })).toHaveTextContent("该背景由发布流水线在最终构建时注入");
+    expect(changedProject).toBeDefined();
+
+    app.unmount();
+    render(<App initialProject={changedProject!} autosaveDebounceMs={60_000} />);
+    fireEvent.click(screen.getByRole("radio", { name: "Debug & QA" }));
+    fireEvent.click(screen.getByRole("button", { name: "运行正式 QA 检查" }));
+    expect(await screen.findByRole("region", { name: "已抑制诊断" })).toHaveTextContent("该背景由发布流水线在最终构建时注入");
+    fireEvent.click(screen.getByRole("button", { name: "恢复诊断 MISSING_ASSET" }));
+
+    const restoredFinding = screen.getByText("MISSING_ASSET").closest("li");
+    expect(restoredFinding).not.toBeNull();
+    fireEvent.click(within(restoredFinding!).getByRole("button", { name: "定位并修复" }));
     expect(screen.getByRole("radio", { name: "Writer" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "qa_missing_asset");
   }, 30_000);

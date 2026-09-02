@@ -5036,6 +5036,20 @@ textarea[data-input-state="composing"] {
 .debug-qa-finding footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .debug-qa-finding footer code { min-width: 0; overflow: hidden; color: #9beeff; text-overflow: ellipsis; }
 .debug-qa-finding footer button { min-height: 36px; white-space: nowrap; }
+.debug-qa-suppression-form { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: end; margin: 14px; padding: 14px; border: 1px solid rgb(255 189 84 / 38%); border-radius: 12px; background: rgb(255 189 84 / 7%); }
+.debug-qa-suppression-form > div { display: grid; grid-column: 1 / -1; gap: 3px; }
+.debug-qa-suppression-form small { color: var(--wg-color-text-muted); }
+.debug-qa-suppression-form label { grid-column: 1 / -1; color: var(--wg-color-text-secondary); font-size: 10px; font-weight: 700; }
+.debug-qa-suppression-form input { min-width: 0; min-height: 38px; }
+.debug-qa-suppressions { overflow: hidden; border: 1px solid rgb(255 189 84 / 32%); border-radius: 16px; background: rgb(12 17 27 / 86%); }
+.debug-qa-suppressions > div { padding: 14px 16px; border-bottom: 1px solid var(--wg-color-border-subtle); }
+.debug-qa-suppressions h3 { margin: 3px 0 0; }
+.debug-qa-suppressions ul { display: grid; gap: 10px; margin: 0; padding: 14px; list-style: none; }
+.debug-qa-suppressions li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--wg-color-border-subtle); border-radius: 12px; }
+.debug-qa-suppressions li > div { display: grid; min-width: 0; gap: 4px; }
+.debug-qa-suppressions li code { color: #ffcf7a; }
+.debug-qa-suppressions li p { margin: 0; color: var(--wg-color-text-secondary); }
+.debug-qa-suppressions li button { min-height: 36px; white-space: nowrap; }
 
 .mobile-focus-workspace {
   display: grid;
@@ -5446,6 +5460,10 @@ textarea[data-input-state="composing"] {
   .debug-qa-results__heading [role="radio"] { min-height: 44px; }
   .debug-qa-finding footer { align-items: stretch; flex-direction: column; }
   .debug-qa-finding footer button { min-height: 44px; }
+  .debug-qa-suppression-form { grid-template-columns: 1fr; }
+  .debug-qa-suppression-form button,
+  .debug-qa-suppressions li button { min-height: 44px; }
+  .debug-qa-suppressions li { align-items: stretch; flex-direction: column; }
 
   .mobile-focus-workspace { width: 100%; padding: 20px 12px calc(28px + env(safe-area-inset-bottom)); gap: 14px; }
   .mobile-focus-workspace__hero { align-items: start; flex-direction: column; gap: 8px; }
