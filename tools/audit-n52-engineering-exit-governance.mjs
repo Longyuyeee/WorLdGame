@@ -28,7 +28,7 @@ for (const [slice, workflowRun, workflowJob] of expectedEvidence) {
 }
 
 const authority = riskAcceptances.exceptions?.find?.((item) => item.id === "RA-N21-011");
-if (!["N52", "N60"].includes(authority?.maximumDeliveryNode)) violations.push("risk authority no longer preserves the N52 historical boundary or bounded N60 continuation");
+if (!["N52", "N60", "N61"].includes(authority?.maximumDeliveryNode)) violations.push("risk authority no longer preserves the N52 historical boundary or bounded later continuation");
 if (!productRequirements.includes("历史、自动播放、文本速度和独立的自动播放等待策略")) violations.push("PRD History requirement cannot be found");
 for (const token of ["历史界面可选择某句回退", "保留在历史记录中供查看", "不可逆原因必须可见"]) {
   if (!galRequirements.includes(token)) violations.push(`Gal requirement cannot be found: ${token}`);

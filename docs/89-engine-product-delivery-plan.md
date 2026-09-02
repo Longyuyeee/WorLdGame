@@ -573,6 +573,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Implementation**：源/目标语言、CSV/XLSX、missing/draft/reviewed/outdated/locked、运行时切换、CJK/Ruby/禁则、字体回退、Voice Asset 映射。
 - **Acceptance**：CJK Golden 在导出/导入后换行和 ID 不变，三端切换语言状态一致。
 
+> N61-E1 状态（2026-09-02）：[审计 #274](274-n61-e1-localization-production-audit.md)已在现有 Production 内接通 Canonical `localization.json`，从真实脚本抽取稳定文本键，完成源/目标语言、missing/draft/reviewed/outdated/locked、非法语言恢复、保存重开与源文变化过期。真实 App 首次 `0/1`、修正后 `1/1`；production desktop/390×844 无横向溢出且 console 为 0。N61 Engineering 尚未关闭；下一切片是 CSV/XLSX 翻译往返，不提前做配音或 P1。
+
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 
 - **Goal**：把核心差异化自动化真正接入 Compiler 和 Player。

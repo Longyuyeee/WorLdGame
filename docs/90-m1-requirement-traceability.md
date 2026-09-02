@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并由直接面向 main 的 Draft PR #122 聚合，候选精确头 Windows 全门绿色。N40–N52 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 Debug QA 修订**只准入 N60 Engineering，持续阻断 N60 Product Acceptance、N61 及以后、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，延后到功能与整体 UI 就绪后执行。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并由直接面向 main 的 Draft PR #122 聚合。N40–N60 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 Localization 窄范围修订**只准入到 N61 Engineering，持续阻断 N61 Product Acceptance、N62 Engineering、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，延后到功能与整体 UI 就绪后执行。
 
 > 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
@@ -42,6 +42,8 @@
 > N60-E5 当前场景启动（2026-09-02）：[审计 #272](272-n60-e5-scene-debugger-start-audit.md)确认模型层 Scene Fresh Run 已存在但 Debug & QA 产品入口缺失；真实 App 路径首次 `0/1` 精确失败于找不到“从当前场景启动”，修正后可停在 `scn_school_gate / stmt_gate_bg`，并继续复用正式 Runtime 的结构化失败恢复。N60 聚合 `8 files / 88 tests`、TypeScript 均通过。该项只关闭 PRD“从任意入口运行”的 Scene UI 缺口；N60 总 Engineering、Product Acceptance、N61 与 P1 仍未关闭。
 
 > N60-E6 诊断抑制与总出口（2026-09-02）：[审计 #273](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)新增工程内 stable finding ID + 必填理由抑制，活动报告即时重算，Canonical 重开保留且可恢复。真实 App `0/1→1/1`，N60 `8 files / 88 tests`、TypeScript 和 production 双视口通过。PRD 3.10 P0、本节点 Implementation 与 Golden Engineering 证据已逐项完整，N60 Engineering 出口关闭；“完整报告”无权威 P0 来源，P1、Product Acceptance、N61、M1 与发布继续阻断。
+
+> N61-E1 本地化生产入口与状态闭环（2026-09-02）：[审计 #274](274-n61-e1-localization-production-audit.md)复用 Production、Canonical localization、Story 稳定 ID 和 Compiler Catalog，完成源/目标语言、五种翻译状态、非法代码恢复、保存重开及源文过期。真实 App `0/1→1/1`，受影响回归 `3 files / 4 tests`，生产双视口无溢出。N61 仍为实现中，下一步 CSV/XLSX 往返；Product Acceptance 不提前换算。
 
 ## 1. 状态和证据规则
 
@@ -86,7 +88,7 @@
 | REQ-UX | 设计 Token、七模式、Beginner/Pro、统一语义、连续动效、60 FPS、减少动效、多模态状态 | N43/N101 | N21/N40–42 | 实现中 | E7 补齐 Mobile Focus，手机头部收敛无关操作，390×844 文档 overflow 0、textarea `240.25px`、四操作均 48px，七模式 Engineering 7/7。真实 OS/目标设备与真人证据仍未完成 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、[N43-E4](207-n43-e4-input-sync-and-exit-audit.md) |
 | REQ-ASSET | 图像/音频/视频/字体、标签/引用、拖放/选择器、报告、Dicing/Atlas/平台变体 | N70/N72 | N10/N83 | 实现中 | 源 Blob/Index 自包含迁移已通过；仍缺完整类型、引用 UI、平台变体和构建报告 | [N23-E3 审计](117-n23-e3-portable-resource-bundle-audit.md)、Asset/Dicing Golden、三端构建报告 |
 | REQ-RUNTIME | 确定执行、剧情/媒体、Save/History/Auto/Skip/Back、输入、源码错误 | N31/N32/N50/N52 | N20/N30 | 实现中 | N52 Engineering 已关闭：Save/Back/Forward、Auto/Skip、Stop Point、video、截断分支 archive、可选行 History、Barrier 原因和项目策略已接正式 Web Player；Windows/Android 正式宿主、实体设备与真人 Product Acceptance 仍缺 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、[N31-E6](131-n31-e6-runtime-scheduler-audit.md) |
-| REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | Compiler 已生成稳定 Localization Catalog 并冻结 CJK IR；导入导出、翻译状态、运行切换、Ruby/字体仍未实现 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
+| REQ-L10N | 语言、稳定文本 ID、CSV/XLSX、状态、运行切换、CJK/Ruby | N61 | N10/N30/N50 | 实现中 | N61-E1 已完成 Production 源/目标语言、真实稳定文本键、missing/draft/reviewed/outdated/locked、Canonical 重开和源文过期；仍缺 CSV/XLSX、运行切换、Ruby/禁则、字体回退和语言媒体 | [N61-E1 审计](274-n61-e1-localization-production-audit.md)、[N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、三端语言切换 |
 | REQ-QA | 任意入口运行、断点/单步、状态检查、结构错误、循环、源码跳转 | N30/N60 | N31/N32/N40 | 实现中 | N60 Engineering 已关闭：Entry/Scene/Statement、调试控制、状态/Watch、五类 P0 QA、故障/正常 Golden、stable source，以及必填理由、工程持久化和恢复的诊断抑制均完成。“完整报告”不属于权威 P0；Product Acceptance 与 P1 仍缺 | [N60-E6](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)、[N60-E4](271-n60-e4-p0-story-qa-product-closure-audit.md)、[N43-E6](209-n43-e6-debug-qa-workspace-audit.md) |
 | REQ-BUILD | Web/PWA、Windows、APK/AAB、签名、日志、Profile、元数据、校验、可复现和发布材料 | N80–N83/N110 | N30/N50/N70 | 实现中 | N50-E6 已生成消费正式 Compiler/Runtime/Player Core 的双入口 Web 工程产物并以冷 production preview 通过独立 embed 页；这不是 PWA、Windows/APK/AAB 发布包。两名参与者证据、资源构建、安装、签名和发布材料均缺 | [N50-E6](218-n50-e6-player-embed-api-audit.md)、[N23-E4 审计](119-n23-e4-independent-playable-web-audit.md)、三端 Artifact Manifest、安装/签名报告 |
 | REQ-GAL | 可搜索设置、继承/撤销/预览、完整 Gal P0、附加页模板、六类音量、三平台 Profile | N51/N52/N61/N62/N80–N83 | N10/N31/N50/N51 | 实现中 | N51 Engineering 已关闭：schema v5、Basic 23/Advanced 36、Project/UI/application/Web Host 与双 production evidence 完成，Profile 所有权已冻结。REQ-GAL 是跨节点产品需求；Player 控制=N52、本地化=N61、自动页=N62、Optimization=N70–N72、正式 Windows/Android Host 与构建=N80–N83，仍未完成 | [N51-E6 入口 #229](229-n51-e6-p0-gap-matrix-and-entry-audit.md)、[N51-E6f 出口 #235](235-n51-e6f-engineering-exit-reaudit.md)、配置追踪全覆盖 |

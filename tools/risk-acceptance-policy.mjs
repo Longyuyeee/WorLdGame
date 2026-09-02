@@ -19,7 +19,8 @@ const requiredActiveBlockedGates = Object.freeze([
   "N51 Product Acceptance",
   "N52 Product Acceptance",
   "N60 Product Acceptance",
-  "N61 Engineering",
+  "N61 Product Acceptance",
+  "N62 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -66,7 +67,7 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N60") violations.push(`${prefix}: active N21 exception must stop at N60`);
+      if (exception.maximumDeliveryNode !== "N61") violations.push(`${prefix}: active N21 exception must stop at N61`);
       if (prefix !== "RA-N21-011") violations.push(`${prefix}: only the approved RA-N21-011 exception may be active`);
     }
   }
@@ -100,6 +101,15 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     }
     if (!validDate(playerControlExtension.debugQaScopeAmendedAt)) violations.push("RA-N21-011: debugQaScopeAmendedAt must record the N60 authorization amendment");
     if (playerControlExtension.debugQaEvidencePath !== "docs/271-n60-e4-p0-story-qa-product-closure-audit.md") violations.push("RA-N21-011: N60 Debug QA evidence path drifted");
+    const requiredLocalizationControls = [
+      "Limit N61 to Localization Engineering that reuses Canonical localization.json, stable Story IDs, Compiler catalogs, and the existing Production workspace rather than creating a second project or workspace model",
+      "Require each N61 slice to begin with a translator or creator task and prove the real Canonical save/reopen path with explicit expected-versus-actual correction"
+    ];
+    for (const control of requiredLocalizationControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N61 Localization scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.localizationScopeAmendedAt)) violations.push("RA-N21-011: localizationScopeAmendedAt must record the N61 authorization amendment");
+    if (playerControlExtension.localizationEvidencePath !== "docs/274-n61-e1-localization-production-audit.md") violations.push("RA-N21-011: N61 Localization evidence path drifted");
   }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);

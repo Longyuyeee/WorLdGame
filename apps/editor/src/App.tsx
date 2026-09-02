@@ -4876,11 +4876,13 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
           <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
         </> : workspaceMode === "production" ? (
           <ProductionWorkspace
+            project={previewCanonicalProject}
             index={assetIndex}
             lifecycle={assetLifecycle}
             dicingReport={dicingReport}
             storageStatus={assetStatus}
             onOpenPipeline={() => setAssetPanelOpen(true)}
+            onProjectChange={(project) => applyCanonicalProjectMutation(project, "本地化变更已进入 Canonical Project，等待保存。")}
           />
         ) : workspaceMode === "debug-qa" ? (
           <DebugQaWorkspace

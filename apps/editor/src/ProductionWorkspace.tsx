@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { CanonicalProject } from "@world-studio/project-domain";
 import type {
   AssetIndex,
   AssetKind,
@@ -9,15 +10,26 @@ import {
   assetInspectionPassed,
   createProductionWorkspaceModel
 } from "./production-workspace";
+import {
+  addLocalizationTarget,
+  localizationSourceEntries,
+  localizationTranslations,
+  normalizeLocaleTag,
+  targetLocales,
+  updateLocalizationTranslation,
+  type LocalizationReviewStatus
+} from "./localization-production";
 
 type ProductionStorageStatus = "loading" | "unavailable" | "ready" | "importing" | "success" | "cancelled" | "error";
 
 interface ProductionWorkspaceProps {
+  readonly project: CanonicalProject;
   readonly index: AssetIndex;
   readonly lifecycle: AssetLifecycleManifest;
   readonly dicingReport: LosslessDicingDiscoveryReport | null;
   readonly storageStatus: ProductionStorageStatus;
   readonly onOpenPipeline: () => void;
+  readonly onProjectChange: (project: CanonicalProject) => void;
 }
 
 const KIND_OPTIONS: readonly { readonly id: "all" | AssetKind; readonly label: string }[] = [
@@ -46,14 +58,24 @@ const PHASE_STATE_LABEL = {
 } as const;
 
 export function ProductionWorkspace({
+  project,
   index,
   lifecycle,
   dicingReport,
   storageStatus,
-  onOpenPipeline
+  onOpenPipeline,
+  onProjectChange
 }: ProductionWorkspaceProps) {
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<"all" | AssetKind>("all");
+  const [sourceLocale, setSourceLocale] = useState(project.manifest.defaultLocale === "und" ? "" : project.manifest.defaultLocale);
+  const locales = targetLocales(project);
+  const [newTargetLocale, setNewTargetLocale] = useState("");
+  const [selectedLocale, setSelectedLocale] = useState(locales[0] ?? "");
+  const [localizationMessage, setLocalizationMessage] = useState("");
+  useEffect(() => {
+    if (selectedLocale === "" && locales[0] !== undefined) setSelectedLocale(locales[0]);
+  }, [locales, selectedLocale]);
   const storageReady = storageStatus === "ready" || storageStatus === "success" || storageStatus === "cancelled";
   const model = useMemo(
     () => createProductionWorkspaceModel(index, lifecycle, dicingReport, storageReady),
@@ -99,6 +121,53 @@ export function ProductionWorkspace({
           </li>
         ))}
       </ol>
+
+      <section className="localization-production" aria-labelledby="localization-production-title">
+        <div className="production-table__heading">
+          <div><p className="eyebrow">N61 · SOURCE · TARGET · REVIEW</p><h3 id="localization-production-title">本地化生产</h3></div>
+          <span>{localizationSourceEntries(project).length} 个稳定文本键</span>
+        </div>
+        <div className="localization-production__controls">
+          <label><span>源语言</span><input aria-label="源语言" value={sourceLocale} placeholder="例如 zh-Hans" onChange={(event) => setSourceLocale(event.target.value)} /></label>
+          <label><span>新目标语言</span><input aria-label="新目标语言" value={newTargetLocale} placeholder="例如 en" onChange={(event) => setNewTargetLocale(event.target.value)} /></label>
+          <button type="button" disabled={sourceLocale.trim() === "" || newTargetLocale.trim() === ""} onClick={() => {
+            const normalizedSource = normalizeLocaleTag(sourceLocale);
+            const locale = normalizeLocaleTag(newTargetLocale);
+            if (normalizedSource === null || locale === null) {
+              setLocalizationMessage("语言代码无效，请使用 zh-Hans、ja、en-US 这类 BCP 47 代码。");
+              return;
+            }
+            if (normalizedSource === locale) {
+              setLocalizationMessage("目标语言不能与源语言相同。");
+              return;
+            }
+            const existed = locales.includes(locale);
+            onProjectChange(addLocalizationTarget(project, normalizedSource, locale));
+            setSourceLocale(normalizedSource);
+            setSelectedLocale(locale);
+            setNewTargetLocale("");
+            setLocalizationMessage(existed ? `${locale} 已存在，已切换到该语言。` : `已添加 ${locale}，可开始翻译。`);
+          }}>添加目标语言</button>
+          {locales.length > 0 && <label><span>当前目标语言</span><select aria-label="当前目标语言" value={selectedLocale} onChange={(event) => setSelectedLocale(event.target.value)}>{locales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>}
+        </div>
+        {localizationMessage !== "" && <p className="localization-production__message" role="status">{localizationMessage}</p>}
+        {selectedLocale === "" ? <p className="localization-production__empty">先设定源语言并添加一个目标语言，随后可直接翻译当前工程的稳定文本。</p> : (
+          <div className="localization-production__scroll">
+            <table>
+              <thead><tr><th>稳定文本键</th><th>源文</th><th>{selectedLocale} 翻译</th><th>状态</th></tr></thead>
+              <tbody>{localizationTranslations(project, selectedLocale).map((entry) => {
+                const statusLabel: Record<LocalizationReviewStatus, string> = { missing: "缺失", draft: "草稿", reviewed: "已审阅", outdated: "已过期", locked: "已锁定" };
+                return <tr key={entry.key}>
+                  <td><code>{entry.key}</code><small>{entry.kind} · {entry.sceneId}</small></td>
+                  <td>{entry.sourceText}</td>
+                  <td><textarea aria-label={`${entry.key} 的 ${selectedLocale} 翻译`} value={entry.translation} disabled={entry.status === "locked"} onChange={(event) => onProjectChange(updateLocalizationTranslation(project, selectedLocale, entry.key, event.target.value, "draft"))} /></td>
+                  <td><span className="localization-review-status" data-status={entry.status}>{statusLabel[entry.status]}</span><select aria-label={`${entry.key} 的状态`} value={entry.status === "missing" || entry.status === "outdated" ? "draft" : entry.status} disabled={entry.translation.trim() === ""} onChange={(event) => onProjectChange(updateLocalizationTranslation(project, selectedLocale, entry.key, entry.translation, event.target.value as "draft" | "reviewed" | "locked"))}><option value="draft">草稿</option><option value="reviewed">已审阅</option><option value="locked">已锁定</option></select></td>
+                </tr>;
+              })}</tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <section className="production-table" aria-labelledby="production-table-title">
         <div className="production-table__heading">
