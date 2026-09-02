@@ -4892,6 +4892,25 @@ textarea[data-input-state="composing"] {
 .localization-review-status[data-status="draft"] { color: #9beeff; }
 .localization-review-status[data-status="reviewed"] { color: var(--wg-color-status-success); }
 .localization-review-status[data-status="locked"] { color: #c5baff; }
+.localization-media-production { overflow: hidden; border: 1px solid var(--wg-color-border-subtle); border-radius: 14px; background: rgb(12 17 27 / 78%); }
+.localization-media-production__controls { display: flex; align-items: end; gap: 18px; padding: 14px 16px; border-bottom: 1px solid var(--wg-color-border-subtle); background: rgb(18 24 36 / 62%); }
+.localization-media-production__controls label { display: grid; flex: 0 0 min(240px, 34vw); gap: 5px; color: var(--wg-color-text-muted); font-size: 9px; }
+.localization-media-production__controls select { min-height: 40px; }
+.localization-media-production__controls p { margin: 0; color: var(--wg-color-text-muted); font-size: 10px; line-height: 1.55; }
+.localization-media-production__message { margin: 0; padding: 10px 16px; border-bottom: 1px solid var(--wg-color-border-subtle); color: #9beeff; }
+.localization-media-production__group + .localization-media-production__group { border-top: 1px solid var(--wg-color-border-subtle); }
+.localization-media-production__group h4 { margin: 0; padding: 13px 16px; color: var(--wg-color-text); font-size: 11px; }
+.localization-media-production__scroll { overflow-x: auto; }
+.localization-media-production table { width: 100%; min-width: 920px; border-collapse: collapse; }
+.localization-media-production th,
+.localization-media-production td { padding: 10px 13px; border-top: 1px solid var(--wg-color-border-subtle); text-align: left; vertical-align: top; font-size: 10px; }
+.localization-media-production th { color: var(--wg-color-text-muted); font-size: 9px; }
+.localization-media-production td code { color: #c5baff; }
+.localization-media-production td small { display: block; max-width: 280px; margin-top: 4px; color: var(--wg-color-text-muted); line-height: 1.45; }
+.localization-media-production td select { width: 100%; min-width: 170px; min-height: 38px; }
+.localization-media-production td:nth-last-child(2) { display: grid; gap: 6px; }
+.localization-media-production td:last-child { display: flex; gap: 6px; }
+.localization-media-production td button { min-height: 38px; white-space: nowrap; }
 
 .debug-qa-workspace {
   display: grid;
@@ -5445,6 +5464,22 @@ textarea[data-input-state="composing"] {
   .localization-import-preview__changes li { grid-template-columns: 1fr; }
   .localization-import-preview__actions { flex-direction: column; }
   .localization-import-preview__actions button { width: 100%; min-height: 44px; }
+  .localization-media-production__controls { align-items: stretch; flex-direction: column; }
+  .localization-media-production__controls label { flex-basis: auto; }
+  .localization-media-production__controls select { min-height: 44px; }
+  .localization-media-production__scroll { overflow: visible; }
+  .localization-media-production table,
+  .localization-media-production tbody,
+  .localization-media-production tr,
+  .localization-media-production td { display: block; min-width: 0; }
+  .localization-media-production thead { display: none; }
+  .localization-media-production tbody { padding: 0 12px 12px; }
+  .localization-media-production tr { margin-top: 10px; padding: 10px; border: 1px solid var(--wg-color-border-subtle); border-radius: 10px; background: rgb(255 255 255 / 2%); }
+  .localization-media-production td { padding: 7px 0; border: 0; }
+  .localization-media-production td::before { display: block; margin-bottom: 4px; color: var(--wg-color-text-muted); font-size: 8px; content: attr(data-label); }
+  .localization-media-production td select,
+  .localization-media-production td button { width: 100%; min-height: 44px; }
+  .localization-media-production td:last-child { flex-direction: column; }
   .production-pipeline { grid-template-columns: 1fr; }
   .production-pipeline li { min-height: 92px; }
   .production-table__filters { align-items: stretch; flex-direction: column; }

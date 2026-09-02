@@ -27,6 +27,12 @@ import {
   previewLocalizationImport,
   type LocalizationImportPreview
 } from "./localization-exchange";
+import {
+  bindLocalizationVisualAsset,
+  bindLocalizationVoiceAsset,
+  createLocalizationMediaProductionModel,
+  type LocalizationMediaReviewStatus
+} from "./localization-media-production";
 
 type ProductionStorageStatus = "loading" | "unavailable" | "ready" | "importing" | "success" | "cancelled" | "error";
 
@@ -104,9 +110,17 @@ export function ProductionWorkspace({
   const [localizationMessage, setLocalizationMessage] = useState("");
   const [importPreview, setImportPreview] = useState<LocalizationImportPreview | null>(null);
   const [exchangeBusy, setExchangeBusy] = useState(false);
+  const mediaLocales = [project.manifest.defaultLocale, ...locales].filter((locale, index, values) => locale !== "und" && values.indexOf(locale) === index);
+  const [mediaLocale, setMediaLocale] = useState(mediaLocales[0] ?? "");
+  const [voiceDrafts, setVoiceDrafts] = useState<Readonly<Record<string, string>>>({});
+  const [visualDrafts, setVisualDrafts] = useState<Readonly<Record<string, string>>>({});
+  const [mediaMessage, setMediaMessage] = useState("");
   useEffect(() => {
     if (selectedLocale === "" && locales[0] !== undefined) setSelectedLocale(locales[0]);
   }, [locales, selectedLocale]);
+  useEffect(() => {
+    if (!mediaLocales.includes(mediaLocale)) setMediaLocale(mediaLocales[0] ?? "");
+  }, [mediaLocale, mediaLocales]);
   const storageReady = storageStatus === "ready" || storageStatus === "success" || storageStatus === "cancelled";
   const model = useMemo(
     () => createProductionWorkspaceModel(index, lifecycle, dicingReport, storageReady),
@@ -117,6 +131,11 @@ export function ProductionWorkspace({
     (kind === "all" || entry.kind === kind) &&
     (normalizedQuery.length === 0 || `${entry.assetId}\n${entry.displayName}\n${entry.tags.join(" ")}`.toLocaleLowerCase().includes(normalizedQuery))
   );
+  const mediaModel = useMemo(
+    () => createLocalizationMediaProductionModel(project, index, mediaLocale),
+    [index, mediaLocale, project]
+  );
+  const reviewStatusLabel: Record<LocalizationMediaReviewStatus, string> = { missing: "缺失", draft: "草稿", reviewed: "已审阅", locked: "已锁定" };
 
   return (
     <section className="production-workspace view-enter" aria-labelledby="production-workspace-title">
@@ -264,6 +283,88 @@ export function ProductionWorkspace({
             </div>
           </>
         )}
+      </section>
+
+      <section className="localization-media-production" aria-labelledby="localization-media-production-title">
+        <div className="production-table__heading">
+          <div><p className="eyebrow">N61 · STABLE ID · LOCALE ASSET</p><h3 id="localization-media-production-title">语言媒体与配音</h3></div>
+          <span>配音 {mediaModel.boundVoiceCount}/{mediaModel.voiceRows.length} · 媒体 {mediaLocale === project.manifest.defaultLocale ? "源资源" : `${mediaModel.boundVisualCount}/${mediaModel.visualRows.length}`}</span>
+        </div>
+        <div className="localization-media-production__controls">
+          <label><span>媒体与配音语言</span><select aria-label="媒体与配音语言" value={mediaLocale} onChange={(event) => { setMediaLocale(event.target.value); setMediaMessage(""); }}>
+            {mediaLocales.map((locale) => <option key={locale} value={locale}>{locale}{locale === project.manifest.defaultLocale ? " · 源语言" : ""}</option>)}
+          </select></label>
+          <p>先在资源流水线导入通过检查的文件，再把配音绑定到稳定文本 ID、把语言图片或视频绑定到基础 Asset ID。</p>
+        </div>
+        {mediaMessage !== "" && <p className="localization-media-production__message" role="status">{mediaMessage}</p>}
+        {mediaLocales.length === 0 ? <p className="localization-production__empty">请先在上方设定工程源语言。</p> : <>
+          <div className="localization-media-production__group">
+            <h4>配音文件</h4>
+            {mediaModel.audioCandidates.length === 0 && <p className="localization-production__empty">Asset Index 中没有已通过检查的音频；请先打开资源生产流水线导入。</p>}
+            <div className="localization-media-production__scroll"><table>
+              <thead><tr><th>稳定文本 ID / 配音脚本</th><th>语言文本</th><th>文件</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody>{mediaModel.voiceRows.map((row) => {
+                const draftKey = `${mediaLocale}:voice:${row.textId}`;
+                const selected = voiceDrafts[draftKey] ?? row.assetId ?? "";
+                return <tr key={row.textId}>
+                  <td data-label="稳定文本 ID / 配音脚本"><code>{row.textId}</code><small>{row.sourceText}</small></td>
+                  <td data-label="语言文本">{row.localizedText || "（译文尚未填写）"}</td>
+                  <td data-label="文件"><select aria-label={`${row.textId} 的 ${mediaLocale} 配音资源`} value={selected} onChange={(event) => setVoiceDrafts((current) => ({ ...current, [draftKey]: event.target.value }))}>
+                    <option value="">未绑定</option>
+                    {row.assetId !== null && !row.assetAvailable && <option value={row.assetId}>{row.assetId} · 不在 Asset Index</option>}
+                    {mediaModel.audioCandidates.map((asset) => <option key={asset.assetId} value={asset.assetId}>{asset.displayName} · {asset.assetId}</option>)}
+                  </select></td>
+                  <td data-label="状态"><span className="localization-review-status" data-status={row.status}>{reviewStatusLabel[row.status]}</span><select aria-label={`${row.textId} 的 ${mediaLocale} 配音状态`} value={row.status === "missing" ? "draft" : row.status} disabled={!row.assetAvailable} onChange={(event) => {
+                    onProjectChange(bindLocalizationVoiceAsset(project, row.textId, mediaLocale, row.assetId, event.target.value as "draft" | "reviewed" | "locked"));
+                    setMediaMessage(`${row.textId} 的 ${mediaLocale} 配音状态已更新。`);
+                  }}><option value="draft">草稿</option><option value="reviewed">已审阅</option><option value="locked">已锁定</option></select></td>
+                  <td data-label="操作"><button type="button" disabled={!storageReady || selected === "" || selected === row.assetId} aria-label={`绑定 ${row.textId} 的 ${mediaLocale} 配音`} onClick={() => {
+                    onProjectChange(bindLocalizationVoiceAsset(project, row.textId, mediaLocale, selected));
+                    setMediaMessage(`已绑定 ${selected} 到 ${row.textId} · ${mediaLocale}。`);
+                  }}>绑定/替换</button>{row.assetId !== null && <button type="button" onClick={() => {
+                    onProjectChange(bindLocalizationVoiceAsset(project, row.textId, mediaLocale, null));
+                    setVoiceDrafts((current) => ({ ...current, [draftKey]: "" }));
+                    setMediaMessage(`已解除 ${row.textId} 的 ${mediaLocale} 配音，可重新绑定。`);
+                  }}>解除</button>}</td>
+                </tr>;
+              })}</tbody>
+            </table></div>
+          </div>
+          <div className="localization-media-production__group">
+            <h4>图片与视频语言变体</h4>
+            {mediaLocale === project.manifest.defaultLocale ? <p className="localization-production__empty">源语言直接使用基础 Asset；切换到目标语言后可绑定同类型变体。</p> : (
+              <div className="localization-media-production__scroll"><table>
+                <thead><tr><th>基础 Asset ID</th><th>类型</th><th>语言文件</th><th>状态</th><th>操作</th></tr></thead>
+                <tbody>{mediaModel.visualRows.map((row) => {
+                  const draftKey = `${mediaLocale}:visual:${row.baseAssetId}`;
+                  const selected = visualDrafts[draftKey] ?? row.assetId ?? "";
+                  const candidates = (mediaModel.visualCandidates[row.kind] ?? []).filter((asset) => asset.assetId !== row.baseAssetId);
+                  return <tr key={row.baseAssetId}>
+                    <td data-label="基础 Asset ID"><code>{row.baseAssetId}</code><small>{row.displayName}</small></td>
+                    <td data-label="类型">{row.kind.toUpperCase()}</td>
+                    <td data-label="语言文件"><select aria-label={`${row.baseAssetId} 的 ${mediaLocale} 语言资源`} value={selected} onChange={(event) => setVisualDrafts((current) => ({ ...current, [draftKey]: event.target.value }))}>
+                      <option value="">未绑定</option>
+                      {row.assetId !== null && !row.assetAvailable && <option value={row.assetId}>{row.assetId} · 不在 Asset Index</option>}
+                      {candidates.map((asset) => <option key={asset.assetId} value={asset.assetId}>{asset.displayName} · {asset.assetId}</option>)}
+                    </select></td>
+                    <td data-label="状态"><span className="localization-review-status" data-status={row.status}>{reviewStatusLabel[row.status]}</span><select aria-label={`${row.baseAssetId} 的 ${mediaLocale} 语言资源状态`} value={row.status === "missing" ? "draft" : row.status} disabled={!row.assetAvailable} onChange={(event) => {
+                      onProjectChange(bindLocalizationVisualAsset(project, row.baseAssetId, mediaLocale, row.assetId, event.target.value as "draft" | "reviewed" | "locked"));
+                      setMediaMessage(`${row.baseAssetId} 的 ${mediaLocale} 语言资源状态已更新。`);
+                    }}><option value="draft">草稿</option><option value="reviewed">已审阅</option><option value="locked">已锁定</option></select></td>
+                    <td data-label="操作"><button type="button" disabled={!storageReady || selected === "" || selected === row.assetId} aria-label={`绑定 ${row.baseAssetId} 的 ${mediaLocale} 资源`} onClick={() => {
+                      onProjectChange(bindLocalizationVisualAsset(project, row.baseAssetId, mediaLocale, selected));
+                      setMediaMessage(`已绑定 ${selected} 到 ${row.baseAssetId} · ${mediaLocale}。`);
+                    }}>绑定/替换</button>{row.assetId !== null && <button type="button" onClick={() => {
+                      onProjectChange(bindLocalizationVisualAsset(project, row.baseAssetId, mediaLocale, null));
+                      setVisualDrafts((current) => ({ ...current, [draftKey]: "" }));
+                      setMediaMessage(`已解除 ${row.baseAssetId} 的 ${mediaLocale} 资源，可重新绑定。`);
+                    }}>解除</button>}</td>
+                  </tr>;
+                })}</tbody>
+              </table></div>
+            )}
+          </div>
+        </>}
       </section>
 
       <section className="production-table" aria-labelledby="production-table-title">

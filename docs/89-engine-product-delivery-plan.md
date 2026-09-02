@@ -583,6 +583,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N61-E5 状态（2026-09-02）：[审计 #278](278-n61-e5-localized-media-voice-mapping-audit.md)已冻结 Canonical `localeVariantOf + locale` 语言视觉变体和 `voiceTextId + locale` Voice 映射，并由正式 Player 表现层消费；切换语言不改变 Runtime/History/Save，目标资源缺失时回退工程源语言并显示数量。真实路径首次 `0/1` 失败于英文 Voice 不存在，修正后新路径 `1/1`、受影响 Player/Localization `5 files / 61 tests`、production build 通过；1280×720 浏览器以真实 PNG/SVG/WAV 验证 `en → zh-Hans → ja`，日语准确回退 2 项且提示不遮挡控件。下一步 N61-E6 补 Production 语言媒体/配音绑定和状态闭环；N61 Engineering、E4 移动断行证据和三端 Product Acceptance 不提前关闭。
 
+> N61-E6 状态（2026-09-02）：[审计 #279](279-n61-e6-localized-media-production-audit.md)已在正式 Production 复用 Blob/媒体检查/Asset Index，以 stable text ID 和基础 Asset ID 完成各 locale 的 Voice/视觉资源绑定、草稿/已审阅/已锁定状态、失效绑定缺失恢复及 Canonical 保存重开。真实 App 在四项 PNG/WAV 导入成功后首次 `0/1` 精确失败于入口缺失，修正后新路径 `1/1`、受影响 `5 files / 8 tests`、TypeScript 与 production build 通过；1280×720 和实际 375×844 页面 overflow 0，移动交互至少 44px。下一步 N61-E7 直接把 Production 保存的 Canonical 交给 Compiler/Player，并补 E4 移动证据，再复审 N61 Engineering；三端 Product Acceptance 不提前关闭。
+
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 
 - **Goal**：把核心差异化自动化真正接入 Compiler 和 Player。
