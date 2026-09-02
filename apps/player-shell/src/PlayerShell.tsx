@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createGalSettingsApplicationV1,
   createGalSettingsDocument,
@@ -23,6 +23,7 @@ import {
   type PlayerHistoryVisibleEventV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
 import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
 import {
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
@@ -109,6 +110,12 @@ function playerHistoryEventKind(event: PlayerHistoryVisibleEventV1): string {
     case "wait": return "等待";
     case "ending": return "结局";
   }
+}
+
+function PlayerRichText({ text, locale }: { readonly text: string; readonly locale: string }) {
+  return <>{parsePlayerRichTextV1(text).map((segment, index) => segment.kind === "text"
+    ? <Fragment key={`text:${index}`}>{segment.text}</Fragment>
+    : <ruby key={`ruby:${index}`} lang={locale}>{segment.base}<rp>（</rp><rt>{segment.annotation}</rt><rp>）</rp></ruby>)}</>;
 }
 
 function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
@@ -228,6 +235,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     )
   }));
   const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
+  const typography = useMemo(
+    () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets),
+    [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale]
+  );
+  const [fontStatus, setFontStatus] = useState<"system" | "loading" | "ready" | "fallback">("system");
   const lastEffectOperation = snapshot.effects.operations.at(-1) ?? null;
   const speakerNames = useMemo(() => Object.fromEntries(project.characters.characters.flatMap((character) => {
     const id = typeof character.id === "string" ? character.id : undefined;
@@ -241,6 +253,38 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   );
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
+
+  useEffect(() => {
+    const selected = typography.projectFont;
+    if (selected === null) {
+      setFontStatus("system");
+      return;
+    }
+    const FontFaceConstructor = globalThis.FontFace;
+    const fontSet = globalThis.document?.fonts;
+    if (FontFaceConstructor === undefined || fontSet === undefined) {
+      setFontStatus("fallback");
+      return;
+    }
+    let active = true;
+    let loadedFace: FontFace | null = null;
+    setFontStatus("loading");
+    try {
+      const face = new FontFaceConstructor(selected.runtimeFamily, `url("${selected.url.replaceAll('"', '\\"')}")`);
+      void face.load().then((loaded) => {
+        if (!active) return;
+        loadedFace = loaded;
+        fontSet.add(loaded);
+        setFontStatus("ready");
+      }).catch(() => { if (active) setFontStatus("fallback"); });
+    } catch {
+      setFontStatus("fallback");
+    }
+    return () => {
+      active = false;
+      if (loadedFace !== null) fontSet.delete(loadedFace);
+    };
+  }, [typography]);
 
   const stopSkip = useCallback(() => {
     skipModeCurrent.current = null;
@@ -884,6 +928,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-player-status={snapshot.status}
       data-player-locale={snapshot.localization.selectedLocale}
       data-player-locale-fallbacks={snapshot.localization.missingTranslationCount}
+      data-player-font={fontStatus}
+      data-player-typography={typography.cjk ? "cjk-strict" : "standard"}
       data-player-core={snapshot.playerCoreVersion}
       data-compiler={snapshot.identities.compilerVersion}
       data-runtime={snapshot.identities.runtimeVersion}
@@ -952,7 +998,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         "--gal-font-scale": settingsApplication.text.fontScale,
         "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
         "--gal-line-height": settingsApplication.text.lineHeight,
-        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`
+        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`,
+        "--player-font-family": fontStatus === "ready" && typography.projectFont !== null
+          ? `"${typography.projectFont.runtimeFamily}", ${typography.fallbackStack}`
+          : typography.fallbackStack
       } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />
@@ -1133,9 +1182,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                             setHistoryPanelOpen(false);
                           }}>
                             <span>{playerHistoryEventKind(entry.event)} · {entry.position === "past" ? "已读" : entry.position === "current" ? "当前" : "前方"}</span>
-                            <strong>{label}</strong>
+                            <strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong>
                           </button>
-                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong>{label}</strong></div>}
+                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong></div>}
                       </li>;
                     })}
                   </ol>
@@ -1146,7 +1195,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <h3>旧分支 {archiveIndex + 1}</h3>
                   <p>从历史位置 {archive.branchPointHistoryIndex} 分岔 · 只读</p>
                   <ol className="player-history-list">
-                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong>{playerHistoryEventLabel(entry.event)}</strong></div></li>)}
+                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={playerHistoryEventLabel(entry.event)} locale={typography.locale} /></strong></div></li>)}
                   </ol>
                 </section>
               ))}
@@ -1166,6 +1215,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 ? `${snapshot.localization.selectedLocale} · ${snapshot.localization.missingTranslationCount} 项缺失译文继续显示 ${snapshot.localization.sourceLocale} 原文`
                 : `${snapshot.localization.selectedLocale} · 翻译完整`}</span>
           </>}
+          {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">
+            {fontStatus === "ready" ? `${typography.projectFont.displayName} · 项目字体已加载`
+              : fontStatus === "loading" ? `${typography.projectFont.displayName} · 正在加载项目字体`
+                : `${typography.projectFont.displayName} 加载失败，已回退到 ${typography.locale} 可读字体`}
+          </output>}
           <button
             type="button"
             aria-label="自动播放"
@@ -1321,14 +1375,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-label="继续下一句"
           >
             {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
-            <span key={`${presentedText}:${textRevealDuration}`} aria-live="polite" style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}>{content.text}</span>
+            <span
+              key={`${presentedText}:${textRevealDuration}`}
+              className="player-dialogue__text player-typography-text"
+              lang={typography.locale}
+              data-cjk-line-break={typography.cjk ? "strict" : "standard"}
+              aria-live="polite"
+              style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}
+            ><PlayerRichText text={content.text} locale={typography.locale} /></span>
             <i aria-hidden="true">⌄</i>
           </button>
         )}
 
         {content.kind === "choice" && (
           <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
-            <p id="player-choice-prompt">{content.prompt}</p>
+            <p id="player-choice-prompt" className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.prompt} locale={typography.locale} /></p>
             {content.options.map((option, index) => (
               <button
                 key={option.optionId}
@@ -1340,7 +1401,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
                 onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, pointerInput.current)}
               >
-                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}{option.label}
+                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}<span className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={option.label} locale={typography.locale} /></span>
               </button>
             ))}
           </div>
@@ -1349,7 +1410,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {content.kind === "ending" && (
           <div className="player-ending" role="status">
             <span>ENDING</span>
-            <h2>{content.name}</h2>
+            <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
             <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>回到标题</button>
           </div>
         )}

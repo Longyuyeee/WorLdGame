@@ -4,6 +4,7 @@ import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-set
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import benchmarkSource from "../../../fixtures/projects/benchmark/project.s0.json";
 import branchingSource from "../../../fixtures/projects/branching/project.s0.json";
+import cjkSource from "../../../fixtures/projects/cjk/project.s0.json";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost } from "./player-host";
 
@@ -30,6 +31,20 @@ const localizationDemoProject: CanonicalProject = {
     }]
   }
 };
+const cjkRaw = cjkSource as S0Project & { readonly variables?: CanonicalProject["variables"]["variables"] };
+const cjkMigrated = loadProject(migrateS0Project(cjkRaw).files);
+const cjkScene = cjkMigrated.scripts.cjk_start!;
+const cjkTypographyProject: CanonicalProject = {
+  ...cjkMigrated,
+  manifest: { ...cjkMigrated.manifest, projectId: "player_cjk_typography_demo", title: "WorLd Player · CJK Typography", defaultLocale: "ja" },
+  assets: { ...cjkMigrated.assets, assets: [{ assetId: "font_ja_missing", kind: "font", displayName: "Project Japanese", mimeType: "font/woff2", fontFamily: "Project Japanese", locales: ["ja"] }] },
+  settings: withProjectSettings(cjkMigrated.settings, { text: { revealMode: "instant", lineHeight: 1.9 } }),
+  scripts: { ...cjkMigrated.scripts, cjk_start: { ...cjkScene, statements: [
+    { id: "cjk_ruby", kind: "narration", textId: "cjk_ruby_text", text: "黄昏の｜放送室《ほうそうしつ》で、彼女は「まだ帰らない」と静かに言った。窓の向こうでは古い電車がゆっくり動き、これはスマートフォンでも句読点を不自然な行頭へ追い出さずに読むための長い文章です。" },
+    { id: "cjk_end", kind: "end", endingName: "再会" }
+  ] } }
+};
+const cjkTypographyAssets = [{ assetId: "font_ja_missing", displayName: "Project Japanese", mimeType: "font/woff2", url: "data:font/woff2;base64,AA==" }] as const;
 const historyDesktopDemoProject: CanonicalProject = {
   ...inputDemoProject,
   manifest: { ...inputDemoProject.manifest, projectId: "player_history_desktop", title: "WorLd Player · History Desktop" }
@@ -213,6 +228,8 @@ createRoot(document.getElementById("root")!).render(
             ? <SettingsApplicationDemo />
           : demoName === "video"
             ? <VideoDemo />
+          : demoName === "cjk-typography"
+            ? <WebPlayerHost project={cjkTypographyProject} mediaAssets={cjkTypographyAssets} />
           : <WebPlayerHost project={demoName === "input" ? inputDemoProject
             : demoName === "localization" ? localizationDemoProject
             : demoName === "history-desktop" ? historyDesktopDemoProject
