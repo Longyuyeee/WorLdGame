@@ -37,8 +37,9 @@
 - Editor 与 Player TypeScript：通过；
 - Editor 与 Player production build：通过；Editor 保留既有主包大于 500 kB 提示；
 - Player production browser：真实 `390×844`，页面宽度 `390/390`、正文宽 `316px`、overflow `0`、5 行均无禁止标点行首、Ruby 与字体失败回退可见、console error/warning `0`。
+- 实现 head `c0eb5a3` 的 Windows / Node 22 完整门 run `33610146493` / job `100183114863` 用时 `9m45s` 成功。
 
-没有执行无关全仓重复测试、真人计时或额外安全审查。完整仓库门交给推送后的精确 head CI 裁决。
+没有执行无关全仓重复测试、真人计时或额外安全审查；完整仓库范围只由上述精确 head CI 裁决。
 
 ## 4. N61 目标与实现逐项审计
 
