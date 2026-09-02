@@ -1,12 +1,13 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-09-01
+> 文档基线：2026-09-02
 > 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings 与 N52 Engineering 出口已通过；N52 main-target Draft PR #122 已建立且精确候选头 Windows 全门绿色，但尚未合入 `main`。N60-E1–E4 已完成正式调试会话、断点、Watch 与五类 P0 Story QA 产品路径；下一步先做 N60 Engineering 总出口复审，不提前进入 P1 Solver。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。N52/N60 Product Acceptance、N61+、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
 > 产品节奏纠偏：2026-09-01 [产品目标对齐审计](docs/262-product-goal-alignment-and-delivery-correction.md)确认功能语义仍对齐最初 PRD，但开发过程已过度偏向工程证明；从 E5c 起以真实用户任务、预期/实际差异和纵向可操作闭环作为主要完成判据。
+> 当前开发原则：功能和用户任务优先；测试、审计与安全工作只保留能防止真实回归或满足交付所必需的最小范围，不以增加证明材料代替产品推进。功能设计必须先明确谁在什么场景下使用、用户操作路径、可见反馈与失败恢复，再决定实现结构。
 
 WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制作器，而是建立一套兼顾新手、职业编剧、美术、程序、翻译和 QA 的跨平台视觉小说生产系统。
 
@@ -47,7 +48,6 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N52 main-target 集成候选与真人门就绪审计](docs/266-n52-main-target-integration-candidate-audit.md) | main/N41 Authority 祖先审计、E5e 基线 463 提交的聚合审阅策略、N21/N23 真实 pending 状态与接续顺序 |
 | [N60-E1 正式调试会话审计](docs/267-n60-e1-debugger-session-audit.md) | 正式 Runtime 调试入口、断点/单步/观察器、desktop/mobile 差异修正与 N60-E2 接续点 |
 | [N60-E2 断点集合与运行边界审计](docs/268-n60-e2-breakpoint-boundary-audit.md) | 多断点启停/移除、五类正式停止原因、源码返回、真实差异与 N60-E3 接续点 |
-| [N60-E2 换机暂停与 N60-E3 接续交接](docs/269-n60-e2-cross-device-handoff.md) | 精确分支/提交/PR/CI、真实测试差异、重要开发规则与下一台电脑恢复顺序 |
 | [N60-E3 Watch 与变量来源/变化审计](docs/270-n60-e3-debugger-watch-audit.md) | 正式 parser/evaluator/History/Source Map Watch、真实差异、双视口证据与 P0 Story QA 接续点 |
 | [N60-E4 P0 Story QA 产品闭环审计](docs/271-n60-e4-p0-story-qa-product-closure-audit.md) | 五类 Compiler 诊断产品投影、真实故障/正常 Golden、分类筛选、stable 回源与 N60 总出口接续点 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
@@ -56,7 +56,6 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N43-E7 Mobile Focus 与 Engineering 出口审计](docs/210-n43-e7-mobile-focus-and-engineering-exit-audit.md) | Canonical 手机专注写作、IME/触控替代、真实窄屏差异修正、七模式 7/7 与出口边界 |
 | [N43→N50 治理检查点](docs/211-n43-n50-governance-checkpoint.md) | RA-N21-009 有界准入、正式 Player Core 同源约束、N51 越界反例与 N50-E1 冻结起点 |
 | [N50-E1 正式 Player Core 审计](docs/212-n50-e1-formal-player-core-audit.md) | Canonical→Compiler→Runtime/Host→Player snapshot、最小共享 Shell、production browser 与差异修正 |
-| [N50-E1 暂停开发与换机交接审计](docs/213-n50-e1-development-handoff-2026-08-26.md) | 暂停头、远端证据、换机迁移边界、恢复命令与后续严格顺序 |
 | [N50-E2 Player Stage/Media 审计](docs/214-n50-e2-player-stage-media-presentation-audit.md) | 正式 Effect snapshot、真实 PNG/WAV adapter、awaited/cancel 生命周期与 production-browser 物理证据 |
 | [N50-E3 Media Parity/Recovery 审计](docs/215-n50-e3-player-media-parity-recovery-audit.md) | Editor↔Player 同源结构差分、多角色/多音轨 channel、缺失媒体恢复与真实移动触控纠偏 |
 | [N50-E4 Player 输入与生命周期审计](docs/216-n50-e4-player-input-lifecycle-audit.md) | 统一 Core intent、键盘/指针/基础手柄协议、Choice 焦点、Ending restart 与工程身份替换 |
@@ -76,7 +75,6 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N51-E6b Text / Accessibility 应用审计](docs/231-n51-e6b-text-accessibility-entry-contract.md) | schema v3、29/20 字段、文本排版/即时显示、高对比/减动效/降闪烁与双 production-browser 证据 |
 | [N51-E6f Engineering 出口复审](docs/235-n51-e6f-engineering-exit-reaudit.md) | N51 机器出口合同、真实 production/CI、后续所有权与 Product Acceptance 边界 |
 | [N51→N52 治理检查点](docs/236-n51-n52-governance-checkpoint.md) | RA-N21-011 有界准入、N60 越界反例、真实 Runtime/Player 缺口和 N52-E1 冻结起点 |
-| [N52 暂停与接续交接审计](docs/237-n52-development-pause-and-handoff.md) | 暂停提交/CI 真实状态、未开始边界、唯一恢复顺序与 E1 代码接续点 |
 | [N52-E1 History-backed Player Core 审计](docs/238-n52-e1-history-backed-player-core-audit.md) | 正式 History Session、Back/Forward、Host reconciliation、分支截断、移动端纠偏与 production-browser 证据 |
 | [N32-E7 共享 Runtime Host 审计](docs/150-n32-e7-shared-runtime-host-audit.md) | 共享 Host、跨宿主 Golden、验收工程纠偏与实测证据 |
 | [N32 Engineering 出口复审](docs/151-n32-engineering-exit-reaudit.md) | N32 六项实现与 Acceptance 的最新 fail-closed 判定 |
@@ -187,7 +185,6 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N22 Stage Move 基础过渡审计](docs/109-n22-stage-move-transition.md) | Move 槽位继承、插值、沉降、回退与浏览器证据 |
 | [N22 Stage Hide 基础退出过渡审计](docs/110-n22-stage-hide-transition.md) | Hide/Fade 退出、无障碍失活、回退与视觉证据 |
 | [N22 Stage Show 单语句生命周期审计](docs/111-n22-stage-show-transition-lifecycle.md) | 角色层 Show 入场、下一语句沉降、回退与浏览器证据 |
-| [开发暂停与换机接续审计](docs/112-development-handoff-2026-08-14.md) | N22 候选时点的分支、证据、CI 与接续边界历史快照 |
 | [N22 最小 Stage 与媒体预览退出条件审计](docs/113-n22-exit-condition-audit.md) | 逐项需求对齐、真实 WAV 播放补证、工程门结论与 N23 阻断 |
 | [N21 真人产品验收执行包](docs/114-n21-human-validation-execution-kit.md) | 冻结任务、参与者/主持人边界、任务结果与实际摩擦证据、通过失败与风险关闭规则（不以耗时判定） |
 | [可运行流程审计与验收顺序纠正](docs/115-playable-flow-order-correction.md) | 真实代码断点、最小可运行流程、N21/N23 重排、逐节点完成定义与剩余缺口 |

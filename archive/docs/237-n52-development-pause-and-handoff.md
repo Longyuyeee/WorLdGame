@@ -21,7 +21,7 @@
 
 - `product-baseline` run `33158924466` / job `98808364766` 对提交 `568da54` 的 Windows / Node 22 完整门已由 GitHub 启动；暂停快照时状态为 `in_progress`；
 - 因尚无终态，不能登记同头 CI 绿色，PR #97 暂时显示 `UNSTABLE`；
-- [治理检查点 #236](236-n51-n52-governance-checkpoint.md)的同头 CI 章节尚未形成最终裁决。
+- [治理检查点 #236](../../docs/236-n51-n52-governance-checkpoint.md)的同头 CI 章节尚未形成最终裁决。
 
 ### 尚未开始
 
@@ -58,7 +58,7 @@ E1 只做以下闭环：
 - `packages/runtime/src/history.ts`、`save.ts`、`session-save.ts`、`scheduler.ts`：唯一正式内核；
 - `packages/runtime-host/src/host.ts`：presentation compensation/replay；
 - `apps/player-shell/src/player-shell.tsx`、`mount-player.tsx`：正式 Web Player 与版本化 Host API；
-- [范围消歧 #220](220-n50-n52-scope-reconciliation.md)、[治理 #236](236-n51-n52-governance-checkpoint.md)、[需求矩阵 #90](90-m1-requirement-traceability.md)。
+- [范围消歧 #220](../../docs/220-n50-n52-scope-reconciliation.md)、[治理 #236](../../docs/236-n51-n52-governance-checkpoint.md)、[需求矩阵 #90](../../docs/90-m1-requirement-traceability.md)。
 
 ## 5. 恢复后的每步关闭规则
 
@@ -75,4 +75,4 @@ E1 只做以下闭环：
 
 治理最终头的同头裁决已经满足，第 2 节步骤 1–3 关闭。下一动作严格执行步骤 4–5：从最终治理头建立 `codex/n52-e1-history-backed-player-core`，先提交可审计的失败冻结测试，再实现 E1；Save 槽位、Auto、Skip 和 N52 Product Acceptance 继续不在本切片范围内。
 
-> 2026-08-28 后续状态：N52-E1 已按该顺序实施并完成本地审计，最新权威接续点改由[N52-E1 审计 #238](238-n52-e1-history-backed-player-core-audit.md)维护；本文件保留为恢复前暂停快照。
+> 2026-08-28 后续状态：N52-E1 已按该顺序实施并完成本地审计，最新权威接续点改由[N52-E1 审计 #238](../../docs/238-n52-e1-history-backed-player-core-audit.md)维护；本文件保留为恢复前暂停快照。

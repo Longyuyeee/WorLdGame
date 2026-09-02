@@ -4,7 +4,7 @@
 > 当前分支：`codex/n60-e1-debugger-session`；直接基线为 N52 main-target 集成候选头 `6ad912e02843c080f5c482dd4a075110e96a3cfd`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；当前 **RA-N21-011 Debug QA 修订**只准入 N60 Engineering，N60 Product Acceptance 与 N61 继续阻断，2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N60-E4 P0 Story QA #271](271-n60-e4-p0-story-qa-product-closure-audit.md)、[N60-E3 Watch #270](270-n60-e3-debugger-watch-audit.md)、[N60-E2 换机交接 #269](269-n60-e2-cross-device-handoff.md)、[N60-E1 正式调试会话 #267](267-n60-e1-debugger-session-audit.md)
+> 最新节点证据：[N60-E4 P0 Story QA #271](271-n60-e4-p0-story-qa-product-closure-audit.md)、[N60-E3 Watch #270](270-n60-e3-debugger-watch-audit.md)、[N60-E2 断点 #268](268-n60-e2-breakpoint-boundary-audit.md)、[N60-E1 正式调试会话 #267](267-n60-e1-debugger-session-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
@@ -165,16 +165,16 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. 不得因生产构建成功就宣称包体优化、正式 Player 或三端发布完成。
 5. 不得把 `playable-web-export.ts` 的独立解释器或其自测冒充正式 Runtime Web Player 与跨宿主差分证据。
 
-## 5. 下一步顺序
+## 5. 后续开发原则
 
-1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
-2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
-3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
-4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52 Engineering complete，main-target 聚合候选及其精确头 CI 已完成；N60-E1–E4 已完成正式调试、Watch 与五类 P0 Story QA。下一开发点是 **N60 Engineering 总出口复审**：先逐项核对 P0 与 Delivery Plan，确认剩余缺口后再修正；不直接进入 P1 Solver/覆盖率。真人在功能与整体 UI 就绪后再接入；全部 Product Acceptance 阻断不变，N61 不得进入。
+1. **功能优先**：先交付用户可见、可操作的纵向功能，不把新增审计、测试数量或安全论证当成功能进展；只保留能防止本次真实回归、保护核心数据或满足发布合同所必需的最小测试与审计。
+2. **用户场景先行**：开发前先写清目标用户、使用时机、入口、连续操作、预期反馈、失败后的恢复方式；UI 与领域结构均围绕这条实际任务设计，而不是围绕现有模块方便实现。
+3. **真实差异驱动**：必要测试必须比较预期和当前实际，并据差异修正；不为覆盖率数字重复同一事实，不在功能和整体 UI 完成前提前拉真人计时验收。
+4. **完成即收束**：功能完成后只做需求对齐、必要回归、文档更新与推送；没有实际用户风险时，不追加新的审查层级。
 
-换机恢复必须拉取 `origin/codex/n60-e1-debugger-session` 最新 tip，阅读[最新 E4 审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)，核对精确提交与最终 CI，再开始 N60 总出口复审；不得从旧 E2/E3 实现头或本地缓存继续写代码。
+## 6. 下一步顺序
 
-每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
+1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[最新 E4 审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)；
+2. 对 N60 做一次最小总出口核对，目的只是找出仍会阻碍用户完成 Debug & QA 任务的真实功能缺口；已有代码和证据足够的项目直接确认，不重复测试；
+3. 若存在缺口，按“用户场景 → 最小真实测试 → 功能实现 → 实际使用修正”完成一个纵向切片；若不存在，则关闭 N60 Engineering 并进入下一个产品功能节点；
+4. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。

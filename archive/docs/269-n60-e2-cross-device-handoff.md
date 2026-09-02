@@ -46,7 +46,7 @@ N60-E2 已完成：
 | Windows 实现头 | 同预算裁决本机 VM 差异 | `4e29559` 全门绿色；VM `69.36s < 90s`、Route P95 `170.44ms < 500ms`、Asset Dicing `3259.15ms < 5000ms` | 实现头 PASS；最终文档 tip 仍需独立 CI |
 | 治理/需求 | 当前 N60 授权与 50 项矩阵不漂移 | requirements PASS；risk acceptance PASS；governance `3 files / 23 tests` | PASS |
 
-详细预期—首次实际—修正后实际见 [#268](268-n60-e2-breakpoint-boundary-audit.md)。浏览器证据运行 production build 和真实校园示例工程，不是静态截图，也不是只检查元素是否存在。
+详细预期—首次实际—修正后实际见 [#268](../../docs/268-n60-e2-breakpoint-boundary-audit.md)。浏览器证据运行 production build 和真实校园示例工程，不是静态截图，也不是只检查元素是否存在。
 
 ## 4. 后续开发必须保持的重要规则
 
