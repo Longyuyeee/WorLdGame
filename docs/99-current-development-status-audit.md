@@ -1,15 +1,15 @@
-# 当前开发情况审计（N52 main-target 集成候选，等待真人验证）
+# 当前开发情况审计（N62-E1 实现候选）
 
-> 审计日期：2026-09-01
-> 当前分支：`codex/m1-integration-n52-candidate`；直接基线为 N52-E5e 最终头 `5ac53f905842b07571f785d7932a00fc11f63a90`
+> 审计日期：2026-09-03
+> 当前分支：`codex/n60-e1-debugger-session`；N62-E1 起点为 `9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订** 已扩展为 checkpoint、Stop Point 与 History 三次窄修订；最大节点仍为 N52，2026-09-27 16:00:00（UTC+8）到期
-> 最新节点证据：[N52 main-target 集成候选 #266](266-n52-main-target-integration-candidate-audit.md)、[N52-E5e 总出口复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)、[产品目标与交付节奏纠偏 #262](262-product-goal-alignment-and-delivery-correction.md)
+> 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；2026-09-03 Additional Content 窄范围修订准入到 N62 Engineering，N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
+> 最新证据：[N62-E1 自动附加内容入口审计 #282](282-n62-e1-additional-content-entry-audit.md)、[N61→N62 交接 #281](281-n61-to-n62-cross-device-handoff.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-09-01 最新结论是：**N52 Engineering 已关闭，main-target Draft 聚合集成候选已建立且精确候选头全门绿色，但尚未合入 main。** 当前 tip 对 main behind `0`，完整包含 N41 Authority 与开放 PR #1–#121；追加候选审计文档前，N52-E5e 基线的真实聚合差异为 `463 commits / 972 files / +114135/-173`，后续文档提交不计作固定产品规模。下一唯一产品动作是先安排一名合格非程序参与者执行 N21-HV-01，再安排两名不同非实现者执行 N23-PA-01；当前记录仍为 `0/1`、`0/2`，N52 Product Acceptance 与 N60 继续阻断。
+2026-09-03 最新结论是：**N52、N60 与 N61 Engineering 已关闭；N62-E1 已形成实现候选，但尚未关闭。** 正式 Player 现从同一 Compiler Catalog 与 Runtime Meta 自动呈现 Gallery/Replay/Music/Ending 四类摘要，等待 Effect/Barrier 时禁止读取瞬态进度，返回前后 Runtime State Hash 与 History Cursor 不变。产品红测 `0/2→2/2`、受影响 `85/85`、TypeScript 与 production build 已通过；本机管理员安全策略拒绝打开 localhost production preview，按补偿控制不能用 jsdom/build 代替，故先补 production-browser 双视口证据，再允许进入 E2。N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断。完整差异、依赖风险和接续顺序见[#282](282-n62-e1-additional-content-entry-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,19 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭，N52 Engineering 已关闭**；全部 Product Acceptance、N60+、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭，N52 Engineering 已关闭，N60 Engineering 已关闭，N61 Engineering 已关闭**；全部 Product Acceptance、N62+、M1 Stable、Public Release：**被阻断**；
+- **N60-E2 断点集合与运行边界已实现**：[审计 #268](268-n60-e2-breakpoint-boundary-audit.md)以 stable ID 管理多断点启停/移除/定位；Continue 通过正式 Source Map 和 Runtime History 命中下一断点，并明确呈现 Choice、awaited Effect、Barrier、Ending、Error。新产品路径首次 `0/1`，实现中真实暴露“重复命中当前断点”差异并修复；定向 `3 files / 19 tests`，production desktop/mobile overflow `0`、E2 移动控件 `44px`。本机完整门仅既有 VM 10k 为 `94.671s > 90s`、隔离 `96.507s`，未放宽预算；精确实现头 `4e29559` 的 Windows run `33491890189` / job `99805042362` 用时 `14m36s` 全绿，VM `69.36s`，关闭环境差异。N60 总 Engineering 与所有产品门不提前关闭；
+- **N60-E3 Watch 与变量来源/变化已实现**：[审计 #270](270-n60-e3-debugger-watch-audit.md)复用 Story Language parser、正式 Runtime evaluator、History checkpoint 与 Compiler IR/Source Map，未建立 React 私有求值器。产品红测首次 `0/1`；修正后 N60 聚合 `7 files / 87 tests`，production 真实工程显示表达式 `1 → 2`、变量 `0 → 1`、stable 写入来源和非法表达式非破坏性错误。390×844 根宽 `375/375`、新增交互 `44px`、console `0 error`。本机全门普通回归 `157/985` 通过，但既有 autosave 5 秒门连续三次未达、VM 10k 为 `119.409s > 90s`，未放宽预算；精确实现头 `9d5d597` 的 Windows run `33580208407` / job `100092698639` 用时 `10m17s` 全绿，autosave `2.312s`、VM `40.656s`，关闭本机环境差异。下一步先关闭 PRD 3.10 P0 QA Golden 产品路径，不用 P1 Solver/覆盖率回避剩余 P0；
+- **N60-E4 P0 Story QA 已实现**：[审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)直接复用 Compiler/Source Map，将不可达、无出口、悬空引用、缺失资源、非交互循环做成五类总览、筛选与 stable source 修复入口。真实 App 红测 `0/1` 暴露分类 UI 缺失，修正后 N60 `8 files / 88 tests`；故障 Golden 五类全检出，正常校园工程五类全为 0。production 1440×900 与 390×844 overflow `0`、console error/warning `0`。下一步做 N60 Engineering 总出口复审；
+- **N60-E5 当前场景启动已实现**：[审计 #272](272-n60-e5-scene-debugger-start-audit.md)确认正式 Runtime 已有 Scene Fresh Run，但 Debug & QA 仅暴露 Entry/Statement；真实 App 首次 `0/1` 精确失败于按钮缺失，修正后可从所选场景首语句启动，并保留全部调试控制。N60 `8 files / 88 tests`、TypeScript 通过；下一步继续核对诊断抑制理由/报告交付的真实用户必要性；
+- **N60-E6 诊断抑制与 Engineering 出口已关闭**：[审计 #273](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)完成 stable finding ID + 必填理由、Canonical 重开追溯、活动报告重算与恢复；真实 App `0/1→1/1`，production 390×844 document `375/375`、恢复按钮 `44px`、console `0`。PRD 3.10 与 Delivery Plan 逐项完整，N60 Engineering 关闭；
+- **N61-E1 本地化生产入口与状态闭环已实现**：[审计 #274](274-n61-e1-localization-production-audit.md)复用现有 Production、Canonical localization 和 Story 稳定 ID；完成源/目标语言、五种状态、非法代码恢复、保存重开及源文过期。真实 App `0/1→1/1`、受影响回归 `3 files / 4 tests`，下一步 N61-E2 CSV/XLSX 往返；
+- **N61-E2 CSV/XLSX 翻译交换已实现**：[审计 #275](275-n61-e2-localization-csv-xlsx-exchange-audit.md)以真实 CSV/XLSX 完成稳定键导出、外部修改、导入差异预览、错误批次阻断、确认写入及 Canonical 重开；首次入口 `1/2`，修正后定向 `2 files / 3 tests`，下一步 N61-E3 Runtime 语言选择与缺失译文回退；
+- **N61-E3 Runtime 语言切换与回退已实现**：[审计 #276](276-n61-e3-runtime-localization-switch-audit.md)由正式 Player Core 消费 Compiler catalog 并只在 snapshot 投影语言；画面/History 即时切换，缺失/过期回退且显示数量，Web 重开恢复偏好。产品红测 `0/1→1/1`、受影响 `4 files / 81 tests`，下一步 N61-E4 CJK/Ruby/禁则与字体回退；
+- **N61-E4 CJK/Ruby/禁则与字体回退功能已实现**：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)把 Story `｜基底《注音》` 安全渲染为语义 Ruby，并在对白、Choice、Ending、History 应用语言字体栈与严格 CJK 换行；项目字体失败时不中断剧情且显示回退。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`；production 双视口实际断行复验保留为接续首项，不提前关闭 N61；
+- **N61-E5 语言媒体与 Voice Asset 映射已实现**：[审计 #278](278-n61-e5-localized-media-voice-mapping-audit.md)让正式 Player 按 Canonical locale 变体选择图片/视频、按 stable text ID 选择 Voice，并在目标语言缺失时回退源语言且显示数量。真实路径 `0/1→1/1`、受影响 Player/Localization `5 files / 61 tests`、production build 通过；真实 PNG/SVG/WAV 已跑通 `en → zh-Hans → ja`；
+- **N61-E6 Production 语言媒体与配音已实现**：[审计 #279](279-n61-e6-localized-media-production-audit.md)复用真实 Blob、媒体检查和 Asset Index，让创作者按 stable text ID/基础 Asset ID 绑定 locale 文件、维护状态、恢复失效绑定并保存重开。真实 App 在四项 PNG/WAV 导入成功后 `0/1→1/1`，受影响 `5 files / 8 tests`、TypeScript/build 通过；production 桌面与实际 375×844 overflow 0、移动交互至少 44px。下一步 N61-E7 贯通同一 Canonical 到 Compiler/Player，并完成 Engineering 出口复审；
+- **N61-E7 与 Engineering 出口已关闭**：[审计 #280](280-n61-e7-localization-engineering-exit-audit.md)用同一 Editor 保存 Canonical/IndexedDB Blob 直接贯通 Compiler/Player，新增真实跨应用路径首次 `1/1`；E4 390×844 CJK/Ruby/禁则、overflow、触控和 console 证据同步闭合。N61 Goal 与 8 项 Implementation 全部完成；Product Acceptance 和 N62 不提前通过；
 - **N52 main-target 聚合集成候选已建立**：[审计 #266](266-n52-main-target-integration-candidate-audit.md)确认 main/N41 Authority 祖先、behind `0`、121 个开放 PR head 无遗漏；直接面向 `main` 的 Draft PR #122 为 mergeable，候选头 `3ce53f5` 的 Windows run `33473899313` / job `99749040172` 用时 `12m55s` 成功。原分片 PR 保留为审阅索引；该动作不等于合并，也不改变 N21/N23 pending 与全部产品阻断；
 - **N52-E5e History 总出口复审已关闭 N52 Engineering**：[复审 #265](265-n52-e5e-history-engineering-exit-reaudit.md)逐项核对七项工程矩阵、真实代码所有权、N52 `101/101` 及 E5b–E5d 精确远端证据；四项 History 状态从旧 checkpoint 的 blocked 更新为 complete。候选头 `9ea1666` 的 Draft PR #121 Windows run `33471267182` / job `99741333074` 用时 `10m21s` 成功。USP-09、REQ-RUNTIME、AC-16 仍为“实现中”，下一步是 main-target 集成候选与 N21/N23 真人验证，不进入 N60；
 - **N52-E5d Shell/production Engineering 已关闭**：[审计 #264](264-n52-e5d-player-history-shell-production-audit.md)记录新增路径 `0/3→3/3`、扩展 `6/6`、N52 `101/101`、N51 `131/131`；1440×900 与 390×844 overflow `0`、控件 `44/48px`，false 策略/热应用、Barrier、真实 IndexedDB 保存刷新读取及 console `0` 均通过。实现头 `08bfb5c` 的 Draft PR #120 Windows run `33468762702` / job `99734003643` 用时 `9m26s` 成功。下一步 E5e，不提前换算 Product Acceptance；
@@ -81,11 +93,12 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 |---|---|---|
 | Project | Canonical 工程、新建/打开/最近、保存恢复、确定性 ZIP、无账户本地工作 | Android SAF、正式双端壳与设备验收 |
 | Story | P0 语言、正式 Sequence/Script、Compiler IR/Source Map；Sequence 已有全部 P0 插入、类型化 Inspector、搜索/复制/移动/批量/折叠、跨视图定位与 Formal Runtime statement 高亮；1,000 次全 P0 Sequence/Script 互改和 84 项退出矩阵已通过；N40/N41 Engineering 出口均通过 | N21/N23 真人、N40/N41 Product Acceptance、完整 Stage/Player 仍阻断；Route-first lazy 控制流是后续大型工程增强，不是 N41 出口缺口 |
-| Preview | Entry/Scene/Statement Fresh Run；变量/栈/位置/诊断；Continue、Step Over、Back/Forward、Run to Cursor；awaited/cancel/Barrier；portable Host receipt/hash；安全热更新 | 断点/Watch、正式 Player Adapter 与 Editor↔Player 画面 Golden |
+| Preview / Debugger | N60 Engineering 已关闭：Entry/Scene/Statement Fresh Run、观察器、多断点、六类停止原因、Watch/变量来源、五类 P0 QA Golden/筛选/源码返回，以及有理由、可恢复、随工程保存的诊断抑制 | N60 Product Acceptance、正式 Player Adapter 与 Editor↔Player 画面 Golden；路径回放、Solver、覆盖率、变量图等为 P1 |
 | Stage/Media | Editor 既有 16:9/真实 Blob/Canvas/路径/Camera/转场/模板；N50-E3 已增加同源结构差分、slot/bus channel、左右角色+BGM/Voice 实测与缺资源显式恢复 | 像素级视觉矩阵、SFX/Ambient/UI、视频、网络/超时/损坏策略、三端媒体策略 |
 | Runtime | VM-01–VM-15 正式 portable Runtime；共享 presentation Host；State/History/Save/Back/Forward/调度/诊断；Effect 默认 channel 已按 slot/bus 隔离 | 完整媒体故障策略、玩家控制 UI 与三端一致性 |
 | Player/Build | N50 portable Core/媒体/输入/lifecycle/embed；N51 Settings；N52 已完成 Back/Forward、Save/Load、v2/v3 元数据/截图、auto 5、quick 1、隔离恢复、checkpoint 三槽、Auto/Skip/Stop Point/video，以及旧分支归档、可选行 History、Barrier 原因/距离和 Forward 项目策略 Web 工程链 | 真实 Windows/Android compositor、真实强杀、Gallery、正式宿主、真人 Product Acceptance 与发布材料仍缺 |
 | Optimization | Production 已接入真实资源检查、血缘、Dicing 候选、Atlas/Loader/内存/剧情预测/资源编译流水线；资源表与手机状态卡可见 | 正式 Optimization Center、平台变体、真机收益报告、构建联合预算和包体闭环 |
+| Localization | Production 已按稳定文本 ID/基础 Asset ID 管理语言文本、Voice 和图片/视频变体，支持五种文本状态、三种媒体审阅状态、CSV/XLSX、保存重开；正式 Web Player 可即时切换文本/媒体并回退 | 同一 E6 Canonical 到 Compiler/Player 的纵向交付复验、E4 移动 CJK 排版证据、Windows/Android Host 与三端 Product Acceptance |
 
 N43-E2 增加 Beginner/Pro 可逆披露：Beginner 只展示 3 个任务模式与 Sequence，收起复杂轨道/搜索/批量工具但不卸载；Pro 恢复 7 个模式身份、3 个编辑视图和全部专业工具。真实 Chrome 在 Beginner 修改 `stmt_rooftop_001` 为 r1、切回 Pro、保留已开 Script、保存 s2 并整页重开后零漂移；390px Preview `352×198`、横溢出 0。Production、Debug & QA、Mobile Focus 继续禁用。详见[#205](205-n43-e2-progressive-disclosure-audit.md)。
 
@@ -162,14 +175,17 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. 不得因生产构建成功就宣称包体优化、正式 Player 或三端发布完成。
 5. 不得把 `playable-web-export.ts` 的独立解释器或其自测冒充正式 Runtime Web Player 与跨宿主差分证据。
 
-## 5. 下一步顺序
+## 5. 后续开发原则
 
-1. N43-E7 已完成 Mobile Focus，远端完整门绿色，七模式 Engineering 7/7 出口通过；
-2. 保持 N43 Product Acceptance 与所有前置真人门为 blocked/pending，不把 Engineering 结果换算为产品通过；
-3. 真人不可参与的事实继续 fail closed，不能用自动化冒充真人或 Android 实体设备；
-4. `RA-N21-011` 只准入 N52 Engineering，并通过 checkpoint 窄范围修订允许 E3c3 必需的 N20/N30/N31/Save 合同变化；同时由维护者审阅 main-target Draft PR #61 及堆叠 PR 合并策略；
-5. N50-E6 与范围消歧已关闭 N50 Engineering；N50 Product Acceptance 保持 `0/1`；
-6. N52-E1/E2/E3a/E3b/E3c1 Engineering 已关闭，E3c2 checkpoint 入口合同已关闭；入口不等于 marker 或三槽已实现；
-7. N52-E4f 已关闭 Auto/Skip 的 E4 Engineering；E5b Runtime History v2、E5c Settings/Core、E5d Shell/production 与 E5e 总出口复审均已关闭，N52 Engineering complete。main-target 聚合候选及其精确头 CI 已完成；下一开发点只剩 **执行 N21-HV-01，再执行 N23-PA-01**。不得进入 N60，全部 Product Acceptance 阻断不变。
+1. **功能优先**：先交付用户可见、可操作的纵向功能，不把新增审计、测试数量或安全论证当成功能进展；只保留能防止本次真实回归、保护核心数据或满足发布合同所必需的最小测试与审计。
+2. **用户场景先行**：开发前先写清目标用户、使用时机、入口、连续操作、预期反馈、失败后的恢复方式；UI 与领域结构均围绕这条实际任务设计，而不是围绕现有模块方便实现。
+3. **真实差异驱动**：必要测试必须比较预期和当前实际，并据差异修正；不为覆盖率数字重复同一事实，不在功能和整体 UI 完成前提前拉真人计时验收。
+4. **完成即收束**：功能完成后只做需求对齐、必要回归、文档更新与推送；没有实际用户风险时，不追加新的审查层级。
 
-每个切片继续执行：冻结目标 → 实现 → 自动化反例/正例 → 生产浏览器实际值 → 差异修正 → 文档/需求矩阵 → 全仓门 → 推送。任何真人或产品门仍按权威记录 fail closed。
+## 6. 下一步顺序
+
+1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[跨电脑交接 #281](281-n61-to-n62-cross-device-handoff.md)，并核验本地/远端 exact head 相同、工作区干净；
+2. N61 Engineering 已关闭，不重复增加本地化证明；N61 Product Acceptance 等 Windows/Android 正式 Host 和实体设备；
+3. 功能顺序下一点为 N62-E1：从 Compiler 已有 Gallery/Music/Replay/Ending Catalog 与 Runtime Meta 出发，先实现正式 Player 的自动附加页入口和一条真实玩家路径；
+4. 当前 Localization 窄范围授权仍阻断 N62 Engineering，进入 N62 前先确认准入，不用新增治理文档替代功能；
+5. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。

@@ -561,17 +561,39 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Implementation**：从任意入口运行；断点、单步、继续；变量、调用栈、舞台；不可达、无出口、悬空、缺失资源、无交互循环；错误跳源码；诊断抑制需有理由。
 - **Acceptance**：QA Golden Project 必须检出预置错误且无误报阻断正常路线。
 
+> N60-E1–E4 状态（2026-09-02）：正式 Debug & QA 已接通 Entry/Statement 启动、Back/Forward/Step/Step Over/Continue、多断点、六类停止原因、变量/栈/舞台、Watch 与变量来源变化；E4 又把 Compiler 的不可达、无出口、悬空引用、缺失资源、非交互循环投影为五类可筛选产品结果，并能返回 stable source。故障/正常 Golden 形成正反对照，N60 聚合为 `8 files / 88 tests`；production 1440×900 五列、390×844 单列，横向 overflow 与 console error/warning 均为 0。详见[审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)。下一步先做 N60 Engineering 总出口复审，逐项判断“抑制需有理由/完整报告”等剩余合同，不抢跑 P1 Solver/覆盖率。
+
+> N60-E5 场景启动修正（2026-09-02）：总出口核对发现正式 Runtime 已支持 Scene Fresh Run，但 Debug & QA 没有产品入口。现已增加“从当前场景启动”，与 Entry/Statement 共用同一正式 Runtime；现有真实 App 测试首次 `0/1` 精确失败于按钮缺失，修正后 `1/1`，N60 聚合仍为 `8 files / 88 tests`。详见[审计 #272](272-n60-e5-scene-debugger-start-audit.md)。N60 总出口仍需按真实用户任务核对诊断抑制理由/报告交付，不直接进入 P1。
+
+> N60-E6 诊断抑制与 Engineering 总出口（2026-09-02）：[审计 #273](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)以真实创作者“刻意保留诊断但必须留下理由”的任务完成工程内抑制、活动计数重算、Canonical 重开追溯和恢复。真实 App 首次 `0/1` 精确失败于入口缺失，修正后 `1/1`；N60 `8 files / 88 tests`、TypeScript、production 双视口均通过。逐项复核 PRD 3.10 与本节 Implementation 后，N60 Engineering 出口关闭；“完整报告”不是权威 P0 合同，不扩张实现。Product Acceptance、P1、N61 与真人门不随之通过。
+
 ### N61 本地化与配音
 
 - **Goal**：同一稳定文本 ID 支持多语言生产和运行切换。
 - **Implementation**：源/目标语言、CSV/XLSX、missing/draft/reviewed/outdated/locked、运行时切换、CJK/Ruby/禁则、字体回退、Voice Asset 映射。
 - **Acceptance**：CJK Golden 在导出/导入后换行和 ID 不变，三端切换语言状态一致。
 
+> N61-E1 状态（2026-09-02）：[审计 #274](274-n61-e1-localization-production-audit.md)已在现有 Production 内接通 Canonical `localization.json`，从真实脚本抽取稳定文本键，完成源/目标语言、missing/draft/reviewed/outdated/locked、非法语言恢复、保存重开与源文变化过期。真实 App 首次 `0/1`、修正后 `1/1`；production desktop/390×844 无横向溢出且 console 为 0。N61 Engineering 尚未关闭；下一切片是 CSV/XLSX 翻译往返，不提前做配音或 P1。
+
+> N61-E2 状态（2026-09-02）：[审计 #275](275-n61-e2-localization-csv-xlsx-exchange-audit.md)完成稳定键/源文/译文/状态的真实 CSV 与 XLSX 导出、导入差异预览、显式确认和 Canonical 重开；重复/未知键、语言不符、源文变化、表头和状态错误整批阻断。产品红测首次因入口缺失为 `1/2`，修正及 FileReader 兼容纠偏后定向 `2 files / 3 tests`；production 390×844 无溢出且三个入口均 44px。下一步 N61-E3 接正式 Runtime 语言选择与回退，不提前做 Product Acceptance。
+
+> N61-E3 状态（2026-09-02）：[审计 #276](276-n61-e3-runtime-localization-switch-audit.md)让正式 Player Core 消费 Compiler localization catalog，在 snapshot 层投影对白、旁白、Choice、Ending 与 History；缺失、非法和过期条目回退源文且 Shell 显示数量。红测 `0/1` 精确暴露 Player 无语言入口；修正后受影响 Core/Shell `4 files / 81 tests`，源/目标语言 Runtime hash 相同，Web 按工程恢复偏好。production 390×844 页面 `390/390`、select 纠偏至 48px。下一步 N61-E4 CJK/Ruby/禁则与字体回退。
+
+> N61-E4 状态（2026-09-02）：[审计 #277](277-n61-e4-cjk-ruby-font-fallback-audit.md)已在正式 Player 显示层实现显式 Ruby、语言字体栈、严格 CJK 换行及项目字体失败的可见回退，并覆盖对白/旁白、Choice、Ending、History。产品红测 `0/1→1/1`、受影响 `4 files / 60 tests`、TypeScript 与 Player production build 通过。1280×720 production 实测禁止行首/行尾 `0/0`、overflow `0`，并修正截图发现的字体提示挤压控制条；390×844 视口仍待可调整视口的浏览器环境闭合。完成后进入 N61-E5，不提前关闭 N61 Engineering 或 Product Acceptance。
+
+> N61-E5 状态（2026-09-02）：[审计 #278](278-n61-e5-localized-media-voice-mapping-audit.md)已冻结 Canonical `localeVariantOf + locale` 语言视觉变体和 `voiceTextId + locale` Voice 映射，并由正式 Player 表现层消费；切换语言不改变 Runtime/History/Save，目标资源缺失时回退工程源语言并显示数量。真实路径首次 `0/1` 失败于英文 Voice 不存在，修正后新路径 `1/1`、受影响 Player/Localization `5 files / 61 tests`、production build 通过；1280×720 浏览器以真实 PNG/SVG/WAV 验证 `en → zh-Hans → ja`，日语准确回退 2 项且提示不遮挡控件。下一步 N61-E6 补 Production 语言媒体/配音绑定和状态闭环；N61 Engineering、E4 移动断行证据和三端 Product Acceptance 不提前关闭。
+
+> N61-E6 状态（2026-09-02）：[审计 #279](279-n61-e6-localized-media-production-audit.md)已在正式 Production 复用 Blob/媒体检查/Asset Index，以 stable text ID 和基础 Asset ID 完成各 locale 的 Voice/视觉资源绑定、草稿/已审阅/已锁定状态、失效绑定缺失恢复及 Canonical 保存重开。真实 App 在四项 PNG/WAV 导入成功后首次 `0/1` 精确失败于入口缺失，修正后新路径 `1/1`、受影响 `5 files / 8 tests`、TypeScript 与 production build 通过；1280×720 和实际 375×844 页面 overflow 0，移动交互至少 44px。下一步 N61-E7 直接把 Production 保存的 Canonical 交给 Compiler/Player，并补 E4 移动证据，再复审 N61 Engineering；三端 Product Acceptance 不提前关闭。
+
+> N61-E7 / Engineering 出口（2026-09-02）：[审计 #280](280-n61-e7-localization-engineering-exit-audit.md)新增跨应用真实测试，直接用 Editor Production 保存的同一 Canonical 和 IndexedDB PNG/WAV Blob 经过 Compiler 后交给正式 Player；`en → zh-Hans → ja` 文本、视觉、Voice 和缺失回退首次即与预期一致。E4 的真实 390×844 证据同步闭合：overflow 0、五行无禁止标点行首、Ruby 正确、控件至少 44px、console 0。N61 Goal 与 8 项 Implementation 全部完成，N61 Engineering 出口关闭；三端 Acceptance、PRD P1/P2 余项和 N62 Engineering 不随之通过。
+
 ### N62 自动 Route、Gallery、Replay、Music、Ending Catalog
 
 - **Goal**：把核心差异化自动化真正接入 Compiler 和 Player。
 - **Implementation**：从资源标签、故事引用和解锁条件生成 Catalog；允许标题/排序/封面/剧透/本地化覆盖；Scene Replay 使用隔离 Checkpoint；退出恢复原状态；缩略图缺失诊断；玩家流程图只显示已发现内容。
 - **Acceptance**：AC-17、18、20；Catalog 不要求维护第二份手工列表。
+
+> N62-E1 实现候选（2026-09-03）：[审计 #282](282-n62-e1-additional-content-entry-audit.md)已让正式 Player Core 从当前 build 的四类 Compiler Catalog 与 Runtime Meta 投影只读摘要，并在 Shell 增加可发现入口、锁定/空状态、等待态禁用和返回剧情。真实产品红测首次 `0/2`；首轮实现又暴露 awaited Effect 完成前 Gallery 仍为 `1/2` 的正确 Runtime 时点，纠偏为完成 Effect 后读取 `2/2`，不篡改解锁语义。定向 `2/2`、受影响 `85/85`、TypeScript 与 production build 通过；但本机管理员安全策略拒绝 production-browser localhost，故 **E1 尚未关闭**。先补双视口 production 证据并独立推送/确认 exact-head CI，再进入 E2 Gallery/Ending 列表；AC-17/18/20 与 Product Acceptance 不提前通过。
 
 ## 12. R7：资源与 Optimization Center
 

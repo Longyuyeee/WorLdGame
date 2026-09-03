@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "@world-studio/runtime";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
+import { describeDebuggerStopReason } from "./DebugQaWorkspace";
 import {
   approveFormalPreviewBarrier,
   advanceFormalPreview,
   backFormalPreview,
   cancelFormalPreviewEffect,
   completeFormalPreviewEffect,
+  continueFormalPreviewToBreakpoints,
   forwardFormalPreview,
   observeFormalPreview,
   runFormalPreviewToStatement,
@@ -211,6 +213,20 @@ describe("formal editor preview runtime", () => {
     expect(blocked).toMatchObject({ status: "waiting-choice", diagnostics: [expect.objectContaining({ code: "PREVIEW_RUN_TO_CURSOR_BLOCKED" })] });
   });
 
+  it("continues through one formal session to the nearest enabled breakpoint and then a Choice boundary", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n60-e2-formal-breakpoints");
+    const breakpoints = [
+      { sceneId: "scn_school_gate", statementId: "stmt_gate_001" },
+      { sceneId: "scn_school_gate", statementId: "stmt_gate_choice" }
+    ];
+    const first = continueFormalPreviewToBreakpoints(startFormalPreview(project), breakpoints);
+    expect(first).toMatchObject({ status: "paused", sceneId: "scn_school_gate", statementId: "stmt_gate_001" });
+    const second = continueFormalPreviewToBreakpoints(first, breakpoints);
+    expect(second).toMatchObject({ status: "paused", sceneId: "scn_school_gate", statementId: "stmt_gate_choice" });
+    const choice = continueFormalPreviewToBreakpoints(second, []);
+    expect(choice).toMatchObject({ status: "waiting-choice", currentEvent: { kind: "choice", prompt: "先去哪里调查？" } });
+  });
+
   it("steps over a nested call without stopping inside its call frame", () => {
     const callStory: StoryProject = {
       schemaVersion: 0,
@@ -297,6 +313,38 @@ describe("formal editor preview runtime", () => {
     expect(approved).toMatchObject({ status: "presenting", statementId: "stmt_gate_bg", runtimeState: { barrierLedger: [expect.objectContaining({ descriptorId: "preview.gallery.commit" })] } });
     const beforeBarrier = backFormalPreview(approved);
     expect(beforeBarrier.diagnostics).toContainEqual(expect.objectContaining({ code: "RUNTIME_BARRIER_BLOCKED" }));
+  });
+
+  it("projects every formal Runtime boundary into an explicit debugger stop reason", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n60-e2-stop-reasons");
+    const first = base.scripts.scn_school_gate!.statements[0]!;
+    const choice = untilChoice(startFormalPreview(base));
+    const ending = untilSettled(selectFormalPreviewChoice(choice, "opt_broadcast"));
+    const awaitedEffect = startFormalPreview({
+      ...base,
+      assets: { ...base.assets, assets: [...base.assets.assets, { assetId: "bg_stop_reason", kind: "background" }] },
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: "action=set asset=bg_stop_reason effectPolicy=reversible awaitMode=awaited compensationKind=background.restore descriptorId=debugger.awaited.bg" },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    });
+    const barrier = startFormalPreview({
+      ...base,
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: `${String(first.summary)} effectPolicy=barrier awaitMode=detached barrierReason=永久提交测试状态 descriptorId=debugger.barrier.commit` },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    });
+    const error = startFormalPreview({
+      ...base,
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [{ id: "broken", kind: "jump", targetLabel: "missing" }] } }
+    });
+
+    expect(describeDebuggerStopReason(choice, [])).toMatchObject({ kind: "choice", title: "等待选择", detail: "先去哪里调查？" });
+    expect(describeDebuggerStopReason(awaitedEffect, [])).toMatchObject({ kind: "effect", title: "等待 Effect Host", detail: "debugger.awaited.bg · awaited" });
+    expect(describeDebuggerStopReason(barrier, [])).toMatchObject({ kind: "barrier", title: "等待 Barrier 批准", detail: "永久提交测试状态" });
+    expect(describeDebuggerStopReason(ending, [])).toMatchObject({ kind: "ending", title: "到达结局", detail: "留在电波里的名字" });
+    expect(describeDebuggerStopReason(error, [])).toMatchObject({ kind: "error", title: "运行错误" });
   });
 
   it("executes reversible Effect compensation and replay during History navigation", () => {

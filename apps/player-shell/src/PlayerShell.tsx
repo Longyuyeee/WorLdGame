@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createGalSettingsApplicationV1,
   createGalSettingsDocument,
@@ -14,6 +14,7 @@ import {
   createPlayerCore,
   createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
+  configurePlayerCoreLocaleV1,
   configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
   loadPlayerCoreSessionSaveV1,
@@ -22,6 +23,8 @@ import {
   type PlayerHistoryVisibleEventV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
+import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
 import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
 import {
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
@@ -110,6 +113,12 @@ function playerHistoryEventKind(event: PlayerHistoryVisibleEventV1): string {
   }
 }
 
+function PlayerRichText({ text, locale }: { readonly text: string; readonly locale: string }) {
+  return <>{parsePlayerRichTextV1(text).map((segment, index) => segment.kind === "text"
+    ? <Fragment key={`text:${index}`}>{segment.text}</Fragment>
+    : <ruby key={`ruby:${index}`} lang={locale}>{segment.base}<rp>（</rp><rt>{segment.annotation}</rt><rp>）</rp></ruby>)}</>;
+}
+
 function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
   const [source, setSource] = useState<string | null>(null);
 
@@ -138,9 +147,31 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
 }
 
+function playerLocalePreferenceKey(projectId: string): string {
+  return `world-player.locale.${projectId}`;
+}
+
+function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1]) {
+  const core = createPlayerCore(project, historyPolicy);
+  try {
+    const preferred = globalThis.localStorage?.getItem(playerLocalePreferenceKey(project.manifest.projectId));
+    return preferred === null || preferred === undefined ? core : configurePlayerCoreLocaleV1(core, preferred);
+  } catch {
+    return core;
+  }
+}
+
+function storePlayerLocalePreference(projectId: string, locale: string): void {
+  try {
+    globalThis.localStorage?.setItem(playerLocalePreferenceKey(projectId), locale);
+  } catch {
+    // Player preferences are fail-soft; the active session still switches language.
+  }
+}
+
 export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 }: PlayerShellProps) {
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
-  const [state, setState] = useState(() => createPlayerCore(project, settingsApplication.history));
+  const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
@@ -157,6 +188,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
+  const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -191,11 +223,25 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const content = snapshot.presentation;
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
-  const stage = useMemo(
-    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage, settingsApplication.ui),
-    [mediaAssets, settingsApplication.stage, settingsApplication.ui, snapshot]
+  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
+  const presentedTextId = content.kind === "dialogue" || content.kind === "narration" ? content.textId : null;
+  const localizedMedia = useMemo(
+    () => resolvePlayerLocalizedMediaV1(snapshot.localization.selectedLocale, snapshot.localization.sourceLocale, presentedTextId, project.assets.assets, mediaAssets),
+    [mediaAssets, mediaSignature, presentedTextId, project.assets.assets, snapshot.localization.selectedLocale, snapshot.localization.sourceLocale]
   );
-  const appliedAudio = stage.audio.map((track) => ({
+  const stage = useMemo(
+    () => derivePlayerStagePresentationV1(snapshot, localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui),
+    [localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui, snapshot]
+  );
+  const localizedVoice = localizedMedia.voice === null ? [] : [{
+    ...localizedMedia.voice,
+    bus: "voice",
+    loop: false,
+    volume: 1,
+    status: "playing" as const
+  }];
+  const audibleTracks = [...stage.audio.filter((track) => !(localizedMedia.voiceMapped && track.bus === "voice")), ...localizedVoice];
+  const appliedAudio = audibleTracks.map((track) => ({
     ...track,
     appliedVolume: galAudioGainV1(
       settingsApplication,
@@ -204,7 +250,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       voicePlaying
     )
   }));
-  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
+  const typography = useMemo(
+    () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets),
+    [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale]
+  );
+  const [fontStatus, setFontStatus] = useState<"system" | "loading" | "ready" | "fallback">("system");
   const lastEffectOperation = snapshot.effects.operations.at(-1) ?? null;
   const speakerNames = useMemo(() => Object.fromEntries(project.characters.characters.flatMap((character) => {
     const id = typeof character.id === "string" ? character.id : undefined;
@@ -218,6 +268,44 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   );
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
+
+  useEffect(() => {
+    const selected = typography.projectFont;
+    if (selected === null) {
+      setFontStatus("system");
+      return;
+    }
+    const FontFaceConstructor = globalThis.FontFace;
+    const fontSet = globalThis.document?.fonts;
+    if (FontFaceConstructor === undefined || fontSet === undefined) {
+      setFontStatus("fallback");
+      return;
+    }
+    let active = true;
+    let loadedFace: FontFace | null = null;
+    setFontStatus("loading");
+    try {
+      const face = new FontFaceConstructor(selected.runtimeFamily, `url("${selected.url.replaceAll('"', '\\"')}")`);
+      void face.load().then((loaded) => {
+        if (!active) return;
+        loadedFace = loaded;
+        fontSet.add(loaded);
+        setFontStatus("ready");
+      }).catch(() => { if (active) setFontStatus("fallback"); });
+    } catch {
+      setFontStatus("fallback");
+    }
+    return () => {
+      active = false;
+      if (loadedFace !== null) fontSet.delete(loadedFace);
+    };
+  }, [typography]);
+
+  useEffect(() => {
+    setVoicePlaying(false);
+    setVoiceEnded(false);
+    setVoiceMetadataRevision((revision) => revision + 1);
+  }, [localizedMedia.voice?.assetId]);
 
   const stopSkip = useCallback(() => {
     skipModeCurrent.current = null;
@@ -438,7 +526,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     autoSavedSceneIdentities.current.clear();
     consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
-    setState(createPlayerCore(project, settingsApplication.history));
+    setState(createLocalizedPlayerCore(project, settingsApplication.history));
     setMediaErrors([]);
     setMediaGeneration(0);
     setSelectedChoiceIndex(0);
@@ -740,6 +828,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (additionalContentOpen) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          setAdditionalContentOpen(false);
+        }
+        return;
+      }
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
@@ -765,7 +860,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
+  }, [additionalContentOpen, applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -859,6 +954,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     <main
       className="player-shell"
       data-player-status={snapshot.status}
+      data-player-locale={snapshot.localization.selectedLocale}
+      data-player-media-locale={snapshot.localization.selectedLocale}
+      data-player-media-fallbacks={localizedMedia.fallbackResourceIds.length}
+      data-player-media-missing={localizedMedia.missingResourceIds.length}
+      data-player-locale-fallbacks={snapshot.localization.missingTranslationCount}
+      data-player-font={fontStatus}
+      data-player-typography={typography.cjk ? "cjk-strict" : "standard"}
       data-player-core={snapshot.playerCoreVersion}
       data-compiler={snapshot.identities.compilerVersion}
       data-runtime={snapshot.identities.runtimeVersion}
@@ -869,6 +971,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-history-can-back={snapshot.history?.canBack ?? false}
       data-history-can-forward={snapshot.history?.canForward ?? false}
       data-history-panel={historyPanelOpen ? "open" : "closed"}
+      data-additional-content={additionalContentOpen ? "open" : "closed"}
       data-history-archives={snapshot.history?.archives.length ?? 0}
       data-history-forward-policy={snapshot.history?.forwardPolicy.allowForwardAfterBack ?? settingsApplication.history.allowForwardAfterBack}
       data-save-store={saveStore?.backend ?? "unavailable"}
@@ -889,6 +992,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-skip-active={skipActive}
       data-skip-media={skipActive ? "accelerated" : "normal"}
       data-video-policy-stop-reason={videoPolicyStopReason}
+      data-runtime-state-hash={snapshot.runtimeStateHash ?? "none"}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -927,7 +1031,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         "--gal-font-scale": settingsApplication.text.fontScale,
         "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
         "--gal-line-height": settingsApplication.text.lineHeight,
-        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`
+        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`,
+        "--player-font-family": fontStatus === "ready" && typography.projectFont !== null
+          ? `"${typography.projectFont.runtimeFamily}", ${typography.fallbackStack}`
+          : typography.fallbackStack
       } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />
@@ -1079,6 +1186,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-expanded={historyPanelOpen}
             onClick={() => setHistoryPanelOpen((open) => !open)}
           ><span aria-hidden="true">☰</span><span>历史</span></button>
+          <button
+            type="button"
+            className="player-history-controls__additional"
+            aria-label={additionalContentOpen ? "关闭附加内容" : "打开附加内容"}
+            aria-expanded={additionalContentOpen}
+            disabled={hostActivity !== "active" || snapshot.status === "waiting-effect" || snapshot.status === "waiting-barrier"}
+            onClick={() => {
+              setHistoryPanelOpen(false);
+              setSavePanelOpen(false);
+              setAdditionalContentOpen((open) => !open);
+            }}
+          ><span aria-hidden="true">✦</span><span>附加</span></button>
         </nav>
         {historyPanelOpen && (
           <aside className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
@@ -1108,9 +1227,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                             setHistoryPanelOpen(false);
                           }}>
                             <span>{playerHistoryEventKind(entry.event)} · {entry.position === "past" ? "已读" : entry.position === "current" ? "当前" : "前方"}</span>
-                            <strong>{label}</strong>
+                            <strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong>
                           </button>
-                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong>{label}</strong></div>}
+                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong></div>}
                       </li>;
                     })}
                   </ol>
@@ -1121,14 +1240,62 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <h3>旧分支 {archiveIndex + 1}</h3>
                   <p>从历史位置 {archive.branchPointHistoryIndex} 分岔 · 只读</p>
                   <ol className="player-history-list">
-                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong>{playerHistoryEventLabel(entry.event)}</strong></div></li>)}
+                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={playerHistoryEventLabel(entry.event)} locale={typography.locale} /></strong></div></li>)}
                   </ol>
                 </section>
               ))}
             </>}
           </aside>
         )}
+        {additionalContentOpen && (
+          <aside className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
+            <header>
+              <div><span>EXTRAS</span><h2>附加内容</h2></div>
+              <button type="button" aria-label="返回剧情" onClick={() => setAdditionalContentOpen(false)}>返回剧情</button>
+            </header>
+            <p className="player-additional-content__intro">由当前构建的 Compiler Catalog 与正式 Runtime 解锁进度自动生成。</p>
+            <div className="player-additional-content__grid">
+              {([
+                ["CG 画廊", "从剧情中实际展示的视觉资源自动收集", snapshot.additionalContent.gallery],
+                ["场景回想", "到达相关结局后开放对应场景", snapshot.additionalContent.replay],
+                ["音乐室", "音乐解锁规则将在后续切片接入", snapshot.additionalContent.music],
+                ["结局", "按正式 Runtime 已达成结局记录开放", snapshot.additionalContent.endings]
+              ] as const).map(([title, description, category]) => (
+                <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
+                  <span>{category.total === 0 ? "暂无内容" : `${category.unlocked} / ${category.total} 已发现`}</span>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                  {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
+                </section>
+              ))}
+            </div>
+          </aside>
+        )}
+        {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">
+          {fontStatus === "ready" ? `${typography.projectFont.displayName} · 项目字体已加载`
+            : fontStatus === "loading" ? `${typography.projectFont.displayName} · 正在加载项目字体`
+              : `${typography.projectFont.displayName} 加载失败，已回退到 ${typography.locale} 可读字体`}
+        </output>}
+        {(localizedMedia.fallbackResourceIds.length > 0 || localizedMedia.missingResourceIds.length > 0) && (
+          <output className={`player-media-locale-status${typography.projectFont === null ? " player-media-locale-status--first" : ""}`} role="status" aria-label="语言资源状态">
+            {localizedMedia.fallbackResourceIds.length > 0
+              ? `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.fallbackResourceIds.length} 个语言资源，已使用 ${snapshot.localization.sourceLocale} 资源`
+              : `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.missingResourceIds.length} 个语言资源，当前资源不可用`}
+          </output>
+        )}
         <div className="player-playback-controls" aria-label="播放控制">
+          {snapshot.localization.availableLocales.length > 1 && <>
+            <label className="player-locale-control">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
+              const locale = event.target.value;
+              setState((current) => configurePlayerCoreLocaleV1(current, locale));
+              storePlayerLocalePreference(project.manifest.projectId, locale);
+            }}>{snapshot.localization.availableLocales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>
+            <span role="status" aria-label="语言状态">{snapshot.localization.selectedLocale === snapshot.localization.sourceLocale
+              ? `${snapshot.localization.sourceLocale} · 工程源语言`
+              : snapshot.localization.missingTranslationCount > 0
+                ? `${snapshot.localization.selectedLocale} · ${snapshot.localization.missingTranslationCount} 项缺失译文继续显示 ${snapshot.localization.sourceLocale} 原文`
+                : `${snapshot.localization.selectedLocale} · 翻译完整`}</span>
+          </>}
           <button
             type="button"
             aria-label="自动播放"
@@ -1284,14 +1451,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-label="继续下一句"
           >
             {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
-            <span key={`${presentedText}:${textRevealDuration}`} aria-live="polite" style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}>{content.text}</span>
+            <span
+              key={`${presentedText}:${textRevealDuration}`}
+              className="player-dialogue__text player-typography-text"
+              lang={typography.locale}
+              data-cjk-line-break={typography.cjk ? "strict" : "standard"}
+              aria-live="polite"
+              style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}
+            ><PlayerRichText text={content.text} locale={typography.locale} /></span>
             <i aria-hidden="true">⌄</i>
           </button>
         )}
 
         {content.kind === "choice" && (
           <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
-            <p id="player-choice-prompt">{content.prompt}</p>
+            <p id="player-choice-prompt" className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.prompt} locale={typography.locale} /></p>
             {content.options.map((option, index) => (
               <button
                 key={option.optionId}
@@ -1303,7 +1477,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
                 onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, pointerInput.current)}
               >
-                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}{option.label}
+                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}<span className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={option.label} locale={typography.locale} /></span>
               </button>
             ))}
           </div>
@@ -1312,7 +1486,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {content.kind === "ending" && (
           <div className="player-ending" role="status">
             <span>ENDING</span>
-            <h2>{content.name}</h2>
+            <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
             <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>回到标题</button>
           </div>
         )}

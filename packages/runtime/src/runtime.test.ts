@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
 import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
-import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionLegacyV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeSessionSaveLegacyV1, type RuntimeStateV1 } from "./index";
+import { advanceRuntimeHistoryV1, backRuntimeHistoryV1, canonicalRuntimeStringify, createRuntimeHistorySessionV1, createRuntimeSaveV1, createRuntimeSchedulerSessionV1, createRuntimeSessionSaveV1, createRuntimeState, createRuntimeStoryOutcomeV1, drawRuntimeRandom, evaluateRuntimeExpressionV1, executeRuntimeBoundedTenThousandV1, executeRuntimeConformanceV1, forwardRuntimeHistoryV1, loadRuntimeSaveV1, loadRuntimeSessionSaveV1, mapRuntimeDiagnosticsV1, mergeRuntimeMetaProgressV1, runRuntime, runtimeHistoryReconciliationPlanHashV1, runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeMetaProgressHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeStateHashV1, scheduleRuntimeBatchV1, validateRuntimeHistorySessionV1, validateRuntimeMetaProgressV1, validateRuntimeSchedulerSessionV1, validateRuntimeSourceMapV1, type RuntimeChoiceInputV1, type RuntimeDiagnosticV1, type RuntimeHistorySessionLegacyV1, type RuntimeHistorySessionV1, type RuntimeMetaProgressV1, type RuntimeSchedulePolicyV1, type RuntimeScheduleResultV1, type RuntimeSchedulerSessionV1, type RuntimeSessionSaveLegacyV1, type RuntimeStateV1 } from "./index";
 
 function branching(): { readonly story: RuntimeStoryIrV1; readonly sourceMap: RuntimeSourceMapV1; readonly buildId: string } {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -33,6 +33,13 @@ function select(state: RuntimeStateV1, optionId: string, inputId = "input-choice
 }
 
 describe("N31-E1 formal narrative runtime", () => {
+  it("uses the production evaluator for read-only debugger expressions without mutating variables", () => {
+    const variables = { score: 2, label: "A" } as const;
+    const expression = { kind: "binary", operator: "+", left: { kind: "identifier", name: "score" }, right: { kind: "literal", value: 1 } };
+    expect(evaluateRuntimeExpressionV1(expression, variables)).toEqual({ ok: true, value: 3, valueType: "number" });
+    expect(evaluateRuntimeExpressionV1({ ...expression, left: { kind: "identifier", name: "missing" } }, variables)).toEqual({ ok: false, code: "RUNTIME_VARIABLE_MISSING", message: "missing:missing" });
+    expect(variables).toEqual({ score: 2, label: "A" });
+  });
   it("executes Compiler IR through a choice, dialogue, and exact ending", () => {
     const { story, buildId } = branching();
     const initial = start(story, buildId);

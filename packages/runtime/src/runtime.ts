@@ -15,6 +15,7 @@ import {
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
   type RuntimeEffectIntentV1,
+  type RuntimeExpressionEvaluationV1,
   type RuntimeInputV1,
   type RuntimeProgramV1,
   type RuntimeRandomDrawRequestV1,
@@ -446,6 +447,20 @@ function evaluate(node: ExpressionNode, variables: Readonly<Record<string, Runti
   throw new TypeError(`invalid operands for ${node.operator}`);
 }
 
+/** Read-only expression inspection that shares the exact evaluator used by Runtime execution. */
+export function evaluateRuntimeExpressionV1(expressionAst: unknown, variables: Readonly<Record<string, RuntimeScalar>>): RuntimeExpressionEvaluationV1 {
+  if (!expressionNode(expressionAst)) return { ok: false, code: "RUNTIME_EXPRESSION_INVALID", message: "Expression AST is malformed" };
+  let value: RuntimeScalar;
+  try { value = evaluate(expressionAst, variables); }
+  catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { ok: false, code: message.startsWith("missing:") ? "RUNTIME_VARIABLE_MISSING" : "RUNTIME_TYPE_MISMATCH", message };
+  }
+  if (!finiteScalar(value)) return { ok: false, code: "RUNTIME_EXPRESSION_INVALID", message: "Expression produced a non-finite value" };
+  const valueType = value === null ? "null" : typeof value === "boolean" ? "boolean" : typeof value === "number" ? "number" : "string";
+  return { ok: true, value, valueType };
+}
+
 function failure(state: RuntimeStateV1, code: RuntimeDiagnosticCode, message: string, instruction?: RuntimeInstructionV1, executedInstructions = 0): RuntimeRunResultV1 {
   return { state, event: null, executedInstructions, diagnostics: [diagnostic(code, message, state.cursor, instruction?.instructionId)], effects: [], barrierRequest: null };
 }
@@ -635,14 +650,9 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
     if (instruction.opcode === "set" || instruction.opcode === "condition") {
       const ast = operands.expressionAst;
       if (!expressionNode(ast)) return failure(state, "RUNTIME_EXPRESSION_INVALID", "Expression AST is malformed", instruction, executed);
-      let value: RuntimeScalar;
-      try { value = evaluate(ast, state.variables); }
-      catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        const code = message.startsWith("missing:") ? "RUNTIME_VARIABLE_MISSING" : "RUNTIME_TYPE_MISMATCH";
-        return failure(state, code, message, instruction, executed);
-      }
-      if (!finiteScalar(value)) return failure(state, "RUNTIME_EXPRESSION_INVALID", "Expression produced a non-finite value", instruction, executed);
+      const evaluated = evaluateRuntimeExpressionV1(ast, state.variables);
+      if (!evaluated.ok) return failure(state, evaluated.code, evaluated.message, instruction, executed);
+      const value = evaluated.value;
       if (instruction.opcode === "set") {
         const variableId = stringOperand(instruction, "variableId");
         if (variableId === undefined || !(variableId in state.variables)) return failure(state, "RUNTIME_VARIABLE_MISSING", `Set target is missing: ${variableId ?? "missing"}`, instruction, executed);
