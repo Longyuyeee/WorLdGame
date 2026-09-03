@@ -153,6 +153,7 @@ export interface PlayerCoreSnapshotV1 {
     readonly missingTranslationCount: number;
     readonly fallbackUsed: boolean;
   };
+  readonly additionalContent: PlayerAdditionalContentSnapshotV1;
   readonly effects: {
     readonly active: readonly PlayerCoreEffectSnapshotV1[];
     readonly pending: PlayerCoreEffectSnapshotV1 | null;
@@ -185,6 +186,20 @@ export interface PlayerCoreSnapshotV1 {
     | { readonly kind: "error"; readonly diagnostics: readonly PlayerCoreDiagnostic[] };
   readonly runtimeStateHash: string | null;
   readonly runtimeHostSnapshotHash: string;
+}
+
+export interface PlayerAdditionalContentCategorySnapshotV1 {
+  readonly total: number;
+  readonly unlocked: number;
+  readonly locked: number;
+}
+
+export interface PlayerAdditionalContentSnapshotV1 {
+  readonly schemaVersion: 1;
+  readonly gallery: PlayerAdditionalContentCategorySnapshotV1;
+  readonly replay: PlayerAdditionalContentCategorySnapshotV1;
+  readonly music: PlayerAdditionalContentCategorySnapshotV1;
+  readonly endings: PlayerAdditionalContentCategorySnapshotV1;
 }
 
 export interface PlayerCoreEffectSnapshotV1 {
@@ -802,6 +817,28 @@ function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisib
   return event;
 }
 
+function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalContentSnapshotV1 {
+  const catalogs = state.artifacts?.catalogs;
+  const progress = state.runtimeState?.metaProgress;
+  const galleryIds = new Set(progress?.unlockedGalleryAssetIds ?? []);
+  const endingIds = new Set(progress?.reachedEndingIds ?? []);
+  const category = (total: number, unlocked: number): PlayerAdditionalContentCategorySnapshotV1 => ({
+    total,
+    unlocked,
+    locked: total - unlocked
+  });
+  const galleryUnlocked = catalogs?.gallery.filter((entry) => galleryIds.has(entry.assetId)).length ?? 0;
+  const endingUnlocked = catalogs?.endings.filter((entry) => endingIds.has(entry.endingId)).length ?? 0;
+  const replayUnlocked = catalogs?.replay.filter((entry) => entry.endingIds.some((endingId) => endingIds.has(endingId))).length ?? 0;
+  return {
+    schemaVersion: 1,
+    gallery: category(catalogs?.gallery.length ?? 0, galleryUnlocked),
+    replay: category(catalogs?.replay.length ?? 0, replayUnlocked),
+    music: category(catalogs?.music.length ?? 0, 0),
+    endings: category(catalogs?.endings.length ?? 0, endingUnlocked)
+  };
+}
+
 export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSnapshotV1 {
   const host = createRuntimePresentationHostSnapshotV1(state.hostState);
   const history = state.historySession;
@@ -830,6 +867,7 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
       missingTranslationCount,
       fallbackUsed: presented.fallbackUsed
     },
+    additionalContent: additionalContentSnapshot(state),
     effects: {
       active: host.snapshot.activeChannels.map(({ effect }) => effectSnapshot(effect)),
       pending: state.runtimeState?.pendingEffect === null || state.runtimeState?.pendingEffect === undefined

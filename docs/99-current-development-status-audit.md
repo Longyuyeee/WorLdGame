@@ -1,15 +1,15 @@
-# 当前开发情况审计（N61 → N62 换机交接）
+# 当前开发情况审计（N62-E1 实现候选）
 
-> 审计日期：2026-09-02
-> 当前分支：`codex/n60-e1-debugger-session`；已验证产品/文档基线为 `bbead3b1e46722c35b83267e9a4e9446da2e527e`
+> 审计日期：2026-09-03
+> 当前分支：`codex/n60-e1-debugger-session`；N62-E1 起点为 `9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
-> 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；2026-09-02 Localization 窄范围修订只准入 N61 Engineering，N61 Product Acceptance、N62 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
-> 最新交接证据：[N61→N62 跨电脑开发交接 #281](281-n61-to-n62-cross-device-handoff.md)、[N61-E7 Engineering 出口 #280](280-n61-e7-localization-engineering-exit-audit.md)
+> 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；2026-09-03 Additional Content 窄范围修订准入到 N62 Engineering，N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
+> 最新证据：[N62-E1 自动附加内容入口审计 #282](282-n62-e1-additional-content-entry-audit.md)、[N61→N62 交接 #281](281-n61-to-n62-cross-device-handoff.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-09-02 最新结论是：**N52、N60 与 N61 Engineering 已关闭，功能开发现已暂停并完成换机交接。** N61-E7 新增跨应用真实路径，直接把 Editor Production 保存的同一 Canonical 和 IndexedDB PNG/WAV Blob 交给 Compiler 与正式 Player，首次 `1/1` 即与预期一致；`en → zh-Hans → ja` 的文本、视觉、Voice 和缺失回退没有跨层断点。真实 390×844 production 同时闭合 E4：页面 `390/390`、overflow `0`、五行无禁止标点行首、Ruby `放送室/ほうそうしつ`、交互至少 44px、console `0`。代码复核确认 Compiler 已生成 Gallery/Music/Replay/Ending Catalog，Runtime 已保存 Gallery/Ending Meta，但正式 Player 没有附加入口和页面。N61 Product Acceptance、PRD P1/P2 余项、N62 Engineering、M1 和发布继续阻断；唯一接续功能是 N62-E1，开始前需确认现有窄范围授权。完整恢复步骤、真实差异与首条测试合同见[#281](281-n61-to-n62-cross-device-handoff.md)。
+2026-09-03 最新结论是：**N52、N60 与 N61 Engineering 已关闭；N62-E1 已形成实现候选，但尚未关闭。** 正式 Player 现从同一 Compiler Catalog 与 Runtime Meta 自动呈现 Gallery/Replay/Music/Ending 四类摘要，等待 Effect/Barrier 时禁止读取瞬态进度，返回前后 Runtime State Hash 与 History Cursor 不变。产品红测 `0/2→2/2`、受影响 `85/85`、TypeScript 与 production build 已通过；本机管理员安全策略拒绝打开 localhost production preview，按补偿控制不能用 jsdom/build 代替，故先补 production-browser 双视口证据，再允许进入 E2。N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断。完整差异、依赖风险和接续顺序见[#282](282-n62-e1-additional-content-entry-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 

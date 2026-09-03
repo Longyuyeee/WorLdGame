@@ -3,7 +3,7 @@
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。
-> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并由直接面向 main 的 Draft PR #122 聚合。N40–N61 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 Localization 窄范围修订**已完成 N61 Engineering，但持续阻断 N61 Product Acceptance、N62 Engineering、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，延后到功能与整体 UI 就绪后执行。
+> 集成边界：当前开发链仍未进入 `main`；N00–N41 Authority 对应 main-target Draft PR #61，N52 tip 现已证明完整包含该 Authority 与 PR #1–#121 全部开放 head，并由直接面向 main 的 Draft PR #122 聚合。N40–N61 Engineering 出口不得换算成 Product Acceptance；**RA-N21-011 的 N62 Additional Content 窄范围修订**已准入 N62 Engineering，但持续阻断 N62 Product Acceptance、N70 Engineering、M1 Stable 与发布。N21/N23 真人仍为 `0/1`、`0/2`，延后到功能与整体 UI 就绪后执行。
 
 > 历史节点索引（机器可追溯）：**RA-N21-011 checkpoint 窄范围修订**、**N52-E3 入口契约**、**N52-E3a v2 元数据与截图**、**N52-E3b Auto / Quick Engineering 已关闭**、**N52-E3c1 Recovery / Migration Museum Engineering 已关闭**、**N52-E3c2 checkpoint 入口合同已关闭**、**N52-E3c3 checkpoint marker**、**N52-E3c4 Save v3 + 三 checkpoint 槽**、**N52-E4 Auto/Skip 入口合同**、**N52-E4a Player Core Scheduler bridge**、**N52-E4b Shell Auto real clock**、**N52-E4c Skip / media / embed**、**N52-E4d build-authored Stop Point**、**N52-E4e Player video**、**N52-E4f 移动端出口**、**N52-E5a History 入口**。这些 token 保留历史合同身份，不改变上方当前状态。
 
@@ -57,6 +57,8 @@
 
 > N61-E7 / Engineering 出口（2026-09-02）：[审计 #280](280-n61-e7-localization-engineering-exit-audit.md)直接把 Editor Production 保存的 Canonical 与 IndexedDB 真实 Blob 交给 Compiler/Player，首次 `1/1` 即证明 Asset Manifest、Localization Catalog、`en → zh-Hans → ja` 媒体/Voice 选择和缺失回退无断点；E4 390×844 production 的 5 行禁则、Ruby、overflow、44px 与 console 证据同步闭合。受影响 `4 files / 4 tests`、双端 TypeScript/build 通过。N61 Engineering 关闭，REQ-L10N 转为验收中；Windows/Android 和三端 Product Acceptance 仍阻断。
 
+> N62-E1 实现候选（2026-09-03）：[审计 #282](282-n62-e1-additional-content-entry-audit.md)已从正式 Compiler Catalog/Runtime Meta 投影 Gallery/Replay/Music/Ending 摘要并接入 Player；产品红测 `0/2→2/2`，受影响 `85/85`、TypeScript/build 通过，返回前后 Runtime Hash/History Cursor 不变。awaited Effect 的首次时点差异已通过禁用入口纠偏。管理员安全策略阻断 localhost production-browser，因此 E1 仍为实现中，不提前进入 E2，也不改变 AC-17/18/20 或 Product Acceptance。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。
@@ -84,7 +86,7 @@
 | USP-05 | Local Multi-platform Build | N80–N83 | 未开始 | 开发构建不计 | Windows 本地三端正式产物 |
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | N43-E1–E4 建立统一上下文、Beginner/Pro、Motion 与输入/同步；E5–E7 依次开放 Production、Debug & QA 与 Mobile Focus，Engineering 真实任务达到 7/7。Utage 级本地化/配音批量列、真人与商业 Product 门仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
-| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；Compiler 已生成 Gallery/Music/Ending 等 Catalog，Runtime 已记录 Gallery/Ending 永久 Meta | 覆盖配置、玩家 Gallery/Replay/Music/Ending 页面与三端一致 |
+| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；N62-E1 已把四类 Compiler Catalog/Runtime Meta 摘要接入正式 Player，自动化验证返回不改变剧情身份；production-browser 尚未闭环 | [N62-E1 #282](282-n62-e1-additional-content-entry-audit.md)、完整列表/Replay/Music/覆盖配置与三端一致 |
 | USP-09 | Skip / History / Back | N31/N52 | 实现中 | N52 Engineering 已关闭：Auto/Skip、可选行 History、只读旧分支、Barrier 原因/距离和 Forward 项目策略已在 Web 玩家闭环；Windows/Android 正式宿主、实体设备、真人与 Product Acceptance 仍未完成 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
@@ -127,7 +129,7 @@
 | AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | Web Engineering 已覆盖 Auto、Skip Read/All × Hold/Toggle、五档速度、作者 Stop Point、现有媒体、正式 video 与 390×844 cold production；Windows/Android、实体设备与真人未完成，不能登记产品通过 | [N52-E4f 出口](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)、玩家输入向量和 State Hash |
 | AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | Web Engineering 已证明 State/Host 精确恢复、分支改选、旧分支只读查看、稳定 ID 选行回退、不可逆原因/距离、Forward true/false 与保存重开；Windows/Android 正式 Host、实体设备、真人和三端一致性仍缺 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、三端玩家 History E2E |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | N40 Engineering 已通过：E1–E8n 建立自动图、10k/64 窗口、缓存、Runtime 高亮、trusted Route-first、全局索引、narration 结构事务、topology 分页、结局审阅、诊断/目标导航及 Choice 修复闭环。N40 Product Acceptance 仍阻断，N62 玩家自动图未开始 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
-| AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2 记录 Gallery/Ending，E12 又确保 Back/Forward 与旧存档加载不回退该永久 Meta。覆盖配置、隔离 Replay、Music 解锁规则与 Player UI 仍待 N62 | [N30-E2 审计](124-n30-e2-compiler-completion-audit.md)、[N31-E2 审计](127-n31-e2-runtime-deterministic-state-audit.md)、[N31-E12 审计](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |
+| AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；Runtime E2/E12 记录并保持 Gallery/Ending Meta；N62-E1 已增加四类自动摘要、锁定/空状态及返回身份自动化，但 production-browser 尚未闭环。完整列表、覆盖配置、隔离 Replay 与 Music 解锁仍缺 | [N62-E1 #282](282-n62-e1-additional-content-entry-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、Catalog 和玩家 E2E |
 | AC-19 | Gal 配置中心覆盖 P0 | N51 | 实现中 | N51 Engineering 已关闭：36/23 字段、继承/撤销/预览、Canonical 保存、Editor/Player production Web 与 Profile 边界均有自动证据。AC-19 Product Acceptance 仍缺正式 Windows/Android Host、跨节点附加页/控制/本地化/构建及真人验证，不能登记通过 | [N51-E6a #230](230-n51-e6a-settings-schema-v2-migration-audit.md)–[N51-E6f #235](235-n51-e6f-engineering-exit-reaudit.md)、配置追踪全覆盖 |
 | AC-20 | 自动页和状态三端一致 | N62/N92 | 未开始 | AC-18、三端 Player | Catalog/Meta Hash 0 差异 |
 | AC-21 | Optimization 显示联合预算 | N71 | 未开始 | 真机/构建数据 | Center 报告 |

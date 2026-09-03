@@ -188,6 +188,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
+  const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -827,6 +828,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (additionalContentOpen) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          setAdditionalContentOpen(false);
+        }
+        return;
+      }
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
@@ -852,7 +860,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
+  }, [additionalContentOpen, applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -963,6 +971,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-history-can-back={snapshot.history?.canBack ?? false}
       data-history-can-forward={snapshot.history?.canForward ?? false}
       data-history-panel={historyPanelOpen ? "open" : "closed"}
+      data-additional-content={additionalContentOpen ? "open" : "closed"}
       data-history-archives={snapshot.history?.archives.length ?? 0}
       data-history-forward-policy={snapshot.history?.forwardPolicy.allowForwardAfterBack ?? settingsApplication.history.allowForwardAfterBack}
       data-save-store={saveStore?.backend ?? "unavailable"}
@@ -983,6 +992,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-skip-active={skipActive}
       data-skip-media={skipActive ? "accelerated" : "normal"}
       data-video-policy-stop-reason={videoPolicyStopReason}
+      data-runtime-state-hash={snapshot.runtimeStateHash ?? "none"}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -1176,6 +1186,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-expanded={historyPanelOpen}
             onClick={() => setHistoryPanelOpen((open) => !open)}
           ><span aria-hidden="true">☰</span><span>历史</span></button>
+          <button
+            type="button"
+            className="player-history-controls__additional"
+            aria-label={additionalContentOpen ? "关闭附加内容" : "打开附加内容"}
+            aria-expanded={additionalContentOpen}
+            disabled={hostActivity !== "active" || snapshot.status === "waiting-effect" || snapshot.status === "waiting-barrier"}
+            onClick={() => {
+              setHistoryPanelOpen(false);
+              setSavePanelOpen(false);
+              setAdditionalContentOpen((open) => !open);
+            }}
+          ><span aria-hidden="true">✦</span><span>附加</span></button>
         </nav>
         {historyPanelOpen && (
           <aside className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
@@ -1223,6 +1245,30 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 </section>
               ))}
             </>}
+          </aside>
+        )}
+        {additionalContentOpen && (
+          <aside className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
+            <header>
+              <div><span>EXTRAS</span><h2>附加内容</h2></div>
+              <button type="button" aria-label="返回剧情" onClick={() => setAdditionalContentOpen(false)}>返回剧情</button>
+            </header>
+            <p className="player-additional-content__intro">由当前构建的 Compiler Catalog 与正式 Runtime 解锁进度自动生成。</p>
+            <div className="player-additional-content__grid">
+              {([
+                ["CG 画廊", "从剧情中实际展示的视觉资源自动收集", snapshot.additionalContent.gallery],
+                ["场景回想", "到达相关结局后开放对应场景", snapshot.additionalContent.replay],
+                ["音乐室", "音乐解锁规则将在后续切片接入", snapshot.additionalContent.music],
+                ["结局", "按正式 Runtime 已达成结局记录开放", snapshot.additionalContent.endings]
+              ] as const).map(([title, description, category]) => (
+                <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
+                  <span>{category.total === 0 ? "暂无内容" : `${category.unlocked} / ${category.total} 已发现`}</span>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                  {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
+                </section>
+              ))}
+            </div>
           </aside>
         )}
         {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">

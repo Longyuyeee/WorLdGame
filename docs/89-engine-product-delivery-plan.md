@@ -593,6 +593,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Implementation**：从资源标签、故事引用和解锁条件生成 Catalog；允许标题/排序/封面/剧透/本地化覆盖；Scene Replay 使用隔离 Checkpoint；退出恢复原状态；缩略图缺失诊断；玩家流程图只显示已发现内容。
 - **Acceptance**：AC-17、18、20；Catalog 不要求维护第二份手工列表。
 
+> N62-E1 实现候选（2026-09-03）：[审计 #282](282-n62-e1-additional-content-entry-audit.md)已让正式 Player Core 从当前 build 的四类 Compiler Catalog 与 Runtime Meta 投影只读摘要，并在 Shell 增加可发现入口、锁定/空状态、等待态禁用和返回剧情。真实产品红测首次 `0/2`；首轮实现又暴露 awaited Effect 完成前 Gallery 仍为 `1/2` 的正确 Runtime 时点，纠偏为完成 Effect 后读取 `2/2`，不篡改解锁语义。定向 `2/2`、受影响 `85/85`、TypeScript 与 production build 通过；但本机管理员安全策略拒绝 production-browser localhost，故 **E1 尚未关闭**。先补双视口 production 证据并独立推送/确认 exact-head CI，再进入 E2 Gallery/Ending 列表；AC-17/18/20 与 Product Acceptance 不提前通过。
+
 ## 12. R7：资源与 Optimization Center
 
 ### N70 完整 Asset Pipeline

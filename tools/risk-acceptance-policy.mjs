@@ -20,7 +20,8 @@ const requiredActiveBlockedGates = Object.freeze([
   "N52 Product Acceptance",
   "N60 Product Acceptance",
   "N61 Product Acceptance",
-  "N62 Engineering",
+  "N62 Product Acceptance",
+  "N70 Engineering",
   "M1 Stable",
   "Public Release"
 ]);
@@ -67,7 +68,7 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
       for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }
-      if (exception.maximumDeliveryNode !== "N61") violations.push(`${prefix}: active N21 exception must stop at N61`);
+      if (exception.maximumDeliveryNode !== "N62") violations.push(`${prefix}: active N21 exception must stop at N62`);
       if (prefix !== "RA-N21-011") violations.push(`${prefix}: only the approved RA-N21-011 exception may be active`);
     }
   }
@@ -110,6 +111,16 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     }
     if (!validDate(playerControlExtension.localizationScopeAmendedAt)) violations.push("RA-N21-011: localizationScopeAmendedAt must record the N61 authorization amendment");
     if (playerControlExtension.localizationEvidencePath !== "docs/274-n61-e1-localization-production-audit.md") violations.push("RA-N21-011: N61 Localization evidence path drifted");
+    const requiredAdditionalContentControls = [
+      "Limit N62 to automatic Gallery, Replay, Music, Ending, and discovered player-route Engineering that consumes the existing Compiler Catalogs and Runtime Meta instead of a second hand-maintained list",
+      "Require Replay to use an isolated formal Runtime session and restore the original Player Runtime, History, Save, Meta, and Host presentation on every exit path",
+      "Keep N70 derivative asset optimization, N80-N83 platform builds, and N90-N92 formal host work outside the N62 amendment"
+    ];
+    for (const control of requiredAdditionalContentControls) {
+      if (!playerControlExtension.compensatingControls?.includes(control)) violations.push(`RA-N21-011: missing N62 Additional Content scope control: ${control}`);
+    }
+    if (!validDate(playerControlExtension.additionalContentScopeAmendedAt)) violations.push("RA-N21-011: additionalContentScopeAmendedAt must record the N62 authorization amendment");
+    if (playerControlExtension.additionalContentEvidencePath !== "docs/282-n62-e1-additional-content-entry-audit.md") violations.push("RA-N21-011: N62 Additional Content evidence path drifted");
   }
   for (const supersededId of ["RA-N21-001", "RA-N21-002", "RA-N21-003", "RA-N21-004", "RA-N21-005", "RA-N21-006", "RA-N21-007", "RA-N21-008", "RA-N21-009", "RA-N21-010"]) {
     const superseded = registry?.exceptions?.find((entry) => entry?.id === supersededId);

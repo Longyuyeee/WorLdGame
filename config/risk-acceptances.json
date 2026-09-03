@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentDeliveryNode": "N61",
+  "currentDeliveryNode": "N62",
   "exceptions": [
     {
       "id": "RA-N21-001",
@@ -482,15 +482,17 @@
         "N21 non-programmer task-based product acceptance",
         "N23 product acceptance by two non-implementers",
         "N60 engineering start before the deferred human acceptance gates",
-        "N61 engineering start before the deferred human acceptance gates"
+        "N61 engineering start before the deferred human acceptance gates",
+        "N62 engineering start before the deferred human acceptance gates"
       ],
       "impact": [
         "Player history and playback-control discoverability may remain undiscovered",
         "Back, Forward, Save, Load, Auto, and Skip behavior may not yet be challenged by non-implementer product use",
         "automated and developer-operated browser evidence cannot establish independent control comprehension or device acceptance",
-        "translator workflow and language-production usability may remain undiscovered before later human acceptance"
+        "translator workflow and language-production usability may remain undiscovered before later human acceptance",
+        "automatic Gallery, Replay, Music, Ending, and player-route discoverability may remain unchallenged by non-implementer use"
       ],
-      "reason": "N51 Gal Settings Engineering closed its schema v5, Catalog, Canonical persistence, Editor, Web Player application, production-browser, machine-readable exit, and two Windows / Node 22 full-check heads while every Product Acceptance gate remained pending. The Product Owner was told that RA-N21-010 stopped at N51 and that N52 remained blocked, then on 2026-08-28 explicitly instructed the team to enter N52. E3c2 later proved that the original checkpoint requirement and VM Spike were not promoted into the formal Story Language, Compiler, Runtime, Player, or strict Save chain; after being told that E3c3 required an explicit N20/N30/N31/Save contract amendment solely for N52 checkpoint, the Product Owner on 2026-08-29 instructed the team to continue from that exact continuation point. E4 exit review then froze E4d as build-authored Player Stop Point source and disclosed that its N20/N30 additive contract bridge required a second narrow amendment; on 2026-08-31 the Product Owner again explicitly instructed the team to enter the continuation step with requirement alignment, real expected-versus-actual tests, documentation, audit, and push. The N52 total-exit checkpoint then disclosed that selectable History, viewable truncated branches, Barrier navigation reasons, and the project Forward policy require a narrow Gal Settings and N31 History/Session Save amendment; after receiving that exact scope, the Product Owner on 2026-09-01 explicitly instructed the team to continue from the recorded N52-E5 point with the same audit and push controls. On 2026-09-01 after starting an exploratory task, the Product Owner explicitly cancelled operation timing and early human validation, directed Engineering to continue until functional development and overall UI consolidation are ready, and required real product-path expected-versus-actual tests meanwhile. This authorized bounded N60 Debugger and Story QA Engineering while keeping every Product Acceptance gate pending. N60-E6 then closed the N60 Engineering exit and explicitly recorded N61 admission as the next blocked continuation point. After receiving that exact boundary, on 2026-09-02 the Product Owner again instructed the team to enter the next step with documentation, goal audit, requirement alignment, real expected-versus-actual tests, and push. This narrowly extends the same exception through N61 Localization Engineering without passing any Product Acceptance gate.",
+      "reason": "N51 Gal Settings Engineering closed its schema v5, Catalog, Canonical persistence, Editor, Web Player application, production-browser, machine-readable exit, and two Windows / Node 22 full-check heads while every Product Acceptance gate remained pending. The Product Owner was told that RA-N21-010 stopped at N51 and that N52 remained blocked, then on 2026-08-28 explicitly instructed the team to enter N52. E3c2 later proved that the original checkpoint requirement and VM Spike were not promoted into the formal Story Language, Compiler, Runtime, Player, or strict Save chain; after being told that E3c3 required an explicit N20/N30/N31/Save contract amendment solely for N52 checkpoint, the Product Owner on 2026-08-29 instructed the team to continue from that exact continuation point. E4 exit review then froze E4d as build-authored Player Stop Point source and disclosed that its N20/N30 additive contract bridge required a second narrow amendment; on 2026-08-31 the Product Owner again explicitly instructed the team to enter the continuation step with requirement alignment, real expected-versus-actual tests, documentation, audit, and push. The N52 total-exit checkpoint then disclosed that selectable History, viewable truncated branches, Barrier navigation reasons, and the project Forward policy require a narrow Gal Settings and N31 History/Session Save amendment; after receiving that exact scope, the Product Owner on 2026-09-01 explicitly instructed the team to continue from the recorded N52-E5 point with the same audit and push controls. On 2026-09-01 after starting an exploratory task, the Product Owner explicitly cancelled operation timing and early human validation, directed Engineering to continue until functional development and overall UI consolidation are ready, and required real product-path expected-versus-actual tests meanwhile. This authorized bounded N60 Debugger and Story QA Engineering while keeping every Product Acceptance gate pending. N60-E6 then closed the N60 Engineering exit and explicitly recorded N61 admission as the next blocked continuation point. After receiving that exact boundary, on 2026-09-02 the Product Owner again instructed the team to enter the next step with documentation, goal audit, requirement alignment, real expected-versus-actual tests, and push. This narrowly extended the same exception through N61 Localization Engineering without passing any Product Acceptance gate. After N61 Engineering closed and the N62 scope, existing Catalog/Meta foundation, missing Player path, authorization block, and ordered E1-E8 plan were explicitly disclosed, the Product Owner on 2026-09-03 instructed the team to advance as many audited and independently pushed development steps as possible. This narrowly extends the exception through N62 automatic additional-content Engineering.",
       "compensatingControls": [
         "Keep N21, N23, N30, N31, N32, N40, N41, N42, N43, N50, N51, and N52 Product Acceptance pending rather than passed",
         "Retain the completed N60 Debugger and Story QA Engineering evidence without converting it into N60 Product Acceptance",
@@ -512,8 +514,11 @@
         "Require N60 creator paths to prove start targets, breakpoint continuation, step navigation, variables, call stack, visible host state, source return, desktop and mobile layout in production builds",
         "Limit N61 to Localization Engineering that reuses Canonical localization.json, stable Story IDs, Compiler catalogs, and the existing Production workspace rather than creating a second project or workspace model",
         "Require each N61 slice to begin with a translator or creator task and prove the real Canonical save/reopen path with explicit expected-versus-actual correction",
+        "Limit N62 to automatic Gallery, Replay, Music, Ending, and discovered player-route Engineering that consumes the existing Compiler Catalogs and Runtime Meta instead of a second hand-maintained list",
+        "Require Replay to use an isolated formal Runtime session and restore the original Player Runtime, History, Save, Meta, and Host presentation on every exit path",
+        "Keep N70 derivative asset optimization, N80-N83 platform builds, and N90-N92 formal host work outside the N62 amendment",
         "Keep N21-HV-01 and N23-PA-01 records pending and never substitute AI, developer, or automated operation for participant evidence",
-        "Block all existing Product Acceptance gates, N60 Product Acceptance, N61 Product Acceptance, N62 Engineering, M1 Stable, and Public Release until the planned functional and UI work is ready for human validation"
+        "Block all existing Product Acceptance gates, N60 Product Acceptance, N61 Product Acceptance, N62 Product Acceptance, N70 Engineering, M1 Stable, and Public Release until the planned functional and UI work is ready for human validation"
       ],
       "owner": "localization-production",
       "approver": "Product Owner",
@@ -523,8 +528,9 @@
       "historyScopeAmendedAt": "2026-09-01T01:02:18+08:00",
       "debugQaScopeAmendedAt": "2026-09-01T15:35:00+08:00",
       "localizationScopeAmendedAt": "2026-09-02T12:00:00+08:00",
+      "additionalContentScopeAmendedAt": "2026-09-03T21:10:00+08:00",
       "expiresAt": "2026-09-27T16:00:00+08:00",
-      "maximumDeliveryNode": "N61",
+      "maximumDeliveryNode": "N62",
       "blockedGates": [
         "N21 Product Acceptance",
         "N23 Acceptance",
@@ -540,16 +546,18 @@
         "N52 Product Acceptance",
         "N60 Product Acceptance",
         "N61 Product Acceptance",
-        "N62 Engineering",
+        "N62 Product Acceptance",
+        "N70 Engineering",
         "M1 Stable",
         "Public Release"
       ],
       "remediationPlan": "Keep human records pending while completing the bounded Engineering and overall UI work; before any Product Acceptance declaration, execute the revised task-based human validation and record findings without using operation time as a pass proxy.",
-      "verificationMethod": "Keep human records pending; for N52 retain the frozen History/Player evidence, for N60 retain the debugger and QA evidence, and for N61 compare translator/creator tasks, stable text identity, Canonical save/reopen behavior, desktop/mobile production-browser outcomes, and the minimum relevant budgets against explicit expectations; record and correct every difference before updating evidence.",
+      "verificationMethod": "Keep human records pending; for N52 retain the frozen History/Player evidence, for N60 retain the debugger and QA evidence, for N61 retain translator/creator and localization delivery evidence, and for N62 compare Compiler Catalogs, Runtime Meta, Player Core projection, isolated Replay, desktop/mobile production-browser outcomes, and the minimum relevant budgets against explicit expectations; record and correct every difference before updating evidence.",
       "evidencePath": "docs/245-n52-e3c3-checkpoint-authority-amendment.md",
       "playbackEvidencePath": "docs/254-n52-e4d-build-stop-point-source-audit.md",
       "debugQaEvidencePath": "docs/271-n60-e4-p0-story-qa-product-closure-audit.md",
       "localizationEvidencePath": "docs/274-n61-e1-localization-production-audit.md",
+      "additionalContentEvidencePath": "docs/282-n62-e1-additional-content-entry-audit.md",
       "executionKitPath": "docs/114-n21-human-validation-execution-kit.md",
       "protocolPath": "config/n21-human-validation-protocol.json",
       "recordPath": "evidence/n21/human-validation.json",
