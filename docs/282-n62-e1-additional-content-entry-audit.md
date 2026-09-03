@@ -41,6 +41,8 @@ E1 不在 Shell 维护第二份 Catalog，也不提前实现 Replay 会话、Mus
 | 风险登记 | RA-N21-011 扩至 N62，N62 Product Acceptance 与 N70 Engineering 继续阻断 | 通过 |
 | production browser | CUA 在选择已启用浏览器后拒绝打开 `http://127.0.0.1:4174/`，返回管理员安全策略不可用/拒绝；工具规则禁止绕过 | **阻断** |
 
+首次远端 exact-head run `33761477462` / job `100669029476` 在既有 N52-E4d 历史审计失败：RA 已合法扩至 N62，但 E4d、E5a 与 N52 出口三个旧审计只允许最大节点到 N61。纠偏不是放宽 N52 合同，而是让三个历史证据接受 `[N52, N60, N61, N62]` 的有界后续授权；本机重新执行 E4d、E5a、N52 出口、风险登记与 25 项治理单测全部通过。该失败保持可追溯，后续新 head 的完整门不得复用本次失败结论。
+
 production build 成功和 jsdom 产品测试不能冒充 production-browser。按照既有补偿控制，本步只能登记“实现候选”，不能登记 E1 Engineering 关闭；应在允许访问本地 production preview 的浏览器环境补齐 1440×900 与 390×844 的入口、状态、返回身份、overflow、44px 与 console 证据。
 
 ## 5. 安全与依赖审计
