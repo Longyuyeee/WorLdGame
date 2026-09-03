@@ -1,8 +1,8 @@
 # N62-E1 自动附加内容入口实现审计
 
-> 审计日期：2026-09-03  
-> 分支：`codex/n60-e1-debugger-session`  
-> 起点：`9bdd1171ca87acfb3f532d5eee193b99e830c9e5`  
+> 审计日期：2026-09-03
+> 分支：`codex/n60-e1-debugger-session`
+> 起点：`9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
 > 状态：代码与自动化 Engineering 证据完成；production-browser 证据被本机管理员安全策略阻断，因此 E1 尚未关闭
 
 ## 1. 本步交付的用户路径
