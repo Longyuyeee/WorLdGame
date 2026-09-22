@@ -159,12 +159,15 @@ describe("N62-E1-E4 additional-content Player path", () => {
     expect(shell).toHaveAttribute("data-scene-replay", "media_stage");
     expect(screen.getByRole("status", { name: "场景回想状态" })).toHaveTextContent("回想期间不会覆盖原剧情进度");
     expect(screen.getByRole("button", { name: "打开附加内容" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "退出回想，返回原剧情" }));
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.filter((asset) => asset.assetId !== "media_actor_sprite")} />);
+    expect(screen.getByRole("alert")).toHaveTextContent("媒体未能安全呈现");
+    fireEvent.keyDown(window, { key: "Escape" });
     expect(shell).toHaveAttribute("data-scene-replay", "inactive");
     expect(shell).toHaveAttribute("data-runtime-state-hash", parentHash);
     expect(shell).toHaveAttribute("data-runtime-host-snapshot-hash", parentHostHash);
     expect(shell).toHaveAttribute("data-history-cursor", parentCursor);
 
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
     startReplay();
     fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
     fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));

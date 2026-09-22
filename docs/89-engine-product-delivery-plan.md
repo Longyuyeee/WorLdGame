@@ -599,6 +599,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N62-E3 Engineering 已关闭（2026-09-23）：[审计 #286](286-n62-e3-music-meta-player-audit.md)让正式 Runtime 仅在接受 audio `play` 时单调收录资源 ID，Player Core 再按 Compiler Music Catalog 投影防剧透条目，Shell 提供原生试听、资源不可用但保留收录、分层焦点和移动布局。严格 v1 Meta/Save schema 与既有无音频 Hash 不变；Back/Forward 和旧存档合并保持收录。定向 `3 files / 69 tests`、普通 `168/1000`、完整构建/性能与 cold production Chrome 双视口通过；实现头 `bfeb315` 的 exact-head run `35752617312` / job `106830352298` 成功。下一切片为 E4 Replay 隔离 Checkpoint，覆盖配置/玩家 Route 和 AC-17/18/20 Product Acceptance 不提前通过。
 
+> N62-E4 Engineering 已关闭（2026-09-23）：[审计 #287](287-n62-e4-isolated-scene-replay-audit.md)让 Player Core 从当前正式 History 中选择最近的已走过场景入口，建立隔离 Runtime History Session 并由历史 Effect 前缀重建正式 Host；中途退出和 Replay Ending 退出均恢复原 Runtime、History、Host、Meta 与 Shell 播放策略。回想中 Core 拒绝 Save/Load，Shell 阻断 auto/checkpoint/recovery 写入并保持常驻退出入口；附加内容模态同时修正为暂停并恢复 Auto/Skip。定向 `8/8`、N50 `89/89`、普通 `168/1003`、17 workspace build 与 Chrome cold production 双视口通过；实现头 `f5229b5` 的 exact-head run `35757139172` / job `106845655360` 成功。下一切片为作者覆盖配置与诊断；玩家 Route 和 AC-17/18/20 Product Acceptance 不提前通过。
+
 ## 12. R7：资源与 Optimization Center
 
 ### N70 完整 Asset Pipeline

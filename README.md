@@ -2,7 +2,7 @@
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-09-23
-> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings、N52、N60 与 N61 Engineering 出口已通过，N62-E1/E2/E3 已关闭。[N62-E3 审计 #286](docs/286-n62-e3-music-meta-player-audit.md)已完成正式 audio play 单调收录、Catalog/Meta 同源音乐室、锁定防剧透、资源失败保留、焦点与双视口真实证据，并在不改变 v1 Save schema 和既有无音频 Hash 的前提下完成兼容性纠偏；实现头 `bfeb315` 的 exact-head CI 已通过，下一切片为 Replay 隔离 Checkpoint。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。全部 Product Acceptance、N70 Engineering、Android 实体包、M1 与发布继续阻断。
+> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings、N52、N60 与 N61 Engineering 出口已通过，N62-E1–E4 已关闭。[N62-E4 审计 #287](docs/287-n62-e4-isolated-scene-replay-audit.md)已完成 Catalog/Meta 同源解锁、历史场景入口隔离 Runtime Session、正式 Host 重建、Save/Recovery 隔离，以及中途/结局退出对 Runtime、History、Host 与播放策略的精确恢复；实现头 `f5229b5` 的 exact-head CI 已通过，下一切片为作者覆盖配置与诊断。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。全部 Product Acceptance、N70 Engineering、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
