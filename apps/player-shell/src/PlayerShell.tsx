@@ -761,6 +761,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     if (!autoEnabled) return;
+    const stopReason = snapshot.playback.stopReason;
+    if (stopReason !== null && stopReason !== "storyBoundary" && stopReason !== "budget" && !(stopReason === "effect" && stage.video?.awaited === true)) {
+      setAutoEnabled(false);
+      setAutoPlayback("stopped");
+      return;
+    }
     if (hostActivity !== "active") {
       setAutoPlayback("suspended");
       return;
@@ -819,7 +825,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
 
   useEffect(() => {
     if (!autoEnabled) return;

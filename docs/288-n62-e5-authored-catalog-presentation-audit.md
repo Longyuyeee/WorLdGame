@@ -49,6 +49,7 @@ PRD 与 N62 路线要求四类附加内容继续由故事真实引用、可达�
 3. Catalog schema 扩展改变 Build ID，正式 Runtime State/History Golden 随 build identity 合法变化；Story IR Hash 与路线语义保持不变，相关 Golden 已按实际产物重新冻结。
 4. Production 新增第二张表后，旧测试依赖“页面唯一 table”。现已给两张表补独立可访问名称，并让测试按用户可感知名称定位。
 5. 完整 workspace build 比增量 typecheck 更早发现只读 JSON union 缩窄不足；已使用显式 `JsonObject` 窄化并通过干净全构建。
+6. 文档头 `84c544d` 的首轮 Windows 门暴露既有 Auto 停止点竞争：Core 已返回 `stopPoint` 时，Shell 的“停止 Auto”effect 与下一计时器 effect 可能竞速，导致快 runner 偶发越过作者停止点。现已把结构化停止原因直接加入计时器前置条件；停止先于任何新计时器创建，不再依赖后续 effect 清理。
 
 ## 5. 验证结果
 
@@ -65,6 +66,7 @@ PRD 与 N62 路线要求四类附加内容继续由故事真实引用、可达�
 | Localization | 目录标题进入稳定文本键；Player 翻译、过期/缺失回退和计数，PASS |
 | 防剧透 | 默认锁定标题与封面均为 `null`；仅明确 reveal 后可见，PASS |
 | 浏览器 | Chrome production 1440×900 与 390×844；标题编辑生效；4 个自动条目/4 个缺图；document overflow `0`；console/exception `0` |
+| Auto 停止点远端纠偏 | Windows 首轮真实复现越过停止点；修正后本地完整 Shell `54/54` 连续 6 轮通过，E4b 合同审计、Player Shell production build 与全仓 TypeScript 通过 |
 
 机器证据为 `evidence/n62/additional-content-e5-authoring-browser.json`。截图 SHA-256：
 
@@ -76,6 +78,8 @@ PRD 与 N62 路线要求四类附加内容继续由故事真实引用、可达�
 ## 6. 远端门与接续点
 
 实现头 `5f3f70c7cc081dbd331b7dc60c859f0d9b2dbb5a` 已推送到 Draft PR #123。exact-head GitHub Actions `product-baseline` run `35762476885` / Windows job `106863672405` 于 2026-09-23 成功，完整 job 用时约 `14m52s`。
+
+后续文档头 `84c544d` 的 run `35764255762` 首轮在既有 Auto 停止点真实时钟用例失败，其他已执行用例通过。该结果没有被当作无关抖动跳过；本审计同一后续提交已修复计时器竞争并完成上述重复验证。玩家自动 Route 必须等待这个修正头的 exact-head Windows 门成功后才开始写入代码。
 
 下一步严格进入 N62 玩家自动 Route：
 
