@@ -189,7 +189,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
-  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "music" | "endings">("overview");
+  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">("overview");
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
   const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
@@ -207,12 +207,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const additionalContentTrigger = useRef<HTMLButtonElement | null>(null);
   const additionalContentPanel = useRef<HTMLElement | null>(null);
   const additionalContentClose = useRef<HTMLButtonElement | null>(null);
+  const replayExitButton = useRef<HTMLButtonElement | null>(null);
   const additionalContentWasOpen = useRef(false);
   const galleryOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const replayOverviewTrigger = useRef<HTMLButtonElement | null>(null);
   const musicOverviewTrigger = useRef<HTMLButtonElement | null>(null);
   const endingOverviewTrigger = useRef<HTMLButtonElement | null>(null);
   const additionalContentDetailBack = useRef<HTMLButtonElement | null>(null);
-  const previousAdditionalContentView = useRef<"overview" | "gallery" | "music" | "endings">("overview");
+  const previousAdditionalContentView = useRef<"overview" | "gallery" | "replay" | "music" | "endings">("overview");
   const galleryPreviewTrigger = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewWasOpen = useRef(false);
@@ -223,6 +225,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const previousSkipActive = useRef(false);
   const skipModeCurrent = useRef<"skipRead" | "skipAll" | null>(null);
   const skipAwaitingDispatch = useRef(false);
+  const replayPlaybackReturn = useRef<{
+    autoEnabled: boolean;
+    autoPlayback: typeof autoPlayback;
+    skipMode: "skipRead" | "skipAll" | null;
+    skipActivation: WorldPlayerSkipActivationV1;
+    skipSpeed: WorldPlayerSkipSpeedV1;
+  } | null>(null);
+  const additionalContentPlaybackReturn = useRef<typeof replayPlaybackReturn.current>(null);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
@@ -338,6 +348,59 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setAutoPlayback("off");
     setSkipMode(mode);
   }, []);
+
+  const restorePlaybackControls = useCallback((playback: NonNullable<typeof replayPlaybackReturn.current>) => {
+    setAutoEnabled(playback.autoEnabled);
+    setAutoPlayback(playback.autoPlayback);
+    setSkipActivation(playback.skipActivation);
+    setSkipSpeed(playback.skipSpeed);
+    skipModeCurrent.current = playback.skipMode;
+    setSkipMode(playback.skipMode);
+  }, []);
+
+  const openAdditionalContent = useCallback(() => {
+    additionalContentPlaybackReturn.current = { autoEnabled, autoPlayback, skipMode, skipActivation, skipSpeed };
+    setAutoEnabled(false);
+    setAutoPlayback("off");
+    stopSkip();
+    setHistoryPanelOpen(false);
+    setSavePanelOpen(false);
+    setAdditionalContentOpen(true);
+  }, [autoEnabled, autoPlayback, skipActivation, skipMode, skipSpeed, stopSkip]);
+
+  const closeAdditionalContent = useCallback(() => {
+    setAdditionalContentOpen(false);
+    const playback = additionalContentPlaybackReturn.current;
+    additionalContentPlaybackReturn.current = null;
+    if (playback !== null) restorePlaybackControls(playback);
+  }, [restorePlaybackControls]);
+
+  const enterSceneReplay = useCallback((replayId: string) => {
+    const next = dispatchPlayerCoreIntentV1(state, project, { kind: "enter-scene-replay", replayId });
+    setState(next);
+    if (next.replaySession === null) return;
+    replayPlaybackReturn.current = additionalContentPlaybackReturn.current ?? { autoEnabled, autoPlayback, skipMode, skipActivation, skipSpeed };
+    additionalContentPlaybackReturn.current = null;
+    setAutoEnabled(false);
+    setAutoPlayback("off");
+    stopSkip();
+    setHistoryPanelOpen(false);
+    setSavePanelOpen(false);
+    setAdditionalContentOpen(false);
+    setMediaErrors([]);
+  }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip]);
+
+  const exitSceneReplay = useCallback(() => {
+    if (state.replaySession === null) return;
+    setState((current) => dispatchPlayerCoreIntentV1(current, project, { kind: "exit-scene-replay" }));
+    const playback = replayPlaybackReturn.current;
+    replayPlaybackReturn.current = null;
+    if (playback !== null) {
+      restorePlaybackControls(playback);
+    }
+    setMediaErrors([]);
+    setTimeout(() => additionalContentTrigger.current?.focus(), 0);
+  }, [project, restorePlaybackControls, state.replaySession]);
 
   const refreshSaveSlots = useCallback(async () => {
     if (saveStore === undefined) return;
@@ -545,6 +608,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     autoSavedSceneIdentities.current.clear();
     consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
+    replayPlaybackReturn.current = null;
+    additionalContentPlaybackReturn.current = null;
     setState(createLocalizedPlayerCore(project, settingsApplication.history));
     setMediaErrors([]);
     setMediaGeneration(0);
@@ -601,7 +666,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [refreshSaveSlots]);
 
   useEffect(() => {
-    if (saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.runtimeState === null ||
+    if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.runtimeState === null ||
         !worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind)) return;
     const sceneIdentity = worldPlayerSaveSceneIdentityV1(snapshot.identities.buildId, state.runtimeState.cursor.sceneId);
     if (autoSavedSceneIdentities.current.has(sceneIdentity)) return;
@@ -620,7 +685,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
 
   useEffect(() => {
-    if (saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
+    if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
     const buildId = snapshot.identities.buildId;
     for (const candidate of state.checkpointSaveCandidates) {
       const identity = `${buildId}\0${candidate.stepId}\0${candidate.artifactHash}`;
@@ -653,7 +718,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state.checkpointSaveCandidates, state.runtimeState]);
 
   useEffect(() => {
-    if (recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
+    if (snapshot.sceneReplay.active || recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
         snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || !saveBoundaryAllowed || recoveryCandidate !== null ||
         !["idle", "ready", "loaded"].includes(recoveryOperation) || lastRecoveryRuntimeStateHash.current === snapshot.runtimeStateHash) return;
     const created = createPlayerCoreSessionSaveV1(state);
@@ -860,12 +925,19 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [additionalContentOpen]);
 
   useEffect(() => {
+    if (snapshot.sceneReplay.active) replayExitButton.current?.focus();
+  }, [snapshot.sceneReplay.active]);
+
+  useEffect(() => {
     const previousView = previousAdditionalContentView.current;
     if (previousView === additionalContentView) return;
     previousAdditionalContentView.current = additionalContentView;
     if (!additionalContentOpen) return;
     if (additionalContentView === "overview") {
-      (previousView === "gallery" ? galleryOverviewTrigger.current : previousView === "music" ? musicOverviewTrigger.current : endingOverviewTrigger.current)?.focus();
+      (previousView === "gallery" ? galleryOverviewTrigger.current
+        : previousView === "replay" ? replayOverviewTrigger.current
+          : previousView === "music" ? musicOverviewTrigger.current
+            : endingOverviewTrigger.current)?.focus();
       return;
     }
     additionalContentDetailBack.current?.focus();
@@ -897,7 +969,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             setAdditionalContentView("overview");
             return;
           }
-          setAdditionalContentOpen(false);
+          closeAdditionalContent();
           return;
         }
         if (event.key === "Tab") {
@@ -928,6 +1000,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }
       if (event.key === "Escape") {
         event.preventDefault();
+        if (snapshot.sceneReplay.active) {
+          exitSceneReplay();
+          return;
+        }
         applyIntent({ kind: "cancel" }, "keyboard");
         return;
       }
@@ -939,7 +1015,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [additionalContentOpen, additionalContentView, applyIntent, content, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold]);
+  }, [additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -1072,6 +1148,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-skip-media={skipActive ? "accelerated" : "normal"}
       data-video-policy-stop-reason={videoPolicyStopReason}
       data-runtime-state-hash={snapshot.runtimeStateHash ?? "none"}
+      data-runtime-host-snapshot-hash={snapshot.runtimeHostSnapshotHash}
+      data-scene-replay={snapshot.sceneReplay.active ? snapshot.sceneReplay.replayId : "inactive"}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -1242,6 +1320,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <span className="player-brand__status">{snapshot.status}</span>
           {lastEffectOperation !== null && <span className="player-brand__effect">FX {lastEffectOperation.sequence + 1} · {lastEffectOperation.kind}</span>}
         </header>
+        {snapshot.sceneReplay.active && (
+          <aside className="player-replay-status" role="status" aria-label="场景回想状态">
+            <div><span>SCENE REPLAY</span><strong>正在回想：{snapshot.sceneReplay.title}</strong><small>回想期间不会覆盖原剧情进度</small></div>
+            <button ref={replayExitButton} type="button" onClick={exitSceneReplay}>退出回想，返回原剧情</button>
+          </aside>
+        )}
         <nav className="player-history-controls" aria-label="剧情历史控制">
           <button
             type="button"
@@ -1271,11 +1355,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             className="player-history-controls__additional"
             aria-label={additionalContentOpen ? "关闭附加内容" : "打开附加内容"}
             aria-expanded={additionalContentOpen}
-            disabled={hostActivity !== "active" || snapshot.status === "waiting-effect" || snapshot.status === "waiting-barrier"}
+            disabled={snapshot.sceneReplay.active || hostActivity !== "active" || snapshot.status === "waiting-effect" || snapshot.status === "waiting-barrier"}
             onClick={() => {
-              setHistoryPanelOpen(false);
-              setSavePanelOpen(false);
-              setAdditionalContentOpen((open) => !open);
+              if (additionalContentOpen) closeAdditionalContent();
+              else openAdditionalContent();
             }}
           ><span aria-hidden="true">✦</span><span>附加内容</span></button>
         </nav>
@@ -1331,14 +1414,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <aside ref={additionalContentPanel} className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
             <header>
               <div><span>EXTRAS</span><h2>附加内容</h2></div>
-              <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={() => setAdditionalContentOpen(false)}>返回剧情</button>
+              <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
             </header>
             {additionalContentView === "overview" && <>
               <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
               <div className="player-additional-content__grid">
                 {([
                   ["CG 画廊", "在剧情中看过的画面会自动收录", snapshot.additionalContent.gallery, "gallery"],
-                  ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay, null],
+                  ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay, "replay"],
                   ["音乐室", "在剧情中听过的音乐会自动收录", snapshot.additionalContent.music, "music"],
                   ["结局", "达成的结局会自动记录", snapshot.additionalContent.endings, "endings"]
                 ] as const).map(([title, description, category, target]) => (
@@ -1347,7 +1430,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     <h3>{title}</h3>
                     <p>{description}</p>
                     {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
-                    {target !== null && <button ref={target === "gallery" ? galleryOverviewTrigger : target === "music" ? musicOverviewTrigger : endingOverviewTrigger} type="button" disabled={category.total === 0} aria-label={`查看 ${title}`} onClick={() => setAdditionalContentView(target)}>查看内容</button>}
+                    {target !== null && <button ref={target === "gallery" ? galleryOverviewTrigger : target === "replay" ? replayOverviewTrigger : target === "music" ? musicOverviewTrigger : endingOverviewTrigger} type="button" disabled={category.total === 0} aria-label={`查看 ${title}`} onClick={() => setAdditionalContentView(target)}>查看内容</button>}
                   </section>
                 ))}
               </div>
@@ -1386,6 +1469,23 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <figcaption><strong>{item.displayName}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
                 </figure>;
               })()}
+            </section>}
+            {additionalContentView === "replay" && <section className="player-additional-content__detail" role="region" aria-label="场景回想内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
+                <div><span>SCENE REPLAY</span><h3>场景回想</h3><p>{snapshot.additionalContent.replay.unlocked} / {snapshot.additionalContent.replay.total} 已解锁</p></div>
+              </div>
+              <p className="player-additional-content__replay-note">回想会从你实际走过的场景入口重新开始；退出后，剧情、演出和播放状态都会回到进入前。</p>
+              {snapshot.sceneReplay.error !== null && <p className="player-additional-content__replay-error" role="alert">{snapshot.sceneReplay.error}</p>}
+              {snapshot.additionalContent.replayItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可回想的场景。</p>
+                : <ol className="player-additional-content__replay">
+                  {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div><strong>{item.unlocked ? item.title : "未解锁的场景"}</strong><small>{item.unlocked ? "可从原路线安全重温" : "达成相关结局后解锁"}</small></div>
+                    <button type="button" disabled={!item.unlocked} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
+                  </li>)}
+                </ol>}
             </section>}
             {additionalContentView === "music" && <section className="player-additional-content__detail" role="region" aria-label="音乐室内容">
               <div className="player-additional-content__detail-heading">
@@ -1485,7 +1585,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <label>速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
           <span aria-live="polite">{autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
-        {saveStore !== undefined && (
+        {saveStore !== undefined && !snapshot.sceneReplay.active && (
           <aside className="player-save" data-open={savePanelOpen}>
             <div className="player-save__quick-controls" aria-label="快速存读档">
               <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>快速保存</button>
@@ -1553,7 +1653,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             )}
           </aside>
         )}
-        {recoveryStore !== undefined && (recoveryCandidate !== null || recoveryOperation === "error") && (
+        {recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
           <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
             <div>
               <strong>{recoveryOperation === "error" ? "恢复保护需要处理" : "发现可恢复进度"}</strong>
@@ -1641,7 +1741,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <div className="player-ending" role="status">
             <span>ENDING</span>
             <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
-            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>回到标题</button>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : "回到标题"}</button>
           </div>
         )}
 
@@ -1651,7 +1751,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <h1>{snapshot.title}</h1>
             <p>{content.diagnostics[0]?.message ?? "未知 Player Core 错误"}</p>
             <code>{content.diagnostics[0]?.code ?? "PLAYER_UNKNOWN_ERROR"}</code>
-            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>重新载入工程</button>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "退出回想，返回原剧情" : "重新载入工程"}</button>
           </div>
         )}
 

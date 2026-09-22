@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1 } from "./media-demo";
 
-describe("N62-E1-E3 additional-content Player path", () => {
+describe("N62-E1-E4 additional-content Player path", () => {
   it("opens Compiler-backed summaries and returns without changing the active story", () => {
     const demo = createPlayerMediaDemoV1();
     const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
@@ -84,6 +84,12 @@ describe("N62-E1-E3 additional-content Player path", () => {
     expect(within(lockedMusic).getByText("未发现的音乐")).toBeVisible();
     expect(lockedMusic).not.toHaveTextContent("Deterministic Theme");
     fireEvent.click(within(lockedMusic).getByRole("button", { name: "返回附加内容总览" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看 场景回想" }));
+    const lockedReplay = screen.getByRole("region", { name: "场景回想内容" });
+    expect(within(lockedReplay).getByText("未解锁的场景")).toBeVisible();
+    expect(lockedReplay).not.toHaveTextContent("Stage");
+    expect(within(lockedReplay).getByRole("button", { name: "场景 1 尚未解锁" })).toBeDisabled();
+    fireEvent.click(within(lockedReplay).getByRole("button", { name: "返回附加内容总览" }));
     fireEvent.click(screen.getByRole("button", { name: "返回剧情" }));
 
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
@@ -125,5 +131,49 @@ describe("N62-E1-E3 additional-content Player path", () => {
     expect(screen.getByRole("heading", { name: "Curtain" })).toBeVisible();
     expect(shell).toHaveAttribute("data-runtime-state-hash", beforeHash);
     expect(shell).toHaveAttribute("data-history-cursor", beforeCursor);
+  });
+
+  it("replays an unlocked scene in isolation and restores the exact user checkpoint on exit or completion", () => {
+    const demo = createPlayerMediaDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    fireEvent.click(screen.getByRole("button", { name: "后退一步" }));
+
+    const shell = view.container.querySelector("main")!;
+    const parentHash = shell.getAttribute("data-runtime-state-hash");
+    const parentHostHash = shell.getAttribute("data-runtime-host-snapshot-hash");
+    const parentCursor = shell.getAttribute("data-history-cursor");
+
+    const startReplay = () => {
+      fireEvent.click(screen.getByRole("button", { name: "打开附加内容" }));
+      fireEvent.click(screen.getByRole("button", { name: "查看 场景回想" }));
+      const replay = screen.getByRole("region", { name: "场景回想内容" });
+      expect(within(replay).getByText("Stage")).toBeVisible();
+      fireEvent.click(within(replay).getByRole("button", { name: "开始回想 Stage" }));
+    };
+
+    startReplay();
+    expect(shell).toHaveAttribute("data-scene-replay", "media_stage");
+    expect(screen.getByRole("status", { name: "场景回想状态" })).toHaveTextContent("回想期间不会覆盖原剧情进度");
+    expect(screen.getByRole("button", { name: "打开附加内容" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "退出回想，返回原剧情" }));
+    expect(shell).toHaveAttribute("data-scene-replay", "inactive");
+    expect(shell).toHaveAttribute("data-runtime-state-hash", parentHash);
+    expect(shell).toHaveAttribute("data-runtime-host-snapshot-hash", parentHostHash);
+    expect(shell).toHaveAttribute("data-history-cursor", parentCursor);
+
+    startReplay();
+    fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    expect(screen.getByRole("button", { name: "结束回想，返回原剧情" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "结束回想，返回原剧情" }));
+    expect(shell).toHaveAttribute("data-scene-replay", "inactive");
+    expect(shell).toHaveAttribute("data-runtime-state-hash", parentHash);
+    expect(shell).toHaveAttribute("data-runtime-host-snapshot-hash", parentHostHash);
+    expect(shell).toHaveAttribute("data-history-cursor", parentCursor);
   });
 });

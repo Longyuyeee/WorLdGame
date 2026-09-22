@@ -10,6 +10,9 @@ const evidenceDirectory = join(root, "evidence", "n62");
 const evidencePath = join(evidenceDirectory, "additional-content-e3-browser.json");
 const desktopPath = join(evidenceDirectory, "additional-content-e3-music-desktop.png");
 const mobilePath = join(evidenceDirectory, "additional-content-e3-music-mobile.png");
+const replayEvidencePath = join(evidenceDirectory, "additional-content-e4-replay-browser.json");
+const replayDesktopPath = join(evidenceDirectory, "additional-content-e4-replay-desktop.png");
+const replayMobilePath = join(evidenceDirectory, "additional-content-e4-replay-mobile.png");
 const baseUrl = "http://127.0.0.1:5184/?demo=media";
 const delay = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -110,7 +113,9 @@ async function snapshot(client) {
     return {
       status: shell?.getAttribute('data-player-status'),
       runtimeStateHash: shell?.getAttribute('data-runtime-state-hash'),
+      runtimeHostSnapshotHash: shell?.getAttribute('data-runtime-host-snapshot-hash'),
       historyCursor: shell?.getAttribute('data-history-cursor'),
+      sceneReplay: shell?.getAttribute('data-scene-replay'),
       additionalContent: shell?.getAttribute('data-additional-content'),
       trigger: {
         label: trigger?.getAttribute('aria-label'),
@@ -129,6 +134,7 @@ async function snapshot(client) {
           text: group.textContent?.replace(/\\s+/gu, ' ').trim()
         })),
         view: panel.querySelector('[aria-label="CG 画廊内容"]') !== null ? 'gallery'
+          : panel.querySelector('[aria-label="场景回想内容"]') !== null ? 'replay'
           : panel.querySelector('[aria-label="音乐室内容"]') !== null ? 'music'
           : panel.querySelector('[aria-label="结局内容"]') !== null ? 'endings' : 'overview',
         galleryImages: Array.from(panel.querySelectorAll('[aria-label="CG 画廊内容"] img[alt]')).map((item) => item.getAttribute('alt')).filter(Boolean),
@@ -140,8 +146,12 @@ async function snapshot(client) {
         missingMusicItems: panel.querySelectorAll('.player-additional-content__music li[data-resource="missing"]').length,
         musicText: panel.querySelector('[aria-label="音乐室内容"]')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
         previewLabel: panel.querySelector('.player-additional-content__preview')?.getAttribute('aria-label') ?? null,
+        replayText: panel.querySelector('[aria-label="场景回想内容"]')?.textContent?.replace(/\\s+/gu, ' ').trim() ?? null,
         endingText: panel.querySelector('[aria-label="结局内容"]')?.textContent?.replace(/\\s+/gu, ' ').trim() ?? null
       },
+      replayStatus: document.querySelector('.player-replay-status')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
+      replayExitFocused: document.activeElement === document.querySelector('.player-replay-status button'),
+      saveVisible: document.querySelector('.player-save') !== null,
       viewport: { width: innerWidth, height: innerHeight },
       overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth)
     };
@@ -243,6 +253,33 @@ try {
   await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return to ending");
   const endingAfterClose = await snapshot(client);
 
+  await click(client, "document.querySelector('button[aria-label=\"后退一步\"]')", "return to the pre-ending checkpoint");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'presenting'", "pre-ending parent session");
+  const replayBefore = await snapshot(client);
+  await click(client, "document.querySelector('.player-history-controls__additional')", "open additional content for replay");
+  await click(client, "document.querySelector('button[aria-label=\"查看 场景回想\"]')", "open Scene Replay list");
+  await waitFor(client, "document.querySelector('[aria-label=\"场景回想内容\"]') !== null", "Scene Replay list");
+  const replayList = await snapshot(client);
+  await click(client, "document.querySelector('button[aria-label=\"开始回想 Stage\"]')", "start isolated Scene Replay");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-scene-replay') === 'media_stage'", "isolated Scene Replay");
+  const replayActive = await snapshot(client);
+  const replayDesktopScreenshot = await capture(client, replayDesktopPath);
+  await click(client, "document.querySelector('.player-replay-status button')", "exit in-progress Scene Replay");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-scene-replay') === 'inactive'", "restored parent after replay abort");
+  const replayAfterAbort = await snapshot(client);
+
+  await click(client, "document.querySelector('.player-history-controls__additional')", "reopen additional content for completed replay");
+  await click(client, "document.querySelector('button[aria-label=\"查看 场景回想\"]')", "reopen Scene Replay list");
+  await click(client, "document.querySelector('button[aria-label=\"开始回想 Stage\"]')", "restart isolated Scene Replay");
+  await click(client, "Array.from(document.querySelectorAll('button')).find((item) => item.textContent?.includes('完成动效'))", "complete replay effect");
+  await click(client, "document.querySelector('button[aria-label=\"继续下一句\"]')", "finish replay text reveal");
+  await click(client, "document.querySelector('button[aria-label=\"继续下一句\"]')", "reach replay ending");
+  await waitFor(client, "document.querySelector('button')?.ownerDocument.querySelector('button.player-secondary')?.textContent?.includes('结束回想') === true", "replay ending exit");
+  const replayEnding = await snapshot(client);
+  await click(client, "Array.from(document.querySelectorAll('button')).find((item) => item.textContent?.includes('结束回想'))", "exit completed Scene Replay");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-scene-replay') === 'inactive'", "restored parent after completed replay");
+  const replayAfterCompletion = await snapshot(client);
+
   await client.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
   await delay(300);
   await click(client, "document.querySelector('.player-history-controls__additional')", "open additional content on mobile");
@@ -250,6 +287,13 @@ try {
   await click(client, "document.querySelector('button[aria-label=\"查看 音乐室\"]')", "open Music Room on mobile");
   const mobile = await snapshot(client);
   const mobileScreenshot = await capture(client, mobilePath);
+  await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return from mobile Music Room");
+  await click(client, "document.querySelector('.player-history-controls__additional')", "open mobile replay catalog");
+  await click(client, "document.querySelector('button[aria-label=\"查看 场景回想\"]')", "open mobile Scene Replay list");
+  await click(client, "document.querySelector('button[aria-label=\"开始回想 Stage\"]')", "start mobile Scene Replay");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-scene-replay') === 'media_stage'", "mobile Scene Replay");
+  const replayMobile = await snapshot(client);
+  const replayMobileScreenshot = await capture(client, replayMobilePath);
 
   const expectedGroups = [
     ["CG 画廊", "2 / 2 已发现"], ["场景回想", "0 / 1 已发现"],
@@ -258,6 +302,17 @@ try {
   const groupsPass = expectedGroups.every(([label, text]) => desktop.dialog?.groups.some((group) => group.label === label && group.text?.includes(text)));
   const identityPass = beforeOpen.runtimeStateHash === afterClose.runtimeStateHash && beforeOpen.historyCursor === afterClose.historyCursor;
   const endingIdentityPass = endingBeforeOpen.runtimeStateHash === endingAfterClose.runtimeStateHash && endingBeforeOpen.historyCursor === endingAfterClose.historyCursor;
+  const replayIdentity = (candidate) => replayBefore.runtimeStateHash === candidate.runtimeStateHash
+    && replayBefore.runtimeHostSnapshotHash === candidate.runtimeHostSnapshotHash
+    && replayBefore.historyCursor === candidate.historyCursor;
+  const replayPassed = replayList.dialog?.view === "replay" && replayList.dialog.replayText?.includes("Stage")
+    && replayActive.sceneReplay === "media_stage" && replayActive.status === "waiting-effect"
+    && replayActive.replayStatus?.includes("回想期间不会覆盖原剧情进度") && replayActive.replayExitFocused === true && replayActive.saveVisible === false
+    && replayAfterAbort.sceneReplay === "inactive" && replayIdentity(replayAfterAbort)
+    && replayEnding.sceneReplay === "media_stage" && replayEnding.status === "ended"
+    && replayAfterCompletion.sceneReplay === "inactive" && replayIdentity(replayAfterCompletion)
+    && replayMobile.sceneReplay === "media_stage" && replayMobile.viewport.width === 390 && replayMobile.viewport.height === 844
+    && replayMobile.overflow === 0 && replayMobile.replayExitFocused === true && replayMobile.saveVisible === false;
   const passed = title.status === "title" && title.trigger.text === "✦附加内容" && title.trigger.disabled === false
     && lockedGallery.dialog?.view === "gallery" && lockedGallery.dialog.lockedGalleryItems === 2
     && lockedGallery.dialog.galleryImages.length === 0 && !lockedGallery.dialog.galleryText?.includes("Deterministic")
@@ -281,6 +336,7 @@ try {
     && mobile.dialog?.view === "music" && mobile.dialog.withinViewport === true && mobile.dialog.minimumInteractiveHeight >= 44
     && JSON.stringify(mobile.dialog.musicTracks) === JSON.stringify(["试听 Deterministic Theme"])
     && mobile.dialog.activeLabel === "返回附加内容总览"
+    && replayPassed
     && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
@@ -315,6 +371,31 @@ try {
     result: passed ? "PASS" : "FAIL"
   };
   await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+  const replayEvidence = {
+    schemaVersion: 1,
+    node: "N62-E4",
+    scope: "isolated-scene-replay-abort-complete-desktop-1440x900-mobile-390x844",
+    generatedAt: new Date().toISOString(),
+    build: evidence.build,
+    environment: evidence.environment,
+    expectation: {
+      unlockedReplay: "Stage",
+      formalRuntimeAndHost: true,
+      saveUiHiddenDuringReplay: true,
+      exitFocusedOnEntry: true,
+      abortRestoresRuntimeHistoryAndHost: true,
+      completionRestoresRuntimeHistoryAndHost: true,
+      mobileHorizontalOverflow: 0,
+      browserErrorsOrWarnings: 0
+    },
+    actual: { replayBefore, replayList, replayActive, replayAfterAbort, replayEnding, replayAfterCompletion, replayMobile, replayPassed, failures },
+    screenshots: [
+      { path: "evidence/n62/additional-content-e4-replay-desktop.png", width: 1440, height: 900, ...replayDesktopScreenshot },
+      { path: "evidence/n62/additional-content-e4-replay-mobile.png", width: 390, height: 844, ...replayMobileScreenshot }
+    ],
+    result: replayPassed && failures.length === 0 ? "PASS" : "FAIL"
+  };
+  await writeFile(replayEvidencePath, `${JSON.stringify(replayEvidence, null, 2)}\n`);
   console.log(JSON.stringify(evidence, null, 2));
   if (!passed) process.exitCode = 1;
 } finally {

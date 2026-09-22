@@ -75,6 +75,15 @@ export interface PlayerCoreState {
   readonly currentEvent: RuntimeEventV1 | null;
   readonly checkpointSaveCandidates: readonly PlayerCheckpointSaveCandidateV1[];
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
+  readonly replaySession: PlayerCoreReplaySessionV1 | null;
+  readonly replayError: string | null;
+}
+
+export interface PlayerCoreReplaySessionV1 {
+  readonly replayId: string;
+  readonly title: string;
+  readonly sceneId: string;
+  readonly checkpoint: PlayerCoreState;
 }
 
 export interface PlayerCoreLocalizationStateV1 {
@@ -154,6 +163,12 @@ export interface PlayerCoreSnapshotV1 {
     readonly fallbackUsed: boolean;
   };
   readonly additionalContent: PlayerAdditionalContentSnapshotV1;
+  readonly sceneReplay: {
+    readonly active: boolean;
+    readonly replayId: string | null;
+    readonly title: string | null;
+    readonly error: string | null;
+  };
   readonly effects: {
     readonly active: readonly PlayerCoreEffectSnapshotV1[];
     readonly pending: PlayerCoreEffectSnapshotV1 | null;
@@ -211,6 +226,12 @@ export interface PlayerAdditionalContentSnapshotV1 {
     readonly displayName: string | null;
     readonly unlocked: boolean;
   }[];
+  readonly replayItems: readonly {
+    readonly replayId: string;
+    readonly title: string | null;
+    readonly sceneId: string;
+    readonly unlocked: boolean;
+  }[];
   readonly endingItems: readonly {
     readonly endingId: string;
     readonly name: string | null;
@@ -244,6 +265,8 @@ export type PlayerCoreIntentV1 =
   | { readonly kind: "back" }
   | { readonly kind: "forward" }
   | { readonly kind: "history-back-to"; readonly entryId: string }
+  | { readonly kind: "enter-scene-replay"; readonly replayId: string }
+  | { readonly kind: "exit-scene-replay" }
   | { readonly kind: "restart" };
 
 function idlePlayback(): PlayerCorePlaybackSnapshotV1 {
@@ -389,7 +412,9 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
       hostState,
       currentEvent: null,
       checkpointSaveCandidates: [],
-      diagnostics: compiled.diagnostics.map(compilerDiagnostic)
+      diagnostics: compiled.diagnostics.map(compilerDiagnostic),
+      replaySession: null,
+      replayError: null
     };
   }
   return {
@@ -406,7 +431,9 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
     hostState,
     currentEvent: null,
     checkpointSaveCandidates: [],
-    diagnostics: compiled.diagnostics.map(compilerDiagnostic)
+    diagnostics: compiled.diagnostics.map(compilerDiagnostic),
+    replaySession: null,
+    replayError: null
   };
 }
 
@@ -669,7 +696,51 @@ function checkpointEffects(history: RuntimeHistorySessionV1) {
   return [...activeByChannel.values()];
 }
 
+export function enterPlayerCoreReplayV1(state: PlayerCoreState, replayId: string): PlayerCoreState {
+  if (state.replaySession !== null || state.artifacts === null || state.runtimeState === null || state.historySession === null || state.runtimeState.pendingEffect !== null || state.runtimeState.pendingBarrier !== null) return state;
+  const replay = state.artifacts.catalogs.replay.find((item) => item.replayId === replayId);
+  if (replay === undefined || !replay.endingIds.some((endingId) => state.runtimeState!.metaProgress.reachedEndingIds.includes(endingId))) {
+    return { ...state, replayError: "这个回想尚未解锁。" };
+  }
+  let checkpointIndex = -1;
+  for (let index = Math.min(state.historySession.cursor, state.historySession.checkpoints.length - 1); index >= 0; index -= 1) {
+    const candidate = state.historySession.checkpoints[index]!.state;
+    if (candidate.cursor.sceneId === replay.sceneId && candidate.cursor.instructionIndex === 0 && candidate.terminal.kind === "running" &&
+        candidate.pendingChoice === null && candidate.pendingEffect === null && candidate.pendingBarrier === null) {
+      checkpointIndex = index;
+      break;
+    }
+  }
+  if (checkpointIndex < 0) return { ...state, replayError: "当前记录中找不到可安全开始的场景位置，原剧情未改变。" };
+  const checkpoint = state.historySession.checkpoints[checkpointIndex]!;
+  const created = createRuntimeHistorySessionV1(state.artifacts.story, checkpoint.state);
+  if (created.diagnostics.length > 0) return { ...state, replayError: "场景回想无法安全启动，原剧情未改变。" };
+  const sourceHistory = { ...state.historySession, cursor: checkpointIndex };
+  const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(sourceHistory), checkpoint.checkpointId);
+  const replayState: PlayerCoreState = {
+    ...state,
+    status: "presenting",
+    runtimeState: checkpoint.state,
+    historySession: created.session,
+    schedulerSession: null,
+    playback: idlePlayback(),
+    hostState,
+    currentEvent: null,
+    checkpointSaveCandidates: [],
+    replaySession: { replayId: replay.replayId, title: replay.title, sceneId: replay.sceneId, checkpoint: state },
+    replayError: null
+  };
+  return drivePlayerCore(replayState, created.session);
+}
+
+export function exitPlayerCoreReplayV1(state: PlayerCoreState): PlayerCoreState {
+  return state.replaySession === null ? state : { ...state.replaySession.checkpoint, replayError: null };
+}
+
 export function createPlayerCoreSessionSaveV1(state: PlayerCoreState): CreatePlayerCoreSessionSaveResultV1 {
+  if (state.replaySession !== null) {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_REPLAY_ISOLATED", message: "Scene Replay is isolated from formal saves", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
+  }
   if (state.artifacts === null || state.historySession === null || state.runtimeState === null) {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_UNAVAILABLE", message: "Player Core has no active Runtime History Session to save", sceneId: null, statementId: null, instructionId: null }] };
   }
@@ -680,6 +751,9 @@ export function createPlayerCoreSessionSaveV1(state: PlayerCoreState): CreatePla
 }
 
 export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: string): LoadPlayerCoreSessionSaveResultV1 {
+  if (state.replaySession !== null) {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_LOAD_REPLAY_ISOLATED", message: "Exit Scene Replay before loading a formal save", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
+  }
   if (state.artifacts === null) {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_BUILD_MISSING", message: "Player Core has no verified Compiler artifacts", sceneId: null, statementId: null, instructionId: null }] };
   }
@@ -768,6 +842,8 @@ export function backPlayerCoreToHistoryEntryV1(state: PlayerCoreState, entryId: 
 }
 
 export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: CanonicalProject, intent: PlayerCoreIntentV1): PlayerCoreState {
+  if (intent.kind === "enter-scene-replay") return enterPlayerCoreReplayV1(state, intent.replayId);
+  if (intent.kind === "exit-scene-replay") return exitPlayerCoreReplayV1(state);
   if (intent.kind === "select-choice") return selectPlayerCoreChoice(state, intent.optionId);
   if (intent.kind === "cancel") return settlePlayerCoreEffect(state, "cancel");
   if (intent.kind === "back") return backPlayerCore(state);
@@ -836,7 +912,7 @@ function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisib
 
 function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalContentSnapshotV1 {
   const catalogs = state.artifacts?.catalogs;
-  const progress = state.runtimeState?.metaProgress;
+  const progress = state.replaySession?.checkpoint.runtimeState?.metaProgress ?? state.runtimeState?.metaProgress;
   // Meta Progress v1 stores monotonic unlocked asset IDs in this compatibility-stable field.
   // Compiler catalogs decide whether an unlocked asset belongs to Gallery or Music.
   const unlockedAssetIds = new Set(progress?.unlockedGalleryAssetIds ?? []);
@@ -867,6 +943,10 @@ function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalCont
       displayName: unlockedAssetIds.has(entry.assetId) ? entry.displayName : null,
       unlocked: unlockedAssetIds.has(entry.assetId)
     })) ?? [],
+    replayItems: catalogs?.replay.map((entry) => {
+      const unlocked = entry.endingIds.some((endingId) => endingIds.has(endingId));
+      return { replayId: entry.replayId, title: unlocked ? entry.title : null, sceneId: entry.sceneId, unlocked };
+    }) ?? [],
     endingItems: catalogs?.endings.map((entry) => ({
       endingId: entry.endingId,
       name: endingIds.has(entry.endingId) ? translatedPlayerText(state, entries, entry.endingId, entry.name).text : null,
@@ -905,6 +985,12 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
       fallbackUsed: presented.fallbackUsed
     },
     additionalContent: additionalContentSnapshot(state),
+    sceneReplay: {
+      active: state.replaySession !== null,
+      replayId: state.replaySession?.replayId ?? null,
+      title: state.replaySession?.title ?? null,
+      error: state.replayError
+    },
     effects: {
       active: host.snapshot.activeChannels.map(({ effect }) => effectSnapshot(effect)),
       pending: state.runtimeState?.pendingEffect === null || state.runtimeState?.pendingEffect === undefined

@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "node": "N62-E3",
   "scope": "cold-production-music-unlock-listen-desktop-1440x900-mobile-390x844",
-  "generatedAt": "2026-09-22T16:01:36.793Z",
+  "generatedAt": "2026-09-22T16:53:22.093Z",
   "build": {
-    "playerDistIndexSha256": "910aa8993c856ca147b989e869fa4b9429bbff9e414b5a3a73b491463d175850"
+    "playerDistIndexSha256": "1eb0c4e2dfc4e4ad95b8d125ae57c463bafcd6899fc9354ae6accef79e6b3c70"
   },
   "environment": {
     "product": "Chrome/120.0.6099.225",
@@ -44,7 +44,9 @@
     "title": {
       "status": "title",
       "runtimeStateHash": "none",
+      "runtimeHostSnapshotHash": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
       "historyCursor": "0",
+      "sceneReplay": "inactive",
       "additionalContent": "closed",
       "trigger": {
         "label": "打开附加内容",
@@ -53,6 +55,9 @@
         "height": 44
       },
       "dialog": null,
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -62,7 +67,9 @@
     "lockedGallery": {
       "status": "title",
       "runtimeStateHash": "none",
+      "runtimeHostSnapshotHash": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
       "historyCursor": "0",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -87,8 +94,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -98,7 +109,9 @@
     "lockedMusic": {
       "status": "title",
       "runtimeStateHash": "none",
+      "runtimeHostSnapshotHash": "f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258",
       "historyCursor": "0",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -123,8 +136,12 @@
         "missingMusicItems": 0,
         "musicText": "← 返回总览MUSIC音乐室0 / 1 已收录01未发现的音乐继续推进剧情来收录",
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -134,7 +151,9 @@
     "effect": {
       "status": "waiting-effect",
       "runtimeStateHash": "1b917c59c1f0bba21fe8b2bd3d4cb4fa0fae637f352c15cae498ab6f032c2ad0",
+      "runtimeHostSnapshotHash": "8fa969f4a169270bdb0499873c21172e7d8763fa112b56760671447a0e036ba0",
       "historyCursor": "2",
+      "sceneReplay": "inactive",
       "additionalContent": "closed",
       "trigger": {
         "label": "打开附加内容",
@@ -143,6 +162,9 @@
         "height": 44
       },
       "dialog": null,
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -152,7 +174,9 @@
     "beforeOpen": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "closed",
       "trigger": {
         "label": "打开附加内容",
@@ -161,6 +185,9 @@
         "height": 44
       },
       "dialog": null,
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -170,7 +197,9 @@
     "desktop": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -191,7 +220,7 @@
           },
           {
             "label": "场景回想",
-            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现查看内容"
           },
           {
             "label": "音乐室",
@@ -212,8 +241,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -223,7 +256,9 @@
     "afterTab": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -244,7 +279,7 @@
           },
           {
             "label": "场景回想",
-            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现查看内容"
           },
           {
             "label": "音乐室",
@@ -265,8 +300,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -276,7 +315,9 @@
     "musicDesktop": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -303,8 +344,12 @@
         "missingMusicItems": 0,
         "musicText": "← 返回总览MUSIC音乐室1 / 1 已收录01Determini tic Theme",
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -314,7 +359,9 @@
     "galleryDesktop": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -342,8 +389,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -353,7 +404,9 @@
     "preview": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -386,8 +439,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": "Deterministic Sunset 画面预览",
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -397,7 +454,9 @@
     "afterPreviewClose": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -425,8 +484,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -436,7 +499,9 @@
     "afterClose": {
       "status": "presenting",
       "runtimeStateHash": "a1962689ae1496a0aedcf1556ba4cc30610a0c9b5ed156aa42737772ab06589e",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "closed",
       "trigger": {
         "label": "打开附加内容",
@@ -445,6 +510,9 @@
         "height": 44
       },
       "dialog": null,
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -454,7 +522,9 @@
     "endingBeforeOpen": {
       "status": "ended",
       "runtimeStateHash": "3e48371c791ea78753d939ef1891fe418ca6d692ba2f251f46d08948008df733",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "5",
+      "sceneReplay": "inactive",
       "additionalContent": "closed",
       "trigger": {
         "label": "打开附加内容",
@@ -463,6 +533,9 @@
         "height": 44
       },
       "dialog": null,
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -472,7 +545,9 @@
     "endingsDesktop": {
       "status": "ended",
       "runtimeStateHash": "3e48371c791ea78753d939ef1891fe418ca6d692ba2f251f46d08948008df733",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "5",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -497,8 +572,12 @@
         "missingMusicItems": 0,
         "musicText": null,
         "previewLabel": null,
+        "replayText": null,
         "endingText": "← 返回总览ENDINGS结局1 / 1 已达成01Curtain已达成"
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -508,7 +587,9 @@
     "endingAfterClose": {
       "status": "ended",
       "runtimeStateHash": "3e48371c791ea78753d939ef1891fe418ca6d692ba2f251f46d08948008df733",
+      "runtimeHostSnapshotHash": "23effb98f5ef1c374cc61a33cf1360db7d2803b9a1b55858f2fb4eaf11e5c48a",
       "historyCursor": "5",
+      "sceneReplay": "inactive",
       "additionalContent": "closed",
       "trigger": {
         "label": "打开附加内容",
@@ -517,6 +598,9 @@
         "height": 44
       },
       "dialog": null,
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 1440,
         "height": 900
@@ -524,9 +608,11 @@
       "overflow": 0
     },
     "mobile": {
-      "status": "ended",
-      "runtimeStateHash": "3e48371c791ea78753d939ef1891fe418ca6d692ba2f251f46d08948008df733",
-      "historyCursor": "5",
+      "status": "presenting",
+      "runtimeStateHash": "29cb8343d4a2a5a70266d6306318cb66c072ca52b1ca42b648c19990a64d2529",
+      "runtimeHostSnapshotHash": "09065da6b3ad82bbc89ff5a16a4f5785dc18e55851ba5ac4679abf5347607c8c",
+      "historyCursor": "4",
+      "sceneReplay": "inactive",
       "additionalContent": "open",
       "trigger": {
         "label": "关闭附加内容",
@@ -553,8 +639,12 @@
         "missingMusicItems": 0,
         "musicText": "← 返回总览MUSIC音乐室1 / 1 已收录01Determini tic Theme",
         "previewLabel": null,
+        "replayText": null,
         "endingText": null
       },
+      "replayStatus": null,
+      "replayExitFocused": false,
+      "saveVisible": true,
       "viewport": {
         "width": 390,
         "height": 844
@@ -570,15 +660,15 @@
       "path": "evidence/n62/additional-content-e3-music-desktop.png",
       "width": 1440,
       "height": 900,
-      "byteLength": 433016,
-      "sha256": "d4ee9026eeac4fa0f8719186a2a919de62a36e1a605aa7b392d81917dc6ece0e"
+      "byteLength": 436414,
+      "sha256": "23bdf532b654e19892e302a2748daa9aef3cbd3221604b81e35b8a6e1c5c26cd"
     },
     {
       "path": "evidence/n62/additional-content-e3-music-mobile.png",
       "width": 390,
       "height": 844,
-      "byteLength": 83911,
-      "sha256": "0d6623940ea1eb0f683c8dee1ce70a4c9cccee2bc1382bac29f6fe0529c4ff61"
+      "byteLength": 83988,
+      "sha256": "42df6ba03f98b54bc021401f7c672dd8a3c458c476bb286016d71fc34d9e4813"
     }
   ],
   "result": "PASS"
