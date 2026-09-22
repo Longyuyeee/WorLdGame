@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "node": "N62-E1",
+  "scope": "cold-production-additional-content-desktop-1440x900-mobile-390x844",
+  "generatedAt": "2026-09-22T14:20:13.449Z",
+  "build": {
+    "playerDistIndexSha256": "bbfc8b64b23f6921231e0a74ede40221fd66b678a6959b937a943d2da2ec93c2"
+  },
+  "environment": {
+    "product": "Chrome/120.0.6099.225",
+    "protocolVersion": "1.3",
+    "headless": true,
+    "url": "http://127.0.0.1:5184/?demo=media"
+  },
+  "expectation": {
+    "discoverableLabel": "附加内容",
+    "disabledDuringAwaitedEffect": true,
+    "categories": {
+      "CG 画廊": "2 / 2 已发现",
+      "场景回想": "0 / 1 已发现",
+      "音乐室": "0 / 1 已发现",
+      "结局": "0 / 1 已发现"
+    },
+    "modalInitialFocus": "返回剧情",
+    "focusContained": true,
+    "focusReturned": "打开附加内容",
+    "runtimeIdentityRetained": true,
+    "minimumInteractiveHeight": 44,
+    "mobileHorizontalOverflow": 0,
+    "browserErrorsOrWarnings": 0
+  },
+  "actual": {
+    "title": {
+      "status": "title",
+      "runtimeStateHash": "none",
+      "historyCursor": "0",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "effect": {
+      "status": "waiting-effect",
+      "runtimeStateHash": "1b917c59c1f0bba21fe8b2bd3d4cb4fa0fae637f352c15cae498ab6f032c2ad0",
+      "historyCursor": "2",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": true,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "beforeOpen": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "desktop": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回剧情",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [
+          {
+            "label": "CG 画廊",
+            "text": "2 / 2 已发现CG 画廊在剧情中看过的画面会自动收录"
+          },
+          {
+            "label": "场景回想",
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+          },
+          {
+            "label": "音乐室",
+            "text": "0 / 1 已发现音乐室音乐收录功能正在准备中1 项尚未发现"
+          },
+          {
+            "label": "结局",
+            "text": "0 / 1 已发现结局达成的结局会自动记录1 项尚未发现"
+          }
+        ]
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "afterTab": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回剧情",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [
+          {
+            "label": "CG 画廊",
+            "text": "2 / 2 已发现CG 画廊在剧情中看过的画面会自动收录"
+          },
+          {
+            "label": "场景回想",
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+          },
+          {
+            "label": "音乐室",
+            "text": "0 / 1 已发现音乐室音乐收录功能正在准备中1 项尚未发现"
+          },
+          {
+            "label": "结局",
+            "text": "0 / 1 已发现结局达成的结局会自动记录1 项尚未发现"
+          }
+        ]
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "afterClose": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "mobile": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 48
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回剧情",
+        "closeHeight": 48,
+        "minimumInteractiveHeight": 48,
+        "withinViewport": true,
+        "groups": [
+          {
+            "label": "CG 画廊",
+            "text": "2 / 2 已发现CG 画廊在剧情中看过的画面会自动收录"
+          },
+          {
+            "label": "场景回想",
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+          },
+          {
+            "label": "音乐室",
+            "text": "0 / 1 已发现音乐室音乐收录功能正在准备中1 项尚未发现"
+          },
+          {
+            "label": "结局",
+            "text": "0 / 1 已发现结局达成的结局会自动记录1 项尚未发现"
+          }
+        ]
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0
+    },
+    "identityPass": true,
+    "failures": []
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n62/additional-content-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "byteLength": 472628,
+      "sha256": "ec214cd742b3b406256cd241c8c3e8abece541b67ae993306b90a503d724f690"
+    },
+    {
+      "path": "evidence/n62/additional-content-mobile.png",
+      "width": 390,
+      "height": 844,
+      "byteLength": 118833,
+      "sha256": "6b86aa1ceb074584975820c8b974828de56d44bff998de1bf308361db1dfc0df"
+    }
+  ],
+  "result": "PASS"
+}

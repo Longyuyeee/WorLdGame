@@ -1,9 +1,9 @@
 # N62-E1 自动附加内容入口实现审计
 
-> 审计日期：2026-09-03
+> 初始审计：2026-09-03；production-browser 补证与用户体验复审：2026-09-22
 > 分支：`codex/n60-e1-debugger-session`
 > 起点：`9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
-> 状态：代码与自动化 Engineering 证据完成；production-browser 证据被本机管理员安全策略阻断，因此 E1 尚未关闭
+> 状态：N62-E1 本地 Engineering 证据闭合；等待本次推送的 exact-head CI 后关闭并进入 E2
 
 ## 1. 本步交付的用户路径
 
@@ -39,11 +39,11 @@ E1 不在 Shell 维护第二份 Catalog，也不提前实现 Replay 会话、Mus
 | Player Shell production build | JS `420.86 kB / gzip 123.33 kB`；CSS `27.77 kB / gzip 5.93 kB` | 通过 |
 | Requirements | 50 requirements、10 USP、13 P0、27 AC、6 owners | 通过 |
 | 风险登记 | RA-N21-011 扩至 N62，N62 Product Acceptance 与 N70 Engineering 继续阻断 | 通过 |
-| production browser | CUA 在选择已启用浏览器后拒绝打开 `http://127.0.0.1:4174/`，返回管理员安全策略不可用/拒绝；工具规则禁止绕过 | **阻断** |
+| production browser | Chrome 120 冷 production build；1440×900 与 390×844；四类摘要、等待态禁用、返回身份、焦点约束、44/48px、overflow 0、console error/warning 0 | **通过** |
 
 首次远端 exact-head run `33761477462` / job `100669029476` 在既有 N52-E4d 历史审计失败：RA 已合法扩至 N62，但 E4d、E5a 与 N52 出口三个旧审计只允许最大节点到 N61。纠偏不是放宽 N52 合同，而是让三个历史证据接受 `[N52, N60, N61, N62]` 的有界后续授权；本机重新执行 E4d、E5a、N52 出口、风险登记与 25 项治理单测全部通过。该失败保持可追溯，后续新 head 的完整门不得复用本次失败结论。
 
-production build 成功和 jsdom 产品测试不能冒充 production-browser。按照既有补偿控制，本步只能登记“实现候选”，不能登记 E1 Engineering 关闭；应在允许访问本地 production preview 的浏览器环境补齐 1440×900 与 390×844 的入口、状态、返回身份、overflow、44px 与 console 证据。
+2026-09-22 改用仓库既有 CDP 自动化方式直接启动隔离 Chrome 和 cold Vite preview，不依赖鼠标控制。真实页面验证发现 `aria-modal="true"` 弹层打开后焦点仍停留在被遮挡入口，Tab 可进入底层剧情控件；同时入口“附加”和页面内 `Compiler Catalog`、`Runtime`、`后续切片`属于面向实现而非面向玩家的文案。现已纠偏为：打开后聚焦“返回剧情”、Tab 约束在弹层、Escape/按钮关闭后焦点返回入口；桌面入口显示“附加内容”；页面改为剧情收藏语义并诚实提示音乐收录仍在准备中。机器证据见 `evidence/n62/additional-content-browser.json`，桌面截图 SHA-256 `ec214cd7…4f690`，移动截图 `6b86aa1c…c0df`。
 
 ## 5. 安全与依赖审计
 
@@ -59,7 +59,7 @@ production build 成功和 jsdom 产品测试不能冒充 production-browser。�
 
 ## 7. 下一接续顺序
 
-1. 在可用 production browser 中补齐 E1 双视口真实证据；通过后更新本文、提交推送并等待 exact-head CI，才关闭 E1。
+1. 推送本次 E1 补证与用户体验纠偏，等待 exact-head CI；成功后关闭 E1。
 2. N62-E2：实现 Gallery/Ending 的内容列表、锁定/空/缺失反馈和返回身份；仍消费现有 Catalog/Meta。
 3. N62-E3：冻结并实现 Music 的正式解锁 Meta，禁止用“Catalog 中存在”冒充玩家已解锁。
 4. N62-E4：实现隔离 Replay Session 和所有退出路径的 Runtime/History/Save/Meta/Host 完整恢复。

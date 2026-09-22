@@ -201,6 +201,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [recoveryMessage, setRecoveryMessage] = useState("正在检查恢复记录…");
   const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | null>(null);
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
+  const additionalContentTrigger = useRef<HTMLButtonElement | null>(null);
+  const additionalContentPanel = useRef<HTMLElement | null>(null);
+  const additionalContentClose = useRef<HTMLButtonElement | null>(null);
+  const additionalContentWasOpen = useRef(false);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const pointerInput = useRef<"pointer" | "touch">("pointer");
@@ -826,12 +830,37 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [content.kind, selectedChoiceIndex]);
 
   useEffect(() => {
+    if (additionalContentOpen) {
+      additionalContentWasOpen.current = true;
+      additionalContentClose.current?.focus();
+      return;
+    }
+    if (additionalContentWasOpen.current) {
+      additionalContentWasOpen.current = false;
+      additionalContentTrigger.current?.focus();
+    }
+  }, [additionalContentOpen]);
+
+  useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (additionalContentOpen) {
         if (event.key === "Escape") {
           event.preventDefault();
           setAdditionalContentOpen(false);
+          return;
+        }
+        if (event.key === "Tab") {
+          const focusable = Array.from(additionalContentPanel.current?.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+          ) ?? []);
+          if (focusable.length === 0) return;
+          const currentIndex = focusable.indexOf(document.activeElement as HTMLElement);
+          const nextIndex = event.shiftKey
+            ? (currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1)
+            : (currentIndex < 0 || currentIndex === focusable.length - 1 ? 0 : currentIndex + 1);
+          event.preventDefault();
+          focusable[nextIndex]?.focus();
         }
         return;
       }
@@ -1187,6 +1216,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             onClick={() => setHistoryPanelOpen((open) => !open)}
           ><span aria-hidden="true">☰</span><span>历史</span></button>
           <button
+            ref={additionalContentTrigger}
             type="button"
             className="player-history-controls__additional"
             aria-label={additionalContentOpen ? "关闭附加内容" : "打开附加内容"}
@@ -1197,7 +1227,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               setSavePanelOpen(false);
               setAdditionalContentOpen((open) => !open);
             }}
-          ><span aria-hidden="true">✦</span><span>附加</span></button>
+          ><span aria-hidden="true">✦</span><span>附加内容</span></button>
         </nav>
         {historyPanelOpen && (
           <aside className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
@@ -1248,18 +1278,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           </aside>
         )}
         {additionalContentOpen && (
-          <aside className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
+          <aside ref={additionalContentPanel} className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
             <header>
               <div><span>EXTRAS</span><h2>附加内容</h2></div>
-              <button type="button" aria-label="返回剧情" onClick={() => setAdditionalContentOpen(false)}>返回剧情</button>
+              <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={() => setAdditionalContentOpen(false)}>返回剧情</button>
             </header>
-            <p className="player-additional-content__intro">由当前构建的 Compiler Catalog 与正式 Runtime 解锁进度自动生成。</p>
+            <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
             <div className="player-additional-content__grid">
               {([
-                ["CG 画廊", "从剧情中实际展示的视觉资源自动收集", snapshot.additionalContent.gallery],
-                ["场景回想", "到达相关结局后开放对应场景", snapshot.additionalContent.replay],
-                ["音乐室", "音乐解锁规则将在后续切片接入", snapshot.additionalContent.music],
-                ["结局", "按正式 Runtime 已达成结局记录开放", snapshot.additionalContent.endings]
+                ["CG 画廊", "在剧情中看过的画面会自动收录", snapshot.additionalContent.gallery],
+                ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay],
+                ["音乐室", "音乐收录功能正在准备中", snapshot.additionalContent.music],
+                ["结局", "达成的结局会自动记录", snapshot.additionalContent.endings]
               ] as const).map(([title, description, category]) => (
                 <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
                   <span>{category.total === 0 ? "暂无内容" : `${category.unlocked} / ${category.total} 已发现`}</span>
