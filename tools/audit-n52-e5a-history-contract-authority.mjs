@@ -11,7 +11,7 @@ if (contract.schemaVersion !== 1 || contract.node !== "N52-E5a-history-contract-
 if (contract.engineeringStatus !== "complete" || contract.productAcceptance !== "blocked") violations.push("E5a must close only its Engineering entry contract");
 if (contract.authority?.id !== "RA-N21-011" || contract.authority?.maximumDeliveryNode !== "N52") violations.push("E5a authority boundary is invalid");
 const authority = risk.exceptions?.find?.((item) => item.id === "RA-N21-011");
-if (authority?.status !== "active" || authority?.maximumDeliveryNode !== "N52" || authority?.historyScopeAmendedAt !== "2026-09-01T01:02:18+08:00") violations.push("RA-N21-011 History amendment is missing");
+if (authority?.status !== "active" || !["N52", "N60", "N61", "N62"].includes(authority?.maximumDeliveryNode) || authority?.historyScopeAmendedAt !== "2026-09-01T01:02:18+08:00") violations.push("RA-N21-011 History amendment is missing");
 for (const token of ["Gal Settings schema v6", "Runtime History Session and Runtime Session Save schema v2", "Player Save v3", "Forbid navigating an archived branch"]) {
   if (!authority?.compensatingControls?.some?.((item) => item.includes(token))) violations.push(`RA-N21-011 missing E5 control: ${token}`);
 }

@@ -31,7 +31,7 @@ N43 七工作模式 Engineering 已完成，N50-E1 已建立 portable `@world-st
 
 - 所有受 Git 跟踪的源码、测试、配置、锁文件、审计文档和既有 `evidence/` 证据；
 - GitHub Draft PR、提交历史、Actions run/job 日志和远端分支；
-- N50-E1 的预期—首次实际—修正数据，已经写入 [#212](212-n50-e1-formal-player-core-audit.md)。
+- N50-E1 的预期—首次实际—修正数据，已经写入 [#212](../../docs/212-n50-e1-formal-player-core-audit.md)。
 
 ### 不应迁移
 
@@ -43,7 +43,7 @@ N43 七工作模式 Engineering 已完成，N50-E1 已建立 portable `@world-st
 
 N50-E1 production-browser 的尺寸、交互序列、可访问名称和 console 结果已被审计文档记录，但这次操作的原始截图与浏览器会话是本机临时状态，没有作为 `evidence/n50/` 原始 artifact 提交。它们不影响 Engineering 实现门，因为核心行为由自动化测试和远端完整门覆盖，也不能替代真人 Product Acceptance。换机后开始 N50-E2 前，应重新运行 production build 浏览器验证，并优先把可重复的 JSON/截图采集器纳入仓库，使后续证据不依赖某台电脑的会话。
 
-> 2026-08-27 恢复结果：该缺口已由 [N50-E2 审计](214-n50-e2-player-stage-media-presentation-audit.md)关闭；桌面/手机 PNG 与 JSON 已持久化到 `evidence/n50/`。
+> 2026-08-27 恢复结果：该缺口已由 [N50-E2 审计](../../docs/214-n50-e2-player-stage-media-presentation-audit.md)关闭；桌面/手机 PNG 与 JSON 已持久化到 `evidence/n50/`。
 
 ## 4. 新电脑恢复清单
 

@@ -4,7 +4,7 @@ import {
   type CompilerArtifactsV1,
   type CompilerDiagnostic
 } from "@world-studio/project-compiler";
-import type { CanonicalProject, JsonValue } from "@world-studio/project-domain";
+import type { CanonicalProject, JsonObject, JsonValue } from "@world-studio/project-domain";
 import {
   RUNTIME_VERSION,
   advanceRuntimeHistoryV1,
@@ -68,12 +68,27 @@ export interface PlayerCoreState {
   readonly runtimeState: RuntimeStateV1 | null;
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly historyPolicy: PlayerCoreHistoryPolicyV1;
+  readonly localization: PlayerCoreLocalizationStateV1;
   readonly schedulerSession: RuntimeSchedulerSessionV1 | null;
   readonly playback: PlayerCorePlaybackSnapshotV1;
   readonly hostState: RuntimePresentationHostStateV1;
   readonly currentEvent: RuntimeEventV1 | null;
   readonly checkpointSaveCandidates: readonly PlayerCheckpointSaveCandidateV1[];
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
+  readonly replaySession: PlayerCoreReplaySessionV1 | null;
+  readonly replayError: string | null;
+}
+
+export interface PlayerCoreReplaySessionV1 {
+  readonly replayId: string;
+  readonly title: string;
+  readonly sceneId: string;
+  readonly checkpoint: PlayerCoreState;
+}
+
+export interface PlayerCoreLocalizationStateV1 {
+  readonly sourceLocale: string;
+  readonly selectedLocale: string;
 }
 
 export interface PlayerCorePlaybackSnapshotV1 {
@@ -140,6 +155,20 @@ export interface PlayerCoreSnapshotV1 {
   };
   readonly title: string;
   readonly status: PlayerCoreStatus;
+  readonly localization: {
+    readonly sourceLocale: string;
+    readonly selectedLocale: string;
+    readonly availableLocales: readonly string[];
+    readonly missingTranslationCount: number;
+    readonly fallbackUsed: boolean;
+  };
+  readonly additionalContent: PlayerAdditionalContentSnapshotV1;
+  readonly sceneReplay: {
+    readonly active: boolean;
+    readonly replayId: string | null;
+    readonly title: string | null;
+    readonly error: string | null;
+  };
   readonly effects: {
     readonly active: readonly PlayerCoreEffectSnapshotV1[];
     readonly pending: PlayerCoreEffectSnapshotV1 | null;
@@ -174,6 +203,47 @@ export interface PlayerCoreSnapshotV1 {
   readonly runtimeHostSnapshotHash: string;
 }
 
+export interface PlayerAdditionalContentCategorySnapshotV1 {
+  readonly total: number;
+  readonly unlocked: number;
+  readonly locked: number;
+}
+
+export interface PlayerAdditionalContentSnapshotV1 {
+  readonly schemaVersion: 1;
+  readonly gallery: PlayerAdditionalContentCategorySnapshotV1;
+  readonly replay: PlayerAdditionalContentCategorySnapshotV1;
+  readonly music: PlayerAdditionalContentCategorySnapshotV1;
+  readonly endings: PlayerAdditionalContentCategorySnapshotV1;
+  readonly galleryItems: readonly {
+    readonly assetId: string;
+    readonly displayName: string | null;
+    readonly coverAssetId: string | null;
+    readonly kind: string;
+    readonly unlocked: boolean;
+  }[];
+  readonly musicItems: readonly {
+    readonly assetId: string;
+    readonly displayName: string | null;
+    readonly coverAssetId: string | null;
+    readonly unlocked: boolean;
+  }[];
+  readonly replayItems: readonly {
+    readonly replayId: string;
+    readonly title: string | null;
+    readonly sceneId: string;
+    readonly coverAssetId: string | null;
+    readonly unlocked: boolean;
+  }[];
+  readonly endingItems: readonly {
+    readonly endingId: string;
+    readonly name: string | null;
+    readonly sceneId: string;
+    readonly coverAssetId: string | null;
+    readonly unlocked: boolean;
+  }[];
+}
+
 export interface PlayerCoreEffectSnapshotV1 {
   readonly effectId: string;
   readonly descriptorId: string;
@@ -199,6 +269,8 @@ export type PlayerCoreIntentV1 =
   | { readonly kind: "back" }
   | { readonly kind: "forward" }
   | { readonly kind: "history-back-to"; readonly entryId: string }
+  | { readonly kind: "enter-scene-replay"; readonly replayId: string }
+  | { readonly kind: "exit-scene-replay" }
   | { readonly kind: "restart" };
 
 function idlePlayback(): PlayerCorePlaybackSnapshotV1 {
@@ -232,6 +304,75 @@ function initialVariables(project: CanonicalProject): Readonly<Record<string, Ru
     const value = scalar(variable.defaultValue ?? variable.initialValue ?? variable.value);
     return id === undefined || value === undefined ? [] : [[id, value] as const];
   }));
+}
+
+function objectValue(value: JsonValue | undefined): JsonObject | undefined {
+  return typeof value === "object" && value !== null && !Array.isArray(value) ? value as JsonObject : undefined;
+}
+
+function stringValue(value: JsonValue | undefined): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function availablePlayerLocales(state: PlayerCoreState): readonly string[] {
+  const targets = state.artifacts?.catalogs.localization.flatMap((record) => {
+    const locale = stringValue(record.locale);
+    return stringValue(record.sourceLocale) === state.localization.sourceLocale && locale !== undefined ? [locale] : [];
+  }) ?? [];
+  return [state.localization.sourceLocale, ...targets].filter((locale, index, values) => values.indexOf(locale) === index);
+}
+
+function localeEntries(state: PlayerCoreState): ReadonlyMap<string, JsonObject> {
+  if (state.localization.selectedLocale === state.localization.sourceLocale) return new Map();
+  const record = state.artifacts?.catalogs.localization.find((candidate) =>
+    stringValue(candidate.locale) === state.localization.selectedLocale && stringValue(candidate.sourceLocale) === state.localization.sourceLocale
+  );
+  const entries = Array.isArray(record?.entries) ? record.entries : [];
+  return new Map(entries.flatMap((value) => {
+    const entry = objectValue(value);
+    const key = stringValue(entry?.key);
+    return entry === undefined || key === undefined ? [] : [[key, entry] as const];
+  }));
+}
+
+function translatedPlayerText(state: PlayerCoreState, entries: ReadonlyMap<string, JsonObject>, key: string, sourceText: string): { readonly text: string; readonly fallback: boolean } {
+  if (state.localization.selectedLocale === state.localization.sourceLocale) return { text: sourceText, fallback: false };
+  const entry = entries.get(key);
+  const translation = stringValue(entry?.translation);
+  const status = stringValue(entry?.status);
+  const valid = translation !== undefined && translation.trim() !== "" && stringValue(entry?.sourceText) === sourceText && (status === "draft" || status === "reviewed" || status === "locked");
+  return valid ? { text: translation, fallback: false } : { text: sourceText, fallback: true };
+}
+
+function playerSourceTexts(state: PlayerCoreState): readonly { readonly key: string; readonly text: string }[] {
+  const story = state.artifacts?.story.scenes.flatMap((scene) => scene.instructions.flatMap((instruction) => {
+    const operands = instruction.operands;
+    if (instruction.opcode === "dialogue" || instruction.opcode === "narration") {
+      const key = stringValue(operands.textId); const text = stringValue(operands.text);
+      return key === undefined || text === undefined ? [] : [{ key, text }];
+    }
+    if (instruction.opcode === "choice") {
+      const prompt = stringValue(operands.prompt);
+      const options = Array.isArray(operands.options) ? operands.options.flatMap((value) => {
+        const option = objectValue(value); const key = stringValue(option?.optionId); const text = stringValue(option?.label);
+        return key === undefined || text === undefined ? [] : [{ key, text }];
+      }) : [];
+      return [...(prompt === undefined ? [] : [{ key: instruction.instructionId, text: prompt }]), ...options];
+    }
+    if (instruction.opcode === "end") {
+      const key = stringValue(operands.endingId); const text = stringValue(operands.name);
+      return key === undefined || text === undefined ? [] : [{ key, text }];
+    }
+    return [];
+  })) ?? [];
+  const catalogs = state.artifacts?.catalogs;
+  const catalog = [
+    ...(catalogs?.gallery.map((entry) => ({ key: entry.assetId, text: entry.displayName })) ?? []),
+    ...(catalogs?.music.map((entry) => ({ key: entry.assetId, text: entry.displayName })) ?? []),
+    ...(catalogs?.replay.map((entry) => ({ key: entry.replayId, text: entry.title })) ?? []),
+    ...(catalogs?.endings.map((entry) => ({ key: entry.endingId, text: entry.name })) ?? [])
+  ];
+  return [...new Map([...story, ...catalog].map((entry) => [entry.key, entry])).values()];
 }
 
 function compilerDiagnostic(item: CompilerDiagnostic): PlayerCoreDiagnostic {
@@ -277,12 +418,15 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
       runtimeState: null,
       historySession: null,
       historyPolicy,
+      localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
       schedulerSession: null,
       playback: idlePlayback(),
       hostState,
       currentEvent: null,
       checkpointSaveCandidates: [],
-      diagnostics: compiled.diagnostics.map(compilerDiagnostic)
+      diagnostics: compiled.diagnostics.map(compilerDiagnostic),
+      replaySession: null,
+      replayError: null
     };
   }
   return {
@@ -293,12 +437,15 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
     runtimeState: null,
     historySession: null,
     historyPolicy,
+    localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
     schedulerSession: null,
     playback: idlePlayback(),
     hostState,
     currentEvent: null,
     checkpointSaveCandidates: [],
-    diagnostics: compiled.diagnostics.map(compilerDiagnostic)
+    diagnostics: compiled.diagnostics.map(compilerDiagnostic),
+    replaySession: null,
+    replayError: null
   };
 }
 
@@ -432,6 +579,12 @@ export function configurePlayerCoreHistoryPolicyV1(state: PlayerCoreState, histo
     : { ...state, historyPolicy };
 }
 
+export function configurePlayerCoreLocaleV1(state: PlayerCoreState, locale: string): PlayerCoreState {
+  return locale === state.localization.selectedLocale || !availablePlayerLocales(state).includes(locale)
+    ? state
+    : { ...state, localization: { ...state.localization, selectedLocale: locale } };
+}
+
 function playbackSnapshot(policy: RuntimeSchedulePolicyV1, stopReason: RuntimeScheduleStopReasonV1, executedInstructions: number, session: RuntimeSchedulerSessionV1, autoAdvanceDelayMilliseconds: number | null): PlayerCorePlaybackSnapshotV1 {
   return {
     schemaVersion: 1,
@@ -555,7 +708,51 @@ function checkpointEffects(history: RuntimeHistorySessionV1) {
   return [...activeByChannel.values()];
 }
 
+export function enterPlayerCoreReplayV1(state: PlayerCoreState, replayId: string): PlayerCoreState {
+  if (state.replaySession !== null || state.artifacts === null || state.runtimeState === null || state.historySession === null || state.runtimeState.pendingEffect !== null || state.runtimeState.pendingBarrier !== null) return state;
+  const replay = state.artifacts.catalogs.replay.find((item) => item.replayId === replayId);
+  if (replay === undefined || !replay.endingIds.some((endingId) => state.runtimeState!.metaProgress.reachedEndingIds.includes(endingId))) {
+    return { ...state, replayError: "这个回想尚未解锁。" };
+  }
+  let checkpointIndex = -1;
+  for (let index = Math.min(state.historySession.cursor, state.historySession.checkpoints.length - 1); index >= 0; index -= 1) {
+    const candidate = state.historySession.checkpoints[index]!.state;
+    if (candidate.cursor.sceneId === replay.sceneId && candidate.cursor.instructionIndex === 0 && candidate.terminal.kind === "running" &&
+        candidate.pendingChoice === null && candidate.pendingEffect === null && candidate.pendingBarrier === null) {
+      checkpointIndex = index;
+      break;
+    }
+  }
+  if (checkpointIndex < 0) return { ...state, replayError: "当前记录中找不到可安全开始的场景位置，原剧情未改变。" };
+  const checkpoint = state.historySession.checkpoints[checkpointIndex]!;
+  const created = createRuntimeHistorySessionV1(state.artifacts.story, checkpoint.state);
+  if (created.diagnostics.length > 0) return { ...state, replayError: "场景回想无法安全启动，原剧情未改变。" };
+  const sourceHistory = { ...state.historySession, cursor: checkpointIndex };
+  const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(sourceHistory), checkpoint.checkpointId);
+  const replayState: PlayerCoreState = {
+    ...state,
+    status: "presenting",
+    runtimeState: checkpoint.state,
+    historySession: created.session,
+    schedulerSession: null,
+    playback: idlePlayback(),
+    hostState,
+    currentEvent: null,
+    checkpointSaveCandidates: [],
+    replaySession: { replayId: replay.replayId, title: replay.title, sceneId: replay.sceneId, checkpoint: state },
+    replayError: null
+  };
+  return drivePlayerCore(replayState, created.session);
+}
+
+export function exitPlayerCoreReplayV1(state: PlayerCoreState): PlayerCoreState {
+  return state.replaySession === null ? state : { ...state.replaySession.checkpoint, replayError: null };
+}
+
 export function createPlayerCoreSessionSaveV1(state: PlayerCoreState): CreatePlayerCoreSessionSaveResultV1 {
+  if (state.replaySession !== null) {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_REPLAY_ISOLATED", message: "Scene Replay is isolated from formal saves", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
+  }
   if (state.artifacts === null || state.historySession === null || state.runtimeState === null) {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_UNAVAILABLE", message: "Player Core has no active Runtime History Session to save", sceneId: null, statementId: null, instructionId: null }] };
   }
@@ -566,6 +763,9 @@ export function createPlayerCoreSessionSaveV1(state: PlayerCoreState): CreatePla
 }
 
 export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: string): LoadPlayerCoreSessionSaveResultV1 {
+  if (state.replaySession !== null) {
+    return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_LOAD_REPLAY_ISOLATED", message: "Exit Scene Replay before loading a formal save", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
+  }
   if (state.artifacts === null) {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_BUILD_MISSING", message: "Player Core has no verified Compiler artifacts", sceneId: null, statementId: null, instructionId: null }] };
   }
@@ -654,37 +854,122 @@ export function backPlayerCoreToHistoryEntryV1(state: PlayerCoreState, entryId: 
 }
 
 export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: CanonicalProject, intent: PlayerCoreIntentV1): PlayerCoreState {
+  if (intent.kind === "enter-scene-replay") return enterPlayerCoreReplayV1(state, intent.replayId);
+  if (intent.kind === "exit-scene-replay") return exitPlayerCoreReplayV1(state);
   if (intent.kind === "select-choice") return selectPlayerCoreChoice(state, intent.optionId);
   if (intent.kind === "cancel") return settlePlayerCoreEffect(state, "cancel");
   if (intent.kind === "back") return backPlayerCore(state);
   if (intent.kind === "forward") return forwardPlayerCore(state);
   if (intent.kind === "history-back-to") return backPlayerCoreToHistoryEntryV1(state, intent.entryId);
-  if (intent.kind === "restart") return state.status === "ended" || state.status === "error" ? createPlayerCore(project, state.historyPolicy) : state;
+  if (intent.kind === "restart") return state.status === "ended" || state.status === "error"
+    ? configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale)
+    : state;
   if (state.status === "title") return state.historySession === null ? startPlayerCore(state, project) : forwardPlayerCore(state);
   if (state.status === "presenting") return advancePlayerCore(state);
   if (state.status === "waiting-effect") return settlePlayerCoreEffect(state, "complete");
   if (state.status === "waiting-barrier") return approvePlayerCoreBarrier(state);
-  if (state.status === "ended" || state.status === "error") return createPlayerCore(project, state.historyPolicy);
+  if (state.status === "ended" || state.status === "error") return configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale);
   return state;
 }
 
-function presentation(state: PlayerCoreState): PlayerCoreSnapshotV1["presentation"] {
-  if (state.status === "title") return { kind: "title" };
-  if (state.status === "error") return { kind: "error", diagnostics: state.diagnostics };
+function presentation(state: PlayerCoreState): { readonly value: PlayerCoreSnapshotV1["presentation"]; readonly fallbackUsed: boolean } {
+  if (state.status === "title") return { value: { kind: "title" }, fallbackUsed: false };
+  if (state.status === "error") return { value: { kind: "error", diagnostics: state.diagnostics }, fallbackUsed: false };
   if (state.status === "waiting-effect" && state.runtimeState?.pendingEffect !== null && state.runtimeState?.pendingEffect !== undefined) {
-    return { kind: "effect", descriptorId: state.runtimeState.pendingEffect.descriptorId, canCancel: true };
+    return { value: { kind: "effect", descriptorId: state.runtimeState.pendingEffect.descriptorId, canCancel: true }, fallbackUsed: false };
   }
   if (state.status === "waiting-barrier" && state.runtimeState?.pendingBarrier !== null && state.runtimeState?.pendingBarrier !== undefined) {
-    return { kind: "barrier", descriptorId: state.runtimeState.pendingBarrier.descriptorId, reason: state.runtimeState.pendingBarrier.reason };
+    return { value: { kind: "barrier", descriptorId: state.runtimeState.pendingBarrier.descriptorId, reason: state.runtimeState.pendingBarrier.reason }, fallbackUsed: false };
   }
   const event = state.currentEvent;
-  if (event?.kind === "dialogue") return { kind: "dialogue", speakerId: event.speakerId, textId: event.textId, text: event.text };
-  if (event?.kind === "narration") return { kind: "narration", textId: event.textId, text: event.text };
-  if (event?.kind === "choice") return { kind: "choice", prompt: event.prompt, options: event.options.map(({ optionId, label }) => ({ optionId, label })) };
-  if (event?.kind === "wait") return { kind: "wait", durationMilliseconds: event.durationMilliseconds };
-  if (event?.kind === "ending") return { kind: "ending", endingId: event.endingId, name: event.name };
-  if (state.runtimeState?.terminal.kind === "ended") return { kind: "ending", endingId: state.runtimeState.terminal.endingId, name: state.runtimeState.terminal.name };
-  return { kind: "error", diagnostics: [...state.diagnostics, { origin: "player", code: "PLAYER_PRESENTATION_MISSING", message: "Player Core reached a state without a presentable boundary", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
+  const entries = localeEntries(state);
+  if (event?.kind === "dialogue") {
+    const text = translatedPlayerText(state, entries, event.textId, event.text);
+    return { value: { kind: "dialogue", speakerId: event.speakerId, textId: event.textId, text: text.text }, fallbackUsed: text.fallback };
+  }
+  if (event?.kind === "narration") {
+    const text = translatedPlayerText(state, entries, event.textId, event.text);
+    return { value: { kind: "narration", textId: event.textId, text: text.text }, fallbackUsed: text.fallback };
+  }
+  if (event?.kind === "choice") {
+    const prompt = translatedPlayerText(state, entries, event.instructionId, event.prompt);
+    const options = event.options.map(({ optionId, label }) => ({ optionId, ...translatedPlayerText(state, entries, optionId, label) }));
+    return { value: { kind: "choice", prompt: prompt.text, options: options.map(({ optionId, text }) => ({ optionId, label: text })) }, fallbackUsed: prompt.fallback || options.some((option) => option.fallback) };
+  }
+  if (event?.kind === "wait") return { value: { kind: "wait", durationMilliseconds: event.durationMilliseconds }, fallbackUsed: false };
+  if (event?.kind === "ending") {
+    const name = translatedPlayerText(state, entries, event.endingId, event.name);
+    return { value: { kind: "ending", endingId: event.endingId, name: name.text }, fallbackUsed: name.fallback };
+  }
+  if (state.runtimeState?.terminal.kind === "ended") {
+    const terminal = state.runtimeState.terminal;
+    const name = translatedPlayerText(state, entries, terminal.endingId, terminal.name);
+    return { value: { kind: "ending", endingId: terminal.endingId, name: name.text }, fallbackUsed: name.fallback };
+  }
+  return { value: { kind: "error", diagnostics: [...state.diagnostics, { origin: "player", code: "PLAYER_PRESENTATION_MISSING", message: "Player Core reached a state without a presentable boundary", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] }, fallbackUsed: false };
+}
+
+function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisibleEventV1): PlayerHistoryVisibleEventV1 {
+  const entries = localeEntries(state);
+  if (event.kind === "dialogue") return { ...event, text: translatedPlayerText(state, entries, event.textId, event.text).text };
+  if (event.kind === "narration") return { ...event, text: translatedPlayerText(state, entries, event.textId, event.text).text };
+  if (event.kind === "choice") return {
+    ...event,
+    prompt: translatedPlayerText(state, entries, event.instructionId, event.prompt).text,
+    options: event.options.map((option) => ({ ...option, label: translatedPlayerText(state, entries, option.optionId, option.label).text }))
+  };
+  if (event.kind === "ending") return { ...event, name: translatedPlayerText(state, entries, event.endingId, event.name).text };
+  return event;
+}
+
+function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalContentSnapshotV1 {
+  const catalogs = state.artifacts?.catalogs;
+  const progress = state.replaySession?.checkpoint.runtimeState?.metaProgress ?? state.runtimeState?.metaProgress;
+  // Meta Progress v1 stores monotonic unlocked asset IDs in this compatibility-stable field.
+  // Compiler catalogs decide whether an unlocked asset belongs to Gallery or Music.
+  const unlockedAssetIds = new Set(progress?.unlockedGalleryAssetIds ?? []);
+  const endingIds = new Set(progress?.reachedEndingIds ?? []);
+  const category = (total: number, unlocked: number): PlayerAdditionalContentCategorySnapshotV1 => ({
+    total,
+    unlocked,
+    locked: total - unlocked
+  });
+  const galleryUnlocked = catalogs?.gallery.filter((entry) => unlockedAssetIds.has(entry.assetId)).length ?? 0;
+  const endingUnlocked = catalogs?.endings.filter((entry) => endingIds.has(entry.endingId)).length ?? 0;
+  const replayUnlocked = catalogs?.replay.filter((entry) => entry.endingIds.some((endingId) => endingIds.has(endingId))).length ?? 0;
+  const entries = localeEntries(state);
+  return {
+    schemaVersion: 1,
+    gallery: category(catalogs?.gallery.length ?? 0, galleryUnlocked),
+    replay: category(catalogs?.replay.length ?? 0, replayUnlocked),
+    music: category(catalogs?.music.length ?? 0, catalogs?.music.filter((entry) => unlockedAssetIds.has(entry.assetId)).length ?? 0),
+    endings: category(catalogs?.endings.length ?? 0, endingUnlocked),
+    galleryItems: catalogs?.gallery.map((entry) => ({
+      assetId: entry.assetId,
+      displayName: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? translatedPlayerText(state, entries, entry.assetId, entry.displayName).text : null,
+      coverAssetId: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? entry.coverAssetId : null,
+      kind: entry.kind,
+      unlocked: unlockedAssetIds.has(entry.assetId)
+    })) ?? [],
+    musicItems: catalogs?.music.map((entry) => ({
+      assetId: entry.assetId,
+      displayName: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? translatedPlayerText(state, entries, entry.assetId, entry.displayName).text : null,
+      coverAssetId: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? entry.coverAssetId : null,
+      unlocked: unlockedAssetIds.has(entry.assetId)
+    })) ?? [],
+    replayItems: catalogs?.replay.map((entry) => {
+      const unlocked = entry.endingIds.some((endingId) => endingIds.has(endingId));
+      const visible = unlocked || entry.revealBeforeUnlock;
+      return { replayId: entry.replayId, title: visible ? translatedPlayerText(state, entries, entry.replayId, entry.title).text : null, sceneId: entry.sceneId, coverAssetId: visible ? entry.coverAssetId : null, unlocked };
+    }) ?? [],
+    endingItems: catalogs?.endings.map((entry) => ({
+      endingId: entry.endingId,
+      name: endingIds.has(entry.endingId) || entry.revealBeforeUnlock ? translatedPlayerText(state, entries, entry.endingId, entry.name).text : null,
+      sceneId: entry.sceneId,
+      coverAssetId: endingIds.has(entry.endingId) || entry.revealBeforeUnlock ? entry.coverAssetId : null,
+      unlocked: endingIds.has(entry.endingId)
+    })) ?? []
+  };
 }
 
 export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSnapshotV1 {
@@ -693,6 +978,9 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
   const previous = history === null || history.cursor === 0 ? null : history.entries[history.cursor - 1] ?? null;
   const hasForward = history !== null && history.cursor < history.entries.length;
   const backwardBarrier = history === null ? null : [...history.entries.slice(0, history.cursor)].reverse().find((entry) => entry.barriers.length > 0) ?? null;
+  const presented = presentation(state);
+  const entries = localeEntries(state);
+  const missingTranslationCount = state.localization.selectedLocale === state.localization.sourceLocale ? 0 : playerSourceTexts(state).filter(({ key, text }) => translatedPlayerText(state, entries, key, text).fallback).length;
   return {
     schemaVersion: 1,
     playerCoreVersion: PLAYER_CORE_VERSION,
@@ -705,6 +993,20 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
     },
     title: state.title,
     status: state.status,
+    localization: {
+      sourceLocale: state.localization.sourceLocale,
+      selectedLocale: state.localization.selectedLocale,
+      availableLocales: availablePlayerLocales(state),
+      missingTranslationCount,
+      fallbackUsed: presented.fallbackUsed
+    },
+    additionalContent: additionalContentSnapshot(state),
+    sceneReplay: {
+      active: state.replaySession !== null,
+      replayId: state.replaySession?.replayId ?? null,
+      title: state.replaySession?.title ?? null,
+      error: state.replayError
+    },
     effects: {
       active: host.snapshot.activeChannels.map(({ effect }) => effectSnapshot(effect)),
       pending: state.runtimeState?.pendingEffect === null || state.runtimeState?.pendingEffect === undefined
@@ -742,7 +1044,7 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
           historyIndex: entry.historyIndex,
           position: targetCursor < history.cursor ? "past" : targetCursor === history.cursor ? "current" : "future",
           canNavigateBack: targetCursor <= history.cursor && !barrierBetween,
-          event: entry.event
+          event: localizedHistoryEvent(state, entry.event)
         }];
       }),
       archives: history.archives.map((archive) => ({
@@ -751,12 +1053,12 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
         entries: archive.entries.flatMap((entry) => visibleHistoryEvent(entry.event) ? [{
           entryId: entry.originalEntryId,
           historyIndex: entry.originalHistoryIndex,
-          event: entry.event
+          event: localizedHistoryEvent(state, entry.event)
         }] : [])
       }))
     },
     playback: state.playback,
-    presentation: presentation(state),
+    presentation: presented.value,
     runtimeStateHash: state.runtimeState === null ? null : runtimeStateHashV1(state.runtimeState),
     runtimeHostSnapshotHash: host.snapshotHash
   };

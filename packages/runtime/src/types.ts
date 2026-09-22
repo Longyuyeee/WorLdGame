@@ -274,6 +274,10 @@ export interface RuntimeRunResultV1 {
   readonly barrierRequest: RuntimePendingBarrierV1 | null;
 }
 
+export type RuntimeExpressionEvaluationV1 =
+  | { readonly ok: true; readonly value: RuntimeScalar; readonly valueType: "null" | "boolean" | "number" | "string" }
+  | { readonly ok: false; readonly code: "RUNTIME_EXPRESSION_INVALID" | "RUNTIME_VARIABLE_MISSING" | "RUNTIME_TYPE_MISMATCH"; readonly message: string };
+
 export type RuntimeProgramV1 = RuntimeStoryIrV1;
 
 export interface RuntimeSaveV1 {

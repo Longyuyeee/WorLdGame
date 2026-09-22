@@ -5,7 +5,8 @@ const taskIds = ["T01", "T02", "T03", "T04", "T05", "T06", "T07", "T08"];
 
 function protocol() {
   return {
-    schemaVersion: 1, protocolId: "N21-HV-01", deliveryNode: "N21", timeLimitSeconds: 1200,
+    schemaVersion: 1, protocolId: "N21-HV-01", deliveryNode: "N21",
+    completionModel: "task-outcomes-and-observed-friction",
     prerequisite: { deliveryNode: "N23", requireRunnableEditorFlow: true },
     tasks: taskIds.map((id) => ({ id })),
     facilitatorRules: { mayOperateEditor: false, mayExplainScriptSyntaxOrExactControls: false }
@@ -20,7 +21,7 @@ function pending() {
   return {
     schemaVersion: 1, protocolId: "N21-HV-01", sourceBaseRevision: "b".repeat(40), status: "pending-participant",
     participant: { pseudonymousId: null, consentRecorded: null },
-    session: { startedAt: null, endedAt: null, durationSeconds: null, helpRequestCount: null, facilitatorOperatedEditor: null },
+    session: { helpRequestCount: null, facilitatorOperatedEditor: null },
     tasks: taskIds.map((id) => ({ id, status: "not-run" })),
     saveCloseReopen: { status: "not-run" }, artifacts: { finalProjectSnapshot: null, observationLog: null }
   };
@@ -34,8 +35,7 @@ function completed(status: "pass" | "fail" = "pass") {
       hasNotContributedCodeOrDesign: true, unfamiliarWithStoryScriptSyntax: true
     },
     session: {
-      startedAt: "2026-08-14T12:00:00+08:00", endedAt: "2026-08-14T12:15:00+08:00",
-      durationSeconds: 900, inputDevices: ["mouse", "keyboard"], helpRequestCount: 1,
+      inputDevices: ["mouse", "keyboard"], helpRequestCount: 1,
       blockers: [], misoperations: ["opened the wrong insert menu"], facilitatorOperatedEditor: false
     },
     tasks: taskIds.map((id) => ({ id, status: "pass", notes: null })),
@@ -58,7 +58,7 @@ describe("N21 human validation policy", () => {
 
   it("rejects completion data inserted into a pending record", () => {
     const record = pending();
-    record.session.startedAt = "2026-08-14T12:00:00+08:00";
+    record.session.helpRequestCount = 1;
     expect(validateN21HumanValidation(protocol(), record, risk())).toContain(
       "pending N21 human evidence must not contain fabricated completion data"
     );
@@ -80,12 +80,10 @@ describe("N21 human validation policy", () => {
     );
   });
 
-  it("rejects a pass over the 20-minute limit", () => {
-    const record = completed();
-    record.session.endedAt = "2026-08-14T12:21:00+08:00";
-    record.session.durationSeconds = 1260;
-    expect(validateN21HumanValidation(protocol(), record, risk("closed"))).toContain(
-      "N21 pass exceeds the 20-minute limit"
+  it("rejects restoring operation time as a pass proxy", () => {
+    const value = { ...protocol(), timeLimitSeconds: 1200 };
+    expect(validateN21HumanValidation(value, pending(), risk())).toContain(
+      "N21 human protocol must judge task outcomes and observed friction without a time limit"
     );
   });
 

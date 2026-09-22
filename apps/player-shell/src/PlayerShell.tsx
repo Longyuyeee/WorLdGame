@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createGalSettingsApplicationV1,
   createGalSettingsDocument,
@@ -14,6 +14,7 @@ import {
   createPlayerCore,
   createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
+  configurePlayerCoreLocaleV1,
   configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
   loadPlayerCoreSessionSaveV1,
@@ -22,6 +23,8 @@ import {
   type PlayerHistoryVisibleEventV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
+import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
 import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
 import {
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
@@ -110,6 +113,12 @@ function playerHistoryEventKind(event: PlayerHistoryVisibleEventV1): string {
   }
 }
 
+function PlayerRichText({ text, locale }: { readonly text: string; readonly locale: string }) {
+  return <>{parsePlayerRichTextV1(text).map((segment, index) => segment.kind === "text"
+    ? <Fragment key={`text:${index}`}>{segment.text}</Fragment>
+    : <ruby key={`ruby:${index}`} lang={locale}>{segment.base}<rp>（</rp><rt>{segment.annotation}</rt><rp>）</rp></ruby>)}</>;
+}
+
 function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
   const [source, setSource] = useState<string | null>(null);
 
@@ -138,9 +147,31 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
 }
 
+function playerLocalePreferenceKey(projectId: string): string {
+  return `world-player.locale.${projectId}`;
+}
+
+function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1]) {
+  const core = createPlayerCore(project, historyPolicy);
+  try {
+    const preferred = globalThis.localStorage?.getItem(playerLocalePreferenceKey(project.manifest.projectId));
+    return preferred === null || preferred === undefined ? core : configurePlayerCoreLocaleV1(core, preferred);
+  } catch {
+    return core;
+  }
+}
+
+function storePlayerLocalePreference(projectId: string, locale: string): void {
+  try {
+    globalThis.localStorage?.setItem(playerLocalePreferenceKey(projectId), locale);
+  } catch {
+    // Player preferences are fail-soft; the active session still switches language.
+  }
+}
+
 export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 }: PlayerShellProps) {
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
-  const [state, setState] = useState(() => createPlayerCore(project, settingsApplication.history));
+  const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
@@ -157,6 +188,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
+  const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
+  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">("overview");
+  const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
+  const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -169,6 +204,20 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [recoveryMessage, setRecoveryMessage] = useState("正在检查恢复记录…");
   const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | null>(null);
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
+  const additionalContentTrigger = useRef<HTMLButtonElement | null>(null);
+  const additionalContentPanel = useRef<HTMLElement | null>(null);
+  const additionalContentClose = useRef<HTMLButtonElement | null>(null);
+  const replayExitButton = useRef<HTMLButtonElement | null>(null);
+  const additionalContentWasOpen = useRef(false);
+  const galleryOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const replayOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const musicOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const endingOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const additionalContentDetailBack = useRef<HTMLButtonElement | null>(null);
+  const previousAdditionalContentView = useRef<"overview" | "gallery" | "replay" | "music" | "endings">("overview");
+  const galleryPreviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
+  const galleryPreviewWasOpen = useRef(false);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const pointerInput = useRef<"pointer" | "touch">("pointer");
@@ -176,6 +225,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const previousSkipActive = useRef(false);
   const skipModeCurrent = useRef<"skipRead" | "skipAll" | null>(null);
   const skipAwaitingDispatch = useRef(false);
+  const replayPlaybackReturn = useRef<{
+    autoEnabled: boolean;
+    autoPlayback: typeof autoPlayback;
+    skipMode: "skipRead" | "skipAll" | null;
+    skipActivation: WorldPlayerSkipActivationV1;
+    skipSpeed: WorldPlayerSkipSpeedV1;
+  } | null>(null);
+  const additionalContentPlaybackReturn = useRef<typeof replayPlaybackReturn.current>(null);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
@@ -191,11 +248,29 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const content = snapshot.presentation;
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
-  const stage = useMemo(
-    () => derivePlayerStagePresentationV1(snapshot, mediaAssets, settingsApplication.stage, settingsApplication.ui),
-    [mediaAssets, settingsApplication.stage, settingsApplication.ui, snapshot]
+  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
+  const presentedTextId = content.kind === "dialogue" || content.kind === "narration" ? content.textId : null;
+  const localizedMedia = useMemo(
+    () => resolvePlayerLocalizedMediaV1(snapshot.localization.selectedLocale, snapshot.localization.sourceLocale, presentedTextId, project.assets.assets, mediaAssets),
+    [mediaAssets, mediaSignature, presentedTextId, project.assets.assets, snapshot.localization.selectedLocale, snapshot.localization.sourceLocale]
   );
-  const appliedAudio = stage.audio.map((track) => ({
+  const additionalContentSources = useMemo(
+    () => new Map(localizedMedia.stageSources.map((source) => [source.assetId, source])),
+    [localizedMedia.stageSources]
+  );
+  const stage = useMemo(
+    () => derivePlayerStagePresentationV1(snapshot, localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui),
+    [localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui, snapshot]
+  );
+  const localizedVoice = localizedMedia.voice === null ? [] : [{
+    ...localizedMedia.voice,
+    bus: "voice",
+    loop: false,
+    volume: 1,
+    status: "playing" as const
+  }];
+  const audibleTracks = [...stage.audio.filter((track) => !(localizedMedia.voiceMapped && track.bus === "voice")), ...localizedVoice];
+  const appliedAudio = audibleTracks.map((track) => ({
     ...track,
     appliedVolume: galAudioGainV1(
       settingsApplication,
@@ -204,7 +279,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       voicePlaying
     )
   }));
-  const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
+  const typography = useMemo(
+    () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets),
+    [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale]
+  );
+  const [fontStatus, setFontStatus] = useState<"system" | "loading" | "ready" | "fallback">("system");
   const lastEffectOperation = snapshot.effects.operations.at(-1) ?? null;
   const speakerNames = useMemo(() => Object.fromEntries(project.characters.characters.flatMap((character) => {
     const id = typeof character.id === "string" ? character.id : undefined;
@@ -219,6 +298,44 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
 
+  useEffect(() => {
+    const selected = typography.projectFont;
+    if (selected === null) {
+      setFontStatus("system");
+      return;
+    }
+    const FontFaceConstructor = globalThis.FontFace;
+    const fontSet = globalThis.document?.fonts;
+    if (FontFaceConstructor === undefined || fontSet === undefined) {
+      setFontStatus("fallback");
+      return;
+    }
+    let active = true;
+    let loadedFace: FontFace | null = null;
+    setFontStatus("loading");
+    try {
+      const face = new FontFaceConstructor(selected.runtimeFamily, `url("${selected.url.replaceAll('"', '\\"')}")`);
+      void face.load().then((loaded) => {
+        if (!active) return;
+        loadedFace = loaded;
+        fontSet.add(loaded);
+        setFontStatus("ready");
+      }).catch(() => { if (active) setFontStatus("fallback"); });
+    } catch {
+      setFontStatus("fallback");
+    }
+    return () => {
+      active = false;
+      if (loadedFace !== null) fontSet.delete(loadedFace);
+    };
+  }, [typography]);
+
+  useEffect(() => {
+    setVoicePlaying(false);
+    setVoiceEnded(false);
+    setVoiceMetadataRevision((revision) => revision + 1);
+  }, [localizedMedia.voice?.assetId]);
+
   const stopSkip = useCallback(() => {
     skipModeCurrent.current = null;
     setSkipMode(null);
@@ -231,6 +348,59 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setAutoPlayback("off");
     setSkipMode(mode);
   }, []);
+
+  const restorePlaybackControls = useCallback((playback: NonNullable<typeof replayPlaybackReturn.current>) => {
+    setAutoEnabled(playback.autoEnabled);
+    setAutoPlayback(playback.autoPlayback);
+    setSkipActivation(playback.skipActivation);
+    setSkipSpeed(playback.skipSpeed);
+    skipModeCurrent.current = playback.skipMode;
+    setSkipMode(playback.skipMode);
+  }, []);
+
+  const openAdditionalContent = useCallback(() => {
+    additionalContentPlaybackReturn.current = { autoEnabled, autoPlayback, skipMode, skipActivation, skipSpeed };
+    setAutoEnabled(false);
+    setAutoPlayback("off");
+    stopSkip();
+    setHistoryPanelOpen(false);
+    setSavePanelOpen(false);
+    setAdditionalContentOpen(true);
+  }, [autoEnabled, autoPlayback, skipActivation, skipMode, skipSpeed, stopSkip]);
+
+  const closeAdditionalContent = useCallback(() => {
+    setAdditionalContentOpen(false);
+    const playback = additionalContentPlaybackReturn.current;
+    additionalContentPlaybackReturn.current = null;
+    if (playback !== null) restorePlaybackControls(playback);
+  }, [restorePlaybackControls]);
+
+  const enterSceneReplay = useCallback((replayId: string) => {
+    const next = dispatchPlayerCoreIntentV1(state, project, { kind: "enter-scene-replay", replayId });
+    setState(next);
+    if (next.replaySession === null) return;
+    replayPlaybackReturn.current = additionalContentPlaybackReturn.current ?? { autoEnabled, autoPlayback, skipMode, skipActivation, skipSpeed };
+    additionalContentPlaybackReturn.current = null;
+    setAutoEnabled(false);
+    setAutoPlayback("off");
+    stopSkip();
+    setHistoryPanelOpen(false);
+    setSavePanelOpen(false);
+    setAdditionalContentOpen(false);
+    setMediaErrors([]);
+  }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip]);
+
+  const exitSceneReplay = useCallback(() => {
+    if (state.replaySession === null) return;
+    setState((current) => dispatchPlayerCoreIntentV1(current, project, { kind: "exit-scene-replay" }));
+    const playback = replayPlaybackReturn.current;
+    replayPlaybackReturn.current = null;
+    if (playback !== null) {
+      restorePlaybackControls(playback);
+    }
+    setMediaErrors([]);
+    setTimeout(() => additionalContentTrigger.current?.focus(), 0);
+  }, [project, restorePlaybackControls, state.replaySession]);
 
   const refreshSaveSlots = useCallback(async () => {
     if (saveStore === undefined) return;
@@ -438,7 +608,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     autoSavedSceneIdentities.current.clear();
     consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
-    setState(createPlayerCore(project, settingsApplication.history));
+    replayPlaybackReturn.current = null;
+    additionalContentPlaybackReturn.current = null;
+    setState(createLocalizedPlayerCore(project, settingsApplication.history));
     setMediaErrors([]);
     setMediaGeneration(0);
     setSelectedChoiceIndex(0);
@@ -494,7 +666,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [refreshSaveSlots]);
 
   useEffect(() => {
-    if (saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.runtimeState === null ||
+    if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.runtimeState === null ||
         !worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind)) return;
     const sceneIdentity = worldPlayerSaveSceneIdentityV1(snapshot.identities.buildId, state.runtimeState.cursor.sceneId);
     if (autoSavedSceneIdentities.current.has(sceneIdentity)) return;
@@ -513,7 +685,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
 
   useEffect(() => {
-    if (saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
+    if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
     const buildId = snapshot.identities.buildId;
     for (const candidate of state.checkpointSaveCandidates) {
       const identity = `${buildId}\0${candidate.stepId}\0${candidate.artifactHash}`;
@@ -546,7 +718,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state.checkpointSaveCandidates, state.runtimeState]);
 
   useEffect(() => {
-    if (recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
+    if (snapshot.sceneReplay.active || recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
         snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || !saveBoundaryAllowed || recoveryCandidate !== null ||
         !["idle", "ready", "loaded"].includes(recoveryOperation) || lastRecoveryRuntimeStateHash.current === snapshot.runtimeStateHash) return;
     const created = createPlayerCoreSessionSaveV1(state);
@@ -589,6 +761,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     if (!autoEnabled) return;
+    const stopReason = snapshot.playback.stopReason;
+    if (stopReason !== null && stopReason !== "storyBoundary" && stopReason !== "budget" && !(stopReason === "effect" && stage.video?.awaited === true)) {
+      setAutoEnabled(false);
+      setAutoPlayback("stopped");
+      return;
+    }
     if (hostActivity !== "active") {
       setAutoPlayback("suspended");
       return;
@@ -647,7 +825,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -738,8 +916,82 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [content.kind, selectedChoiceIndex]);
 
   useEffect(() => {
+    if (additionalContentOpen) {
+      additionalContentWasOpen.current = true;
+      additionalContentClose.current?.focus();
+      return;
+    }
+    if (additionalContentWasOpen.current) {
+      additionalContentWasOpen.current = false;
+      additionalContentTrigger.current?.focus();
+    }
+    setAdditionalContentView("overview");
+    setSelectedGalleryAssetId(null);
+    setAdditionalContentMediaErrors([]);
+  }, [additionalContentOpen]);
+
+  useEffect(() => {
+    if (snapshot.sceneReplay.active) replayExitButton.current?.focus();
+  }, [snapshot.sceneReplay.active]);
+
+  useEffect(() => {
+    const previousView = previousAdditionalContentView.current;
+    if (previousView === additionalContentView) return;
+    previousAdditionalContentView.current = additionalContentView;
+    if (!additionalContentOpen) return;
+    if (additionalContentView === "overview") {
+      (previousView === "gallery" ? galleryOverviewTrigger.current
+        : previousView === "replay" ? replayOverviewTrigger.current
+          : previousView === "music" ? musicOverviewTrigger.current
+            : endingOverviewTrigger.current)?.focus();
+      return;
+    }
+    additionalContentDetailBack.current?.focus();
+  }, [additionalContentOpen, additionalContentView]);
+
+  useEffect(() => {
+    if (selectedGalleryAssetId !== null) {
+      galleryPreviewWasOpen.current = true;
+      galleryPreviewClose.current?.focus();
+      return;
+    }
+    if (galleryPreviewWasOpen.current) {
+      galleryPreviewWasOpen.current = false;
+      galleryPreviewTrigger.current?.focus();
+    }
+  }, [selectedGalleryAssetId]);
+
+  useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (additionalContentOpen) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          if (selectedGalleryAssetId !== null) {
+            setSelectedGalleryAssetId(null);
+            return;
+          }
+          if (additionalContentView !== "overview") {
+            setAdditionalContentView("overview");
+            return;
+          }
+          closeAdditionalContent();
+          return;
+        }
+        if (event.key === "Tab") {
+          const focusable = Array.from(additionalContentPanel.current?.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+          ) ?? []);
+          if (focusable.length === 0) return;
+          const currentIndex = focusable.indexOf(document.activeElement as HTMLElement);
+          const nextIndex = event.shiftKey
+            ? (currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1)
+            : (currentIndex < 0 || currentIndex === focusable.length - 1 ? 0 : currentIndex + 1);
+          event.preventDefault();
+          focusable[nextIndex]?.focus();
+        }
+        return;
+      }
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
@@ -754,6 +1006,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }
       if (event.key === "Escape") {
         event.preventDefault();
+        if (snapshot.sceneReplay.active) {
+          exitSceneReplay();
+          return;
+        }
         applyIntent({ kind: "cancel" }, "keyboard");
         return;
       }
@@ -765,7 +1021,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
+  }, [additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -859,6 +1115,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     <main
       className="player-shell"
       data-player-status={snapshot.status}
+      data-player-locale={snapshot.localization.selectedLocale}
+      data-player-media-locale={snapshot.localization.selectedLocale}
+      data-player-media-fallbacks={localizedMedia.fallbackResourceIds.length}
+      data-player-media-missing={localizedMedia.missingResourceIds.length}
+      data-player-locale-fallbacks={snapshot.localization.missingTranslationCount}
+      data-player-font={fontStatus}
+      data-player-typography={typography.cjk ? "cjk-strict" : "standard"}
       data-player-core={snapshot.playerCoreVersion}
       data-compiler={snapshot.identities.compilerVersion}
       data-runtime={snapshot.identities.runtimeVersion}
@@ -869,6 +1132,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-history-can-back={snapshot.history?.canBack ?? false}
       data-history-can-forward={snapshot.history?.canForward ?? false}
       data-history-panel={historyPanelOpen ? "open" : "closed"}
+      data-additional-content={additionalContentOpen ? "open" : "closed"}
       data-history-archives={snapshot.history?.archives.length ?? 0}
       data-history-forward-policy={snapshot.history?.forwardPolicy.allowForwardAfterBack ?? settingsApplication.history.allowForwardAfterBack}
       data-save-store={saveStore?.backend ?? "unavailable"}
@@ -889,6 +1153,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-skip-active={skipActive}
       data-skip-media={skipActive ? "accelerated" : "normal"}
       data-video-policy-stop-reason={videoPolicyStopReason}
+      data-runtime-state-hash={snapshot.runtimeStateHash ?? "none"}
+      data-runtime-host-snapshot-hash={snapshot.runtimeHostSnapshotHash}
+      data-scene-replay={snapshot.sceneReplay.active ? snapshot.sceneReplay.replayId : "inactive"}
       data-settings-platform={platform}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -927,7 +1194,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         "--gal-font-scale": settingsApplication.text.fontScale,
         "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
         "--gal-line-height": settingsApplication.text.lineHeight,
-        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`
+        "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`,
+        "--player-font-family": fontStatus === "ready" && typography.projectFont !== null
+          ? `"${typography.projectFont.runtimeFamily}", ${typography.fallbackStack}`
+          : typography.fallbackStack
       } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />
@@ -1056,6 +1326,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <span className="player-brand__status">{snapshot.status}</span>
           {lastEffectOperation !== null && <span className="player-brand__effect">FX {lastEffectOperation.sequence + 1} · {lastEffectOperation.kind}</span>}
         </header>
+        {snapshot.sceneReplay.active && (
+          <aside className="player-replay-status" role="status" aria-label="场景回想状态">
+            <div><span>SCENE REPLAY</span><strong>正在回想：{snapshot.sceneReplay.title}</strong><small>回想期间不会覆盖原剧情进度</small></div>
+            <button ref={replayExitButton} type="button" onClick={exitSceneReplay}>退出回想，返回原剧情</button>
+          </aside>
+        )}
         <nav className="player-history-controls" aria-label="剧情历史控制">
           <button
             type="button"
@@ -1079,6 +1355,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-expanded={historyPanelOpen}
             onClick={() => setHistoryPanelOpen((open) => !open)}
           ><span aria-hidden="true">☰</span><span>历史</span></button>
+          <button
+            ref={additionalContentTrigger}
+            type="button"
+            className="player-history-controls__additional"
+            aria-label={additionalContentOpen ? "关闭附加内容" : "打开附加内容"}
+            aria-expanded={additionalContentOpen}
+            disabled={snapshot.sceneReplay.active || hostActivity !== "active" || snapshot.status === "waiting-effect" || snapshot.status === "waiting-barrier"}
+            onClick={() => {
+              if (additionalContentOpen) closeAdditionalContent();
+              else openAdditionalContent();
+            }}
+          ><span aria-hidden="true">✦</span><span>附加内容</span></button>
         </nav>
         {historyPanelOpen && (
           <aside className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
@@ -1108,9 +1396,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                             setHistoryPanelOpen(false);
                           }}>
                             <span>{playerHistoryEventKind(entry.event)} · {entry.position === "past" ? "已读" : entry.position === "current" ? "当前" : "前方"}</span>
-                            <strong>{label}</strong>
+                            <strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong>
                           </button>
-                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong>{label}</strong></div>}
+                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong></div>}
                       </li>;
                     })}
                   </ol>
@@ -1121,14 +1409,165 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <h3>旧分支 {archiveIndex + 1}</h3>
                   <p>从历史位置 {archive.branchPointHistoryIndex} 分岔 · 只读</p>
                   <ol className="player-history-list">
-                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong>{playerHistoryEventLabel(entry.event)}</strong></div></li>)}
+                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={playerHistoryEventLabel(entry.event)} locale={typography.locale} /></strong></div></li>)}
                   </ol>
                 </section>
               ))}
             </>}
           </aside>
         )}
+        {additionalContentOpen && (
+          <aside ref={additionalContentPanel} className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
+            <header>
+              <div><span>EXTRAS</span><h2>附加内容</h2></div>
+              <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
+            </header>
+            {additionalContentView === "overview" && <>
+              <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
+              <div className="player-additional-content__grid">
+                {([
+                  ["CG 画廊", "在剧情中看过的画面会自动收录", snapshot.additionalContent.gallery, "gallery"],
+                  ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay, "replay"],
+                  ["音乐室", "在剧情中听过的音乐会自动收录", snapshot.additionalContent.music, "music"],
+                  ["结局", "达成的结局会自动记录", snapshot.additionalContent.endings, "endings"]
+                ] as const).map(([title, description, category, target]) => (
+                  <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
+                    <span>{category.total === 0 ? "暂无内容" : `${category.unlocked} / ${category.total} 已发现`}</span>
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                    {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
+                    {target !== null && <button ref={target === "gallery" ? galleryOverviewTrigger : target === "replay" ? replayOverviewTrigger : target === "music" ? musicOverviewTrigger : endingOverviewTrigger} type="button" disabled={category.total === 0} aria-label={`查看 ${title}`} onClick={() => setAdditionalContentView(target)}>查看内容</button>}
+                  </section>
+                ))}
+              </div>
+            </>}
+            {additionalContentView === "gallery" && <section className="player-additional-content__detail" role="region" aria-label="CG 画廊内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => { setSelectedGalleryAssetId(null); setAdditionalContentView("overview"); }}>← 返回总览</button>
+                <div><span>GALLERY</span><h3>CG 画廊</h3><p>{snapshot.additionalContent.gallery.unlocked} / {snapshot.additionalContent.gallery.total} 已发现</p></div>
+              </div>
+              {snapshot.additionalContent.galleryItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可收录的画面。</p>
+                : <div className="player-additional-content__items">
+                  {snapshot.additionalContent.galleryItems.map((item, index) => {
+                    if (!item.unlocked && item.displayName === null) return <article className="player-additional-content__item is-locked" key={item.assetId}>
+                      <div aria-hidden="true">?</div><strong>未发现的画面</strong><span>继续推进剧情来发现</span>
+                    </article>;
+                    if (!item.unlocked) {
+                      const cover = item.coverAssetId === null ? undefined : additionalContentSources.get(item.coverAssetId);
+                      return <article className="player-additional-content__item is-locked is-revealed" key={item.assetId}>
+                        {cover?.mimeType.startsWith("image/") === true ? <img src={cover.url} alt="" /> : <div aria-hidden="true">◇</div>}
+                        <strong>{item.displayName}</strong><span>尚未发现</span>
+                      </article>;
+                    }
+                    if (item.displayName === null) return null;
+                    const source = additionalContentSources.get(item.assetId);
+                    const unavailable = source === undefined || !source.mimeType.startsWith("image/") || additionalContentMediaErrors.includes(item.assetId);
+                    return <article className="player-additional-content__item" key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
+                      {unavailable ? <div className="player-additional-content__missing" role="status" aria-label={`${item.displayName} 资源状态`}>
+                        <strong>{item.displayName}</strong><span>资源暂不可用</span><small>收藏记录仍然保留，请稍后重试。</small>
+                        {onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}
+                      </div> : <button type="button" aria-label={`查看画面 ${item.displayName}`} onClick={(event) => { galleryPreviewTrigger.current = event.currentTarget; setSelectedGalleryAssetId(item.assetId); }}>
+                        <img src={source.url} alt={item.displayName} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />
+                        <span><small>画面 {index + 1}</small><strong>{item.displayName}</strong></span>
+                      </button>}
+                    </article>;
+                  })}
+                </div>}
+              {selectedGalleryAssetId !== null && (() => {
+                const item = snapshot.additionalContent.galleryItems.find((candidate) => candidate.assetId === selectedGalleryAssetId);
+                const source = additionalContentSources.get(selectedGalleryAssetId);
+                if (item?.displayName === null || item === undefined || source === undefined) return null;
+                return <figure className="player-additional-content__preview" role="group" aria-label={`${item.displayName} 画面预览`}>
+                  <img src={source.url} alt="" />
+                  <figcaption><strong>{item.displayName}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
+                </figure>;
+              })()}
+            </section>}
+            {additionalContentView === "replay" && <section className="player-additional-content__detail" role="region" aria-label="场景回想内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
+                <div><span>SCENE REPLAY</span><h3>场景回想</h3><p>{snapshot.additionalContent.replay.unlocked} / {snapshot.additionalContent.replay.total} 已解锁</p></div>
+              </div>
+              <p className="player-additional-content__replay-note">回想会从你实际走过的场景入口重新开始；退出后，剧情、演出和播放状态都会回到进入前。</p>
+              {snapshot.sceneReplay.error !== null && <p className="player-additional-content__replay-error" role="alert">{snapshot.sceneReplay.error}</p>}
+              {snapshot.additionalContent.replayItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可回想的场景。</p>
+                : <ol className="player-additional-content__replay">
+                  {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{item.unlocked ? "可从原路线安全重温" : "达成相关结局后解锁"}</small></div>
+                    <button type="button" disabled={!item.unlocked} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
+                  </li>)}
+                </ol>}
+            </section>}
+            {additionalContentView === "music" && <section className="player-additional-content__detail" role="region" aria-label="音乐室内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
+                <div><span>MUSIC</span><h3>音乐室</h3><p>{snapshot.additionalContent.music.unlocked} / {snapshot.additionalContent.music.total} 已收录</p></div>
+              </div>
+              {snapshot.additionalContent.musicItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可收录的音乐。</p>
+                : <ol className="player-additional-content__music">
+                  {snapshot.additionalContent.musicItems.map((item, index) => {
+                    if (!item.unlocked) return <li className="is-locked" key={item.assetId}>
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                      <div><strong>{item.displayName ?? "未发现的音乐"}</strong><small>继续推进剧情来收录</small></div>
+                    </li>;
+                    const source = additionalContentSources.get(item.assetId);
+                    const unavailable = source === undefined || !source.mimeType.startsWith("audio/") || additionalContentMediaErrors.includes(item.assetId);
+                    return <li key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
+                      <span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.displayName}</strong>{unavailable
+                        ? <><small role="status">资源暂不可用，收录记录仍然保留。</small>{onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}</>
+                        : <audio controls preload="metadata" aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
+                    </li>;
+                  })}
+                </ol>}
+            </section>}
+            {additionalContentView === "endings" && <section className="player-additional-content__detail" role="region" aria-label="结局内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
+                <div><span>ENDINGS</span><h3>结局</h3><p>{snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 已达成</p></div>
+              </div>
+              {snapshot.additionalContent.endingItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可记录的结局。</p>
+                : <ol className="player-additional-content__endings">
+                  {snapshot.additionalContent.endingItems.map((item, index) => <li key={item.endingId} data-unlocked={item.unlocked}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                    <div><strong>{item.name ?? "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
+                  </li>)}
+                </ol>}
+            </section>}
+          </aside>
+        )}
+        {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">
+          {fontStatus === "ready" ? `${typography.projectFont.displayName} · 项目字体已加载`
+            : fontStatus === "loading" ? `${typography.projectFont.displayName} · 正在加载项目字体`
+              : `${typography.projectFont.displayName} 加载失败，已回退到 ${typography.locale} 可读字体`}
+        </output>}
+        {(localizedMedia.fallbackResourceIds.length > 0 || localizedMedia.missingResourceIds.length > 0) && (
+          <output className={`player-media-locale-status${typography.projectFont === null ? " player-media-locale-status--first" : ""}`} role="status" aria-label="语言资源状态">
+            {localizedMedia.fallbackResourceIds.length > 0
+              ? `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.fallbackResourceIds.length} 个语言资源，已使用 ${snapshot.localization.sourceLocale} 资源`
+              : `${snapshot.localization.selectedLocale} 缺少 ${localizedMedia.missingResourceIds.length} 个语言资源，当前资源不可用`}
+          </output>
+        )}
         <div className="player-playback-controls" aria-label="播放控制">
+          {snapshot.localization.availableLocales.length > 1 && <>
+            <label className="player-locale-control">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
+              const locale = event.target.value;
+              setState((current) => configurePlayerCoreLocaleV1(current, locale));
+              storePlayerLocalePreference(project.manifest.projectId, locale);
+            }}>{snapshot.localization.availableLocales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>
+            <span role="status" aria-label="语言状态">{snapshot.localization.selectedLocale === snapshot.localization.sourceLocale
+              ? `${snapshot.localization.sourceLocale} · 工程源语言`
+              : snapshot.localization.missingTranslationCount > 0
+                ? `${snapshot.localization.selectedLocale} · ${snapshot.localization.missingTranslationCount} 项缺失译文继续显示 ${snapshot.localization.sourceLocale} 原文`
+                : `${snapshot.localization.selectedLocale} · 翻译完整`}</span>
+          </>}
           <button
             type="button"
             aria-label="自动播放"
@@ -1164,7 +1603,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <label>速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
           <span aria-live="polite">{autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
-        {saveStore !== undefined && (
+        {saveStore !== undefined && !snapshot.sceneReplay.active && (
           <aside className="player-save" data-open={savePanelOpen}>
             <div className="player-save__quick-controls" aria-label="快速存读档">
               <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>快速保存</button>
@@ -1232,7 +1671,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             )}
           </aside>
         )}
-        {recoveryStore !== undefined && (recoveryCandidate !== null || recoveryOperation === "error") && (
+        {recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
           <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
             <div>
               <strong>{recoveryOperation === "error" ? "恢复保护需要处理" : "发现可恢复进度"}</strong>
@@ -1284,14 +1723,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-label="继续下一句"
           >
             {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
-            <span key={`${presentedText}:${textRevealDuration}`} aria-live="polite" style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}>{content.text}</span>
+            <span
+              key={`${presentedText}:${textRevealDuration}`}
+              className="player-dialogue__text player-typography-text"
+              lang={typography.locale}
+              data-cjk-line-break={typography.cjk ? "strict" : "standard"}
+              aria-live="polite"
+              style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}
+            ><PlayerRichText text={content.text} locale={typography.locale} /></span>
             <i aria-hidden="true">⌄</i>
           </button>
         )}
 
         {content.kind === "choice" && (
           <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
-            <p id="player-choice-prompt">{content.prompt}</p>
+            <p id="player-choice-prompt" className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.prompt} locale={typography.locale} /></p>
             {content.options.map((option, index) => (
               <button
                 key={option.optionId}
@@ -1303,7 +1749,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }}
                 onClick={() => applyIntent({ kind: "select-choice", optionId: option.optionId }, pointerInput.current)}
               >
-                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}{option.label}
+                {settingsApplication.choice.showOptionNumbers && <span data-choice-number aria-hidden="true">{index + 1}</span>}<span className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={option.label} locale={typography.locale} /></span>
               </button>
             ))}
           </div>
@@ -1312,8 +1758,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {content.kind === "ending" && (
           <div className="player-ending" role="status">
             <span>ENDING</span>
-            <h2>{content.name}</h2>
-            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>回到标题</button>
+            <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : "回到标题"}</button>
           </div>
         )}
 
@@ -1323,7 +1769,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <h1>{snapshot.title}</h1>
             <p>{content.diagnostics[0]?.message ?? "未知 Player Core 错误"}</p>
             <code>{content.diagnostics[0]?.code ?? "PLAYER_UNKNOWN_ERROR"}</code>
-            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "restart" }, pointerInput.current)}>重新载入工程</button>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "退出回想，返回原剧情" : "重新载入工程"}</button>
           </div>
         )}
 

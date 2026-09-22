@@ -12,6 +12,8 @@ export type {
   WorldPlayerPreviewCaptureV1
 } from "./PlayerShell";
 export type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+export { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
+export type { PlayerLocalizedMediaResolutionV1 } from "./player-localized-media";
 export {
   DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1,
   WORLD_PLAYER_PLAYBACK_POLICY_VERSION,

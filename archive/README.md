@@ -22,12 +22,16 @@
 | [228 N51-E5 换机与 E6 入口](docs/228-n51-e5-handoff-and-e6-entry-checkpoint.md) | 已完成的换机快照，无外部引用；E6a–E6f 与 N51 出口已覆盖 | `docs/229`–`docs/235` |
 | [79 CL-04 Spike 12](docs/79-cl04-vm-generated-web-worker-conformance-spike-12.md) | 旧 VM Spike 中间证据，无外部引用；正式 Runtime corpus 已接管 | `packages/runtime` 与 N31 审计链 |
 | [80 CL-04 Spike 13](docs/80-cl04-vm-effect-barrier-meta-conformance-spike-13.md) | 旧 VM Spike 中间证据，无外部引用；正式 Runtime/Host 已接管 | `packages/runtime`、`packages/runtime-host` 与 N31/N32 审计链 |
+| [112 N22 换机快照](docs/112-development-handoff-2026-08-14.md) | N22 已完成，恢复命令和暂停提交不再是当前入口 | `docs/113` 与当前 `docs/99` |
+| [213 N50-E1 换机快照](docs/213-n50-e1-development-handoff-2026-08-26.md) | N50 Engineering 已完整关闭，旧 E1 恢复顺序失效 | `docs/219`、`docs/220` |
+| [237 N52 准入前暂停快照](docs/237-n52-development-pause-and-handoff.md) | N52 Engineering 已完整关闭，旧 E1 接续点失效 | `docs/265`、`docs/266` |
+| [269 N60-E2 换机快照](docs/269-n60-e2-cross-device-handoff.md) | E3/E4 已完成，旧“E3 尚未开始”状态被替代 | `docs/270`、`docs/271` |
 
 ## 测试文件审计
 
-本次没有归档测试文件。审计基线 `389bca22a2ff0b5bcc6f1e39338f8d134497bf01` 下共有 173 个 `*.test.*` / `*.spec.*` 文件：
+本次没有归档测试文件。当前共有 177 个已跟踪的 `*.test.*` / `*.spec.*` 文件：
 
-- 166 个由 `npx vitest list --filesOnly --staticParse` 直接发现；
+- 170 个由 `npx vitest list --filesOnly --staticParse` 直接发现；
 - 其余 7 个位于 `tools/`，全部由 `vitest.governance.config.ts`、`vitest.delivery-baseline.config.ts`、`vitest.performance.config.ts`、`vitest.route-performance.config.ts` 或 `vitest.asset-performance.config.ts` 显式执行；
 - 因而没有测试文件满足“未发现、未引用、未执行”的归档条件。
 

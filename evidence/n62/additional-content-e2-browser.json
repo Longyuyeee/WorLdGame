@@ -1,0 +1,490 @@
+{
+  "schemaVersion": 1,
+  "node": "N62-E2",
+  "scope": "cold-production-gallery-ending-content-and-preview-desktop-1440x900-mobile-390x844",
+  "generatedAt": "2026-09-22T15:15:20.882Z",
+  "build": {
+    "playerDistIndexSha256": "8f300d8262e33d8c00a1025ffd84f60b42af51f33f7fe9d13f493246fcbd7933"
+  },
+  "environment": {
+    "product": "Chrome/120.0.6099.225",
+    "protocolVersion": "1.3",
+    "headless": true,
+    "url": "http://127.0.0.1:5184/?demo=media"
+  },
+  "expectation": {
+    "discoverableLabel": "附加内容",
+    "disabledDuringAwaitedEffect": true,
+    "categories": {
+      "CG 画廊": "2 / 2 已发现",
+      "场景回想": "0 / 1 已发现",
+      "音乐室": "0 / 1 已发现",
+      "结局": "0 / 1 已发现"
+    },
+    "modalInitialFocus": "返回剧情",
+    "focusContained": true,
+    "focusReturned": "打开附加内容",
+    "galleryList": [
+      "Deterministic Actor",
+      "Deterministic Sunset"
+    ],
+    "lockedNamesHidden": true,
+    "nestedPreviewEscapeAndFocusReturn": true,
+    "reachedEnding": "Curtain",
+    "runtimeIdentityRetained": true,
+    "minimumInteractiveHeight": 44,
+    "mobileHorizontalOverflow": 0,
+    "browserErrorsOrWarnings": 0
+  },
+  "actual": {
+    "title": {
+      "status": "title",
+      "runtimeStateHash": "none",
+      "historyCursor": "0",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "lockedGallery": {
+      "status": "title",
+      "runtimeStateHash": "none",
+      "historyCursor": "0",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回附加内容总览",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [],
+        "view": "gallery",
+        "galleryImages": [],
+        "lockedGalleryItems": 2,
+        "missingGalleryItems": 0,
+        "galleryText": "← 返回总览GALLERYCG 画廊0 / 2 已发现?未发现的画面继续推进剧情来发现?未发现的画面继续推进剧情来发现",
+        "previewLabel": null,
+        "endingText": null
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "effect": {
+      "status": "waiting-effect",
+      "runtimeStateHash": "1b917c59c1f0bba21fe8b2bd3d4cb4fa0fae637f352c15cae498ab6f032c2ad0",
+      "historyCursor": "2",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": true,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "beforeOpen": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "desktop": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回剧情",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [
+          {
+            "label": "CG 画廊",
+            "text": "2 / 2 已发现CG 画廊在剧情中看过的画面会自动收录查看内容"
+          },
+          {
+            "label": "场景回想",
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+          },
+          {
+            "label": "音乐室",
+            "text": "0 / 1 已发现音乐室音乐收录功能正在准备中1 项尚未发现"
+          },
+          {
+            "label": "结局",
+            "text": "0 / 1 已发现结局达成的结局会自动记录1 项尚未发现查看内容"
+          }
+        ],
+        "view": "overview",
+        "galleryImages": [],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": null,
+        "previewLabel": null,
+        "endingText": null
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "afterTab": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "查看 CG 画廊",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [
+          {
+            "label": "CG 画廊",
+            "text": "2 / 2 已发现CG 画廊在剧情中看过的画面会自动收录查看内容"
+          },
+          {
+            "label": "场景回想",
+            "text": "0 / 1 已发现场景回想达成相关结局后，可以重温对应场景1 项尚未发现"
+          },
+          {
+            "label": "音乐室",
+            "text": "0 / 1 已发现音乐室音乐收录功能正在准备中1 项尚未发现"
+          },
+          {
+            "label": "结局",
+            "text": "0 / 1 已发现结局达成的结局会自动记录1 项尚未发现查看内容"
+          }
+        ],
+        "view": "overview",
+        "galleryImages": [],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": null,
+        "previewLabel": null,
+        "endingText": null
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "galleryDesktop": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回附加内容总览",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [],
+        "view": "gallery",
+        "galleryImages": [
+          "Deterministic Actor",
+          "Deterministic Sunset"
+        ],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": "← 返回总览GALLERYCG 画廊2 / 2 已发现画面 1Determini tic Actor画面 2Determini tic Sun et",
+        "previewLabel": null,
+        "endingText": null
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "preview": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "关闭画面预览",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [
+          {
+            "label": "Deterministic Sunset 画面预览",
+            "text": "Deterministic Sunset关闭预览"
+          }
+        ],
+        "view": "gallery",
+        "galleryImages": [
+          "Deterministic Actor",
+          "Deterministic Sunset"
+        ],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": "← 返回总览GALLERYCG 画廊2 / 2 已发现画面 1Determini tic Actor画面 2Determini tic Sun etDetermini tic Sun et关闭预览",
+        "previewLabel": "Deterministic Sunset 画面预览",
+        "endingText": null
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "afterPreviewClose": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "查看画面 Deterministic Sunset",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [],
+        "view": "gallery",
+        "galleryImages": [
+          "Deterministic Actor",
+          "Deterministic Sunset"
+        ],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": "← 返回总览GALLERYCG 画廊2 / 2 已发现画面 1Determini tic Actor画面 2Determini tic Sun et",
+        "previewLabel": null,
+        "endingText": null
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "afterClose": {
+      "status": "presenting",
+      "runtimeStateHash": "32eeb77622dd9a2c59ce0912dab6c6c0ebdcc0445181ac44b621dd45d4dce3ff",
+      "historyCursor": "4",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "endingBeforeOpen": {
+      "status": "ended",
+      "runtimeStateHash": "2055c6a16c9846121322d81adb0035dbc55337c5d58463c20866a07a8ff0ae56",
+      "historyCursor": "5",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "endingsDesktop": {
+      "status": "ended",
+      "runtimeStateHash": "2055c6a16c9846121322d81adb0035dbc55337c5d58463c20866a07a8ff0ae56",
+      "historyCursor": "5",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回附加内容总览",
+        "closeHeight": 44,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [],
+        "view": "endings",
+        "galleryImages": [],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": null,
+        "previewLabel": null,
+        "endingText": "← 返回总览ENDINGS结局1 / 1 已达成01Curtain已达成"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "endingAfterClose": {
+      "status": "ended",
+      "runtimeStateHash": "2055c6a16c9846121322d81adb0035dbc55337c5d58463c20866a07a8ff0ae56",
+      "historyCursor": "5",
+      "additionalContent": "closed",
+      "trigger": {
+        "label": "打开附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 44
+      },
+      "dialog": null,
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0
+    },
+    "mobile": {
+      "status": "ended",
+      "runtimeStateHash": "2055c6a16c9846121322d81adb0035dbc55337c5d58463c20866a07a8ff0ae56",
+      "historyCursor": "5",
+      "additionalContent": "open",
+      "trigger": {
+        "label": "关闭附加内容",
+        "text": "✦附加内容",
+        "disabled": false,
+        "height": 48
+      },
+      "dialog": {
+        "modal": "true",
+        "activeLabel": "返回附加内容总览",
+        "closeHeight": 48,
+        "minimumInteractiveHeight": 44,
+        "withinViewport": true,
+        "groups": [],
+        "view": "gallery",
+        "galleryImages": [
+          "Deterministic Actor",
+          "Deterministic Sunset"
+        ],
+        "lockedGalleryItems": 0,
+        "missingGalleryItems": 0,
+        "galleryText": "← 返回总览GALLERYCG 画廊2 / 2 已发现画面 1Determini tic Actor画面 2Determini tic Sun et",
+        "previewLabel": null,
+        "endingText": null
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0
+    },
+    "identityPass": true,
+    "endingIdentityPass": true,
+    "failures": []
+  },
+  "screenshots": [
+    {
+      "path": "evidence/n62/additional-content-e2-gallery-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "byteLength": 417787,
+      "sha256": "d6dd17654ba2efba87fee970d283b54c74881db643ff2218741054c5a2f1f798"
+    },
+    {
+      "path": "evidence/n62/additional-content-e2-preview-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "byteLength": 330858,
+      "sha256": "44ad2d77911525a64878c268c477e7b4307aaa24d8c1d7e2ed5322bfb2a11f56"
+    },
+    {
+      "path": "evidence/n62/additional-content-e2-ending-desktop.png",
+      "width": 1440,
+      "height": 900,
+      "byteLength": 410604,
+      "sha256": "c8f6fcd014a3fe9d00633e4832f668d8cb5fd2c155574551f03d9cd88ce6d851"
+    },
+    {
+      "path": "evidence/n62/additional-content-e2-gallery-mobile.png",
+      "width": 390,
+      "height": 844,
+      "byteLength": 85140,
+      "sha256": "80b60181f37d025dfdb188b33ed95ded80d17bd6a51f94decedec6ab8fa65905"
+    }
+  ],
+  "result": "PASS"
+}

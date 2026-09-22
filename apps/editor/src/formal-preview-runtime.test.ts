@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 import { runtimeHistorySessionHashV1, runtimeStateHashV1 } from "@world-studio/runtime";
 import { campusStoryProject, type StoryProject } from "@world-studio/story-core";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
+import { describeDebuggerStopReason } from "./DebugQaWorkspace";
 import {
   approveFormalPreviewBarrier,
   advanceFormalPreview,
   backFormalPreview,
   cancelFormalPreviewEffect,
   completeFormalPreviewEffect,
+  continueFormalPreviewToBreakpoints,
   forwardFormalPreview,
   observeFormalPreview,
   runFormalPreviewToStatement,
@@ -47,12 +49,12 @@ describe("formal editor preview runtime", () => {
     expect(radio).toMatchObject({ status: "ended", endingName: "留在电波里的名字", statementId: "stmt_radio_end" });
     expect(radio.visitedSceneIds).toEqual(["scn_school_gate", "scn_broadcast_room"]);
     expect(radio.visitedRouteEdgeIds).toEqual(["opt_broadcast"]);
-    expect(runtimeStateHashV1(radio.runtimeState!)).toBe("5f82560cde82addcb15380f8eb1d48cbbea3c395171e57599b0ffe88f0fcf3d1");
+    expect(runtimeStateHashV1(radio.runtimeState!)).toBe("aa00a0a6c1d4f318a7fa9ad8158808d188c718895abf468fbce542a9ca2f5c0e");
 
     const rooftop = untilSettled(selectFormalPreviewChoice(waiting, "opt_rooftop"));
     expect(rooftop).toMatchObject({ status: "ended", endingName: "晚风知道答案", statementId: "stmt_rooftop_end" });
     expect(rooftop.visitedRouteEdgeIds).toEqual(["opt_rooftop"]);
-    expect(runtimeStateHashV1(rooftop.runtimeState!)).toBe("5269973147711eba52238991d2ad3cc6edddbda5dac489b1bcac18cf38a4608e");
+    expect(runtimeStateHashV1(rooftop.runtimeState!)).toBe("620863a5c93f3c29ac351c962a12d65dfe289a156cce2e7fca58190f06952bfa");
   });
 
   it("fails closed on Compiler diagnostics instead of falling back to the product interpreter", () => {
@@ -110,12 +112,12 @@ describe("formal editor preview runtime", () => {
     const scene = startFormalPreviewFromScene(project, "scn_broadcast_room");
     expect(scene).toMatchObject({ status: "presenting", sceneId: "scn_broadcast_room", statementId: "stmt_radio_bg", statementIndex: 0, startTarget: { kind: "scene", sceneId: "scn_broadcast_room" } });
     expect(observeFormalPreview(scene).current).toMatchObject({ opcode: "direction", statementId: "stmt_radio_bg" });
-    expect(runtimeStateHashV1(scene.runtimeState!)).toBe("5085695c0ef6d2b8bd00d6667d59736f819809d99818e0a2d05862f8ccd91cac");
+    expect(runtimeStateHashV1(scene.runtimeState!)).toBe("c607b7e53574e3bc53d8fe474b8ad12ed52301757b4ed98363c7421089dd2548");
 
     const statement = startFormalPreviewFromStatement(project, "scn_rooftop", "stmt_rooftop_001");
     expect(statement).toMatchObject({ status: "presenting", sceneId: "scn_rooftop", statementId: "stmt_rooftop_001", statementIndex: 1, startTarget: { kind: "statement", sceneId: "scn_rooftop", statementId: "stmt_rooftop_001" } });
     expect(observeFormalPreview(statement).current).toMatchObject({ opcode: "dialogue", statementId: "stmt_rooftop_001" });
-    expect(runtimeStateHashV1(statement.runtimeState!)).toBe("cbf512ca6118645ec76f76e9b27c8611e1cd2e28774d0978dde7724e2f3bee72");
+    expect(runtimeStateHashV1(statement.runtimeState!)).toBe("4e8fe77e9396a54bf90caf233b86f9d00f463bca70f2f955d9dd073af8c5e614");
   });
 
   it("fails closed when a start target is missing or requires call context", () => {
@@ -148,7 +150,7 @@ describe("formal editor preview runtime", () => {
     expect(observeFormalPreview(back).history).toMatchObject({ cursor: 2, length: 3, canForward: true });
     expect(runtimeStateHashV1(forward.runtimeState!)).toBe(runtimeStateHashV1(third.runtimeState!));
     expect(forward).toMatchObject({ statementId: "stmt_gate_002" });
-    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("4c859407ce8e19da8097d677498d8c6c6e1e1dae3213505dbf20b41c55cf992e");
+    expect(runtimeHistorySessionHashV1(forward.historySession!)).toBe("ce8a5ba107e4cd03c20fb85b0389365beea77a02977a63c43702dd5fdf4747d8");
   });
 
   it("records checkpoint markers without presenting or stopping History navigation on them", () => {
@@ -209,6 +211,20 @@ describe("formal editor preview runtime", () => {
 
     const blocked = runFormalPreviewToStatement(startFormalPreview(project), "scn_broadcast_room", "stmt_radio_001");
     expect(blocked).toMatchObject({ status: "waiting-choice", diagnostics: [expect.objectContaining({ code: "PREVIEW_RUN_TO_CURSOR_BLOCKED" })] });
+  });
+
+  it("continues through one formal session to the nearest enabled breakpoint and then a Choice boundary", () => {
+    const project = projectCanonicalFromStory(campusStoryProject, "n60-e2-formal-breakpoints");
+    const breakpoints = [
+      { sceneId: "scn_school_gate", statementId: "stmt_gate_001" },
+      { sceneId: "scn_school_gate", statementId: "stmt_gate_choice" }
+    ];
+    const first = continueFormalPreviewToBreakpoints(startFormalPreview(project), breakpoints);
+    expect(first).toMatchObject({ status: "paused", sceneId: "scn_school_gate", statementId: "stmt_gate_001" });
+    const second = continueFormalPreviewToBreakpoints(first, breakpoints);
+    expect(second).toMatchObject({ status: "paused", sceneId: "scn_school_gate", statementId: "stmt_gate_choice" });
+    const choice = continueFormalPreviewToBreakpoints(second, []);
+    expect(choice).toMatchObject({ status: "waiting-choice", currentEvent: { kind: "choice", prompt: "先去哪里调查？" } });
   });
 
   it("steps over a nested call without stopping inside its call frame", () => {
@@ -297,6 +313,38 @@ describe("formal editor preview runtime", () => {
     expect(approved).toMatchObject({ status: "presenting", statementId: "stmt_gate_bg", runtimeState: { barrierLedger: [expect.objectContaining({ descriptorId: "preview.gallery.commit" })] } });
     const beforeBarrier = backFormalPreview(approved);
     expect(beforeBarrier.diagnostics).toContainEqual(expect.objectContaining({ code: "RUNTIME_BARRIER_BLOCKED" }));
+  });
+
+  it("projects every formal Runtime boundary into an explicit debugger stop reason", () => {
+    const base = projectCanonicalFromStory(campusStoryProject, "n60-e2-stop-reasons");
+    const first = base.scripts.scn_school_gate!.statements[0]!;
+    const choice = untilChoice(startFormalPreview(base));
+    const ending = untilSettled(selectFormalPreviewChoice(choice, "opt_broadcast"));
+    const awaitedEffect = startFormalPreview({
+      ...base,
+      assets: { ...base.assets, assets: [...base.assets.assets, { assetId: "bg_stop_reason", kind: "background" }] },
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: "action=set asset=bg_stop_reason effectPolicy=reversible awaitMode=awaited compensationKind=background.restore descriptorId=debugger.awaited.bg" },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    });
+    const barrier = startFormalPreview({
+      ...base,
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [
+        { ...first, summary: `${String(first.summary)} effectPolicy=barrier awaitMode=detached barrierReason=永久提交测试状态 descriptorId=debugger.barrier.commit` },
+        ...base.scripts.scn_school_gate!.statements.slice(1)
+      ] } }
+    });
+    const error = startFormalPreview({
+      ...base,
+      scripts: { ...base.scripts, scn_school_gate: { ...base.scripts.scn_school_gate!, statements: [{ id: "broken", kind: "jump", targetLabel: "missing" }] } }
+    });
+
+    expect(describeDebuggerStopReason(choice, [])).toMatchObject({ kind: "choice", title: "等待选择", detail: "先去哪里调查？" });
+    expect(describeDebuggerStopReason(awaitedEffect, [])).toMatchObject({ kind: "effect", title: "等待 Effect Host", detail: "debugger.awaited.bg · awaited" });
+    expect(describeDebuggerStopReason(barrier, [])).toMatchObject({ kind: "barrier", title: "等待 Barrier 批准", detail: "永久提交测试状态" });
+    expect(describeDebuggerStopReason(ending, [])).toMatchObject({ kind: "ending", title: "到达结局", detail: "留在电波里的名字" });
+    expect(describeDebuggerStopReason(error, [])).toMatchObject({ kind: "error", title: "运行错误" });
   });
 
   it("executes reversible Effect compensation and replay during History navigation", () => {

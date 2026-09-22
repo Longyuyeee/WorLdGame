@@ -17,7 +17,9 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
   if (protocol?.schemaVersion !== 1 || protocol?.protocolId !== "N21-HV-01" || protocol?.deliveryNode !== "N21") {
     violations.push("N21 human protocol identity is invalid");
   }
-  if (protocol?.timeLimitSeconds !== 1200) violations.push("N21 human protocol must retain the 20-minute limit");
+  if (protocol?.completionModel !== "task-outcomes-and-observed-friction" || "timeLimitSeconds" in (protocol ?? {})) {
+    violations.push("N21 human protocol must judge task outcomes and observed friction without a time limit");
+  }
   if (protocol?.prerequisite?.deliveryNode !== "N23" || protocol?.prerequisite?.requireRunnableEditorFlow !== true) {
     violations.push("N21 human protocol requires the N23 runnable editor flow");
   }
@@ -43,7 +45,6 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
   if (record.status === "pending-participant") {
     if (activeException === undefined) violations.push("pending N21 human evidence requires an active RA-N21 exception");
     if (record.participant?.pseudonymousId !== null || record.participant?.consentRecorded !== null ||
-        record.session?.startedAt !== null || record.session?.endedAt !== null || record.session?.durationSeconds !== null ||
         record.session?.helpRequestCount !== null || record.session?.facilitatorOperatedEditor !== null ||
         record.tasks?.some((task) => task?.status !== "not-run") || record.saveCloseReopen?.status !== "not-run" ||
         record.artifacts?.finalProjectSnapshot !== null || record.artifacts?.observationLog !== null) {
@@ -56,13 +57,6 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
       record.participant?.consentRecorded !== true || record.participant?.hasNotContributedCodeOrDesign !== true ||
       record.participant?.unfamiliarWithStoryScriptSyntax !== true) {
     violations.push("completed N21 evidence requires an eligible consented pseudonymous participant");
-  }
-  if (!validTimestamp(record.session?.startedAt) || !validTimestamp(record.session?.endedAt) ||
-      !Number.isInteger(record.session?.durationSeconds) || record.session.durationSeconds <= 0) {
-    violations.push("completed N21 evidence requires valid timing");
-  } else {
-    const measuredSeconds = Math.round((Date.parse(record.session.endedAt) - Date.parse(record.session.startedAt)) / 1000);
-    if (measuredSeconds !== record.session.durationSeconds) violations.push("N21 recorded duration does not match timestamps");
   }
   if (!Array.isArray(record.session?.inputDevices) || record.session.inputDevices.length === 0 ||
       !Number.isInteger(record.session?.helpRequestCount) || record.session.helpRequestCount < 0 ||
@@ -82,7 +76,6 @@ export function validateN21HumanValidation(protocol, record, riskRegistry) {
   }
 
   if (record.status === "pass") {
-    if (record.session.durationSeconds > protocol.timeLimitSeconds) violations.push("N21 pass exceeds the 20-minute limit");
     if (!record.tasks.every((task) => task.status === "pass") || record.saveCloseReopen?.status !== "pass" ||
         !["textPreserved", "orderPreserved", "selectionPreserved", "inspectorDataPreserved", "stableIdsPreserved"]
           .every((field) => record.saveCloseReopen?.[field] === true)) {
