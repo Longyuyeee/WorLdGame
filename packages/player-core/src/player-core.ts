@@ -218,24 +218,28 @@ export interface PlayerAdditionalContentSnapshotV1 {
   readonly galleryItems: readonly {
     readonly assetId: string;
     readonly displayName: string | null;
+    readonly coverAssetId: string | null;
     readonly kind: string;
     readonly unlocked: boolean;
   }[];
   readonly musicItems: readonly {
     readonly assetId: string;
     readonly displayName: string | null;
+    readonly coverAssetId: string | null;
     readonly unlocked: boolean;
   }[];
   readonly replayItems: readonly {
     readonly replayId: string;
     readonly title: string | null;
     readonly sceneId: string;
+    readonly coverAssetId: string | null;
     readonly unlocked: boolean;
   }[];
   readonly endingItems: readonly {
     readonly endingId: string;
     readonly name: string | null;
     readonly sceneId: string;
+    readonly coverAssetId: string | null;
     readonly unlocked: boolean;
   }[];
 }
@@ -341,7 +345,7 @@ function translatedPlayerText(state: PlayerCoreState, entries: ReadonlyMap<strin
 }
 
 function playerSourceTexts(state: PlayerCoreState): readonly { readonly key: string; readonly text: string }[] {
-  return state.artifacts?.story.scenes.flatMap((scene) => scene.instructions.flatMap((instruction) => {
+  const story = state.artifacts?.story.scenes.flatMap((scene) => scene.instructions.flatMap((instruction) => {
     const operands = instruction.operands;
     if (instruction.opcode === "dialogue" || instruction.opcode === "narration") {
       const key = stringValue(operands.textId); const text = stringValue(operands.text);
@@ -361,6 +365,14 @@ function playerSourceTexts(state: PlayerCoreState): readonly { readonly key: str
     }
     return [];
   })) ?? [];
+  const catalogs = state.artifacts?.catalogs;
+  const catalog = [
+    ...(catalogs?.gallery.map((entry) => ({ key: entry.assetId, text: entry.displayName })) ?? []),
+    ...(catalogs?.music.map((entry) => ({ key: entry.assetId, text: entry.displayName })) ?? []),
+    ...(catalogs?.replay.map((entry) => ({ key: entry.replayId, text: entry.title })) ?? []),
+    ...(catalogs?.endings.map((entry) => ({ key: entry.endingId, text: entry.name })) ?? [])
+  ];
+  return [...new Map([...story, ...catalog].map((entry) => [entry.key, entry])).values()];
 }
 
 function compilerDiagnostic(item: CompilerDiagnostic): PlayerCoreDiagnostic {
@@ -934,23 +946,27 @@ function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalCont
     endings: category(catalogs?.endings.length ?? 0, endingUnlocked),
     galleryItems: catalogs?.gallery.map((entry) => ({
       assetId: entry.assetId,
-      displayName: unlockedAssetIds.has(entry.assetId) ? entry.displayName : null,
+      displayName: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? translatedPlayerText(state, entries, entry.assetId, entry.displayName).text : null,
+      coverAssetId: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? entry.coverAssetId : null,
       kind: entry.kind,
       unlocked: unlockedAssetIds.has(entry.assetId)
     })) ?? [],
     musicItems: catalogs?.music.map((entry) => ({
       assetId: entry.assetId,
-      displayName: unlockedAssetIds.has(entry.assetId) ? entry.displayName : null,
+      displayName: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? translatedPlayerText(state, entries, entry.assetId, entry.displayName).text : null,
+      coverAssetId: unlockedAssetIds.has(entry.assetId) || entry.revealBeforeUnlock ? entry.coverAssetId : null,
       unlocked: unlockedAssetIds.has(entry.assetId)
     })) ?? [],
     replayItems: catalogs?.replay.map((entry) => {
       const unlocked = entry.endingIds.some((endingId) => endingIds.has(endingId));
-      return { replayId: entry.replayId, title: unlocked ? entry.title : null, sceneId: entry.sceneId, unlocked };
+      const visible = unlocked || entry.revealBeforeUnlock;
+      return { replayId: entry.replayId, title: visible ? translatedPlayerText(state, entries, entry.replayId, entry.title).text : null, sceneId: entry.sceneId, coverAssetId: visible ? entry.coverAssetId : null, unlocked };
     }) ?? [],
     endingItems: catalogs?.endings.map((entry) => ({
       endingId: entry.endingId,
-      name: endingIds.has(entry.endingId) ? translatedPlayerText(state, entries, entry.endingId, entry.name).text : null,
+      name: endingIds.has(entry.endingId) || entry.revealBeforeUnlock ? translatedPlayerText(state, entries, entry.endingId, entry.name).text : null,
       sceneId: entry.sceneId,
+      coverAssetId: endingIds.has(entry.endingId) || entry.revealBeforeUnlock ? entry.coverAssetId : null,
       unlocked: endingIds.has(entry.endingId)
     })) ?? []
   };

@@ -20,6 +20,9 @@ export type CompilerDiagnosticCode =
   | "INVALID_WAIT_DURATION"
   | "MISSING_ASSET"
   | "INVALID_ASSET"
+  | "INVALID_CATALOG_OVERRIDE"
+  | "MISSING_CATALOG_ENTRY"
+  | "MISSING_CATALOG_COVER"
   | "UNREACHABLE_SCENE"
   | "UNREACHABLE_STATEMENT"
   | "NON_INTERACTIVE_LOOP"
@@ -89,10 +92,10 @@ export interface RuntimeAssetManifestV1 {
 
 export interface RuntimeCatalogsV1 {
   readonly schemaVersion: 1;
-  readonly endings: readonly { readonly endingId: string; readonly name: string; readonly sceneId: string }[];
-  readonly gallery: readonly { readonly assetId: string; readonly displayName: string; readonly kind: string }[];
-  readonly music: readonly { readonly assetId: string; readonly displayName: string }[];
-  readonly replay: readonly { readonly replayId: string; readonly title: string; readonly sceneId: string; readonly endingIds: readonly string[] }[];
+  readonly endings: readonly { readonly endingId: string; readonly name: string; readonly sceneId: string; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
+  readonly gallery: readonly { readonly assetId: string; readonly displayName: string; readonly kind: string; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
+  readonly music: readonly { readonly assetId: string; readonly displayName: string; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
+  readonly replay: readonly { readonly replayId: string; readonly title: string; readonly sceneId: string; readonly endingIds: readonly string[]; readonly coverAssetId: string | null; readonly revealBeforeUnlock: boolean }[];
   readonly localization: readonly JsonObject[];
 }
 

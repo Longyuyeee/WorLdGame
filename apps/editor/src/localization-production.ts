@@ -1,4 +1,5 @@
 import type { CanonicalProject, JsonObject, JsonValue } from "@world-studio/project-domain";
+import { compileProject } from "@world-studio/project-compiler";
 
 export type LocalizationReviewStatus = "missing" | "draft" | "reviewed" | "outdated" | "locked";
 
@@ -7,7 +8,7 @@ export interface LocalizationSourceEntry {
   readonly sourceText: string;
   readonly sceneId: string;
   readonly statementId: string;
-  readonly kind: "dialogue" | "narration" | "choice-prompt" | "choice-option" | "ending";
+  readonly kind: "dialogue" | "narration" | "choice-prompt" | "choice-option" | "ending" | "gallery-title" | "music-title" | "replay-title";
 }
 
 export interface LocalizationTranslationEntry extends LocalizationSourceEntry {
@@ -50,7 +51,13 @@ export function localizationSourceEntries(project: CanonicalProject): readonly L
       }
     }
   }
-  return entries.sort((left, right) => left.key.localeCompare(right.key));
+  const compiled = compileProject(project, "debug");
+  if (compiled.ok) {
+    for (const entry of compiled.artifacts.catalogs.gallery) entries.push({ key: entry.assetId, sourceText: entry.displayName, sceneId: "additional-content", statementId: entry.assetId, kind: "gallery-title" });
+    for (const entry of compiled.artifacts.catalogs.music) entries.push({ key: entry.assetId, sourceText: entry.displayName, sceneId: "additional-content", statementId: entry.assetId, kind: "music-title" });
+    for (const entry of compiled.artifacts.catalogs.replay) entries.push({ key: entry.replayId, sourceText: entry.title, sceneId: entry.sceneId, statementId: entry.replayId, kind: "replay-title" });
+  }
+  return [...new Map(entries.map((entry) => [entry.key, entry])).values()].sort((left, right) => left.key.localeCompare(right.key));
 }
 
 export function targetLocales(project: CanonicalProject): readonly string[] {

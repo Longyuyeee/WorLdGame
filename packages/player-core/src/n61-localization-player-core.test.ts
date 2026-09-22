@@ -43,7 +43,7 @@ describe("N61-E3 formal Player Core localization projection", () => {
       sourceLocale: "en",
       selectedLocale: "zh-Hans",
       availableLocales: ["en", "zh-Hans"],
-      missingTranslationCount: 4,
+      missingTranslationCount: 6,
       fallbackUsed: true
     });
     expect(choiceSnapshot.presentation).toEqual({

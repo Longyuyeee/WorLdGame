@@ -1,6 +1,7 @@
 import { semanticHash, sha256, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
 import { isDialogueTemplate, isStageTransition, parseTypedExpression, validateStageBezierMotionParameters, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
+import { ADDITIONAL_CONTENT_SCREEN_ID, additionalContentCatalogOverrides, type AdditionalContentCatalogKind, type AdditionalContentCatalogOverride } from "./catalog-overrides";
 import {
   PROJECT_COMPILER_VERSION, RUNTIME_IR_VERSION,
   type CompileProfile, type CompileProjectResult, type CompilerArtifactsV1, type CompilerDiagnostic,
@@ -24,7 +25,7 @@ interface CompileContext {
 
 function stringField(value: JsonObject, field: string): string | undefined { return typeof value[field] === "string" ? value[field] : undefined; }
 function diagnostic(code: CompilerDiagnosticCode, message: string, context: Partial<CompilerDiagnostic> = {}): CompilerDiagnostic {
-  const severity = code === "UNREACHABLE_SCENE" || code === "UNREACHABLE_STATEMENT" ? "warning" : "error";
+  const severity = code === "UNREACHABLE_SCENE" || code === "UNREACHABLE_STATEMENT" || code === "MISSING_CATALOG_COVER" ? "warning" : "error";
   return { severity, code, message, ...context };
 }
 function sortDiagnostics(values: readonly CompilerDiagnostic[]): readonly CompilerDiagnostic[] {
@@ -39,6 +40,58 @@ function finalizeCacheEntry(entry: Omit<CompilerSceneCacheEntryV1, "outputHash">
 function validCachedEntry(entry: CompilerSceneCacheEntryV1): boolean {
   const { outputHash: _outputHash, ...payload } = entry;
   return entry.outputHash === sha256(canonicalJson(payload as unknown as JsonValue));
+}
+
+interface CatalogPresentation {
+  readonly title?: string;
+  readonly order?: number;
+  readonly coverAssetId?: string;
+  readonly revealBeforeUnlock?: boolean;
+}
+
+function catalogOverrideDiagnostics(project: CanonicalProject, assetIds: ReadonlySet<string>): readonly CompilerDiagnostic[] {
+  const screen = project.ui.screens.find((candidate) => candidate.id === ADDITIONAL_CONTENT_SCREEN_ID);
+  if (screen === undefined) return [];
+  if (screen.kind !== "additional-content-catalog" || !Array.isArray(screen.entries)) {
+    return [diagnostic("INVALID_CATALOG_OVERRIDE", "Additional-content presentation settings are malformed", { entityId: ADDITIONAL_CONTENT_SCREEN_ID })];
+  }
+  const diagnostics: CompilerDiagnostic[] = [];
+  const seen = new Set<string>();
+  for (const value of screen.entries) {
+    if (value === null || Array.isArray(value) || typeof value !== "object") {
+      diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", "Additional-content override must be an object", { entityId: ADDITIONAL_CONTENT_SCREEN_ID }));
+      continue;
+    }
+    const catalog = value.catalog;
+    const entryId = value.entryId;
+    if ((catalog !== "gallery" && catalog !== "music" && catalog !== "replay" && catalog !== "ending") || typeof entryId !== "string" || entryId.trim() === "") {
+      diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", "Additional-content override requires a valid catalog and entryId", { entityId: typeof entryId === "string" ? entryId : ADDITIONAL_CONTENT_SCREEN_ID }));
+      continue;
+    }
+    const key = `${catalog}:${entryId}`;
+    if (seen.has(key)) diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Additional-content override is duplicated: ${key}`, { entityId: entryId }));
+    seen.add(key);
+    if (value.title !== undefined && (typeof value.title !== "string" || value.title.trim() === "" || value.title.length > 256)) diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog title override is invalid: ${key}`, { entityId: entryId }));
+    if (value.order !== undefined && (typeof value.order !== "number" || !Number.isSafeInteger(value.order) || value.order < -10_000 || value.order > 10_000)) diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog order must be an integer from -10000 to 10000: ${key}`, { entityId: entryId }));
+    if (value.revealBeforeUnlock !== undefined && typeof value.revealBeforeUnlock !== "boolean") diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog spoiler setting must be boolean: ${key}`, { entityId: entryId }));
+    if (value.coverAssetId !== undefined) {
+      if (typeof value.coverAssetId !== "string" || value.coverAssetId.trim() === "") diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog cover reference is invalid: ${key}`, { entityId: entryId }));
+      else if (!assetIds.has(value.coverAssetId)) diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog cover references unknown asset: ${value.coverAssetId}`, { entityId: value.coverAssetId }));
+    }
+  }
+  return diagnostics;
+}
+
+function catalogOverrideMap(project: CanonicalProject): ReadonlyMap<string, AdditionalContentCatalogOverride> {
+  return new Map(additionalContentCatalogOverrides(project).map((entry) => [`${entry.catalog}:${entry.entryId}`, entry]));
+}
+
+function catalogPresentation(overrides: ReadonlyMap<string, AdditionalContentCatalogOverride>, catalog: AdditionalContentCatalogKind, entryId: string): CatalogPresentation {
+  return overrides.get(`${catalog}:${entryId}`) ?? {};
+}
+
+function catalogOrder(left: { readonly id: string; readonly order: number | undefined }, right: { readonly id: string; readonly order: number | undefined }): number {
+  return (left.order ?? 0) - (right.order ?? 0) || compareCanonicalStrings(left.id, right.id);
 }
 
 function parseWaitMilliseconds(value: string): number | undefined {
@@ -283,7 +336,8 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const previous = options.previousCache?.schemaVersion === 1 && options.previousCache.compilerVersion === PROJECT_COMPILER_VERSION && options.previousCache.irVersion === RUNTIME_IR_VERSION ? options.previousCache : undefined;
   const sceneCache: Record<string, CompilerSceneCacheEntryV1> = {}; const compiledSceneIds: string[] = []; const reusedSceneIds: string[] = [];
   for (const scene of project.scenes) { const script = project.scripts[scene.id]; const inputHash = sceneDependencyHash(scene, script, context); const cached = previous?.scenes[scene.id]; if (cached?.inputHash === inputHash && validCachedEntry(cached)) { sceneCache[scene.id] = cached; reusedSceneIds.push(scene.id); } else { sceneCache[scene.id] = compileScene(scene, script, context, inputHash); compiledSceneIds.push(scene.id); } }
-  const removedSceneIds = uniqueSorted(Object.keys(previous?.scenes ?? {}).filter((sceneId) => !sceneIds.has(sceneId))); const catalogInputHash = sha256(canonicalJson({ assets: assets as unknown as JsonValue, localization: project.localization as unknown as JsonValue }));
+  const additionalContentScreen = project.ui.screens.find((candidate) => candidate.id === ADDITIONAL_CONTENT_SCREEN_ID) ?? null;
+  const removedSceneIds = uniqueSorted(Object.keys(previous?.scenes ?? {}).filter((sceneId) => !sceneIds.has(sceneId))); const catalogInputHash = sha256(canonicalJson({ assets: assets as unknown as JsonValue, localization: project.localization as unknown as JsonValue, additionalContentScreen: additionalContentScreen as unknown as JsonValue }));
   const cache: ProjectCompilerCacheV1 = { schemaVersion: 1, compilerVersion: PROJECT_COMPILER_VERSION, irVersion: RUNTIME_IR_VERSION, catalogInputHash, scenes: sceneCache };
   const stats = { compiledSceneIds: uniqueSorted(compiledSceneIds), reusedSceneIds: uniqueSorted(reusedSceneIds), removedSceneIds, resourceCatalogChanged: previous === undefined || previous.catalogInputHash !== catalogInputHash };
   for (const entry of Object.values(sceneCache)) diagnostics.push(...entry.diagnostics);
@@ -292,18 +346,52 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId)).sort((left, right) => compareCanonicalStrings(left.endingId, right.endingId));
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
+  const galleryIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds)); const musicIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds));
+  const replayIds = project.scenes.flatMap((scene) => endings.some((ending) => ending.sceneId === scene.id) ? [scene.id] : []);
+  const validCatalogEntries = new Set([
+    ...galleryIds.map((id) => `gallery:${id}`), ...musicIds.map((id) => `music:${id}`),
+    ...replayIds.map((id) => `replay:${id}`), ...endings.map((entry) => `ending:${entry.endingId}`)
+  ]);
+  diagnostics.push(...catalogOverrideDiagnostics(project, seenAssetIds));
+  for (const override of additionalContentCatalogOverrides(project)) {
+    if (!validCatalogEntries.has(`${override.catalog}:${override.entryId}`)) diagnostics.push(diagnostic("MISSING_CATALOG_ENTRY", `Catalog override references content that is not generated: ${override.catalog}:${override.entryId}`, { entityId: override.entryId }));
+    if (override.coverAssetId !== undefined) {
+      const asset = assets.find((candidate) => candidate.assetId === override.coverAssetId || candidate.id === override.coverAssetId);
+      const source = asset?.source !== null && !Array.isArray(asset?.source) && typeof asset?.source === "object" ? asset.source as JsonObject : undefined;
+      const mimeType = typeof asset?.mimeType === "string" ? asset.mimeType : typeof source?.mimeType === "string" ? source.mimeType : "";
+      if (asset !== undefined && !mimeType.startsWith("image/")) diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog cover must reference an image asset: ${override.coverAssetId}`, { entityId: override.coverAssetId }));
+    }
+  }
+  const overrideLookup = catalogOverrideMap(project);
+  const missingCover = (catalog: AdditionalContentCatalogKind, entryId: string, defaultCoverAssetId?: string): void => {
+    if (overrideLookup.get(`${catalog}:${entryId}`)?.coverAssetId !== undefined) return;
+    if (defaultCoverAssetId !== undefined) {
+      const asset = assets.find((candidate) => candidate.assetId === defaultCoverAssetId || candidate.id === defaultCoverAssetId);
+      const source = asset?.source !== null && !Array.isArray(asset?.source) && typeof asset?.source === "object" ? asset.source as JsonObject : undefined;
+      const mimeType = typeof asset?.mimeType === "string" ? asset.mimeType : typeof source?.mimeType === "string" ? source.mimeType : "";
+      if (mimeType.startsWith("image/")) return;
+    }
+    diagnostics.push(diagnostic("MISSING_CATALOG_COVER", `Catalog entry has no usable thumbnail: ${catalog}:${entryId}`, { entityId: entryId }));
+  };
+  if (additionalContentScreen !== null && !diagnostics.some((item) => item.severity === "error")) {
+    galleryIds.forEach((id) => missingCover("gallery", id, id)); musicIds.forEach((id) => missingCover("music", id)); replayIds.forEach((id) => missingCover("replay", id)); endings.forEach((entry) => missingCover("ending", entry.endingId));
+  }
   const sortedDiagnostics = sortDiagnostics(diagnostics); if (sortedDiagnostics.some((item) => item.severity === "error")) return { ok: false, diagnostics: sortedDiagnostics, cache, stats };
 
   const runtimeScenes: RuntimeSceneV1[] = project.scenes.map((scene) => sceneCache[scene.id]!.scene); const sourceEntries = project.scenes.flatMap((scene) => sceneCache[scene.id]!.sourceEntries);
   const story = { schemaVersion: 1 as const, irVersion: RUNTIME_IR_VERSION, projectId: project.manifest.projectId, entrySceneId: project.manifest.entrySceneId, scenes: runtimeScenes };
   const sourceMap = { schemaVersion: 1 as const, irVersion: RUNTIME_IR_VERSION, entries: sourceEntries }; const assetManifest = { schemaVersion: 1 as const, assets };
   const assetsById = new Map(assets.flatMap((asset) => { const assetId = typeof asset.assetId === "string" ? asset.assetId : typeof asset.id === "string" ? asset.id : undefined; return assetId === undefined ? [] : [[assetId, asset] as const]; }));
-  const galleryIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds)); const musicIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds));
+  const overrides = overrideLookup;
+  const endingCatalog = endings.map((entry) => { const override = catalogPresentation(overrides, "ending", entry.endingId); return { ...entry, name: override.title ?? entry.name, coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: entry.endingId }; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
+  const galleryCatalog = galleryIds.map((assetId) => { const asset = assetsById.get(assetId); const override = catalogPresentation(overrides, "gallery", assetId); return { assetId, displayName: override.title ?? String(asset?.displayName ?? assetId), kind: String(asset?.kind ?? "unknown"), coverAssetId: override.coverAssetId ?? assetId, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: assetId }; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
+  const musicCatalog = musicIds.map((assetId) => { const asset = assetsById.get(assetId); const override = catalogPresentation(overrides, "music", assetId); return { assetId, displayName: override.title ?? String(asset?.displayName ?? assetId), coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: assetId }; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
+  const replayCatalog = project.scenes.flatMap((scene) => { const endingIds = endings.filter((ending) => ending.sceneId === scene.id).map((ending) => ending.endingId); if (endingIds.length === 0) return []; const override = catalogPresentation(overrides, "replay", scene.id); return [{ replayId: scene.id, title: override.title ?? scene.title, sceneId: scene.id, endingIds, coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: scene.id }]; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
   const catalogs = {
-    schemaVersion: 1 as const, endings,
-    gallery: galleryIds.map((assetId) => { const asset = assetsById.get(assetId); return { assetId, displayName: String(asset?.displayName ?? assetId), kind: String(asset?.kind ?? "unknown") }; }),
-    music: musicIds.map((assetId) => { const asset = assetsById.get(assetId); return { assetId, displayName: String(asset?.displayName ?? assetId) }; }),
-    replay: project.scenes.flatMap((scene) => { const endingIds = endings.filter((ending) => ending.sceneId === scene.id).map((ending) => ending.endingId); return endingIds.length === 0 ? [] : [{ replayId: scene.id, title: scene.title, sceneId: scene.id, endingIds }]; }),
+    schemaVersion: 1 as const, endings: endingCatalog,
+    gallery: galleryCatalog,
+    music: musicCatalog,
+    replay: replayCatalog,
     localization: project.localization.locales.map(jsonClone).sort((left, right) => compareCanonicalStrings(String(left.id ?? left.locale ?? ""), String(right.id ?? right.locale ?? "")))
   };
   const releaseInputs = {
@@ -359,7 +447,8 @@ export function analyzeProjectIncremental(project: CanonicalProject, options: In
     else { sceneCache[scene.id] = compileScene(scene, script, context, inputHash); compiledSceneIds.push(scene.id); }
   }
   const removedSceneIds = uniqueSorted(Object.keys(previous?.scenes ?? {}).filter((sceneId) => !sceneIds.has(sceneId)));
-  const catalogInputHash = sha256(canonicalJson({ assets: assets as unknown as JsonValue, localization: project.localization as unknown as JsonValue }));
+  const additionalContentScreen = project.ui.screens.find((candidate) => candidate.id === ADDITIONAL_CONTENT_SCREEN_ID) ?? null;
+  const catalogInputHash = sha256(canonicalJson({ assets: assets as unknown as JsonValue, localization: project.localization as unknown as JsonValue, additionalContentScreen: additionalContentScreen as unknown as JsonValue }));
   const cache: ProjectCompilerCacheV1 = { schemaVersion: 1, compilerVersion: PROJECT_COMPILER_VERSION, irVersion: RUNTIME_IR_VERSION, catalogInputHash, scenes: sceneCache };
   const stats = { compiledSceneIds: uniqueSorted(compiledSceneIds), reusedSceneIds: uniqueSorted(reusedSceneIds), removedSceneIds, resourceCatalogChanged: previous === undefined || previous.catalogInputHash !== catalogInputHash };
   for (const entry of Object.values(sceneCache)) diagnostics.push(...entry.diagnostics);
@@ -370,6 +459,39 @@ export function analyzeProjectIncremental(project: CanonicalProject, options: In
   for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId));
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
+  diagnostics.push(...catalogOverrideDiagnostics(project, seenAssetIds));
+  const validCatalogEntries = new Set([
+    ...Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds.map((id) => `gallery:${id}`)),
+    ...Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds.map((id) => `music:${id}`)),
+    ...project.scenes.flatMap((scene) => endings.some((ending) => ending.sceneId === scene.id) ? [`replay:${scene.id}`] : []),
+    ...endings.map((entry) => `ending:${entry.endingId}`)
+  ]);
+  for (const override of additionalContentCatalogOverrides(project)) {
+    if (!validCatalogEntries.has(`${override.catalog}:${override.entryId}`)) diagnostics.push(diagnostic("MISSING_CATALOG_ENTRY", `Catalog override references content that is not generated: ${override.catalog}:${override.entryId}`, { entityId: override.entryId }));
+    if (override.coverAssetId !== undefined) {
+      const asset = assets.find((candidate) => candidate.assetId === override.coverAssetId || candidate.id === override.coverAssetId);
+      const source = asset?.source !== null && !Array.isArray(asset?.source) && typeof asset?.source === "object" ? asset.source as JsonObject : undefined;
+      const mimeType = typeof asset?.mimeType === "string" ? asset.mimeType : typeof source?.mimeType === "string" ? source.mimeType : "";
+      if (asset !== undefined && !mimeType.startsWith("image/")) diagnostics.push(diagnostic("INVALID_CATALOG_OVERRIDE", `Catalog cover must reference an image asset: ${override.coverAssetId}`, { entityId: override.coverAssetId }));
+    }
+  }
+  const overrideLookup = catalogOverrideMap(project);
+  const missingCover = (catalog: AdditionalContentCatalogKind, entryId: string, defaultCoverAssetId?: string): void => {
+    if (overrideLookup.get(`${catalog}:${entryId}`)?.coverAssetId !== undefined) return;
+    if (defaultCoverAssetId !== undefined) {
+      const asset = assets.find((candidate) => candidate.assetId === defaultCoverAssetId || candidate.id === defaultCoverAssetId);
+      const source = asset?.source !== null && !Array.isArray(asset?.source) && typeof asset?.source === "object" ? asset.source as JsonObject : undefined;
+      const mimeType = typeof asset?.mimeType === "string" ? asset.mimeType : typeof source?.mimeType === "string" ? source.mimeType : "";
+      if (mimeType.startsWith("image/")) return;
+    }
+    diagnostics.push(diagnostic("MISSING_CATALOG_COVER", `Catalog entry has no usable thumbnail: ${catalog}:${entryId}`, { entityId: entryId }));
+  };
+  if (additionalContentScreen !== null && !diagnostics.some((item) => item.severity === "error")) {
+    Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds).forEach((id) => missingCover("gallery", id, id));
+    Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds).forEach((id) => missingCover("music", id));
+    project.scenes.filter((scene) => endings.some((ending) => ending.sceneId === scene.id)).forEach((scene) => missingCover("replay", scene.id));
+    endings.forEach((entry) => missingCover("ending", entry.endingId));
+  }
   const sortedDiagnostics = sortDiagnostics(diagnostics);
   return { ok: !sortedDiagnostics.some((item) => item.severity === "error"), diagnostics: sortedDiagnostics, cache, stats };
 }

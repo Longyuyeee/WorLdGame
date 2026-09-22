@@ -27,7 +27,7 @@ describe("N43-E5 Production resource task", () => {
     await waitFor(() => expect(screen.getByText(/production_cg 已原子写入 Index r1/)).toBeVisible(), { timeout: UI_BUDGET_MS });
     fireEvent.click(screen.getByRole("button", { name: "关闭资源保险库" }));
 
-    const table = screen.getByRole("table");
+    const table = screen.getByRole("table", { name: "资源映射批量表" });
     expect(within(table).getByText("production_cg")).toBeVisible();
     expect(within(table).getByText("✓ 已通过")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
@@ -49,6 +49,6 @@ describe("N43-E5 Production resource task", () => {
     expect(screen.getByText("Index r1")).toBeVisible();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-restore-status", "restored");
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "stmt_gate_bg");
-    expect(within(screen.getByRole("table")).getByText("production_cg")).toBeVisible();
+    expect(within(screen.getByRole("table", { name: "资源映射批量表" })).getByText("production_cg")).toBeVisible();
   }, 30_000);
 });

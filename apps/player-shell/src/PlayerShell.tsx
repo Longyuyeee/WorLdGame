@@ -1444,9 +1444,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 ? <p className="player-additional-content__empty">这个故事暂时没有可收录的画面。</p>
                 : <div className="player-additional-content__items">
                   {snapshot.additionalContent.galleryItems.map((item, index) => {
-                    if (!item.unlocked || item.displayName === null) return <article className="player-additional-content__item is-locked" key={item.assetId}>
+                    if (!item.unlocked && item.displayName === null) return <article className="player-additional-content__item is-locked" key={item.assetId}>
                       <div aria-hidden="true">?</div><strong>未发现的画面</strong><span>继续推进剧情来发现</span>
                     </article>;
+                    if (!item.unlocked) {
+                      const cover = item.coverAssetId === null ? undefined : additionalContentSources.get(item.coverAssetId);
+                      return <article className="player-additional-content__item is-locked is-revealed" key={item.assetId}>
+                        {cover?.mimeType.startsWith("image/") === true ? <img src={cover.url} alt="" /> : <div aria-hidden="true">◇</div>}
+                        <strong>{item.displayName}</strong><span>尚未发现</span>
+                      </article>;
+                    }
+                    if (item.displayName === null) return null;
                     const source = additionalContentSources.get(item.assetId);
                     const unavailable = source === undefined || !source.mimeType.startsWith("image/") || additionalContentMediaErrors.includes(item.assetId);
                     return <article className="player-additional-content__item" key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
@@ -1482,7 +1490,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 : <ol className="player-additional-content__replay">
                   {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
-                    <div><strong>{item.unlocked ? item.title : "未解锁的场景"}</strong><small>{item.unlocked ? "可从原路线安全重温" : "达成相关结局后解锁"}</small></div>
+                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{item.unlocked ? "可从原路线安全重温" : "达成相关结局后解锁"}</small></div>
                     <button type="button" disabled={!item.unlocked} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
                   </li>)}
                 </ol>}
@@ -1496,8 +1505,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 ? <p className="player-additional-content__empty">这个故事暂时没有可收录的音乐。</p>
                 : <ol className="player-additional-content__music">
                   {snapshot.additionalContent.musicItems.map((item, index) => {
-                    if (!item.unlocked || item.displayName === null) return <li className="is-locked" key={item.assetId}>
-                      <span>{String(index + 1).padStart(2, "0")}</span><div><strong>未发现的音乐</strong><small>继续推进剧情来收录</small></div>
+                    if (!item.unlocked) return <li className="is-locked" key={item.assetId}>
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                      <div><strong>{item.displayName ?? "未发现的音乐"}</strong><small>继续推进剧情来收录</small></div>
                     </li>;
                     const source = additionalContentSources.get(item.assetId);
                     const unavailable = source === undefined || !source.mimeType.startsWith("audio/") || additionalContentMediaErrors.includes(item.assetId);
@@ -1519,7 +1530,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 : <ol className="player-additional-content__endings">
                   {snapshot.additionalContent.endingItems.map((item, index) => <li key={item.endingId} data-unlocked={item.unlocked}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
-                    <div><strong>{item.unlocked ? item.name : "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
+                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                    <div><strong>{item.name ?? "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
                   </li>)}
                 </ol>}
             </section>}

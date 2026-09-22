@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, type S0Project } from "@world-studio/project-domain";
-import { createPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1, dispatchPlayerCoreIntentV1, startPlayerCore } from "./player-core";
+import { updateAdditionalContentCatalogOverride } from "@world-studio/project-compiler";
+import { configurePlayerCoreLocaleV1, createPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1, dispatchPlayerCoreIntentV1, startPlayerCore } from "./player-core";
 
 function mediaProject(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/media/project.s0.json"), "utf8")) as S0Project;
@@ -22,17 +23,17 @@ describe("N62-E1-E4 Player Core additional-content projection", () => {
       endings: { total: 1, unlocked: 0, locked: 1 }
     });
     expect(title.additionalContent.galleryItems).toEqual([
-      { assetId: "media_actor_sprite", displayName: null, kind: "character", unlocked: false },
-      { assetId: "media_sunset", displayName: null, kind: "cg", unlocked: false }
+      { assetId: "media_actor_sprite", displayName: null, coverAssetId: null, kind: "character", unlocked: false },
+      { assetId: "media_sunset", displayName: null, coverAssetId: null, kind: "cg", unlocked: false }
     ]);
     expect(title.additionalContent.endingItems).toEqual([
-      { endingId: "media_end", name: null, sceneId: "media_stage", unlocked: false }
+      { endingId: "media_end", name: null, sceneId: "media_stage", coverAssetId: null, unlocked: false }
     ]);
     expect(title.additionalContent.musicItems).toEqual([
-      { assetId: "media_theme", displayName: null, unlocked: false }
+      { assetId: "media_theme", displayName: null, coverAssetId: null, unlocked: false }
     ]);
     expect(title.additionalContent.replayItems).toEqual([
-      { replayId: "media_stage", title: null, sceneId: "media_stage", unlocked: false }
+      { replayId: "media_stage", title: null, sceneId: "media_stage", coverAssetId: null, unlocked: false }
     ]);
 
     const waitingEffect = startPlayerCore(createPlayerCore(project), project);
@@ -44,13 +45,13 @@ describe("N62-E1-E4 Player Core additional-content projection", () => {
       endings: { total: 1, unlocked: 0, locked: 1 }
     });
     expect(started.additionalContent.galleryItems).toEqual([
-      { assetId: "media_actor_sprite", displayName: "Deterministic Actor", kind: "character", unlocked: true },
-      { assetId: "media_sunset", displayName: "Deterministic Sunset", kind: "cg", unlocked: true }
+      { assetId: "media_actor_sprite", displayName: "Deterministic Actor", coverAssetId: "media_actor_sprite", kind: "character", unlocked: true },
+      { assetId: "media_sunset", displayName: "Deterministic Sunset", coverAssetId: "media_sunset", kind: "cg", unlocked: true }
     ]);
     const presenting = createPlayerCoreSnapshotV1(dispatchPlayerCoreIntentV1(waitingEffect, project, { kind: "primary" }));
     expect(presenting.additionalContent.music).toEqual({ total: 1, unlocked: 1, locked: 0 });
     expect(presenting.additionalContent.musicItems).toEqual([
-      { assetId: "media_theme", displayName: "Deterministic Theme", unlocked: true }
+      { assetId: "media_theme", displayName: "Deterministic Theme", coverAssetId: null, unlocked: true }
     ]);
   });
 
@@ -61,7 +62,7 @@ describe("N62-E1-E4 Player Core additional-content projection", () => {
     const parent = dispatchPlayerCoreIntentV1(ended, project, { kind: "back" });
     const parentSnapshot = createPlayerCoreSnapshotV1(parent);
     expect(parentSnapshot.additionalContent.replayItems).toEqual([
-      { replayId: "media_stage", title: "Stage", sceneId: "media_stage", unlocked: true }
+      { replayId: "media_stage", title: "Stage", sceneId: "media_stage", coverAssetId: null, unlocked: true }
     ]);
 
     const replayDialogue = dispatchPlayerCoreIntentV1(parent, project, { kind: "enter-scene-replay", replayId: "media_stage" });
@@ -86,5 +87,24 @@ describe("N62-E1-E4 Player Core additional-content projection", () => {
     const replay = dispatchPlayerCoreIntentV1(parent, project, { kind: "enter-scene-replay", replayId: "media_stage" });
     expect(replay.status).toBe("presenting");
     expect(dispatchPlayerCoreIntentV1(replay, project, { kind: "exit-scene-replay" })).toEqual(parent);
+  });
+
+  it("reveals only explicitly authored locked metadata and localizes every catalog title", () => {
+    const overridden = updateAdditionalContentCatalogOverride(mediaProject(), "replay", "media_stage", { title: "黄昏回想", coverAssetId: "media_sunset", revealBeforeUnlock: true });
+    const project: CanonicalProject = {
+      ...overridden,
+      manifest: { ...overridden.manifest, defaultLocale: "zh-Hans" },
+      localization: { ...overridden.localization, locales: [{
+        id: "locale_en", locale: "en", sourceLocale: "zh-Hans", entries: [
+          { key: "media_stage", sourceText: "黄昏回想", translation: "Sunset Replay", status: "reviewed" },
+          { key: "media_sunset", sourceText: "Deterministic Sunset", translation: "Sunset Gallery", status: "reviewed" }
+        ]
+      }] }
+    };
+    const localized = configurePlayerCoreLocaleV1(createPlayerCore(project), "en");
+    const snapshot = createPlayerCoreSnapshotV1(localized);
+    expect(snapshot.additionalContent.replayItems[0]).toMatchObject({ title: "Sunset Replay", coverAssetId: "media_sunset", unlocked: false });
+    expect(snapshot.additionalContent.galleryItems.find((entry) => entry.assetId === "media_sunset")).toMatchObject({ displayName: null, coverAssetId: null, unlocked: false });
+    expect(snapshot.localization.missingTranslationCount).toBeGreaterThan(0);
   });
 });

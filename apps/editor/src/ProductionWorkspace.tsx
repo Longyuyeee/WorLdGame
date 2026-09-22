@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CanonicalProject } from "@world-studio/project-domain";
+import { updateAdditionalContentCatalogOverride, type AdditionalContentCatalogKind } from "@world-studio/project-compiler";
 import type {
   AssetIndex,
   AssetKind,
@@ -33,6 +34,7 @@ import {
   createLocalizationMediaProductionModel,
   type LocalizationMediaReviewStatus
 } from "./localization-media-production";
+import { createAdditionalContentAuthoringModel } from "./additional-content-authoring";
 
 type ProductionStorageStatus = "loading" | "unavailable" | "ready" | "importing" | "success" | "cancelled" | "error";
 
@@ -135,6 +137,9 @@ export function ProductionWorkspace({
     () => createLocalizationMediaProductionModel(project, index, mediaLocale),
     [index, mediaLocale, project]
   );
+  const additionalContentModel = useMemo(() => createAdditionalContentAuthoringModel(project), [project]);
+  const catalogLabels: Record<AdditionalContentCatalogKind, string> = { gallery: "CG 画廊", replay: "场景回想", music: "音乐室", ending: "结局" };
+  const coverCandidates = index.assets.filter((asset) => asset.source.mimeType.startsWith("image/"));
   const reviewStatusLabel: Record<LocalizationMediaReviewStatus, string> = { missing: "缺失", draft: "草稿", reviewed: "已审阅", locked: "已锁定" };
 
   return (
@@ -171,6 +176,29 @@ export function ProductionWorkspace({
           </li>
         ))}
       </ol>
+
+      <section className="additional-content-authoring" aria-labelledby="additional-content-authoring-title">
+        <div className="production-table__heading">
+          <div><p className="eyebrow">N62 · GENERATED CATALOG · SPARSE OVERRIDES</p><h3 id="additional-content-authoring-title">附加内容展示</h3></div>
+          <span>{additionalContentModel.rows.length} 项由剧情自动生成 · {additionalContentModel.missingCoverCount} 项缺少缩略图</span>
+        </div>
+        <p className="additional-content-authoring__intro">这里只调整玩家看到的名称、顺序、封面和剧透策略；条目仍由实际剧情与资源自动收录，避免维护第二份清单。</p>
+        {additionalContentModel.error !== null ? <p className="localization-production__message" role="status">{additionalContentModel.error}</p> : (
+          <div className="additional-content-authoring__scroll"><table aria-label="附加内容展示设置">
+            <thead><tr><th>分类 / 稳定 ID</th><th>玩家显示名称</th><th>排序</th><th>封面</th><th>解锁前标题</th></tr></thead>
+            <tbody>{additionalContentModel.rows.map((row) => <tr key={`${row.catalog}:${row.entryId}`}>
+              <td><strong>{catalogLabels[row.catalog]}</strong><code>{row.entryId}</code></td>
+              <td><input key={`${row.catalog}:${row.entryId}:${row.sourceTitle}`} aria-label={`${row.entryId} 的玩家显示名称`} defaultValue={row.sourceTitle} onBlur={(event) => onProjectChange(updateAdditionalContentCatalogOverride(project, row.catalog, row.entryId, { title: event.target.value.trim() === "" ? undefined : event.target.value.trim() }))} /></td>
+              <td><input key={`${row.catalog}:${row.entryId}:${row.override?.order ?? "auto"}`} aria-label={`${row.entryId} 的显示顺序`} type="number" min={-10000} max={10000} placeholder="自动" defaultValue={row.override?.order} onBlur={(event) => { const value = event.target.value.trim(); onProjectChange(updateAdditionalContentCatalogOverride(project, row.catalog, row.entryId, { order: value === "" ? undefined : Number(value) })); }} /></td>
+              <td><select aria-label={`${row.entryId} 的封面`} value={row.override?.coverAssetId ?? ""} onChange={(event) => onProjectChange(updateAdditionalContentCatalogOverride(project, row.catalog, row.entryId, { coverAssetId: event.target.value === "" ? undefined : event.target.value }))}>
+                <option value="">{row.catalog === "gallery" ? "自动使用原图" : "不设置封面"}</option>
+                {coverCandidates.map((asset) => <option key={asset.assetId} value={asset.assetId}>{asset.displayName} · {asset.assetId}</option>)}
+              </select></td>
+              <td><label className="additional-content-authoring__spoiler"><input aria-label={`${row.entryId} 解锁前显示标题`} type="checkbox" checked={row.override?.revealBeforeUnlock ?? false} onChange={(event) => onProjectChange(updateAdditionalContentCatalogOverride(project, row.catalog, row.entryId, { revealBeforeUnlock: event.target.checked }))} /><span>显示标题和封面</span></label></td>
+            </tr>)}</tbody>
+          </table></div>
+        )}
+      </section>
 
       <section className="localization-production" aria-labelledby="localization-production-title">
         <div className="production-table__heading">
@@ -379,7 +407,7 @@ export function ProductionWorkspace({
           </select></label>
         </div>
         <div className="production-table__scroll">
-          <table>
+          <table aria-label="资源映射批量表">
             <thead><tr><th>Asset ID</th><th>名称</th><th>类型</th><th>媒体检查</th><th>源文件</th><th>审阅状态</th></tr></thead>
             <tbody>
               {visibleAssets.map((entry) => {
