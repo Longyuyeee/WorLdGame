@@ -7,11 +7,9 @@ import { spawn } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
 const evidenceDirectory = join(root, "evidence", "n62");
-const evidencePath = join(evidenceDirectory, "additional-content-e2-browser.json");
-const desktopPath = join(evidenceDirectory, "additional-content-e2-gallery-desktop.png");
-const previewPath = join(evidenceDirectory, "additional-content-e2-preview-desktop.png");
-const endingPath = join(evidenceDirectory, "additional-content-e2-ending-desktop.png");
-const mobilePath = join(evidenceDirectory, "additional-content-e2-gallery-mobile.png");
+const evidencePath = join(evidenceDirectory, "additional-content-e3-browser.json");
+const desktopPath = join(evidenceDirectory, "additional-content-e3-music-desktop.png");
+const mobilePath = join(evidenceDirectory, "additional-content-e3-music-mobile.png");
 const baseUrl = "http://127.0.0.1:5184/?demo=media";
 const delay = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -107,7 +105,7 @@ async function snapshot(client) {
     const trigger = document.querySelector('.player-history-controls__additional');
     const panel = document.querySelector('.player-additional-content');
     const close = panel?.querySelector('button[aria-label="返回剧情"]');
-    const interactive = Array.from(panel?.querySelectorAll('button, [href], input, select, textarea') ?? []);
+    const interactive = Array.from(panel?.querySelectorAll('button, [href], input, select, textarea, audio[controls]') ?? []);
     const rect = panel?.getBoundingClientRect();
     return {
       status: shell?.getAttribute('data-player-status'),
@@ -131,11 +129,16 @@ async function snapshot(client) {
           text: group.textContent?.replace(/\\s+/gu, ' ').trim()
         })),
         view: panel.querySelector('[aria-label="CG 画廊内容"]') !== null ? 'gallery'
+          : panel.querySelector('[aria-label="音乐室内容"]') !== null ? 'music'
           : panel.querySelector('[aria-label="结局内容"]') !== null ? 'endings' : 'overview',
         galleryImages: Array.from(panel.querySelectorAll('[aria-label="CG 画廊内容"] img[alt]')).map((item) => item.getAttribute('alt')).filter(Boolean),
         lockedGalleryItems: panel.querySelectorAll('.player-additional-content__item.is-locked').length,
         missingGalleryItems: panel.querySelectorAll('.player-additional-content__item[data-resource="missing"]').length,
         galleryText: panel.querySelector('[aria-label="CG 画廊内容"]')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
+        musicTracks: Array.from(panel.querySelectorAll('[aria-label="音乐室内容"] audio[aria-label]')).map((item) => item.getAttribute('aria-label')).filter(Boolean),
+        lockedMusicItems: panel.querySelectorAll('.player-additional-content__music li.is-locked').length,
+        missingMusicItems: panel.querySelectorAll('.player-additional-content__music li[data-resource="missing"]').length,
+        musicText: panel.querySelector('[aria-label="音乐室内容"]')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
         previewLabel: panel.querySelector('.player-additional-content__preview')?.getAttribute('aria-label') ?? null,
         endingText: panel.querySelector('[aria-label="结局内容"]')?.textContent?.replace(/\\s+/gu, ' ').trim() ?? null
       },
@@ -157,7 +160,7 @@ async function waitForExit(child) {
   await Promise.race([new Promise((resolvePromise) => child.once("exit", resolvePromise)), delay(5_000)]);
 }
 
-const profile = await mkdtemp(join(tmpdir(), "worldstudio-n62-e2-"));
+const profile = await mkdtemp(join(tmpdir(), "worldstudio-n62-e3-"));
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5184", "--strictPort"], {
   cwd: join(root, "apps", "player-shell"), stdio: ["ignore", "pipe", "pipe"]
 });
@@ -193,8 +196,12 @@ try {
   await click(client, "document.querySelector('button[aria-label=\"查看 CG 画廊\"]')", "open locked Gallery list");
   await waitFor(client, "document.querySelector('[aria-label=\"CG 画廊内容\"]') !== null", "locked Gallery list");
   const lockedGallery = await snapshot(client);
-  await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return from locked Gallery");
-  await waitFor(client, "document.querySelector('.player-additional-content') === null", "closed locked Gallery");
+  await click(client, "document.querySelector('button[aria-label=\"返回附加内容总览\"]')", "return from locked Gallery");
+  await click(client, "document.querySelector('button[aria-label=\"查看 音乐室\"]')", "open locked Music Room");
+  await waitFor(client, "document.querySelector('[aria-label=\"音乐室内容\"]') !== null", "locked Music Room");
+  const lockedMusic = await snapshot(client);
+  await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return from locked Music Room");
+  await waitFor(client, "document.querySelector('.player-additional-content') === null", "closed locked Music Room");
   await click(client, "Array.from(document.querySelectorAll('button')).find((item) => item.textContent?.includes('开始故事'))", "start story");
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'waiting-effect'", "awaited effect");
   const effect = await snapshot(client);
@@ -206,14 +213,17 @@ try {
   const desktop = await snapshot(client);
   await press(client, "Tab");
   const afterTab = await snapshot(client);
+  await click(client, "document.querySelector('button[aria-label=\"查看 音乐室\"]')", "open Music Room");
+  await waitFor(client, "document.querySelector('[aria-label=\"音乐室内容\"]') !== null", "Music Room");
+  const musicDesktop = await snapshot(client);
+  const desktopScreenshot = await capture(client, desktopPath);
+  await click(client, "document.querySelector('button[aria-label=\"返回附加内容总览\"]')", "return from Music Room");
   await click(client, "document.querySelector('button[aria-label=\"查看 CG 画廊\"]')", "open Gallery list");
   await waitFor(client, "document.querySelector('[aria-label=\"CG 画廊内容\"]') !== null", "Gallery list");
   const galleryDesktop = await snapshot(client);
-  const desktopScreenshot = await capture(client, desktopPath);
   await click(client, "document.querySelector('button[aria-label=\"查看画面 Deterministic Sunset\"]')", "open Gallery preview");
   await waitFor(client, "document.querySelector('.player-additional-content__preview') !== null", "Gallery preview");
   const preview = await snapshot(client);
-  const previewScreenshot = await capture(client, previewPath);
   await press(client, "Escape");
   await waitFor(client, "document.querySelector('.player-additional-content__preview') === null", "closed Gallery preview");
   const afterPreviewClose = await snapshot(client);
@@ -230,7 +240,6 @@ try {
   await click(client, "document.querySelector('button[aria-label=\"查看 结局\"]')", "open Ending list");
   await waitFor(client, "document.querySelector('[aria-label=\"结局内容\"]') !== null", "Ending list");
   const endingsDesktop = await snapshot(client);
-  const endingScreenshot = await capture(client, endingPath);
   await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return to ending");
   const endingAfterClose = await snapshot(client);
 
@@ -238,13 +247,13 @@ try {
   await delay(300);
   await click(client, "document.querySelector('.player-history-controls__additional')", "open additional content on mobile");
   await waitFor(client, "document.querySelector('.player-additional-content') !== null", "mobile additional content dialog");
-  await click(client, "document.querySelector('button[aria-label=\"查看 CG 画廊\"]')", "open Gallery list on mobile");
+  await click(client, "document.querySelector('button[aria-label=\"查看 音乐室\"]')", "open Music Room on mobile");
   const mobile = await snapshot(client);
   const mobileScreenshot = await capture(client, mobilePath);
 
   const expectedGroups = [
     ["CG 画廊", "2 / 2 已发现"], ["场景回想", "0 / 1 已发现"],
-    ["音乐室", "0 / 1 已发现"], ["结局", "0 / 1 已发现"]
+    ["音乐室", "1 / 1 已发现"], ["结局", "0 / 1 已发现"]
   ];
   const groupsPass = expectedGroups.every(([label, text]) => desktop.dialog?.groups.some((group) => group.label === label && group.text?.includes(text)));
   const identityPass = beforeOpen.runtimeStateHash === afterClose.runtimeStateHash && beforeOpen.historyCursor === afterClose.historyCursor;
@@ -252,10 +261,15 @@ try {
   const passed = title.status === "title" && title.trigger.text === "✦附加内容" && title.trigger.disabled === false
     && lockedGallery.dialog?.view === "gallery" && lockedGallery.dialog.lockedGalleryItems === 2
     && lockedGallery.dialog.galleryImages.length === 0 && !lockedGallery.dialog.galleryText?.includes("Deterministic")
+    && lockedMusic.dialog?.view === "music" && lockedMusic.dialog.lockedMusicItems === 1
+    && lockedMusic.dialog.musicTracks.length === 0 && !lockedMusic.dialog.musicText?.includes("Deterministic Theme")
     && effect.status === "waiting-effect" && effect.trigger.disabled === true
     && desktop.additionalContent === "open" && desktop.dialog?.modal === "true" && desktop.dialog.activeLabel === "返回剧情"
     && desktop.dialog.withinViewport === true && desktop.dialog.minimumInteractiveHeight >= 44 && desktop.trigger.height >= 44
     && afterTab.dialog?.activeLabel === "查看 CG 画廊" && groupsPass
+    && musicDesktop.dialog?.view === "music" && JSON.stringify(musicDesktop.dialog.musicTracks) === JSON.stringify(["试听 Deterministic Theme"])
+    && musicDesktop.dialog.lockedMusicItems === 0 && musicDesktop.dialog.missingMusicItems === 0
+    && musicDesktop.dialog.activeLabel === "返回附加内容总览"
     && galleryDesktop.dialog?.view === "gallery" && JSON.stringify(galleryDesktop.dialog.galleryImages) === JSON.stringify(["Deterministic Actor", "Deterministic Sunset"])
     && galleryDesktop.dialog.lockedGalleryItems === 0 && galleryDesktop.dialog.missingGalleryItems === 0
     && preview.dialog?.previewLabel === "Deterministic Sunset 画面预览" && preview.dialog.activeLabel === "关闭画面预览"
@@ -264,13 +278,14 @@ try {
     && endingsDesktop.dialog?.view === "endings" && endingsDesktop.dialog.endingText?.includes("Curtain") && endingsDesktop.dialog.endingText?.includes("已达成")
     && endingAfterClose.status === "ended" && endingIdentityPass
     && mobile.viewport.width === 390 && mobile.viewport.height === 844 && mobile.overflow === 0
-    && mobile.dialog?.view === "gallery" && mobile.dialog.withinViewport === true && mobile.dialog.minimumInteractiveHeight >= 44
-    && JSON.stringify(mobile.dialog.galleryImages) === JSON.stringify(["Deterministic Actor", "Deterministic Sunset"])
+    && mobile.dialog?.view === "music" && mobile.dialog.withinViewport === true && mobile.dialog.minimumInteractiveHeight >= 44
+    && JSON.stringify(mobile.dialog.musicTracks) === JSON.stringify(["试听 Deterministic Theme"])
+    && mobile.dialog.activeLabel === "返回附加内容总览"
     && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N62-E2",
-    scope: "cold-production-gallery-ending-content-and-preview-desktop-1440x900-mobile-390x844",
+    node: "N62-E3",
+    scope: "cold-production-music-unlock-listen-desktop-1440x900-mobile-390x844",
     generatedAt: new Date().toISOString(),
     build: { playerDistIndexSha256: hash(await readFile(join(root, "apps", "player-shell", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
@@ -283,6 +298,8 @@ try {
       focusReturned: "打开附加内容",
       galleryList: ["Deterministic Actor", "Deterministic Sunset"],
       lockedNamesHidden: true,
+      musicTracks: ["试听 Deterministic Theme"],
+      musicUnlockSource: "accepted Runtime audio play",
       nestedPreviewEscapeAndFocusReturn: true,
       reachedEnding: "Curtain",
       runtimeIdentityRetained: true,
@@ -290,12 +307,10 @@ try {
       mobileHorizontalOverflow: 0,
       browserErrorsOrWarnings: 0
     },
-    actual: { title, lockedGallery, effect, beforeOpen, desktop, afterTab, galleryDesktop, preview, afterPreviewClose, afterClose, endingBeforeOpen, endingsDesktop, endingAfterClose, mobile, identityPass, endingIdentityPass, failures },
+    actual: { title, lockedGallery, lockedMusic, effect, beforeOpen, desktop, afterTab, musicDesktop, galleryDesktop, preview, afterPreviewClose, afterClose, endingBeforeOpen, endingsDesktop, endingAfterClose, mobile, identityPass, endingIdentityPass, failures },
     screenshots: [
-      { path: "evidence/n62/additional-content-e2-gallery-desktop.png", width: 1440, height: 900, ...desktopScreenshot },
-      { path: "evidence/n62/additional-content-e2-preview-desktop.png", width: 1440, height: 900, ...previewScreenshot },
-      { path: "evidence/n62/additional-content-e2-ending-desktop.png", width: 1440, height: 900, ...endingScreenshot },
-      { path: "evidence/n62/additional-content-e2-gallery-mobile.png", width: 390, height: 844, ...mobileScreenshot }
+      { path: "evidence/n62/additional-content-e3-music-desktop.png", width: 1440, height: 900, ...desktopScreenshot },
+      { path: "evidence/n62/additional-content-e3-music-mobile.png", width: 390, height: 844, ...mobileScreenshot }
     ],
     result: passed ? "PASS" : "FAIL"
   };

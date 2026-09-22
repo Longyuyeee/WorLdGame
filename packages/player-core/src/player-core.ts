@@ -206,6 +206,11 @@ export interface PlayerAdditionalContentSnapshotV1 {
     readonly kind: string;
     readonly unlocked: boolean;
   }[];
+  readonly musicItems: readonly {
+    readonly assetId: string;
+    readonly displayName: string | null;
+    readonly unlocked: boolean;
+  }[];
   readonly endingItems: readonly {
     readonly endingId: string;
     readonly name: string | null;
@@ -832,14 +837,16 @@ function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisib
 function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalContentSnapshotV1 {
   const catalogs = state.artifacts?.catalogs;
   const progress = state.runtimeState?.metaProgress;
-  const galleryIds = new Set(progress?.unlockedGalleryAssetIds ?? []);
+  // Meta Progress v1 stores monotonic unlocked asset IDs in this compatibility-stable field.
+  // Compiler catalogs decide whether an unlocked asset belongs to Gallery or Music.
+  const unlockedAssetIds = new Set(progress?.unlockedGalleryAssetIds ?? []);
   const endingIds = new Set(progress?.reachedEndingIds ?? []);
   const category = (total: number, unlocked: number): PlayerAdditionalContentCategorySnapshotV1 => ({
     total,
     unlocked,
     locked: total - unlocked
   });
-  const galleryUnlocked = catalogs?.gallery.filter((entry) => galleryIds.has(entry.assetId)).length ?? 0;
+  const galleryUnlocked = catalogs?.gallery.filter((entry) => unlockedAssetIds.has(entry.assetId)).length ?? 0;
   const endingUnlocked = catalogs?.endings.filter((entry) => endingIds.has(entry.endingId)).length ?? 0;
   const replayUnlocked = catalogs?.replay.filter((entry) => entry.endingIds.some((endingId) => endingIds.has(endingId))).length ?? 0;
   const entries = localeEntries(state);
@@ -847,13 +854,18 @@ function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalCont
     schemaVersion: 1,
     gallery: category(catalogs?.gallery.length ?? 0, galleryUnlocked),
     replay: category(catalogs?.replay.length ?? 0, replayUnlocked),
-    music: category(catalogs?.music.length ?? 0, 0),
+    music: category(catalogs?.music.length ?? 0, catalogs?.music.filter((entry) => unlockedAssetIds.has(entry.assetId)).length ?? 0),
     endings: category(catalogs?.endings.length ?? 0, endingUnlocked),
     galleryItems: catalogs?.gallery.map((entry) => ({
       assetId: entry.assetId,
-      displayName: galleryIds.has(entry.assetId) ? entry.displayName : null,
+      displayName: unlockedAssetIds.has(entry.assetId) ? entry.displayName : null,
       kind: entry.kind,
-      unlocked: galleryIds.has(entry.assetId)
+      unlocked: unlockedAssetIds.has(entry.assetId)
+    })) ?? [],
+    musicItems: catalogs?.music.map((entry) => ({
+      assetId: entry.assetId,
+      displayName: unlockedAssetIds.has(entry.assetId) ? entry.displayName : null,
+      unlocked: unlockedAssetIds.has(entry.assetId)
     })) ?? [],
     endingItems: catalogs?.endings.map((entry) => ({
       endingId: entry.endingId,

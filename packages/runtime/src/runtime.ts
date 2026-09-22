@@ -270,7 +270,7 @@ function directionState(state: RuntimeStateV1, command: string, parameters: Read
     const volume = parameters.volumePermille ?? 1000;
     if (action !== "play" || typeof parameters.asset !== "string" || !canonicalId.test(parameters.asset) || !Number.isSafeInteger(volume) || (volume as number) < 0 || (volume as number) > 1000 || (parameters.loop !== undefined && typeof parameters.loop !== "boolean")) return undefined;
     tracks[bus] = { assetId: parameters.asset, status: "playing", loop: parameters.loop === true, volumePermille: volume as number };
-    return { audioState: { tracks } };
+    return { audioState: { tracks }, metaProgress: { ...state.metaProgress, unlockedGalleryAssetIds: addMonotonicId(state.metaProgress.unlockedGalleryAssetIds, parameters.asset) } };
   }
   return undefined;
 }

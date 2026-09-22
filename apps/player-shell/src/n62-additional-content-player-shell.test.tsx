@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1 } from "./media-demo";
 
-describe("N62-E1 additional-content Player path", () => {
+describe("N62-E1-E3 additional-content Player path", () => {
   it("opens Compiler-backed summaries and returns without changing the active story", () => {
     const demo = createPlayerMediaDemoV1();
     const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
@@ -22,7 +22,7 @@ describe("N62-E1 additional-content Player path", () => {
     expect(panel).not.toHaveTextContent(/Compiler|Runtime|后续切片/u);
     expect(within(panel).getByRole("group", { name: "CG 画廊" })).toHaveTextContent("2 / 2 已发现");
     expect(within(panel).getByRole("group", { name: "场景回想" })).toHaveTextContent("0 / 1 已发现");
-    expect(within(panel).getByRole("group", { name: "音乐室" })).toHaveTextContent("0 / 1 已发现");
+    expect(within(panel).getByRole("group", { name: "音乐室" })).toHaveTextContent("1 / 1 已发现");
     expect(within(panel).getByRole("group", { name: "结局" })).toHaveTextContent("0 / 1 已发现");
 
     fireEvent.click(within(panel).getByRole("button", { name: "查看 CG 画廊" }));
@@ -39,6 +39,14 @@ describe("N62-E1 additional-content Player path", () => {
     expect(sunset).toHaveFocus();
     fireEvent.click(within(gallery).getByRole("button", { name: "返回附加内容总览" }));
     expect(within(panel).getByRole("button", { name: "查看 CG 画廊" })).toHaveFocus();
+
+    fireEvent.click(within(panel).getByRole("button", { name: "查看 音乐室" }));
+    const music = within(panel).getByRole("region", { name: "音乐室内容" });
+    expect(within(music).getByRole("button", { name: "返回附加内容总览" })).toHaveFocus();
+    expect(within(music).getByText("Deterministic Theme")).toBeVisible();
+    expect(within(music).getByLabelText("试听 Deterministic Theme")).toHaveAttribute("controls");
+    fireEvent.click(within(music).getByRole("button", { name: "返回附加内容总览" }));
+    expect(within(panel).getByRole("button", { name: "查看 音乐室" })).toHaveFocus();
 
     fireEvent.click(within(panel).getByRole("button", { name: "返回剧情" }));
     expect(screen.queryByRole("dialog", { name: "附加内容" })).not.toBeInTheDocument();
@@ -71,11 +79,16 @@ describe("N62-E1 additional-content Player path", () => {
     expect(within(lockedGallery).getAllByText("未发现的画面")).toHaveLength(2);
     expect(lockedGallery).not.toHaveTextContent(/Deterministic Actor|Deterministic Sunset/u);
     fireEvent.click(within(lockedGallery).getByRole("button", { name: "返回附加内容总览" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看 音乐室" }));
+    const lockedMusic = screen.getByRole("region", { name: "音乐室内容" });
+    expect(within(lockedMusic).getByText("未发现的音乐")).toBeVisible();
+    expect(lockedMusic).not.toHaveTextContent("Deterministic Theme");
+    fireEvent.click(within(lockedMusic).getByRole("button", { name: "返回附加内容总览" }));
     fireEvent.click(screen.getByRole("button", { name: "返回剧情" }));
 
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
-    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.filter((asset) => asset.assetId !== "media_actor_sprite")} />);
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.filter((asset) => asset.assetId !== "media_actor_sprite" && asset.assetId !== "media_theme")} />);
     const shell = view.container.querySelector("main")!;
     const beforeHash = shell.getAttribute("data-runtime-state-hash");
     fireEvent.click(screen.getByRole("button", { name: "打开附加内容" }));
@@ -83,6 +96,9 @@ describe("N62-E1 additional-content Player path", () => {
     const gallery = screen.getByRole("region", { name: "CG 画廊内容" });
     expect(within(gallery).getByRole("status", { name: "Deterministic Actor 资源状态" })).toHaveTextContent("资源暂不可用");
     expect(within(gallery).getByRole("img", { name: "Deterministic Sunset" })).toBeVisible();
+    fireEvent.click(within(gallery).getByRole("button", { name: "返回附加内容总览" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看 音乐室" }));
+    expect(screen.getByRole("status")).toHaveTextContent("资源暂不可用，收录记录仍然保留。");
     expect(shell).toHaveAttribute("data-runtime-state-hash", beforeHash);
   });
 

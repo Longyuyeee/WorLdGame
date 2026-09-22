@@ -1,8 +1,8 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-09-22
-> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings、N52、N60 与 N61 Engineering 出口已通过，N62-E1/E2 已关闭。[N62-E2 审计 #285](docs/285-n62-e2-gallery-ending-content-audit.md)已完成 Gallery/Ending 的 Catalog/Meta 同源列表、锁定防剧透、资源缺失反馈、全屏预览、分层焦点和双视口真实证据，exact-head CI 已通过；下一切片为 Music 正式解锁 Meta。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。全部 Product Acceptance、N70 Engineering、Android 实体包、M1 与发布继续阻断。
+> 文档基线：2026-09-23
+> 当前阶段边界：N40 Route、N41 Sequence、N42 Stage、N43 七工作模式、N50 Player、N51 Gal Settings、N52、N60 与 N61 Engineering 出口已通过，N62-E1/E2 已关闭、E3 本地完成并等待 exact-head CI。[N62-E3 审计 #286](docs/286-n62-e3-music-meta-player-audit.md)已完成正式 audio play 单调收录、Catalog/Meta 同源音乐室、锁定防剧透、资源失败保留、焦点与双视口真实证据，并在不改变 v1 Save schema 和既有无音频 Hash 的前提下完成兼容性纠偏；下一切片为 Replay 隔离 Checkpoint。N21/N23 真人仍为 0/1、0/2，并延后到功能与整体 UI 就绪后执行。全部 Product Acceptance、N70 Engineering、Android 实体包、M1 与发布继续阻断。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
@@ -63,6 +63,7 @@ WorLd Studio 的目标不是再做一个只能完成短篇 Demo 的 Galgame 制�
 | [N62-E1 自动附加内容入口实现审计](docs/282-n62-e1-additional-content-entry-audit.md) | 正式 Player 四类自动摘要、Effect 时点纠偏、返回身份与双视口真实证据 |
 | [N62-E1 Production Browser 闭合与 E2 接续](docs/284-n62-e1-production-browser-closure-and-e2-handoff.md) | 双视口真实浏览器、模态焦点与玩家文案纠偏、E2 唯一接续合同 |
 | [N62-E2 Gallery / Ending 内容体验审计](docs/285-n62-e2-gallery-ending-content-audit.md) | Catalog/Meta 同源列表、防剧透、资源缺失恢复、全屏预览、分层焦点与 E3 接续合同 |
+| [N62-E3 Music Meta 与音乐室审计](docs/286-n62-e3-music-meta-player-audit.md) | audio play 单调收录、兼容 v1 Meta、锁定防剧透、试听/缺失恢复、双视口证据与 E4 接续合同 |
 | [项目归档索引](archive/README.md) | 已被后续权威取代的历史文档、归档标准与测试文件盘点 |
 | [N43-E5 Production 资源生产审计](docs/208-n43-e5-production-workspace-audit.md) | 同一 Asset Index 的生产流水线、批量状态表、手机状态卡、真实资源与保存重开证据 |
 | [N43-E6 Debug & QA 审计](docs/209-n43-e6-debug-qa-workspace-audit.md) | 正式 Compiler/Runtime/Source Map 检查、错误草稿阻断、源码定位、真实浏览器与差异修正 |

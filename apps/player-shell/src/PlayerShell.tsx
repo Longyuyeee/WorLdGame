@@ -189,7 +189,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
-  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "endings">("overview");
+  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "music" | "endings">("overview");
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
   const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
@@ -209,9 +209,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const additionalContentClose = useRef<HTMLButtonElement | null>(null);
   const additionalContentWasOpen = useRef(false);
   const galleryOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const musicOverviewTrigger = useRef<HTMLButtonElement | null>(null);
   const endingOverviewTrigger = useRef<HTMLButtonElement | null>(null);
   const additionalContentDetailBack = useRef<HTMLButtonElement | null>(null);
-  const previousAdditionalContentView = useRef<"overview" | "gallery" | "endings">("overview");
+  const previousAdditionalContentView = useRef<"overview" | "gallery" | "music" | "endings">("overview");
   const galleryPreviewTrigger = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewWasOpen = useRef(false);
@@ -864,7 +865,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     previousAdditionalContentView.current = additionalContentView;
     if (!additionalContentOpen) return;
     if (additionalContentView === "overview") {
-      (previousView === "gallery" ? galleryOverviewTrigger.current : endingOverviewTrigger.current)?.focus();
+      (previousView === "gallery" ? galleryOverviewTrigger.current : previousView === "music" ? musicOverviewTrigger.current : endingOverviewTrigger.current)?.focus();
       return;
     }
     additionalContentDetailBack.current?.focus();
@@ -1338,7 +1339,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 {([
                   ["CG 画廊", "在剧情中看过的画面会自动收录", snapshot.additionalContent.gallery, "gallery"],
                   ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay, null],
-                  ["音乐室", "音乐收录功能正在准备中", snapshot.additionalContent.music, null],
+                  ["音乐室", "在剧情中听过的音乐会自动收录", snapshot.additionalContent.music, "music"],
                   ["结局", "达成的结局会自动记录", snapshot.additionalContent.endings, "endings"]
                 ] as const).map(([title, description, category, target]) => (
                   <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
@@ -1346,7 +1347,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     <h3>{title}</h3>
                     <p>{description}</p>
                     {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
-                    {target !== null && <button ref={target === "gallery" ? galleryOverviewTrigger : endingOverviewTrigger} type="button" disabled={category.total === 0} aria-label={`查看 ${title}`} onClick={() => setAdditionalContentView(target)}>查看内容</button>}
+                    {target !== null && <button ref={target === "gallery" ? galleryOverviewTrigger : target === "music" ? musicOverviewTrigger : endingOverviewTrigger} type="button" disabled={category.total === 0} aria-label={`查看 ${title}`} onClick={() => setAdditionalContentView(target)}>查看内容</button>}
                   </section>
                 ))}
               </div>
@@ -1385,6 +1386,28 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <figcaption><strong>{item.displayName}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
                 </figure>;
               })()}
+            </section>}
+            {additionalContentView === "music" && <section className="player-additional-content__detail" role="region" aria-label="音乐室内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
+                <div><span>MUSIC</span><h3>音乐室</h3><p>{snapshot.additionalContent.music.unlocked} / {snapshot.additionalContent.music.total} 已收录</p></div>
+              </div>
+              {snapshot.additionalContent.musicItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可收录的音乐。</p>
+                : <ol className="player-additional-content__music">
+                  {snapshot.additionalContent.musicItems.map((item, index) => {
+                    if (!item.unlocked || item.displayName === null) return <li className="is-locked" key={item.assetId}>
+                      <span>{String(index + 1).padStart(2, "0")}</span><div><strong>未发现的音乐</strong><small>继续推进剧情来收录</small></div>
+                    </li>;
+                    const source = additionalContentSources.get(item.assetId);
+                    const unavailable = source === undefined || !source.mimeType.startsWith("audio/") || additionalContentMediaErrors.includes(item.assetId);
+                    return <li key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
+                      <span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.displayName}</strong>{unavailable
+                        ? <><small role="status">资源暂不可用，收录记录仍然保留。</small>{onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}</>
+                        : <audio controls preload="metadata" aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
+                    </li>;
+                  })}
+                </ol>}
             </section>}
             {additionalContentView === "endings" && <section className="player-additional-content__detail" role="region" aria-label="结局内容">
               <div className="player-additional-content__detail-heading">

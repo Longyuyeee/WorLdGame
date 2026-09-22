@@ -597,6 +597,8 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N62-E2 Engineering 已关闭（2026-09-22）：[审计 #285](285-n62-e2-gallery-ending-content-audit.md)已让 Player Core 直接从 Compiler Gallery/Ending Catalog 与 Runtime Meta 投影条目，锁定名称在进入 Shell 前即为 `null`；Shell 增加 Gallery 列表/全屏预览、Ending 达成列表、空/锁定/资源缺失反馈和分层焦点返回。定向 `2 files / 5 tests`、TypeScript 与 cold production Chrome 通过；1440×900 / 390×844 overflow 0、最小交互 44px、console 0，presenting/ended 两种会话打开关闭前后 Runtime/History 身份一致。实现头 `bf0d620` 的 exact-head run `35747228389` / job `106811848421` 成功。下一切片为 E3 Music 正式解锁 Meta，Replay/覆盖配置/玩家 Route 和 AC-17/18/20 Product Acceptance 不提前通过。
 
+> N62-E3 本地 Engineering 已完成（2026-09-23）：[审计 #286](286-n62-e3-music-meta-player-audit.md)让正式 Runtime 仅在接受 audio `play` 时单调收录资源 ID，Player Core 再按 Compiler Music Catalog 投影防剧透条目，Shell 提供原生试听、资源不可用但保留收录、分层焦点和移动布局。严格 v1 Meta/Save schema 与既有无音频 Hash 不变；Back/Forward 和旧存档合并保持收录。定向 `3 files / 69 tests`、普通 `168/1000`、完整构建/性能与 cold production Chrome 双视口通过；等待 exact-head CI 后关闭。下一切片为 E4 Replay 隔离 Checkpoint，覆盖配置/玩家 Route 和 AC-17/18/20 Product Acceptance 不提前通过。
+
 ## 12. R7：资源与 Optimization Center
 
 ### N70 完整 Asset Pipeline

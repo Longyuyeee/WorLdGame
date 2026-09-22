@@ -175,7 +175,7 @@ describe("N31-E2 deterministic state foundations", () => {
     expect(character.state.sceneState.characters.aya).toEqual({ assetId: "char_aya", expression: "smile" });
     const audio = runRuntime(story, character.state);
     expect(audio.state.audioState.tracks.bgm).toEqual({ assetId: "bgm_theme", status: "playing", loop: true, volumePermille: 750 });
-    expect(audio.state.metaProgress.unlockedGalleryAssetIds).toEqual(["bg_gate", "char_aya"]);
+    expect(audio.state.metaProgress.unlockedGalleryAssetIds).toEqual(["bg_gate", "bgm_theme", "char_aya"]);
   });
 
   it("records read text and reached endings as sorted monotonic Meta Progress", () => {
@@ -787,6 +787,7 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     return program([
       { instructionId: "meta-line", opcode: "narration", operands: { textId: "text.meta", text: "Remember this." } },
       { instructionId: "meta-cg", opcode: "direction", operands: { command: "background", parameters: { action: "set", asset: "cg.meta" } } },
+      { instructionId: "meta-music", opcode: "direction", operands: { command: "audio", parameters: { action: "play", asset: "music.meta", bus: "bgm", loop: true } } },
       { instructionId: "meta-end", opcode: "end", operands: { endingId: "ending.meta", name: "Remembered" } }
     ]);
   }
@@ -795,12 +796,13 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     return createRuntimeHistorySessionV1(story, start(story, "build-meta")).session;
   }
 
-  it("preserves read, Gallery, and ending progress across repeated Back and Forward", () => {
+  it("preserves read, Gallery, Music, and ending progress across repeated Back and Forward", () => {
     const story = metaStory();
     const line = advanceRuntimeHistoryV1(story, history(story));
     const cg = advanceRuntimeHistoryV1(story, line.session);
     const ended = advanceRuntimeHistoryV1(story, cg.session);
     const expected = ended.state.metaProgress;
+    expect(expected.unlockedGalleryAssetIds).toEqual(["cg.meta", "music.meta"]);
     const backFromEnding = backRuntimeHistoryV1(story, ended.session);
     const backFromCg = backRuntimeHistoryV1(story, backFromEnding.session);
     expect(backFromEnding.state.metaProgress).toEqual(expected);
@@ -818,6 +820,7 @@ describe("N31-E12 monotonic Meta Progress boundary", () => {
     const cg = advanceRuntimeHistoryV1(story, line.session);
     const ended = advanceRuntimeHistoryV1(story, cg.session);
     const current = ended.state.metaProgress;
+    expect(current.unlockedGalleryAssetIds).toEqual(["cg.meta", "music.meta"]);
     const stateLoaded = loadRuntimeSaveV1(story, oldStateSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: current });
     const sessionLoaded = loadRuntimeSessionSaveV1(story, oldSessionSave.serialized, { expectedBuildId: "build-meta", currentMetaProgress: current });
     if (!stateLoaded.ok || !sessionLoaded.ok) throw new Error("older saves did not load");
