@@ -1,15 +1,15 @@
-# 当前开发情况审计（N62-E1 Engineering 已关闭）
+# 当前开发情况审计（N62-E2 本地候选已通过）
 
-> 审计日期：2026-09-03
-> 当前分支：`codex/n60-e1-debugger-session`；N62-E1 起点为 `9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
+> 审计日期：2026-09-22
+> 当前分支：`codex/n60-e1-debugger-session`；N62-E2 起点为 `10668b22ec241ad581544647ffdcffaad17813c8`
 > 权威基线：N41 集中 Authority `codex/m1-integration-n41-governance`，节点提交 `11bf31313edcc380ff9db03e3286b710e0a65679`，Draft PR #61，尚未合入 `main`
 > 当前授权：历史 **RA-N21-011 checkpoint 窄范围修订**身份继续保留；2026-09-03 Additional Content 窄范围修订准入到 N62 Engineering，N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断，2026-09-27 16:00:00（UTC+8）到期
-> 最新证据：[N62-E1 自动附加内容入口审计 #282](282-n62-e1-additional-content-entry-audit.md)、[N62-E1 闭合与 E2 接续 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)
+> 最新证据：[N62-E1 闭合与 E2 接续 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)、[N62-E2 Gallery / Ending 内容体验审计 #285](285-n62-e2-gallery-ending-content-audit.md)
 > 权威功能状态：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
 
 ## 1. 当前结论
 
-2026-09-22 最新结论是：**N52、N60 与 N61 Engineering 已关闭；N62-E1 Engineering 已关闭。** 正式 Player 从同一 Compiler Catalog 与 Runtime Meta 自动呈现 Gallery/Replay/Music/Ending 四类摘要，等待 Effect/Barrier 时禁止读取瞬态进度，返回前后 Runtime State Hash 与 History Cursor 不变。定向产品测试现为 `3/3`；Chrome cold production 双视口补齐入口、状态、焦点、44/48px、overflow 与 console 证据，并修复了模态焦点泄漏和面向玩家暴露开发术语的问题。实现头 `06c155e` 的 exact-head run `35740862064` / job `106789941844` 成功。下一切片为 E2 Gallery/Ending 列表。N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断。完整差异和接续顺序见[#282](282-n62-e1-additional-content-entry-audit.md)与[#284](284-n62-e1-production-browser-closure-and-e2-handoff.md)。
+2026-09-22 最新结论是：**N52、N60、N61 与 N62-E1 Engineering 已关闭；N62-E2 本地候选已通过，等待 exact-head CI。** 正式 Player 已直接从 Compiler Catalog 与 Runtime Meta 呈现 Gallery/Ending 条目；锁定名称在 Core 投影中隐藏，Gallery 支持资源缺失反馈与全屏预览，Ending 显示已达成状态。真实页面复核又修正详情层级焦点，presenting/ended 会话打开关闭前后 Runtime State Hash 与 History Cursor 不变。定向 `5/5`、TypeScript 与 Chrome cold production 双视口通过。远端绿色后关闭 E2，下一切片为 Music 正式解锁 Meta。N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断。完整证据和接续顺序见[#285](285-n62-e2-gallery-ending-content-audit.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -20,7 +20,7 @@ N32 的历史出口复审发生在正式 Player 建立之前；其中“Player �
 - N23 真人：**0/2，pending-participants**；
 - N30/N31：**Engineering 已有退出证据，Product Acceptance 未通过**；
 - N32 Product Acceptance：**被阻断**；
-- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭，N52 Engineering 已关闭，N60 Engineering 已关闭，N61 Engineering 已关闭**；N62 Engineering 在授权范围内推进 E1；全部 Product Acceptance、N70+ Engineering、M1 Stable、Public Release：**被阻断**；
+- N40/N41/N42/N43/N50 Engineering：**出口已通过**；**N51 Engineering 已关闭，N52 Engineering 已关闭，N60 Engineering 已关闭，N61 Engineering 已关闭，N62-E1 已关闭**；N62 Engineering 在授权范围内推进 E2 exact-head 闭合；全部 Product Acceptance、N70+ Engineering、M1 Stable、Public Release：**被阻断**；
 - **N60-E2 断点集合与运行边界已实现**：[审计 #268](268-n60-e2-breakpoint-boundary-audit.md)以 stable ID 管理多断点启停/移除/定位；Continue 通过正式 Source Map 和 Runtime History 命中下一断点，并明确呈现 Choice、awaited Effect、Barrier、Ending、Error。新产品路径首次 `0/1`，实现中真实暴露“重复命中当前断点”差异并修复；定向 `3 files / 19 tests`，production desktop/mobile overflow `0`、E2 移动控件 `44px`。本机完整门仅既有 VM 10k 为 `94.671s > 90s`、隔离 `96.507s`，未放宽预算；精确实现头 `4e29559` 的 Windows run `33491890189` / job `99805042362` 用时 `14m36s` 全绿，VM `69.36s`，关闭环境差异。N60 总 Engineering 与所有产品门不提前关闭；
 - **N60-E3 Watch 与变量来源/变化已实现**：[审计 #270](270-n60-e3-debugger-watch-audit.md)复用 Story Language parser、正式 Runtime evaluator、History checkpoint 与 Compiler IR/Source Map，未建立 React 私有求值器。产品红测首次 `0/1`；修正后 N60 聚合 `7 files / 87 tests`，production 真实工程显示表达式 `1 → 2`、变量 `0 → 1`、stable 写入来源和非法表达式非破坏性错误。390×844 根宽 `375/375`、新增交互 `44px`、console `0 error`。本机全门普通回归 `157/985` 通过，但既有 autosave 5 秒门连续三次未达、VM 10k 为 `119.409s > 90s`，未放宽预算；精确实现头 `9d5d597` 的 Windows run `33580208407` / job `100092698639` 用时 `10m17s` 全绿，autosave `2.312s`、VM `40.656s`，关闭本机环境差异。下一步先关闭 PRD 3.10 P0 QA Golden 产品路径，不用 P1 Solver/覆盖率回避剩余 P0；
 - **N60-E4 P0 Story QA 已实现**：[审计 #271](271-n60-e4-p0-story-qa-product-closure-audit.md)直接复用 Compiler/Source Map，将不可达、无出口、悬空引用、缺失资源、非交互循环做成五类总览、筛选与 stable source 修复入口。真实 App 红测 `0/1` 暴露分类 UI 缺失，修正后 N60 `8 files / 88 tests`；故障 Golden 五类全检出，正常校园工程五类全为 0。production 1440×900 与 390×844 overflow `0`、console error/warning `0`。下一步做 N60 Engineering 总出口复审；
@@ -184,8 +184,8 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 
 ## 6. 下一步顺序
 
-1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[跨电脑交接 #281](281-n61-to-n62-cross-device-handoff.md)，并核验本地/远端 exact head 相同、工作区干净；
-2. N61 Engineering 已关闭，不重复增加本地化证明；N61 Product Acceptance 等 Windows/Android 正式 Host 和实体设备；
-3. N62-E1 已补齐 production-browser、用户体验纠偏和 exact-head CI；功能顺序下一点为 N62-E2 Gallery/Ending 内容列表与缺失/锁定/空状态；
-4. 当前 RA-N21-011 已准入到 N62 Engineering，并于 2026-09-27 16:00（UTC+8）到期；N62 Product Acceptance 与 N70 Engineering仍阻断；
-5. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。
+1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[N62-E2 审计 #285](285-n62-e2-gallery-ending-content-audit.md)，并核验本地/远端 exact head 相同、工作区干净；
+2. N61 Engineering 与 N62-E1 已关闭，不重复增加本地化或摘要证明；N61 Product Acceptance 等 Windows/Android 正式 Host 和实体设备；
+3. 先取得并记录 N62-E2 exact-head CI；绿色后下一功能切片为 E3 Music 正式解锁 Meta，必须先审计现有 Catalog/Runtime/Save 实际代码；
+4. E3 后再做 Replay 隔离 Checkpoint；作者覆盖配置、玩家自动 Route 和 N62 总出口按原路线保留，不用新增 Shell 私有状态绕过正式 Core；
+5. 当前 RA-N21-011 已准入到 N62 Engineering，并于 2026-09-27 16:00（UTC+8）到期；N62 Product Acceptance、N70 Engineering、真人门和全部发布状态不变。

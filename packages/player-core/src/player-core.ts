@@ -200,6 +200,18 @@ export interface PlayerAdditionalContentSnapshotV1 {
   readonly replay: PlayerAdditionalContentCategorySnapshotV1;
   readonly music: PlayerAdditionalContentCategorySnapshotV1;
   readonly endings: PlayerAdditionalContentCategorySnapshotV1;
+  readonly galleryItems: readonly {
+    readonly assetId: string;
+    readonly displayName: string | null;
+    readonly kind: string;
+    readonly unlocked: boolean;
+  }[];
+  readonly endingItems: readonly {
+    readonly endingId: string;
+    readonly name: string | null;
+    readonly sceneId: string;
+    readonly unlocked: boolean;
+  }[];
 }
 
 export interface PlayerCoreEffectSnapshotV1 {
@@ -830,12 +842,25 @@ function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalCont
   const galleryUnlocked = catalogs?.gallery.filter((entry) => galleryIds.has(entry.assetId)).length ?? 0;
   const endingUnlocked = catalogs?.endings.filter((entry) => endingIds.has(entry.endingId)).length ?? 0;
   const replayUnlocked = catalogs?.replay.filter((entry) => entry.endingIds.some((endingId) => endingIds.has(endingId))).length ?? 0;
+  const entries = localeEntries(state);
   return {
     schemaVersion: 1,
     gallery: category(catalogs?.gallery.length ?? 0, galleryUnlocked),
     replay: category(catalogs?.replay.length ?? 0, replayUnlocked),
     music: category(catalogs?.music.length ?? 0, 0),
-    endings: category(catalogs?.endings.length ?? 0, endingUnlocked)
+    endings: category(catalogs?.endings.length ?? 0, endingUnlocked),
+    galleryItems: catalogs?.gallery.map((entry) => ({
+      assetId: entry.assetId,
+      displayName: galleryIds.has(entry.assetId) ? entry.displayName : null,
+      kind: entry.kind,
+      unlocked: galleryIds.has(entry.assetId)
+    })) ?? [],
+    endingItems: catalogs?.endings.map((entry) => ({
+      endingId: entry.endingId,
+      name: endingIds.has(entry.endingId) ? translatedPlayerText(state, entries, entry.endingId, entry.name).text : null,
+      sceneId: entry.sceneId,
+      unlocked: endingIds.has(entry.endingId)
+    })) ?? []
   };
 }
 

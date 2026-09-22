@@ -189,6 +189,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
   const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
+  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "endings">("overview");
+  const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
+  const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
   const [savePage, setSavePage] = useState(0);
@@ -205,6 +208,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const additionalContentPanel = useRef<HTMLElement | null>(null);
   const additionalContentClose = useRef<HTMLButtonElement | null>(null);
   const additionalContentWasOpen = useRef(false);
+  const galleryOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const endingOverviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const additionalContentDetailBack = useRef<HTMLButtonElement | null>(null);
+  const previousAdditionalContentView = useRef<"overview" | "gallery" | "endings">("overview");
+  const galleryPreviewTrigger = useRef<HTMLButtonElement | null>(null);
+  const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
+  const galleryPreviewWasOpen = useRef(false);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const pointerInput = useRef<"pointer" | "touch">("pointer");
@@ -232,6 +242,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const localizedMedia = useMemo(
     () => resolvePlayerLocalizedMediaV1(snapshot.localization.selectedLocale, snapshot.localization.sourceLocale, presentedTextId, project.assets.assets, mediaAssets),
     [mediaAssets, mediaSignature, presentedTextId, project.assets.assets, snapshot.localization.selectedLocale, snapshot.localization.sourceLocale]
+  );
+  const additionalContentSources = useMemo(
+    () => new Map(localizedMedia.stageSources.map((source) => [source.assetId, source])),
+    [localizedMedia.stageSources]
   );
   const stage = useMemo(
     () => derivePlayerStagePresentationV1(snapshot, localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui),
@@ -839,7 +853,34 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       additionalContentWasOpen.current = false;
       additionalContentTrigger.current?.focus();
     }
+    setAdditionalContentView("overview");
+    setSelectedGalleryAssetId(null);
+    setAdditionalContentMediaErrors([]);
   }, [additionalContentOpen]);
+
+  useEffect(() => {
+    const previousView = previousAdditionalContentView.current;
+    if (previousView === additionalContentView) return;
+    previousAdditionalContentView.current = additionalContentView;
+    if (!additionalContentOpen) return;
+    if (additionalContentView === "overview") {
+      (previousView === "gallery" ? galleryOverviewTrigger.current : endingOverviewTrigger.current)?.focus();
+      return;
+    }
+    additionalContentDetailBack.current?.focus();
+  }, [additionalContentOpen, additionalContentView]);
+
+  useEffect(() => {
+    if (selectedGalleryAssetId !== null) {
+      galleryPreviewWasOpen.current = true;
+      galleryPreviewClose.current?.focus();
+      return;
+    }
+    if (galleryPreviewWasOpen.current) {
+      galleryPreviewWasOpen.current = false;
+      galleryPreviewTrigger.current?.focus();
+    }
+  }, [selectedGalleryAssetId]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -847,6 +888,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (additionalContentOpen) {
         if (event.key === "Escape") {
           event.preventDefault();
+          if (selectedGalleryAssetId !== null) {
+            setSelectedGalleryAssetId(null);
+            return;
+          }
+          if (additionalContentView !== "overview") {
+            setAdditionalContentView("overview");
+            return;
+          }
           setAdditionalContentOpen(false);
           return;
         }
@@ -889,7 +938,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [additionalContentOpen, applyIntent, content, hostActivity, selectedChoiceIndex, settingsApplication.advance.allowHold]);
+  }, [additionalContentOpen, additionalContentView, applyIntent, content, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold]);
 
   useEffect(() => {
     if (hostActivity !== "active") return;
@@ -1283,22 +1332,74 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               <div><span>EXTRAS</span><h2>附加内容</h2></div>
               <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={() => setAdditionalContentOpen(false)}>返回剧情</button>
             </header>
-            <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
-            <div className="player-additional-content__grid">
-              {([
-                ["CG 画廊", "在剧情中看过的画面会自动收录", snapshot.additionalContent.gallery],
-                ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay],
-                ["音乐室", "音乐收录功能正在准备中", snapshot.additionalContent.music],
-                ["结局", "达成的结局会自动记录", snapshot.additionalContent.endings]
-              ] as const).map(([title, description, category]) => (
-                <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
-                  <span>{category.total === 0 ? "暂无内容" : `${category.unlocked} / ${category.total} 已发现`}</span>
-                  <h3>{title}</h3>
-                  <p>{description}</p>
-                  {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
-                </section>
-              ))}
-            </div>
+            {additionalContentView === "overview" && <>
+              <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
+              <div className="player-additional-content__grid">
+                {([
+                  ["CG 画廊", "在剧情中看过的画面会自动收录", snapshot.additionalContent.gallery, "gallery"],
+                  ["场景回想", "达成相关结局后，可以重温对应场景", snapshot.additionalContent.replay, null],
+                  ["音乐室", "音乐收录功能正在准备中", snapshot.additionalContent.music, null],
+                  ["结局", "达成的结局会自动记录", snapshot.additionalContent.endings, "endings"]
+                ] as const).map(([title, description, category, target]) => (
+                  <section key={title} role="group" aria-label={title} data-empty={category.total === 0} data-locked={category.locked}>
+                    <span>{category.total === 0 ? "暂无内容" : `${category.unlocked} / ${category.total} 已发现`}</span>
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                    {category.total > 0 && category.locked > 0 && <small>{category.locked} 项尚未发现</small>}
+                    {target !== null && <button ref={target === "gallery" ? galleryOverviewTrigger : endingOverviewTrigger} type="button" disabled={category.total === 0} aria-label={`查看 ${title}`} onClick={() => setAdditionalContentView(target)}>查看内容</button>}
+                  </section>
+                ))}
+              </div>
+            </>}
+            {additionalContentView === "gallery" && <section className="player-additional-content__detail" role="region" aria-label="CG 画廊内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => { setSelectedGalleryAssetId(null); setAdditionalContentView("overview"); }}>← 返回总览</button>
+                <div><span>GALLERY</span><h3>CG 画廊</h3><p>{snapshot.additionalContent.gallery.unlocked} / {snapshot.additionalContent.gallery.total} 已发现</p></div>
+              </div>
+              {snapshot.additionalContent.galleryItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可收录的画面。</p>
+                : <div className="player-additional-content__items">
+                  {snapshot.additionalContent.galleryItems.map((item, index) => {
+                    if (!item.unlocked || item.displayName === null) return <article className="player-additional-content__item is-locked" key={item.assetId}>
+                      <div aria-hidden="true">?</div><strong>未发现的画面</strong><span>继续推进剧情来发现</span>
+                    </article>;
+                    const source = additionalContentSources.get(item.assetId);
+                    const unavailable = source === undefined || !source.mimeType.startsWith("image/") || additionalContentMediaErrors.includes(item.assetId);
+                    return <article className="player-additional-content__item" key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
+                      {unavailable ? <div className="player-additional-content__missing" role="status" aria-label={`${item.displayName} 资源状态`}>
+                        <strong>{item.displayName}</strong><span>资源暂不可用</span><small>收藏记录仍然保留，请稍后重试。</small>
+                        {onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}
+                      </div> : <button type="button" aria-label={`查看画面 ${item.displayName}`} onClick={(event) => { galleryPreviewTrigger.current = event.currentTarget; setSelectedGalleryAssetId(item.assetId); }}>
+                        <img src={source.url} alt={item.displayName} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />
+                        <span><small>画面 {index + 1}</small><strong>{item.displayName}</strong></span>
+                      </button>}
+                    </article>;
+                  })}
+                </div>}
+              {selectedGalleryAssetId !== null && (() => {
+                const item = snapshot.additionalContent.galleryItems.find((candidate) => candidate.assetId === selectedGalleryAssetId);
+                const source = additionalContentSources.get(selectedGalleryAssetId);
+                if (item?.displayName === null || item === undefined || source === undefined) return null;
+                return <figure className="player-additional-content__preview" role="group" aria-label={`${item.displayName} 画面预览`}>
+                  <img src={source.url} alt="" />
+                  <figcaption><strong>{item.displayName}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
+                </figure>;
+              })()}
+            </section>}
+            {additionalContentView === "endings" && <section className="player-additional-content__detail" role="region" aria-label="结局内容">
+              <div className="player-additional-content__detail-heading">
+                <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
+                <div><span>ENDINGS</span><h3>结局</h3><p>{snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 已达成</p></div>
+              </div>
+              {snapshot.additionalContent.endingItems.length === 0
+                ? <p className="player-additional-content__empty">这个故事暂时没有可记录的结局。</p>
+                : <ol className="player-additional-content__endings">
+                  {snapshot.additionalContent.endingItems.map((item, index) => <li key={item.endingId} data-unlocked={item.unlocked}>
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                    <div><strong>{item.unlocked ? item.name : "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
+                  </li>)}
+                </ol>}
+            </section>}
           </aside>
         )}
         {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">

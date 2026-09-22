@@ -21,6 +21,13 @@ describe("N62-E1 Player Core additional-content projection", () => {
       music: { total: 1, unlocked: 0, locked: 1 },
       endings: { total: 1, unlocked: 0, locked: 1 }
     });
+    expect(title.additionalContent.galleryItems).toEqual([
+      { assetId: "media_actor_sprite", displayName: null, kind: "character", unlocked: false },
+      { assetId: "media_sunset", displayName: null, kind: "cg", unlocked: false }
+    ]);
+    expect(title.additionalContent.endingItems).toEqual([
+      { endingId: "media_end", name: null, sceneId: "media_stage", unlocked: false }
+    ]);
 
     const started = createPlayerCoreSnapshotV1(startPlayerCore(createPlayerCore(project), project));
     expect(started.additionalContent).toMatchObject({
@@ -29,5 +36,9 @@ describe("N62-E1 Player Core additional-content projection", () => {
       music: { total: 1, unlocked: 0, locked: 1 },
       endings: { total: 1, unlocked: 0, locked: 1 }
     });
+    expect(started.additionalContent.galleryItems).toEqual([
+      { assetId: "media_actor_sprite", displayName: "Deterministic Actor", kind: "character", unlocked: true },
+      { assetId: "media_sunset", displayName: "Deterministic Sunset", kind: "cg", unlocked: true }
+    ]);
   });
 });

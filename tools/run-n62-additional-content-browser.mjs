@@ -7,9 +7,11 @@ import { spawn } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
 const evidenceDirectory = join(root, "evidence", "n62");
-const evidencePath = join(evidenceDirectory, "additional-content-browser.json");
-const desktopPath = join(evidenceDirectory, "additional-content-desktop.png");
-const mobilePath = join(evidenceDirectory, "additional-content-mobile.png");
+const evidencePath = join(evidenceDirectory, "additional-content-e2-browser.json");
+const desktopPath = join(evidenceDirectory, "additional-content-e2-gallery-desktop.png");
+const previewPath = join(evidenceDirectory, "additional-content-e2-preview-desktop.png");
+const endingPath = join(evidenceDirectory, "additional-content-e2-ending-desktop.png");
+const mobilePath = join(evidenceDirectory, "additional-content-e2-gallery-mobile.png");
 const baseUrl = "http://127.0.0.1:5184/?demo=media";
 const delay = (milliseconds) => new Promise((resolvePromise) => setTimeout(resolvePromise, milliseconds));
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
@@ -127,7 +129,15 @@ async function snapshot(client) {
         groups: Array.from(panel.querySelectorAll('[role="group"]')).map((group) => ({
           label: group.getAttribute('aria-label'),
           text: group.textContent?.replace(/\\s+/gu, ' ').trim()
-        }))
+        })),
+        view: panel.querySelector('[aria-label="CG 画廊内容"]') !== null ? 'gallery'
+          : panel.querySelector('[aria-label="结局内容"]') !== null ? 'endings' : 'overview',
+        galleryImages: Array.from(panel.querySelectorAll('[aria-label="CG 画廊内容"] img[alt]')).map((item) => item.getAttribute('alt')).filter(Boolean),
+        lockedGalleryItems: panel.querySelectorAll('.player-additional-content__item.is-locked').length,
+        missingGalleryItems: panel.querySelectorAll('.player-additional-content__item[data-resource="missing"]').length,
+        galleryText: panel.querySelector('[aria-label="CG 画廊内容"]')?.textContent?.replace(/\s+/gu, ' ').trim() ?? null,
+        previewLabel: panel.querySelector('.player-additional-content__preview')?.getAttribute('aria-label') ?? null,
+        endingText: panel.querySelector('[aria-label="结局内容"]')?.textContent?.replace(/\\s+/gu, ' ').trim() ?? null
       },
       viewport: { width: innerWidth, height: innerHeight },
       overflow: Math.max(0, document.documentElement.scrollWidth - innerWidth)
@@ -147,7 +157,7 @@ async function waitForExit(child) {
   await Promise.race([new Promise((resolvePromise) => child.once("exit", resolvePromise)), delay(5_000)]);
 }
 
-const profile = await mkdtemp(join(tmpdir(), "worldstudio-n62-e1-"));
+const profile = await mkdtemp(join(tmpdir(), "worldstudio-n62-e2-"));
 const preview = spawn(process.execPath, [join(root, "node_modules", "vite", "bin", "vite.js"), "preview", "--host", "127.0.0.1", "--port", "5184", "--strictPort"], {
   cwd: join(root, "apps", "player-shell"), stdio: ["ignore", "pipe", "pipe"]
 });
@@ -179,6 +189,12 @@ try {
   await client.send("Page.navigate", { url: baseUrl });
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'title'", "Player title");
   const title = await snapshot(client);
+  await click(client, "document.querySelector('.player-history-controls__additional')", "open locked additional content");
+  await click(client, "document.querySelector('button[aria-label=\"查看 CG 画廊\"]')", "open locked Gallery list");
+  await waitFor(client, "document.querySelector('[aria-label=\"CG 画廊内容\"]') !== null", "locked Gallery list");
+  const lockedGallery = await snapshot(client);
+  await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return from locked Gallery");
+  await waitFor(client, "document.querySelector('.player-additional-content') === null", "closed locked Gallery");
   await click(client, "Array.from(document.querySelectorAll('button')).find((item) => item.textContent?.includes('开始故事'))", "start story");
   await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'waiting-effect'", "awaited effect");
   const effect = await snapshot(client);
@@ -190,15 +206,39 @@ try {
   const desktop = await snapshot(client);
   await press(client, "Tab");
   const afterTab = await snapshot(client);
+  await click(client, "document.querySelector('button[aria-label=\"查看 CG 画廊\"]')", "open Gallery list");
+  await waitFor(client, "document.querySelector('[aria-label=\"CG 画廊内容\"]') !== null", "Gallery list");
+  const galleryDesktop = await snapshot(client);
   const desktopScreenshot = await capture(client, desktopPath);
+  await click(client, "document.querySelector('button[aria-label=\"查看画面 Deterministic Sunset\"]')", "open Gallery preview");
+  await waitFor(client, "document.querySelector('.player-additional-content__preview') !== null", "Gallery preview");
+  const preview = await snapshot(client);
+  const previewScreenshot = await capture(client, previewPath);
   await press(client, "Escape");
+  await waitFor(client, "document.querySelector('.player-additional-content__preview') === null", "closed Gallery preview");
+  const afterPreviewClose = await snapshot(client);
+  await click(client, "document.querySelector('button[aria-label=\"返回附加内容总览\"]')", "return to additional-content overview");
+  await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return to story");
   await waitFor(client, "document.querySelector('.player-additional-content') === null", "closed additional content dialog");
   const afterClose = await snapshot(client);
+
+  await click(client, "document.querySelector('button[aria-label=\"继续下一句\"]')", "finish text reveal");
+  await click(client, "document.querySelector('button[aria-label=\"继续下一句\"]')", "reach ending");
+  await waitFor(client, "document.querySelector('.player-shell')?.getAttribute('data-player-status') === 'ended'", "reached ending");
+  const endingBeforeOpen = await snapshot(client);
+  await click(client, "document.querySelector('.player-history-controls__additional')", "open additional content after ending");
+  await click(client, "document.querySelector('button[aria-label=\"查看 结局\"]')", "open Ending list");
+  await waitFor(client, "document.querySelector('[aria-label=\"结局内容\"]') !== null", "Ending list");
+  const endingsDesktop = await snapshot(client);
+  const endingScreenshot = await capture(client, endingPath);
+  await click(client, "document.querySelector('button[aria-label=\"返回剧情\"]')", "return to ending");
+  const endingAfterClose = await snapshot(client);
 
   await client.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
   await delay(300);
   await click(client, "document.querySelector('.player-history-controls__additional')", "open additional content on mobile");
   await waitFor(client, "document.querySelector('.player-additional-content') !== null", "mobile additional content dialog");
+  await click(client, "document.querySelector('button[aria-label=\"查看 CG 画廊\"]')", "open Gallery list on mobile");
   const mobile = await snapshot(client);
   const mobileScreenshot = await capture(client, mobilePath);
 
@@ -208,19 +248,29 @@ try {
   ];
   const groupsPass = expectedGroups.every(([label, text]) => desktop.dialog?.groups.some((group) => group.label === label && group.text?.includes(text)));
   const identityPass = beforeOpen.runtimeStateHash === afterClose.runtimeStateHash && beforeOpen.historyCursor === afterClose.historyCursor;
+  const endingIdentityPass = endingBeforeOpen.runtimeStateHash === endingAfterClose.runtimeStateHash && endingBeforeOpen.historyCursor === endingAfterClose.historyCursor;
   const passed = title.status === "title" && title.trigger.text === "✦附加内容" && title.trigger.disabled === false
+    && lockedGallery.dialog?.view === "gallery" && lockedGallery.dialog.lockedGalleryItems === 2
+    && lockedGallery.dialog.galleryImages.length === 0 && !lockedGallery.dialog.galleryText?.includes("Deterministic")
     && effect.status === "waiting-effect" && effect.trigger.disabled === true
     && desktop.additionalContent === "open" && desktop.dialog?.modal === "true" && desktop.dialog.activeLabel === "返回剧情"
     && desktop.dialog.withinViewport === true && desktop.dialog.minimumInteractiveHeight >= 44 && desktop.trigger.height >= 44
-    && afterTab.dialog?.activeLabel === "返回剧情" && groupsPass
+    && afterTab.dialog?.activeLabel === "查看 CG 画廊" && groupsPass
+    && galleryDesktop.dialog?.view === "gallery" && JSON.stringify(galleryDesktop.dialog.galleryImages) === JSON.stringify(["Deterministic Actor", "Deterministic Sunset"])
+    && galleryDesktop.dialog.lockedGalleryItems === 0 && galleryDesktop.dialog.missingGalleryItems === 0
+    && preview.dialog?.previewLabel === "Deterministic Sunset 画面预览" && preview.dialog.activeLabel === "关闭画面预览"
+    && afterPreviewClose.dialog?.previewLabel === null && afterPreviewClose.dialog.activeLabel === "查看画面 Deterministic Sunset"
     && afterClose.additionalContent === "closed" && afterClose.dialog === null && afterClose.trigger.label === "打开附加内容" && identityPass
+    && endingsDesktop.dialog?.view === "endings" && endingsDesktop.dialog.endingText?.includes("Curtain") && endingsDesktop.dialog.endingText?.includes("已达成")
+    && endingAfterClose.status === "ended" && endingIdentityPass
     && mobile.viewport.width === 390 && mobile.viewport.height === 844 && mobile.overflow === 0
-    && mobile.dialog?.withinViewport === true && mobile.dialog.minimumInteractiveHeight >= 44 && mobile.dialog.activeLabel === "返回剧情"
+    && mobile.dialog?.view === "gallery" && mobile.dialog.withinViewport === true && mobile.dialog.minimumInteractiveHeight >= 44
+    && JSON.stringify(mobile.dialog.galleryImages) === JSON.stringify(["Deterministic Actor", "Deterministic Sunset"])
     && failures.length === 0;
   const evidence = {
     schemaVersion: 1,
-    node: "N62-E1",
-    scope: "cold-production-additional-content-desktop-1440x900-mobile-390x844",
+    node: "N62-E2",
+    scope: "cold-production-gallery-ending-content-and-preview-desktop-1440x900-mobile-390x844",
     generatedAt: new Date().toISOString(),
     build: { playerDistIndexSha256: hash(await readFile(join(root, "apps", "player-shell", "dist", "index.html"))) },
     environment: { product: version.Browser, protocolVersion: version["Protocol-Version"], headless: true, url: baseUrl },
@@ -231,15 +281,21 @@ try {
       modalInitialFocus: "返回剧情",
       focusContained: true,
       focusReturned: "打开附加内容",
+      galleryList: ["Deterministic Actor", "Deterministic Sunset"],
+      lockedNamesHidden: true,
+      nestedPreviewEscapeAndFocusReturn: true,
+      reachedEnding: "Curtain",
       runtimeIdentityRetained: true,
       minimumInteractiveHeight: 44,
       mobileHorizontalOverflow: 0,
       browserErrorsOrWarnings: 0
     },
-    actual: { title, effect, beforeOpen, desktop, afterTab, afterClose, mobile, identityPass, failures },
+    actual: { title, lockedGallery, effect, beforeOpen, desktop, afterTab, galleryDesktop, preview, afterPreviewClose, afterClose, endingBeforeOpen, endingsDesktop, endingAfterClose, mobile, identityPass, endingIdentityPass, failures },
     screenshots: [
-      { path: "evidence/n62/additional-content-desktop.png", width: 1440, height: 900, ...desktopScreenshot },
-      { path: "evidence/n62/additional-content-mobile.png", width: 390, height: 844, ...mobileScreenshot }
+      { path: "evidence/n62/additional-content-e2-gallery-desktop.png", width: 1440, height: 900, ...desktopScreenshot },
+      { path: "evidence/n62/additional-content-e2-preview-desktop.png", width: 1440, height: 900, ...previewScreenshot },
+      { path: "evidence/n62/additional-content-e2-ending-desktop.png", width: 1440, height: 900, ...endingScreenshot },
+      { path: "evidence/n62/additional-content-e2-gallery-mobile.png", width: 390, height: 844, ...mobileScreenshot }
     ],
     result: passed ? "PASS" : "FAIL"
   };
