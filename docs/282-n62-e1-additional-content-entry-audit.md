@@ -3,7 +3,7 @@
 > 初始审计：2026-09-03；production-browser 补证与用户体验复审：2026-09-22
 > 分支：`codex/n60-e1-debugger-session`
 > 起点：`9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
-> 状态：N62-E1 本地 Engineering 证据闭合；等待本次推送的 exact-head CI 后关闭并进入 E2
+> 状态：N62-E1 Engineering 已关闭；下一切片为 E2 Gallery/Ending 内容列表
 
 ## 1. 本步交付的用户路径
 
@@ -59,7 +59,7 @@ E1 不在 Shell 维护第二份 Catalog，也不提前实现 Replay 会话、Mus
 
 ## 7. 下一接续顺序
 
-1. 推送本次 E1 补证与用户体验纠偏，等待 exact-head CI；成功后关闭 E1。
+1. N62-E1 实现头 `06c155e29a6f002ea81ac70752378aa34311e05b` 的 exact-head Windows / Node 22 完整门 run `35740862064` / job `106789941844` 已成功，E1 关闭。
 2. N62-E2：实现 Gallery/Ending 的内容列表、锁定/空/缺失反馈和返回身份；仍消费现有 Catalog/Meta。
 3. N62-E3：冻结并实现 Music 的正式解锁 Meta，禁止用“Catalog 中存在”冒充玩家已解锁。
 4. N62-E4：实现隔离 Replay Session 和所有退出路径的 Runtime/History/Save/Meta/Host 完整恢复。

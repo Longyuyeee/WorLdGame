@@ -593,7 +593,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 - **Implementation**：从资源标签、故事引用和解锁条件生成 Catalog；允许标题/排序/封面/剧透/本地化覆盖；Scene Replay 使用隔离 Checkpoint；退出恢复原状态；缩略图缺失诊断；玩家流程图只显示已发现内容。
 - **Acceptance**：AC-17、18、20；Catalog 不要求维护第二份手工列表。
 
-> N62-E1 本地 Engineering 闭合（2026-09-22）：[审计 #282](282-n62-e1-additional-content-entry-audit.md)与[接续 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)已让正式 Player Core 从当前 build 的四类 Compiler Catalog 与 Runtime Meta 投影只读摘要，并在 Shell 增加明确入口、锁定/空状态、等待态禁用和返回剧情。真实产品红测首次 `0/2`；awaited Effect 时点纠偏后为 `2/2`。Chrome cold production 1440×900 / 390×844 验证摘要、Runtime/History 身份不变、44/48px、overflow 0、console 0；真页复核发现并修复模态焦点泄漏和开发术语文案。定向现为 `3/3`。本次 exact-head CI 成功后关闭 E1，下一切片为 E2 Gallery/Ending 内容列表；AC-17/18/20 与 Product Acceptance 不提前通过。
+> N62-E1 Engineering 已关闭（2026-09-22）：[审计 #282](282-n62-e1-additional-content-entry-audit.md)与[接续 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)已让正式 Player Core 从当前 build 的四类 Compiler Catalog 与 Runtime Meta 投影只读摘要，并在 Shell 增加明确入口、锁定/空状态、等待态禁用和返回剧情。真实产品红测首次 `0/2`；awaited Effect 时点纠偏后为 `2/2`。Chrome cold production 1440×900 / 390×844 验证摘要、Runtime/History 身份不变、44/48px、overflow 0、console 0；真页复核发现并修复模态焦点泄漏和开发术语文案。定向现为 `3/3`。实现头 `06c155e` 的 exact-head run `35740862064` / job `106789941844` 成功。下一切片为 E2 Gallery/Ending 内容列表；AC-17/18/20 与 Product Acceptance 不提前通过。
 
 ## 12. R7：资源与 Optimization Center
 

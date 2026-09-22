@@ -1,4 +1,4 @@
-# 当前开发情况审计（N62-E1 本地闭合，待 exact-head CI）
+# 当前开发情况审计（N62-E1 Engineering 已关闭）
 
 > 审计日期：2026-09-03
 > 当前分支：`codex/n60-e1-debugger-session`；N62-E1 起点为 `9bdd1171ca87acfb3f532d5eee193b99e830c9e5`
@@ -9,7 +9,7 @@
 
 ## 1. 当前结论
 
-2026-09-22 最新结论是：**N52、N60 与 N61 Engineering 已关闭；N62-E1 本地 Engineering 证据已闭合，等待本次 exact-head CI。** 正式 Player 从同一 Compiler Catalog 与 Runtime Meta 自动呈现 Gallery/Replay/Music/Ending 四类摘要，等待 Effect/Barrier 时禁止读取瞬态进度，返回前后 Runtime State Hash 与 History Cursor 不变。定向产品测试现为 `3/3`；Chrome cold production 双视口补齐入口、状态、焦点、44/48px、overflow 与 console 证据，并修复了模态焦点泄漏和面向玩家暴露开发术语的问题。CI 成功后进入 E2 Gallery/Ending 列表。N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断。完整差异和接续顺序见[#282](282-n62-e1-additional-content-entry-audit.md)与[#284](284-n62-e1-production-browser-closure-and-e2-handoff.md)。
+2026-09-22 最新结论是：**N52、N60 与 N61 Engineering 已关闭；N62-E1 Engineering 已关闭。** 正式 Player 从同一 Compiler Catalog 与 Runtime Meta 自动呈现 Gallery/Replay/Music/Ending 四类摘要，等待 Effect/Barrier 时禁止读取瞬态进度，返回前后 Runtime State Hash 与 History Cursor 不变。定向产品测试现为 `3/3`；Chrome cold production 双视口补齐入口、状态、焦点、44/48px、overflow 与 console 证据，并修复了模态焦点泄漏和面向玩家暴露开发术语的问题。实现头 `06c155e` 的 exact-head run `35740862064` / job `106789941844` 成功。下一切片为 E2 Gallery/Ending 列表。N62 Product Acceptance、N70 Engineering、M1 与发布继续阻断。完整差异和接续顺序见[#282](282-n62-e1-additional-content-entry-audit.md)与[#284](284-n62-e1-production-browser-closure-and-e2-handoff.md)。
 
 Editor 的完整流程试玩已把 Canonical Project 交给 N30 Project Compiler，再把 IR 交给 N31 Runtime；E7 又把 Editor 私有 Effect Host 收敛为 portable `@world-studio/runtime-host`，并由真实浏览器 Worker 与 Node 比较同一 receipt/snapshot Golden。五分钟 Benchmark 首次按正式链实测时暴露旧 Direction 和缺失变量，本轮已修正；两条结局路线与 Back/Forward 均在 production browser 真实通过。
 
@@ -186,6 +186,6 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 
 1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[跨电脑交接 #281](281-n61-to-n62-cross-device-handoff.md)，并核验本地/远端 exact head 相同、工作区干净；
 2. N61 Engineering 已关闭，不重复增加本地化证明；N61 Product Acceptance 等 Windows/Android 正式 Host 和实体设备；
-3. N62-E1 已补齐 production-browser 和用户体验纠偏；本次 exact-head CI 成功后，功能顺序下一点为 N62-E2 Gallery/Ending 内容列表与缺失/锁定/空状态；
+3. N62-E1 已补齐 production-browser、用户体验纠偏和 exact-head CI；功能顺序下一点为 N62-E2 Gallery/Ending 内容列表与缺失/锁定/空状态；
 4. 当前 RA-N21-011 已准入到 N62 Engineering，并于 2026-09-27 16:00（UTC+8）到期；N62 Product Acceptance 与 N70 Engineering仍阻断；
 5. 真人继续等功能与整体 UI 收束后统一接入；全部 Product Acceptance 阻断状态不变。
