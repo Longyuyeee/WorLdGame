@@ -595,7 +595,7 @@ R1–R3 是最短可玩链。它们完成前，不新增资源高级算法、平
 
 > N62-E1 Engineering 已关闭（2026-09-22）：[审计 #282](282-n62-e1-additional-content-entry-audit.md)与[接续 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)已让正式 Player Core 从当前 build 的四类 Compiler Catalog 与 Runtime Meta 投影只读摘要，并在 Shell 增加明确入口、锁定/空状态、等待态禁用和返回剧情。真实产品红测首次 `0/2`；awaited Effect 时点纠偏后为 `2/2`。Chrome cold production 1440×900 / 390×844 验证摘要、Runtime/History 身份不变、44/48px、overflow 0、console 0；真页复核发现并修复模态焦点泄漏和开发术语文案。定向现为 `3/3`。实现头 `06c155e` 的 exact-head run `35740862064` / job `106789941844` 成功。下一切片为 E2 Gallery/Ending 内容列表；AC-17/18/20 与 Product Acceptance 不提前通过。
 
-> N62-E2 Engineering 候选（2026-09-22）：[审计 #285](285-n62-e2-gallery-ending-content-audit.md)已让 Player Core 直接从 Compiler Gallery/Ending Catalog 与 Runtime Meta 投影条目，锁定名称在进入 Shell 前即为 `null`；Shell 增加 Gallery 列表/全屏预览、Ending 达成列表、空/锁定/资源缺失反馈和分层焦点返回。定向 `2 files / 5 tests`、TypeScript 与 cold production Chrome 通过；1440×900 / 390×844 overflow 0、最小交互 44px、console 0，presenting/ended 两种会话打开关闭前后 Runtime/History 身份一致。等待 exact-head CI 后关闭 E2；下一切片为 E3 Music 正式解锁 Meta，Replay/覆盖配置/玩家 Route 和 AC-17/18/20 Product Acceptance 不提前通过。
+> N62-E2 Engineering 已关闭（2026-09-22）：[审计 #285](285-n62-e2-gallery-ending-content-audit.md)已让 Player Core 直接从 Compiler Gallery/Ending Catalog 与 Runtime Meta 投影条目，锁定名称在进入 Shell 前即为 `null`；Shell 增加 Gallery 列表/全屏预览、Ending 达成列表、空/锁定/资源缺失反馈和分层焦点返回。定向 `2 files / 5 tests`、TypeScript 与 cold production Chrome 通过；1440×900 / 390×844 overflow 0、最小交互 44px、console 0，presenting/ended 两种会话打开关闭前后 Runtime/History 身份一致。实现头 `bf0d620` 的 exact-head run `35747228389` / job `106811848421` 成功。下一切片为 E3 Music 正式解锁 Meta，Replay/覆盖配置/玩家 Route 和 AC-17/18/20 Product Acceptance 不提前通过。
 
 ## 12. R7：资源与 Optimization Center
 

@@ -57,7 +57,7 @@
 
 > N61-E7 / Engineering 出口（2026-09-02）：[审计 #280](280-n61-e7-localization-engineering-exit-audit.md)直接把 Editor Production 保存的 Canonical 与 IndexedDB 真实 Blob 交给 Compiler/Player，首次 `1/1` 即证明 Asset Manifest、Localization Catalog、`en → zh-Hans → ja` 媒体/Voice 选择和缺失回退无断点；E4 390×844 production 的 5 行禁则、Ruby、overflow、44px 与 console 证据同步闭合。受影响 `4 files / 4 tests`、双端 TypeScript/build 通过。N61 Engineering 关闭，REQ-L10N 转为验收中；Windows/Android 和三端 Product Acceptance 仍阻断。
 
-> N62-E1/E2 状态（2026-09-22）：E1 已由[闭合审计 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)完成 exact-head CI 并关闭；[E2 审计 #285](285-n62-e2-gallery-ending-content-audit.md)已从正式 Gallery/Ending Catalog 与 Runtime Meta 投影防剧透条目，完成 Gallery 预览、Ending 达成、空/锁定/资源缺失反馈、分层焦点和双视口真实浏览器。E2 定向 `5/5`、TypeScript/build/Chrome 通过，等待本实现头 exact-head CI 后关闭；AC-17/18/20 与 Product Acceptance 不提前通过。
+> N62-E1/E2 状态（2026-09-22）：E1 已由[闭合审计 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)关闭；[E2 审计 #285](285-n62-e2-gallery-ending-content-audit.md)已从正式 Gallery/Ending Catalog 与 Runtime Meta 投影防剧透条目，完成 Gallery 预览、Ending 达成、空/锁定/资源缺失反馈、分层焦点和双视口真实浏览器。E2 定向 `5/5`、TypeScript/build/Chrome 与实现头 `bf0d620` 的 exact-head run `35747228389` 均通过，E2 Engineering 已关闭；AC-17/18/20 与 Product Acceptance 不提前通过。
 
 ## 1. 状态和证据规则
 
@@ -86,7 +86,7 @@
 | USP-05 | Local Multi-platform Build | N80–N83 | 未开始 | 开发构建不计 | Windows 本地三端正式产物 |
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | N43-E1–E4 建立统一上下文、Beginner/Pro、Motion 与输入/同步；E5–E7 依次开放 Production、Debug & QA 与 Mobile Focus，Engineering 真实任务达到 7/7。Utage 级本地化/配音批量列、真人与商业 Product 门仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
-| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；N62-E1 已关闭四类摘要，E2 已完成 Gallery/Ending 同源列表、锁定防剧透、预览、资源恢复反馈与真实浏览器身份保持，等待 exact-head CI；Replay/Music/覆盖配置和玩家自动 Route 仍缺 | [N62-E2 #285](285-n62-e2-gallery-ending-content-audit.md)、Replay/Music/覆盖配置与三端一致 |
+| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；N62-E1 已关闭四类摘要，E2 已关闭 Gallery/Ending 同源列表、锁定防剧透、预览、资源恢复反馈与真实浏览器身份保持；Replay/Music/覆盖配置和玩家自动 Route 仍缺 | [N62-E2 #285](285-n62-e2-gallery-ending-content-audit.md)、Replay/Music/覆盖配置与三端一致 |
 | USP-09 | Skip / History / Back | N31/N52 | 实现中 | N52 Engineering 已关闭：Auto/Skip、可选行 History、只读旧分支、Barrier 原因/距离和 Forward 项目策略已在 Web 玩家闭环；Windows/Android 正式宿主、实体设备、真人与 Product Acceptance 仍未完成 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
