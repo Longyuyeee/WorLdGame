@@ -27,6 +27,31 @@ function replaceScript(project: CanonicalProject, sceneId: string, statements: r
 }
 
 describe("project compiler N30-E1/E2", () => {
+  it("preserves replay ending order and excludes unreachable scenes in full and incremental analysis", () => {
+    let project = replaceScript(loadFixture("branching"), "branch_start", [
+      { id: "to_left", kind: "jump", targetLabel: "branch_left" }
+    ]);
+    project = replaceScript(project, "branch_left", [
+      { id: "test_path", kind: "condition", expression: "true", targetLabel: "alternative" },
+      { id: "z_ending", kind: "end", endingName: "Z" },
+      { id: "alternative_label", kind: "label", name: "alternative" },
+      { id: "a_ending", kind: "end", endingName: "A" }
+    ]);
+    project = updateAdditionalContentCatalogOverride(project, "replay", "branch_left", { title: "两种回想" });
+    const full = compileProjectIncremental(project);
+    expect(full.ok).toBe(true);
+    if (!full.ok) throw new Error("Expected reachable ending compilation");
+    expect(full.artifacts.catalogs.replay).toEqual([
+      expect.objectContaining({ replayId: "branch_left", title: "两种回想", endingIds: ["a_ending", "z_ending"] })
+    ]);
+    const analyzed = analyzeProjectIncremental(project, { previousCache: full.cache, trustedChangedSceneIds: [] });
+    expect(analyzed.diagnostics).toEqual(full.diagnostics);
+    const changed = replaceScript(project, "branch_start", [{ id: "to_right", kind: "jump", targetLabel: "branch_right" }]);
+    const rebuilt = compileProjectIncremental(changed, { previousCache: full.cache });
+    expect(rebuilt.ok).toBe(false);
+    expect(analyzeProjectIncremental(changed, { previousCache: full.cache, trustedChangedSceneIds: ["branch_start"] }).diagnostics).toEqual(rebuilt.diagnostics);
+    expect(rebuilt.diagnostics).toContainEqual(expect.objectContaining({ code: "MISSING_CATALOG_ENTRY", entityId: "branch_left" }));
+  });
   it('compiles scene control targets, tracks reachability and invalidates removed targets', () => {
     const project = replaceScript(loadFixture('branching'), 'branch_start', [
       {id:'check',kind:'condition',expression:'true',targetLabel:'branch_left'},

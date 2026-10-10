@@ -34,6 +34,18 @@ function sortDiagnostics(values: readonly CompilerDiagnostic[]): readonly Compil
 }
 function uniqueSorted(values: Iterable<string>): readonly string[] { return [...new Set(values)].sort(compareCanonicalStrings); }
 function jsonClone<T extends JsonValue>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }
+
+// Build once per analysis; scanning every ending for every scene is quadratic
+// in large branching stories. Preserve incoming order and duplicate IDs.
+function endingIdsByScene(endings: readonly { readonly sceneId: string; readonly endingId: string }[]): ReadonlyMap<string, readonly string[]> {
+  const result = new Map<string, string[]>();
+  for (const ending of endings) {
+    const ids = result.get(ending.sceneId);
+    if (ids === undefined) result.set(ending.sceneId, [ending.endingId]);
+    else ids.push(ending.endingId);
+  }
+  return result;
+}
 function finalizeCacheEntry(entry: Omit<CompilerSceneCacheEntryV1, "outputHash">): CompilerSceneCacheEntryV1 {
   return { ...entry, outputHash: sha256(canonicalJson(entry as unknown as JsonValue)) };
 }
@@ -354,7 +366,8 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId)).sort((left, right) => compareCanonicalStrings(left.endingId, right.endingId));
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
   const galleryIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds)); const musicIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds));
-  const replayIds = project.scenes.flatMap((scene) => endings.some((ending) => ending.sceneId === scene.id) ? [scene.id] : []);
+  const endingsByScene = endingIdsByScene(endings);
+  const replayIds = project.scenes.flatMap((scene) => endingsByScene.has(scene.id) ? [scene.id] : []);
   const validCatalogEntries = new Set([
     ...galleryIds.map((id) => `gallery:${id}`), ...musicIds.map((id) => `music:${id}`),
     ...replayIds.map((id) => `replay:${id}`), ...endings.map((entry) => `ending:${entry.endingId}`)
@@ -406,7 +419,7 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const endingCatalog = endings.map((entry) => { const override = catalogPresentation(overrides, "ending", entry.endingId); return { ...entry, name: override.title ?? entry.name, coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: entry.endingId }; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
   const galleryCatalog = galleryIds.map((assetId) => { const asset = assetsById.get(assetId); const override = catalogPresentation(overrides, "gallery", assetId); return { assetId, displayName: override.title ?? String(asset?.displayName ?? assetId), kind: String(asset?.kind ?? "unknown"), coverAssetId: override.coverAssetId ?? assetId, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: assetId }; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
   const musicCatalog = musicIds.map((assetId) => { const asset = assetsById.get(assetId); const override = catalogPresentation(overrides, "music", assetId); return { assetId, displayName: override.title ?? String(asset?.displayName ?? assetId), coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: assetId }; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
-  const replayCatalog = project.scenes.flatMap((scene) => { const endingIds = endings.filter((ending) => ending.sceneId === scene.id).map((ending) => ending.endingId); if (endingIds.length === 0) return []; const override = catalogPresentation(overrides, "replay", scene.id); return [{ replayId: scene.id, title: override.title ?? scene.title, sceneId: scene.id, endingIds, coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: scene.id }]; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
+  const replayCatalog = project.scenes.flatMap((scene) => { const endingIds = endingsByScene.get(scene.id); if (endingIds === undefined) return []; const override = catalogPresentation(overrides, "replay", scene.id); return [{ replayId: scene.id, title: override.title ?? scene.title, sceneId: scene.id, endingIds, coverAssetId: override.coverAssetId ?? null, revealBeforeUnlock: override.revealBeforeUnlock ?? false, order: override.order, id: scene.id }]; }).sort(catalogOrder).map(({ order: _order, id: _id, ...entry }) => entry);
   const catalogs = {
     schemaVersion: 1 as const, endings: endingCatalog,
     gallery: galleryCatalog,
@@ -478,12 +491,13 @@ export function analyzeProjectIncremental(project: CanonicalProject, options: In
   for (let cursor = 0; cursor < queue.length; cursor += 1) { const sceneId = queue[cursor]!; if (reachableScenes.has(sceneId)) continue; reachableScenes.add(sceneId); for (const target of graph.get(sceneId) ?? []) if (!reachableScenes.has(target)) queue.push(target); }
   for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId));
+  const endingsByScene = endingIdsByScene(endings);
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
   diagnostics.push(...catalogOverrideDiagnostics(project, seenAssetIds));
   const validCatalogEntries = new Set([
     ...Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds.map((id) => `gallery:${id}`)),
     ...Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds.map((id) => `music:${id}`)),
-    ...project.scenes.flatMap((scene) => endings.some((ending) => ending.sceneId === scene.id) ? [`replay:${scene.id}`] : []),
+    ...project.scenes.flatMap((scene) => endingsByScene.has(scene.id) ? [`replay:${scene.id}`] : []),
     ...endings.map((entry) => `ending:${entry.endingId}`)
   ]);
   for (const override of additionalContentCatalogOverrides(project)) {
@@ -509,7 +523,7 @@ export function analyzeProjectIncremental(project: CanonicalProject, options: In
   if (additionalContentScreen !== null && !diagnostics.some((item) => item.severity === "error")) {
     Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds).forEach((id) => missingCover("gallery", id, id));
     Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds).forEach((id) => missingCover("music", id));
-    project.scenes.filter((scene) => endings.some((ending) => ending.sceneId === scene.id)).forEach((scene) => missingCover("replay", scene.id));
+    project.scenes.filter((scene) => endingsByScene.has(scene.id)).forEach((scene) => missingCover("replay", scene.id));
     endings.forEach((entry) => missingCover("ending", entry.endingId));
   }
   const sortedDiagnostics = sortDiagnostics(diagnostics);
