@@ -6,19 +6,30 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false}={}) {
-  const prefix=native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
-  const toggle=async()=>{await client.evaluate(atlas ? "document.querySelector('[aria-label^=\"Atlas 兼容导出组：\"]').click()" : "document.querySelector('[aria-label=\"安全 PNG 无损导出优化\"]').click()");if(native)await client.evaluate("document.querySelector('[aria-label=\"原生 Atlas 绘制与离线原图回退\"]').click()");};
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,sampleMemory,openWindows}={}) {
+  const prefix=scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+  const measurements=[], previewRuns=[];let rapidSwitch;
+  const toggle=async()=>{if(scale){const labels=await client.evaluate("Array.from(document.querySelectorAll('[aria-label^=\"Atlas 兼容导出组：\"]')).map(e=>e.getAttribute('aria-label'))");for(const label of labels){const query=`document.querySelector(${JSON.stringify(`[aria-label="${label}"]`)})`;await client.wait(query);await client.evaluate(`${query}.click()`);}}else await client.evaluate(atlas ? "document.querySelector('[aria-label^=\"Atlas 兼容导出组：\"]').click()" : "document.querySelector('[aria-label=\"安全 PNG 无损导出优化\"]').click()");if(native)await client.evaluate("document.querySelector('[aria-label=\"原生 Atlas 绘制与离线原图回退\"]').click()");};
+  const publish=async()=>{
+    await client.button('分析候选');await client.wait("document.querySelector('.dicing-analysis__group')");
+    const count=scale?await client.evaluate("document.querySelectorAll('.dicing-analysis__group').length"):1;
+    for(let i=0;i<count;i++){
+      const id=await client.evaluate(`document.querySelectorAll('.dicing-analysis__group')[${i}].querySelector('strong').textContent.split(' · ')[0]`);
+      await client.evaluate(`Array.from(document.querySelectorAll('.dicing-analysis__group')[${i}].querySelectorAll('button')).find(b=>b.textContent==='编码并复决策发布').click()`);
+      await client.wait(`document.body.textContent.includes(${JSON.stringify(id+' 已原子发布 Manifest')})`);
+    }
+  };
   const file = async (selector, path) => { await client.wait(`document.querySelector(${JSON.stringify(selector)})`); const {root:doc} = await client.send('DOM.getDocument'); const {nodeId} = await client.send('DOM.querySelector', {nodeId:doc.nodeId,selector}); await client.send('DOM.setFileInputFiles',{nodeId,files:[path]}); };
-  const field = async (selector,value) => client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,${JSON.stringify(value)});e.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+  const field = async (selector,value) => client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});Object.getOwnPropertyDescriptor(e.tagName==='SELECT'?HTMLSelectElement.prototype:HTMLInputElement.prototype,'value').set.call(e,${JSON.stringify(value)});e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));})()`);
   const download = async selector => { await client.wait(`document.querySelector(${JSON.stringify(selector)})`); return Buffer.from(await client.evaluate(`(async()=>{const blob=await(await fetch(document.querySelector(${JSON.stringify(selector)}).href)).blob();return await new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.readAsDataURL(blob);});})()`),'base64'); };
   const save = async () => { await client.wait("!document.querySelector('.local-save-button').disabled"); await client.evaluate("document.querySelector('.local-save-button').click()"); await client.wait("document.querySelector('.local-save-button').textContent.includes('已保存')"); };
   const enter = async () => { await client.button('进入编辑器'); await client.button('进入内容编辑器'); await client.wait("document.querySelector('.preview-disclosure--build')"); };
   const openBuild = () => client.evaluate("document.querySelector('.preview-disclosure--build').open=true");
-  const build = async directory => { await client.button(directory ? '构建目录 ZIP' : '构建试玩 HTML'); return download('.playable-web-export a[download]'); };
+  const build = async directory => { const start=performance.now();await client.button(directory ? '构建目录 ZIP' : '构建试玩 HTML'); const bytes=await download('.playable-web-export a[download]');measurements.push({kind:directory?'directory':'html',elapsedMs:performance.now()-start,bytes:bytes.length});return bytes; };
   const payload = bytes => JSON.parse(bytes.toString('utf8').match(/<script id="world-project" type="application\/json">(.*?)<\/script>/s)[1]);
   const digest = bytes => 'sha256:'+createHash('sha256').update(bytes).digest('hex');
   const preview = async (expectNative=false) => {
+    const started=performance.now();
     await client.button('试玩完整流程');
     for(let i=0;i<30;i++){
       await client.wait("document.querySelector('[data-testid=preview-visual-host]')?.dataset.renderStatus==='ready'");
@@ -27,7 +38,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     }
     await client.wait("document.querySelector('[data-testid=preview-visual-host]')?.dataset.renderStatus==='ready'");await new Promise(r=>setTimeout(r,800));
     if(expectNative)await client.wait("Number(document.querySelector('[data-testid=preview-visual-host] canvas')?.dataset.nativeAtlasLayers)>0");
-    const result=await client.evaluate("document.querySelector('[data-testid=preview-visual-host] canvas').toDataURL()");await client.button('退出试玩');return digest(Buffer.from(result));
+    const result=await client.evaluate("document.querySelector('[data-testid=preview-visual-host] canvas').toDataURL()");previewRuns.push({expectNative,elapsedMs:performance.now()-started,scheduler:await client.evaluate("JSON.parse(document.documentElement.dataset.atlasPreviewScheduler??'null')")});await client.button('退出试玩');return digest(Buffer.from(result));
   };
   // Preserve the existing real fixture pixels; only inflate its PNG encoding to model a creator's unoptimized source.
   const golden = JSON.parse(await readFile(join(root,'fixtures/projects/media/media-golden.json'),'utf8')).assets.find(a=>a.assetId==='media_sunset');
@@ -43,7 +54,16 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   if(atlas){
     const actorPath=join(temporary,'actor-atlas.png');await writeFile(actorPath,makeAtlasSource(1,native));
     await client.button('打开资源保险库');await client.button('编辑资源：media_actor_sprite');await file('[aria-label=选择资源文件]',actorPath);await client.button('更新此资源');await client.wait("document.querySelector('.asset-import-status--success')");
-    await client.button('分析候选');await client.wait("document.querySelector('.dicing-analysis__group')");await client.button('编码并复决策发布');await client.wait("document.body.textContent.includes('已原子发布 Manifest')");await client.button('关闭资源保险库');
+    if(scale){
+      // Import through the same public authoring form: 30 related images plus one unsuitable noisy background.
+      for(let i=2;i<=30;i++){
+        const path=join(temporary,`scale-${i}.png`);await writeFile(path,makeAtlasSource(i,i<30,i===30));
+        await file('[aria-label=选择资源文件]',path);await field('[aria-label="资源 Asset ID"]',`scale_${i}`);
+        await field('[aria-label="资源显示名称"]',i===30?'不适合切块的噪声背景':`透明差分 ${i}`);await field('[aria-label="资源类型"]',i===30?'background':'character');
+        await client.button('导入到资源保险库');await client.wait("document.body.textContent.includes('资源导入完成')");
+      }
+    }
+    await publish();await client.button('关闭资源保险库');
     await client.button('刷新已发布 Atlas 组');await client.wait("document.querySelector('[aria-label^=\"Atlas 兼容导出组：\"]')");
   }
   if(native){
@@ -58,19 +78,32 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   await client.wait("!document.querySelector('.playable-web-export a[download]')");await save();
   await client.send('Page.reload');await client.wait("document.querySelector('.project-home__recent button')");await client.button('雨后的约定');await enter();await openBuild();
   assert.equal(await client.evaluate(atlas?"document.querySelector('[aria-label^=\"Atlas 兼容导出组：\"]').checked":"document.querySelector('[aria-label=\"安全 PNG 无损导出优化\"]').checked"),true);
+  if(scale){const diagnostic=payload(await build(false));console.log('SCALE_BUILD',JSON.stringify(diagnostic.optimizationReport.nativeAtlasGroups));}
   const editorPreviewAfter=atlas?await preview(native):null;if(atlas)assert.equal(editorPreviewAfter,editorPreviewBefore);
+  if(scale){
+    for(let i=0;i<3;i++)assert.equal(await preview(true),editorPreviewBefore);
+    assert.ok(previewRuns.at(-1).scheduler.cacheHits>previewRuns[1].scheduler.cacheHits,'Repeated story preview must reuse verified delivery');
+    for(let i=0;i<30;i++)await client.evaluate(`document.querySelectorAll('.scene-item')[${i%3}].click()`);
+    await client.wait("document.querySelector('[data-testid=preview-visual-host]')?.dataset.renderStatus==='ready'");
+    await client.wait("JSON.parse(document.documentElement.dataset.atlasPreviewScheduler).activeLoads===0");
+    rapidSwitch={sceneChanges:30,scheduler:await client.evaluate("JSON.parse(document.documentElement.dataset.atlasPreviewScheduler)"),native:await client.evaluate("JSON.parse(document.documentElement.dataset.nativeAtlasScheduler??'null')")};
+    assert.equal(rapidSwitch.scheduler.queuedLoads,0);assert.equal(await preview(true),editorPreviewBefore);
+    await client.button('构建试玩 HTML');await client.button('取消本次构建');await client.wait("document.body.textContent.includes('构建已取消')");
+    assert.equal(await client.evaluate("Boolean(document.querySelector('.playable-web-export a[download]'))"),false);
+  }
   if(atlas){await client.evaluate("document.querySelector('[aria-label=\"Atlas 兼容导出设置\"]').scrollIntoView()");await writeFile(join(root,`evidence/authoring/${prefix}-settings.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));}
   const optimized=await build(false), after=payload(optimized), directory=await build(true), files=unzipSync(directory);
   assert.equal(after.optimizationReport.mode,native?'native-atlas':atlas?'atlas-compatible':'lossless-png',JSON.stringify(after.optimizationReport));assert.ok(after.optimizationReport.uniqueExportBytes<after.optimizationReport.uniqueOriginalBytes);
+  if(scale){assert.ok(after.mediaAssets.length>=31);assert.ok(after.nativeAtlasGroups.reduce((n,g)=>n+g.fallback.entries.length,0)>=30);assert.ok(after.mediaAssets.find(a=>a.assetId==='scale_30').url,'Unsuitable background stays an ordinary image');}
   const row=after.optimizationReport.rows.find(a=>a.assetId==='media_sunset');assert.equal(row.originalDigest,digest(original));
   let optimizedPng;
   if(native){
     assert.equal(after.mediaAssets.find(a=>a.assetId==='media_sunset').url,'');
     assert.equal(files[`media/${row.exportDigest.slice(7)}.png`],undefined);
     assert.deepEqual(payload(Buffer.from(files['index.html'])).nativeAtlasGroups,after.nativeAtlasGroups);
-    const group=after.nativeAtlasGroups[0], entry=group.fallback.entries.find(e=>e.assetId==='media_sunset');
+    const group=after.nativeAtlasGroups.find(g=>g.fallback.entries.some(e=>e.assetId==='media_sunset')), entry=group.fallback.entries.find(e=>e.assetId==='media_sunset');
     const raw=Buffer.from(unzlibSync(Buffer.from(group.fallback.url.split(',')[1],'base64')));optimizedPng=raw.subarray(entry.offset,entry.offset+entry.length);assert.deepEqual(optimizedPng,original);
-    assert.equal(after.optimizationReport.nativeAtlasGroups[0].payloadBytes,Buffer.byteLength(JSON.stringify(group)));
+    assert.equal(after.optimizationReport.nativeAtlasGroups.find(g=>g.groupId===group.groupId).payloadBytes,Buffer.byteLength(JSON.stringify(group)));
   }else{
     assert.ok(row.savedBytes>0);assert.equal(row.verified,true);
     optimizedPng=Buffer.from(after.mediaAssets.find(a=>a.assetId==='media_sunset').url.split(',')[1],'base64');
@@ -84,7 +117,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   await writeFile(join(root,`evidence/authoring/${prefix}.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   if(atlas){
     const changed=join(temporary,'actor-changed.png');await writeFile(changed,makeAtlasSource(2,native));await client.button('打开资源保险库');await client.button('编辑资源：media_actor_sprite');await file('[aria-label=选择资源文件]',changed);await client.button('更新此资源');await client.wait("document.querySelector('.asset-import-status--success')");await client.button('关闭资源保险库');
-    const stale=payload(await build(false));if(native){assert.equal(stale.optimizationReport.nativeAtlasGroups[0].adopted,false);assert.match(stale.optimizationReport.nativeAtlasGroups[0].detail,/source-mismatch/);}else{assert.equal(stale.optimizationReport.atlasGroups[0].status,'original');assert.match(stale.optimizationReport.atlasGroups[0].reason,/source-mismatch/);}
+    const stale=payload(await build(false));if(native){assert.ok(stale.optimizationReport.nativeAtlasGroups.some(g=>!g.adopted&&/source-mismatch/.test(g.detail)));}else{assert.equal(stale.optimizationReport.atlasGroups[0].status,'original');assert.match(stale.optimizationReport.atlasGroups[0].reason,/source-mismatch/);}
     await client.button('打开资源保险库');await client.button('撤销最近资源更新');await client.wait("document.querySelector('.asset-import-status').textContent.includes('已撤销')");await client.button('关闭资源保险库');
   }
   await client.button('恢复原素材导出');await client.wait("!document.querySelector('.playable-web-export a[download]')");
@@ -93,7 +126,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   await toggle();await save();await client.button('返回项目结构');await client.button('返回项目首页');await client.button('雨后的约定');await client.button('准备导出 ZIP');
   const archive=await download('.project-home__status a[download]'), portable=unzipSync(archive);
   assert.ok(Object.values(portable).some(bytes=>Buffer.from(bytes).equals(original)));
-  await writeFile(join(root,`evidence/authoring/${native?'rainy-promise-native-atlas':atlas?'rainy-promise-atlas-compatible':'rainy-promise-export-optimized'}.zip`),archive);
+  if(!scale)await writeFile(join(root,`evidence/authoring/${native?'rainy-promise-native-atlas':atlas?'rainy-promise-atlas-compatible':'rainy-promise-export-optimized'}.zip`),archive);
   await writeFile(join(root,`evidence/authoring/${prefix}-report.json`),JSON.stringify(report,null,2)+'\n');
   let migratedFallback=false, migratedRebuilt=false;
   if(atlas){
@@ -104,14 +137,14 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     await client.send('Page.navigate',{url:'http://127.0.0.1:5186/'});await file('[aria-label="导入工程 ZIP"]',archivePath);await enter();await openBuild();
     const migrated=payload(await build(false));if(native){assert.equal(migrated.optimizationReport.nativeAtlasGroups[0].adopted,false);assert.match(migrated.optimizationReport.nativeAtlasGroups[0].detail,/本机派生缺失/);}else{assert.equal(migrated.optimizationReport.atlasGroups[0].status,'original');assert.match(migrated.optimizationReport.atlasGroups[0].reason,/未找到派生组/);}assert.deepEqual(Buffer.from(migrated.mediaAssets.find(a=>a.assetId==='media_sunset').url.split(',')[1],'base64'),original);migratedFallback=true;
     if(native){
-      await client.button('打开资源保险库');await client.button('分析候选');await client.wait("document.querySelector('.dicing-analysis__group')");await client.button('编码并复决策发布');await client.wait("document.body.textContent.includes('已原子发布 Manifest')");await client.button('关闭资源保险库');
+      await client.button('打开资源保险库');await publish();await client.button('关闭资源保险库');
       assert.equal(payload(await build(false)).optimizationReport.mode,'native-atlas');migratedRebuilt=true;
     }
   }
   const runtimeEvidence=[], samplingComparisons=[];
   let referenceStage;
-  const play = async (bytes,name,expectedMode,entryPath) => {
-    const path=entryPath??join(temporary,name+'.html');await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});await client.button('开始故事');
+  const play = async (bytes,name,expectedMode,entryPath,alreadyOpen=false) => {
+    const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}await client.button('开始故事');
     // Each comparison starts a fresh story; dismiss only this isolated test profile's recovery prompt via its public action.
     await new Promise(r=>setTimeout(r,500));
     if(await client.evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='放弃并清除')"))await client.button('放弃并清除');
@@ -122,8 +155,9 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
         await client.wait("Array.from(document.querySelectorAll('.player-stage-character')).every(img=>img.dataset.nativeAtlas==='ready'||(img.complete && img.naturalWidth>0))");
         const url=await client.evaluate("(()=>{const image=document.querySelector('.player-stage-character');return image instanceof HTMLCanvasElement?image.toDataURL():image.src;})()");renderedPixels=await pixels(url);
         if(expectedMode)assert.equal(await client.evaluate("document.querySelector('.player-stage-character').dataset.nativeAtlas"),expectedMode);
-        await new Promise(r=>setTimeout(r,800));await writeFile(join(root,`evidence/authoring/${native?'native-atlas':atlas?'atlas':'export'}-${name}-player.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
-        if(native){
+        measurements.push({kind:'play-to-character',name,elapsedMs:performance.now()-start,...(sampleMemory?{processMemory:await sampleMemory(name)}:{}),jsHeap:await client.evaluate("performance.memory?{used:performance.memory.usedJSHeapSize,total:performance.memory.totalJSHeapSize}:null")});
+        if(!alreadyOpen){await new Promise(r=>setTimeout(r,800));await writeFile(join(root,`evidence/authoring/${scale?'atlas-scale':native?'native-atlas':atlas?'atlas':'export'}-${name}-player.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));}
+        if(native&&!alreadyOpen){
           // Full UI screenshots above remain untouched. The sampling comparison isolates media from save-state controls and dialogue animations.
           await client.evaluate("(()=>{globalThis.__atlasChromeRestore=[];for(const e of document.querySelector('.player-stage').children){if(!e.classList.contains('player-stage-world')){globalThis.__atlasChromeRestore.push([e,e.style.visibility]);e.style.visibility='hidden';}}})()");
           // Compare the stage interior: rounded outer browser compositor clipping is not an Atlas sampling surface.
@@ -163,12 +197,19 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     for(const [name,bytes] of Object.entries(files)){assert.ok(!name.includes('..')&&!name.startsWith('/'));const path=join(directoryPath,name);await mkdir(dirname(path),{recursive:true});await writeFile(path,bytes);}
     const directoryPlay=await play(Buffer.from(files['index.html']),'directory','ready',join(directoryPath,'index.html'));
     assert.deepEqual(directoryPlay,baselinePlay);
-    const corrupt=structuredClone(after);const page=corrupt.nativeAtlasGroups[0].pages[0];const damaged=Buffer.from(page.url.split(',')[1],'base64');damaged[damaged.length-1]^=1;page.url='data:image/png;base64,'+damaged.toString('base64');
+    if(scale&&openWindows){
+      const webClient=client;client=await openWindows(directoryPath);
+      await client.send('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+      const desktopPlay=await play(Buffer.from(files['index.html']),'windows','ready',undefined,true);
+      assert.deepEqual(desktopPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(desktopPlay.ending,baselinePlay.ending);assert.deepEqual(client.errors,[]);client=webClient;
+    }
+    const corrupt=structuredClone(after);for(const group of corrupt.nativeAtlasGroups){const page=group.pages[0];const damaged=Buffer.from(page.url.split(',')[1],'base64');damaged[damaged.length-1]^=1;page.url='data:image/png;base64,'+damaged.toString('base64');}
     const broken=optimized.toString().replace(/(<script id="world-project" type="application\/json">)(.*?)(<\/script>)/s,(_all,start,_data,end)=>start+JSON.stringify(corrupt).replaceAll('<','\\u003c')+end);
     const corruptPlay=await play(Buffer.from(broken),'corrupt-page','fallback');assert.deepEqual(corruptPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(corruptPlay.ending,baselinePlay.ending);assert.equal(corruptPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
     const unsupported=optimized.toString().replace('<head>','<head><script>globalThis.createImageBitmap=undefined;</script>');assert.notEqual(unsupported,optimized.toString());
     const unsupportedPlay=await play(Buffer.from(unsupported),'unsupported','fallback');assert.deepEqual(unsupportedPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(unsupportedPlay.ending,baselinePlay.ending);assert.equal(unsupportedPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
   }
+  if(rapidSwitch)measurements.push({kind:'rapid-switch',...rapidSwitch});
   assert.deepEqual(client.errors,[]);
-  return {sourceProject:'rainy-promise-media.zip',actualProductionWorker:true,authoredThroughUi:true,settingSurvivesReopen:true,oldDownloadInvalidated:true,originalBlobInPortableZip:true,originalExportRestoredByteExactly:true,migratedFallback,migratedRebuilt,staleGroupFallback:atlas,editorPreviewBefore,editorPreviewAfter,pixels:{original:originalPixels,optimized:optimizedPixels},report,artifactBytes:{originalHtml:baseline.length,optimizedHtml:optimized.length,optimizedZip:directory.length},baselinePlay,optimizedPlay,runtimeEvidence,samplingComparisons,exceptions:client.errors,limits:native?'Native shared Atlas bitmap tile drawing into per-image Canvas; compressed original fallback embedded. CSS IMG and Canvas sampling differs: native screenshot is compared exactly to an ordinary-source Canvas control, not claimed identical to IMG. Preview and intrinsic pixels remain exact. Budget accounting is not GPU/heap measurement. Deterministic uncompressed fixture is not a production savings claim; device/human validation outstanding.':atlas?'Atlas reconstructed to ordinary PNG during build, not native Atlas rendering; deterministic uncompressed fixtures, no production savings claim; GPU/device/human validation outstanding.':'PNG IDAT only; Atlas export, GPU memory, device performance and human inspection not validated.'};
+  return {scale,measurements,previewRuns,windowsValidated:Boolean(scale&&openWindows),sourceProject:'rainy-promise-media.zip',actualProductionWorker:true,authoredThroughUi:true,settingSurvivesReopen:true,oldDownloadInvalidated:true,originalBlobInPortableZip:true,originalExportRestoredByteExactly:true,migratedFallback,migratedRebuilt,staleGroupFallback:atlas,editorPreviewBefore,editorPreviewAfter,pixels:{original:originalPixels,optimized:optimizedPixels},report,artifactBytes:{originalHtml:baseline.length,optimizedHtml:optimized.length,optimizedZip:directory.length},baselinePlay,optimizedPlay,runtimeEvidence,samplingComparisons,exceptions:client.errors,limits:native?'Native shared Atlas bitmap tile drawing into per-image Canvas; compressed original fallback embedded. CSS IMG and Canvas sampling differs: native screenshot is compared exactly to an ordinary-source Canvas control, not claimed identical to IMG. Preview and intrinsic pixels remain exact. Budget accounting is not GPU/heap measurement. Deterministic uncompressed fixture is not a production savings claim; device/human validation outstanding. Process snapshots are aggregate private/working-set bytes, not isolated asset allocation or guaranteed peaks; end-to-end timings include harness pacing. Only the existing story images are presented, all 30 variants are verified at build.':atlas?'Atlas reconstructed to ordinary PNG during build, not native Atlas rendering; deterministic uncompressed fixtures, no production savings claim; GPU/device/human validation outstanding.':'PNG IDAT only; Atlas export, GPU memory, device performance and human inspection not validated.'};
 }

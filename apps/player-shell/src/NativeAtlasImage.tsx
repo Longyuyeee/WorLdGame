@@ -15,14 +15,15 @@ function AtlasCanvas({ atlas, imageProps }: { atlas: NativeAtlasSource; imagePro
   const ref = useRef<HTMLCanvasElement>(null), [failed, setFailed] = useState(false);
   useEffect(() => {
     let active = true, release: (() => void) | undefined;
+    const controller = new AbortController();
     const canvas = ref.current;
     if (!canvas) return;
-    void acquireNativeAtlasImage(atlas, canvas).then(image => {
+    void acquireNativeAtlasImage(atlas, canvas, controller.signal).then(image => {
       if (!active) { image.release(); return; }
       release = image.release; canvas.dataset.nativeAtlas = "ready";
       canvas.dataset.nativeAtlasAccountedBytes = String(nativeAtlasDiagnostics().accountedBytes);
     }).catch(() => { if (active) setFailed(true); });
-    return () => { active = false; release?.(); };
+    return () => { active = false; controller.abort(); release?.(); };
   }, [atlas.group, atlas.assetId]);
   if (failed) return <img {...imageProps} data-native-atlas="fallback" title="图集暂不可用，已使用随包原图" />;
   const { src: _src, alt, onError: _onError, onLoad: _onLoad, ...rest } = imageProps;

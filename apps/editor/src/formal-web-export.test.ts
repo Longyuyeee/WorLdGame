@@ -8,6 +8,15 @@ import { createFormalWebArtifact, createFormalWebDirectoryArtifact } from "./for
 import { unzipSync } from "fflate";
 
 describe("formal Web game packaging", () => {
+  it("cancels before packaging and permits a fresh build without mutating the project", async () => {
+    const project = loadProject(migrateS0Project(branching as S0Project).files);
+    const controller = new AbortController(); controller.abort();
+    const reader = { read: async () => { throw Error("Cancelled build must not read assets"); } };
+    const bundle = { javascript: "", css: "" };
+    await expect(createFormalWebArtifact(project, reader, bundle, controller.signal)).rejects.toMatchObject({ name: "AbortError" });
+    await expect(createFormalWebDirectoryArtifact(project, reader, bundle, controller.signal)).rejects.toMatchObject({ name: "AbortError" });
+    expect((await createFormalWebArtifact(project, { read: async () => null }, bundle)).html).toContain("world-project");
+  });
   it("persists publication settings and exports the player-facing title/version without renaming the source project", async () => {
     const source = loadProject(migrateS0Project(branching as S0Project).files);
     const settings = { name: "发布作品", version: "2.1.0-beta", iconAssetId: "" };

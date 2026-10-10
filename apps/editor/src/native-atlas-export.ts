@@ -11,10 +11,11 @@ export function dataUrl(bytes: Uint8Array, mime = "application/octet-stream") {
   let text = ""; for (let offset = 0; offset < bytes.length; offset += 8192) text += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
   return `data:${mime};base64,${btoa(text)}`;
 }
-export async function buildNativeAtlasDelivery(project: CanonicalProject, assets: readonly ExportMedia[], reader: AtlasExportReader, verify = compatiblePng) {
+export async function buildNativeAtlasDelivery(project: CanonicalProject, assets: readonly ExportMedia[], reader: AtlasExportReader, verify = compatiblePng, signal?: AbortSignal) {
   const groups: NativeAtlasDelivery[] = [], adopted = new Set<string>(), rows: {groupId:string; adopted:boolean; detail:string; payloadBytes:number; pageRgbaBytes:number; fallbackRawBytes:number}[] = [];
   let fallbackRawBytes = 0;
   for (const groupId of nativeAtlasEnabled(project) ? atlasExportGroups(project) : []) {
+    signal?.throwIfAborted();
     try {
       const publication = await reader.loadDicingRuntimePublication?.(groupId); if (!publication) throw Error("本机派生缺失，请重建；保留普通纹理");
       const manifest = parseLosslessDicingPngDeliveryManifest(publication.deliveryManifestJson);
@@ -32,7 +33,8 @@ export async function buildNativeAtlasDelivery(project: CanonicalProject, assets
       if (fallbackRawBytes + rawBytes > 32 * 1024 * 1024 || manifest.pages.reduce((n,p)=>n+p.width*p.height,0)>8_388_608 || manifest.layoutManifest.images.some(image=>image.width*image.height>4_194_304)) throw Error("组/回退数据超出内存预算");
       const minimumRenderBytes = manifest.pages.reduce((n,p)=>n+p.width*p.height*12,0) + Math.max(...manifest.layoutManifest.images.map(image=>image.width*image.height*8));
       if (minimumRenderBytes > 64 * 1024 * 1024) throw Error("单图原生绘制已超出 64 MiB 预算，保留普通纹理");
-      for (const source of sources) await verify(source, publication);
+      for (const source of sources) { signal?.throwIfAborted(); await verify(source, publication, signal); }
+      signal?.throwIfAborted();
       const raw = new Uint8Array(rawBytes); let offset = 0;
       const entries = sources.map(source => { const entry = {assetId:source.assetId,offset,length:source.bytes.length,digest:source.digest}; raw.set(source.bytes,offset); offset+=source.bytes.length; return entry; });
       const compressed = zlibSync(raw,{level:9});
@@ -45,7 +47,7 @@ export async function buildNativeAtlasDelivery(project: CanonicalProject, assets
       if (payloadBytes + reportAllowance >= removable) throw Error("包括 Base64、原图回退包、清单和报告余量后无净收益；保留普通纹理");
       groups.push(group); ids.forEach(id=>adopted.add(id)); fallbackRawBytes+=rawBytes;
       rows.push({groupId,adopted:true,detail:"原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",payloadBytes,pageRgbaBytes:manifest.pages.reduce((n,p)=>n+p.width*p.height*4,0),fallbackRawBytes:rawBytes});
-    } catch(error) { rows.push({groupId,adopted:false,detail:error instanceof Error?error.message:"派生不可用",payloadBytes:0,pageRgbaBytes:0,fallbackRawBytes:0}); }
+    } catch(error) { signal?.throwIfAborted(); rows.push({groupId,adopted:false,detail:error instanceof Error?error.message:"派生不可用",payloadBytes:0,pageRgbaBytes:0,fallbackRawBytes:0}); }
   }
   return {groups,adopted,rows};
 }

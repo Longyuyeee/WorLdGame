@@ -22,12 +22,15 @@ function htmlText(value: string): string {
 
 async function readExportMedia(
   project: CanonicalProject,
-  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
+  signal?: AbortSignal
 ) {
+  signal?.throwIfAborted();
   const compilation = compileProject(project, "release");
   if (!compilation.ok) throw new Error(`请先修复工程问题：${compilation.diagnostics.filter((item) => item.severity === "error").map((item) => item.message).join("；")}`);
   const mediaAssets = [];
   for (const asset of project.assets.assets) {
+    signal?.throwIfAborted();
     const assetId = String(asset.assetId ?? asset.id);
     const source = asset.source as JsonObject | undefined;
     const name = String(asset.displayName ?? assetId);
@@ -35,12 +38,13 @@ async function readExportMedia(
       throw new Error(`资源“${name}”没有可导出的源文件，请重新导入后重试。`);
     }
     const bytes = await reader.read(source.digest as BlobDigest);
+    signal?.throwIfAborted();
     if (bytes === null || createBlobDigest(bytes) !== source.digest || bytes.byteLength !== source.byteLength) {
       throw new Error(`资源“${name}”缺失或不完整，请重新导入后重试。`);
     }
     mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });
   }
-  return optimizeExportMedia(project, mediaAssets, undefined, reader);
+  return optimizeExportMedia(project, mediaAssets, undefined, reader, signal);
 }
 
 function exportStem(project: CanonicalProject): string {
@@ -50,12 +54,13 @@ function exportStem(project: CanonicalProject): string {
 export async function createFormalWebArtifact(
   project: CanonicalProject,
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
-  runtime: { readonly javascript: string; readonly css: string }
+  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal
 ): Promise<FormalWebArtifact> {
   applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
   project = { ...project, manifest: { ...project.manifest, title: publication.name } };
-  const delivery = await readExportMedia(project, reader);
+  const delivery = await readExportMedia(project, reader, signal);
+  signal?.throwIfAborted();
   const mediaAssets = delivery.assets.map(({ bytes, digest: _digest, ...asset }) => {
     if (delivery.nativeAssetIds.has(asset.assetId)) return { ...asset, url: "" };
     let binary = "";
@@ -75,7 +80,7 @@ export async function createFormalWebArtifact(
 export async function createFormalWebDirectoryArtifact(
   project: CanonicalProject,
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
-  runtime: { readonly javascript: string; readonly css: string }
+  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal
 ) {
   applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
@@ -83,7 +88,8 @@ export async function createFormalWebDirectoryArtifact(
   const encode = (text: string) => new TextEncoder().encode(text);
   const files: Record<string, Uint8Array> = {};
   const extensions: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg", "image/gif": "gif", "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/mp4": "mp4", "video/webm": "webm", "font/woff2": "woff2", "font/woff": "woff", "font/ttf": "ttf", "font/otf": "otf" };
-  const delivery = await readExportMedia(project, reader);
+  const delivery = await readExportMedia(project, reader, signal);
+  signal?.throwIfAborted();
   const assets = delivery.assets;
   files["optimization-report.json"] = encode(JSON.stringify(delivery.report, null, 2));
   const mediaAssets = assets.map(({ bytes, digest, ...asset }) => {
@@ -130,6 +136,12 @@ preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需�
 
 素材导出策略：${delivery.report.mode === "native-atlas" ? "原生 Atlas Canvas 图块绘制，包含离线原图回退包" : delivery.report.mode === "atlas-compatible" ? "Atlas 兼容普通纹理（不是原生图集渲染）" : delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录素材/共享组成本与回退原因。源工程原素材不修改；恢复原素材导出后重新构建即可恢复。普通媒体使用目录文件；原生 Atlas 组内嵌于 index.html，成本已包含 Base64。打包与播放仍需要浏览器内存，不保证 GPU 内存收益。build-info.json 记录工程标识、文件大小与摘要。
 `);
-  const archive = await new Promise<Uint8Array>((resolve, reject) => zip(files, { level: 0 }, (error, data) => error ? reject(error) : resolve(data)));
+  const archive = await new Promise<Uint8Array>((resolve, reject) => {
+    const abort = () => { terminate(); reject(new DOMException("游戏构建已取消", "AbortError")); };
+    const terminate = zip(files, { level: 0 }, (error, data) => { signal?.removeEventListener("abort", abort); error ? reject(error) : resolve(data); });
+    signal?.addEventListener("abort", abort, { once: true });
+    if (signal?.aborted) abort();
+  });
+  signal?.throwIfAborted();
   return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest, optimizationReport: delivery.report };
 }

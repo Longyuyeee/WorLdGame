@@ -13,7 +13,8 @@ export function atlasExportGroups(project: CanonicalProject): string[] {
 }
 export const setAtlasExportGroups = (project: CanonicalProject, groups: string[]): CanonicalProject => ({ ...project, manifest: { ...project.manifest, preservedFields: { ...project.manifest.preservedFields, atlasExportGroups: groups.slice(0, 8) } } });
 
-export async function compatiblePng(asset: ExportMedia, publication: AssetDicingRuntimePublication): Promise<Uint8Array> {
+export async function compatiblePng(asset: ExportMedia, publication: AssetDicingRuntimePublication, signal?: AbortSignal): Promise<Uint8Array> {
+  signal?.throwIfAborted();
   if (asset.mimeType !== "image/png" || typeof OffscreenCanvas === "undefined" || typeof createImageBitmap !== "function") throw Error("仅支持具备 Canvas 能力的 PNG 兼容构建");
   // Animated sources cannot be represented by one reconstructed frame.
   const view = new DataView(asset.bytes.buffer, asset.bytes.byteOffset, asset.bytes.byteLength);
@@ -25,17 +26,21 @@ export async function compatiblePng(asset: ExportMedia, publication: AssetDicing
     at += size + 12;
   }
   const resolution = await resolveDicingRuntimeImageInWorker({ assetId: asset.assetId, originalMimeType: asset.mimeType, originalBytes: asset.bytes,
-    deliveryManifestJson: publication.deliveryManifestJson, encodedPages: publication.encodedPages, maxDecodedPixels: 4_194_304, maxAtlasPixels: 8_388_608, maxEncodedBytes: 32 * 1024 * 1024 });
+    deliveryManifestJson: publication.deliveryManifestJson, encodedPages: publication.encodedPages, maxDecodedPixels: 4_194_304, maxAtlasPixels: 8_388_608, maxEncodedBytes: 32 * 1024 * 1024 }, 20_000, signal);
+  signal?.throwIfAborted();
   if (resolution.strategy !== "atlas") throw Error(`派生未匹配当前源图：${resolution.reason}`);
   const { width, height, rgba } = resolution;
   const canvas = new OffscreenCanvas(width, height), context = canvas.getContext("2d", { willReadFrequently: true });
+  try {
   if (!context) throw Error("PNG 编码器不可用");
   const pixels = context.createImageData(width, height); pixels.data.set(rgba); context.putImageData(pixels, 0, 0);
   const blob = await canvas.convertToBlob({ type: "image/png" }), encoded = new Uint8Array(await blob.arrayBuffer());
+  signal?.throwIfAborted();
   // Match ordinary browser presentation, not only the Worker's color-conversion policy.
   for (const candidate of [new Blob([new Uint8Array(asset.bytes)], { type: "image/png" }), blob]) {
     const bitmap = await createImageBitmap(candidate);
     try {
+      signal?.throwIfAborted();
       if (bitmap.width !== width || bitmap.height !== height) throw Error("兼容图尺寸不匹配");
       context.clearRect(0, 0, width, height); context.drawImage(bitmap, 0, 0);
       const decoded = context.getImageData(0, 0, width, height).data;
@@ -43,13 +48,15 @@ export async function compatiblePng(asset: ExportMedia, publication: AssetDicing
     } finally { bitmap.close(); }
   }
   return encoded;
+  } finally { canvas.width = canvas.height = 0; }
 }
 
 export interface AtlasExportRow { groupId: string; status: "adopted" | "original"; reason: string; assetIds: string[]; }
 export async function applyAtlasCompatibilityExport(project: CanonicalProject, media: readonly ExportMedia[], reader: AtlasExportReader,
-  encode = compatiblePng): Promise<{ assets: ExportMedia[]; rows: AtlasExportRow[] }> {
+  encode = compatiblePng, signal?: AbortSignal): Promise<{ assets: ExportMedia[]; rows: AtlasExportRow[] }> {
   const assets = [...media], rows: AtlasExportRow[] = [], claimed = new Set<string>();
   for (const groupId of atlasExportGroups(project)) {
+    signal?.throwIfAborted();
     let assetIds: string[] = [];
     try {
       const publication = await reader.loadDicingRuntimePublication?.(groupId);
@@ -69,7 +76,7 @@ export async function applyAtlasCompatibilityExport(project: CanonicalProject, m
       if (selected.reduce((sum, asset) => sum + asset!.bytes.length, 0) > 32 * 1024 * 1024) throw Error("组源文件超过 32 MiB 构建预算");
       const candidates: ExportMedia[] = [];
       for (const asset of selected as ExportMedia[]) {
-        const bytes = await encode(asset, publication);
+        const bytes = await encode(asset, publication, signal);
         // Never make an individual asset larger; group changes are only committed after all validation succeeds.
         candidates.push(bytes.length < asset.bytes.length ? { ...asset, bytes, mimeType: "image/png", digest: createBlobDigest(bytes) as BlobDigest } : asset);
       }
@@ -78,7 +85,7 @@ export async function applyAtlasCompatibilityExport(project: CanonicalProject, m
       if (uniqueBytes(proposed) >= uniqueBytes(assets)) throw Error("兼容 PNG 无实际去重字节收益；图集文件大小不等于最终发布收益");
       for (const candidate of candidates) { assets[assets.findIndex(asset => asset.assetId === candidate.assetId)] = candidate; claimed.add(candidate.assetId); }
       rows.push({ groupId, status: "adopted", assetIds, reason: "当前源图/Atlas/兼容 PNG 像素一致；仅采用更小文件。发布普通纹理，不携带 Atlas、不减少 GPU 内存。PNG 元数据不复制，原文件保留于源工程。" });
-    } catch (error) { rows.push({ groupId, status: "original", assetIds, reason: error instanceof Error ? error.message : "派生不可用，保留当前素材" }); }
+    } catch (error) { signal?.throwIfAborted(); rows.push({ groupId, status: "original", assetIds, reason: error instanceof Error ? error.message : "派生不可用，保留当前素材" }); }
   }
   return { assets, rows };
 }

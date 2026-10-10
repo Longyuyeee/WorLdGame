@@ -46,20 +46,29 @@ type DecodedGroup = { manifest: LosslessDicingPngDeliveryManifest; pages: Map<st
 type CachedGroup = { refs: number; bytes: number; promise: Promise<DecodedGroup> };
 const cache = new Map<NativeAtlasDelivery, CachedGroup>();
 let accountedBytes = 0, peakBytes = 0;
+let activeDecodes = 0, peakDecodes = 0, decodedGroups = 0, cacheHits = 0;
+const decodeQueue: (() => void)[] = [];
 const RENDER_BUDGET = 64 * 1024 * 1024;
-export const nativeAtlasDiagnostics = () => ({ groups: cache.size, accountedBytes, peakBytes, budgetBytes: RENDER_BUDGET });
+export const nativeAtlasDiagnostics = () => ({ groups: cache.size, accountedBytes, peakBytes, budgetBytes: RENDER_BUDGET, activeDecodes, queuedDecodes: decodeQueue.length, peakDecodes, decodedGroups, cacheHits });
 function publishDiagnostics() {
   if (typeof document !== "undefined") {
     document.documentElement.dataset.nativeAtlasBytes = String(accountedBytes);
     document.documentElement.dataset.nativeAtlasPeakBytes = String(peakBytes);
     document.documentElement.dataset.nativeAtlasGroups = String(cache.size);
+    document.documentElement.dataset.nativeAtlasScheduler = JSON.stringify(nativeAtlasDiagnostics());
   }
 }
 function reserve(bytes: number) { if (!Number.isSafeInteger(bytes) || bytes < 0 || accountedBytes + bytes > RENDER_BUDGET) throw Error("Atlas renderer memory budget exceeded"); accountedBytes += bytes; peakBytes = Math.max(peakBytes, accountedBytes); publishDiagnostics(); }
-async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDeliveryManifest): Promise<DecodedGroup> {
+async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDeliveryManifest, needed: () => boolean): Promise<DecodedGroup> {
+  if (activeDecodes >= 2) await new Promise<void>(resolve => { decodeQueue.push(resolve); publishDiagnostics(); });
+  else activeDecodes++;
+  peakDecodes = Math.max(peakDecodes, activeDecodes); publishDiagnostics();
   const pages = new Map<string, ImageBitmap>();
   try {
+    if (!needed()) throw new DOMException("Atlas decode cancelled", "AbortError");
+    decodedGroups++;
     for (const descriptor of manifest.pages) {
+      if (!needed()) throw new DOMException("Atlas decode cancelled", "AbortError");
       const page = group.pages.find(p => p.pageId === descriptor.pageId); if (!page) throw Error("Atlas page missing");
       const bytes = embeddedBytes(page.url);
       if (bytes.length !== descriptor.encodedByteLength || createBlobDigest(bytes) !== descriptor.encodedDigest) throw Error("Atlas page corrupt");
@@ -67,6 +76,7 @@ async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDel
       if (bytes.length < 24 || view.getUint32(16) !== descriptor.width || view.getUint32(20) !== descriptor.height) throw Error("Atlas page dimensions invalid");
       const bitmap = await createImageBitmap(new Blob([new Uint8Array(bytes)], { type: "image/png" }));
       pages.set(descriptor.pageId, bitmap);
+      if (!needed()) throw new DOMException("Atlas decode cancelled", "AbortError");
       if (bitmap.width !== descriptor.width || bitmap.height !== descriptor.height) throw Error("Atlas decoded dimensions invalid");
       const canvas = document.createElement("canvas"); canvas.width = bitmap.width; canvas.height = bitmap.height;
       try { const context = canvas.getContext("2d", { willReadFrequently: true }); if (!context) throw Error("Atlas canvas unsupported"); context.drawImage(bitmap, 0, 0); if (createLosslessDicingRgbaDigest(bitmap.width, bitmap.height, new Uint8Array(context.getImageData(0, 0, bitmap.width, bitmap.height).data)) !== descriptor.rgbaDigest) throw Error("Atlas decoded pixels mismatch"); }
@@ -74,8 +84,10 @@ async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDel
     }
     return { manifest, pages };
   } catch (error) { pages.forEach(bitmap => bitmap.close()); throw error; }
+  finally { const next = decodeQueue.shift(); if (next) next(); else activeDecodes--; publishDiagnostics(); }
 }
-export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?: HTMLCanvasElement): Promise<{ source: HTMLCanvasElement; width: number; height: number; release(): void }> {
+export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?: HTMLCanvasElement, signal?: AbortSignal): Promise<{ source: HTMLCanvasElement; width: number; height: number; release(): void }> {
+  signal?.throwIfAborted();
   if (typeof createImageBitmap !== "function") throw Error("Atlas bitmap unsupported");
   const { group, assetId } = source;
   const manifest = parseLosslessDicingPngDeliveryManifest(group.manifest);
@@ -86,14 +98,17 @@ export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?
   let entry = cache.get(group);
   if (!entry) {
     const bytes = manifest.pages.reduce((n, p) => n + p.width * p.height * 12, 0); reserve(bytes);
-    entry = { refs: 0, bytes, promise: decode(group, manifest) }; cache.set(group, entry); publishDiagnostics();
-  }
+    const created: CachedGroup = { refs: 0, bytes, promise: Promise.resolve().then(() => decode(group, manifest, () => created.refs > 0)) };
+    entry = created; cache.set(group, entry); publishDiagnostics();
+  } else cacheHits++;
   entry.refs++;
   const owned = entry;
   let imageReserved = false, released = false;
   const canvas = target ?? document.createElement("canvas");
+  let abortWait: (() => void) | undefined;
   const release = () => {
     if (released) return; released = true; canvas.width = canvas.height = 0;
+    if (abortWait) signal?.removeEventListener("abort", abortWait);
     if (imageReserved) accountedBytes -= imageBytes;
     if (--owned.refs === 0) {
       const clear = (decoded?: DecodedGroup) => { if (owned.refs === 0 && cache.get(group) === owned) { cache.delete(group); accountedBytes -= owned.bytes; decoded?.pages.forEach(bitmap => bitmap.close()); publishDiagnostics(); } };
@@ -103,7 +118,12 @@ export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?
   };
   try {
     reserve(imageBytes); imageReserved = true;
-    const decoded = await owned.promise;
+    const decoded = signal ? await new Promise<DecodedGroup>((resolve, reject) => {
+      abortWait = () => { release(); reject(new DOMException("Atlas consumer cancelled", "AbortError")); };
+      signal.addEventListener("abort", abortWait, { once: true });
+      owned.promise.then(resolve, reject);
+    }) : await owned.promise;
+    signal?.throwIfAborted();
     canvas.width = image.width; canvas.height = image.height;
     const context = canvas.getContext("2d", { willReadFrequently: true }); if (!context) throw Error("Atlas canvas unsupported");
     context.imageSmoothingEnabled = false;

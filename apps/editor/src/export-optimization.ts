@@ -8,17 +8,18 @@ import { buildNativeAtlasDelivery, nativeAtlasEnabled } from "./native-atlas-exp
 export const losslessExportEnabled = (project: CanonicalProject) => project.manifest.preservedFields?.losslessPngExport === true;
 export const setLosslessExport = (project: CanonicalProject, enabled: boolean): CanonicalProject => ({ ...project, manifest: { ...project.manifest, preservedFields: { ...project.manifest.preservedFields, losslessPngExport: enabled } } });
 export interface ExportMedia { readonly assetId: string; readonly displayName: string; readonly mimeType: string; readonly digest: string; readonly bytes: Uint8Array; }
-export async function optimizeExportMedia(project: CanonicalProject, media: readonly ExportMedia[], optimize = optimizeExportPngInWorker, reader: AtlasExportReader = {}) {
+export async function optimizeExportMedia(project: CanonicalProject, media: readonly ExportMedia[], optimize = optimizeExportPngInWorker, reader: AtlasExportReader = {}, signal?: AbortSignal) {
   const enabled = losslessExportEnabled(project);
   const cache = new Map<string, PngExportCandidate>();
   const assets: ExportMedia[] = [];
   const rows: { assetId: string; name: string; originalDigest: string; exportDigest: string; originalBytes: number; exportBytes: number; savedBytes: number; verified: boolean; reason: string }[] = [];
   const originalUnique = new Map<string, number>(), exportedUnique = new Map<string, number>();
   for (const asset of media) {
+    signal?.throwIfAborted();
     const cacheKey = `${asset.mimeType}:${asset.digest}`;
     let result = cache.get(cacheKey);
     if (!result) {
-      result = enabled && asset.mimeType === "image/png" ? await optimize(asset.bytes) : { bytes: asset.bytes, verified: false, reason: enabled ? "此媒体类型保持原始文件" : "已选择原素材导出" };
+      result = enabled && asset.mimeType === "image/png" ? await optimize(asset.bytes, signal) : { bytes: asset.bytes, verified: false, reason: enabled ? "此媒体类型保持原始文件" : "已选择原素材导出" };
       cache.set(cacheKey, result);
     }
     const digest = result.bytes === asset.bytes ? asset.digest : createBlobDigest(result.bytes);
@@ -26,8 +27,8 @@ export async function optimizeExportMedia(project: CanonicalProject, media: read
     assets.push({ ...asset, bytes: result.bytes, digest });
     rows.push({ assetId: asset.assetId, name: asset.displayName, originalDigest: asset.digest, exportDigest: digest, originalBytes: asset.bytes.length, exportBytes: result.bytes.length, savedBytes: asset.bytes.length - result.bytes.length, verified: result.verified, reason: result.reason });
   }
-  const compatible = nativeAtlasEnabled(project) ? { assets, rows: [] } : await applyAtlasCompatibilityExport(project, assets, reader);
-  const native = await buildNativeAtlasDelivery(project, compatible.assets, reader);
+  const compatible = nativeAtlasEnabled(project) ? { assets, rows: [] } : await applyAtlasCompatibilityExport(project, assets, reader, undefined, signal);
+  const native = await buildNativeAtlasDelivery(project, compatible.assets, reader, undefined, signal);
   exportedUnique.clear();
   for (const [index, asset] of compatible.assets.entries()) {
     if (!native.adopted.has(asset.assetId)) exportedUnique.set(asset.digest, asset.bytes.length);

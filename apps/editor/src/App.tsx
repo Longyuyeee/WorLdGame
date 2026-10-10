@@ -201,7 +201,7 @@ import { losslessExportEnabled, setLosslessExport } from "./export-optimization"
 import { AtlasExportSettings } from "./AtlasExportSettings";
 import { atlasExportGroups, setAtlasExportGroups } from "./atlas-export";
 import { nativeAtlasEnabled, setNativeAtlas } from "./native-atlas-export";
-import { attachNativeAtlasPreview } from "./native-atlas-preview";
+import { NativeAtlasPreviewSession } from "./native-atlas-preview";
 import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
@@ -3000,6 +3000,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuilding, setWebBuilding] = useState(false);
   const webBuildGeneration = useRef(0);
+  const webBuildController = useRef<AbortController | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
   const previewObservation = observeFormalPreview(playable);
@@ -3088,12 +3089,15 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   }, [settingsApplication.display.designHeight, settingsApplication.display.designWidth]);
 
   useEffect(() => () => webBuild?.dispose(), [webBuild]);
+  const atlasPreview = useMemo(() => new NativeAtlasPreviewSession(), []);
+  useEffect(() => () => atlasPreview.clear(), [atlasPreview]);
   useEffect(() => {
     webBuildGeneration.current += 1;
+    webBuildController.current?.abort();
     setWebBuild(null);
     setWebBuilding(false);
     setWebBuildError(null);
-    return () => { webBuildGeneration.current += 1; };
+    return () => { webBuildGeneration.current += 1; webBuildController.current?.abort(); };
   }, [canonicalProject, projectRunBlocked]);
 
   useEffect(() => {
@@ -3120,7 +3124,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     }
     const reader = assetRepository ?? { read: async () => null };
     void loadPreviewMedia(stagePlan, assetIndex, reader, urlFactory, controller.signal)
-      .then(media => attachNativeAtlasPreview(media, canonicalProject, reader))
+      .then(media => atlasPreview.attach(media, canonicalProject, reader, controller.signal))
       .then((media) => {
         if (controller.signal.aborted || generation !== mediaGenerationRef.current) {
           releasePreviewMedia(media, urlFactory);
@@ -3288,6 +3292,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 
   const preparePlayableWeb = async (directory = false) => {
     if (projectRunBlocked) return;
+    webBuildController.current?.abort();
+    const controller = new AbortController(); webBuildController.current = controller;
     const generation = ++webBuildGeneration.current;
     setWebBuild(null);
     setWebBuildError(null);
@@ -3296,8 +3302,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       const { default: runtime } = await import("virtual:world-player-export");
       const reader = assetRepository ?? { read: async () => null };
       const artifact = directory
-        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime)
-        : await createFormalWebArtifact(canonicalProject, reader, runtime);
+        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal)
+        : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal);
       if (generation !== webBuildGeneration.current) return;
       const contents = "archive" in artifact ? new Uint8Array(artifact.archive) : artifact.html;
       const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
@@ -3709,6 +3715,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 {webBuild && <details aria-label="资源优化交付报告"><summary>资源优化交付报告</summary><p>{webBuild.optimizationReport.mode === "native-atlas" ? "原生 Atlas 绘制与原图回退" : webBuild.optimizationReport.mode === "atlas-compatible" ? "Atlas 兼容普通纹理" : webBuild.optimizationReport.mode === "lossless-png" ? "安全 PNG 优化" : "原素材导出"}：去重资源 {webBuild.optimizationReport.uniqueOriginalBytes} → {webBuild.optimizationReport.uniqueExportBytes} 字节；交付文件 {webBuild.byteLength} 字节。</p><p>{webBuild.optimizationReport.limits}</p><ul>{webBuild.optimizationReport.rows.slice(0, 20).map(row => <li key={row.assetId}>{row.name}：{row.originalBytes} → {row.exportBytes} 字节；{row.reason}</li>)}</ul><small>此处最多展示 20 个素材；完整报告包含在 HTML 或目录 ZIP 中。</small></details>}
         <button type="button" onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
         <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={projectRunBlocked || webBuilding || publicationDirty}>构建目录 ZIP</button>
+        {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
         <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>
         <small>想检查网站离线功能？完整解压 ZIP 后，Windows 双击 start-preview.cmd 自动启动本地站点（需 Node.js 22+，无需安装项目依赖）；停止方法见启动窗口。</small>
         {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}

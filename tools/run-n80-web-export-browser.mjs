@@ -43,11 +43,11 @@ class Cdp {
     await new Promise((done, fail) => { this.socket.addEventListener("open", done, { once: true }); this.socket.addEventListener("error", fail, { once: true }); });
     this.socket.addEventListener("message", ({ data }) => {
       const message = JSON.parse(String(data));
-      if (message.id) { const pending = this.pending.get(message.id); this.pending.delete(message.id); message.error ? pending.reject(new Error(message.error.message)) : pending.resolve(message.result); }
+      if (message.id) { const pending = this.pending.get(message.id); if(!pending)return;this.pending.delete(message.id); clearTimeout(pending.timer); message.error ? pending.reject(new Error(message.error.message)) : pending.resolve(message.result); }
       if (message.method === "Runtime.exceptionThrown") this.errors.push(message.params.exceptionDetails.exception?.description ?? message.params.exceptionDetails.text);
     });
   }
-  send(method, params = {}) { const id = ++this.serial; return new Promise((resolve, reject) => { this.pending.set(id, { resolve, reject }); this.socket.send(JSON.stringify({ id, method, params })); }); }
+  send(method, params = {}) { const id = ++this.serial; return new Promise((resolve, reject) => { const timer=setTimeout(()=>{this.pending.delete(id);reject(new Error(`CDP request timed out: ${method}`));},30000);this.pending.set(id, { resolve, reject,timer }); this.socket.send(JSON.stringify({ id, method, params })); }); }
   async evaluate(expression) { const result = await this.send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }); if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description ?? result.exceptionDetails.text); return result.result.value; }
   async wait(expression) { for (let i = 0; i < 200; i++) { if (await this.evaluate(`Boolean(${expression})`)) return; await pause(100); } throw new Error(`Timed out: ${expression}`); }
   async button(text) { const selector = `Array.from(document.querySelectorAll('button')).find(x=>x.textContent.trim().startsWith(${JSON.stringify(text)})||x.getAttribute('aria-label')===${JSON.stringify(text)})`; await this.wait(`${selector} && !(${selector}).disabled`); await this.evaluate(`(${selector}).click()`); }
@@ -70,12 +70,16 @@ let portableDirectory;
 async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE, extraArgs = []) {
   assert.ok(executable, 'Set WORLD_PLAYER_EXE to the packaged WorLdPlayer.exe');
   const environment = { ...process.env }; delete environment.ELECTRON_RUN_AS_NODE;
-  desktopProcess = spawn(executable, [...extraArgs, ...(gamePath ? [`--game=${gamePath}`] : []), `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', '--remote-debugging-port=9237'], { windowsHide: true, stdio: 'pipe', env: environment });
+  // Let the OS choose a bindable port; fixed 9237 may fall inside a Windows excluded range.
+  const probe=createServer();await new Promise((done,fail)=>{probe.once('error',fail);probe.listen(0,'127.0.0.1',done);});
+  const debugPort=probe.address().port;await new Promise(done=>probe.close(done));
+  const debugUrl=`http://127.0.0.1:${debugPort}/json`;
+  desktopProcess = spawn(executable, [...extraArgs, ...(gamePath ? [`--game=${gamePath}`] : []), `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', `--remote-debugging-port=${debugPort}`], { windowsHide: true, stdio: 'pipe', env: environment });
   desktopExit = new Promise(done => desktopProcess.once('exit', code => done(code)));
   let log = ''; desktopProcess.stderr.on('data', data => { log += data.toString(); }); desktopProcess.stdout.on('data', data => { log += data.toString(); });
-  const tabs = await Promise.race([json('http://127.0.0.1:9237/json'), desktopExit.then(code => { throw new Error('Desktop exited ' + code + ': ' + log); })]);
+  const tabs = await Promise.race([json(debugUrl).catch(error=>{throw new Error(error.message+': '+log);}), desktopExit.then(code => { throw new Error('Desktop exited ' + code + ': ' + log); })]);
   let target = tabs.find(tab => tab.type === 'page');
-  for (let attempt = 0; !target && attempt < 100; attempt++) { await pause(100); target = (await json('http://127.0.0.1:9237/json')).find(tab => tab.type === 'page'); }
+  for (let attempt = 0; !target && attempt < 100; attempt++) { await pause(100); target = (await json(debugUrl)).find(tab => tab.type === 'page'); }
   assert.ok(target, log);
   client = new Cdp(target.webSocketDebuggerUrl); await client.open(); await client.send('Runtime.enable');
 }
@@ -85,7 +89,21 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--native-atlas-workflow')) {
+  if(process.argv.includes('--atlas-scale-workflow')) {
+    const sampleMemory=async(name)=>{
+      const taskPid=name==='windows'?desktopProcess.pid:browser.pid;
+      const script=`$all=Get-CimInstance Win32_Process; $ids=[System.Collections.Generic.HashSet[int]]::new(); [void]$ids.Add(${taskPid}); do {$added=0; foreach($p in $all){if($ids.Contains([int]$p.ParentProcessId) -and $ids.Add([int]$p.ProcessId)){$added++}}}while($added -gt 0); $p=Get-Process -Id @($ids) -ErrorAction SilentlyContinue; [pscustomobject]@{processes=$p.Count;privateBytes=($p|Measure-Object PrivateMemorySize64 -Sum).Sum;workingSetBytes=($p|Measure-Object WorkingSet64 -Sum).Sum}|ConvertTo-Json -Compress`;
+      return JSON.parse((await promisify(execFile)('powershell.exe',['-NoProfile','-Command',script],{windowsHide:true})).stdout);
+    };
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,sampleMemory,
+      openWindows:async(gamePath)=>{
+        const output=join(temporary,'scale-windows-player');
+        await promisify(execFile)(process.execPath,[join(root,'tools/build-windows-player.mjs'),output,`--game=${gamePath}`],{windowsHide:true});
+        await openDesktop(undefined,join(output,'WorLdPlayer.exe'));return client;
+      }});
+    await writeFile(join(root,'evidence/authoring/atlas-scale-workflow.json'),JSON.stringify(evidence,null,2)+'\n');
+    console.log(JSON.stringify(evidence,null,2));
+  } else if(process.argv.includes('--native-atlas-workflow')) {
     const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true});
     await writeFile(join(root,'evidence/authoring/native-atlas-workflow.json'),JSON.stringify(evidence,null,2)+'\n');
     console.log(JSON.stringify(evidence,null,2));

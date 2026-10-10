@@ -8,6 +8,16 @@ function deferred<T>() {
 }
 
 describe("S0.28 runtime resource scheduling and memory discipline", () => {
+  it("reacquires a cancelled key without joining the dying job or losing the replacement", async () => {
+    const scheduler = new RuntimeResourceScheduler<string>({ maxConcurrentLoads: 1, maxResidentBytes: 30 });
+    const pending = deferred<{ value: string; byteLength: number }>(), controller = new AbortController();
+    const first = scheduler.acquire({ key: "same", priority: "scene", reservedBytes: 10, signal: controller.signal, load: () => pending.promise });
+    const assertion = expect(first).rejects.toMatchObject({ code: "CANCELLED" }); controller.abort();
+    const next = scheduler.acquire({ key: "same", priority: "scene", reservedBytes: 10, load: async () => ({ value: "new", byteLength: 10 }) });
+    pending.resolve({ value: "old", byteLength: 10 }); await assertion;
+    const lease = await next; expect(lease.value).toBe("new"); lease.release();
+    expect(scheduler.snapshot().activeLoads).toBe(0);
+  });
   it("enforces decode concurrency and starts queued work by priority", async () => {
     const scheduler = new RuntimeResourceScheduler<string>({ maxConcurrentLoads: 1, maxResidentBytes: 30 });
     const first = deferred<{ value: string; byteLength: number }>();

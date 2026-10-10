@@ -356,7 +356,7 @@ interface PreviewCanvasHostProps {
 async function loadCanvasImage(url: string, signal: AbortSignal, atlas?: NativeAtlasSource): Promise<PreviewCanvasImage> {
   if (atlas) {
     try {
-      const image = await acquireNativeAtlasImage(atlas);
+      const image = await acquireNativeAtlasImage(atlas, undefined, signal);
       if (signal.aborted) { image.release(); throw new DOMException("Cancelled", "AbortError"); }
       signal.addEventListener("abort", image.release, {once:true});
       return image;
