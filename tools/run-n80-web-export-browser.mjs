@@ -12,6 +12,7 @@ import { runCreatorWritingWorkflow } from './creator-writing-workflow.mjs';
 import { runCreatorMediaWorkflow } from './creator-media-workflow.mjs';
 import { runCreatorConditionWorkflow } from './creator-condition-workflow.mjs';
 import { runCreatorRepairWorkflow } from './creator-repair-workflow.mjs';
+import { runCreatorAssetRepairWorkflow } from './creator-asset-repair-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -81,7 +82,13 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--repair-workflow')) {
+  if(process.argv.includes('--asset-repair-workflow')) {
+    const result = await runCreatorAssetRepairWorkflow(client, root, temporary);
+    await writeFile(join(root,'evidence/authoring/rainy-promise-assets-repaired.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/asset-repair-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,'evidence/authoring/asset-repair-preview.png'),Buffer.from(result.screenshot,'base64'));
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else if(process.argv.includes('--repair-workflow')) {
     const result = await runCreatorRepairWorkflow(client, root);
     await writeFile(join(root,'evidence/authoring/rainy-promise-repaired.zip'),Buffer.from(result.archive,'base64'));
     await writeFile(join(root,'evidence/authoring/repair-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');

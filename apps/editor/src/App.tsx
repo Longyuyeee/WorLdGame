@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { variableOptionLabels } from './variable-option-labels';
+import { assetSourceUsages, checkAssetSource, republishAssetEntry } from './asset-repair';
 import { ConditionExpressionFields } from './condition-expression-fields';
 import { SceneFlowPanel } from './SceneFlowPanel';
 import { projectSceneFlow } from '@world-studio/route-graph';
@@ -114,7 +115,7 @@ import {
   restoreWorkspaceContext,
   workspaceContextProjection
 } from "./workspace-context";
-import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
+import { IndexedDbAssetRepository, type IndexedDbAssetImportResult } from "./indexeddb-asset-repository";
 import {
   WEB_ASSET_IMPORT_MAX_BYTES,
   canonicalAssetId,
@@ -747,6 +748,14 @@ function canBuildThumbnail(entry: AssetIndex["assets"][number]): boolean {
 }
 
 interface AssetVaultDialogProps {
+  readonly onCheckSource: (entry: AssetIndexEntry) => Promise<string>;
+  readonly project: StoryProject;
+  readonly onOpenUsage: (sceneId: string, statementId: string) => void;
+  readonly onRename: (entry: AssetIndexEntry, name: string) => void;
+  readonly onUndoAsset: () => void;
+  readonly onRedoAsset: () => void;
+  readonly canUndoAsset: boolean;
+  readonly canRedoAsset: boolean;
   readonly index: AssetIndex;
   readonly lifecycle: AssetLifecycleManifest;
   readonly gcLocked: boolean;
@@ -780,6 +789,7 @@ interface AssetVaultDialogProps {
 }
 
 function AssetVaultDialog({
+  project, onOpenUsage, onRename, onUndoAsset, onRedoAsset, canUndoAsset, canRedoAsset, onCheckSource,
   index,
   lifecycle,
   gcLocked,
@@ -815,6 +825,10 @@ function AssetVaultDialog({
   const [assetId, setAssetId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [kind, setKind] = useState<AssetKind>("other");
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
+  const [sourceChecks, setSourceChecks] = useState<Record<string, { revision: number; message: string; pending: boolean }>>({});
+  const usages = useMemo(() => assetSourceUsages(project), [project]);
+  const missingUsages = usages.filter((usage) => !index.assets.some((entry) => entry.assetId === usage.assetId));
   const importing = importState.phase === "reading" || importState.phase === "inspecting" || importState.phase === "committing";
   const storageReady = status === "ready" || status === "success" || status === "cancelled";
   const selectedExisting = index.assets.find((entry) => entry.assetId === assetId);
@@ -826,6 +840,7 @@ function AssetVaultDialog({
   const chooseFile = (selected: File | null) => {
     setFile(selected);
     if (selected === null) return;
+    if (editingAssetId !== null) return;
     setAssetId(createSuggestedId(selected.name));
     setDisplayName(selected.name.replace(/\.[^.]+$/, ""));
     setKind(inferAssetKind(selected.type || "application/octet-stream"));
@@ -833,7 +848,7 @@ function AssetVaultDialog({
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (file === null || assetId.trim().length === 0 || displayName.trim().length === 0 || importing) return;
-    onImport(file, { assetId: assetId.trim(), displayName: displayName.trim(), kind, tags: [] });
+    onImport(file, { assetId: assetId.trim(), displayName: displayName.trim(), kind, tags: selectedExisting?.tags ?? [], ...(selectedExisting?.preservedFields === undefined ? {} : { preservedFields: selectedExisting.preservedFields }) });
   };
 
   return (
@@ -855,6 +870,17 @@ function AssetVaultDialog({
           单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。Worker 检查真实签名、尺寸、时长与危险 SVG；通过后 Blob 与 Index 才在同一 fenced 事务中提交。
         </p>
 
+        <section className="asset-repair-panel" aria-label="素材引用与恢复">
+          <h3>素材引用与恢复</h3>
+          <p>改名只改变显示名称；替换文件保留稳定 ID，所有使用位置会一起更新。剧情引用修改使用顶部脚本撤销；最近一次资源更新可在本窗口撤销/重做，关闭工程后请使用备份恢复。</p>
+          <button type="button" disabled={!storageReady || importing || !canUndoAsset} onClick={onUndoAsset}>撤销最近资源更新</button>
+          <button type="button" disabled={!storageReady || importing || !canRedoAsset} onClick={onRedoAsset}>重做最近资源更新</button>
+          {missingUsages.length === 0 ? <p>已提交演出没有缺失的 Asset ID 引用。</p> : <ul>{missingUsages.map((usage) => <li key={`${usage.sceneId}:${usage.statementId}:${usage.parameter}`}>
+            缺失资源 {usage.assetId} · {usage.sceneTitle} · {usage.parameter}
+            <button type="button" disabled={importing} onClick={() => onOpenUsage(usage.sceneId, usage.statementId)}>修复引用：{usage.statementId}</button>
+          </li>)}</ul>}
+          <small>此列表检查已提交演出的 asset/transitionAsset 引用，不代表底层文件均可读取；有错误草稿请先修复。</small>
+        </section>
         <section className="asset-lifecycle" aria-label="资源生命周期">
           <div className="asset-lifecycle__heading">
             <div><p className="eyebrow">SOURCE → DERIVATIVE LINEAGE</p><h3>资源血缘与安全回收</h3></div>
@@ -944,13 +970,13 @@ function AssetVaultDialog({
               type="file"
               accept="image/*,audio/*,video/*,.woff,.woff2,.ttf,.otf"
               disabled={!storageReady || importing}
-              onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
+              onChange={(event) => { chooseFile(event.target.files?.[0] ?? null); event.currentTarget.value = ""; }}
             />
           </label>
           <div className="asset-metadata-grid">
-            <label><span>稳定 Asset ID</span><input aria-label="资源 Asset ID" value={assetId} disabled={importing} onChange={(event) => setAssetId(event.target.value)} /></label>
+            <label><span>稳定 Asset ID</span><input aria-label="资源 Asset ID" value={assetId} disabled={importing || editingAssetId !== null} onChange={(event) => setAssetId(event.target.value)} /></label>
             <label><span>显示名称</span><input aria-label="资源显示名称" value={displayName} disabled={importing} onChange={(event) => setDisplayName(event.target.value)} /></label>
-            <label><span>资源类型</span><select aria-label="资源类型" value={kind} disabled={importing} onChange={(event) => setKind(event.target.value as AssetKind)}>
+            <label><span>资源类型</span><select aria-label="资源类型" value={kind} disabled={importing || editingAssetId !== null} onChange={(event) => setKind(event.target.value as AssetKind)}>
               <option value="background">背景</option><option value="character">角色</option><option value="cg">CG</option>
               <option value="audio">音频</option><option value="video">视频</option><option value="font">字体</option>
               <option value="ui">UI</option><option value="other">其他</option>
@@ -969,6 +995,10 @@ function AssetVaultDialog({
             <p>{importState.detail}</p>
           </div>
           <div className="asset-import-actions">
+            {editingAssetId !== null && <>
+              <button type="button" disabled={!storageReady || importing || !selectedExisting || !displayName.trim() || displayName.trim() === selectedExisting.displayName} onClick={() => selectedExisting && onRename(selectedExisting, displayName.trim())}>仅保存资源名称</button>
+              <button type="button" disabled={importing} onClick={() => { setEditingAssetId(null); setFile(null); setAssetId(""); setDisplayName(""); }}>取消资源编辑</button>
+            </>}
             {importing ? <button type="button" className="danger-button" onClick={onCancel}>取消导入</button> : null}
             <button type="submit" disabled={!storageReady || file === null || assetId.trim().length === 0 || displayName.trim().length === 0 || importing}>
               {selectedExisting === undefined ? "导入到资源保险库" : "更新此资源"}
@@ -983,6 +1013,14 @@ function AssetVaultDialog({
               <div><strong>{entry.displayName}</strong><code>{entry.assetId}</code></div>
               <div><span>{formatBytes(entry.source.byteLength)} · {assetInspectionLabel(entry)}</span><code>{entry.source.digest.slice(7, 19)}…</code></div>
               <div className="asset-item__derivatives">
+                <button type="button" disabled={importing || sourceChecks[entry.assetId]?.pending} onClick={() => {
+                  const revision = index.indexRevision;
+                  setSourceChecks((checks) => ({ ...checks, [entry.assetId]: { revision, message: "正在校验源文件…", pending: true } }));
+                  void onCheckSource(entry).then((message) => setSourceChecks((checks) => ({ ...checks, [entry.assetId]: { revision, message, pending: false } })));
+                }}>验证源文件</button>
+                {sourceChecks[entry.assetId]?.revision === index.indexRevision && <small role="status">{sourceChecks[entry.assetId]?.message}</small>}
+                <button type="button" disabled={!storageReady || importing} aria-label={`编辑资源：${entry.assetId}`} onClick={() => { setEditingAssetId(entry.assetId); setAssetId(entry.assetId); setDisplayName(entry.displayName); setKind(entry.kind); setFile(null); }}>改名 / 替换文件</button>
+                <details><summary>使用位置 · {usages.filter((usage) => usage.assetId === entry.assetId).length}</summary>{usages.filter((usage) => usage.assetId === entry.assetId).map((usage) => <button key={`${usage.sceneId}:${usage.statementId}:${usage.parameter}`} type="button" disabled={importing} onClick={() => onOpenUsage(usage.sceneId, usage.statementId)}>{usage.sceneTitle} · {usage.statementId} · {usage.parameter}</button>)}</details>
                 <button type="button" className="asset-item__derive" disabled={!storageReady || importing || !canBuildThumbnail(entry)} onClick={() => onBuildThumbnail(entry.assetId)}>生成缩略图</button>
                 <button type="button" className="asset-item__derive" disabled={!storageReady || importing} onClick={() => onBuildSidecar(entry.assetId)}>生成 Sidecar</button>
               </div>
@@ -3762,6 +3800,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
   );
   const [assetImportState, setAssetImportState] = useState<AssetImportViewState>(IDLE_ASSET_IMPORT);
   const [assetPanelOpen, setAssetPanelOpen] = useState(false);
+  const [assetUpdateHistory, setAssetUpdateHistory] = useState<{ before: AssetIndexEntry; after: AssetIndexEntry; undone: boolean } | null>(null);
   const assetRepositoryRef = useRef<IndexedDbAssetRepository | null>(null);
   const assetImportAbortRef = useRef<AbortController | null>(null);
   const dicingAnalysisAbortRef = useRef<AbortController | null>(null);
@@ -4412,6 +4451,39 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
     }
     setAssetPanelOpen(false);
   };
+  const publishAssetUpdate = (result: IndexedDbAssetImportResult) => {
+    setAssetIndex(result.index);
+    setAssetLifecycle(result.lifecycle);
+    applyCanonicalProjectMutation(projectCanonicalWithAssetIndex(
+      projectCanonicalWithStory(previewCanonicalProjectRef.current, sessionRef.current.project), result.index
+    ), "资源更新已进入工程，请保存以保持剧情与资源备份一致。");
+  };
+  const updateAssetMetadata = async (entry: AssetIndexEntry, historyDirection?: "undo" | "redo") => {
+    const repository = assetRepositoryRef.current;
+    if (repository === null || assetImportAbortRef.current !== null) return;
+    const current = assetIndexRef.current.assets.find((asset) => asset.assetId === entry.assetId);
+    if (current === undefined) return;
+    const expected = historyDirection === undefined ? current : historyDirection === "undo" ? assetUpdateHistory?.after : assetUpdateHistory?.before;
+    if (expected === undefined || JSON.stringify(current) !== JSON.stringify(expected)) {
+      setAssetImportState({ phase: "error", progress: 0, detail: "资源已发生其他变化，请重新选择资源；未覆盖新版本。" }); return;
+    }
+    const controller = new AbortController();
+    assetImportAbortRef.current = controller;
+    setAssetStatus("importing");
+    setAssetImportState({ phase: "committing", progress: 0.5, detail: "正在验证旧文件并原子更新资源…" });
+    try {
+      const result = await republishAssetEntry(repository, entry, assetIndexRef.current.indexRevision, controller.signal);
+      publishAssetUpdate(result);
+      setAssetUpdateHistory(historyDirection === undefined ? { before: current, after: result.entry, undone: false } : (history) => history === null ? null : { ...history, undone: historyDirection === "undo" });
+      setAssetStatus("success");
+      setAssetImportState({ phase: "success", progress: 1, detail: `${historyDirection === "undo" ? "已撤销" : historyDirection === "redo" ? "已重做" : "名称已更新"} · ${entry.assetId} · 稳定 ID 与剧情引用保持不变。` });
+    } catch (error) {
+      setAssetStatus("ready");
+      setAssetImportState({ phase: "error", progress: 0, detail: error instanceof Error ? error.message : "资源更新失败，原版本未覆盖。" });
+    } finally {
+      if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
+    }
+  };
   const importAssetFile = (
     file: File,
     metadata: Omit<AssetImportInput, "bytes" | "mimeType">
@@ -4426,6 +4498,10 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         errorCode: "LEASE_REQUIRED"
       });
       return;
+    }
+    const previousEntry = assetIndexRef.current.assets.find((entry) => entry.assetId === metadata.assetId);
+    if (previousEntry !== undefined && previousEntry.kind !== metadata.kind) {
+      setAssetImportState({ phase: "error", progress: 0, detail: "替换文件必须保留原资源类型；不同用途请导入为新资源，再修改演出引用。" }); return;
     }
     const controller = new AbortController();
     assetImportAbortRef.current = controller;
@@ -4468,14 +4544,8 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             : "正在提交 writer-fenced IndexedDB 事务…"
         })
       });
-      setAssetIndex(result.index);
-      const canonicalWithAssets = projectCanonicalWithAssetIndex(
-        projectCanonicalWithStory(canonicalBase, sessionRef.current.project),
-        result.index
-      );
-      setCanonicalBase(canonicalWithAssets);
-      onCanonicalProjectChange?.(canonicalWithAssets);
-      setAssetLifecycle(result.lifecycle);
+      publishAssetUpdate(result);
+      setAssetUpdateHistory(previousEntry === undefined ? null : { before: previousEntry, after: result.entry, undone: false });
       setAssetStatus("success");
       setAssetImportState({
         phase: "success",
@@ -5097,6 +5167,14 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
       )}
       {assetPanelOpen && (
         <AssetVaultDialog
+          onCheckSource={(entry) => assetRepositoryRef.current === null ? Promise.resolve("资源仓库不可用，请重新打开工程后重试。") : checkAssetSource(assetRepositoryRef.current, entry)}
+          project={session.project}
+          onOpenUsage={(sceneId, statementId) => { closeAssetPanel(); dispatch({ type: "select-project-result", sceneId, statementId }); setRequestedFocusStatementId(statementId); setWorkspaceMode("writer"); setMode(pendingDraftSceneIds(session).includes(sceneId) ? "script" : "sequence"); }}
+          onRename={(entry, name) => void updateAssetMetadata({ ...entry, displayName: name })}
+          canUndoAsset={assetUpdateHistory !== null && !assetUpdateHistory.undone}
+          canRedoAsset={assetUpdateHistory !== null && assetUpdateHistory.undone}
+          onUndoAsset={() => { if (assetUpdateHistory) void updateAssetMetadata(assetUpdateHistory.before, "undo"); }}
+          onRedoAsset={() => { if (assetUpdateHistory) void updateAssetMetadata(assetUpdateHistory.after, "redo"); }}
           index={assetIndex}
           lifecycle={assetLifecycle}
           gcLocked={!assetBackupAuditReady || unlinkedAssetBackupIds.length > 0}

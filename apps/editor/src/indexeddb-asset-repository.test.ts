@@ -23,6 +23,7 @@ import {
   normalizeIndexedDbAssetError
 } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
+import { republishAssetEntry } from "./asset-repair";
 
 async function writableRepository(
   indexedDb = new IDBFactory(),
@@ -38,6 +39,25 @@ async function writableRepository(
   assets.activateWriterLease(acquisition.lease);
   return { indexedDb, files, assets, lease: acquisition.lease };
 }
+
+it("republishes asset metadata and prior content without changing IDs, tags or extension data and rejects stale/leased writes", async () => {
+  const { assets } = await writableRepository();
+  const first = await assets.importAsset({ assetId: "hero", kind: "character", displayName: "旧名称", mimeType: "image/png", bytes: inspectedPngHeader(8, 8, 1), tags: ["lead"], preservedFields: { license: "test" } }, { expectedIndexRevision: 0, maxBytes: 100 });
+  const renamed = await republishAssetEntry(assets, { ...first.entry, displayName: "新名称" }, 1);
+  expect(renamed.entry).toEqual({ ...first.entry, displayName: "新名称" });
+  const replaced = await assets.importAsset({ assetId: "hero", kind: "character", displayName: "新名称", mimeType: "image/png", bytes: inspectedPngHeader(8, 8, 2), tags: renamed.entry.tags, preservedFields: renamed.entry.preservedFields! }, { expectedIndexRevision: 2, maxBytes: 100 });
+  expect(replaced.entry.source.digest).not.toBe(first.entry.source.digest);
+  const undo = await republishAssetEntry(assets, renamed.entry, 3);
+  expect(undo.entry).toEqual(renamed.entry);
+  const redo = await republishAssetEntry(assets, replaced.entry, 4);
+  expect(redo.entry).toEqual(replaced.entry);
+  await expect(republishAssetEntry(assets, first.entry, 1)).rejects.toMatchObject({ code: "STALE_INDEX_REVISION" });
+  const missing = { ...first.entry, source: { ...first.entry.source, digest: createBlobDigest(new Uint8Array([77])) } };
+  await expect(republishAssetEntry(assets, missing, 5)).rejects.toThrow("源文件缺失");
+  assets.activateWriterLease(null);
+  await expect(republishAssetEntry(assets, first.entry, 5)).rejects.toMatchObject({ code: "LEASE_REQUIRED" });
+  expect((await assets.loadIndex()).assets[0]).toEqual(replaced.entry);
+});
 
 function inspectedPngHeader(width: number, height: number, fill: number): Uint8Array {
   const bytes = new Uint8Array(33).fill(fill);

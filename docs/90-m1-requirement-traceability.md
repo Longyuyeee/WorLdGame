@@ -1,5 +1,9 @@
 # M1 需求与验收追踪矩阵
 
+> CI 补充（2026-10-10）：上阶段 `7d9c54c` 完整 run `38061674879` 已成功，旧 Route 性能失败在该精确头未复现，预算不变；不将旧头结果冒充为本轮新提交 CI。以下素材段落的“待精确头确认”以本条及 #99 当前审计为准。
+
+> 2026-10-10 素材引用故障恢复（资源管理 / 演出 / 保存恢复）：资源列表改名与稳定 ID 文件替换、类型失败保护、使用位置/缺失引用定位、按需源文件验证、一级资源撤销重做及工程 dirty 接通。真实 UI 同一作品修复、保存重开、Canvas 像素变化和最终结局通过，导出 ZIP 索引内容哈希匹配；证据 `evidence/authoring/asset-repair-workflow.json`、`asset-repair-preview.png`、`rainy-promise-assets-repaired.zip`。89 项相关回归及构建通过。源 Blob 缺失异常仅单元测试覆盖；不承诺全类型引用扫描、无限资源历史、跨重开资源撤销或整个资源 P0/M1 完成。接续以 #89/#289 顶部为准，CI 性能差异仍待精确头确认。
+
 > 2026-10-10 多视图作者任务（REQ-SEQ / REQ-SCRIPT / 调试与保存恢复）：全工程草稿提示、跨场景正式运行/构建阻断、QA 草稿回 Script、运行错误按诊断 Source Map 回到失败语句已接通。真实作品的 Sequence/Script/Stage/Flow 修改、撤销重做、错误草稿保存重开、调试历史、除零错误修复与最终结局通过；证据 `evidence/authoring/repair-workflow.json`、`repair-draft.png`、`rainy-promise-repaired.zip`。107 项相关回归、类型检查与 Editor 构建通过。不改变 Runtime/存档 schema，不关闭全部多视图 P0 或 M1。下一整体任务为素材引用故障恢复，权威顺序见 #89/#289 顶部。
 
 > 2026-10-10 最新整体验证（Gal #11 §2.7 / REQ-RUNTIME）：变量作用域已从声明接入 Compiler IR 1.2 与正式 Runtime，跨场景/跨章节、调用返回、重新开始、History/游戏读档规则明确。旧 IR 1.0/1.1 保持旧行为，新构建不承诺旧存档迁移。真实 UI 双路线、条件修改、保存刷新重开及正式导出游戏在结局/刷新后读档通过，证据 `evidence/authoring/variable-lifecycle.json`、`rainy-promise-lifecycle.zip`；12 文件 / 227 项相关回归、旧 Runtime 10k 语料、类型检查、Editor 构建通过。仅关闭本作品的基础生命周期任务，不关闭完整 REQ-RUNTIME、跨周目永久变量、Android 或 M1。下一阶段以 #89/#289 顶部的多视图修改与排错作者任务为准，以下“下一阶段变量生命周期”均为历史。

@@ -1,4 +1,18 @@
-# 当前开发情况：多视图修改、排错与保存接续贯通
+# 当前开发情况：素材引用故障恢复作者任务贯通
+
+## 最新审计：2026-10-10 素材引用故障恢复
+
+已核对资源列表/导入、IndexedDB Repository、Canonical 适配、演出 Inspector、原子 Index 写入、生命周期和保存代码。底层既有 importAsset 允许同 ID 更新，但 UI 只能手抄稳定 ID，没有从资源列表编辑或定位使用位置的入口；选择文件还会覆盖元数据。此次复用既有机制加入改名/替换入口，编辑已有资源时锁定 ID/类型并保留名称，拒绝跨类型替换，保留 tags/扩展字段。资源发布统一使用当前工程/剧情并标记 dirty，避免异步闭包覆盖后来编辑及“资源变了但未提示保存”。
+
+恢复路径：已提交演出 asset/transitionAsset 的实际参数生成使用位置，缺失 ID 可直接打开同一 Scene/Statement 的演出参数；若有错误草稿则回 Script。最近一次已有资源更新记录前后索引条目，撤销/重做读回原不可变 Blob 并重新走 lease/CAS 事务，不覆盖原字节、不删除数据；目标条目已被别的更新改变时拒绝。历史仅当前编辑会话一级，不持久化；新导入不提供删除式撤销，跨重开使用已有备份。源文件验证只读，缺失/异常/大小不符分别给出重新导入或备份恢复路径，不把列表存在当作文件可读。
+
+真实浏览器从 `rainy-promise-repaired.zip` 完成：改名→源文件校验→错误 WAV 替换图片被拒绝且索引保持→正确 PNG 替换→撤销/重做→点击使用位置→制造缺失 Asset ID→跳回 Inspector 修复→脚本撤销/重做→保存刷新重开→正式预览。源码逐字一致，角色 X=65 保持，Canvas 像素摘要由 `56fe8180…902` 变为 `2e68375b…7c5`，导出的 ZIP 索引名称及 source digest 与替换 PNG 相符，最终结局不变，异常 0。测试位图只是功能样本；不是正式美术。证据 `evidence/authoring/asset-repair-workflow.json`、`asset-repair-preview.png`、`rainy-promise-assets-repaired.zip`。
+
+测试过程区别：初次浏览器脚本按旧 DOM renderer 等待角色 img，但正式渲染为 Canvas，导致错过检查点并走到结局；改为既有 Canvas ready/实际像素读取，不修改产品 renderer 或降低判据。实际缺失引用恢复经 UI 通过；源 Blob 缺失/损坏读取/大小不符由测试替身覆盖，未声称在浏览器中删除真实文件完成故障验证。只读文件检查按索引 revision 显示，替换后不沿用旧“通过”结果。
+
+验证：9 文件 / 88 项（资源模型/UI、Repository、导入、App 基线、Canonical 适配、正式导出、前阶段排错回归、文件读取），另隔离 autosave 1 项，共 89 项通过；TypeScript、Editor 构建和 diff 检查通过，既有大 bundle 警告不隐藏。未改变 Runtime/工程/存档 schema，不宣称全仓或 M1 验收完成。`.browser-diagnostic/` 仍为未提交本机缓存。
+
+远端与接续：前序 `7d9c54c` 的完整 CI [run 38061674879](https://github.com/Longyuyeee/WorLdGame/actions/runs/38061674879) 在本轮收尾时确认成功，包含 Route 性能门；旧 `9e1a621` 的 P95 523.03ms 失败未在该头复现，期间未放宽门限，不能反向把旧失败改为成功。本次推送后仍需按新精确头检查。下一整体任务为 Beginner 完整创作路径的 UI/入口/错误反馈一致性，不再扩展资源底层审计或打包支线。未完成边界继续见 #89 顶部。
 
 ## 最新审计：2026-10-10 多视图作者任务
 
