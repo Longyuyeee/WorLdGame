@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { unzipSync } from "fflate";
 import { createServer } from "node:http";
 import { createHash } from "node:crypto";
+import { runCreatorWritingWorkflow } from './creator-writing-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -77,6 +78,13 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+  if(process.argv.includes('--writing-workflow')) {
+    const result=await runCreatorWritingWorkflow(client);
+    await mkdir(join(root,'evidence/authoring'),{recursive:true});
+    await writeFile(join(root,'evidence/authoring/rainy-promise.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/continuous-writing.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else {
   await client.button("打开示例工程"); await client.button("进入编辑器");
   if (variableAuthor) {
     for (const scope of ['story','scene']) {
@@ -368,6 +376,7 @@ try {
   if (variableAuthor) evidence.authoring = { createdTwoSameNameVariables: true, choseByTypeAndScope: true, stableIdInScript: true, savedInEditor: true, exportedGameReachedEnding: true };
   await writeFile(join(root, `evidence/n80/formal-web-${variableAuthor ? 'variable-author' : branchTarget ? 'branch-target' : sceneWriting ? 'scene-writing' : packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
+  }
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));
   throw error;

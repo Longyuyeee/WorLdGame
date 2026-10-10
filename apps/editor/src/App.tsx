@@ -156,7 +156,7 @@ import {
   type LoadedPreviewMedia,
   type PreviewUrlFactory
 } from "./preview-media-runtime";
-import { createSequenceInsertPlan, duplicateSequencePlan, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
+import { createSequenceInsertPlan, duplicateSequencePlan, sequenceInsertionAnchor, sequenceMoveAfterId, sequenceRangeSelection, type SequenceInsertKind } from "./sequence-editor-model";
 import { createStageSurfaceMetrics, mapClientPointToStage, type StageDesignPoint } from "./stage-surface";
 import { createStagePlacementPatch } from "./stage-director";
 import {
@@ -1797,7 +1797,7 @@ function SequenceView({
     ...sequenceReferences.labelIds.map(id=>[id, `当前场景标签：${id}`])
   ]);
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
-  const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
+  const insertionAnchor=sequenceInsertionAnchor(scene.statements,scene.id,selected.id);
   const insertPlan=(plan:ReturnType<typeof createSequenceInsertPlan>)=>{const first=plan[0]?.node,selectedStatementId=first===undefined?undefined:first.kind==="dialogue"||first.kind==="narration"?first.statementId:first.id;dispatch({type:"p0-batch",commandId:createCommandId(),operations:plan.map((step)=>({kind:"insert" as const,afterId:step.afterId,node:step.node})),...(selectedStatementId===undefined?{}:{selectedStatementId})});};
   const choiceChildren=(statement:StoryStatement)=>statement.kind==="choice"?statement.options.map((item)=>item.id):[];
   const duplicateSelected=()=>insertPlan(duplicateSequencePlan(selected,insertionAnchor,createEntityId));
@@ -2367,6 +2367,12 @@ function SequenceView({
           <code>{selected.id}</code>
         </div>
         {selected.kind === "dialogue" ? (
+          <>
+          <label htmlFor="dialogue-speaker">说话人</label>
+          <select id="dialogue-speaker" value={selected.speakerId} disabled={pendingDraft} onChange={event=>dispatch({type:'p0-update',commandId:createCommandId(),statementId:selected.id,patch:{speakerId:event.target.value}})}>
+            {!session.project.characters.some(character=>character.id===selected.speakerId) && <option value={selected.speakerId} disabled>缺失角色 · {selected.speakerId}（请选择已有角色）</option>}
+            {session.project.characters.map(character=><option key={character.id} value={character.id}>{character.displayName} · {character.id}</option>)}
+          </select>
           <TransactionalTextarea
             id="dialogue-editor"
             value={selected.text}
@@ -2382,6 +2388,7 @@ function SequenceView({
               })
             }
           />
+          </>
         ) : selected.kind === "direction" ? (
           <DirectionInspector
             key={`${selected.id}:${selected.summary}`}

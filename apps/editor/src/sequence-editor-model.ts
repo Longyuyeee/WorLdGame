@@ -7,6 +7,12 @@ export interface SequenceInsertStep { readonly afterId: string; readonly node: P
 export type SequenceIdFactory = (prefix: string) => string;
 
 const quote = (value: string) => JSON.stringify(value);
+export function sequenceInsertionAnchor(statements: readonly StoryStatement[], sceneId: string, selectedId: string): string {
+  const index=statements.findIndex(item=>item.id===selectedId);
+  const selected=statements[index];
+  const anchor=selected?.kind==='end' ? statements[index-1] : selected;
+  return anchor===undefined ? sceneId : anchor.kind==='choice' ? anchor.options.at(-1)?.id ?? anchor.id : anchor.id;
+}
 const stable = (values: readonly string[], fallback: string) => values[0] ?? fallback;
 export function createSequenceInsertPlan(kind: SequenceInsertKind, afterId: string, refs: SequenceReferences, createId: SequenceIdFactory): readonly SequenceInsertStep[] {
   const statementId=createId("stmt"), textId=createId("txt"), target=stable(refs.labelIds,stable(refs.sceneIds,"label_start")), asset=stable(refs.assetIds,"asset_missing"), variable=stable(refs.variableIds,"flag"), character=stable(refs.characterIds,"character_missing");
