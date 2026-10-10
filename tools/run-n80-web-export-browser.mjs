@@ -2,7 +2,8 @@ import { access, mkdir, mkdtemp, readFile, writeFile, rm, cp } from "node:fs/pro
 import { dirname, join, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { tmpdir } from "node:os";
-import { spawn } from "node:child_process";
+import { spawn, execFile } from "node:child_process";
+import { promisify } from "node:util";
 import assert from "node:assert/strict";
 import { unzipSync } from "fflate";
 import { createServer } from "node:http";
@@ -12,7 +13,8 @@ const root = resolve(import.meta.dirname, "..");
 const pwa = process.argv.includes("--pwa");
 const localPreview = process.argv.includes("--local-preview");
 const publication = process.argv.includes("--publication");
-const windowsPlayer = process.argv.includes("--windows-player");
+const bundledPlayer = process.argv.includes("--bundled-player");
+const windowsPlayer = bundledPlayer || process.argv.includes("--windows-player");
 const directory = windowsPlayer || pwa || localPreview || publication || process.argv.includes("--directory");
 const temporary = await mkdtemp(join(tmpdir(), "world-n80-export-"));
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
@@ -52,11 +54,11 @@ let localProcess;
 let localResult;
 let desktopProcess;
 let desktopExit;
-async function openDesktop(gamePath) {
-  const executable = process.env.WORLD_PLAYER_EXE;
+let portableDirectory;
+async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE) {
   assert.ok(executable, 'Set WORLD_PLAYER_EXE to the packaged WorLdPlayer.exe');
   const environment = { ...process.env }; delete environment.ELECTRON_RUN_AS_NODE;
-  desktopProcess = spawn(executable, [`--game=${gamePath}`, `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', '--remote-debugging-port=9237'], { windowsHide: true, stdio: 'pipe', env: environment });
+  desktopProcess = spawn(executable, [...(gamePath ? [`--game=${gamePath}`] : []), `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', '--remote-debugging-port=9237'], { windowsHide: true, stdio: 'pipe', env: environment });
   desktopExit = new Promise(done => desktopProcess.once('exit', code => done(code)));
   let log = ''; desktopProcess.stderr.on('data', data => { log += data.toString(); }); desktopProcess.stdout.on('data', data => { log += data.toString(); });
   const tabs = await Promise.race([json('http://127.0.0.1:9237/json'), desktopExit.then(code => { throw new Error('Desktop exited ' + code + ': ' + log); })]);
@@ -187,7 +189,22 @@ try {
     await client.wait('navigator.serviceWorker.controller');
     siteUnavailable = true;
   }
-  if (windowsPlayer) { client.socket.close(); client = undefined; await openDesktop(unpacked); }
+  if (windowsPlayer) {
+    client.socket.close(); client = undefined;
+    if (bundledPlayer) {
+      portableDirectory = join(temporary, '作品便携包');
+      await promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), portableDirectory, `--game=${unpacked}`], { windowsHide: true });
+      await assert.rejects(access(join(portableDirectory, 'resources/app/game/preview.mjs')));
+      await assert.rejects(promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), portableDirectory, `--game=${unpacked}`], { windowsHide: true }), /输出目录已存在/);
+      // A broken author export must fail before creating a distributable-looking output.
+      const mediaPath = join(unpacked, payload.mediaAssets[0].url);
+      await rm(mediaPath);
+      const brokenOutput = join(temporary, 'broken-output');
+      await assert.rejects(promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), brokenOutput, `--game=${unpacked}`], { windowsHide: true }), /游戏文件缺失/);
+      await assert.rejects(access(brokenOutput));
+      await openDesktop(undefined, join(portableDirectory, 'WorLdPlayer.exe'));
+    } else await openDesktop(unpacked);
+  }
   else {
     await client.send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
     await client.send("Page.navigate", { url: pwa || localPreview ? siteUrl : pathToFileURL(output).href });
@@ -202,8 +219,8 @@ try {
     await client.wait("Array.from(document.querySelectorAll('button')).some(x=>x.textContent==='快速读取'&&!x.disabled)");
     void client.send('Browser.close'); await desktopExit;
     client.socket.close(); client = undefined;
-    const relocated = join(temporary, 'relocated-game'); await cp(unpacked, relocated, { recursive: true });
-    await openDesktop(relocated); await client.button('开始故事'); await client.button('快速读取');
+    const relocated = join(temporary, 'relocated-game'); await cp(bundledPlayer ? portableDirectory : unpacked, relocated, { recursive: true });
+    await openDesktop(bundledPlayer ? undefined : relocated, bundledPlayer ? join(relocated, 'WorLdPlayer.exe') : process.env.WORLD_PLAYER_EXE); await client.button('开始故事'); await client.button('快速读取');
     await client.wait(`document.querySelector('main[data-player-status]').dataset.runtimeStateHash===${JSON.stringify(savedHash)}`);
   }
   if (publication) { assert.equal(await client.evaluate('document.title'), '星光旅程'); assert.ok(await client.evaluate("document.body.textContent.includes('版本 2.3.0')")); }
@@ -260,7 +277,8 @@ try {
   if (localPreview) { evidence.path = 'production Editor ZIP → extract → shipped launcher → occupied port fallback → actual server Range → cache → q stops server → offline reload → ending'; evidence.localPreview = { launcher: process.platform === 'win32' ? 'start-preview.cmd' : 'preview.mjs', portFallback: true, gracefulStop: true, browserAutoOpen: 'not exercised (--no-open)' }; }
   if (publication) { evidence.path = 'production Editor → real 512 PNG import → publication edit + icon preview → apply → save → ZIP → name/version/icon → offline Player ending'; evidence.publication = { name: '星光旅程', version: '2.3.0', iconSize: 512, savedInEditor: true }; }
   if (windowsPlayer) { evidence.path = 'production Editor ZIP → packaged Windows exe → quick save → process exit → moved game folder → restart → quick load → ending'; evidence.desktop = { runtimeBundled: true, saveAfterRestartAndMove: true, nativeFolderPicker: 'not exercised (--game)' }; }
-  await writeFile(join(root, `evidence/n80/formal-web-${windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (bundledPlayer) { evidence.path = 'production Editor ZIP → bundled Windows package → no --game auto-open → quick save → process exit → move whole package → restart without --game → quick load → ending'; evidence.desktop = { runtimeBundled: true, automaticBundledGame: true, saveAfterRestartAndMove: true, existingOutputProtected: true, missingMediaRejectedBeforeOutput: true, authorHelpersExcluded: true, nativeFolderPicker: 'not needed for bundled launch', changedStorySaveCompatibility: 'not tested', visibleWindow: 'not exercised (--test-hidden)' }; }
+  await writeFile(join(root, `evidence/n80/formal-web-${bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));

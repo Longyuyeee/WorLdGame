@@ -3,7 +3,7 @@
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-10
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前阶段边界：N80-E1–E5 已有 Web 最小交付路径，N81-E1 新增无需玩家安装 Node.js 的 Windows 便携播放器，实际退出/移动目录/重启读取存档通过。当前仍复用 Web Player Profile，下一步一作品一便携包；Windows 专属 Profile、Android、资源优化、完整发布与 M1 尚未完成。真人验收后置，玩家路线图仍在待办。
+> 当前阶段边界：N80-E1–E5 已有 Web 最小交付路径，N81-E1–E2 已支持 Windows 便携播放器及一作品一包：玩家无需 Node.js 或选目录，实际退出/移动整包/重启读取存档通过。作者暂用命令打包，下一步降低作者打包门槛。当前仍复用 Web Player Profile；Windows 专属 Profile、Android、资源优化、完整发布与 M1 尚未完成。真人验收后置，玩家路线图仍在待办。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

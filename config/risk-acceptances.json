@@ -4,7 +4,7 @@
   "executionPlan": {
     "approvedAt": "2026-10-10T00:00:00+08:00",
     "approver": "Product Owner",
-    "scope": "N81-E1 Windows portable player",
+    "scope": "N81-E2 bundled Windows game",
     "evidencePath": "docs/289-user-centered-delivery-route.md",
     "supersedesEngineeringScheduleOf": "RA-N21-011",
     "releaseApproved": false

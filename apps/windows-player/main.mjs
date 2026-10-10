@@ -55,6 +55,16 @@ async function openGame(directory) {
 }
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: '作品', submenu: [{ label: '打开作品…', accelerator: 'CmdOrCtrl+O', click: () => void openGame() }, { label: '存档位置', click: () => void dialog.showMessageBox({ message: '存档由播放器自动保存在本机', detail: `${app.getPath('userData')}\n移动游戏目录不会更改存档位置；不同 projectId 的作品隔离。更新作品的存档兼容由现有 Player 判断。` }) }, { type: 'separator' }, { role: 'quit', label: '退出' }] }, { label: '显示', submenu: [{ role: 'togglefullscreen', label: '全屏' }, { role: 'resetzoom', label: '恢复缩放' }] }]));
-  await openGame(process.argv.find(value => value.startsWith('--game='))?.slice(7));
+  let initialGame = process.argv.find(value => value.startsWith('--game='))?.slice(7);
+  if (!initialGame) {
+    try {
+      const bundled = JSON.parse(await readFile(join(app.getAppPath(), 'bundled-game.json'), 'utf8'));
+      if (bundled.directory !== 'game') throw new Error('内置游戏配置无效，请重新完整解压便携包。');
+      initialGame = join(app.getAppPath(), 'game');
+    } catch (error) {
+      if (error.code !== 'ENOENT') { dialog.showErrorBox('无法打开内置作品', error.message); app.quit(); return; }
+    }
+  }
+  await openGame(initialGame);
 });
 app.on('window-all-closed', () => { if (!opening) app.quit(); });

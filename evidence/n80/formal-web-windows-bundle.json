@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor ZIP → bundled Windows package → no --game auto-open → quick save → process exit → move whole package → restart without --game → quick load → ending",
+  "filename": "黄昏广播-web.zip",
+  "bytes": 486024,
+  "mediaCount": 1,
+  "imageDimensions": [
+    16,
+    9
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "desktop": {
+    "runtimeBundled": true,
+    "automaticBundledGame": true,
+    "saveAfterRestartAndMove": true,
+    "existingOutputProtected": true,
+    "missingMediaRejectedBeforeOutput": true,
+    "authorHelpersExcluded": true,
+    "nativeFolderPicker": "not needed for bundled launch",
+    "changedStorySaveCompatibility": "not tested",
+    "visibleWindow": "not exercised (--test-hidden)"
+  }
+}
