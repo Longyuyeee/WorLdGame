@@ -2,6 +2,7 @@ import { compileProject } from "@world-studio/project-compiler";
 import { semanticHash, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
+import { addWebOfflineFiles } from "./web-offline-export";
 
 export interface FormalWebArtifact {
   readonly filename: string;
@@ -76,6 +77,7 @@ export async function createFormalWebDirectoryArtifact(
   files["index.html"] = encode(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${htmlText(project.manifest.title)}</title><link rel="stylesheet" href="player.css"></head><body><div id="player-root">正在打开游戏…如果一直停留在这里，请先解压整个 ZIP，再打开 index.html，并确认 player.js 与它在同一文件夹。</div><script id="world-project" type="application/json">${payload}</script><script src="player.js"></script></body></html>`);
   files["player.js"] = encode(runtime.javascript);
   files["player.css"] = encode(runtime.css);
+  addWebOfflineFiles(files, project.manifest.title);
   const projectDigest = semanticHash(project);
   files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
   files["使用说明.txt"] = encode(`Web 游戏目录包
@@ -91,7 +93,11 @@ export async function createFormalWebDirectoryArtifact(
 遇到问题：
 页面停在“正在打开游戏”时检查是否完整解压；素材缺失时重新解压整个包。声音可能需要点击开始故事后才播放。
 本地文件存档取决于浏览器支持，移动文件夹、换浏览器或换电脑不保证保留存档。请保留原目录和原浏览器，不要把游戏 ZIP 当作存档备份。
-此包尚不含 PWA 安装和网站离线缓存；网站访问与直接打开本地目录是不同的使用方式。
+网站离线与安装：
+将完整目录发布到 HTTPS 站点（开发调试可用 localhost），不要仅上传 index.html。玩家展开页面顶部“离线与安装”，主动下载离线内容；显示“离线内容已就绪”后才能保证断网重开。首次未下载、下载失败或浏览器清理数据后不可假定能离线。
+安装按钮在浏览器提供安装入口时出现，也可使用浏览器菜单“安装/添加到主屏幕”；不同浏览器支持有差异。本地 file 地址不注册离线缓存，但仍可直接玩。
+检查更新后若显示“新版已下载”，先保存进度，关闭所有此游戏窗口，再重新打开；不会强制重载正在玩的剧情。更新只处理游戏文件，不清空存档。离线缓存并非永久存储保证。
+站点发布请完整替换目录，最后发布 sw.js；不要将缺失文件返回为 index.html，建议 sw.js 使用 Cache-Control: no-cache。部分文件未上传完整时离线更新会失败，原版缓存保留，补齐文件后重试。
 
 素材为原始文件，未进行压缩优化；目录包避免 Base64 膨胀，但打包仍需要浏览器内存，小工程可能因附加文件而略大。build-info.json 记录工程标识、文件大小与摘要，供定位版本问题。
 `);

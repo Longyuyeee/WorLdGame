@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor ZIP → localhost subdirectory → failed download → retry → server unavailable + offline reload → ending → staged update → close → offline v2",
+  "filename": "黄昏广播-web.zip",
+  "bytes": 477851,
+  "mediaCount": 1,
+  "imageDimensions": [
+    16,
+    9
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "pwa": {
+    "failedDownloadRecovered": true,
+    "offlineRange": 206,
+    "updatePreservedSession": true,
+    "newVersionAfterClose": true,
+    "installabilityErrors": []
+  }
+}

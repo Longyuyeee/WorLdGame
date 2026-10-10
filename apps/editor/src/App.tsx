@@ -3569,7 +3569,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <div><strong>导出 Web 游戏</strong><small>包含当前工程、原始素材和正式播放器；下载后可独立打开。大型素材会增加文件大小。</small></div>
         <button type="button" onClick={() => void preparePlayableWeb()} disabled={pendingDraft || inputDirty || webBuilding}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
         <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={pendingDraft || inputDirty || webBuilding}>构建目录 ZIP</button>
-        <small>单文件适合直接分享；目录 ZIP 将素材独立存放，适合素材较多或上传网站。ZIP 需完整解压后打开 index.html。</small>
+        <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>
         {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}
         {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
         {webBuildError && <p role="alert">{webBuildError}</p>}

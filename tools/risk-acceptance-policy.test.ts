@@ -74,6 +74,7 @@ describe("risk acceptance policy", () => {
     const date = new Date("2026-10-10T12:00:00+08:00");
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan }), date)).toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, scope: "N80-E2 Web directory export" } }), date)).toEqual([]);
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, scope: "N80-E3 PWA offline delivery" } }), date)).toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, releaseApproved: true } }), date)).not.toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N81", executionPlan }), date)).not.toEqual([]);
   });

@@ -36,6 +36,17 @@ describe("formal Web game packaging", () => {
     const info = JSON.parse(text("build-info.json"));
     expect(info.projectDigest).toBe(artifact.projectDigest);
     for (const file of info.files) expect(createBlobDigest(files[file.path]!)).toBe(file.digest);
+    expect(directoryPage.querySelector('link[rel="manifest"]')?.getAttribute("href")).toBe("manifest.webmanifest");
+    expect(directoryPage.getElementById("offline-action")?.textContent).toBe("下载离线内容");
+    const manifest = JSON.parse(text("manifest.webmanifest"));
+    expect(manifest.start_url).toBe("./index.html");
+    expect(manifest.scope).toBe("./");
+    const inventory = JSON.parse(text("sw.js").match(/^const inventory = (.*);$/m)![1]!);
+    for (const [path, digest] of Object.entries(inventory)) expect(createBlobDigest(files[path]!)).toBe(digest);
+    expect(() => new Function(text("sw.js"))).not.toThrow();
+    expect(() => new Function(text("offline.js"))).not.toThrow();
+    const updated = unzipSync((await createFormalWebDirectoryArtifact(exported, { read: async () => bytes }, { javascript: "window.started='v2';", css: "body{margin:0}" })).archive);
+    expect(new TextDecoder().decode(updated["sw.js"])).not.toBe(text("sw.js"));
     await expect(createFormalWebDirectoryArtifact(exported, { read: async () => null }, { javascript: "", css: "" })).rejects.toThrow("重新导入后重试");
   });
 });

@@ -5,9 +5,12 @@ import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
 import { unzipSync } from "fflate";
+import { createServer } from "node:http";
+import { createHash } from "node:crypto";
 
 const root = resolve(import.meta.dirname, "..");
-const directory = process.argv.includes("--directory");
+const pwa = process.argv.includes("--pwa");
+const directory = pwa || process.argv.includes("--directory");
 const temporary = await mkdtemp(join(tmpdir(), "world-n80-export-"));
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 async function json(url) {
@@ -39,6 +42,9 @@ if (!browserPath) throw new Error("Install Chrome/Edge or set WORLD_STUDIO_BROWS
 const preview = spawn(process.execPath, [join(root, "node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", "5186", "--strictPort"], { cwd: join(root, "apps/editor"), stdio: "ignore", windowsHide: true });
 const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=9236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", "about:blank"], { stdio: "ignore", windowsHide: true });
 let client;
+let site;
+let siteUnavailable = false;
+let missingMedia = true;
 try {
   await json("http://127.0.0.1:9236/json/version");
   const response = await fetch("http://127.0.0.1:9236/json/new?http://127.0.0.1:5186/", { method: "PUT" });
@@ -84,8 +90,32 @@ try {
   }
   const output = join(unpacked, entry);
   await client.send("Network.enable");
+  let siteUrl;
+  if (pwa) {
+    site = createServer((request, response) => {
+      const url = new URL(request.url, 'http://localhost');
+      const path = decodeURIComponent(url.pathname.replace(/^\/games\/story\//, '')) || 'index.html';
+      if (siteUnavailable || (missingMedia && path.startsWith('media/')) || !files[path]) { response.writeHead(503); response.end('test deployment unavailable'); return; }
+      const mime = path.endsWith('.js') ? 'text/javascript' : path.endsWith('.css') ? 'text/css' : path.endsWith('.html') ? 'text/html' : path.endsWith('.svg') ? 'image/svg+xml' : path.endsWith('.webmanifest') ? 'application/manifest+json' : path.endsWith('.png') ? 'image/png' : 'application/octet-stream';
+      response.writeHead(200, { 'Content-Type': mime, 'Cache-Control': 'no-store' }); response.end(files[path]);
+    });
+    await new Promise(done => site.listen(0, '127.0.0.1', done));
+    siteUrl = `http://127.0.0.1:${site.address().port}/games/story/`;
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await client.send('Page.navigate', { url: siteUrl });
+    await client.wait("document.getElementById('offline-status')?.textContent.includes('尚未下载')");
+    assert.equal(await client.evaluate("navigator.serviceWorker.getRegistration('./').then(x=>Boolean(x))"), false);
+    await client.evaluate("document.getElementById('offline-panel').open=true");
+    await client.button('下载离线内容');
+    await client.wait("document.getElementById('offline-status').textContent.includes('失败')");
+    missingMedia = false;
+    await client.button('重试离线下载');
+    await client.wait("document.getElementById('offline-status').textContent.includes('离线内容已就绪')");
+    await client.wait('navigator.serviceWorker.controller');
+    siteUnavailable = true;
+  }
   await client.send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
-  await client.send("Page.navigate", { url: pathToFileURL(output).href });
+  await client.send("Page.navigate", { url: pwa ? siteUrl : pathToFileURL(output).href });
   await client.button("开始故事");
   await client.wait("document.querySelector('[aria-label=\"打开附加内容\"]:not(:disabled)')");
   const before = await client.evaluate("document.querySelector('main[data-player-status]').dataset.runtimeStateHash");
@@ -107,15 +137,44 @@ try {
   await pause(200);
   const overflow = await client.evaluate("Math.max(0,document.documentElement.scrollWidth-innerWidth)");
   assert.equal(overflow, 0); assert.deepEqual(client.errors, []);
+  let updateEvidence;
+  if (pwa) {
+    const range = await client.evaluate("(async()=>{const url=JSON.parse(document.getElementById('world-project').textContent).mediaAssets[0].url;const response=await fetch(url,{headers:{Range:'bytes=0-7'}});return {status:response.status,bytes:Array.from(new Uint8Array(await response.arrayBuffer()))};})()");
+    assert.equal(range.status, 206); assert.deepEqual(range.bytes, Array.from(Buffer.from(png.base64, 'base64').subarray(0, 8)));
+    siteUnavailable = false;
+    await client.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
+    // Simulate a second complete deployment, using the exported inventory format.
+    const previousWorker = Buffer.from(files['sw.js']).toString('utf8');
+    const inventory = JSON.parse(previousWorker.match(/^const inventory = (.*);$/m)[1]);
+    const nextPayload = { ...payload, project: { ...payload.project, manifest: { ...payload.project.manifest, title: '离线更新第二版' } } };
+    files['index.html'] = Buffer.from(artifact.html.replace(payloadText, JSON.stringify(nextPayload).replaceAll('<', '\\u003c')));
+    inventory['index.html'] = 'sha256:' + createHash('sha256').update(files['index.html']).digest('hex');
+    files['sw.js'] = Buffer.from(previousWorker.replace(/^const inventory = .*;$/m, `const inventory = ${JSON.stringify(inventory)};`).replace(/^const version = .*;$/m, 'const version = "browser-update-v2";'));
+    const oldState = await client.evaluate("document.querySelector('main[data-player-status]').dataset.runtimeStateHash");
+    await client.evaluate("document.getElementById('offline-panel').open=true");
+    await client.button('检查更新');
+    await client.wait("document.getElementById('offline-status').textContent.includes('新版已下载')");
+    assert.equal(await client.evaluate("document.querySelector('main[data-player-status]').dataset.runtimeStateHash"), oldState);
+    const installability = await client.send('Page.getInstallabilityErrors');
+    await client.send('Page.navigate', { url: 'about:blank' });
+    await pause(500);
+    siteUnavailable = true;
+    await client.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
+    await client.send('Page.navigate', { url: siteUrl });
+    await client.wait("document.getElementById('world-project') && JSON.parse(document.getElementById('world-project').textContent).project.manifest.title==='离线更新第二版'");
+    updateEvidence = { failedDownloadRecovered: true, offlineRange: 206, updatePreservedSession: true, newVersionAfterClose: true, installabilityErrors: installability.installabilityErrors };
+  }
   const evidence = { date: "2026-10-10", path: `production Editor → real PNG import → download ${directory ? 'ZIP → extract' : 'HTML'} → offline file URL → formal Player → extras → ending`, filename: artifact.name, bytes: downloaded.length, mediaCount: payload.mediaAssets.length, imageDimensions: dimensions, extrasPreservedState: true, reachedEnding: true, mobileOverflow: overflow, exceptions: client.errors };
   await mkdir(join(root, "evidence/n80"), { recursive: true });
-  await writeFile(join(root, `evidence/n80/formal-web-${directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (pwa) { evidence.path = 'production Editor ZIP → localhost subdirectory → failed download → retry → server unavailable + offline reload → ending → staged update → close → offline v2'; evidence.pwa = updateEvidence; }
+  await writeFile(join(root, `evidence/n80/formal-web-${pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));
   throw error;
 } finally {
   client?.socket.close(); browser.kill(); preview.kill();
+  site?.closeAllConnections(); site?.close();
   await pause(500);
   if (temporary.startsWith(join(tmpdir(), "world-n80-export-"))) await rm(temporary, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }
