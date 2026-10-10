@@ -29,7 +29,7 @@ export function StudioLauncher() {
   const [recent, setRecent] = useState<readonly RecentProject[]>([]);
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content"}|null>(null);
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
@@ -100,13 +100,14 @@ export function StudioLauncher() {
           compilers.current.set(session.reference.referenceId, compiled.compiler);
           setEditing((current) => current === null ? current : { ...current, session: compiled.session, compiler: compiled.compiler });
         }}
-        onOpenEditor={(project) => setEditing({ ...editing, session: { ...editing.session, project }, view: "content" })}
+        onOpenEditor={(project,sceneId) => setEditing({ ...editing, session: markProjectDirty(editing.session, project), view: "content", ...(sceneId===undefined?{sceneId:project.manifest.entrySceneId}:{sceneId}) })}
       />
     </>;
     return <>
       <button className="project-home-return" onClick={() => setEditing({ ...editing, view: "structure" })}>返回项目结构</button>
       <App
         initialProject={editing.session.project}
+        {...(editing.sceneId===undefined?{}:{initialSceneId:editing.sceneId})}
         {...(editing.compiler === null ? {} : { routeCompiler: editing.compiler })}
         onCanonicalProjectChange={(project) => setEditing((current) => current === null ? current : { ...current, session: markProjectDirty(current.session, project) })}
         onProjectChange={(story) => setEditing((current) => {

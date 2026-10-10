@@ -3602,6 +3602,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 
 export interface AppProps {
   readonly initialProject?: CanonicalProject;
+  readonly initialSceneId?: string;
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
@@ -3609,8 +3610,12 @@ export interface AppProps {
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
-  const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project));
+export function App({ initialProject, initialSceneId, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+  const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
+    const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
+    return initialSceneId !== undefined && created.project.scenes.some(scene=>scene.id===initialSceneId)
+      ? reduceStudioSession(created,{type:"select-scene",sceneId:initialSceneId}) : created;
+  });
   const [canonicalBase, setCanonicalBase] = useState<CanonicalProject>(() => initialProject ?? projectCanonicalFromStory(session.project, "n32-editor-preview"));
   const [assetIndex, setAssetIndex] = useState<AssetIndex>(createAssetIndex);
   const previewCanonicalProject = useMemo(

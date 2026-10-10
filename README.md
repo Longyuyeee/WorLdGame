@@ -3,7 +3,7 @@
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-10
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前阶段边界：N80-E1–E5 已有 Web 最小交付路径，N81-E1–E3 支持 Windows 便携游戏及图形打包窗口。作者完成依赖准备后双击根目录 build-windows-game.cmd，选择目录制作并点击“立即试玩”；玩家无需 Node.js 或选目录。发布 PNG 已接入游戏窗口图标，不是 exe 文件图标。当前仍复用 Web Player Profile；Windows 专属 Profile、作品 exe 品牌、Android、资源优化、完整发布与 M1 尚未完成。真人验收后置，玩家路线图仍在待办。
+> 当前重心：回归作者连续创作，编辑能力尚未全部完成。已补“新建场景→直接编辑所选场景”，下一步检查角色/变量与分支写作的实际阻碍。已有 Web/Windows 最小交付保留，打包/品牌/安装增强后置；Android、资源优化、完整发布与 M1 未完成，真人验收后置。最新顺序见 docs/289-user-centered-delivery-route.md 顶部路线纠偏。
 > 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

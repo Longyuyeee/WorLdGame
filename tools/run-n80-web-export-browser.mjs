@@ -10,6 +10,7 @@ import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 
 const root = resolve(import.meta.dirname, "..");
+const sceneWriting = process.argv.includes('--scene-writing');
 const pwa = process.argv.includes("--pwa");
 const localPreview = process.argv.includes("--local-preview");
 const publication = process.argv.includes("--publication");
@@ -74,7 +75,20 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  await client.button("打开示例工程"); await client.button("进入编辑器"); await client.button("进入内容编辑器");
+  await client.button("打开示例工程"); await client.button("进入编辑器");
+  if (sceneWriting) {
+    await client.evaluate("(()=>{const input=document.querySelector('[aria-label=新场景名称]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'作者新场景');input.dispatchEvent(new Event('input',{bubbles:true}));})()");
+    await client.button('新增场景');
+    await client.wait("document.querySelector('[aria-label=要编辑的场景]').selectedOptions[0].textContent.includes('作者新场景')");
+    await client.button('编辑所选场景');
+    await client.wait("document.querySelector('.scene-item.is-active')?.textContent.includes('作者新场景')");
+    await client.wait("document.querySelector('.local-save-button') && !document.querySelector('.local-save-button').disabled");
+    await client.evaluate("document.querySelector('.local-save-button').click()");
+    await client.wait("document.querySelector('.local-save-button').textContent.includes('已保存')");
+    await client.button('返回项目结构');
+    await client.wait("document.querySelector('[aria-label=作者新场景场景名称]')");
+  }
+  await client.button("进入内容编辑器");
   await client.wait("document.querySelector('[role=radio][aria-label=Production]') || Array.from(document.querySelectorAll('[role=radio]')).some(x=>x.textContent.trim()==='Production')");
   await client.evaluate("(document.querySelector('[role=radio][aria-label=Production]') || Array.from(document.querySelectorAll('[role=radio]')).find(x=>x.textContent.trim()==='Production')).click()");
   await client.button("打开资源生产流水线");
@@ -306,7 +320,8 @@ try {
   if (windowsPlayer) { evidence.path = 'production Editor ZIP → packaged Windows exe → quick save → process exit → moved game folder → restart → quick load → ending'; evidence.desktop = { runtimeBundled: true, saveAfterRestartAndMove: true, nativeFolderPicker: 'not exercised (--game)' }; }
   if (bundledPlayer) { evidence.path = 'production Editor ZIP → bundled Windows package → no --game auto-open → quick save → process exit → move whole package → restart without --game → quick load → ending'; evidence.desktop = { runtimeBundled: true, automaticBundledGame: true, saveAfterRestartAndMove: true, existingOutputProtected: true, missingMediaRejectedBeforeOutput: true, authorHelpersExcluded: true, nativeFolderPicker: 'not needed for bundled launch', changedStorySaveCompatibility: 'not tested', visibleWindow: 'not exercised (--test-hidden)' }; }
   if (packageUi) { evidence.path = 'production Editor ZIP → actual packaging UI → error and retry → build → click play → actual game starts → exit restores play button → packaged game save/move/restart/load/ending'; evidence.packagingUi = { invalidSourceRecovered: true, realBuilder: true, playButtonLaunchedGame: true, exitRestoredPlayButton: true, nativeWindowIcon: 'not visually verified', nativeFolderPicker: 'not exercised (typed paths)', explorerOpen: 'not exercised', cmdLauncher: 'not exercised' }; }
-  await writeFile(join(root, `evidence/n80/formal-web-${packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (sceneWriting) evidence.authoring = { createdSceneInStructure: true, selectedNewSceneAutomatically: true, openedTargetScene: true, savedInEditor: true, returnedToStructureWithScene: true };
+  await writeFile(join(root, `evidence/n80/formal-web-${sceneWriting ? 'scene-writing' : packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));
