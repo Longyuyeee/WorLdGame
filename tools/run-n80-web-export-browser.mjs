@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
 const branchTarget = process.argv.includes('--branch-target');
+const variableAuthor = process.argv.includes('--variable-author');
 const pwa = process.argv.includes("--pwa");
 const localPreview = process.argv.includes("--local-preview");
 const publication = process.argv.includes("--publication");
@@ -77,6 +78,14 @@ try {
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await client.button("打开示例工程"); await client.button("进入编辑器");
+  if (variableAuthor) {
+    for (const scope of ['story','scene']) {
+      for (const [label,value] of [['变量名称','好感度'],['变量类型','number'],['变量默认值','0'],['变量作用域',scope]]) {
+        await client.evaluate(`(()=>{const input=document.querySelector('[aria-label="${label}"]');Object.getOwnPropertyDescriptor(input.tagName==='SELECT'?HTMLSelectElement.prototype:HTMLInputElement.prototype,'value').set.call(input,${JSON.stringify(value)});input.dispatchEvent(new Event(input.tagName==='SELECT'?'change':'input',{bubbles:true}));})()`);
+      }
+      await client.button('新增变量');
+    }
+  }
   if (sceneWriting) {
     await client.evaluate("(()=>{const input=document.querySelector('[aria-label=新场景名称]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'作者新场景');input.dispatchEvent(new Event('input',{bubbles:true}));})()");
     await client.button('新增场景');
@@ -90,6 +99,22 @@ try {
     await client.wait("document.querySelector('[aria-label=作者新场景场景名称]')");
   }
   await client.button("进入内容编辑器");
+  if (variableAuthor) {
+    await client.wait("document.querySelector('[aria-label=\"插入 P0 语句类型\"]')");
+    await client.evaluate("(()=>{const select=document.querySelector('[aria-label=\"插入 P0 语句类型\"]');select.value='set';select.dispatchEvent(new Event('change',{bubbles:true}));})()");
+    await client.button('＋ 插入');
+    await client.wait("document.querySelector('.sequence-inspector select[name=variable]')");
+    const variable=await client.evaluate("(()=>{const s=document.querySelector('.sequence-inspector select[name=variable]');const o=[...s.options].find(x=>x.textContent.includes('好感度 · 数值 · 场景'));s.value=o.value;s.dispatchEvent(new Event('change',{bubbles:true}));return o.value;})()");
+    await client.evaluate("document.querySelector('.sequence-inspector input[name=expression]').value='1'");
+    await client.button('应用类型化参数');
+    await client.evaluate("Array.from(document.querySelectorAll('[role=tab]')).find(x=>x.textContent.trim()==='Script').click()");
+    await client.wait("document.querySelector('[aria-label=权威脚本编辑器]')");
+    assert.ok(await client.evaluate(`document.querySelector('[aria-label=权威脚本编辑器]').value.includes(${JSON.stringify(variable)})`));
+    await client.evaluate("Array.from(document.querySelectorAll('[role=tab]')).find(x=>x.textContent.trim()==='Sequence').click()");
+    await client.wait("!document.querySelector('.local-save-button').disabled");
+    await client.evaluate("document.querySelector('.local-save-button').click()");
+    await client.wait("document.querySelector('.local-save-button').textContent.includes('已保存')");
+  }
   if (branchTarget) {
     await client.button('选择选择：先去哪里调查？');
     await client.wait("document.querySelector('.sequence-inspector select[name^=\"target:\"]')");
@@ -340,7 +365,8 @@ try {
   if (packageUi) { evidence.path = 'production Editor ZIP → actual packaging UI → error and retry → build → click play → actual game starts → exit restores play button → packaged game save/move/restart/load/ending'; evidence.packagingUi = { invalidSourceRecovered: true, realBuilder: true, playButtonLaunchedGame: true, exitRestoredPlayButton: true, nativeWindowIcon: 'not visually verified', nativeFolderPicker: 'not exercised (typed paths)', explorerOpen: 'not exercised', cmdLauncher: 'not exercised' }; }
   if (sceneWriting) evidence.authoring = { createdSceneInStructure: true, selectedNewSceneAutomatically: true, openedTargetScene: true, savedInEditor: true, returnedToStructureWithScene: true };
   if (branchTarget) evidence.authoring = { namedBranchTargets: true, changedTargetInSequence: true, savedInEditor: true, exportedGameReachedEnding: true };
-  await writeFile(join(root, `evidence/n80/formal-web-${branchTarget ? 'branch-target' : sceneWriting ? 'scene-writing' : packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (variableAuthor) evidence.authoring = { createdTwoSameNameVariables: true, choseByTypeAndScope: true, stableIdInScript: true, savedInEditor: true, exportedGameReachedEnding: true };
+  await writeFile(join(root, `evidence/n80/formal-web-${variableAuthor ? 'variable-author' : branchTarget ? 'branch-target' : sceneWriting ? 'scene-writing' : packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));

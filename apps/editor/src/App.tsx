@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { variableOptionLabels } from './variable-option-labels';
 import {
   AssetBlobError,
   assetBackupRecordId,
@@ -994,6 +995,7 @@ interface SequenceViewProps extends CommonProps {
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
   readonly variableIds: readonly string[];
+  readonly variableNames: Readonly<Record<string,string>>;
   readonly requestedFocusStatementId: string | null;
   readonly onRequestedFocusHandled: () => void;
   readonly runtimeRouteTrace: RuntimeRouteTrace;
@@ -1697,8 +1699,8 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
-function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds,createCommandId,dispatch}:SequenceInspectorProps){
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds,variableNames,createCommandId,dispatch}:SequenceInspectorProps){
   if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
   const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),value=(name:string)=>String(data.get(name)??"").trim();let patch:Readonly<Record<string,unknown>>={};
     if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
@@ -1716,7 +1718,7 @@ function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds
     {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option)=><fieldset key={option.id}><legend>{option.id}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>目标稳定 ID</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></fieldset>)}</>}
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
     {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
-    {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
+    {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{Object.hasOwn(variableNames,id) ? variableNames[id] : `脚本变量（未声明） · ${id}`}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
     {statement.kind==="condition"&&<><label><span>条件表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
@@ -1732,6 +1734,7 @@ function SequenceView({
   onInputDirtyChange,
   assetIndex,
   variableIds,
+  variableNames,
   requestedFocusStatementId,
   onRequestedFocusHandled,
   runtimeRouteTrace
@@ -2388,7 +2391,7 @@ function SequenceView({
             createCommandId={createCommandId}
             dispatch={dispatch}
           />
-        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} createCommandId={createCommandId} dispatch={dispatch}/>}
+        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
           Sequence 不持有第二份剧情；每次编辑都通过稳定 ID Patch 写回权威 Script，再重新投影。
         </p>
@@ -3632,6 +3635,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
   const lifecycleHosted = initialProject !== undefined;
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
+  const canonicalVariableNames = useMemo(() => variableOptionLabels(initialProject?.variables.variables ?? []), [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
@@ -4963,7 +4967,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
