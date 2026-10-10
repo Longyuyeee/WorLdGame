@@ -13,7 +13,7 @@ export function atlasExportGroups(project: CanonicalProject): string[] {
 }
 export const setAtlasExportGroups = (project: CanonicalProject, groups: string[]): CanonicalProject => ({ ...project, manifest: { ...project.manifest, preservedFields: { ...project.manifest.preservedFields, atlasExportGroups: groups.slice(0, 8) } } });
 
-async function compatiblePng(asset: ExportMedia, publication: AssetDicingRuntimePublication): Promise<Uint8Array> {
+export async function compatiblePng(asset: ExportMedia, publication: AssetDicingRuntimePublication): Promise<Uint8Array> {
   if (asset.mimeType !== "image/png" || typeof OffscreenCanvas === "undefined" || typeof createImageBitmap !== "function") throw Error("仅支持具备 Canvas 能力的 PNG 兼容构建");
   // Animated sources cannot be represented by one reconstructed frame.
   const view = new DataView(asset.bytes.buffer, asset.bytes.byteOffset, asset.bytes.byteLength);

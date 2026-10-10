@@ -57,11 +57,12 @@ export async function createFormalWebArtifact(
   project = { ...project, manifest: { ...project.manifest, title: publication.name } };
   const delivery = await readExportMedia(project, reader);
   const mediaAssets = delivery.assets.map(({ bytes, digest: _digest, ...asset }) => {
+    if (delivery.nativeAssetIds.has(asset.assetId)) return { ...asset, url: "" };
     let binary = "";
     for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
     return { ...asset, url: `data:${asset.mimeType};base64,${btoa(binary)}` };
   });
-  const payload = JSON.stringify({ project, mediaAssets, optimizationReport: delivery.report }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
+  const payload = JSON.stringify({ project, mediaAssets, nativeAtlasGroups: delivery.nativeAtlasGroups, optimizationReport: delivery.report }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
   const title = htmlText(project.manifest.title);
   const icon = mediaAssets.find(asset => asset.assetId === publication.iconAssetId);
   if (icon) publicationIconSize(Uint8Array.from(atob(icon.url.split(',')[1]!), value => value.charCodeAt(0)));
@@ -86,11 +87,12 @@ export async function createFormalWebDirectoryArtifact(
   const assets = delivery.assets;
   files["optimization-report.json"] = encode(JSON.stringify(delivery.report, null, 2));
   const mediaAssets = assets.map(({ bytes, digest, ...asset }) => {
+    if (delivery.nativeAssetIds.has(asset.assetId)) return { ...asset, url: "" };
     const url = `media/${digest.slice(7)}.${extensions[asset.mimeType] ?? "bin"}`;
     files[url] = bytes;
     return { ...asset, url };
   });
-  const payload = JSON.stringify({ project, mediaAssets }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
+  const payload = JSON.stringify({ project, mediaAssets, nativeAtlasGroups: delivery.nativeAtlasGroups }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
   files["index.html"] = encode(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${htmlText(project.manifest.title)}</title><link rel="stylesheet" href="player.css"></head><body><div id="player-root">正在打开游戏…如果一直停留在这里，请先解压整个 ZIP，再打开 index.html，并确认 player.js 与它在同一文件夹。</div><script id="world-project" type="application/json">${payload}</script><script src="player.js"></script></body></html>`);
   files["player.js"] = encode(runtime.javascript);
   files["player.css"] = encode(runtime.css);
@@ -126,7 +128,7 @@ preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需�
 检查更新后若显示“新版已下载”，先保存进度，关闭所有此游戏窗口，再重新打开；不会强制重载正在玩的剧情。更新只处理游戏文件，不清空存档。离线缓存并非永久存储保证。
 站点发布请完整替换目录，最后发布 sw.js；不要将缺失文件返回为 index.html，建议 sw.js 使用 Cache-Control: no-cache。部分文件未上传完整时离线更新会失败，原版缓存保留，补齐文件后重试。
 
-素材导出策略：${delivery.report.mode === "atlas-compatible" ? "Atlas 兼容普通纹理（详见报告，不是原生图集渲染）" : delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录每个素材的实际字节与回退原因。源工程原素材不修改；关闭优化重新构建即可恢复。目录包避免 Base64 膨胀，但打包仍需要浏览器内存。build-info.json 记录工程标识、文件大小与摘要。
+素材导出策略：${delivery.report.mode === "native-atlas" ? "原生 Atlas Canvas 图块绘制，包含离线原图回退包" : delivery.report.mode === "atlas-compatible" ? "Atlas 兼容普通纹理（不是原生图集渲染）" : delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录素材/共享组成本与回退原因。源工程原素材不修改；恢复原素材导出后重新构建即可恢复。普通媒体使用目录文件；原生 Atlas 组内嵌于 index.html，成本已包含 Base64。打包与播放仍需要浏览器内存，不保证 GPU 内存收益。build-info.json 记录工程标识、文件大小与摘要。
 `);
   const archive = await new Promise<Uint8Array>((resolve, reject) => zip(files, { level: 0 }, (error, data) => error ? reject(error) : resolve(data)));
   return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest, optimizationReport: delivery.report };

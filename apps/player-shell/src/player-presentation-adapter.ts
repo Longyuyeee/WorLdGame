@@ -1,6 +1,8 @@
 import type { PlayerCoreEffectSnapshotV1, PlayerCoreSnapshotV1 } from "@world-studio/player-core";
+import type { NativeAtlasSource } from "./native-atlas";
 
 export interface PlayerMediaAssetSourceV1 {
+  readonly atlas?: NativeAtlasSource | undefined;
   readonly assetId: string;
   readonly displayName: string;
   readonly mimeType: string;
@@ -8,6 +10,7 @@ export interface PlayerMediaAssetSourceV1 {
 }
 
 export interface PlayerStageImageV1 {
+  readonly atlas?: NativeAtlasSource | undefined;
   readonly assetId: string;
   readonly displayName: string;
   readonly url: string;
@@ -128,7 +131,7 @@ export function derivePlayerStagePresentationV1(
         const asset = assets.get(assetId);
         if (asset === undefined || (!asset.mimeType.startsWith("image/") && !asset.mimeType.startsWith("video/"))) missing.add(assetId);
         else if (asset.mimeType.startsWith("video/")) video = { assetId, displayName: asset.displayName, url: asset.url, effectId: effect.effectId, awaited: false, status: "ended" };
-        else background = { assetId, displayName: asset.displayName, url: asset.url, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds), easing: easing(effect, policy.defaultEasing) };
+        else background = { assetId, displayName: asset.displayName, url: asset.url, atlas: asset.atlas, transition: text(effect, "transition") ?? "none", durationMilliseconds: duration(effect, policy.defaultDurationMilliseconds), easing: easing(effect, policy.defaultEasing) };
       }
     } else if (effect.kind.startsWith("show.") && currentAction !== "hide") {
       const assetId = text(effect, "asset");
@@ -136,6 +139,7 @@ export function derivePlayerStagePresentationV1(
       const asset = assets.get(assetId);
       if (asset === undefined || !asset.mimeType.startsWith("image/")) missing.add(assetId);
       else characters.push({
+        atlas: asset.atlas,
         assetId,
         displayName: asset.displayName,
         url: asset.url,

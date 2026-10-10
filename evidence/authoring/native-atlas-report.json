@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "mode": "native-atlas",
+  "sourceHash": "97db114cb2f45bfedaf13f1f9912b819dfbe020ce3be656d6f0cded552fa9d3f",
+  "rows": [
+    {
+      "assetId": "media_actor_sprite",
+      "name": "小夏（测试立绘）",
+      "originalDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+      "exportDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "media_sunset",
+      "name": "海边夕色（测试背景）",
+      "originalDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+      "exportDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "media_theme",
+      "name": "雨后旋律（测试音）",
+      "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "originalBytes": 1644,
+      "exportBytes": 1644,
+      "savedBytes": 0,
+      "verified": false,
+      "reason": "已选择原素材导出"
+    }
+  ],
+  "atlasGroups": [],
+  "nativeAtlasGroups": [
+    {
+      "groupId": "dicing-8ecb54b54d4b",
+      "adopted": true,
+      "detail": "原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+      "payloadBytes": 73124,
+      "pageRgbaBytes": 55488,
+      "fallbackRawBytes": 524976
+    }
+  ],
+  "uniqueOriginalBytes": 526620,
+  "uniqueExportBytes": 74768,
+  "limits": "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集/画布/读回预算 64 MiB，回退解压合计上限 32 MiB，不包含普通图片回退解码、JS/Blob/驱动开销，不是整个浏览器或实际 GPU 测量，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。"
+}

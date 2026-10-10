@@ -20,11 +20,11 @@ describe("Atlas export author controls", () => {
   it("shows missing migrated selections and permits opting out", async () => {
     let latest = setAtlasExportGroups(source(), ["missing"]);
     render(<AtlasExportSettings project={latest} onChange={p => { latest = p; }} disabled={false} reader={null} />);
-    expect(screen.getByText(/本机派生缺失/)).toBeVisible(); fireEvent.click(screen.getByRole("checkbox"));
+    expect(screen.getByText(/本机派生缺失/)).toBeVisible(); fireEvent.click(screen.getByRole("checkbox", { name: "Atlas 兼容导出组：missing" }));
     expect(latest.manifest.preservedFields?.atlasExportGroups).toEqual([]);
   });
   it("blocks changes and refresh while building or editing unpublished drafts", () => {
     render(<AtlasExportSettings project={setAtlasExportGroups(source(), ["group1"])} onChange={() => { throw Error("must remain disabled"); }} disabled reader={null} />);
-    expect(screen.getByRole("checkbox")).toBeDisabled(); expect(screen.getByRole("button")).toBeDisabled();
+    screen.getAllByRole("checkbox").forEach(checkbox => expect(checkbox).toBeDisabled()); expect(screen.getByRole("button")).toBeDisabled();
   });
 });

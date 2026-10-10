@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { NativeAtlasImage } from "./NativeAtlasImage";
 import {
   createGalSettingsApplicationV1,
   createGalSettingsDocument,
@@ -1205,7 +1206,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
-            <img
+            <NativeAtlasImage atlas={stage.background.atlas}
               key={`${mediaGeneration}:background:${stage.background.assetId}`}
               className={`player-stage-background player-transition--${stage.background.transition}`}
               src={stage.background.url}
@@ -1259,7 +1260,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <div className="player-scene-description" aria-label="场景描述">{stage.sceneDescription}</div>
           )}
           {stage.characters.map((character) => (
-            <img
+            <NativeAtlasImage atlas={character.atlas}
               key={`${mediaGeneration}:${character.slot}:${character.assetId}`}
               className={`player-stage-character player-transition--${character.transition}`}
               src={character.url}

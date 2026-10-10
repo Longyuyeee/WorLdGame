@@ -1,4 +1,5 @@
 import type { StoryStatement } from "@world-studio/story-core";
+import type { NativeAtlasSource } from "@world-studio/player-shell/native-atlas";
 import type { AssetIndex, AssetIndexEntry, BlobDigest } from "@world-studio/project-persistence";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
@@ -37,6 +38,7 @@ import {
 } from "@world-studio/story-language";
 
 export interface PreviewVisualLayerPlan {
+  readonly atlas?: NativeAtlasSource | undefined;
   readonly statementId: string;
   readonly assetId: string;
   readonly transition?: StageTransition;

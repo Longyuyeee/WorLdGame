@@ -1,0 +1,51 @@
+import { zlibSync } from "fflate";
+import { createBlobDigest, parseLosslessDicingPngDeliveryManifest } from "@world-studio/project-persistence";
+import type { CanonicalProject } from "@world-studio/project-domain";
+import type { NativeAtlasDelivery } from "@world-studio/player-shell/native-atlas";
+import { atlasExportGroups, compatiblePng, type AtlasExportReader } from "./atlas-export";
+import type { ExportMedia } from "./export-optimization";
+
+export const nativeAtlasEnabled = (project: CanonicalProject) => project.manifest.preservedFields?.nativeAtlasExport === true;
+export const setNativeAtlas = (project: CanonicalProject, enabled: boolean): CanonicalProject => ({ ...project, manifest: { ...project.manifest, preservedFields: { ...project.manifest.preservedFields, nativeAtlasExport: enabled } } });
+export function dataUrl(bytes: Uint8Array, mime = "application/octet-stream") {
+  let text = ""; for (let offset = 0; offset < bytes.length; offset += 8192) text += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
+  return `data:${mime};base64,${btoa(text)}`;
+}
+export async function buildNativeAtlasDelivery(project: CanonicalProject, assets: readonly ExportMedia[], reader: AtlasExportReader, verify = compatiblePng) {
+  const groups: NativeAtlasDelivery[] = [], adopted = new Set<string>(), rows: {groupId:string; adopted:boolean; detail:string; payloadBytes:number; pageRgbaBytes:number; fallbackRawBytes:number}[] = [];
+  let fallbackRawBytes = 0;
+  for (const groupId of nativeAtlasEnabled(project) ? atlasExportGroups(project) : []) {
+    try {
+      const publication = await reader.loadDicingRuntimePublication?.(groupId); if (!publication) throw Error("本机派生缺失，请重建；保留普通纹理");
+      const manifest = parseLosslessDicingPngDeliveryManifest(publication.deliveryManifestJson);
+      if (createBlobDigest(new TextEncoder().encode(publication.deliveryManifestJson)) !== publication.manifestDigest) throw Error("清单摘要错误");
+      if (publication.encodedPages.length !== manifest.pages.length || publication.encodedPages.reduce((n,page)=>n+page.bytes.length,0)>32*1024*1024) throw Error("图集页数量或编码预算错误");
+      for (const descriptor of manifest.pages) {
+        const page = publication.encodedPages.find(candidate => candidate.pageId === descriptor.pageId);
+        if (!page || page.bytes.length !== descriptor.encodedByteLength || createBlobDigest(page.bytes) !== descriptor.encodedDigest) throw Error("图集页缺失或摘要错误");
+      }
+      const ids = manifest.layoutManifest.images.map(image => image.assetId);
+      const selected = ids.map(id => assets.find(asset => asset.assetId === id));
+      const publicationSettings = project.manifest.preservedFields?.webPublication as { iconAssetId?: string } | undefined;
+      if (ids.length > 32 || ids.some(id => adopted.has(id) || id === publicationSettings?.iconAssetId) || selected.some(asset => !asset)) throw Error("组成员缺失、重叠或包含发布图标");
+      const sources = selected as ExportMedia[], rawBytes = sources.reduce((sum, asset) => sum + asset.bytes.length, 0);
+      if (fallbackRawBytes + rawBytes > 32 * 1024 * 1024 || manifest.pages.reduce((n,p)=>n+p.width*p.height,0)>8_388_608 || manifest.layoutManifest.images.some(image=>image.width*image.height>4_194_304)) throw Error("组/回退数据超出内存预算");
+      const minimumRenderBytes = manifest.pages.reduce((n,p)=>n+p.width*p.height*12,0) + Math.max(...manifest.layoutManifest.images.map(image=>image.width*image.height*8));
+      if (minimumRenderBytes > 64 * 1024 * 1024) throw Error("单图原生绘制已超出 64 MiB 预算，保留普通纹理");
+      for (const source of sources) await verify(source, publication);
+      const raw = new Uint8Array(rawBytes); let offset = 0;
+      const entries = sources.map(source => { const entry = {assetId:source.assetId,offset,length:source.bytes.length,digest:source.digest}; raw.set(source.bytes,offset); offset+=source.bytes.length; return entry; });
+      const compressed = zlibSync(raw,{level:9});
+      const group: NativeAtlasDelivery = {schemaVersion:1,groupId,manifest:publication.deliveryManifestJson,pages:publication.encodedPages.map(page=>({pageId:page.pageId,url:dataUrl(page.bytes,"image/png")})),fallback:{url:dataUrl(compressed),digest:createBlobDigest(compressed),rawBytes,entries}};
+      const payloadBytes = new TextEncoder().encode(JSON.stringify(group)).length;
+      const outsideDigests = new Set(assets.filter(asset=>!ids.includes(asset.assetId) && !adopted.has(asset.assetId)).map(asset=>asset.digest));
+      const removable = [...new Map(sources.filter(asset=>!outsideDigests.has(asset.digest)).map(asset=>[asset.digest,asset.bytes.length])).values()].reduce((a,b)=>a+b,0);
+      // Both formats carry reporting metadata; ZIP also has a separate report copy.
+      const reportAllowance = 1024 + sources.length * 1024;
+      if (payloadBytes + reportAllowance >= removable) throw Error("包括 Base64、原图回退包、清单和报告余量后无净收益；保留普通纹理");
+      groups.push(group); ids.forEach(id=>adopted.add(id)); fallbackRawBytes+=rawBytes;
+      rows.push({groupId,adopted:true,detail:"原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",payloadBytes,pageRgbaBytes:manifest.pages.reduce((n,p)=>n+p.width*p.height*4,0),fallbackRawBytes:rawBytes});
+    } catch(error) { rows.push({groupId,adopted:false,detail:error instanceof Error?error.message:"派生不可用",payloadBytes:0,pageRgbaBytes:0,fallbackRawBytes:0}); }
+  }
+  return {groups,adopted,rows};
+}

@@ -1,4 +1,38 @@
-# 当前开发情况：Atlas 普通纹理兼容交付与迁移回退贯通
+# 当前开发情况：原生 Atlas 已接入正式 Preview／Web Player
+
+## 最新审计：2026-10-11 原生 Atlas 交付、实际绘制与离线回退完整任务
+
+对齐 #11 §3.5、#89 最新接续，完成的不再只是 Atlas→PNG 构建重编码，而是既有派生发布→显式选择→实际 Preview/Player Canvas 图块绘制→正式 HTML/目录 ZIP→异常回退→原文件恢复→换机重建的整项作者任务。没有修改剧情解释器、资源稳定 ID 或原 Blob。此处“原生”指直接消费 Atlas 页和图块布局的 Canvas 2D 适配器，不指操作系统原生组件、WebGL 批处理、平台压缩或完整 Dicing P0。
+
+### 代码与交付事实
+
+- `native-atlas-export.ts` 消费已有发布清单，核对清单/页摘要、数量、当前源像素、成员和预算；图标、重叠组、失效源、无收益组回退。采用前计算包含 Base64 页、清单、zlib 普通纹理回退包的完整组序列化成本，并预留组 1 KiB + 每成员 1 KiB 报告成本；不是只比较 Atlas PNG。单张图必然超过原生 64 MiB 预算的组不会采用。原生模式不保证比 PNG-only 或兼容重编码更小。
+- `native-atlas.ts` 是 Editor/Player 共享的浏览器适配器（通过 player-shell 子路径引入），不将 DOM 放进 portable packages。交付描述 schemaVersion 1；启动时校验并解压普通纹理回退包，按成员摘要创建 Blob URL，支持附加页等既有普通图片入口。播放时按需解码共享页 Bitmap，校验编码/尺寸/标准化像素，裁取图块直接画入逐图 Canvas，再校验输出 RGBA。目录包原生组内嵌 index.html，不重复写独立源 PNG，已有 build-info/offline inventory 对实际文件计摘要。
+- 正式 Player 背景/角色和 Editor Canvas Preview 共用绘制层，保留原布局、运动与源 URL 回退。引用计数在最后使用者退出后关闭共享 Bitmap，释放输出画布；过期异步结果只清理自己拥有的画布，不破坏新组。pagehide（非 BFCache）卸载 Player 并释放普通纹理 URL；启动失败也释放。原生页/图块损坏、能力不足或预算不足时降级普通图片，普通回退自身损坏仍由既有媒体错误提示处理，不伪造成功。
+- 原生开关默认关闭，与组选择通过 Canonical 保存；设置变更使旧下载失效。恢复按钮同时清空 PNG/Atlas 组选/原生开关，重新导出原源文件。若同时启用 PNG 优化，普通回退字节可以是已无损优化的基础结果，不保证仍是原编码；关闭全部优化才能恢复原编码。编辑工程 ZIP 仍只携带源资产和选择，不夹带本机派生。
+- 修正构建顺序问题：Editor 引用 player-shell 类型后，Player 的 Vite 清理 dist 会删除 TypeScript 声明。Player 类型输出改到既有忽略规则覆盖的 `.typecheck`，生产 dist 继续清理；Player 构建→Editor 构建→根 typecheck 已实测通过。依赖边界/锁文件同步更新，无新 portable→UI 依赖。
+
+### 真实用户路径与质量审计
+
+生产 Editor UI 从 `rainy-promise-media.zip` 开始，替换两张确定性 256×256 未压缩 PNG（含全透明与半透明边缘），发布派生；通过角色参数 UI 设置 1.25 倍缩放、17° 旋转。开启前后 Preview Canvas 摘要一致；选择保存/重开不丢失；HTML/目录 ZIP 报告一致，未重复附带原生成员 PNG。源图修改触发整组失效；撤销、恢复原素材后字节完全一致。导出工程 ZIP，在脚本自己的隔离浏览器存储中模拟另一电脑，缺派生时回退；重新分析发布后原生构建恢复。原图仍在可编辑 ZIP 中。
+
+原版 HTML、原生 HTML、实际解压的目录 index.html、损坏图集版、禁用 createImageBitmap 版均到达同一海风结局，实际立绘 RGBA 一致、异常 0。原生运行时确认为 Canvas ready，而不是普通图片伪装成功；两种故障确认为 fallback。返回标题后原生缓存组和计账字节均归零。
+
+**采样纠偏：** 最初直接比较整张舞台截图不成立：恢复提示、存档控件/边框合成，以及浏览器 IMG 与 Canvas 的 CSS 采样都会造成差异。测试保留未经修改的完整 UI 截图；单独比较隐藏舞台 UI 后、内缩 40px 排除圆角外框的 1100×583 媒体区域，并用“普通源图绘入 Canvas”的诊断对照区分切块误差与浏览器元素采样。原生 HTML/目录与同 Canvas 对照逐像素差异 **0**；Preview 与内在源像素同样精确。两种普通图片回退与原版 IMG 对照截图摘要精确相同。IMG 与 Canvas 对照仍有 50,804 像素非零差异，RGBA 平均绝对差 0.04018/255、最大 87（采样边缘），不得写成所有 DOM 截图完全一致或全部设备视觉验收通过。诊断 Canvas 替换只在基准比较中临时执行并还原，不注入 React 私有状态，不冒充产品作者功能。
+
+实际测试资源总成本 526,620→74,768 B；其中共享组序列化 73,124 B（含原图回退），图集页 RGBA 55,488 B，回退解压 524,976 B。原版 HTML 1,195,658 B、原生 HTML 569,326 B、原生目录 ZIP 592,962 B。两张刻意未压缩、重复块较多的测试图不能代表真实美术收益，也不能声称此结果优于先前普通 PNG 兼容编码。
+
+正式播放器样例原生计账峰值 **1,215,040 B**：共享页 ×12 B/像素（Bitmap+临时画布+读回预算），每个输出 ×8 B/像素（Canvas+读回预算）。全局上限 64 MiB；启动回退解压合计另限 32 MiB。**不是实测进程/GPU 峰值，不包含普通图片回退解码、JS、Blob 和驱动开销。** 故障回退后原生计账为零不表示播放器实际内存为零。34 个并发使用者单测触发预算拒绝，最终全部释放；不夸大为全应用内存控制。
+
+### 验证、交接与下一整项
+
+相关 13 文件 **142 项**通过，独立 App **45 项**通过；最终原生三个测试文件 11 项再跑通过（包含在 142 项内，不重复累计）。资产性能 4 项、路线性能 9 项、7 Golden、workspaces 与 architecture 审计、根 typecheck、Editor 和 Player 生产构建通过。保留 Editor 大 chunk 警告，未在本机跑完整 `npm run check`。首次 npm 锁文件同步报告既有依赖审计 6 项（2 moderate/4 high）；本轮没有升级依赖版本或进行无关 audit fix，不声称依赖零风险。
+
+证据在 `evidence/authoring/native-atlas-workflow.json`、`native-atlas-report.json`、`native-atlas*.png` 和 `rainy-promise-native-atlas.zip`。截图已做代理视觉检查，不等于真人验收。换机：`npm ci` → `npm run build --workspace @world-studio/editor` → 配置本机 Chrome/Edge 路径 `WORLD_STUDIO_BROWSER_PATH` → `node tools/run-n80-web-export-browser.mjs --native-atlas-workflow`。本轮实际使用本机 Chromium headless，未冒充 Edge/Android/Windows exe 复验。已有 `.browser-diagnostic/` 保留且不提交。
+
+CI：前序头 `ec1a9be1bee1cb80b92b6a0efad7bde2d3d15728` 的 run `38076782332` 已核实 completed/success。本轮工作头须推送后独立核对，不继承前序成功。
+
+下一整项沿 #89：至少 30 张差分/透明图/不适合切块的背景，完成可取消与限并发的校验、跨语句复用/正确失效、快速切场景压力、真实打包/加载时间和进程内存对照，以及 Web/Windows 同作品复验。当前 Preview 在资源计划变化时可能重复派生验证，构建和 fallback 解压非流式，超大项目卡顿/总峰值、Mip/完整过滤矩阵、Android 派生与真机、真人产品验收均未关闭，不能宣布 N70/Dicing P0/M1 完成。
 
 ## 最新审计：2026-10-11 已发布 Atlas 的兼容交付完整任务
 

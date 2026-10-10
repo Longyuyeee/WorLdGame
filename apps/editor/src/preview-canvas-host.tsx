@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { acquireNativeAtlasImage, type NativeAtlasSource } from "@world-studio/player-shell/native-atlas";
 import {
   resolvePreviewCameraGeometry,
   resolvePreviewCharacterGeometry,
@@ -352,7 +353,15 @@ interface PreviewCanvasHostProps {
   readonly defaultEasing?: StageEasing;
 }
 
-function loadCanvasImage(url: string, signal: AbortSignal): Promise<PreviewCanvasImage> {
+async function loadCanvasImage(url: string, signal: AbortSignal, atlas?: NativeAtlasSource): Promise<PreviewCanvasImage> {
+  if (atlas) {
+    try {
+      const image = await acquireNativeAtlasImage(atlas);
+      if (signal.aborted) { image.release(); throw new DOMException("Cancelled", "AbortError"); }
+      signal.addEventListener("abort", image.release, {once:true});
+      return image;
+    } catch (error) { if (signal.aborted) throw error; }
+  }
   return new Promise((resolve, reject) => {
     const image = new Image();
     const finish = () => signal.removeEventListener("abort", abort);
@@ -420,6 +429,7 @@ export function PreviewCanvasHost({
     let previousBackgroundImage: PreviewCanvasImage | undefined;
     const draw = () => {
       if (controller.signal.aborted) return;
+      canvas.dataset.nativeAtlasLayers = String([backgroundImage, previousBackgroundImage, ...characterImages.values()].filter(image => image?.source instanceof HTMLCanvasElement && image.source.dataset.nativeAtlas === "ready").length);
       drawPreviewCanvasFrame(
         context,
         frame,
@@ -440,7 +450,7 @@ export function PreviewCanvasHost({
     draw();
     if (frame.background !== undefined) {
       const layer = frame.background;
-      imageTasks.push(loadCanvasImage(layer.url, controller.signal).then((image) => {
+      imageTasks.push(loadCanvasImage(layer.url, controller.signal, layer.atlas).then((image) => {
         backgroundImage = image;
         draw();
       }).catch((error: unknown) => {
@@ -451,7 +461,7 @@ export function PreviewCanvasHost({
     }
     if (frame.previousBackground !== undefined) {
       const layer = frame.previousBackground;
-      imageTasks.push(loadCanvasImage(layer.url, controller.signal).then((image) => {
+      imageTasks.push(loadCanvasImage(layer.url, controller.signal, layer.atlas).then((image) => {
         previousBackgroundImage = image;
         draw();
       }).catch((error: unknown) => {
@@ -461,7 +471,7 @@ export function PreviewCanvasHost({
       }));
     }
     for (const character of frame.characters) {
-      imageTasks.push(loadCanvasImage(character.url, controller.signal).then((image) => {
+      imageTasks.push(loadCanvasImage(character.url, controller.signal, character.atlas).then((image) => {
         characterImages.set(character.statementId, image);
         draw();
       }).catch((error: unknown) => {

@@ -4,13 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./native-atlas": "./src/native-atlas.ts"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@world-studio/project-persistence": "0.0.0-s0.35",
+    "fflate": "^0.8.3",
     "@world-studio/gal-settings": "0.1.0-n51",
     "@world-studio/player-core": "0.5.0-n52",
     "@world-studio/project-domain": "0.4.0-n13",

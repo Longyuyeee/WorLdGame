@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@world-studio/player-shell": "0.6.0-n52",
     "@world-studio/gal-settings": "0.1.0-n51",
     "@world-studio/project-compiler": "0.2.0-n30",
     "@world-studio/project-domain": "0.4.0-n13",
