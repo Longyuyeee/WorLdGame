@@ -732,7 +732,9 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
     expect(screen.getByText("Compiler 图事实")).toBeVisible();
     expect(screen.getByRole("button", { name: "路线场景：风中的天台 · scn_rooftop" })).toBeVisible();
-    expect(screen.getByText("去天台")).toBeVisible();
+    const routeLink = within(screen.getByLabelText("路线连接")).getByRole("button", { name: /^修改连接：去天台 · / });
+    expect(routeLink).toBeVisible();
+    expect(routeLink).toHaveTextContent("去天台");
   });
 
   it("shows the verified workspace Compiler cache result consumed by Route", () => {
