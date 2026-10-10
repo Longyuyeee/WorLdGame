@@ -105,9 +105,9 @@ export function restoreDebugQaFinding(project: CanonicalProject, findingId: stri
 
 export function storyQaCategoryForCode(code: string): StoryQaCategory {
   if (["MISSING_ENTRY_SCENE", "NO_REACHABLE_ENDING", "UNREACHABLE_SCENE", "UNREACHABLE_STATEMENT"].includes(code)) return "reachability";
-  if (code === "SCENE_NO_EXIT") return "exit";
+  if (code === "SCENE_NO_EXIT" || code === "CROSS_SCENE_NO_EXIT") return "exit";
   if (["MISSING_ASSET", "INVALID_ASSET"].includes(code)) return "resource";
-  if (code === "NON_INTERACTIVE_LOOP") return "loop";
+  if (code === "NON_INTERACTIVE_LOOP" || code === "CROSS_SCENE_CLOSED_CYCLE") return "loop";
   return "reference";
 }
 

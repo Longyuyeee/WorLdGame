@@ -10,6 +10,7 @@ import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import { runCreatorWritingWorkflow } from './creator-writing-workflow.mjs';
 import { runCreatorRoutePlanningWorkflow } from './creator-route-planning-workflow.mjs';
+import { runCreatorCrossSceneRepairWorkflow } from './creator-cross-scene-repair-workflow.mjs';
 import { runCreatorMediaWorkflow } from './creator-media-workflow.mjs';
 import { runCreatorConditionWorkflow } from './creator-condition-workflow.mjs';
 import { runCreatorRepairWorkflow } from './creator-repair-workflow.mjs';
@@ -83,7 +84,13 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--route-planning-workflow')) {
+  if(process.argv.includes('--cross-scene-repair-workflow')) {
+    const result=await runCreatorCrossSceneRepairWorkflow(client,root);
+    await writeFile(join(root,'evidence/authoring/rainy-promise-cross-scene-repaired.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/cross-scene-repair.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,'evidence/authoring/cross-scene-repair.png'),Buffer.from(result.screenshot,'base64'));
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else if(process.argv.includes('--route-planning-workflow')) {
     const result=await runCreatorRoutePlanningWorkflow(client,root);
     await writeFile(join(root,'evidence/authoring/rainy-promise-route-planned.zip'),Buffer.from(result.archive,'base64'));
     await writeFile(join(root,'evidence/authoring/route-planning.json'),JSON.stringify(result.evidence,null,2)+'\n');
