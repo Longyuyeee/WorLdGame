@@ -19,6 +19,22 @@ function renderRouteMap() {
   return { onProjectChange };
 }
 
+it("retargets to a scene outside the 64-node window while retaining the graph filter", () => {
+  const project = projectCanonicalFromStory(branchingStory(130), "route-target-search");
+  render(<App initialProject={project} />);
+  fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+  fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线图" }), { target: { value: "route_ui_000" } });
+  expect(screen.queryByRole("button", { name: "路线场景：Route UI Scene 129 · route_ui_129" })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
+  fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线目标" }), { target: { value: "Route UI Scene 129" } });
+  fireEvent.click(screen.getByRole("button", { name: "选择目标场景：Route UI Scene 129 · route_ui_129" }));
+  fireEvent.click(screen.getByRole("button", { name: "应用选择目标：To 1" }));
+  expect(screen.getByRole("button", { name: "定位场景目标：To 1 · route_ui_129" })).toBeEnabled();
+  expect(screen.getByRole("searchbox", { name: "搜索路线图" })).toHaveValue("route_ui_000");
+  fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+  expect(screen.getByRole("button", { name: "定位场景目标：To 1 · route_ui_001" })).toBeEnabled();
+});
+
 function branchingStory(sceneCount: number): StoryProject {
   const scenes = Array.from({ length: sceneCount }, (_, index) => {
     const id = `route_ui_${String(index).padStart(3, "0")}`;
@@ -338,11 +354,17 @@ describe("N40 Route Map product flow", () => {
 
     expect(screen.getByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · repair_goal" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
-    fireEvent.change(screen.getByRole("combobox", { name: "修改选择目标：前往目标" }), { target: { value: "repair_goal" } });
+    fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线目标" }), { target: { value: "Goal Ending" } });
+    fireEvent.click(screen.getByRole("button", { name: "选择目标场景：Goal Ending · repair_goal" }));
     fireEvent.click(screen.getByRole("button", { name: "应用选择目标：前往目标" }));
 
     expect(await screen.findByText(/路线目标已提交.*repair_detour→repair_goal/)).toBeVisible();
     expect(screen.queryByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · repair_goal" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "定位路线目标：前往目标 · repair_goal" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect(screen.getByRole("button", { name: "定位路线目标：前往目标 · repair_detour" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "重做" }));
     expect(screen.getByRole("button", { name: "定位路线目标：前往目标 · repair_goal" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));

@@ -1954,6 +1954,12 @@ body:has(.app-shell[data-settings-open="true"]) .project-home-return { display: 
 .author-task-navigation button:focus-visible { outline: 2px solid #b6aaff; outline-offset: 2px; }
 .author-task-navigation button:disabled { opacity: .5; cursor: not-allowed; }
 .author-technical-details > summary { cursor: pointer; padding: 12px; }
+
+.route-target-picker { display: grid; gap: 10px; min-width: 0; }
+.route-target-picker__results { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 6px; max-height: 300px; overflow-y: auto; }
+.route-target-picker__results button { display: grid; gap: 3px; min-height: 44px; text-align: left; padding: 8px; }
+.route-target-picker__results code { overflow-wrap: anywhere; }
+.route-target-picker__results button[aria-pressed="true"] { border-color: #b6aaff; background: rgb(139 124 255 / 20%); }
 .stage-timeline-transport > div { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: baseline; }
 .stage-timeline-transport > div span { color: #70dfd1; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
 .stage-timeline-transport > div strong { color: #d8fffa; font: 10px "IBM Plex Mono", Consolas, monospace; }
@@ -3266,7 +3272,7 @@ textarea[data-input-state="composing"] {
 .route-target-repair {
   flex: 1 0 100%;
   display: grid;
-  grid-template-columns: minmax(130px, .7fr) minmax(180px, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   align-items: end;
   padding: 8px;
@@ -3278,7 +3284,7 @@ textarea[data-input-state="composing"] {
 .route-target-repair label { min-width: 0; }
 .route-target-repair select,
 .route-target-repair input { width: 100%; }
-.route-target-repair button { min-height: 40px; }
+.route-target-repair button { min-height: 44px; }
 .route-target-repair small { grid-column: 1 / -1; }
 
 .route-edit-result {

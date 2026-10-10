@@ -1,6 +1,16 @@
 import type { StoryProject } from "@world-studio/story-core";
 import type { P0BatchOperation } from "@world-studio/story-language";
 
+export const ROUTE_TARGET_PAGE_SIZE = 24;
+
+export function searchRouteTargets(scenes: readonly { readonly id: string; readonly title: string }[], query: string, offset = 0) {
+  const needle = query.trim().toLocaleLowerCase();
+  const matches = scenes.filter((scene) => `${scene.title}\n${scene.id}`.toLocaleLowerCase().includes(needle));
+  const lastPage = Math.max(0, Math.floor((matches.length - 1) / ROUTE_TARGET_PAGE_SIZE) * ROUTE_TARGET_PAGE_SIZE);
+  const start = Math.min(lastPage, Math.max(0, Number.isFinite(offset) ? Math.floor(offset / ROUTE_TARGET_PAGE_SIZE) * ROUTE_TARGET_PAGE_SIZE : 0));
+  return { targets: matches.slice(start, start + ROUTE_TARGET_PAGE_SIZE), total: matches.length, start };
+}
+
 export type RouteChoiceRetargetErrorCode =
   | "SOURCE_SCENE_MISSING"
   | "TARGET_SCENE_MISSING"
@@ -45,7 +55,7 @@ export function planRouteChoiceRetarget(
   const source = project.scenes.find((scene) => scene.id === sourceSceneId);
   if (source === undefined) return { ok: false, code: "SOURCE_SCENE_MISSING", message: `Source scene does not exist: ${sourceSceneId}` };
   if (!project.scenes.some((scene) => scene.id === targetSceneId)) {
-    return { ok: false, code: "TARGET_SCENE_MISSING", message: `Target scene does not exist: ${targetSceneId}` };
+    return { ok: false, code: "TARGET_SCENE_MISSING", message: `目标场景不存在：${targetSceneId}。请按名称重新选择；原连接未改变。` };
   }
   for (const statement of source.statements) {
     if (statement.kind !== "choice") continue;
