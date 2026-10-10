@@ -51,7 +51,7 @@ describe("playable preview integration", () => {
     expect(screen.getByRole("button", { name: "退出试玩" })).toBeEnabled();
   }, 10_000);
 
-  it("builds and exposes a downloadable independent playable file", () => {
+  it("builds and exposes a downloadable independent playable file", async () => {
     const createObjectUrl = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:playable-web");
     const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     const view = render(<App />);
@@ -62,14 +62,15 @@ describe("playable preview integration", () => {
     expect(buildDisclosure).toHaveAttribute("open");
     fireEvent.click(screen.getByRole("button", { name: "构建试玩 HTML" }));
 
-    const download = screen.getByRole("link", { name: /下载 .* KiB/ });
-    expect(download).toHaveAttribute("download", "黄昏广播-playable.html");
+    expect(screen.getByRole("button", { name: "正在打包游戏和素材…" })).toBeDisabled();
+    const download = await screen.findByRole("link", { name: /下载 .* KiB/ }, { timeout: 10_000 });
+    expect(download).toHaveAttribute("download", "黄昏广播.html");
     expect(download).toHaveAttribute("href", "blob:playable-web");
     expect(createObjectUrl).toHaveBeenCalledWith(expect.objectContaining({ type: "text/html;charset=utf-8" }));
     view.unmount();
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:playable-web");
     vi.restoreAllMocks();
-  });
+  }, 15_000);
 
   it("starts the formal Runtime from the selected Scene and Statement", () => {
     render(<App />);

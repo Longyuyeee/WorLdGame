@@ -1,4 +1,8 @@
-# 当前开发情况审计（N62-E5 Engineering 已关闭）
+# 当前开发情况（N80-E1 正式 Web 导出优先）
+
+> 本步已实现：编辑器正式 Player 单文件导出，真实素材随包携带，离线本地打开、附加页往返与结局路径已通过；结果和下一切片见[路线 #289](289-user-centered-delivery-route.md#本步结果与接续)。下一步是目录分发与本地预览，再补 PWA。下方日期与“下一步”均属于历史记录，不是当前执行清单。
+
+> 2026-10-10：产品负责人明确批准[新路线 #289](289-user-centered-delivery-route.md)并要求继续开发。当前先实现用户从编辑器下载含真实素材的正式 Player 游戏；N62 玩家路线图后置，N62 总出口未关闭。`00655a9` 的 Windows run `35765332642` 已成功，无需重复等待。以下 2026-09-23 记录保留为历史证据，其中旧授权到期日不代表本次继续开发指令失效。
 
 > 审计日期：2026-09-23
 > 当前分支：`codex/n60-e1-debugger-session`；N62-E5 实现头为 `5f3f70c7cc081dbd331b7dc60c859f0d9b2dbb5a`
@@ -183,6 +187,8 @@ Draft PR #80 实现头 `afc095d` 的 Windows / Node 22 完整门 run `3293348591
 4. **完成即收束**：功能完成后只做需求对齐、必要回归、文档更新与推送；没有实际用户风险时，不追加新的审查层级。
 
 ## 6. 下一步顺序
+
+本节原顺序已由[新路线 #289](289-user-centered-delivery-route.md)取代；下面只保留历史交接记录，不能据此优先开发玩家路线图或再次请求 N80-E1 许可。
 
 1. 从 `origin/codex/n60-e1-debugger-session` 最新 tip 接续，先阅读[N62-E5 审计 #288](288-n62-e5-authored-catalog-presentation-audit.md)，并核验本地/远端 exact head 相同、工作区干净；
 2. N61 Engineering 与 N62-E1 已关闭，不重复增加本地化或摘要证明；N61 Product Acceptance 等 Windows/Android 正式 Host 和实体设备；

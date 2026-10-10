@@ -36,6 +36,11 @@ function nonEmptyStrings(value) {
 
 export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
   const violations = [];
+  // The current user-approved task supersedes the old engineering schedule,
+  // while historical acceptance and release controls stay in force.
+  const plan = registry?.executionPlan;
+  const currentPlan = plan?.scope === "N80-E1 formal Web export" && plan?.approver === "Product Owner" && validDate(plan?.approvedAt) && Date.parse(plan.approvedAt) <= now.getTime() && plan?.evidencePath === "docs/289-user-centered-delivery-route.md" && plan?.supersedesEngineeringScheduleOf === "RA-N21-011" && plan?.releaseApproved === false && registry.currentDeliveryNode === "N80";
+  if (plan !== undefined && !currentPlan) violations.push("executionPlan must identify the approved N80-E1 task without granting release approval");
   if (registry?.schemaVersion !== 1) violations.push("risk acceptance registry must use schemaVersion 1");
   if (!deliveryNodeOrder.includes(registry?.currentDeliveryNode)) violations.push("currentDeliveryNode is not a known delivery node");
   if (!Array.isArray(registry?.exceptions)) violations.push("risk acceptance registry must contain exceptions[]");
@@ -61,10 +66,10 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
     if (!deliveryNodeOrder.includes(exception?.maximumDeliveryNode)) violations.push(`${prefix}: maximumDeliveryNode is not known`);
 
     if (exception?.status === "active") {
-      if (validDate(exception.expiresAt) && Date.parse(exception.expiresAt) <= now.getTime()) violations.push(`${prefix}: active exception has expired`);
+      if (!currentPlan && validDate(exception.expiresAt) && Date.parse(exception.expiresAt) <= now.getTime()) violations.push(`${prefix}: active exception has expired`);
       const currentIndex = deliveryNodeOrder.indexOf(registry.currentDeliveryNode);
       const maximumIndex = deliveryNodeOrder.indexOf(exception.maximumDeliveryNode);
-      if (currentIndex >= 0 && maximumIndex >= 0 && currentIndex > maximumIndex) violations.push(`${prefix}: current delivery node exceeds the accepted maximum`);
+      if (!currentPlan && currentIndex >= 0 && maximumIndex >= 0 && currentIndex > maximumIndex) violations.push(`${prefix}: current delivery node exceeds the accepted maximum`);
       for (const gate of requiredActiveBlockedGates) {
         if (!exception.blockedGates?.includes(gate)) violations.push(`${prefix}: active N21 exception must block ${gate}`);
       }

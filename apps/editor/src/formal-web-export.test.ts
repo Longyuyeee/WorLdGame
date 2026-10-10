@@ -1,0 +1,25 @@
+import { describe, expect, it } from "vitest";
+import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
+import { createBlobDigest } from "@world-studio/project-persistence";
+import branching from "../../../fixtures/projects/branching/project.s0.json";
+import media from "../../../fixtures/projects/media/media-golden.json";
+import { createFormalWebArtifact } from "./formal-web-export";
+
+describe("formal Web game packaging", () => {
+  it("packages the exact Canonical and original media bytes without external URLs", async () => {
+    const project = loadProject(migrateS0Project(branching as S0Project).files);
+    const image = media.assets.find((asset) => asset.assetId === "media_sunset")!;
+    const bytes = Uint8Array.from(atob(image.base64), (value) => value.charCodeAt(0));
+    const digest = createBlobDigest(bytes);
+    const exported = { ...project, manifest: { ...project.manifest, title: "My game </script>" }, assets: { ...project.assets, assets: [{ assetId: image.assetId, kind: "cg", source: { digest, byteLength: bytes.length, mimeType: image.mimeType } }] } };
+    const artifact = await createFormalWebArtifact(exported, { read: async () => bytes }, { javascript: "window.started=true;", css: "body{margin:0}" });
+    const page = new DOMParser().parseFromString(artifact.html, "text/html");
+    const payload = JSON.parse(page.getElementById("world-project")!.textContent!);
+    expect(payload.project).toEqual(exported);
+    expect(payload.mediaAssets[0].url).toBe(`data:${image.mimeType};base64,${image.base64}`);
+    expect(page.querySelectorAll("script[src],link[href]")).toHaveLength(0);
+    expect(page.title).toBe(exported.manifest.title);
+    await expect(createFormalWebArtifact(exported, { read: async () => null }, { javascript: "", css: "" })).rejects.toThrow("重新导入后重试");
+    await expect(createFormalWebArtifact(exported, { read: async () => new Uint8Array([1]) }, { javascript: "", css: "" })).rejects.toThrow("缺失或不完整");
+  });
+});

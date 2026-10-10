@@ -1,8 +1,9 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+import { playerExportPlugin } from "./tools/player-export-bundle.mjs";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), playerExportPlugin()],
   test: {
     environment: "jsdom",
     include: ["apps/**/*.test.ts?(x)", "packages/**/*.test.ts?(x)"],

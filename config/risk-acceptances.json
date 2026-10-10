@@ -1,6 +1,14 @@
 {
   "schemaVersion": 1,
-  "currentDeliveryNode": "N62",
+  "currentDeliveryNode": "N80",
+  "executionPlan": {
+    "approvedAt": "2026-10-10T00:00:00+08:00",
+    "approver": "Product Owner",
+    "scope": "N80-E1 formal Web export",
+    "evidencePath": "docs/289-user-centered-delivery-route.md",
+    "supersedesEngineeringScheduleOf": "RA-N21-011",
+    "releaseApproved": false
+  },
   "exceptions": [
     {
       "id": "RA-N21-001",

@@ -59,6 +59,8 @@
 
 > N62-E1–E4 状态（2026-09-23）：E1/E2 已由[闭合审计 #284](284-n62-e1-production-browser-closure-and-e2-handoff.md)与[审计 #285](285-n62-e2-gallery-ending-content-audit.md)关闭；[E3 审计 #286](286-n62-e3-music-meta-player-audit.md)完成 Music 正式收录；[E4 审计 #287](287-n62-e4-isolated-scene-replay-audit.md)完成历史场景入口隔离 Runtime Session、正式 Host 重建、Save/Recovery 隔离和全部退出路径精确恢复。实现头 `f5229b5` 的 exact-head run `35757139172` 成功；作者覆盖、玩家 Route、AC-17/18/20 与 Product Acceptance 不提前通过。
 
+> 2026-10-10 纠偏：当前执行[用户任务优先路线 #289](289-user-centered-delivery-route.md)，先贯通 N80-E1 正式 Web 导出。N62-E5 作者展示覆盖已实现，表中旧的“覆盖配置仍缺”不再是现存缺口；N60 总出口、P0 QA 呈现与抑制均已完成，AC-05/06 的旧措辞不表示需要重复实现，Solver 保持 P1。所有三端与真人产品状态仍需相应实际结果。
+
 ## 1. 状态和证据规则
 
 状态只允许：`未开始`、`设计冻结`、`实现中`、`集成中`、`验收中`、`通过`。
@@ -83,10 +85,10 @@
 | USP-02 | Mobile First Editor | N91 | 未开始 | CL-02 契约 | AND-L/AND-R 完整创作任务 |
 | USP-03 | Narrative Intelligence | N30/N60 | 实现中 | N60 Engineering 已关闭：正式调试、Entry/Scene/Statement、状态与 Watch/变量来源、五类 P0 QA、stable source、故障/正常 Golden，以及有理由且可恢复的工程内诊断抑制已贯通。Product Acceptance 与 P1 Solver/覆盖率仍缺 | [N60-E6](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)、[N60-E4](271-n60-e4-p0-story-qa-product-closure-audit.md)、[N30-E2](124-n30-e2-compiler-completion-audit.md) |
 | USP-04 | Local First / No Lock-in | N10–N13 | 实现中 | IndexedDB 保存/恢复、备份，以及 Canonical 文档/Asset Index/源 Blob 的确定性 ZIP 自包含迁移与重载已通过 | 正式双端壳离线导入导出、Git diff、外部编辑与强杀恢复 |
-| USP-05 | Local Multi-platform Build | N80–N83 | 未开始 | 开发构建不计 | Windows 本地三端正式产物 |
+| USP-05 | Local Multi-platform Build | N80–N83 | 实现中 | N80-E1 已贯通编辑器下载正式 Player 单文件 HTML、真实源素材和离线运行；目录包/PWA、Windows/Android 尚缺 | [当前路线与实际结果 #289](289-user-centered-delivery-route.md)、Windows 本地三端正式产物 |
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | N43-E1–E4 建立统一上下文、Beginner/Pro、Motion 与输入/同步；E5–E7 依次开放 Production、Debug & QA 与 Mobile Focus，Engineering 真实任务达到 7/7。Utage 级本地化/配音批量列、真人与商业 Product 门仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
-| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；N62-E1–E3 已关闭四类摘要、Gallery/Ending 与 Music，E4 已关闭隔离 Replay Session 及所有退出路径的 Runtime/History/Host/播放策略恢复；作者覆盖配置和玩家自动 Route 仍缺 | [N62-E4 #287](287-n62-e4-isolated-scene-replay-audit.md)、覆盖配置/玩家 Route 与三端一致 |
+| USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；N62-E1–E5 已实现四类摘要、Gallery/Ending、Music、隔离 Replay 及作者展示覆盖；玩家自动 Route 与三端一致性仍缺 | [N62-E5 #288](288-n62-e5-authored-catalog-presentation-audit.md)、玩家 Route 与三端一致 |
 | USP-09 | Skip / History / Back | N31/N52 | 实现中 | N52 Engineering 已关闭：Auto/Skip、可选行 History、只读旧分支、Barrier 原因/距离和 Forward 项目策略已在 Web 玩家闭环；Windows/Android 正式宿主、实体设备、真人与 Product Acceptance 仍未完成 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、三端状态一致 |
 | USP-10 | Lossless Dicing | N72 | 集成中 | Web/Node 算法和重建测试 | 三端综合收益与无接缝 Golden |
 
@@ -129,7 +131,7 @@
 | AC-15 | Auto 和四种 Skip 正确 | N31/N52 | 实现中 | Web Engineering 已覆盖 Auto、Skip Read/All × Hold/Toggle、五档速度、作者 Stop Point、现有媒体、正式 video 与 390×844 cold production；Windows/Android、实体设备与真人未完成，不能登记产品通过 | [N52-E4f 出口](257-n52-e4f-mobile-cold-production-and-e4-exit-audit.md)、玩家输入向量和 State Hash |
 | AC-16 | 每句 Back/Forward 和分支截断 | N31/N52 | 实现中 | Web Engineering 已证明 State/Host 精确恢复、分支改选、旧分支只读查看、稳定 ID 选行回退、不可逆原因/距离、Forward true/false 与保存重开；Windows/Android 正式 Host、实体设备、真人和三端一致性仍缺 | [N52-E5e 总出口](265-n52-e5e-history-engineering-exit-reaudit.md)、三端玩家 History E2E |
 | AC-17 | 脚本自动生成创作者 Route | N40/N62 | 实现中 | N40 Engineering 已通过：E1–E8n 建立自动图、10k/64 窗口、缓存、Runtime 高亮、trusted Route-first、全局索引、narration 结构事务、topology 分页、结局审阅、诊断/目标导航及 Choice 修复闭环。N40 Product Acceptance 仍阻断，N62 玩家自动图未开始 | [N40-E1](153-n40-e1-route-graph-core-audit.md)–[N40-E7](163-n40-e7-runtime-route-highlight-audit.md)、[N40-E8a](164-n40-e8a-single-project-read-audit.md)–[N40-E8n](178-n40-e8n-route-repair-loop-audit.md)、[N40 出口复审](179-n40-engineering-exit-reaudit.md) |
-| AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；E1 摘要、E2 Gallery/Ending、E3 Music、E4 隔离 Replay 与退出恢复均已关闭。作者覆盖配置、玩家 Route 与三端证据仍缺 | [N62-E4 #287](287-n62-e4-isolated-scene-replay-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、覆盖配置/玩家 Route E2E |
+| AC-18 | 自动 Gallery/Replay/Music/Ending | N62 | 实现中 | Compiler 已生成四类 Catalog；E1–E5 包括作者覆盖配置均已实现。玩家 Route 与三端证据仍缺，不提前关闭 N62 | [N62-E5 #288](288-n62-e5-authored-catalog-presentation-audit.md)、[N31-E12](138-n31-e12-monotonic-meta-audit.md)、玩家 Route E2E |
 | AC-19 | Gal 配置中心覆盖 P0 | N51 | 实现中 | N51 Engineering 已关闭：36/23 字段、继承/撤销/预览、Canonical 保存、Editor/Player production Web 与 Profile 边界均有自动证据。AC-19 Product Acceptance 仍缺正式 Windows/Android Host、跨节点附加页/控制/本地化/构建及真人验证，不能登记通过 | [N51-E6a #230](230-n51-e6a-settings-schema-v2-migration-audit.md)–[N51-E6f #235](235-n51-e6f-engineering-exit-reaudit.md)、配置追踪全覆盖 |
 | AC-20 | 自动页和状态三端一致 | N62/N92 | 未开始 | AC-18、三端 Player | Catalog/Meta Hash 0 差异 |
 | AC-21 | Optimization 显示联合预算 | N71 | 未开始 | 真机/构建数据 | Center 报告 |
