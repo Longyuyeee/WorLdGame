@@ -10,7 +10,8 @@ import { createHash } from "node:crypto";
 
 const root = resolve(import.meta.dirname, "..");
 const pwa = process.argv.includes("--pwa");
-const directory = pwa || process.argv.includes("--directory");
+const localPreview = process.argv.includes("--local-preview");
+const directory = pwa || localPreview || process.argv.includes("--directory");
 const temporary = await mkdtemp(join(tmpdir(), "world-n80-export-"));
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 async function json(url) {
@@ -45,6 +46,8 @@ let client;
 let site;
 let siteUnavailable = false;
 let missingMedia = true;
+let localProcess;
+let localResult;
 try {
   await json("http://127.0.0.1:9236/json/version");
   const response = await fetch("http://127.0.0.1:9236/json/new?http://127.0.0.1:5186/", { method: "PUT" });
@@ -91,6 +94,40 @@ try {
   const output = join(unpacked, entry);
   await client.send("Network.enable");
   let siteUrl;
+  if (localPreview) {
+    site = createServer((_request, response) => response.end('occupied'));
+    await new Promise(done => site.listen(0, '127.0.0.1', done));
+    const occupiedPort = site.address().port;
+    const args = ['--no-open', `--port=${occupiedPort}`];
+    localProcess = process.platform === 'win32'
+      ? spawn(process.env.ComSpec ?? 'cmd.exe', ['/d', '/c', 'start-preview.cmd', ...args], { cwd: unpacked, stdio: 'pipe', windowsHide: true })
+      : spawn(process.execPath, [join(unpacked, 'preview.mjs'), ...args], { cwd: unpacked, stdio: 'pipe' });
+    let log = '';
+    localProcess.stdout.on('data', data => { log += data.toString(); });
+    localProcess.stderr.on('data', data => { log += data.toString(); });
+    localResult = new Promise(done => localProcess.once('exit', code => done(code)));
+    for (let attempt = 0; attempt < 100; attempt++) {
+      siteUrl = log.match(/http:\/\/127\.0\.0\.1:\d+\/game\/\S+/)?.[0];
+      if (siteUrl) break;
+      if (localProcess.exitCode !== null) throw new Error(log);
+      await pause(100);
+    }
+    assert.ok(siteUrl, log);
+    assert.notEqual(Number(new URL(siteUrl).port), occupiedPort);
+    const range = await fetch(new URL(payload.mediaAssets[0].url, siteUrl), { headers: { Range: 'bytes=0-7' } });
+    assert.equal(range.status, 206);
+    assert.deepEqual(Buffer.from(await range.arrayBuffer()), Buffer.from(png.base64, 'base64').subarray(0, 8));
+    await client.send('Network.setCacheDisabled', { cacheDisabled: true });
+    await client.send('Page.navigate', { url: siteUrl });
+    await client.wait("document.getElementById('offline-panel')");
+    await client.evaluate("document.getElementById('offline-panel').open=true");
+    await client.button('下载离线内容');
+    await client.wait("document.getElementById('offline-status').textContent.includes('离线内容已就绪')");
+    await client.wait('navigator.serviceWorker.controller');
+    localProcess.stdin.write('q\n');
+    assert.equal(await localResult, 0);
+    await assert.rejects(fetch(siteUrl));
+  }
   if (pwa) {
     site = createServer((request, response) => {
       const url = new URL(request.url, 'http://localhost');
@@ -115,7 +152,7 @@ try {
     siteUnavailable = true;
   }
   await client.send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
-  await client.send("Page.navigate", { url: pwa ? siteUrl : pathToFileURL(output).href });
+  await client.send("Page.navigate", { url: pwa || localPreview ? siteUrl : pathToFileURL(output).href });
   await client.button("开始故事");
   await client.wait("document.querySelector('[aria-label=\"打开附加内容\"]:not(:disabled)')");
   const before = await client.evaluate("document.querySelector('main[data-player-status]').dataset.runtimeStateHash");
@@ -167,7 +204,8 @@ try {
   const evidence = { date: "2026-10-10", path: `production Editor → real PNG import → download ${directory ? 'ZIP → extract' : 'HTML'} → offline file URL → formal Player → extras → ending`, filename: artifact.name, bytes: downloaded.length, mediaCount: payload.mediaAssets.length, imageDimensions: dimensions, extrasPreservedState: true, reachedEnding: true, mobileOverflow: overflow, exceptions: client.errors };
   await mkdir(join(root, "evidence/n80"), { recursive: true });
   if (pwa) { evidence.path = 'production Editor ZIP → localhost subdirectory → failed download → retry → server unavailable + offline reload → ending → staged update → close → offline v2'; evidence.pwa = updateEvidence; }
-  await writeFile(join(root, `evidence/n80/formal-web-${pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (localPreview) { evidence.path = 'production Editor ZIP → extract → shipped launcher → occupied port fallback → actual server Range → cache → q stops server → offline reload → ending'; evidence.localPreview = { launcher: process.platform === 'win32' ? 'start-preview.cmd' : 'preview.mjs', portFallback: true, gracefulStop: true, browserAutoOpen: 'not exercised (--no-open)' }; }
+  await writeFile(join(root, `evidence/n80/formal-web-${localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));
@@ -175,6 +213,7 @@ try {
 } finally {
   client?.socket.close(); browser.kill(); preview.kill();
   site?.closeAllConnections(); site?.close();
+  if (localProcess?.exitCode === null) localProcess.stdin.write('q\n');
   await pause(500);
   if (temporary.startsWith(join(tmpdir(), "world-n80-export-"))) await rm(temporary, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }

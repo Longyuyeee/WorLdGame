@@ -33,6 +33,9 @@ describe("formal Web game packaging", () => {
     expect(directoryPage.querySelector("script[src]")?.getAttribute("src")).toBe("player.js");
     expect(text("player.js")).toBe("window.started=true;");
     expect(text("使用说明.txt")).toContain("完整解压");
+    expect(text("使用说明.txt")).toContain("Node.js 22");
+    expect(text("start-preview.cmd")).toContain('node "%~dp0preview.mjs" %*');
+    expect(text("preview.mjs")).toContain("127.0.0.1");
     const info = JSON.parse(text("build-info.json"));
     expect(info.projectDigest).toBe(artifact.projectDigest);
     for (const file of info.files) expect(createBlobDigest(files[file.path]!)).toBe(file.digest);
@@ -42,6 +45,8 @@ describe("formal Web game packaging", () => {
     expect(manifest.start_url).toBe("./index.html");
     expect(manifest.scope).toBe("./");
     const inventory = JSON.parse(text("sw.js").match(/^const inventory = (.*);$/m)![1]!);
+    expect(inventory["preview.mjs"]).toBeUndefined();
+    expect(inventory["start-preview.cmd"]).toBeUndefined();
     for (const [path, digest] of Object.entries(inventory)) expect(createBlobDigest(files[path]!)).toBe(digest);
     expect(() => new Function(text("sw.js"))).not.toThrow();
     expect(() => new Function(text("offline.js"))).not.toThrow();

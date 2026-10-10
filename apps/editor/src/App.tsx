@@ -3570,6 +3570,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <button type="button" onClick={() => void preparePlayableWeb()} disabled={pendingDraft || inputDirty || webBuilding}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
         <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={pendingDraft || inputDirty || webBuilding}>构建目录 ZIP</button>
         <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>
+        <small>想检查网站离线功能？完整解压 ZIP 后，Windows 双击 start-preview.cmd 自动启动本地站点（需 Node.js 22+，无需安装项目依赖）；停止方法见启动窗口。</small>
         {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}
         {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
         {webBuildError && <p role="alert">{webBuildError}</p>}

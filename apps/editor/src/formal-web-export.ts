@@ -3,6 +3,7 @@ import { semanticHash, type CanonicalProject, type JsonObject } from "@world-stu
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
 import { addWebOfflineFiles } from "./web-offline-export";
+import previewServer from "./export-preview-server.mjs?raw";
 
 export interface FormalWebArtifact {
   readonly filename: string;
@@ -79,13 +80,21 @@ export async function createFormalWebDirectoryArtifact(
   files["player.css"] = encode(runtime.css);
   addWebOfflineFiles(files, project.manifest.title);
   const projectDigest = semanticHash(project);
-  files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
+  files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, projectId: project.manifest.projectId, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
+  files["preview.mjs"] = encode(previewServer);
+  files["start-preview.cmd"] = encode('@echo off\r\nchcp 65001 >nul\r\nwhere node >nul 2>nul\r\nif errorlevel 1 (\r\n  echo 请先安装 Node.js 22 或更高版本：https://nodejs.org/\r\n  echo 安装后重新双击 start-preview.cmd，无需 npm install。\r\n  pause\r\n  exit /b 1\r\n)\r\nnode "%~dp0preview.mjs" %*\r\nif errorlevel 1 pause\r\n');
   files["使用说明.txt"] = encode(`Web 游戏目录包
 
 本地试玩：
 1. 将 ZIP 完整解压到一个新文件夹，不要直接在压缩软件中打开游戏。
 2. 用 Chrome 或 Edge 打开 index.html，无需安装开发工具或联网。
 3. 保持 index.html、player.js、player.css 和 media 文件夹的相对位置不变。
+
+本地站点预览（检查网站/PWA 功能）：
+电脑需已安装 Node.js 22 或更高版本，无需 npm install。Windows 双击 start-preview.cmd，自动启动本机站点并打开浏览器；其他系统在解压目录运行 node preview.mjs。缺少 Node.js 时入口会显示安装提示；普通剧情试玩仍可直接打开 index.html。
+保持启动窗口打开，输入 q 后回车或按 Ctrl+C 停止。网址仅本机可访问，不能发给他人当作网站地址。默认端口 4178，被占用时自动尝试后续端口；端口改变会改变存档/离线缓存位置，需要连续使用时请关闭旧预览，保持原网址。
+更新预览时先保存并关闭旧游戏窗口、停止服务，将新包完整解压到新文件夹，再启动新包。不要混合两版文件；离线页面的更新仍按下方提示处理。
+preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需上传 build-info.json 中列出的游戏文件；启动器不属于离线缓存。
 
 分享和发布：
 分享整个 ZIP，不要只发送 index.html。也可以将解压后的全部文件上传到静态网站，访问该目录的 index.html。
