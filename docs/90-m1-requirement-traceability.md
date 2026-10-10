@@ -1,5 +1,7 @@
 # M1 需求与验收追踪矩阵
 
+> 2026-10-10 多视图作者任务（REQ-SEQ / REQ-SCRIPT / 调试与保存恢复）：全工程草稿提示、跨场景正式运行/构建阻断、QA 草稿回 Script、运行错误按诊断 Source Map 回到失败语句已接通。真实作品的 Sequence/Script/Stage/Flow 修改、撤销重做、错误草稿保存重开、调试历史、除零错误修复与最终结局通过；证据 `evidence/authoring/repair-workflow.json`、`repair-draft.png`、`rainy-promise-repaired.zip`。107 项相关回归、类型检查与 Editor 构建通过。不改变 Runtime/存档 schema，不关闭全部多视图 P0 或 M1。下一整体任务为素材引用故障恢复，权威顺序见 #89/#289 顶部。
+
 > 2026-10-10 最新整体验证（Gal #11 §2.7 / REQ-RUNTIME）：变量作用域已从声明接入 Compiler IR 1.2 与正式 Runtime，跨场景/跨章节、调用返回、重新开始、History/游戏读档规则明确。旧 IR 1.0/1.1 保持旧行为，新构建不承诺旧存档迁移。真实 UI 双路线、条件修改、保存刷新重开及正式导出游戏在结局/刷新后读档通过，证据 `evidence/authoring/variable-lifecycle.json`、`rainy-promise-lifecycle.zip`；12 文件 / 227 项相关回归、旧 Runtime 10k 语料、类型检查、Editor 构建通过。仅关闭本作品的基础生命周期任务，不关闭完整 REQ-RUNTIME、跨周目永久变量、Android 或 M1。下一阶段以 #89/#289 顶部的多视图修改与排错作者任务为准，以下“下一阶段变量生命周期”均为历史。
 
 > 2026-10-10 完整作者任务增量（PRD §3.2 / Gal §6.1）：场景内流程列表与源/目标定位、条件两路、汇合、调用续接和动态返回说明已交付，并在同一真实作品通过 Flow 修改→正式试玩→保存刷新重开。两路线共享嵌套调用后正常返回汇合，修改条件后结局互换；新证据 `evidence/authoring/condition-workflow.json`、`rainy-promise-conditions.zip`、`flow-conditions.png`。47 项相关测试和 Editor 构建通过。CDP 保留端口问题已解决，旧“待浏览器验证”不再代表本轮。仅关闭本作品基础作者闭环，不关闭完整 Route P0、自由局部画布、自动可行路径分析或 M1；下一阶段为跨场景/章节及存读档变量生命周期整体任务。

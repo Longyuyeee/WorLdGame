@@ -323,6 +323,11 @@ export function hasPendingDraft(session: StudioSession): boolean {
   return activeSourceDraft(session) !== activeSourceSession(session).committedSource;
 }
 
+export function pendingDraftSceneIds(session: StudioSession): readonly EntityId[] {
+  return Object.keys(session.sourceDrafts).filter((sceneId) =>
+    session.sourceSessions[sceneId] !== undefined && session.sourceDrafts[sceneId] !== session.sourceSessions[sceneId]!.committedSource);
+}
+
 function withActiveSource(
   session: StudioSession,
   sourceSession: ScriptSourceSession,

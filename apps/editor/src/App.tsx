@@ -89,6 +89,7 @@ import {
   createStudioSession,
   createStudioSessionFromCanonical,
   hasPendingDraft,
+  pendingDraftSceneIds,
   reduceStudioSession,
   restoreStudioSession,
   type StudioAction,
@@ -2915,6 +2916,7 @@ function useDevicePixelRatio(): number {
 }
 
 function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange }: PreviewPanelProps) {
+  const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
@@ -3026,7 +3028,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     setWebBuilding(false);
     setWebBuildError(null);
     return () => { webBuildGeneration.current += 1; };
-  }, [canonicalProject]);
+  }, [canonicalProject, projectRunBlocked]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -3185,24 +3187,28 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   };
 
   const beginPlayablePreview = () => {
+    if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setPlayable(startFormalPreview(canonicalProject));
   };
 
   const beginPlayablePreviewFromScene = () => {
+    if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setPlayable(startFormalPreviewFromScene(canonicalProject, session.activeSceneId));
   };
 
   const beginPlayablePreviewFromStatement = () => {
+    if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setPlayable(startFormalPreviewFromStatement(canonicalProject, session.activeSceneId, session.selectedStatementId));
   };
 
   const restartPlayablePreview = () => {
+    if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setPlayable(startFormalPreview(canonicalProject, playable.startTarget ?? { kind: "entry" }));
@@ -3214,6 +3220,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   };
 
   const preparePlayableWeb = async (directory = false) => {
+    if (projectRunBlocked) return;
     const generation = ++webBuildGeneration.current;
     setWebBuild(null);
     setWebBuildError(null);
@@ -3493,10 +3500,10 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           <small>{playableActive ? playableStatus : "Project Compiler → Runtime · 从入口执行到结局"}</small>
         </div>
         {!playableActive && (
-          <button type="button" onClick={beginPlayablePreview} disabled={pendingDraft || inputDirty}>试玩完整流程</button>
+          <button type="button" onClick={beginPlayablePreview} disabled={projectRunBlocked}>试玩完整流程</button>
         )}
         {(playable.status === "ended" || playable.status === "error") && (
-          <button type="button" onClick={restartPlayablePreview}>重新试玩</button>
+          <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>重新试玩</button>
         )}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
       </div>
@@ -3510,7 +3517,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={!previewObservation.history?.canForward} aria-label="Runtime 前进一步">Forward →</button>
           <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Continue</button>
           <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
-          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={pendingDraft || inputDirty}>Run to Cursor</button>
+          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={projectRunBlocked}>Run to Cursor</button>
         </div>
       )}
       {playableActive && (previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null || previewObservation.effectHost.operationCount > 0) && (
@@ -3558,7 +3565,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <p>当前试玩仍运行旧 IR，没有静默迁移或自动重启。</p>
               <ul>{hotUpdate.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
               <div className="runtime-hot-update__actions">
-                <button type="button" onClick={restartPlayablePreview}>以当前启动目标重启</button>
+                <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>以当前启动目标重启</button>
                 <button type="button" className="is-secondary" onClick={exitPlayablePreview}>退出试玩并保留编辑</button>
               </div>
             </>
@@ -3568,8 +3575,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       {!playableActive && (
         <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">
           <div><strong>Fresh Run</strong><small>变量恢复工程默认值 · 调用栈为空</small></div>
-          <button type="button" onClick={beginPlayablePreviewFromScene} disabled={pendingDraft || inputDirty}>从当前场景运行</button>
-          <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={pendingDraft || inputDirty}>从当前语句运行</button>
+          <button type="button" onClick={beginPlayablePreviewFromScene} disabled={projectRunBlocked}>从当前场景运行</button>
+          <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={projectRunBlocked}>从当前语句运行</button>
         </div>
       )}
       <details
@@ -3626,8 +3633,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       <div className="playable-web-export" aria-label="独立试玩导出">
         <div><strong>导出 Web 游戏</strong><small>包含当前工程、原始素材和正式播放器；下载后可独立打开。大型素材会增加文件大小。</small></div>
         <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationDirty} reader={assetRepository} />
-        <button type="button" onClick={() => void preparePlayableWeb()} disabled={pendingDraft || inputDirty || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
-        <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={pendingDraft || inputDirty || webBuilding || publicationDirty}>构建目录 ZIP</button>
+        <button type="button" onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
+        <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={projectRunBlocked || webBuilding || publicationDirty}>构建目录 ZIP</button>
         <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>
         <small>想检查网站离线功能？完整解压 ZIP 后，Windows 双击 start-preview.cmd 自动启动本地站点（需 Node.js 22+，无需安装项目依赖）；停止方法见启动窗口。</small>
         {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}
@@ -4956,6 +4963,12 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         onOpenSettings={() => setSettingsOpen((value) => !value)}
         dispatch={dispatch}
       />
+      {pendingDraftSceneIds(session).length > 0 && <section aria-label="待修复脚本草稿" className="diagnostic-card diagnostic-card--draft project-draft-notice">
+        <p>工程有 {pendingDraftSceneIds(session).length} 个未提交的脚本草稿。请先修复或丢弃，再运行、调试或构建游戏；本地保存会保留草稿，其他场景仍可编辑。</p>
+        {pendingDraftSceneIds(session).map((sceneId) => <button key={sceneId} type="button" disabled={inputDirty} onClick={() => {
+          dispatch({ type: "select-scene", sceneId }); setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script");
+        }}>修复草稿：{session.project.scenes.find((scene) => scene.id === sceneId)?.title ?? sceneId}</button>)}
+      </section>}
       <main className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
         {settingsOpen ? <>
           <SettingsWorkspace
@@ -4980,6 +4993,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         ) : workspaceMode === "debug-qa" ? (
           <DebugQaWorkspace
             project={previewCanonicalProject}
+            runBlocked={inputDirty || pendingDraftSceneIds(session).length > 0}
             diagnostics={session.diagnostics}
             selectedSceneId={session.activeSceneId}
             selectedStatementId={session.selectedStatementId}
@@ -4991,7 +5005,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
                 dispatch({ type: "select-project-result", sceneId, statementId });
               }
               setWorkspaceMode("writer");
-              setMode("sequence");
+              setMode(pendingDraftSceneIds(session).includes(sceneId) ? "script" : "sequence");
             }}
           />
         ) : workspaceMode === "mobile-focus" ? (

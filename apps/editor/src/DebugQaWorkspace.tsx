@@ -33,6 +33,7 @@ export interface DebuggerBreakpoint {
 }
 
 interface DebugQaWorkspaceProps {
+  readonly runBlocked?: boolean;
   readonly project: CanonicalProject;
   readonly diagnostics: Readonly<Record<string, readonly StudioDiagnostic[]>>;
   readonly selectedSceneId: string;
@@ -92,7 +93,7 @@ export function describeDebuggerStopReason(state: FormalPreviewState, breakpoint
   return { kind: "idle", title: "尚未启动", detail: "选择入口、当前场景或当前语句建立正式调试会话" };
 }
 
-export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onProjectChange, onOpenSource }: DebugQaWorkspaceProps) {
+export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onProjectChange, onOpenSource, runBlocked = false }: DebugQaWorkspaceProps) {
   const [report, setReport] = useState<DebugQaReport | null>(null);
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
   const [categoryFilter, setCategoryFilter] = useState<"all" | StoryQaCategory>("all");
@@ -128,6 +129,7 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
     : [...current, { sceneId, statementId, enabled: true }]);
   const continueDebugger = () => setDebuggerState((state) => continueFormalPreviewToBreakpoints(state, breakpoints.filter((item) => item.enabled)));
   const stopReason = describeDebuggerStopReason(debuggerState, breakpoints);
+  const runtimeFailure = debuggerState.diagnostics.find((item) => item.severity === "error" && item.sceneId !== null && item.statementId !== null);
   const watchResults = useMemo(() => watchExpressions.map((expression) => inspectFormalPreviewWatch(debuggerState, expression)), [debuggerState, watchExpressions]);
   const normalizedWatchDraft = watchDraft.trim();
   const addWatch = () => {
@@ -160,9 +162,9 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
           <p>直接运行当前 Canonical 工程；单步、历史与观察器共享正式 Runtime 状态，不建立第二套解释器。</p>
         </div>
         <div className="debugger-session__launchers">
-          <button type="button" onClick={() => setDebuggerState(startFormalPreview(project))}>从入口启动调试</button>
-          <button type="button" onClick={() => setDebuggerState(startFormalPreviewFromScene(project, selectedSceneId))}>从当前场景启动</button>
-          <button type="button" onClick={() => setDebuggerState(startFormalPreviewFromStatement(project, selectedSceneId, selectedStatementId))}>从当前语句启动</button>
+          <button type="button" disabled={runBlocked} onClick={() => setDebuggerState(startFormalPreview(project))}>从入口启动调试</button>
+          <button type="button" disabled={runBlocked} onClick={() => setDebuggerState(startFormalPreviewFromScene(project, selectedSceneId))}>从当前场景启动</button>
+          <button type="button" disabled={runBlocked} onClick={() => setDebuggerState(startFormalPreviewFromStatement(project, selectedSceneId, selectedStatementId))}>从当前语句启动</button>
           <button
             type="button"
             aria-pressed={breakpointMatchesSelection}
@@ -193,6 +195,7 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
       <section className="debugger-stop-reason" data-kind={stopReason.kind} data-testid="debugger-stop-reason" aria-live="polite">
         <span aria-hidden="true">{stopReason.kind === "error" ? "×" : stopReason.kind === "breakpoint" ? "●" : "◆"}</span>
         <div><small>停止原因</small><strong>{stopReason.title}</strong><p>{stopReason.detail}</p></div>
+        {stopReason.kind === "error" && runtimeFailure && <button type="button" onClick={() => onOpenSource(runtimeFailure.sceneId!, runtimeFailure.statementId!)}>修复运行错误</button>}
         {debuggerState.sceneId !== null && <button type="button" onClick={() => onOpenSource(debuggerState.sceneId!, debuggerState.statementId ?? undefined)}>返回当前源码</button>}
       </section>
 
