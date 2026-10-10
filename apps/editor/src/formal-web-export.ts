@@ -6,6 +6,7 @@ import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
 import { readWebPublication, applyWebPublication, publicationIconSize } from "./web-publication";
 import { optimizeExportMedia, type ExportOptimizationReport } from "./export-optimization";
+import type { AtlasExportReader } from "./atlas-export";
 
 export interface FormalWebArtifact {
   readonly optimizationReport: ExportOptimizationReport;
@@ -21,7 +22,7 @@ function htmlText(value: string): string {
 
 async function readExportMedia(
   project: CanonicalProject,
-  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> }
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader
 ) {
   const compilation = compileProject(project, "release");
   if (!compilation.ok) throw new Error(`请先修复工程问题：${compilation.diagnostics.filter((item) => item.severity === "error").map((item) => item.message).join("；")}`);
@@ -39,7 +40,7 @@ async function readExportMedia(
     }
     mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });
   }
-  return optimizeExportMedia(project, mediaAssets);
+  return optimizeExportMedia(project, mediaAssets, undefined, reader);
 }
 
 function exportStem(project: CanonicalProject): string {
@@ -48,7 +49,7 @@ function exportStem(project: CanonicalProject): string {
 
 export async function createFormalWebArtifact(
   project: CanonicalProject,
-  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
   runtime: { readonly javascript: string; readonly css: string }
 ): Promise<FormalWebArtifact> {
   applyWebPublication(project, readWebPublication(project));
@@ -72,7 +73,7 @@ export async function createFormalWebArtifact(
 
 export async function createFormalWebDirectoryArtifact(
   project: CanonicalProject,
-  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
   runtime: { readonly javascript: string; readonly css: string }
 ) {
   applyWebPublication(project, readWebPublication(project));
@@ -125,7 +126,7 @@ preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需�
 检查更新后若显示“新版已下载”，先保存进度，关闭所有此游戏窗口，再重新打开；不会强制重载正在玩的剧情。更新只处理游戏文件，不清空存档。离线缓存并非永久存储保证。
 站点发布请完整替换目录，最后发布 sw.js；不要将缺失文件返回为 index.html，建议 sw.js 使用 Cache-Control: no-cache。部分文件未上传完整时离线更新会失败，原版缓存保留，补齐文件后重试。
 
-素材导出策略：${delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录每个素材的实际字节与回退原因。源工程原素材不修改；关闭优化重新构建即可恢复。目录包避免 Base64 膨胀，但打包仍需要浏览器内存。build-info.json 记录工程标识、文件大小与摘要。
+素材导出策略：${delivery.report.mode === "atlas-compatible" ? "Atlas 兼容普通纹理（详见报告，不是原生图集渲染）" : delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录每个素材的实际字节与回退原因。源工程原素材不修改；关闭优化重新构建即可恢复。目录包避免 Base64 膨胀，但打包仍需要浏览器内存。build-info.json 记录工程标识、文件大小与摘要。
 `);
   const archive = await new Promise<Uint8Array>((resolve, reject) => zip(files, { level: 0 }, (error, data) => error ? reject(error) : resolve(data)));
   return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest, optimizationReport: delivery.report };

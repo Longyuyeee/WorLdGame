@@ -198,6 +198,8 @@ import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
 import { WebPublicationSettings } from "./web-publication";
 import { losslessExportEnabled, setLosslessExport } from "./export-optimization";
+import { AtlasExportSettings } from "./AtlasExportSettings";
+import { atlasExportGroups, setAtlasExportGroups } from "./atlas-export";
 import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
@@ -3697,8 +3699,10 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationDirty} reader={assetRepository} />
         <label><input type="checkbox" aria-label="安全 PNG 无损导出优化" checked={losslessExportEnabled(canonicalProject)} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => onPublicationChange(setLosslessExport(canonicalProject, event.target.checked))} />安全 PNG 无损导出优化（随工程保存）</label>
         <small>仅重压缩适用 PNG，逐字节验证数据；无收益或失败保留原文件。原素材不修改，不接入 Atlas，也不减少 GPU 内存。</small>
-        <button type="button" disabled={!losslessExportEnabled(canonicalProject) || projectRunBlocked || webBuilding || publicationDirty} onClick={() => onPublicationChange(setLosslessExport(canonicalProject, false))}>恢复原素材导出</button>
-        {webBuild && <details aria-label="资源优化交付报告"><summary>资源优化交付报告</summary><p>{webBuild.optimizationReport.mode === "lossless-png" ? "安全 PNG 优化" : "原素材导出"}：去重资源 {webBuild.optimizationReport.uniqueOriginalBytes} → {webBuild.optimizationReport.uniqueExportBytes} 字节；交付文件 {webBuild.byteLength} 字节。</p><p>{webBuild.optimizationReport.limits}</p><ul>{webBuild.optimizationReport.rows.slice(0, 20).map(row => <li key={row.assetId}>{row.name}：{row.originalBytes} → {row.exportBytes} 字节；{row.reason}</li>)}</ul><small>此处最多展示 20 个素材；完整报告包含在 HTML 或目录 ZIP 中。</small></details>}
+        <AtlasExportSettings project={canonicalProject} reader={assetRepository} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={onPublicationChange} />
+        <button type="button" disabled={(!losslessExportEnabled(canonicalProject) && atlasExportGroups(canonicalProject).length === 0) || projectRunBlocked || webBuilding || publicationDirty} onClick={() => onPublicationChange(setAtlasExportGroups(setLosslessExport(canonicalProject, false), []))}>恢复原素材导出</button>
+        {webBuild && webBuild.optimizationReport.atlasGroups.length > 0 && <details aria-label="Atlas 兼容交付报告"><summary>Atlas 兼容交付报告</summary>{webBuild.optimizationReport.atlasGroups.map(group => <p key={group.groupId}>{group.groupId}：{group.status === "adopted" ? "采用兼容普通纹理" : "保留当前素材"}；{group.reason}</p>)}</details>}
+{webBuild && <details aria-label="资源优化交付报告"><summary>资源优化交付报告</summary><p>{webBuild.optimizationReport.mode === "atlas-compatible" ? "Atlas 兼容普通纹理" : webBuild.optimizationReport.mode === "lossless-png" ? "安全 PNG 优化" : "原素材导出"}：去重资源 {webBuild.optimizationReport.uniqueOriginalBytes} → {webBuild.optimizationReport.uniqueExportBytes} 字节；交付文件 {webBuild.byteLength} 字节。</p><p>{webBuild.optimizationReport.limits}</p><ul>{webBuild.optimizationReport.rows.slice(0, 20).map(row => <li key={row.assetId}>{row.name}：{row.originalBytes} → {row.exportBytes} 字节；{row.reason}</li>)}</ul><small>此处最多展示 20 个素材；完整报告包含在 HTML 或目录 ZIP 中。</small></details>}
         <button type="button" onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
         <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={projectRunBlocked || webBuilding || publicationDirty}>构建目录 ZIP</button>
         <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>

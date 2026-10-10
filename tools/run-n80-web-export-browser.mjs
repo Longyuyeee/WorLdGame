@@ -85,7 +85,11 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--export-optimization-workflow')) {
+  if(process.argv.includes('--atlas-compatibility-workflow')) {
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true});
+    await writeFile(join(root,'evidence/authoring/atlas-compatibility-workflow.json'),JSON.stringify(evidence,null,2)+'\n');
+    console.log(JSON.stringify(evidence,null,2));
+  } else if(process.argv.includes('--export-optimization-workflow')) {
     const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary);
     await writeFile(join(root,'evidence/authoring/export-optimization-workflow.json'),JSON.stringify(evidence,null,2)+'\n');
     console.log(JSON.stringify(evidence,null,2));
