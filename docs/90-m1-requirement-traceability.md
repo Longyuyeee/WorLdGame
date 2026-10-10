@@ -1,5 +1,7 @@
 # M1 需求与验收追踪矩阵
 
+> 2026-10-10 Route 调用/返回增量：PRD §3.2 / Gal §6.1 的基本调用续接解释与定位已实现，return 进入图事实并明确动态返回语义。证据：`packages/route-graph/src/route-graph.test.ts`、`apps/editor/src/route-map-app.test.tsx`、`apps/editor/src/trusted-route-overview.test.ts` 合计 43 项通过；Editor 构建通过。覆盖末尾调用、续接定位、返回编辑、正式试玩返回主线及派生缓存往返。完整局部控制流、嵌套/多调用方分析和真实浏览器复测仍未完成。
+
 > 2026-10-10 Route 条件摘要增量：PRD §3.2 / Gal §6.1 的变量条件摘要与本地条件定位编辑已实现。证据：`packages/route-graph/src/route-graph.test.ts`、`apps/editor/src/route-map-app.test.tsx`、`apps/editor/src/trusted-route-overview.test.ts` 共 40 项通过，Editor 构建通过。包含括号/字符串保真、变量改名、修改条件后的 Flow 更新；没有浏览器新证据，不关闭完整 Route、多视图或 M1。
 
 > 2026-10-10 Route 增量（PRD §3.2 / Gal §6.1）：跨场景 jump/call/condition 投影、场景名及源语句编辑入口已实现，同名标签优先和 Choice 修复隔离有回归。证据为 `packages/route-graph/src/route-graph.test.ts` 与 `apps/editor/src/route-map-app.test.tsx`（合计 32 项通过），Editor 构建通过；界面集成覆盖改跳转、图更新、IndexedDB 保存加载及重开正式试玩。`tools/creator-condition-workflow.mjs` 已扩展 Flow 条件编辑断言，但本机 CDP 启动失败，浏览器路径仍待验证，旧 evidence 不代表本轮通过。完整 Route/多视图及 M1 状态不关闭；接续以计划 #89 顶部为准。

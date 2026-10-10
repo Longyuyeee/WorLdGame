@@ -2840,6 +2840,11 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         <label><span>所属分组</span><select aria-label="节点所属分组" value={selectedGroupId} onChange={(event)=>setSelectedGroupId(event.target.value)}><option value="">不分组</option>{graph.groups.map((group)=><option key={group.groupId} value={group.groupId}>{group.title}</option>)}</select></label>
         <div className="route-target-navigation" aria-label="控制流目标导航">
           <span>控制流目标</span>
+          {selected.facts.filter((fact) => fact.kind === "call" || fact.kind === "return").map((fact) => <div key={`call-${fact.id}`}>
+            <p>{fact.label}</p>
+            <button type="button" aria-label={`修改控制语句：${fact.id}`} onClick={() => onOpenSequence(selected.id, fact.id)}>修改{fact.kind === "call" ? "调用" : "返回"}</button>
+            {fact.continuationStatementId !== undefined && <button type="button" aria-label={`定位调用后续：${fact.id}`} onClick={() => onOpenSequence(selected.id, fact.continuationStatementId)}>查看返回后继续的位置</button>}
+          </div>)}
           {selected.facts.filter((fact) => fact.kind === "condition").map((fact) => <button type="button" key={`condition-${fact.id}`} aria-label={`修改条件：${fact.id}`} onClick={() => onOpenSequence(selected.id, fact.id)}>{fact.label} · 修改条件</button>)}
           {selected.facts.filter((fact)=>fact.targetLabel!==undefined).map((fact)=>{const target=selected.facts.find((candidate)=>candidate.kind==="label"&&candidate.label===fact.targetLabel);return <button type="button" key={fact.id} disabled={target===undefined} aria-label={`打开标签目标：${fact.targetLabel}`} onClick={()=>{if(target!==undefined)onOpenSequence(selected.id,target.id);}}>{fact.kind} → {fact.targetLabel}{target===undefined?" · 缺失":""}</button>;})}
           {selectedOutgoingEdges.map((edge)=><button type="button" key={edge.id} disabled={edge.status!=="valid"} aria-label={`定位场景目标：${edge.label} · ${edge.targetSceneId}`} onClick={()=>focusRouteScene(edge.targetSceneId)}>{edge.label} → {sceneTitles.get(edge.targetSceneId) ?? edge.targetSceneId}{edge.status==="dangling"?" · 悬空":""}</button>)}

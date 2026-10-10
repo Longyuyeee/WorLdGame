@@ -35,6 +35,24 @@ function routeProject(includeDangling = true): CanonicalProject {
 }
 
 describe("N40 route graph", () => {
+  it("projects call continuations and dynamic returns without inventing return edges", () => {
+    const base = routeProject(false);
+    const project = { ...base, scripts: { ...base.scripts,
+      route_entry: { ...base.scripts.route_entry!, statements: [
+        { id: "call_shared", kind: "call", targetLabel: "route_left" },
+        { id: "after_call", kind: "end", endingName: "继续主线" }
+      ] },
+      route_left: { ...base.scripts.route_left!, statements: [{ id: "return_shared", kind: "return" }] }
+    } };
+    const graph = buildRouteGraph(project);
+    expect(graph.nodes[0]?.facts[0]).toMatchObject({ kind: "call", continuationStatementId: "after_call" });
+    expect(graph.nodes[1]?.facts[0]).toMatchObject({ kind: "return", label: expect.stringContaining("最近一次调用") });
+    expect(graph.edges.map((edge) => edge.id)).toEqual(["call_shared"]);
+    const terminal = { ...project, scripts: { ...project.scripts, route_entry: { ...project.scripts.route_entry, statements: [project.scripts.route_entry.statements[0]!] } } };
+    const terminalFact = buildRouteGraph(terminal).nodes[0]?.facts[0];
+    expect(terminalFact?.continuationStatementId).toBeUndefined();
+    expect(terminalFact?.label).toContain("场景末尾");
+  });
   it("summarizes compiled conditions using variable names without rewriting literals or precedence", () => {
     const base = routeProject(false);
     const project = { ...base, variables: { ...base.variables, variables: [

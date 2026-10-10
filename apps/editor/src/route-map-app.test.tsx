@@ -115,6 +115,27 @@ function repairableRouteStory(): StoryProject {
 }
 
 describe("N40 Route Map product flow", () => {
+  it("locates the call continuation and plays a shared return back to the caller", () => {
+    const story: StoryProject = { ...labelNavigationStory(), scenes: [
+      { id: "label_scene", title: "主线", statements: [
+        { id: "call_shared", kind: "call", targetLabel: "shared_scene" },
+        { id: "after_call", kind: "end", endingName: "继续主线" }
+      ] },
+      { id: "shared_scene", title: "共同片段", statements: [{ id: "return_shared", kind: "return" }] }
+    ] };
+    render(<App initialProject={projectCanonicalFromStory(story, "call-continuation")} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("button", { name: "定位调用后续：call_shared" }));
+    expect(screen.getByRole("button", { name: /选择结局：.*继续主线/ })).toHaveFocus();
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("button", { name: "定位路线目标：调用 · shared_scene" }));
+    expect(screen.getByRole("button", { name: "修改控制语句：return_shared" })).toBeEnabled();
+    expect(screen.getByLabelText("控制流目标导航")).toHaveTextContent("没有调用记录时会报错");
+    fireEvent.click(screen.getByRole("button", { name: "修改控制语句：return_shared" }));
+    expect(screen.getByRole("button", { name: /选择返回：/ })).toHaveFocus();
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    expect(screen.getByText("流程完成：继续主线")).toBeVisible();
+  });
   it("shows a local condition and opens its source statement for editing", async () => {
     const base = projectCanonicalFromStory(labelNavigationStory(), "condition-summary");
     const project = { ...base, variables: { ...base.variables, variables: [{ id: "attended", name: "已经赴约", type: "boolean" as const, defaultValue: false, scope: "story" as const }] }, scripts: { ...base.scripts, label_scene: { ...base.scripts.label_scene!, statements: [

@@ -9,7 +9,7 @@ import {
 } from "@world-studio/project-domain";
 
 export type RouteNodeKind = "entry" | "scene" | "ending";
-export type RouteFactKind = "choice" | "label" | "jump" | "call" | "condition" | "ending";
+export type RouteFactKind = "choice" | "label" | "jump" | "call" | "return" | "condition" | "ending";
 
 export interface RouteChapterV1 {
   readonly id: string;
@@ -22,6 +22,7 @@ export interface RouteFactV1 {
   readonly kind: RouteFactKind;
   readonly label: string;
   readonly targetLabel?: string;
+  readonly continuationStatementId?: string;
 }
 
 export interface RouteSceneNodeV1 {
@@ -155,7 +156,7 @@ function expressionSummary(value: unknown, names: ReadonlyMap<string, string>): 
   return "表达式不可用";
 }
 
-function fact(instruction: RuntimeInstructionV1, names: ReadonlyMap<string, string>): RouteFactV1 | undefined {
+function fact(instruction: RuntimeInstructionV1, names: ReadonlyMap<string, string>, next?: RuntimeInstructionV1): RouteFactV1 | undefined {
   if (instruction.opcode === "choice") return { id: instruction.instructionId, kind: "choice", label: stringOperand(instruction, "prompt") ?? "未命名选择" };
   if (instruction.opcode === "label") return { id: instruction.instructionId, kind: "label", label: stringOperand(instruction, "name") ?? "未命名标签" };
   if (instruction.opcode === "jump" || instruction.opcode === "call" || instruction.opcode === "condition") {
@@ -163,10 +164,12 @@ function fact(instruction: RuntimeInstructionV1, names: ReadonlyMap<string, stri
     return {
       id: instruction.instructionId,
       kind: instruction.opcode,
-      label: instruction.opcode === "condition" ? `条件 ${expressionSummary(instruction.operands.expressionAst, names)}；不成立则继续下一步` : instruction.opcode === "jump" ? "跳转" : "调用",
+      label: instruction.opcode === "condition" ? `条件 ${expressionSummary(instruction.operands.expressionAst, names)}；不成立则继续下一步` : instruction.opcode === "jump" ? "跳转" : next === undefined ? "调用；返回位置在场景末尾，请补充后续语句" : `调用；执行返回后继续 ${next.instructionId}`,
+      ...(instruction.opcode === "call" && next !== undefined ? { continuationStatementId: next.instructionId } : {}),
       ...(targetLabel === undefined ? {} : { targetLabel })
     };
   }
+  if (instruction.opcode === "return") return { id: instruction.instructionId, kind: "return", label: "返回最近一次调用的下一步；没有调用记录时会报错" };
   if (instruction.opcode === "end") return { id: instruction.instructionId, kind: "ending", label: stringOperand(instruction, "name") ?? "未命名结局" };
   return undefined;
 }
@@ -216,7 +219,7 @@ export function buildRouteGraphFromCompilation(project: CanonicalProject, compil
   if (sceneOffset !== project.scenes.length) throw new Error("Route graph chapter topology does not match the project scenes");
   const nodes = project.scenes.map<RouteSceneNodeV1>((scene, sceneIndex) => {
     const instructions = compilation.cache.scenes[scene.id]?.scene.instructions ?? [];
-    const facts = instructions.flatMap((instruction) => fact(instruction, variableNames) ?? []);
+    const facts = instructions.flatMap((instruction, index) => fact(instruction, variableNames, instructions[index + 1]) ?? []);
     return {
       id: scene.id,
       title: scene.title,

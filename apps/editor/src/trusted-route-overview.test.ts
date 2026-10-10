@@ -65,6 +65,24 @@ function largeProject(sceneCount = 100): CanonicalProject {
 }
 
 describe("N40-E8e trusted Route-first overview", () => {
+  it("round trips return facts and call continuations in the derived overview", async () => {
+    const base = largeProject(1);
+    const sceneId = base.scenes[0]!.id;
+    const project = { ...base, scripts: { [sceneId]: { ...base.scripts[sceneId]!, statements: [
+      { id: "call_local", kind: "call", targetLabel: "shared" },
+      { id: "after_call", kind: "end", endingName: "完成" },
+      { id: "shared_label", kind: "label", name: "shared" },
+      { id: "return_local", kind: "return" }
+    ] } } };
+    const workspace = new RouteOverviewWorkspace(saveProject(project));
+    const version = (await workspace.readTrustedSourceCommit()).version;
+    await publishTrustedRouteOverview(workspace, project, compileProject(project), version);
+    const overview = await readTrustedRouteOverview(workspace);
+    expect(overview?.window.nodes[0]?.facts).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "call_local", continuationStatementId: "after_call" }),
+      expect.objectContaining({ id: "return_local", kind: "return" })
+    ]));
+  });
   it("opens a 64-node Route window without reading scripts, global documents, or the full project", async () => {
     const project = largeProject();
     const workspace = new RouteOverviewWorkspace(saveProject(project));
