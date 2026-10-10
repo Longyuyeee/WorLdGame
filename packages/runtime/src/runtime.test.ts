@@ -33,6 +33,24 @@ function select(state: RuntimeStateV1, optionId: string, inputId = "input-choice
 }
 
 describe("N31-E1 formal narrative runtime", () => {
+  it('executes cross-scene call/return, false fallthrough and conditional jumps', () => {
+    const main = program([
+      {instructionId:'call_other',opcode:'call',operands:{targetSceneId:'other'}},
+      {instructionId:'false_check',opcode:'condition',operands:{targetSceneId:'wrong',expressionAst:{kind:'literal',value:false}}},
+      {instructionId:'true_check',opcode:'condition',operands:{targetSceneId:'success',expressionAst:{kind:'literal',value:true}}}
+    ]);
+    const story: RuntimeStoryIrV1 = {...main, scenes:[...main.scenes,
+      {sceneId:'other',instructions:[{instructionId:'return_main',opcode:'return',operands:{}}]},
+      {sceneId:'success',instructions:[{instructionId:'jump_done',opcode:'jump',operands:{targetSceneId:'done'}}]},
+      {sceneId:'wrong',instructions:[{instructionId:'bad_end',opcode:'end',operands:{endingId:'bad_end',name:'Wrong'}}]},
+      {sceneId:'done',instructions:[{instructionId:'good_end',opcode:'end',operands:{endingId:'good_end',name:'Complete'}}]}
+    ]};
+    const result = runRuntime(story, start(story));
+    expect(result.diagnostics).toEqual([]);
+    expect(result.event).toMatchObject({kind:'ending',name:'Complete'});
+    expect(result.state.callStack).toEqual([]);
+  });
+
   it("uses the production evaluator for read-only debugger expressions without mutating variables", () => {
     const variables = { score: 2, label: "A" } as const;
     const expression = { kind: "binary", operator: "+", left: { kind: "identifier", name: "score" }, right: { kind: "literal", value: 1 } };

@@ -10,6 +10,7 @@ import { createServer } from "node:http";
 import { createHash } from "node:crypto";
 import { runCreatorWritingWorkflow } from './creator-writing-workflow.mjs';
 import { runCreatorMediaWorkflow } from './creator-media-workflow.mjs';
+import { runCreatorConditionWorkflow } from './creator-condition-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -79,7 +80,13 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--media-workflow')) {
+  if(process.argv.includes('--condition-workflow')) {
+    const result=await runCreatorConditionWorkflow(client,root);
+    await mkdir(join(root,'evidence/authoring'),{recursive:true});
+    await writeFile(join(root,'evidence/authoring/rainy-promise-conditions.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/condition-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else if(process.argv.includes('--media-workflow')) {
     const result=await runCreatorMediaWorkflow(client,root,temporary);
     await mkdir(join(root,'evidence/authoring'),{recursive:true});
     await writeFile(join(root,'evidence/authoring/rainy-promise-media.zip'),Buffer.from(result.archive,'base64'));

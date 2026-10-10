@@ -172,13 +172,16 @@ function stronglyConnectedComponents(edges: readonly ReadonlySet<number>[], reac
 function sceneDependencyHash(scene: SceneDocument, script: ScriptDocument | undefined, context: CompileContext): string {
   const statements = script?.statements ?? [];
   const speakerIds = uniqueSorted(statements.flatMap((statement) => stringField(statement, "speakerId") ?? []));
-  const targetSceneIds = uniqueSorted(statements.flatMap((statement) => !Array.isArray(statement.options) ? [] : statement.options.flatMap((option) => option !== null && !Array.isArray(option) && typeof option === "object" ? stringField(option, "targetSceneId") ?? [] : [])));
+  const targetSceneIds = uniqueSorted(statements.flatMap((statement) => [
+    ...(["jump", "call", "condition"].includes(String(statement.kind)) ? [stringField(statement, "targetLabel") ?? ""] : []),
+    ...(Array.isArray(statement.options) ? statement.options.flatMap((option) => option !== null && !Array.isArray(option) && typeof option === "object" ? stringField(option, "targetSceneId") ?? [] : []) : [])
+  ]));
   const assetIds = uniqueSorted(statements.flatMap((statement) => {
     const summary = stringField(statement, "summary"); const parameters = summary === undefined ? undefined : parseDirectiveParameters(summary);
     return parameters === undefined ? [] : [parameters.asset, parameters.transitionAsset].filter((value): value is string => typeof value === "string");
   }));
   const dependencies: JsonObject = {
-    compilerVersion: PROJECT_COMPILER_VERSION, irVersion: RUNTIME_IR_VERSION,
+    compilerVersion: PROJECT_COMPILER_VERSION, irVersion: RUNTIME_IR_VERSION, controlTargetResolution: "local-label-then-scene-v1",
     scene: scene as unknown as JsonValue, script: script === undefined ? null : script as unknown as JsonValue,
     speakers: speakerIds.map((id) => ({ id, exists: context.characterIds.has(id) })),
     targets: targetSceneIds.map((id) => ({ id, exists: context.sceneIds.has(id) })),
@@ -281,19 +284,19 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
         operands = { prompt, options: compiledOptions };
       }
     } else if (kind === "label") { const name = stringField(statement, "name"); if (name === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Label ${id} is malformed`, ctx)); else operands = { name }; }
-    else if (kind === "jump" || kind === "call") { const targetLabel = stringField(statement, "targetLabel"); if (targetLabel === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `${kind} ${id} is malformed`, ctx)); else { if (!labelsByName.has(targetLabel)) diagnostics.push(diagnostic("MISSING_LABEL", `${kind} references unknown label: ${targetLabel}`, { ...ctx, entityId: targetLabel })); operands = { targetLabel }; } }
+    else if (kind === "jump" || kind === "call") { const targetLabel = stringField(statement, "targetLabel"); if (targetLabel === undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `${kind} ${id} is malformed`, ctx)); else { if (!labelsByName.has(targetLabel) && !context.sceneIds.has(targetLabel)) diagnostics.push(diagnostic("MISSING_LABEL", `${kind} references unknown label or scene: ${targetLabel}`, { ...ctx, entityId: targetLabel })); operands = labelsByName.has(targetLabel) ? { targetLabel } : context.sceneIds.has(targetLabel) ? { targetSceneId: targetLabel } : { targetLabel }; } }
     else if (kind === "return") operands = {};
     else if (kind === "set" || kind === "condition") {
       const expression = stringField(statement, "expression"); const variableId = kind === "set" ? stringField(statement, "variable") : undefined; const targetLabel = kind === "condition" ? stringField(statement, "targetLabel") : undefined;
       if (expression === undefined || (kind === "set" && variableId === undefined) || (kind === "condition" && targetLabel === undefined)) diagnostics.push(diagnostic("INVALID_STATEMENT", `${kind} ${id} is malformed`, ctx));
       else {
         if (variableId !== undefined && context.variableTypes[variableId] === undefined) diagnostics.push(diagnostic("MISSING_VARIABLE", `Set references unknown variable: ${variableId}`, { ...ctx, entityId: variableId }));
-        if (targetLabel !== undefined && !labelsByName.has(targetLabel)) diagnostics.push(diagnostic("MISSING_LABEL", `Condition references unknown label: ${targetLabel}`, { ...ctx, entityId: targetLabel }));
+        if (targetLabel !== undefined && !labelsByName.has(targetLabel) && !context.sceneIds.has(targetLabel)) diagnostics.push(diagnostic("MISSING_LABEL", `Condition references unknown label or scene: ${targetLabel}`, { ...ctx, entityId: targetLabel }));
         const parsed = parseTypedExpression(expression, context.variableTypes);
         for (const issue of parsed.issues) diagnostics.push(diagnostic(issue.code === "TYPE_MISMATCH" ? "TYPE_MISMATCH" : issue.code === "UNKNOWN_VARIABLE" ? "MISSING_VARIABLE" : "INVALID_EXPRESSION", issue.message, ctx));
         if (kind === "set" && variableId !== undefined && parsed.valueType !== "unknown" && context.variableTypes[variableId] !== undefined && context.variableTypes[variableId] !== parsed.valueType) diagnostics.push(diagnostic("TYPE_MISMATCH", `Set expression type ${parsed.valueType} does not match ${context.variableTypes[variableId]}`, ctx));
         if (kind === "condition" && parsed.valueType !== "unknown" && parsed.valueType !== "boolean") diagnostics.push(diagnostic("TYPE_MISMATCH", "Condition expression must be boolean", ctx));
-        const expressionAst = parsed.root === null ? null : jsonClone(parsed.root as unknown as JsonValue); operands = kind === "set" ? { variableId: variableId!, expressionAst } : { targetLabel: targetLabel!, expressionAst };
+        const expressionAst = parsed.root === null ? null : jsonClone(parsed.root as unknown as JsonValue); operands = kind === "set" ? { variableId: variableId!, expressionAst } : !labelsByName.has(targetLabel!) && context.sceneIds.has(targetLabel!) ? { targetSceneId: targetLabel!, expressionAst } : { targetLabel: targetLabel!, expressionAst };
       }
     } else if (kind === "wait") { const duration = stringField(statement, "duration"); const durationMilliseconds = duration === undefined ? undefined : parseWaitMilliseconds(duration); if (durationMilliseconds === undefined) diagnostics.push(diagnostic("INVALID_WAIT_DURATION", `Wait ${id} has invalid duration: ${duration ?? "missing"}`, ctx)); else operands = { durationMilliseconds }; }
     else if (kind === "checkpoint") operands = { stepId: id };
@@ -303,14 +306,18 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
 
   const edges = controlFlowEdges(script.statements, labelIndexes); const reachable = reachableIndexes(edges);
   script.statements.forEach((statement, index) => { if (!reachable.has(index)) { const statementId = stringField(statement, "id"); diagnostics.push(diagnostic("UNREACHABLE_STATEMENT", `Statement is unreachable in scene ${scene.id}`, { sceneId: scene.id, ...(statementId === undefined ? {} : { statementId }) })); } });
-  const exits = [...reachable].filter((index) => ["choice", "return", "end"].includes(stringField(script.statements[index]!, "kind") ?? ""));
+  const sceneTarget = (statement: JsonObject): string | undefined => {
+    const target = stringField(statement, "targetLabel");
+    return ["jump", "call", "condition"].includes(String(statement.kind)) && target !== undefined && !labelsByName.has(target) && context.sceneIds.has(target) ? target : undefined;
+  };
+  const exits = [...reachable].filter((index) => ["choice", "return", "end"].includes(stringField(script.statements[index]!, "kind") ?? "") || sceneTarget(script.statements[index]!) !== undefined);
   if (exits.length === 0) diagnostics.push(diagnostic("SCENE_NO_EXIT", `Scene ${scene.id} has no reachable choice, return, or ending`, { sceneId: scene.id }));
   for (const component of stronglyConnectedComponents(edges, reachable)) {
     const members = new Set(component); const cycle = component.length > 1 || (component.length === 1 && edges[component[0]!]!.has(component[0]!));
-    const closed = component.every((index) => [...edges[index]!].every((target) => members.has(target))); const nonInteractive = component.every((index) => !interactiveKinds.has(stringField(script.statements[index]!, "kind") ?? ""));
+    const closed = component.every((index) => sceneTarget(script.statements[index]!) === undefined && [...edges[index]!].every((target) => members.has(target))); const nonInteractive = component.every((index) => !interactiveKinds.has(stringField(script.statements[index]!, "kind") ?? ""));
     if (cycle && closed && nonInteractive) { const statementId = stringField(script.statements[component[0]!]!, "id"); diagnostics.push(diagnostic("NON_INTERACTIVE_LOOP", `Scene ${scene.id} contains a closed loop with no interaction or ending`, { sceneId: scene.id, ...(statementId === undefined ? {} : { statementId }) })); }
   }
-  const targetSceneIds = uniqueSorted([...reachable].flatMap((index) => { const statement = script.statements[index]!; if (statement.kind !== "choice" || !Array.isArray(statement.options)) return []; return statement.options.flatMap((option) => option !== null && !Array.isArray(option) && typeof option === "object" && typeof option.targetSceneId === "string" && context.sceneIds.has(option.targetSceneId) ? [option.targetSceneId] : []); }));
+  const targetSceneIds = uniqueSorted([...reachable].flatMap((index) => { const statement = script.statements[index]!; const target = sceneTarget(statement); if (target !== undefined) return [target]; if (statement.kind !== "choice" || !Array.isArray(statement.options)) return []; return statement.options.flatMap((option) => option !== null && !Array.isArray(option) && typeof option === "object" && typeof option.targetSceneId === "string" && context.sceneIds.has(option.targetSceneId) ? [option.targetSceneId] : []); }));
   const endings = [...reachable].flatMap((index) => { const statement = script.statements[index]!; const endingId = stringField(statement, "id"); const name = stringField(statement, "endingName"); return statement.kind === "end" && endingId !== undefined && name !== undefined ? [{ endingId, name, sceneId: scene.id }] : []; });
   return finalizeCacheEntry({
     inputHash, scene: { sceneId: scene.id, instructions }, sourceEntries, diagnostics: sortDiagnostics(diagnostics), targetSceneIds,

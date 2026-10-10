@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { variableOptionLabels } from './variable-option-labels';
+import { ConditionExpressionFields } from './condition-expression-fields';
 import {
   AssetBlobError,
   assetBackupRecordId,
@@ -1721,7 +1722,7 @@ function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
     {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
     {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{Object.hasOwn(variableNames,id) ? variableNames[id] : `脚本变量（未声明） · ${id}`}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
-    {statement.kind==="condition"&&<><label><span>条件表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
+    {statement.kind==="condition"&&<><ConditionExpressionFields expression={statement.expression} variableIds={variableIds} variableNames={variableNames} disabled={disabled}/><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
     <button type="submit" disabled={disabled}>应用类型化参数</button><small>字段按 AST 类型提交，不解析卡片显示文本。</small>

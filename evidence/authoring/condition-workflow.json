@@ -1,0 +1,40 @@
+{
+  "title": "雨后的约定 · 条件剧情",
+  "sourceProject": "rainy-promise-media.zip",
+  "authoredThroughUi": true,
+  "initialRule": "variable_2dfaec55003346b9 >= 2",
+  "changedRule": "variable_2dfaec55003346b9 == 0",
+  "before": [
+    {
+      "route": "去海边",
+      "expectedValue": "2",
+      "actualValue": "2",
+      "expectedEnding": "新的约定结局",
+      "actualEnding": "新的约定结局"
+    },
+    {
+      "route": "去书店",
+      "expectedValue": "0",
+      "actualValue": "0",
+      "expectedEnding": "平常的告别",
+      "actualEnding": "平常的告别"
+    }
+  ],
+  "reopened": [
+    {
+      "route": "去海边",
+      "expectedValue": "2",
+      "actualValue": "2",
+      "expectedEnding": "平常的告别",
+      "actualEnding": "平常的告别"
+    },
+    {
+      "route": "去书店",
+      "expectedValue": "0",
+      "actualValue": "0",
+      "expectedEnding": "新的约定结局",
+      "actualEnding": "新的约定结局"
+    }
+  ],
+  "exceptions": []
+}

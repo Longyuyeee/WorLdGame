@@ -1,5 +1,7 @@
 # M1 需求与验收追踪矩阵
 
+> 2026-10-10 作者任务增量（REQ-SEQ / REQ-SCRIPT / REQ-RUNTIME）：选择赋值、跨场景汇合与条件结局的基础制作闭环通过。UI 可配置简单比较，Compiler 将本地标签或场景 ID 分别降为 `targetLabel` / `targetSceneId`，当前 Runtime 执行；两条真实路线在修改条件并保存重开后得到预期不同结局。证据 `evidence/authoring/condition-workflow.json`，接续工程 `rainy-promise-conditions.zip`；112 项定向回归和 Editor 构建通过。这不是上述需求全部完成，也不关闭 M1 或真人验收。当前执行顺序以计划 #89 顶部为准；以下治理/排期为历史追踪，不恢复旧的验证优先路线。
+
 > 生效日期：2026-08-13
 > 用途：本文件是 M1 功能状态的唯一权威。需求文档定义“要什么”，[产品落地计划](89-engine-product-delivery-plan.md)定义“怎样做”，本文件记录“做到哪里、证据在哪”。
 > 更新规则：实现、测试和证据必须在同一 PR 更新；没有证据路径时状态不得为“通过”。

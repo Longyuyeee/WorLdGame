@@ -383,6 +383,13 @@ function labelCursor(scene: RuntimeSceneV1, label: string): RuntimeCursorV1 | un
   return index < 0 ? undefined : { sceneId: scene.sceneId, instructionIndex: index };
 }
 
+function controlTarget(program: RuntimeProgramV1, scene: RuntimeSceneV1, instruction: RuntimeInstructionV1): RuntimeCursorV1 | undefined {
+  const targetSceneId = stringOperand(instruction, "targetSceneId");
+  if (targetSceneId !== undefined) return scenesById(program).has(targetSceneId) ? { sceneId: targetSceneId, instructionIndex: 0 } : undefined;
+  const targetLabel = stringOperand(instruction, "targetLabel");
+  return targetLabel === undefined ? undefined : labelCursor(scene, targetLabel);
+}
+
 type ExpressionNode =
   | { readonly kind: "literal"; readonly value: RuntimeScalar }
   | { readonly kind: "identifier"; readonly name: string }
@@ -635,7 +642,7 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
       return success(state, { kind: "choice", instructionId: instruction.instructionId, prompt, options: choices }, executed + 1);
     }
     if (instruction.opcode === "jump" || instruction.opcode === "call") {
-      const targetLabel = stringOperand(instruction, "targetLabel"), target = targetLabel === undefined ? undefined : labelCursor(scene, targetLabel);
+      const targetLabel = stringOperand(instruction, "targetLabel") ?? stringOperand(instruction, "targetSceneId"), target = controlTarget(program, scene, instruction);
       if (target === undefined) return failure(state, "RUNTIME_MISSING_LABEL", `Target label does not exist: ${targetLabel ?? "missing"}`, instruction, executed);
       if (instruction.opcode === "call" && state.callStack.length >= MAX_CALL_STACK_DEPTH) return failure(state, "RUNTIME_CALL_STACK_OVERFLOW", "Call stack depth exceeded", instruction, executed);
       state = { ...state, stateRevision: state.stateRevision + 1, cursor: target, callStack: instruction.opcode === "call" ? [...state.callStack, nextCursor(state.cursor)] : state.callStack };
@@ -660,7 +667,7 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
         continue;
       }
       if (typeof value !== "boolean") return failure(state, "RUNTIME_TYPE_MISMATCH", "Condition expression must produce boolean", instruction, executed);
-      const targetLabel = stringOperand(instruction, "targetLabel"), target = targetLabel === undefined ? undefined : labelCursor(scene, targetLabel);
+      const targetLabel = stringOperand(instruction, "targetLabel") ?? stringOperand(instruction, "targetSceneId"), target = controlTarget(program, scene, instruction);
       if (target === undefined) return failure(state, "RUNTIME_MISSING_LABEL", `Condition target label does not exist: ${targetLabel ?? "missing"}`, instruction, executed);
       state = { ...state, stateRevision: state.stateRevision + 1, cursor: value ? target : nextCursor(state.cursor) };
       continue;

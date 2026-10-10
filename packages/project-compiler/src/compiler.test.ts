@@ -27,6 +27,33 @@ function replaceScript(project: CanonicalProject, sceneId: string, statements: r
 }
 
 describe("project compiler N30-E1/E2", () => {
+  it('compiles scene control targets, tracks reachability and invalidates removed targets', () => {
+    const project = replaceScript(loadFixture('branching'), 'branch_start', [
+      {id:'check',kind:'condition',expression:'true',targetLabel:'branch_left'},
+      {id:'goto',kind:'jump',targetLabel:'branch_right'}
+    ]);
+    const result = compileProjectIncremental(project);
+    expect(result.ok).toBe(true);
+    expect(result.diagnostics.some(item=>item.code==='UNREACHABLE_SCENE' || item.code==='SCENE_NO_EXIT')).toBe(false);
+    if (!result.ok) return;
+    expect(result.artifacts.story.scenes.find(item=>item.sceneId==='branch_start')?.instructions.map(item=>item.operands)).toEqual([
+      {targetSceneId:'branch_left',expressionAst:{kind:'literal',value:true,valueType:'boolean',start:0,end:4}}, {targetSceneId:'branch_right'}
+    ]);
+    const removed = compileProjectIncremental({...project,scenes:project.scenes.filter(item=>item.id!=='branch_left')}, {previousCache:result.cache});
+    expect(removed.ok).toBe(false);
+    expect(removed.diagnostics).toContainEqual(expect.objectContaining({code:'MISSING_LABEL',entityId:'branch_left'}));
+  });
+
+  it('keeps local labels authoritative when their names match a scene ID', () => {
+    const result = compileProject(replaceScript(loadFixture('branching'), 'branch_start', [
+      {id:'goto',kind:'jump',targetLabel:'branch_left'},
+      {id:'local',kind:'label',name:'branch_left'},
+      {id:'done',kind:'end',endingName:'Local'}
+    ]));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.artifacts.story.scenes.find(item=>item.sceneId==='branch_start')?.instructions[0]?.operands).toEqual({targetLabel:'branch_left'});
+  });
+
   it.each(fixtureNames)("compiles the %s golden project deterministically", (name) => {
     const project = loadFixture(name);
     const first = compileProject(project, "debug");

@@ -5,6 +5,10 @@
 
 ## 当前阶段与下一阶段（2026-10-10）
 
+最新完成：同一作品的“选择 → 变量赋值 → 跨场景汇合 → 条件结局 → 修改 → 保存重开”基础路径。真实浏览器首次暴露 UI 可选场景但 Compiler/Runtime 只支持标签的问题，已补齐场景目标解析、执行、可达性和缓存依赖；不是用测试绕开报错。条件面板支持按名称配置比较并保留复杂表达式。两路线变量实际为 2/0，条件从 `>= 2` 改为 `== 0` 后，重开工程的两个结局正确互换。证据 `evidence/authoring/condition-workflow.json`；接续工程 `rainy-promise-conditions.zip`。112 项受影响回归及 Editor 构建通过；没有全仓审查或真人验收。
+
+下一阶段：作者在路线图看懂并持续修改完整分支作品，贯通 Flow 定位、Sequence 修改、试玩、保存重开；优先核对路线图对跳转/条件/汇合的展示。该阶段尚未实施；复杂变量生命周期、Android、多视图完整性、整体 UI 和 M1 仍未完成。以下素材/写作段落是历史阶段，其“下一阶段”已被这里及计划 #89 顶部取代。
+
 最新完成“同一作品的素材与演出”基础路径，权威顺序见开发计划 #89 顶部。用 `rainy-promise.zip` 经 UI 导入三种测试媒体，资源名称选择、兼容类型过滤、步骤前插入与 BGM 循环一起贯通；预览后改角色 X，保存重开恢复为 30，实际 Canvas 像素发生变化。成果 `evidence/authoring/rainy-promise-media.zip`、`media-preview.png`、`media-workflow.json`。
 
 真实问题与修复：预览 host 的 generation/planKey 在 loading→ready 时不变，Canvas effect 未依赖 status，只显示占位背景；新增 status/errorCount 更新依赖后重绘真实媒体。不是单纯修改测试阈值。脚本早于 DOM 就绪的文件输入、早于音频起播/入场动画结束的采样也做了有界等待，和产品问题分别记录。媒体实际解码、播放时间推进已测，未进行人工听音；小型 PNG/WAV 仅作功能样本。可重放 `node tools/run-n80-web-export-browser.mjs --media-workflow`，不依赖内存注入工程。
