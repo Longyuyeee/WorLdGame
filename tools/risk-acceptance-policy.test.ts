@@ -79,6 +79,7 @@ describe("risk acceptance policy", () => {
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, scope: "N80-E5 publication settings" } }), date)).toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N81", executionPlan: { ...executionPlan, scope: "N81-E1 Windows portable player" } }), date)).toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N81", executionPlan: { ...executionPlan, scope: "N81-E2 bundled Windows game" } }), date)).toEqual([]);
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N81", executionPlan: { ...executionPlan, scope: "N81-E3 graphical Windows packager" } }), date)).toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, releaseApproved: true } }), date)).not.toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N81", executionPlan }), date)).not.toEqual([]);
   });

@@ -1,6 +1,12 @@
-import { cp, mkdir, writeFile, rename, access, readFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
 import { resolve, join, dirname, sep } from 'node:path';
 import { createHash } from 'node:crypto';
+
+// Electron's patched fs interprets .asar archives as directories. Copy runtime
+// archives as ordinary files when the graphical packager runs this script.
+const { cp, mkdir, writeFile, rename, access, readFile } = process.versions.electron
+  ? createRequire(import.meta.url)('original-fs').promises
+  : await import('node:fs/promises');
 
 const root = resolve(import.meta.dirname, '..');
 const args = process.argv.slice(2);
@@ -8,9 +14,10 @@ const output = resolve(args.find(value => !value.startsWith('--')) ?? join(root,
 const gameArgument = args.find(value => value.startsWith('--game='))?.slice(7);
 if (args.some(value => value.startsWith('--') && !value.startsWith('--game=')) || gameArgument === '') throw new Error('用法：node tools/build-windows-player.mjs <新输出目录> [--game=<已解压的 Web 游戏目录>]');
 let game;
+console.log('正在检查游戏与输出目录…');
 if (gameArgument) {
   const source = resolve(gameArgument);
-  const info = JSON.parse(await readFile(join(source, 'build-info.json'), 'utf8'));
+  const info = await readFile(join(source, 'build-info.json'), 'utf8').then(JSON.parse).catch(() => { throw new Error('找不到有效的 build-info.json，请选择完整解压的 Web 游戏目录。'); });
   if (info.format !== 'world-web-directory' || typeof info.projectId !== 'string' || !info.projectId || !Array.isArray(info.files)) throw new Error('请选择编辑器导出的完整 Web 目录（含 build-info.json），不要选择 ZIP 或单文件 HTML。');
   const paths = new Set(info.files.map(file => file.path));
   for (const path of ['index.html', 'player.js', 'player.css']) if (!paths.has(path)) throw new Error('游戏缺少必要文件：' + path + '，请重新导出。');
@@ -28,6 +35,7 @@ catch (error) { if (error.code !== 'ENOENT') throw error; }
 const runtime = join(root, 'node_modules/electron/dist');
 await access(join(runtime, 'electron.exe'));
 await mkdir(output, { recursive: true });
+console.log('正在复制 Windows 播放器，请稍候…');
 await cp(runtime, output, { recursive: true });
 await rename(join(output, 'electron.exe'), join(output, 'WorLdPlayer.exe'));
 const application = join(output, 'resources/app');
@@ -35,6 +43,7 @@ await mkdir(application, { recursive: true });
 await cp(join(root, 'apps/windows-player/main.mjs'), join(application, 'main.mjs'));
 await writeFile(join(application, 'package.json'), JSON.stringify({ name: 'world-player', version: '0.1.0', main: 'main.mjs', type: 'module' }));
 if (game) {
+  console.log('正在打包游戏与素材…');
   const destination = join(application, 'game');
   await mkdir(destination, { recursive: true });
   for (const { path } of game.info.files) {

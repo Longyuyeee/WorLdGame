@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline'">
+<title>制作 Windows 游戏包 · WorLd</title>
+<style>
+body{margin:0;background:#f4f5f9;color:#222638;font:16px/1.6 system-ui}main{max-width:700px;margin:28px auto;padding:0 28px}h1{font-size:26px;margin-bottom:8px}p{color:#555d72}label{display:block;margin-top:18px;font-weight:600}.row{display:flex;gap:8px}input{flex:1;min-width:0;padding:10px;border:1px solid #aab0c1;border-radius:6px;font:inherit}button{padding:10px 16px;border:1px solid #9299ac;border-radius:6px;background:white;font:inherit;cursor:pointer}button:disabled{opacity:.55;cursor:default}#build{background:#493ab6;color:white;border:0}fieldset{border:0;padding:0;margin:0}.actions{display:flex;gap:12px;margin-top:22px}#status{white-space:pre-wrap;overflow-wrap:anywhere;background:white;padding:14px;border-radius:8px;border-left:4px solid #493ab6}.hint{font-size:14px}input:focus,button:focus{outline:3px solid #b7b0ed;outline-offset:2px}
+</style>
+<main>
+<h1>制作 Windows 游戏包</h1>
+<p>将已导出的游戏和播放器放在一起。玩家完整解压后，双击即可开始。</p>
+<form id="form"><fieldset id="fields">
+<label for="source">1. 已解压的 Web 游戏目录</label>
+<div class="row"><input id="source" required placeholder="包含 build-info.json 的文件夹"><button type="button" data-pick="source">选择游戏目录</button></div>
+<p class="hint">先在编辑器“构建与导出”下载目录 ZIP，再完整解压。不要选择 ZIP 文件。</p>
+<label for="parent">2. 保存到哪里</label>
+<div class="row"><input id="parent" required placeholder="选择存放便携包的位置"><button type="button" data-pick="parent">选择保存位置</button></div>
+<label for="name">3. 新建的游戏包文件夹名</label>
+<input id="name" required value="我的游戏-Windows" style="box-sizing:border-box;width:100%">
+<p class="hint">不会覆盖同名文件夹。更新时使用新名字，如“我的游戏-Windows-v2”。</p>
+<div class="actions"><button id="build" type="submit">制作游戏包</button></div>
+</fieldset></form>
+<p id="status" role="status" aria-live="polite">选择游戏目录和保存位置后开始。打包期间请勿修改源文件。</p>
+<button id="open" type="button" hidden>打开游戏包文件夹</button>
+<p class="hint">分发整个文件夹，不只是 exe。存档保存在玩家本机；更新前请保存并退出。此开发包未签名。</p>
+</main><script src="renderer.js"></script>
+</html>

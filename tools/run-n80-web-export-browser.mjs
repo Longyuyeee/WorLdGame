@@ -13,7 +13,8 @@ const root = resolve(import.meta.dirname, "..");
 const pwa = process.argv.includes("--pwa");
 const localPreview = process.argv.includes("--local-preview");
 const publication = process.argv.includes("--publication");
-const bundledPlayer = process.argv.includes("--bundled-player");
+const packageUi = process.argv.includes("--package-ui");
+const bundledPlayer = packageUi || process.argv.includes("--bundled-player");
 const windowsPlayer = bundledPlayer || process.argv.includes("--windows-player");
 const directory = windowsPlayer || pwa || localPreview || publication || process.argv.includes("--directory");
 const temporary = await mkdtemp(join(tmpdir(), "world-n80-export-"));
@@ -55,10 +56,10 @@ let localResult;
 let desktopProcess;
 let desktopExit;
 let portableDirectory;
-async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE) {
+async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE, extraArgs = []) {
   assert.ok(executable, 'Set WORLD_PLAYER_EXE to the packaged WorLdPlayer.exe');
   const environment = { ...process.env }; delete environment.ELECTRON_RUN_AS_NODE;
-  desktopProcess = spawn(executable, [...(gamePath ? [`--game=${gamePath}`] : []), `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', '--remote-debugging-port=9237'], { windowsHide: true, stdio: 'pipe', env: environment });
+  desktopProcess = spawn(executable, [...extraArgs, ...(gamePath ? [`--game=${gamePath}`] : []), `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', '--remote-debugging-port=9237'], { windowsHide: true, stdio: 'pipe', env: environment });
   desktopExit = new Promise(done => desktopProcess.once('exit', code => done(code)));
   let log = ''; desktopProcess.stderr.on('data', data => { log += data.toString(); }); desktopProcess.stdout.on('data', data => { log += data.toString(); });
   const tabs = await Promise.race([json('http://127.0.0.1:9237/json'), desktopExit.then(code => { throw new Error('Desktop exited ' + code + ': ' + log); })]);
@@ -193,7 +194,18 @@ try {
     client.socket.close(); client = undefined;
     if (bundledPlayer) {
       portableDirectory = join(temporary, '作品便携包');
-      await promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), portableDirectory, `--game=${unpacked}`], { windowsHide: true });
+      if (packageUi) {
+        await openDesktop(undefined, join(root, 'node_modules/electron/dist/electron.exe'), [join(root, 'tools/windows-package-ui/main.mjs')]);
+        await client.wait('document.getElementById("source")');
+        await client.evaluate(`document.getElementById('source').value=${JSON.stringify(temporary)};document.getElementById('parent').value=${JSON.stringify(temporary)};document.getElementById('name').value='作品便携包'`);
+        await client.button('制作游戏包');
+        await client.wait("document.getElementById('status').textContent.includes('找不到有效的 build-info.json') && !document.getElementById('fields').disabled");
+        await client.evaluate(`document.getElementById('source').value=${JSON.stringify(unpacked)}`);
+        await client.button('制作游戏包');
+        await client.wait("document.getElementById('status').textContent.includes('游戏包已完成') && !document.getElementById('open').hidden");
+        assert.deepEqual(client.errors, []);
+        void client.send('Browser.close'); await desktopExit; client.socket.close(); client = undefined;
+      } else await promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), portableDirectory, `--game=${unpacked}`], { windowsHide: true });
       await assert.rejects(access(join(portableDirectory, 'resources/app/game/preview.mjs')));
       await assert.rejects(promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), portableDirectory, `--game=${unpacked}`], { windowsHide: true }), /输出目录已存在/);
       // A broken author export must fail before creating a distributable-looking output.
@@ -278,7 +290,8 @@ try {
   if (publication) { evidence.path = 'production Editor → real 512 PNG import → publication edit + icon preview → apply → save → ZIP → name/version/icon → offline Player ending'; evidence.publication = { name: '星光旅程', version: '2.3.0', iconSize: 512, savedInEditor: true }; }
   if (windowsPlayer) { evidence.path = 'production Editor ZIP → packaged Windows exe → quick save → process exit → moved game folder → restart → quick load → ending'; evidence.desktop = { runtimeBundled: true, saveAfterRestartAndMove: true, nativeFolderPicker: 'not exercised (--game)' }; }
   if (bundledPlayer) { evidence.path = 'production Editor ZIP → bundled Windows package → no --game auto-open → quick save → process exit → move whole package → restart without --game → quick load → ending'; evidence.desktop = { runtimeBundled: true, automaticBundledGame: true, saveAfterRestartAndMove: true, existingOutputProtected: true, missingMediaRejectedBeforeOutput: true, authorHelpersExcluded: true, nativeFolderPicker: 'not needed for bundled launch', changedStorySaveCompatibility: 'not tested', visibleWindow: 'not exercised (--test-hidden)' }; }
-  await writeFile(join(root, `evidence/n80/formal-web-${bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (packageUi) { evidence.path = 'production Editor ZIP → actual Electron packaging UI → invalid source error → correct source and retry → build completed → packaged game → save → exit → move package → restart → load → ending'; evidence.packagingUi = { invalidSourceRecovered: true, realBuilder: true, nativeFolderPicker: 'not exercised (typed paths)', explorerOpen: 'not exercised', cmdLauncher: 'not exercised' }; }
+  await writeFile(join(root, `evidence/n80/formal-web-${packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));

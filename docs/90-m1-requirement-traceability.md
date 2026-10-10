@@ -85,7 +85,7 @@
 | USP-02 | Mobile First Editor | N91 | 未开始 | CL-02 契约 | AND-L/AND-R 完整创作任务 |
 | USP-03 | Narrative Intelligence | N30/N60 | 实现中 | N60 Engineering 已关闭：正式调试、Entry/Scene/Statement、状态与 Watch/变量来源、五类 P0 QA、stable source、故障/正常 Golden，以及有理由且可恢复的工程内诊断抑制已贯通。Product Acceptance 与 P1 Solver/覆盖率仍缺 | [N60-E6](273-n60-e6-diagnostic-suppression-and-engineering-exit-audit.md)、[N60-E4](271-n60-e4-p0-story-qa-product-closure-audit.md)、[N30-E2](124-n30-e2-compiler-completion-audit.md) |
 | USP-04 | Local First / No Lock-in | N10–N13 | 实现中 | IndexedDB 保存/恢复、备份，以及 Canonical 文档/Asset Index/源 Blob 的确定性 ZIP 自包含迁移与重载已通过 | 正式双端壳离线导入导出、Git diff、外部编辑与强杀恢复 |
-| USP-05 | Local Multi-platform Build | N80–N83 | 实现中 | N80-E1–E5 Web 路径与 N81-E1–E2 Windows 便携/一作品一包已实现，玩家无需 Node 或选目录；作者仍需打包命令，Windows 专属 Profile、作品 exe 品牌、安装签名及 Android 尚缺 | [当前路线与实际结果 #289](289-user-centered-delivery-route.md)、Windows 本地三端正式产物 |
+| USP-05 | Local Multi-platform Build | N80–N83 | 实现中 | N80-E1–E5 Web 路径与 N81-E1–E3 Windows 便携/图形打包窗口已实现，玩家无需 Node 或选目录；作者仍需仓库与依赖准备，Windows 专属 Profile、作品 exe 品牌、安装签名及 Android 尚缺 | [当前路线与实际结果 #289](289-user-centered-delivery-route.md)、Windows 本地三端正式产物 |
 | USP-06 | Professional Studio | N41–N43/N100 | 实现中 | N43-E1–E4 建立统一上下文、Beginner/Pro、Motion 与输入/同步；E5–E7 依次开放 Production、Debug & QA 与 Mobile Focus，Engineering 真实任务达到 7/7。Utage 级本地化/配音批量列、真人与商业 Product 门仍缺 | [N43-E7](210-n43-e7-mobile-focus-and-engineering-exit-audit.md)、商业演出、Benchmark Episode |
 | USP-07 | Budget-driven Optimization | N70–N72 | 实现中 | Dicing/调度/预测原型 | Center、三端报告、可回退构建变体 |
 | USP-08 | Gal Automation | N62 | 实现中 | N40 已有自动创作者 Route；N62-E1–E5 已实现四类摘要、Gallery/Ending、Music、隔离 Replay 及作者展示覆盖；玩家自动 Route 与三端一致性仍缺 | [N62-E5 #288](288-n62-e5-authored-catalog-presentation-audit.md)、玩家 Route 与三端一致 |

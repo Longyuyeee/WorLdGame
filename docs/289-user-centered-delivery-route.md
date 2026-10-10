@@ -18,7 +18,7 @@ M1 仍承诺 Windows/Android 创作、Web/Windows/Android 游戏、原始素材�
 5. **资源与优化**：N70–N72 结合真实产物和设备数据完成源/派生管理、Dicing、收益报告、无收益回退，仍属于 M1，不能用原型代替。
 6. **功能与 UI 收束**：补当前 P0 工作流缺口、N62 玩家路线图及跨端一致性，统一整体 UI 后再组织真人验收，最后完成安装/签名/发布。
 
-这些是工作顺序，不是对后续功能完成或正式发布的预先批准。当前已推进至 N81-E2 一作品一 Windows 便携包；主线 PR 的合并仍需单独处理。
+这些是工作顺序，不是对后续功能完成或正式发布的预先批准。当前已推进至 N81-E3 作者图形打包窗口；主线 PR 的合并仍需单独处理。
 
 ## 开发规则
 
@@ -128,4 +128,18 @@ node tools/build-windows-player.mjs "dist/我的作品-windows-v1" "--game=E:\Ga
 
 换机复跑：`npm ci`，按 E1 安装 Electron 运行时，`npm run build --workspace @world-studio/editor`，然后 `node tools/run-n80-web-export-browser.mjs --bundled-player`（需要 Chrome/Edge 和 Windows）。脚本自动临时打包，不需 WORLD_PLAYER_EXE；两次使用同一隔离存档目录，测试完清理临时产物。本步已实际通过这条 exe 路径与脚本语法检查。隐藏窗口自动化不等于真人双击验收；未测改剧情后的旧档兼容或不同 Windows 系统版本，未宣称安装签名通过。
 
-下一步从作者场景继续：提供清楚的目录选择、输出位置、进度和失败重试入口，减少手写打包命令；先复用本步打包器，不复制导出逻辑或再开验收专项。随后按作品实际需求补 Windows Profile/生命周期、作品图标版本。E2 不关闭 N81/N92/M1，不把后续品牌、安装、Android 和资源优化遗漏项算成完成。
+E2 的作者图形入口由下方 E3 接续。E2 不关闭 N81/N92/M1，不把后续品牌、安装、Android 和资源优化遗漏项算成完成。
+
+## N81-E3 作者图形打包窗口（2026-10-10）
+
+用户与入口：作者先在编辑器下载并解压目录 ZIP，再双击仓库根目录 `build-windows-game.cmd`。窗口分三步：选择游戏目录、选择保存位置、填写新包文件夹名，点击“制作游戏包”。也可粘贴路径；取消目录选择不清空原值。完成后显示实际路径和“打开游戏包文件夹”，提示试玩 exe、分发整个文件夹，而不是让作者猜产物在哪里。
+
+反馈与恢复：检查文件→复制播放器→打包素材显示真实阶段，不伪造百分比。制作时锁定输入并阻止关闭窗口；失败保留输入并恢复按钮，说明如何修正后重试。同名目录不覆盖；复制中磁盘/权限失败可能留有部分目录，此时选新名称重试，不自动删除作者文件。坏输入不生成包。仍调用 E2 同一个脚本，不复制导出实现。
+
+换机：先 `npm ci`，再 `npm run install:electron-runtime --workspace @world-studio/windows-shell-conformance`，随后可双击上述 CMD；缺运行时会提示准备命令。此工具依赖仓库和 Electron，不是独立安装的 Editor，也没有承诺浏览器内一键 Windows 导出。玩家拿到的包仍不需要这些开发依赖。
+
+最小真实测试：`node tools/run-n80-web-export-browser.mjs --package-ui`（先构建 Editor，Windows + Chrome/Edge）。经 production Editor 导出 ZIP，启动实际 Electron 打包窗口，在文本框填错目录，点击制作收到 build-info 错误；修正目录重试，调用真实打包器生成便携包，再运行产物验证存档、退出、整包移动、重启读档及剧情结局。测试不替代原生目录选择器、资源管理器打开按钮或 CMD 双击的真人验证，这三项未自动执行。
+
+预期与发现：预期 GUI 与命令行得到同一个有效包；第一次真实运行暴露 Electron 的 fs 把 `.asar` 当目录，复制运行时失败。打包器在 Electron 下改用 original-fs 原样复制归档，普通 Node 路径保持不变。测试结果见 `evidence/n80/formal-web-windows-package-ui.json`，不以模拟成功替代真实产物。
+
+接续：从玩家辨认自己游戏的场景补作品窗口/图标品牌，再让作者完成后更方便试玩；不得把开发运行时默认 exe 图标/版本宣称成作品品牌。Windows 专属 Profile/生命周期、安装签名、Android、资源优化和完整作品继续保留，不先增加验收专项。
