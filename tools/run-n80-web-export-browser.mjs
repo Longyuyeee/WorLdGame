@@ -80,7 +80,53 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--condition-workflow')) {
+  if(process.argv.includes('--variable-lifecycle-workflow')) {
+    const result = await runCreatorConditionWorkflow(client, root, { lifecycle: true });
+    const gamePath = join(temporary, 'lifecycle-game.html');
+    await writeFile(gamePath, result.gameHtml);
+    await client.send('Page.navigate', { url: pathToFileURL(gamePath).href });
+    await client.button('开始故事');
+    const readQuickSave = () => client.evaluate("(async()=>{const db=await new Promise((resolve,reject)=>{const request=indexedDB.open('world-player-saves');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});try{return await new Promise((resolve,reject)=>{const request=db.transaction('save-slots','readonly').objectStore('save-slots').getAll();request.onsuccess=()=>resolve(request.result.find(r=>r.slotId==='quick-1'));request.onerror=()=>reject(request.error);});}finally{db.close();}})()");
+    const savedState = slot => { const save = JSON.parse(slot.serializedSessionSave); return save.history.checkpoints[save.history.cursor].state; };
+    let savedHash;
+    let initialSlot;
+    for (let step = 0; step < 80; step++) {
+      const status = await client.evaluate("document.querySelector('main[data-player-status]')?.dataset.playerStatus");
+      if (status === 'ended') break;
+      const beforeTransfer = await client.evaluate("document.querySelector('[aria-label=\"继续下一句\"]')?.textContent.includes('作用域检查：切换前')");
+      if (beforeTransfer && savedHash === undefined) {
+        await client.button('快速保存');
+        await client.wait("Array.from(document.querySelectorAll('button')).some(b=>b.textContent==='快速读取'&&!b.disabled)");
+        savedHash = await client.evaluate("document.querySelector('main[data-player-status]').dataset.runtimeStateHash");
+        initialSlot = await readQuickSave();
+      }
+      const choice = await client.evaluate("Array.from(document.querySelectorAll('.player-choice button')).some(b=>b.textContent.includes('去海边'))");
+      if (choice) await client.evaluate("Array.from(document.querySelectorAll('.player-choice button')).find(b=>b.textContent.includes('去海边')).click()");
+      else await client.button('继续下一句');
+      await pause(80);
+    }
+    assert.ok(savedHash, 'Must save at the scoped-variable checkpoint');
+    assert.equal(await client.evaluate("document.querySelector('main[data-player-status]').dataset.playerStatus"), 'ended');
+    assert.ok(await client.evaluate("document.body.textContent.includes('平常的告别')"));
+    await client.button('快速读取');
+    await client.wait("document.querySelector('[aria-label=\"继续下一句\"]')?.textContent.includes('作用域检查：切换前')");
+    await client.button('快速保存'); await client.wait("Array.from(document.querySelectorAll('button')).some(b=>b.textContent==='快速保存'&&!b.disabled)");
+    const afterEnding = await readQuickSave();
+    assert.notEqual(afterEnding.savedAtEpochMilliseconds, initialSlot.savedAtEpochMilliseconds);
+    for (const key of ['variables', 'cursor', 'callStack']) assert.deepEqual(savedState(afterEnding)[key], savedState(initialSlot)[key]);
+    for (const id of Object.values(result.evidence.scopeIds)) assert.equal(savedState(initialSlot).variables[id], 9);
+    await client.send('Page.reload'); await client.button('开始故事'); await client.button('快速读取');
+    await client.wait("document.querySelector('[aria-label=\"继续下一句\"]')?.textContent.includes('作用域检查：切换前')");
+    await client.button('快速保存'); await client.wait("Array.from(document.querySelectorAll('button')).some(b=>b.textContent==='快速保存'&&!b.disabled)");
+    const afterReload = await readQuickSave();
+    assert.notEqual(afterReload.savedAtEpochMilliseconds, afterEnding.savedAtEpochMilliseconds);
+    for (const key of ['variables', 'cursor', 'callStack']) assert.deepEqual(savedState(afterReload)[key], savedState(initialSlot)[key]);
+    assert.deepEqual(client.errors, []);
+    result.evidence.exportedPlayer = { ending: '平常的告别', savedStateHash: savedHash, restoredAfterEnding: true, restoredAfterReload: true, savedVariables: savedState(initialSlot).variables, restoredVariables: savedState(afterReload).variables, note: 'Full State hash can change when learned endings/read progress are merged; variable values, cursor and call stack must restore exactly.' };
+    await writeFile(join(root,'evidence/authoring/rainy-promise-lifecycle.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/variable-lifecycle.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else if(process.argv.includes('--condition-workflow')) {
     const result=await runCreatorConditionWorkflow(client,root);
     await mkdir(join(root,'evidence/authoring'),{recursive:true});
     await writeFile(join(root,'evidence/authoring/rainy-promise-conditions.zip'),Buffer.from(result.archive,'base64'));

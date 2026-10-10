@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 // Import the previous milestone, author only through UI, run the real VM,
 // then save/reopen and verify the changed rule changes the actual outcomes.
-export async function runCreatorConditionWorkflow(client, root) {
+export async function runCreatorConditionWorkflow(client, root, { lifecycle = false } = {}) {
   const field = async (selector, value) => {
     await client.wait(`document.querySelector(${JSON.stringify(selector)})`);
     await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});const p=e.tagName==='SELECT'?HTMLSelectElement.prototype:e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(p,'value').set.call(e,${JSON.stringify(value)});e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));})()`);
@@ -16,21 +16,42 @@ export async function runCreatorConditionWorkflow(client, root) {
   const { nodeId } = await client.send('DOM.querySelector', { nodeId: document.nodeId, selector: '[aria-label="导入工程 ZIP"]' });
   await client.send('DOM.setFileInputFiles', { nodeId, files: [join(root, 'evidence/authoring/rainy-promise-media.zip')] });
   await client.button('进入编辑器');
+  const scopeNames = { chapter: '本章线索', scene: '本场线索', meta: '制作元数据' };
+  if (lifecycle) {
+    assert.ok(await client.evaluate("document.querySelector('[aria-label=变量生命周期说明]').textContent.includes('重新试玩全部恢复默认值')"));
+    for (const [scope, name] of Object.entries(scopeNames)) {
+      await field('[aria-label=变量名称]', name); await field('[aria-label=变量类型]', 'number');
+      await field('[aria-label=变量默认值]', '3'); await field('[aria-label=变量作用域]', scope); await client.button('新增变量');
+    }
+  }
   for (const title of ['重逢', '新的约定', '问候', '回应']) { await field('[aria-label=新场景名称]', title); await client.button('新增场景'); }
   const scenes = await client.evaluate("Array.from(document.querySelector('[aria-label=要编辑的场景]').options).map(e=>({id:e.value,title:e.textContent}))");
   const reunion = scenes.find(e=>e.title.includes('重逢')).id;
   const promise = scenes.find(e=>e.title.includes('新的约定')).id;
   const greeting = scenes.find(e=>e.title.includes('问候')).id;
   const response = scenes.find(e=>e.title.includes('回应')).id;
+  if (lifecycle) {
+    await field('[aria-label=新章节名称]', '第二章'); await client.button('新增章节');
+    const chapter = await client.evaluate("Array.from(document.querySelector('[aria-label=新场景所属章节]').options).find(o=>o.textContent==='第二章').value");
+    await field('[aria-label=重逢所属章节]', chapter); await field('[aria-label=新的约定所属章节]', chapter);
+  }
   await client.button('进入内容编辑器');
   await scene('回应'); await insert('return');
   await scene('问候'); await insert('call'); await field('select[name=target]', response); await client.button('应用类型化参数'); await insert('return');
   let variable;
+  let scopeIds;
+  const narration = async text => { await insert('narration'); await field('.sequence-inspector textarea[name=text]', text); await client.button('应用类型化参数'); };
   for (const [title, value, ending] of [['海边', '2', '海风结局'], ['书店', '0', '书香结局']]) {
     await scene(title); await client.button('选择结局：结局 · '+ending);
     await insert('set'); variable = await client.evaluate("document.querySelector('select[name=variable]').value");
     await field('input[name=expression]', value); await client.button('应用类型化参数');
+    if (lifecycle) {
+      scopeIds = await client.evaluate(`Object.fromEntries(Object.entries(${JSON.stringify(scopeNames)}).map(([scope,name])=>[scope,Array.from(document.querySelector('select[name=variable]').options).find(o=>o.textContent.startsWith(name+' ·')).value]))`);
+      for (const id of Object.values(scopeIds)) { await insert('set'); await field('select[name=variable]', id); await field('input[name=expression]', '9'); await client.button('应用类型化参数'); }
+      await narration('作用域检查：切换前');
+    }
     await insert('call'); await field('select[name=target]', greeting); await client.button('应用类型化参数');
+    if (lifecycle) await narration('作用域检查：同章节返回');
     await insert('jump'); await field('select[name=target]', reunion); await client.button('应用类型化参数');
   }
   await scene('新的约定'); await field('input[name=ending]', '新的约定结局'); await client.button('应用类型化参数');
@@ -43,7 +64,11 @@ export async function runCreatorConditionWorkflow(client, root) {
   await configure('>=', '2'); await save();
   const play = async (route, expectedValue, expectedEnding) => {
     await client.button('试玩完整流程');
-    for (let step=0;step<30;step++) {
+    const snapshots = [];
+    const snapshot = async () => client.evaluate(`Object.fromEntries(Array.from(document.querySelectorAll('[aria-label="Runtime 变量"] li')).map(e=>[e.querySelector('code').textContent,e.querySelector('strong').textContent]))`);
+    if (lifecycle) { const initial = await snapshot(); for (const id of Object.values(scopeIds)) assert.equal(initial[id], '3'); }
+    for (let step=0;step<50;step++) {
+      if (lifecycle) snapshots.push(await snapshot());
       if (await client.evaluate("Boolean(document.querySelector('.playable-preview--ended'))")) break;
       const choice = await client.evaluate(`Boolean(document.querySelector('[aria-label="选择路线：${route}"]'))`);
       await client.button(choice ? '选择路线：'+route : 'Continue');
@@ -53,8 +78,14 @@ export async function runCreatorConditionWorkflow(client, root) {
     assert.ok(ending.includes(expectedEnding), ending);
     const actualValue = await client.evaluate(`Array.from(document.querySelectorAll('[aria-label="Runtime 变量"] li')).find(e=>e.querySelector('code').textContent===${JSON.stringify(variable)})?.querySelector('strong').textContent`);
     assert.equal(actualValue, expectedValue);
+    if (lifecycle) {
+      const final = await snapshot();
+      assert.equal(final[scopeIds.scene], '3'); assert.equal(final[scopeIds.chapter], '3'); assert.equal(final[scopeIds.meta], '9');
+      assert.ok(snapshots.some(s=>s[scopeIds.scene]==='9'&&s[scopeIds.chapter]==='9'&&s[scopeIds.meta]==='9'), JSON.stringify(snapshots));
+      assert.ok(snapshots.some(s=>s[scopeIds.scene]==='3'&&s[scopeIds.chapter]==='9'), JSON.stringify(snapshots));
+    }
     await client.button('退出试玩');
-    return { route, expectedValue, actualValue, expectedEnding, actualEnding: expectedEnding };
+    return { route, expectedValue, actualValue, expectedEnding, actualEnding: expectedEnding, ...(lifecycle ? { snapshots } : {}) };
   };
   const before = [await play('去海边', '2', '新的约定结局'), await play('去书店', '0', '平常的告别')];
   let flowScreenshot;
@@ -86,6 +117,14 @@ export async function runCreatorConditionWorkflow(client, root) {
   await client.button('返回项目结构'); await client.button('返回项目首页'); await client.button('雨后的约定'); await client.button('准备导出 ZIP');
   await client.wait("document.querySelector('.project-home__status a[download]')");
   const archive = await client.evaluate("(async()=>{const blob=await(await fetch(document.querySelector('.project-home__status a[download]').href)).blob();return await new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.readAsDataURL(blob);});})()");
+  let gameHtml;
+  if (lifecycle) {
+    await client.button('进入编辑器'); await client.button('进入内容编辑器');
+    await client.wait("Array.from(document.querySelectorAll('summary')).some(x=>x.textContent.includes('构建与导出'))");
+    await client.evaluate("Array.from(document.querySelectorAll('summary')).find(x=>x.textContent.includes('构建与导出')).click()");
+    await client.button('构建试玩 HTML'); await client.wait("document.querySelector('.playable-web-export a[download]')");
+    gameHtml = await client.evaluate("(async()=>await(await fetch(document.querySelector('.playable-web-export a[download]').href)).text())()");
+  }
   assert.deepEqual(client.errors, []);
-  return { archive, flowScreenshot, evidence: { title:'雨后的约定 · 条件剧情', sourceProject:'rainy-promise-media.zip', authoredThroughUi:true, initialRule:`${variable} >= 2`, changedRule:`${variable} == 0`, before, reopened, flowBefore, flowReopened, editedFromFlow:true, localBranchDirectionsVerified:true, sharedNestedCallsFromBothRoutes:true, exceptions:client.errors } };
+  return { archive, flowScreenshot, gameHtml, evidence: { title:'雨后的约定 · 条件剧情', sourceProject:'rainy-promise-media.zip', authoredThroughUi:true, ...(lifecycle ? { scopeIds, scopeNames } : {}), initialRule:`${variable} >= 2`, changedRule:`${variable} == 0`, before, reopened, flowBefore, flowReopened, editedFromFlow:true, localBranchDirectionsVerified:true, sharedNestedCallsFromBothRoutes:true, exceptions:client.errors } };
 }

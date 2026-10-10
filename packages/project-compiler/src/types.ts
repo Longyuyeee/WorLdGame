@@ -1,8 +1,8 @@
 import type { JsonObject, JsonValue } from "@world-studio/project-domain";
 
 export const PROJECT_COMPILER_VERSION = "0.2.0" as const;
-export const RUNTIME_IR_VERSION = "1.1.0" as const;
-export type RuntimeIrVersionV1 = "1.0.0" | typeof RUNTIME_IR_VERSION;
+export const RUNTIME_IR_VERSION = "1.2.0" as const;
+export type RuntimeIrVersionV1 = "1.0.0" | "1.1.0" | typeof RUNTIME_IR_VERSION;
 
 export type CompileProfile = "debug" | "release";
 export type CompilerDiagnosticSeverity = "error" | "warning";
@@ -70,6 +70,10 @@ export interface RuntimeStoryIrV1 {
   readonly projectId: string;
   readonly entrySceneId: string;
   readonly scenes: readonly RuntimeSceneV1[];
+  readonly variableLifecycle?: {
+    readonly variables: readonly { readonly id: string; readonly scope: "story" | "chapter" | "scene" | "meta"; readonly defaultValue: null | boolean | number | string }[];
+    readonly chapterByScene: Readonly<Record<string, string>>;
+  };
 }
 
 export interface SourceMapEntryV1 {

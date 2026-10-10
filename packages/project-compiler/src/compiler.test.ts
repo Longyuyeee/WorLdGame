@@ -92,10 +92,10 @@ describe("project compiler N30-E1/E2", () => {
       }];
     }));
     expect(outputs).toEqual({
-      tiny: { buildId: "f14c37c188ee937deb24b2cfdedb4022ee972a5d5f62e66d51de3172ebc94a66", storyIrHash: "e0a7445cc893cd9ede388747a365c90a417e4c44f618b68184fac7ba2ea53b42" },
-      branching: { buildId: "6e61bebd0d5d7bafe5bf6f41316ca8471ac122fb36c595c64ec6b91ab22339c2", storyIrHash: "bb7e605baf4c47ad9b6cb4666f406ae463936fb80f6bf07d9a60b8506174b548" },
-      media: { buildId: "cb5466bf9a8b5bd56959dc65e53c65e94db3ec88b91a95b3e86aadccd13a604a", storyIrHash: "0c4a582b94afba6ff0d6793303168e99c4184f13fd9b7c25c1bcfd8a126263a2" },
-      cjk: { buildId: "3ed600b22fd693289a026d58895114e3c6a40fba0a3f06b3ee3dd40ba0af9c09", storyIrHash: "adfd8cc36965a343e18b99737ced8d719b67919b7180866c9aa5d7587e2ae1da" }
+      tiny: { buildId: "3c66723b0b6ff1d2bb9e4e85b81f7ccb187c1ca64dc2f6de5b4a28e11870bec6", storyIrHash: "351ea6466d706a80e18bfe0d15267377f6e3c03071787f4696df2b535af6c4c9" },
+      branching: { buildId: "ef4f2eb427a4d382e43ed6148ca8ddcc31a4eb27fa706455c0962e6ce3e15572", storyIrHash: "e28db438d3abf4550dbfbebb4877ef7568805d1b60a3d6ed56e70158b1045a39" },
+      media: { buildId: "a3a1eec3e98ae1df35183373c4f387b30207d0a1518dfb9c5af6c867a528ba6a", storyIrHash: "a5ba931984208a11c781abcf9024f5aec8b64cde97a979195bc531b2325b2630" },
+      cjk: { buildId: "be5e32c1cf51b94f1250c1c1130f746e832279a2484e736004000dd90c6f9d22", storyIrHash: "7e0e1745b66b2ef0ddadef1c826325980308c015efa135a3d0bfd1de88562589" }
     });
   });
 
@@ -168,7 +168,7 @@ describe("project compiler N30-E1/E2", () => {
     ]));
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.irVersion).toBe("1.2.0");
     expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
       instructionId: "checkpoint_arrival",
       opcode: "checkpoint",
@@ -190,7 +190,7 @@ describe("project compiler N30-E1/E2", () => {
       stopInstructionIds: ["stop_line"]
     });
     expect(JSON.parse(result.artifacts.files["player-playback-policy.json"]!)).toEqual(result.artifacts.playerPlaybackPolicy);
-    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.irVersion).toBe("1.2.0");
     expect(result.artifacts.story.scenes[0]?.instructions[0]).toEqual({
       instructionId: "stop_line",
       opcode: "narration",
@@ -214,7 +214,7 @@ describe("project compiler N30-E1/E2", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.artifacts.assetManifest.assets).toContainEqual(expect.objectContaining({ assetId: "media_intro_video", kind: "video", mimeType: "video/webm" }));
-    expect(result.artifacts.story.irVersion).toBe("1.1.0");
+    expect(result.artifacts.story.irVersion).toBe("1.2.0");
     expect(result.artifacts.story.scenes[0]?.instructions[0]).toMatchObject({
       instructionId: "video_effect",
       opcode: "direction",

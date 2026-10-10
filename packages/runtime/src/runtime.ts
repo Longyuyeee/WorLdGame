@@ -71,8 +71,8 @@ function scenesById(program: RuntimeProgramV1): Map<string, RuntimeSceneV1> {
 }
 
 export function validateRuntimeProgramV1(program: RuntimeProgramV1): readonly RuntimeDiagnosticV1[] {
-  if (program.schemaVersion !== 1 || (program.irVersion !== "1.0.0" && program.irVersion !== "1.1.0")) {
-    return [diagnostic("RUNTIME_INCOMPATIBLE_IR", `Expected Runtime IR 1.0.0 or 1.1.0/schema 1, received ${String(program.irVersion)}/schema ${String(program.schemaVersion)}`)];
+  if (program.schemaVersion !== 1 || !["1.0.0", "1.1.0", "1.2.0"].includes(program.irVersion)) {
+    return [diagnostic("RUNTIME_INCOMPATIBLE_IR", `Expected Runtime IR 1.0.0–1.2.0/schema 1, received ${String(program.irVersion)}/schema ${String(program.schemaVersion)}`)];
   }
   if (program.projectId.length === 0 || program.entrySceneId.length === 0 || program.scenes.length === 0) {
     return [diagnostic("RUNTIME_INVALID_IR", "Runtime IR requires project, entry scene, and at least one scene")];
@@ -86,14 +86,31 @@ export function validateRuntimeProgramV1(program: RuntimeProgramV1): readonly Ru
       if (instruction.instructionId.length === 0 || instructionIds.has(instruction.instructionId) || !supportedOpcodes.has(instruction.opcode)) {
         return [diagnostic("RUNTIME_INVALID_IR", `Instruction is empty, duplicated, or unsupported: ${instruction.instructionId}`, { sceneId: scene.sceneId, instructionIndex: 0 }, instruction.instructionId)];
       }
-      if (instruction.opcode === "checkpoint" && program.irVersion !== "1.1.0") {
+      if (instruction.opcode === "checkpoint" && program.irVersion === "1.0.0") {
         return [diagnostic("RUNTIME_INVALID_IR", `Checkpoint requires Runtime IR 1.1.0: ${instruction.instructionId}`, { sceneId: scene.sceneId, instructionIndex: 0 }, instruction.instructionId)];
       }
       instructionIds.add(instruction.instructionId);
     }
   }
   if (!sceneIds.has(program.entrySceneId)) return [diagnostic("RUNTIME_MISSING_SCENE", `Entry scene does not exist: ${program.entrySceneId}`)];
+  if (program.irVersion === "1.2.0") {
+    const lifecycle = program.variableLifecycle;
+    if (!validRecord(lifecycle) || !Array.isArray(lifecycle.variables) || !validRecord(lifecycle.chapterByScene)
+      || program.scenes.some((scene) => typeof lifecycle.chapterByScene[scene.sceneId] !== "string" || !lifecycle.chapterByScene[scene.sceneId])
+      || lifecycle.variables.some((variable) => !validRecord(variable) || typeof variable.id !== "string" || !canonicalId.test(variable.id) || typeof variable.scope !== "string" || !["story", "chapter", "scene", "meta"].includes(variable.scope) || !finiteScalar(variable.defaultValue))
+      || new Set(lifecycle.variables.map((variable) => variable.id)).size !== lifecycle.variables.length) {
+      return [diagnostic("RUNTIME_INVALID_IR", "Variable lifecycle definitions or chapter topology are invalid")];
+    }
+  } else if (program.variableLifecycle !== undefined) return [diagnostic("RUNTIME_INVALID_IR", "Variable lifecycle requires IR 1.2.0")];
   return [];
+}
+
+function variablesOnTransfer(program: RuntimeProgramV1, state: RuntimeStateV1, target: RuntimeCursorV1): RuntimeStateV1["variables"] {
+  const lifecycle = program.variableLifecycle;
+  if (lifecycle === undefined || state.cursor.sceneId === target.sceneId) return state.variables;
+  const chapterChanged = lifecycle.chapterByScene[state.cursor.sceneId] !== lifecycle.chapterByScene[target.sceneId];
+  const resets = lifecycle.variables.filter((variable) => variable.scope === "scene" || (variable.scope === "chapter" && chapterChanged));
+  return resets.length === 0 ? state.variables : { ...state.variables, ...Object.fromEntries(resets.map((variable) => [variable.id, variable.defaultValue])) };
 }
 
 /** Structural validation used when the caller immediately canonicalizes or hashes the State. */
@@ -174,7 +191,7 @@ export function createRuntimeState(program: RuntimeProgramV1, options: CreateRun
       stateRevision: 0,
       cursor: { sceneId: program.entrySceneId, instructionIndex: 0 },
       callStack: [],
-      variables: { ...(options.initialVariables ?? {}) },
+      variables: { ...Object.fromEntries((program.variableLifecycle?.variables ?? []).map((variable) => [variable.id, variable.defaultValue])), ...(options.initialVariables ?? {}) },
       prng: { algorithm: "xorshift32-v1", state: prngSeed, draws: 0 },
       logicalTimeMilliseconds: 0,
       sceneState: { backgroundAssetId: null, characters: {} },
@@ -540,7 +557,7 @@ function applyInput(program: RuntimeProgramV1, state: RuntimeStateV1, input: Run
     const option = pending.options.find((item) => item.optionId === input.optionId);
     if (option === undefined) return { kind: "return", result: failure(state, "RUNTIME_CHOICE_MISMATCH", `Unknown choice option: ${input.optionId}`) };
     if (!scenesById(program).has(option.targetSceneId)) return { kind: "return", result: failure(state, "RUNTIME_MISSING_SCENE", `Choice target scene does not exist: ${option.targetSceneId}`) };
-    return { kind: "continue", state: { ...state, stateRevision: acceptedAtRevision, cursor: { sceneId: option.targetSceneId, instructionIndex: 0 }, pendingChoice: null, inputReceipts } };
+    return { kind: "continue", state: { ...state, stateRevision: acceptedAtRevision, variables: variablesOnTransfer(program, state, { sceneId: option.targetSceneId, instructionIndex: 0 }), cursor: { sceneId: option.targetSceneId, instructionIndex: 0 }, pendingChoice: null, inputReceipts } };
   }
 
   if (input.kind === "barrierApproved") {
@@ -645,13 +662,13 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
       const targetLabel = stringOperand(instruction, "targetLabel") ?? stringOperand(instruction, "targetSceneId"), target = controlTarget(program, scene, instruction);
       if (target === undefined) return failure(state, "RUNTIME_MISSING_LABEL", `Target label does not exist: ${targetLabel ?? "missing"}`, instruction, executed);
       if (instruction.opcode === "call" && state.callStack.length >= MAX_CALL_STACK_DEPTH) return failure(state, "RUNTIME_CALL_STACK_OVERFLOW", "Call stack depth exceeded", instruction, executed);
-      state = { ...state, stateRevision: state.stateRevision + 1, cursor: target, callStack: instruction.opcode === "call" ? [...state.callStack, nextCursor(state.cursor)] : state.callStack };
+      state = { ...state, stateRevision: state.stateRevision + 1, variables: variablesOnTransfer(program, state, target), cursor: target, callStack: instruction.opcode === "call" ? [...state.callStack, nextCursor(state.cursor)] : state.callStack };
       continue;
     }
     if (instruction.opcode === "return") {
       const target = state.callStack.at(-1);
       if (target === undefined) return failure(state, "RUNTIME_CALL_STACK_UNDERFLOW", "Return executed with an empty call stack", instruction, executed);
-      state = { ...state, stateRevision: state.stateRevision + 1, cursor: target, callStack: state.callStack.slice(0, -1) };
+      state = { ...state, stateRevision: state.stateRevision + 1, variables: variablesOnTransfer(program, state, target), cursor: target, callStack: state.callStack.slice(0, -1) };
       continue;
     }
     if (instruction.opcode === "set" || instruction.opcode === "condition") {
@@ -669,7 +686,7 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
       if (typeof value !== "boolean") return failure(state, "RUNTIME_TYPE_MISMATCH", "Condition expression must produce boolean", instruction, executed);
       const targetLabel = stringOperand(instruction, "targetLabel") ?? stringOperand(instruction, "targetSceneId"), target = controlTarget(program, scene, instruction);
       if (target === undefined) return failure(state, "RUNTIME_MISSING_LABEL", `Condition target label does not exist: ${targetLabel ?? "missing"}`, instruction, executed);
-      state = { ...state, stateRevision: state.stateRevision + 1, cursor: value ? target : nextCursor(state.cursor) };
+      state = { ...state, stateRevision: state.stateRevision + 1, variables: value ? variablesOnTransfer(program, state, target) : state.variables, cursor: value ? target : nextCursor(state.cursor) };
       continue;
     }
     if (instruction.opcode === "wait") {

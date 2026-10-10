@@ -7,7 +7,7 @@ import {
   type CompileProfile, type CompileProjectResult, type CompilerArtifactsV1, type CompilerDiagnostic,
   type CompilerDiagnosticCode, type CompilerSceneCacheEntryV1, type IncrementalAnalysisOptions, type IncrementalCompileOptions,
   type ProjectAnalysisResult, type ProjectCompilerCacheV1, type RuntimeInstructionV1, type RuntimeOpcodeV1, type RuntimeSceneV1,
-  type SourceMapEntryV1
+  type SourceMapEntryV1, type RuntimeStoryIrV1
 } from "./types";
 
 const statementKinds = new Set<RuntimeOpcodeV1>(["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "checkpoint", "end"]);
@@ -386,7 +386,20 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const sortedDiagnostics = sortDiagnostics(diagnostics); if (sortedDiagnostics.some((item) => item.severity === "error")) return { ok: false, diagnostics: sortedDiagnostics, cache, stats };
 
   const runtimeScenes: RuntimeSceneV1[] = project.scenes.map((scene) => sceneCache[scene.id]!.scene); const sourceEntries = project.scenes.flatMap((scene) => sceneCache[scene.id]!.sourceEntries);
-  const story = { schemaVersion: 1 as const, irVersion: RUNTIME_IR_VERSION, projectId: project.manifest.projectId, entrySceneId: project.manifest.entrySceneId, scenes: runtimeScenes };
+  let sceneOffset = 0;
+  const chapterByScene = Object.fromEntries(project.chapters.flatMap((chapter) => {
+    const scenes = project.scenes.slice(sceneOffset, sceneOffset + chapter.scenePaths.length);
+    sceneOffset += chapter.scenePaths.length;
+    return scenes.map((scene) => [scene.id, chapter.id]);
+  }));
+  const variables: NonNullable<RuntimeStoryIrV1["variableLifecycle"]>["variables"] = project.variables.variables.flatMap((variable) => {
+    if (typeof variable.id !== "string") return [];
+    const value = variable.defaultValue ?? variable.initialValue ?? variable.value ?? (variable.type === "boolean" ? false : variable.type === "number" ? 0 : "");
+    if (typeof value !== "boolean" && typeof value !== "number" && typeof value !== "string") return [];
+    const scope = variable.scope === "scene" || variable.scope === "chapter" || variable.scope === "meta" ? variable.scope : "story";
+    return [{ id: variable.id, scope, defaultValue: value }];
+  });
+  const story: RuntimeStoryIrV1 = { schemaVersion: 1, irVersion: RUNTIME_IR_VERSION, projectId: project.manifest.projectId, entrySceneId: project.manifest.entrySceneId, scenes: runtimeScenes, variableLifecycle: { variables, chapterByScene } };
   const sourceMap = { schemaVersion: 1 as const, irVersion: RUNTIME_IR_VERSION, entries: sourceEntries }; const assetManifest = { schemaVersion: 1 as const, assets };
   const assetsById = new Map(assets.flatMap((asset) => { const assetId = typeof asset.assetId === "string" ? asset.assetId : typeof asset.id === "string" ? asset.id : undefined; return assetId === undefined ? [] : [[assetId, asset] as const]; }));
   const overrides = overrideLookup;
