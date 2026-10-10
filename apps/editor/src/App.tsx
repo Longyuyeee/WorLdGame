@@ -1419,6 +1419,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [easing, setEasing] = useState("ease-in-out");
   const [transition, setTransition] = useState("");
   const [bus, setBus] = useState("bgm");
+  const [loop,setLoop] = useState(false);
   const [template, setTemplate] = useState<DialogueTemplate>("adv");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
@@ -1468,7 +1469,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       if (command === "audio") {
         parameters.bus = bus;
         if (assetRequired) {
-          parameters.loop = "false";
+          parameters.loop = String(loop);
           parameters.volume = "1";
         }
       }
@@ -1488,7 +1489,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       <p>插入锚点 <code>{afterId}</code></p>
       <div className="direction-insert__fields">
         <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => setAction(event.target.value as typeof action)}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-        {assetRequired && <label className="direction-insert__asset"><span>资源</span><input aria-label="新增演出资源" list={`insert-assets-${command}`} value={asset} disabled={disabled} placeholder={compatibleAssets.length === 0 ? "请先导入兼容资源" : "选择 Asset ID"} onChange={(event) => setAsset(event.target.value)} /><datalist id={`insert-assets-${command}`}>{compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist></label>}
+        {assetRequired && <label className="direction-insert__asset"><span>资源</span><select aria-label="新增演出资源" value={asset} disabled={disabled} onChange={(event)=>setAsset(event.target.value)}><option value="">{compatibleAssets.length===0?"请先导入兼容资源":"请选择资源"}</option>{compatibleAssets.map(entry=><option key={entry.assetId} value={entry.assetId}>{entry.displayName} · {entry.assetId}</option>)}</select></label>}
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
         {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
@@ -1496,6 +1497,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
         {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
+        {command === 'audio' && assetRequired && <label><input type="checkbox" aria-label="循环播放音频" checked={loop} disabled={disabled} onChange={event=>setLoop(event.target.checked)}/>循环播放（适合背景音乐）</label>}
         {command === "textbox" && action === "set" && <label><span>模板</span><select aria-label="新增文本框模板" value={template} disabled={disabled} onChange={(event) => setTemplate(event.target.value as DialogueTemplate)}>{DIALOGUE_TEMPLATES.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label>}
       </div>
       {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
@@ -1760,6 +1762,7 @@ function SequenceView({
   const [activeStageSearchResult, setActiveStageSearchResult] = useState(0);
   const [pendingStageFocusId, setPendingStageFocusId] = useState<string | null>(null);
   const [sequenceInsertKind,setSequenceInsertKind]=useState<SequenceInsertKind>("dialogue");
+  const [insertBefore,setInsertBefore]=useState(false);
   const [sequenceMultiSelect,setSequenceMultiSelect]=useState(false);
   const [sequenceSelectedIds,setSequenceSelectedIds]=useState<readonly string[]>([]);
   const [sequenceRangeAnchor,setSequenceRangeAnchor]=useState<string|null>(null);
@@ -1788,7 +1791,7 @@ function SequenceView({
     ? "插入对白前，请先返回项目结构创建至少一名角色。"
     : (sequenceInsertKind === "set" || sequenceInsertKind === "condition") && sequenceReferences.variableIds.length === 0
       ? "插入变量语句前，请先返回项目结构创建至少一个变量。"
-      : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && sequenceReferences.assetIds.length === 0
+      : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && compatibleDirectionAssets(sequenceInsertKind,assetIndex.assets).length === 0
         ? "插入演出语句前，请先打开资源保险库导入资源。"
         : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
@@ -1797,9 +1800,13 @@ function SequenceView({
     ...sequenceReferences.labelIds.map(id=>[id, `当前场景标签：${id}`])
   ]);
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
-  const insertionAnchor=sequenceInsertionAnchor(scene.statements,scene.id,selected.id);
+  const insertionAnchor=sequenceInsertionAnchor(scene.statements,scene.id,selected.id,insertBefore);
   const insertPlan=(plan:ReturnType<typeof createSequenceInsertPlan>)=>{const first=plan[0]?.node,selectedStatementId=first===undefined?undefined:first.kind==="dialogue"||first.kind==="narration"?first.statementId:first.id;dispatch({type:"p0-batch",commandId:createCommandId(),operations:plan.map((step)=>({kind:"insert" as const,afterId:step.afterId,node:step.node})),...(selectedStatementId===undefined?{}:{selectedStatementId})});};
   const choiceChildren=(statement:StoryStatement)=>statement.kind==="choice"?statement.options.map((item)=>item.id):[];
+  const requestSequenceInsert=()=>{
+    if(sequenceInsertKind==='background'||sequenceInsertKind==='show'||sequenceInsertKind==='audio'||sequenceInsertKind==='camera'||sequenceInsertKind==='textbox') setInsertCommand(sequenceInsertKind);
+    else insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));
+  };
   const duplicateSelected=()=>insertPlan(duplicateSequencePlan(selected,insertionAnchor,createEntityId));
   const deleteSelected=()=>{const ids=scene.statements.filter((item)=>selectedSequenceIds.includes(item.id)).flatMap((item)=>[item.id,...choiceChildren(item)]);dispatch({type:"p0-batch",commandId:createCommandId(),operations:ids.map((statementId)=>({kind:"delete" as const,statementId}))});setSequenceSelectedIds([]);};
   const moveStatement=(statement:StoryStatement,direction:-1|1)=>{const afterId=sequenceMoveAfterId(scene.statements,scene.id,statement.id,direction);if(afterId===undefined)return;const operations=[{kind:"move" as const,statementId:statement.id,afterId}];if(statement.kind==="choice"){let anchor=statement.id;for(const option of statement.options){operations.push({kind:"move" as const,statementId:option.id,afterId:anchor});anchor=option.id;}}dispatch({type:"p0-batch",commandId:createCommandId(),operations,selectedStatementId:statement.id});};
@@ -1925,7 +1932,7 @@ function SequenceView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   return (
     <section className="authoring-panel view-enter" aria-labelledby="sequence-heading">
@@ -1956,7 +1963,8 @@ function SequenceView({
 
       <div className="statement-toolbar" aria-label="对白结构工具">
         <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={()=>insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId))}>＋ 插入</button>
+        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={requestSequenceInsert}>＋ 插入</button>
+        <label><input type="checkbox" checked={insertBefore} disabled={pendingDraft} onChange={event=>setInsertBefore(event.target.checked)}/>插入到当前步骤之前</label>
         <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
         <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
         <button type="button" aria-label="语句下移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
@@ -2288,7 +2296,7 @@ function SequenceView({
       {insertCommand !== null && <DirectionInsertPanel
         key={`${insertCommand}:${selected.id}`}
         command={insertCommand}
-        afterId={selected.id}
+        afterId={insertionAnchor}
         assetIndex={assetIndex}
         disabled={pendingDraft}
         createCommandId={createCommandId}

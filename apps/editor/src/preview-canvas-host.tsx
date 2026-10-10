@@ -495,7 +495,7 @@ export function PreviewCanvasHost({
       controller.abort();
       if (animationFrame !== 0) window.cancelAnimationFrame(animationFrame);
     };
-  }, [defaultDurationMilliseconds, defaultEasing, designHeight, designWidth, frame.generation, frame.planKey, pixelHeight, pixelWidth, selectedStatementId]);
+  }, [defaultDurationMilliseconds, defaultEasing, designHeight, designWidth, frame.generation, frame.planKey, frame.status, frame.errorCount, pixelHeight, pixelWidth, selectedStatementId]);
 
   if (fallback) return <PreviewVisualHost
     frame={{ ...frame, backend: PREVIEW_RENDER_HOST_CAPABILITIES.fallbackBackend }}

@@ -5,6 +5,12 @@
 
 ## 当前阶段与下一阶段（2026-10-10）
 
+最新完成“同一作品的素材与演出”基础路径，权威顺序见开发计划 #89 顶部。用 `rainy-promise.zip` 经 UI 导入三种测试媒体，资源名称选择、兼容类型过滤、步骤前插入与 BGM 循环一起贯通；预览后改角色 X，保存重开恢复为 30，实际 Canvas 像素发生变化。成果 `evidence/authoring/rainy-promise-media.zip`、`media-preview.png`、`media-workflow.json`。
+
+真实问题与修复：预览 host 的 generation/planKey 在 loading→ready 时不变，Canvas effect 未依赖 status，只显示占位背景；新增 status/errorCount 更新依赖后重绘真实媒体。不是单纯修改测试阈值。脚本早于 DOM 就绪的文件输入、早于音频起播/入场动画结束的采样也做了有界等待，和产品问题分别记录。媒体实际解码、播放时间推进已测，未进行人工听音；小型 PNG/WAV 仅作功能样本。可重放 `node tools/run-n80-web-export-browser.mjs --media-workflow`，不依赖内存注入工程。
+
+下一阶段改为“选择影响变量、条件影响走向”的完整创作任务，沿用媒体版工程；下方写作阶段的“下一阶段素材”已在本轮接续，不再重复排期。打包增强继续后置。
+
 当前权威排期见 [开发计划 #89](89-engine-product-delivery-plan.md) 顶部，不再逐个控件划分开发阶段。本轮“连续写作与分支”基本路径已完成：从空工程用 UI 创建《雨后的约定》，两角色/三场景/数值变量/两结局，预览→修改对白→保存→刷新重开→两条路线再次通过。UI 导出的工程在 `evidence/authoring/rainy-promise.zip`，结果在 `evidence/authoring/continuous-writing.json`。
 
 实际差异：代码原先对选中的结局使用“后插”锚点，空场景写出的内容位于终止指令之后；`sequenceInsertionAnchor` 改为插在结局之前，前一语句为 choice 时锚在其最后一个选项之后。对白缺少说话人控件，现通过既有 p0-update 事务只改 speakerId，正文和 ID 保留，缺失角色可改选已有角色。不是新建独立剧情模型。

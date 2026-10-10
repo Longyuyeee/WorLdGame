@@ -7,10 +7,10 @@ export interface SequenceInsertStep { readonly afterId: string; readonly node: P
 export type SequenceIdFactory = (prefix: string) => string;
 
 const quote = (value: string) => JSON.stringify(value);
-export function sequenceInsertionAnchor(statements: readonly StoryStatement[], sceneId: string, selectedId: string): string {
+export function sequenceInsertionAnchor(statements: readonly StoryStatement[], sceneId: string, selectedId: string, before=false): string {
   const index=statements.findIndex(item=>item.id===selectedId);
   const selected=statements[index];
-  const anchor=selected?.kind==='end' ? statements[index-1] : selected;
+  const anchor=before || selected?.kind==='end' ? statements[index-1] : selected;
   return anchor===undefined ? sceneId : anchor.kind==='choice' ? anchor.options.at(-1)?.id ?? anchor.id : anchor.id;
 }
 const stable = (values: readonly string[], fallback: string) => values[0] ?? fallback;

@@ -9,6 +9,7 @@ it('keeps insertion before an ending, after all options of a preceding choice',(
   const end={id:'end',kind:'end',endingName:'终'} as const;
   expect(sequenceInsertionAnchor([end],'scene','end')).toBe('scene');
   expect(sequenceInsertionAnchor([choice,end],'scene','end')).toBe('option_a');
+  expect(sequenceInsertionAnchor([choice,end],'scene','pick',true)).toBe('scene');
 });
 
 it('writes before a new scene ending and changes speaker without replacing text',async()=>{
