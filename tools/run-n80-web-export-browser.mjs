@@ -52,7 +52,7 @@ let browserPath;
 for (const path of candidates) { try { await access(path); browserPath = path; break; } catch {} }
 if (!browserPath) throw new Error("Install Chrome/Edge or set WORLD_STUDIO_BROWSER_PATH");
 const preview = spawn(process.execPath, [join(root, "node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", "5186", "--strictPort"], { cwd: join(root, "apps/editor"), stdio: "ignore", windowsHide: true });
-const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=9236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", "about:blank"], { stdio: "ignore", windowsHide: true });
+const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", "about:blank"], { stdio: "ignore", windowsHide: true });
 let client;
 let site;
 let siteUnavailable = false;
@@ -75,8 +75,8 @@ async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE, 
   client = new Cdp(target.webSocketDebuggerUrl); await client.open(); await client.send('Runtime.enable');
 }
 try {
-  await json("http://127.0.0.1:9236/json/version");
-  const response = await fetch("http://127.0.0.1:9236/json/new?http://127.0.0.1:5186/", { method: "PUT" });
+  await json("http://127.0.0.1:19236/json/version");
+  const response = await fetch("http://127.0.0.1:19236/json/new?http://127.0.0.1:5186/", { method: "PUT" });
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
@@ -85,6 +85,7 @@ try {
     await mkdir(join(root,'evidence/authoring'),{recursive:true});
     await writeFile(join(root,'evidence/authoring/rainy-promise-conditions.zip'),Buffer.from(result.archive,'base64'));
     await writeFile(join(root,'evidence/authoring/condition-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,'evidence/authoring/flow-conditions.png'),Buffer.from(result.flowScreenshot,'base64'));
     console.log(JSON.stringify(result.evidence,null,2));
   } else if(process.argv.includes('--media-workflow')) {
     const result=await runCreatorMediaWorkflow(client,root,temporary);

@@ -1,6 +1,9 @@
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { variableOptionLabels } from './variable-option-labels';
 import { ConditionExpressionFields } from './condition-expression-fields';
+import { SceneFlowPanel } from './SceneFlowPanel';
+import { projectSceneFlow } from '@world-studio/route-graph';
+import { compileProject } from '@world-studio/project-compiler';
 import {
   AssetBlobError,
   assetBackupRecordId,
@@ -33,7 +36,7 @@ import {
   type SceneResourceManifest,
   type StoryStatement
 } from "@world-studio/story-core";
-import { assignRouteSceneGroup, buildRouteGraph, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
+import { assignRouteSceneGroup, buildRouteGraphFromCompilation, buildRouteGraphIncremental, createRouteGraphIndex, deleteRouteGroup, locateRouteDiagnostic, queryRouteGraphWindow, renameRouteScene, resetRouteSceneLayout, reviewRouteToEnding, setRouteScenePosition, setRouteViewport, toggleRouteGroup, upsertRouteGroup, ROUTE_GRAPH_WINDOW_LIMIT, type RenameRouteSceneResult, type RouteNodeKind, type RouteProjectMutationResult, type RouteSceneNodeV1 } from "@world-studio/route-graph";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
   DIALOGUE_TEMPLATES,
@@ -2557,7 +2560,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const canonicalHash = useMemo(() => hasLocalChanges ? undefined : semanticHash(canonicalProject), [canonicalProject, hasLocalChanges]);
   const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
   const incrementalProjection = useMemo(() => !compilerAligned && routeCompiler !== undefined ? buildRouteGraphIncremental(canonicalProject, routeCompiler.compilation.cache, trustedChangedSceneIds) : undefined, [canonicalProject, compilerAligned, routeCompiler, trustedChangedSceneIds]);
-  const graph = useMemo(() => compilerAligned ? buildRouteGraphFromCompilation(canonicalProject, routeCompiler.compilation) : incrementalProjection?.graph ?? buildRouteGraph(canonicalProject), [canonicalProject, compilerAligned, incrementalProjection, routeCompiler]);
+  const flowAnalysis = useMemo(() => compilerAligned ? routeCompiler.compilation : incrementalProjection?.analysis ?? compileProject(canonicalProject, "debug"), [canonicalProject, compilerAligned, incrementalProjection, routeCompiler]);
+  const graph = useMemo(() => buildRouteGraphFromCompilation(canonicalProject, flowAnalysis), [canonicalProject, flowAnalysis]);
   const compilerStatus = compilerAligned
     ? `${compilerCacheLabels[routeCompiler.cacheStatus]} · ${routeCompiler.compilation.stats.compiledSceneIds.length} 编译 / ${routeCompiler.compilation.stats.reusedSceneIds.length} 复用`
     : incrementalProjection === undefined ? "未接入宿主缓存 · 内存全量编译" : `存在未保存改动 · 内存增量分析 · ${incrementalProjection.analysis.stats.compiledSceneIds.length} 编译 / ${incrementalProjection.analysis.stats.reusedSceneIds.length} 复用`;
@@ -2572,6 +2576,22 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
   const [endingRouteStep, setEndingRouteStep] = useState(0);
   const [selectedSceneId, setSelectedSceneId] = useState(session.activeSceneId);
   const selected = graph.nodes.find((node) => node.id === selectedSceneId) ?? graph.nodes[0];
+  const sceneFlow = useMemo(() => selected === undefined ? [] : projectSceneFlow(flowAnalysis, selected.id), [flowAnalysis, selected]);
+  const stepTitles = useMemo(() => {
+    const names: Record<string, string> = { dialogue: "对白", narration: "旁白", direction: "演出", choice: "选择", condition: "条件", jump: "跳转", call: "调用", return: "返回", label: "标签", end: "结局", set: "赋值", wait: "等待", checkpoint: "检查点" };
+    const sceneNames = new Map(session.project.scenes.map((scene) => [scene.id, scene.title]));
+    const facts = new Map(graph.nodes.flatMap((node) => node.facts.map((fact) => [fact.id, fact] as const)));
+    return new Map(session.project.scenes.flatMap((scene) => {
+      const localLabels = new Set(scene.statements.flatMap((statement) => statement.kind === "label" ? [statement.name] : []));
+      return scene.statements.map((statement) => {
+        let title = `${names[statement.kind] ?? statement.kind} · ${statementLabel(statement)}`;
+        if (statement.kind === "condition") title = facts.get(statement.id)?.label ?? title;
+        if (statement.kind === "end") title = statementLabel(statement);
+        if (statement.kind === "jump" || statement.kind === "call") title = `${names[statement.kind]} · ${localLabels.has(statement.targetLabel) ? statement.targetLabel : sceneNames.get(statement.targetLabel) ?? statement.targetLabel}`;
+        return [statement.id, title] as const;
+      });
+    }));
+  }, [session.project, graph]);
   const [title, setTitle] = useState(selected?.title ?? "");
   const [layoutX, setLayoutX] = useState(selected?.layout.x ?? 0);
   const [layoutY, setLayoutY] = useState(selected?.layout.y ?? 0);
@@ -2717,6 +2737,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         <div>
           <p className="eyebrow">N40 · CANONICAL ROUTE GRAPH</p>
           <h2 id="flow-heading">Route Map</h2>
+          {selected !== undefined && <button type="button" onClick={() => { const panel = document.getElementById("scene-flow-panel"); panel?.scrollIntoView({ block: "center" }); panel?.focus({ preventScroll: true }); }}>查看「{selected.title}」场景内走向</button>}
         </div>
         <span className="context-chip context-chip--cyan">Compiler 图事实</span>
       </div>
@@ -2833,6 +2854,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         </div>
       </div>
       {selected !== undefined && <aside className="route-inspector" aria-label="路线场景 Inspector">
+        <SceneFlowPanel key={selected.id} steps={sceneFlow} titles={stepTitles} sceneTitles={sceneTitles} sceneId={selected.id} onOpen={onOpenSequence} />
         <div><p className="eyebrow">STABLE SCENE</p><strong>{selected.title}</strong><code>{selected.id}</code></div>
         <label><span>路线场景名称</span><input aria-label="路线场景名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>节点 X</span><input type="number" aria-label="路线节点 X" value={layoutX} onChange={(event) => setLayoutX(event.currentTarget.valueAsNumber)} /></label>

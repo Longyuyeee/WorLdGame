@@ -2943,6 +2943,24 @@ textarea[data-input-state="composing"] {
 
 .route-runtime-trace strong { color: var(--wg-color-semantic-choice); }
 
+.scene-flow-panel {
+  grid-column: 1 / -1;
+  border: 1px solid var(--wg-color-border-subtle);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 520px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.scene-flow-panel p { color: var(--wg-color-text-muted); font-size: 12px; }
+.scene-flow-panel ol { padding-left: 24px; }
+.scene-flow-panel ol > li { padding: 8px 0; border-bottom: 1px solid var(--wg-color-border-subtle); }
+.scene-flow-panel ul { padding-left: 16px; }
+.scene-flow-panel button { text-align: left; white-space: normal; background: rgb(22 35 50); color: var(--wg-color-text-primary); border: 1px solid var(--wg-color-border-strong); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.scene-flow-panel button:hover { border-color: var(--wg-color-semantic-choice); }
+.scene-flow-panel button:focus-visible { outline: 2px solid var(--wg-color-semantic-choice); outline-offset: 2px; }
+.scene-flow-panel nav { display: flex; gap: 8px; align-items: center; }
+
 .route-ending-review {
   display: grid;
   grid-template-columns: minmax(240px, 0.8fr) minmax(280px, 1.2fr);
