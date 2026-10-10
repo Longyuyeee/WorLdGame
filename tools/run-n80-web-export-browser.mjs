@@ -1,11 +1,13 @@
 import { access, mkdir, mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { tmpdir } from "node:os";
 import { spawn } from "node:child_process";
 import assert from "node:assert/strict";
+import { unzipSync } from "fflate";
 
 const root = resolve(import.meta.dirname, "..");
+const directory = process.argv.includes("--directory");
 const temporary = await mkdtemp(join(tmpdir(), "world-n80-export-"));
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 async function json(url) {
@@ -60,14 +62,27 @@ try {
   await client.evaluate("Array.from(document.querySelectorAll('[role=radio]')).find(x=>x.textContent.trim()==='Writer').click()");
   await client.wait("Array.from(document.querySelectorAll('summary')).some(x=>x.textContent.includes('构建与导出'))");
   await client.evaluate("Array.from(document.querySelectorAll('summary')).find(x=>x.textContent.includes('构建与导出')).click()");
-  await client.button("构建试玩 HTML");
+  await client.button(directory ? "构建目录 ZIP" : "构建试玩 HTML");
   await client.wait("document.querySelector('.playable-web-export a[download]') !== null");
-  const artifact = await client.evaluate("(async()=>{const link=document.querySelector('.playable-web-export a[download]');return {name:link.download,html:await (await fetch(link.href)).text()};})()");
+  const artifact = await client.evaluate("(async()=>{const link=document.querySelector('.playable-web-export a[download]');const blob=await (await fetch(link.href)).blob();const data=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);});return {name:link.download,data};})()");
+  const downloaded = Buffer.from(artifact.data.split(',')[1], 'base64');
+  const files = directory ? unzipSync(downloaded) : { 'game.html': downloaded };
+  const entry = directory ? 'index.html' : 'game.html';
+  artifact.html = Buffer.from(files[entry]).toString('utf8');
   const payloadText = artifact.html.match(/<script id="world-project" type="application\/json">(.*?)<\/script>/s)?.[1];
   const payload = JSON.parse(payloadText);
   assert.equal(payload.mediaAssets.length, 1);
-  assert.equal(payload.mediaAssets[0].url, `data:${png.mimeType};base64,${png.base64}`);
-  const output = join(temporary, "game.html"); await writeFile(output, artifact.html);
+  if (directory) {
+    assert.deepEqual(Buffer.from(files[payload.mediaAssets[0].url]), Buffer.from(png.base64, 'base64'));
+    assert.ok(files['使用说明.txt']); assert.ok(files['build-info.json']);
+  } else assert.equal(payload.mediaAssets[0].url, `data:${png.mimeType};base64,${png.base64}`);
+  const unpacked = join(temporary, 'unpacked');
+  for (const [path, bytes] of Object.entries(files)) {
+    const target = resolve(unpacked, path);
+    assert.ok(target.startsWith(unpacked + sep));
+    await mkdir(dirname(target), { recursive: true }); await writeFile(target, bytes);
+  }
+  const output = join(unpacked, entry);
   await client.send("Network.enable");
   await client.send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
   await client.send("Page.navigate", { url: pathToFileURL(output).href });
@@ -92,9 +107,9 @@ try {
   await pause(200);
   const overflow = await client.evaluate("Math.max(0,document.documentElement.scrollWidth-innerWidth)");
   assert.equal(overflow, 0); assert.deepEqual(client.errors, []);
-  const evidence = { date: "2026-10-10", path: "production Editor → real PNG import → download HTML → offline file URL → formal Player → extras → ending", filename: artifact.name, bytes: Buffer.byteLength(artifact.html), mediaCount: payload.mediaAssets.length, imageDimensions: dimensions, extrasPreservedState: true, reachedEnding: true, mobileOverflow: overflow, exceptions: client.errors };
+  const evidence = { date: "2026-10-10", path: `production Editor → real PNG import → download ${directory ? 'ZIP → extract' : 'HTML'} → offline file URL → formal Player → extras → ending`, filename: artifact.name, bytes: downloaded.length, mediaCount: payload.mediaAssets.length, imageDimensions: dimensions, extrasPreservedState: true, reachedEnding: true, mobileOverflow: overflow, exceptions: client.errors };
   await mkdir(join(root, "evidence/n80"), { recursive: true });
-  await writeFile(join(root, "evidence/n80/formal-web-export.json"), JSON.stringify(evidence, null, 2) + "\n");
+  await writeFile(join(root, `evidence/n80/formal-web-${directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));

@@ -67,6 +67,10 @@ describe("playable preview integration", () => {
     expect(download).toHaveAttribute("download", "黄昏广播.html");
     expect(download).toHaveAttribute("href", "blob:playable-web");
     expect(createObjectUrl).toHaveBeenCalledWith(expect.objectContaining({ type: "text/html;charset=utf-8" }));
+    fireEvent.click(screen.getByRole("button", { name: "构建目录 ZIP" }));
+    await waitFor(() => expect(screen.getByRole("link", { name: /下载 .* KiB/ })).toHaveAttribute("download", "黄昏广播-web.zip"));
+    expect(screen.getByText(/目录包已就绪/)).toBeVisible();
+    expect(createObjectUrl).toHaveBeenLastCalledWith(expect.objectContaining({ type: "application/zip" }));
     view.unmount();
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:playable-web");
     vi.restoreAllMocks();

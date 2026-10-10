@@ -185,7 +185,7 @@ import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
 import { deriveDialoguePresentation } from "./dialogue-presentation";
-import { createFormalWebArtifact, type FormalWebArtifact } from "./formal-web-export";
+import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
 import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
@@ -2875,7 +2875,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const [playable, setPlayable] = useState<FormalPreviewState>(createIdleFormalPreviewState);
   const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(false);
   const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(null);
-  const [webBuild, setWebBuild] = useState<(FormalWebArtifact & { readonly href: string; readonly dispose: () => void }) | null>(null);
+  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuilding, setWebBuilding] = useState(false);
   const webBuildGeneration = useRef(0);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
@@ -3155,17 +3155,21 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     setPlayable(createIdleFormalPreviewState());
   };
 
-  const preparePlayableWeb = async () => {
+  const preparePlayableWeb = async (directory = false) => {
     const generation = ++webBuildGeneration.current;
     setWebBuild(null);
     setWebBuildError(null);
     setWebBuilding(true);
     try {
       const { default: runtime } = await import("virtual:world-player-export");
-      const artifact = await createFormalWebArtifact(canonicalProject, assetRepository ?? { read: async () => null }, runtime);
+      const reader = assetRepository ?? { read: async () => null };
+      const artifact = directory
+        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime)
+        : await createFormalWebArtifact(canonicalProject, reader, runtime);
       if (generation !== webBuildGeneration.current) return;
-      const href = URL.createObjectURL(new Blob([artifact.html], { type: "text/html;charset=utf-8" }));
-      setWebBuild({ ...artifact, href, dispose: () => URL.revokeObjectURL(href) });
+      const contents = "archive" in artifact ? new Uint8Array(artifact.archive) : artifact.html;
+      const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
+      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, directory, href, dispose: () => URL.revokeObjectURL(href) });
     } catch (error) {
       if (generation === webBuildGeneration.current) setWebBuildError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -3564,7 +3568,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       <div className="playable-web-export" aria-label="独立试玩导出">
         <div><strong>导出 Web 游戏</strong><small>包含当前工程、原始素材和正式播放器；下载后可独立打开。大型素材会增加文件大小。</small></div>
         <button type="button" onClick={() => void preparePlayableWeb()} disabled={pendingDraft || inputDirty || webBuilding}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
-        {webBuild && <p role="status">游戏已打包，可下载后独立打开。修改工程后需要重新构建。</p>}
+        <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={pendingDraft || inputDirty || webBuilding}>构建目录 ZIP</button>
+        <small>单文件适合直接分享；目录 ZIP 将素材独立存放，适合素材较多或上传网站。ZIP 需完整解压后打开 index.html。</small>
+        {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}
         {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
         {webBuildError && <p role="alert">{webBuildError}</p>}
       </div>

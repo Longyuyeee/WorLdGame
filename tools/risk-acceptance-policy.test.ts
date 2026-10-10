@@ -73,6 +73,7 @@ describe("risk acceptance policy", () => {
     const executionPlan = { scope: "N80-E1 formal Web export", approver: "Product Owner", approvedAt: "2026-10-10T00:00:00+08:00", evidencePath: "docs/289-user-centered-delivery-route.md", supersedesEngineeringScheduleOf: "RA-N21-011", releaseApproved: false };
     const date = new Date("2026-10-10T12:00:00+08:00");
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan }), date)).toEqual([]);
+    expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, scope: "N80-E2 Web directory export" } }), date)).toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N80", executionPlan: { ...executionPlan, releaseApproved: true } }), date)).not.toEqual([]);
     expect(validateRiskAcceptanceRegistry(registry({ currentDeliveryNode: "N81", executionPlan }), date)).not.toEqual([]);
   });

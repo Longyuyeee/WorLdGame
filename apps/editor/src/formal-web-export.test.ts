@@ -3,7 +3,8 @@ import { loadProject, migrateS0Project, type S0Project } from "@world-studio/pro
 import { createBlobDigest } from "@world-studio/project-persistence";
 import branching from "../../../fixtures/projects/branching/project.s0.json";
 import media from "../../../fixtures/projects/media/media-golden.json";
-import { createFormalWebArtifact } from "./formal-web-export";
+import { createFormalWebArtifact, createFormalWebDirectoryArtifact } from "./formal-web-export";
+import { unzipSync } from "fflate";
 
 describe("formal Web game packaging", () => {
   it("packages the exact Canonical and original media bytes without external URLs", async () => {
@@ -21,5 +22,20 @@ describe("formal Web game packaging", () => {
     expect(page.title).toBe(exported.manifest.title);
     await expect(createFormalWebArtifact(exported, { read: async () => null }, { javascript: "", css: "" })).rejects.toThrow("重新导入后重试");
     await expect(createFormalWebArtifact(exported, { read: async () => new Uint8Array([1]) }, { javascript: "", css: "" })).rejects.toThrow("缺失或不完整");
+    const directory = await createFormalWebDirectoryArtifact(exported, { read: async () => bytes }, { javascript: "window.started=true;", css: "body{margin:0}" });
+    const files = unzipSync(directory.archive);
+    const text = (path: string) => new TextDecoder().decode(files[path]);
+    const directoryPage = new DOMParser().parseFromString(text("index.html"), "text/html");
+    const directoryPayload = JSON.parse(directoryPage.getElementById("world-project")!.textContent!);
+    expect(directory.filename).toBe("My-game-script--web.zip");
+    expect(directoryPayload.project).toEqual(exported);
+    expect(files[directoryPayload.mediaAssets[0].url]).toEqual(bytes);
+    expect(directoryPage.querySelector("script[src]")?.getAttribute("src")).toBe("player.js");
+    expect(text("player.js")).toBe("window.started=true;");
+    expect(text("使用说明.txt")).toContain("完整解压");
+    const info = JSON.parse(text("build-info.json"));
+    expect(info.projectDigest).toBe(artifact.projectDigest);
+    for (const file of info.files) expect(createBlobDigest(files[file.path]!)).toBe(file.digest);
+    await expect(createFormalWebDirectoryArtifact(exported, { read: async () => null }, { javascript: "", css: "" })).rejects.toThrow("重新导入后重试");
   });
 });

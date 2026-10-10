@@ -39,8 +39,8 @@ export function validateRiskAcceptanceRegistry(registry, now = new Date()) {
   // The current user-approved task supersedes the old engineering schedule,
   // while historical acceptance and release controls stay in force.
   const plan = registry?.executionPlan;
-  const currentPlan = plan?.scope === "N80-E1 formal Web export" && plan?.approver === "Product Owner" && validDate(plan?.approvedAt) && Date.parse(plan.approvedAt) <= now.getTime() && plan?.evidencePath === "docs/289-user-centered-delivery-route.md" && plan?.supersedesEngineeringScheduleOf === "RA-N21-011" && plan?.releaseApproved === false && registry.currentDeliveryNode === "N80";
-  if (plan !== undefined && !currentPlan) violations.push("executionPlan must identify the approved N80-E1 task without granting release approval");
+  const currentPlan = ["N80-E1 formal Web export", "N80-E2 Web directory export"].includes(plan?.scope) && plan?.approver === "Product Owner" && validDate(plan?.approvedAt) && Date.parse(plan.approvedAt) <= now.getTime() && plan?.evidencePath === "docs/289-user-centered-delivery-route.md" && plan?.supersedesEngineeringScheduleOf === "RA-N21-011" && plan?.releaseApproved === false && registry.currentDeliveryNode === "N80";
+  if (plan !== undefined && !currentPlan) violations.push("executionPlan must identify an approved N80 export task without granting release approval");
   if (registry?.schemaVersion !== 1) violations.push("risk acceptance registry must use schemaVersion 1");
   if (!deliveryNodeOrder.includes(registry?.currentDeliveryNode)) violations.push("currentDeliveryNode is not a known delivery node");
   if (!Array.isArray(registry?.exceptions)) violations.push("risk acceptance registry must contain exceptions[]");

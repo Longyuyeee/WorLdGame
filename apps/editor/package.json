@@ -17,6 +17,7 @@
     "@world-studio/runtime-host": "0.1.0-n32",
     "@world-studio/story-core": "0.0.0-s0.29",
     "@world-studio/story-language": "0.1.0-n20",
+    "fflate": "^0.8.3",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "xlsx": "0.18.5"

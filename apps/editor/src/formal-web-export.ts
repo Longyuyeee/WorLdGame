@@ -1,6 +1,7 @@
 import { compileProject } from "@world-studio/project-compiler";
 import { semanticHash, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
+import { zip } from "fflate";
 
 export interface FormalWebArtifact {
   readonly filename: string;
@@ -13,11 +14,10 @@ function htmlText(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-export async function createFormalWebArtifact(
+async function readExportMedia(
   project: CanonicalProject,
-  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
-  runtime: { readonly javascript: string; readonly css: string }
-): Promise<FormalWebArtifact> {
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> }
+) {
   const compilation = compileProject(project, "release");
   if (!compilation.ok) throw new Error(`请先修复工程问题：${compilation.diagnostics.filter((item) => item.severity === "error").map((item) => item.message).join("；")}`);
   const mediaAssets = [];
@@ -32,13 +32,69 @@ export async function createFormalWebArtifact(
     if (bytes === null || createBlobDigest(bytes) !== source.digest || bytes.byteLength !== source.byteLength) {
       throw new Error(`资源“${name}”缺失或不完整，请重新导入后重试。`);
     }
+    mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });
+  }
+  return mediaAssets;
+}
+
+function exportStem(project: CanonicalProject): string {
+  return project.manifest.title.normalize("NFKC").replace(/[^\p{Letter}\p{Number}_-]+/gu, "-") || "world-game";
+}
+
+export async function createFormalWebArtifact(
+  project: CanonicalProject,
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
+  runtime: { readonly javascript: string; readonly css: string }
+): Promise<FormalWebArtifact> {
+  const mediaAssets = (await readExportMedia(project, reader)).map(({ bytes, digest: _digest, ...asset }) => {
     let binary = "";
     for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
-    mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, url: `data:${source.mimeType};base64,${btoa(binary)}` });
-  }
+    return { ...asset, url: `data:${asset.mimeType};base64,${btoa(binary)}` };
+  });
   const payload = JSON.stringify({ project, mediaAssets }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
   const title = htmlText(project.manifest.title);
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${runtime.css.replace(/<\/style/gi, "<\\/style")}</style></head><body><div id="player-root">正在打开游戏…</div><script id="world-project" type="application/json">${payload}</script><script>${runtime.javascript.replace(/<\/script/gi, "<\\/script")}</script></body></html>`;
-  const stem = project.manifest.title.normalize("NFKC").replace(/[^\p{Letter}\p{Number}_-]+/gu, "-") || "world-game";
+  const stem = exportStem(project);
   return { filename: `${stem}.html`, html, byteLength: new TextEncoder().encode(html).byteLength, projectDigest: semanticHash(project) };
+}
+
+export async function createFormalWebDirectoryArtifact(
+  project: CanonicalProject,
+  reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
+  runtime: { readonly javascript: string; readonly css: string }
+) {
+  const encode = (text: string) => new TextEncoder().encode(text);
+  const files: Record<string, Uint8Array> = {};
+  const extensions: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg", "image/gif": "gif", "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/mp4": "mp4", "video/webm": "webm", "font/woff2": "woff2", "font/woff": "woff", "font/ttf": "ttf", "font/otf": "otf" };
+  const assets = await readExportMedia(project, reader);
+  const mediaAssets = assets.map(({ bytes, digest, ...asset }) => {
+    const url = `media/${digest.slice(7)}.${extensions[asset.mimeType] ?? "bin"}`;
+    files[url] = bytes;
+    return { ...asset, url };
+  });
+  const payload = JSON.stringify({ project, mediaAssets }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
+  files["index.html"] = encode(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${htmlText(project.manifest.title)}</title><link rel="stylesheet" href="player.css"></head><body><div id="player-root">正在打开游戏…如果一直停留在这里，请先解压整个 ZIP，再打开 index.html，并确认 player.js 与它在同一文件夹。</div><script id="world-project" type="application/json">${payload}</script><script src="player.js"></script></body></html>`);
+  files["player.js"] = encode(runtime.javascript);
+  files["player.css"] = encode(runtime.css);
+  const projectDigest = semanticHash(project);
+  files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
+  files["使用说明.txt"] = encode(`Web 游戏目录包
+
+本地试玩：
+1. 将 ZIP 完整解压到一个新文件夹，不要直接在压缩软件中打开游戏。
+2. 用 Chrome 或 Edge 打开 index.html，无需安装开发工具或联网。
+3. 保持 index.html、player.js、player.css 和 media 文件夹的相对位置不变。
+
+分享和发布：
+分享整个 ZIP，不要只发送 index.html。也可以将解压后的全部文件上传到静态网站，访问该目录的 index.html。
+
+遇到问题：
+页面停在“正在打开游戏”时检查是否完整解压；素材缺失时重新解压整个包。声音可能需要点击开始故事后才播放。
+本地文件存档取决于浏览器支持，移动文件夹、换浏览器或换电脑不保证保留存档。请保留原目录和原浏览器，不要把游戏 ZIP 当作存档备份。
+此包尚不含 PWA 安装和网站离线缓存；网站访问与直接打开本地目录是不同的使用方式。
+
+素材为原始文件，未进行压缩优化；目录包避免 Base64 膨胀，但打包仍需要浏览器内存，小工程可能因附加文件而略大。build-info.json 记录工程标识、文件大小与摘要，供定位版本问题。
+`);
+  const archive = await new Promise<Uint8Array>((resolve, reject) => zip(files, { level: 0 }, (error, data) => error ? reject(error) : resolve(data)));
+  return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest };
 }
