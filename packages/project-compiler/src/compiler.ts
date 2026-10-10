@@ -1,7 +1,7 @@
 import { semanticHash, sha256, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
 import { isDialogueTemplate, isStageTransition, parseTypedExpression, validateStageBezierMotionParameters, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
-import { crossSceneExitDiagnostics } from "./cross-scene-exits";
+import { conditionAwareExitDiagnostics } from "./condition-exits";
 import { ADDITIONAL_CONTENT_SCREEN_ID, additionalContentCatalogOverrides, type AdditionalContentCatalogKind, type AdditionalContentCatalogOverride } from "./catalog-overrides";
 import {
   PROJECT_COMPILER_VERSION, RUNTIME_IR_VERSION,
@@ -364,7 +364,7 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const graph = new Map(project.scenes.map((scene) => [scene.id, new Set(sceneCache[scene.id]?.targetSceneIds ?? [])])); const reachableScenes = new Set<string>(); const queue = sceneIds.has(project.manifest.entrySceneId) ? [project.manifest.entrySceneId] : [];
   for (let cursor = 0; cursor < queue.length; cursor += 1) { const sceneId = queue[cursor]!; if (reachableScenes.has(sceneId)) continue; reachableScenes.add(sceneId); for (const target of graph.get(sceneId) ?? []) if (!reachableScenes.has(target)) queue.push(target); }
   for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
-  diagnostics.push(...crossSceneExitDiagnostics(sceneCache, graph, reachableScenes, new Map(project.scenes.map((scene) => [scene.id, scene.title]))));
+  diagnostics.push(...conditionAwareExitDiagnostics(sceneCache, graph, reachableScenes, new Map(project.scenes.map((scene) => [scene.id, scene.title])), project.manifest.entrySceneId));
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId)).sort((left, right) => compareCanonicalStrings(left.endingId, right.endingId));
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));
   const galleryIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.galleryAssetIds)); const musicIds = uniqueSorted(Object.values(sceneCache).flatMap((entry) => entry.musicAssetIds));
@@ -492,7 +492,7 @@ export function analyzeProjectIncremental(project: CanonicalProject, options: In
   const queue = sceneIds.has(project.manifest.entrySceneId) ? [project.manifest.entrySceneId] : [];
   for (let cursor = 0; cursor < queue.length; cursor += 1) { const sceneId = queue[cursor]!; if (reachableScenes.has(sceneId)) continue; reachableScenes.add(sceneId); for (const target of graph.get(sceneId) ?? []) if (!reachableScenes.has(target)) queue.push(target); }
   for (const scene of project.scenes) if (!reachableScenes.has(scene.id)) diagnostics.push(diagnostic("UNREACHABLE_SCENE", `Scene is unreachable from entry: ${scene.id}`, { sceneId: scene.id }));
-  diagnostics.push(...crossSceneExitDiagnostics(sceneCache, graph, reachableScenes, new Map(project.scenes.map((scene) => [scene.id, scene.title]))));
+  diagnostics.push(...conditionAwareExitDiagnostics(sceneCache, graph, reachableScenes, new Map(project.scenes.map((scene) => [scene.id, scene.title])), project.manifest.entrySceneId));
   const endings = Object.values(sceneCache).flatMap((entry) => entry.endings).filter((ending) => reachableScenes.has(ending.sceneId));
   const endingsByScene = endingIdsByScene(endings);
   if (endings.length === 0) diagnostics.push(diagnostic("NO_REACHABLE_ENDING", "No ending is reachable from the project entry scene"));

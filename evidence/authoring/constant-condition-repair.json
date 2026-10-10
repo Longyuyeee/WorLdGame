@@ -1,0 +1,20 @@
+{
+  "sourceProject": "rainy-promise-beginner.zip",
+  "authoredThroughUi": true,
+  "sceneCount": 5,
+  "brokenRouteSavedAndReopened": true,
+  "flowAndQaSourceLocation": true,
+  "healthyBranchPlayableBeforeRepair": true,
+  "undoRestoresWarnings": true,
+  "redoClearsWarnings": true,
+  "exactSourceAfterReopen": true,
+  "repairedEnding": "约定达成",
+  "unaffectedEnding": "书香结局",
+  "bothBranchesReplayedAfterReopen": true,
+  "projectArchive": "rainy-promise-constant-repaired.zip",
+  "initialExpression": "1 > 2",
+  "repairedExpression": "variable_134a9334fe294861 >= 0",
+  "trueConditionExplained": true,
+  "falseExitDoesNotHideLoop": true,
+  "exceptions": []
+}

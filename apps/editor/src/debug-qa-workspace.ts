@@ -104,6 +104,7 @@ export function restoreDebugQaFinding(project: CanonicalProject, findingId: stri
 }
 
 export function storyQaCategoryForCode(code: string): StoryQaCategory {
+  if (code === "CONSTANT_CONDITION_TRUE" || code === "CONSTANT_CONDITION_FALSE") return "reachability";
   if (["MISSING_ENTRY_SCENE", "NO_REACHABLE_ENDING", "UNREACHABLE_SCENE", "UNREACHABLE_STATEMENT"].includes(code)) return "reachability";
   if (code === "SCENE_NO_EXIT" || code === "CROSS_SCENE_NO_EXIT") return "exit";
   if (["MISSING_ASSET", "INVALID_ASSET"].includes(code)) return "resource";

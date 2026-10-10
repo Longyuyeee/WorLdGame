@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 
-export async function runCreatorCrossSceneRepairWorkflow(client, root) {
+export async function runCreatorCrossSceneRepairWorkflow(client, root, { constant = false } = {}) {
   const field=async(selector,value)=>{
     await client.wait(`document.querySelector(${JSON.stringify(selector)})`);
     await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});const p=e.tagName==='SELECT'?HTMLSelectElement.prototype:e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(p,'value').set.call(e,${JSON.stringify(value)});e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));e.dispatchEvent(new FocusEvent('focusout',{bubbles:true}));})()`);
@@ -35,27 +35,44 @@ export async function runCreatorCrossSceneRepairWorkflow(client, root) {
   for(const [name,target] of [['海边',alley],['雨巷',sea]]){
     await scene(name);await insert('jump');await field('.sequence-inspector select[name=target]',target);await client.button('应用类型化参数');
   }
+  let variable;
+  if(constant){
+    await insert('condition');await field('input[name=expression]','1 > 2');await field('select[name=target]',finish);await client.button('应用类型化参数');
+    await client.button('语句上移'); // The condition must execute before the loop jump.
+    variable=await client.evaluate("document.querySelector('[aria-label=判断变量]').value");assert.ok(variable);
+  }
   const failingStatement=await client.evaluate("document.querySelector('.app-shell').dataset.contextStatementId");
+  const code=constant?'CONSTANT_CONDITION_FALSE':'CROSS_SCENE_CLOSED_CYCLE';
   await client.button('编辑脚本');const broken=await source();await save();await reopen();
   await client.button('查看分支走向');
   await client.wait("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_CLOSED_CYCLE')");
   assert.ok(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_NO_EXIT')"));
-  await client.button(`进入诊断内容：CROSS_SCENE_CLOSED_CYCLE · ${failingStatement}`);
+  await client.button(`进入诊断内容：${code} · ${failingStatement}`);
   assert.equal(await client.evaluate("document.querySelector('.app-shell').dataset.contextStatementId"),failingStatement);
   await play('去书店','书香结局'); // Warnings do not block the healthy branch.
   await client.button('检查与修复问题');await client.button('运行正式 QA 检查');
   await client.wait("Array.from(document.querySelectorAll('.debug-qa-finding')).some(e=>e.textContent.includes('CROSS_SCENE_CLOSED_CYCLE'))");
-  const finding=`Array.from(document.querySelectorAll('.debug-qa-finding')).find(e=>e.querySelector('code').textContent==='CROSS_SCENE_CLOSED_CYCLE'&&e.querySelector('footer code').textContent.includes(${JSON.stringify(failingStatement)}))`;
-  assert.equal(await client.evaluate(`${finding}.querySelector('.debug-qa-finding__category').textContent`),'循环');
+  const finding=`Array.from(document.querySelectorAll('.debug-qa-finding')).find(e=>e.querySelector('code').textContent===${JSON.stringify(code)}&&e.querySelector('footer code').textContent.includes(${JSON.stringify(failingStatement)}))`;
+  assert.equal(await client.evaluate(`${finding}.querySelector('.debug-qa-finding__category').textContent`),constant?'可达性':'循环');
   await client.evaluate(`${finding}.scrollIntoView({block:'center'})`);
   const screenshot=(await client.send('Page.captureScreenshot',{format:'png'})).data;
   await client.evaluate(`Array.from(${finding}.querySelectorAll('button')).find(e=>e.textContent==='定位并修复').click()`);
   assert.equal(await client.evaluate("document.querySelector('.app-shell').dataset.contextStatementId"),failingStatement);
-  await field('.sequence-inspector select[name=target]',finish);await client.button('应用类型化参数');
-  await client.button('编辑脚本');const fixed=await source();assert.equal(fixed,broken.replace(sea,finish));
+  if(constant){
+    await field('input[name=expression]','true');await client.button('应用类型化参数');await client.button('查看分支走向');
+    assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
+    await client.button(`进入诊断内容：CONSTANT_CONDITION_TRUE · ${failingStatement}`);
+    await field('[aria-label=比较方式]','>=');await field('[aria-label=比较值]','0');await client.button('生成条件表达式');
+  } else await field('.sequence-inspector select[name=target]',finish);
+  await client.button('应用类型化参数');
+  await client.button('编辑脚本');const fixed=await source();assert.equal(fixed,constant?broken.replace('1 > 2',`${variable} >= 0`):broken.replace(sea,finish));
   await client.button('查看分支走向');assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
-  await client.button('撤销');assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_CLOSED_CYCLE')"),true);
-  await client.button('重做');assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
+  await client.button('撤销');
+  if(constant){assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CONSTANT_CONDITION_TRUE')"),true);await client.button('撤销');}
+  assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_CLOSED_CYCLE')"),true);
+  await client.button('重做');if(constant)await client.button('重做');
+  assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
+  if(constant)assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CONSTANT_CONDITION_')"),false);
   await play('去海边','约定达成');await play('去书店','书香结局');await save();await reopen();
   await scene('雨巷');await client.button('编辑脚本');assert.equal(await source(),fixed);
   await client.button('查看分支走向');assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
@@ -64,5 +81,5 @@ export async function runCreatorCrossSceneRepairWorkflow(client, root) {
   await client.button('返回项目结构');await client.button('返回项目首页');await client.button('雨后的约定');await client.button('准备导出 ZIP');
   await client.wait("document.querySelector('.project-home__status a[download]')");
   const archive=await client.evaluate("(async()=>{const b=await(await fetch(document.querySelector('.project-home__status a[download]').href)).blob();return await new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.readAsDataURL(b);});})()");
-  return {archive,screenshot,evidence:{sourceProject:'rainy-promise-beginner.zip',authoredThroughUi:true,sceneCount:5,brokenRouteSavedAndReopened:true,flowAndQaSourceLocation:true,healthyBranchPlayableBeforeRepair:true,undoRestoresWarnings:true,redoClearsWarnings:true,exactSourceAfterReopen:true,repairedEnding:'约定达成',unaffectedEnding:'书香结局',bothBranchesReplayedAfterReopen:true,projectArchive:'rainy-promise-cross-scene-repaired.zip',exceptions:client.errors}};
+  return {archive,screenshot,evidence:{sourceProject:'rainy-promise-beginner.zip',authoredThroughUi:true,sceneCount:5,brokenRouteSavedAndReopened:true,flowAndQaSourceLocation:true,healthyBranchPlayableBeforeRepair:true,undoRestoresWarnings:true,redoClearsWarnings:true,exactSourceAfterReopen:true,repairedEnding:'约定达成',unaffectedEnding:'书香结局',bothBranchesReplayedAfterReopen:true,projectArchive:constant?'rainy-promise-constant-repaired.zip':'rainy-promise-cross-scene-repaired.zip',...(constant?{initialExpression:'1 > 2',repairedExpression:`${variable} >= 0`,trueConditionExplained:true,falseExitDoesNotHideLoop:true}:{}),exceptions:client.errors}};
 }

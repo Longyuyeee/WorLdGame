@@ -84,7 +84,13 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--cross-scene-repair-workflow')) {
+  if(process.argv.includes('--constant-condition-repair-workflow')) {
+    const result=await runCreatorCrossSceneRepairWorkflow(client,root,{constant:true});
+    await writeFile(join(root,'evidence/authoring/rainy-promise-constant-repaired.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/constant-condition-repair.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,'evidence/authoring/constant-condition-repair.png'),Buffer.from(result.screenshot,'base64'));
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else if(process.argv.includes('--cross-scene-repair-workflow')) {
     const result=await runCreatorCrossSceneRepairWorkflow(client,root);
     await writeFile(join(root,'evidence/authoring/rainy-promise-cross-scene-repaired.zip'),Buffer.from(result.archive,'base64'));
     await writeFile(join(root,'evidence/authoring/cross-scene-repair.json'),JSON.stringify(result.evidence,null,2)+'\n');

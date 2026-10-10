@@ -56,7 +56,7 @@ describe("cross-scene structural exits", () => {
     expect(cross(analyzeProjectIncremental(replace(project(), "loop_b", [
       { id: "maybe_exit", kind: "condition", expression: "false", targetLabel: "finish" },
       { id: "back", kind: "jump", targetLabel: "loop_a" }
-    ])))).toEqual([]); // Structural possibility only, deliberately not constant folding.
+    ])))).toHaveLength(3); // Constant-false exits no longer hide the closed cycle.
   });
   it("treats invalid references as unknown and handles explicit scene self-loops", () => {
     expect(cross(analyzeProjectIncremental(replace(project(), "loop_b", [{ id: "missing", kind: "jump", targetLabel: "missing" }])))).toEqual([]);
