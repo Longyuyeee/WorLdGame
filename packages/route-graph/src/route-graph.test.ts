@@ -35,6 +35,19 @@ function routeProject(includeDangling = true): CanonicalProject {
 }
 
 describe("N40 route graph", () => {
+  it("summarizes compiled conditions using variable names without rewriting literals or precedence", () => {
+    const base = routeProject(false);
+    const project = { ...base, variables: { ...base.variables, variables: [
+      { id: "flag", name: "已赴约", type: "boolean" as const, defaultValue: false, scope: "story" as const }
+    ] }, scripts: { ...base.scripts, route_entry: { ...base.scripts.route_entry!, statements: [
+      { id: "summary_condition", kind: "condition", expression: '!(flag == true) || "flag" == "flag"', targetLabel: "route_left" }
+    ] } } };
+    const graph = buildRouteGraph(project);
+    expect(graph.nodes[0]?.facts[0]?.label).toBe('条件 (!((已赴约 [flag] == true)) || ("flag" == "flag"))；不成立则继续下一步');
+    expect(queryRouteGraphWindow(createRouteGraphIndex(graph), { query: "已赴约" }).nodes.map((node) => node.id)).toEqual(["route_entry"]);
+    const renamed = { ...project, variables: { ...project.variables, variables: project.variables.variables.map((variable) => ({ ...variable, name: "完成约定" })) } };
+    expect(buildRouteGraphFromCompilation(renamed, compileProject(project, "debug")).nodes[0]?.facts[0]?.label).toContain("完成约定 [flag]");
+  });
   it("projects cross-scene control edges but preserves Compiler local-label precedence", () => {
     const base = routeProject(false);
     const project = { ...base, scripts: { ...base.scripts, route_entry: {

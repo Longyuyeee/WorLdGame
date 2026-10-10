@@ -115,6 +115,26 @@ function repairableRouteStory(): StoryProject {
 }
 
 describe("N40 Route Map product flow", () => {
+  it("shows a local condition and opens its source statement for editing", async () => {
+    const base = projectCanonicalFromStory(labelNavigationStory(), "condition-summary");
+    const project = { ...base, variables: { ...base.variables, variables: [{ id: "attended", name: "已经赴约", type: "boolean" as const, defaultValue: false, scope: "story" as const }] }, scripts: { ...base.scripts, label_scene: { ...base.scripts.label_scene!, statements: [
+      { id: "condition_attended", kind: "condition", expression: "attended == true", targetLabel: "finish" },
+      ...base.scripts.label_scene!.statements
+    ] } } };
+    render(<App initialProject={project} />);
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    const edit = screen.getByRole("button", { name: "修改条件：condition_attended" });
+    expect(edit).toHaveTextContent("已经赴约 [attended] == true");
+    expect(edit).toHaveTextContent("不成立则继续下一步");
+    fireEvent.click(edit);
+    expect(screen.getByRole("tab", { name: "Sequence" })).toHaveAttribute("aria-selected", "true");
+    const expression = document.querySelector('input[name="expression"]')!;
+    expect(expression).toHaveValue("attended == true");
+    fireEvent.change(expression, { target: { value: "attended == false" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用类型化参数" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    expect(screen.getByRole("button", { name: "修改条件：condition_attended" })).toHaveTextContent("已经赴约 [attended] == false");
+  });
   it("edits a cross-scene jump from Flow, plays and reloads the saved route without Choice repair", async () => {
     const indexedDb = new IDBFactory();
     vi.stubGlobal("indexedDB", indexedDb);

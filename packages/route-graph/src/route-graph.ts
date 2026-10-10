@@ -145,7 +145,17 @@ function stringOperand(instruction: RuntimeInstructionV1, key: string): string |
   return typeof value === "string" ? value : undefined;
 }
 
-function fact(instruction: RuntimeInstructionV1): RouteFactV1 | undefined {
+function expressionSummary(value: unknown, names: ReadonlyMap<string, string>): string {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return "表达式不可用";
+  const node = value as Record<string, unknown>;
+  if (node.kind === "identifier" && typeof node.name === "string") return names.get(node.name) ?? node.name;
+  if (node.kind === "literal") return JSON.stringify(node.value) ?? "表达式不可用";
+  if (node.kind === "unary") return `${node.operator}(${expressionSummary(node.operand, names)})`;
+  if (node.kind === "binary") return `(${expressionSummary(node.left, names)} ${node.operator} ${expressionSummary(node.right, names)})`;
+  return "表达式不可用";
+}
+
+function fact(instruction: RuntimeInstructionV1, names: ReadonlyMap<string, string>): RouteFactV1 | undefined {
   if (instruction.opcode === "choice") return { id: instruction.instructionId, kind: "choice", label: stringOperand(instruction, "prompt") ?? "未命名选择" };
   if (instruction.opcode === "label") return { id: instruction.instructionId, kind: "label", label: stringOperand(instruction, "name") ?? "未命名标签" };
   if (instruction.opcode === "jump" || instruction.opcode === "call" || instruction.opcode === "condition") {
@@ -153,7 +163,7 @@ function fact(instruction: RuntimeInstructionV1): RouteFactV1 | undefined {
     return {
       id: instruction.instructionId,
       kind: instruction.opcode,
-      label: instruction.opcode === "condition" ? "条件分支" : instruction.opcode === "jump" ? "跳转" : "调用",
+      label: instruction.opcode === "condition" ? `条件 ${expressionSummary(instruction.operands.expressionAst, names)}；不成立则继续下一步` : instruction.opcode === "jump" ? "跳转" : "调用",
       ...(targetLabel === undefined ? {} : { targetLabel })
     };
   }
@@ -193,6 +203,8 @@ function instructionEdges(instruction: RuntimeInstructionV1, sourceSceneId: stri
 
 export function buildRouteGraphFromCompilation(project: CanonicalProject, compilation: ProjectAnalysisResult): RouteGraphV1 {
   const knownSceneIds = new Set(project.scenes.map((scene) => scene.id));
+  const variableNames = new Map<string, string>(project.variables.variables.flatMap((variable) =>
+    typeof variable.id === "string" && typeof variable.name === "string" ? [[variable.id, `${variable.name} [${variable.id}]`] as const] : []));
   const chapterByScene = new Map<string, string>();
   let sceneOffset = 0;
   const chapters = project.chapters.map<RouteChapterV1>((chapter) => {
@@ -204,7 +216,7 @@ export function buildRouteGraphFromCompilation(project: CanonicalProject, compil
   if (sceneOffset !== project.scenes.length) throw new Error("Route graph chapter topology does not match the project scenes");
   const nodes = project.scenes.map<RouteSceneNodeV1>((scene, sceneIndex) => {
     const instructions = compilation.cache.scenes[scene.id]?.scene.instructions ?? [];
-    const facts = instructions.flatMap((instruction) => fact(instruction) ?? []);
+    const facts = instructions.flatMap((instruction) => fact(instruction, variableNames) ?? []);
     return {
       id: scene.id,
       title: scene.title,
