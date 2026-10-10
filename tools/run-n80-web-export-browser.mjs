@@ -82,11 +82,16 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--asset-repair-workflow')) {
-    const result = await runCreatorAssetRepairWorkflow(client, root, temporary);
-    await writeFile(join(root,'evidence/authoring/rainy-promise-assets-repaired.zip'),Buffer.from(result.archive,'base64'));
-    await writeFile(join(root,'evidence/authoring/asset-repair-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');
-    await writeFile(join(root,'evidence/authoring/asset-repair-preview.png'),Buffer.from(result.screenshot,'base64'));
+  if(process.argv.includes('--asset-repair-workflow') || process.argv.includes('--beginner-assets-workflow')) {
+    const beginner=process.argv.includes('--beginner-assets-workflow');
+    const result = await runCreatorAssetRepairWorkflow(client, root, temporary, {beginner});
+    const prefix=beginner?'beginner-assets':'asset-repair';
+    const archive=beginner?'rainy-promise-beginner-assets.zip':'rainy-promise-assets-repaired.zip';
+    result.evidence.experienceLevel=beginner?'beginner':'pro';
+    result.evidence.projectArchive=archive;
+    await writeFile(join(root,'evidence/authoring',archive),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,`evidence/authoring/${prefix}-workflow.json`),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,`evidence/authoring/${prefix}-preview.png`),Buffer.from(result.screenshot,'base64'));
     console.log(JSON.stringify(result.evidence,null,2));
   } else if(process.argv.includes('--repair-workflow')) {
     const result = await runCreatorRepairWorkflow(client, root);
@@ -154,11 +159,13 @@ try {
     await writeFile(join(root,'evidence/authoring/media-preview.png'),Buffer.from(result.screenshot,'base64'));
     await writeFile(join(root,'evidence/authoring/media-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');
     console.log(JSON.stringify(result.evidence,null,2));
-  } else if(process.argv.includes('--writing-workflow')) {
-    const result=await runCreatorWritingWorkflow(client);
+  } else if(process.argv.includes('--writing-workflow') || process.argv.includes('--beginner-writing-workflow')) {
+    const beginner=process.argv.includes('--beginner-writing-workflow');
+    const result=await runCreatorWritingWorkflow(client,{beginner});
+    if(result.screenshot) await writeFile(join(root,'evidence/authoring/beginner-writing.png'),Buffer.from(result.screenshot,'base64'));
     await mkdir(join(root,'evidence/authoring'),{recursive:true});
-    await writeFile(join(root,'evidence/authoring/rainy-promise.zip'),Buffer.from(result.archive,'base64'));
-    await writeFile(join(root,'evidence/authoring/continuous-writing.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,beginner?'evidence/authoring/rainy-promise-beginner.zip':'evidence/authoring/rainy-promise.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,beginner?'evidence/authoring/beginner-writing.json':'evidence/authoring/continuous-writing.json'),JSON.stringify(result.evidence,null,2)+'\n');
     console.log(JSON.stringify(result.evidence,null,2));
   } else {
   await client.button("打开示例工程"); await client.button("进入编辑器");

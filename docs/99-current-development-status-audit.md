@@ -1,4 +1,18 @@
-# 当前开发情况：素材引用故障恢复作者任务贯通
+# 当前开发情况：Beginner 短篇创作与修复主线贯通
+
+## 最新审计：2026-10-10 Beginner 作者完整任务
+
+需求依据：PRD §3.6 的无损布局切换、UX #04 §3.2 的低频参数披露及 #89/#289 当前接续。检查了 experience-level、App 导航/SceneRail/Sequence/资源窗口/预览、生产 CSS 与既有渐进披露及保存恢复测试。确认偏移不是底层能力缺失，而是 Beginner 隐藏 `.rail-card-stack` 和整个正式 `.statement-toolbar`，导致素材、旁白、选择、条件等入口不可用，连插入失败原因也隐藏。
+
+处理：正式插入栏与阻碍提示重新可见，旧重复对白快捷栏在 Beginner 收起；创作任务导航复用原工作区/视图与 Scene/Statement，不创建内容副本，未提交输入时禁用。资源生命周期/安全回收/Dicing 技术区用原生可展开区披露，Beginner 默认折叠，Pro 默认展开，子组件不卸载；导入/改名/替换/引用修复不折叠。已有 Runtime 诊断折叠能力保留，不重做。顶部既有保存仍是唯一编辑器保存实现，说明本地保存不等于跨电脑传输。
+
+验证：8 文件 57 项相关回归通过，涵盖 App 基线、Beginner/Pro 上下文及重开、素材编辑导入、创作导航、两个布局下错误草稿阻断/定位/修复/历史及正式调试。类型检查、Editor production 构建、diff 检查通过，原大 bundle 警告不变。没有声称跑完全仓。新测试最初漏换一处 Pro 的 QA 选择器，改为使用 Beginner 用户实际的任务入口后通过，未修改产品逻辑来绕过断言。
+
+真实 Chromium：`--beginner-writing-workflow` 从空工程创建《雨后的约定》，两角色/三场景/变量/两结局，插入→两路线试玩→修改→保存刷新重开→两路线再通过→工程 ZIP；路线/QA 往返选中步骤不变。`--beginner-assets-workflow` 在同名已有媒体工程完成类型拒绝/替换/撤销重做/缺失引用定位修复/重开/Canvas 像素变化/原结局。两条任务不切回 Pro，异常均 0；插入及文件选择器验证真实可见，技术折叠可展开。两条证据来自两个独立浏览器工程，不能说成一次连续新建到全部媒体修复的操作。
+
+证据：`evidence/authoring/beginner-writing.json`、`beginner-writing.png`、`rainy-promise-beginner.zip`；`beginner-assets-workflow.json`、`beginner-assets-preview.png`、`rainy-promise-beginner-assets.zip`。390×844 只核对新任务导航边界和按钮高度，未验收整个移动布局或 Android。浏览器复跑前构建 Editor，并设置 `WORLD_STUDIO_BROWSER_PATH` 指向可用 Chromium。
+
+CI：上阶段精确头 `70766a0` run `38062852317` 已成功，本次新头待推送后确认。下一整体任务是原始 Route P0/全局与局部规划修改能力差距审计和补齐，具体顺序以 #89/#289 顶部为准；现有局部步骤列表不冒充自由节点画布。资源优化、Android 真机、真人完整 UI 验收及 M1 保持未完成。下方素材审计为历史成果。
 
 ## 最新审计：2026-10-10 素材引用故障恢复
 

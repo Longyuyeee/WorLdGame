@@ -748,6 +748,7 @@ function canBuildThumbnail(entry: AssetIndex["assets"][number]): boolean {
 }
 
 interface AssetVaultDialogProps {
+  readonly experienceLevel: ExperienceLevelId;
   readonly onCheckSource: (entry: AssetIndexEntry) => Promise<string>;
   readonly project: StoryProject;
   readonly onOpenUsage: (sceneId: string, statementId: string) => void;
@@ -789,6 +790,7 @@ interface AssetVaultDialogProps {
 }
 
 function AssetVaultDialog({
+  experienceLevel,
   project, onOpenUsage, onRename, onUndoAsset, onRedoAsset, canUndoAsset, canRedoAsset, onCheckSource,
   index,
   lifecycle,
@@ -881,6 +883,8 @@ function AssetVaultDialog({
           </li>)}</ul>}
           <small>此列表检查已提交演出的 asset/transitionAsset 引用，不代表底层文件均可读取；有错误草稿请先修复。</small>
         </section>
+        <details className="author-technical-details" open={experienceLevel === "pro"}>
+          <summary>高级资源维护与优化</summary>
         <section className="asset-lifecycle" aria-label="资源生命周期">
           <div className="asset-lifecycle__heading">
             <div><p className="eyebrow">SOURCE → DERIVATIVE LINEAGE</p><h3>资源血缘与安全回收</h3></div>
@@ -961,6 +965,7 @@ function AssetVaultDialog({
           </div>}
         </section>
 
+        </details>
         <form className="asset-import-form" onSubmit={submit}>
           <label className="asset-file-picker">
             <span>{file === null ? "选择图片、音频、视频或字体" : file.name}</span>
@@ -5039,6 +5044,15 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           dispatch({ type: "select-scene", sceneId }); setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script");
         }}>修复草稿：{session.project.scenes.find((scene) => scene.id === sceneId)?.title ?? sceneId}</button>)}
       </section>}
+      {experienceLevel === "beginner" && <nav className="author-task-navigation" aria-label="创作任务">
+        <span>当前场景：{session.project.scenes.find((scene) => scene.id === session.activeSceneId)?.title}</span>
+        <button type="button" disabled={inputDirty} onClick={() => { setSettingsOpen(false); setWorkspaceMode("writer"); setMode("sequence"); }}>继续写作</button>
+        <button type="button" disabled={inputDirty} onClick={() => setAssetPanelOpen(true)}>管理素材</button>
+        <button type="button" disabled={inputDirty} onClick={() => selectWorkspaceMode("flow")}>查看分支走向</button>
+        <button type="button" disabled={inputDirty} onClick={() => selectWorkspaceMode("debug-qa")}>检查与修复问题</button>
+        <button type="button" disabled={inputDirty} onClick={() => { setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script"); }}>编辑脚本</button>
+        <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。更换电脑请从项目首页导出工程 ZIP。"}</small>
+      </nav>}
       <main className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
         {settingsOpen ? <>
           <SettingsWorkspace
@@ -5167,6 +5181,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
       )}
       {assetPanelOpen && (
         <AssetVaultDialog
+          experienceLevel={experienceLevel}
           onCheckSource={(entry) => assetRepositoryRef.current === null ? Promise.resolve("资源仓库不可用，请重新打开工程后重试。") : checkAssetSource(assetRepositoryRef.current, entry)}
           project={session.project}
           onOpenUsage={(sceneId, statementId) => { closeAssetPanel(); dispatch({ type: "select-project-result", sceneId, statementId }); setRequestedFocusStatementId(statementId); setWorkspaceMode("writer"); setMode(pendingDraftSceneIds(session).includes(sceneId) ? "script" : "sequence"); }}

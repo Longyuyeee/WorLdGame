@@ -7,10 +7,11 @@ import { DebugQaWorkspace } from "./DebugQaWorkspace";
 
 afterEach(() => vi.unstubAllGlobals());
 
-it("keeps a cross-scene error visible, blocks stale runs, reopens the draft and repairs through the same source history", async () => {
+it.each(["pro", "beginner"])("keeps a cross-scene error visible and repairable in %s", async (level) => {
   vi.stubGlobal("indexedDB", new IDBFactory());
   render(<App autosaveDebounceMs={60_000} />);
   fireEvent.click(await screen.findByRole("tab", { name: "Script" }));
+  if (level === "beginner") fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
   const source = (screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value;
   const broken = source.replace('scene "放学后的校门"', 'scene "放学后的校门');
   fireEvent.change(screen.getByLabelText("权威脚本编辑器"), { target: { value: broken } });
@@ -23,7 +24,7 @@ it("keeps a cross-scene error visible, blocks stale runs, reopens the draft and 
   expect(screen.getByRole("button", { name: "构建目录 ZIP" })).toBeDisabled();
   const alert = screen.getByRole("region", { name: "待修复脚本草稿" });
   expect(alert).toHaveTextContent("放学后的校门");
-  fireEvent.click(screen.getByRole("radio", { name: "Debug & QA" }));
+  fireEvent.click(level === "beginner" ? screen.getByRole("button", { name: "检查与修复问题" }) : screen.getByRole("radio", { name: "Debug & QA" }));
   expect(screen.getByRole("button", { name: "从入口启动调试" })).toBeDisabled();
   fireEvent.click(within(screen.getByRole("region", { name: "待修复脚本草稿" })).getByRole("button", { name: "修复草稿：放学后的校门" }));
   expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(broken);
@@ -34,7 +35,7 @@ it("keeps a cross-scene error visible, blocks stale runs, reopens the draft and 
   expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(source);
   fireEvent.click(screen.getByRole("button", { name: "重做" }));
   expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(source + "\n// 修复后继续创作\n");
-  fireEvent.click(screen.getByRole("radio", { name: "Debug & QA" }));
+  fireEvent.click(level === "beginner" ? screen.getByRole("button", { name: "检查与修复问题" }) : screen.getByRole("radio", { name: "Debug & QA" }));
   expect(screen.getByRole("button", { name: "从入口启动调试" })).toBeEnabled();
   fireEvent.click(screen.getByRole("button", { name: "从入口启动调试" }));
   expect(screen.getByTestId("debugger-current-source")).toHaveTextContent("scn_school_gate");

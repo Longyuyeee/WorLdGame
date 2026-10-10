@@ -2,13 +2,15 @@ import assert from 'node:assert/strict';
 
 // All authoring goes through the production UI. No project fixtures or direct
 // storage writes: this checks the task an author actually needs to complete.
-export async function runCreatorWritingWorkflow(client) {
+export async function runCreatorWritingWorkflow(client, { beginner = false } = {}) {
+  let screenshot;
+  const visible = async selector => assert.equal(await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return !!e && e.checkVisibility();})()`),true,`Visible author control: ${selector}`);
   const field = async (selector,value) => {
     await client.wait(`document.querySelector(${JSON.stringify(selector)})`);
     await client.evaluate(`(()=>{const input=document.querySelector(${JSON.stringify(selector)});const proto=input.tagName==='SELECT'?HTMLSelectElement.prototype:input.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(input,${JSON.stringify(value)});input.dispatchEvent(new Event(input.tagName==='SELECT'?'change':'input',{bubbles:true}));})()`);
   };
   const label=(name)=>`[aria-label="${name}"]`;
-  const insert=async kind=>{await field(label('插入 P0 语句类型'),kind);await client.button('＋ 插入');};
+  const insert=async kind=>{await visible(label('插入 P0 语句类型'));await field(label('插入 P0 语句类型'),kind);await client.button('＋ 插入');};
   const save=async()=>{
     await client.wait("document.querySelector('.local-save-button') && !document.querySelector('.local-save-button').disabled");
     await client.evaluate("document.querySelector('.local-save-button').click()");
@@ -19,6 +21,7 @@ export async function runCreatorWritingWorkflow(client) {
     await client.evaluate(`Array.from(document.querySelectorAll('.scene-item')).find(x=>x.textContent.includes(${JSON.stringify(title)})).click()`);
   };
   const tab=async name=>{
+    if(beginner){await client.button(name==='Script'?'编辑脚本':'继续写作');return;}
     await client.evaluate(`Array.from(document.querySelectorAll('[role=tab]')).find(x=>x.textContent.trim()===${JSON.stringify(name)}).click()`);
   };
   const dialogue=async(text,speaker)=>{
@@ -37,6 +40,16 @@ export async function runCreatorWritingWorkflow(client) {
   const start=sceneOptions[0].id,sea=sceneOptions.find(x=>x.title.includes('海边')).id,shop=sceneOptions.find(x=>x.title.includes('书店')).id;
   await field(label('要编辑的场景'),start);await client.button('编辑所选场景');
   await client.wait("document.querySelector('[aria-label=\"插入 P0 语句类型\"]')");
+  if(beginner){
+    await client.button('Beginner');
+    await visible('[aria-label="创作任务"]');
+    await client.button('管理素材');
+    assert.equal(await client.evaluate("document.querySelector('.author-technical-details').open"),false);
+    await visible('[aria-label="选择资源文件"]');
+    await client.evaluate("document.querySelector('.author-technical-details summary').click()");
+    assert.equal(await client.evaluate("document.querySelector('.author-technical-details').open"),true);
+    await client.button('关闭资源保险库');
+  }
   const speakerA=await dialogue('雨停了，我们去哪里？','阿岚');
   const speakerB=await dialogue('一起走走吧。','小夏');
   assert.notEqual(speakerA,speakerB);
@@ -54,6 +67,20 @@ export async function runCreatorWritingWorkflow(client) {
     await insert('narration');await field('.sequence-inspector textarea[name=text]',text);await client.button('应用类型化参数');
   }
   await save();
+  if(beginner){
+    const selection=await client.evaluate("document.querySelector('.app-shell').dataset.contextStatementId");
+    await client.button('查看分支走向');
+    await client.wait("document.querySelector('.app-shell').dataset.workspaceMode==='flow'");
+    await client.button('检查与修复问题');
+    await client.wait("document.querySelector('.app-shell').dataset.workspaceMode==='debug-qa'");
+    await client.button('继续写作');
+    assert.equal(await client.evaluate("document.querySelector('.app-shell').dataset.contextStatementId"),selection);
+    await client.evaluate("Promise.all(document.getAnimations().filter(a=>a.effect?.getTiming().iterations!==Infinity).map(a=>a.finished.catch(()=>{})))");
+    screenshot=(await client.send('Page.captureScreenshot',{format:'png'})).data;
+    await client.send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
+    assert.equal(await client.evaluate("(()=>{const n=document.querySelector('[aria-label=创作任务]');return n.getBoundingClientRect().right<=innerWidth && Array.from(n.querySelectorAll('button')).every(b=>b.checkVisibility()&&b.getBoundingClientRect().height>=44);})()"),true);
+    await client.send('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+  }
   const play=async(route,ending)=>{
     await client.button('试玩完整流程');
     for(let step=0;step<16;step++){
@@ -75,6 +102,7 @@ export async function runCreatorWritingWorkflow(client) {
   await client.send('Page.reload');
   await client.wait("document.querySelector('.project-home__recent button')");
   await client.button('雨后的约定');await client.button('进入编辑器');await client.button('进入内容编辑器');
+  if(beginner) await client.wait("document.querySelector('.app-shell')?.dataset.experienceLevel==='beginner'");
   await client.wait("Array.from(document.querySelectorAll('button')).some(x=>x.getAttribute('aria-label')==='选择对白：一起去看看雨后的世界吧。')");
   await client.button('选择对白：一起去看看雨后的世界吧。');
   assert.equal(await client.evaluate("document.querySelector('#dialogue-speaker').value"),speakerB);
@@ -88,5 +116,5 @@ export async function runCreatorWritingWorkflow(client) {
   await client.button('准备导出 ZIP');
   await client.wait("document.querySelector('.project-home__status a[download]')");
   const archive=await client.evaluate("(async()=>{const link=document.querySelector('.project-home__status a[download]');const blob=await(await fetch(link.href)).blob();return await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.readAsDataURL(blob);});})()");
-  return {archive,evidence:{title:'雨后的约定',fromBlankProject:true,characters:2,scenes:3,variableValueAtBothEndings:1,branches:['海风结局','书香结局'],editedAfterPreview:true,reloadedFromRecentProject:true,speakerAndTextPreserved:true,noScriptAuthoring:true,projectArchive:'rainy-promise.zip',exceptions:client.errors}};
+  return {archive,screenshot,evidence:{title:'雨后的约定',experienceLevel:beginner?'beginner':'pro',fromBlankProject:true,characters:2,scenes:3,variableValueAtBothEndings:1,branches:['海风结局','书香结局'],editedAfterPreview:true,reloadedFromRecentProject:true,speakerAndTextPreserved:true,noScriptAuthoring:true,projectArchive:beginner?'rainy-promise-beginner.zip':'rainy-promise.zip',exceptions:client.errors}};
 }

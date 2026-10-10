@@ -1916,8 +1916,7 @@ body:has(.app-shell[data-settings-open="true"]) .project-home-return { display: 
 .app-shell[data-experience-level="beginner"] .project-search,
 .app-shell[data-experience-level="beginner"] .rail-card-stack,
 .app-shell[data-experience-level="beginner"] .sequence-runtime-trace,
-.app-shell[data-experience-level="beginner"] .statement-toolbar:not(.statement-toolbar--legacy),
-.app-shell[data-experience-level="beginner"] .sequence-insert-requirement,
+.app-shell[data-experience-level="beginner"] .statement-toolbar--legacy,
 .app-shell[data-experience-level="beginner"] .stage-track,
 .app-shell[data-experience-level="beginner"] .field-help {
   display: none;
@@ -1930,6 +1929,31 @@ body:has(.app-shell[data-settings-open="true"]) .project-home-return { display: 
 .app-shell[data-experience-level="beginner"] .statement-list {
   padding-top: 4px;
 }
+
+.author-task-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--wg-color-border-subtle);
+}
+.author-task-navigation span, .author-task-navigation small { overflow-wrap: anywhere; }
+.author-task-navigation small { flex-basis: 100%; color: var(--wg-color-text-muted); }
+.author-task-navigation button, .author-technical-details > summary { min-height: 44px; }
+.author-task-navigation button {
+  padding: 8px 14px;
+  border: 1px solid rgb(139 124 255 / 32%);
+  border-radius: 10px;
+  background: rgb(139 124 255 / 10%);
+  color: #e5e0ff;
+  font: inherit;
+  cursor: pointer;
+}
+.author-task-navigation button:hover:not(:disabled) { background: rgb(139 124 255 / 22%); }
+.author-task-navigation button:focus-visible { outline: 2px solid #b6aaff; outline-offset: 2px; }
+.author-task-navigation button:disabled { opacity: .5; cursor: not-allowed; }
+.author-technical-details > summary { cursor: pointer; padding: 12px; }
 .stage-timeline-transport > div { display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; align-items: baseline; }
 .stage-timeline-transport > div span { color: #70dfd1; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
 .stage-timeline-transport > div strong { color: #d8fffa; font: 10px "IBM Plex Mono", Consolas, monospace; }
