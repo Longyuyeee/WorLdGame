@@ -36,8 +36,14 @@ async function openGame(directory) {
     });
     storage.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
     storage.setPermissionCheckHandler(() => false);
+    let icon;
+    try {
+      const manifest = JSON.parse(await readFile(join(root, 'manifest.webmanifest'), 'utf8'));
+      const path = manifest.icons?.find(item => item.type === 'image/png')?.src;
+      if (path && allowed.has(path) && resolve(root, path).startsWith(root + sep)) icon = resolve(root, path);
+    } catch { /* Old exports without a publication icon keep the runtime default. */ }
     const previous = window;
-    const next = new BrowserWindow({ title: info.projectTitle || 'WorLd Player', width: 1280, height: 800, minWidth: 390, minHeight: 600, show: !process.argv.includes('--test-hidden'), webPreferences: { session: storage, sandbox: true, contextIsolation: true, nodeIntegration: false } });
+    const next = new BrowserWindow({ title: info.projectTitle || 'WorLd Player', icon, width: 1280, height: 800, minWidth: 390, minHeight: 600, show: !process.argv.includes('--test-hidden'), webPreferences: { session: storage, sandbox: true, contextIsolation: true, nodeIntegration: false } });
     next.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     next.webContents.on('will-navigate', event => event.preventDefault());
     next.on('closed', () => { if (window === next) window = undefined; });

@@ -203,6 +203,21 @@ try {
         await client.evaluate(`document.getElementById('source').value=${JSON.stringify(unpacked)}`);
         await client.button('制作游戏包');
         await client.wait("document.getElementById('status').textContent.includes('游戏包已完成') && !document.getElementById('open').hidden");
+        await client.button('立即试玩');
+        await client.wait("document.getElementById('play-status').textContent.includes('游戏已启动')");
+        let previewTarget;
+        for (let attempt = 0; !previewTarget && attempt < 100; attempt++) {
+          previewTarget = (await json('http://127.0.0.1:9238/json')).find(tab => tab.type === 'page');
+          if (!previewTarget) await pause(100);
+        }
+        assert.ok(previewTarget, 'Preview game must create a page');
+        const previewClient = new Cdp(previewTarget.webSocketDebuggerUrl);
+        await previewClient.open(); await previewClient.send('Runtime.enable');
+        await previewClient.button('开始故事');
+        assert.equal(await previewClient.evaluate('document.title'), publication ? '星光旅程' : payload.project.manifest.title);
+        void previewClient.send('Browser.close');
+        await client.wait("document.getElementById('play-status').textContent.includes('游戏已退出') && !document.getElementById('play').disabled");
+        previewClient.socket.close();
         assert.deepEqual(client.errors, []);
         void client.send('Browser.close'); await desktopExit; client.socket.close(); client = undefined;
       } else await promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), portableDirectory, `--game=${unpacked}`], { windowsHide: true });
@@ -290,7 +305,7 @@ try {
   if (publication) { evidence.path = 'production Editor → real 512 PNG import → publication edit + icon preview → apply → save → ZIP → name/version/icon → offline Player ending'; evidence.publication = { name: '星光旅程', version: '2.3.0', iconSize: 512, savedInEditor: true }; }
   if (windowsPlayer) { evidence.path = 'production Editor ZIP → packaged Windows exe → quick save → process exit → moved game folder → restart → quick load → ending'; evidence.desktop = { runtimeBundled: true, saveAfterRestartAndMove: true, nativeFolderPicker: 'not exercised (--game)' }; }
   if (bundledPlayer) { evidence.path = 'production Editor ZIP → bundled Windows package → no --game auto-open → quick save → process exit → move whole package → restart without --game → quick load → ending'; evidence.desktop = { runtimeBundled: true, automaticBundledGame: true, saveAfterRestartAndMove: true, existingOutputProtected: true, missingMediaRejectedBeforeOutput: true, authorHelpersExcluded: true, nativeFolderPicker: 'not needed for bundled launch', changedStorySaveCompatibility: 'not tested', visibleWindow: 'not exercised (--test-hidden)' }; }
-  if (packageUi) { evidence.path = 'production Editor ZIP → actual Electron packaging UI → invalid source error → correct source and retry → build completed → packaged game → save → exit → move package → restart → load → ending'; evidence.packagingUi = { invalidSourceRecovered: true, realBuilder: true, nativeFolderPicker: 'not exercised (typed paths)', explorerOpen: 'not exercised', cmdLauncher: 'not exercised' }; }
+  if (packageUi) { evidence.path = 'production Editor ZIP → actual packaging UI → error and retry → build → click play → actual game starts → exit restores play button → packaged game save/move/restart/load/ending'; evidence.packagingUi = { invalidSourceRecovered: true, realBuilder: true, playButtonLaunchedGame: true, exitRestoredPlayButton: true, nativeWindowIcon: 'not visually verified', nativeFolderPicker: 'not exercised (typed paths)', explorerOpen: 'not exercised', cmdLauncher: 'not exercised' }; }
   await writeFile(join(root, `evidence/n80/formal-web-${packageUi ? 'windows-package-ui' : bundledPlayer ? 'windows-bundle' : windowsPlayer ? 'windows-player' : publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {

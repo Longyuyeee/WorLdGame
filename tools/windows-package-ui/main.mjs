@@ -9,6 +9,7 @@ if (testProfile) app.setPath('userData', testProfile);
 let window;
 let building = false;
 let completed;
+let preview;
 app.whenReady().then(async () => {
   window = new BrowserWindow({ width: 820, height: 710, minWidth: 620, minHeight: 600, show: !process.argv.includes('--test-hidden'), webPreferences: { preload: join(import.meta.dirname, 'preload.cjs'), contextIsolation: true, sandbox: true, nodeIntegration: false } });
   window.setMenu(null);
@@ -38,6 +39,22 @@ app.whenReady().then(async () => {
     finally { building = false; }
   });
   ipcMain.handle('open-output', async () => completed ? shell.openPath(completed) : '请先完成打包。');
+  ipcMain.handle('play-output', async () => {
+    if (!completed || building) return '请先完成打包。';
+    if (preview) return '游戏已经启动，请切换到游戏窗口；退出游戏后可以再次试玩。';
+    const environment = { ...process.env }; delete environment.ELECTRON_RUN_AS_NODE;
+    const args = process.argv.includes('--test-hidden') ? ['--test-hidden', '--remote-debugging-port=9238', `--test-profile=${join(testProfile ?? app.getPath('userData'), 'preview')}`] : [];
+    try {
+      await new Promise((done, fail) => {
+        const child = spawn(join(completed, 'WorLdPlayer.exe'), args, { env: environment, windowsHide: true, stdio: 'ignore' });
+        preview = child;
+        child.once('spawn', done);
+        child.once('error', error => { preview = undefined; fail(error); });
+        child.once('exit', () => { preview = undefined; if (!window.isDestroyed()) window.webContents.send('preview-ended'); });
+      });
+      return '';
+    } catch { return '无法启动游戏，请检查游戏包是否被移动或删除，重新打包后再试。'; }
+  });
   await window.loadFile(join(import.meta.dirname, 'index.html'));
 });
 app.on('window-all-closed', () => app.quit());
