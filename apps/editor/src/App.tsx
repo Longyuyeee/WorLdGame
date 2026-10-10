@@ -4,6 +4,8 @@ import { assetSourceUsages, checkAssetSource, republishAssetEntry } from './asse
 import { ConditionExpressionFields } from './condition-expression-fields';
 import { SceneFlowPanel } from './SceneFlowPanel';
 import { RouteTargetPicker } from './RouteTargetPicker';
+import { RouteReviewPanel } from './RouteReviewPanel';
+import type { RouteReviewTrace } from './route-review';
 import { projectSceneFlow } from '@world-studio/route-graph';
 import { compileProject } from '@world-studio/project-compiler';
 import {
@@ -2554,6 +2556,8 @@ function ScriptView({
 }
 
 interface FlowViewProps extends CommonProps {
+  readonly reviewTrace: RouteReviewTrace | null;
+  readonly reviewBlocked: boolean;
   readonly canonicalProject: CanonicalProject;
   readonly runtimeRouteTrace: RuntimeRouteTrace;
   readonly routeCompiler?: EditorProjectCompilerState;
@@ -2572,6 +2576,7 @@ interface FlowViewProps extends CommonProps {
 }
 
 export interface RuntimeRouteTrace {
+  readonly review?: RouteReviewTrace;
   readonly active: boolean;
   readonly currentSceneId: string | null;
   readonly currentStatementId: string | null;
@@ -2601,7 +2606,7 @@ const compilerCacheLabels = {
   "source-mismatch": "源正文变化后重建"
 } as const;
 
-function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, routeCompiler, hasLocalChanges, trustedChangedSceneIds, createCommandId, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
+function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, reviewTrace, reviewBlocked, routeCompiler, hasLocalChanges, trustedChangedSceneIds, createCommandId, onOpenSequence, onRenameScene, onSetScenePosition, onResetSceneLayout, onUpsertGroup, onToggleGroup, onDeleteGroup, onAssignGroup, onSetViewport }: FlowViewProps) {
   const canonicalHash = useMemo(() => hasLocalChanges ? undefined : semanticHash(canonicalProject), [canonicalProject, hasLocalChanges]);
   const compilerAligned = routeCompiler !== undefined && routeCompiler.projectHash === canonicalHash;
   const incrementalProjection = useMemo(() => !compilerAligned && routeCompiler !== undefined ? buildRouteGraphIncremental(canonicalProject, routeCompiler.compilation.cache, trustedChangedSceneIds) : undefined, [canonicalProject, compilerAligned, routeCompiler, trustedChangedSceneIds]);
@@ -2797,6 +2802,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
         </div>
         <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
       </div>
+      <RouteReviewPanel project={canonicalProject} graph={graph} trace={reviewTrace} blocked={reviewBlocked} onOpen={onOpenSequence} />
       <div className="route-layout-toolbar" aria-label="路线布局工具">
         <div className="route-group-create"><label><span>分组 ID</span><input aria-label="新路线分组 ID" value={newGroupId} onChange={(event)=>setNewGroupId(event.target.value)} placeholder="group_route" /></label><label><span>分组名称</span><input aria-label="新路线分组名称" value={newGroupTitle} onChange={(event)=>setNewGroupTitle(event.target.value)} placeholder="路线名称" /></label><button type="button" onClick={createGroup}>创建路线分组</button></div>
         <div className="route-groups" aria-label="路线分组列表">{graph.groups.map((group)=><span className="route-group-chip" key={group.groupId}><button type="button" aria-label={`${group.collapsed?"展开":"折叠"}分组：${group.title}`} aria-pressed={group.collapsed} onClick={()=>commitMutation(onToggleGroup(group.groupId),group.collapsed?"路线分组已展开":"路线分组已折叠")}>{group.collapsed?"＋":"−"} {group.title} · {graph.nodes.filter((node)=>node.layout.groupId===group.groupId).length}</button><button type="button" aria-label={`删除分组：${group.title}`} onClick={()=>commitMutation(onDeleteGroup(group.groupId),"路线分组已删除 · 节点已解除视觉分组")}>×</button></span>)}{graph.groups.length===0&&<span>尚无自定义分组</span>}</div>
@@ -3001,9 +3007,13 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       currentSceneId: playable.sceneId,
       currentStatementId: previewObservation.current?.statementId ?? null,
       visitedSceneIds: playable.visitedSceneIds,
-      visitedEdgeIds: playable.visitedRouteEdgeIds
+      visitedEdgeIds: playable.visitedRouteEdgeIds,
+      ...(playable.reviewSourceHash === null || playable.buildId === null ? {} : { review: {
+        sourceHash: playable.reviewSourceHash, buildId: playable.buildId, status: playable.status, startKind: playable.startTarget?.kind ?? "unknown",
+        endingName: playable.endingName ?? null, sceneIds: playable.visitedSceneIds, statementIds: playable.visitedStatementIds, choiceIds: playable.visitedRouteEdgeIds
+      } })
     } : IDLE_RUNTIME_ROUTE_TRACE);
-  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playableActive, previewObservation.current?.statementId]);
+  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playable.visitedStatementIds, playable.reviewSourceHash, playable.buildId, playable.status, playable.startTarget, playable.endingName, playableActive, previewObservation.current?.statementId]);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -3789,6 +3799,12 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
     setSettingsOpen(false);
   }, []);
   const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
+  const [reviewTrace, setReviewTrace] = useState<RouteReviewTrace | null>(null);
+  const receiveRouteTrace = useCallback((trace: RuntimeRouteTrace) => {
+    setRuntimeRouteTrace(trace);
+    if (trace.review !== undefined) setReviewTrace(trace.review);
+    else if (trace.active) setReviewTrace(null); // A failed new build is not the previous run.
+  }, []);
   const [requestedFocusStatementId, setRequestedFocusStatementId] = useState<string | null>(null);
   const [inputDirty, setInputDirty] = useState(false);
   const storageAvailable = typeof globalThis.indexedDB !== "undefined";
@@ -5071,7 +5087,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             onSave={() => saveToLocal("manual")}
             onClose={() => setSettingsOpen(false)}
           />
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} onPublicationChange={applySettingsProject} />
+          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />
         </> : workspaceMode === "production" ? (
           <ProductionWorkspace
             project={previewCanonicalProject}
@@ -5130,6 +5146,8 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             dispatch={dispatch}
             canonicalProject={previewCanonicalProject}
             runtimeRouteTrace={runtimeRouteTrace}
+            reviewTrace={reviewTrace}
+            reviewBlocked={inputDirty || pendingDraftSceneIds(session).length > 0}
             {...(routeCompiler===undefined?{}:{routeCompiler})}
             hasLocalChanges={editGeneration.current > 0}
             {...(routeChangedSceneIds.current===null?{}:{trustedChangedSceneIds:[...routeChangedSceneIds.current]})}
@@ -5145,7 +5163,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
           />
         )}
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} onPublicationChange={applySettingsProject} />
+          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />
         </>}
       </main>
       <footer className="workspace-footer">

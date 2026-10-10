@@ -1,0 +1,347 @@
+{
+  "schemaVersion": 1,
+  "kind": "world-route-review",
+  "projectId": "project_ceaf808daff97ad67210",
+  "title": "雨后的约定",
+  "sourceHash": "9b7b1854981a32c74e0b737a4a76edbf6e22f20d9db3942c81f2a1502d14bbf6",
+  "locale": null,
+  "traceState": "current",
+  "trace": {
+    "sourceHash": "9b7b1854981a32c74e0b737a4a76edbf6e22f20d9db3942c81f2a1502d14bbf6",
+    "buildId": "daf837dc5181630ba9c8e0f8cf8137c4a8032382a8f1dc57fa24e76c4e64064d",
+    "status": "ended",
+    "startKind": "entry",
+    "endingName": "书香结局",
+    "sceneIds": [
+      "scene_3eecd37719cf8b1f2e94",
+      "scene_221dfc2980544906"
+    ],
+    "statementIds": [
+      "stmt_ui_1",
+      "stmt_ui_3",
+      "stmt_ui_7",
+      "stmt_ui_13",
+      "statement_db052fb597e04de1"
+    ],
+    "choiceIds": [
+      "option_ui_10"
+    ]
+  },
+  "scenes": [
+    {
+      "sceneId": "scene_3eecd37719cf8b1f2e94",
+      "title": "Start",
+      "statementCount": 5,
+      "textCharacters": 22,
+      "estimatedReadingSeconds": 5,
+      "resources": [],
+      "translation": {
+        "locale": null,
+        "total": 0,
+        "reviewed": 0,
+        "pending": []
+      },
+      "observedInLatestRun": true,
+      "diagnostics": [
+        {
+          "code": "UNREACHABLE_STATEMENT",
+          "message": "Statement is unreachable in scene scene_3eecd37719cf8b1f2e94",
+          "sceneId": "scene_3eecd37719cf8b1f2e94",
+          "severity": "warning",
+          "statementId": "statement_afd55258f0324258f221"
+        }
+      ]
+    },
+    {
+      "sceneId": "scene_b6c01f9a41834931",
+      "title": "海边",
+      "statementCount": 3,
+      "textCharacters": 8,
+      "estimatedReadingSeconds": 2,
+      "resources": [],
+      "translation": {
+        "locale": null,
+        "total": 0,
+        "reviewed": 0,
+        "pending": []
+      },
+      "observedInLatestRun": false,
+      "diagnostics": [
+        {
+          "code": "UNREACHABLE_STATEMENT",
+          "message": "Statement is unreachable in scene scene_b6c01f9a41834931",
+          "sceneId": "scene_b6c01f9a41834931",
+          "severity": "warning",
+          "statementId": "statement_b6605448b6b64357"
+        }
+      ]
+    },
+    {
+      "sceneId": "scene_221dfc2980544906",
+      "title": "书店",
+      "statementCount": 2,
+      "textCharacters": 10,
+      "estimatedReadingSeconds": 2,
+      "resources": [],
+      "translation": {
+        "locale": null,
+        "total": 0,
+        "reviewed": 0,
+        "pending": []
+      },
+      "observedInLatestRun": true,
+      "diagnostics": []
+    },
+    {
+      "sceneId": "scene_7e30d77d2136461d",
+      "title": "雨巷",
+      "statementCount": 3,
+      "textCharacters": 0,
+      "estimatedReadingSeconds": 0,
+      "resources": [],
+      "translation": {
+        "locale": null,
+        "total": 0,
+        "reviewed": 0,
+        "pending": []
+      },
+      "observedInLatestRun": false,
+      "diagnostics": [
+        {
+          "code": "UNREACHABLE_STATEMENT",
+          "message": "Statement is unreachable in scene scene_7e30d77d2136461d",
+          "sceneId": "scene_7e30d77d2136461d",
+          "severity": "warning",
+          "statementId": "statement_578c5bf8bcc04d12"
+        }
+      ]
+    },
+    {
+      "sceneId": "scene_5684b3def84e4d06",
+      "title": "约定终章",
+      "statementCount": 1,
+      "textCharacters": 0,
+      "estimatedReadingSeconds": 0,
+      "resources": [],
+      "translation": {
+        "locale": null,
+        "total": 0,
+        "reviewed": 0,
+        "pending": []
+      },
+      "observedInLatestRun": false,
+      "diagnostics": []
+    }
+  ],
+  "graph": {
+    "schemaVersion": 1,
+    "projectId": "project_ceaf808daff97ad67210",
+    "entrySceneId": "scene_3eecd37719cf8b1f2e94",
+    "chapters": [
+      {
+        "id": "chapter_65c2c742d7d4684a5952",
+        "title": "Main",
+        "sceneIds": [
+          "scene_3eecd37719cf8b1f2e94",
+          "scene_b6c01f9a41834931",
+          "scene_221dfc2980544906",
+          "scene_7e30d77d2136461d",
+          "scene_5684b3def84e4d06"
+        ]
+      }
+    ],
+    "nodes": [
+      {
+        "id": "scene_3eecd37719cf8b1f2e94",
+        "title": "Start",
+        "chapterId": "chapter_65c2c742d7d4684a5952",
+        "kind": "entry",
+        "facts": [
+          {
+            "id": "stmt_ui_7",
+            "kind": "choice",
+            "label": "今天去哪里？"
+          },
+          {
+            "id": "statement_afd55258f0324258f221",
+            "kind": "ending",
+            "label": "Ending"
+          }
+        ],
+        "layout": {
+          "x": 72,
+          "y": 96,
+          "source": "automatic"
+        }
+      },
+      {
+        "id": "scene_b6c01f9a41834931",
+        "title": "海边",
+        "chapterId": "chapter_65c2c742d7d4684a5952",
+        "kind": "ending",
+        "facts": [
+          {
+            "id": "stmt_ui_2",
+            "kind": "jump",
+            "label": "跳转"
+          },
+          {
+            "id": "statement_b6605448b6b64357",
+            "kind": "ending",
+            "label": "海风结局"
+          }
+        ],
+        "layout": {
+          "x": 360,
+          "y": 96,
+          "source": "automatic"
+        }
+      },
+      {
+        "id": "scene_221dfc2980544906",
+        "title": "书店",
+        "chapterId": "chapter_65c2c742d7d4684a5952",
+        "kind": "ending",
+        "facts": [
+          {
+            "id": "statement_db052fb597e04de1",
+            "kind": "ending",
+            "label": "书香结局"
+          }
+        ],
+        "layout": {
+          "x": 648,
+          "y": 96,
+          "source": "automatic"
+        }
+      },
+      {
+        "id": "scene_7e30d77d2136461d",
+        "title": "雨巷",
+        "chapterId": "chapter_65c2c742d7d4684a5952",
+        "kind": "ending",
+        "facts": [
+          {
+            "id": "stmt_ui_6",
+            "kind": "condition",
+            "label": "条件 (同行次数 [variable_134a9334fe294861] >= 0)；不成立则继续下一步"
+          },
+          {
+            "id": "stmt_ui_4",
+            "kind": "jump",
+            "label": "跳转"
+          },
+          {
+            "id": "statement_578c5bf8bcc04d12",
+            "kind": "ending",
+            "label": "未命名结局"
+          }
+        ],
+        "layout": {
+          "x": 936,
+          "y": 96,
+          "source": "automatic"
+        }
+      },
+      {
+        "id": "scene_5684b3def84e4d06",
+        "title": "约定终章",
+        "chapterId": "chapter_65c2c742d7d4684a5952",
+        "kind": "ending",
+        "facts": [
+          {
+            "id": "statement_559726947a85405e",
+            "kind": "ending",
+            "label": "约定达成"
+          }
+        ],
+        "layout": {
+          "x": 72,
+          "y": 276,
+          "source": "automatic"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "option_ui_9",
+        "sourceSceneId": "scene_3eecd37719cf8b1f2e94",
+        "targetSceneId": "scene_b6c01f9a41834931",
+        "statementId": "stmt_ui_7",
+        "label": "去海边",
+        "status": "valid"
+      },
+      {
+        "id": "option_ui_10",
+        "sourceSceneId": "scene_3eecd37719cf8b1f2e94",
+        "targetSceneId": "scene_221dfc2980544906",
+        "statementId": "stmt_ui_7",
+        "label": "去书店",
+        "status": "valid"
+      },
+      {
+        "id": "stmt_ui_2",
+        "sourceSceneId": "scene_b6c01f9a41834931",
+        "targetSceneId": "scene_7e30d77d2136461d",
+        "statementId": "stmt_ui_2",
+        "label": "跳转",
+        "status": "valid"
+      },
+      {
+        "id": "stmt_ui_6",
+        "sourceSceneId": "scene_7e30d77d2136461d",
+        "targetSceneId": "scene_5684b3def84e4d06",
+        "statementId": "stmt_ui_6",
+        "label": "条件成立",
+        "status": "valid"
+      },
+      {
+        "id": "stmt_ui_4",
+        "sourceSceneId": "scene_7e30d77d2136461d",
+        "targetSceneId": "scene_b6c01f9a41834931",
+        "statementId": "stmt_ui_4",
+        "label": "跳转",
+        "status": "valid"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "UNREACHABLE_STATEMENT",
+        "message": "Statement is unreachable in scene scene_3eecd37719cf8b1f2e94",
+        "sceneId": "scene_3eecd37719cf8b1f2e94",
+        "severity": "warning",
+        "statementId": "statement_afd55258f0324258f221"
+      },
+      {
+        "code": "UNREACHABLE_STATEMENT",
+        "message": "Statement is unreachable in scene scene_7e30d77d2136461d",
+        "sceneId": "scene_7e30d77d2136461d",
+        "severity": "warning",
+        "statementId": "statement_578c5bf8bcc04d12"
+      },
+      {
+        "code": "UNREACHABLE_STATEMENT",
+        "message": "Statement is unreachable in scene scene_b6c01f9a41834931",
+        "sceneId": "scene_b6c01f9a41834931",
+        "severity": "warning",
+        "statementId": "statement_b6605448b6b64357"
+      }
+    ],
+    "groups": [],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1,
+      "source": "automatic"
+    }
+  },
+  "limits": [
+    "结构连接不是条件可行性证明；存在剧透。",
+    "仅最近一次本机会话的 Runtime History 停靠事件/已选选项，不累计为全部语句或分支覆盖；刷新后需重新试玩。",
+    "源码版本不一致的试玩记录标为过期，不计当前已观察场景。",
+    "资源只核对演出 asset/transitionAsset 引用是否登记，未读取文件或验证所有资源类型。",
+    "翻译仅场景剧情文本，沿用正式 missing/draft/outdated/reviewed/locked 状态；不含附加内容目录，未配置语言不等于翻译完成。",
+    "阅读量按每分钟 300 个非空白对白/旁白字符估算，不含选择、媒体、等待、循环或语速差异，不是实际通关时长。",
+    "报告包含已提交到剧情模型的内容；不替代可编辑工程 ZIP、游戏导出或验收结论。"
+  ]
+}

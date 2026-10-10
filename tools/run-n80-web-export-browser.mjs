@@ -84,7 +84,21 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--constant-condition-repair-workflow')) {
+  if(process.argv.includes('--route-review-workflow')) {
+    const result=await runCreatorCrossSceneRepairWorkflow(client,root,{constant:true,review:true});
+    await writeFile(join(root,'evidence/authoring/rainy-promise-reviewed.zip'),Buffer.from(result.archive,'base64'));
+    await writeFile(join(root,'evidence/authoring/route-review-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');
+    await writeFile(join(root,'evidence/authoring/route-review.png'),Buffer.from(result.reviewArtifacts.screenshot,'base64'));
+    for(const [name,content] of Object.entries(result.reviewArtifacts.files))await writeFile(join(root,'evidence/authoring',name),content);
+    await client.send('Page.navigate',{url:pathToFileURL(join(root,'evidence/authoring/route-review.html')).href});
+    await client.wait("document.querySelector('h1')?.textContent.includes('路线评审')");
+    assert.equal(await client.evaluate("document.querySelectorAll('article').length"),5);
+    await writeFile(join(root,'evidence/authoring/route-review-html.png'),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+    await client.send('Page.navigate',{url:pathToFileURL(join(root,'evidence/authoring/route-review.svg')).href});
+    await client.wait("document.querySelector('svg') && document.querySelectorAll('text').length>=10");
+    await writeFile(join(root,'evidence/authoring/route-review-svg.png'),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+    console.log(JSON.stringify(result.evidence,null,2));
+  } else if(process.argv.includes('--constant-condition-repair-workflow')) {
     const result=await runCreatorCrossSceneRepairWorkflow(client,root,{constant:true});
     await writeFile(join(root,'evidence/authoring/rainy-promise-constant-repaired.zip'),Buffer.from(result.archive,'base64'));
     await writeFile(join(root,'evidence/authoring/constant-condition-repair.json'),JSON.stringify(result.evidence,null,2)+'\n');

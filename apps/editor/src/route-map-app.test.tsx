@@ -23,16 +23,20 @@ it("retargets to a scene outside the 64-node window while retaining the graph fi
   const project = projectCanonicalFromStory(branchingStory(130), "route-target-search");
   render(<App initialProject={project} />);
   fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
-  fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线图" }), { target: { value: "route_ui_000" } });
-  expect(screen.queryByRole("button", { name: "路线场景：Route UI Scene 129 · route_ui_129" })).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
-  fireEvent.change(screen.getByRole("searchbox", { name: "搜索路线目标" }), { target: { value: "Route UI Scene 129" } });
-  fireEvent.click(screen.getByRole("button", { name: "选择目标场景：Route UI Scene 129 · route_ui_129" }));
-  fireEvent.click(screen.getByRole("button", { name: "应用选择目标：To 1" }));
-  expect(screen.getByRole("button", { name: "定位场景目标：To 1 · route_ui_129" })).toBeEnabled();
-  expect(screen.getByRole("searchbox", { name: "搜索路线图" })).toHaveValue("route_ui_000");
-  fireEvent.click(screen.getByRole("button", { name: "撤销" }));
-  expect(screen.getByRole("button", { name: "定位场景目标：To 1 · route_ui_001" })).toBeEnabled();
+  // Scope queries to the feature under test: avoid repeatedly computing accessible
+  // names for the unrelated 130-scene sidebar on slower Windows CI workers.
+  const flow = within(screen.getByRole("region", { name: "Route Map" }));
+  fireEvent.change(flow.getByLabelText("搜索路线图"), { target: { value: "route_ui_000" } });
+  expect(flow.queryByLabelText("路线场景：Route UI Scene 129 · route_ui_129")).not.toBeInTheDocument();
+  fireEvent.click(flow.getByRole("button", { name: "修改 Choice 目标" }));
+  fireEvent.change(flow.getByLabelText("搜索路线目标"), { target: { value: "Route UI Scene 129" } });
+  expect(flow.getByLabelText("选择目标场景：Route UI Scene 129 · route_ui_129")).toBeVisible();
+  fireEvent.click(flow.getByLabelText("选择目标场景：Route UI Scene 129 · route_ui_129"));
+  fireEvent.click(flow.getByLabelText("应用选择目标：To 1"));
+  expect(flow.getByLabelText("定位场景目标：To 1 · route_ui_129")).toBeEnabled();
+  expect(flow.getByLabelText("搜索路线图")).toHaveValue("route_ui_000");
+  fireEvent.click(screen.getByLabelText("撤销"));
+  expect(flow.getByLabelText("定位场景目标：To 1 · route_ui_001")).toBeEnabled();
 });
 
 function branchingStory(sceneCount: number): StoryProject {

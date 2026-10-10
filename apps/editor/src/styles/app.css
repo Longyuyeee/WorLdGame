@@ -5927,3 +5927,7 @@ textarea[data-input-state="composing"] {
     max-width: 100%;
   }
 }
+.route-review-delivery { margin: 16px 0; padding: 16px; border: 1px solid var(--border-color, #39465f); border-radius: 12px; overflow-wrap: anywhere; }
+.route-review-delivery nav { display: flex; flex-wrap: wrap; gap: 16px; margin: 12px 0; }
+.route-review-delivery a, .route-review-delivery button { display: inline-flex; align-items: center; min-height: 44px; margin: 4px; }
+.route-review-delivery article { padding: 12px; margin: 8px 0; border: 1px solid #39465f; border-radius: 8px; }

@@ -25,7 +25,7 @@ function stringValue(value: JsonValue | undefined): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-export function localizationSourceEntries(project: CanonicalProject): readonly LocalizationSourceEntry[] {
+export function localizationSourceEntries(project: CanonicalProject, includeCatalogs = true): readonly LocalizationSourceEntry[] {
   const entries: LocalizationSourceEntry[] = [];
   for (const scene of project.scenes) {
     for (const statement of project.scripts[scene.id]?.statements ?? []) {
@@ -51,8 +51,8 @@ export function localizationSourceEntries(project: CanonicalProject): readonly L
       }
     }
   }
-  const compiled = compileProject(project, "debug");
-  if (compiled.ok) {
+  const compiled = includeCatalogs ? compileProject(project, "debug") : null;
+  if (compiled?.ok) {
     for (const entry of compiled.artifacts.catalogs.gallery) entries.push({ key: entry.assetId, sourceText: entry.displayName, sceneId: "additional-content", statementId: entry.assetId, kind: "gallery-title" });
     for (const entry of compiled.artifacts.catalogs.music) entries.push({ key: entry.assetId, sourceText: entry.displayName, sceneId: "additional-content", statementId: entry.assetId, kind: "music-title" });
     for (const entry of compiled.artifacts.catalogs.replay) entries.push({ key: entry.replayId, sourceText: entry.title, sceneId: entry.sceneId, statementId: entry.replayId, kind: "replay-title" });
@@ -87,9 +87,9 @@ function storedEntries(project: CanonicalProject, locale: string): Map<string, J
   }));
 }
 
-export function localizationTranslations(project: CanonicalProject, locale: string): readonly LocalizationTranslationEntry[] {
+export function localizationTranslations(project: CanonicalProject, locale: string, sources: readonly LocalizationSourceEntry[] = localizationSourceEntries(project)): readonly LocalizationTranslationEntry[] {
   const stored = storedEntries(project, locale);
-  return localizationSourceEntries(project).map((source) => {
+  return sources.map((source) => {
     const entry = stored.get(source.key);
     const translation = stringValue(entry?.translation) ?? "";
     const recordedStatus = stringValue(entry?.status);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 
-export async function runCreatorCrossSceneRepairWorkflow(client, root, { constant = false } = {}) {
+export async function runCreatorCrossSceneRepairWorkflow(client, root, { constant = false, review = false } = {}) {
   const field=async(selector,value)=>{
     await client.wait(`document.querySelector(${JSON.stringify(selector)})`);
     await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});const p=e.tagName==='SELECT'?HTMLSelectElement.prototype:e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(p,'value').set.call(e,${JSON.stringify(value)});e.dispatchEvent(new Event(e.tagName==='SELECT'?'change':'input',{bubbles:true}));e.dispatchEvent(new FocusEvent('focusout',{bubbles:true}));})()`);
@@ -11,6 +11,12 @@ export async function runCreatorCrossSceneRepairWorkflow(client, root, { constan
   const save=async()=>{await client.wait("!document.querySelector('.local-save-button').disabled");await client.evaluate("document.querySelector('.local-save-button').click()");await client.wait("document.querySelector('.local-save-button').textContent.includes('已保存')");};
   const reopen=async()=>{await client.send('Page.reload');await client.wait("document.querySelector('.project-home__recent button')");await client.button('雨后的约定');await client.button('进入编辑器');await client.button('进入内容编辑器');await client.wait("document.querySelector('.scene-item')");};
   const source=()=>client.evaluate("document.querySelector('[aria-label=权威脚本编辑器]').value");
+  const generateReview=async(expected)=>{
+    await client.button('查看分支走向');await client.button('生成当前版本评审');
+    await client.wait("document.querySelector('[download=\"route-review.json\"]')");
+    const report=await client.evaluate("(async()=>JSON.parse(await(await fetch(document.querySelector('[download=\"route-review.json\"]').href)).text()))()");
+    assert.equal(report.traceState,expected);return report;
+  };
   const play=async(route,ending)=>{
     await client.button('继续写作');await client.button('试玩完整流程');
     for(let i=0;i<20;i++){
@@ -47,6 +53,11 @@ export async function runCreatorCrossSceneRepairWorkflow(client, root, { constan
   await client.button('查看分支走向');
   await client.wait("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_CLOSED_CYCLE')");
   assert.ok(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_NO_EXIT')"));
+  if(review){
+    await generateReview('none');
+    await client.evaluate("document.querySelector('[aria-label=\"评审场景摘要\"] article button').click()");
+    await client.button('查看分支走向');
+  }
   await client.button(`进入诊断内容：${code} · ${failingStatement}`);
   assert.equal(await client.evaluate("document.querySelector('.app-shell').dataset.contextStatementId"),failingStatement);
   await play('去书店','书香结局'); // Warnings do not block the healthy branch.
@@ -73,13 +84,26 @@ export async function runCreatorCrossSceneRepairWorkflow(client, root, { constan
   await client.button('重做');if(constant)await client.button('重做');
   assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
   if(constant)assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CONSTANT_CONDITION_')"),false);
+  if(review)await generateReview('stale');
   await play('去海边','约定达成');await play('去书店','书香结局');await save();await reopen();
   await scene('雨巷');await client.button('编辑脚本');assert.equal(await source(),fixed);
+  if(review)await generateReview('none');
   await client.button('查看分支走向');assert.equal(await client.evaluate("document.querySelector('.route-diagnostics').textContent.includes('CROSS_SCENE_')"),false);
   await play('去海边','约定达成');await play('去书店','书香结局');
+  let reviewArtifacts;
+  if(review){
+    const report=await generateReview('current');assert.equal(report.trace.endingName,'书香结局');
+    assert.equal(report.scenes.find(s=>s.title==='书店').observedInLatestRun,true);
+    assert.equal(report.scenes.find(s=>s.title==='海边').observedInLatestRun,false);
+    assert.equal(report.trace.startKind,'entry');
+    const files=await client.evaluate("(async()=>Object.fromEntries(await Promise.all(Array.from(document.querySelectorAll('[aria-label=评审下载] a')).map(async a=>[a.download,await(await fetch(a.href)).text()]))))()");
+    assert.ok(files['route-review.html'].includes(report.sourceHash));assert.ok(files['route-review.svg'].includes(report.sourceHash));
+    await client.evaluate("document.querySelector('[aria-label=\"路线评审交付\"]').scrollIntoView({block:'start'})");
+    reviewArtifacts={files,screenshot:(await client.send('Page.captureScreenshot',{format:'png'})).data};
+  }
   assert.deepEqual(client.errors,[]);
   await client.button('返回项目结构');await client.button('返回项目首页');await client.button('雨后的约定');await client.button('准备导出 ZIP');
   await client.wait("document.querySelector('.project-home__status a[download]')");
   const archive=await client.evaluate("(async()=>{const b=await(await fetch(document.querySelector('.project-home__status a[download]').href)).blob();return await new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.readAsDataURL(b);});})()");
-  return {archive,screenshot,evidence:{sourceProject:'rainy-promise-beginner.zip',authoredThroughUi:true,sceneCount:5,brokenRouteSavedAndReopened:true,flowAndQaSourceLocation:true,healthyBranchPlayableBeforeRepair:true,undoRestoresWarnings:true,redoClearsWarnings:true,exactSourceAfterReopen:true,repairedEnding:'约定达成',unaffectedEnding:'书香结局',bothBranchesReplayedAfterReopen:true,projectArchive:constant?'rainy-promise-constant-repaired.zip':'rainy-promise-cross-scene-repaired.zip',...(constant?{initialExpression:'1 > 2',repairedExpression:`${variable} >= 0`,trueConditionExplained:true,falseExitDoesNotHideLoop:true}:{}),exceptions:client.errors}};
+  return {archive,screenshot,reviewArtifacts,evidence:{sourceProject:'rainy-promise-beginner.zip',authoredThroughUi:true,sceneCount:5,brokenRouteSavedAndReopened:true,flowAndQaSourceLocation:true,healthyBranchPlayableBeforeRepair:true,undoRestoresWarnings:true,redoClearsWarnings:true,exactSourceAfterReopen:true,repairedEnding:'约定达成',unaffectedEnding:'书香结局',bothBranchesReplayedAfterReopen:true,projectArchive:review?'rainy-promise-reviewed.zip':constant?'rainy-promise-constant-repaired.zip':'rainy-promise-cross-scene-repaired.zip',...(review?{reviewNoTraceBeforePlay:true,reviewStaleAfterEdit:true,reviewClearedAfterReload:true,latestRunOnly:true,offlineHtmlJsonSvg:true}:{}),...(constant?{initialExpression:'1 > 2',repairedExpression:`${variable} >= 0`,trueConditionExplained:true,falseExitDoesNotHideLoop:true}:{}),exceptions:client.errors}};
 }
