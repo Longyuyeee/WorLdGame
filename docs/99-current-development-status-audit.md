@@ -1,4 +1,20 @@
-# 当前开发情况：路线摘要与离线评审交付接续贯通
+# 当前开发情况：安全 PNG 优化、正式交付与原素材恢复贯通
+
+## 最新审计：2026-10-11 资源优化到正式导出的完整作者任务
+
+前置代码与需求审计对齐原 PRD 资源容量/源素材不可破坏要求、Gal Dicing 与 #89 接续。既有 Atlas 有发布/验证入口但没有接入 `formal-web-export.ts`，Portable ZIP 也仍以原 AssetIndex/Blob 为权威。本轮不改变该事实；新增严格 PNG IDAT 无损重压缩作为正式可用的导出选项，而非宣称全资源/图集优化已交付。
+
+实现：`lossless-png-export.ts` 纯算法、独立 Worker 与超时回退、`export-optimization.ts` 持久化开关及逐素材报告，接入两种正式 Web 构建；复用 Canonical 保存、原 SHA-256 完整性检查和正式播放器。仅更新导出字节/URL，原工程索引、原 Blob 不修改。目录中优化文件使用自身摘要命名，清单/离线缓存使用实际交付摘要；源工程引用继续指向原 Blob。重复同 MIME/摘要只优化一次。失败或不适用只保留原文件，不写坏源工程。保存的开关可回退，改动后原下载失效，未提交输入/发布草稿期间不允许切换。
+
+安全边界：32 MiB 编码/16 MiB 滤波数据/4096 边长预算，8 位非交错静态 PNG；CRC、Adler、滤波类型、解码长度检查，重压缩前后逐字节验证，元数据及其他非 IDAT 块不变，候选不小则放弃。15 秒 Worker 超时回退；Worker 不可用、通信失败、APNG/16 位/交错均保留原文件。不支持的 PNG 不是“已验证”，报告区分 verified 与回退原因。整体导出仍全量内存打包，没有大项目流式/立即取消保证，不减少解码/GPU 内存，不测量加载提速。
+
+用户验收：真实 UI 在 `rainy-promise-media.zip` 中替换相同像素、level 0 IDAT 的背景源文件；生产 Worker 优化，保存/重开保持开关，两格式构建报告一致，背景浏览器解码像素摘要相等，原版/优化版 HTML 均实际渲染立绘并到达海风结局，立绘像素也一致；点击恢复后重新构建原字节完全一致，可编辑 ZIP 保留源 Blob。原图 653→261 字节、立绘 109→106、音频保持 1644；去重资源总计 2406→2011，HTML 477632→477220，优化目录 ZIP 501854 字节。素材很小，仅证明机制，不能宣传大型游戏收益。首次浏览器测试把恢复提示纳入整个页面文本比对导致误报，现以实际结局和已渲染媒体像素断言，不删除玩家恢复机制。截图发现原双列布局使按钮竖排，已改单列并断言按钮宽度/高度，复跑成功。
+
+本地验证：7 文件 47 项（PNG/两格式导出、资源修复 UI/模型、Portable ZIP、IndexedDB 资源、Canonical 保存）；`App.test.tsx` 独立 45 项；typecheck、Editor 生产构建、7 Golden、架构审计、资产性能 4 项均通过。真实浏览器 `node tools/run-n80-web-export-browser.mjs --export-optimization-workflow` 通过且异常 0；导出报告及播放器截图已视觉复核。构建仍有既有 >500 kB chunk 提示。未运行完整 `npm run check`，未以此代替远端 CI。
+
+远端：上一精确提交 `70ea37e06980eee73beb50c54aaec0e5f65bda8f` 的完整 CI run `38068685766` 已核实成功。本轮提交推送后需按新 head 单独核验，不能沿用旧头成功。证据：`export-optimization-workflow.json`、`export-optimization-report.json`、`export-optimization.png`、`export-original-player.png`、`export-optimized-player.png`、`rainy-promise-export-optimized.zip`，均在 `evidence/authoring/`。
+
+接续与剩余：按 #89 顶部完成 Atlas 正式交付契约/视觉一致/过期派生回退/迁移/原素材恢复的整项任务；不得直接把既有 dicing Loader 测试当正式发布验收。路线评审多次覆盖、更多翻译范围、外部评审链接、Android 真机和真人验收未关闭，M1 未完成。`.browser-diagnostic/` 是已有本地未跟踪目录，本轮不修改、不提交。
 
 ## 最新审计：2026-10-11 路线摘要、修复复验与评审交付
 

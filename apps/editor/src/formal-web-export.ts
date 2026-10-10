@@ -5,8 +5,10 @@ import { zip } from "fflate";
 import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
 import { readWebPublication, applyWebPublication, publicationIconSize } from "./web-publication";
+import { optimizeExportMedia, type ExportOptimizationReport } from "./export-optimization";
 
 export interface FormalWebArtifact {
+  readonly optimizationReport: ExportOptimizationReport;
   readonly filename: string;
   readonly html: string;
   readonly byteLength: number;
@@ -37,7 +39,7 @@ async function readExportMedia(
     }
     mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });
   }
-  return mediaAssets;
+  return optimizeExportMedia(project, mediaAssets);
 }
 
 function exportStem(project: CanonicalProject): string {
@@ -52,19 +54,20 @@ export async function createFormalWebArtifact(
   applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
   project = { ...project, manifest: { ...project.manifest, title: publication.name } };
-  const mediaAssets = (await readExportMedia(project, reader)).map(({ bytes, digest: _digest, ...asset }) => {
+  const delivery = await readExportMedia(project, reader);
+  const mediaAssets = delivery.assets.map(({ bytes, digest: _digest, ...asset }) => {
     let binary = "";
     for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
     return { ...asset, url: `data:${asset.mimeType};base64,${btoa(binary)}` };
   });
-  const payload = JSON.stringify({ project, mediaAssets }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
+  const payload = JSON.stringify({ project, mediaAssets, optimizationReport: delivery.report }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
   const title = htmlText(project.manifest.title);
   const icon = mediaAssets.find(asset => asset.assetId === publication.iconAssetId);
   if (icon) publicationIconSize(Uint8Array.from(atob(icon.url.split(',')[1]!), value => value.charCodeAt(0)));
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${runtime.css.replace(/<\/style/gi, "<\\/style")}</style></head><body><div id="player-root">正在打开游戏…</div><script id="world-project" type="application/json">${payload}</script><script>${runtime.javascript.replace(/<\/script/gi, "<\\/script")}</script></body></html>`;
   const stem = exportStem(project);
   const brandedHtml = html.replace('</head>', `${icon ? `<link rel="icon" type="image/png" href="${icon.url}">` : ""}<meta name="application-version" content="${htmlText(publication.version)}"></head>`).replace('<body>', `<body><p style="margin:0;padding:4px 12px;background:#181827;color:#eee;font:12px system-ui">${title} · ${htmlText(publication.version)}</p>`);
-  return { filename: `${stem}.html`, html: brandedHtml, byteLength: new TextEncoder().encode(brandedHtml).byteLength, projectDigest: semanticHash(project) };
+  return { filename: `${stem}.html`, html: brandedHtml, byteLength: new TextEncoder().encode(brandedHtml).byteLength, projectDigest: semanticHash(project), optimizationReport: delivery.report };
 }
 
 export async function createFormalWebDirectoryArtifact(
@@ -78,7 +81,9 @@ export async function createFormalWebDirectoryArtifact(
   const encode = (text: string) => new TextEncoder().encode(text);
   const files: Record<string, Uint8Array> = {};
   const extensions: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg", "image/gif": "gif", "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/mp4": "mp4", "video/webm": "webm", "font/woff2": "woff2", "font/woff": "woff", "font/ttf": "ttf", "font/otf": "otf" };
-  const assets = await readExportMedia(project, reader);
+  const delivery = await readExportMedia(project, reader);
+  const assets = delivery.assets;
+  files["optimization-report.json"] = encode(JSON.stringify(delivery.report, null, 2));
   const mediaAssets = assets.map(({ bytes, digest, ...asset }) => {
     const url = `media/${digest.slice(7)}.${extensions[asset.mimeType] ?? "bin"}`;
     files[url] = bytes;
@@ -120,8 +125,8 @@ preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需�
 检查更新后若显示“新版已下载”，先保存进度，关闭所有此游戏窗口，再重新打开；不会强制重载正在玩的剧情。更新只处理游戏文件，不清空存档。离线缓存并非永久存储保证。
 站点发布请完整替换目录，最后发布 sw.js；不要将缺失文件返回为 index.html，建议 sw.js 使用 Cache-Control: no-cache。部分文件未上传完整时离线更新会失败，原版缓存保留，补齐文件后重试。
 
-素材为原始文件，未进行压缩优化；目录包避免 Base64 膨胀，但打包仍需要浏览器内存，小工程可能因附加文件而略大。build-info.json 记录工程标识、文件大小与摘要，供定位版本问题。
+素材导出策略：${delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录每个素材的实际字节与回退原因。源工程原素材不修改；关闭优化重新构建即可恢复。目录包避免 Base64 膨胀，但打包仍需要浏览器内存。build-info.json 记录工程标识、文件大小与摘要。
 `);
   const archive = await new Promise<Uint8Array>((resolve, reject) => zip(files, { level: 0 }, (error, data) => error ? reject(error) : resolve(data)));
-  return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest };
+  return { filename: `${exportStem(project)}-web.zip`, archive, byteLength: archive.byteLength, projectDigest, optimizationReport: delivery.report };
 }

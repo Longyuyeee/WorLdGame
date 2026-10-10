@@ -15,6 +15,7 @@ import { runCreatorMediaWorkflow } from './creator-media-workflow.mjs';
 import { runCreatorConditionWorkflow } from './creator-condition-workflow.mjs';
 import { runCreatorRepairWorkflow } from './creator-repair-workflow.mjs';
 import { runCreatorAssetRepairWorkflow } from './creator-asset-repair-workflow.mjs';
+import { runCreatorExportOptimizationWorkflow } from './creator-export-optimization-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -84,7 +85,11 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--route-review-workflow')) {
+  if(process.argv.includes('--export-optimization-workflow')) {
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary);
+    await writeFile(join(root,'evidence/authoring/export-optimization-workflow.json'),JSON.stringify(evidence,null,2)+'\n');
+    console.log(JSON.stringify(evidence,null,2));
+  } else if(process.argv.includes('--route-review-workflow')) {
     const result=await runCreatorCrossSceneRepairWorkflow(client,root,{constant:true,review:true});
     await writeFile(join(root,'evidence/authoring/rainy-promise-reviewed.zip'),Buffer.from(result.archive,'base64'));
     await writeFile(join(root,'evidence/authoring/route-review-workflow.json'),JSON.stringify(result.evidence,null,2)+'\n');

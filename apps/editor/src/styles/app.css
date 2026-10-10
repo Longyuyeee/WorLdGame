@@ -4400,7 +4400,7 @@ textarea[data-input-state="composing"] {
 
 .playable-web-export {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px 12px;
   align-items: center;
   margin: 0;
@@ -4413,7 +4413,14 @@ textarea[data-input-state="composing"] {
 .playable-web-export > div { display: grid; gap: 3px; }
 .playable-web-export small { color: var(--text-muted); }
 .playable-web-export a { color: #8de7ff; font-weight: 700; }
-.playable-web-export p { grid-column: 1 / -1; margin: 0; color: #ff9d9d; }
+.playable-web-export > * { min-width: 0; overflow-wrap: anywhere; }
+.playable-web-export > button { min-height: 36px; white-space: normal; }
+.playable-web-export > label { display: flex; align-items: flex-start; gap: 8px; }
+.playable-web-export > label input { flex: 0 0 auto; width: auto; }
+.playable-web-export p { margin: 0; color: var(--text-muted); }
+.playable-web-export p[role="alert"] { color: #ff9d9d; }
+.playable-web-export details p { margin: 8px 0; font-size: 12px; line-height: 1.6; }
+.playable-web-export details li { margin: 6px 0; font-size: 12px; }
 
 .preview-transport {
   display: flex;
