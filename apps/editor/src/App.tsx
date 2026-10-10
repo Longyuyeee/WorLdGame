@@ -186,6 +186,7 @@ import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
 import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
+import { WebPublicationSettings } from "./web-publication";
 import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
@@ -2831,6 +2832,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, rout
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly onPublicationChange: (project: CanonicalProject) => void;
   readonly createCommandId: () => string;
   readonly inputDirty: boolean;
   readonly assetIndex: AssetIndex;
@@ -2857,7 +2859,8 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange }: PreviewPanelProps) {
+  const [publicationDirty, setPublicationDirty] = useState(false);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
@@ -3567,12 +3570,13 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </summary>
       <div className="playable-web-export" aria-label="独立试玩导出">
         <div><strong>导出 Web 游戏</strong><small>包含当前工程、原始素材和正式播放器；下载后可独立打开。大型素材会增加文件大小。</small></div>
-        <button type="button" onClick={() => void preparePlayableWeb()} disabled={pendingDraft || inputDirty || webBuilding}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
-        <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={pendingDraft || inputDirty || webBuilding}>构建目录 ZIP</button>
+        <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationDirty} reader={assetRepository} />
+        <button type="button" onClick={() => void preparePlayableWeb()} disabled={pendingDraft || inputDirty || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
+        <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={pendingDraft || inputDirty || webBuilding || publicationDirty}>构建目录 ZIP</button>
         <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>
         <small>想检查网站离线功能？完整解压 ZIP 后，Windows 双击 start-preview.cmd 自动启动本地站点（需 Node.js 22+，无需安装项目依赖）；停止方法见启动窗口。</small>
         {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}
-        {webBuild && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
+        {webBuild && !publicationDirty && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
         {webBuildError && <p role="alert">{webBuildError}</p>}
       </div>
       </details>
@@ -4901,7 +4905,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onSave={() => saveToLocal("manual")}
             onClose={() => setSettingsOpen(false)}
           />
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} onPublicationChange={applySettingsProject} />
         </> : workspaceMode === "production" ? (
           <ProductionWorkspace
             project={previewCanonicalProject}
@@ -4974,7 +4978,7 @@ export function App({ initialProject, routeCompiler, onProjectChange, onProjectS
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
           />
         )}
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} />
+          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={setRuntimeRouteTrace} onPublicationChange={applySettingsProject} />
         </>}
       </main>
       <footer className="workspace-footer">

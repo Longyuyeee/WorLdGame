@@ -11,7 +11,8 @@ import { createHash } from "node:crypto";
 const root = resolve(import.meta.dirname, "..");
 const pwa = process.argv.includes("--pwa");
 const localPreview = process.argv.includes("--local-preview");
-const directory = pwa || localPreview || process.argv.includes("--directory");
+const publication = process.argv.includes("--publication");
+const directory = pwa || localPreview || publication || process.argv.includes("--directory");
 const temporary = await mkdtemp(join(tmpdir(), "world-n80-export-"));
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 async function json(url) {
@@ -59,7 +60,8 @@ try {
   await client.evaluate("(document.querySelector('[role=radio][aria-label=Production]') || Array.from(document.querySelectorAll('[role=radio]')).find(x=>x.textContent.trim()==='Production')).click()");
   await client.button("打开资源生产流水线");
   const golden = JSON.parse(await readFile(join(root, "fixtures/projects/media/media-golden.json"), "utf8"));
-  const png = golden.assets.find((asset) => asset.assetId === "media_sunset");
+  let png = golden.assets.find((asset) => asset.assetId === "media_sunset");
+  if (publication) png = { ...png, base64: await client.evaluate("(()=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=512;const context=canvas.getContext('2d');context.fillStyle='#6242cc';context.fillRect(0,0,512,512);context.fillStyle='white';context.font='bold 240px sans-serif';context.fillText('W',140,340);return canvas.toDataURL('image/png').split(',')[1];})()") };
   const pngPath = join(temporary, "sunset.png"); await writeFile(pngPath, Buffer.from(png.base64, "base64"));
   const { root: document } = await client.send("DOM.getDocument");
   const { nodeId } = await client.send("DOM.querySelector", { nodeId: document.nodeId, selector: 'input[aria-label="选择资源文件"]' });
@@ -71,6 +73,16 @@ try {
   await client.evaluate("Array.from(document.querySelectorAll('[role=radio]')).find(x=>x.textContent.trim()==='Writer').click()");
   await client.wait("Array.from(document.querySelectorAll('summary')).some(x=>x.textContent.includes('构建与导出'))");
   await client.evaluate("Array.from(document.querySelectorAll('summary')).find(x=>x.textContent.includes('构建与导出')).click()");
+  if (publication) {
+    for (const [label, value] of [['发布名称', '星光旅程'], ['发布版本', '2.3.0']]) await client.evaluate(`(()=>{const input=document.querySelector('[aria-label="${label}"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,${JSON.stringify(value)});input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+    assert.equal(await client.evaluate("Array.from(document.querySelectorAll('button')).find(x=>x.textContent==='构建目录 ZIP').disabled"), true);
+    await client.evaluate("(()=>{const input=document.querySelector('[aria-label=发布图标]');input.value='export_sunset';input.dispatchEvent(new Event('change',{bubbles:true}));})()");
+    await client.wait("document.querySelector('[alt=发布图标预览]')?.naturalWidth===512");
+    await client.button('应用发布设置');
+    await client.wait("!document.querySelector('.local-save-button').disabled");
+    await client.evaluate("document.querySelector('.local-save-button').click()");
+    await client.wait("document.querySelector('.local-save-button').textContent.includes('已保存')");
+  }
   await client.button(directory ? "构建目录 ZIP" : "构建试玩 HTML");
   await client.wait("document.querySelector('.playable-web-export a[download]') !== null");
   const artifact = await client.evaluate("(async()=>{const link=document.querySelector('.playable-web-export a[download]');const blob=await (await fetch(link.href)).blob();const data=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob);});return {name:link.download,data};})()");
@@ -80,6 +92,14 @@ try {
   artifact.html = Buffer.from(files[entry]).toString('utf8');
   const payloadText = artifact.html.match(/<script id="world-project" type="application\/json">(.*?)<\/script>/s)?.[1];
   const payload = JSON.parse(payloadText);
+  if (publication) {
+    const manifest = JSON.parse(Buffer.from(files['manifest.webmanifest']).toString('utf8'));
+    const info = JSON.parse(Buffer.from(files['build-info.json']).toString('utf8'));
+    assert.equal(artifact.name, '星光旅程-web.zip');
+    assert.equal(manifest.name, '星光旅程'); assert.equal(manifest.icons[0].sizes, '512x512');
+    assert.equal(info.publication.version, '2.3.0'); assert.equal(payload.project.manifest.title, '星光旅程');
+    assert.deepEqual(Buffer.from(files[manifest.icons[0].src]), Buffer.from(png.base64, 'base64'));
+  }
   assert.equal(payload.mediaAssets.length, 1);
   if (directory) {
     assert.deepEqual(Buffer.from(files[payload.mediaAssets[0].url]), Buffer.from(png.base64, 'base64'));
@@ -154,6 +174,7 @@ try {
   await client.send("Network.emulateNetworkConditions", { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 });
   await client.send("Page.navigate", { url: pwa || localPreview ? siteUrl : pathToFileURL(output).href });
   await client.button("开始故事");
+  if (publication) { assert.equal(await client.evaluate('document.title'), '星光旅程'); assert.ok(await client.evaluate("document.body.textContent.includes('版本 2.3.0')")); }
   await client.wait("document.querySelector('[aria-label=\"打开附加内容\"]:not(:disabled)')");
   const before = await client.evaluate("document.querySelector('main[data-player-status]').dataset.runtimeStateHash");
   await client.button("打开附加内容");
@@ -205,7 +226,8 @@ try {
   await mkdir(join(root, "evidence/n80"), { recursive: true });
   if (pwa) { evidence.path = 'production Editor ZIP → localhost subdirectory → failed download → retry → server unavailable + offline reload → ending → staged update → close → offline v2'; evidence.pwa = updateEvidence; }
   if (localPreview) { evidence.path = 'production Editor ZIP → extract → shipped launcher → occupied port fallback → actual server Range → cache → q stops server → offline reload → ending'; evidence.localPreview = { launcher: process.platform === 'win32' ? 'start-preview.cmd' : 'preview.mjs', portFallback: true, gracefulStop: true, browserAutoOpen: 'not exercised (--no-open)' }; }
-  await writeFile(join(root, `evidence/n80/formal-web-${localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
+  if (publication) { evidence.path = 'production Editor → real 512 PNG import → publication edit + icon preview → apply → save → ZIP → name/version/icon → offline Player ending'; evidence.publication = { name: '星光旅程', version: '2.3.0', iconSize: 512, savedInEditor: true }; }
+  await writeFile(join(root, `evidence/n80/formal-web-${publication ? 'publication' : localPreview ? 'local-preview' : pwa ? 'pwa' : directory ? 'directory' : 'export'}.json`), JSON.stringify(evidence, null, 2) + "\n");
   console.log(JSON.stringify(evidence, null, 2));
 } catch (error) {
   console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));

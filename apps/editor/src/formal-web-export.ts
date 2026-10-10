@@ -4,6 +4,7 @@ import { createBlobDigest, type BlobDigest } from "@world-studio/project-persist
 import { zip } from "fflate";
 import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
+import { readWebPublication, applyWebPublication, publicationIconSize } from "./web-publication";
 
 export interface FormalWebArtifact {
   readonly filename: string;
@@ -48,6 +49,9 @@ export async function createFormalWebArtifact(
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
   runtime: { readonly javascript: string; readonly css: string }
 ): Promise<FormalWebArtifact> {
+  applyWebPublication(project, readWebPublication(project));
+  const publication = readWebPublication(project);
+  project = { ...project, manifest: { ...project.manifest, title: publication.name } };
   const mediaAssets = (await readExportMedia(project, reader)).map(({ bytes, digest: _digest, ...asset }) => {
     let binary = "";
     for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
@@ -55,9 +59,12 @@ export async function createFormalWebArtifact(
   });
   const payload = JSON.stringify({ project, mediaAssets }).replaceAll("<", "\\u003c").replaceAll("&", "\\u0026");
   const title = htmlText(project.manifest.title);
+  const icon = mediaAssets.find(asset => asset.assetId === publication.iconAssetId);
+  if (icon) publicationIconSize(Uint8Array.from(atob(icon.url.split(',')[1]!), value => value.charCodeAt(0)));
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${runtime.css.replace(/<\/style/gi, "<\\/style")}</style></head><body><div id="player-root">正在打开游戏…</div><script id="world-project" type="application/json">${payload}</script><script>${runtime.javascript.replace(/<\/script/gi, "<\\/script")}</script></body></html>`;
   const stem = exportStem(project);
-  return { filename: `${stem}.html`, html, byteLength: new TextEncoder().encode(html).byteLength, projectDigest: semanticHash(project) };
+  const brandedHtml = html.replace('</head>', `${icon ? `<link rel="icon" type="image/png" href="${icon.url}">` : ""}<meta name="application-version" content="${htmlText(publication.version)}"></head>`).replace('<body>', `<body><p style="margin:0;padding:4px 12px;background:#181827;color:#eee;font:12px system-ui">${title} · ${htmlText(publication.version)}</p>`);
+  return { filename: `${stem}.html`, html: brandedHtml, byteLength: new TextEncoder().encode(brandedHtml).byteLength, projectDigest: semanticHash(project) };
 }
 
 export async function createFormalWebDirectoryArtifact(
@@ -65,6 +72,9 @@ export async function createFormalWebDirectoryArtifact(
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> },
   runtime: { readonly javascript: string; readonly css: string }
 ) {
+  applyWebPublication(project, readWebPublication(project));
+  const publication = readWebPublication(project);
+  project = { ...project, manifest: { ...project.manifest, title: publication.name } };
   const encode = (text: string) => new TextEncoder().encode(text);
   const files: Record<string, Uint8Array> = {};
   const extensions: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg", "image/gif": "gif", "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/mp4": "mp4", "video/webm": "webm", "font/woff2": "woff2", "font/woff": "woff", "font/ttf": "ttf", "font/otf": "otf" };
@@ -78,9 +88,11 @@ export async function createFormalWebDirectoryArtifact(
   files["index.html"] = encode(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${htmlText(project.manifest.title)}</title><link rel="stylesheet" href="player.css"></head><body><div id="player-root">正在打开游戏…如果一直停留在这里，请先解压整个 ZIP，再打开 index.html，并确认 player.js 与它在同一文件夹。</div><script id="world-project" type="application/json">${payload}</script><script src="player.js"></script></body></html>`);
   files["player.js"] = encode(runtime.javascript);
   files["player.css"] = encode(runtime.css);
-  addWebOfflineFiles(files, project.manifest.title);
+  const icon = assets.find(asset => asset.assetId === publication.iconAssetId);
+  const iconInfo = icon ? { path: mediaAssets.find(asset => asset.assetId === icon.assetId)!.url, size: publicationIconSize(icon.bytes) } : undefined;
+  addWebOfflineFiles(files, project.manifest.title, publication.version, iconInfo);
   const projectDigest = semanticHash(project);
-  files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, projectId: project.manifest.projectId, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
+  files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, publication, projectId: project.manifest.projectId, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
   files["preview.mjs"] = encode(previewServer);
   files["start-preview.cmd"] = encode('@echo off\r\nchcp 65001 >nul\r\nwhere node >nul 2>nul\r\nif errorlevel 1 (\r\n  echo 请先安装 Node.js 22 或更高版本：https://nodejs.org/\r\n  echo 安装后重新双击 start-preview.cmd，无需 npm install。\r\n  pause\r\n  exit /b 1\r\n)\r\nnode "%~dp0preview.mjs" %*\r\nif errorlevel 1 pause\r\n');
   files["使用说明.txt"] = encode(`Web 游戏目录包

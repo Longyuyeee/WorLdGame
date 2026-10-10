@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor → real 512 PNG import → publication edit + icon preview → apply → save → ZIP → name/version/icon → offline Player ending",
+  "filename": "星光旅程-web.zip",
+  "bytes": 503208,
+  "mediaCount": 1,
+  "imageDimensions": [
+    512,
+    512
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "publication": {
+    "name": "星光旅程",
+    "version": "2.3.0",
+    "iconSize": 512,
+    "savedInEditor": true
+  }
+}

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { loadProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
+import { loadProject, saveProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
+import { applyWebPublication, readWebPublication } from "./web-publication";
 import { createBlobDigest } from "@world-studio/project-persistence";
 import branching from "../../../fixtures/projects/branching/project.s0.json";
 import media from "../../../fixtures/projects/media/media-golden.json";
@@ -7,6 +8,23 @@ import { createFormalWebArtifact, createFormalWebDirectoryArtifact } from "./for
 import { unzipSync } from "fflate";
 
 describe("formal Web game packaging", () => {
+  it("persists publication settings and exports the player-facing title/version without renaming the source project", async () => {
+    const source = loadProject(migrateS0Project(branching as S0Project).files);
+    const settings = { name: "发布作品", version: "2.1.0-beta", iconAssetId: "" };
+    const project = loadProject(saveProject(applyWebPublication(source, settings)));
+    expect(project.manifest.title).toBe(source.manifest.title);
+    expect(readWebPublication(project)).toEqual(settings);
+    const artifact = await createFormalWebDirectoryArtifact(project, { read: async () => null }, { javascript: "", css: "" });
+    const files = unzipSync(artifact.archive);
+    const text = (path: string) => new TextDecoder().decode(files[path]);
+    expect(JSON.parse(text("manifest.webmanifest")).name).toBe(settings.name);
+    expect(JSON.parse(text("build-info.json")).publication).toEqual(settings);
+    expect(text("index.html")).toContain('content="2.1.0-beta"');
+    expect(text("index.html")).toContain('<title>发布作品</title>');
+    expect(artifact.filename).toBe("发布作品-web.zip");
+    expect(() => applyWebPublication(project, { ...settings, version: "<bad>" })).toThrow("版本");
+    expect(() => applyWebPublication(project, { ...settings, iconAssetId: "missing" })).toThrow("图标素材");
+  });
   it("packages the exact Canonical and original media bytes without external URLs", async () => {
     const project = loadProject(migrateS0Project(branching as S0Project).files);
     const image = media.assets.find((asset) => asset.assetId === "media_sunset")!;
@@ -22,6 +40,8 @@ describe("formal Web game packaging", () => {
     expect(page.title).toBe(exported.manifest.title);
     await expect(createFormalWebArtifact(exported, { read: async () => null }, { javascript: "", css: "" })).rejects.toThrow("重新导入后重试");
     await expect(createFormalWebArtifact(exported, { read: async () => new Uint8Array([1]) }, { javascript: "", css: "" })).rejects.toThrow("缺失或不完整");
+    const badIcon = applyWebPublication(exported, { name: "作品", version: "1.0.0", iconAssetId: image.assetId });
+    await expect(createFormalWebDirectoryArtifact(badIcon, { read: async () => bytes }, { javascript: "", css: "" })).rejects.toThrow("正方形 PNG");
     const directory = await createFormalWebDirectoryArtifact(exported, { read: async () => bytes }, { javascript: "window.started=true;", css: "body{margin:0}" });
     const files = unzipSync(directory.archive);
     const text = (path: string) => new TextDecoder().decode(files[path]);
