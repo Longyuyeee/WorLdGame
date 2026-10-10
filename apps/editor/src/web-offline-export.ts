@@ -14,6 +14,9 @@ const client = String.raw`(() => {
     await promptEvent.prompt(); await promptEvent.userChoice;
     promptEvent = undefined; install.hidden = true;
   };
+  if (location.protocol === 'world-game:') {
+    say('桌面播放器已使用本地游戏文件，无需下载网站离线内容。'); action.hidden = true; return;
+  }
   if (location.protocol === 'file:') {
     say('本地目录可直接试玩；网站离线与安装需发布到 HTTPS 站点。'); action.hidden = true; return;
   }

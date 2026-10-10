@@ -4,7 +4,7 @@
 > 目标版本：M1 Stable
 > 上游需求：[PRD](03-prd.md)、[Gal 基础系统](11-gal-foundation-and-automation.md)、[优化规格](12-size-performance-stability.md)
 > 状态权威：[M1 需求与验收追踪矩阵](90-m1-requirement-traceability.md)
-> 当前进度：N40–N61 Engineering 已关闭，N62-E1–E5 已实现；N80-E1–E5 已完成单文件、目录 ZIP、PWA、本地预览与名称/版本/图标发布设置。下一步 Windows 正式 Player 最小宿主；N80 不提前关闭。Windows/Android、资源优化、完整作品与发布仍未完成；详见[当前路线 #289](289-user-centered-delivery-route.md)。
+> 当前进度：N80-E1–E5 Web 最小交付与 N81-E1 Windows 便携播放器已实现；下一步一作品一便携包。Windows 当前复用 Web Profile，不提前关闭 N80/N81/N92。Android、资源优化、完整作品与发布仍未完成；详见[当前路线 #289](289-user-centered-delivery-route.md)。
 > 核心原则：进度以“能否制作并交付真实游戏”衡量，不以平台 Spike、代码行数或孤立测试衡量。
 
 > 2026-10-10 当前执行顺序以[用户任务优先路线 #289](289-user-centered-delivery-route.md)为准：N80-E1 正式 Web 导出 → 离线交付与持续制作作品 → 平台最小路径 → 真实资源优化 → 功能/UI/产品发布收束。N62-E1–E5 已完成，玩家路线图后置且总出口未关闭。下方“最近执行顺序”描述历史阶段，不再限制本次已获产品负责人批准的 N80-E1 工作。

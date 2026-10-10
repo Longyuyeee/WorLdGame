@@ -18,7 +18,7 @@ M1 仍承诺 Windows/Android 创作、Web/Windows/Android 游戏、原始素材�
 5. **资源与优化**：N70–N72 结合真实产物和设备数据完成源/派生管理、Dicing、收益报告、无收益回退，仍属于 M1，不能用原型代替。
 6. **功能与 UI 收束**：补当前 P0 工作流缺口、N62 玩家路线图及跨端一致性，统一整体 UI 后再组织真人验收，最后完成安装/签名/发布。
 
-这些是工作顺序，不是对后续功能完成或正式发布的预先批准。当前已推进至 N80-E5 作品发布设置；主线 PR 的合并仍需单独处理。
+这些是工作顺序，不是对后续功能完成或正式发布的预先批准。当前已推进至 N81-E1 Windows 便携播放器；主线 PR 的合并仍需单独处理。
 
 ## 开发规则
 
@@ -94,4 +94,18 @@ E4 的发布设置接续已由下方 E5 完成；压缩、许可证材料、正�
 
 必要验证：Canonical save/load 往返证明发布字段保留，原工程名不变；定向覆盖名称/版本导出、非法版本、失效图标与尺寸恢复，旧导出入口一起回归。首次原剧情测试超出 10 秒限制，未降低断言或延长超时，重跑同两份文件 9/9 通过（14.93 秒）。构建通过。浏览器验证了本机保存完成，但未冒充重新打开工程的 UI 路径；重开语义由真实 Canonical 序列化往返覆盖。
 
-接续：Web 用户最小交付路径已有成果，下一步按路线进入 Windows 正式 Player 最小宿主，优先让玩家不依赖 Node.js 即可运行同一作品并保留存档；从现有宿主验证代码中复用能力，不把验证壳当正式产品。Web 压缩、许可证/完整发布材料和完整设备覆盖仍在待办，不新增专门审计阶段。
+E5 的 Windows 接续由下方 N81-E1 实现。Web 压缩、许可证/完整发布材料和完整设备覆盖仍在待办，不新增专门审计阶段。
+
+## N81-E1 Windows 便携播放器（2026-10-10）
+
+玩家路径：保持便携播放器目录完整，双击 WorLdPlayer.exe，选择已解压的 Web 目录包，进入现有正式 Player 游玩、快速/手动存读档。菜单支持打开另一作品、查看存档位置及全屏；错误目录提供重新选择。玩家无需安装 Node.js、启动 localhost 或接触调试页面。
+
+代码边界：新入口 `apps/windows-player/main.mjs`，不修改/冒充旧 conformance 验证壳。复用仓库 Electron 43.4.0 运行时，按 projectId 分配持久会话分区，固定 world-game://game/ origin，存档存于 AppData/WorLdPlayer，不随游戏目录移动。继续复用正式 Web Player/Core/IndexedDB 存读档，**尚未切换为 Windows 专属 Gal Profile 或原生文件存档适配器**。因此只关闭便携最小路径，不声称 N81/N92 总出口完成。
+
+开发构建：先 `npm ci`；运行时缺失时 `npm run install:electron-runtime --workspace @world-studio/windows-shell-conformance`，再 `node tools/build-windows-player.mjs dist/windows-player-<新目录>`。输出目录必须不存在，避免覆盖旧包；运行时和已有许可证随目录复制，不提交二进制到 Git。换机需要重建，给玩家分发时必须整个目录一起提供，不仅是 exe。本步没有安装包、签名和自动更新，不修改系统安全设置。
+
+真实结果：production Editor 导出真实 PNG 的目录 ZIP → 打包后的 exe 运行 → 推进剧情使状态不同于初始 → 快速保存 → 完全退出进程 → 复制到另一游戏目录 → 重启 exe → 快速读取同一状态 hash → 附加页往返 → 结局。PNG 解码成功、异常 0；见 `evidence/n80/formal-web-windows-player.json`（复用现有脚本目录，不另开审计体系）。第一次脚本在 Electron 退出后仍等 CDP Browser.close 回复而挂起，改为等待进程退出；这是测试连接问题，不伪称产品缺陷。
+
+复跑：先构建 Editor 和便携包，设置 WORLD_PLAYER_EXE 为该包 exe 的绝对路径，再运行 `node tools/run-n80-web-export-browser.mjs --windows-player`。使用真实 exe、持久数据目录和两次进程，--game/--test-hidden 仅为自动化入口；原生目录选择、可见全屏、错误目录重选未自动验证。当前产物未签名，不能作为正式发布承诺。
+
+下一步：补作者侧“一作品一便携包”的打包路径，让玩家直接双击自己的游戏即可开始，不再手工选择目录；随后接入 Windows 专属 Profile/生命周期与作品图标版本，继续以实际游戏操作推进。Android、安装/签名、跨端一致性和 N80 剩余发布工作仍保留。
