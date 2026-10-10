@@ -161,7 +161,18 @@ function fact(instruction: RuntimeInstructionV1): RouteFactV1 | undefined {
   return undefined;
 }
 
-function choiceEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, knownSceneIds: ReadonlySet<string>): readonly RouteEdgeV1[] {
+function instructionEdges(instruction: RuntimeInstructionV1, sourceSceneId: string, knownSceneIds: ReadonlySet<string>): readonly RouteEdgeV1[] {
+  if (instruction.opcode === "jump" || instruction.opcode === "call" || instruction.opcode === "condition") {
+    const targetSceneId = stringOperand(instruction, "targetSceneId");
+    // Only the Compiler can distinguish scene targets from same-named local labels.
+    if (targetSceneId === undefined) return [];
+    return [{
+      id: instruction.instructionId, sourceSceneId, targetSceneId,
+      statementId: instruction.instructionId,
+      label: instruction.opcode === "condition" ? "条件成立" : instruction.opcode === "call" ? "调用" : "跳转",
+      status: knownSceneIds.has(targetSceneId) ? "valid" : "dangling"
+    }];
+  }
   if (instruction.opcode !== "choice" || !Array.isArray(instruction.operands.options)) return [];
   return instruction.operands.options.flatMap((value) => {
     if (value === null || Array.isArray(value) || typeof value !== "object") return [];
@@ -207,7 +218,7 @@ export function buildRouteGraphFromCompilation(project: CanonicalProject, compil
     };
   });
   const edges = project.scenes.flatMap((scene) =>
-    (compilation.cache.scenes[scene.id]?.scene.instructions ?? []).flatMap((instruction) => choiceEdges(instruction, scene.id, knownSceneIds))
+    (compilation.cache.scenes[scene.id]?.scene.instructions ?? []).flatMap((instruction) => instructionEdges(instruction, scene.id, knownSceneIds))
   );
   const groups=Object.values(project.layouts).flatMap((layout)=>layout.groups??[]);
   const viewport=Object.values(project.layouts).find((layout)=>layout.viewport!==undefined)?.viewport;

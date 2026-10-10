@@ -35,6 +35,26 @@ function routeProject(includeDangling = true): CanonicalProject {
 }
 
 describe("N40 route graph", () => {
+  it("projects cross-scene control edges but preserves Compiler local-label precedence", () => {
+    const base = routeProject(false);
+    const project = { ...base, scripts: { ...base.scripts, route_entry: {
+      schemaVersion: 1 as const, sceneId: "route_entry", statements: [
+        { id: "cross_jump", kind: "jump", targetLabel: "route_left" },
+        { id: "cross_call", kind: "call", targetLabel: "route_left" },
+        { id: "cross_condition", kind: "condition", expression: "flag == true", targetLabel: "route_left" }
+      ]
+    } } };
+    expect(buildRouteGraph(project).edges.map((edge) => [edge.id, edge.statementId, edge.label, edge.targetSceneId])).toEqual([
+      ["cross_jump", "cross_jump", "跳转", "route_left"],
+      ["cross_call", "cross_call", "调用", "route_left"],
+      ["cross_condition", "cross_condition", "条件成立", "route_left"]
+    ]);
+    const local = { ...project, scripts: { ...project.scripts, route_entry: {
+      ...project.scripts.route_entry, statements: [...project.scripts.route_entry.statements,
+        { id: "local_label", kind: "label", name: "route_left" }]
+    } } };
+    expect(buildRouteGraph(local).edges).toEqual([]);
+  });
   it("projects a supplied formal Compiler result without owning workspace cache parsing", () => {
     const project = routeProject();
     const compilation = compileProject(project, "debug");

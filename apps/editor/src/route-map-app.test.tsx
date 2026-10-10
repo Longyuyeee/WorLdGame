@@ -115,6 +115,41 @@ function repairableRouteStory(): StoryProject {
 }
 
 describe("N40 Route Map product flow", () => {
+  it("edits a cross-scene jump from Flow, plays and reloads the saved route without Choice repair", async () => {
+    const indexedDb = new IDBFactory();
+    vi.stubGlobal("indexedDB", indexedDb);
+    const onProjectSave = vi.fn(async () => undefined);
+    const story: StoryProject = { ...labelNavigationStory(), scenes: [
+      { id: "label_scene", title: "出发", statements: [{ id: "jump_finish", kind: "jump", targetLabel: "finish_scene" }] },
+      { id: "finish_scene", title: "重逢", statements: [{ id: "finish_end", kind: "end", endingName: "约定" }] },
+      { id: "changed_scene", title: "告别", statements: [{ id: "changed_end", kind: "end", endingName: "告别结局" }] }
+    ] };
+    const project = projectCanonicalFromStory(story, "cross-scene-map");
+    const view = render(<App initialProject={project} onProjectSave={onProjectSave} />);
+    fireEvent.click(await screen.findByRole("tab", { name: "Flow" }));
+    expect(screen.getByTestId("route-edge-jump_finish")).toHaveTextContent("出发");
+    expect(screen.getByRole("button", { name: "定位路线目标：跳转 · finish_scene" })).toHaveTextContent("重逢");
+    expect(screen.queryByRole("button", { name: "修改 Choice 目标" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "修改连接：跳转 · jump_finish" }));
+    expect(screen.getByRole("tab", { name: "Sequence" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("button", { name: /选择跳转：/ })).toHaveFocus();
+    fireEvent.change(document.querySelector('select[name="target"]')!, { target: { value: "changed_scene" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用类型化参数" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    expect(screen.getByRole("button", { name: "定位路线目标：跳转 · changed_scene" })).toHaveTextContent("告别");
+    await waitFor(() => expect(screen.getByRole("button", { name: "保存到本机" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
+    await waitFor(() => expect(onProjectSave).toHaveBeenCalledTimes(1));
+    const persisted = await loadProject(new IndexedDbProjectFileStore(indexedDb, project.manifest.projectId));
+    expect(persisted).not.toBeNull();
+    view.unmount();
+    const restored = restoreStudioSession(persisted!, projectCanonicalForEditor(project).project);
+    render(<App initialProject={projectCanonicalFromStory(restored.project, "cross-scene-map-reopened")} />);
+    fireEvent.click(await screen.findByRole("tab", { name: "Flow" }));
+    expect(screen.getByRole("button", { name: "定位路线目标：跳转 · changed_scene" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    expect(screen.getByText("流程完成：告别结局")).toBeVisible();
+  });
   it("searches the compiler-derived scene graph without changing stable IDs", () => {
     renderRouteMap();
 

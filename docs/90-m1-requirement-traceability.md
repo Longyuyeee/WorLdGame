@@ -1,5 +1,7 @@
 # M1 需求与验收追踪矩阵
 
+> 2026-10-10 Route 增量（PRD §3.2 / Gal §6.1）：跨场景 jump/call/condition 投影、场景名及源语句编辑入口已实现，同名标签优先和 Choice 修复隔离有回归。证据为 `packages/route-graph/src/route-graph.test.ts` 与 `apps/editor/src/route-map-app.test.tsx`（合计 32 项通过），Editor 构建通过；界面集成覆盖改跳转、图更新、IndexedDB 保存加载及重开正式试玩。`tools/creator-condition-workflow.mjs` 已扩展 Flow 条件编辑断言，但本机 CDP 启动失败，浏览器路径仍待验证，旧 evidence 不代表本轮通过。完整 Route/多视图及 M1 状态不关闭；接续以计划 #89 顶部为准。
+
 > 2026-10-10 作者任务增量（REQ-SEQ / REQ-SCRIPT / REQ-RUNTIME）：选择赋值、跨场景汇合与条件结局的基础制作闭环通过。UI 可配置简单比较，Compiler 将本地标签或场景 ID 分别降为 `targetLabel` / `targetSceneId`，当前 Runtime 执行；两条真实路线在修改条件并保存重开后得到预期不同结局。证据 `evidence/authoring/condition-workflow.json`，接续工程 `rainy-promise-conditions.zip`；112 项定向回归和 Editor 构建通过。这不是上述需求全部完成，也不关闭 M1 或真人验收。当前执行顺序以计划 #89 顶部为准；以下治理/排期为历史追踪，不恢复旧的验证优先路线。
 
 > 生效日期：2026-08-13

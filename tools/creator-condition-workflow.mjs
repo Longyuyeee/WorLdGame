@@ -52,18 +52,26 @@ export async function runCreatorConditionWorkflow(client, root) {
     return { route, expectedValue, actualValue, expectedEnding, actualEnding: expectedEnding };
   };
   const before = [await play('去海边', '2', '新的约定结局'), await play('去书店', '0', '平常的告别')];
-  await scene('重逢');
-  await client.evaluate("Array.from(document.querySelectorAll('button')).find(e=>e.getAttribute('aria-label')?.startsWith('选择条件：')).click()");
+  const inspectFlow = async () => {
+    await client.button('Flow');
+    const edges = await client.evaluate("Array.from(document.querySelectorAll('.edge-row')).map(e=>({text:e.textContent,edit:e.querySelector('[aria-label^=\"修改连接：\"]')?.getAttribute('aria-label')}))");
+    assert.equal(edges.filter(e=>e.edit?.startsWith('修改连接：跳转')).length, 2);
+    const condition = edges.find(e=>e.edit?.startsWith('修改连接：条件成立'));
+    assert.ok(condition?.text.includes('重逢') && condition.text.includes('新的约定'), JSON.stringify(edges));
+    await client.button(condition.edit);
+    await client.wait("document.querySelector('input[name=expression]')");
+    return edges;
+  };
+  const flowBefore = await inspectFlow();
   await configure('==', '0'); await save();
   await client.send('Page.reload'); await client.wait("document.querySelector('.project-home__recent button')");
   await client.button('雨后的约定'); await client.button('进入编辑器'); await client.button('进入内容编辑器');
   const reopened = [await play('去海边', '2', '平常的告别'), await play('去书店', '0', '新的约定结局')];
-  await scene('重逢');
-  await client.evaluate("Array.from(document.querySelectorAll('button')).find(e=>e.getAttribute('aria-label')?.startsWith('选择条件：')).click()");
+  const flowReopened = await inspectFlow();
   assert.equal(await client.evaluate("document.querySelector('input[name=expression]').value"), `${variable} == 0`);
   await client.button('返回项目结构'); await client.button('返回项目首页'); await client.button('雨后的约定'); await client.button('准备导出 ZIP');
   await client.wait("document.querySelector('.project-home__status a[download]')");
   const archive = await client.evaluate("(async()=>{const blob=await(await fetch(document.querySelector('.project-home__status a[download]').href)).blob();return await new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.readAsDataURL(blob);});})()");
   assert.deepEqual(client.errors, []);
-  return { archive, evidence: { title:'雨后的约定 · 条件剧情', sourceProject:'rainy-promise-media.zip', authoredThroughUi:true, initialRule:`${variable} >= 2`, changedRule:`${variable} == 0`, before, reopened, exceptions:client.errors } };
+  return { archive, evidence: { title:'雨后的约定 · 条件剧情', sourceProject:'rainy-promise-media.zip', authoredThroughUi:true, initialRule:`${variable} >= 2`, changedRule:`${variable} == 0`, before, reopened, flowBefore, flowReopened, editedFromFlow:true, exceptions:client.errors } };
 }
