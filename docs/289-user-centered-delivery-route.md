@@ -27,7 +27,17 @@
 
 测试：定向 `scene-writing-entry.test.tsx` 与 `project-entity-manager.test.tsx` 共 4 项通过，覆盖创建后直接进入非入口场景、入口 ID 不变及现有结构保存/重开。真实浏览器复跑：先构建 Editor，再 `node tools/run-n80-web-export-browser.mjs --scene-writing`，创建新场景→目标编辑→保存→返回结构，并回归原正式导出；证据复用 `evidence/n80/formal-web-scene-writing.json`。这是有限切片，不代表所有编辑/演出/跨端 P0 已核对完毕。
 
-以下为打包路线的历史依据和完成记录，不再作为当前优先级：
+以下先记录当前创作切片，其后保留历史交付记录：
+
+### 创作主线接续：分支目标按名称选择（2026-10-10）
+
+用户场景：作者在 Sequence 改选择分支或跳转，希望选“旧车站”而不是记住 scn_xxx。实际代码 `SequenceInspector` 原来在 choice/jump/call/condition 下拉框仅显示 ID；现在选项显示“场景：名称 · ID”，同名场景仍能区分；本场景标签显示“当前场景标签”，已不存在的引用显示“失效目标”，保留原值以便作者主动修正，不自动改剧情。不新增引用或状态体系，submit 仍将 value 的稳定 ID 写入 AST。
+
+预期与实际：名称只是帮助选择，不能把名称写成跳转目标。定向 `branch-target-authoring.test.tsx` 用两个同名场景选择另一个目标，验证 Script 写入正确 ID、不写入场景名，实际通过；Editor TypeScript/production 构建通过（仍有原有大 chunk 提示）。真实浏览器 `node tools/run-n80-web-export-browser.mjs --branch-target` 在示例选择块中更换目标，核对 Script 已提交、保存成功，再导出正式 HTML 实际运行到结局，附加页状态不变、未捕获异常 0。证据复用 `evidence/n80/formal-web-branch-target.json`；这是作者编辑的回归，不代表所有分支或平台已验收。
+
+下一步优先检查对白角色、变量名称与作用域在写作界面的可辨识性，按实际缺口实现；不继续打包增强，不增加独立审查阶段。失效目标修复与本场景标签的可见文字已实现，但此次真实浏览器重点覆盖有效场景分支，未声称所有错误引用场景都实测通过。
+
+以下继续保留历史交付记录：
 
 N61、N62-E1–E5 已有真实实现。最新基线 `00655a94046f384b6da30336e6d567b111d4da37` 的 Windows CI run `35765332642` 已成功。N62 玩家路线图仍未实现。编辑器原 HTML 导出使用独立解释器，正式 Player 的成果没有经过同一个用户下载入口交付，这是当前优先解决的缺口。
 

@@ -1697,8 +1697,8 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetIds:readonly string[];readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
-function SequenceInspector({statement,disabled,targetIds,variableIds,createCommandId,dispatch}:SequenceInspectorProps){
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds,createCommandId,dispatch}:SequenceInspectorProps){
   if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
   const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),value=(name:string)=>String(data.get(name)??"").trim();let patch:Readonly<Record<string,unknown>>={};
     if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
@@ -1713,11 +1713,11 @@ function SequenceInspector({statement,disabled,targetIds,variableIds,createComma
   };
   return <form key={`${statement.id}:${statementLabel(statement)}`} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
     {statement.kind==="narration"&&<label><span>旁白文本</span><textarea name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
-    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option)=><fieldset key={option.id}><legend>{option.id}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>目标稳定 ID</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label></fieldset>)}</>}
+    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option)=><fieldset key={option.id}><legend>{option.id}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>目标稳定 ID</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></fieldset>)}</>}
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
-    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label>}
+    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
     {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
-    {statement.kind==="condition"&&<><label><span>条件表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{id}</option>)}</select></label></>}
+    {statement.kind==="condition"&&<><label><span>条件表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
     <button type="submit" disabled={disabled}>应用类型化参数</button><small>字段按 AST 类型提交，不解析卡片显示文本。</small>
@@ -1789,6 +1789,10 @@ function SequenceView({
         ? "插入演出语句前，请先打开资源保险库导入资源。"
         : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
+  const targetNames:Readonly<Record<string,string>>=Object.fromEntries([
+    ...session.project.scenes.map(item=>[item.id, `场景：${item.title} · ${item.id}`]),
+    ...sequenceReferences.labelIds.map(id=>[id, `当前场景标签：${id}`])
+  ]);
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
   const insertionAnchor=selected.kind==="choice"?selected.options.at(-1)?.id??selected.id:selected.id;
   const insertPlan=(plan:ReturnType<typeof createSequenceInsertPlan>)=>{const first=plan[0]?.node,selectedStatementId=first===undefined?undefined:first.kind==="dialogue"||first.kind==="narration"?first.statementId:first.id;dispatch({type:"p0-batch",commandId:createCommandId(),operations:plan.map((step)=>({kind:"insert" as const,afterId:step.afterId,node:step.node})),...(selectedStatementId===undefined?{}:{selectedStatementId})});};
@@ -2384,7 +2388,7 @@ function SequenceView({
             createCommandId={createCommandId}
             dispatch={dispatch}
           />
-        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} variableIds={sequenceReferences.variableIds} createCommandId={createCommandId} dispatch={dispatch}/>}
+        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
           Sequence 不持有第二份剧情；每次编辑都通过稳定 ID Patch 写回权威 Script，再重新投影。
         </p>

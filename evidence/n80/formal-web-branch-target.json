@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-10",
+  "path": "production Editor → real PNG import → download HTML → offline file URL → formal Player → extras → ending",
+  "filename": "黄昏广播.html",
+  "bytes": 463010,
+  "mediaCount": 1,
+  "imageDimensions": [
+    16,
+    9
+  ],
+  "extrasPreservedState": true,
+  "reachedEnding": true,
+  "mobileOverflow": 0,
+  "exceptions": [],
+  "authoring": {
+    "namedBranchTargets": true,
+    "changedTargetInSequence": true,
+    "savedInEditor": true,
+    "exportedGameReachedEnding": true
+  }
+}
