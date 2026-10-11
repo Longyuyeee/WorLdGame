@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
 import { startPlayerAutoClock } from "./auto-playback-clock";
+import { cancelPlayerAudioRequest, requestPlayerAudioPlayback } from "./audio-playback-request";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
@@ -212,6 +213,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [recoveryOperation, setRecoveryOperation] = useState<"scanning" | "idle" | "available" | "ready" | "loaded" | "error">("scanning");
   const [recoveryMessage, setRecoveryMessage] = useState("正在检查恢复记录…");
   const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | null>(null);
+  const [newStoryConfirmation, setNewStoryConfirmation] = useState(false);
+  const [recoveryScanAttempt, setRecoveryScanAttempt] = useState(0);
+  const recoveryGeneration = useRef(0);
   const choiceButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const additionalContentTrigger = useRef<HTMLButtonElement | null>(null);
   const additionalContentPanel = useRef<HTMLElement | null>(null);
@@ -228,6 +232,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const galleryPreviewClose = useRef<HTMLButtonElement | null>(null);
   const galleryPreviewWasOpen = useRef(false);
   const audioElements = useRef(new Map<string, HTMLAudioElement>());
+  const [, refreshAudioTransport] = useState(0);
+  const audioActivity = useRef({ hostActivity, skipActive: skipMode !== null });
+  audioActivity.current = { hostActivity, skipActive: skipMode !== null };
+  const requestAudio = useCallback((element: HTMLAudioElement, reason: "resuming" | "resuming-after-skip" = "resuming") => {
+    const isCurrent = () => element.isConnected && audioElements.current.get(element.dataset.audioBus ?? "") === element
+      && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive;
+    if (!isCurrent()) return;
+    requestPlayerAudioPlayback(element, isCurrent, () => refreshAudioTransport(revision => revision + 1), reason);
+  }, []);
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
@@ -294,6 +307,16 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       voicePlaying
     )
   }));
+  const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${track.bus}:${track.assetId}:${track.status}`).join("|");
+  useEffect(() => {
+    for (const element of audioElements.current.values()) {
+      const shouldPlay = element.dataset.shouldPlay;
+      if (shouldPlay !== element.dataset.observedShouldPlay) {
+        element.dataset.observedShouldPlay = shouldPlay;
+        if (shouldPlay === "true" && element.readyState >= 2 && element.paused && !element.ended) requestAudio(element);
+      }
+    }
+  }, [audioPlaybackSignature, requestAudio]);
   const typography = useMemo(
     () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets),
     [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale]
@@ -535,6 +558,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         throw new Error("WORLD_PLAYER_SAVE_METADATA_MISMATCH");
       }
       if (loadedSnapshot.identities.buildId !== null) autoSavedSceneIdentities.current.add(worldPlayerSaveSceneIdentityV1(loadedSnapshot.identities.buildId, slot.sceneId));
+      // An explicit slot load supersedes an in-flight startup scan or old recovery prompt.
+      recoveryGeneration.current++;
+      setRecoveryCandidate(null);
+      setRecoveryOperation(recoveryStore === undefined ? "idle" : "loaded");
+      setRecoveryErrorAction(null);
+      setNewStoryConfirmation(false);
       setState(loaded.state);
       setSaveOperation("loaded");
       setSaveMessage(`${slotId} 已读取`);
@@ -543,7 +572,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveOperation("error");
       setSaveMessage("存档损坏或与当前构建不兼容");
     }
-  }, [project.manifest.projectId, saveStore, state]);
+  }, [project.manifest.projectId, recoveryStore, saveStore, state]);
 
   const restoreRecovery = useCallback(async () => {
     if (recoveryCandidate === null || recoveryStore === undefined) return;
@@ -574,24 +603,36 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state]);
 
   const clearRecovery = useCallback(async () => {
-    if (recoveryCoordinator === undefined || recoveryStore === undefined) return;
+    if (recoveryCoordinator === undefined || recoveryStore === undefined) return false;
     const projectId = project.manifest.projectId;
+    const generation = recoveryGeneration.current;
+    setRecoveryOperation("scanning");
     try {
       await recoveryCoordinator.clear(projectId);
-      if (recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
+      if (generation !== recoveryGeneration.current || recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return false;
       setRecoveryCandidate(null);
       setRecoveryOperation("idle");
       setRecoveryMessage("恢复记录已清除");
       setRecoveryErrorAction(null);
       lastRecoveryRuntimeStateHash.current = null;
+      return true;
     } catch {
+      if (generation !== recoveryGeneration.current || recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return false;
       setRecoveryOperation("error");
       setRecoveryMessage("恢复记录无法清除，未修改正式存档");
       setRecoveryErrorAction("retry");
+      return false;
     }
   }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
+    if (content.kind === "title" && intent.kind === "primary" && recoveryStore !== undefined) {
+      if (recoveryOperation === "scanning") return;
+      if (recoveryCandidate !== null || recoveryOperation === "error") {
+        setNewStoryConfirmation(true);
+        return;
+      }
+    }
     if (source !== "system") {
       setAutoEnabled(false);
       setAutoPlayback("off");
@@ -615,7 +656,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setLastInputAccepted(true);
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [content.kind, project, settingsApplication, stopSkip, textReady, voicePlaying]);
+  }, [content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, settingsApplication, stopSkip, textReady, voicePlaying]);
 
   useEffect(() => {
     autoSavedSceneIdentities.current.clear();
@@ -644,6 +685,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     const projectId = project.manifest.projectId;
+    const generation = ++recoveryGeneration.current;
+    setNewStoryConfirmation(false);
     setRecoveryCandidate(null);
     setRecoveryErrorAction(null);
     if (recoveryStore === undefined) {
@@ -653,18 +696,32 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setRecoveryOperation("scanning");
     setRecoveryMessage("正在检查恢复记录…");
+    let settled = false;
+    const timeout = window.setTimeout(() => {
+      if (settled || generation !== recoveryGeneration.current) return;
+      settled = true;
+      setRecoveryOperation("error");
+      setRecoveryMessage("恢复检查超时，可重新检查或确认开始新故事；旧记录尚未修改");
+      setRecoveryErrorAction("clear");
+    }, 8000);
     void recoveryStore.read(projectId).then((candidate) => {
-      if (recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
+      if (settled || generation !== recoveryGeneration.current || recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
+      settled = true;
+      window.clearTimeout(timeout);
       setRecoveryCandidate(candidate);
       setRecoveryOperation(candidate === null ? "idle" : "available");
       setRecoveryMessage(candidate === null ? "没有待恢复进度" : "发现上次未完成的安全进度");
     }).catch(() => {
+      if (settled || generation !== recoveryGeneration.current) return;
+      settled = true;
+      window.clearTimeout(timeout);
       if (recoveryContext.current.projectId !== projectId || recoveryContext.current.store !== recoveryStore) return;
       setRecoveryOperation("error");
       setRecoveryMessage("恢复记录损坏，已与正式存档隔离");
       setRecoveryErrorAction("clear");
     });
-  }, [project.manifest.projectId, recoveryStore]);
+    return () => { recoveryGeneration.current++; window.clearTimeout(timeout); };
+  }, [project.manifest.projectId, recoveryStore, recoveryScanAttempt]);
 
   useEffect(() => {
     setSaveSlots([]);
@@ -1067,18 +1124,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     if (previous === hostActivity) return;
     for (const element of audioElements.current.values()) {
       if (hostActivity === "suspended") {
+        cancelPlayerAudioRequest(element);
         element.dataset.playerPlayback = "suspended";
         element.pause();
       } else if (element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true" && settingsApplication.audio.resumeAfterInterruption) {
-        element.dataset.playerPlayback = "resuming";
-        const resumed = element.play();
-        resumed?.then(() => {
-          element.dataset.playerPlayback = "playing";
-        }).catch(() => {
-          element.dataset.playerPlayback = "blocked";
-        });
+        requestAudio(element);
       } else if (element.dataset.shouldPlay === "true") {
         element.dataset.playerPlayback = "paused-by-policy";
+        refreshAudioTransport(revision => revision + 1);
       }
     }
     const video = videoElement.current;
@@ -1092,25 +1145,25 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         resumed?.then(() => { video.dataset.playerPlayback = "playing"; }).catch(() => { video.dataset.playerPlayback = "blocked"; });
       } else if (video.dataset.shouldPlay === "true") video.dataset.playerPlayback = "paused-by-policy";
     }
-  }, [hostActivity, settingsApplication.audio.resumeAfterInterruption]);
+  }, [hostActivity, requestAudio, settingsApplication.audio.resumeAfterInterruption]);
 
   useEffect(() => {
     const wasActive = previousSkipActive.current;
     previousSkipActive.current = skipActive;
     for (const element of audioElements.current.values()) {
       if (skipActive) {
+        cancelPlayerAudioRequest(element);
         element.dataset.playerPlayback = "skipped";
         element.pause();
       } else if (wasActive && hostActivity === "active" && element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true") {
-        element.dataset.playerPlayback = "resuming-after-skip";
-        const resumed = element.play();
-        resumed?.then(() => { element.dataset.playerPlayback = "playing"; }).catch(() => { element.dataset.playerPlayback = "blocked"; });
+        requestAudio(element, "resuming-after-skip");
       }
     }
-  }, [hostActivity, skipActive]);
+  }, [hostActivity, requestAudio, skipActive]);
 
   useEffect(() => () => {
     for (const element of audioElements.current.values()) {
+      cancelPlayerAudioRequest(element);
       if (!element.paused) element.pause();
     }
     const video = videoElement.current;
@@ -1296,8 +1349,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 element.volume = track.appliedVolume;
                 element.dataset.appliedVolume = String(element.volume);
                 element.dataset.shouldPlay = String(track.status === "playing");
-                element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : track.status;
-              } else audioElements.current.delete(track.bus);
+                if (element.dataset.playerPlayback === undefined) element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : track.status;
+                return () => {
+                  if (audioElements.current.get(track.bus) === element) audioElements.current.delete(track.bus);
+                  // React ref replay is not a media interruption; only release truly detached owners.
+                  queueMicrotask(() => {
+                    if (element.isConnected) return;
+                    cancelPlayerAudioRequest(element);
+                    if (!element.paused) element.pause();
+                  });
+                };
+              }
             }}
             src={track.url}
             data-audio-bus={track.bus}
@@ -1305,23 +1367,39 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             data-volume={track.volume}
             data-applied-volume={track.appliedVolume}
             aria-label={`${track.displayName} · ${track.bus}`}
-            autoPlay={hostActivity === "active" && track.status === "playing"}
             loop={track.loop}
+            onCanPlay={(event) => {
+              const element = event.currentTarget;
+              if (element.paused && !element.ended && element.dataset.shouldPlay === "true" && !["blocked", "paused-by-policy", "interrupted"].includes(element.dataset.playerPlayback ?? "")) requestAudio(element);
+            }}
             onPlay={(event) => {
+              event.currentTarget.dataset.playerPlayback = "playing";
+              refreshAudioTransport(revision => revision + 1);
               if (track.bus === "voice") {
                 event.currentTarget.dataset.voiceCompleted = "false";
                 event.currentTarget.dataset.voiceFailed = "false";
                 setVoicePlaying(true);
               }
             }}
-            onPause={() => { if (track.bus === "voice") setVoicePlaying(false); }}
+            onPause={(event) => {
+              const element = event.currentTarget;
+              if (audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && !element.ended && element.dataset.shouldPlay === "true" && element.dataset.playerPlayback === "playing") {
+                element.dataset.playerPlayback = "interrupted";
+                refreshAudioTransport(revision => revision + 1);
+              }
+              if (track.bus === "voice") setVoicePlaying(false);
+            }}
             onEnded={(event) => {
+              event.currentTarget.dataset.playerPlayback = "ended";
+              refreshAudioTransport(revision => revision + 1);
               if (track.bus === "voice") {
                 event.currentTarget.dataset.voiceCompleted = "true";
                 setVoicePlaying(false);
               }
             }}
             onError={(event) => {
+              event.currentTarget.dataset.playerPlayback = "error";
+              refreshAudioTransport(revision => revision + 1);
               if (track.bus === "voice") {
                 event.currentTarget.dataset.voiceFailed = "true";
                 setVoicePlaying(false);
@@ -1330,6 +1408,16 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             }}
           />
         ))}
+        {hostActivity === "active" && !skipActive && [...audioElements.current.values()].some(element => element.isConnected && element.dataset.shouldPlay === "true" && !element.ended && !element.error && ["blocked", "interrupted", "paused-by-policy"].includes(element.dataset.playerPlayback ?? "")) && (
+          <aside className="player-audio-recovery" role="status" aria-live="polite">
+            <span>声音尚未播放或已中断。点击恢复声音；也可关闭自动播放，手动阅读。</span>
+            <button type="button" onClick={() => {
+              for (const element of audioElements.current.values()) {
+                if (element.paused && element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true") requestAudio(element);
+              }
+            }}>恢复声音</button>
+          </aside>
+        )}
         {hostActivity === "suspended" && (
           <div className="player-host-suspended" role="status" aria-live="polite">
             <span>PLAYER PAUSED</span>
@@ -1688,7 +1776,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             )}
           </aside>
         )}
-        {recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
+        {content.kind !== "title" && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
           <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
             <div>
               <strong>{recoveryOperation === "error" ? "恢复保护需要处理" : "发现可恢复进度"}</strong>
@@ -1721,11 +1809,35 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <p className="player-eyebrow">A WORLd STUDIO STORY</p>
             <h1>{snapshot.title}</h1>
             <p>同一个故事核心，面向每一块屏幕。</p>
-            <button className="player-primary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
+            <button className="player-primary" type="button" disabled={hostActivity !== "active" || (recoveryStore !== undefined && recoveryOperation === "scanning")} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
               开始故事
               <span aria-hidden="true">→</span>
             </button>
             {settingsApplication.ui.showInputHints && <span className="player-hint">Enter / Space</span>}
+            {recoveryStore !== undefined && <div className="player-title-recovery" aria-label="开始与恢复进度">
+              <div className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite" aria-busy={recoveryOperation === "scanning"}>
+                <div><strong>{newStoryConfirmation ? "确认开始新故事？" : recoveryCandidate ? "发现可恢复进度" : "恢复保护"}</strong>
+                  <span>{newStoryConfirmation ? "将清除旧的自动恢复记录。手动、快速及检查点存档保持不变。" : recoveryMessage}</span>
+                  {!newStoryConfirmation && recoveryCandidate !== null && <small>{project.scenes.find(scene => scene.id === recoveryCandidate.sceneId)?.title ?? recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC</small>}
+                  {newStoryConfirmation && recoveryOperation === "error" && <span>{recoveryMessage}</span>}
+                </div>
+                {newStoryConfirmation ? <>
+                  <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning"} onClick={() => {
+                    void clearRecovery().then(cleared => {
+                      if (!cleared) return;
+                      setNewStoryConfirmation(false);
+                      if (audioActivity.current.hostActivity !== "active") return;
+                      setState(current => dispatchPlayerCoreIntentV1(current, project, { kind: "primary" }));
+                    });
+                  }}>确认开始新故事</button>
+                  <button type="button" disabled={recoveryOperation === "scanning"} onClick={() => setNewStoryConfirmation(false)}>保留原进度</button>
+                </> : <>
+                  {recoveryOperation === "error" && <button type="button" onClick={() => setRecoveryScanAttempt(attempt => attempt + 1)}>重新检查恢复记录</button>}
+                  {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning" || recoveryCandidate.buildId !== state.artifacts?.manifest.buildId} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
+                  {(recoveryCandidate !== null || recoveryOperation === "error") && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning"} onClick={() => void clearRecovery()}>放弃并清除</button>}
+                </>}
+              </div>
+            </div>}
           </div>
         )}
 

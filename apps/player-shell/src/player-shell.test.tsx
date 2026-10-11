@@ -1328,6 +1328,7 @@ describe("N51-E5 Player settings application", () => {
   it("writes isolated recovery boundaries and restores them only after an explicit player decision", async () => {
     const saves = new Map<string, WorldPlayerSaveSlotV3>();
     let recovery: WorldPlayerRecoveryRecordV1 | null = null;
+    let failClear = false;
     let clock = 1_788_000_000_000;
     const saveStore: WorldPlayerSaveStoreV3 = {
       version: "3.0.0", backend: "memory-save",
@@ -1340,13 +1341,16 @@ describe("N51-E5 Player settings application", () => {
       version: "1.0.0", backend: "memory-recovery",
       async read(projectId) { return recovery?.projectId === projectId ? recovery : null; },
       async write(value) { recovery = value; },
-      async clear() { recovery = null; }
+      async clear() { if (failClear) throw new Error("disk busy"); recovery = null; }
     };
     const first = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: /开始故事/u })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     await waitFor(() => expect(recovery).toMatchObject({ format: "world.player-recovery", sceneId: "branch_start", presentationKind: "choice" }));
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     await waitFor(() => expect(recovery).toMatchObject({ sceneId: "branch_left", presentationKind: "dialogue" }));
+    fireEvent.click(screen.getByRole("button", { name: "快速保存" }));
+    await waitFor(() => expect(first.container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
     first.unmount();
 
     const second = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
@@ -1357,6 +1361,105 @@ describe("N51-E5 Player settings application", () => {
     await waitFor(() => expect(second.container.querySelector("main")).toHaveAttribute("data-player-status", "presenting"));
     expect(screen.getByText("The quiet route.")).toBeInTheDocument();
     expect(second.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "loaded");
+    second.unmount();
+    const third = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={recoveryStore} now={() => clock++} />);
+    await screen.findByRole("button", { name: "恢复上次进度" });
+    const original = recovery;
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    expect(screen.getByText("确认开始新故事？")).toBeVisible();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(recovery).toBe(original);
+    fireEvent.click(screen.getByRole("button", { name: "保留原进度" }));
+    expect(recovery).toBe(original);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    failClear = true;
+    fireEvent.click(screen.getByRole("button", { name: "确认开始新故事" }));
+    await waitFor(() => expect(third.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "error"));
+    expect(third.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    expect(recovery).toBe(original);
+    failClear = false;
+    fireEvent.click(screen.getByRole("button", { name: "确认开始新故事" }));
+    await waitFor(() => expect(third.container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
+    await waitFor(() => expect(recovery).toMatchObject({ sceneId: "branch_start", presentationKind: "choice" }));
+    third.unmount();
+    let finishScan!: (record: WorldPlayerRecoveryRecordV1 | null) => void;
+    const delayedStore: WorldPlayerRecoveryStoreV1 = { ...recoveryStore, read: () => new Promise(resolve => { finishScan = resolve; }) };
+    const fourth = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={delayedStore} now={() => clock++} />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "快速读取" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    await screen.findByText("The quiet route.");
+    await act(async () => finishScan(original));
+    expect(screen.queryByRole("button", { name: "恢复上次进度" })).not.toBeInTheDocument();
+    expect(fourth.container.querySelector("main")).not.toHaveAttribute("data-recovery-operation", "available");
+  });
+
+  it("gates all title input during scanning and ignores a stale same-store scan", async () => {
+    const reads: Array<(value: WorldPlayerRecoveryRecordV1 | null) => void> = [];
+    const store: WorldPlayerRecoveryStoreV1 = { version: "1.0.0", backend: "slow", read: () => new Promise(resolve => reads.push(resolve)), async write() {}, async clear() {} };
+    const other: WorldPlayerRecoveryStoreV1 = { ...store, async read() { return null; } };
+    const project = branching();
+    const view = render(<PlayerShell project={project} recoveryStore={store} />);
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeDisabled();
+    fireEvent.keyDown(window, { key: "Enter" });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-player-status", "title");
+    view.rerender(<PlayerShell project={project} recoveryStore={other} />);
+    view.rerender(<PlayerShell project={project} recoveryStore={store} />);
+    await act(async () => reads[0]!(null));
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeDisabled();
+    await act(async () => reads[1]!(null));
+    expect(screen.getByRole("button", { name: /开始故事/u })).toBeEnabled();
+  });
+
+  it("offers an explicit audio retry after permission rejection without advancing the story", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValueOnce(new DOMException("gesture required", "NotAllowedError")).mockResolvedValue(undefined);
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const voice = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    const hash = view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.canPlay(voice);
+    await screen.findByRole("button", { name: "恢复声音" });
+    fireEvent.click(screen.getByRole("button", { name: "恢复声音" }));
+    await waitFor(() => expect(voice.dataset.playerPlayback).toBe("playing"));
+    expect(play).toHaveBeenCalled();
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+  });
+
+  it("releases replaced audio owners without pausing connected nodes during ref replay", async () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const old = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    let paused = false;
+    Object.defineProperty(old, "paused", { configurable: true, get: () => paused });
+    const pause = vi.spyOn(old, "pause").mockImplementation(() => { paused = true; });
+    fireEvent.play(old);
+    await act(async () => { await Promise.resolve(); });
+    expect(pause).not.toHaveBeenCalled();
+    fireEvent.error(old);
+    fireEvent.click(screen.getByRole("button", { name: "重试媒体" }));
+    await act(async () => { await Promise.resolve(); });
+    expect(old.isConnected).toBe(false);
+    expect(pause).toHaveBeenCalledTimes(1);
+    expect(view.container.querySelector('audio[data-audio-bus="voice"]')).not.toBe(old);
+  });
+
+  it("lets a timed-out recovery scan retry without deleting or applying its late result", async () => {
+    vi.useFakeTimers();
+    let finish!: (record: WorldPlayerRecoveryRecordV1 | null) => void;
+    const read = vi.fn().mockImplementationOnce(() => new Promise(resolve => { finish = resolve; })).mockResolvedValue(null);
+    const clear = vi.fn();
+    const store: WorldPlayerRecoveryStoreV1 = { version: "1.0.0", backend: "slow", read, clear, async write() {} };
+    const view = render(<PlayerShell project={branching()} recoveryStore={store} />);
+    await act(async () => vi.advanceTimersByTime(8000));
+    expect(screen.getByText(/恢复检查超时/u)).toBeVisible();
+    expect(clear).not.toHaveBeenCalled();
+    await act(async () => finish(null));
+    expect(view.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "error");
+    fireEvent.click(screen.getByRole("button", { name: "重新检查恢复记录" }));
+    await act(async () => { await Promise.resolve(); });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-recovery-operation", "idle");
+    expect(clear).not.toHaveBeenCalled();
   });
 
   it("isolates corrupt recovery and lets the player clear it without touching formal slots", async () => {

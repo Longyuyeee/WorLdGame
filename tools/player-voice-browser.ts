@@ -14,7 +14,7 @@ function button(name: string) {
   check(result && !result.disabled, `Missing action ${name}`); return result;
 }
 function click(name: string) { button(name).click(); }
-function wav() {
+export function wav() {
   const samples = 4000, data = new Uint8Array(44 + samples * 2), view = new DataView(data.buffer);
   const ascii = (at: number, value: string) => [...value].forEach((char, i) => { data[at + i] = char.charCodeAt(0); });
   ascii(0, "RIFF"); view.setUint32(4, data.length - 8, true); ascii(8, "WAVEfmt "); view.setUint32(16, 16, true);

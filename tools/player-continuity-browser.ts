@@ -58,7 +58,7 @@ export function start(options:{pressure?:boolean}={}){
     click("自动播放");
     return {freezeEvents:freezes-before.freezes,resumeEvents:resumes-before.resumes,resumedVisibility,foreground:"controlled-visibility",held:true,freshDelay:true};
   };
-  const begin=async()=>{click("开始故事");await until(()=>text()==="S0 L0"&&main().dataset.stageImagesPending==="false");};
+  const begin=async()=>{await until(()=>![...document.querySelectorAll<HTMLButtonElement>("button")].find(button=>button.textContent?.includes("开始故事"))?.disabled,"startup recovery scan");click("开始故事");await until(()=>text()==="S0 L0"&&main().dataset.stageImagesPending==="false");};
   const scene=async(round:number,index:number)=>{
     await until(()=>text()===`S${index} L0`&&main().dataset.stageImagesPending==="false");
     const automatic=round%2===0;
