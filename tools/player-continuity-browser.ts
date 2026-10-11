@@ -90,7 +90,7 @@ export function start(options:{pressure?:boolean;sourceKind?:"data"|"blob"}={}){
     await until(()=>main().dataset.skipActive==="false","Skip stop at boundary");
     const boundaryHash=hash();await pause(100);check(hash()===boundaryHash,"Boundary advanced without user choice");
     const memory=nativeAtlasDiagnostics();check(memory.accountedBytes<=memory.budgetBytes,"Canvas budget exceeded");
-    rows.push({round,scene:index,mode:automatic?"auto":"skipAll",boundaryHeld:true,historyLength:Number(main().dataset.historyLength),native:memory});
+    rows.push({round,scene:index,mode:automatic?"auto":"skipAll",boundaryHeld:true,historyLength:Number(main().dataset.historyLength),native:memory,imageDecodeModes:[...document.querySelectorAll<HTMLCanvasElement>('canvas[data-image-decode]')].map(canvas=>canvas.dataset.imageDecode)});
     if(index!==11){click(`进入场景 ${index+1}`);}else {click("回到标题");await until(()=>nativeAtlasDiagnostics().accountedBytes===0);}
   };
   const close=()=>{handle.unmount();ownedUrls.splice(0).forEach(url=>URL.revokeObjectURL(url));document.removeEventListener("freeze",frozenEvent);document.removeEventListener("resume",resumedEvent);delete (document as unknown as Record<string,unknown>).visibilityState;style.remove();return {rows,native:nativeAtlasDiagnostics(),scope:options.pressure?"12-scene-2048px-CDP-freeze-pressure-not-physical-low-memory-device":"12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak"};};

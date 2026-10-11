@@ -6,8 +6,8 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,lazy=false,coordination=false,recovery=false,isolation=false,sampleMemory,openWindows}={}) {
-  const prefix=isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,lazy=false,coordination=false,recovery=false,isolation=false,ownedDecode=false,sampleMemory,openWindows}={}) {
+  const prefix=ownedDecode?'player-owned-export':isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
   const qualityEvidence=[];
   const sequence=incremental?JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8')):null;
   const sequenceEvidence=[];
@@ -192,7 +192,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     let injection;
     let emergencyInjection;
     let bitmapInjection;
-    if(name==='stalled-bitmap')bitmapInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`const realBitmap=globalThis.createImageBitmap;globalThis.__bitmapFault={calls:0,closed:0,release:[]};globalThis.createImageBitmap=(...args)=>{__bitmapFault.calls++;return new Promise((resolve,reject)=>__bitmapFault.release.push(()=>realBitmap(...args).then(bitmap=>{const close=bitmap.close.bind(bitmap);bitmap.close=()=>{__bitmapFault.closed++;close();};resolve(bitmap);},reject)));};`});
+    if(name==='stalled-bitmap')bitmapInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`const realBitmap=globalThis.createImageBitmap;globalThis.__bitmapFault={calls:0,closed:0,release:[]};globalThis.createImageBitmap=(...args)=>{if(!(args[0] instanceof Blob))return realBitmap(...args);__bitmapFault.calls++;return new Promise((resolve,reject)=>__bitmapFault.release.push(()=>realBitmap(...args).then(bitmap=>{const close=bitmap.close.bind(bitmap);bitmap.close=()=>{__bitmapFault.closed++;close();};resolve(bitmap);},reject)));};`});
     let slowInjection,slowChecked=false;
     if(coordination&&name==='optimized')slowInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`const OriginalWorker=Worker;let delayed=false;globalThis.Worker=class extends OriginalWorker{set onmessage(handler){super.onmessage=event=>{if(!delayed){delayed=true;${recovery?'return;':'setTimeout(()=>handler.call(this,event),3000);'}}else handler.call(this,event);};}};`});
     if(name==='emergency-img')emergencyInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:"const ordinaryContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(...args){return this.matches('.player-stage-background,.player-stage-character')?null:Reflect.apply(ordinaryContext,this,args);};"});
@@ -216,7 +216,10 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     if(slowInjection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:slowInjection.identifier});
     // Each comparison starts a fresh story; dismiss only this isolated test profile's recovery prompt via its public action.
     await new Promise(r=>setTimeout(r,500));
-    if(await client.evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='放弃并清除')"))await client.button('放弃并清除');
+    for(const label of ['确认开始新故事','放弃并清除']){
+      if(await client.evaluate(`Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()===${JSON.stringify(label)})`))await client.button(label);
+    }
+    await client.wait("document.querySelector('main[data-player-status]')?.dataset.playerStatus!=='title'");
     let renderedPixels,stageScreenshot;const seen=new Map();
     for(let step=0;step<120;step++) {
       if(await client.evaluate("document.querySelector('main[data-player-status]')?.dataset.playerStatus==='ended'"))break;
@@ -268,7 +271,10 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
                 for(let i=0;i<a.length;i++){const d=Math.abs(a[i]-b[i]),p=Math.abs(direct[i]-b[i]);if(d)changed++;if(p)directChanged++;max=Math.max(max,d);directMax=Math.max(directMax,p);}
                 cases.push({scale,smoothing,rotation,filter,changed,max,directChanged,directMax});
               }control.width=control.height=0;return cases;})()`);
-            assert.ok(cases.every(c=>c.changed===0),JSON.stringify({name,id,cases}));qualityEvidence.push({name,id,cases});
+            const imageDecode=await client.evaluate(`document.querySelector(${JSON.stringify(selector)}).dataset.imageDecode??'native-atlas'`);
+            if(ownedDecode&&name==='original')assert.equal(imageDecode,'owned-bitmap');
+            if(ownedDecode&&name==='unsupported')assert.equal(imageDecode,'legacy-image');
+            assert.ok(cases.every(c=>c.changed===0),JSON.stringify({name,id,cases}));qualityEvidence.push({name,id,cases,...(ownedDecode?{imageDecode}:{})});
           }
         }
       }
@@ -302,6 +308,34 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
           else {
             const comparison=await client.evaluate(`(async()=>{const decode=async(src)=>{const img=new Image();img.src=src;await img.decode();const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);return {w:img.width,h:img.height,data:ctx.getImageData(0,0,img.width,img.height).data};};const a=await decode(${JSON.stringify('data:image/png;base64,'+referenceStage)}),b=await decode(${JSON.stringify('data:image/png;base64,'+capture)});let changed=0,max=0,sum=0,minX=a.w,minY=a.h,maxX=0,maxY=0;for(let i=0;i<a.data.length;i+=4){let different=false;for(let c=0;c<4;c++){const d=Math.abs(a.data[i+c]-b.data[i+c]);if(d){different=true;sum+=d;max=Math.max(max,d);}}if(different){changed++;const x=(i/4)%a.w,y=Math.floor(i/4/a.w);minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);}}return {sameDimensions:a.w===b.w&&a.h===b.h,width:a.w,height:a.h,changed,max,mean:sum/a.data.length,bounds:[minX,minY,maxX,maxY]};})()`);
             samplingComparisons.push({name,...comparison});console.log('SAMPLING',name,JSON.stringify(comparison));
+          }
+          if(ownedDecode){
+            await client.send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+            try {
+              await new Promise(resolve=>setTimeout(resolve,150));
+              const mobileClip=await client.evaluate("(()=>{const r=document.querySelector('.player-stage').getBoundingClientRect();return {x:Math.ceil(r.x)+40,y:Math.ceil(r.y)+40,width:Math.floor(r.width)-80,height:Math.floor(r.height)-80,scale:1};})()");
+              assert.ok(mobileClip.width>0&&mobileClip.height>0);
+              const mobileCapture=(await client.send('Page.captureScreenshot',{format:'png',clip:mobileClip})).data;
+              const mobilePixels=(await pixels('data:image/png;base64,'+mobileCapture)).digest;
+              await writeFile(join(root,`evidence/authoring/${prefix}-mobile-${name}.png`),Buffer.from(mobileCapture,'base64'));
+              // Directory/PWA chrome changes mobile layout. Compare against original pixels
+              // in the SAME layout, not a screenshot from a different delivery wrapper.
+              await client.evaluate(`(async()=>{globalThis.__mobileSamplingRestore=[];const assets=${JSON.stringify(before.mediaAssets.map(a=>({assetId:a.assetId,url:a.url})))};
+                for(const node of document.querySelectorAll('.player-stage-background,.player-stage-character')){
+                  const source=assets.find(a=>a.assetId===node.dataset.assetId);if(!source)throw Error('Missing mobile control source');
+                  const img=new Image();img.src=source.url;await img.decode();const canvas=document.createElement('canvas'),context=canvas.getContext('2d',{willReadFrequently:true});
+                  for(const attr of node.attributes)canvas.setAttribute(attr.name,attr.value);
+                  canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;context.drawImage(img,0,0);img.src='';
+                  node.replaceWith(canvas);__mobileSamplingRestore.push([node,canvas]);
+                }
+                await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));})()`);
+              const reference=(await pixels('data:image/png;base64,'+(await client.send('Page.captureScreenshot',{format:'png',clip:mobileClip})).data)).digest;
+              if(name!=='emergency-img')assert.equal(mobilePixels,reference,'Mobile production Canvas sampling changed');
+              measurements.push({kind:'mobile-owned-sampling',name,width:390,height:844,clip:mobileClip,pixels:mobilePixels,reference,control:'ordinary-source-canvas-same-layout',productCapturedBeforeControl:true,exactRequired:name!=='emergency-img',scope:'emulated-viewport-not-device'});
+            } finally {
+              await client.evaluate("globalThis.__mobileSamplingRestore?.forEach(([node,canvas])=>{canvas.replaceWith(node);canvas.width=canvas.height=0;});delete globalThis.__mobileSamplingRestore");
+              await client.send('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+            }
           }
           await client.evaluate("globalThis.__atlasChromeRestore.forEach(([e,value])=>e.style.visibility=value);delete globalThis.__atlasChromeRestore");
           assert.match(await client.evaluate("document.querySelector('.player-stage-character').style.transform"),/scale\(1.25\) rotate\(17deg\)/);

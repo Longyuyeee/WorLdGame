@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {validateWorkingSets} from './player-working-set.mjs';
-export function validateMappingProbe(evidence){
+export function validateMappingProbe(evidence,{ownedDecode=false}={}){
+  if(ownedDecode)assert.equal(evidence.decodePolicy,'owned-bitmap-close-after-draw');
   assert.equal(evidence.scope,'synthetic-2048px-6-skip-rounds-allocator-diagnosis-not-natural-soak');
   assert.ok(['data','blob'].includes(evidence.sourceKind));assert.deepEqual(evidence.exceptions,[]);
   assert.equal(evidence.pressureControl,'CDP-critical-after-unmount-not-OS-signal');
@@ -40,7 +41,7 @@ export function validateMappingProbe(evidence){
       assert.equal(new Set(process.allocators.map(row=>row.name)).size,process.allocators.length);
       for(const row of process.allocators)for(const value of Object.values(row.bytes))assert.ok(Number.isSafeInteger(value)&&value>=0);
     }
-    assert.ok(dump.processes.some(process=>process.allocators.some(row=>row.name==='cc/image_memory')));
+    if(!ownedDecode)assert.ok(dump.processes.some(process=>process.allocators.some(row=>row.name==='cc/image_memory')));
   }
   return {status:'PASS',sourceKind:evidence.sourceKind,scope:'allocator-attribution-not-memory-budget-pass'};
 }

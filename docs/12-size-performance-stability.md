@@ -181,9 +181,15 @@ Story Graph 为资源调度器提供安全预测：
 
 ### 5.4 内存生命周期
 
+普通静态 PNG 解码治理（2026-10-11）：正式导出仍只为不超过 32 MiB、4,194,304 像素且非动画的 PNG 开启统一 Canvas 采样，不扩展到 APNG/视频。普通 Canvas 与 Atlas PNG 回退优先从 Image 创建有所有权的 ImageBitmap，绘制后立即关闭；离场释放源引用并清零画布。共享 64 MiB **工程预留**按普通解码峰值 12 字节/像素、完成后保守保留 8 字节/像素计入，不是浏览器实际物理上限。5 秒超时/取消不提前撤销不可取消解码的预留；物理结束前隔离重试，迟到对象关闭且不能覆盖新场景。预算失败明确提示，不经 emergency IMG 绕过。无 ImageBitmap、已结束的解码拒绝或 Canvas 不支持保留既有兼容路径；其浏览器缓存改善未被保证。
+
+预检读取 data PNG 的有限头部，或 fetch Range 的前 24 字节并取消响应；可知的编码总长度限 32 MiB，PNG IHDR 限像素数，再核对实际解码尺寸。file/CORS/API 不支持或服务器不提供总长度时不能声称完整预检；正式构建入口仍执行文件/非动画校验，运行时会检查自然尺寸并预留画布资源。低内存保护只释放闲置租约，不撤销当前画面；没有新增预取或有界解码缓存池。独立分配器、自然 GC、正式导出与像素矩阵结果及尚未验收的机型边界以 #99 最新节为准。
+
 驻留诊断口径（2026-10-11）：除 JS heap/引擎资源计账外，Windows 工程验收补充隔离浏览器进程树的 `QueryWorkingSet` + `VirtualQueryEx` 元数据采样，将驻留页按 private/mapped/image/unknown 区域和可共享/不可共享分别计数。`MEM_MAPPED` 不等于磁盘文件，也不等于 GPU；可共享不等于此刻由别的进程共享，写时复制页面仍可能属于 mapped/image 区域。不同进程的工作集不能直接相加为唯一物理用量，CIM 与逐进程页表采样不是同一瞬间，页面变化必须保留为测量限制。不得调用 EmptyWorkingSet、强制 GC 后冒称自然游玩结果。Chromium memory-infra 分配器 dump 在独立诊断运行中执行，只保留数值摘要，不保存原始 trace/文件路径；它用于辅助归因，不代替驻留页所有权或设备预算。实测结论以 #99 最新节为准。
 
 口径依据：[Windows 驻留页共享标记](https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-psapi_working_set_block)、[VirtualQueryEx 与写时复制](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualqueryex)、[Chromium 诊断 dump 协议](https://chromedevtools.github.io/devtools-protocol/tot/Tracing/#method-requestMemoryDump)。
+
+进程身份补强（2026-10-11）：Windows 的 ParentProcessId 会保留已退出父进程的数字，数字随后可能被 renderer 重用。仅沿 PID 递归会误纳入更早启动的其他进程；当前采样必须同时验证子进程创建时间不早于父进程，分类前后创建时间一致，并保存父链/创建时间元数据供门禁复核。缺失、循环或时间倒置拒绝，不通过按占用大小随意删进程修饰结果。旧证据无创建时间，保留为历史读数，不冒称已通过新身份校验。
 
 资源管理器结合 Manifest 依赖、引用计数、LRU 和显式释放：
 

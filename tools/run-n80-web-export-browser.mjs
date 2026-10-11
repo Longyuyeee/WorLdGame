@@ -22,10 +22,12 @@ import { runPlayerVoice } from './player-voice-workflow.mjs';
 import { runPlayerCold } from './player-cold-workflow.mjs';
 import { runPlayerMemory } from './player-memory-workflow.mjs';
 import { runMappingProbe } from './player-mapping-probe.mjs';
+import { sampleBrowserMemory } from './player-process-memory.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 if(process.argv.includes('--working-set'))assert.ok(process.argv.includes('--player-protected-soak'),'--working-set requires --player-protected-soak');
 if(process.argv.includes('--probe-blob')||process.argv.includes('--trace-smoke'))assert.ok(process.argv.includes('--player-mapping-probe'),'Probe modifiers require --player-mapping-probe');
+if(process.argv.includes('--owned-decode'))assert.ok(process.argv.includes('--player-mapping-probe')||process.argv.includes('--player-protected-soak')||process.argv.includes('--atlas-sampling-workflow'),'Owned decode evidence requires a probe, protected soak or sampling export workflow');
 const sceneWriting = process.argv.includes('--scene-writing');
 const branchTarget = process.argv.includes('--branch-target');
 const variableAuthor = process.argv.includes('--variable-author');
@@ -112,7 +114,7 @@ try {
   } else if(process.argv.includes('--player-continuity')||process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')||process.argv.includes('--player-protected-soak')) {
     const duration=process.argv.find(arg=>arg.startsWith('--pressure-minutes='));
     const protectHistory=process.argv.includes('--player-protected-soak'),workingSet=process.argv.includes('--working-set'),naturalGc=protectHistory||process.argv.includes('--player-soak');
-    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:naturalGc||process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):naturalGc?10:3,naturalGc,browserPid:browser.pid,protectHistory,workingSet}),null,2));
+    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:naturalGc||process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):naturalGc?10:3,naturalGc,browserPid:browser.pid,protectHistory,workingSet,ownedDecode:process.argv.includes('--owned-decode')}),null,2));
   } else if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')||process.argv.includes('--atlas-quality-workflow')||process.argv.includes('--atlas-sampling-workflow')||process.argv.includes('--atlas-lazy-workflow')||process.argv.includes('--atlas-coordination-workflow')||process.argv.includes('--atlas-recovery-workflow')||process.argv.includes('--atlas-isolation-workflow')) {
     const isolation=process.argv.includes('--atlas-isolation-workflow');
     const recovery=isolation||process.argv.includes('--atlas-recovery-workflow');
@@ -124,16 +126,17 @@ try {
     const incremental=delivery||process.argv.includes('--atlas-incremental-workflow');
     const sampleMemory=async(name)=>{
       const taskPid=name==='windows'?desktopProcess.pid:browser.pid;
-      const script=`$all=Get-CimInstance Win32_Process; $ids=[System.Collections.Generic.HashSet[int]]::new(); [void]$ids.Add(${taskPid}); do {$added=0; foreach($p in $all){if($ids.Contains([int]$p.ParentProcessId) -and $ids.Add([int]$p.ProcessId)){$added++}}}while($added -gt 0); $p=Get-Process -Id @($ids) -ErrorAction SilentlyContinue; [pscustomobject]@{processes=$p.Count;privateBytes=($p|Measure-Object PrivateMemorySize64 -Sum).Sum;workingSetBytes=($p|Measure-Object WorkingSet64 -Sum).Sum}|ConvertTo-Json -Compress`;
-      return JSON.parse((await promisify(execFile)('powershell.exe',['-NoProfile','-Command',script],{windowsHide:true})).stdout);
+      return sampleBrowserMemory(taskPid);
     };
-    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,quality,uniform,lazy,coordination,recovery,isolation,sampleMemory,
+    const ownedDecode=process.argv.includes('--owned-decode');
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,quality,uniform,lazy,coordination,recovery,isolation,ownedDecode,sampleMemory,
       openWindows:async(gamePath)=>{
         const output=join(temporary,'scale-windows-player');
         await promisify(execFile)(process.execPath,[join(root,'tools/build-windows-player.mjs'),output,`--game=${gamePath}`],{windowsHide:true});
         await openDesktop(undefined,join(output,'WorLdPlayer.exe'));return client;
       }});
-    await writeFile(join(root,`evidence/authoring/${isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
+    if(ownedDecode)Object.assign(evidence,{decodePolicy:'owned-bitmap-close-after-draw'});
+    await writeFile(join(root,`evidence/authoring/${ownedDecode?'player-owned-export':isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
     console.log(JSON.stringify(evidence,null,2));
   } else if(process.argv.includes('--native-atlas-workflow')) {
     const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true});

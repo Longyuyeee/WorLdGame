@@ -2,11 +2,23 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
+import { ImageResourceBudgetError } from "./image-resource-policy";
 import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, type NativeAtlasDelivery } from "./native-atlas";
 vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdinaryCanvasImage:vi.fn(), nativeAtlasDiagnostics: () => ({ accountedBytes: 1 }) }));
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
+  it.each(["budget","timeout"])("does not bypass %s protection with an emergency IMG",async reason=>{
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValue(reason==="budget"?new ImageResourceBudgetError("budget"):new DOMException("decode timed out","TimeoutError"));
+    const failure=vi.fn();render(<NativeAtlasImage canvasSampling src="blob:source" alt="画面" onResourceFailure={failure} />);
+    await screen.findByRole("alert");expect(document.querySelector("img")).toBeNull();expect(failure).toHaveBeenCalledOnce();
+    if(reason==="budget"){expect(screen.getByRole("alert")).toHaveTextContent("安全预算");expect(screen.getByRole("alert")).not.toHaveTextContent("重新下载");}
+    expect(screen.getByRole("button",{name:"重试画面资源"})).toBeEnabled();
+    vi.mocked(acquireOrdinaryCanvasImage).mockImplementationOnce(async(_url,canvas)=>({source:canvas,width:8,height:8,release:vi.fn()}));
+    fireEvent.click(screen.getByRole("button",{name:"重试画面资源"}));
+    await waitFor(()=>expect(screen.getByRole("img")).toHaveAttribute("data-canvas-sampling","ready"));
+    expect(screen.queryByRole("alert")).toBeNull();expect(failure).toHaveBeenCalledOnce();
+  });
   it("falls back after native timeout without showing a retry error or discarding the verified source", async () => {
     vi.useFakeTimers();
     const sourceRelease=vi.fn(), imageRelease=vi.fn(), failure=vi.fn(), report=vi.fn();
@@ -106,7 +118,7 @@ describe("native player image ownership", () => {
     expect(oldRelease).toHaveBeenCalledTimes(1); expect(newRelease).not.toHaveBeenCalled();
     view.unmount(); expect(newRelease).toHaveBeenCalledTimes(1);
   });
-  it.each(["unsupported", "Atlas renderer memory budget exceeded"])("keeps the ordinary source after %s and retries a new group", async failure => {
+  it.each(["unsupported", "Canvas unavailable"])("keeps the ordinary source after %s and retries a new group", async failure => {
     const onError = vi.fn(); vi.mocked(acquireNativeAtlasImage).mockRejectedValueOnce(Error(failure));
     vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(Error(failure));
     const view = render(<NativeAtlasImage atlas={{ group: group(), assetId: "a" }} src="blob:original" alt="角色" onError={onError} />);

@@ -20,7 +20,10 @@ describe("native Atlas integrity and lifecycle", () => {
     vi.useFakeTimers();
     const { group, atlas } = fixture(), close = vi.fn();
     const finish: ((value: unknown) => void)[] = [];
-    vi.stubGlobal("createImageBitmap", vi.fn(() => new Promise(resolve => finish.push(resolve))));
+    const ordinaryClose = vi.fn();
+    vi.stubGlobal("createImageBitmap", vi.fn(source => source instanceof Blob
+      ? new Promise(resolve => finish.push(resolve))
+      : Promise.resolve({ width: 8, height: 8, close: ordinaryClose })));
     const results = Promise.allSettled(Array.from({ length: 5 }, () => acquireNativeAtlasImage({ group: structuredClone(group), assetId: "a" })));
     await vi.advanceTimersByTimeAsync(NATIVE_DECODE_TIMEOUT_MS);
     expect((await results).every(result => result.status === "rejected" && result.reason.name === "TimeoutError")).toBe(true);
@@ -35,7 +38,8 @@ describe("native Atlas integrity and lifecycle", () => {
       expect(image.width).toBe(8); image.release();
       expect(nativeAtlasDiagnostics().accountedBytes).toBe(retained);
     }
-    expect(createImageBitmap).toHaveBeenCalledTimes(2);
+    expect(createImageBitmap).toHaveBeenCalledTimes(102);
+    expect(ordinaryClose).toHaveBeenCalledTimes(100);
     finish.forEach(resolve => resolve({ width: atlas.pages[0]!.width, height: atlas.pages[0]!.height, close }));
     await vi.advanceTimersByTimeAsync(0);
     expect(close).toHaveBeenCalledTimes(2);

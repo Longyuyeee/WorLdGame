@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 1,
+  "mode": "native-atlas",
+  "sourceHash": "c6ff6e0f546391f7ee59e65c9408d44070fa788e9f098362e485fb727cbd9afe",
+  "rows": [
+    {
+      "assetId": "media_actor_sprite",
+      "name": "小夏（测试立绘）",
+      "originalDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+      "exportDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "media_sunset",
+      "name": "海边夕色（测试背景）",
+      "originalDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+      "exportDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "media_theme",
+      "name": "雨后旋律（测试音）",
+      "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+      "originalBytes": 1644,
+      "exportBytes": 1644,
+      "savedBytes": 0,
+      "verified": false,
+      "reason": "已选择原素材导出"
+    },
+    {
+      "assetId": "scale_10",
+      "name": "透明差分 10",
+      "originalDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+      "exportDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_11",
+      "name": "透明差分 11",
+      "originalDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+      "exportDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_12",
+      "name": "透明差分 12",
+      "originalDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+      "exportDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_13",
+      "name": "透明差分 13",
+      "originalDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+      "exportDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_14",
+      "name": "透明差分 14",
+      "originalDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+      "exportDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_15",
+      "name": "透明差分 15",
+      "originalDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+      "exportDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_16",
+      "name": "透明差分 16",
+      "originalDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+      "exportDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_17",
+      "name": "透明差分 17",
+      "originalDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+      "exportDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_18",
+      "name": "透明差分 18",
+      "originalDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+      "exportDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_19",
+      "name": "透明差分 19",
+      "originalDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+      "exportDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_2",
+      "name": "透明差分 2",
+      "originalDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+      "exportDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_20",
+      "name": "透明差分 20",
+      "originalDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+      "exportDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_21",
+      "name": "透明差分 21",
+      "originalDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+      "exportDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_22",
+      "name": "透明差分 22",
+      "originalDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+      "exportDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_23",
+      "name": "透明差分 23",
+      "originalDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+      "exportDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_24",
+      "name": "透明差分 24",
+      "originalDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+      "exportDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_25",
+      "name": "透明差分 25",
+      "originalDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+      "exportDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_26",
+      "name": "透明差分 26",
+      "originalDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+      "exportDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_27",
+      "name": "透明差分 27",
+      "originalDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+      "exportDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_28",
+      "name": "透明差分 28",
+      "originalDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+      "exportDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_29",
+      "name": "透明差分 29",
+      "originalDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+      "exportDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_3",
+      "name": "透明差分 3",
+      "originalDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+      "exportDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_30",
+      "name": "不适合切块的噪声背景",
+      "originalDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+      "exportDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": false,
+      "reason": "已选择原素材导出"
+    },
+    {
+      "assetId": "scale_4",
+      "name": "透明差分 4",
+      "originalDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+      "exportDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_5",
+      "name": "透明差分 5",
+      "originalDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+      "exportDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_6",
+      "name": "透明差分 6",
+      "originalDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+      "exportDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_7",
+      "name": "透明差分 7",
+      "originalDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+      "exportDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_8",
+      "name": "透明差分 8",
+      "originalDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+      "exportDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    },
+    {
+      "assetId": "scale_9",
+      "name": "透明差分 9",
+      "originalDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+      "exportDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+      "originalBytes": 262488,
+      "exportBytes": 262488,
+      "savedBytes": 0,
+      "verified": true,
+      "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+    }
+  ],
+  "atlasGroups": [],
+  "nativeAtlasGroups": [
+    {
+      "groupId": "dicing-35f1413e417e",
+      "adopted": true,
+      "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+      "payloadBytes": 284945,
+      "pageRgbaBytes": 166464,
+      "fallbackRawBytes": 2099904
+    },
+    {
+      "groupId": "dicing-83663a9227f5",
+      "adopted": true,
+      "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+      "payloadBytes": 284937,
+      "pageRgbaBytes": 166464,
+      "fallbackRawBytes": 2099904
+    },
+    {
+      "groupId": "dicing-a304fdb07e3a",
+      "adopted": true,
+      "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+      "payloadBytes": 284991,
+      "pageRgbaBytes": 166464,
+      "fallbackRawBytes": 2099904
+    },
+    {
+      "groupId": "dicing-e855de1bda8b",
+      "adopted": true,
+      "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+      "payloadBytes": 214487,
+      "pageRgbaBytes": 129472,
+      "fallbackRawBytes": 1574928
+    }
+  ],
+  "uniqueOriginalBytes": 8138772,
+  "uniqueExportBytes": 1333492,
+  "limits": "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集与普通 PNG 画布共用 64 MiB 资源预留，支持时普通 PNG 经显式关闭的 ImageBitmap 绘制，回退解压合计上限 32 MiB。预留不是实际浏览器总内存，不含全部浏览器解码缓存、JS/Blob/驱动开销；兼容降级仍可能保留浏览器缓存，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。"
+}

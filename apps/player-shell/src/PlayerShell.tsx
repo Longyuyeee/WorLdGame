@@ -300,7 +300,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     ...stage.characters.filter(image => image.atlas || image.canvasSampling).map(image => imageReadiness[`${imageGeneration}:${image.slot}:${image.assetId}`])
   ];
   const stageImagesPending = stageImageStates.some(status => status !== "ready");
-  const stageImageError = stageImageStates.some(status => status === "error" || status === "timeout");
+  const stageImageError = stageImageStates.some(status => status === "error" || status === "timeout" || status === "budget");
   const localizedVoice = localizedMedia.voice === null ? [] : [{
     ...localizedMedia.voice,
     bus: "voice",
@@ -1321,7 +1321,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       <div className="player-glow player-glow--cyan" />
       <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
         {stageImageError && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
-          {stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。
+          {stageImageStates.includes("budget") ? "画面资源超过安全预算或仍在释放，已停止自动推进。可稍后重试当前画面或手动继续。" : <>{stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。</>}
           <button type="button" style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); }}>重试画面资源</button>
         </div>}
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">

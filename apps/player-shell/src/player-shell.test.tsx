@@ -16,6 +16,7 @@ import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
 import type { NativeAtlasSource } from "./native-atlas";
 import * as nativeAtlas from "./native-atlas";
 import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
+import { ImageResourceBudgetError } from "./image-resource-policy";
 
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
@@ -366,6 +367,23 @@ describe("N50-E1 shared Player Shell", () => {
     expect(view.container.querySelectorAll('canvas[data-canvas-sampling="ready"]')).toHaveLength(2);
     expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", hash);
     expect(view.container.querySelector("audio")).toBe(audio); expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("shows budget guidance in the real stage and retries without changing progress or audio",async()=>{
+    const demo=createPlayerMediaDemoV1();
+    vi.spyOn(nativeAtlas,"acquireOrdinaryCanvasImage").mockRejectedValue(new ImageResourceBudgetError("budget"));
+    const view=render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.map(asset=>({...asset,canvasSampling:asset.mimeType.startsWith("image/")}))} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    await screen.findByRole("alert");
+    expect(screen.getAllByRole("alert")).toHaveLength(1);expect(screen.getByRole("alert")).toHaveTextContent("安全预算");
+    expect(screen.getByRole("alert")).not.toHaveTextContent("重新下载");expect(view.container.querySelector('img[data-canvas-sampling="emergency-img"]')).toBeNull();
+    expect(screen.getByRole("button",{name:"自动播放"})).toHaveAttribute("aria-pressed","false");
+    const hash=view.container.querySelector("main")!.getAttribute("data-runtime-state-hash"),audio=view.container.querySelector("audio");
+    vi.mocked(nativeAtlas.acquireOrdinaryCanvasImage).mockImplementation(async(_url,canvas)=>({source:canvas,width:8,height:8,release:vi.fn()}));
+    fireEvent.click(screen.getByRole("button",{name:"重试画面资源"}));
+    await waitFor(()=>expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending","false"));
+    expect(screen.queryByRole("alert")).toBeNull();expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash",hash);
+    expect(view.container.querySelector("audio")).toBe(audio);expect(screen.getByRole("button",{name:"自动播放"})).toHaveAttribute("aria-pressed","false");
   });
 
   it("does not leave a second media error blocking effects after emergency IMG retry", async () => {

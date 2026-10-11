@@ -6,8 +6,10 @@ import assert from 'node:assert/strict';
 import {sampleBrowserMemory} from './player-process-memory.mjs';
 import {sampleWorkingSets} from './player-working-set.mjs';
 import {memoryAttribution} from './player-memory-attribution.mjs';
+import {createHash} from 'node:crypto';
 export async function runMappingProbe(client,root,temporary,browserPid){
   const sourceKind=process.argv.includes('--probe-blob')?'blob':'data';
+  const ownedDecode=process.argv.includes('--owned-decode');
   const bundle=await build({configFile:false,logLevel:'error',define:{'process.env.NODE_ENV':JSON.stringify('production')},build:{write:false,minify:true,lib:{entry:join(root,'tools/player-continuity-browser.ts'),name:'Continuity',formats:['iife']}}});
   const code=(Array.isArray(bundle)?bundle[0]:bundle).output.find(item=>item.type==='chunk').code;
   const path=join(temporary,'mapping-probe.html');
@@ -35,6 +37,7 @@ export async function runMappingProbe(client,root,temporary,browserPid){
   const evidence={scope:'synthetic-2048px-6-skip-rounds-allocator-diagnosis-not-natural-soak',sourceKind,browser:await client.send('Browser.getVersion'),samples,titleDump,unmountedDump,pressureDump,native:result.native,rows:result.rows,exceptions:client.errors,
     pressureControl:'CDP-critical-after-unmount-not-OS-signal',
     limits:'Separate diagnostic browser run with memory-infra dumps and final CDP critical control; no explicit collectGarbage or working-set trim; not a device budget, natural-GC acceptance or proof of exclusive resource ownership'};
-  await writeFile(join(root,`evidence/authoring/player-mapping-probe-${sourceKind}.json`),JSON.stringify(evidence,null,2)+'\n');
+  if(ownedDecode)Object.assign(evidence,{decodePolicy:'owned-bitmap-close-after-draw',bundleSha256:createHash('sha256').update(code).digest('hex')});
+  await writeFile(join(root,`evidence/authoring/${ownedDecode?'player-owned-probe':'player-mapping-probe'}-${sourceKind}.json`),JSON.stringify(evidence,null,2)+'\n');
   return evidence;
 }

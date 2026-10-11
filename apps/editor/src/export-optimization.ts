@@ -54,6 +54,6 @@ export async function optimizeExportMedia(project: CanonicalProject, media: read
   }
   return { assets: compatible.assets, nativeAtlasGroups: native.groups, nativeAssetIds: native.adopted, report: { schemaVersion: 1 as const, mode: native.groups.length ? "native-atlas" : compatible.rows.some(row => row.status === "adopted") ? "atlas-compatible" : enabled ? "lossless-png" : "original", sourceHash: semanticHash(project), rows, atlasGroups: compatible.rows, nativeAtlasGroups: native.rows,
     uniqueOriginalBytes: [...originalUnique.values()].reduce((a, b) => a + b, 0), uniqueExportBytes: [...exportedUnique.values()].reduce((a, b) => a + b, 0) + native.rows.reduce((sum,row)=>sum+row.payloadBytes,0),
-    limits: "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集/画布/读回预算 64 MiB，回退解压合计上限 32 MiB，不包含普通图片回退解码、JS/Blob/驱动开销，不是整个浏览器或实际 GPU 测量，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。" } };
+    limits: "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集与普通 PNG 画布共用 64 MiB 资源预留，支持时普通 PNG 经显式关闭的 ImageBitmap 绘制，回退解压合计上限 32 MiB。预留不是实际浏览器总内存，不含全部浏览器解码缓存、JS/Blob/驱动开销；兼容降级仍可能保留浏览器缓存，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。" } };
 }
 export type ExportOptimizationReport = Awaited<ReturnType<typeof optimizeExportMedia>>["report"];

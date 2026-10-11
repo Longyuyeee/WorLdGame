@@ -1,4 +1,58 @@
-# 当前开发情况：renderer 驻留页组成与浏览器缓存归因
+# 当前开发情况：静态 PNG 显式解码所有权与预算闭环
+
+## 最新审计：2026-10-11 普通 PNG 解码治理开发包
+
+本节优先，接续基线 `2c7aa79`，开发前 fetch 已核对本地/远端无分叉。落实 #89/#289 上轮整包及 #12 §5.4：从真实生产普通 Canvas、Atlas 原图回退及正式导出路径入手，不再仅增加诊断、不通过删历史或降画质改善数字。本轮修改产品实现并完成配套故障、像素、产物与内存验收；最终结果以本节各项为准，下面旧节为历史。
+
+### 产品实现与用户边界
+
+- `native-atlas.ts` 的普通静态 PNG 优先通过 `createImageBitmap(Image)` 绘制，然后在 `finally` 立即 `close()`；成功后清除源 Image 引用，租约离场时清零 Canvas。没有新增解码缓存池或预取，不改变原图 Blob、剧情状态、存档格式或 Runtime 历史权威。
+- `image-resource-policy.ts` 对 data PNG 只解析有限头部，fetch 路径请求前 24 字节并取消响应，校验 IHDR 像素数及可知的编码总长度；源数据限 32 MiB、像素限 4,194,304，与正式构建静态非动画 PNG 筛选一致。加载后再核对实际自然像素数。file/CORS/API 不可用、未知响应总长度时预检存在明确限制，不宣称所有外部 URL 都完成预解码检查。
+- 与 Atlas 共用 64 MiB 工程预留：普通新路径解码峰值按 12 字节/像素，完成后保守保留 8 字节/像素。5 秒超时或取消不等于底层不可取消的物理解码已结束；仍保留预留并隔离后续普通解码，迟到成功关闭、迟到失败释放，不能写入新场景。不会将此预留值冒称浏览器/驱动/GPU 总预算。
+- 预算/隔离失败显示“超过安全预算或仍在释放”，停止自动推进并保留重试或手动继续，不再误导玩家重新下载，也不经 emergency IMG 绕过。无 ImageBitmap 或已结束的拒绝可降级为已检查的普通 Image→Canvas；Canvas 不可用保留明确标记的 IMG 紧急兼容路径。兼容路径不保证同等缓存改善，IMG 的缩放采样也不冒称与 Canvas 相同。
+- 正式舞台组合审计进一步发现 `hideResourceError` 会隐藏组件本地提示，旧统一错误层仍要求重新下载。现将 `budget` 原因传到 `PlayerShell` 统一提示，保留单一重试入口；新增真实组件组合测试验证重试不改剧情哈希/音轨、不自动重启 Auto。并非只在孤立图片组件中改文案。
+- 瞬时预留更完整意味着超大多图组合可能比旧路径更早被拒绝，例如已有 2048² 画布占 32 MiB 时，新 2048² 解码需再预留 48 MiB。没有偷偷提高 64 MiB 上限；真实作品下的资源尺寸/并发策略仍需后续预算验证。编辑器导出报告已同步纠正旧“普通图片不计入预算”描述。
+
+### 生产产物与像素验收
+
+最终 `player-owned-export-workflow/sequence/quality.json` 及同前缀截图通过独立门禁：真实编辑器 UI/生产 Worker 构建、保存重开、原 Blob 保留、恢复原素材导出、增量发布及单文件 HTML、目录、Windows Player。30 张 256² 合成变体在原图、Atlas、目录、Windows、损坏 Atlas 回退、无 ImageBitmap 六条路径全部播放；4 种缩放 × 2 种平滑 × 2 种旋转 × 2 种滤镜，合计 **5760 组**与原始图片 Canvas 对照差异为零。普通/损坏回退实际走 `owned-bitmap`，API 不可用走 `legacy-image`，非诊断 Canvas 替换冒充产品路径。
+
+另完成 390×844 手机视口六分支采样：先捕获实际产品画面，再在同一布局内临时使用原图 Canvas 控制组、比较后恢复 DOM。普通、优化、目录、损坏回退和 API 不支持五路一致；emergency IMG 保持 30 张素材的固有像素，CSS 采样差异如实记录，不要求零差异。截图只证明媒体区域采样，不是手机硬件、触控流畅度或完整 UI 人工验收。
+
+验收脚本发现并纠正三处测量/流程问题：旧脚本未处理当前“确认开始新故事”；目录版离线/版本区域使手机布局原点不同，不能跨产物直接比截图哈希；Canvas 故障注入同时拦截了诊断控制组，改为先取得独立控制组 context 后复制样式。没有改产品来绕过确认/采样断言；失败运行不登记通过，最终完整复跑 exceptions 为空。
+
+### 最终内存复测
+
+最终自然 GC 证据 `player-owned-soak.json/png` 已通过：**667.96 秒 /11.13 分钟、18 轮/216 场景、37 组样本**，最大采样间隔 59.94 秒。完整 Auto/Skip、边界停步、历史/回滚、快速存读档、冻结恢复以及 **18 次 82→64 持久化保护**均通过，当前状态保持，exceptions 为空。每场实际走 owned-bitmap；卸载后普通/原生解码、隔离任务与自有资源计账均为零，瞬时工程预留最高 48 MiB。
+
+- 在创建时间校验后的隔离浏览器树中，工作集合计首 **402.39 MiB**、末 **395.96 MiB**，采样最大 **416.81 MiB**；private bytes 首 **200.25 MiB**、末 **209.29 MiB**。采样合计不是去重物理内存或瞬时峰值，不能当手机预算。
+- 标题 DOM 固定 **175**、监听器 **196–207**；标题 JS heap 首 **24.25 MiB**、末 **8.01 MiB**，最低 **6.89 MiB**。同一主 renderer PID 53020（首末创建时间相同）首轮标题→末轮标题，逐页驻留 **171.63→132.98 MiB**、可共享 mapped 驻留 **31.09→21.20 MiB**，未重现此前约 512 MiB 图像缓存伴随的 mapped 高位增长。
+- 未强制 GC、未发 CDP 内存压力通知、未清空 OS 工作集。宿主显式的持久化保护仍按原协议运行。此前原型和被污染的采样不作为最终验收；旧 `player-working-set.json`、`player-mapping-probe-data/blob.json` 原样保留。
+
+独立 `player-owned-probe-data.json` 和 `player-owned-probe-blob.json` 各完成 6 轮/72 场景，包含历史/回滚/快速存读档；同一 **HeadlessChrome 151.0.7922.34 / revision 782af9cb30a53f54487e5d2e44738645a8ec457c**。标题、卸载闲置 5 秒、最后 CDP critical 对照三个时点均未再报告非零 `cc/image_memory` 项（聚合为 0）；旧 data 对照三时点均为 512 MiB，旧 Blob 为 512/512/496 MiB。完整 renderer dump 仍存在，不能以漏掉 renderer 冒充缓存消失；也不把该分配器项为零解释为所有图片/浏览器内存为零。
+
+两条诊断与自然 GC 测试的生产 bundle SHA-256 均为 `c532018b904779b3d018fa7d10fdcc025463cfda5e5f2c2386540471b7ee148d`，包含正式舞台预算提示的最终实现；新采样全部采用创建时间父链校验。intrusive dump/CDP critical 控制不混入自然 GC 数据，不相加有重叠的分配器父子项。结果支持本合成场景中新解码路径消除了旧的图像解码缓存高位，并保持较低、稳定的主 renderer 驻留；不是跨浏览器、真实作品或所有手机的零泄漏/零 OOM 承诺。
+
+本轮首个最终代码 soak 暴露了采样器的真实缺陷：Windows 重用 renderer PID 后，按 ParentProcessId 递归误纳入一个早于浏览器启动的存活系统进程，导致总工作集/私有内存虚高。该次总量作废，不提交为最终证据，也未终止该系统进程。现补充创建时间约束、分类时 PID 重用检查、父链验证及“旧父 PID 存活子进程”反例，再完整复跑自然 GC 与两种 URL 对照。旧证据缺少进程创建时间，不追补伪造字段，不据此计算严格同口径的全进程改善百分比；Chromium 独立分配器对照仍须验证实际 renderer dump 完整性。
+
+### 审计、限制与下一整项
+
+已通过最终版本 **209 文件/1228 项宽回归**（249.31 秒），包括解码所有权、图片组件、闲置资源和压力保护；正式舞台/图片组件的组合定向 **2 文件/90 项**（9.82 秒）也通过。类型检查、Editor/Player 生产构建、50 项需求映射、17 工作区及架构审计，E4c/治理/历史权威检查通过。Editor 大 chunk 提醒及 jsdom 不实现媒体播放的已知日志保留。本轮没有执行完整 `npm run check`，不将历史集成/真机结果记为新通过。
+
+新增 Golden 子门禁复用现有流程、驻留与 Dicing 校验，检查实际 owned 路径、物理解码清空、完整 renderer dump、同浏览器修订版、相同生产测试 bundle 哈希及缓存回退阈值；包含缺失流程、混合浏览器、遗失 renderer、强制 GC、pending 解码、兼容绕过、像素漂移、PID 重用/创建时间缺失等反例。最终 **63 项 Golden 正反例、7 个 Golden 项目及全部子门禁通过**；正式产物也已用修正后的进程采样完整重跑，所有新证据采用创建时间身份校验。旧基线没有改写，原有 `.browser-diagnostic/` 未触碰。
+
+下一整项：**单一长故事会话的混合资源与恢复压力**。以一个持续实例覆盖长历史、音视频、Auto/Skip、前后台、回滚/快速存读档、写失败/超时/容量不足及重开恢复；采集实际资源与持久化反馈，结合已存在宿主能力接真实低内存通知。无宿主/设备证据的部分保留待验，不造 OS 事件。其后才决定安全预取。默认 6–8 GB 普通、4 GB 压力手机仍为工程假设，真实作品、Android/WebView、两小时真机、进程瞬时峰值及 Dicing P0/N70/M1 不关闭。
+
+复跑（固定端口，依次执行；先构建 Editor/Player 并设置可用的 `WORLD_STUDIO_BROWSER_PATH`）：
+
+```powershell
+node tools/run-n80-web-export-browser.mjs --atlas-sampling-workflow --owned-decode
+node tools/run-n80-web-export-browser.mjs --player-protected-soak --working-set --owned-decode --pressure-minutes=10
+node tools/run-n80-web-export-browser.mjs --player-mapping-probe --owned-decode
+node tools/run-n80-web-export-browser.mjs --player-mapping-probe --probe-blob --owned-decode
+npm run audit:goldens
+npm run test:parallel
+```
 
 ## 最新审计：2026-10-11 驻留高位诊断开发包
 
