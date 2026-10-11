@@ -8,6 +8,18 @@
 * { box-sizing: border-box; }
 html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
 button { font: inherit; }
+#player-root[data-startup-state]:not([data-startup-state="ready"]) {
+  box-sizing: border-box; min-height: 100vh; padding: 32px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; text-align: center;
+}
+#player-root[data-startup-state]:not([data-startup-state="ready"]) > button {
+  min-height: 44px; padding: 10px 24px; border: 1px solid #67e8f9;
+  border-radius: 12px; background: #164e63; color: #ecfeff; cursor: pointer;
+}
+#player-root[data-startup-state]:not([data-startup-state="ready"]) > button:focus-visible {
+  outline: 3px solid #fef08a; outline-offset: 4px;
+}
 .player-demo-switch { position: fixed; z-index: 20; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); min-height: 44px; padding: 0 14px; border: 1px solid rgba(103,232,249,.35); border-radius: 12px; color: #cffafe; background: rgba(8,10,25,.82); cursor: pointer; backdrop-filter: blur(18px); }
 .player-demo-controls { position: fixed; z-index: 30; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); display: flex; gap: 8px; }
 .player-demo-controls button { min-height: 44px; padding: 0 14px; border: 1px solid rgba(103,232,249,.35); border-radius: 12px; color: #cffafe; background: rgba(8,10,25,.88); cursor: pointer; backdrop-filter: blur(18px); }

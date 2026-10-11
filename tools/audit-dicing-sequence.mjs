@@ -28,7 +28,31 @@ export async function auditDicingSequence(root) {
   const latest=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-delivery-sequence.json'),'utf8'));
   const workflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-delivery-workflow.json'),'utf8'));
   validateDicingSequence(fixture,latest);validateDicingDelivery(latest,workflow);
-  return {...result,delivery:'PASS',coldWarmRounds:3};
+  const qualitySequence=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-quality-sequence.json'),'utf8'));
+  const qualityWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-quality-workflow.json'),'utf8'));
+  const quality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-quality-quality.json'),'utf8'));
+  validateDicingSequence(fixture,qualitySequence);validateDicingDelivery(qualitySequence,qualityWorkflow);validateDicingQuality(fixture,quality,qualityWorkflow);
+  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880};
+}
+
+export function validateDicingQuality(fixture,evidence,workflow) {
+  assert.equal(evidence.scope,'canvas-resampling-not-platform-texture-mip');
+  assert.equal(evidence.startupCancelRetry,true);assert.equal(evidence.damagedFallbackRetryRejected,true);
+  const combinations=[];
+  for(const scale of [0.5,1,1.25,2])for(const smoothing of [false,true])for(const rotation of [0,17])for(const filter of ['none','contrast(1.1)'])combinations.push(JSON.stringify([scale,smoothing,rotation,filter]));
+  assert.equal(evidence.cases.length,90);
+  for(const name of ['optimized','directory','windows']){
+    const images=evidence.cases.filter(c=>c.name===name);
+    assert.deepEqual(images.map(c=>c.id).sort(),[...fixture.assetIds].sort());
+    for(const image of images){
+      assert.deepEqual(image.cases.map(c=>JSON.stringify([c.scale,c.smoothing,c.rotation,c.filter])).sort(),[...combinations].sort());
+      for(const c of image.cases){assert.equal(c.changed,0);assert.equal(c.max,0);assert.ok(Number.isSafeInteger(c.directChanged)&&c.directChanged>=0);assert.ok(Number.isInteger(c.directMax)&&c.directMax>=0&&c.directMax<=255);}
+    }
+  }
+  const startups=workflow.measurements.filter(m=>m.kind==='startup-longtasks');
+  assert.deepEqual(startups.map(s=>s.name).sort(),['original','optimized','directory','corrupt-page','unsupported'].sort());
+  for(const s of startups){assert.ok(Number.isFinite(s.readyAt)&&s.readyAt>0);for(const t of s.tasks){assert.ok(t.duration>=50);assert.ok(t.start>=0&&t.start<s.readyAt);}}
+  return {status:'PASS',cases:2880};
 }
 
 export function validateDicingDelivery(sequence,workflow) {

@@ -1,4 +1,4 @@
-import { unzlibSync } from "fflate";
+import { unzlib, unzlibSync } from "fflate";
 import { createBlobDigest, createLosslessDicingRgbaDigest, parseLosslessDicingPngDeliveryManifest, type LosslessDicingPngDeliveryManifest } from "@world-studio/project-persistence";
 
 export interface NativeAtlasDelivery {
@@ -29,6 +29,60 @@ export function unpackAtlasFallback(group: NativeAtlasDelivery): Map<string, Uin
     files.set(entry.assetId, bytes);
   }
   return files;
+}
+
+/** One fixed-size worker output at a time; never allocate based on untrusted inflated size. */
+export async function unpackAtlasFallbackAsync(group: NativeAtlasDelivery, signal?: AbortSignal): Promise<Map<string, Uint8Array>> {
+  signal?.throwIfAborted();
+  const fallback = group.fallback;
+  if (group.schemaVersion !== 1 || !Number.isSafeInteger(fallback.rawBytes) || fallback.rawBytes < 1 || fallback.rawBytes > MAX_BYTES || fallback.entries.length > 32) throw Error("Atlas fallback exceeds budget");
+  const compressed = embeddedBytes(fallback.url);
+  if (createBlobDigest(compressed) !== fallback.digest) throw Error("Atlas fallback digest mismatch");
+  const raw = await new Promise<Uint8Array>((resolve, reject) => {
+    const cancel = () => { terminate(); reject(signal!.reason); };
+    const terminate = unzlib(compressed, { size: fallback.rawBytes + 1, consume: true }, (error, bytes) => {
+      signal?.removeEventListener("abort", cancel);
+      if (error) reject(error); else resolve(bytes);
+    });
+    signal?.addEventListener("abort", cancel, { once: true });
+    if (signal?.aborted) cancel();
+  });
+  signal?.throwIfAborted();
+  if (raw.length !== fallback.rawBytes) throw Error("Atlas fallback length mismatch");
+  const files = new Map<string, Uint8Array>();
+  for (const entry of fallback.entries) {
+    signal?.throwIfAborted();
+    if (!Number.isSafeInteger(entry.offset) || !Number.isSafeInteger(entry.length) || entry.offset < 0 || entry.length < 1 || entry.offset + entry.length > raw.length || files.has(entry.assetId)) throw Error("Atlas fallback entry invalid");
+    const bytes = raw.subarray(entry.offset, entry.offset + entry.length);
+    if (createBlobDigest(bytes) !== entry.digest) throw Error("Atlas fallback source mismatch");
+    files.set(entry.assetId, bytes);
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
+  }
+  signal?.throwIfAborted();
+  return files;
+}
+
+export async function hydrateNativeAtlasMediaAsync<T extends { assetId: string; url: string }>(media: readonly T[], groups: readonly NativeAtlasDelivery[] = [], signal?: AbortSignal, progress?: (completed: number, total: number) => void) {
+  signal?.throwIfAborted();
+  const urls: string[] = [], sources = new Map<string, { url: string; atlas: NativeAtlasSource }>();
+  const dispose = () => urls.splice(0).forEach(url => URL.revokeObjectURL(url));
+  try {
+    if (groups.length > 8 || groups.some(group => !Number.isSafeInteger(group.fallback.rawBytes) || group.fallback.rawBytes < 1) || groups.reduce((n, group) => n + group.fallback.rawBytes, 0) > MAX_BYTES) throw Error("Atlas fallback aggregate budget exceeded");
+    progress?.(0, groups.length);
+    for (const [index, group] of groups.entries()) {
+      const files = await unpackAtlasFallbackAsync(group, signal);
+      for (const [assetId, bytes] of files) {
+        signal?.throwIfAborted();
+        if (sources.has(assetId)) throw Error("Overlapping Atlas assets");
+        const url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "image/png" }));
+        urls.push(url); sources.set(assetId, { url, atlas: { group, assetId } });
+      }
+      progress?.(index + 1, groups.length);
+      await new Promise<void>(resolve => setTimeout(resolve, 0));
+    }
+    signal?.throwIfAborted();
+    return { media: media.map(asset => ({ ...asset, ...sources.get(asset.assetId) })), dispose };
+  } catch (error) { dispose(); throw error; }
 }
 export function hydrateNativeAtlasMedia<T extends { assetId: string; url: string }>(media: readonly T[], groups: readonly NativeAtlasDelivery[] = []) {
   const urls: string[] = [], sources = new Map<string, { url: string; atlas: NativeAtlasSource }>();

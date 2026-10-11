@@ -1,0 +1,30 @@
+import { afterEach, expect, it, vi } from "vitest";
+import { startExportedPlayer } from "./export-startup";
+import { hydrateNativeAtlasMediaAsync } from "./native-atlas";
+import { mountWorldPlayerV1 } from "./mount-player";
+vi.mock("./native-atlas",()=>({hydrateNativeAtlasMediaAsync:vi.fn()}));
+vi.mock("./mount-player",()=>({mountWorldPlayerV1:vi.fn()}));
+afterEach(()=>vi.resetAllMocks());
+const fixture=()=>{const root=document.createElement("div"),payload=document.createElement("script");payload.textContent="{}";return{root,payload};};
+it("shows loading, cancels, retries and cleans up only its own successful attempt",async()=>{
+  const {root,payload}=fixture(),dispose=vi.fn(),unmount=vi.fn();
+  let finish!:(value:{media:never[];dispose:()=>void})=>void;
+  vi.mocked(hydrateNativeAtlasMediaAsync).mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+  vi.mocked(hydrateNativeAtlasMediaAsync).mockResolvedValue({media:[],dispose});
+  vi.mocked(mountWorldPlayerV1).mockReturnValue({unmount} as unknown as ReturnType<typeof mountWorldPlayerV1>);
+  const handle=startExportedPlayer(root,payload);expect(root.textContent).toContain("取消加载");
+  await vi.waitFor(()=>expect(finish).toBeTypeOf("function"));root.querySelector("button")!.click();
+  expect(root.dataset.startupState).toBe("cancelled");
+  const staleDispose=vi.fn();finish({media:[],dispose:staleDispose});
+  root.querySelector("button")!.click();await vi.waitFor(()=>expect(root.dataset.startupState).toBe("ready"));
+  expect(staleDispose).toHaveBeenCalledOnce();expect(mountWorldPlayerV1).toHaveBeenCalledOnce();
+  handle.dispose();handle.dispose();expect(dispose).toHaveBeenCalledOnce();expect(unmount).toHaveBeenCalledOnce();
+});
+it("offers retry on damaged payload and does not mount after non-persisted pagehide",async()=>{
+  const {root,payload}=fixture();payload.textContent="invalid";
+  const handle=startExportedPlayer(root,payload);await vi.waitFor(()=>expect(root.dataset.startupState).toBe("failed"));
+  expect(root.querySelector('[role="alert"]')?.textContent).toContain("重新下载");
+  payload.textContent="{}";root.querySelector("button")!.click();
+  window.dispatchEvent(new PageTransitionEvent("pagehide",{persisted:false}));
+  await new Promise(resolve=>setTimeout(resolve,20));expect(mountWorldPlayerV1).not.toHaveBeenCalled();handle.dispose();
+});

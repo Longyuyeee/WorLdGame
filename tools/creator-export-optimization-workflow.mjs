@@ -6,8 +6,9 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,sampleMemory,openWindows}={}) {
-  const prefix=delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,sampleMemory,openWindows}={}) {
+  const prefix=quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+  const qualityEvidence=[];
   const sequence=incremental?JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8')):null;
   const sequenceEvidence=[];
   const measurements=[], previewRuns=[];let rapidSwitch;
@@ -188,7 +189,16 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   const expectedPixels={};if(incremental)for(const id of sequence.assetIds)expectedPixels[id]=await pixels(before.mediaAssets.find(a=>a.assetId===id).url);
   let referenceStage;
   const playCore = async (bytes,name,expectedMode,entryPath,alreadyOpen=false) => {
-    const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}await client.button('开始故事');
+    let injection;
+    if(quality&&!alreadyOpen){injection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`globalThis.__atlasStartupMetrics={tasks:[],readyAt:null};new MutationObserver(()=>{if(document.querySelector('#player-root')?.dataset.startupState==='ready'&&__atlasStartupMetrics.readyAt===null)__atlasStartupMetrics.readyAt=performance.now();}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-startup-state']});try{new PerformanceObserver(list=>{for(const e of list.getEntries())if(__atlasStartupMetrics.readyAt===null||e.startTime<__atlasStartupMetrics.readyAt)__atlasStartupMetrics.tasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});}catch{};${name==='optimized'?`const cancelOnce=new MutationObserver(()=>{const b=Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='取消加载');if(b){cancelOnce.disconnect();b.click();}});cancelOnce.observe(document,{childList:true,subtree:true});`:''}`});}
+    const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}
+    if(quality&&name==='optimized'){
+      await client.wait("document.querySelector('#player-root')?.dataset.startupState==='cancelled'");
+      await writeFile(join(root,`evidence/authoring/${prefix}-cancelled.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+      await client.button('重新加载');
+    }
+    await client.button('开始故事');
+    if(injection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:injection.identifier});
     // Each comparison starts a fresh story; dismiss only this isolated test profile's recovery prompt via its public action.
     await new Promise(r=>setTimeout(r,500));
     if(await client.evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='放弃并清除')"))await client.button('放弃并清除');
@@ -202,6 +212,25 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
           await client.wait(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return e&&(e.dataset.nativeAtlas==='ready'||(e.complete&&e.naturalWidth>0));})()`);
           const item=await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return {mode:e.dataset.nativeAtlas??'ordinary',url:e instanceof HTMLCanvasElement?e.toDataURL():e.src};})()`);
           assert.equal(item.mode,expectedMode??'ordinary');const actual=await pixels(item.url);assert.deepEqual(actual,expectedPixels[id]);seen.set(id,actual);
+          if(quality&&expectedMode==='ready'){
+            const original=before.mediaAssets.find(a=>a.assetId===id).url;
+            const cases=await client.evaluate(`(async()=>{
+              const original=new Image();original.src=${JSON.stringify(original)};await original.decode();
+              const actual=document.querySelector(${JSON.stringify(selector)}),control=document.createElement('canvas');
+              control.width=original.width;control.height=original.height;control.getContext('2d',{willReadFrequently:true}).drawImage(original,0,0);
+              const cases=[];
+              for(const scale of [0.5,1,1.25,2])for(const smoothing of [false,true])for(const rotation of [0,17])for(const filter of ['none','contrast(1.1)']){
+                const render=source=>{const canvas=document.createElement('canvas'),r=rotation*Math.PI/180,w=original.width*scale,h=original.height*scale;
+                  canvas.width=Math.ceil(w*Math.abs(Math.cos(r))+h*Math.abs(Math.sin(r)))+4;canvas.height=Math.ceil(h*Math.abs(Math.cos(r))+w*Math.abs(Math.sin(r)))+4;
+                  const c=canvas.getContext('2d',{willReadFrequently:true});c.imageSmoothingEnabled=smoothing;c.imageSmoothingQuality='high';c.fillStyle='#374151';c.fillRect(0,0,canvas.width,canvas.height);
+                  c.translate(canvas.width/2,canvas.height/2);c.rotate(r);c.filter=filter;if(c.filter!==filter)throw Error('Canvas filter unsupported');c.drawImage(source,-w/2,-h/2,w,h);
+                  const pixels=c.getImageData(0,0,canvas.width,canvas.height).data;canvas.width=canvas.height=0;return pixels;};
+                const a=render(control),b=render(actual),direct=render(original);let changed=0,max=0,directChanged=0,directMax=0;
+                for(let i=0;i<a.length;i++){const d=Math.abs(a[i]-b[i]),p=Math.abs(direct[i]-b[i]);if(d)changed++;if(p)directChanged++;max=Math.max(max,d);directMax=Math.max(directMax,p);}
+                cases.push({scale,smoothing,rotation,filter,changed,max,directChanged,directMax});
+              }control.width=control.height=0;return cases;})()`);
+            assert.ok(cases.every(c=>c.changed===0),JSON.stringify({name,id,cases}));qualityEvidence.push({name,id,cases});
+          }
         }
       }
       if(!renderedPixels && await client.evaluate("Boolean(document.querySelector('.player-stage-character'))")) {
@@ -242,6 +271,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     assert.ok(renderedPixels,'Exported player must render the actual character');
     if(incremental){assert.deepEqual([...seen.keys()].sort(),[...sequence.assetIds].sort());sequenceEvidence.push({name,mode:expectedMode??'ordinary',assets:Object.fromEntries(seen),count:seen.size});}
     const result={ended:true,ending:await client.evaluate("document.querySelector('.player-ending h2').textContent"),renderedPixels,...(native?{stageScreenshot}:{})};
+    if(quality&&!alreadyOpen)measurements.push({kind:'startup-longtasks',name,...await client.evaluate('globalThis.__atlasStartupMetrics'),limits:'Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline.'});
     if(native && expectedMode){await client.button('回到标题');await client.wait("Number(document.documentElement.dataset.nativeAtlasBytes??0)===0 && Number(document.documentElement.dataset.nativeAtlasGroups??0)===0");}
     return result;
   };
@@ -263,6 +293,15 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     const corruptPlay=await play(Buffer.from(broken),'corrupt-page','fallback');assert.deepEqual(corruptPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(corruptPlay.ending,baselinePlay.ending);assert.equal(corruptPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
     const unsupported=optimized.toString().replace('<head>','<head><script>globalThis.createImageBitmap=undefined;</script>');assert.notEqual(unsupported,optimized.toString());
     const unsupportedPlay=await play(Buffer.from(unsupported),'unsupported','fallback');assert.deepEqual(unsupportedPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(unsupportedPlay.ending,baselinePlay.ending);assert.equal(unsupportedPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
+  }
+  if(quality){
+    const damaged=structuredClone(after);damaged.nativeAtlasGroups[0].fallback.digest='sha256:'+'0'.repeat(64);
+    const broken=optimized.toString().replace(/(<script id="world-project" type="application\/json">)(.*?)(<\/script>)/s,(_all,start,_data,end)=>start+JSON.stringify(damaged).replaceAll('<','\\u003c')+end);
+    const path=join(temporary,'broken-fallback.html');await writeFile(path,broken);await client.send('Page.navigate',{url:pathToFileURL(path).href});
+    await client.wait("document.querySelector('#player-root')?.dataset.startupState==='failed'");await client.button('重新加载');await client.wait("document.querySelector('#player-root')?.dataset.startupState==='failed'");
+    assert.equal(await client.evaluate("Boolean(document.querySelector('main[data-player-status]'))"),false);
+    await writeFile(join(root,`evidence/authoring/${prefix}-failed.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+    await writeFile(join(root,`evidence/authoring/${prefix}-quality.json`),JSON.stringify({scope:'canvas-resampling-not-platform-texture-mip',scales:[0.5,1,1.25,2],smoothing:[false,true],rotations:[0,17],filters:['none','contrast(1.1)'],cases:qualityEvidence,startupCancelRetry:true,damagedFallbackRetryRejected:true},null,2)+'\n');
   }
   if(rapidSwitch)measurements.push({kind:'rapid-switch',...rapidSwitch});
   if(incremental){const fixtureHash=digest(Buffer.from(JSON.stringify(sequence)));measurements.push({kind:'dicing-sequence',fixtureHash,runs:sequenceEvidence});await writeFile(join(root,`evidence/authoring/${prefix}-sequence.json`),JSON.stringify({fixtureHash,runs:sequenceEvidence,incremental:measurements.find(m=>m.kind==='incremental-verification'),...(delivery?{delivery:measurements.find(m=>m.kind==='incremental-delivery')}:{})},null,2)+'\n');}

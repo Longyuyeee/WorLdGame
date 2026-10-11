@@ -22,8 +22,8 @@ describe("native player image ownership", () => {
     expect(oldRelease).toHaveBeenCalledTimes(1); expect(newRelease).not.toHaveBeenCalled();
     view.unmount(); expect(newRelease).toHaveBeenCalledTimes(1);
   });
-  it("keeps the ordinary source and error handler on fallback, and retries a new group", async () => {
-    const onError = vi.fn(); vi.mocked(acquireNativeAtlasImage).mockRejectedValueOnce(Error("unsupported"));
+  it.each(["unsupported", "Atlas renderer memory budget exceeded"])("keeps the ordinary source after %s and retries a new group", async failure => {
+    const onError = vi.fn(); vi.mocked(acquireNativeAtlasImage).mockRejectedValueOnce(Error(failure));
     const view = render(<NativeAtlasImage atlas={{ group: group(), assetId: "a" }} src="blob:original" alt="角色" onError={onError} />);
     await waitFor(() => expect(screen.getByRole("img")).toHaveAttribute("data-native-atlas", "fallback"));
     expect(screen.getByRole("img")).toHaveAttribute("src", "blob:original");

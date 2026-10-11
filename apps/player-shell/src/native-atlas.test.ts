@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { zlibSync } from "fflate";
 import { buildLosslessDicingAtlas, createLosslessDicingPngDeliveryManifest, serializeLosslessDicingPngDeliveryManifest, createBlobDigest } from "@world-studio/project-persistence";
-import { acquireNativeAtlasImage, hydrateNativeAtlasMedia, nativeAtlasDiagnostics, unpackAtlasFallback, type NativeAtlasDelivery } from "./native-atlas";
+import { acquireNativeAtlasImage, hydrateNativeAtlasMedia, hydrateNativeAtlasMediaAsync, nativeAtlasDiagnostics, unpackAtlasFallback, unpackAtlasFallbackAsync, type NativeAtlasDelivery } from "./native-atlas";
 
 const url = (bytes: Uint8Array) => `data:application/octet-stream;base64,${btoa(String.fromCharCode(...bytes))}`;
 function fixture(size = 8) {
@@ -16,6 +16,29 @@ function fixture(size = 8) {
 }
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe("native Atlas integrity and lifecycle", () => {
+  it("decodes fallback off-thread with exact size/digest bounds and supports cancellation/retry", async () => {
+    const { group, bytes }=fixture();
+    expect(Array.from((await unpackAtlasFallbackAsync(group)).get("a")!)).toEqual(Array.from(bytes));
+    for(const fallback of [{...group.fallback,rawBytes:1},{...group.fallback,rawBytes:5},{...group.fallback,digest:"bad"},{...group.fallback,entries:[{...group.fallback.entries[0]!,digest:"bad"}]}]){
+      await expect(unpackAtlasFallbackAsync({...group,fallback})).rejects.toThrow();
+    }
+    const controller=new AbortController(),pending=unpackAtlasFallbackAsync(group,controller.signal);controller.abort();
+    await expect(pending).rejects.toMatchObject({name:"AbortError"});
+    expect(Array.from((await unpackAtlasFallbackAsync(group)).get("a")!)).toEqual(Array.from(bytes));
+  });
+  it("hydrates sequentially, releases partial URLs on cancellation/failure and permits retry", async () => {
+    const {group}=fixture(),create=vi.fn(()=>"blob:owned"),revoke=vi.fn();
+    vi.stubGlobal("URL",{createObjectURL:create,revokeObjectURL:revoke});
+    const controller=new AbortController();
+    await expect(hydrateNativeAtlasMediaAsync([{assetId:"a",url:""}],[group],controller.signal,done=>{if(done===1)controller.abort();})).rejects.toMatchObject({name:"AbortError"});
+    expect(revoke).toHaveBeenCalledTimes(1);
+    await expect(hydrateNativeAtlasMediaAsync([], [group,group])).rejects.toThrow("Overlapping");
+    expect(revoke).toHaveBeenCalledTimes(2);
+    const progress=vi.fn(),result=await hydrateNativeAtlasMediaAsync([{assetId:"a",url:""}],[group],undefined,progress);
+    expect(result.media[0]?.atlas?.group).toBe(group);expect(progress.mock.calls).toEqual([[0,1],[1,1]]);
+    result.dispose();result.dispose();expect(revoke).toHaveBeenCalledTimes(3);
+    await expect(hydrateNativeAtlasMediaAsync([], [{...group,fallback:{...group.fallback,rawBytes:NaN}}])).rejects.toThrow("budget");
+  });
   it("bounds 30 independent decodes and drains cancelled queued consumers without decoding them", async () => {
     const { group, atlas } = fixture(), close = vi.fn();
     const pending: (() => void)[] = [];

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validateDicingSequence, validateDicingDelivery } from './audit-dicing-sequence.mjs';
+import { validateDicingSequence, validateDicingDelivery, validateDicingQuality } from './audit-dicing-sequence.mjs';
 const fixture=JSON.parse(await readFile(new URL('../fixtures/projects/dicing/sequence.json',import.meta.url),'utf8'));
 const evidence=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-incremental-sequence.json',import.meta.url),'utf8'));
 test('Dicing sequence gate accepts the full six-mode evidence',()=>assert.equal(validateDicingSequence(fixture,evidence).status,'PASS'));
@@ -15,3 +15,9 @@ test('Dicing delivery gate accepts three cold/warm rounds and full-play sampling
 test('Dicing delivery gate rejects recompression of unchanged groups',()=>{const bad=structuredClone(delivery);bad.delivery.deliveryAfter.built+=1;assert.throws(()=>validateDicingDelivery(bad,workflow));});
 test('Dicing delivery gate rejects missing rounds and leaked leases',()=>{const bad=structuredClone(workflow);bad.measurements.find(m=>m.kind==='delivery-cold-warm').warmState.referencedResources=1;assert.throws(()=>validateDicingDelivery(delivery,bad));bad.measurements=bad.measurements.filter(m=>m.kind!=='delivery-cold-warm');assert.throws(()=>validateDicingDelivery(delivery,bad));});
 test('Dicing delivery gate rejects snapshot-only or fabricated maxima',()=>{const bad=structuredClone(workflow),series=bad.measurements.find(m=>m.kind==='continuous-process-samples'&&m.name==='windows');series.observedMaxPrivateBytes+=1;assert.throws(()=>validateDicingDelivery(delivery,bad));series.samples=series.samples.slice(0,1);assert.throws(()=>validateDicingDelivery(delivery,bad));});
+
+const quality=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-quality-quality.json',import.meta.url),'utf8'));
+const qualityWorkflow=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-quality-workflow.json',import.meta.url),'utf8'));
+test('Dicing quality gate accepts complete Canvas matrix with separate direct-image observations',()=>assert.equal(validateDicingQuality(fixture,quality,qualityWorkflow).cases,2880));
+test('Dicing quality gate rejects omitted cases and unequal reconstruction',()=>{const bad=structuredClone(quality);bad.cases[0].cases[0].changed=1;assert.throws(()=>validateDicingQuality(fixture,bad,qualityWorkflow));bad.cases.pop();assert.throws(()=>validateDicingQuality(fixture,bad,qualityWorkflow));});
+test('Dicing quality gate requires startup recovery and measured ready time',()=>{const bad=structuredClone(quality);bad.startupCancelRetry=false;assert.throws(()=>validateDicingQuality(fixture,bad,qualityWorkflow));const w=structuredClone(qualityWorkflow);w.measurements.find(m=>m.kind==='startup-longtasks').readyAt=null;assert.throws(()=>validateDicingQuality(fixture,quality,w));});
