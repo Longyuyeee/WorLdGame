@@ -28,7 +28,7 @@ import {
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
 import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
-import { browserGamepadFrameV1, createEmptyPlayerGamepadFrameV1, playerGamepadActionV1 } from "./player-input";
+import { browserGamepadFrameV1, createPlayerGamepadTrackerV1, type PlayerGamepadActionV1 } from "./player-input";
 import {
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT,
@@ -1050,37 +1050,36 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [historyPanelOpen, savePanelOpen, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active]);
 
+  const gamepadAction = useRef<(action: PlayerGamepadActionV1) => void>(() => {});
+  // Keep the polling session's edge history while dispatching against the latest story.
+  gamepadAction.current = (action) => {
+    if (action === "previous-choice" || action === "next-choice") {
+      if (content.kind === "choice") {
+        const delta = action === "previous-choice" ? -1 : 1;
+        setSelectedChoiceIndex((index) => (index + delta + content.options.length) % content.options.length);
+        setLastInputSource("gamepad");
+      }
+    } else if (action === "primary") {
+      const selected = content.kind === "choice" ? content.options[selectedChoiceIndex] : undefined;
+      applyIntent(selected === undefined ? { kind: "primary" } : { kind: "select-choice", optionId: selected.optionId }, "gamepad");
+    } else if (action === "cancel") {
+      applyIntent({ kind: "cancel" }, "gamepad");
+    }
+  };
   useEffect(() => {
     if (hostActivity !== "active" || historyPanelOpen || savePanelOpen || additionalContentOpen) return;
     if (typeof navigator.getGamepads !== "function") return;
     let animationFrame = 0;
-    let previous = createEmptyPlayerGamepadFrameV1();
+    const track = createPlayerGamepadTrackerV1();
     const poll = () => {
-      const gamepad = navigator.getGamepads().find((candidate) => candidate !== null);
-      if (gamepad !== undefined && gamepad !== null) {
-        const current = browserGamepadFrameV1(gamepad);
-        const action = playerGamepadActionV1(previous, current);
-        previous = current;
-        if (action === "previous-choice" || action === "next-choice") {
-          if (content.kind === "choice") {
-            const delta = action === "previous-choice" ? -1 : 1;
-            setSelectedChoiceIndex((index) => (index + delta + content.options.length) % content.options.length);
-            setLastInputSource("gamepad");
-          }
-        } else if (action === "primary") {
-          const selected = content.kind === "choice" ? content.options[selectedChoiceIndex] : undefined;
-          applyIntent(selected === undefined ? { kind: "primary" } : { kind: "select-choice", optionId: selected.optionId }, "gamepad");
-        } else if (action === "cancel") {
-          applyIntent({ kind: "cancel" }, "gamepad");
-        }
-      } else {
-        previous = createEmptyPlayerGamepadFrameV1();
-      }
+      const gamepad = navigator.getGamepads().find((candidate) => candidate !== null && candidate.connected);
+      const action = track(gamepad ? { device: `${gamepad.index}:${gamepad.id}`, frame: browserGamepadFrameV1(gamepad) } : null);
+      if (action !== null) gamepadAction.current(action);
       animationFrame = requestAnimationFrame(poll);
     };
     animationFrame = requestAnimationFrame(poll);
     return () => cancelAnimationFrame(animationFrame);
-  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, applyIntent, content, hostActivity, selectedChoiceIndex]);
+  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, hostActivity]);
 
   useEffect(() => {
     const previous = previousHostActivity.current;

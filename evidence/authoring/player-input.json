@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "scope": "production-player-injected-gamepad-not-physical-device",
+  "elapsedMilliseconds": 83951.6981,
+  "rows": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "index": 0,
+      "revealMode": "instant",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "index": 1,
+      "revealMode": "instant",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "index": 0,
+      "revealMode": "typewriter",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "index": 1,
+      "revealMode": "typewriter",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "index": 0,
+      "revealMode": "instant",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "index": 1,
+      "revealMode": "instant",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "index": 0,
+      "revealMode": "typewriter",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "index": 1,
+      "revealMode": "typewriter",
+      "initialHeld": true,
+      "choiceHeld": true,
+      "dpadHeld": true,
+      "stickHeld": true,
+      "textReadyHeld": true,
+      "panelsHeld": true,
+      "resumeHeld": true,
+      "reconnectHeld": true,
+      "freshPressWorks": true,
+      "endingHeld": true
+    }
+  ],
+  "exceptions": []
+}

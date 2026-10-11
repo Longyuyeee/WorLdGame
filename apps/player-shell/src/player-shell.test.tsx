@@ -121,6 +121,84 @@ function videoStory() {
 const realDelay = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 
 describe("N50-E1 shared Player Shell", () => {
+  function gamepadHarness() {
+    const pending = new Map<number, FrameRequestCallback>();
+    let sequence = 0;
+    let buttons: number[] = [];
+    let connected = true;
+    let id = "test-pad";
+    const original = Object.getOwnPropertyDescriptor(navigator, "getGamepads");
+    Object.defineProperty(navigator, "getGamepads", { configurable: true, value: () => connected ? [{
+      index: 0, id, connected: true, axes: [0, 0],
+      buttons: Array.from({ length: 16 }, (_, index) => ({ pressed: buttons.includes(index) }))
+    }] : [] });
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation(callback => { pending.set(++sequence, callback); return sequence; });
+    vi.spyOn(window, "cancelAnimationFrame").mockImplementation(key => { pending.delete(key); });
+    return {
+      press: (...next: number[]) => { buttons = next; },
+      connect: (value: boolean, nextId = id) => { connected = value; id = nextId; },
+      frame: () => act(() => { const batch = [...pending.values()]; pending.clear(); batch.forEach(callback => callback(performance.now())); }),
+      pending: () => pending.size,
+      restore: () => { if (original) Object.defineProperty(navigator, "getGamepads", original); else Reflect.deleteProperty(navigator, "getGamepads"); }
+    };
+  }
+
+  it("does not replay held gamepad buttons across title, selection and text-ready renders", async () => {
+    const pad = gamepadHarness();
+    const base = branching();
+    const project = { ...base, settings: withProjectSettings(base.settings, { text: { revealMode: "typewriter", charactersPerSecond: 200, minimumDisplayMilliseconds: 80, punctuationDelayMilliseconds: 0 } }) };
+    const view = render(<PlayerShell project={project} />);
+    try {
+      pad.press(0); pad.frame(); pad.frame();
+      expect(screen.getByRole("button", { name: /开始故事/u })).toBeVisible();
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      for (let i = 0; i < 8; i++) pad.frame();
+      expect(screen.getByRole("button", { name: /Left/u })).toBeVisible();
+      pad.press(); pad.frame(); pad.press(13); pad.frame();
+      for (let i = 0; i < 9; i++) pad.frame();
+      expect(screen.getByRole("button", { name: /Right/u })).toHaveAttribute("data-player-selected", "true");
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+      for (let i = 0; i < 8; i++) pad.frame();
+      expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("The bright route.");
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      expect(screen.queryByRole("button", { name: "继续下一句" })).not.toBeInTheDocument();
+    } finally { view.unmount(); expect(pad.pending()).toBe(0); pad.restore(); }
+  });
+
+  it("requires neutral after panels, host suspension and gamepad reconnection", async () => {
+    const pad = gamepadHarness();
+    const base = autoStory();
+    const project = { ...base, settings: withProjectSettings(base.settings, { text: { revealMode: "instant" } }) };
+    const store: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", async list() { return []; }, async read() { return null; }, async readPreview() { return null; }, async write() {} };
+    const view = render(<PlayerShell project={project} saveStore={store} />);
+    try {
+      fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+      await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+      pad.frame();
+      for (const panel of ["打开剧情历史", "存读档"]) {
+        fireEvent.click(screen.getByRole("button", { name: panel }));
+        expect(pad.pending()).toBe(0);
+        pad.press(0);
+        if (panel === "存读档") fireEvent.click(screen.getByRole("button", { name: panel }));
+        else fireEvent.keyDown(window, { key: "Escape" });
+        pad.frame(); pad.frame();
+        expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("A");
+        pad.press(); pad.frame();
+      }
+      view.rerender(<PlayerShell project={project} saveStore={store} hostActivity="suspended" />);
+      expect(pad.pending()).toBe(0);
+      pad.press(0);
+      view.rerender(<PlayerShell project={project} saveStore={store} hostActivity="active" />);
+      pad.frame(); pad.frame();
+      pad.connect(false); pad.frame(); pad.connect(true); pad.frame(); pad.frame();
+      pad.connect(true, "replacement-pad"); pad.frame(); pad.frame();
+      expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("A");
+      pad.press(); pad.frame(); pad.press(0); pad.frame();
+      await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("B"));
+    } finally { view.unmount(); expect(pad.pending()).toBe(0); pad.restore(); }
+  });
+
   it("releases dialogue animations at a story boundary without cancelling live text on panel changes", async () => {
     const project=branching();
     render(<PlayerShell project={{...project,settings:withProjectSettings(project.settings,{text:{revealMode:"instant"}})}} />);
