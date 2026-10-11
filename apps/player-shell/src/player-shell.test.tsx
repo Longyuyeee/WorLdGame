@@ -13,6 +13,7 @@ import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
+import type { NativeAtlasSource } from "./native-atlas";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -191,6 +192,20 @@ describe("N50-E1 shared Player Shell", () => {
     expect(audio).toHaveAttribute("data-applied-volume", "0.48");
     expect(audio?.volume).toBe(0.48);
     expect(container.querySelector("main")).toHaveAttribute("data-effect-operation", "execute");
+  });
+
+  it("stops automatic playback when deferred picture integrity fails", async () => {
+    const demo=createPlayerMediaDemoV1();let fail!:(error:Error)=>void;
+    const atlas={group:{},assetId:"media_sunset",acquireFallback:()=>new Promise((_resolve,reject)=>{fail=reject;})} as unknown as NativeAtlasSource;
+    const media=demo.mediaAssets.map(asset=>asset.assetId==="media_sunset"?{...asset,atlas}:asset);
+    render(<PlayerShell project={demo.project} mediaAssets={media} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    const auto=screen.getByRole("button",{name:"自动播放"});fireEvent.click(auto);
+    expect(auto).toHaveAttribute("aria-pressed","true");
+    fail(Error("source mismatch"));
+    await waitFor(()=>expect(auto).toHaveAttribute("aria-pressed","false"));
+    expect(screen.getByRole("button",{name:"重试画面资源"})).toBeInTheDocument();
   });
 
   it("fails visibly when a required media asset is unavailable instead of auto-completing the Effect", () => {

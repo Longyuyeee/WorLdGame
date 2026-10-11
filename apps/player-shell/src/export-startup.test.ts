@@ -1,8 +1,8 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { startExportedPlayer } from "./export-startup";
-import { hydrateNativeAtlasMediaAsync } from "./native-atlas";
+import { prepareNativeAtlasMediaAsync as hydrateNativeAtlasMediaAsync } from "./lazy-atlas-media";
 import { mountWorldPlayerV1 } from "./mount-player";
-vi.mock("./native-atlas",()=>({hydrateNativeAtlasMediaAsync:vi.fn()}));
+vi.mock("./lazy-atlas-media",()=>({prepareNativeAtlasMediaAsync:vi.fn()}));
 vi.mock("./mount-player",()=>({mountWorldPlayerV1:vi.fn()}));
 afterEach(()=>vi.resetAllMocks());
 const fixture=()=>{const root=document.createElement("div"),payload=document.createElement("script");payload.textContent="{}";return{root,payload};};

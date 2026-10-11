@@ -36,7 +36,36 @@ export async function auditDicingSequence(root) {
   const samplingWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-sampling-workflow.json'),'utf8'));
   const sampling=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-sampling-quality.json'),'utf8'));
   validateDicingSequence(fixture,samplingSequence);validateDicingDelivery(samplingSequence,samplingWorkflow);assert.equal(validateDicingQuality(fixture,sampling,samplingWorkflow).cases,5760);
-  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760};
+  const lazySequence=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-lazy-sequence.json'),'utf8'));
+  const lazyWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-lazy-workflow.json'),'utf8'));
+  const lazyQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-lazy-quality.json'),'utf8'));
+  validateDicingSequence(fixture,lazySequence);validateDicingDelivery(lazySequence,lazyWorkflow);validateDicingQuality(fixture,lazyQuality,lazyWorkflow);validateLazyAtlas(fixture,lazyWorkflow);
+  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS'};
+}
+
+export function validateLazyAtlas(fixture,workflow){
+  const modes=['original','optimized','directory','windows','corrupt-page','unsupported','emergency-img'];
+  for(const kind of ['lazy-title','lazy-released']){
+    const rows=workflow.measurements.filter(m=>m.kind===kind);
+    assert.deepEqual(rows.map(m=>m.name).sort(),[...modes].sort());
+    for(const row of rows){assert.equal(row.groups,0);assert.equal(row.urls,0);assert.equal(row.residentSourceBytes,0);assert.equal(row.active,0);if(kind==='lazy-title')assert.equal(row.preparedGroups,0);}
+  }
+  for(const name of modes.filter(name=>name!=='original')){
+    const rows=workflow.measurements.filter(m=>m.kind==='lazy-visible'&&m.name===name);
+    assert.deepEqual(rows.map(row=>row.assetId).sort(),[...fixture.assetIds].sort());
+    for(const row of rows){assert.ok(row.groups>0&&row.groups<=2);assert.ok(row.urls>0&&row.urls<=16);assert.ok(row.residentSourceBytes>0&&row.residentSourceBytes<=4_199_808);assert.equal(row.peakActive,1);}
+  }
+  const retry=workflow.measurements.find(m=>m.kind==='lazy-source-retry');assert.equal(retry.retryRejected,true);assert.equal(retry.urls,0);assert.equal(retry.residentSourceBytes,0);assert.equal(retry.groups,0);assert.equal(retry.active,0);
+  const rounds=workflow.measurements.find(m=>m.kind==='controlled-loading').rounds;assert.equal(rounds.length,6);
+  for(const round of [1,2,3])for(const lazy of [false,true]){
+    const item=rounds.find(row=>row.round===round&&row.lazy===lazy);assert.ok(item);
+    assert.equal(item.startup.urls,lazy?0:30);assert.equal(item.startup.blobBytes,lazy?0:7_874_640);
+    assert.equal(item.firstGroup.blobBytes,lazy?2_099_904:7_874_640);
+    assert.equal(item.peakBlobBytes,lazy?2_099_904:7_874_640);
+    assert.ok(Number.isFinite(item.startup.milliseconds)&&item.startup.milliseconds>=0);assert.ok(Number.isFinite(item.firstGroup.milliseconds)&&item.firstGroup.milliseconds>=0);
+    assert.equal(item.releasedUrls,0);assert.equal(item.releasedBlobBytes,0);
+  }
+  return {status:'PASS'};
 }
 
 export function validateDicingQuality(fixture,evidence,workflow) {

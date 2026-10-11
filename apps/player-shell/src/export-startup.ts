@@ -1,5 +1,5 @@
 import { mountWorldPlayerV1 } from "./mount-player";
-import { hydrateNativeAtlasMediaAsync } from "./native-atlas";
+import { prepareNativeAtlasMediaAsync } from "./lazy-atlas-media";
 
 /** Owns startup attempts and their URLs independently of the mounted Player. */
 export function startExportedPlayer(root: HTMLElement, payload: HTMLElement) {
@@ -27,7 +27,7 @@ export function startExportedPlayer(root: HTMLElement, payload: HTMLElement) {
       // Allow the loading/cancel UI to paint before parsing and hashing embedded payloads.
       await new Promise<void>(resolve => setTimeout(resolve, 0)); attempt.signal.throwIfAborted();
       const data = JSON.parse(payload.textContent ?? "");
-      const native = await hydrateNativeAtlasMediaAsync(data.mediaAssets ?? [], data.nativeAtlasGroups ?? [], attempt.signal, (completed, total) => {
+      const native = await prepareNativeAtlasMediaAsync(data.mediaAssets ?? [], data.nativeAtlasGroups ?? [], attempt.signal, (completed, total) => {
         status.textContent = `正在准备游戏资源：${completed}/${total} 组`;
       });
       if (closed || current !== generation) { native.dispose(); return; }

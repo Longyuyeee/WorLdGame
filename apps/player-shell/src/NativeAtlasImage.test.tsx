@@ -6,6 +6,19 @@ vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdi
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
+  it("retries deferred resource failure and releases the fallback lease on exit",async()=>{
+    const release=vi.fn(),acquireFallback=vi.fn().mockRejectedValueOnce(Error("broken")).mockResolvedValue({url:"blob:lazy",release});
+    vi.mocked(acquireNativeAtlasImage).mockRejectedValue(Error("unsupported"));
+    vi.mocked(acquireOrdinaryCanvasImage).mockImplementation(async(_url,canvas)=>({source:canvas,width:8,height:8,release:vi.fn()}));
+    const onResourceFailure=vi.fn();
+    const view=render(<NativeAtlasImage atlas={{group:group(),assetId:"a",acquireFallback}} onResourceFailure={onResourceFailure} src="" alt="角色" />);
+    await screen.findByRole("alert");
+    expect(onResourceFailure).toHaveBeenCalledOnce();
+    await act(async()=>screen.getByRole("button",{name:"重试画面资源"}).click());
+    await waitFor(()=>expect(screen.getByRole("img")).toHaveAttribute("data-canvas-sampling","ready"));
+    expect(acquireOrdinaryCanvasImage).toHaveBeenCalledWith("blob:lazy",expect.anything(),expect.anything());
+    view.unmount();expect(release).toHaveBeenCalledOnce();
+  });
   it("uses the same Canvas path for opted-in ordinary PNGs and native failure", async()=>{
     const release=vi.fn();vi.mocked(acquireOrdinaryCanvasImage).mockImplementation(async(_url,canvas)=>({source:canvas,width:8,height:8,release}));
     const view=render(<NativeAtlasImage canvasSampling src="blob:original" alt="角色" />);

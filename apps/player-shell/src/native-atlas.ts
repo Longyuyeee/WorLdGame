@@ -8,7 +8,7 @@ export interface NativeAtlasDelivery {
   readonly pages: readonly { readonly pageId: string; readonly url: string }[];
   readonly fallback: { readonly url: string; readonly digest: string; readonly rawBytes: number; readonly entries: readonly { readonly assetId: string; readonly offset: number; readonly length: number; readonly digest: string }[] };
 }
-export interface NativeAtlasSource { readonly group: NativeAtlasDelivery; readonly assetId: string; }
+export interface NativeAtlasSource { readonly group: NativeAtlasDelivery; readonly assetId: string; readonly acquireFallback?: (signal?: AbortSignal) => Promise<{ url: string; release: () => void }>; }
 const MAX_BYTES = 32 * 1024 * 1024;
 export function embeddedBytes(url: string): Uint8Array {
   if (!/^data:[a-z0-9.+/-]+;base64,[A-Za-z0-9+/]*={0,2}$/.test(url) || url.length > MAX_BYTES * 1.4) throw Error("Atlas embedded payload invalid or over budget");

@@ -1,0 +1,5783 @@
+{
+  "scale": true,
+  "measurements": [
+    {
+      "kind": "html",
+      "elapsedMs": 1378.426300000001,
+      "bytes": 11388095
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 595.8658999999989,
+          "processes": 6,
+          "privateBytes": 353251328,
+          "workingSetBytes": 658419712
+        },
+        {
+          "elapsedMs": 1312.4575999999997,
+          "processes": 6,
+          "privateBytes": 520851456,
+          "workingSetBytes": 819580928
+        }
+      ],
+      "observedMaxPrivateBytes": 520851456,
+      "observedMaxWorkingSetBytes": 819580928,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3036.9099000000024,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 564.2433000000019,
+          "processes": 6,
+          "privateBytes": 393146368,
+          "workingSetBytes": 691089408
+        },
+        {
+          "elapsedMs": 1320.707699999999,
+          "processes": 6,
+          "privateBytes": 407650304,
+          "workingSetBytes": 702930944
+        },
+        {
+          "elapsedMs": 2042.3883999999998,
+          "processes": 6,
+          "privateBytes": 417447936,
+          "workingSetBytes": 713850880
+        },
+        {
+          "elapsedMs": 2748.8565000000017,
+          "processes": 6,
+          "privateBytes": 441618432,
+          "workingSetBytes": 737222656
+        },
+        {
+          "elapsedMs": 3438.4657000000007,
+          "processes": 6,
+          "privateBytes": 387477504,
+          "workingSetBytes": 690696192
+        }
+      ],
+      "observedMaxPrivateBytes": 441618432,
+      "observedMaxWorkingSetBytes": 737222656,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 758.720699999998,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 545.1369999999952,
+          "processes": 6,
+          "privateBytes": 468922368,
+          "workingSetBytes": 881373184
+        },
+        {
+          "elapsedMs": 1253.9286999999968,
+          "processes": 6,
+          "privateBytes": 496128000,
+          "workingSetBytes": 907816960
+        }
+      ],
+      "observedMaxPrivateBytes": 496128000,
+      "observedMaxWorkingSetBytes": 907816960,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "directory",
+      "elapsedMs": 959.3004000000001,
+      "bytes": 1901475
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-directory",
+      "samples": [
+        {
+          "elapsedMs": 539.0504999999976,
+          "processes": 6,
+          "privateBytes": 519942144,
+          "workingSetBytes": 927211520
+        },
+        {
+          "elapsedMs": 1302.5385999999999,
+          "processes": 6,
+          "privateBytes": 464891904,
+          "workingSetBytes": 776151040
+        }
+      ],
+      "observedMaxPrivateBytes": 519942144,
+      "observedMaxWorkingSetBytes": 927211520,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3214.2369999999937,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 687.3966999999975,
+          "processes": 6,
+          "privateBytes": 475201536,
+          "workingSetBytes": 813756416
+        },
+        {
+          "elapsedMs": 1518.7732000000033,
+          "processes": 6,
+          "privateBytes": 468803584,
+          "workingSetBytes": 779788288
+        },
+        {
+          "elapsedMs": 2316.9677999999985,
+          "processes": 6,
+          "privateBytes": 493056000,
+          "workingSetBytes": 783925248
+        },
+        {
+          "elapsedMs": 3099.7395000000033,
+          "processes": 6,
+          "privateBytes": 465707008,
+          "workingSetBytes": 757207040
+        }
+      ],
+      "observedMaxPrivateBytes": 493056000,
+      "observedMaxWorkingSetBytes": 813756416,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 860.6583000000028,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 508.981200000002,
+          "processes": 6,
+          "privateBytes": 491409408,
+          "workingSetBytes": 786980864
+        },
+        {
+          "elapsedMs": 1231.4412000000011,
+          "processes": 6,
+          "privateBytes": 477433856,
+          "workingSetBytes": 775708672
+        }
+      ],
+      "observedMaxPrivateBytes": 491409408,
+      "observedMaxWorkingSetBytes": 786980864,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 0,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3037.9861999999994,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 548.5349999999962,
+          "processes": 6,
+          "privateBytes": 513929216,
+          "workingSetBytes": 848752640
+        },
+        {
+          "elapsedMs": 1295.4126000000033,
+          "processes": 6,
+          "privateBytes": 512970752,
+          "workingSetBytes": 803913728
+        },
+        {
+          "elapsedMs": 2071.0994999999966,
+          "processes": 6,
+          "privateBytes": 535683072,
+          "workingSetBytes": 826068992
+        },
+        {
+          "elapsedMs": 2864.9063000000024,
+          "processes": 6,
+          "privateBytes": 497250304,
+          "workingSetBytes": 791764992
+        }
+      ],
+      "observedMaxPrivateBytes": 535683072,
+      "observedMaxWorkingSetBytes": 848752640,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 875.1357000000062,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 540.0341000000044,
+          "processes": 6,
+          "privateBytes": 488919040,
+          "workingSetBytes": 784769024
+        },
+        {
+          "elapsedMs": 1268.6116000000038,
+          "processes": 6,
+          "privateBytes": 499388416,
+          "workingSetBytes": 795242496
+        }
+      ],
+      "observedMaxPrivateBytes": 499388416,
+      "observedMaxWorkingSetBytes": 795242496,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 1,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 3117.8907000000036,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 558.0324999999939,
+          "processes": 6,
+          "privateBytes": 465252352,
+          "workingSetBytes": 803713024
+        },
+        {
+          "elapsedMs": 1361.7170999999944,
+          "processes": 6,
+          "privateBytes": 486510592,
+          "workingSetBytes": 795058176
+        },
+        {
+          "elapsedMs": 2248.572899999999,
+          "processes": 6,
+          "privateBytes": 511655936,
+          "workingSetBytes": 805834752
+        },
+        {
+          "elapsedMs": 3032.983499999995,
+          "processes": 6,
+          "privateBytes": 471629824,
+          "workingSetBytes": 769802240
+        }
+      ],
+      "observedMaxPrivateBytes": 511655936,
+      "observedMaxWorkingSetBytes": 805834752,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 802.8032000000021,
+      "bytes": 1962130
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 586.3963000000003,
+          "processes": 6,
+          "privateBytes": 460718080,
+          "workingSetBytes": 760881152
+        },
+        {
+          "elapsedMs": 1301.6028000000006,
+          "processes": 6,
+          "privateBytes": 448421888,
+          "workingSetBytes": 750837760
+        }
+      ],
+      "observedMaxPrivateBytes": 460718080,
+      "observedMaxWorkingSetBytes": 760881152,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "delivery-cold-warm",
+      "round": 2,
+      "coldState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 0,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "warmState": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "limits": "Cold means a reloaded editor session, not cleared OS/browser disk caches."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1606.9272999999957,
+      "bytes": 4476122
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 557.492600000005,
+          "processes": 6,
+          "privateBytes": 515055616,
+          "workingSetBytes": 852459520
+        },
+        {
+          "elapsedMs": 1332.5350000000035,
+          "processes": 6,
+          "privateBytes": 551706624,
+          "workingSetBytes": 891392000
+        },
+        {
+          "elapsedMs": 2050.640900000006,
+          "processes": 6,
+          "privateBytes": 522301440,
+          "workingSetBytes": 864837632
+        }
+      ],
+      "observedMaxPrivateBytes": 551706624,
+      "observedMaxWorkingSetBytes": 891392000,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1324.6013999999996,
+      "bytes": 1962122
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 532.3631999999998,
+          "processes": 6,
+          "privateBytes": 506978304,
+          "workingSetBytes": 853663744
+        },
+        {
+          "elapsedMs": 1314.8687999999966,
+          "processes": 6,
+          "privateBytes": 494247936,
+          "workingSetBytes": 842407936
+        }
+      ],
+      "observedMaxPrivateBytes": 506978304,
+      "observedMaxWorkingSetBytes": 853663744,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "incremental-verification",
+      "affectedGroup": "dicing-a304fdb07e3a",
+      "unchangedGroups": 3,
+      "reverified": 8,
+      "proofBefore": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 524288,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 30,
+        "referencedResources": 0,
+        "residentBytes": 15762,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 15762,
+        "cacheHits": 30,
+        "deduplicatedRequests": 30,
+        "evictions": 0,
+        "cancellations": 0,
+        "verified": 30
+      },
+      "proofAfter": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 524288,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 38,
+        "referencedResources": 0,
+        "residentBytes": 19990,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 19990,
+        "cacheHits": 96,
+        "deduplicatedRequests": 30,
+        "evictions": 0,
+        "cancellations": 0,
+        "verified": 38
+      }
+    },
+    {
+      "kind": "incremental-delivery",
+      "deliveryBefore": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 4,
+        "referencedResources": 0,
+        "residentBytes": 2150880,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 9871402,
+        "cacheHits": 4,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 4
+      },
+      "deliveryAfter": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 5,
+        "referencedResources": 0,
+        "residentBytes": 2724036,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 10876094,
+        "cacheHits": 13,
+        "deduplicatedRequests": 4,
+        "evictions": 0,
+        "cancellations": 0,
+        "built": 5
+      },
+      "recompressed": 1,
+      "unchangedGroups": 3
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1370.847600000001,
+      "bytes": 11388190
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 612.8335999999981,
+          "processes": 6,
+          "privateBytes": 652488704,
+          "workingSetBytes": 975020032
+        },
+        {
+          "elapsedMs": 1362.308100000002,
+          "processes": 6,
+          "privateBytes": 664559616,
+          "workingSetBytes": 999616512
+        }
+      ],
+      "observedMaxPrivateBytes": 664559616,
+      "observedMaxWorkingSetBytes": 999616512,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 1662.716999999997,
+      "bytes": 11388951
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 572.6438000000053,
+          "processes": 6,
+          "privateBytes": 468111360,
+          "workingSetBytes": 735973376
+        },
+        {
+          "elapsedMs": 1318.9693000000043,
+          "processes": 6,
+          "privateBytes": 594149376,
+          "workingSetBytes": 864739328
+        },
+        {
+          "elapsedMs": 2034.9941000000035,
+          "processes": 6,
+          "privateBytes": 589959168,
+          "workingSetBytes": 859205632
+        }
+      ],
+      "observedMaxPrivateBytes": 594149376,
+      "observedMaxWorkingSetBytes": 864739328,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "html",
+      "elapsedMs": 2501.357699999993,
+      "bytes": 1962252
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "build-html",
+      "samples": [
+        {
+          "elapsedMs": 555.4022000000041,
+          "processes": 6,
+          "privateBytes": 678440960,
+          "workingSetBytes": 970424320
+        },
+        {
+          "elapsedMs": 1336.2607000000062,
+          "processes": 6,
+          "privateBytes": 705617920,
+          "workingSetBytes": 995151872
+        },
+        {
+          "elapsedMs": 2146.4556999999986,
+          "processes": 6,
+          "privateBytes": 733003776,
+          "workingSetBytes": 1021591552
+        },
+        {
+          "elapsedMs": 2881.842800000006,
+          "processes": 6,
+          "privateBytes": 773685248,
+          "workingSetBytes": 1038176256
+        }
+      ],
+      "observedMaxPrivateBytes": 773685248,
+      "observedMaxWorkingSetBytes": 1038176256,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "original",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "play-to-character",
+      "name": "original",
+      "elapsedMs": 1630.4347999999882,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 513036288,
+        "workingSetBytes": 710303744
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "original",
+      "tasks": [
+        {
+          "start": 129.2000000011176,
+          "duration": 51
+        }
+      ],
+      "readyAt": 180.90000000037253,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "original",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "original",
+      "samples": [
+        {
+          "elapsedMs": 580.3511999999901,
+          "processes": 6,
+          "privateBytes": 295424000,
+          "workingSetBytes": 496238592
+        },
+        {
+          "elapsedMs": 1352.6867999999959,
+          "processes": 6,
+          "privateBytes": 316776448,
+          "workingSetBytes": 521445376
+        },
+        {
+          "elapsedMs": 2160.4839999999967,
+          "processes": 6,
+          "privateBytes": 508416000,
+          "workingSetBytes": 707026944
+        },
+        {
+          "elapsedMs": 2928.0325999999914,
+          "processes": 6,
+          "privateBytes": 507920384,
+          "workingSetBytes": 707502080
+        },
+        {
+          "elapsedMs": 3688.9948000000004,
+          "processes": 6,
+          "privateBytes": 395034624,
+          "workingSetBytes": 608083968
+        },
+        {
+          "elapsedMs": 4473.998099999997,
+          "processes": 6,
+          "privateBytes": 400441344,
+          "workingSetBytes": 616230912
+        },
+        {
+          "elapsedMs": 5374.494200000001,
+          "processes": 6,
+          "privateBytes": 319066112,
+          "workingSetBytes": 537440256
+        },
+        {
+          "elapsedMs": 6160.597699999998,
+          "processes": 6,
+          "privateBytes": 313352192,
+          "workingSetBytes": 534814720
+        },
+        {
+          "elapsedMs": 6949.587899999999,
+          "processes": 6,
+          "privateBytes": 409128960,
+          "workingSetBytes": 628731904
+        },
+        {
+          "elapsedMs": 7752.474799999996,
+          "processes": 6,
+          "privateBytes": 410243072,
+          "workingSetBytes": 632057856
+        },
+        {
+          "elapsedMs": 8532.544899999994,
+          "processes": 6,
+          "privateBytes": 416587776,
+          "workingSetBytes": 639492096
+        },
+        {
+          "elapsedMs": 9368.131800000003,
+          "processes": 6,
+          "privateBytes": 419221504,
+          "workingSetBytes": 644243456
+        },
+        {
+          "elapsedMs": 10152.881999999998,
+          "processes": 6,
+          "privateBytes": 399876096,
+          "workingSetBytes": 626216960
+        },
+        {
+          "elapsedMs": 10968.585999999996,
+          "processes": 6,
+          "privateBytes": 396001280,
+          "workingSetBytes": 625725440
+        },
+        {
+          "elapsedMs": 11758.299799999993,
+          "processes": 6,
+          "privateBytes": 459423744,
+          "workingSetBytes": 688816128
+        },
+        {
+          "elapsedMs": 12667.720199999996,
+          "processes": 6,
+          "privateBytes": 379191296,
+          "workingSetBytes": 610390016
+        },
+        {
+          "elapsedMs": 13490.773000000001,
+          "processes": 6,
+          "privateBytes": 425385984,
+          "workingSetBytes": 656912384
+        },
+        {
+          "elapsedMs": 14335.530199999994,
+          "processes": 6,
+          "privateBytes": 471601152,
+          "workingSetBytes": 706760704
+        },
+        {
+          "elapsedMs": 15121.79909999999,
+          "processes": 6,
+          "privateBytes": 480657408,
+          "workingSetBytes": 714334208
+        },
+        {
+          "elapsedMs": 15860.190000000002,
+          "processes": 6,
+          "privateBytes": 391122944,
+          "workingSetBytes": 628891648
+        }
+      ],
+      "observedMaxPrivateBytes": 508416000,
+      "observedMaxWorkingSetBytes": 714334208,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "optimized",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "play-to-character",
+      "name": "optimized",
+      "elapsedMs": 1904.5198999999993,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 446640128,
+        "workingSetBytes": 685137920
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_3",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_4",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_5",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 7,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 8,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_10",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_11",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 10,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 11,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 12,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 13,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 14,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 15,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 16,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_23",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 17,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_24",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 18,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 19,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 20,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 21,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 22,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "optimized",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "optimized",
+      "tasks": [],
+      "readyAt": 226,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "optimized",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "optimized",
+      "samples": [
+        {
+          "elapsedMs": 558.5093000000052,
+          "processes": 6,
+          "privateBytes": 367235072,
+          "workingSetBytes": 612175872
+        },
+        {
+          "elapsedMs": 1433.265499999994,
+          "processes": 6,
+          "privateBytes": 354533376,
+          "workingSetBytes": 588472320
+        },
+        {
+          "elapsedMs": 2334.9890000000014,
+          "processes": 6,
+          "privateBytes": 446631936,
+          "workingSetBytes": 685129728
+        },
+        {
+          "elapsedMs": 3133.4367000000057,
+          "processes": 6,
+          "privateBytes": 446640128,
+          "workingSetBytes": 685137920
+        },
+        {
+          "elapsedMs": 3915.0734999999986,
+          "processes": 6,
+          "privateBytes": 410685440,
+          "workingSetBytes": 651698176
+        },
+        {
+          "elapsedMs": 4721.466199999995,
+          "processes": 6,
+          "privateBytes": 433876992,
+          "workingSetBytes": 677457920
+        },
+        {
+          "elapsedMs": 5502.687000000005,
+          "processes": 6,
+          "privateBytes": 392093696,
+          "workingSetBytes": 638296064
+        },
+        {
+          "elapsedMs": 6268.564499999993,
+          "processes": 6,
+          "privateBytes": 386420736,
+          "workingSetBytes": 633761792
+        },
+        {
+          "elapsedMs": 7048.474399999992,
+          "processes": 6,
+          "privateBytes": 390582272,
+          "workingSetBytes": 637181952
+        },
+        {
+          "elapsedMs": 7850.376799999998,
+          "processes": 6,
+          "privateBytes": 378830848,
+          "workingSetBytes": 625827840
+        },
+        {
+          "elapsedMs": 8650.2399,
+          "processes": 6,
+          "privateBytes": 383991808,
+          "workingSetBytes": 629190656
+        },
+        {
+          "elapsedMs": 9456.477899999998,
+          "processes": 6,
+          "privateBytes": 451952640,
+          "workingSetBytes": 697651200
+        },
+        {
+          "elapsedMs": 10242.658800000005,
+          "processes": 6,
+          "privateBytes": 429129728,
+          "workingSetBytes": 674340864
+        },
+        {
+          "elapsedMs": 11029.751499999998,
+          "processes": 6,
+          "privateBytes": 407498752,
+          "workingSetBytes": 655605760
+        },
+        {
+          "elapsedMs": 11859.231,
+          "processes": 6,
+          "privateBytes": 401178624,
+          "workingSetBytes": 656326656
+        },
+        {
+          "elapsedMs": 12653.9706,
+          "processes": 6,
+          "privateBytes": 391536640,
+          "workingSetBytes": 650117120
+        },
+        {
+          "elapsedMs": 13467.759600000005,
+          "processes": 6,
+          "privateBytes": 403271680,
+          "workingSetBytes": 662626304
+        },
+        {
+          "elapsedMs": 14268.177599999995,
+          "processes": 6,
+          "privateBytes": 378998784,
+          "workingSetBytes": 637530112
+        },
+        {
+          "elapsedMs": 15066.332599999994,
+          "processes": 6,
+          "privateBytes": 368332800,
+          "workingSetBytes": 630767616
+        },
+        {
+          "elapsedMs": 15860.1253,
+          "processes": 6,
+          "privateBytes": 463777792,
+          "workingSetBytes": 720785408
+        }
+      ],
+      "observedMaxPrivateBytes": 463777792,
+      "observedMaxWorkingSetBytes": 720785408,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "directory",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "play-to-character",
+      "name": "directory",
+      "elapsedMs": 1604.364300000001,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 462921728,
+        "workingSetBytes": 725778432
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_3",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_4",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_5",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 7,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 8,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_10",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_11",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 10,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 11,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 12,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 13,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 14,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 15,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 16,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_23",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 17,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_24",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 18,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 19,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 20,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 21,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 22,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "directory",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "directory",
+      "tasks": [],
+      "readyAt": 133.10000000149012,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "directory",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "directory",
+      "samples": [
+        {
+          "elapsedMs": 540.6224000000075,
+          "processes": 6,
+          "privateBytes": 371482624,
+          "workingSetBytes": 644698112
+        },
+        {
+          "elapsedMs": 1328.781600000002,
+          "processes": 6,
+          "privateBytes": 349868032,
+          "workingSetBytes": 614457344
+        },
+        {
+          "elapsedMs": 2153.278999999995,
+          "processes": 6,
+          "privateBytes": 462929920,
+          "workingSetBytes": 726106112
+        },
+        {
+          "elapsedMs": 2961.5492999999988,
+          "processes": 6,
+          "privateBytes": 461438976,
+          "workingSetBytes": 724631552
+        },
+        {
+          "elapsedMs": 3750.2739,
+          "processes": 6,
+          "privateBytes": 395276288,
+          "workingSetBytes": 666095616
+        },
+        {
+          "elapsedMs": 4545.903900000005,
+          "processes": 6,
+          "privateBytes": 392056832,
+          "workingSetBytes": 662024192
+        },
+        {
+          "elapsedMs": 5335.076400000005,
+          "processes": 6,
+          "privateBytes": 392650752,
+          "workingSetBytes": 661471232
+        },
+        {
+          "elapsedMs": 6142.116099999999,
+          "processes": 6,
+          "privateBytes": 475754496,
+          "workingSetBytes": 741838848
+        },
+        {
+          "elapsedMs": 6903.900600000008,
+          "processes": 6,
+          "privateBytes": 401838080,
+          "workingSetBytes": 669995008
+        },
+        {
+          "elapsedMs": 7695.024700000009,
+          "processes": 6,
+          "privateBytes": 382922752,
+          "workingSetBytes": 651718656
+        },
+        {
+          "elapsedMs": 8480.522500000006,
+          "processes": 6,
+          "privateBytes": 383700992,
+          "workingSetBytes": 653471744
+        },
+        {
+          "elapsedMs": 9278.818299999999,
+          "processes": 6,
+          "privateBytes": 385200128,
+          "workingSetBytes": 656056320
+        },
+        {
+          "elapsedMs": 10048.754400000005,
+          "processes": 6,
+          "privateBytes": 413618176,
+          "workingSetBytes": 683409408
+        },
+        {
+          "elapsedMs": 10827.646300000008,
+          "processes": 6,
+          "privateBytes": 458219520,
+          "workingSetBytes": 727379968
+        },
+        {
+          "elapsedMs": 11641.3309,
+          "processes": 6,
+          "privateBytes": 395780096,
+          "workingSetBytes": 672886784
+        },
+        {
+          "elapsedMs": 12428.528000000006,
+          "processes": 6,
+          "privateBytes": 409964544,
+          "workingSetBytes": 683077632
+        },
+        {
+          "elapsedMs": 13211.203900000008,
+          "processes": 6,
+          "privateBytes": 395513856,
+          "workingSetBytes": 676155392
+        },
+        {
+          "elapsedMs": 13986.178100000005,
+          "processes": 6,
+          "privateBytes": 395919360,
+          "workingSetBytes": 675872768
+        },
+        {
+          "elapsedMs": 14812.443100000004,
+          "processes": 6,
+          "privateBytes": 348168192,
+          "workingSetBytes": 634691584
+        },
+        {
+          "elapsedMs": 15633.184000000008,
+          "processes": 6,
+          "privateBytes": 465756160,
+          "workingSetBytes": 745836544
+        }
+      ],
+      "observedMaxPrivateBytes": 475754496,
+      "observedMaxWorkingSetBytes": 745836544,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "windows",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "play-to-character",
+      "name": "windows",
+      "elapsedMs": 1645.3034999999945,
+      "processMemory": {
+        "processes": 5,
+        "privateBytes": 896512000,
+        "workingSetBytes": 682635264
+      },
+      "jsHeap": {
+        "used": 96037501,
+        "total": 107173733
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_3",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_4",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_5",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 7,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 8,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_10",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_11",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 10,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 11,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 12,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 13,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 14,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 15,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 16,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_23",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 17,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_24",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 18,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 19,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 20,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 21,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 22,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "windows",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-released",
+      "name": "windows",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "windows",
+      "samples": [
+        {
+          "elapsedMs": 575.4061999999976,
+          "processes": 4,
+          "privateBytes": 249565184,
+          "workingSetBytes": 343048192
+        },
+        {
+          "elapsedMs": 1401.843399999998,
+          "processes": 4,
+          "privateBytes": 592740352,
+          "workingSetBytes": 440311808
+        },
+        {
+          "elapsedMs": 2205.4665999999997,
+          "processes": 5,
+          "privateBytes": 896507904,
+          "workingSetBytes": 682586112
+        },
+        {
+          "elapsedMs": 2952.5397999999986,
+          "processes": 5,
+          "privateBytes": 819998720,
+          "workingSetBytes": 609595392
+        },
+        {
+          "elapsedMs": 3704.6204,
+          "processes": 5,
+          "privateBytes": 809455616,
+          "workingSetBytes": 568446976
+        },
+        {
+          "elapsedMs": 4465.415699999998,
+          "processes": 5,
+          "privateBytes": 939180032,
+          "workingSetBytes": 680603648
+        },
+        {
+          "elapsedMs": 5222.138200000001,
+          "processes": 5,
+          "privateBytes": 835985408,
+          "workingSetBytes": 597479424
+        },
+        {
+          "elapsedMs": 5955.705499999996,
+          "processes": 5,
+          "privateBytes": 1000419328,
+          "workingSetBytes": 753025024
+        },
+        {
+          "elapsedMs": 6697.446400000001,
+          "processes": 5,
+          "privateBytes": 953282560,
+          "workingSetBytes": 594219008
+        },
+        {
+          "elapsedMs": 7451.448700000008,
+          "processes": 5,
+          "privateBytes": 985792512,
+          "workingSetBytes": 623403008
+        },
+        {
+          "elapsedMs": 8197.9271,
+          "processes": 5,
+          "privateBytes": 1014079488,
+          "workingSetBytes": 660733952
+        },
+        {
+          "elapsedMs": 8960.741500000004,
+          "processes": 5,
+          "privateBytes": 965267456,
+          "workingSetBytes": 615854080
+        },
+        {
+          "elapsedMs": 9714.0619,
+          "processes": 5,
+          "privateBytes": 1084338176,
+          "workingSetBytes": 707174400
+        },
+        {
+          "elapsedMs": 10550.217300000004,
+          "processes": 5,
+          "privateBytes": 1092636672,
+          "workingSetBytes": 717279232
+        },
+        {
+          "elapsedMs": 11287.0818,
+          "processes": 5,
+          "privateBytes": 1063186432,
+          "workingSetBytes": 691314688
+        },
+        {
+          "elapsedMs": 12060.422000000006,
+          "processes": 5,
+          "privateBytes": 1067167744,
+          "workingSetBytes": 694673408
+        },
+        {
+          "elapsedMs": 12814.733200000002,
+          "processes": 5,
+          "privateBytes": 914894848,
+          "workingSetBytes": 705605632
+        },
+        {
+          "elapsedMs": 13560.871000000014,
+          "processes": 5,
+          "privateBytes": 893411328,
+          "workingSetBytes": 686637056
+        },
+        {
+          "elapsedMs": 14307.74470000001,
+          "processes": 5,
+          "privateBytes": 872751104,
+          "workingSetBytes": 668884992
+        },
+        {
+          "elapsedMs": 15037.184899999993,
+          "processes": 5,
+          "privateBytes": 929853440,
+          "workingSetBytes": 723554304
+        }
+      ],
+      "observedMaxPrivateBytes": 1092636672,
+      "observedMaxWorkingSetBytes": 753025024,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "corrupt-page",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "play-to-character",
+      "name": "corrupt-page",
+      "elapsedMs": 1561.0525999999954,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 474009600,
+        "workingSetBytes": 752664576
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_3",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_4",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_5",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 7,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 8,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_10",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_11",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 10,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 11,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 12,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 13,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 14,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 15,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 16,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_23",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 17,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_24",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 18,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 19,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 20,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 21,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 22,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "corrupt-page",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "corrupt-page",
+      "tasks": [],
+      "readyAt": 134.59999999962747,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "corrupt-page",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "corrupt-page",
+      "samples": [
+        {
+          "elapsedMs": 542.2496999999858,
+          "processes": 6,
+          "privateBytes": 359845888,
+          "workingSetBytes": 655826944
+        },
+        {
+          "elapsedMs": 1315.2062999999907,
+          "processes": 6,
+          "privateBytes": 351739904,
+          "workingSetBytes": 634826752
+        },
+        {
+          "elapsedMs": 2146.3003000000026,
+          "processes": 6,
+          "privateBytes": 474009600,
+          "workingSetBytes": 754724864
+        },
+        {
+          "elapsedMs": 2923.884300000005,
+          "processes": 6,
+          "privateBytes": 469389312,
+          "workingSetBytes": 752283648
+        },
+        {
+          "elapsedMs": 3726.6371999999974,
+          "processes": 6,
+          "privateBytes": 436633600,
+          "workingSetBytes": 723632128
+        },
+        {
+          "elapsedMs": 4551.097399999999,
+          "processes": 6,
+          "privateBytes": 378208256,
+          "workingSetBytes": 670949376
+        },
+        {
+          "elapsedMs": 5374.063200000004,
+          "processes": 6,
+          "privateBytes": 438226944,
+          "workingSetBytes": 725061632
+        },
+        {
+          "elapsedMs": 6199.74960000001,
+          "processes": 6,
+          "privateBytes": 419323904,
+          "workingSetBytes": 705806336
+        },
+        {
+          "elapsedMs": 6995.057499999995,
+          "processes": 6,
+          "privateBytes": 411086848,
+          "workingSetBytes": 694521856
+        },
+        {
+          "elapsedMs": 7841.939799999993,
+          "processes": 6,
+          "privateBytes": 453222400,
+          "workingSetBytes": 738025472
+        },
+        {
+          "elapsedMs": 8704.103800000012,
+          "processes": 6,
+          "privateBytes": 404295680,
+          "workingSetBytes": 695099392
+        },
+        {
+          "elapsedMs": 9537.958899999998,
+          "processes": 6,
+          "privateBytes": 445440000,
+          "workingSetBytes": 736514048
+        },
+        {
+          "elapsedMs": 10332.258499999996,
+          "processes": 6,
+          "privateBytes": 434880512,
+          "workingSetBytes": 727334912
+        },
+        {
+          "elapsedMs": 11142.766399999993,
+          "processes": 6,
+          "privateBytes": 345694208,
+          "workingSetBytes": 643919872
+        },
+        {
+          "elapsedMs": 11963.665000000008,
+          "processes": 6,
+          "privateBytes": 349925376,
+          "workingSetBytes": 650604544
+        },
+        {
+          "elapsedMs": 13013.029699999985,
+          "processes": 6,
+          "privateBytes": 393740288,
+          "workingSetBytes": 692326400
+        },
+        {
+          "elapsedMs": 13801.873900000006,
+          "processes": 6,
+          "privateBytes": 468672512,
+          "workingSetBytes": 774750208
+        },
+        {
+          "elapsedMs": 14610.314699999988,
+          "processes": 6,
+          "privateBytes": 452685824,
+          "workingSetBytes": 757137408
+        },
+        {
+          "elapsedMs": 15420.870800000004,
+          "processes": 6,
+          "privateBytes": 358756352,
+          "workingSetBytes": 672530432
+        },
+        {
+          "elapsedMs": 16163.829499999993,
+          "processes": 6,
+          "privateBytes": 471662592,
+          "workingSetBytes": 778997760
+        }
+      ],
+      "observedMaxPrivateBytes": 474009600,
+      "observedMaxWorkingSetBytes": 778997760,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "unsupported",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "play-to-character",
+      "name": "unsupported",
+      "elapsedMs": 1565.7966000000015,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 380788736,
+        "workingSetBytes": 694079488
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_3",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_4",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_5",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 7,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 8,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_10",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_11",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 10,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 11,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 12,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 13,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 14,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 15,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 16,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_23",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 17,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_24",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 18,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 19,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 20,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 21,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 22,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "unsupported",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "startup-longtasks",
+      "name": "unsupported",
+      "tasks": [],
+      "readyAt": 133.59999999962747,
+      "limits": "Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline."
+    },
+    {
+      "kind": "lazy-released",
+      "name": "unsupported",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "unsupported",
+      "samples": [
+        {
+          "elapsedMs": 566.4943000000203,
+          "processes": 6,
+          "privateBytes": 333524992,
+          "workingSetBytes": 657326080
+        },
+        {
+          "elapsedMs": 1335.0223000000115,
+          "processes": 6,
+          "privateBytes": 332820480,
+          "workingSetBytes": 642736128
+        },
+        {
+          "elapsedMs": 2168.681900000025,
+          "processes": 6,
+          "privateBytes": 387600384,
+          "workingSetBytes": 699752448
+        },
+        {
+          "elapsedMs": 2928.830200000026,
+          "processes": 6,
+          "privateBytes": 380792832,
+          "workingSetBytes": 694083584
+        },
+        {
+          "elapsedMs": 3739.017600000021,
+          "processes": 6,
+          "privateBytes": 398344192,
+          "workingSetBytes": 713572352
+        },
+        {
+          "elapsedMs": 4542.2259000000195,
+          "processes": 6,
+          "privateBytes": 423088128,
+          "workingSetBytes": 738353152
+        },
+        {
+          "elapsedMs": 5338.140600000013,
+          "processes": 6,
+          "privateBytes": 469856256,
+          "workingSetBytes": 781189120
+        },
+        {
+          "elapsedMs": 6120.451700000005,
+          "processes": 6,
+          "privateBytes": 424607744,
+          "workingSetBytes": 735674368
+        },
+        {
+          "elapsedMs": 6947.190499999997,
+          "processes": 6,
+          "privateBytes": 393457664,
+          "workingSetBytes": 706789376
+        },
+        {
+          "elapsedMs": 7740.751000000018,
+          "processes": 6,
+          "privateBytes": 386428928,
+          "workingSetBytes": 704806912
+        },
+        {
+          "elapsedMs": 8556.576900000015,
+          "processes": 6,
+          "privateBytes": 389713920,
+          "workingSetBytes": 709611520
+        },
+        {
+          "elapsedMs": 9374.622200000013,
+          "processes": 6,
+          "privateBytes": 395157504,
+          "workingSetBytes": 716816384
+        },
+        {
+          "elapsedMs": 10168.654300000024,
+          "processes": 6,
+          "privateBytes": 405803008,
+          "workingSetBytes": 730992640
+        },
+        {
+          "elapsedMs": 10964.398000000016,
+          "processes": 6,
+          "privateBytes": 412999680,
+          "workingSetBytes": 737873920
+        },
+        {
+          "elapsedMs": 11765.808700000023,
+          "processes": 6,
+          "privateBytes": 410542080,
+          "workingSetBytes": 739606528
+        },
+        {
+          "elapsedMs": 12564.0233,
+          "processes": 6,
+          "privateBytes": 396750848,
+          "workingSetBytes": 728956928
+        },
+        {
+          "elapsedMs": 13377.43650000001,
+          "processes": 6,
+          "privateBytes": 407400448,
+          "workingSetBytes": 742477824
+        },
+        {
+          "elapsedMs": 14177.596100000024,
+          "processes": 6,
+          "privateBytes": 417918976,
+          "workingSetBytes": 754032640
+        },
+        {
+          "elapsedMs": 14963.484300000011,
+          "processes": 6,
+          "privateBytes": 373579776,
+          "workingSetBytes": 713547776
+        },
+        {
+          "elapsedMs": 15770.872200000013,
+          "processes": 6,
+          "privateBytes": 421093376,
+          "workingSetBytes": 760483840
+        }
+      ],
+      "observedMaxPrivateBytes": 469856256,
+      "observedMaxWorkingSetBytes": 781189120,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-title",
+      "name": "emergency-img",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 0
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "media_sunset",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "media_actor_sprite",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 1,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "play-to-character",
+      "name": "emergency-img",
+      "elapsedMs": 1384.358500000002,
+      "processMemory": {
+        "processes": 6,
+        "privateBytes": 392970240,
+        "workingSetBytes": 730562560
+      },
+      "jsHeap": {
+        "used": 167000000,
+        "total": 199000000
+      }
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_2",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 2,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_3",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 3,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_4",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 4,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_5",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 5,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_6",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 6,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_7",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 7,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_8",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 8,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_9",
+      "groups": 2,
+      "urls": 14,
+      "residentSourceBytes": 3674832,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_10",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_11",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_12",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_13",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_14",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_15",
+      "groups": 1,
+      "urls": 8,
+      "residentSourceBytes": 2099904,
+      "preparedGroups": 9,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_16",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 10,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_17",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 11,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_18",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 12,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_19",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 13,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_20",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 14,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_21",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 15,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_22",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 16,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_23",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 17,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_24",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 18,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_25",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 19,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_26",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 20,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_27",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 21,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_28",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 22,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "lazy-visible",
+      "name": "emergency-img",
+      "assetId": "scale_29",
+      "groups": 2,
+      "urls": 16,
+      "residentSourceBytes": 4199808,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "emergency-sampling-fallback",
+      "name": "emergency-img",
+      "mode": "fallback",
+      "assets": {
+        "media_sunset": {
+          "width": 256,
+          "height": 256,
+          "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+        },
+        "media_actor_sprite": {
+          "width": 256,
+          "height": 256,
+          "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+        },
+        "scale_2": {
+          "width": 256,
+          "height": 256,
+          "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+        },
+        "scale_3": {
+          "width": 256,
+          "height": 256,
+          "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+        },
+        "scale_4": {
+          "width": 256,
+          "height": 256,
+          "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+        },
+        "scale_5": {
+          "width": 256,
+          "height": 256,
+          "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+        },
+        "scale_6": {
+          "width": 256,
+          "height": 256,
+          "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+        },
+        "scale_7": {
+          "width": 256,
+          "height": 256,
+          "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+        },
+        "scale_8": {
+          "width": 256,
+          "height": 256,
+          "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+        },
+        "scale_9": {
+          "width": 256,
+          "height": 256,
+          "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+        },
+        "scale_10": {
+          "width": 256,
+          "height": 256,
+          "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+        },
+        "scale_11": {
+          "width": 256,
+          "height": 256,
+          "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+        },
+        "scale_12": {
+          "width": 256,
+          "height": 256,
+          "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+        },
+        "scale_13": {
+          "width": 256,
+          "height": 256,
+          "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+        },
+        "scale_14": {
+          "width": 256,
+          "height": 256,
+          "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+        },
+        "scale_15": {
+          "width": 256,
+          "height": 256,
+          "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+        },
+        "scale_16": {
+          "width": 256,
+          "height": 256,
+          "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+        },
+        "scale_17": {
+          "width": 256,
+          "height": 256,
+          "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+        },
+        "scale_18": {
+          "width": 256,
+          "height": 256,
+          "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+        },
+        "scale_19": {
+          "width": 256,
+          "height": 256,
+          "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+        },
+        "scale_20": {
+          "width": 256,
+          "height": 256,
+          "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+        },
+        "scale_21": {
+          "width": 256,
+          "height": 256,
+          "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+        },
+        "scale_22": {
+          "width": 256,
+          "height": 256,
+          "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+        },
+        "scale_23": {
+          "width": 256,
+          "height": 256,
+          "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+        },
+        "scale_24": {
+          "width": 256,
+          "height": 256,
+          "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+        },
+        "scale_25": {
+          "width": 256,
+          "height": 256,
+          "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+        },
+        "scale_26": {
+          "width": 256,
+          "height": 256,
+          "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+        },
+        "scale_27": {
+          "width": 256,
+          "height": 256,
+          "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+        },
+        "scale_28": {
+          "width": 256,
+          "height": 256,
+          "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+        },
+        "scale_29": {
+          "width": 256,
+          "height": 256,
+          "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+        }
+      },
+      "count": 30
+    },
+    {
+      "kind": "lazy-released",
+      "name": "emergency-img",
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 23,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "continuous-process-samples",
+      "name": "emergency-img",
+      "samples": [
+        {
+          "elapsedMs": 541.8345000000263,
+          "processes": 6,
+          "privateBytes": 384851968,
+          "workingSetBytes": 734916608
+        },
+        {
+          "elapsedMs": 1283.696100000001,
+          "processes": 6,
+          "privateBytes": 366129152,
+          "workingSetBytes": 705011712
+        },
+        {
+          "elapsedMs": 2050.971600000019,
+          "processes": 6,
+          "privateBytes": 392978432,
+          "workingSetBytes": 731201536
+        },
+        {
+          "elapsedMs": 2788.627700000012,
+          "processes": 6,
+          "privateBytes": 392978432,
+          "workingSetBytes": 731201536
+        },
+        {
+          "elapsedMs": 3566.884300000005,
+          "processes": 6,
+          "privateBytes": 416489472,
+          "workingSetBytes": 763994112
+        },
+        {
+          "elapsedMs": 4331.397400000016,
+          "processes": 6,
+          "privateBytes": 442527744,
+          "workingSetBytes": 789368832
+        },
+        {
+          "elapsedMs": 5100.0672000000195,
+          "processes": 6,
+          "privateBytes": 377667584,
+          "workingSetBytes": 729501696
+        },
+        {
+          "elapsedMs": 5965.800800000026,
+          "processes": 6,
+          "privateBytes": 393863168,
+          "workingSetBytes": 746139648
+        },
+        {
+          "elapsedMs": 6728.504200000025,
+          "processes": 6,
+          "privateBytes": 383660032,
+          "workingSetBytes": 734240768
+        },
+        {
+          "elapsedMs": 7496.796400000021,
+          "processes": 6,
+          "privateBytes": 375607296,
+          "workingSetBytes": 731914240
+        },
+        {
+          "elapsedMs": 8278.758500000025,
+          "processes": 6,
+          "privateBytes": 379551744,
+          "workingSetBytes": 735911936
+        },
+        {
+          "elapsedMs": 9052.107700000022,
+          "processes": 6,
+          "privateBytes": 384618496,
+          "workingSetBytes": 738742272
+        },
+        {
+          "elapsedMs": 9820.77740000002,
+          "processes": 6,
+          "privateBytes": 378740736,
+          "workingSetBytes": 734871552
+        },
+        {
+          "elapsedMs": 10592.324600000022,
+          "processes": 6,
+          "privateBytes": 377942016,
+          "workingSetBytes": 732835840
+        },
+        {
+          "elapsedMs": 11314.540300000022,
+          "processes": 6,
+          "privateBytes": 378068992,
+          "workingSetBytes": 732860416
+        }
+      ],
+      "observedMaxPrivateBytes": 442527744,
+      "observedMaxWorkingSetBytes": 789368832,
+      "limits": "Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity."
+    },
+    {
+      "kind": "lazy-source-retry",
+      "retryRejected": true,
+      "groups": 0,
+      "urls": 0,
+      "residentSourceBytes": 0,
+      "preparedGroups": 0,
+      "active": 0,
+      "peakActive": 1
+    },
+    {
+      "kind": "controlled-loading",
+      "scope": "Same compressed payload, alternating eager/lazy preparation; Blob byte accounting, not heap/process peak or full navigation timing.",
+      "rounds": [
+        {
+          "round": 1,
+          "lazy": false,
+          "startup": {
+            "milliseconds": 381.8999999985099,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "firstGroup": {
+            "milliseconds": 0.10000000149011612,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "peakBlobBytes": 7874640,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 1,
+          "longTasks": []
+        },
+        {
+          "round": 1,
+          "lazy": true,
+          "startup": {
+            "milliseconds": 39.80000000074506,
+            "urls": 0,
+            "blobBytes": 0
+          },
+          "firstGroup": {
+            "milliseconds": 86.29999999888241,
+            "urls": 8,
+            "blobBytes": 2099904
+          },
+          "peakBlobBytes": 2099904,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 2,
+          "lazy": true,
+          "startup": {
+            "milliseconds": 46.29999999888241,
+            "urls": 0,
+            "blobBytes": 0
+          },
+          "firstGroup": {
+            "milliseconds": 94,
+            "urls": 8,
+            "blobBytes": 2099904
+          },
+          "peakBlobBytes": 2099904,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 2,
+          "lazy": false,
+          "startup": {
+            "milliseconds": 373.90000000037253,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "firstGroup": {
+            "milliseconds": 0,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "peakBlobBytes": 7874640,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 3,
+          "lazy": false,
+          "startup": {
+            "milliseconds": 387.69999999925494,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "firstGroup": {
+            "milliseconds": 0,
+            "urls": 30,
+            "blobBytes": 7874640
+          },
+          "peakBlobBytes": 7874640,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        },
+        {
+          "round": 3,
+          "lazy": true,
+          "startup": {
+            "milliseconds": 46.90000000037253,
+            "urls": 0,
+            "blobBytes": 0
+          },
+          "firstGroup": {
+            "milliseconds": 96,
+            "urls": 8,
+            "blobBytes": 2099904
+          },
+          "peakBlobBytes": 2099904,
+          "releasedUrls": 0,
+          "releasedBlobBytes": 0,
+          "nonImageBlobCreations": 0,
+          "longTasks": []
+        }
+      ]
+    },
+    {
+      "kind": "rapid-switch",
+      "sceneChanges": 30,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 13,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      },
+      "native": {
+        "groups": 0,
+        "accountedBytes": 0,
+        "peakBytes": 1547968,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 1,
+        "decodedGroups": 9,
+        "cacheHits": 4
+      }
+    },
+    {
+      "kind": "dicing-sequence",
+      "fixtureHash": "sha256:ebf76df43791f110ef6aa570c2cbf2545a87ca644458e7b4cf5db39fe37da955",
+      "runs": [
+        {
+          "name": "original",
+          "mode": "ordinary",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "optimized",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "directory",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "windows",
+          "mode": "ready",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "corrupt-page",
+          "mode": "fallback",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        },
+        {
+          "name": "unsupported",
+          "mode": "fallback",
+          "assets": {
+            "media_sunset": {
+              "width": 256,
+              "height": 256,
+              "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+            },
+            "media_actor_sprite": {
+              "width": 256,
+              "height": 256,
+              "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+            },
+            "scale_2": {
+              "width": 256,
+              "height": 256,
+              "digest": "e49e754b217215b4b7c33888b3d792ea10c0da801ce7f12f3da67b0e971b3b9d"
+            },
+            "scale_3": {
+              "width": 256,
+              "height": 256,
+              "digest": "9213b6306f842da34edbb506e54546935be8be756f2ee1304080c0263b1ab9ea"
+            },
+            "scale_4": {
+              "width": 256,
+              "height": 256,
+              "digest": "c86a461c9b86af3f3b746e82e042eb2808e4dbe0cc7ac6f5671d855f3c6c8d8e"
+            },
+            "scale_5": {
+              "width": 256,
+              "height": 256,
+              "digest": "6cba1ab53d70f07ab8a1d62e9690a4f5e541dcacffd048bf1800bccd15798311"
+            },
+            "scale_6": {
+              "width": 256,
+              "height": 256,
+              "digest": "548939f0f8a537b35adbb6ef2dde4306a83f03c6a5469dda5327f58055fede57"
+            },
+            "scale_7": {
+              "width": 256,
+              "height": 256,
+              "digest": "f197952879e2002ab023c7ec5436d074690df6b38673ea3f35d0273b49563838"
+            },
+            "scale_8": {
+              "width": 256,
+              "height": 256,
+              "digest": "1d74d7cd8c779fbf583e027bf308e466ef94bfcc48886dd8dd1e0a05c8f9a3ac"
+            },
+            "scale_9": {
+              "width": 256,
+              "height": 256,
+              "digest": "bc4423bee313c5296553100ea569874e413130f2125b09043996729477892fde"
+            },
+            "scale_10": {
+              "width": 256,
+              "height": 256,
+              "digest": "cd8190bfdb74173a8990b0e16de541d08b69c838ec0d09fcf497d37deae690d0"
+            },
+            "scale_11": {
+              "width": 256,
+              "height": 256,
+              "digest": "dbd36c32a1ce4bae39cb93a99ce11fd36599f29cbdfe71feed7ad1452c5b0a70"
+            },
+            "scale_12": {
+              "width": 256,
+              "height": 256,
+              "digest": "85f2e92c6ec26c81375972b89776142fd8884eb526fcc4733f7389855adae409"
+            },
+            "scale_13": {
+              "width": 256,
+              "height": 256,
+              "digest": "9ffbc6b7d459962d33519433ef48489dae8f5315cb982cd08f49cf7d9acb33e5"
+            },
+            "scale_14": {
+              "width": 256,
+              "height": 256,
+              "digest": "789e57a0d0654677a9c4b8c3005c92724e40c5e662fc2fb51e017d8249321e86"
+            },
+            "scale_15": {
+              "width": 256,
+              "height": 256,
+              "digest": "10131e61f6b36cee19508868f908fbeb8447635a0f59f06e2dc2bc16ba03337c"
+            },
+            "scale_16": {
+              "width": 256,
+              "height": 256,
+              "digest": "a94cdc48ede4fcd98e07664ce0914e476b36fcd543df395c7035d06b44cd2a6a"
+            },
+            "scale_17": {
+              "width": 256,
+              "height": 256,
+              "digest": "d305c84e33d11914678e81183ed271527ae59589b0a4f081183f11e764060c92"
+            },
+            "scale_18": {
+              "width": 256,
+              "height": 256,
+              "digest": "8d72a16b92feb5898f0e4cbdd7d5d026c3d6ae63ac4f715a652ec5b772868e2c"
+            },
+            "scale_19": {
+              "width": 256,
+              "height": 256,
+              "digest": "f44c5029b13e06e3322b0a0eec958d12d7d9038892f05be2cb25ee1b6d0f45b2"
+            },
+            "scale_20": {
+              "width": 256,
+              "height": 256,
+              "digest": "6471d6276870ad7f6f34facc989e1b0777b759ef909c389f1076f93962dfdaad"
+            },
+            "scale_21": {
+              "width": 256,
+              "height": 256,
+              "digest": "9242aa81c6112ff4ba3739d849fdadeb2d354b3c3b5f70ccb680164b84c29e2e"
+            },
+            "scale_22": {
+              "width": 256,
+              "height": 256,
+              "digest": "9a3b9e987d2dffc034aa6c1ef9ec8f5b03d7fcb38c6c26dbd3eb4e9babddd09e"
+            },
+            "scale_23": {
+              "width": 256,
+              "height": 256,
+              "digest": "35dd6f449da7aaf88ce51c4b8e541f9ac253e27f851cc759248b8e7b8d650a08"
+            },
+            "scale_24": {
+              "width": 256,
+              "height": 256,
+              "digest": "74bdae222c52e9d8fbbd8015ec80f1e64ac92bd432a0768004d9116b9024b690"
+            },
+            "scale_25": {
+              "width": 256,
+              "height": 256,
+              "digest": "0e0d8046ba8fdd187bab97b06ebb4031c7e753eac153f10a09aacb1f7c14954a"
+            },
+            "scale_26": {
+              "width": 256,
+              "height": 256,
+              "digest": "a24dde1376f52a8a7066ef6cd66b8baab4aafeea91717764a1a0c2ddf83ce4cf"
+            },
+            "scale_27": {
+              "width": 256,
+              "height": 256,
+              "digest": "34993360199b842489e23c403b16109295b35886e8a17a8cb4f9939b6edc682d"
+            },
+            "scale_28": {
+              "width": 256,
+              "height": 256,
+              "digest": "0085d984525a8961cc8ee47cff4a7edb8946e8ecee9e974671216fa41ab081ea"
+            },
+            "scale_29": {
+              "width": 256,
+              "height": 256,
+              "digest": "21c75ac689a5200c6feddbd55a7572e2fd9e22a4a314fb477a76b8ca78dd4165"
+            }
+          },
+          "count": 30
+        }
+      ]
+    }
+  ],
+  "previewRuns": [
+    {
+      "expectNative": false,
+      "elapsedMs": 1396.0734000000011,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 0,
+        "referencedResources": 0,
+        "residentBytes": 0,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 0,
+        "cacheHits": 0,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1491.7767999999996,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 3,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1507.3099000000002,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 6,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1488.2066999999988,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 9,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1500.7605000000003,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 12,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    },
+    {
+      "expectNative": true,
+      "elapsedMs": 1334.7756999999983,
+      "scheduler": {
+        "maxConcurrentLoads": 1,
+        "maxResidentBytes": 67108864,
+        "activeLoads": 0,
+        "queuedLoads": 0,
+        "residentResources": 1,
+        "referencedResources": 0,
+        "residentBytes": 2138730,
+        "reservedBytes": 0,
+        "peakAccountedBytes": 67108864,
+        "cacheHits": 15,
+        "deduplicatedRequests": 0,
+        "evictions": 0,
+        "cancellations": 0
+      }
+    }
+  ],
+  "windowsValidated": true,
+  "sourceProject": "rainy-promise-media.zip",
+  "actualProductionWorker": true,
+  "authoredThroughUi": true,
+  "settingSurvivesReopen": true,
+  "oldDownloadInvalidated": true,
+  "originalBlobInPortableZip": true,
+  "originalExportRestoredByteExactly": true,
+  "migratedFallback": true,
+  "migratedRebuilt": true,
+  "staleGroupFallback": true,
+  "editorPreviewBefore": "sha256:fc57361aee0a3a3a86ae3b4df4a67ed8487ac892e456c664c052404691fd8ed6",
+  "editorPreviewAfter": "sha256:fc57361aee0a3a3a86ae3b4df4a67ed8487ac892e456c664c052404691fd8ed6",
+  "pixels": {
+    "original": {
+      "width": 256,
+      "height": 256,
+      "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+    },
+    "optimized": {
+      "width": 256,
+      "height": 256,
+      "digest": "b6c6b4f301b18bb9e91aab46aec0fda15b25a8e70c7047cc16ba7d6bab1533b4"
+    }
+  },
+  "report": {
+    "schemaVersion": 1,
+    "mode": "native-atlas",
+    "sourceHash": "c6ff6e0f546391f7ee59e65c9408d44070fa788e9f098362e485fb727cbd9afe",
+    "rows": [
+      {
+        "assetId": "media_actor_sprite",
+        "name": "小夏（测试立绘）",
+        "originalDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+        "exportDigest": "sha256:2efbb8141d5871e3574f9923514aacc86e27faa66505c0011743c676a3d5259e",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "media_sunset",
+        "name": "海边夕色（测试背景）",
+        "originalDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+        "exportDigest": "sha256:ebc5a2021e4435ed1cfd9481d99e9b0886b4ed9ece6a7de85a2088ee45544167",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "media_theme",
+        "name": "雨后旋律（测试音）",
+        "originalDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "exportDigest": "sha256:5f5d65d220facb3d7b93aa5d9de2e7421fe7a2de954182e5aa1052e24572c423",
+        "originalBytes": 1644,
+        "exportBytes": 1644,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "已选择原素材导出"
+      },
+      {
+        "assetId": "scale_10",
+        "name": "透明差分 10",
+        "originalDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+        "exportDigest": "sha256:decf90c120fc7f3f458c232883d7242f13372e77510dd84af3bdda63551890c7",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_11",
+        "name": "透明差分 11",
+        "originalDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+        "exportDigest": "sha256:816ea522bcc3eb5f5d01e824c6fbb2532b11379f38541d27c84e946180fca661",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_12",
+        "name": "透明差分 12",
+        "originalDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+        "exportDigest": "sha256:894efe48486e2a347a3299a553672f710f86234dfff2115a80b523d62da4cc97",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_13",
+        "name": "透明差分 13",
+        "originalDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+        "exportDigest": "sha256:539d3b804b424fdd17c7be9822ae64fcc404c6ccae7bfa638a5a1f37d534f5ae",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_14",
+        "name": "透明差分 14",
+        "originalDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+        "exportDigest": "sha256:81f48487fcf4ea6fcc03b75fd3a51c40a04c01127e59b9761a522efc6b8dfbcd",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_15",
+        "name": "透明差分 15",
+        "originalDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+        "exportDigest": "sha256:0e3199ad26787a27708935a9b2e2f7c2d771b9178a8cad209136ca258f351d3d",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_16",
+        "name": "透明差分 16",
+        "originalDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+        "exportDigest": "sha256:a33fbb14a4f2ebe4387671a49a71c784fc4798ac0f21cd19b7f315d5e077d25f",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_17",
+        "name": "透明差分 17",
+        "originalDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+        "exportDigest": "sha256:d685a803f5b820a8c59d81fae1c24d6b5446fd62789ffe8cd489a55401ef2bee",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_18",
+        "name": "透明差分 18",
+        "originalDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+        "exportDigest": "sha256:40a39453c65d877a18672277a4c38e9020d8c254a1146a25ef9ca46fade2a90e",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_19",
+        "name": "透明差分 19",
+        "originalDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+        "exportDigest": "sha256:8711619b9051cd4684487c9316439e759ecd3d76d2f6bbf7d10fe0c107542279",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_2",
+        "name": "透明差分 2",
+        "originalDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+        "exportDigest": "sha256:073f86f8788d330d19c313452546864a62c550fc01d526e6cfee58cb4ba95651",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_20",
+        "name": "透明差分 20",
+        "originalDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+        "exportDigest": "sha256:f1f586df85c855a13df64ea1681adbde94b7bb9822fa49b39b5f18190fe66ed8",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_21",
+        "name": "透明差分 21",
+        "originalDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+        "exportDigest": "sha256:8262b0d71d21d4ae543dc1311c4b4b16d2565673d73d57038b5b7c762c1a18e7",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_22",
+        "name": "透明差分 22",
+        "originalDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+        "exportDigest": "sha256:73786b004c9631fb7ea8878638a29bc7536651d34d379915fc4b688e06296577",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_23",
+        "name": "透明差分 23",
+        "originalDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+        "exportDigest": "sha256:9fff885a3063a6ef15dc677920dd3bc1001865ab222310b40f8c25eddb421cec",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_24",
+        "name": "透明差分 24",
+        "originalDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+        "exportDigest": "sha256:100996a91244620425d1592bb553fe94f14f3594d1c82629ee91350e7d5630f3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_25",
+        "name": "透明差分 25",
+        "originalDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+        "exportDigest": "sha256:56747e3e30de650ecec4bf6e635eda4e8a7a276213b6a74d0698c3ce2cda39f0",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_26",
+        "name": "透明差分 26",
+        "originalDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+        "exportDigest": "sha256:30ef7f1e8c2aee050ff80b89377460f9b96b00240fd4f37d54270b2c87159ae9",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_27",
+        "name": "透明差分 27",
+        "originalDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+        "exportDigest": "sha256:320de163c8739f03f7b90a8461e7630b2d045b8056e97f871aead26cb35e87b6",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_28",
+        "name": "透明差分 28",
+        "originalDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+        "exportDigest": "sha256:55334c9a1badfc2637a961b8f2f43015544e82c8ae9dffc1fb808237fbe545d3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_29",
+        "name": "透明差分 29",
+        "originalDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+        "exportDigest": "sha256:b4c370a5696d36eb6574cb0fd5af13352bb82298f24b3475c59bc427f89064b3",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_3",
+        "name": "透明差分 3",
+        "originalDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+        "exportDigest": "sha256:2d60fd2c3602cb0343d505784030a729614017953054ef86de5505c11b2ad845",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_30",
+        "name": "不适合切块的噪声背景",
+        "originalDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+        "exportDigest": "sha256:c832701b3235b848febe8920fc301e14cb7b62fec403e1c3b2518cf24ec9583b",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": false,
+        "reason": "已选择原素材导出"
+      },
+      {
+        "assetId": "scale_4",
+        "name": "透明差分 4",
+        "originalDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+        "exportDigest": "sha256:f0f9cd97f2f896d7e7db4ccba74127f6a7b54a59f43637bebecade01c0eda4c8",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_5",
+        "name": "透明差分 5",
+        "originalDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+        "exportDigest": "sha256:fc4a0d1ea38e347697c123a0f69553d72da35536eb2bb5a9e10c616d32eb96fd",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_6",
+        "name": "透明差分 6",
+        "originalDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+        "exportDigest": "sha256:44e51768737f1e33d5f0947cca307037a4750a062c1f8afd103bc592fedf41e4",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_7",
+        "name": "透明差分 7",
+        "originalDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+        "exportDigest": "sha256:9fe6377505726f371ae6483bdb6a3647548eb99ee9c678f149e0100f0b6963c0",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_8",
+        "name": "透明差分 8",
+        "originalDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+        "exportDigest": "sha256:c52bf63a2e55b9a8635e54a7bbea26e2b1c37c5a1add6a75af37404abd20c1ae",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      },
+      {
+        "assetId": "scale_9",
+        "name": "透明差分 9",
+        "originalDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+        "exportDigest": "sha256:533e148266c42c22fa99e4694036f17d8c0cf5e1ac1106ec4a0c4754f37f4be5",
+        "originalBytes": 262488,
+        "exportBytes": 262488,
+        "savedBytes": 0,
+        "verified": true,
+        "reason": "已验证并采用原生 Atlas；本行字节为普通纹理回退内容，实际交付成本统一计入共享组，不重复相加"
+      }
+    ],
+    "atlasGroups": [],
+    "nativeAtlasGroups": [
+      {
+        "groupId": "dicing-35f1413e417e",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284945,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-83663a9227f5",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284937,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-a304fdb07e3a",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 284991,
+        "pageRgbaBytes": 166464,
+        "fallbackRawBytes": 2099904
+      },
+      {
+        "groupId": "dicing-e855de1bda8b",
+        "adopted": true,
+        "detail": "复用本会话组交付缓存，未重复压缩；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",
+        "payloadBytes": 214487,
+        "pageRgbaBytes": 129472,
+        "fallbackRawBytes": 1574928
+      }
+    ],
+    "uniqueOriginalBytes": 8138772,
+    "uniqueExportBytes": 1333492,
+    "limits": "IDAT 优化保留其他 PNG 块；Atlas 兼容模式重建普通 PNG，原生模式由 Preview/Player 直接绘制共享图集图块，异常使用随包普通纹理回退。原生组按整体交付成本计账（含 Base64、清单、压缩回退包），组内单素材行仅描述普通纹理，不可与组成本重复相加。统计不等于 ZIP/HTML 总大小；原生图集/画布/读回预算 64 MiB，回退解压合计上限 32 MiB，不包含普通图片回退解码、JS/Blob/驱动开销，不是整个浏览器或实际 GPU 测量，不保证降低内存或 Draw Call。源工程原 Blob 不修改，恢复原素材导出后重新构建即可恢复原文件。"
+  },
+  "artifactBytes": {
+    "originalHtml": 11388095,
+    "optimizedHtml": 1962130,
+    "optimizedZip": 1901475
+  },
+  "baselinePlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 256,
+      "height": 256,
+      "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+    },
+    "stageScreenshot": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+  },
+  "optimizedPlay": {
+    "ended": true,
+    "ending": "海风结局",
+    "renderedPixels": {
+      "width": 256,
+      "height": 256,
+      "digest": "5e4c4e6c948296c91e3f17ba72699d9b98b6d6c4cb494650eaf7de0377613ed2"
+    },
+    "stageScreenshot": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b"
+  },
+  "runtimeEvidence": [
+    {
+      "name": "original",
+      "mode": "ordinary",
+      "memory": {
+        "atlasFallback": "{\"groups\":0,\"urls\":0,\"residentSourceBytes\":0,\"preparedGroups\":0,\"active\":0,\"peakActive\":0}",
+        "nativeAtlasBytes": "1048576",
+        "nativeAtlasPeakBytes": "1048576",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":1048576,\"peakBytes\":1048576,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":0,\"decodedGroups\":0,\"cacheHits\":0}"
+      }
+    },
+    {
+      "name": "optimized",
+      "mode": "ready",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1}",
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "directory",
+      "mode": "ready",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1}",
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "windows",
+      "mode": "ready",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1}",
+        "nativeAtlasBytes": "1547968",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "1",
+        "nativeAtlasScheduler": "{\"groups\":1,\"accountedBytes\":1547968,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "corrupt-page",
+      "mode": "fallback",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1}",
+        "nativeAtlasBytes": "1048576",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":1048576,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    },
+    {
+      "name": "unsupported",
+      "mode": "fallback",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1}",
+        "nativeAtlasBytes": "1048576",
+        "nativeAtlasPeakBytes": "1048576",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":1048576,\"peakBytes\":1048576,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":0,\"decodedGroups\":0,\"cacheHits\":0}"
+      }
+    },
+    {
+      "name": "emergency-img",
+      "mode": "fallback",
+      "memory": {
+        "atlasFallback": "{\"groups\":1,\"urls\":8,\"residentSourceBytes\":2099904,\"preparedGroups\":1,\"active\":0,\"peakActive\":1}",
+        "nativeAtlasBytes": "0",
+        "nativeAtlasPeakBytes": "1547968",
+        "nativeAtlasGroups": "0",
+        "nativeAtlasScheduler": "{\"groups\":0,\"accountedBytes\":0,\"peakBytes\":1547968,\"budgetBytes\":67108864,\"activeDecodes\":0,\"queuedDecodes\":0,\"peakDecodes\":1,\"decodedGroups\":1,\"cacheHits\":1}"
+      }
+    }
+  ],
+  "samplingComparisons": [
+    {
+      "name": "ordinary-canvas-product",
+      "ordinaryPixels": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b",
+      "canvasPixels": "0fce93bfd6c9ad93eab18f9bbbdeb3ce5882d45053e8a1c9786a567bb76a002b",
+      "diagnosticReplacement": false
+    },
+    {
+      "name": "optimized",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "directory",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "corrupt-page",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "unsupported",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 0,
+      "max": 0,
+      "mean": 0,
+      "bounds": [
+        1100,
+        583,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "emergency-img",
+      "sameDimensions": true,
+      "width": 1100,
+      "height": 583,
+      "changed": 50804,
+      "max": 87,
+      "mean": 0.0401777639170435,
+      "bounds": [
+        0,
+        52,
+        888,
+        582
+      ]
+    }
+  ],
+  "exceptions": [],
+  "limits": "Native shared Atlas bitmap tile drawing into per-image Canvas; compressed original fallback embedded. CSS IMG and Canvas sampling differs: native screenshot is compared exactly to an ordinary-source Canvas control, not claimed identical to IMG. Preview and intrinsic pixels remain exact. Budget accounting is not GPU/heap measurement. Deterministic uncompressed fixture is not a production savings claim; device/human validation outstanding. Process snapshots are aggregate private/working-set bytes, not isolated asset allocation or guaranteed peaks; end-to-end timings include harness pacing. Per-asset playback coverage is recorded in dicing-sequence when requested; scale mode alone verifies 30 variants at build, not playback."
+}

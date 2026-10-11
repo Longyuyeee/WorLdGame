@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validateDicingSequence, validateDicingDelivery, validateDicingQuality } from './audit-dicing-sequence.mjs';
+import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas } from './audit-dicing-sequence.mjs';
 const fixture=JSON.parse(await readFile(new URL('../fixtures/projects/dicing/sequence.json',import.meta.url),'utf8'));
 const evidence=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-incremental-sequence.json',import.meta.url),'utf8'));
 test('Dicing sequence gate accepts the full six-mode evidence',()=>assert.equal(validateDicingSequence(fixture,evidence).status,'PASS'));
@@ -26,3 +26,12 @@ const sampling=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-sa
 const samplingWorkflow=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-sampling-workflow.json',import.meta.url),'utf8'));
 test('Product sampling gate covers all six modes without replacing DOM images',()=>assert.equal(validateDicingQuality(fixture,sampling,samplingWorkflow).cases,5760));
 test('Product sampling gate rejects fallback screenshot differences and missing emergency recovery',()=>{const bad=structuredClone(samplingWorkflow);bad.samplingComparisons.find(c=>c.name==='unsupported').changed=1;assert.throws(()=>validateDicingQuality(fixture,sampling,bad));const missing=structuredClone(samplingWorkflow);missing.measurements=missing.measurements.filter(m=>m.kind!=='emergency-sampling-fallback');assert.throws(()=>validateDicingQuality(fixture,sampling,missing));});
+
+const lazyWorkflow=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-lazy-workflow.json',import.meta.url),'utf8'));
+test('Lazy gate covers empty startup, visible group ownership, release and controlled comparison',()=>assert.equal(validateLazyAtlas(fixture,lazyWorkflow).status,'PASS'));
+test('Lazy gate rejects eager startup or a retained URL after leaving',()=>{for(const kind of ['lazy-title','lazy-released']){const bad=structuredClone(lazyWorkflow);bad.measurements.find(m=>m.kind===kind).urls=1;assert.throws(()=>validateLazyAtlas(fixture,bad));}});
+test('Lazy gate rejects missing assets, failed recovery or fabricated zero first-entry allocation',()=>{
+  const missing=structuredClone(lazyWorkflow);missing.measurements.splice(missing.measurements.findIndex(m=>m.kind==='lazy-visible'),1);assert.throws(()=>validateLazyAtlas(fixture,missing));
+  const retry=structuredClone(lazyWorkflow);retry.measurements.find(m=>m.kind==='lazy-source-retry').retryRejected=false;assert.throws(()=>validateLazyAtlas(fixture,retry));
+  const allocation=structuredClone(lazyWorkflow);allocation.measurements.find(m=>m.kind==='controlled-loading').rounds.find(r=>r.lazy).firstGroup.blobBytes=0;assert.throws(()=>validateLazyAtlas(fixture,allocation));
+});

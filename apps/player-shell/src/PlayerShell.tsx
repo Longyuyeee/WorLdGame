@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeAtlasImage } from "./NativeAtlasImage";
+import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
   createGalSettingsApplicationV1,
   createGalSettingsDocument,
@@ -1207,6 +1208,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
             <NativeAtlasImage atlas={stage.background.atlas} canvasSampling={stage.background.canvasSampling}
+              onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
               key={`${mediaGeneration}:background:${stage.background.assetId}`}
               className={`player-stage-background player-transition--${stage.background.transition}`}
               src={stage.background.url}
@@ -1261,6 +1263,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           )}
           {stage.characters.map((character) => (
             <NativeAtlasImage atlas={character.atlas} canvasSampling={character.canvasSampling}
+              onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
               key={`${mediaGeneration}:${character.slot}:${character.assetId}`}
               className={`player-stage-character player-transition--${character.transition}`}
               src={character.url}
@@ -1457,7 +1460,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     if (!item.unlocked) {
                       const cover = item.coverAssetId === null ? undefined : additionalContentSources.get(item.coverAssetId);
                       return <article className="player-additional-content__item is-locked is-revealed" key={item.assetId}>
-                        {cover?.mimeType.startsWith("image/") === true ? <img src={cover.url} alt="" /> : <div aria-hidden="true">◇</div>}
+                        {cover?.mimeType.startsWith("image/") === true ? <DeferredAtlasImage atlas={cover.atlas} src={cover.url} alt="" /> : <div aria-hidden="true">◇</div>}
                         <strong>{item.displayName}</strong><span>尚未发现</span>
                       </article>;
                     }
@@ -1469,7 +1472,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                         <strong>{item.displayName}</strong><span>资源暂不可用</span><small>收藏记录仍然保留，请稍后重试。</small>
                         {onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}
                       </div> : <button type="button" aria-label={`查看画面 ${item.displayName}`} onClick={(event) => { galleryPreviewTrigger.current = event.currentTarget; setSelectedGalleryAssetId(item.assetId); }}>
-                        <img src={source.url} alt={item.displayName} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />
+                        <DeferredAtlasImage atlas={source.atlas} src={source.url} alt={item.displayName} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />
                         <span><small>画面 {index + 1}</small><strong>{item.displayName}</strong></span>
                       </button>}
                     </article>;
@@ -1480,7 +1483,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 const source = additionalContentSources.get(selectedGalleryAssetId);
                 if (item?.displayName === null || item === undefined || source === undefined) return null;
                 return <figure className="player-additional-content__preview" role="group" aria-label={`${item.displayName} 画面预览`}>
-                  <img src={source.url} alt="" />
+                  <DeferredAtlasImage atlas={source.atlas} src={source.url} alt="" />
                   <figcaption><strong>{item.displayName}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
                 </figure>;
               })()}
@@ -1497,7 +1500,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 : <ol className="player-additional-content__replay">
                   {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
-                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
                     <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{item.unlocked ? "可从原路线安全重温" : "达成相关结局后解锁"}</small></div>
                     <button type="button" disabled={!item.unlocked} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
                   </li>)}
@@ -1514,7 +1517,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   {snapshot.additionalContent.musicItems.map((item, index) => {
                     if (!item.unlocked) return <li className="is-locked" key={item.assetId}>
                       <span>{String(index + 1).padStart(2, "0")}</span>
-                      {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                      {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
                       <div><strong>{item.displayName ?? "未发现的音乐"}</strong><small>继续推进剧情来收录</small></div>
                     </li>;
                     const source = additionalContentSources.get(item.assetId);
@@ -1537,7 +1540,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 : <ol className="player-additional-content__endings">
                   {snapshot.additionalContent.endingItems.map((item, index) => <li key={item.endingId} data-unlocked={item.unlocked}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
-                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <img className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
+                    {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
                     <div><strong>{item.name ?? "未发现的结局"}</strong><small>{item.unlocked ? "已达成" : "继续探索不同选择"}</small></div>
                   </li>)}
                 </ol>}
