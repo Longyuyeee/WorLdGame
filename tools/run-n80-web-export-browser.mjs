@@ -58,7 +58,7 @@ let browserPath;
 for (const path of candidates) { try { await access(path); browserPath = path; break; } catch {} }
 if (!browserPath) throw new Error("Install Chrome/Edge or set WORLD_STUDIO_BROWSER_PATH");
 const preview = spawn(process.execPath, [join(root, "node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", "5186", "--strictPort"], { cwd: join(root, "apps/editor"), stdio: "ignore", windowsHide: true });
-const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", "about:blank"], { stdio: "ignore", windowsHide: true });
+const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", ...(process.argv.includes('--player-pressure') ? ['--disable-background-timer-throttling'] : []), "about:blank"], { stdio: "ignore", windowsHide: true });
 let client;
 let site;
 let siteUnavailable = false;
@@ -90,8 +90,9 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--player-continuity')) {
-    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary),null,2));
+  if(process.argv.includes('--player-continuity')||process.argv.includes('--player-pressure')) {
+    const duration=process.argv.find(arg=>arg.startsWith('--pressure-minutes='));
+    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):3}),null,2));
   } else if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')||process.argv.includes('--atlas-quality-workflow')||process.argv.includes('--atlas-sampling-workflow')||process.argv.includes('--atlas-lazy-workflow')||process.argv.includes('--atlas-coordination-workflow')||process.argv.includes('--atlas-recovery-workflow')||process.argv.includes('--atlas-isolation-workflow')) {
     const isolation=process.argv.includes('--atlas-isolation-workflow');
     const recovery=isolation||process.argv.includes('--atlas-recovery-workflow');

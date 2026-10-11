@@ -21,6 +21,25 @@ const urls = () => {
 };
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); vi.restoreAllMocks(); });
 
+it.each(["freeze","hidden","explicit"])("trims idle fallback ownership on %s without breaking active pictures or caching new idle groups in background",async reason=>{
+  const {revoke}=urls();
+  const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
+  const session=await prepareNativeAtlasMediaAsync([{assetId:"a",url:""},{assetId:"b",url:""}],[fixture("a"),fixture("b")]);
+  const anchor=await session.media[0]!.atlas!.acquireFallback!();
+  const old=await session.media[1]!.atlas!.acquireFallback!();old.release();
+  expect(diagnostics().idleBytes).toBe(3);
+  if(reason==="hidden"){visibility.mockReturnValue("hidden");document.dispatchEvent(new Event("visibilitychange"));}
+  else if(reason==="freeze")document.dispatchEvent(new Event("freeze"));else session.trimIdle();
+  expect(diagnostics()).toMatchObject({groups:1,urls:1,idleBytes:0});expect(revoke).not.toHaveBeenCalledWith(anchor.url);
+  const next=await session.media[1]!.atlas!.acquireFallback!();expect(next.url).not.toBe(old.url);next.release();
+  expect(diagnostics().idleBytes).toBe(reason==="explicit"?3:0);
+  visibility.mockReturnValue("visible");document.dispatchEvent(new Event("resume"));
+  const restored=await session.media[1]!.atlas!.acquireFallback!();restored.release();expect(diagnostics().idleBytes).toBe(3);
+  anchor.release();session.dispose();session.trimIdle();
+  document.dispatchEvent(new Event("freeze"));document.dispatchEvent(new Event("resume"));
+  expect(diagnostics()).toMatchObject({groups:0,urls:0,idleBytes:0,active:0});
+});
+
 it("expires a stalled shared Worker for all waiters and gives retries a fresh task", async () => {
   urls(); const session = await prepareNativeAtlasMediaAsync([{ assetId: "a", url: "" }], [fixture("a")]);
   const unpack = vi.spyOn(nativeAtlas, "unpackAtlasFallbackAsync").mockImplementationOnce((_group, signal) => new Promise((_resolve, reject) => {

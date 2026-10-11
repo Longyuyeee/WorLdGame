@@ -35,6 +35,18 @@ function mount(container = connectedContainer(), project = branching()): WorldPl
 }
 
 describe("N50-E6 versioned Player host embedding API", () => {
+  it("suspends synchronously for freeze and keeps host/visibility restrictions after resume", () => {
+    const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
+    const handle=mount();
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    fireEvent(document,new Event("freeze"));expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("active");expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("hidden");fireEvent(document,new Event("resume"));expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("visible");fireEvent(document,new Event("visibilitychange"));expect(handle.getObservation().hostActivity).toBe("active");
+    fireEvent(document,new Event("freeze"));handle.setHostActivity("suspended");
+    fireEvent(document,new Event("resume"));expect(handle.getObservation()).toMatchObject({hostActivity:"suspended",status:"waiting-choice"});
+    handle.unmount();fireEvent(document,new Event("freeze"));fireEvent(document,new Event("resume"));
+  });
   it("treats real document visibility as a ceiling even with an explicit active host", () => {
     const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
     const handle=mount();

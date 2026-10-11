@@ -13,6 +13,8 @@ export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; 
   const sources = new Map<string, NativeAtlasSource>();
   const pending = new Map<NativeAtlasDelivery, PendingGroup>();
   let closed = false, tail: Promise<unknown> = Promise.resolve(), preparedGroups = 0, active = 0, peakActive = 0, cacheHits = 0;
+  let frozen = false;
+  const background = () => frozen || (typeof document !== "undefined" && document.visibilityState === "hidden");
   const publish = () => {
     if (typeof document !== "undefined") document.documentElement.dataset.atlasFallback = JSON.stringify({
       groups: pending.size, urls: [...pending.values()].reduce((n, item) => n + item.urls.size, 0),
@@ -29,14 +31,27 @@ export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; 
   const trim = () => {
     const occupied=[...pending.values()].some(item=>item.refs>0);
     let idle=[...pending.values()].filter(item=>item.refs===0).reduce((n,item)=>n+item.bytes,0);
-    for(const [group,item] of pending)if(item.refs===0&&(!occupied||idle>ATLAS_IDLE_BYTES)){
+    for(const [group,item] of pending)if(item.refs===0&&(background()||!occupied||idle>ATLAS_IDLE_BYTES)){
       idle-=item.bytes;clear(item);pending.delete(group);
     }
     publish();
   };
+  // Drop only unreferenced fallback URLs; current pictures and pending consumers stay owned.
+  const trimIdle = () => {
+    for(const [group,item] of pending)if(item.refs===0){clear(item);pending.delete(group);}
+    publish();
+  };
+  const onVisibility = () => { if(background())trimIdle(); };
+  const onFreeze = () => { frozen=true;trimIdle(); };
+  const onResume = () => { frozen=false;onVisibility(); };
   const dispose = () => {
     if (closed) return;
     closed = true; signal?.removeEventListener("abort", dispose);
+    if(typeof document!=="undefined"){
+      document.removeEventListener("visibilitychange",onVisibility);
+      document.removeEventListener("freeze",onFreeze);
+      document.removeEventListener("resume",onResume);
+    }
     pending.forEach(clear); pending.clear(); publish();
   };
   const acquire = async (group: NativeAtlasDelivery, consumer?: AbortSignal): Promise<GroupLease> => {
@@ -110,7 +125,13 @@ export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; 
       progress?.(index + 1, groups.length);
       await new Promise<void>(resolve => setTimeout(resolve, 0));
     }
-    signal?.throwIfAborted(); signal?.addEventListener("abort", dispose, { once: true }); publish();
-    return { media: media.map(asset => ({ ...asset, ...(sources.has(asset.assetId) ? { atlas: sources.get(asset.assetId)! } : {}) })), dispose };
+    signal?.throwIfAborted(); signal?.addEventListener("abort", dispose, { once: true });
+    if(typeof document!=="undefined"){
+      document.addEventListener("visibilitychange",onVisibility);
+      document.addEventListener("freeze",onFreeze);
+      document.addEventListener("resume",onResume);
+    }
+    publish();
+    return { media: media.map(asset => ({ ...asset, ...(sources.has(asset.assetId) ? { atlas: sources.get(asset.assetId)! } : {}) })), dispose, trimIdle };
   } catch (error) { dispose(); throw error; }
 }

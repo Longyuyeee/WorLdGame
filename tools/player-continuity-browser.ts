@@ -13,11 +13,12 @@ const text=()=>document.querySelector(".player-dialogue__text")?.textContent??""
 function click(name:string){const button=[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.getAttribute("aria-label")===name||b.textContent?.includes(name));check(button&&!button.disabled,`Unavailable action: ${name}`);button.click();}
 
 /** Real production Player/clock; controlled visibility boundary, not OS suspension or real artwork. */
-export function start(){
+export function start(options:{pressure?:boolean}={}){
   const style=document.createElement("style");style.textContent=css;document.head.append(style);
   const mediaAssets=Array.from({length:4},(_,i)=>{
-    const canvas=document.createElement("canvas");canvas.width=canvas.height=256;
-    const context=canvas.getContext("2d")!;context.fillStyle=["#254663","#634425","#426325","#63254d"][i]!;context.fillRect(0,0,256,256);
+    const size=options.pressure?2048:256;
+    const canvas=document.createElement("canvas");canvas.width=canvas.height=size;
+    const context=canvas.getContext("2d")!;context.fillStyle=["#254663","#634425","#426325","#63254d"][i]!;context.fillRect(0,0,size,size);
     context.fillStyle="white";context.font="36px sans-serif";context.fillText(`Scene ${i}`,24,128);
     const url=canvas.toDataURL();canvas.width=canvas.height=0;
     return {assetId:`picture_${i}`,displayName:`Scene ${i}`,mimeType:"image/png",canvasSampling:true,url};
@@ -35,6 +36,28 @@ export function start(){
   Object.defineProperty(document,"visibilityState",{configurable:true,get:()=>visibility});
   const setVisibility=(next:DocumentVisibilityState)=>{visibility=next;document.dispatchEvent(new Event("visibilitychange"));};
   const rows:unknown[]=[];
+  let freezes=0,resumes=0;
+  const frozenEvent=()=>{freezes++;},resumedEvent=()=>{resumes++;};
+  document.addEventListener("freeze",frozenEvent);document.addEventListener("resume",resumedEvent);
+  const prepareFreeze=async()=>{
+    setVisibility("visible");
+    await until(()=>main().dataset.hostActivity==="active");
+    click("自动播放");await until(()=>main().dataset.autoPlayback==="waiting");
+    delete (document as unknown as Record<string,unknown>).visibilityState;
+    return {hash:hash(),text:text(),freezes,resumes};
+  };
+  const finishFreeze=async(before:{hash:string;text:string;freezes:number;resumes:number})=>{
+    await until(()=>freezes>before.freezes&&resumes>before.resumes,"real lifecycle events");
+    check(hash()===before.hash&&text()===before.text,"Freeze resumed past the current dialogue");
+    const resumedVisibility=document.visibilityState;
+    if(resumedVisibility==="hidden")check(main().dataset.hostActivity==="suspended","Hidden resume unexpectedly activated Player");
+    Object.defineProperty(document,"visibilityState",{configurable:true,get:()=>visibility});
+    setVisibility("visible");
+    await until(()=>main().dataset.hostActivity==="active","active after freeze");
+    await pause(200);check(hash()===before.hash,"Expired Auto delay fired immediately after resume");
+    click("自动播放");
+    return {freezeEvents:freezes-before.freezes,resumeEvents:resumes-before.resumes,resumedVisibility,foreground:"controlled-visibility",held:true,freshDelay:true};
+  };
   const begin=async()=>{click("开始故事");await until(()=>text()==="S0 L0"&&main().dataset.stageImagesPending==="false");};
   const scene=async(round:number,index:number)=>{
     await until(()=>text()===`S${index} L0`&&main().dataset.stageImagesPending==="false");
@@ -65,6 +88,6 @@ export function start(){
     rows.push({round,scene:index,mode:automatic?"auto":"skipAll",boundaryHeld:true,historyLength:Number(main().dataset.historyLength),native:memory});
     if(index!==11){click(`进入场景 ${index+1}`);}else {click("回到标题");await until(()=>nativeAtlasDiagnostics().accountedBytes===0);}
   };
-  const close=()=>{handle.unmount();delete (document as unknown as Record<string,unknown>).visibilityState;style.remove();return {rows,native:nativeAtlasDiagnostics(),scope:"12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak"};};
-  return {begin,scene,close};
+  const close=()=>{handle.unmount();document.removeEventListener("freeze",frozenEvent);document.removeEventListener("resume",resumedEvent);delete (document as unknown as Record<string,unknown>).visibilityState;style.remove();return {rows,native:nativeAtlasDiagnostics(),scope:options.pressure?"12-scene-2048px-CDP-freeze-pressure-not-physical-low-memory-device":"12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak"};};
+  return {begin,scene,close,prepareFreeze,finishFreeze};
 }
