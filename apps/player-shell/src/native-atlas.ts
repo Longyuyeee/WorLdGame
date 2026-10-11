@@ -97,13 +97,16 @@ export function hydrateNativeAtlasMedia<T extends { assetId: string; url: string
 }
 
 type DecodedGroup = { manifest: LosslessDicingPngDeliveryManifest; pages: Map<string, ImageBitmap> };
-type CachedGroup = { refs: number; bytes: number; promise: Promise<DecodedGroup> };
+type CachedGroup = { refs: number; bytes: number; promise: Promise<DecodedGroup>; physical: Promise<DecodedGroup>; controller: AbortController; settled: boolean };
 const cache = new Map<NativeAtlasDelivery, CachedGroup>();
 let accountedBytes = 0, peakBytes = 0;
 let activeDecodes = 0, peakDecodes = 0, decodedGroups = 0, cacheHits = 0;
 const decodeQueue: (() => void)[] = [];
 const RENDER_BUDGET = 64 * 1024 * 1024;
-export const nativeAtlasDiagnostics = () => ({ groups: cache.size, accountedBytes, peakBytes, budgetBytes: RENDER_BUDGET, activeDecodes, queuedDecodes: decodeQueue.length, peakDecodes, decodedGroups, cacheHits });
+// Leave time inside the 15s image deadline for the already verified PNG fallback.
+export const NATIVE_DECODE_TIMEOUT_MS = 5_000;
+let quarantinedGroups = 0;
+export const nativeAtlasDiagnostics = () => ({ groups: cache.size, accountedBytes, peakBytes, budgetBytes: RENDER_BUDGET, activeDecodes, queuedDecodes: decodeQueue.length, peakDecodes, decodedGroups, cacheHits, quarantinedGroups });
 function publishDiagnostics() {
   if (typeof document !== "undefined") {
     document.documentElement.dataset.nativeAtlasBytes = String(accountedBytes);
@@ -138,8 +141,18 @@ export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvas
     return {source:canvas,width,height,release};
   } catch(error){release();throw error;}
 }
-async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDeliveryManifest, needed: () => boolean): Promise<DecodedGroup> {
-  if (activeDecodes >= 2) await new Promise<void>(resolve => { decodeQueue.push(resolve); publishDiagnostics(); });
+async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDeliveryManifest, needed: () => boolean, signal: AbortSignal): Promise<DecodedGroup> {
+  signal.throwIfAborted();
+  if (activeDecodes >= 2) await new Promise<void>((resolve, reject) => {
+    const cancel = () => {
+      const index = decodeQueue.indexOf(start);
+      if (index >= 0) decodeQueue.splice(index, 1);
+      publishDiagnostics(); reject(signal.reason);
+    };
+    const start = () => { signal.removeEventListener("abort", cancel); resolve(); };
+    signal.addEventListener("abort", cancel, { once: true });
+    decodeQueue.push(start); publishDiagnostics();
+  });
   else activeDecodes++;
   peakDecodes = Math.max(peakDecodes, activeDecodes); publishDiagnostics();
   const pages = new Map<string, ImageBitmap>();
@@ -168,6 +181,7 @@ async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDel
 export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?: HTMLCanvasElement, signal?: AbortSignal): Promise<{ source: HTMLCanvasElement; width: number; height: number; release(): void }> {
   signal?.throwIfAborted();
   if (typeof createImageBitmap !== "function") throw Error("Atlas bitmap unsupported");
+  if (quarantinedGroups > 0) throw Error("Atlas decode quarantined; use PNG fallback");
   const { group, assetId } = source;
   const manifest = parseLosslessDicingPngDeliveryManifest(group.manifest);
   const image = manifest.layoutManifest.images.find(candidate => candidate.assetId === assetId);
@@ -177,7 +191,30 @@ export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?
   let entry = cache.get(group);
   if (!entry) {
     const bytes = manifest.pages.reduce((n, p) => n + p.width * p.height * 12, 0); reserve(bytes);
-    const created: CachedGroup = { refs: 0, bytes, promise: Promise.resolve().then(() => decode(group, manifest, () => created.refs > 0)) };
+    const controller = new AbortController();
+    let quarantined = false;
+    const physical = Promise.resolve().then(() => decode(group, manifest, () => created.refs > 0 && !controller.signal.aborted, controller.signal));
+    const created: CachedGroup = { refs: 0, bytes, physical, controller, settled: false, promise: physical };
+    const quarantine = () => {
+      if (!created.settled && !quarantined) { quarantined = true; quarantinedGroups++; publishDiagnostics(); }
+    };
+    // Abort rejects consumers/queued work, NOT the non-cancellable browser decode.
+    controller.signal.addEventListener("abort", quarantine, { once: true });
+    const timer = setTimeout(() => controller.abort(new DOMException("Atlas decode timed out", "TimeoutError")), NATIVE_DECODE_TIMEOUT_MS);
+    created.promise = new Promise<DecodedGroup>((resolve, reject) => {
+      const cancel = () => reject(controller.signal.reason);
+      controller.signal.addEventListener("abort", cancel, { once: true });
+      const settled = () => {
+        created.settled = true; clearTimeout(timer);
+        controller.signal.removeEventListener("abort", cancel);
+        controller.signal.removeEventListener("abort", quarantine);
+        if (quarantined) quarantinedGroups--;
+        publishDiagnostics();
+      };
+      physical.then(value => { settled(); resolve(value); }, error => { settled(); reject(error); });
+    });
+    // Reservation failure can abandon the group before a consumer awaits it.
+    void created.promise.catch(() => {});
     entry = created; cache.set(group, entry); publishDiagnostics();
   } else cacheHits++;
   entry.refs++;
@@ -191,7 +228,9 @@ export async function acquireNativeAtlasImage(source: NativeAtlasSource, target?
     if (imageReserved) accountedBytes -= imageBytes;
     if (--owned.refs === 0) {
       const clear = (decoded?: DecodedGroup) => { if (owned.refs === 0 && cache.get(group) === owned) { cache.delete(group); accountedBytes -= owned.bytes; decoded?.pages.forEach(bitmap => bitmap.close()); publishDiagnostics(); } };
-      void owned.promise.then(clear, () => clear());
+      if (!owned.settled) owned.controller.abort(new DOMException("Atlas group abandoned", "AbortError"));
+      // Never release page reservations until the real browser operation settles.
+      void owned.physical.then(clear, () => clear());
     }
     publishDiagnostics();
   };

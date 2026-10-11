@@ -1,9 +1,24 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas, validateCoordination, validateRecovery } from './audit-dicing-sequence.mjs';
+import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas, validateCoordination, validateRecovery, validateNativeIsolation } from './audit-dicing-sequence.mjs';
 const fixture=JSON.parse(await readFile(new URL('../fixtures/projects/dicing/sequence.json',import.meta.url),'utf8'));
 const evidence=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-incremental-sequence.json',import.meta.url),'utf8'));
+const isolation=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-isolation-workflow.json',import.meta.url),'utf8'));
+test('Native isolation gate requires retained physical accounting and eventual close after 50 cycles',()=>assert.equal(validateNativeIsolation(isolation).status,'PASS'));
+test('Native isolation gate rejects false zero accounting, extra physical decodes and late leaks',()=>{
+  for(const mutate of [
+    row=>{row.retained.native.accountedBytes=0;},
+    row=>{row.retained.calls=3;},
+    row=>{row.lateCompletion.native.accountedBytes=1;},
+    row=>{row.lateCompletion.closed=0;}
+  ]){const bad=structuredClone(isolation);mutate(bad.measurements.find(m=>m.kind==='native-stall-isolation'));assert.throws(()=>validateNativeIsolation(bad));}
+});
+test('Native isolation gate rejects missing pressure cycles and native queue growth',()=>{
+  const missing=structuredClone(isolation);missing.measurements.find(m=>m.kind==='history-gallery-pressure'&&m.name==='stalled-bitmap').cycles.pop();assert.throws(()=>validateNativeIsolation(missing));
+  const queued=structuredClone(isolation);queued.measurements.find(m=>m.kind==='history-gallery-pressure'&&m.name==='stalled-bitmap').cycles[0].native.queuedDecodes=1;assert.throws(()=>validateNativeIsolation(queued));
+});
+
 test('Dicing sequence gate accepts the full six-mode evidence',()=>assert.equal(validateDicingSequence(fixture,evidence).status,'PASS'));
 test('Dicing sequence gate rejects an omitted variant',()=>{const bad=structuredClone(evidence);delete bad.runs[0].assets.scale_29;assert.throws(()=>validateDicingSequence(fixture,bad));});
 test('Dicing sequence gate rejects divergent pixels',()=>{const bad=structuredClone(evidence);bad.runs[1].assets.scale_29.digest='0'.repeat(64);assert.throws(()=>validateDicingSequence(fixture,bad));});

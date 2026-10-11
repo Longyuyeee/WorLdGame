@@ -7,6 +7,18 @@ vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdi
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
+  it("falls back after native timeout without showing a retry error or discarding the verified source", async () => {
+    vi.useFakeTimers();
+    const sourceRelease=vi.fn(), imageRelease=vi.fn(), failure=vi.fn(), report=vi.fn();
+    vi.mocked(acquireNativeAtlasImage).mockImplementation(() => new Promise((_resolve,reject) => setTimeout(() => reject(new DOMException("stalled", "TimeoutError")),5000)));
+    vi.mocked(acquireOrdinaryCanvasImage).mockImplementation(async (_url,canvas) => ({source:canvas,width:8,height:8,release:imageRelease}));
+    const view=render(<NativeAtlasImage src="" alt="角色" atlas={{group:group(),assetId:"a",acquireFallback:async()=>({url:"blob:verified",release:sourceRelease})}} onResourceFailure={failure} onResourceState={report} />);
+    await act(async()=>{await vi.advanceTimersByTimeAsync(5000);});
+    expect(acquireOrdinaryCanvasImage).toHaveBeenCalledWith("blob:verified",expect.anything(),expect.anything());
+    expect(screen.getByRole("img")).toHaveAttribute("data-native-atlas","fallback");
+    expect(report).toHaveBeenLastCalledWith("ready");expect(failure).not.toHaveBeenCalled();expect(sourceRelease).not.toHaveBeenCalled();
+    view.unmount();expect(imageRelease).toHaveBeenCalledOnce();expect(sourceRelease).toHaveBeenCalledOnce();expect(vi.getTimerCount()).toBe(0);
+  });
   it.each(["fallback", "native", "ordinary", "emergency"])("times out %s, releases ownership, ignores late completion and retries", async phase => {
     vi.useFakeTimers();
     const report = vi.fn(), failure = vi.fn(), release = vi.fn(), lateRelease = vi.fn();

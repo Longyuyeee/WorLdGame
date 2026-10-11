@@ -3,13 +3,14 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 
-export function validateDicingSequence(fixture,evidence) {
+export function validateDicingSequence(fixture,evidence,isolation=false) {
   assert.equal(fixture.schemaVersion,1);
   assert.equal(fixture.scope,'synthetic-dicing-sequence-not-full-platform-acceptance');
   assert.equal(fixture.assetIds.length,30);assert.equal(new Set(fixture.assetIds).size,30);
   assert.ok(!fixture.assetIds.includes(fixture.independentBackground));
   assert.equal(evidence.fixtureHash,'sha256:'+createHash('sha256').update(JSON.stringify(fixture)).digest('hex'));
   const modes={original:'ordinary',optimized:'ready',directory:'ready',windows:'ready','corrupt-page':'fallback',unsupported:'fallback'};
+  if(isolation)modes['stalled-bitmap']='fallback';
   assert.deepEqual(evidence.runs.map(r=>r.name).sort(),Object.keys(modes).sort());
   const original=evidence.runs.find(r=>r.name==='original');
   assert.ok(new Set(Object.values(original.assets).map(p=>p.digest)).size>=28,'Fixtures must exercise distinct variants');
@@ -19,7 +20,7 @@ export function validateDicingSequence(fixture,evidence) {
     for(const id of fixture.assetIds){const pixels=run.assets[id];assert.match(pixels.digest,/^[a-f0-9]{64}$/);assert.equal(pixels.width,256);assert.equal(pixels.height,256);assert.deepEqual(pixels,original.assets[id]);}
   }
   assert.equal(evidence.incremental.unchangedGroups,3);assert.equal(evidence.incremental.reverified,8);
-  return {status:'PASS',scope:fixture.scope,assets:30,runs:6,unchangedGroups:3,reverified:8};
+  return {status:'PASS',scope:fixture.scope,assets:30,runs:Object.keys(modes).length,unchangedGroups:3,reverified:8};
 }
 export async function auditDicingSequence(root) {
   const fixture=JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8'));
@@ -48,7 +49,31 @@ export async function auditDicingSequence(root) {
   const recoveryWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-recovery-workflow.json'),'utf8'));
   const recoveryQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-recovery-quality.json'),'utf8'));
   validateDicingSequence(fixture,recoverySequence);validateDicingDelivery(recoverySequence,recoveryWorkflow);validateDicingQuality(fixture,recoveryQuality,recoveryWorkflow);validateLazyAtlas(fixture,recoveryWorkflow,true);validateRecovery(recoveryWorkflow);
-  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS',coordination:'PASS',recovery:'PASS'};
+  const isolationSequence=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-isolation-sequence.json'),'utf8'));
+  const isolationWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-isolation-workflow.json'),'utf8'));
+  const isolationQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-isolation-quality.json'),'utf8'));
+  validateDicingSequence(fixture,isolationSequence,true);validateDicingDelivery(isolationSequence,isolationWorkflow);validateDicingQuality(fixture,isolationQuality,isolationWorkflow,true);validateLazyAtlas(fixture,isolationWorkflow,true,true);validateRecovery(isolationWorkflow);validateNativeIsolation(isolationWorkflow);
+  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS',coordination:'PASS',recovery:'PASS',nativeIsolation:'PASS',isolationSamplingCases:6720};
+}
+
+export function validateNativeIsolation(workflow){
+  assert.deepEqual(workflow.exceptions,[]);
+  const row=workflow.measurements.find(m=>m.kind==='native-stall-isolation');
+  assert.equal(row.variants,30);assert.equal(row.historyGalleryCycles,50);assert.equal(row.deadlineMilliseconds,5000);
+  const {retained,lateCompletion}=row;
+  assert.ok(Number.isInteger(retained.calls)&&retained.calls>=1&&retained.calls<=2);
+  assert.equal(retained.closed,0);assert.equal(retained.native.quarantinedGroups,retained.calls);assert.equal(retained.native.activeDecodes,retained.calls);assert.equal(retained.native.groups,retained.calls);
+  assert.ok(retained.native.accountedBytes>0&&retained.native.accountedBytes<=retained.native.budgetBytes);
+  assert.equal(lateCompletion.closed,retained.calls);
+  for(const key of ['groups','quarantinedGroups','accountedBytes','activeDecodes','queuedDecodes'])assert.equal(lateCompletion.native[key],0);
+  const pressure=workflow.measurements.find(m=>m.kind==='history-gallery-pressure'&&m.name==='stalled-bitmap');
+  assert.equal(pressure.cycles.length,50);
+  for(const [index,cycle] of pressure.cycles.entries()){
+    assert.equal(cycle.cycle,index);assert.equal(cycle.images,30);assert.equal(cycle.native.quarantinedGroups,retained.calls);assert.equal(cycle.native.activeDecodes,retained.calls);assert.equal(cycle.native.queuedDecodes,0);
+    assert.ok(cycle.native.accountedBytes>=retained.native.accountedBytes&&cycle.native.accountedBytes<=cycle.native.budgetBytes);assert.ok(cycle.groups<=4&&cycle.urls<=30);assert.ok(cycle.idleBytes>=0&&cycle.idleBytes<=8*1024*1024);
+  }
+  assert.equal(workflow.samplingComparisons.find(m=>m.name==='stalled-bitmap').changed,0);
+  return {status:'PASS'};
 }
 
 export function validateCoordination(workflow,recovery=false){
@@ -76,8 +101,9 @@ export function validateRecovery(workflow){
   return {status:'PASS'};
 }
 
-export function validateLazyAtlas(fixture,workflow,coordination=false){
+export function validateLazyAtlas(fixture,workflow,coordination=false,isolation=false){
   const modes=['original','optimized','directory','windows','corrupt-page','unsupported','emergency-img'];
+  if(isolation)modes.push('stalled-bitmap');
   for(const kind of ['lazy-title','lazy-released']){
     const rows=workflow.measurements.filter(m=>m.kind===kind);
     assert.deepEqual(rows.map(m=>m.name).sort(),[...modes].sort());
@@ -101,13 +127,14 @@ export function validateLazyAtlas(fixture,workflow,coordination=false){
   return {status:'PASS'};
 }
 
-export function validateDicingQuality(fixture,evidence,workflow) {
+export function validateDicingQuality(fixture,evidence,workflow,isolation=false) {
   assert.equal(evidence.scope,'canvas-resampling-not-platform-texture-mip');
   assert.equal(evidence.startupCancelRetry,true);assert.equal(evidence.damagedFallbackRetryRejected,true);
   const combinations=[];
   for(const scale of [0.5,1,1.25,2])for(const smoothing of [false,true])for(const rotation of [0,17])for(const filter of ['none','contrast(1.1)'])combinations.push(JSON.stringify([scale,smoothing,rotation,filter]));
   const uniform=workflow.samplingComparisons[0]?.diagnosticReplacement===false;
   const modes=uniform?['original','optimized','directory','windows','corrupt-page','unsupported']:['optimized','directory','windows'];
+  if(isolation)modes.push('stalled-bitmap');
   assert.equal(evidence.cases.length,modes.length*30);
   if(uniform){
     assert.equal(workflow.samplingComparisons[0].name,'ordinary-canvas-product');
@@ -126,7 +153,7 @@ export function validateDicingQuality(fixture,evidence,workflow) {
     }
   }
   const startups=workflow.measurements.filter(m=>m.kind==='startup-longtasks');
-  assert.deepEqual(startups.map(s=>s.name).sort(),['original','optimized','directory','corrupt-page','unsupported'].sort());
+  assert.deepEqual(startups.map(s=>s.name).sort(),['original','optimized','directory','corrupt-page','unsupported',...(isolation?['stalled-bitmap']:[])].sort());
   for(const s of startups){assert.ok(Number.isFinite(s.readyAt)&&s.readyAt>0);for(const t of s.tasks){assert.ok(t.duration>=50);assert.ok(t.start>=0&&t.start<s.readyAt);}}
   return {status:'PASS',cases:modes.length*960};
 }

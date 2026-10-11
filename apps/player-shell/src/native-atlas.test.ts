@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { zlibSync } from "fflate";
 import { buildLosslessDicingAtlas, createLosslessDicingPngDeliveryManifest, serializeLosslessDicingPngDeliveryManifest, createBlobDigest } from "@world-studio/project-persistence";
-import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, hydrateNativeAtlasMedia, hydrateNativeAtlasMediaAsync, nativeAtlasDiagnostics, unpackAtlasFallback, unpackAtlasFallbackAsync, type NativeAtlasDelivery } from "./native-atlas";
+import { NATIVE_DECODE_TIMEOUT_MS, acquireNativeAtlasImage, acquireOrdinaryCanvasImage, hydrateNativeAtlasMedia, hydrateNativeAtlasMediaAsync, nativeAtlasDiagnostics, unpackAtlasFallback, unpackAtlasFallbackAsync, type NativeAtlasDelivery } from "./native-atlas";
 
 const url = (bytes: Uint8Array) => `data:application/octet-stream;base64,${btoa(String.fromCharCode(...bytes))}`;
 function fixture(size = 8) {
@@ -14,8 +14,48 @@ function fixture(size = 8) {
   const group: NativeAtlasDelivery = { schemaVersion: 1, groupId: "g", manifest: serializeLosslessDicingPngDeliveryManifest(manifest), pages: atlas.pages.map(page => ({ pageId: page.pageId, url: url(encoded) })), fallback: { url: url(compressed), digest: createBlobDigest(compressed), rawBytes: bytes.length, entries: [{ assetId: "a", offset: 0, length: bytes.length, digest: createBlobDigest(bytes) }] } };
   return { group, atlas, rgba, bytes };
 }
-afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe("native Atlas integrity and lifecycle", () => {
+  it("isolates stuck decodes across 100 scene retries, retains physical accounting and closes late results", async () => {
+    vi.useFakeTimers();
+    const { group, atlas } = fixture(), close = vi.fn();
+    const finish: ((value: unknown) => void)[] = [];
+    vi.stubGlobal("createImageBitmap", vi.fn(() => new Promise(resolve => finish.push(resolve))));
+    const results = Promise.allSettled(Array.from({ length: 5 }, () => acquireNativeAtlasImage({ group: structuredClone(group), assetId: "a" })));
+    await vi.advanceTimersByTimeAsync(NATIVE_DECODE_TIMEOUT_MS);
+    expect((await results).every(result => result.status === "rejected" && result.reason.name === "TimeoutError")).toBe(true);
+    const retained = atlas.pages.reduce((sum, page) => sum + page.width * page.height * 12, 0) * 2;
+    expect(nativeAtlasDiagnostics()).toMatchObject({ groups: 2, activeDecodes: 2, queuedDecodes: 0, quarantinedGroups: 2, accountedBytes: retained });
+    class MockImage { naturalWidth=8; naturalHeight=8; onload:(()=>void)|null=null; onerror=null; set src(value:string){if(value)Promise.resolve().then(()=>this.onload?.());} }
+    vi.stubGlobal("Image", MockImage);
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({ drawImage: vi.fn() } as unknown as CanvasRenderingContext2D);
+    for (let index=0; index<100; index++) {
+      await expect(acquireNativeAtlasImage({ group: structuredClone(group), assetId: "a" })).rejects.toThrow("quarantined");
+      const image = await acquireOrdinaryCanvasImage("verified-source", document.createElement("canvas"));
+      expect(image.width).toBe(8); image.release();
+      expect(nativeAtlasDiagnostics().accountedBytes).toBe(retained);
+    }
+    expect(createImageBitmap).toHaveBeenCalledTimes(2);
+    finish.forEach(resolve => resolve({ width: atlas.pages[0]!.width, height: atlas.pages[0]!.height, close }));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(close).toHaveBeenCalledTimes(2);
+    expect(nativeAtlasDiagnostics()).toMatchObject({ groups: 0, activeDecodes: 0, quarantinedGroups: 0, accountedBytes: 0 });
+    vi.mocked(createImageBitmap).mockRejectedValueOnce(Error("fresh decode"));
+    await expect(acquireNativeAtlasImage({ group, assetId: "a" })).rejects.toThrow("fresh decode");
+    expect(vi.getTimerCount()).toBe(0);
+  });
+  it("quarantines an abandoned physical decode immediately and drains it on late rejection", async () => {
+    const { group } = fixture(), controller = new AbortController();
+    let reject!: (error: Error) => void;
+    vi.stubGlobal("createImageBitmap", vi.fn(() => new Promise((_resolve, fail) => { reject = fail; })));
+    const pending = acquireNativeAtlasImage({ group, assetId: "a" }, undefined, controller.signal);
+    await vi.waitFor(() => expect(createImageBitmap).toHaveBeenCalledOnce());
+    controller.abort(); await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    await expect(acquireNativeAtlasImage({ group, assetId: "a" })).rejects.toThrow("quarantined");
+    expect(nativeAtlasDiagnostics().accountedBytes).toBeGreaterThan(0);
+    reject(Error("late failure"));
+    await vi.waitFor(() => expect(nativeAtlasDiagnostics()).toMatchObject({ groups: 0, quarantinedGroups: 0, activeDecodes: 0, accountedBytes: 0 }));
+  });
   it("budgets ordinary Canvas with native rendering and releases it before retry",async()=>{
     class MockImage { naturalWidth=2048;naturalHeight=2048;onload:(()=>void)|null=null;onerror:(()=>void)|null=null;set src(value:string){if(value)queueMicrotask(()=>this.onload?.());} }
     vi.stubGlobal("Image",MockImage);
