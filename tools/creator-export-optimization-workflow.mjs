@@ -6,8 +6,8 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,lazy=false,coordination=false,sampleMemory,openWindows}={}) {
-  const prefix=coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,lazy=false,coordination=false,recovery=false,sampleMemory,openWindows}={}) {
+  const prefix=recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
   const qualityEvidence=[];
   const sequence=incremental?JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8')):null;
   const sequenceEvidence=[];
@@ -192,7 +192,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     let injection;
     let emergencyInjection;
     let slowInjection,slowChecked=false;
-    if(coordination&&name==='optimized')slowInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:"const OriginalWorker=Worker;let delayed=false;globalThis.Worker=class extends OriginalWorker{set onmessage(handler){super.onmessage=event=>{if(!delayed){delayed=true;setTimeout(()=>handler.call(this,event),3000);}else handler.call(this,event);};}};"});
+    if(coordination&&name==='optimized')slowInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`const OriginalWorker=Worker;let delayed=false;globalThis.Worker=class extends OriginalWorker{set onmessage(handler){super.onmessage=event=>{if(!delayed){delayed=true;${recovery?'return;':'setTimeout(()=>handler.call(this,event),3000);'}}else handler.call(this,event);};}};`});
     if(name==='emergency-img')emergencyInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:"const ordinaryContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(...args){return this.matches('.player-stage-background,.player-stage-character')?null:Reflect.apply(ordinaryContext,this,args);};"});
     if(quality&&!alreadyOpen){injection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`globalThis.__atlasStartupMetrics={tasks:[],readyAt:null};new MutationObserver(()=>{if(document.querySelector('#player-root')?.dataset.startupState==='ready'&&__atlasStartupMetrics.readyAt===null)__atlasStartupMetrics.readyAt=performance.now();}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-startup-state']});try{new PerformanceObserver(list=>{for(const e of list.getEntries())if(__atlasStartupMetrics.readyAt===null||e.startTime<__atlasStartupMetrics.readyAt)__atlasStartupMetrics.tasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});}catch{};${name==='optimized'?`const cancelOnce=new MutationObserver(()=>{const b=Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='取消加载');if(b){cancelOnce.disconnect();b.click();}});cancelOnce.observe(document,{childList:true,subtree:true});`:''}`});}
     const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}
@@ -229,8 +229,18 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
             assert.equal(await client.evaluate("document.querySelector('main').dataset.stageImagesPending"),'true');
             assert.equal(await client.evaluate("document.querySelector('.player-dialogue')?.textContent??document.querySelector('main').textContent"),before);
             assert.equal(await client.evaluate("document.querySelector('[aria-label=\"自动播放\"]').getAttribute('aria-pressed')"),'true');
-            measurements.push({kind:'slow-current-picture',delayedWorkerMilliseconds:3000,observationMilliseconds:350,held:true});
-            await client.button('自动播放');
+            measurements.push({kind:'slow-current-picture',delayedWorkerMilliseconds:recovery?null:3000,observationMilliseconds:350,held:true});
+            if(recovery){
+              await client.wait("Array.from(document.querySelectorAll('[role=alert]')).some(e=>e.textContent.includes('加载超时'))");
+              assert.equal(await client.evaluate("document.querySelector('[aria-label=\"自动播放\"]').getAttribute('aria-pressed')"),'false');
+              assert.equal(await client.evaluate("document.querySelector('.player-dialogue')?.textContent"),before);
+              await writeFile(join(root,`${'evidence/authoring/'}${prefix}-timeout.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+              await client.button('重试画面资源');
+              try { await client.wait("document.querySelector('main').dataset.stageImagesPending==='false'"); }
+              catch(error){ console.log('RECOVERY_STATE',JSON.stringify(await client.evaluate("({resources:document.documentElement.dataset.atlasFallback,native:document.documentElement.dataset.nativeAtlasScheduler,canvas:[...document.querySelectorAll('canvas')].map(e=>({...e.dataset})),alerts:[...document.querySelectorAll('[role=alert]')].map(e=>e.textContent)})")));throw error; }
+              assert.equal(await client.evaluate("document.querySelector('[aria-label=\"自动播放\"]').getAttribute('aria-pressed')"),'false');
+              measurements.push({kind:'timeout-recovery',stalledWorker:true,timeoutMilliseconds:15000,autoStopped:true,dialoguePreserved:true,retried:true});
+            }else await client.button('自动播放');
           }
           await client.wait(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return e&&(e.dataset.canvasSampling==='ready'||e.dataset.nativeAtlas==='ready'||(e.complete&&e.naturalWidth>0));})()`);
           const item=await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return {mode:e.dataset.nativeAtlas??'ordinary',url:e instanceof HTMLCanvasElement?e.toDataURL():e.src};})()`);
@@ -298,6 +308,20 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
       await client.evaluate("(()=>{const buttons=Array.from(document.querySelectorAll('.player-choice button:not(:disabled)'));const b=buttons.find(b=>b.textContent.includes('去海边'))||buttons[0]||document.querySelector('[aria-label=\"继续下一句\"]:not(:disabled)')||Array.from(document.querySelectorAll('button')).find(b=>b.textContent.trim()==='完成动效');b?.click();})()");await new Promise(r=>setTimeout(r,100));
     }
     await client.wait("document.querySelector('main[data-player-status]')?.dataset.playerStatus==='ended'");
+    if(recovery&&name==='optimized'){
+      const cycles=[];
+      for(let cycle=0;cycle<20;cycle++){
+        await client.button('后退一步');await client.wait("document.querySelector('main').dataset.stageImagesPending==='false'");
+        const hash=await client.evaluate("document.querySelector('main').dataset.runtimeStateHash");
+        await client.button('打开附加内容');await client.button('查看 CG 画廊');
+        await client.wait("Array.from(document.querySelectorAll('[aria-label=\"CG 画廊内容\"] img')).length>0&&Array.from(document.querySelectorAll('[aria-label=\"CG 画廊内容\"] img')).every(e=>e.complete&&e.naturalWidth>0)");
+        const images=await client.evaluate("document.querySelectorAll('[aria-label=\"CG 画廊内容\"] img').length");
+        await client.button('返回剧情');assert.equal(await client.evaluate("document.querySelector('main').dataset.runtimeStateHash"),hash);
+        await client.button('前进一步');await client.wait("document.querySelector('main').dataset.stageImagesPending==='false'");
+        cycles.push({cycle,images,...await client.evaluate("JSON.parse(document.documentElement.dataset.atlasFallback)")});
+      }
+      measurements.push({kind:'history-gallery-pressure',cycles});
+    }
     assert.ok(renderedPixels,'Exported player must render the actual character');
     if(incremental){assert.deepEqual([...seen.keys()].sort(),[...sequence.assetIds].sort());const observation={name,mode:expectedMode??'ordinary',assets:Object.fromEntries(seen),count:seen.size};if(name==='emergency-img')measurements.push({kind:'emergency-sampling-fallback',...observation});else sequenceEvidence.push(observation);}
     const result={ended:true,ending:await client.evaluate("document.querySelector('.player-ending h2').textContent"),renderedPixels,...(native?{stageScreenshot}:{})};
@@ -368,6 +392,24 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
       const result=await client.evaluate(`AtlasLoadingBenchmark.measureReuse(${JSON.stringify(after.mediaAssets)},${JSON.stringify(after.nativeAtlasGroups)})`);
       assert.equal(result.reused,true);assert.equal(result.open.groups,4);assert.equal(result.open.peakActive,1);assert.equal(result.closed.urls,0);assert.equal(result.closed.residentSourceBytes,0);
       measurements.push({kind:'bounded-revisit-gallery',...result});
+    }
+    if(recovery){
+      const navigationBundle=await build({configFile:false,logLevel:'error',define:{'process.env.NODE_ENV':JSON.stringify('production')},build:{write:false,minify:true,lib:{entry:join(root,'tools/atlas-navigation-benchmark.ts'),name:'AtlasNavigationBenchmark',formats:['iife']}}});
+      const navigationCode=(Array.isArray(navigationBundle)?navigationBundle[0]:navigationBundle).output.find(item=>item.type==='chunk').code;
+      const navigationPath=join(temporary,'navigation-comparison.html');
+      await writeFile(navigationPath,'<!doctype html><meta charset="utf-8"><title>Controlled Player navigation</title><div id="player-root"></div><script id="world-project" type="application/json">'+JSON.stringify(after).replaceAll('<','\\u003c')+'</script><script>'+navigationCode.replaceAll('</script','<\\/script')+';globalThis.comparisonReady=AtlasNavigationBenchmark.start(new URLSearchParams(location.search).get("lazy")==="true").then(value=>globalThis.comparison=value);</script>');
+      const rounds=[];
+      for(let round=0;round<3;round++)for(const policy of round%2?[true,false]:[false,true]){
+        await client.send('Page.navigate',{url:pathToFileURL(navigationPath).href+'?lazy='+policy});
+        try { await client.wait('globalThis.comparison!==undefined'); }
+        catch(error){console.log('NAVIGATION_ERRORS',JSON.stringify(client.errors));throw error;}
+        const title=await client.evaluate('comparison.title'),titleProcess=await sampleMemory('navigation');
+        const first=await client.evaluate('comparison.enter()'),firstProcess=await sampleMemory('navigation');
+        const closed=await client.evaluate('comparison.close()'),closedProcess=await sampleMemory('navigation');
+        assert.equal(title.urls,policy?0:30);assert.ok(first.pictures>0);assert.equal(closed.urls,0);assert.equal(closed.blobBytes,0);assert.equal(closed.native.accountedBytes,0);assert.equal(closed.native.groups,0);
+        rounds.push({round:round+1,lazy:policy,title,first,closed,titleProcess,firstProcess,closedProcess});
+      }
+      measurements.push({kind:'controlled-player-navigation',scope:'Same compiled bundle and payload, alternating eager/lazy; real mounted Player through first actual Canvas and disposal. Entry timing excludes process-sampling pauses. Aggregate browser-process snapshots are not peaks, isolated texture memory, or long-session proof. Shared browser warmup remains.',rounds});
     }
   }
   if(rapidSwitch)measurements.push({kind:'rapid-switch',...rapidSwitch});

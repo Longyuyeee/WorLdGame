@@ -3,6 +3,8 @@ import { zlibSync } from "fflate";
 import { createBlobDigest } from "@world-studio/project-persistence";
 import { ATLAS_IDLE_BYTES, ATLAS_IDLE_MILLISECONDS, prepareNativeAtlasMediaAsync } from "./lazy-atlas-media";
 import type { NativeAtlasDelivery } from "./native-atlas";
+import * as nativeAtlas from "./native-atlas";
+import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
 
 const fixture = (id: string, size=3): NativeAtlasDelivery => {
   const bytes = new Uint8Array(size).fill(3), compressed = zlibSync(bytes);
@@ -17,7 +19,47 @@ const urls = () => {
   vi.stubGlobal("URL", { createObjectURL: create, revokeObjectURL: revoke });
   return { create, revoke };
 };
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); vi.restoreAllMocks(); });
+
+it("expires a stalled shared Worker for all waiters and gives retries a fresh task", async () => {
+  urls(); const session = await prepareNativeAtlasMediaAsync([{ assetId: "a", url: "" }], [fixture("a")]);
+  const unpack = vi.spyOn(nativeAtlas, "unpackAtlasFallbackAsync").mockImplementationOnce((_group, signal) => new Promise((_resolve, reject) => {
+    signal!.addEventListener("abort", () => reject(signal!.reason), { once: true });
+  })).mockResolvedValue(new Map([["a", new Uint8Array([3, 3, 3])]]));
+  vi.useFakeTimers();
+  try {
+    const consumer = new AbortController(), acquire = session.media[0]!.atlas!.acquireFallback!;
+    const one = acquire(consumer.signal), two = acquire();
+    const outcomes = Promise.allSettled([one, two]);
+    await vi.advanceTimersByTimeAsync(IMAGE_LOAD_TIMEOUT_MS - 1); consumer.abort();
+    // Rejoining just before the group deadline must not keep the failed job alive indefinitely.
+    const earlyRetry = acquire(); const early = Promise.allSettled([earlyRetry]);
+    await vi.advanceTimersByTimeAsync(1);
+    expect((await outcomes).every(row => row.status === "rejected")).toBe(true);
+    expect((await early)[0]).toMatchObject({ status: "rejected", reason: { name: "TimeoutError" } });
+    expect(diagnostics()).toMatchObject({ groups: 0, active: 0, urls: 0 });
+    const lease = await acquire(); expect(unpack).toHaveBeenCalledTimes(2); lease.release();
+    expect(diagnostics()).toMatchObject({ groups: 0, active: 0, urls: 0, peakActive: 1 });
+  } finally { session.dispose(); }
+});
+
+it("survives 100 shared gallery/cancel/revisit cycles and drains each closed scene", async () => {
+  const { create, revoke } = urls(); const groups = [fixture("a"), fixture("b"), fixture("c"), fixture("d")];
+  const session = await prepareNativeAtlasMediaAsync(groups.map(group => ({ assetId: group.groupId, url: "" })), groups);
+  try { for (let i = 0; i < 100; i++) {
+    const anchor = await session.media[0]!.atlas!.acquireFallback!();
+    const controller = new AbortController();
+    const cancelled = session.media[1]!.atlas!.acquireFallback!(controller.signal);
+    const result = Promise.allSettled([cancelled]);
+    const shared = session.media[1]!.atlas!.acquireFallback!(); controller.abort();
+    expect((await result)[0]!.status).toBe("rejected");
+    const gallery = await Promise.all([shared, ...session.media.map(asset => asset.atlas!.acquireFallback!())]);
+    gallery.forEach(lease => lease.release());
+    expect(diagnostics().idleBytes).toBeLessThanOrEqual(ATLAS_IDLE_BYTES);
+    anchor.release(); expect(diagnostics()).toMatchObject({ groups: 0, urls: 0, residentSourceBytes: 0, idleBytes: 0, active: 0, peakActive: 1 });
+  } } finally { session.dispose(); }
+  expect(create).toHaveBeenCalledTimes(400); expect(revoke).toHaveBeenCalledTimes(400);
+}, 30_000);
 
 it("reuses a recently left group only while another consumer remains, expires and flushes on exit",async()=>{
   urls();const session=await prepareNativeAtlasMediaAsync([{assetId:"a",url:""},{assetId:"b",url:""}],[fixture("a"),fixture("b")]);

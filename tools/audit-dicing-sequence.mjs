@@ -44,13 +44,35 @@ export async function auditDicingSequence(root) {
   const coordinatedWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-coordination-workflow.json'),'utf8'));
   const coordinatedQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-coordination-quality.json'),'utf8'));
   validateDicingSequence(fixture,coordinatedSequence);validateDicingDelivery(coordinatedSequence,coordinatedWorkflow);validateDicingQuality(fixture,coordinatedQuality,coordinatedWorkflow);validateLazyAtlas(fixture,coordinatedWorkflow,true);validateCoordination(coordinatedWorkflow);
-  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS',coordination:'PASS'};
+  const recoverySequence=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-recovery-sequence.json'),'utf8'));
+  const recoveryWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-recovery-workflow.json'),'utf8'));
+  const recoveryQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-recovery-quality.json'),'utf8'));
+  validateDicingSequence(fixture,recoverySequence);validateDicingDelivery(recoverySequence,recoveryWorkflow);validateDicingQuality(fixture,recoveryQuality,recoveryWorkflow);validateLazyAtlas(fixture,recoveryWorkflow,true);validateRecovery(recoveryWorkflow);
+  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS',coordination:'PASS',recovery:'PASS'};
 }
 
-export function validateCoordination(workflow){
-  const slow=workflow.measurements.find(row=>row.kind==='slow-current-picture');assert.equal(slow.held,true);assert.equal(slow.delayedWorkerMilliseconds,3000);assert.ok(slow.observationMilliseconds>=350);
+export function validateCoordination(workflow,recovery=false){
+  const slow=workflow.measurements.find(row=>row.kind==='slow-current-picture');assert.equal(slow.held,true);assert.equal(slow.delayedWorkerMilliseconds,recovery?null:3000);assert.ok(slow.observationMilliseconds>=350);
   const reuse=workflow.measurements.find(row=>row.kind==='bounded-revisit-gallery');assert.equal(reuse.reused,true);assert.ok(reuse.open.cacheHits>=1);assert.equal(reuse.open.groups,4);assert.equal(reuse.open.peakActive,1);
   for(const key of ['groups','urls','residentSourceBytes','idleBytes','active'])assert.equal(reuse.closed[key],0);
+  return {status:'PASS'};
+}
+
+export function validateRecovery(workflow){
+  validateCoordination(workflow,true);assert.deepEqual(workflow.exceptions,[]);
+  const retry=workflow.measurements.find(row=>row.kind==='timeout-recovery');
+  assert.equal(retry.timeoutMilliseconds,15000);
+  for(const key of ['stalledWorker','autoStopped','dialoguePreserved','retried'])assert.equal(retry[key],true);
+  const cycles=workflow.measurements.find(row=>row.kind==='history-gallery-pressure').cycles;
+  assert.equal(cycles.length,20);
+  for(const [i,cycle] of cycles.entries()){assert.equal(cycle.cycle,i);assert.equal(cycle.images,30);assert.ok(cycle.groups<=4);assert.ok(cycle.urls<=30);assert.ok(cycle.idleBytes>=0&&cycle.idleBytes<=8*1024*1024);assert.equal(cycle.peakActive,1);}
+  const rounds=workflow.measurements.find(row=>row.kind==='controlled-player-navigation').rounds;assert.equal(rounds.length,6);
+  for(const round of [1,2,3])for(const lazy of [true,false]){
+    const row=rounds.find(item=>item.round===round&&item.lazy===lazy);assert.ok(row);
+    assert.equal(row.title.urls,lazy?0:30);assert.ok(row.title.navigationMilliseconds>0);assert.ok(row.first.entryMilliseconds>0);assert.ok(row.first.pictures>0);
+    assert.equal(row.closed.urls,0);assert.equal(row.closed.blobBytes,0);assert.equal(row.closed.native.accountedBytes,0);assert.equal(row.closed.native.groups,0);
+    for(const stage of ['titleProcess','firstProcess','closedProcess']){assert.ok(row[stage].privateBytes>0);assert.ok(row[stage].workingSetBytes>0);}
+  }
   return {status:'PASS'};
 }
 

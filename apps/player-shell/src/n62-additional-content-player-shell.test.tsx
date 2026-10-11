@@ -1,9 +1,27 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1 } from "./media-demo";
 
 describe("N62-E1-E4 additional-content Player path", () => {
+  it("offers local gallery retry without a host reload hook and preserves story and collection", async () => {
+    const demo = createPlayerMediaDemoV1();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "完成动效" }));
+    const hash = view.container.querySelector("main")!.getAttribute("data-runtime-state-hash");
+    fireEvent.click(screen.getByRole("button", { name: "打开附加内容" }));
+    fireEvent.click(screen.getByRole("button", { name: "查看 CG 画廊" }));
+    const gallery = within(screen.getByRole("region", { name: "CG 画廊内容" }));
+    fireEvent.error(gallery.getByRole("img", { name: "Deterministic Sunset" }));
+    const retry = await screen.findByRole("button", { name: "重试资源" });
+    expect(screen.getByText("收藏记录仍然保留，请稍后重试。")).toBeInTheDocument();
+    fireEvent.click(retry);
+    await waitFor(() => expect(gallery.getByRole("img", { name: "Deterministic Sunset" })).toHaveAttribute("src", demo.mediaAssets.find(asset => asset.assetId === "media_sunset")!.url));
+    fireEvent.load(gallery.getByRole("img", { name: "Deterministic Sunset" }));
+    fireEvent.click(screen.getByRole("button", { name: "返回剧情" }));
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", hash);
+  });
   it("opens Compiler-backed summaries and returns without changing the active story", () => {
     const demo = createPlayerMediaDemoV1();
     const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);

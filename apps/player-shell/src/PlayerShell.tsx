@@ -176,6 +176,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
+  const [imageAttempt, setImageAttempt] = useState(0);
+  const imageGeneration = `${mediaGeneration}:${imageAttempt}`;
   const [imageReadiness, setImageReadiness] = useState<Record<string, string>>({});
   const reportImage = useCallback((key: string, status: string) => setImageReadiness(current => {
     if (current[key] === status || (status === "released" && !(key in current))) return current;
@@ -269,8 +271,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     () => derivePlayerStagePresentationV1(snapshot, localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui),
     [localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui, snapshot]
   );
-  const stageImagesPending = Boolean(stage.background && (stage.background.atlas || stage.background.canvasSampling) && imageReadiness[`${mediaGeneration}:background:${stage.background.assetId}`] !== "ready")
-    || stage.characters.some(image => (image.atlas || image.canvasSampling) && imageReadiness[`${mediaGeneration}:${image.slot}:${image.assetId}`] !== "ready");
+  const stageImageStates = [
+    ...(stage.background && (stage.background.atlas || stage.background.canvasSampling) ? [imageReadiness[`${imageGeneration}:background:${stage.background.assetId}`]] : []),
+    ...stage.characters.filter(image => image.atlas || image.canvasSampling).map(image => imageReadiness[`${imageGeneration}:${image.slot}:${image.assetId}`])
+  ];
+  const stageImagesPending = stageImageStates.some(status => status !== "ready");
+  const stageImageError = stageImageStates.some(status => status === "error" || status === "timeout");
   const localizedVoice = localizedMedia.voice === null ? [] : [{
     ...localizedMedia.voice,
     bus: "voice",
@@ -1215,18 +1221,22 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
       <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
+        {stageImageError && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
+          {stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。
+          <button type="button" style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); }}>重试画面资源</button>
+        </div>}
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
-            <NativeAtlasImage atlas={stage.background.atlas} canvasSampling={stage.background.canvasSampling}
-              onResourceState={status=>reportImage(`${mediaGeneration}:background:${stage.background!.assetId}`,status)}
+            <NativeAtlasImage atlas={stage.background.atlas} canvasSampling={stage.background.canvasSampling} hideResourceError
+              onResourceState={status=>reportImage(`${imageGeneration}:background:${stage.background!.assetId}`,status)}
               onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
-              key={`${mediaGeneration}:background:${stage.background.assetId}`}
+              key={`${imageGeneration}:background:${stage.background.assetId}`}
               className={`player-stage-background player-transition--${stage.background.transition}`}
               src={stage.background.url}
               alt={stage.background.displayName}
               data-asset-id={stage.background.assetId}
               style={{ animationDuration: `${stage.background.durationMilliseconds}ms`, animationTimingFunction: stage.background.easing }}
-              onError={() => setMediaErrors((current) => [...new Set([...current, stage.background!.assetId])])}
+              onError={() => { if (!stage.background!.atlas && !stage.background!.canvasSampling) setMediaErrors((current) => [...new Set([...current, stage.background!.assetId])]); }}
             />
           )}
           {stage.video !== null && (
@@ -1274,16 +1284,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           )}
           {stage.characters.map((character) => (
             <NativeAtlasImage atlas={character.atlas} canvasSampling={character.canvasSampling}
-              onResourceState={status=>reportImage(`${mediaGeneration}:${character.slot}:${character.assetId}`,status)}
+              hideResourceError
+              onResourceState={status=>reportImage(`${imageGeneration}:${character.slot}:${character.assetId}`,status)}
               onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
-              key={`${mediaGeneration}:${character.slot}:${character.assetId}`}
+              key={`${imageGeneration}:${character.slot}:${character.assetId}`}
               className={`player-stage-character player-transition--${character.transition}`}
               src={character.url}
               alt={character.displayName}
               data-asset-id={character.assetId}
               data-stage-slot={character.slot}
               style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)`, animationDuration: `${character.durationMilliseconds}ms`, animationTimingFunction: character.easing }}
-              onError={() => setMediaErrors((current) => [...new Set([...current, character.assetId])])}
+              onError={() => { if (!character.atlas && !character.canvasSampling) setMediaErrors((current) => [...new Set([...current, character.assetId])]); }}
             />
           ))}
         </div>
@@ -1482,9 +1493,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     return <article className="player-additional-content__item" key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
                       {unavailable ? <div className="player-additional-content__missing" role="status" aria-label={`${item.displayName} 资源状态`}>
                         <strong>{item.displayName}</strong><span>资源暂不可用</span><small>收藏记录仍然保留，请稍后重试。</small>
-                        {onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}
+                        {(source !== undefined || onRetryMedia !== undefined) && <button type="button" onClick={() => { setAdditionalContentMediaErrors(current => current.filter(id => id !== item.assetId)); onRetryMedia?.(); }}>重试资源</button>}
                       </div> : <button type="button" aria-label={`查看画面 ${item.displayName}`} onClick={(event) => { galleryPreviewTrigger.current = event.currentTarget; setSelectedGalleryAssetId(item.assetId); }}>
-                        <DeferredAtlasImage atlas={source.atlas} src={source.url} alt={item.displayName} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />
+                        <DeferredAtlasImage atlas={source.atlas} src={source.url} alt={item.displayName} onResourceFailure={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />
                         <span><small>画面 {index + 1}</small><strong>{item.displayName}</strong></span>
                       </button>}
                     </article>;

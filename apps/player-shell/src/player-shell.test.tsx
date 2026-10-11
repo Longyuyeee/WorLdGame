@@ -15,8 +15,9 @@ import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./
 import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
 import type { NativeAtlasSource } from "./native-atlas";
 import * as nativeAtlas from "./native-atlas";
+import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;
@@ -223,6 +224,67 @@ describe("N50-E1 shared Player Shell", () => {
     await act(async()=>finish({url:"blob:ready",release:vi.fn()}));
     await waitFor(()=>expect(container.querySelector("main")).toHaveAttribute("data-stage-images-pending","false"));
     await waitFor(()=>expect(screen.queryByText("Every cue must remain ordered.")).not.toBeInTheDocument());
+  });
+
+  it.each(["自动播放", "快进全部"])("%s stops on timeout across host suspension and retry requires explicit playback", async control => {
+    vi.useFakeTimers(); const demo = createPlayerMediaDemoV1();
+    const acquireFallback = vi.fn().mockImplementationOnce(() => new Promise(() => {})).mockResolvedValue({ url: "blob:retry", release: vi.fn() });
+    const atlas = { group: {}, assetId: "media_sunset", acquireFallback } as unknown as NativeAtlasSource;
+    vi.spyOn(nativeAtlas, "acquireNativeAtlasImage").mockImplementation(async (_source, canvas) => ({ source: canvas!, width: 8, height: 8, release: vi.fn() }));
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
+    const mediaAssets = demo.mediaAssets.map(asset => asset.assetId === "media_sunset" ? { ...asset, atlas } : asset);
+    const props = { project, mediaAssets, playbackPolicy: playbackPolicy(10) };
+    const view = render(<PlayerShell {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u })); fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    fireEvent.click(screen.getByRole("button", { name: control }));
+    for (let i = 0; i < 20; i++) {
+      view.rerender(<PlayerShell {...props} hostActivity="suspended" />);
+      await act(async () => { await vi.advanceTimersByTimeAsync(100); });
+      view.rerender(<PlayerShell {...props} hostActivity="active" />);
+      expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    }
+    await act(async () => { await vi.advanceTimersByTimeAsync(IMAGE_LOAD_TIMEOUT_MS); });
+    expect(screen.getByRole("alert")).toHaveTextContent("加载超时");
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active", "false");
+    expect(screen.getByRole("button", { name: "自动播放" })).toHaveAttribute("aria-pressed", "false");
+    expect(acquireFallback.mock.calls[0]![0].aborted).toBe(true);
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "重试画面资源" })); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(1000); });
+    expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending", "false");
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument(); view.unmount();
+  });
+
+  it("retries all failed stage pictures from one prompt without restarting audio or changing the story", async () => {
+    const demo = createPlayerMediaDemoV1();
+    const mediaAssets = demo.mediaAssets.map(asset => asset.mimeType.startsWith("image/") ? { ...asset, atlas: {
+      group: {}, assetId: asset.assetId,
+      acquireFallback: vi.fn().mockRejectedValueOnce(Error("shared failure")).mockResolvedValue({ url: "blob:retry", release: vi.fn() })
+    } as unknown as NativeAtlasSource } : asset);
+    vi.spyOn(nativeAtlas, "acquireNativeAtlasImage").mockImplementation(async (_source, canvas) => ({ source: canvas!, width: 8, height: 8, release: vi.fn() }));
+    const view = render(<PlayerShell project={demo.project} mediaAssets={mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await screen.findByRole("alert");
+    const hash = view.container.querySelector("main")!.getAttribute("data-runtime-state-hash"), audio = view.container.querySelector("audio");
+    expect(screen.getAllByRole("button", { name: "重试画面资源" })).toHaveLength(1);
+    fireEvent.click(screen.getByRole("button", { name: "重试画面资源" }));
+    await waitFor(() => expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending", "false"));
+    expect(view.container.querySelectorAll('canvas[data-canvas-sampling="ready"]')).toHaveLength(2);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", hash);
+    expect(view.container.querySelector("audio")).toBe(audio); expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("does not leave a second media error blocking effects after emergency IMG retry", async () => {
+    const demo = createPlayerMediaDemoV1();
+    vi.spyOn(nativeAtlas, "acquireOrdinaryCanvasImage").mockRejectedValue(Error("no Canvas"));
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets.map(asset => ({ ...asset, canvasSampling: asset.mimeType.startsWith("image/") }))} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(view.container.querySelectorAll('img[data-canvas-sampling="emergency-img"]')).toHaveLength(2));
+    fireEvent.error(view.container.querySelector('img[data-canvas-sampling="emergency-img"]')!);
+    expect(screen.getAllByRole("alert")).toHaveLength(1);
+    vi.mocked(nativeAtlas.acquireOrdinaryCanvasImage).mockImplementation(async (_url, canvas) => ({ source: canvas, width: 8, height: 8, release: vi.fn() }));
+    fireEvent.click(screen.getByRole("button", { name: "重试画面资源" }));
+    await waitFor(() => expect(view.container.querySelector("main")).toHaveAttribute("data-stage-images-pending", "false"));
+    expect(screen.queryByRole("alert")).toBeNull(); expect(screen.getByRole("button", { name: "完成动效" })).toBeEnabled();
   });
 
   it("fails visibly when a required media asset is unavailable instead of auto-completing the Effect", () => {

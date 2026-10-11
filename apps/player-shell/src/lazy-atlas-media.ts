@@ -1,5 +1,6 @@
 import { createBlobDigest } from "@world-studio/project-persistence";
 import { embeddedBytes, unpackAtlasFallbackAsync, type NativeAtlasDelivery, type NativeAtlasSource } from "./native-atlas";
+import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
 
 type GroupLease = { urls: Map<string, string>; release: () => void };
 type PendingGroup = { refs: number; controller: AbortController; promise: Promise<Map<string, string>>; urls: Map<string, string>; bytes: number; expiry?: ReturnType<typeof setTimeout> };
@@ -50,14 +51,16 @@ export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; 
       own.promise = tail.catch(() => {}).then(async () => {
         own.controller.signal.throwIfAborted();
         active++; peakActive = Math.max(peakActive, active); publish();
+        // A stalled shared Worker must fail every waiter, not survive one consumer's retry.
+        const deadline = setTimeout(() => own.controller.abort(new DOMException("Atlas preparation timed out", "TimeoutError")), IMAGE_LOAD_TIMEOUT_MS);
         try {
           const files = await unpackAtlasFallbackAsync(group, own.controller.signal);
           own.controller.signal.throwIfAborted();
           for (const [id, bytes] of files) own.urls.set(id, URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: "image/png" })));
           own.bytes = group.fallback.rawBytes; preparedGroups++; publish();
           return own.urls;
-        } catch (error) { clear(own); throw error; }
-        finally { active--; publish(); }
+        } catch (error) { clear(own); if (pending.get(group) === own) pending.delete(group); throw error; }
+        finally { clearTimeout(deadline); active--; publish(); }
       });
       tail = own.promise.catch(() => {});
     }

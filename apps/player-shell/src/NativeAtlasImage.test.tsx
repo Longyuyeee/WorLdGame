@@ -1,11 +1,46 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NativeAtlasImage } from "./NativeAtlasImage";
+import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
 import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, type NativeAtlasDelivery } from "./native-atlas";
 vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdinaryCanvasImage:vi.fn(), nativeAtlasDiagnostics: () => ({ accountedBytes: 1 }) }));
-afterEach(() => { cleanup(); vi.resetAllMocks(); });
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
+  it.each(["fallback", "native", "ordinary", "emergency"])("times out %s, releases ownership, ignores late completion and retries", async phase => {
+    vi.useFakeTimers();
+    const report = vi.fn(), failure = vi.fn(), release = vi.fn(), lateRelease = vi.fn();
+    type LateLease = Awaited<ReturnType<typeof acquireNativeAtlasImage>> & { url: string };
+    let complete!: (value: LateLease) => void;
+    const stalled = new Promise<LateLease>(resolve => { complete = resolve; });
+    const fallback = vi.fn().mockResolvedValue({ url: "blob:source", release });
+    if (phase === "fallback") fallback.mockReturnValueOnce(stalled);
+    vi.mocked(acquireNativeAtlasImage).mockImplementation(async (_source, canvas) => ({ source: canvas!, width: 8, height: 8, release: vi.fn() }));
+    if (phase === "native") vi.mocked(acquireNativeAtlasImage).mockReturnValueOnce(stalled);
+    if (phase === "ordinary") vi.mocked(acquireOrdinaryCanvasImage).mockReturnValueOnce(stalled);
+    if (phase === "emergency") vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(Error("no Canvas"));
+    const atlas = phase === "fallback" || phase === "native" ? { group: group(), assetId: "a", acquireFallback: fallback } : undefined;
+    const view = render(<NativeAtlasImage atlas={atlas} canvasSampling src="blob:source" alt="角色" onResourceState={report} onResourceFailure={failure} />);
+    await act(async () => { await vi.advanceTimersByTimeAsync(IMAGE_LOAD_TIMEOUT_MS); });
+    expect(screen.getByRole("alert")).toHaveTextContent("加载超时"); expect(failure).toHaveBeenCalledOnce();
+    expect(report).not.toHaveBeenCalledWith("ready");
+    if (phase === "native") expect(release).toHaveBeenCalledOnce();
+    await act(async () => { complete({ url: "blob:late", source: document.createElement("canvas"), width: 8, height: 8, release: lateRelease }); });
+    if (phase !== "emergency") expect(lateRelease).toHaveBeenCalledOnce();
+    expect(report).not.toHaveBeenCalledWith("ready");
+    vi.mocked(acquireOrdinaryCanvasImage).mockImplementation(async (_url, canvas) => ({ source: canvas, width: 8, height: 8, release: vi.fn() }));
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "重试画面资源" })); });
+    expect(screen.getByRole("img")).toHaveAttribute("data-canvas-sampling", "ready");
+    await act(async () => { await vi.advanceTimersByTimeAsync(IMAGE_LOAD_TIMEOUT_MS * 2); });
+    expect(failure).toHaveBeenCalledOnce(); view.unmount(); expect(vi.getTimerCount()).toBe(0);
+  });
+  it("turns emergency IMG failure into a retryable error immediately", async () => {
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValue(Error("no Canvas"));
+    const failure = vi.fn(); render(<NativeAtlasImage canvasSampling src="broken" alt="角色" onResourceFailure={failure} />);
+    await waitFor(() => expect(screen.getByRole("img").tagName).toBe("IMG"));
+    fireEvent.error(screen.getByRole("img")); expect(failure).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "重试画面资源" })).toBeInTheDocument();
+  });
   it("does not report emergency IMG ready until its load event",async()=>{
     const report=vi.fn();vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValue(Error("no Canvas"));
     const view=render(<NativeAtlasImage canvasSampling src="blob:original" alt="角色" onResourceState={report} />);

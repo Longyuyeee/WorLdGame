@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas, validateCoordination } from './audit-dicing-sequence.mjs';
+import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas, validateCoordination, validateRecovery } from './audit-dicing-sequence.mjs';
 const fixture=JSON.parse(await readFile(new URL('../fixtures/projects/dicing/sequence.json',import.meta.url),'utf8'));
 const evidence=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-incremental-sequence.json',import.meta.url),'utf8'));
 test('Dicing sequence gate accepts the full six-mode evidence',()=>assert.equal(validateDicingSequence(fixture,evidence).status,'PASS'));
@@ -42,4 +42,13 @@ test('Coordination gate rejects skipped waiting, unbounded cache and retained ga
   const skipped=structuredClone(coordinated);skipped.measurements.find(row=>row.kind==='slow-current-picture').held=false;assert.throws(()=>validateCoordination(skipped));
   const leaked=structuredClone(coordinated);leaked.measurements.find(row=>row.kind==='bounded-revisit-gallery').closed.urls=1;assert.throws(()=>validateCoordination(leaked));
   const excess=structuredClone(coordinated);excess.measurements.find(row=>row.kind==='lazy-visible').idleBytes=9*1024*1024;assert.throws(()=>validateLazyAtlas(fixture,excess,true));
+});
+
+const recovery=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-recovery-workflow.json',import.meta.url),'utf8'));
+test('Recovery gate requires timeout recovery, repeated real gallery/history and controlled Player navigation',()=>assert.equal(validateRecovery(recovery).status,'PASS'));
+test('Recovery gate rejects hidden failures, missing cycles and leaked navigation resources',()=>{
+  const stopped=structuredClone(recovery);stopped.measurements.find(row=>row.kind==='timeout-recovery').autoStopped=false;assert.throws(()=>validateRecovery(stopped));
+  const cycles=structuredClone(recovery);cycles.measurements.find(row=>row.kind==='history-gallery-pressure').cycles.pop();assert.throws(()=>validateRecovery(cycles));
+  const leaked=structuredClone(recovery);leaked.measurements.find(row=>row.kind==='controlled-player-navigation').rounds[0].closed.native.accountedBytes=1;assert.throws(()=>validateRecovery(leaked));
+  const missing=structuredClone(recovery);missing.measurements.find(row=>row.kind==='controlled-player-navigation').rounds[0].firstProcess.privateBytes=0;assert.throws(()=>validateRecovery(missing));
 });
