@@ -16,6 +16,7 @@ import { runCreatorConditionWorkflow } from './creator-condition-workflow.mjs';
 import { runCreatorRepairWorkflow } from './creator-repair-workflow.mjs';
 import { runCreatorAssetRepairWorkflow } from './creator-asset-repair-workflow.mjs';
 import { runCreatorExportOptimizationWorkflow } from './creator-export-optimization-workflow.mjs';
+import { runPlayerContinuity } from './player-continuity-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -89,7 +90,9 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')||process.argv.includes('--atlas-quality-workflow')||process.argv.includes('--atlas-sampling-workflow')||process.argv.includes('--atlas-lazy-workflow')||process.argv.includes('--atlas-coordination-workflow')||process.argv.includes('--atlas-recovery-workflow')||process.argv.includes('--atlas-isolation-workflow')) {
+  if(process.argv.includes('--player-continuity')) {
+    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary),null,2));
+  } else if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')||process.argv.includes('--atlas-quality-workflow')||process.argv.includes('--atlas-sampling-workflow')||process.argv.includes('--atlas-lazy-workflow')||process.argv.includes('--atlas-coordination-workflow')||process.argv.includes('--atlas-recovery-workflow')||process.argv.includes('--atlas-isolation-workflow')) {
     const isolation=process.argv.includes('--atlas-isolation-workflow');
     const recovery=isolation||process.argv.includes('--atlas-recovery-workflow');
     const coordination=recovery||process.argv.includes('--atlas-coordination-workflow');

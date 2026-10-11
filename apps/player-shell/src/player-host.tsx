@@ -22,5 +22,7 @@ export function WebPlayerHost({ activityOverride, saveStore, recoveryStore, ...p
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, []);
 
-  return <PlayerShell {...props} {...(resolvedSaveStore === undefined ? {} : { saveStore: resolvedSaveStore })} {...(resolvedRecoveryStore === undefined ? {} : { recoveryStore: resolvedRecoveryStore })} platform="web" hostActivity={activityOverride ?? activity} />;
+  // Host permission may suspend playback, but must never override a hidden page.
+  const effectiveActivity = activity === "suspended" || activityOverride === "suspended" ? "suspended" : "active";
+  return <PlayerShell {...props} {...(resolvedSaveStore === undefined ? {} : { saveStore: resolvedSaveStore })} {...(resolvedRecoveryStore === undefined ? {} : { recoveryStore: resolvedRecoveryStore })} platform="web" hostActivity={effectiveActivity} />;
 }

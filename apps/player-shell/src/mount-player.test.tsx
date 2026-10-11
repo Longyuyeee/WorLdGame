@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { mountWorldPlayerV1, WORLD_PLAYER_EMBED_API_VERSION, type WorldPlayerHandleV1 } from "@world-studio/player-shell";
 import { createPlayerMediaDemoV1 } from "./media-demo";
@@ -13,6 +13,7 @@ const containers: HTMLElement[] = [];
 afterEach(() => {
   for (const handle of mounted.splice(0)) handle.unmount();
   for (const container of containers.splice(0)) container.remove();
+  vi.restoreAllMocks();
 });
 
 function branching(): CanonicalProject {
@@ -34,6 +35,17 @@ function mount(container = connectedContainer(), project = branching()): WorldPl
 }
 
 describe("N50-E6 versioned Player host embedding API", () => {
+  it("treats real document visibility as a ceiling even with an explicit active host", () => {
+    const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
+    const handle=mount();
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    visibility.mockReturnValue("hidden");fireEvent(document,new Event("visibilitychange"));
+    expect(handle.getObservation()).toMatchObject({hostActivity:"suspended",status:"waiting-choice"});
+    handle.setHostActivity("active");expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("suspended");visibility.mockReturnValue("visible");fireEvent(document,new Event("visibilitychange"));
+    expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("active");expect(handle.getObservation()).toMatchObject({hostActivity:"active",status:"waiting-choice"});
+  });
   it("mounts the formal Core and exposes a stable observation contract", () => {
     const handle = mount();
     expect(handle.apiVersion).toBe(WORLD_PLAYER_EMBED_API_VERSION);

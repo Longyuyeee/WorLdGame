@@ -1,4 +1,33 @@
-# 当前开发情况：原生解码隔离与原图持续播放
+# 当前开发情况：跨场景连续播放与离开保护
+
+## 最新审计：2026-10-11 面板、后台和连续游玩
+
+本节优先，对齐 #89/#289 和 #11 §2.3–2.4、#12 §5.2–5.4。原生解码隔离完成后，继续检查真实 Player 的 Auto/Skip、历史、存档和宿主生命周期，而不是继续增加图片压缩指标。
+
+### 实际问题与修复
+
+- 历史与存档面板原先只有显示开关，Auto 定时器和 Skip 批次仍可推进。现在暂停 Auto，关闭后重建完整等待间隔；Skip 停止，不自动恢复。附加内容面板也加入调度保护，保留既有进入/退出控制状态策略。
+- 历史/存档打开时空格、回车原先进入全局推进处理；现在不透传，Escape 关闭面板。历史/存档/附加内容打开时不注册剧情手柄轮询，避免手柄操作推进背景剧情；未增加新的手柄面板导航能力。
+- WebPlayerHost 原先以 `activityOverride ?? activity` 决定状态，而 mount API 默认传 active，可能覆盖真实 visibilitychange。现在 document hidden 和显式宿主 suspended 任一个都使 Player 暂停；页面 visible 不擅自解除宿主暂停。嵌入 API 形状和版本不变，#217/#218 同步合同说明。
+- Skip 原先先处理 awaited video cancel，再判断宿主是否活动。现在先检查宿主/面板，后台不能通过 Skip 取消正在等待的视频或继续运行。Runtime/Compiler、语音策略、资产解码和预算未改。
+
+### 连续验收与纠偏
+
+入口：`node tools/run-n80-web-export-browser.mjs --player-continuity`（配置可用 `WORLD_STUDIO_BROWSER_PATH`）。新增独立生产 Player IIFE 验收宿主，12 个 Canonical 场景，每场景 6 句和场景选择边界，4 张 256×256 合成 PNG，正常产品时钟。四轮交替 Auto/SkipAll，逐个场景等待画面准备、验证停在选择/结局，标题后检查 Canvas 预算归零；每轮还做历史/面板等待、后台保护、完整恢复间隔、Back/Forward 和 IndexedDB 快速存读档。
+
+验收脚本初版曾出现缺失数组括号、Vite 返回数组未展开、按钮编号/箭头导致定位不匹配，均在产物验收前修正。存读档判断另纠正为恢复对白/历史游标：正式 Load 会合并当前 MetaProgress，因此整体 Runtime hash 可以不同，不能为通过测试修改已读权威。历史 Back/Forward 仍核对原 hash。Skip 的停止需等 React 生命周期提交，不能在中间渲染瞬间下结论。CDP 长任务遇到 Promise was collected 后，在页面显式持有当轮 Promise；没有为绕过失败放宽剧情或资源断言。
+
+浏览器完整四轮最终退出 0，耗时 **128.7 秒**，48 次场景访问全部通过（Auto 24、SkipAll 24），每轮历史/后台/恢复等待/存读档检查通过，exceptions 为空。持续应用 Canvas 计账峰值 524,288 B，四轮各自返回标题后为 0，最终卸载后组/字节/解码/队列/隔离均为 0。证据为 `evidence/authoring/player-continuity.json` 和返回标题截图；这是分钟级连续验收，明确不是多小时 soak。
+
+已通过 203 文件/1162 项宽回归，之后补入两条面板 Skip 断言的相关 71 项通过；Editor App/附加内容 51 项通过（测试集合有重叠，不相加为独立覆盖）。类型检查、Editor/Player 构建、架构/17 工作区检查通过。独立工具也以 `tsc --ignoreConfig` 检查，纠正 S0 fixture 的上下文类型；仅类型标注改变，不改变运行 bundle。jsdom play/pause 未实现告警及构建大 chunk 提醒保留。
+
+`audit:goldens` 的 25 项正反例和全部子门禁通过，保留 7 个原 Golden 与历史 Dicing 证据检查，新增连续播放证据门禁，拒绝缺场景、后台保护失败、模式错配及退出计账泄漏。已目视检查返回标题截图；本轮浏览器/预览子进程由验收器退出清理。已有 `.browser-diagnostic/` 未修改、不提交。
+
+### 边界与下一接续
+
+受控 visibilityState/visibilitychange 注入验证宿主边界，不证明操作系统冻结/挂起。此处是独立生产 Player 实验，不冒充作者 UI 正式导出全链路；没有重新生成上一轮 Atlas 七模式证据。PNG 小型合成图和应用计账不等于真实美术、GPU/进程峰值或低内存设备压力。快进覆盖 SkipAll，已读/按住等策略由既有回归保留，未声称本轮浏览器逐组合覆盖。没有执行完整 `npm run check`。
+
+下一完整任务仍是目标设备/真实素材压力收尾：多小时混合游玩、真实后台冻结/恢复、低内存预算与真实美术验证，再评估安全预测预取。Android 派生/真机、平台纹理/Mip、真人验收继续阻断 Dicing P0、N70、M1。以下为历史。
 
 ## 最新审计：2026-10-11 不可取消 Bitmap 的安全降级
 

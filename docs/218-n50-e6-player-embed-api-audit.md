@@ -15,7 +15,7 @@ E6 关闭 Player Shell 从“只有 Vite 页面入口”到“可由平台宿主
 ## 2. 实现事实
 
 - `mountWorldPlayerV1(container, options)` 与 `WORLD_PLAYER_EMBED_API_VERSION=1.0.0` 从 `@world-studio/player-shell` 根入口导出。
-- Handle 提供 `setProject`、`setMediaAssets`、`setHostActivity`、`getObservation` 和幂等 `unmount`；观察值包含 Core/Compiler/Runtime/Host 版本和当前状态。
+- Handle 提供 `setProject`、`setMediaAssets`、`setHostActivity`、`getObservation` 和幂等 `unmount`；观察值包含 Core/Compiler/Runtime/Host 版本和当前状态。2026-10-11 纠偏：`setHostActivity("active")` 只解除宿主暂停，不覆盖 document hidden；观察值报告两者合并后的真实活动状态，不改变 API 形状/版本。
 - detached container、重复所有权和 disposed handle 均以稳定错误码失败关闭；卸载释放 React root，原容器允许 fresh remount。
 - package 升至 `0.5.0-n50`；portable Player Core 保持 `0.3.0-n50`，因为未改变剧情协议。
 - Vite 生成普通页与独立 `embed.html` 两个入口；独立宿主只消费公开包入口，并在 Player 外控制暂停、恢复、卸载和重挂。

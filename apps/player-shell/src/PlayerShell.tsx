@@ -782,7 +782,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("stopped");
       return;
     }
-    if (hostActivity !== "active") {
+    if (hostActivity !== "active" || historyPanelOpen || savePanelOpen || additionalContentOpen) {
       setAutoPlayback("suspended");
       return;
     }
@@ -841,7 +841,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [autoEnabled, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+  }, [autoEnabled, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -854,6 +854,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     if (!skipActive || skipMode === null) return;
+    // Do not cancel an awaited video or dispatch a batch while the player is away.
+    if (hostActivity !== "active" || historyPanelOpen || savePanelOpen || additionalContentOpen) {
+      stopSkip();
+      return;
+    }
     if (snapshot.status === "waiting-effect" && stage.video?.awaited === true && canonicalPlaybackPolicy.skip.video === "cancel-and-continue") {
       setState((current) => dispatchPlayerCoreIntentV1(current, project, { kind: "cancel" }));
       if (skipMode === "skipRead") {
@@ -893,7 +898,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip]);
+  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip]);
 
   useEffect(() => {
     if (!skipActive) return;
@@ -1009,6 +1014,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         }
         return;
       }
+      if (historyPanelOpen || savePanelOpen) {
+        if (event.key === "Escape") { event.preventDefault(); setHistoryPanelOpen(false); setSavePanelOpen(false); }
+        return;
+      }
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();
@@ -1038,10 +1047,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active]);
+  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active]);
 
   useEffect(() => {
-    if (hostActivity !== "active") return;
+    if (hostActivity !== "active" || historyPanelOpen || savePanelOpen || additionalContentOpen) return;
     if (typeof navigator.getGamepads !== "function") return;
     let animationFrame = 0;
     let previous = createEmptyPlayerGamepadFrameV1();
@@ -1070,7 +1079,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     animationFrame = requestAnimationFrame(poll);
     return () => cancelAnimationFrame(animationFrame);
-  }, [applyIntent, content, hostActivity, selectedChoiceIndex]);
+  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, applyIntent, content, hostActivity, selectedChoiceIndex]);
 
   useEffect(() => {
     const previous = previousHostActivity.current;

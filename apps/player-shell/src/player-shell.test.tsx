@@ -569,6 +569,36 @@ describe("N52-E5d Shell History user journey", () => {
 });
 
 describe("N52-E4b Shell Auto real clock", () => {
+  it.each(["打开剧情历史","存读档"])("holds Auto while reading %s and restarts a full delay on close", async label => {
+    vi.useFakeTimers();
+    const source=autoStory(),project={...source,settings:withProjectSettings(source.settings,{text:{revealMode:"instant"}})};
+    const store: WorldPlayerSaveStoreV3={version:"3.0.0",backend:"memory-test",async list(){return [];},async read(){return null;},async readPreview(){return null;},async write(){}};
+    const view=render(<PlayerShell project={project} saveStore={store} playbackPolicy={playbackPolicy(100)} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));fireEvent.click(screen.getByRole("button",{name:"自动播放"}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(25);});
+    fireEvent.click(screen.getByRole("button",{name:label}));
+    const hash=view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.keyDown(window,{key:" "});fireEvent.keyDown(window,{key:"Enter"});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(5000);});
+    expect(view.container.querySelector("main")).toHaveAttribute("data-auto-playback","suspended");
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+    if(label==="打开剧情历史")fireEvent.click(screen.getAllByRole("button",{name:"关闭剧情历史"})[0]!);
+    else fireEvent.click(screen.getByRole("button",{name:label}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(99);});expect(screen.getByText("A")).toBeInTheDocument();
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1);});expect(screen.getByText("B")).toBeInTheDocument();
+  });
+  it("does not cancel an awaited video when Skip is requested in the background", () => {
+    const demo=videoStory();
+    const view=render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    // Start while active, then suspend at the awaited video boundary.
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    const hash=view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.click(screen.getByRole("button",{name:"快进全部"}));
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active","false");
+  });
   it("stops Auto on the build-authored Player Stop Point", async () => {
     const source = stopPointStory();
     const project = { ...source, settings: withProjectSettings(source.settings, { text: { revealMode: "instant" } }) };
@@ -646,6 +676,22 @@ describe("N52-E4b Shell Auto real clock", () => {
 });
 
 describe("N52-E4c Shell Skip controls and cleanup", () => {
+  it.each(["打开剧情历史","存读档"])("stops queued Skip behind %s without resuming it on close", async label=>{
+    vi.useFakeTimers();
+    const source=longSkipStory(),project={...source,settings:withProjectSettings(source.settings,{text:{revealMode:"instant"}})};
+    const store: WorldPlayerSaveStoreV3={version:"3.0.0",backend:"memory-test",async list(){return [];},async read(){return null;},async readPreview(){return null;},async write(){}};
+    const view=render(<PlayerShell project={project} saveStore={store} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    const hash=view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.click(screen.getByRole("button",{name:"快进全部"}));
+    fireEvent.click(screen.getByRole("button",{name:label}));
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});
+    expect(view.container.querySelector("main")).toHaveAttribute("data-skip-active","false");
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+    fireEvent.keyDown(window,{key:"Escape"});
+    await act(async()=>{await vi.advanceTimersByTimeAsync(1000);});
+    expect(view.container.querySelector("main")!.dataset.runtimeStateHash).toBe(hash);
+  });
   it.each([
     ["skipRead", "toggle"],
     ["skipAll", "toggle"],

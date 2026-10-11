@@ -14,7 +14,7 @@ E5 只关闭正式 Player Shell 的宿主嵌入和可见性生命周期：Web �
 
 ## 2. 实现事实
 
-- 新增 `WebPlayerHost`：默认监听真实 `visibilitychange`，也允许未来宿主以 `activityOverride` 注入等价平台状态。
+- 新增 `WebPlayerHost`：默认监听真实 `visibilitychange`，也允许未来宿主以 `activityOverride` 注入等价平台状态。2026-10-11 纠偏：页面 hidden 是播放上限，override=active 不能覆盖 hidden；override=suspended 在页面重新 visible 后仍保持暂停。详见 #99 最新审计。
 - `PlayerShell` 新增 `PlayerHostActivityV1 = active | suspended`；Core 状态、Compiler artifacts 和 Runtime Host snapshot 不因暂停而重建。
 - suspended 时不注册键盘/手柄消费，不允许 animation end 自动完成 awaited Effect；全屏现代化遮罩阻止 Player pointer，宿主恢复/卸载操作仍可用。
 - 每个 audio bus 标记 `shouldPlay/playerPlayback`；暂停调用真实 `pause()`，恢复只对正式 Stage 标记 playing 的 bus 调用 `play()`，拒绝恢复 idle/removed bus。
