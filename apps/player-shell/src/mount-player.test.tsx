@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { mountWorldPlayerV1, WORLD_PLAYER_EMBED_API_VERSION, type WorldPlayerHandleV1 } from "@world-studio/player-shell";
-import { createPlayerMediaDemoV1 } from "./media-demo";
+import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1 } from "./media-demo";
 
 const mounted: WorldPlayerHandleV1[] = [];
 const containers: HTMLElement[] = [];
@@ -35,6 +35,20 @@ function mount(container = connectedContainer(), project = branching()): WorldPl
 }
 
 describe("N50-E6 versioned Player host embedding API", () => {
+  it("reports actual voice waiting as active and suspends it through the host API", async () => {
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const container = connectedContainer();
+    const handle = mountWorldPlayerV1(container, { project: demo.project, mediaAssets: demo.mediaAssets });
+    mounted.push(handle);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "waiting-voice"));
+    expect(screen.getByText("等待语音结束，可关闭自动播放切回手动")).toBeVisible();
+    expect(handle.getObservation().playback.active).toBe(true);
+    handle.setHostActivity("suspended");
+    expect(handle.getObservation().playback.active).toBe(false);
+  });
   it("suspends synchronously for freeze and keeps host/visibility restrictions after resume", () => {
     const visibility=vi.spyOn(document,"visibilityState","get").mockReturnValue("visible");
     const handle=mount();

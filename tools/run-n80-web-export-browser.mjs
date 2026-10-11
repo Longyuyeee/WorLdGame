@@ -18,6 +18,7 @@ import { runCreatorAssetRepairWorkflow } from './creator-asset-repair-workflow.m
 import { runCreatorExportOptimizationWorkflow } from './creator-export-optimization-workflow.mjs';
 import { runPlayerContinuity } from './player-continuity-workflow.mjs';
 import { runPlayerInput } from './player-input-workflow.mjs';
+import { runPlayerVoice } from './player-voice-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -93,7 +94,9 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--player-input')) {
+  if(process.argv.includes('--player-voice')) {
+    console.log(JSON.stringify(await runPlayerVoice(client,root,temporary),null,2));
+  } else if(process.argv.includes('--player-input')) {
     console.log(JSON.stringify(await runPlayerInput(client,root,temporary),null,2));
   } else if(process.argv.includes('--player-continuity')||process.argv.includes('--player-pressure')) {
     const duration=process.argv.find(arg=>arg.startsWith('--pressure-minutes='));

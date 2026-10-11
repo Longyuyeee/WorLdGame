@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
+import { startPlayerAutoClock } from "./auto-playback-clock";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
@@ -188,11 +189,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
   const [lastInputAccepted, setLastInputAccepted] = useState(true);
   const [voicePlaying, setVoicePlaying] = useState(false);
-  const [voiceEnded, setVoiceEnded] = useState(false);
-  const [voiceMetadataRevision, setVoiceMetadataRevision] = useState(0);
   const [textReady, setTextReady] = useState(true);
   const [autoEnabled, setAutoEnabled] = useState(false);
-  const [autoPlayback, setAutoPlayback] = useState<"off" | "waiting-text" | "waiting-voice-metadata" | "waiting-video" | "waiting" | "advancing" | "suspended" | "stopped">("off");
+  const [autoPlayback, setAutoPlayback] = useState<"off" | "waiting-text" | "waiting-voice" | "waiting-video" | "waiting" | "advancing" | "suspended" | "stopped">("off");
   const [skipMode, setSkipMode] = useState<"skipRead" | "skipAll" | null>(null);
   const [skipActivation, setSkipActivation] = useState<WorldPlayerSkipActivationV1>(() => playbackPolicy.skip?.defaultActivation ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultActivation);
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
@@ -348,8 +347,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     setVoicePlaying(false);
-    setVoiceEnded(false);
-    setVoiceMetadataRevision((revision) => revision + 1);
   }, [localizedMedia.voice?.assetId]);
 
   const stopSkip = useCallback(() => {
@@ -633,8 +630,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setLastInputSource("lifecycle");
     setLastInputAccepted(true);
     setVoicePlaying(false);
-    setVoiceEnded(false);
-    setVoiceMetadataRevision(0);
     setAutoEnabled(false);
     setAutoPlayback("off");
     setHistoryPanelOpen(false);
@@ -803,18 +798,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
 
     const voice = audioElements.current.get("voice");
-    let voiceDurationMilliseconds = 0;
-    const voiceShouldContinue = voice !== undefined
-      && !voiceEnded
-      && (voicePlaying || voice.dataset.shouldPlay === "true");
-    if (voiceShouldContinue) {
-      const remainingSeconds = voice.duration - voice.currentTime;
-      if (!Number.isFinite(remainingSeconds) || remainingSeconds < 0) {
-        setAutoPlayback("waiting-voice-metadata");
-        return;
-      }
-      voiceDurationMilliseconds = Math.ceil(remainingSeconds * 1000);
-    }
     const readableUnits = Array.from(content.text).length;
     const policy = {
       schemaVersion: 1 as const,
@@ -828,21 +811,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         baseDelayMilliseconds: canonicalPlaybackPolicy.auto.baseDelayMilliseconds,
         millisecondsPerReadableUnit: canonicalPlaybackPolicy.auto.millisecondsPerReadableUnit,
         readableUnits,
-        voiceDurationMilliseconds,
-        voiceTailMilliseconds: voiceDurationMilliseconds > 0 ? canonicalPlaybackPolicy.auto.voiceTailMilliseconds : 0
+        // The host clock waits for actual ended/error before invoking the core scheduler.
+        voiceDurationMilliseconds: 0,
+        voiceTailMilliseconds: 0
       }
     };
-    const delay = Math.max(
-      policy.autoTiming.baseDelayMilliseconds + policy.autoTiming.millisecondsPerReadableUnit * readableUnits,
-      policy.autoTiming.voiceDurationMilliseconds + policy.autoTiming.voiceTailMilliseconds
-    );
-    setAutoPlayback("waiting");
-    const timer = window.setTimeout(() => {
+    const delay = policy.autoTiming.baseDelayMilliseconds + policy.autoTiming.millisecondsPerReadableUnit * readableUnits;
+    setAutoPlayback(voice?.dataset.shouldPlay === "true" && !voice.ended && !voice.error && voice.dataset.voiceCompleted !== "true" && voice.dataset.voiceFailed !== "true" ? "waiting-voice" : "waiting");
+    return startPlayerAutoClock(voice, delay, canonicalPlaybackPolicy.auto.voiceTailMilliseconds, () => {
       setAutoPlayback("advancing");
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
-    }, delay);
-    return () => window.clearTimeout(timer);
-  }, [autoEnabled, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+    });
+  }, [autoEnabled, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -1089,7 +1069,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (hostActivity === "suspended") {
         element.dataset.playerPlayback = "suspended";
         element.pause();
-      } else if (element.dataset.shouldPlay === "true" && settingsApplication.audio.resumeAfterInterruption) {
+      } else if (element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true" && settingsApplication.audio.resumeAfterInterruption) {
         element.dataset.playerPlayback = "resuming";
         const resumed = element.play();
         resumed?.then(() => {
@@ -1121,7 +1101,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (skipActive) {
         element.dataset.playerPlayback = "skipped";
         element.pause();
-      } else if (wasActive && hostActivity === "active" && element.dataset.shouldPlay === "true") {
+      } else if (wasActive && hostActivity === "active" && element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true") {
         element.dataset.playerPlayback = "resuming-after-skip";
         const resumed = element.play();
         resumed?.then(() => { element.dataset.playerPlayback = "playing"; }).catch(() => { element.dataset.playerPlayback = "blocked"; });
@@ -1327,26 +1307,27 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             aria-label={`${track.displayName} · ${track.bus}`}
             autoPlay={hostActivity === "active" && track.status === "playing"}
             loop={track.loop}
-            onLoadedMetadata={() => {
+            onPlay={(event) => {
               if (track.bus === "voice") {
-                setVoiceEnded(false);
-                setVoiceMetadataRevision((revision) => revision + 1);
-              }
-            }}
-            onPlay={() => {
-              if (track.bus === "voice") {
-                setVoiceEnded(false);
+                event.currentTarget.dataset.voiceCompleted = "false";
+                event.currentTarget.dataset.voiceFailed = "false";
                 setVoicePlaying(true);
               }
             }}
             onPause={() => { if (track.bus === "voice") setVoicePlaying(false); }}
-            onEnded={() => {
+            onEnded={(event) => {
               if (track.bus === "voice") {
-                setVoiceEnded(true);
+                event.currentTarget.dataset.voiceCompleted = "true";
                 setVoicePlaying(false);
               }
             }}
-            onError={() => setMediaErrors((current) => [...new Set([...current, track.assetId])])}
+            onError={(event) => {
+              if (track.bus === "voice") {
+                event.currentTarget.dataset.voiceFailed = "true";
+                setVoicePlaying(false);
+              }
+              setMediaErrors((current) => [...new Set([...current, track.assetId])]);
+            }}
           />
         ))}
         {hostActivity === "suspended" && (
@@ -1637,7 +1618,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           >全部</button>
           <label>方式<select aria-label="快进激活方式" value={skipActivation} onChange={(event) => { stopSkip(); setSkipActivation(event.target.value as WorldPlayerSkipActivationV1); }}><option value="toggle">切换</option><option value="hold">按住</option></select></label>
           <label>速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
-          <span aria-live="polite">{(autoEnabled || skipActive) && stageImagesPending ? "等待画面资源，准备好后继续" : autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
+          <span aria-live="polite">{(autoEnabled || skipActive) && stageImagesPending ? "等待画面资源，准备好后继续" : autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : autoPlayback === "waiting-voice" ? "等待语音结束，可关闭自动播放切回手动" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
         {saveStore !== undefined && !snapshot.sceneReplay.active && (
           <aside className="player-save" data-open={savePanelOpen}>

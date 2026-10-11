@@ -1,0 +1,1228 @@
+{
+  "schemaVersion": 1,
+  "scope": "production-player-synthetic-WAV-CDP-touch-not-physical-device-or-speech",
+  "elapsedMilliseconds": 101629.2257,
+  "runs": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "mode": "instant",
+      "rows": [
+        {
+          "scene": 0,
+          "mode": "auto",
+          "pausedVoiceHeld": true,
+          "tailHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 1,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 2,
+          "mode": "auto",
+          "hostHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 3,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 4,
+          "mode": "auto",
+          "quickLoadRestored": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 5,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 6,
+          "mode": "auto",
+          "historyHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 7,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 8,
+          "mode": "auto",
+          "failedVoiceRecovered": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 9,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 10,
+          "mode": "auto",
+          "completedVoiceNotReplayed": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 11,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        }
+      ],
+      "events": [
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 368.3999999985099
+        },
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 1174.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_0",
+          "time": 1752.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_1",
+          "time": 1974.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_1",
+          "time": 2552.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_2",
+          "time": 2903.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_2",
+          "time": 3472.599999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_3",
+          "time": 4056.39999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 4321.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 5189
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_6",
+          "time": 5752.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_7",
+          "time": 6134.099999997765
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_7",
+          "time": 6712.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_8",
+          "time": 7076.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_8",
+          "time": 7652.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_9",
+          "time": 8239.39999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 8497.599999997765
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 9072.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 9134.699999999255
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 9712.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_13",
+          "time": 10089
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_13",
+          "time": 10653
+        },
+        {
+          "kind": "play",
+          "asset": "voice_14",
+          "time": 11025.39999999851
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_14",
+          "time": 11592.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_15",
+          "time": 12192.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_18",
+          "time": 12463.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_18",
+          "time": 13032.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_19",
+          "time": 14243.39999999851
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_19",
+          "time": 14813.099999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_20",
+          "time": 15202.099999997765
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_20",
+          "time": 15773
+        },
+        {
+          "kind": "play",
+          "asset": "voice_21",
+          "time": 16386.800000000745
+        },
+        {
+          "kind": "error",
+          "asset": "voice_24",
+          "time": 16686.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_25",
+          "time": 17666.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_25",
+          "time": 18233
+        },
+        {
+          "kind": "play",
+          "asset": "voice_26",
+          "time": 18624.599999997765
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_26",
+          "time": 19192.89999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_27",
+          "time": 19838
+        },
+        {
+          "kind": "play",
+          "asset": "voice_30",
+          "time": 20168.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_30",
+          "time": 20733.099999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_31",
+          "time": 21960.099999997765
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_31",
+          "time": 22537.39999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_32",
+          "time": 22980.199999999255
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_32",
+          "time": 23553.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_33",
+          "time": 24259.099999997765
+        }
+      ],
+      "mounted": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "mobile": false
+      },
+      "mode": "typewriter",
+      "rows": [
+        {
+          "scene": 0,
+          "mode": "auto",
+          "pausedVoiceHeld": true,
+          "tailHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 1,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 2,
+          "mode": "auto",
+          "hostHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 3,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 4,
+          "mode": "auto",
+          "quickLoadRestored": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 5,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 6,
+          "mode": "auto",
+          "historyHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 7,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 8,
+          "mode": "auto",
+          "failedVoiceRecovered": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 9,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 10,
+          "mode": "auto",
+          "completedVoiceNotReplayed": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 11,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        }
+      ],
+      "events": [
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 191.80000000074506
+        },
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 1002.2000000029802
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_0",
+          "time": 1585.4000000022352
+        },
+        {
+          "kind": "play",
+          "asset": "voice_1",
+          "time": 1811.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_1",
+          "time": 2382.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_2",
+          "time": 2901.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_2",
+          "time": 3464.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_3",
+          "time": 4197.20000000298
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 4444.900000002235
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 5326.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_6",
+          "time": 5903.400000002235
+        },
+        {
+          "kind": "play",
+          "asset": "voice_7",
+          "time": 6265.10000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_7",
+          "time": 6842.900000002235
+        },
+        {
+          "kind": "play",
+          "asset": "voice_8",
+          "time": 7362.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_8",
+          "time": 7942.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_9",
+          "time": 8700.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 8952.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 9524.5
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 9580.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 10142.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_13",
+          "time": 10682.60000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_13",
+          "time": 11263.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_14",
+          "time": 11781
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_14",
+          "time": 12342.900000002235
+        },
+        {
+          "kind": "play",
+          "asset": "voice_15",
+          "time": 13098.70000000298
+        },
+        {
+          "kind": "play",
+          "asset": "voice_18",
+          "time": 13373.900000002235
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_18",
+          "time": 13943
+        },
+        {
+          "kind": "play",
+          "asset": "voice_19",
+          "time": 15135.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_19",
+          "time": 15703
+        },
+        {
+          "kind": "play",
+          "asset": "voice_20",
+          "time": 16336.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_20",
+          "time": 16903.20000000298
+        },
+        {
+          "kind": "play",
+          "asset": "voice_21",
+          "time": 17573.800000000745
+        },
+        {
+          "kind": "error",
+          "asset": "voice_24",
+          "time": 17854.5
+        },
+        {
+          "kind": "play",
+          "asset": "voice_25",
+          "time": 18924.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_25",
+          "time": 19503.20000000298
+        },
+        {
+          "kind": "play",
+          "asset": "voice_26",
+          "time": 20041.400000002235
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_26",
+          "time": 20603.20000000298
+        },
+        {
+          "kind": "play",
+          "asset": "voice_27",
+          "time": 21410.800000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_30",
+          "time": 21713.400000002235
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_30",
+          "time": 22283.10000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_31",
+          "time": 23532.20000000298
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_31",
+          "time": 24103.10000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_32",
+          "time": 24709.20000000298
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_32",
+          "time": 25283.10000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_33",
+          "time": 26142.70000000298
+        }
+      ],
+      "mounted": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "mode": "instant",
+      "rows": [
+        {
+          "scene": 0,
+          "mode": "auto",
+          "pausedVoiceHeld": true,
+          "tailHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 1,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 2,
+          "mode": "auto",
+          "hostHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 3,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 4,
+          "mode": "auto",
+          "quickLoadRestored": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 5,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 6,
+          "mode": "auto",
+          "historyHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 7,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 8,
+          "mode": "auto",
+          "failedVoiceRecovered": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 9,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 10,
+          "mode": "auto",
+          "completedVoiceNotReplayed": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 11,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        }
+      ],
+      "events": [
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 177
+        },
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 1006.5999999977648
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_0",
+          "time": 1524.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_1",
+          "time": 1746.5999999977648
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_1",
+          "time": 2324.599999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_2",
+          "time": 2684.099999997765
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_2",
+          "time": 3264.599999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_3",
+          "time": 3861.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 4101
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 4963.29999999702
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_6",
+          "time": 5524.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_7",
+          "time": 5918.199999999255
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_7",
+          "time": 6484.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_8",
+          "time": 6854.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_8",
+          "time": 7425.89999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_9",
+          "time": 8018.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 8280.89999999851
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 8844.699999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 8913.29999999702
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 9484.79999999702
+        },
+        {
+          "kind": "play",
+          "asset": "voice_13",
+          "time": 9871.699999999255
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_13",
+          "time": 10444.89999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_14",
+          "time": 10824.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_14",
+          "time": 11384.89999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_15",
+          "time": 11988.29999999702
+        },
+        {
+          "kind": "play",
+          "asset": "voice_18",
+          "time": 12256.29999999702
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_18",
+          "time": 12824.79999999702
+        },
+        {
+          "kind": "play",
+          "asset": "voice_19",
+          "time": 14021.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_19",
+          "time": 14584.79999999702
+        },
+        {
+          "kind": "play",
+          "asset": "voice_20",
+          "time": 14973.29999999702
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_20",
+          "time": 15545
+        },
+        {
+          "kind": "play",
+          "asset": "voice_21",
+          "time": 16177.29999999702
+        },
+        {
+          "kind": "error",
+          "asset": "voice_24",
+          "time": 16484
+        },
+        {
+          "kind": "play",
+          "asset": "voice_25",
+          "time": 17458.89999999851
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_25",
+          "time": 18024.89999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_26",
+          "time": 18429.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_26",
+          "time": 19004.89999999851
+        },
+        {
+          "kind": "play",
+          "asset": "voice_27",
+          "time": 19692.099999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_30",
+          "time": 20068.79999999702
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_30",
+          "time": 20645
+        },
+        {
+          "kind": "play",
+          "asset": "voice_31",
+          "time": 21876.29999999702
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_31",
+          "time": 22445.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_32",
+          "time": 22905
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_32",
+          "time": 23465.099999997765
+        },
+        {
+          "kind": "play",
+          "asset": "voice_33",
+          "time": 24214
+        }
+      ],
+      "mounted": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "mobile": true
+      },
+      "mode": "typewriter",
+      "rows": [
+        {
+          "scene": 0,
+          "mode": "auto",
+          "pausedVoiceHeld": true,
+          "tailHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 1,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 2,
+          "mode": "auto",
+          "hostHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 3,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 4,
+          "mode": "auto",
+          "quickLoadRestored": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 5,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 6,
+          "mode": "auto",
+          "historyHeld": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 7,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 8,
+          "mode": "auto",
+          "failedVoiceRecovered": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 9,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        },
+        {
+          "scene": 10,
+          "mode": "auto",
+          "completedVoiceNotReplayed": true,
+          "boundaryHeld": true
+        },
+        {
+          "scene": 11,
+          "mode": "skipAll",
+          "boundaryHeld": true
+        }
+      ],
+      "events": [
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 171.90000000223517
+        },
+        {
+          "kind": "play",
+          "asset": "voice_0",
+          "time": 976.1000000014901
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_0",
+          "time": 1541.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_1",
+          "time": 1759.6000000014901
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_1",
+          "time": 2321.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_2",
+          "time": 2833.60000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_2",
+          "time": 3401
+        },
+        {
+          "kind": "play",
+          "asset": "voice_3",
+          "time": 4116
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 4351.5
+        },
+        {
+          "kind": "play",
+          "asset": "voice_6",
+          "time": 5212.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_6",
+          "time": 5783.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_7",
+          "time": 6158.400000002235
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_7",
+          "time": 6721.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_8",
+          "time": 7253.10000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_8",
+          "time": 7821.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_9",
+          "time": 8570.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 8822.300000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 9401.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_12",
+          "time": 9446.199999999255
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_12",
+          "time": 10021.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_13",
+          "time": 10545.60000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_13",
+          "time": 11121.199999999255
+        },
+        {
+          "kind": "play",
+          "asset": "voice_14",
+          "time": 11630.5
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_14",
+          "time": 12201.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_15",
+          "time": 12935.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_18",
+          "time": 13210
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_18",
+          "time": 13781.400000002235
+        },
+        {
+          "kind": "play",
+          "asset": "voice_19",
+          "time": 14955.10000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_19",
+          "time": 15521.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_20",
+          "time": 16065.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_20",
+          "time": 16643.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_21",
+          "time": 17402.900000002235
+        },
+        {
+          "kind": "error",
+          "asset": "voice_24",
+          "time": 17690.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_25",
+          "time": 18764.10000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_25",
+          "time": 19311.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_26",
+          "time": 19878.900000002235
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_26",
+          "time": 20455.300000000745
+        },
+        {
+          "kind": "play",
+          "asset": "voice_27",
+          "time": 21254.400000002235
+        },
+        {
+          "kind": "play",
+          "asset": "voice_30",
+          "time": 21598.800000000745
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_30",
+          "time": 22171.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_31",
+          "time": 23409.60000000149
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_31",
+          "time": 23973.10000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_32",
+          "time": 24567.900000002235
+        },
+        {
+          "kind": "ended",
+          "asset": "voice_32",
+          "time": 25131.60000000149
+        },
+        {
+          "kind": "play",
+          "asset": "voice_33",
+          "time": 25988.900000002235
+        }
+      ],
+      "mounted": false
+    }
+  ],
+  "exceptions": []
+}

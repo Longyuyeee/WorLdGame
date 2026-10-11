@@ -734,7 +734,7 @@ describe("N52-E4b Shell Auto real clock", () => {
     await screen.findByText("B", {}, { timeout: 350 });
   });
 
-  it("uses the real voice element duration plus tail and stops Auto at the terminal boundary", async () => {
+  it("waits for actual voice completion plus tail, not estimated duration, and stops at the terminal boundary", async () => {
     const demo = createPlayerMediaMultichannelDemoV1();
     const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
     const { container } = render(<PlayerShell project={project} mediaAssets={demo.mediaAssets} playbackPolicy={playbackPolicy(10, 40)} />);
@@ -746,11 +746,35 @@ describe("N52-E4b Shell Auto real clock", () => {
     fireEvent.play(voice);
     fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
 
-    await realDelay(80);
+    await realDelay(200);
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    fireEvent.ended(voice);
+    await realDelay(20);
     expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
     await screen.findByText("Curtain", {}, { timeout: 350 });
     expect(container.querySelector("main")).toHaveAttribute("data-playback-stop-reason", "terminal");
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-auto-playback", "stopped"));
+  });
+
+  it("recovers Auto from a failed voice and never replays completed voice on host resume", async () => {
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const demo = createPlayerMediaMultichannelDemoV1();
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { text: { revealMode: "instant" } }) };
+    const props = { project, mediaAssets: demo.mediaAssets, playbackPolicy: playbackPolicy(20, 40) };
+    const view = render(<PlayerShell {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const voice = view.container.querySelector<HTMLAudioElement>('audio[data-audio-bus="voice"]')!;
+    fireEvent.play(voice); fireEvent.ended(voice);
+    view.rerender(<PlayerShell {...props} hostActivity="suspended" />);
+    view.rerender(<PlayerShell {...props} hostActivity="active" />);
+    expect(play.mock.contexts).not.toContain(voice);
+    fireEvent.play(voice);
+    fireEvent.click(screen.getByRole("button", { name: "自动播放" }));
+    await realDelay(60);
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    fireEvent.error(voice);
+    await screen.findByText("Curtain", {}, { timeout: 350 });
   });
 
   it("clears its owned timer during Host suspend and only starts a fresh delay after resume", async () => {
