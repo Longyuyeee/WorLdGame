@@ -6,10 +6,47 @@ import { validatePlayerBudget } from './audit-player-budget.mjs';
 import { validateSessionBudget, validateMixedPublication } from './audit-player-session.mjs';
 
 import { validatePlayerPacked, validatePackedBudget, validatePackedPublication } from './audit-player-packed.mjs';
+import { validateSchedulerBudget, validateSchedulerExtended } from './audit-player-scheduler.mjs';
+import { EventEmitter } from 'node:events';
+import { requestCleanBrowserExit } from './browser-process-exit.mjs';
 const fixture = JSON.parse(await readFile(new URL('../evidence/authoring/player-mixed.json', import.meta.url), 'utf8'));
 const read = async name => JSON.parse(await readFile(new URL(`../evidence/authoring/${name}.json`, import.meta.url), 'utf8'));
 const budget = [fixture, await read('player-mixed-optimized'), await read('runtime-encoding-budget'), [await read('player-mixed-profile-before'), await read('player-mixed-profile-after')]];
 
+test('browser close accepts actual clean exit even if protocol response never arrives', async () => {
+  const child = Object.assign(new EventEmitter(), { exitCode: null, signalCode: null });
+  await requestCleanBrowserExit(child, () => { queueMicrotask(() => child.emit('exit', 0, null)); return new Promise(() => {}); }, 100);
+  assert.equal(child.listenerCount('exit'), 0);
+});
+test('browser close rejects acknowledgement without exit and disconnected sockets without exit', async () => {
+  for (const close of [() => Promise.resolve({}), () => Promise.reject(Error('socket closed')), () => { throw Error('send failed'); }]) {
+    const child = Object.assign(new EventEmitter(), { exitCode: null, signalCode: null });
+    await assert.rejects(requestCleanBrowserExit(child, close, 10), /did not exit/);
+    assert.equal(child.listenerCount('exit'), 0);
+  }
+});
+test('browser close rejects earlier death or unclean termination instead of claiming cold recovery', async () => {
+  const dead = Object.assign(new EventEmitter(), { exitCode: 0, signalCode: null });
+  await assert.rejects(requestCleanBrowserExit(dead, () => assert.fail('must not send')), /before close/);
+  const child = Object.assign(new EventEmitter(), { exitCode: null, signalCode: null });
+  await assert.rejects(requestCleanBrowserExit(child, () => child.emit('exit', null, 'SIGTERM'), 100), /cleanly/);
+});
+test('validates scheduler batch identity and exact alternating sample summaries', async () => {
+  const data = await read('player-scheduler-budget');
+  assert.equal(validateSchedulerBudget(data).rows, 3);
+  for (const mutate of [e => { e.baselineCommit = 'wrong'; }, e => { e.rows[0].byteIdentical = false; }, e => { e.rows[1].historyLength--; }, e => { e.rows[2].after.samples.pop(); }, e => { e.rows[0].after.median = 0; }]) {
+    const altered = structuredClone(data); mutate(altered); assert.throws(() => validateSchedulerBudget(altered));
+  }
+});
+test('requires full 24-chapter current scheduler browser evidence', async () => {
+  const data = await read('player-scheduler-extended'), baseline = await read('player-packed-extended');
+  assert.equal(validateSchedulerExtended(data, baseline).chapters, 24);
+  const changed = structuredClone(baseline);
+  changed.runs[0].storage.quick.sha256 = changed.runs[0].storage.recovery.sha256 = 'f'.repeat(64);
+  assert.throws(() => validateSchedulerExtended(data, changed));
+  data.runs[0].checkpoint.historyLength--;
+  assert.throws(() => validateSchedulerExtended(data, baseline));
+});
 test('accepts packed storage evidence with preserved history, bytes and cold recovery', async () => {
   assert.equal(validatePlayerPacked(await read('player-packed-mixed')).chapters, 24);
   assert.equal(validatePlayerPacked(await read('player-packed-extended'), true).chapters, 24);

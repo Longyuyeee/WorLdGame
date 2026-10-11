@@ -66,6 +66,10 @@ const nodeAdapterFiles = (await collectFiles(
 
 for (const path of coreFiles) {
   const source = await readFile(path, "utf8");
+  const localPath = relative(repoRoot, path).replaceAll("\\", "/");
+  if (source.includes("commitValidatedRuntimeHistoryStepInternal") && !["packages/runtime/src/history.ts", "packages/runtime/src/scheduler.ts"].includes(localPath)) {
+    violations.push(`${localPath} exposes or consumes the scheduler-only history append`);
+  }
   for (const dependency of forbiddenImports) {
     const importPattern = new RegExp(`from\\s+["']${dependency.replaceAll("-", "\\-")}`);
     if (importPattern.test(source)) {

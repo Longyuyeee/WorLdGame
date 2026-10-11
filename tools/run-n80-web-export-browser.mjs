@@ -26,8 +26,11 @@ import { runPlayerMixed } from './player-mixed-workflow.mjs';
 import { runMixedPublication } from './player-mixed-publication-workflow.mjs';
 import { runMappingProbe } from './player-mapping-probe.mjs';
 import { sampleBrowserMemory } from './player-process-memory.mjs';
+import { requestCleanBrowserExit } from './browser-process-exit.mjs';
 
 const root = resolve(import.meta.dirname, "..");
+if(process.argv.includes('--scheduler-validation'))assert.ok(process.argv.includes('--player-mixed')&&process.argv.includes('--storage-packed'),'Scheduler validation requires --player-mixed --storage-packed');
+if(process.argv.includes('--scheduler-publication'))assert.ok(process.argv.includes('--mixed-publication')&&process.argv.includes('--packed-publication'),'Scheduler publication requires --mixed-publication --packed-publication');
 if(process.argv.includes('--mixed-publication-windows-only'))assert.ok(process.argv.includes('--mixed-publication'),'Windows diagnostic requires --mixed-publication');
 if(process.argv.includes('--mixed-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--mixed-export requires owned sampling export regression');
 if(process.argv.includes('--budget-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--budget-export requires owned sampling export regression');
@@ -107,11 +110,12 @@ async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE, 
 }
 async function restartBrowser() {
   const previous = browser;
-  const exited = new Promise(resolve => previous.once('exit', resolve));
-  await client.send('Browser.close');
-  let timer;
-  try { await Promise.race([exited, new Promise((_, reject) => { timer = setTimeout(() => reject(Error('Previous test browser did not exit')), 10000); })]); }
-  finally { clearTimeout(timer); client.socket.close(); }
+  try { await requestCleanBrowserExit(previous, () => client.send('Browser.close')); }
+  finally {
+    client.socket.close();
+    for (const pending of client.pending.values()) { clearTimeout(pending.timer); pending.reject(Error('Test browser connection closed')); }
+    client.pending.clear();
+  }
   browser = spawn(browserPath, browserArgs, { stdio: 'ignore', windowsHide: true });
   await json('http://127.0.0.1:19236/json/version');
   const response = await fetch('http://127.0.0.1:19236/json/new?about:blank', { method: 'PUT' });

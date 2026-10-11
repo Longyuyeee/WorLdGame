@@ -1,9 +1,9 @@
 import { loadProject, migrateS0Project, type S0Project } from "../packages/project-domain/src/index";
 import { advancePlayerCore, createPlayerCore, startPlayerCore, createPlayerCoreSnapshotV1, createPlayerCoreSessionSaveV1, loadPlayerCoreSessionSaveV1, type PlayerCoreState } from "../packages/player-core/src/player-core";
 
-export function prepare(count: number) {
+export function prepare(count: number, following = 1) {
   const source: S0Project = { schemaVersion: 0, id: "session_budget", title: "Session budget", entrySceneId: "story", characters: [], scenes: [{ id: "story", title: "Long story", statements: [
-    ...Array.from({ length: count + 1 }, (_, i) => ({ id: `line_${i}`, kind: "narration" as const, textId: `text_${i}`, text: `长篇第 ${i} 句：保存与恢复不能丢失历史。` })),
+    ...Array.from({ length: count + following }, (_, i) => ({ id: `line_${i}`, kind: "narration" as const, textId: `text_${i}`, text: `长篇第 ${i} 句：保存与恢复不能丢失历史。` })),
     { id: "end", kind: "end", endingName: "Done" }
   ] }] };
   const project = loadProject(migrateS0Project(source).files);

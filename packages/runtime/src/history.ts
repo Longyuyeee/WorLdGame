@@ -307,10 +307,19 @@ export function advanceRuntimeHistoryV1(program: RuntimeProgramV1, session: Runt
   return { session: next, state: executed.state, event: executed.event, effects: executed.effects, diagnostics: [], reconciliationRequired: false, reconciliationPlan: null, barrierBlock: null };
 }
 
-/** Commits one already-executed observable Runtime step. Scheduler is its only production caller. */
+/** Public commit boundary: always revalidate the caller-supplied History chain. */
 export function commitRuntimeHistoryStepV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, executed: RuntimeRunResultV1, executedInstructions = executed.executedInstructions): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
+  return commitValidatedRuntimeHistoryStepInternal(program, session, executed, executedInstructions);
+}
+
+/** Package-internal: only the synchronous scheduler may reuse its entry validation.
+ * Never expose through index.ts or retain this precondition across calls/awaits.
+ * Each appended state is still validated and hashed. The scheduler must supply
+ * only its locally executed Runtime steps, never externally provided results.
+ */
+export function commitValidatedRuntimeHistoryStepInternal(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, executed: RuntimeRunResultV1, executedInstructions: number): RuntimeHistoryResultV1 {
   const before = session.checkpoints[session.cursor]!.state;
   if (session.cursor !== session.entries.length) return result(session, [diagnostic("RUNTIME_HISTORY_FORWARD_REQUIRED", "Scheduler cannot commit across recorded future History", before)]);
   if (executed.diagnostics.length > 0 || executed.event === null && executed.barrierRequest === null) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "History commit requires one successful observable Runtime step", before)]);

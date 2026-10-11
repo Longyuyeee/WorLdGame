@@ -18,7 +18,9 @@ export async function runMixedPublication(initialClient, root, temporary, { rest
   let client = initialClient;
   const diagnosticWindowsOnly = process.argv.includes('--mixed-publication-windows-only');
   const packedPublication = process.argv.includes('--packed-publication');
-  const prefix = packedPublication ? 'player-packed-publication' : 'player-mixed-publication';
+  const schedulerPublication = process.argv.includes('--scheduler-publication');
+  if (schedulerPublication) assert.ok(packedPublication, 'Scheduler publication requires packed storage checks');
+  const prefix = schedulerPublication ? 'player-scheduler-publication' : packedPublication ? 'player-packed-publication' : 'player-mixed-publication';
   const tap = async label => {
     const point = await client.evaluate(`(()=>{const e=[...document.querySelectorAll('button')].find(e=>e.getAttribute('aria-label')===${JSON.stringify(label)}||e.textContent.includes(${JSON.stringify(label)}));if(!e||e.disabled)throw Error('Unavailable '+${JSON.stringify(label)});e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
     await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ ...point, radiusX: 1, radiusY: 1, force: 1 }] });
