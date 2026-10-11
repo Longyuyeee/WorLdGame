@@ -466,6 +466,24 @@ describe("N52-E5c Player History user projection", () => {
       distance: expect.any(Number)
     });
     expect(history.backwardBarrier!.distance).toBeGreaterThan(0);
+
+    // Projection-only stress input: compare the linear rule against the former
+    // per-row suffix scan, including targets on a barrier and recorded futures.
+    const sourceHistory = after.historySession!;
+    const barrier = sourceHistory.entries.find(entry => entry.barriers.length > 0)!.barriers;
+    const visible = sourceHistory.entries.find(entry => entry.event?.kind === "narration")!;
+    const entries = Array.from({ length: 240 }, (_, index) => ({ ...visible,
+      entryId: `projection-${index}`, historyIndex: index, barriers: index % 17 === 0 ? barrier : []
+    }));
+    for (const cursor of [0, 1, 17, 18, 51, 239, 240]) {
+      const projected = createPlayerCoreSnapshotV1({ ...after, historySession: { ...sourceHistory, entries, cursor } }).history!;
+      expect(projected.activeEntries).toHaveLength(240);
+      for (const row of projected.activeEntries) {
+        const target = row.historyIndex + 1;
+        expect(row.canNavigateBack).toBe(target <= cursor && !entries.slice(target, cursor).some(entry => entry.barriers.length > 0));
+        expect(row.position).toBe(target < cursor ? "past" : target === cursor ? "current" : "future");
+      }
+    }
   });
 });
 

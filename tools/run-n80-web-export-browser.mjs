@@ -28,6 +28,8 @@ import { sampleBrowserMemory } from './player-process-memory.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 if(process.argv.includes('--mixed-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--mixed-export requires owned sampling export regression');
+if(process.argv.includes('--budget-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--budget-export requires owned sampling export regression');
+if(process.argv.includes('--mixed-profile')||process.argv.includes('--mixed-optimized'))assert.ok(process.argv.includes('--player-mixed'),'Mixed measurement flags require --player-mixed');
 if(process.argv.includes('--working-set'))assert.ok(process.argv.includes('--player-protected-soak'),'--working-set requires --player-protected-soak');
 if(process.argv.includes('--probe-blob')||process.argv.includes('--trace-smoke'))assert.ok(process.argv.includes('--player-mapping-probe'),'Probe modifiers require --player-mapping-probe');
 if(process.argv.includes('--owned-decode'))assert.ok(process.argv.includes('--player-mapping-probe')||process.argv.includes('--player-protected-soak')||process.argv.includes('--atlas-sampling-workflow'),'Owned decode evidence requires a probe, protected soak or sampling export workflow');
@@ -150,14 +152,15 @@ try {
     };
     const ownedDecode=process.argv.includes('--owned-decode');
     const mixedExport=process.argv.includes('--mixed-export');
-    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,quality,uniform,lazy,coordination,recovery,isolation,ownedDecode,mixedExport,sampleMemory,
+    const budgetExport=process.argv.includes('--budget-export');
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,quality,uniform,lazy,coordination,recovery,isolation,ownedDecode,mixedExport,budgetExport,sampleMemory,
       openWindows:async(gamePath)=>{
         const output=join(temporary,'scale-windows-player');
         await promisify(execFile)(process.execPath,[join(root,'tools/build-windows-player.mjs'),output,`--game=${gamePath}`],{windowsHide:true});
         await openDesktop(undefined,join(output,'WorLdPlayer.exe'));return client;
       }});
     if(ownedDecode)Object.assign(evidence,{decodePolicy:'owned-bitmap-close-after-draw'});
-    await writeFile(join(root,`evidence/authoring/${mixedExport?'player-mixed-export':ownedDecode?'player-owned-export':isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
+    await writeFile(join(root,`evidence/authoring/${budgetExport?'player-budget-export':mixedExport?'player-mixed-export':ownedDecode?'player-owned-export':isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
     console.log(JSON.stringify(evidence,null,2));
   } else if(process.argv.includes('--native-atlas-workflow')) {
     const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true});

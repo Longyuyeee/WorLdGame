@@ -1,11 +1,16 @@
 function compareCodePoints(left: string, right: string): number {
-  const leftPoints = Array.from(left, (item) => item.codePointAt(0) ?? 0);
-  const rightPoints = Array.from(right, (item) => item.codePointAt(0) ?? 0);
-  for (let index = 0; index < Math.min(leftPoints.length, rightPoints.length); index += 1) {
-    const difference = (leftPoints[index] ?? 0) - (rightPoints[index] ?? 0);
+  // Compare scalars directly: sorting every record must not allocate two arrays
+  // per comparison. UTF-16 lexical sort is not equivalent for supplementary keys.
+  let leftIndex = 0, rightIndex = 0;
+  while (leftIndex < left.length && rightIndex < right.length) {
+    const leftPoint = left.codePointAt(leftIndex)!;
+    const rightPoint = right.codePointAt(rightIndex)!;
+    const difference = leftPoint - rightPoint;
     if (difference !== 0) return difference;
+    leftIndex += leftPoint > 0xffff ? 2 : 1;
+    rightIndex += rightPoint > 0xffff ? 2 : 1;
   }
-  return leftPoints.length - rightPoints.length;
+  return leftIndex < left.length ? 1 : rightIndex < right.length ? -1 : 0;
 }
 
 export function assertCanonicalRuntimeString(value: string): void {
@@ -47,15 +52,24 @@ export function canonicalRuntimeStringify(value: unknown): string {
 
 export function utf8Encode(value: string): Uint8Array {
   assertCanonicalRuntimeString(value);
-  const bytes: number[] = [];
-  for (const symbol of value) {
-    const point = symbol.codePointAt(0) ?? 0;
-    if (point <= 0x7f) bytes.push(point);
-    else if (point <= 0x7ff) bytes.push(0xc0 | (point >>> 6), 0x80 | (point & 0x3f));
-    else if (point <= 0xffff) bytes.push(0xe0 | (point >>> 12), 0x80 | ((point >>> 6) & 0x3f), 0x80 | (point & 0x3f));
-    else bytes.push(0xf0 | (point >>> 18), 0x80 | ((point >>> 12) & 0x3f), 0x80 | ((point >>> 6) & 0x3f), 0x80 | (point & 0x3f));
+  // Exact allocation avoids a large growable boxed-number array plus a copy.
+  // Keep this portable implementation independent of host TextEncoder APIs.
+  let length = 0;
+  for (let index = 0; index < value.length; index++) {
+    const point = value.codePointAt(index)!;
+    length += point <= 0x7f ? 1 : point <= 0x7ff ? 2 : point <= 0xffff ? 3 : 4;
+    if (point > 0xffff) index++;
   }
-  return Uint8Array.from(bytes);
+  const bytes = new Uint8Array(length);
+  let offset = 0;
+  for (let index = 0; index < value.length; index++) {
+    const point = value.codePointAt(index)!;
+    if (point <= 0x7f) bytes[offset++] = point;
+    else if (point <= 0x7ff) { bytes[offset++] = 0xc0 | (point >>> 6); bytes[offset++] = 0x80 | (point & 0x3f); }
+    else if (point <= 0xffff) { bytes[offset++] = 0xe0 | (point >>> 12); bytes[offset++] = 0x80 | ((point >>> 6) & 0x3f); bytes[offset++] = 0x80 | (point & 0x3f); }
+    else { bytes[offset++] = 0xf0 | (point >>> 18); bytes[offset++] = 0x80 | ((point >>> 12) & 0x3f); bytes[offset++] = 0x80 | ((point >>> 6) & 0x3f); bytes[offset++] = 0x80 | (point & 0x3f); index++; }
+  }
+  return bytes;
 }
 
 export function canonicalRuntimeBytes(value: unknown): Uint8Array {

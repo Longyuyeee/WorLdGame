@@ -15,6 +15,7 @@ import { auditMappingProbe } from "./audit-player-mapping-probe.mjs";
 import { auditPlayerOwnedDecode } from "./audit-player-owned-decode.mjs";
 import { validateBackpressure } from "./audit-player-backpressure.mjs";
 import { auditPlayerMixed } from "./audit-player-mixed.mjs";
+import { auditPlayerBudget } from "./audit-player-budget.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -482,6 +483,8 @@ try { console.log(JSON.stringify(await auditPlayerOwnedDecode(root),null,2)); }
 catch(error) { violations.push(`Player owned decode sub-gate: ${error.message}`); }
 try { validateBackpressure(JSON.parse(await readFile(join(root, "evidence/authoring/player-backpressure.json"), "utf8"))); }
 catch(error) { violations.push(`Player recovery backpressure sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerBudget(root),null,2)); }
+catch(error) { violations.push(`Player budget: ${error.message}`); }
 try { console.log(JSON.stringify(await auditPlayerMixed(root),null,2)); }
 catch(error) { violations.push(`Player mixed-media recovery sub-gate: ${error.message}`); }
 if (violations.length > 0) {

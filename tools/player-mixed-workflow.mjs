@@ -3,11 +3,27 @@ import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { sampleBrowserMemory } from './player-process-memory.mjs';
 
 export async function runPlayerMixed(client, root, temporary, browserPid, restart) {
-  const built = await build({ configFile: false, logLevel: 'error', define: { 'process.env.NODE_ENV': JSON.stringify('production') }, build: { write: false, minify: true, lib: { entry: join(root, 'tools/player-mixed-browser.ts'), name: 'MixedPlayer', formats: ['iife'] } } });
+  const profile = process.argv.includes('--mixed-profile');
+  const optimized = process.argv.includes('--mixed-optimized');
+  const prefix = profile ? `player-mixed-profile-${optimized ? 'after' : 'before'}` : optimized ? 'player-mixed-optimized' : 'player-mixed';
+  // Reproducing the "before" CPU diagnostic must never silently profile the new
+  // implementations. Load the two changed production modules from the fixed
+  // baseline without modifying the user's checkout. Dependencies remain current.
+  const baselineSources = new Map(profile && !optimized ? ['packages/runtime/src/canonical.ts', 'packages/player-core/src/player-core.ts'].map(path => [
+    join(root, path).replaceAll('\\', '/'), execFileSync('git', ['show', `11cc1c8c0687e93d8a8985b529093e4fdf5d2d8b:${path}`], { cwd: root, encoding: 'utf8' })
+  ]) : []);
+  const loadedBaseline = new Set();
+  const built = await build({ configFile: false, logLevel: 'error', plugins: [{ name: 'frozen-budget-baseline', enforce: 'pre', load(id) {
+    const path = id.replaceAll('\\', '/');
+    if (baselineSources.has(path)) { loadedBaseline.add(path); return baselineSources.get(path); }
+    return null;
+  } }], define: { 'process.env.NODE_ENV': JSON.stringify('production') }, build: { write: false, minify: !profile, lib: { entry: join(root, 'tools/player-mixed-browser.ts'), name: 'MixedPlayer', formats: ['iife'] } } });
+  assert.equal(loadedBaseline.size, baselineSources.size, 'Baseline module substitution must be complete');
   const code = (Array.isArray(built) ? built[0] : built).output.find(item => item.type === 'chunk').code;
   const runs = [], errors = [], started = performance.now();
   const browser = await client.send('Browser.getVersion');
@@ -27,7 +43,9 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
       await client.send('Page.navigate', { url: pathToFileURL(path).href }); await client.wait('globalThis.mixed');
       return client.evaluate('globalThis.mixedTask=mixed.ready()');
     };
-    assert.equal(await navigate(), 'idle'); await tap('开始故事');
+    assert.equal(await navigate(), 'idle');
+    if (profile) { await client.send('Profiler.enable'); await client.send('Profiler.start'); }
+    await tap('开始故事');
     const rows = [], samples = [await sample('start')];
     for (let scene = 0; scene < 12; scene++) {
       rows.push(await client.evaluate(`globalThis.mixedTask=mixed.chapter(${scene})`));
@@ -42,7 +60,20 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
     assert.ok(observation.events.filter(event => event.kind === 'video' && event.type === 'ended').length >= 6);
     assert.ok(observation.events.filter(event => event.kind === 'audio' && event.type === 'ended').length >= 12);
     assert.equal(observation.events.filter(event => event.type === 'error').length, 0);
-    await writeFile(join(root, `evidence/authoring/player-mixed-${width}.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
+    let cpu = null;
+    if (profile) {
+      const { profile: captured } = await client.send('Profiler.stop');
+      const nodes = new Map(captured.nodes.map(node => [node.id, node]));
+      const totals = new Map();
+      for (let i = 0; i < captured.samples.length; i++) {
+        const frame = nodes.get(captured.samples[i]).callFrame;
+        const key = `${frame.functionName || '(anonymous)'}:${frame.lineNumber}`;
+        totals.set(key, (totals.get(key) ?? 0) + captured.timeDeltas[i]);
+      }
+      cpu = { durationMicroseconds: captured.endTime - captured.startTime, selfMicroseconds: [...totals].sort((a, b) => b[1] - a[1]).slice(0, 100) };
+      await client.send('Profiler.disable');
+    }
+    await writeFile(join(root, `evidence/authoring/${prefix}-${width}.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
     errors.push(...client.errors);
     const previousPid = browserPid;
     const replacement = await restart(); client = replacement.client; browserPid = replacement.browserPid;
@@ -53,10 +84,11 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
     const closed = await client.evaluate('globalThis.mixedTask=mixed.close()');
     assert.equal(closed.unmounted, true); assert.equal(closed.native.accountedBytes, 0); assert.equal(closed.native.activeDecodes, 0); assert.equal(closed.native.ordinaryBitmapDecodes, 0);
     errors.push(...client.errors);
-    runs.push({ viewport, mountsBeforeColdRestart: 1, rows, samples, checkpoint, observation, coldRestart: { previousPid, browserPid, previousProcessExited: replacement.previousProcessExited, sameProfile: true, mode: 'graceful-browser-exit-not-crash', restored }, closed });
+    runs.push({ viewport, cpu, mountsBeforeColdRestart: 1, rows, samples, checkpoint, observation, coldRestart: { previousPid, browserPid, previousProcessExited: replacement.previousProcessExited, sameProfile: true, mode: 'graceful-browser-exit-not-crash', restored }, closed });
   }
   assert.deepEqual(errors, []);
   const evidence = { schemaVersion: 1, scope: 'single-story-mixed-PNG-WAV-WebM-real-IndexedDB-cold-process-restart', bundleSha256: createHash('sha256').update(code).digest('hex'), browser, elapsedMilliseconds: performance.now() - started, gcPolicy: 'natural-no-forced-GC-no-CDP-pressure', runs, exceptions: errors, limits: 'Synthetic media, accelerated Auto/Skip, injected storage delay/quota, CDP touch and host suspension. Browser process closes gracefully, not crash recovery. Frame intervals are rAF cadence, not GPU timings; discrete Windows tree working sets may double-count shared pages and are not instantaneous peaks. No physical phone or two-hour acceptance.' };
-  await writeFile(join(root, 'evidence/authoring/player-mixed.json'), JSON.stringify(evidence, null, 2) + '\n');
+  evidence.measurementMode = profile ? 'intrusive-CPU-sampling-unminified-production-not-performance-acceptance' : 'minified-production-natural-GC';
+  await writeFile(join(root, `evidence/authoring/${prefix}.json`), JSON.stringify(evidence, null, 2) + '\n');
   return evidence;
 }

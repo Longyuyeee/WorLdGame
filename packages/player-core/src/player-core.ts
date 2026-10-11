@@ -918,8 +918,7 @@ function presentation(state: PlayerCoreState): { readonly value: PlayerCoreSnaps
   return { value: { kind: "error", diagnostics: [...state.diagnostics, { origin: "player", code: "PLAYER_PRESENTATION_MISSING", message: "Player Core reached a state without a presentable boundary", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] }, fallbackUsed: false };
 }
 
-function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisibleEventV1): PlayerHistoryVisibleEventV1 {
-  const entries = localeEntries(state);
+function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisibleEventV1, entries: ReadonlyMap<string, JsonObject>): PlayerHistoryVisibleEventV1 {
   if (event.kind === "dialogue") return { ...event, text: translatedPlayerText(state, entries, event.textId, event.text).text };
   if (event.kind === "narration") return { ...event, text: translatedPlayerText(state, entries, event.textId, event.text).text };
   if (event.kind === "choice") return {
@@ -986,7 +985,15 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
   const history = state.historySession;
   const previous = history === null || history.cursor === 0 ? null : history.entries[history.cursor - 1] ?? null;
   const hasForward = history !== null && history.cursor < history.entries.length;
-  const backwardBarrier = history === null ? null : [...history.entries.slice(0, history.cursor)].reverse().find((entry) => entry.barriers.length > 0) ?? null;
+  // The nearest committed barrier is sufficient for every backward target.
+  // Avoid slicing/scanning the suffix separately for each visible history row.
+  let backwardBarrier: RuntimeHistorySessionV1["entries"][number] | null = null;
+  if (history !== null) {
+    for (let index = history.cursor - 1; index >= 0; index--) {
+      const entry = history.entries[index]!;
+      if (entry.barriers.length > 0) { backwardBarrier = entry; break; }
+    }
+  }
   const presented = presentation(state);
   const entries = localeEntries(state);
   const missingTranslationCount = state.localization.selectedLocale === state.localization.sourceLocale ? 0 : playerSourceTexts(state).filter(({ key, text }) => translatedPlayerText(state, entries, key, text).fallback).length;
@@ -1047,13 +1054,13 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
       activeEntries: history.entries.flatMap((entry): readonly PlayerHistoryEntrySnapshotV1[] => {
         if (!visibleHistoryEvent(entry.event)) return [];
         const targetCursor = entry.historyIndex + 1;
-        const barrierBetween = history.entries.slice(targetCursor, history.cursor).some((candidate) => candidate.barriers.length > 0);
+        const barrierBetween = backwardBarrier !== null && targetCursor <= backwardBarrier.historyIndex;
         return [{
           entryId: entry.entryId,
           historyIndex: entry.historyIndex,
           position: targetCursor < history.cursor ? "past" : targetCursor === history.cursor ? "current" : "future",
           canNavigateBack: targetCursor <= history.cursor && !barrierBetween,
-          event: localizedHistoryEvent(state, entry.event)
+          event: localizedHistoryEvent(state, entry.event, entries)
         }];
       }),
       archives: history.archives.map((archive) => ({
@@ -1062,7 +1069,7 @@ export function createPlayerCoreSnapshotV1(state: PlayerCoreState): PlayerCoreSn
         entries: archive.entries.flatMap((entry) => visibleHistoryEvent(entry.event) ? [{
           entryId: entry.originalEntryId,
           historyIndex: entry.originalHistoryIndex,
-          event: localizedHistoryEvent(state, entry.event)
+          event: localizedHistoryEvent(state, entry.event, entries)
         }] : [])
       }))
     },
