@@ -1206,7 +1206,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
-            <NativeAtlasImage atlas={stage.background.atlas}
+            <NativeAtlasImage atlas={stage.background.atlas} canvasSampling={stage.background.canvasSampling}
               key={`${mediaGeneration}:background:${stage.background.assetId}`}
               className={`player-stage-background player-transition--${stage.background.transition}`}
               src={stage.background.url}
@@ -1260,7 +1260,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <div className="player-scene-description" aria-label="场景描述">{stage.sceneDescription}</div>
           )}
           {stage.characters.map((character) => (
-            <NativeAtlasImage atlas={character.atlas}
+            <NativeAtlasImage atlas={character.atlas} canvasSampling={character.canvasSampling}
               key={`${mediaGeneration}:${character.slot}:${character.assetId}`}
               className={`player-stage-character player-transition--${character.transition}`}
               src={character.url}

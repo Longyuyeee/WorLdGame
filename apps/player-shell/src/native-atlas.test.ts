@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { zlibSync } from "fflate";
 import { buildLosslessDicingAtlas, createLosslessDicingPngDeliveryManifest, serializeLosslessDicingPngDeliveryManifest, createBlobDigest } from "@world-studio/project-persistence";
-import { acquireNativeAtlasImage, hydrateNativeAtlasMedia, hydrateNativeAtlasMediaAsync, nativeAtlasDiagnostics, unpackAtlasFallback, unpackAtlasFallbackAsync, type NativeAtlasDelivery } from "./native-atlas";
+import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, hydrateNativeAtlasMedia, hydrateNativeAtlasMediaAsync, nativeAtlasDiagnostics, unpackAtlasFallback, unpackAtlasFallbackAsync, type NativeAtlasDelivery } from "./native-atlas";
 
 const url = (bytes: Uint8Array) => `data:application/octet-stream;base64,${btoa(String.fromCharCode(...bytes))}`;
 function fixture(size = 8) {
@@ -16,6 +16,24 @@ function fixture(size = 8) {
 }
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe("native Atlas integrity and lifecycle", () => {
+  it("budgets ordinary Canvas with native rendering and releases it before retry",async()=>{
+    class MockImage { naturalWidth=2048;naturalHeight=2048;onload:(()=>void)|null=null;onerror:(()=>void)|null=null;set src(value:string){if(value)queueMicrotask(()=>this.onload?.());} }
+    vi.stubGlobal("Image",MockImage);
+    vi.spyOn(HTMLCanvasElement.prototype,"getContext").mockReturnValue({drawImage:vi.fn()} as unknown as CanvasRenderingContext2D);
+    const first=await acquireOrdinaryCanvasImage("test",document.createElement("canvas"));
+    const second=await acquireOrdinaryCanvasImage("test",document.createElement("canvas"));
+    expect(nativeAtlasDiagnostics().accountedBytes).toBe(64*1024*1024);
+    await expect(acquireOrdinaryCanvasImage("test",document.createElement("canvas"))).rejects.toThrow("memory budget");
+    first.release();first.release();second.release();expect(nativeAtlasDiagnostics().accountedBytes).toBe(0);
+    const retry=await acquireOrdinaryCanvasImage("test",document.createElement("canvas"));retry.release();
+    expect(nativeAtlasDiagnostics().accountedBytes).toBe(0);
+  });
+  it("cancels an ordinary image before decode without reserving a canvas",async()=>{
+    class PendingImage {onload=null;onerror=null;src="";}
+    vi.stubGlobal("Image",PendingImage);
+    const controller=new AbortController(),pending=acquireOrdinaryCanvasImage("test",document.createElement("canvas"),controller.signal);controller.abort();
+    await expect(pending).rejects.toMatchObject({name:"AbortError"});expect(nativeAtlasDiagnostics().accountedBytes).toBe(0);
+  });
   it("decodes fallback off-thread with exact size/digest bounds and supports cancellation/retry", async () => {
     const { group, bytes }=fixture();
     expect(Array.from((await unpackAtlasFallbackAsync(group)).get("a")!)).toEqual(Array.from(bytes));

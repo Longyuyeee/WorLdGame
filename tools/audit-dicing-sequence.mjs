@@ -32,7 +32,11 @@ export async function auditDicingSequence(root) {
   const qualityWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-quality-workflow.json'),'utf8'));
   const quality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-quality-quality.json'),'utf8'));
   validateDicingSequence(fixture,qualitySequence);validateDicingDelivery(qualitySequence,qualityWorkflow);validateDicingQuality(fixture,quality,qualityWorkflow);
-  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880};
+  const samplingSequence=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-sampling-sequence.json'),'utf8'));
+  const samplingWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-sampling-workflow.json'),'utf8'));
+  const sampling=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-sampling-quality.json'),'utf8'));
+  validateDicingSequence(fixture,samplingSequence);validateDicingDelivery(samplingSequence,samplingWorkflow);assert.equal(validateDicingQuality(fixture,sampling,samplingWorkflow).cases,5760);
+  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760};
 }
 
 export function validateDicingQuality(fixture,evidence,workflow) {
@@ -40,8 +44,18 @@ export function validateDicingQuality(fixture,evidence,workflow) {
   assert.equal(evidence.startupCancelRetry,true);assert.equal(evidence.damagedFallbackRetryRejected,true);
   const combinations=[];
   for(const scale of [0.5,1,1.25,2])for(const smoothing of [false,true])for(const rotation of [0,17])for(const filter of ['none','contrast(1.1)'])combinations.push(JSON.stringify([scale,smoothing,rotation,filter]));
-  assert.equal(evidence.cases.length,90);
-  for(const name of ['optimized','directory','windows']){
+  const uniform=workflow.samplingComparisons[0]?.diagnosticReplacement===false;
+  const modes=uniform?['original','optimized','directory','windows','corrupt-page','unsupported']:['optimized','directory','windows'];
+  assert.equal(evidence.cases.length,modes.length*30);
+  if(uniform){
+    assert.equal(workflow.samplingComparisons[0].name,'ordinary-canvas-product');
+    for(const name of ['optimized','directory','corrupt-page','unsupported'])assert.equal(workflow.samplingComparisons.find(c=>c.name===name).changed,0);
+    const emergency=workflow.measurements.find(m=>m.kind==='emergency-sampling-fallback');
+    assert.equal(emergency.count,30);assert.equal(emergency.mode,'fallback');
+    const reference=workflow.measurements.find(m=>m.kind==='dicing-sequence').runs.find(r=>r.name==='original');
+    assert.deepEqual(emergency.assets,reference.assets);
+  }
+  for(const name of modes){
     const images=evidence.cases.filter(c=>c.name===name);
     assert.deepEqual(images.map(c=>c.id).sort(),[...fixture.assetIds].sort());
     for(const image of images){
@@ -52,7 +66,7 @@ export function validateDicingQuality(fixture,evidence,workflow) {
   const startups=workflow.measurements.filter(m=>m.kind==='startup-longtasks');
   assert.deepEqual(startups.map(s=>s.name).sort(),['original','optimized','directory','corrupt-page','unsupported'].sort());
   for(const s of startups){assert.ok(Number.isFinite(s.readyAt)&&s.readyAt>0);for(const t of s.tasks){assert.ok(t.duration>=50);assert.ok(t.start>=0&&t.start<s.readyAt);}}
-  return {status:'PASS',cases:2880};
+  return {status:'PASS',cases:modes.length*960};
 }
 
 export function validateDicingDelivery(sequence,workflow) {

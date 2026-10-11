@@ -58,7 +58,8 @@ describe("safe PNG export", () => {
     expect(delivery.assets.map(a => a.assetId)).toEqual(["a", "b"]);
     expect(delivery.assets[0]!.digest).toBe(createBlobDigest(delivery.assets[0]!.bytes));
     const restored = await optimizeExportMedia(setLosslessExport(enabled, false), media, optimize);
-    expect(restored.assets).toEqual(media); expect(restored.report.uniqueExportBytes).toBe(bytes.length);
+    expect(restored.assets).toEqual(media.map(asset=>({...asset,canvasSampling:true}))); expect(restored.report.uniqueExportBytes).toBe(bytes.length);
+    restored.assets.forEach((asset,index)=>expect(asset.bytes).toBe(media[index]!.bytes)); // presentation metadata never rewrites originals
     expect(optimize).toHaveBeenCalledTimes(1);
   });
   it("keeps original bytes if Worker is unavailable, times out or fails to post", async () => {

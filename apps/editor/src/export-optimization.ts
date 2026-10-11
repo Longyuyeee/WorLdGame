@@ -7,7 +7,21 @@ import { buildNativeAtlasDelivery, nativeAtlasEnabled, type NativeAtlasVerifier 
 
 export const losslessExportEnabled = (project: CanonicalProject) => project.manifest.preservedFields?.losslessPngExport === true;
 export const setLosslessExport = (project: CanonicalProject, enabled: boolean): CanonicalProject => ({ ...project, manifest: { ...project.manifest, preservedFields: { ...project.manifest.preservedFields, losslessPngExport: enabled } } });
-export interface ExportMedia { readonly assetId: string; readonly displayName: string; readonly mimeType: string; readonly digest: string; readonly bytes: Uint8Array; }
+export interface ExportMedia { readonly assetId: string; readonly displayName: string; readonly mimeType: string; readonly digest: string; readonly bytes: Uint8Array; readonly canvasSampling?: true; }
+/** Only bounded, non-animated PNGs opt into the stage's uniform sampling path. */
+export function supportsCanvasSampling(bytes: Uint8Array, mime: string): boolean {
+  if (mime !== "image/png" || bytes.length < 33 || bytes.length > 32 * 1024 * 1024) return false;
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (view.getUint32(0) !== 0x89504e47 || view.getUint32(4) !== 0x0d0a1a0a || view.getUint32(16) < 1 || view.getUint32(20) < 1 || view.getUint32(16) * view.getUint32(20) > 4_194_304) return false;
+  for (let at=8;at+12<=bytes.length;) {
+    const size=view.getUint32(at); if(at+size+12>bytes.length)return false;
+    const type=String.fromCharCode(...bytes.subarray(at+4,at+8));
+    if (["acTL","fcTL","fdAT"].includes(type))return false;
+    if(type==="IEND")return size===0 && at+12===bytes.length;
+    at+=size+12;
+  }
+  return false;
+}
 export async function optimizeExportMedia(project: CanonicalProject, media: readonly ExportMedia[], optimize = optimizeExportPngInWorker, reader: AtlasExportReader = {}, signal?: AbortSignal, verify?: NativeAtlasVerifier) {
   const enabled = losslessExportEnabled(project);
   const cache = new Map<string, PngExportCandidate>();
@@ -24,7 +38,7 @@ export async function optimizeExportMedia(project: CanonicalProject, media: read
     }
     const digest = result.bytes === asset.bytes ? asset.digest : createBlobDigest(result.bytes);
     originalUnique.set(asset.digest, asset.bytes.length); exportedUnique.set(digest, result.bytes.length);
-    assets.push({ ...asset, bytes: result.bytes, digest });
+    assets.push({ ...asset, bytes: result.bytes, digest, ...(supportsCanvasSampling(result.bytes,asset.mimeType) ? {canvasSampling:true as const} : {}) });
     rows.push({ assetId: asset.assetId, name: asset.displayName, originalDigest: asset.digest, exportDigest: digest, originalBytes: asset.bytes.length, exportBytes: result.bytes.length, savedBytes: asset.bytes.length - result.bytes.length, verified: result.verified, reason: result.reason });
   }
   const compatible = nativeAtlasEnabled(project) ? { assets, rows: [] } : await applyAtlasCompatibilityExport(project, assets, reader, undefined, signal);

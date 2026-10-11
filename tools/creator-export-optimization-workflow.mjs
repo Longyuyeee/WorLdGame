@@ -6,8 +6,8 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,sampleMemory,openWindows}={}) {
-  const prefix=quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,sampleMemory,openWindows}={}) {
+  const prefix=uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
   const qualityEvidence=[];
   const sequence=incremental?JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8')):null;
   const sequenceEvidence=[];
@@ -190,6 +190,8 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   let referenceStage;
   const playCore = async (bytes,name,expectedMode,entryPath,alreadyOpen=false) => {
     let injection;
+    let emergencyInjection;
+    if(name==='emergency-img')emergencyInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:"const ordinaryContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(...args){return this.matches('.player-stage-background,.player-stage-character')?null:Reflect.apply(ordinaryContext,this,args);};"});
     if(quality&&!alreadyOpen){injection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`globalThis.__atlasStartupMetrics={tasks:[],readyAt:null};new MutationObserver(()=>{if(document.querySelector('#player-root')?.dataset.startupState==='ready'&&__atlasStartupMetrics.readyAt===null)__atlasStartupMetrics.readyAt=performance.now();}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-startup-state']});try{new PerformanceObserver(list=>{for(const e of list.getEntries())if(__atlasStartupMetrics.readyAt===null||e.startTime<__atlasStartupMetrics.readyAt)__atlasStartupMetrics.tasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});}catch{};${name==='optimized'?`const cancelOnce=new MutationObserver(()=>{const b=Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='取消加载');if(b){cancelOnce.disconnect();b.click();}});cancelOnce.observe(document,{childList:true,subtree:true});`:''}`});}
     const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}
     if(quality&&name==='optimized'){
@@ -199,6 +201,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     }
     await client.button('开始故事');
     if(injection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:injection.identifier});
+    if(emergencyInjection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:emergencyInjection.identifier});
     // Each comparison starts a fresh story; dismiss only this isolated test profile's recovery prompt via its public action.
     await new Promise(r=>setTimeout(r,500));
     if(await client.evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='放弃并清除')"))await client.button('放弃并清除');
@@ -209,10 +212,12 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
         const ids=await client.evaluate("Array.from(document.querySelectorAll('.player-stage-background,.player-stage-character')).map(e=>e.dataset.assetId)");
         for(const id of ids.filter(id=>sequence.assetIds.includes(id)&&!seen.has(id))){
           const selector=`[data-asset-id="${id}"]`;
-          await client.wait(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return e&&(e.dataset.nativeAtlas==='ready'||(e.complete&&e.naturalWidth>0));})()`);
+          await client.wait(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return e&&(e.dataset.canvasSampling==='ready'||e.dataset.nativeAtlas==='ready'||(e.complete&&e.naturalWidth>0));})()`);
           const item=await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return {mode:e.dataset.nativeAtlas??'ordinary',url:e instanceof HTMLCanvasElement?e.toDataURL():e.src};})()`);
           assert.equal(item.mode,expectedMode??'ordinary');const actual=await pixels(item.url);assert.deepEqual(actual,expectedPixels[id]);seen.set(id,actual);
-          if(quality&&expectedMode==='ready'){
+          if(name==='emergency-img')assert.equal(await client.evaluate(`document.querySelector(${JSON.stringify(selector)}).dataset.canvasSampling`),'emergency-img');
+          if(quality&&name!=='emergency-img'&&(uniform||expectedMode==='ready')){
+            if(uniform)assert.equal(await client.evaluate(`document.querySelector(${JSON.stringify(selector)}).dataset.canvasSampling`),'ready','Product stage must use Canvas, not a diagnostic replacement');
             const original=before.mediaAssets.find(a=>a.assetId===id).url;
             const cases=await client.evaluate(`(async()=>{
               const original=new Image();original.src=${JSON.stringify(original)};await original.decode();
@@ -234,7 +239,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
         }
       }
       if(!renderedPixels && await client.evaluate("Boolean(document.querySelector('.player-stage-character'))")) {
-        await client.wait("Array.from(document.querySelectorAll('.player-stage-character')).every(img=>img.dataset.nativeAtlas==='ready'||(img.complete && img.naturalWidth>0))");
+        await client.wait("Array.from(document.querySelectorAll('.player-stage-character')).every(img=>img.dataset.canvasSampling==='ready'||img.dataset.nativeAtlas==='ready'||(img.complete && img.naturalWidth>0))");
         const url=await client.evaluate("(()=>{const image=document.querySelector('.player-stage-character');return image instanceof HTMLCanvasElement?image.toDataURL():image.src;})()");renderedPixels=await pixels(url);
         if(expectedMode)assert.equal(await client.evaluate("document.querySelector('.player-stage-character').dataset.nativeAtlas"),expectedMode);
         measurements.push({kind:'play-to-character',name,elapsedMs:performance.now()-start,...(sampleMemory?{processMemory:await sampleMemory(name)}:{}),jsHeap:await client.evaluate("performance.memory?{used:performance.memory.usedJSHeapSize,total:performance.memory.totalJSHeapSize}:null")});
@@ -246,7 +251,11 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
           const clip=await client.evaluate("(()=>{const r=document.querySelector('.player-stage').getBoundingClientRect();return {x:Math.ceil(r.x)+40,y:Math.ceil(r.y)+40,width:Math.floor(r.width)-80,height:Math.floor(r.height)-80,scale:1};})()");
           const capture=(await client.send('Page.captureScreenshot',{format:'png',clip})).data;
           stageScreenshot=(await pixels('data:image/png;base64,'+capture)).digest;
-          if(!referenceStage){
+          if(!referenceStage&&uniform){
+            referenceStage=capture;
+            samplingComparisons.push({name:'ordinary-canvas-product',ordinaryPixels:stageScreenshot,canvasPixels:stageScreenshot,diagnosticReplacement:false});
+          }
+          else if(!referenceStage){
             // Calibrate the browser's IMG vs Canvas CSS sampling, independently of Atlas reconstruction.
             // Only this baseline diagnostic swaps ordinary decoded images for equivalent Canvas sources, then restores them.
             await client.evaluate("(()=>{globalThis.__atlasSamplingRestore=[];for(const img of document.querySelectorAll('.player-stage-background,.player-stage-character')){const c=document.createElement('canvas');for(const a of img.attributes)c.setAttribute(a.name,a.value);c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d',{willReadFrequently:true}).drawImage(img,0,0);img.replaceWith(c);globalThis.__atlasSamplingRestore.push([img,c]);}})()");
@@ -269,10 +278,10 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     }
     await client.wait("document.querySelector('main[data-player-status]')?.dataset.playerStatus==='ended'");
     assert.ok(renderedPixels,'Exported player must render the actual character');
-    if(incremental){assert.deepEqual([...seen.keys()].sort(),[...sequence.assetIds].sort());sequenceEvidence.push({name,mode:expectedMode??'ordinary',assets:Object.fromEntries(seen),count:seen.size});}
+    if(incremental){assert.deepEqual([...seen.keys()].sort(),[...sequence.assetIds].sort());const observation={name,mode:expectedMode??'ordinary',assets:Object.fromEntries(seen),count:seen.size};if(name==='emergency-img')measurements.push({kind:'emergency-sampling-fallback',...observation});else sequenceEvidence.push(observation);}
     const result={ended:true,ending:await client.evaluate("document.querySelector('.player-ending h2').textContent"),renderedPixels,...(native?{stageScreenshot}:{})};
-    if(quality&&!alreadyOpen)measurements.push({kind:'startup-longtasks',name,...await client.evaluate('globalThis.__atlasStartupMetrics'),limits:'Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline.'});
-    if(native && expectedMode){await client.button('回到标题');await client.wait("Number(document.documentElement.dataset.nativeAtlasBytes??0)===0 && Number(document.documentElement.dataset.nativeAtlasGroups??0)===0");}
+    if(quality&&!alreadyOpen&&name!=='emergency-img')measurements.push({kind:'startup-longtasks',name,...await client.evaluate('globalThis.__atlasStartupMetrics'),limits:'Startup through ready; optimized includes deliberate cancellation/retry. Navigation, JSON, hashes and host overhead included; not a controlled before/after baseline.'});
+    if(native && (expectedMode||uniform)){await client.button('回到标题');await client.wait("Number(document.documentElement.dataset.nativeAtlasBytes??0)===0 && Number(document.documentElement.dataset.nativeAtlasGroups??0)===0");}
     return result;
   };
   const play = (bytes,name,...args) => observe(name,()=>playCore(bytes,name,...args));
@@ -293,6 +302,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     const corruptPlay=await play(Buffer.from(broken),'corrupt-page','fallback');assert.deepEqual(corruptPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(corruptPlay.ending,baselinePlay.ending);assert.equal(corruptPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
     const unsupported=optimized.toString().replace('<head>','<head><script>globalThis.createImageBitmap=undefined;</script>');assert.notEqual(unsupported,optimized.toString());
     const unsupportedPlay=await play(Buffer.from(unsupported),'unsupported','fallback');assert.deepEqual(unsupportedPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(unsupportedPlay.ending,baselinePlay.ending);assert.equal(unsupportedPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
+    if(uniform){const emergency=await play(optimized,'emergency-img','fallback');assert.deepEqual(emergency.renderedPixels,baselinePlay.renderedPixels);assert.equal(emergency.ending,baselinePlay.ending);}
   }
   if(quality){
     const damaged=structuredClone(after);damaged.nativeAtlasGroups[0].fallback.digest='sha256:'+'0'.repeat(64);

@@ -113,6 +113,31 @@ function publishDiagnostics() {
   }
 }
 function reserve(bytes: number) { if (!Number.isSafeInteger(bytes) || bytes < 0 || accountedBytes + bytes > RENDER_BUDGET) throw Error("Atlas renderer memory budget exceeded"); accountedBytes += bytes; peakBytes = Math.max(peakBytes, accountedBytes); publishDiagnostics(); }
+
+/** Use the same 1:1 Canvas source for ordinary PNG and Atlas fallback sampling. */
+export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvasElement, signal?: AbortSignal) {
+  signal?.throwIfAborted();
+  const image = new Image();
+  let bytes=0, released=false;
+  const release=()=>{if(released)return;released=true;image.onload=image.onerror=null;image.src="";canvas.width=canvas.height=0;accountedBytes-=bytes;bytes=0;publishDiagnostics();};
+  try {
+    await new Promise<void>((resolve,reject)=>{
+      const cancel=()=>{image.onload=image.onerror=null;image.src="";reject(signal!.reason);};
+      signal?.addEventListener("abort",cancel,{once:true});
+      const finish=(error?:Error)=>{signal?.removeEventListener("abort",cancel);image.onload=image.onerror=null;error?reject(error):resolve();};
+      image.onload=()=>finish();image.onerror=()=>finish(Error("Ordinary PNG decode failed"));image.src=url;
+    });
+    signal?.throwIfAborted();
+    const width=image.naturalWidth,height=image.naturalHeight;
+    if(width<1||height<1||width*height>4_194_304)throw Error("Ordinary Canvas pixel budget exceeded");
+    reserve(width*height*8);bytes=width*height*8;
+    canvas.width=width;canvas.height=height;
+    const context=canvas.getContext("2d",{willReadFrequently:true});if(!context)throw Error("Canvas unsupported");
+    context.imageSmoothingEnabled=false;context.drawImage(image,0,0);
+    image.src="";
+    return {source:canvas,width,height,release};
+  } catch(error){release();throw error;}
+}
 async function decode(group: NativeAtlasDelivery, manifest: LosslessDicingPngDeliveryManifest, needed: () => boolean): Promise<DecodedGroup> {
   if (activeDecodes >= 2) await new Promise<void>(resolve => { decodeQueue.push(resolve); publishDiagnostics(); });
   else activeDecodes++;

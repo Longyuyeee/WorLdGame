@@ -1,11 +1,28 @@
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NativeAtlasImage } from "./NativeAtlasImage";
-import { acquireNativeAtlasImage, type NativeAtlasDelivery } from "./native-atlas";
-vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), nativeAtlasDiagnostics: () => ({ accountedBytes: 1 }) }));
+import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, type NativeAtlasDelivery } from "./native-atlas";
+vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdinaryCanvasImage:vi.fn(), nativeAtlasDiagnostics: () => ({ accountedBytes: 1 }) }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
+  it("uses the same Canvas path for opted-in ordinary PNGs and native failure", async()=>{
+    const release=vi.fn();vi.mocked(acquireOrdinaryCanvasImage).mockImplementation(async(_url,canvas)=>({source:canvas,width:8,height:8,release}));
+    const view=render(<NativeAtlasImage canvasSampling src="blob:original" alt="角色" />);
+    await waitFor(()=>expect(screen.getByRole("img")).toHaveAttribute("data-canvas-sampling","ready"));
+    expect(screen.getByRole("img").tagName).toBe("CANVAS");expect(acquireNativeAtlasImage).not.toHaveBeenCalled();
+    vi.mocked(acquireNativeAtlasImage).mockRejectedValueOnce(Error("corrupt"));
+    view.rerender(<NativeAtlasImage atlas={{group:group(),assetId:"a"}} src="blob:original" alt="角色" />);
+    await waitFor(()=>expect(screen.getByRole("img")).toHaveAttribute("data-native-atlas","fallback"));
+    expect(screen.getByRole("img").tagName).toBe("CANVAS");view.unmount();expect(release).toHaveBeenCalledTimes(2);
+  });
+  it("leaves untagged formats on IMG and explicitly labels emergency sampling degradation",async()=>{
+    const view=render(<NativeAtlasImage src="animated.png" alt="角色" />);expect(screen.getByRole("img").tagName).toBe("IMG");
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(Error("Canvas unavailable"));
+    view.rerender(<NativeAtlasImage canvasSampling src="blob:ordinary" alt="角色" />);
+    await waitFor(()=>expect(screen.getByRole("img")).toHaveAttribute("data-canvas-sampling","emergency-img"));
+    expect(screen.getByRole("img")).toHaveAttribute("src","blob:ordinary");
+  });
   it("uses a fresh canvas on group change so stale completion cannot clear the new image", async () => {
     type ImageLease = Awaited<ReturnType<typeof acquireNativeAtlasImage>>;
     let complete!: (lease: ImageLease) => void;
@@ -24,6 +41,7 @@ describe("native player image ownership", () => {
   });
   it.each(["unsupported", "Atlas renderer memory budget exceeded"])("keeps the ordinary source after %s and retries a new group", async failure => {
     const onError = vi.fn(); vi.mocked(acquireNativeAtlasImage).mockRejectedValueOnce(Error(failure));
+    vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValueOnce(Error(failure));
     const view = render(<NativeAtlasImage atlas={{ group: group(), assetId: "a" }} src="blob:original" alt="角色" onError={onError} />);
     await waitFor(() => expect(screen.getByRole("img")).toHaveAttribute("data-native-atlas", "fallback"));
     expect(screen.getByRole("img")).toHaveAttribute("src", "blob:original");
