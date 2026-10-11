@@ -11,7 +11,8 @@ export function dataUrl(bytes: Uint8Array, mime = "application/octet-stream") {
   let text = ""; for (let offset = 0; offset < bytes.length; offset += 8192) text += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
   return `data:${mime};base64,${btoa(text)}`;
 }
-export async function buildNativeAtlasDelivery(project: CanonicalProject, assets: readonly ExportMedia[], reader: AtlasExportReader, verify = compatiblePng, signal?: AbortSignal) {
+export type NativeAtlasVerifier = (...args: Parameters<typeof compatiblePng>) => Promise<unknown>;
+export async function buildNativeAtlasDelivery(project: CanonicalProject, assets: readonly ExportMedia[], reader: AtlasExportReader, verify: NativeAtlasVerifier = compatiblePng, signal?: AbortSignal) {
   const groups: NativeAtlasDelivery[] = [], adopted = new Set<string>(), rows: {groupId:string; adopted:boolean; detail:string; payloadBytes:number; pageRgbaBytes:number; fallbackRawBytes:number}[] = [];
   let fallbackRawBytes = 0;
   for (const groupId of nativeAtlasEnabled(project) ? atlasExportGroups(project) : []) {

@@ -3,12 +3,12 @@ import { createBlobDigest } from "@world-studio/project-persistence";
 import { optimizeExportPngInWorker } from "./lossless-png-export-client";
 import type { PngExportCandidate } from "./lossless-png-export";
 import { applyAtlasCompatibilityExport, type AtlasExportReader } from "./atlas-export";
-import { buildNativeAtlasDelivery, nativeAtlasEnabled } from "./native-atlas-export";
+import { buildNativeAtlasDelivery, nativeAtlasEnabled, type NativeAtlasVerifier } from "./native-atlas-export";
 
 export const losslessExportEnabled = (project: CanonicalProject) => project.manifest.preservedFields?.losslessPngExport === true;
 export const setLosslessExport = (project: CanonicalProject, enabled: boolean): CanonicalProject => ({ ...project, manifest: { ...project.manifest, preservedFields: { ...project.manifest.preservedFields, losslessPngExport: enabled } } });
 export interface ExportMedia { readonly assetId: string; readonly displayName: string; readonly mimeType: string; readonly digest: string; readonly bytes: Uint8Array; }
-export async function optimizeExportMedia(project: CanonicalProject, media: readonly ExportMedia[], optimize = optimizeExportPngInWorker, reader: AtlasExportReader = {}, signal?: AbortSignal) {
+export async function optimizeExportMedia(project: CanonicalProject, media: readonly ExportMedia[], optimize = optimizeExportPngInWorker, reader: AtlasExportReader = {}, signal?: AbortSignal, verify?: NativeAtlasVerifier) {
   const enabled = losslessExportEnabled(project);
   const cache = new Map<string, PngExportCandidate>();
   const assets: ExportMedia[] = [];
@@ -28,7 +28,7 @@ export async function optimizeExportMedia(project: CanonicalProject, media: read
     rows.push({ assetId: asset.assetId, name: asset.displayName, originalDigest: asset.digest, exportDigest: digest, originalBytes: asset.bytes.length, exportBytes: result.bytes.length, savedBytes: asset.bytes.length - result.bytes.length, verified: result.verified, reason: result.reason });
   }
   const compatible = nativeAtlasEnabled(project) ? { assets, rows: [] } : await applyAtlasCompatibilityExport(project, assets, reader, undefined, signal);
-  const native = await buildNativeAtlasDelivery(project, compatible.assets, reader, undefined, signal);
+  const native = await buildNativeAtlasDelivery(project, compatible.assets, reader, verify, signal);
   exportedUnique.clear();
   for (const [index, asset] of compatible.assets.entries()) {
     if (!native.adopted.has(asset.assetId)) exportedUnique.set(asset.digest, asset.bytes.length);

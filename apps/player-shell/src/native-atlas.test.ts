@@ -7,7 +7,7 @@ const url = (bytes: Uint8Array) => `data:application/octet-stream;base64,${btoa(
 function fixture(size = 8) {
   const bytes = new Uint8Array([1, 2, 3]), compressed = zlibSync(bytes);
   const rgba = new Uint8Array(size * size * 4).fill(255);
-  const atlas = buildLosslessDicingAtlas([{ assetId: "a", width: size, height: size, rgba }], { cellSize: 8, padding: 2, maxAtlasSize: 32 });
+  const atlas = buildLosslessDicingAtlas([{ assetId: "a", width: size, height: size, rgba }], { cellSize: size >= 512 ? 64 : 8, padding: 2, maxAtlasSize: size >= 512 ? 128 : 32 });
   const encoded = new Uint8Array(24), view = new DataView(encoded.buffer);
   view.setUint32(16, atlas.pages[0]!.width); view.setUint32(20, atlas.pages[0]!.height);
   const manifest = createLosslessDicingPngDeliveryManifest(atlas.manifest, atlas.pages.map(page => ({ ...page, encodedDigest: createBlobDigest(encoded), encodedByteLength: encoded.length, mimeType: "image/png" as const })));
@@ -87,15 +87,18 @@ describe("native Atlas integrity and lifecycle", () => {
     await expect(acquireNativeAtlasImage({ group, assetId: "a" })).rejects.toThrow("unsupported");
   });
   it("enforces the shared memory budget under concurrent consumers and recovers after release", async () => {
-    const { group, atlas, rgba } = fixture(512), close = vi.fn();
-    vi.stubGlobal("createImageBitmap", vi.fn(async () => ({ width: atlas.pages[0]!.width, height: atlas.pages[0]!.height, close })));
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(function(this: HTMLCanvasElement) {
-      return { drawImage: vi.fn(), getImageData: () => ({ data: this.width === 512 ? rgba : atlas.pages[0]!.rgba }) } as unknown as CanvasRenderingContext2D;
-    });
-    const results = await Promise.allSettled(Array.from({ length: 34 }, () => acquireNativeAtlasImage({ group, assetId: "a" })));
+    const { group, atlas } = fixture(512), close = vi.fn();
+    let resume!: () => void;
+    vi.stubGlobal("createImageBitmap", vi.fn(() => new Promise(resolve => { resume = () => resolve({ width: atlas.pages[0]!.width, height: atlas.pages[0]!.height, close }); })));
+    const controllers = Array.from({ length: 34 }, () => new AbortController());
+    const pending = Promise.allSettled(controllers.map(controller => acquireNativeAtlasImage({ group, assetId: "a" }, undefined, controller.signal)));
+    await vi.waitFor(() => expect(createImageBitmap).toHaveBeenCalledTimes(1));
+    // Budget pressure is established before decode; pixel reconstruction has separate tests.
+    expect(nativeAtlasDiagnostics().accountedBytes).toBeGreaterThan(62 * 1024 * 1024);
+    controllers.forEach(controller => controller.abort()); resume();
+    const results = await pending;
     expect(results.some(result => result.status === "rejected" && String(result.reason).includes("memory budget"))).toBe(true);
     expect(nativeAtlasDiagnostics().peakBytes).toBeLessThanOrEqual(nativeAtlasDiagnostics().budgetBytes);
-    results.forEach(result => { if (result.status === "fulfilled") result.value.release(); });
-    await Promise.resolve(); expect(nativeAtlasDiagnostics().accountedBytes).toBe(0); expect(close).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(nativeAtlasDiagnostics().accountedBytes).toBe(0)); expect(close).toHaveBeenCalledTimes(1);
   });
 });

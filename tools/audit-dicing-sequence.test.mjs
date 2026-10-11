@@ -1,0 +1,10 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { validateDicingSequence } from './audit-dicing-sequence.mjs';
+const fixture=JSON.parse(await readFile(new URL('../fixtures/projects/dicing/sequence.json',import.meta.url),'utf8'));
+const evidence=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-incremental-sequence.json',import.meta.url),'utf8'));
+test('Dicing sequence gate accepts the full six-mode evidence',()=>assert.equal(validateDicingSequence(fixture,evidence).status,'PASS'));
+test('Dicing sequence gate rejects an omitted variant',()=>{const bad=structuredClone(evidence);delete bad.runs[0].assets.scale_29;assert.throws(()=>validateDicingSequence(fixture,bad));});
+test('Dicing sequence gate rejects divergent pixels',()=>{const bad=structuredClone(evidence);bad.runs[1].assets.scale_29.digest='0'.repeat(64);assert.throws(()=>validateDicingSequence(fixture,bad));});
+test('Dicing sequence gate rejects stale fixture identity',()=>assert.throws(()=>validateDicingSequence({...fixture,independentBackground:'changed'},evidence)));

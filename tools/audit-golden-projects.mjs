@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
+import { auditDicingSequence } from "./audit-dicing-sequence.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -442,6 +443,8 @@ for (const entry of registry.projects ?? []) {
   }
 }
 
+try { console.log(JSON.stringify(await auditDicingSequence(root),null,2)); }
+catch(error) { violations.push(`Dicing sequence sub-gate: ${error.message}`); }
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;

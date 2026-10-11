@@ -7,6 +7,7 @@ import previewServer from "./export-preview-server.mjs?raw";
 import { readWebPublication, applyWebPublication, publicationIconSize } from "./web-publication";
 import { optimizeExportMedia, type ExportOptimizationReport } from "./export-optimization";
 import type { AtlasExportReader } from "./atlas-export";
+import type { NativeAtlasVerifier } from "./native-atlas-export";
 
 export interface FormalWebArtifact {
   readonly optimizationReport: ExportOptimizationReport;
@@ -23,7 +24,7 @@ function htmlText(value: string): string {
 async function readExportMedia(
   project: CanonicalProject,
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
-  signal?: AbortSignal
+  signal?: AbortSignal, verify?: NativeAtlasVerifier
 ) {
   signal?.throwIfAborted();
   const compilation = compileProject(project, "release");
@@ -44,7 +45,7 @@ async function readExportMedia(
     }
     mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });
   }
-  return optimizeExportMedia(project, mediaAssets, undefined, reader, signal);
+  return optimizeExportMedia(project, mediaAssets, undefined, reader, signal, verify);
 }
 
 function exportStem(project: CanonicalProject): string {
@@ -54,12 +55,12 @@ function exportStem(project: CanonicalProject): string {
 export async function createFormalWebArtifact(
   project: CanonicalProject,
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
-  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal
+  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
 ): Promise<FormalWebArtifact> {
   applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
   project = { ...project, manifest: { ...project.manifest, title: publication.name } };
-  const delivery = await readExportMedia(project, reader, signal);
+  const delivery = await readExportMedia(project, reader, signal, verify);
   signal?.throwIfAborted();
   const mediaAssets = delivery.assets.map(({ bytes, digest: _digest, ...asset }) => {
     if (delivery.nativeAssetIds.has(asset.assetId)) return { ...asset, url: "" };
@@ -80,7 +81,7 @@ export async function createFormalWebArtifact(
 export async function createFormalWebDirectoryArtifact(
   project: CanonicalProject,
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
-  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal
+  runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
 ) {
   applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
@@ -88,7 +89,7 @@ export async function createFormalWebDirectoryArtifact(
   const encode = (text: string) => new TextEncoder().encode(text);
   const files: Record<string, Uint8Array> = {};
   const extensions: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg", "image/gif": "gif", "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/mp4": "mp4", "video/webm": "webm", "font/woff2": "woff2", "font/woff": "woff", "font/ttf": "ttf", "font/otf": "otf" };
-  const delivery = await readExportMedia(project, reader, signal);
+  const delivery = await readExportMedia(project, reader, signal, verify);
   signal?.throwIfAborted();
   const assets = delivery.assets;
   files["optimization-report.json"] = encode(JSON.stringify(delivery.report, null, 2));

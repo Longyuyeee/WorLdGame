@@ -6,6 +6,7 @@ import { atlasExportGroups, type AtlasExportReader } from "./atlas-export";
 import { nativeAtlasEnabled } from "./native-atlas-export";
 import { losslessExportEnabled, optimizeExportMedia, type ExportMedia } from "./export-optimization";
 import { RuntimeResourceScheduler } from "./runtime-resource-scheduler";
+import { AtlasVerificationSession } from "./atlas-verification-session";
 
 type Reader = PreviewAssetReader & AtlasExportReader & {
   loadLifecycle?(): Promise<{ readonly roots: readonly { readonly rootId: string; readonly digests?: readonly string[] }[] }>;
@@ -15,10 +16,11 @@ let uncachedSerial = 0;
 
 /** One session per PreviewPanel; no cross-project Blob authority sharing. */
 export class NativeAtlasPreviewSession {
+  readonly verification = new AtlasVerificationSession();
   private readonly scheduler = new RuntimeResourceScheduler<readonly NativeAtlasDelivery[]>({ maxConcurrentLoads: 1, maxResidentBytes: CACHE_BYTES });
   private reader?: Reader;
   snapshot() { return this.scheduler.snapshot(); }
-  clear() { this.scheduler.handleMemoryPressure(); this.publish(); }
+  clear() { this.scheduler.handleMemoryPressure(); this.verification.clear(); this.publish(); }
   private publish() {
     if (typeof document !== "undefined") document.documentElement.dataset.atlasPreviewScheduler = JSON.stringify(this.snapshot());
   }
@@ -52,7 +54,7 @@ export class NativeAtlasPreviewSession {
           if (!bytes || bytes.length !== source.byteLength || createBlobDigest(bytes) !== source.digest) throw Error("Preview source mismatch");
           sources.push({ assetId: String(asset.assetId ?? asset.id), displayName: String(asset.displayName ?? asset.assetId), bytes, digest: source.digest, mimeType: "image/png" });
         }
-        const result = await optimizeExportMedia(project, sources, undefined, reader, jobSignal);
+        const result = await optimizeExportMedia(project, sources, undefined, reader, jobSignal, this.verification.verify);
         jobSignal.throwIfAborted();
         if (key !== await this.key(project, reader)) throw Error("Atlas publication changed during validation");
         // UTF-16 cached strings only: not full heap or temporary codec buffers.

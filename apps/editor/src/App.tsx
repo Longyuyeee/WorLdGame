@@ -3302,8 +3302,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       const { default: runtime } = await import("virtual:world-player-export");
       const reader = assetRepository ?? { read: async () => null };
       const artifact = directory
-        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal)
-        : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal);
+        ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify)
+        : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify);
       if (generation !== webBuildGeneration.current) return;
       const contents = "archive" in artifact ? new Uint8Array(artifact.archive) : artifact.html;
       const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
