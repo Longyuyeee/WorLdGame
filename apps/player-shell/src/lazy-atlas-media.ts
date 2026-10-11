@@ -2,24 +2,36 @@ import { createBlobDigest } from "@world-studio/project-persistence";
 import { embeddedBytes, unpackAtlasFallbackAsync, type NativeAtlasDelivery, type NativeAtlasSource } from "./native-atlas";
 
 type GroupLease = { urls: Map<string, string>; release: () => void };
-type PendingGroup = { refs: number; controller: AbortController; promise: Promise<Map<string, string>>; urls: Map<string, string>; bytes: number };
+type PendingGroup = { refs: number; controller: AbortController; promise: Promise<Map<string, string>>; urls: Map<string, string>; bytes: number; expiry?: ReturnType<typeof setTimeout> };
+export const ATLAS_IDLE_BYTES = 8 * 1024 * 1024;
+export const ATLAS_IDLE_MILLISECONDS = 1000;
 
 /** Validate compressed delivery eagerly, but inflate and own URLs only for visible groups. */
 export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; url: string }>(media: readonly T[], groups: readonly NativeAtlasDelivery[] = [], signal?: AbortSignal, progress?: (completed: number, total: number) => void) {
   const budget = 32 * 1024 * 1024;
   const sources = new Map<string, NativeAtlasSource>();
   const pending = new Map<NativeAtlasDelivery, PendingGroup>();
-  let closed = false, tail: Promise<unknown> = Promise.resolve(), preparedGroups = 0, active = 0, peakActive = 0;
+  let closed = false, tail: Promise<unknown> = Promise.resolve(), preparedGroups = 0, active = 0, peakActive = 0, cacheHits = 0;
   const publish = () => {
     if (typeof document !== "undefined") document.documentElement.dataset.atlasFallback = JSON.stringify({
       groups: pending.size, urls: [...pending.values()].reduce((n, item) => n + item.urls.size, 0),
       residentSourceBytes: [...pending.values()].reduce((n, item) => n + item.bytes, 0),
-      preparedGroups, active, peakActive,
+      preparedGroups, active, peakActive, cacheHits,
+      idleBytes: [...pending.values()].filter(item=>item.refs===0).reduce((n,item)=>n+item.bytes,0), idleBudgetBytes: ATLAS_IDLE_BYTES,
     });
   };
   const clear = (item: PendingGroup) => {
+    clearTimeout(item.expiry);
     item.controller.abort();
     item.urls.forEach(url => URL.revokeObjectURL(url)); item.urls.clear(); item.bytes = 0;
+  };
+  const trim = () => {
+    const occupied=[...pending.values()].some(item=>item.refs>0);
+    let idle=[...pending.values()].filter(item=>item.refs===0).reduce((n,item)=>n+item.bytes,0);
+    for(const [group,item] of pending)if(item.refs===0&&(!occupied||idle>ATLAS_IDLE_BYTES)){
+      idle-=item.bytes;clear(item);pending.delete(group);
+    }
+    publish();
   };
   const dispose = () => {
     if (closed) return;
@@ -30,6 +42,7 @@ export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; 
     consumer?.throwIfAborted();
     if (closed) throw new DOMException("Player closed", "AbortError");
     let item = pending.get(group);
+    if(item){clearTimeout(item.expiry);if(item.refs===0&&item.bytes>0)cacheHits++;}
     if (!item) {
       item = { refs: 0, controller: new AbortController(), promise: Promise.resolve(new Map()), urls: new Map(), bytes: 0 };
       const own = item;
@@ -48,13 +61,17 @@ export async function prepareNativeAtlasMediaAsync<T extends { assetId: string; 
       });
       tail = own.promise.catch(() => {});
     }
-    const own = item; own.refs++;
+    const own = item; own.refs++; publish();
     let released = false;
     const release = () => {
       if (released) return;
       released = true; consumer?.removeEventListener("abort", cancel);
       if (--own.refs === 0) {
-        clear(own); if (pending.get(group) === own) pending.delete(group); publish();
+        if(own.bytes>0&&!closed){
+          pending.delete(group);pending.set(group,own);
+          own.expiry=setTimeout(()=>{if(own.refs===0&&pending.get(group)===own){clear(own);pending.delete(group);publish();}},ATLAS_IDLE_MILLISECONDS);
+        }else{clear(own);if(pending.get(group)===own)pending.delete(group);}
+        trim();
       }
     };
     let rejectAbort!: (reason: unknown) => void;

@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { acquireNativeAtlasImage, acquireOrdinaryCanvasImage, type NativeAtlasDelivery } from "./native-atlas";
@@ -6,6 +6,13 @@ vi.mock("./native-atlas", () => ({ acquireNativeAtlasImage: vi.fn(), acquireOrdi
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 const group = () => ({ schemaVersion: 1, groupId: "test", manifest: "{}", pages: [], fallback: { url: "", digest: "", rawBytes: 1, entries: [] } }) as NativeAtlasDelivery;
 describe("native player image ownership", () => {
+  it("does not report emergency IMG ready until its load event",async()=>{
+    const report=vi.fn();vi.mocked(acquireOrdinaryCanvasImage).mockRejectedValue(Error("no Canvas"));
+    const view=render(<NativeAtlasImage canvasSampling src="blob:original" alt="角色" onResourceState={report} />);
+    await waitFor(()=>expect(screen.getByRole("img").tagName).toBe("IMG"));
+    expect(report).not.toHaveBeenCalledWith("ready");fireEvent.load(screen.getByRole("img"));expect(report).toHaveBeenCalledWith("ready");
+    view.unmount();expect(report).toHaveBeenLastCalledWith("released");
+  });
   it("retries deferred resource failure and releases the fallback lease on exit",async()=>{
     const release=vi.fn(),acquireFallback=vi.fn().mockRejectedValueOnce(Error("broken")).mockResolvedValue({url:"blob:lazy",release});
     vi.mocked(acquireNativeAtlasImage).mockRejectedValue(Error("unsupported"));

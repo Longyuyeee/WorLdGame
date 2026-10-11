@@ -176,6 +176,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
+  const [imageReadiness, setImageReadiness] = useState<Record<string, string>>({});
+  const reportImage = useCallback((key: string, status: string) => setImageReadiness(current => {
+    if (current[key] === status || (status === "released" && !(key in current))) return current;
+    const next = { ...current }; if (status === "released") delete next[key]; else next[key] = status; return next;
+  }), []);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(0);
   const [lastInputSource, setLastInputSource] = useState<PlayerInputSource>("lifecycle");
   const [lastInputAccepted, setLastInputAccepted] = useState(true);
@@ -264,6 +269,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     () => derivePlayerStagePresentationV1(snapshot, localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui),
     [localizedMedia.stageSources, settingsApplication.stage, settingsApplication.ui, snapshot]
   );
+  const stageImagesPending = Boolean(stage.background && (stage.background.atlas || stage.background.canvasSampling) && imageReadiness[`${mediaGeneration}:background:${stage.background.assetId}`] !== "ready")
+    || stage.characters.some(image => (image.atlas || image.canvasSampling) && imageReadiness[`${mediaGeneration}:${image.slot}:${image.assetId}`] !== "ready");
   const localizedVoice = localizedMedia.voice === null ? [] : [{
     ...localizedMedia.voice,
     bus: "voice",
@@ -782,6 +789,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("stopped");
       return;
     }
+    if (stageImagesPending) { setAutoPlayback("suspended"); return; }
     if (!textReady) {
       setAutoPlayback("waiting-text");
       return;
@@ -827,7 +835,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     }, delay);
     return () => window.clearTimeout(timer);
-  }, [autoEnabled, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
+  }, [autoEnabled, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, textReady, voiceEnded, voiceMetadataRevision, voicePlaying]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -852,6 +860,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       stopSkip();
       return;
     }
+    if (stageImagesPending) return;
     if (snapshot.playback.mode === skipMode && snapshot.playback.stopReason !== null && snapshot.playback.stopReason !== "budget") {
       stopSkip();
       return;
@@ -878,7 +887,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip]);
+  }, [stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip]);
 
   useEffect(() => {
     if (!skipActive) return;
@@ -1153,6 +1162,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-playback-stop-reason={snapshot.playback.stopReason ?? "none"}
       data-auto-playback={autoPlayback}
       data-skip-active={skipActive}
+      data-stage-images-pending={stageImagesPending}
       data-skip-media={skipActive ? "accelerated" : "normal"}
       data-video-policy-stop-reason={videoPolicyStopReason}
       data-runtime-state-hash={snapshot.runtimeStateHash ?? "none"}
@@ -1208,6 +1218,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         <div className="player-stage-world" data-skip-media={skipActive ? "accelerated" : "normal"} style={{ transform: stage.cameraTransform }} aria-label="正式媒体舞台">
           {stage.background !== null && (
             <NativeAtlasImage atlas={stage.background.atlas} canvasSampling={stage.background.canvasSampling}
+              onResourceState={status=>reportImage(`${mediaGeneration}:background:${stage.background!.assetId}`,status)}
               onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
               key={`${mediaGeneration}:background:${stage.background.assetId}`}
               className={`player-stage-background player-transition--${stage.background.transition}`}
@@ -1263,6 +1274,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           )}
           {stage.characters.map((character) => (
             <NativeAtlasImage atlas={character.atlas} canvasSampling={character.canvasSampling}
+              onResourceState={status=>reportImage(`${mediaGeneration}:${character.slot}:${character.assetId}`,status)}
               onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
               key={`${mediaGeneration}:${character.slot}:${character.assetId}`}
               className={`player-stage-character player-transition--${character.transition}`}
@@ -1605,7 +1617,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           >全部</button>
           <label>方式<select aria-label="快进激活方式" value={skipActivation} onChange={(event) => { stopSkip(); setSkipActivation(event.target.value as WorldPlayerSkipActivationV1); }}><option value="toggle">切换</option><option value="hold">按住</option></select></label>
           <label>速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
-          <span aria-live="polite">{autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
+          <span aria-live="polite">{(autoEnabled || skipActive) && stageImagesPending ? "等待画面资源，准备好后继续" : autoEnabled ? autoPlayback === "suspended" ? "自动播放已暂停" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
         {saveStore !== undefined && !snapshot.sceneReplay.active && (
           <aside className="player-save" data-open={savePanelOpen}>

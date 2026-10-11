@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Blob as NodeBlob } from "node:buffer";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -14,6 +14,7 @@ import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-sav
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
 import type { NativeAtlasSource } from "./native-atlas";
+import * as nativeAtlas from "./native-atlas";
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -206,6 +207,22 @@ describe("N50-E1 shared Player Shell", () => {
     fail(Error("source mismatch"));
     await waitFor(()=>expect(auto).toHaveAttribute("aria-pressed","false"));
     expect(screen.getByRole("button",{name:"重试画面资源"})).toBeInTheDocument();
+  });
+
+  it.each(["自动播放","快进全部"])("%s waits for the current picture and resumes only after actual rendering",async control=>{
+    const demo=createPlayerMediaDemoV1();let finish!:(lease:{url:string;release:()=>void})=>void;
+    const atlas={group:{},assetId:"media_sunset",acquireFallback:()=>new Promise(resolve=>{finish=resolve;})} as unknown as NativeAtlasSource;
+    vi.spyOn(nativeAtlas,"acquireNativeAtlasImage").mockImplementation(async(_source,canvas)=>({source:canvas!,width:8,height:8,release:vi.fn()}));
+    const project={...demo.project,settings:withProjectSettings(demo.project.settings,{text:{revealMode:"instant"}})};
+    const {container}=render(<PlayerShell project={project} mediaAssets={demo.mediaAssets.map(asset=>asset.assetId==="media_sunset"?{...asset,atlas}:asset)} playbackPolicy={playbackPolicy(10)} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));fireEvent.animationEnd(screen.getByTestId("player-effect-progress"));
+    fireEvent.click(screen.getByRole("button",{name:control}));
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,80)));
+    expect(container.querySelector("main")).toHaveAttribute("data-stage-images-pending","true");
+    expect(screen.getByText("Every cue must remain ordered.")).toBeInTheDocument();
+    await act(async()=>finish({url:"blob:ready",release:vi.fn()}));
+    await waitFor(()=>expect(container.querySelector("main")).toHaveAttribute("data-stage-images-pending","false"));
+    await waitFor(()=>expect(screen.queryByText("Every cue must remain ordered.")).not.toBeInTheDocument());
   });
 
   it("fails visibly when a required media asset is unavailable instead of auto-completing the Effect", () => {

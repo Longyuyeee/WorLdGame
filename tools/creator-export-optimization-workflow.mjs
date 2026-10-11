@@ -6,8 +6,8 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,lazy=false,sampleMemory,openWindows}={}) {
-  const prefix=lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,quality=false,uniform=false,lazy=false,coordination=false,sampleMemory,openWindows}={}) {
+  const prefix=coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
   const qualityEvidence=[];
   const sequence=incremental?JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8')):null;
   const sequenceEvidence=[];
@@ -191,6 +191,8 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   const playCore = async (bytes,name,expectedMode,entryPath,alreadyOpen=false) => {
     let injection;
     let emergencyInjection;
+    let slowInjection,slowChecked=false;
+    if(coordination&&name==='optimized')slowInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:"const OriginalWorker=Worker;let delayed=false;globalThis.Worker=class extends OriginalWorker{set onmessage(handler){super.onmessage=event=>{if(!delayed){delayed=true;setTimeout(()=>handler.call(this,event),3000);}else handler.call(this,event);};}};"});
     if(name==='emergency-img')emergencyInjection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:"const ordinaryContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(...args){return this.matches('.player-stage-background,.player-stage-character')?null:Reflect.apply(ordinaryContext,this,args);};"});
     if(quality&&!alreadyOpen){injection=await client.send('Page.addScriptToEvaluateOnNewDocument',{source:`globalThis.__atlasStartupMetrics={tasks:[],readyAt:null};new MutationObserver(()=>{if(document.querySelector('#player-root')?.dataset.startupState==='ready'&&__atlasStartupMetrics.readyAt===null)__atlasStartupMetrics.readyAt=performance.now();}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:['data-startup-state']});try{new PerformanceObserver(list=>{for(const e of list.getEntries())if(__atlasStartupMetrics.readyAt===null||e.startTime<__atlasStartupMetrics.readyAt)__atlasStartupMetrics.tasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});}catch{};${name==='optimized'?`const cancelOnce=new MutationObserver(()=>{const b=Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='取消加载');if(b){cancelOnce.disconnect();b.click();}});cancelOnce.observe(document,{childList:true,subtree:true});`:''}`});}
     const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}
@@ -208,6 +210,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     await client.button('开始故事');
     if(injection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:injection.identifier});
     if(emergencyInjection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:emergencyInjection.identifier});
+    if(slowInjection)await client.send('Page.removeScriptToEvaluateOnNewDocument',{identifier:slowInjection.identifier});
     // Each comparison starts a fresh story; dismiss only this isolated test profile's recovery prompt via its public action.
     await new Promise(r=>setTimeout(r,500));
     if(await client.evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='放弃并清除')"))await client.button('放弃并清除');
@@ -218,10 +221,21 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
         const ids=await client.evaluate("Array.from(document.querySelectorAll('.player-stage-background,.player-stage-character')).map(e=>e.dataset.assetId)");
         for(const id of ids.filter(id=>sequence.assetIds.includes(id)&&!seen.has(id))){
           const selector=`[data-asset-id="${id}"]`;
+          if(coordination&&name==='optimized'&&!slowChecked){
+            slowChecked=true;
+            if(await client.evaluate("Array.from(document.querySelectorAll('button')).some(b=>b.textContent.trim()==='完成动效'&&!b.disabled)"))await client.button('完成动效');
+            const before=await client.evaluate("document.querySelector('.player-dialogue')?.textContent??document.querySelector('main').textContent");
+            await client.button('自动播放');await new Promise(resolve=>setTimeout(resolve,350));
+            assert.equal(await client.evaluate("document.querySelector('main').dataset.stageImagesPending"),'true');
+            assert.equal(await client.evaluate("document.querySelector('.player-dialogue')?.textContent??document.querySelector('main').textContent"),before);
+            assert.equal(await client.evaluate("document.querySelector('[aria-label=\"自动播放\"]').getAttribute('aria-pressed')"),'true');
+            measurements.push({kind:'slow-current-picture',delayedWorkerMilliseconds:3000,observationMilliseconds:350,held:true});
+            await client.button('自动播放');
+          }
           await client.wait(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return e&&(e.dataset.canvasSampling==='ready'||e.dataset.nativeAtlas==='ready'||(e.complete&&e.naturalWidth>0));})()`);
           const item=await client.evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return {mode:e.dataset.nativeAtlas??'ordinary',url:e instanceof HTMLCanvasElement?e.toDataURL():e.src};})()`);
           assert.equal(item.mode,expectedMode??'ordinary');const actual=await pixels(item.url);assert.deepEqual(actual,expectedPixels[id]);seen.set(id,actual);
-          if(lazy&&expectedMode){const state=await client.evaluate("JSON.parse(document.documentElement.dataset.atlasFallback)");assert.ok(state.groups>0&&state.groups<=2);assert.ok(state.peakActive<=1);measurements.push({kind:'lazy-visible',name,assetId:id,...state});}
+          if(lazy&&expectedMode){const state=await client.evaluate("JSON.parse(document.documentElement.dataset.atlasFallback)");assert.ok(state.groups>0&&state.groups<=(coordination?4:2));assert.ok(state.peakActive<=1);if(coordination)assert.ok(state.idleBytes<=8*1024*1024);measurements.push({kind:'lazy-visible',name,assetId:id,...state});}
           if(name==='emergency-img')assert.equal(await client.evaluate(`document.querySelector(${JSON.stringify(selector)}).dataset.canvasSampling`),'emergency-img');
           if(quality&&name!=='emergency-img'&&(uniform||expectedMode==='ready')){
             if(uniform)assert.equal(await client.evaluate(`document.querySelector(${JSON.stringify(selector)}).dataset.canvasSampling`),'ready','Product stage must use Canvas, not a diagnostic replacement');
@@ -350,6 +364,11 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
       rounds.push({round:round+1,...result});
     }
     measurements.push({kind:'controlled-loading',scope:'Same compressed payload, alternating eager/lazy preparation; Blob byte accounting, not heap/process peak or full navigation timing.',rounds});
+    if(coordination){
+      const result=await client.evaluate(`AtlasLoadingBenchmark.measureReuse(${JSON.stringify(after.mediaAssets)},${JSON.stringify(after.nativeAtlasGroups)})`);
+      assert.equal(result.reused,true);assert.equal(result.open.groups,4);assert.equal(result.open.peakActive,1);assert.equal(result.closed.urls,0);assert.equal(result.closed.residentSourceBytes,0);
+      measurements.push({kind:'bounded-revisit-gallery',...result});
+    }
   }
   if(rapidSwitch)measurements.push({kind:'rapid-switch',...rapidSwitch});
   if(incremental){const fixtureHash=digest(Buffer.from(JSON.stringify(sequence)));measurements.push({kind:'dicing-sequence',fixtureHash,runs:sequenceEvidence});await writeFile(join(root,`evidence/authoring/${prefix}-sequence.json`),JSON.stringify({fixtureHash,runs:sequenceEvidence,incremental:measurements.find(m=>m.kind==='incremental-verification'),...(delivery?{delivery:measurements.find(m=>m.kind==='incremental-delivery')}:{})},null,2)+'\n');}

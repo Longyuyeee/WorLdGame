@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas } from './audit-dicing-sequence.mjs';
+import { validateDicingSequence, validateDicingDelivery, validateDicingQuality, validateLazyAtlas, validateCoordination } from './audit-dicing-sequence.mjs';
 const fixture=JSON.parse(await readFile(new URL('../fixtures/projects/dicing/sequence.json',import.meta.url),'utf8'));
 const evidence=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-incremental-sequence.json',import.meta.url),'utf8'));
 test('Dicing sequence gate accepts the full six-mode evidence',()=>assert.equal(validateDicingSequence(fixture,evidence).status,'PASS'));
@@ -34,4 +34,12 @@ test('Lazy gate rejects missing assets, failed recovery or fabricated zero first
   const missing=structuredClone(lazyWorkflow);missing.measurements.splice(missing.measurements.findIndex(m=>m.kind==='lazy-visible'),1);assert.throws(()=>validateLazyAtlas(fixture,missing));
   const retry=structuredClone(lazyWorkflow);retry.measurements.find(m=>m.kind==='lazy-source-retry').retryRejected=false;assert.throws(()=>validateLazyAtlas(fixture,retry));
   const allocation=structuredClone(lazyWorkflow);allocation.measurements.find(m=>m.kind==='controlled-loading').rounds.find(r=>r.lazy).firstGroup.blobBytes=0;assert.throws(()=>validateLazyAtlas(fixture,allocation));
+});
+
+const coordinated=JSON.parse(await readFile(new URL('../evidence/authoring/atlas-coordination-workflow.json',import.meta.url),'utf8'));
+test('Coordination gate covers real delayed playback, bounded reuse and gallery release',()=>{assert.equal(validateCoordination(coordinated).status,'PASS');assert.equal(validateLazyAtlas(fixture,coordinated,true).status,'PASS');});
+test('Coordination gate rejects skipped waiting, unbounded cache and retained gallery resources',()=>{
+  const skipped=structuredClone(coordinated);skipped.measurements.find(row=>row.kind==='slow-current-picture').held=false;assert.throws(()=>validateCoordination(skipped));
+  const leaked=structuredClone(coordinated);leaked.measurements.find(row=>row.kind==='bounded-revisit-gallery').closed.urls=1;assert.throws(()=>validateCoordination(leaked));
+  const excess=structuredClone(coordinated);excess.measurements.find(row=>row.kind==='lazy-visible').idleBytes=9*1024*1024;assert.throws(()=>validateLazyAtlas(fixture,excess,true));
 });

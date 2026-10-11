@@ -40,10 +40,21 @@ export async function auditDicingSequence(root) {
   const lazyWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-lazy-workflow.json'),'utf8'));
   const lazyQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-lazy-quality.json'),'utf8'));
   validateDicingSequence(fixture,lazySequence);validateDicingDelivery(lazySequence,lazyWorkflow);validateDicingQuality(fixture,lazyQuality,lazyWorkflow);validateLazyAtlas(fixture,lazyWorkflow);
-  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS'};
+  const coordinatedSequence=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-coordination-sequence.json'),'utf8'));
+  const coordinatedWorkflow=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-coordination-workflow.json'),'utf8'));
+  const coordinatedQuality=JSON.parse(await readFile(join(root,'evidence/authoring/atlas-coordination-quality.json'),'utf8'));
+  validateDicingSequence(fixture,coordinatedSequence);validateDicingDelivery(coordinatedSequence,coordinatedWorkflow);validateDicingQuality(fixture,coordinatedQuality,coordinatedWorkflow);validateLazyAtlas(fixture,coordinatedWorkflow,true);validateCoordination(coordinatedWorkflow);
+  return {...result,delivery:'PASS',coldWarmRounds:3,qualityCases:2880,productSamplingCases:5760,lazyLifecycle:'PASS',coordination:'PASS'};
 }
 
-export function validateLazyAtlas(fixture,workflow){
+export function validateCoordination(workflow){
+  const slow=workflow.measurements.find(row=>row.kind==='slow-current-picture');assert.equal(slow.held,true);assert.equal(slow.delayedWorkerMilliseconds,3000);assert.ok(slow.observationMilliseconds>=350);
+  const reuse=workflow.measurements.find(row=>row.kind==='bounded-revisit-gallery');assert.equal(reuse.reused,true);assert.ok(reuse.open.cacheHits>=1);assert.equal(reuse.open.groups,4);assert.equal(reuse.open.peakActive,1);
+  for(const key of ['groups','urls','residentSourceBytes','idleBytes','active'])assert.equal(reuse.closed[key],0);
+  return {status:'PASS'};
+}
+
+export function validateLazyAtlas(fixture,workflow,coordination=false){
   const modes=['original','optimized','directory','windows','corrupt-page','unsupported','emergency-img'];
   for(const kind of ['lazy-title','lazy-released']){
     const rows=workflow.measurements.filter(m=>m.kind===kind);
@@ -53,7 +64,7 @@ export function validateLazyAtlas(fixture,workflow){
   for(const name of modes.filter(name=>name!=='original')){
     const rows=workflow.measurements.filter(m=>m.kind==='lazy-visible'&&m.name===name);
     assert.deepEqual(rows.map(row=>row.assetId).sort(),[...fixture.assetIds].sort());
-    for(const row of rows){assert.ok(row.groups>0&&row.groups<=2);assert.ok(row.urls>0&&row.urls<=16);assert.ok(row.residentSourceBytes>0&&row.residentSourceBytes<=4_199_808);assert.equal(row.peakActive,1);}
+    for(const row of rows){assert.ok(row.groups>0&&row.groups<=(coordination?4:2));assert.ok(row.urls>0&&row.urls<=(coordination?30:16));assert.ok(row.residentSourceBytes>0&&row.residentSourceBytes<=(coordination?7_874_640:4_199_808));assert.equal(row.peakActive,1);if(coordination){assert.equal(row.idleBudgetBytes,8*1024*1024);assert.ok(row.idleBytes>=0&&row.idleBytes<=row.idleBudgetBytes);}}
   }
   const retry=workflow.measurements.find(m=>m.kind==='lazy-source-retry');assert.equal(retry.retryRejected,true);assert.equal(retry.urls,0);assert.equal(retry.residentSourceBytes,0);assert.equal(retry.groups,0);assert.equal(retry.active,0);
   const rounds=workflow.measurements.find(m=>m.kind==='controlled-loading').rounds;assert.equal(rounds.length,6);

@@ -1,14 +1,14 @@
 import { afterEach, expect, it, vi } from "vitest";
 import { zlibSync } from "fflate";
 import { createBlobDigest } from "@world-studio/project-persistence";
-import { prepareNativeAtlasMediaAsync } from "./lazy-atlas-media";
+import { ATLAS_IDLE_BYTES, ATLAS_IDLE_MILLISECONDS, prepareNativeAtlasMediaAsync } from "./lazy-atlas-media";
 import type { NativeAtlasDelivery } from "./native-atlas";
 
-const fixture = (id: string): NativeAtlasDelivery => {
-  const bytes = new Uint8Array([1, 2, 3]), compressed = zlibSync(bytes);
+const fixture = (id: string, size=3): NativeAtlasDelivery => {
+  const bytes = new Uint8Array(size).fill(3), compressed = zlibSync(bytes);
   return { schemaVersion: 1, groupId: id, manifest: "{}", pages: [], fallback: {
-    url: `data:application/octet-stream;base64,${btoa(String.fromCharCode(...compressed))}`, digest: createBlobDigest(compressed), rawBytes: 3,
-    entries: [{ assetId: id, offset: 0, length: 3, digest: createBlobDigest(bytes) }],
+    url: `data:application/octet-stream;base64,${btoa(String.fromCharCode(...compressed))}`, digest: createBlobDigest(compressed), rawBytes: size,
+    entries: [{ assetId: id, offset: 0, length: size, digest: createBlobDigest(bytes) }],
   } };
 };
 const diagnostics = () => JSON.parse(document.documentElement.dataset.atlasFallback!);
@@ -18,6 +18,17 @@ const urls = () => {
   return { create, revoke };
 };
 afterEach(() => vi.unstubAllGlobals());
+
+it("reuses a recently left group only while another consumer remains, expires and flushes on exit",async()=>{
+  urls();const session=await prepareNativeAtlasMediaAsync([{assetId:"a",url:""},{assetId:"b",url:""}],[fixture("a"),fixture("b")]);
+  const anchor=await session.media[0]!.atlas!.acquireFallback!();
+  const first=await session.media[1]!.atlas!.acquireFallback!();first.release();
+  expect(diagnostics()).toMatchObject({idleBytes:3,idleBudgetBytes:ATLAS_IDLE_BYTES});
+  const second=await session.media[1]!.atlas!.acquireFallback!();expect(second.url).toBe(first.url);expect(diagnostics().cacheHits).toBe(1);
+  vi.useFakeTimers();try{second.release();await vi.advanceTimersByTimeAsync(ATLAS_IDLE_MILLISECONDS);expect(diagnostics()).toMatchObject({groups:1,idleBytes:0});}finally{vi.useRealTimers();}
+  const third=await session.media[1]!.atlas!.acquireFallback!();expect(third.url).not.toBe(first.url);third.release();anchor.release();
+  expect(diagnostics()).toMatchObject({groups:0,urls:0,residentSourceBytes:0,idleBytes:0});session.dispose();
+});
 
 it("does not inflate at startup, shares visible groups, releases and rebuilds on return", async () => {
   const { create, revoke } = urls();
@@ -32,6 +43,17 @@ it("does not inflate at startup, shares visible groups, releases and rebuilds on
   const again = await acquire(); expect(again.url).not.toBe(one.url);
   session.dispose(); session.dispose(); again.release(); expect(revoke).toHaveBeenCalledTimes(2);
   await expect(acquire()).rejects.toMatchObject({ name: "AbortError" });
+});
+
+it("evicts oldest idle groups over 8 MiB without evicting an active gallery consumer",async()=>{
+  urls();const groups=[fixture("anchor"),fixture("a",5*1024*1024),fixture("b",5*1024*1024)];
+  const session=await prepareNativeAtlasMediaAsync(groups.map(group=>({assetId:group.groupId,url:""})),groups);
+  const anchor=await session.media[0]!.atlas!.acquireFallback!();
+  const a=await session.media[1]!.atlas!.acquireFallback!();a.release();
+  const b=await session.media[2]!.atlas!.acquireFallback!();b.release();
+  expect(diagnostics().idleBytes).toBeLessThanOrEqual(ATLAS_IDLE_BYTES);
+  const again=await session.media[1]!.atlas!.acquireFallback!();expect(again.url).not.toBe(a.url);
+  expect(diagnostics().peakActive).toBe(1);again.release();anchor.release();expect(diagnostics().urls).toBe(0);session.dispose();
 });
 
 it("cancels one consumer without invalidating another and never runs two workers", async () => {

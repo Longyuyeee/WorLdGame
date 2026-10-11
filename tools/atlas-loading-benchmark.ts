@@ -25,3 +25,20 @@ export async function measure(media: {assetId:string;url:string}[], groups: Nati
     return {lazy,startup,firstGroup,peakBlobBytes:peakBytes,releasedUrls:created.size,releasedBlobBytes:liveBytes,nonImageBlobCreations,longTasks:tasks.filter(task=>task.start>=start&&task.start<entered)};
   } finally {dispose?.();created.forEach(url=>revoke.call(URL,url));URL.createObjectURL=create;URL.revokeObjectURL=revoke;observer.disconnect();}
 }
+
+export async function measureReuse(media:{assetId:string;url:string}[],groups:NativeAtlasDelivery[]){
+  const session=await prepareNativeAtlasMediaAsync(media,groups);
+  const members=groups.map(group=>session.media.find(asset=>asset.atlas?.group===group)!);
+  try{
+    const anchor=await members[0]!.atlas!.acquireFallback!();
+    const first=await members[1]!.atlas!.acquireFallback!();first.release();
+    const start=performance.now(),revisit=await members[1]!.atlas!.acquireFallback!();
+    const reused=first.url===revisit.url,revisitMilliseconds=performance.now()-start;
+    revisit.release();
+    const gallery=await Promise.all(members.map(member=>member.atlas!.acquireFallback!()));
+    const open=JSON.parse(document.documentElement.dataset.atlasFallback!);
+    gallery.forEach(lease=>lease.release());anchor.release();
+    const closed=JSON.parse(document.documentElement.dataset.atlasFallback!);
+    return {reused,revisitMilliseconds,open,closed};
+  }finally{session.dispose();}
+}
