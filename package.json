@@ -66,7 +66,7 @@
     "audit:delivery-baseline": "node tools/audit-delivery-baseline.mjs",
     "audit:delivery-baseline-policy": "vitest run --config vitest.delivery-baseline.config.ts",
     "audit:pr-traceability": "node tools/audit-pr-traceability.mjs",
-    "audit:goldens": "node --test tools/audit-dicing-sequence.test.mjs tools/audit-player-continuity.test.mjs tools/audit-player-pressure.test.mjs && node tools/audit-golden-projects.mjs",
+    "audit:goldens": "node --test tools/audit-dicing-sequence.test.mjs tools/audit-player-continuity.test.mjs tools/audit-player-pressure.test.mjs tools/audit-player-retention.test.mjs && node tools/audit-golden-projects.mjs",
     "audit:n23-content": "node tools/audit-n23-content.mjs",
     "audit:architecture": "node tools/audit-architecture.mjs",
     "audit:script-performance": "vitest run --config vitest.performance.config.ts",

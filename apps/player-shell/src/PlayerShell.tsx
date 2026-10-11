@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { releaseAnimationsOnDetach } from "./owned-animations";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
@@ -1751,6 +1752,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {(content.kind === "dialogue" || content.kind === "narration") && (
           <button
             className={`player-dialogue player-dialogue--${stage.textboxTemplate}`}
+            ref={releaseAnimationsOnDetach}
             type="button"
             data-text-ready={textReady}
             data-text-reveal-duration={textRevealDuration}
@@ -1761,6 +1763,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
             <span
               key={`${presentedText}:${textRevealDuration}`}
+              ref={releaseAnimationsOnDetach}
               className="player-dialogue__text player-typography-text"
               lang={typography.locale}
               data-cjk-line-break={typography.cjk ? "strict" : "standard"}

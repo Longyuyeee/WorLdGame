@@ -1,5 +1,6 @@
 import {build} from 'vite';
-import {writeFile} from 'node:fs/promises';
+import {writeFile,mkdtemp} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import assert from 'node:assert/strict';
@@ -13,6 +14,8 @@ export async function runPlayerContinuity(client,root,temporary,{pressure=false,
   await client.send('Page.navigate',{url:pathToFileURL(path).href});await client.wait('globalThis.continuity');
   const started=performance.now();
   const lifecycle=[],samples=[];let round=0;
+  const heapDirectory=process.argv.includes('--player-retention')?await mkdtemp(join(tmpdir(),'world-player-retention-')):undefined;
+  if(heapDirectory)console.log('HEAP_DIRECTORY',heapDirectory);
   const sample=async phase=>{
     const result={phase,round,elapsedMilliseconds:performance.now()-started,heap:await client.send('Runtime.getHeapUsage'),dom:await client.send('Memory.getDOMCounters')};
     if(phase==='title'||phase==='unmounted'){
@@ -38,13 +41,21 @@ export async function runPlayerContinuity(client,root,temporary,{pressure=false,
     for(let scene=0;scene<12;scene++)await client.evaluate(`globalThis.continuityTask=continuity.scene(${round},${scene})`);
     console.log('CONTINUITY_ROUND',round+1);
     if(pressure)samples.push(await sample('title'));
+    if(heapDirectory&&round===0){
+      await writeFile(join(heapDirectory,`title-${round}.heapsnapshot`),await client.heapSnapshot());
+      console.log('HEAP_SNAPSHOT',round);
+    }
   }
-  const prefix=pressure?'player-pressure':'player-continuity';
+  if(heapDirectory){
+    await writeFile(join(heapDirectory,'title-last.heapsnapshot'),await client.heapSnapshot());
+    console.log('HEAP_SNAPSHOT_LAST',round-1);
+  }
+  const prefix=heapDirectory?'player-retention':pressure?'player-pressure':'player-continuity';
   await writeFile(join(root,`evidence/authoring/${prefix}.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   const result=await client.evaluate('continuity.close()');
   assert.equal(result.native.accountedBytes,0);assert.equal(result.rows.filter(row=>row.boundaryHeld).length,round*12);assert.deepEqual(client.errors,[]);
   if(pressure)samples.push(await sample('unmounted'));
-  const evidence={...result,elapsedMilliseconds:performance.now()-started,rounds:round,scenes:12,exceptions:client.errors,...(pressure?{minimumMinutes,lifecycle,samples,imageSize:2048,pressureLevel:'critical',backgroundTimerThrottling:false,measurementLimits:'CDP freeze/resume with controlled foreground and background timer throttling disabled; heap/backing storage and DOM snapshots, not process/GPU peaks or physical low-memory evidence'}:{})};
+  const evidence={...result,elapsedMilliseconds:performance.now()-started,rounds:round,scenes:12,exceptions:client.errors,...(heapDirectory?{heapSnapshotRounds:[0,round-1]}:{}),...(pressure?{minimumMinutes,lifecycle,samples,imageSize:2048,pressureLevel:'critical',backgroundTimerThrottling:false,measurementLimits:'CDP freeze/resume with controlled foreground and background timer throttling disabled; heap/backing storage and DOM snapshots, not process/GPU peaks or physical low-memory evidence'}:{})};
   await writeFile(join(root,`evidence/authoring/${prefix}.json`),JSON.stringify(evidence,null,2)+'\n');
   return evidence;
 }

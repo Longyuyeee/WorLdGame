@@ -121,6 +121,23 @@ function videoStory() {
 const realDelay = (milliseconds: number) => new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds));
 
 describe("N50-E1 shared Player Shell", () => {
+  it("releases dialogue animations at a story boundary without cancelling live text on panel changes", async () => {
+    const project=branching();
+    render(<PlayerShell project={{...project,settings:withProjectSettings(project.settings,{text:{revealMode:"instant"}})}} />);
+    fireEvent.click(screen.getByRole("button",{name:/开始故事/u}));
+    fireEvent.click(screen.getByRole("button",{name:/Left/u}));
+    const dialogue=screen.getByRole("button",{name:"继续下一句"});
+    const cancel=vi.fn(()=>expect(dialogue.isConnected).toBe(false));
+    Object.defineProperty(dialogue,"getAnimations",{value:()=>[{cancel}]});
+    fireEvent.click(screen.getByRole("button",{name:"打开剧情历史"}));
+    fireEvent.keyDown(window,{key:"Escape"});
+    expect(cancel).not.toHaveBeenCalled();
+    fireEvent.click(dialogue);
+    if(screen.queryByRole("button",{name:"继续下一句"}))fireEvent.click(dialogue);
+    expect(screen.getByRole("status")).toHaveTextContent("Left");
+    await Promise.resolve();
+    expect(cancel).toHaveBeenCalledOnce();
+  });
   it("exposes formal identities and supports pointer input from title through choice", () => {
     const { container } = render(<PlayerShell project={branching()} />);
     const shell = container.querySelector("main");

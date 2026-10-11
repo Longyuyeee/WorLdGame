@@ -1,4 +1,43 @@
-# 当前开发情况：冻结恢复与大图连续压力验收
+# 当前开发情况：对白动画保留引用修复与压力回归
+
+## 最新审计：2026-10-11 DOM 增长根因与动画所有权闭环
+
+本节优先。按 #89/#289 的最新优先级，先处理上一轮明确发现的挂载期间 DOM/监听增长，对齐 #12 §5.4 显式资源释放，不跳到预取或以更多短循环代替定位。此次关闭的是已复现的对白动画引用累积，不是整个引擎的长期内存验收。
+
+### 根因证据、修复与纠偏
+
+以 `2e7052a` 产品代码作修复前对照，12 场景四轮播放的首/末标题堆快照显示：CSSAnimation 从 23 增至 95，detached 对白按钮从 12 增至 48，文字 span 从 23 增至 73。强引用路径为 `HTMLDocument → DocumentTimeline → CSSAnimation → 已移除的文字/箭头/对白节点`。证据来自实际 Chromium 堆快照，不是仅根据 DOM 总数推测，也不是已证明 IndexedDB/React 全部无保留。
+
+本轮在对白按钮及随文本替换的 span 上登记局部动画所有权。节点挂载时记录已有动画，卸载 ref 回调再补录当前动画；微任务中确认节点确实断开后，取消动画并将 effect/timeline 置空，释放其对旧 DOM 与文档时间线的关联，然后清空集合。只处理该节点/子树，不扫描或取消整份 document 的动画，不影响其他播放器和仍连接的当前画面。StrictMode 的 ref 重放仍连接时跳过取消。Runtime、存读档、语音及 awaited Effect 完成策略未改。
+
+初版只 `cancel()` 没能消除堆快照中的保留；只解除当前可枚举动画的 effect/timeline 后，旧对白按钮不再逐场景累积，但已有部分文字动画退出枚举仍保留。最终加上挂载时的动画记录，覆盖已结束/填充模式动画。回归同时验证普通重渲染、面板打开/关闭不取消当前动画，文字节点替换和故事边界释放，StrictMode 重放及没有 Web Animations API 的环境。新增集成测试初次因两个合法的“关闭剧情历史”按钮产生歧义，改为既有 Escape 操作后通过，没有改产品界面绕过定位失败。
+
+### 最终复测与结果
+
+独立 `player-retention` 证据完整运行 **213.8 秒、6 轮/72 次场景访问**，保留 2048×2048 PNG、真实 CDP freeze/resume、critical pressure、历史/存档/后台/恢复等待/选择边界检查。每轮标题显式 GC 后均为 **155 DOM nodes / 169 listeners**，不再出现原有每轮 62–84 节点、12 监听增长。首轮及第六轮标题堆快照的 CSSAnimation 均为 **0**；detached 对白按钮、文字 span、箭头各为固定 **1**，没有假称所有 DOM 对象为零。最终卸载并 GC 后为 143 节点/162 监听，JS used heap 3,493,944 B。各轮标题与最终退出 Canvas 计账为零，峰值仍 32 MiB，exceptions 为空。已目视检查返回标题截图。
+
+`player-retention-before-first/last.json` 保存修复前四轮首末的计数和三条强引用路径摘要；`player-retention-after-first/last.json` 保存修复后六轮首末摘要，前后轮数不冒充完全相同。原始 `.heapsnapshot` 留在本机临时目录，不提交，避免真实工程复跑时泄露剧情/存档。提交的摘要和截图仅来自本次合成作品。旧 `player-pressure`、`player-continuity` 与 Atlas 证据保留作历史对照。
+
+最终宽回归 **204 文件/1173 项**、定向组件/动画 **71 项**、Editor App **45 项**通过，集合重叠不相加。类型检查、Editor/Player 构建、架构与 17 工作区检查通过。`audit:goldens` **30 项正反例**及所有子门禁通过，保留 7 个原 Golden，新增动画保留门禁：要求对照复现增长和引用路径、修复后无残留 CSSAnimation、对白节点不累积、首末采样覆盖正确轮次；标题节点相对首轮最多容许 16 个、监听 2 个记账波动，当前实际波动均为零。门禁会拒绝旧增长模式，不只是检查证据文件存在。未执行完整 `npm run check`；jsdom 媒体和构建 chunk 提醒保留。
+
+### 复跑、审计边界与下一完整任务
+
+安装锁定依赖、构建 Editor，并设置本机 `WORLD_STUDIO_BROWSER_PATH` 后执行（固定端口验收器不可并发）：
+
+```powershell
+node tools/run-n80-web-export-browser.mjs --player-pressure --pressure-minutes=3 --player-retention
+# 将日志 HEAP_DIRECTORY 填入变量；raw snapshot 仅保留本机。
+$retentionHeap = '本机日志输出的目录'
+node tools/inspect-player-heap.mjs "$retentionHeap/title-0.heapsnapshot" evidence/authoring/player-retention-after-first.json
+node tools/inspect-player-heap.mjs "$retentionHeap/title-last.heapsnapshot" evidence/authoring/player-retention-after-last.json
+npm run audit:goldens
+```
+
+修复前摘要不应被新版本复跑覆盖。分析脚本跳过 weak edge，以根节点广度搜索给出强引用路径；它是局部诊断工具，不是完整 dominator/retained-size 分析器。原始堆文件仍可能含内容，真实工程运行后不要直接提交原始快照或未经检查的摘要。`--pressure-minutes=120` 可用于两小时合成诊断，但本轮没有执行两小时。验收器会清理自己启动的浏览器/预览进程，诊断快照目录特意留存供离线审查；已有 `.browser-diagnostic/` 未修改。
+
+下一完整任务回到目标设备与真实作品压力验收：先补真实素材、较长故事、不同文字显现方式/语音/手柄组合，再在目标 Web/Windows 和低内存实体设备执行至少两小时混合播放与真实 OS 后台/睡眠恢复，记录卡顿、存档和进程/GPU 峰值。当前标题 JS heap 仍有约 5.9–9.4 MB 的波动，不能把 DOM 稳定扩展为所有 JS/原生内存均稳定；后续若持续增长需继续采分配/保留路径。CDP 冻结后的前台仍为受控 visibility，关闭后台 timer throttling，另有显式 GC/堆采样干预；这不是自然 GC、物理低内存或完整平台稳定性证明。
+
+之后再按 #12 §5.4 做平台低内存通知、可重建缓存清理、历史窗口收缩与当前保存点保护，最后评估 Story Graph 安全预测/优先级预取。Android 派生/真机、平台纹理/Mip、真人视觉验收仍待办，Dicing P0、N70、M1 不关闭。以下为历史。
 
 ## 最新审计：2026-10-11 冻结前暂停、闲置清理和压力复跑入口
 

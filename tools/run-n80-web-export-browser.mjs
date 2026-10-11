@@ -44,12 +44,14 @@ class Cdp {
     await new Promise((done, fail) => { this.socket.addEventListener("open", done, { once: true }); this.socket.addEventListener("error", fail, { once: true }); });
     this.socket.addEventListener("message", ({ data }) => {
       const message = JSON.parse(String(data));
+      if (message.method === 'HeapProfiler.addHeapSnapshotChunk') this.heapChunks?.push(message.params.chunk);
       if (message.id) { const pending = this.pending.get(message.id); if(!pending)return;this.pending.delete(message.id); clearTimeout(pending.timer); message.error ? pending.reject(new Error(message.error.message)) : pending.resolve(message.result); }
       if (message.method === "Runtime.exceptionThrown") this.errors.push(message.params.exceptionDetails.exception?.description ?? message.params.exceptionDetails.text);
     });
   }
   send(method, params = {}) { const id = ++this.serial; return new Promise((resolve, reject) => { const timer=setTimeout(()=>{this.pending.delete(id);reject(new Error(`CDP request timed out: ${method}`));},30000);this.pending.set(id, { resolve, reject,timer }); this.socket.send(JSON.stringify({ id, method, params })); }); }
   async evaluate(expression) { const result = await this.send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true }); if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description ?? result.exceptionDetails.text); return result.result.value; }
+  async heapSnapshot() { this.heapChunks=[];try { await this.send('HeapProfiler.takeHeapSnapshot',{reportProgress:false});return this.heapChunks.join(''); } finally { this.heapChunks=undefined; } }
   async wait(expression) { for (let i = 0; i < 200; i++) { if (await this.evaluate(`Boolean(${expression})`)) return; await pause(100); } throw new Error(`Timed out: ${expression}`); }
   async button(text) { const selector = `Array.from(document.querySelectorAll('button')).find(x=>x.textContent.trim().startsWith(${JSON.stringify(text)})||x.getAttribute('aria-label')===${JSON.stringify(text)})`; await this.wait(`${selector} && !(${selector}).disabled`); await this.evaluate(`(${selector}).click()`); }
 }

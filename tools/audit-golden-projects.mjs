@@ -4,6 +4,7 @@ import { join, relative } from "node:path";
 import { auditDicingSequence } from "./audit-dicing-sequence.mjs";
 import { auditPlayerContinuity } from "./audit-player-continuity.mjs";
 import { auditPlayerPressure } from "./audit-player-pressure.mjs";
+import { auditPlayerRetention } from "./audit-player-retention.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -451,6 +452,8 @@ try { console.log(JSON.stringify(await auditPlayerContinuity(root),null,2)); }
 catch(error) { violations.push(`Player continuity sub-gate: ${error.message}`); }
 try { console.log(JSON.stringify(await auditPlayerPressure(root),null,2)); }
 catch(error) { violations.push(`Player pressure sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerRetention(root),null,2)); }
+catch(error) { violations.push(`Player retention sub-gate: ${error.message}`); }
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;
