@@ -21,6 +21,7 @@ import { runPlayerInput } from './player-input-workflow.mjs';
 import { runPlayerVoice } from './player-voice-workflow.mjs';
 import { runPlayerCold } from './player-cold-workflow.mjs';
 import { runPlayerMemory } from './player-memory-workflow.mjs';
+import { runPlayerBackpressure } from './player-backpressure-workflow.mjs';
 import { runMappingProbe } from './player-mapping-probe.mjs';
 import { sampleBrowserMemory } from './player-process-memory.mjs';
 
@@ -103,6 +104,8 @@ try {
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   if(process.argv.includes('--player-mapping-probe')) {
     console.log(JSON.stringify(await runMappingProbe(client,root,temporary,browser.pid),null,2));
+  } else if(process.argv.includes('--player-backpressure')) {
+    console.log(JSON.stringify(await runPlayerBackpressure(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-memory')) {
     console.log(JSON.stringify(await runPlayerMemory(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-cold')) {

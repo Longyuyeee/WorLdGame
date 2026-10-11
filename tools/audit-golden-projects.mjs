@@ -13,6 +13,7 @@ import { auditPlayerMemory } from "./audit-player-memory.mjs";
 import { auditPlayerWorkingSet } from "./audit-player-working-set.mjs";
 import { auditMappingProbe } from "./audit-player-mapping-probe.mjs";
 import { auditPlayerOwnedDecode } from "./audit-player-owned-decode.mjs";
+import { validateBackpressure } from "./audit-player-backpressure.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -478,6 +479,8 @@ try { console.log(JSON.stringify(await auditMappingProbe(root),null,2)); }
 catch(error) { violations.push(`Player mapping attribution sub-gate: ${error.message}`); }
 try { console.log(JSON.stringify(await auditPlayerOwnedDecode(root),null,2)); }
 catch(error) { violations.push(`Player owned decode sub-gate: ${error.message}`); }
+try { validateBackpressure(JSON.parse(await readFile(join(root, "evidence/authoring/player-backpressure.json"), "utf8"))); }
+catch(error) { violations.push(`Player recovery backpressure sub-gate: ${error.message}`); }
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;

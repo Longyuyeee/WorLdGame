@@ -67,9 +67,12 @@ it("does not shrink a changed story state after a delayed save", async () => {
   fireEvent.click(within(test.container).getByRole("button", { name: "继续下一句" }));
   if (test.container.querySelector("main")!.dataset.runtimeStateHash === before) fireEvent.click(within(test.container).getByRole("button", { name: "继续下一句" }));
   expect(test.container.querySelector("main")!.dataset.runtimeStateHash).not.toBe(before);
+  const latestHash = test.container.querySelector("main")!.dataset.runtimeStateHash;
+  test.setWrite(async () => {});
   await act(async () => { finish(); });
   await waitFor(() => expect(test.handle.getObservation().memoryPressure).toBe("deferred"));
   expect(test.container.querySelector("main")!.dataset.historyArchives).toBe("0");
+  await waitFor(async () => expect((await test.store.read(test.project.manifest.projectId))?.runtimeStateHash).toBe(latestHash));
 });
 
 it("times out safely, ignores late completion, and rejects pressure after unmount", async () => {

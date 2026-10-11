@@ -188,6 +188,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [memoryPressureMessage, setMemoryPressureMessage] = useState("");
   const [memoryPressureRetry, setMemoryPressureRetry] = useState(0);
   const memoryWritePending = useRef<WorldPlayerRecoveryWriteCoordinatorV1 | null>(null);
+  const recoveryWritePending = useRef<{ coordinator: WorldPlayerRecoveryWriteCoordinatorV1; timer: ReturnType<typeof setTimeout> } | null>(null);
+  const [recoveryWriteRevision, setRecoveryWriteRevision] = useState(0);
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [imageAttempt, setImageAttempt] = useState(0);
@@ -796,8 +798,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state.checkpointSaveCandidates, state.runtimeState]);
 
+  useEffect(() => () => {
+    if (recoveryWritePending.current !== null) clearTimeout(recoveryWritePending.current.timer);
+  }, [recoveryCoordinator]);
+
   useEffect(() => {
-    if (snapshot.sceneReplay.active || recoveryCoordinator === undefined || recoveryStore === undefined || hostActivity !== "active" || state.runtimeState === null ||
+    if (snapshot.sceneReplay.active || recoveryCoordinator === undefined || recoveryStore === undefined || recoveryWritePending.current?.coordinator === recoveryCoordinator || memoryWritePending.current === recoveryCoordinator || hostActivity !== "active" || state.runtimeState === null ||
         snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || !saveBoundaryAllowed || recoveryCandidate !== null ||
         !["idle", "ready", "loaded"].includes(recoveryOperation) || lastRecoveryRuntimeStateHash.current === snapshot.runtimeStateHash) return;
     const created = createPlayerCoreSessionSaveV1(state);
@@ -814,19 +820,45 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       serializedSessionSave: created.serialized
     });
     lastRecoveryRuntimeStateHash.current = snapshot.runtimeStateHash;
+    const generation = recoveryGeneration.current;
+    const current = () => generation === recoveryGeneration.current && recoveryContext.current.projectId === record.projectId && recoveryContext.current.store === recoveryStore;
+    let timedOut = false;
+    const pending = { coordinator: recoveryCoordinator, timer: setTimeout(() => {
+      if (!current()) return;
+      timedOut = true;
+      setRecoveryOperation("error");
+      setRecoveryMessage("恢复保护保存超时，存储操作仍未结束。剧情可继续；请勿关闭游戏，可尝试手动保存。重试不会重复排队。");
+      setRecoveryErrorAction("retry");
+    }, 8000) };
+    recoveryWritePending.current = pending;
     void recoveryCoordinator.write(record).then(() => {
-      if (recoveryContext.current.projectId !== record.projectId || recoveryContext.current.store !== recoveryStore) return;
+      if (!current()) return;
+      // A late physical success is real, but must not silently dismiss the timeout warning.
+      if (timedOut) {
+        lastRecoveryRuntimeStateHash.current = null;
+        setRecoveryMessage("先前的恢复点已保存，但不一定包含最新进度。请重试恢复保护以保存当前进度。");
+        setRecoveryOperation("error");
+        setRecoveryErrorAction("retry");
+        return;
+      }
       setRecoveryOperation("ready");
       setRecoveryMessage("当前进度已写入独立恢复区");
       setRecoveryErrorAction(null);
-    }).catch(() => {
-      if (recoveryContext.current.projectId !== record.projectId || recoveryContext.current.store !== recoveryStore) return;
+    }).catch((error: unknown) => {
+      if (!current()) return;
       lastRecoveryRuntimeStateHash.current = null;
       setRecoveryOperation("error");
-      setRecoveryMessage("恢复保护写入失败，旧恢复点和正式存档保持不变");
+      setRecoveryMessage(typeof error === "object" && error !== null && "name" in error && error.name === "QuotaExceededError"
+        ? "设备存储空间不足，恢复保护未写入。旧恢复点和正式存档保持不变；请释放空间后重试，不要清除本游戏的网站数据。"
+        : "恢复保护写入失败，旧恢复点和正式存档保持不变");
       setRecoveryErrorAction("retry");
+    }).finally(() => {
+      clearTimeout(pending.timer);
+      if (recoveryWritePending.current === pending) recoveryWritePending.current = null;
+      // Serialize only the newest live state after IO settles, not every skipped line.
+      if (recoveryContext.current.projectId === record.projectId && recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
     });
-  }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, saveBoundaryAllowed, snapshot, state]);
+  }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, recoveryWriteRevision, saveBoundaryAllowed, snapshot, state]);
 
   useEffect(() => {
     if (memoryPressureRequest === undefined) { setMemoryPressureStatus("idle"); setMemoryPressureMessage(""); return; }
@@ -837,7 +869,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const fail = (message: string) => { if (active) { setMemoryPressureStatus("error"); setMemoryPressureMessage(message); } };
     try {
       onReleaseIdleResources?.();
-      if (recoveryCoordinator !== undefined && memoryWritePending.current === recoveryCoordinator) {
+      if (recoveryCoordinator !== undefined && (memoryWritePending.current === recoveryCoordinator || recoveryWritePending.current?.coordinator === recoveryCoordinator)) {
         fail("上次恢复点保存仍未结束，未继续排队。回滚历史不变，可先手动保存。"); return;
       }
       const protectedState = liveState.current;
@@ -866,7 +898,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         setMemoryPressureStatus("protected");
         setMemoryPressureMessage("恢复点已保存，较早历史已转为只读归档；当前句和正式存档不变。自动播放已停止。");
       }).catch(() => { clearTimeout(timeout); fail("恢复点保存失败，回滚历史未收缩，正式存档保持不变。可重试。"); })
-        .finally(() => { if (memoryWritePending.current === recoveryCoordinator) memoryWritePending.current = null; });
+        .finally(() => {
+          if (memoryWritePending.current === recoveryCoordinator) memoryWritePending.current = null;
+          if (recoveryContext.current.projectId === record.projectId && recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
+        });
     } catch { fail("内存保护未完成，回滚历史保持不变。可重试或手动保存。"); }
     return () => { active = false; clearTimeout(timeout); };
     // A request is a transaction for one exact state, not a reaction to every story step.
@@ -1845,7 +1880,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               {recoveryCandidate !== null && <small>{recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toISOString().slice(0, 16).replace("T", " ")} UTC</small>}
             </div>
             {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || recoveryCandidate.buildId !== state.artifacts?.manifest.buildId} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
-            <button type="button" onClick={() => {
+            <button type="button" disabled={recoveryErrorAction === "retry" && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
               if (recoveryErrorAction === "retry") {
                 setRecoveryOperation("idle");
                 setRecoveryErrorAction(null);
