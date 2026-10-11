@@ -30,6 +30,8 @@ async function readExportMedia(
   const compilation = compileProject(project, "release");
   if (!compilation.ok) throw new Error(`请先修复工程问题：${compilation.diagnostics.filter((item) => item.severity === "error").map((item) => item.message).join("；")}`);
   const mediaAssets = [];
+  // Per-build only: deduplicate shared blobs without masking later deletion/corruption.
+  const sourceReads = new Map<string, Uint8Array | null>();
   for (const asset of project.assets.assets) {
     signal?.throwIfAborted();
     const assetId = String(asset.assetId ?? asset.id);
@@ -38,9 +40,14 @@ async function readExportMedia(
     if (typeof source?.digest !== "string" || !/^sha256:[a-f0-9]{64}$/.test(source.digest) || typeof source.mimeType !== "string") {
       throw new Error(`资源“${name}”没有可导出的源文件，请重新导入后重试。`);
     }
-    const bytes = await reader.read(source.digest as BlobDigest);
+    let bytes = sourceReads.get(source.digest);
+    if (bytes === undefined) {
+      bytes = await reader.read(source.digest as BlobDigest);
+      if (bytes !== null && createBlobDigest(bytes) !== source.digest) throw new Error(`资源“${name}”缺失或不完整，请重新导入后重试。`);
+      sourceReads.set(source.digest, bytes);
+    }
     signal?.throwIfAborted();
-    if (bytes === null || createBlobDigest(bytes) !== source.digest || bytes.byteLength !== source.byteLength) {
+    if (bytes === null || bytes.byteLength !== source.byteLength) {
       throw new Error(`资源“${name}”缺失或不完整，请重新导入后重试。`);
     }
     mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });

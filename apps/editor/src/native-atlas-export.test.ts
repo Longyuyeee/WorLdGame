@@ -5,6 +5,7 @@ import { unpackAtlasFallback } from "@world-studio/player-shell/native-atlas";
 import branching from "../../../fixtures/projects/branching/project.s0.json";
 import { setAtlasExportGroups } from "./atlas-export";
 import { buildNativeAtlasDelivery, nativeAtlasEnabled, setNativeAtlas } from "./native-atlas-export";
+import { AtlasVerificationSession } from "./atlas-verification-session";
 
 function fixture() {
   const project = setNativeAtlas(setAtlasExportGroups(loadProject(migrateS0Project(branching as S0Project).files), ["group1"]), true);
@@ -17,6 +18,26 @@ function fixture() {
   return { project, media, publication, reader: { loadDicingRuntimePublication: async () => publication }, verify: vi.fn(async () => new Uint8Array()) };
 }
 describe("native Atlas delivery admission", () => {
+  it("reuses compressed groups while rechecking deletion, corruption, icons and outside references", async () => {
+    const f = fixture(), session = new AtlasVerificationSession(f.verify);
+    const run = (project=f.project, media=f.media, reader=f.reader) => buildNativeAtlasDelivery(project,media,reader,session.verify);
+    const cold = await run(), warm = await run();
+    expect(warm.groups).toEqual(cold.groups); expect(warm.rows[0]?.detail).toContain("复用本会话");
+    expect(session.deliverySnapshot().built).toBe(1);
+    expect((await run(f.project,f.media,{loadDicingRuntimePublication:async()=>null} as unknown as typeof f.reader)).groups).toEqual([]);
+    expect((await run(f.project,f.media.slice(1))).groups).toEqual([]);
+    const corrupt = {...f.publication, encodedPages:f.publication.encodedPages.map(p=>({...p,bytes:new Uint8Array(80).fill(9)}))};
+    expect((await run(f.project,f.media,{loadDicingRuntimePublication:async()=>corrupt})).rows[0]?.detail).toContain("摘要错误");
+    const icon = {...f.project,manifest:{...f.project.manifest,preservedFields:{...f.project.manifest.preservedFields,webPublication:{iconAssetId:"a"}}}};
+    expect((await run(icon)).groups).toEqual([]);
+    expect((await run(f.project,[...f.media,...f.media.map(a=>({...a,assetId:a.assetId+"outside"}))])).groups).toEqual([]);
+    expect(session.deliverySnapshot().built).toBe(1);
+    const bytes=new Uint8Array(100_000).fill(3), changed=[{...f.media[0]!,bytes,digest:createBlobDigest(bytes)},f.media[1]!];
+    expect(unpackAtlasFallback((await run(f.project,changed)).groups[0]!).get("a")).toEqual(bytes);
+    expect(session.deliverySnapshot().built).toBe(2);
+    session.clear(); expect(session.deliverySnapshot().residentBytes).toBe(0);
+    await run(); expect(session.deliverySnapshot().built).toBe(3);
+  });
   it("persists opt-in and includes all shared delivery bytes while retaining originals", async () => {
     const f = fixture(); expect(nativeAtlasEnabled(loadProject(saveProject(f.project)))).toBe(true);
     const result = await buildNativeAtlasDelivery(f.project, f.media, f.reader, f.verify);

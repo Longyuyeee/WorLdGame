@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { loadProject, saveProject, migrateS0Project, type S0Project } from "@world-studio/project-domain";
 import { applyWebPublication, readWebPublication } from "./web-publication";
 import { createBlobDigest } from "@world-studio/project-persistence";
@@ -8,6 +8,20 @@ import { createFormalWebArtifact, createFormalWebDirectoryArtifact } from "./for
 import { unzipSync } from "fflate";
 
 describe("formal Web game packaging", () => {
+  it("reads shared source blobs once per build but checks fresh storage on the next build", async () => {
+    const source=loadProject(migrateS0Project(branching as S0Project).files);
+    const image=media.assets.find(a=>a.assetId==="media_sunset")!;
+    const bytes=Uint8Array.from(atob(image.base64),c=>c.charCodeAt(0)), digest=createBlobDigest(bytes);
+    const project={...source,assets:{...source.assets,assets:["copy-a","copy-b"].map(assetId=>({assetId,kind:"cg",source:{digest,byteLength:bytes.length,mimeType:image.mimeType}}))}};
+    const read=vi.fn(async():Promise<Uint8Array|null>=>bytes),runtime={javascript:"",css:""};
+    await createFormalWebArtifact(project,{read},runtime);expect(read).toHaveBeenCalledTimes(1);
+    read.mockResolvedValue(null);
+    await expect(createFormalWebArtifact(project,{read},runtime)).rejects.toThrow("缺失或不完整");
+    read.mockResolvedValue(new Uint8Array(bytes.length));
+    await expect(createFormalWebArtifact(project,{read},runtime)).rejects.toThrow("缺失或不完整");
+    read.mockResolvedValue(bytes);
+    await createFormalWebDirectoryArtifact(project,{read},runtime);expect(read).toHaveBeenCalledTimes(4);
+  });
   it("cancels before packaging and permits a fresh build without mutating the project", async () => {
     const project = loadProject(migrateS0Project(branching as S0Project).files);
     const controller = new AbortController(); controller.abort();

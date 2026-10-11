@@ -89,20 +89,21 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')) {
-    const incremental=process.argv.includes('--atlas-incremental-workflow');
+  if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')) {
+    const delivery=process.argv.includes('--atlas-delivery-workflow');
+    const incremental=delivery||process.argv.includes('--atlas-incremental-workflow');
     const sampleMemory=async(name)=>{
       const taskPid=name==='windows'?desktopProcess.pid:browser.pid;
       const script=`$all=Get-CimInstance Win32_Process; $ids=[System.Collections.Generic.HashSet[int]]::new(); [void]$ids.Add(${taskPid}); do {$added=0; foreach($p in $all){if($ids.Contains([int]$p.ParentProcessId) -and $ids.Add([int]$p.ProcessId)){$added++}}}while($added -gt 0); $p=Get-Process -Id @($ids) -ErrorAction SilentlyContinue; [pscustomobject]@{processes=$p.Count;privateBytes=($p|Measure-Object PrivateMemorySize64 -Sum).Sum;workingSetBytes=($p|Measure-Object WorkingSet64 -Sum).Sum}|ConvertTo-Json -Compress`;
       return JSON.parse((await promisify(execFile)('powershell.exe',['-NoProfile','-Command',script],{windowsHide:true})).stdout);
     };
-    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,sampleMemory,
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,sampleMemory,
       openWindows:async(gamePath)=>{
         const output=join(temporary,'scale-windows-player');
         await promisify(execFile)(process.execPath,[join(root,'tools/build-windows-player.mjs'),output,`--game=${gamePath}`],{windowsHide:true});
         await openDesktop(undefined,join(output,'WorLdPlayer.exe'));return client;
       }});
-    await writeFile(join(root,`evidence/authoring/${incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
+    await writeFile(join(root,`evidence/authoring/${delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
     console.log(JSON.stringify(evidence,null,2));
   } else if(process.argv.includes('--native-atlas-workflow')) {
     const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true});

@@ -6,8 +6,8 @@ import { createHash } from 'node:crypto';
 import { unzlibSync, zlibSync, unzipSync } from 'fflate';
 import { makeAtlasSource } from './atlas-compatibility-fixture.mjs';
 
-export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,sampleMemory,openWindows}={}) {
-  const prefix=incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
+export async function runCreatorExportOptimizationWorkflow(client, root, temporary, {atlas=false,native=false,scale=false,incremental=false,delivery=false,sampleMemory,openWindows}={}) {
+  const prefix=delivery?'atlas-delivery':incremental?'atlas-incremental':scale?'atlas-scale':native?'native-atlas':atlas?'atlas-compatibility':'export-optimization';
   const sequence=incremental?JSON.parse(await readFile(join(root,'fixtures/projects/dicing/sequence.json'),'utf8')):null;
   const sequenceEvidence=[];
   const measurements=[], previewRuns=[];let rapidSwitch;
@@ -28,7 +28,13 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   const save = async () => { await client.wait("!document.querySelector('.local-save-button').disabled"); await client.evaluate("document.querySelector('.local-save-button').click()"); await client.wait("document.querySelector('.local-save-button').textContent.includes('已保存')"); };
   const enter = async () => { await client.button('进入编辑器'); await client.button('进入内容编辑器'); await client.wait("document.querySelector('.preview-disclosure--build')"); };
   const openBuild = () => client.evaluate("document.querySelector('.preview-disclosure--build').open=true");
-  const build = async directory => { const start=performance.now();await client.button(directory ? '构建目录 ZIP' : '构建试玩 HTML'); const bytes=await download('.playable-web-export a[download]');measurements.push({kind:directory?'directory':'html',elapsedMs:performance.now()-start,bytes:bytes.length});return bytes; };
+  const observe = async (name, action) => {
+    if(!delivery||!sampleMemory)return action();
+    const samples=[],start=performance.now();let stopped=false;
+    const polling=(async()=>{while(!stopped){const memory=await sampleMemory(name);samples.push({elapsedMs:performance.now()-start,...memory});if(!stopped)await new Promise(r=>setTimeout(r,200));}})();
+    try{return await action();}finally{stopped=true;await polling;measurements.push({kind:'continuous-process-samples',name,samples,observedMaxPrivateBytes:Math.max(...samples.map(s=>s.privateBytes)),observedMaxWorkingSetBytes:Math.max(...samples.map(s=>s.workingSetBytes)),limits:'Serial process-tree sampling plus 200ms pause; actual timestamps retained. Observed maxima are lower bounds, not guaranteed instantaneous peaks, and include browser/harness activity.'});}
+  };
+  const build = async directory => observe(directory?'build-directory':'build-html',async()=>{ const start=performance.now();await client.button(directory ? '构建目录 ZIP' : '构建试玩 HTML'); const bytes=await download('.playable-web-export a[download]');measurements.push({kind:directory?'directory':'html',elapsedMs:performance.now()-start,bytes:bytes.length});return bytes; });
   const payload = bytes => JSON.parse(bytes.toString('utf8').match(/<script id="world-project" type="application\/json">(.*?)<\/script>/s)[1]);
   const digest = bytes => 'sha256:'+createHash('sha256').update(bytes).digest('hex');
   const preview = async (expectNative=false) => {
@@ -128,7 +134,19 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   assert.equal(await client.evaluate("Array.from(document.querySelectorAll('.playable-web-export > button')).every(b=>b.getBoundingClientRect().width>150 && b.getBoundingClientRect().height<100)"),true,'Export actions must stay readable, not squeezed into vertical columns');
   await writeFile(join(root,`evidence/authoring/${prefix}.png`),Buffer.from((await client.send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   if(atlas){
+    if(delivery){
+      for(let round=0;round<3;round++){
+        await client.send('Page.reload');await client.wait("document.querySelector('.project-home__recent button')");await client.button('雨后的约定');await enter();await openBuild();
+        const cold=payload(await build(false)), coldState=await client.evaluate("JSON.parse(document.documentElement.dataset.atlasDelivery)");
+        const warm=payload(await build(false)), warmState=await client.evaluate("JSON.parse(document.documentElement.dataset.atlasDelivery)");
+        assert.deepEqual(cold.nativeAtlasGroups,after.nativeAtlasGroups);assert.deepEqual(warm.nativeAtlasGroups,cold.nativeAtlasGroups);
+        assert.equal(coldState.built,4);assert.equal(warmState.built,4);assert.ok(warmState.cacheHits>coldState.cacheHits);assert.equal(warmState.referencedResources,0);assert.equal(warmState.activeLoads,0);assert.equal(warmState.queuedLoads,0);
+        assert.ok(warm.optimizationReport.nativeAtlasGroups.every(g=>g.detail.includes('复用本会话')));
+        measurements.push({kind:'delivery-cold-warm',round,coldState,warmState,limits:'Cold means a reloaded editor session, not cleared OS/browser disk caches.'});
+      }
+    }
     const proofBefore=incremental?await client.evaluate("JSON.parse(document.documentElement.dataset.atlasVerification)"):null;
+    const deliveryBefore=delivery?await client.evaluate("JSON.parse(document.documentElement.dataset.atlasDelivery)"):null;
     const changed=join(temporary,'actor-changed.png');await writeFile(changed,makeAtlasSource(incremental?99:2,native));await client.button('打开资源保险库');await client.button('编辑资源：media_actor_sprite');await file('[aria-label=选择资源文件]',changed);await client.button('更新此资源');await client.wait("document.querySelector('.asset-import-status--success')");await client.button('关闭资源保险库');
     const stale=payload(await build(false));if(native){assert.ok(stale.optimizationReport.nativeAtlasGroups.some(g=>!g.adopted&&/source-mismatch/.test(g.detail)));}else{assert.equal(stale.optimizationReport.atlasGroups[0].status,'original');assert.match(stale.optimizationReport.atlasGroups[0].reason,/source-mismatch/);}
     if(incremental){
@@ -141,6 +159,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
       assert.notEqual(rebuilt.nativeAtlasGroups.find(g=>g.groupId===affected.groupId).manifest,affected.manifest);
       assert.equal(proofAfter.verified-proofBefore.verified,affected.fallback.entries.length,'Only republished members need new successful verification');
       measurements.push({kind:'incremental-verification',affectedGroup:affected.groupId,unchangedGroups:unchanged.length,reverified:proofAfter.verified-proofBefore.verified,proofBefore,proofAfter});
+      if(delivery){const deliveryAfter=await client.evaluate("JSON.parse(document.documentElement.dataset.atlasDelivery)");assert.equal(deliveryAfter.built-deliveryBefore.built,1,'Only changed group is recompressed');assert.equal(rebuilt.optimizationReport.nativeAtlasGroups.filter(g=>g.detail.includes('复用本会话')).length,3);measurements.push({kind:'incremental-delivery',deliveryBefore,deliveryAfter,recompressed:1,unchangedGroups:3});}
     }
     await client.button('打开资源保险库');await client.button('撤销最近资源更新');await client.wait("document.querySelector('.asset-import-status').textContent.includes('已撤销')");await client.button('关闭资源保险库');
   }
@@ -168,7 +187,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
   const runtimeEvidence=[], samplingComparisons=[];
   const expectedPixels={};if(incremental)for(const id of sequence.assetIds)expectedPixels[id]=await pixels(before.mediaAssets.find(a=>a.assetId===id).url);
   let referenceStage;
-  const play = async (bytes,name,expectedMode,entryPath,alreadyOpen=false) => {
+  const playCore = async (bytes,name,expectedMode,entryPath,alreadyOpen=false) => {
     const start=performance.now();const path=entryPath??join(temporary,name+'.html');if(!alreadyOpen){await writeFile(path,bytes);await client.send('Page.navigate',{url:pathToFileURL(path).href});}await client.button('开始故事');
     // Each comparison starts a fresh story; dismiss only this isolated test profile's recovery prompt via its public action.
     await new Promise(r=>setTimeout(r,500));
@@ -226,6 +245,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     if(native && expectedMode){await client.button('回到标题');await client.wait("Number(document.documentElement.dataset.nativeAtlasBytes??0)===0 && Number(document.documentElement.dataset.nativeAtlasGroups??0)===0");}
     return result;
   };
+  const play = (bytes,name,...args) => observe(name,()=>playCore(bytes,name,...args));
   const baselinePlay=await play(baseline,'original'), optimizedPlay=await play(optimized,'optimized',native?'ready':undefined);assert.deepEqual(optimizedPlay,baselinePlay);
   if(native){
     const directoryPath=join(temporary,'native-directory');
@@ -245,7 +265,7 @@ export async function runCreatorExportOptimizationWorkflow(client, root, tempora
     const unsupportedPlay=await play(Buffer.from(unsupported),'unsupported','fallback');assert.deepEqual(unsupportedPlay.renderedPixels,baselinePlay.renderedPixels);assert.equal(unsupportedPlay.ending,baselinePlay.ending);assert.equal(unsupportedPlay.stageScreenshot,samplingComparisons[0].ordinaryPixels);
   }
   if(rapidSwitch)measurements.push({kind:'rapid-switch',...rapidSwitch});
-  if(incremental){const fixtureHash=digest(Buffer.from(JSON.stringify(sequence)));measurements.push({kind:'dicing-sequence',fixtureHash,runs:sequenceEvidence});await writeFile(join(root,'evidence/authoring/atlas-incremental-sequence.json'),JSON.stringify({fixtureHash,runs:sequenceEvidence,incremental:measurements.find(m=>m.kind==='incremental-verification')},null,2)+'\n');}
+  if(incremental){const fixtureHash=digest(Buffer.from(JSON.stringify(sequence)));measurements.push({kind:'dicing-sequence',fixtureHash,runs:sequenceEvidence});await writeFile(join(root,`evidence/authoring/${prefix}-sequence.json`),JSON.stringify({fixtureHash,runs:sequenceEvidence,incremental:measurements.find(m=>m.kind==='incremental-verification'),...(delivery?{delivery:measurements.find(m=>m.kind==='incremental-delivery')}:{})},null,2)+'\n');}
   assert.deepEqual(client.errors,[]);
   return {scale,measurements,previewRuns,windowsValidated:Boolean(scale&&openWindows),sourceProject:'rainy-promise-media.zip',actualProductionWorker:true,authoredThroughUi:true,settingSurvivesReopen:true,oldDownloadInvalidated:true,originalBlobInPortableZip:true,originalExportRestoredByteExactly:true,migratedFallback,migratedRebuilt,staleGroupFallback:atlas,editorPreviewBefore,editorPreviewAfter,pixels:{original:originalPixels,optimized:optimizedPixels},report,artifactBytes:{originalHtml:baseline.length,optimizedHtml:optimized.length,optimizedZip:directory.length},baselinePlay,optimizedPlay,runtimeEvidence,samplingComparisons,exceptions:client.errors,limits:native?'Native shared Atlas bitmap tile drawing into per-image Canvas; compressed original fallback embedded. CSS IMG and Canvas sampling differs: native screenshot is compared exactly to an ordinary-source Canvas control, not claimed identical to IMG. Preview and intrinsic pixels remain exact. Budget accounting is not GPU/heap measurement. Deterministic uncompressed fixture is not a production savings claim; device/human validation outstanding. Process snapshots are aggregate private/working-set bytes, not isolated asset allocation or guaranteed peaks; end-to-end timings include harness pacing. Per-asset playback coverage is recorded in dicing-sequence when requested; scale mode alone verifies 30 variants at build, not playback.':atlas?'Atlas reconstructed to ordinary PNG during build, not native Atlas rendering; deterministic uncompressed fixtures, no production savings claim; GPU/device/human validation outstanding.':'PNG IDAT only; Atlas export, GPU memory, device performance and human inspection not validated.'};
 }

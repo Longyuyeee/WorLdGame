@@ -1,4 +1,4 @@
-import { zlibSync } from "fflate";
+import { zlib } from "fflate";
 import { createBlobDigest, parseLosslessDicingPngDeliveryManifest } from "@world-studio/project-persistence";
 import type { CanonicalProject } from "@world-studio/project-domain";
 import type { NativeAtlasDelivery } from "@world-studio/player-shell/native-atlas";
@@ -11,7 +11,28 @@ export function dataUrl(bytes: Uint8Array, mime = "application/octet-stream") {
   let text = ""; for (let offset = 0; offset < bytes.length; offset += 8192) text += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
   return `data:${mime};base64,${btoa(text)}`;
 }
-export type NativeAtlasVerifier = (...args: Parameters<typeof compatiblePng>) => Promise<unknown>;
+export interface PreparedAtlasDelivery { readonly group: NativeAtlasDelivery; readonly payloadBytes: number; }
+export interface AtlasDeliveryRequest {
+  readonly key: string; readonly reservedBytes: number; readonly signal?: AbortSignal;
+  readonly build: (signal?: AbortSignal) => Promise<PreparedAtlasDelivery>;
+}
+export type NativeAtlasVerifier = ((...args: Parameters<typeof compatiblePng>) => Promise<unknown>) & {
+  prepareDelivery?: (request: AtlasDeliveryRequest) => Promise<PreparedAtlasDelivery & { reused: boolean }>;
+};
+
+/** fflate's worker is terminated when the last scheduler consumer cancels. */
+export function compressAtlasFallback(bytes: Uint8Array, signal?: AbortSignal): Promise<Uint8Array> {
+  signal?.throwIfAborted();
+  return new Promise((resolve, reject) => {
+    const cancel = () => { terminate(); reject(signal!.reason); };
+    const terminate = zlib(bytes, { level: 9 }, (error, compressed) => {
+      signal?.removeEventListener("abort", cancel);
+      if (error) reject(error); else resolve(compressed);
+    });
+    signal?.addEventListener("abort", cancel, { once: true });
+    if (signal?.aborted) cancel();
+  });
+}
 export async function buildNativeAtlasDelivery(project: CanonicalProject, assets: readonly ExportMedia[], reader: AtlasExportReader, verify: NativeAtlasVerifier = compatiblePng, signal?: AbortSignal) {
   const groups: NativeAtlasDelivery[] = [], adopted = new Set<string>(), rows: {groupId:string; adopted:boolean; detail:string; payloadBytes:number; pageRgbaBytes:number; fallbackRawBytes:number}[] = [];
   let fallbackRawBytes = 0;
@@ -36,18 +57,28 @@ export async function buildNativeAtlasDelivery(project: CanonicalProject, assets
       if (minimumRenderBytes > 64 * 1024 * 1024) throw Error("单图原生绘制已超出 64 MiB 预算，保留普通纹理");
       for (const source of sources) { signal?.throwIfAborted(); await verify(source, publication, signal); }
       signal?.throwIfAborted();
-      const raw = new Uint8Array(rawBytes); let offset = 0;
-      const entries = sources.map(source => { const entry = {assetId:source.assetId,offset,length:source.bytes.length,digest:source.digest}; raw.set(source.bytes,offset); offset+=source.bytes.length; return entry; });
-      const compressed = zlibSync(raw,{level:9});
-      const group: NativeAtlasDelivery = {schemaVersion:1,groupId,manifest:publication.deliveryManifestJson,pages:publication.encodedPages.map(page=>({pageId:page.pageId,url:dataUrl(page.bytes,"image/png")})),fallback:{url:dataUrl(compressed),digest:createBlobDigest(compressed),rawBytes,entries}};
-      const payloadBytes = new TextEncoder().encode(JSON.stringify(group)).length;
+      const key = JSON.stringify([groupId, publication.manifestDigest, publication.encodedPages.map(page=>[page.pageId,createBlobDigest(page.bytes)]), sources.map(source=>[source.assetId,source.mimeType,source.digest,createBlobDigest(source.bytes)])]);
+      const build = async (jobSignal?: AbortSignal): Promise<PreparedAtlasDelivery> => {
+        jobSignal?.throwIfAborted();
+        const raw = new Uint8Array(rawBytes); let offset = 0;
+        const entries = sources.map(source => { const entry = {assetId:source.assetId,offset,length:source.bytes.length,digest:source.digest}; raw.set(source.bytes,offset); offset+=source.bytes.length; return entry; });
+        const compressed = await compressAtlasFallback(raw, jobSignal);
+        jobSignal?.throwIfAborted();
+        const group: NativeAtlasDelivery = {schemaVersion:1,groupId,manifest:publication.deliveryManifestJson,pages:publication.encodedPages.map(page=>({pageId:page.pageId,url:dataUrl(page.bytes,"image/png")})),fallback:{url:dataUrl(compressed),digest:createBlobDigest(compressed),rawBytes,entries}};
+        return { group, payloadBytes: new TextEncoder().encode(JSON.stringify(group)).length };
+      };
+      // Conservative serialized UTF-16 bound, not codec scratch/process memory.
+      const reservedBytes = 4 * (rawBytes + publication.encodedPages.reduce((n,page)=>n+page.bytes.length,0)) + 12 * publication.deliveryManifestJson.length + key.length * 2 + 65536;
+      const prepared = verify.prepareDelivery ? await verify.prepareDelivery({ key, reservedBytes, build, ...(signal ? { signal } : {}) }) : { ...await build(signal), reused: false };
+      signal?.throwIfAborted();
+      const { group, payloadBytes } = prepared;
       const outsideDigests = new Set(assets.filter(asset=>!ids.includes(asset.assetId) && !adopted.has(asset.assetId)).map(asset=>asset.digest));
       const removable = [...new Map(sources.filter(asset=>!outsideDigests.has(asset.digest)).map(asset=>[asset.digest,asset.bytes.length])).values()].reduce((a,b)=>a+b,0);
       // Both formats carry reporting metadata; ZIP also has a separate report copy.
       const reportAllowance = 1024 + sources.length * 1024;
       if (payloadBytes + reportAllowance >= removable) throw Error("包括 Base64、原图回退包、清单和报告余量后无净收益；保留普通纹理");
       groups.push(group); ids.forEach(id=>adopted.add(id)); fallbackRawBytes+=rawBytes;
-      rows.push({groupId,adopted:true,detail:"原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。",payloadBytes,pageRgbaBytes:manifest.pages.reduce((n,p)=>n+p.width*p.height*4,0),fallbackRawBytes:rawBytes});
+      rows.push({groupId,adopted:true,detail:`${prepared.reused ? "复用本会话组交付缓存，未重复压缩" : "本组已重新生成交付（首次、内容变更或缓存已释放）"}；当前源与派生完整性、跨组收益及预算重新核对。原生 Canvas 图块绘制；随包压缩原图可离线回退。内存统计为预算记账，不是实际 GPU 测量。`,payloadBytes,pageRgbaBytes:manifest.pages.reduce((n,p)=>n+p.width*p.height*4,0),fallbackRawBytes:rawBytes});
     } catch(error) { signal?.throwIfAborted(); rows.push({groupId,adopted:false,detail:error instanceof Error?error.message:"派生不可用",payloadBytes:0,pageRgbaBytes:0,fallbackRawBytes:0}); }
   }
   return {groups,adopted,rows};
