@@ -7,11 +7,26 @@ import { validateSessionBudget, validateMixedPublication } from './audit-player-
 
 import { validatePlayerPacked, validatePackedBudget, validatePackedPublication } from './audit-player-packed.mjs';
 import { validateSchedulerBudget, validateSchedulerExtended } from './audit-player-scheduler.mjs';
+import { validatePlayerCatalog } from './audit-player-catalog.mjs';
 import { EventEmitter } from 'node:events';
 import { requestCleanBrowserExit } from './browser-process-exit.mjs';
 const fixture = JSON.parse(await readFile(new URL('../evidence/authoring/player-mixed.json', import.meta.url), 'utf8'));
 const read = async name => JSON.parse(await readFile(new URL(`../evidence/authoring/${name}.json`, import.meta.url), 'utf8'));
 const budget = [fixture, await read('player-mixed-optimized'), await read('runtime-encoding-budget'), [await read('player-mixed-profile-before'), await read('player-mixed-profile-after')]];
+
+test('accepts metadata-only catalog with real full load and cold history', async () => {
+  assert.equal(validatePlayerCatalog(await read('player-catalog'), await read('player-session-budget')).slots, 18);
+});
+test('rejects unverified catalog, retained body, decoded preview and truncated evidence', async () => {
+  const baseline = await read('player-session-budget');
+  for (const mutate of [e => { e.samples.pop(); }, e => { e.samples[0].after.decodes = 1; },
+    e => { e.samples[0].after.retainedPayloadCharacters = 1; }, e => { e.fixture.bytesPerSave--; },
+    e => { e.headersEqual = false; }, e => { e.corruptPayloadRejectedWithoutStateChange = false; },
+    e => { e.coldProcessLoad = false; }, e => { e.fullHistory--; }, e => { e.exceptions.push('error'); }]) {
+    const evidence = await read('player-catalog'); mutate(evidence);
+    assert.throws(() => validatePlayerCatalog(evidence, baseline));
+  }
+});
 
 test('browser close accepts actual clean exit even if protocol response never arrives', async () => {
   const child = Object.assign(new EventEmitter(), { exitCode: null, signalCode: null });

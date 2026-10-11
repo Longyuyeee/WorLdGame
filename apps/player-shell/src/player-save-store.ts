@@ -1,4 +1,4 @@
-import { packPlayerStorageRecord, unpackPlayerStorageRecord, PlayerStorageWriteQueue } from "./player-storage-packing";
+import { packPlayerStorageRecord, unpackPlayerStorageRecord, readPlayerStorageMetadata, PlayerStorageWriteQueue } from "./player-storage-packing";
 
 export const WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
@@ -79,13 +79,26 @@ export interface WorldPlayerSaveSlotV3 extends WorldPlayerSaveSlotSourceV3 {
   readonly migratedFromSchemaVersion: 1 | 2 | null;
 }
 
+/** Display metadata only; a summary is never an accepted Runtime save. */
+export type WorldPlayerSaveSummaryV3 = Omit<WorldPlayerSaveSlotV3, "serializedSessionSave">;
+
+export function worldPlayerSaveSummaryV3(slot: WorldPlayerSaveSlotV3): WorldPlayerSaveSummaryV3 {
+  const { serializedSessionSave: _serialized, ...summary } = slot;
+  return summary;
+}
+
 export interface WorldPlayerSaveStoreV3 {
   readonly version: typeof WORLD_PLAYER_SAVE_STORE_VERSION;
   readonly backend: string;
   list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]>;
+  listSummaries?(projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]>;
   read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null>;
   readPreview(projectId: string, slotId: string): Promise<Blob | null>;
   write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void>;
+}
+
+export async function listWorldPlayerSaveSummariesV3(store: WorldPlayerSaveStoreV3, projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]> {
+  return store.listSummaries === undefined ? (await store.list(projectId)).map(worldPlayerSaveSummaryV3) : store.listSummaries(projectId);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -104,20 +117,27 @@ function validNullableId(value: unknown): value is string | null {
   return value === null || validId(value);
 }
 
-function validCommonSlot(value: Record<string, unknown>): boolean {
+function validCommonMetadata(value: Record<string, unknown>): boolean {
   return validId(value.slotId) && validId(value.projectId) && typeof value.buildId === "string" && hashPattern.test(value.buildId) &&
     Number.isSafeInteger(value.savedAtEpochMilliseconds) && (value.savedAtEpochMilliseconds as number) >= 0 && (value.savedAtEpochMilliseconds as number) <= 8_640_000_000_000_000 &&
     typeof value.title === "string" && value.title.length > 0 && value.title.length <= 256 &&
     typeof value.sceneId === "string" && value.sceneId.length > 0 && value.sceneId.length <= 256 &&
     typeof value.presentationKind === "string" && value.presentationKind.length > 0 && value.presentationKind.length <= 64 &&
     typeof value.runtimeStateHash === "string" && hashPattern.test(value.runtimeStateHash) &&
-    typeof value.sessionArtifactHash === "string" && hashPattern.test(value.sessionArtifactHash) &&
-    typeof value.serializedSessionSave === "string" && new TextEncoder().encode(value.serializedSessionSave).length <= MAX_SERIALIZED_SESSION_SAVE_BYTES;
+    typeof value.sessionArtifactHash === "string" && hashPattern.test(value.sessionArtifactHash);
+}
+
+function validPayload(value: Record<string, unknown>): boolean {
+  return typeof value.serializedSessionSave === "string" && new TextEncoder().encode(value.serializedSessionSave).length <= MAX_SERIALIZED_SESSION_SAVE_BYTES;
 }
 
 function validSlotV1(value: unknown): value is WorldPlayerSaveSlotV1 {
   if (!isRecord(value) || !hasExactKeys(value, slotV1Keys)) return false;
-  return value.schemaVersion === 1 && value.format === "world.player-save-slot" && value.kind === "manual" && value.previewImage === null && validCommonSlot(value);
+  return validPayload(value) && validV1Fields(value);
+}
+
+function validV1Fields(value: Record<string, unknown>): boolean {
+  return value.schemaVersion === 1 && value.format === "world.player-save-slot" && value.kind === "manual" && value.previewImage === null && validCommonMetadata(value);
 }
 
 function validPreviewMetadata(value: unknown): value is WorldPlayerSavePreviewV2 {
@@ -134,7 +154,11 @@ function validPreviewMetadata(value: unknown): value is WorldPlayerSavePreviewV2
 }
 
 function validSlotV2(value: unknown): value is WorldPlayerSaveSlotV2 {
-  if (!isRecord(value) || !hasExactKeys(value, slotV2Keys) || !validCommonSlot(value)) return false;
+  return isRecord(value) && hasExactKeys(value, slotV2Keys) && validPayload(value) && validV2Fields(value);
+}
+
+function validV2Fields(value: Record<string, unknown>): boolean {
+  if (!validCommonMetadata(value)) return false;
   const validSlotIdentity = value.kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
     value.kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || value.kind === "quick" && value.slotId === "quick-1";
   return value.schemaVersion === 2 && value.format === "world.player-save-slot" && validSlotIdentity &&
@@ -145,7 +169,11 @@ function validSlotV2(value: unknown): value is WorldPlayerSaveSlotV2 {
 }
 
 function validSlotV3(value: unknown): value is WorldPlayerSaveSlotV3 {
-  if (!isRecord(value) || !hasExactKeys(value, slotV3Keys) || !validCommonSlot(value)) return false;
+  return isRecord(value) && hasExactKeys(value, slotV3Keys) && validPayload(value) && validV3Fields(value);
+}
+
+function validV3Fields(value: Record<string, unknown>): boolean {
+  if (!validCommonMetadata(value)) return false;
   const kind = value.kind;
   const validSlotIdentity = kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
     kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || kind === "quick" && value.slotId === "quick-1" ||
@@ -198,6 +226,41 @@ function normalizeSlot(value: unknown): WorldPlayerSaveSlotV3 {
 function key(projectId: string, slotId: string): string {
   if (!validId(projectId) || !validId(slotId)) throw new TypeError("WORLD_PLAYER_SAVE_ID_INVALID");
   return `${projectId}\0${slotId}`;
+}
+
+function normalizeSummary(record: unknown): WorldPlayerSaveSummaryV3 {
+  const value = readPlayerStorageMetadata(record);
+  const fields = (keys: readonly string[]) => hasExactKeys(value, keys.filter(name => name !== "serializedSessionSave"));
+  if (fields(slotV3Keys) && validV3Fields(value)) return value as unknown as WorldPlayerSaveSummaryV3;
+  if (fields(slotV2Keys) && validV2Fields(value)) return { ...value, schemaVersion: 3, checkpointStepId: null, migratedFromSchemaVersion: 2 } as unknown as WorldPlayerSaveSummaryV3;
+  if (fields(slotV1Keys) && validV1Fields(value)) {
+    const { previewImage: _preview, ...metadata } = value;
+    return { ...metadata, schemaVersion: 3, chapterId: null, chapterTitle: null, sceneTitle: value.sceneId,
+      route: null, customMetadata: {}, preview: { status: "unavailable", reason: "legacy-v1" }, checkpointStepId: null,
+      migratedFromSchemaVersion: 1 } as unknown as WorldPlayerSaveSummaryV3;
+  }
+  throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
+}
+
+async function projectRecords(database: IDBDatabase, projectId: string): Promise<readonly { readonly recordKey: IDBValidKey; readonly record: unknown }[]> {
+  if (!validId(projectId)) throw new TypeError("WORLD_PLAYER_SAVE_ID_INVALID");
+  const transaction = database.transaction(WORLD_PLAYER_SAVE_STORE_NAME, "readonly");
+  const done = transactionDone(transaction);
+  const store = transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME);
+  // Other projects' payloads must never be cloned or decoded just to list this one.
+  const records = new Promise<readonly { recordKey: IDBValidKey; record: unknown }[]>((resolve, reject) => {
+    const request = store.getAllKeys();
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      const selected = request.result.filter(recordKey => typeof recordKey === "string" && recordKey.startsWith(`${projectId}\0`));
+      Promise.all(selected.map(async recordKey => ({ recordKey, record: await requestResult(store.get(recordKey)) }))).then(resolve, reject);
+    };
+  });
+  return (await Promise.all([records, done]))[0];
+}
+
+function checkedRecordIdentity(slot: WorldPlayerSaveSummaryV3, projectId: string, recordKey: IDBValidKey): void {
+  if (slot.projectId !== projectId || key(slot.projectId, slot.slotId) !== recordKey) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
 }
 
 function requestResult<T>(request: IDBRequest<T>): Promise<T> {
@@ -260,16 +323,23 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   }
 
   async list(projectId: string): Promise<readonly WorldPlayerSaveSlotV3[]> {
-    if (!validId(projectId)) throw new TypeError("WORLD_PLAYER_SAVE_ID_INVALID");
-    const database = await this.database;
-    const transaction = database.transaction(WORLD_PLAYER_SAVE_STORE_NAME, "readonly");
-    const done = transactionDone(transaction);
-    const records = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).getAll());
-    await done;
+    const records = await projectRecords(await this.database, projectId);
     // Decode sequentially: listing many long saves must not inflate them all at once.
     const slots: WorldPlayerSaveSlotV3[] = [];
-    for (const record of records) slots.push(normalizeSlot(await unpackPlayerStorageRecord(record, this.subtle)));
-    return slots.filter((slot) => slot.projectId === projectId).sort((left, right) => left.slotId.localeCompare(right.slotId));
+    for (const { recordKey, record } of records) {
+      const slot = normalizeSlot(await unpackPlayerStorageRecord(record, this.subtle));
+      checkedRecordIdentity(slot, projectId, recordKey); slots.push(slot);
+    }
+    return slots.sort((left, right) => left.slotId.localeCompare(right.slotId));
+  }
+
+  async listSummaries(projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]> {
+    const records = await projectRecords(await this.database, projectId);
+    return records.map(({ recordKey, record }) => {
+      const summary = normalizeSummary(record);
+      checkedRecordIdentity(summary, projectId, recordKey);
+      return summary;
+    }).sort((left, right) => left.slotId.localeCompare(right.slotId));
   }
 
   async read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null> {
@@ -296,7 +366,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
     await done;
     if (metadataRecord === undefined && record === undefined) return null;
     if (metadataRecord === undefined) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
-    const slot = normalizeSlot(await unpackPlayerStorageRecord(metadataRecord, this.subtle));
+    const slot = normalizeSummary(metadataRecord);
     if (slot.projectId !== projectId || slot.slotId !== slotId) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
     if (slot.preview.status === "unavailable") {
       if (record !== undefined) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");

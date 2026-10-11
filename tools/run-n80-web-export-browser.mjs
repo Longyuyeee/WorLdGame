@@ -27,6 +27,7 @@ import { runMixedPublication } from './player-mixed-publication-workflow.mjs';
 import { runMappingProbe } from './player-mapping-probe.mjs';
 import { sampleBrowserMemory } from './player-process-memory.mjs';
 import { requestCleanBrowserExit } from './browser-process-exit.mjs';
+import { runPlayerCatalog } from './player-catalog-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 if(process.argv.includes('--scheduler-validation'))assert.ok(process.argv.includes('--player-mixed')&&process.argv.includes('--storage-packed'),'Scheduler validation requires --player-mixed --storage-packed');
@@ -144,6 +145,8 @@ try {
       },
       closeWindows: async () => { desktopProcess.kill(); await desktopExit; client.socket.close(); }
     }), null, 2));
+  } else if(process.argv.includes('--player-catalog')) {
+    console.log(JSON.stringify(await runPlayerCatalog(client, root, temporary, restartBrowser), null, 2));
   } else if(process.argv.includes('--player-mapping-probe')) {
     console.log(JSON.stringify(await runMappingProbe(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-mixed')) {

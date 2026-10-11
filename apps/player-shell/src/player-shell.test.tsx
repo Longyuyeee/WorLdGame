@@ -10,7 +10,7 @@ import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
-import type { WorldPlayerSaveSlotV3, WorldPlayerSaveStoreV3 } from "./player-save-store";
+import { worldPlayerSaveSummaryV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import type { WorldPlayerPlaybackPolicyV1 } from "./player-playback-policy";
 import type { NativeAtlasSource } from "./native-atlas";
@@ -1230,7 +1230,7 @@ describe("N51-E5 Player settings application", () => {
     expect(container.querySelector("main")).toHaveStyle({ "--gal-stage-aspect": "1080 / 1920" });
   });
 
-  it("saves and loads a manual Host slot through the formal Session Save bridge", async () => {
+  it.each([false, true])("saves and loads a manual Host slot through the formal bridge (summary API: %s)", async summaries => {
     const records = new Map<string, WorldPlayerSaveSlotV3>();
     const previews = new Map<string, Blob>();
     const store: WorldPlayerSaveStoreV3 = {
@@ -1246,6 +1246,8 @@ describe("N51-E5 Player settings application", () => {
         else previews.set(`${slot.projectId}\0${slot.slotId}`, preview);
       }
     };
+    if (summaries) store.listSummaries = async projectId => [...records.values()].filter(slot => slot.projectId === projectId).map(worldPlayerSaveSummaryV3);
+    const list = vi.spyOn(store, "list");
     const { container } = render(<PlayerShell project={branching()} saveStore={store} now={() => 1_788_000_000_000} />);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
@@ -1268,6 +1270,7 @@ describe("N51-E5 Player settings application", () => {
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "error"));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
     expect(screen.getByText("存档损坏或与当前构建不兼容")).toBeInTheDocument();
+    if (summaries) expect(list).not.toHaveBeenCalled();
   });
 
   it("paginates twelve manual slots six at a time", () => {

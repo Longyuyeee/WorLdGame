@@ -15,9 +15,11 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
   const chapters = extended ? 24 : 12;
   const packing = process.argv.includes('--storage-packed');
   const scheduler = process.argv.includes('--scheduler-validation');
+  const catalog = process.argv.includes('--save-catalog');
+  if (catalog) assert.ok(packing && extended, 'Catalog evidence requires extended packed session coverage');
   if (scheduler) assert.ok(packing && session, 'Scheduler evidence requires packed natural session coverage');
   if (packing) assert.ok(session && !profile && !optimized, 'Storage evidence needs a natural session run');
-  const prefix = scheduler ? `player-scheduler-${extended ? 'extended' : 'mixed'}` : packing ? `player-packed-${extended ? 'extended' : 'mixed'}` : extended ? 'player-session-extended' : session ? 'player-session-mixed' : profile ? `player-mixed-profile-${optimized ? 'after' : 'before'}` : optimized ? 'player-mixed-optimized' : 'player-mixed';
+  const prefix = catalog ? 'player-catalog-extended' : scheduler ? `player-scheduler-${extended ? 'extended' : 'mixed'}` : packing ? `player-packed-${extended ? 'extended' : 'mixed'}` : extended ? 'player-session-extended' : session ? 'player-session-mixed' : profile ? `player-mixed-profile-${optimized ? 'after' : 'before'}` : optimized ? 'player-mixed-optimized' : 'player-mixed';
   // Reproducing the "before" CPU diagnostic must never silently profile the new
   // implementations. Load the two changed production modules from the fixed
   // baseline without modifying the user's checkout. Dependencies remain current.

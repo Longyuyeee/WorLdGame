@@ -39,7 +39,8 @@ import {
   createWorldPlayerSaveSlotV3,
   worldPlayerSavePreviewSha256V1,
   type WorldPlayerSavePreviewV2,
-  type WorldPlayerSaveSlotV3,
+  type WorldPlayerSaveSummaryV3,
+  listWorldPlayerSaveSummariesV3,
   type WorldPlayerSaveStoreV3
 } from "./player-save-store";
 import {
@@ -128,10 +129,13 @@ function PlayerRichText({ text, locale }: { readonly text: string; readonly loca
     : <ruby key={`ruby:${index}`} lang={locale}>{segment.base}<rp>（</rp><rt>{segment.annotation}</rt><rp>）</rp></ruby>)}</>;
 }
 
-function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSlotV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
-  const [source, setSource] = useState<string | null>(null);
+export function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: string; readonly slot: WorldPlayerSaveSummaryV3 | undefined; readonly store: WorldPlayerSaveStoreV3 }) {
+  const [source, setSource] = useState<{ slot: WorldPlayerSaveSummaryV3; url: string } | null>(null);
+  const [failed, setFailed] = useState<WorldPlayerSaveSummaryV3 | null>(null);
 
   useEffect(() => {
+    setSource(null);
+    setFailed(null);
     if (slot?.preview.status !== "available") {
       setSource(null);
       return;
@@ -139,11 +143,12 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     let disposed = false;
     let objectUrl: string | null = null;
     void store.readPreview(projectId, slot.slotId).then((blob) => {
-      if (disposed || blob === null || typeof URL.createObjectURL !== "function") return;
+      if (disposed) return;
+      if (blob === null || typeof URL.createObjectURL !== "function") { setFailed(slot); return; }
       objectUrl = URL.createObjectURL(blob);
-      setSource(objectUrl);
+      setSource({ slot, url: objectUrl });
     }).catch(() => {
-      if (!disposed) setSource(null);
+      if (!disposed) { setSource(null); setFailed(slot); }
     });
     return () => {
       disposed = true;
@@ -151,9 +156,10 @@ function PlayerSavePreview({ projectId, slot, store }: { readonly projectId: str
     };
   }, [projectId, slot, store]);
 
-  return source === null
-    ? <span className="player-save__preview" data-preview-status={slot?.preview.status ?? "empty"} aria-label={slot?.preview.status === "available" ? "截图正在读取" : "没有存档截图"} />
-    : <img className="player-save__preview" src={source} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
+  const hasFailed = slot !== undefined && failed === slot;
+  return source === null || source.slot !== slot
+    ? <span className="player-save__preview" data-preview-status={hasFailed ? "error" : slot?.preview.status ?? "empty"} aria-label={hasFailed ? "截图读取失败" : slot?.preview.status === "available" ? "截图正在读取" : "没有存档截图"} />
+    : <img className="player-save__preview" src={source.url} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
 }
 
 function playerLocalePreferenceKey(projectId: string): string {
@@ -216,7 +222,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
   const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(false);
-  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSlotV3[]>([]);
+  const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSummaryV3[]>([]);
   const [savePage, setSavePage] = useState(0);
   const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint">("manual");
   const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
@@ -278,6 +284,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   } | null>(null);
   const additionalContentPlaybackReturn = useRef<typeof replayPlaybackReturn.current>(null);
   const saveContext = useRef({ projectId: project.manifest.projectId, store: saveStore, previewCapture });
+  const saveListGeneration = useRef(0);
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
   const consumedCheckpointCandidates = useRef(new Set<string>());
@@ -463,11 +470,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const refreshSaveSlots = useCallback(async () => {
     if (saveStore === undefined) return;
     const projectId = project.manifest.projectId;
+    const generation = ++saveListGeneration.current;
     try {
-      const slots = await saveStore.list(projectId);
-      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      const slots = await listWorldPlayerSaveSummariesV3(saveStore, projectId);
+      if (generation !== saveListGeneration.current || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       setSaveSlots(slots);
     } catch {
+      if (generation !== saveListGeneration.current || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       setSaveOperation("error");
       setSaveMessage("存档存储不可用");
     }

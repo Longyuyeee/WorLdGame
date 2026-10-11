@@ -63,6 +63,22 @@ export async function packPlayerStorageRecord<T extends { readonly serializedSes
 
 export async function unpackPlayerStorageRecord(value: unknown, subtle: SubtleCrypto | undefined = globalThis.crypto?.subtle): Promise<unknown> {
   if (!record(value) || value.format !== FORMAT) return value;
+  const metadata = readPlayerStorageMetadata(value);
+  if (typeof DecompressionStream === "undefined" || subtle === undefined) throw new Error("WORLD_PLAYER_STORAGE_CODEC_UNAVAILABLE");
+  const bytes = await collect(stream(new Uint8Array(value.data as Uint8Array)).pipeThrough(new DecompressionStream("gzip")), Number(value.byteLength));
+  if (bytes.length !== value.byteLength || await digest(bytes, subtle) !== value.sha256) throw new TypeError("WORLD_PLAYER_STORAGE_CORRUPT");
+  const serializedSessionSave = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+  return { ...metadata, serializedSessionSave };
+}
+
+/** Display only: validates the envelope, NOT payload integrity or Runtime authority. */
+export function readPlayerStorageMetadata(value: unknown): Record<string, unknown> {
+  if (!record(value)) throw new TypeError("WORLD_PLAYER_STORAGE_CORRUPT");
+  if (value.format !== FORMAT) {
+    if (typeof value.serializedSessionSave !== "string" || value.serializedSessionSave.length > MAX_BYTES) throw new TypeError("WORLD_PLAYER_STORAGE_CORRUPT");
+    const { serializedSessionSave: _serialized, ...metadata } = value;
+    return metadata;
+  }
   if (Object.keys(value).sort().join("\0") !== keys.join("\0") || value.schemaVersion !== 1 || value.encoding !== "gzip" ||
     !Number.isSafeInteger(value.byteLength) || Number(value.byteLength) < MIN_BYTES || Number(value.byteLength) > MAX_BYTES ||
     typeof value.sha256 !== "string" || !/^[0-9a-f]{64}$/u.test(value.sha256) || !record(value.metadata) ||
@@ -70,12 +86,7 @@ export async function unpackPlayerStorageRecord(value: unknown, subtle: SubtleCr
     value.data.byteLength === 0 || value.data.byteLength >= Number(value.byteLength)) {
     throw new TypeError("WORLD_PLAYER_STORAGE_CORRUPT");
   }
-  if (typeof DecompressionStream === "undefined" || subtle === undefined) throw new Error("WORLD_PLAYER_STORAGE_CODEC_UNAVAILABLE");
-  const bytes = await collect(stream(new Uint8Array(value.data as Uint8Array)).pipeThrough(new DecompressionStream("gzip")), Number(value.byteLength));
-  if (bytes.length !== value.byteLength || await digest(bytes, subtle) !== value.sha256) throw new TypeError("WORLD_PLAYER_STORAGE_CORRUPT");
-  // Preserve a leading BOM; malformed UTF-8 must never be replaced silently.
-  const serializedSessionSave = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
-  return { ...value.metadata, serializedSessionSave };
+  return value.metadata;
 }
 
 /** Preserve invocation order across asynchronous encoding, without poisoning later writes. */
