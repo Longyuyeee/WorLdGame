@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
 import { startPlayerAutoClock } from "./auto-playback-clock";
-import { cancelPlayerAudioRequest, requestPlayerAudioPlayback } from "./audio-playback-request";
+import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
@@ -255,6 +255,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     requestPlayerAudioPlayback(element, isCurrent, () => refreshAudioTransport(revision => revision + 1), reason);
   }, []);
   const videoElement = useRef<HTMLVideoElement | null>(null);
+  const [, refreshVideoTransport] = useState(0);
+  const requestVideo = useCallback((element: HTMLVideoElement) => {
+    const isCurrent = () => element.isConnected && videoElement.current === element
+      && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive
+      && element.dataset.shouldPlay === "true" && !element.ended && !element.error;
+    if (!isCurrent()) return;
+    requestPlayerMediaPlayback(element, isCurrent, () => refreshVideoTransport(revision => revision + 1));
+    refreshVideoTransport(revision => revision + 1);
+  }, []);
   const pointerInput = useRef<"pointer" | "touch">("pointer");
   const previousHostActivity = useRef(hostActivity);
   const previousSkipActive = useRef(false);
@@ -1227,15 +1236,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const video = videoElement.current;
     if (video !== null) {
       if (hostActivity === "suspended") {
+        cancelPlayerMediaRequest(video);
         video.dataset.playerPlayback = "suspended";
         video.pause();
       } else if (video.dataset.shouldPlay === "true" && settingsApplication.audio.resumeAfterInterruption) {
-        video.dataset.playerPlayback = "resuming";
-        const resumed = video.play();
-        resumed?.then(() => { video.dataset.playerPlayback = "playing"; }).catch(() => { video.dataset.playerPlayback = "blocked"; });
-      } else if (video.dataset.shouldPlay === "true") video.dataset.playerPlayback = "paused-by-policy";
+        requestVideo(video);
+      } else if (video.dataset.shouldPlay === "true") {
+        video.dataset.playerPlayback = "paused-by-policy";
+        refreshVideoTransport(revision => revision + 1);
+      }
     }
-  }, [hostActivity, requestAudio, settingsApplication.audio.resumeAfterInterruption]);
+  }, [hostActivity, requestAudio, requestVideo, settingsApplication.audio.resumeAfterInterruption]);
 
   useEffect(() => {
     const wasActive = previousSkipActive.current;
@@ -1257,7 +1268,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (!element.paused) element.pause();
     }
     const video = videoElement.current;
-    if (video !== null && !video.paused) video.pause();
+    if (video !== null) { cancelPlayerMediaRequest(video); if (!video.paused) video.pause(); }
   }, []);
 
   return (
@@ -1393,14 +1404,34 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     // Saving, Auto and audio events rerender the shell. Ref replay is
                     // not a video interruption: release only a truly detached owner.
                     queueMicrotask(() => {
-                      if (!element.isConnected && !element.paused) element.pause();
+                      if (!element.isConnected) { cancelPlayerMediaRequest(element); if (!element.paused) element.pause(); }
                     });
                   };
+                }
+              }}
+              onCanPlay={(event) => {
+                const video = event.currentTarget;
+                if (video.paused && !["blocked", "interrupted", "paused-by-policy", "resuming", "error"].includes(video.dataset.playerPlayback ?? "")) requestVideo(video);
+              }}
+              onPlaying={(event) => {
+                const video = event.currentTarget;
+                if (audioActivity.current.hostActivity !== "active" || audioActivity.current.skipActive || videoElement.current !== video) {
+                  cancelPlayerMediaRequest(video); video.dataset.playerPlayback = "suspended"; video.pause();
+                } else video.dataset.playerPlayback = "playing";
+                refreshVideoTransport(revision => revision + 1);
+              }}
+              onPause={(event) => {
+                const video = event.currentTarget;
+                if (audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive && video.dataset.shouldPlay === "true" && !video.ended && !["suspended", "resuming", "blocked", "error"].includes(video.dataset.playerPlayback ?? "")) {
+                  cancelPlayerMediaRequest(video);
+                  video.dataset.playerPlayback = "interrupted";
+                  refreshVideoTransport(revision => revision + 1);
                 }
               }}
               onEnded={() => {
                 const video = videoElement.current;
                 if (video !== null) {
+                  cancelPlayerMediaRequest(video);
                   video.dataset.shouldPlay = "false";
                   video.dataset.playerPlayback = "ended";
                 }
@@ -1409,6 +1440,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               onError={() => {
                 const video = videoElement.current;
                 if (video !== null) {
+                  cancelPlayerMediaRequest(video);
                   video.dataset.shouldPlay = "false";
                   video.dataset.playerPlayback = "error";
                   video.pause();
@@ -1512,6 +1544,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 if (element.paused && element.dataset.shouldPlay === "true" && !element.ended && !element.error && element.dataset.voiceCompleted !== "true" && element.dataset.voiceFailed !== "true") requestAudio(element);
               }
             }}>恢复声音</button>
+          </aside>
+        )}
+        {hostActivity === "active" && !skipActive && stage.video !== null && videoElement.current?.isConnected && !videoElement.current.ended && !videoElement.current.error && ["blocked", "interrupted", "paused-by-policy"].includes(videoElement.current.dataset.playerPlayback ?? "") && (
+          <aside className="player-audio-recovery" role="status" aria-live="polite">
+            <span>视频尚未播放或已中断。点击恢复视频，继续观看当前内容。</span>
+            <button type="button" onClick={() => { if (videoElement.current !== null) requestVideo(videoElement.current); }}>恢复视频</button>
           </aside>
         )}
         {memoryPressureMessage !== "" && <aside className="player-memory-pressure" role="status" aria-live="polite"><span>{memoryPressureMessage}</span>

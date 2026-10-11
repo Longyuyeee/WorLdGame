@@ -1,5 +1,6 @@
 import { canonicalRuntimeStringify, utf8Encode } from "./canonical";
-import { runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1, runtimeSessionSaveArtifactHashSchemaV1, runtimeSessionSaveArtifactHashV1 } from "./hash";
+import { runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1 } from "./hash";
+import { hashCanonicalSessionSaveBytes } from "./session-save-bytes";
 import { mergeRuntimeHistoryMetaProgressV1, normalizeRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionV1 } from "./history";
 import { validateRuntimeProgramV1 } from "./runtime";
 import {
@@ -16,7 +17,6 @@ import {
   type RuntimeProgramV1,
   type RuntimeRehydrationV1,
   type RuntimeSessionSaveV1,
-  type RuntimeSessionSaveLegacyV1,
   type RuntimeStateV1
 } from "./types";
 
@@ -65,10 +65,11 @@ export function createRuntimeSessionSaveV1(program: RuntimeProgramV1, history: R
       history
     };
     const serialized = canonicalRuntimeStringify(save);
-    if (utf8Encode(serialized).length > MAX_RUNTIME_SESSION_SAVE_BYTES) {
+    const bytes = utf8Encode(serialized);
+    if (bytes.length > MAX_RUNTIME_SESSION_SAVE_BYTES) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save exceeds the supported byte limit")] };
     }
-    return { ok: true, save, serialized, artifactHash: runtimeSessionSaveArtifactHashV1(save) };
+    return { ok: true, save, serialized, artifactHash: hashCanonicalSessionSaveBytes(bytes, 2) };
   } catch {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime History Session cannot be encoded as a canonical Session Save")] };
   }
@@ -81,8 +82,10 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save input or expected Build ID is invalid")] };
   }
   let parsed: unknown;
+  let serializedBytes: Uint8Array;
   try {
-    if (utf8Encode(serialized).length > MAX_RUNTIME_SESSION_SAVE_BYTES) throw new TypeError("session-save-size");
+    serializedBytes = utf8Encode(serialized);
+    if (serializedBytes.length > MAX_RUNTIME_SESSION_SAVE_BYTES) throw new TypeError("session-save-size");
     parsed = JSON.parse(serialized) as unknown;
     if (canonicalRuntimeStringify(parsed) !== serialized) throw new TypeError("session-save-canonical");
   } catch {
@@ -106,7 +109,6 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
     let artifactHash: string;
     if (parsed.schemaVersion === 1) {
       const legacyHistory = parsed.history as unknown as RuntimeHistorySessionLegacyV1;
-      const legacySave = parsed as unknown as RuntimeSessionSaveLegacyV1;
       if (runtimeHistorySessionHashSchemaV1(legacyHistory) !== parsed.historyHash) {
         return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Session Save v1 History Hash verification failed before normalization")] };
       }
@@ -125,11 +127,11 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
         historyHash: runtimeHistorySessionHashV1(history),
         history
       };
-      artifactHash = runtimeSessionSaveArtifactHashSchemaV1(legacySave);
+      artifactHash = hashCanonicalSessionSaveBytes(serializedBytes, 1);
     } else {
       history = parsed.history as unknown as RuntimeHistorySessionV1;
       save = parsed as unknown as RuntimeSessionSaveV1;
-      artifactHash = runtimeSessionSaveArtifactHashV1(save);
+      artifactHash = hashCanonicalSessionSaveBytes(serializedBytes, 2);
     }
     const historyDiagnostics = validateRuntimeHistorySessionV1(program, history);
     if (historyDiagnostics.length > 0) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save contains an invalid Runtime History Session"), ...historyDiagnostics] };

@@ -929,6 +929,68 @@ describe("N52-E4c Shell Skip controls and cleanup", () => {
 });
 
 describe("N52-E4e formal Player video policy", () => {
+  it("allows manual video resume when automatic interruption recovery is disabled", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const demo = videoStory();
+    const project = { ...demo.project, settings: withProjectSettings(demo.project.settings, { audio: { resumeAfterInterruption: false } }) };
+    const view = render(<PlayerShell project={project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector("video")!;
+    const before = view.container.querySelector("main")!.dataset.runtimeStateHash;
+    view.rerender(<PlayerShell project={project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    view.rerender(<PlayerShell project={project} mediaAssets={demo.mediaAssets} hostActivity="active" />);
+    expect(video.dataset.playerPlayback).toBe("paused-by-policy");
+    expect(play).not.toHaveBeenCalled();
+    fireEvent.canPlay(video);
+    expect(play).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "恢复视频" }));
+    await waitFor(() => expect(video.dataset.playerPlayback).toBe("playing"));
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", before);
+  });
+
+  it("offers a gesture retry for blocked video without advancing its awaited boundary", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockRejectedValueOnce(new DOMException("denied", "NotAllowedError")).mockResolvedValue(undefined);
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector("video")!;
+    const before = view.container.querySelector("main")!.dataset.runtimeStateHash;
+    fireEvent.canPlay(video);
+    fireEvent.click(await screen.findByRole("button", { name: "恢复视频" }));
+    await waitFor(() => expect(video.dataset.playerPlayback).toBe("playing"));
+    expect(play).toHaveBeenCalledTimes(2);
+    expect(view.container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", before);
+    expect(screen.queryByRole("button", { name: "恢复视频" })).not.toBeInTheDocument();
+    fireEvent.ended(video);
+    expect(await screen.findByText("After video")).toBeInTheDocument();
+  });
+
+  it("ignores late video permission rejection and playing events after suspension", async () => {
+    let reject!: (error: unknown) => void;
+    vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => new Promise<void>((_, fail) => { reject = fail; }));
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector("video")!;
+    fireEvent.canPlay(video);
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} hostActivity="suspended" />);
+    await act(async () => { reject(new DOMException("late", "NotAllowedError")); await Promise.resolve(); });
+    expect(video.dataset.playerPlayback).toBe("suspended");
+    fireEvent.playing(video);
+    expect(video.dataset.playerPlayback).toBe("suspended");
+    expect(screen.queryByRole("button", { name: "恢复视频" })).not.toBeInTheDocument();
+  });
+
   it("does not pause an attached video on UI ref replay, but releases the detached video", async () => {
     const demo = videoStory();
     const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);

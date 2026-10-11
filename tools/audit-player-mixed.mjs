@@ -4,15 +4,15 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { validateOwnedExport } from './audit-player-owned-decode.mjs';
 
-export function validatePlayerMixed(evidence) {
+export function validatePlayerMixed(evidence, { chapters = 12, widths = [1440, 390] } = {}) {
   assert.equal(evidence.scope, 'single-story-mixed-PNG-WAV-WebM-real-IndexedDB-cold-process-restart');
   assert.equal(evidence.gcPolicy, 'natural-no-forced-GC-no-CDP-pressure');
   assert.match(evidence.bundleSha256, /^[a-f0-9]{64}$/);
   assert.deepEqual(evidence.exceptions, []);
-  assert.deepEqual(evidence.runs.map(run => run.viewport.width), [1440, 390]);
+  assert.deepEqual(evidence.runs.map(run => run.viewport.width), widths);
   for (const run of evidence.runs) {
     assert.equal(run.mountsBeforeColdRestart, 1);
-    assert.equal(run.rows.length, 12);
+    assert.equal(run.rows.length, chapters);
     let history = 0;
     for (const [scene, row] of run.rows.entries()) {
       assert.equal(row.scene, scene); assert.equal(row.mode, scene % 2 ? 'skipAll' : 'auto');
@@ -28,7 +28,7 @@ export function validatePlayerMixed(evidence) {
     }
     assert.equal(run.rows[4].timeoutQuickLoadHeld, true); assert.equal(run.rows[4].latestLoadDurable, true);
     assert.equal(run.rows[6].quotaRecovered, true); assert.equal(run.rows[10].historyHeld, true);
-    assert.ok(history >= 192); assert.equal(run.checkpoint.historyLength, history);
+    assert.ok(history >= chapters * 16); assert.equal(run.checkpoint.historyLength, history);
     assert.match(run.checkpoint.hash, /^[a-f0-9]{64}$/);
     assert.equal(run.coldRestart.previousProcessExited, true); assert.equal(run.coldRestart.sameProfile, true);
     assert.equal(run.coldRestart.mode, 'graceful-browser-exit-not-crash');
@@ -36,12 +36,12 @@ export function validatePlayerMixed(evidence) {
     assert.equal(run.coldRestart.restored.hash, run.checkpoint.hash);
     assert.equal(run.coldRestart.restored.historyLength, history);
     assert.equal(run.coldRestart.restored.quickPreserved, true); assert.equal(run.coldRestart.restored.backForwardHeld, true);
-    assert.equal(run.samples.length, 14);
+    assert.equal(run.samples.length, chapters + 2);
     for (const [index, sample] of run.samples.entries()) {
-      assert.equal(sample.phase, index === 0 ? 'start' : index === 13 ? 'cold-restored' : `chapter-${index - 1}`);
+      assert.equal(sample.phase, index === 0 ? 'start' : index === chapters + 1 ? 'cold-restored' : `chapter-${index - 1}`);
       const tree = sample.process;
       assert.equal(tree.identityPolicy, 'parent-chain-and-creation-time');
-      assert.equal(tree.browserPid, index === 13 ? run.coldRestart.browserPid : run.coldRestart.previousPid);
+      assert.equal(tree.browserPid, index === chapters + 1 ? run.coldRestart.browserPid : run.coldRestart.previousPid);
       const nodes = new Map(tree.processes.map(process => [process.pid, process])); assert.equal(nodes.size, tree.processes.length);
       assert.equal(nodes.get(tree.browserPid)?.role, 'browser');
       for (const process of tree.processes) {
@@ -55,13 +55,13 @@ export function validatePlayerMixed(evidence) {
       assert.ok(sample.heap.usedSize > 0 && sample.dom.nodes > 0);
     }
     const events = run.observation.events;
-    assert.ok(events.filter(event => event.kind === 'video' && event.type === 'ended').length >= 6);
-    assert.ok(events.filter(event => event.kind === 'audio' && event.type === 'ended').length >= 12);
+    assert.ok(events.filter(event => event.kind === 'video' && event.type === 'ended').length >= chapters / 2);
+    assert.ok(events.filter(event => event.kind === 'audio' && event.type === 'ended').length >= chapters);
     assert.equal(events.filter(event => event.type === 'error').length, 0);
     assert.equal(run.closed.unmounted, true);
     for (const key of ['accountedBytes', 'activeDecodes', 'queuedDecodes', 'quarantinedGroups', 'ordinaryBitmapDecodes', 'ordinaryQuarantinedDecodes']) assert.equal(run.closed.native[key], 0, key);
   }
-  return { runs: 2, chapters: 24, coldProcessRestarts: 2, scope: 'synthetic-mixed-media-not-device-performance-acceptance' };
+  return { runs: widths.length, chapters: chapters * widths.length, coldProcessRestarts: widths.length, scope: 'synthetic-mixed-media-not-device-performance-acceptance' };
 }
 
 export async function auditPlayerMixed(root) {

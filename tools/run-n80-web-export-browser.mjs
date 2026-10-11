@@ -23,13 +23,16 @@ import { runPlayerCold } from './player-cold-workflow.mjs';
 import { runPlayerMemory } from './player-memory-workflow.mjs';
 import { runPlayerBackpressure } from './player-backpressure-workflow.mjs';
 import { runPlayerMixed } from './player-mixed-workflow.mjs';
+import { runMixedPublication } from './player-mixed-publication-workflow.mjs';
 import { runMappingProbe } from './player-mapping-probe.mjs';
 import { sampleBrowserMemory } from './player-process-memory.mjs';
 
 const root = resolve(import.meta.dirname, "..");
+if(process.argv.includes('--mixed-publication-windows-only'))assert.ok(process.argv.includes('--mixed-publication'),'Windows diagnostic requires --mixed-publication');
 if(process.argv.includes('--mixed-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--mixed-export requires owned sampling export regression');
 if(process.argv.includes('--budget-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--budget-export requires owned sampling export regression');
 if(process.argv.includes('--mixed-profile')||process.argv.includes('--mixed-optimized'))assert.ok(process.argv.includes('--player-mixed'),'Mixed measurement flags require --player-mixed');
+if(process.argv.includes('--session-budget')||process.argv.includes('--session-extended'))assert.ok(process.argv.includes('--player-mixed'),'Session measurement flags require --player-mixed');
 if(process.argv.includes('--working-set'))assert.ok(process.argv.includes('--player-protected-soak'),'--working-set requires --player-protected-soak');
 if(process.argv.includes('--probe-blob')||process.argv.includes('--trace-smoke'))assert.ok(process.argv.includes('--player-mapping-probe'),'Probe modifiers require --player-mapping-probe');
 if(process.argv.includes('--owned-decode'))assert.ok(process.argv.includes('--player-mapping-probe')||process.argv.includes('--player-protected-soak')||process.argv.includes('--atlas-sampling-workflow'),'Owned decode evidence requires a probe, protected soak or sampling export workflow');
@@ -95,11 +98,26 @@ async function openDesktop(gamePath, executable = process.env.WORLD_PLAYER_EXE, 
   desktopProcess = spawn(executable, [...extraArgs, ...(gamePath ? [`--game=${gamePath}`] : []), `--test-profile=${join(temporary, 'desktop-profile')}`, '--test-hidden', `--remote-debugging-port=${debugPort}`], { windowsHide: true, stdio: 'pipe', env: environment });
   desktopExit = new Promise(done => desktopProcess.once('exit', code => done(code)));
   let log = ''; desktopProcess.stderr.on('data', data => { log += data.toString(); }); desktopProcess.stdout.on('data', data => { log += data.toString(); });
+  if (process.argv.includes('--mixed-publication')) desktopProcess.once('exit', (code, signal) => console.log('MIXED_WINDOWS_EXIT', code, signal, log));
   const tabs = await Promise.race([json(debugUrl).catch(error=>{throw new Error(error.message+': '+log);}), desktopExit.then(code => { throw new Error('Desktop exited ' + code + ': ' + log); })]);
   let target = tabs.find(tab => tab.type === 'page');
   for (let attempt = 0; !target && attempt < 100; attempt++) { await pause(100); target = (await json(debugUrl)).find(tab => tab.type === 'page'); }
   assert.ok(target, log);
   client = new Cdp(target.webSocketDebuggerUrl); await client.open(); await client.send('Runtime.enable');
+}
+async function restartBrowser() {
+  const previous = browser;
+  const exited = new Promise(resolve => previous.once('exit', resolve));
+  await client.send('Browser.close');
+  let timer;
+  try { await Promise.race([exited, new Promise((_, reject) => { timer = setTimeout(() => reject(Error('Previous test browser did not exit')), 10000); })]); }
+  finally { clearTimeout(timer); client.socket.close(); }
+  browser = spawn(browserPath, browserArgs, { stdio: 'ignore', windowsHide: true });
+  await json('http://127.0.0.1:19236/json/version');
+  const response = await fetch('http://127.0.0.1:19236/json/new?about:blank', { method: 'PUT' });
+  client = new Cdp((await response.json()).webSocketDebuggerUrl);
+  await client.open(); await client.send('Runtime.enable'); await client.send('Page.enable');
+  return { client, browserPid: browser.pid, previousProcessExited: previous.exitCode !== null || previous.signalCode !== null };
 }
 try {
   await json("http://127.0.0.1:19236/json/version");
@@ -107,22 +125,25 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--player-mapping-probe')) {
+  if (process.argv.includes('--mixed-publication')) {
+    let executable;
+    console.log(JSON.stringify(await runMixedPublication(client, root, temporary, {
+      restart: restartBrowser,
+      openWindows: async gamePath => {
+        console.log('MIXED_WINDOWS', 'building/starting');
+        if (!executable) {
+          const output = join(temporary, 'mixed-windows');
+          await promisify(execFile)(process.execPath, [join(root, 'tools/build-windows-player.mjs'), output, `--game=${gamePath}`], { windowsHide: true });
+          executable = join(output, 'WorLdPlayer.exe');
+        }
+        await openDesktop(undefined, executable, ['--disable-background-timer-throttling', '--disable-renderer-backgrounding']); console.log('MIXED_WINDOWS', 'started', desktopProcess.pid); return { client, pid: desktopProcess.pid };
+      },
+      closeWindows: async () => { desktopProcess.kill(); await desktopExit; client.socket.close(); }
+    }), null, 2));
+  } else if(process.argv.includes('--player-mapping-probe')) {
     console.log(JSON.stringify(await runMappingProbe(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-mixed')) {
-    console.log(JSON.stringify(await runPlayerMixed(client,root,temporary,browser.pid,async()=>{
-      const previous = browser;
-      const exited = new Promise(resolve=>previous.once('exit',resolve));
-      await client.send('Browser.close');
-      let timer;
-      try { await Promise.race([exited,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Previous test browser did not exit')),10000);})]); }
-      finally { clearTimeout(timer); client.socket.close(); }
-      browser = spawn(browserPath,browserArgs,{stdio:'ignore',windowsHide:true});
-      await json('http://127.0.0.1:19236/json/version');
-      const response=await fetch('http://127.0.0.1:19236/json/new?about:blank',{method:'PUT'});
-      client=new Cdp((await response.json()).webSocketDebuggerUrl); await client.open(); await client.send('Runtime.enable'); await client.send('Page.enable');
-      return {client,browserPid:browser.pid,previousProcessExited:previous.exitCode!==null||previous.signalCode!==null};
-    }),null,2));
+    console.log(JSON.stringify(await runPlayerMixed(client,root,temporary,browser.pid,restartBrowser),null,2));
   } else if(process.argv.includes('--player-backpressure')) {
     console.log(JSON.stringify(await runPlayerBackpressure(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-memory')) {
@@ -585,7 +606,9 @@ try {
   console.log(JSON.stringify(evidence, null, 2));
   }
 } catch (error) {
-  console.error(JSON.stringify({ errors: client?.errors, page: await client?.evaluate("document.body.innerText.slice(0,2000)") }));
+  console.error(error);
+  try { if (client?.socket.readyState === WebSocket.OPEN) console.error(JSON.stringify({ errors: client.errors, page: await client.evaluate("document.body.innerText.slice(0,2000)") })); }
+  catch (inspectionError) { console.error('Failure-page inspection unavailable:', inspectionError.message); }
   throw error;
 } finally {
   client?.socket.close(); browser.kill(); preview.kill();

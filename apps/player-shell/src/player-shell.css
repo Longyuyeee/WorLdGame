@@ -234,7 +234,7 @@ button { font: inherit; }
 .player-audio-recovery { position: absolute; z-index: 14; left: 20px; right: 20px; bottom: 220px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px; border: 1px solid #67e8f9; border-radius: 12px; background: #10152a; }
 .player-audio-recovery span { flex: 1 1 220px; }
 .player-audio-recovery button { min-height: 48px; padding: 0 16px; color: white; border: 1px solid #67e8f9; border-radius: 8px; background: #164e63; cursor: pointer; }
-.player-media-error { position: absolute; z-index: 6; top: 74px; right: 24px; display: flex; max-width: min(420px, calc(100% - 48px)); align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid rgba(251,113,133,.45); border-radius: 12px; color: #fecdd3; background: rgba(55,10,28,.86); font-size: 12px; }
+.player-media-error { position: absolute; z-index: 14; top: 74px; right: 24px; display: flex; max-width: min(420px, calc(100% - 48px)); align-items: center; gap: 10px; padding: 10px 14px; border: 1px solid rgba(251,113,133,.45); border-radius: 12px; color: #fecdd3; background: rgba(55,10,28,.96); font-size: 12px; }
 .player-media-error button { min-height: 44px; flex: 0 0 auto; padding: 0 12px; border: 1px solid rgba(254,205,211,.34); border-radius: 10px; color: #fff1f2; background: rgba(251,113,133,.12); cursor: pointer; }
 .player-host-suspended { position: absolute; z-index: 25; inset: 0; display: grid; place-content: center; justify-items: center; padding: 28px; color: white; text-align: center; background: rgba(6,8,20,.74); backdrop-filter: blur(18px) saturate(.7); }
 .player-host-suspended span { color: #67e8f9; font-size: 11px; font-weight: 800; letter-spacing: .2em; }
@@ -365,7 +365,7 @@ button { font: inherit; }
   .player-choice { width: calc(100% - 28px); }
   .player-choice[data-choice-layout="responsive-grid"] { grid-template-columns: minmax(0, 1fr); }
   .player-choice button { min-height: 52px; }
-  .player-media-error { top: 64px; right: 14px; }
+  .player-media-error { position: fixed; z-index: 32; top: calc(max(14px, env(safe-area-inset-top)) + 150px); right: max(14px, env(safe-area-inset-right)); left: max(14px, env(safe-area-inset-left)); max-width: none; flex-wrap: wrap; overflow-wrap: anywhere; }
   .player-boundary { padding: 22px 18px; }
 }
 

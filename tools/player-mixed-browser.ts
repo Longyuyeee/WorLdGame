@@ -39,9 +39,8 @@ async function videoBlob() {
   } finally { stream.getTracks().forEach(track => track.stop()); canvas.width = canvas.height = 0; }
 }
 
-/** One mounted story; real media decoding and IndexedDB, explicitly injected storage faults. */
-export async function start(id: string) {
-  const style = document.createElement("style"); style.textContent = css; document.head.append(style);
+/** Shared synthetic story and decodable media for session and publication tests. */
+export async function createMixedFixture(id: string, chapters = 12) {
   const videoUrl = URL.createObjectURL(await videoBlob());
   const images = Array.from({ length: 4 }, (_, i) => {
     const canvas = document.createElement("canvas"); canvas.width = canvas.height = 1024;
@@ -50,10 +49,10 @@ export async function start(id: string) {
     const url = canvas.toDataURL(); canvas.width = canvas.height = 0;
     return { assetId: `picture_${i}`, displayName: `Picture ${i}`, mimeType: "image/png", canvasSampling: true, url };
   });
-  const voices = Array.from({ length: 36 }, (_, i) => ({ assetId: `voice_${i}`, displayName: `Voice ${i}`, mimeType: "audio/wav", url: wav(), voiceTextId: `text_${Math.floor(i / 3)}_${i % 3}` }));
+  const voices = Array.from({ length: chapters * 3 }, (_, i) => ({ assetId: `voice_${i}`, displayName: `Voice ${i}`, mimeType: "audio/wav", url: wav(), voiceTextId: `text_${Math.floor(i / 3)}_${i % 3}` }));
   const mediaAssets = [...images, ...voices, { assetId: "movie", displayName: "Synthetic chapter video", mimeType: "video/webm", url: videoUrl }];
   const source: S0Project = { schemaVersion: 0, id, title: "混合媒体长故事", entrySceneId: "scene_0", characters: [], scenes: [
-    ...Array.from({ length: 12 }, (_, scene): S0Project["scenes"][number] => ({ id: `scene_${scene}`, title: `Chapter ${scene}`, statements: [
+    ...Array.from({ length: chapters }, (_, scene): S0Project["scenes"][number] => ({ id: `scene_${scene}`, title: `Chapter ${scene}`, statements: [
       { id: `bg_${scene}`, kind: "direction", command: "background", summary: `asset=picture_${scene % 4} action=set duration=0ms effectPolicy=pure` },
       ...Array.from({ length: 16 }, (_, line): S0Project["scenes"][number]["statements"] => [
         ...(line === 4 ? [
@@ -62,12 +61,19 @@ export async function start(id: string) {
         ] : []),
         { id: `line_${scene}_${line}`, kind: "narration", textId: `text_${scene}_${line}`, text: `第 ${scene + 1} 章 · 第 ${line + 1} 句` }
       ]).flat(),
-      { id: `choice_${scene}`, kind: "choice", prompt: `Chapter ${scene} complete`, options: [{ id: `next_${scene}`, label: `进入场景 ${scene + 1}`, targetSceneId: scene === 11 ? "final" : `scene_${scene + 1}` }] }
+      { id: `choice_${scene}`, kind: "choice", prompt: `Chapter ${scene} complete`, options: [{ id: `next_${scene}`, label: `进入场景 ${scene + 1}`, targetSceneId: scene === chapters - 1 ? "final" : `scene_${scene + 1}` }] }
     ] })),
     { id: "final", title: "End", statements: [{ id: "end", kind: "end", endingName: "Mixed complete" }] }
   ] };
   const base = loadProject(migrateS0Project(source).files);
   const project = { ...base, assets: { ...base.assets, assets: mediaAssets.map(asset => ({ assetId: asset.assetId, displayName: asset.displayName, mimeType: asset.mimeType, ...("voiceTextId" in asset ? { voiceTextId: asset.voiceTextId } : {}) })) }, settings: withProjectSettings(base.settings, { text: { revealMode: "instant", minimumDisplayMilliseconds: 80, punctuationDelayMilliseconds: 0 } }) };
+  return { project, mediaAssets, videoUrl };
+}
+
+/** One mounted story; real IndexedDB with explicitly injected storage faults. */
+export async function start(id: string, chapters = 12) {
+  const style = document.createElement("style"); style.textContent = css; document.head.append(style);
+  const { project, mediaAssets, videoUrl } = await createMixedFixture(id, chapters);
   const backend = new IndexedDbWorldPlayerRecoveryStoreV1(), saves = new IndexedDbWorldPlayerSaveStoreV3();
   let gate: Promise<void> | null = null, release = () => {}, quota = false, writes = 0, activeWrites = 0, peakWrites = 0, maxSerializedBytes = 0;
   const hold = () => { gate = new Promise<void>(resolve => { release = () => { gate = null; resolve(); }; }); };

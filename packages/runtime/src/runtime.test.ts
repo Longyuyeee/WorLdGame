@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { compileProject, type RuntimeSourceMapV1, type RuntimeStoryIrV1 } from "@world-studio/project-compiler";
@@ -694,6 +695,7 @@ describe("N31-E11 canonical Runtime Session Save", () => {
   function save(story: RuntimeStoryIrV1, session: RuntimeHistorySessionV1) {
     const created = createRuntimeSessionSaveV1(story, session);
     if (!created.ok) throw new Error(JSON.stringify(created.diagnostics));
+    expect(created.artifactHash).toBe(createHash("sha256").update("WORLd-RUNTIME-SESSION-SAVE\0v2\0").update(created.serialized, "utf8").digest("hex"));
     return created;
   }
 
@@ -763,6 +765,7 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     const loaded = loadRuntimeSessionSaveV1(story, serialized, { expectedBuildId: buildId });
     if (!loaded.ok) throw new Error(JSON.stringify(loaded.diagnostics));
     expect(loaded.artifactHash).toBe(runtimeSessionSaveArtifactHashSchemaV1(legacySave));
+    expect(loaded.artifactHash).toBe(createHash("sha256").update("WORLd-RUNTIME-SESSION-SAVE\0v1\0").update(serialized, "utf8").digest("hex"));
     expect(loaded.save.schemaVersion).toBe(2);
     expect(loaded.session).toEqual(waiting.session);
     expect(loaded.save.historyHash).toBe(runtimeHistorySessionHashV1(waiting.session));
