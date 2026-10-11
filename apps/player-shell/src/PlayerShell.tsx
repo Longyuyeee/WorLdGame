@@ -1387,11 +1387,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 if (element !== null) {
                   videoElement.current = element;
                   element.dataset.shouldPlay = String(stage.video?.status === "playing");
-                  element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : stage.video?.status ?? "ended";
-                } else {
-                  const previous = videoElement.current;
-                  if (previous !== null && !previous.paused) previous.pause();
-                  videoElement.current = null;
+                  if (element.dataset.playerPlayback === undefined) element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : stage.video?.status ?? "ended";
+                  return () => {
+                    if (videoElement.current === element) videoElement.current = null;
+                    // Saving, Auto and audio events rerender the shell. Ref replay is
+                    // not a video interruption: release only a truly detached owner.
+                    queueMicrotask(() => {
+                      if (!element.isConnected && !element.paused) element.pause();
+                    });
+                  };
                 }
               }}
               onEnded={() => {

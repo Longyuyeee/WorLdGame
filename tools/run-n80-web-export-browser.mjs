@@ -22,10 +22,12 @@ import { runPlayerVoice } from './player-voice-workflow.mjs';
 import { runPlayerCold } from './player-cold-workflow.mjs';
 import { runPlayerMemory } from './player-memory-workflow.mjs';
 import { runPlayerBackpressure } from './player-backpressure-workflow.mjs';
+import { runPlayerMixed } from './player-mixed-workflow.mjs';
 import { runMappingProbe } from './player-mapping-probe.mjs';
 import { sampleBrowserMemory } from './player-process-memory.mjs';
 
 const root = resolve(import.meta.dirname, "..");
+if(process.argv.includes('--mixed-export'))assert.ok(process.argv.includes('--atlas-sampling-workflow')&&process.argv.includes('--owned-decode'),'--mixed-export requires owned sampling export regression');
 if(process.argv.includes('--working-set'))assert.ok(process.argv.includes('--player-protected-soak'),'--working-set requires --player-protected-soak');
 if(process.argv.includes('--probe-blob')||process.argv.includes('--trace-smoke'))assert.ok(process.argv.includes('--player-mapping-probe'),'Probe modifiers require --player-mapping-probe');
 if(process.argv.includes('--owned-decode'))assert.ok(process.argv.includes('--player-mapping-probe')||process.argv.includes('--player-protected-soak')||process.argv.includes('--atlas-sampling-workflow'),'Owned decode evidence requires a probe, protected soak or sampling export workflow');
@@ -70,7 +72,8 @@ let browserPath;
 for (const path of candidates) { try { await access(path); browserPath = path; break; } catch {} }
 if (!browserPath) throw new Error("Install Chrome/Edge or set WORLD_STUDIO_BROWSER_PATH");
 const preview = spawn(process.execPath, [join(root, "node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", "5186", "--strictPort"], { cwd: join(root, "apps/editor"), stdio: "ignore", windowsHide: true });
-const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", ...(process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')||process.argv.includes('--player-protected-soak') ? ['--disable-background-timer-throttling'] : []), "about:blank"], { stdio: "ignore", windowsHide: true });
+const browserArgs = ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", ...(process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')||process.argv.includes('--player-protected-soak') ? ['--disable-background-timer-throttling'] : []), "about:blank"];
+let browser = spawn(browserPath, browserArgs, { stdio: "ignore", windowsHide: true });
 let client;
 let site;
 let siteUnavailable = false;
@@ -104,6 +107,20 @@ try {
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   if(process.argv.includes('--player-mapping-probe')) {
     console.log(JSON.stringify(await runMappingProbe(client,root,temporary,browser.pid),null,2));
+  } else if(process.argv.includes('--player-mixed')) {
+    console.log(JSON.stringify(await runPlayerMixed(client,root,temporary,browser.pid,async()=>{
+      const previous = browser;
+      const exited = new Promise(resolve=>previous.once('exit',resolve));
+      await client.send('Browser.close');
+      let timer;
+      try { await Promise.race([exited,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Previous test browser did not exit')),10000);})]); }
+      finally { clearTimeout(timer); client.socket.close(); }
+      browser = spawn(browserPath,browserArgs,{stdio:'ignore',windowsHide:true});
+      await json('http://127.0.0.1:19236/json/version');
+      const response=await fetch('http://127.0.0.1:19236/json/new?about:blank',{method:'PUT'});
+      client=new Cdp((await response.json()).webSocketDebuggerUrl); await client.open(); await client.send('Runtime.enable'); await client.send('Page.enable');
+      return {client,browserPid:browser.pid,previousProcessExited:previous.exitCode!==null||previous.signalCode!==null};
+    }),null,2));
   } else if(process.argv.includes('--player-backpressure')) {
     console.log(JSON.stringify(await runPlayerBackpressure(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-memory')) {
@@ -132,14 +149,15 @@ try {
       return sampleBrowserMemory(taskPid);
     };
     const ownedDecode=process.argv.includes('--owned-decode');
-    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,quality,uniform,lazy,coordination,recovery,isolation,ownedDecode,sampleMemory,
+    const mixedExport=process.argv.includes('--mixed-export');
+    const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true,scale:true,incremental,delivery,quality,uniform,lazy,coordination,recovery,isolation,ownedDecode,mixedExport,sampleMemory,
       openWindows:async(gamePath)=>{
         const output=join(temporary,'scale-windows-player');
         await promisify(execFile)(process.execPath,[join(root,'tools/build-windows-player.mjs'),output,`--game=${gamePath}`],{windowsHide:true});
         await openDesktop(undefined,join(output,'WorLdPlayer.exe'));return client;
       }});
     if(ownedDecode)Object.assign(evidence,{decodePolicy:'owned-bitmap-close-after-draw'});
-    await writeFile(join(root,`evidence/authoring/${ownedDecode?'player-owned-export':isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
+    await writeFile(join(root,`evidence/authoring/${mixedExport?'player-mixed-export':ownedDecode?'player-owned-export':isolation?'atlas-isolation':recovery?'atlas-recovery':coordination?'atlas-coordination':lazy?'atlas-lazy':uniform?'atlas-sampling':quality?'atlas-quality':delivery?'atlas-delivery':incremental?'atlas-incremental':'atlas-scale'}-workflow.json`),JSON.stringify(evidence,null,2)+'\n');
     console.log(JSON.stringify(evidence,null,2));
   } else if(process.argv.includes('--native-atlas-workflow')) {
     const evidence=await runCreatorExportOptimizationWorkflow(client,root,temporary,{atlas:true,native:true});

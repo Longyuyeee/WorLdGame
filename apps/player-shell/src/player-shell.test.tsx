@@ -929,6 +929,29 @@ describe("N52-E4c Shell Skip controls and cleanup", () => {
 });
 
 describe("N52-E4e formal Player video policy", () => {
+  it("does not pause an attached video on UI ref replay, but releases the detached video", async () => {
+    const demo = videoStory();
+    const view = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "继续下一句" })).toHaveAttribute("data-text-ready", "true"));
+    fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));
+    const video = view.container.querySelector<HTMLVideoElement>("video")!;
+    Object.defineProperty(video, "paused", { configurable: true, value: false });
+    const pause = vi.spyOn(video, "pause").mockImplementation(() => undefined);
+    video.dataset.playerPlayback = "playing";
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    await act(async () => { await Promise.resolve(); });
+    expect(view.container.querySelector("video")).toBe(video);
+    expect(pause).not.toHaveBeenCalled();
+    // React rendering is not permission to overwrite an observed transport state.
+    video.dataset.playerPlayback = "blocked";
+    view.rerender(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
+    expect(video.dataset.playerPlayback).toBe("blocked");
+    view.unmount();
+    await act(async () => { await Promise.resolve(); });
+    expect(pause).toHaveBeenCalled();
+  });
+
   it("renders an authored video asset at the existing awaited Effect boundary", async () => {
     const demo = videoStory();
     const { container } = render(<PlayerShell project={demo.project} mediaAssets={demo.mediaAssets} />);
