@@ -17,6 +17,7 @@ import { validateBackpressure } from "./audit-player-backpressure.mjs";
 import { auditPlayerMixed } from "./audit-player-mixed.mjs";
 import { auditPlayerBudget } from "./audit-player-budget.mjs";
 import { auditPlayerSession } from "./audit-player-session.mjs";
+import { auditPlayerPacked } from "./audit-player-packed.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -490,6 +491,8 @@ try { console.log(JSON.stringify(await auditPlayerMixed(root),null,2)); }
 catch(error) { violations.push(`Player mixed-media recovery sub-gate: ${error.message}`); }
 try { console.log(JSON.stringify(await auditPlayerSession(root), null, 2)); }
 catch(error) { violations.push(`Player session and mixed publication: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerPacked(root), null, 2)); }
+catch(error) { violations.push(`Player packed storage: ${error.message}`); }
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;

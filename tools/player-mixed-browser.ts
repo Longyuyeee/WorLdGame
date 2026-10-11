@@ -157,6 +157,23 @@ export async function start(id: string, chapters = 12) {
       return { hash: hash(), historyLength: Number(main().dataset.historyLength), quickPreserved: true, backForwardHeld: true };
     },
     observe() { return { native: nativeAtlasDiagnostics(), frames: { ...frameBins }, events, writes, peakWrites, maxSerializedBytes, historyLength: Number(main().dataset.historyLength) }; },
+    async storage() {
+      const database = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open("world-player-saves"); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
+      });
+      try {
+        const read = async (store: string, key: string) => {
+          const stored = await new Promise<any>((resolve, reject) => {
+            const request = database.transaction(store, "readonly").objectStore(store).get(key);
+            request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
+          });
+          check(stored.format === "world.player-packed-record", "Long session was not packed on disk");
+          return { packed: true, payloadBytes: stored.data.byteLength, canonicalBytes: stored.byteLength, sha256: stored.sha256,
+            metadataBytes: new TextEncoder().encode(JSON.stringify(stored.metadata)).length };
+        };
+        return { databaseVersion: database.version, recovery: await read("recovery-sessions", id), quick: await read("save-slots", `${id}\0quick-1`) };
+      } finally { database.close(); }
+    },
     async close() { handle.unmount(); cancelAnimationFrame(frameHandle); style.remove(); for (const event of ["play", "pause", "ended", "error"]) document.removeEventListener(event, capture, true); URL.revokeObjectURL(videoUrl); await pause(30); return { unmounted: !document.querySelector("main"), native: nativeAtlasDiagnostics() }; }
   };
 }

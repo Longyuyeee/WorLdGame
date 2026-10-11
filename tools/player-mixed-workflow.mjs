@@ -13,7 +13,9 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
   const extended = process.argv.includes('--session-extended'), session = extended || process.argv.includes('--session-budget');
   assert.ok(!session || (!profile && !optimized), 'Session evidence must not overwrite earlier budget/profile evidence');
   const chapters = extended ? 24 : 12;
-  const prefix = extended ? 'player-session-extended' : session ? 'player-session-mixed' : profile ? `player-mixed-profile-${optimized ? 'after' : 'before'}` : optimized ? 'player-mixed-optimized' : 'player-mixed';
+  const packing = process.argv.includes('--storage-packed');
+  if (packing) assert.ok(session && !profile && !optimized, 'Storage evidence needs a natural session run');
+  const prefix = packing ? `player-packed-${extended ? 'extended' : 'mixed'}` : extended ? 'player-session-extended' : session ? 'player-session-mixed' : profile ? `player-mixed-profile-${optimized ? 'after' : 'before'}` : optimized ? 'player-mixed-optimized' : 'player-mixed';
   // Reproducing the "before" CPU diagnostic must never silently profile the new
   // implementations. Load the two changed production modules from the fixed
   // baseline without modifying the user's checkout. Dependencies remain current.
@@ -57,6 +59,14 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
       if (scene < chapters - 1) await tap(`进入场景 ${scene + 1}`);
     }
     const checkpoint = await client.evaluate('globalThis.mixedTask=mixed.checkpoint()');
+    const storage = packing ? await client.evaluate('mixed.storage()') : null;
+    if (packing) {
+      assert.equal(storage.databaseVersion, 4);
+      for (const record of [storage.recovery, storage.quick]) {
+        assert.equal(record.packed, true);
+        assert.ok(record.payloadBytes < record.canonicalBytes);
+      }
+    }
     const observation = await client.evaluate('mixed.observe()');
     assert.ok(checkpoint.historyLength >= chapters * 16, 'Long story history did not accumulate in one instance');
     assert.equal(observation.peakWrites, 1);
@@ -87,7 +97,7 @@ export async function runPlayerMixed(client, root, temporary, browserPid, restar
     const closed = await client.evaluate('globalThis.mixedTask=mixed.close()');
     assert.equal(closed.unmounted, true); assert.equal(closed.native.accountedBytes, 0); assert.equal(closed.native.activeDecodes, 0); assert.equal(closed.native.ordinaryBitmapDecodes, 0);
     errors.push(...client.errors);
-    runs.push({ viewport, cpu, mountsBeforeColdRestart: 1, rows, samples, checkpoint, observation, coldRestart: { previousPid, browserPid, previousProcessExited: replacement.previousProcessExited, sameProfile: true, mode: 'graceful-browser-exit-not-crash', restored }, closed });
+    runs.push({ viewport, cpu, storage, mountsBeforeColdRestart: 1, rows, samples, checkpoint, observation, coldRestart: { previousPid, browserPid, previousProcessExited: replacement.previousProcessExited, sameProfile: true, mode: 'graceful-browser-exit-not-crash', restored }, closed });
   }
   assert.deepEqual(errors, []);
   const evidence = { schemaVersion: 1, scope: 'single-story-mixed-PNG-WAV-WebM-real-IndexedDB-cold-process-restart', bundleSha256: createHash('sha256').update(code).digest('hex'), browser, elapsedMilliseconds: performance.now() - started, gcPolicy: 'natural-no-forced-GC-no-CDP-pressure', runs, exceptions: errors, limits: 'Synthetic media, accelerated Auto/Skip, injected storage delay/quota, CDP touch and host suspension. Browser process closes gracefully, not crash recovery. Frame intervals are rAF cadence, not GPU timings; discrete Windows tree working sets may double-count shared pages and are not instantaneous peaks. No physical phone or two-hour acceptance.' };

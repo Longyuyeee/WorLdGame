@@ -5,9 +5,36 @@ import { validatePlayerMixed } from './audit-player-mixed.mjs';
 import { validatePlayerBudget } from './audit-player-budget.mjs';
 import { validateSessionBudget, validateMixedPublication } from './audit-player-session.mjs';
 
+import { validatePlayerPacked, validatePackedBudget, validatePackedPublication } from './audit-player-packed.mjs';
 const fixture = JSON.parse(await readFile(new URL('../evidence/authoring/player-mixed.json', import.meta.url), 'utf8'));
 const read = async name => JSON.parse(await readFile(new URL(`../evidence/authoring/${name}.json`, import.meta.url), 'utf8'));
 const budget = [fixture, await read('player-mixed-optimized'), await read('runtime-encoding-budget'), [await read('player-mixed-profile-before'), await read('player-mixed-profile-after')]];
+
+test('accepts packed storage evidence with preserved history, bytes and cold recovery', async () => {
+  assert.equal(validatePlayerPacked(await read('player-packed-mixed')).chapters, 24);
+  assert.equal(validatePlayerPacked(await read('player-packed-extended'), true).chapters, 24);
+});
+test('requires original canonical identity and actual distinct array counts for storage diagnostics', async () => {
+  const data = await read('player-packed-budget'), old = await read('player-session-budget');
+  assert.equal(validatePackedBudget(data, old).cases, 3);
+  for (const mutate of [e => { e.rows[0].artifactHash = 'f'.repeat(64); }, e => { e.rows[1].uniqueReadArrays = 1; }, e => { e.rows[2].uniqueReadArraySlots--; }]) {
+    const changed = structuredClone(data); mutate(changed); assert.throws(() => validatePackedBudget(changed, old));
+  }
+});
+test('requires actual packed records in all three current-code publication products', async () => {
+  const data = await read('player-packed-publication'); assert.equal(validatePackedPublication(data).products, 3);
+  for (const index of [0, 1, 2]) {
+    const changed = structuredClone(data); changed.runs[index].storage.quick.packed = false;
+    assert.throws(() => validatePackedPublication(changed));
+  }
+});
+test('rejects missing storage, byte disagreement, discarded history and fake compression evidence', async () => {
+  for (const mutate of [e => { e.runs[0].storage.databaseVersion = 3; }, e => { e.runs[0].storage.recovery.packed = false; },
+    e => { e.runs[0].storage.quick.canonicalBytes--; }, e => { e.runs[0].storage.quick.sha256 = 'f'.repeat(64); },
+    e => { e.runs[0].storage.quick.payloadBytes = e.runs[0].storage.quick.canonicalBytes; }, e => { e.runs[0].checkpoint.historyLength--; }]) {
+    const data = await read('player-packed-mixed'); mutate(data); assert.throws(() => validatePlayerPacked(data));
+  }
+});
 
 test('accepts per-operation bytes and a longer single natural-GC story', async () => {
   assert.equal(validateSessionBudget(await read('player-session-budget')).cases, 3);

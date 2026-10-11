@@ -17,6 +17,8 @@ HTMLMediaElement.prototype.play=function(){if(this.tagName==='VIDEO'&&__mixedPub
 export async function runMixedPublication(initialClient, root, temporary, { restart, openWindows, closeWindows }) {
   let client = initialClient;
   const diagnosticWindowsOnly = process.argv.includes('--mixed-publication-windows-only');
+  const packedPublication = process.argv.includes('--packed-publication');
+  const prefix = packedPublication ? 'player-packed-publication' : 'player-mixed-publication';
   const tap = async label => {
     const point = await client.evaluate(`(()=>{const e=[...document.querySelectorAll('button')].find(e=>e.getAttribute('aria-label')===${JSON.stringify(label)}||e.textContent.includes(${JSON.stringify(label)}));if(!e||e.disabled)throw Error('Unavailable '+${JSON.stringify(label)});e.scrollIntoView({block:'center'});const r=e.getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
     await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ ...point, radiusX: 1, radiusY: 1, force: 1 }] });
@@ -34,7 +36,7 @@ export async function runMixedPublication(initialClient, root, temporary, { rest
   await client.evaluate(code);
   const fixture = await client.evaluate('MixedArchive.createArchive()');
   const archive = Buffer.from(fixture.base64, 'base64'); delete fixture.base64;
-  const archivePath = diagnosticWindowsOnly ? join(temporary, 'mixed-project.zip') : join(root, 'evidence/authoring/player-mixed-publication.zip');
+  const archivePath = diagnosticWindowsOnly ? join(temporary, 'mixed-project.zip') : join(root, `evidence/authoring/${prefix}.zip`);
   await writeFile(archivePath, archive);
   await client.send('Page.navigate', { url: 'http://127.0.0.1:5186/' });
   await client.wait("document.querySelector('[aria-label=\"导入工程 ZIP\"]')");
@@ -85,14 +87,14 @@ export async function runMixedPublication(initialClient, root, temporary, { rest
         if (!exercised) {
           await client.wait("[...document.querySelectorAll('button')].some(e=>e.textContent==='恢复视频')");
           const before = await client.evaluate("document.querySelector('main').dataset.runtimeStateHash");
-          if (kind !== 'windows') await writeFile(join(root, `evidence/authoring/player-mixed-publication-${kind}-blocked.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
+          if (kind !== 'windows') await writeFile(join(root, `evidence/authoring/${prefix}-${kind}-blocked.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
           await tap('恢复视频'); await client.wait("document.querySelector('video')?.currentTime>0&&!document.querySelector('video').paused");
           assert.equal(await client.evaluate("document.querySelector('main').dataset.runtimeStateHash"), before);
           await client.evaluate("document.querySelector('video').src='data:video/webm;base64,YmFk';document.querySelector('video').load()");
           await client.wait("document.querySelector('.player-media-error')");
           assert.equal(await client.evaluate("document.querySelector('main').dataset.runtimeStateHash"), before);
           assert.equal(await client.evaluate("(()=>{const e=document.querySelector('.player-media-error button'),r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2))&&r.x>=0&&r.right<=innerWidth&&r.y>=0&&r.bottom<=innerHeight})()"), true);
-          if (kind !== 'windows') await writeFile(join(root, `evidence/authoring/player-mixed-publication-${kind}-error.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
+          if (kind !== 'windows') await writeFile(join(root, `evidence/authoring/${prefix}-${kind}-error.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
           await tap('重试媒体');
           await client.wait("document.querySelector('video')?.currentTime>0&&!document.querySelector('video').paused");
           await client.evaluate("document.dispatchEvent(new Event('freeze'))");
@@ -122,7 +124,19 @@ export async function runMixedPublication(initialClient, root, temporary, { rest
     await tap('快速保存'); await client.wait("document.querySelector('main').dataset.saveOperation==='saved'");
     await client.wait("document.querySelector('main').dataset.recoveryOperation==='ready'");
     const checkpoint = await client.evaluate("({hash:document.querySelector('main').dataset.runtimeStateHash,history:Number(document.querySelector('main').dataset.historyLength)})");
-    if (kind !== 'windows') await writeFile(join(root, `evidence/authoring/player-mixed-publication-${kind}.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
+    if (kind !== 'windows') await writeFile(join(root, `evidence/authoring/${prefix}-${kind}.png`), Buffer.from((await client.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
+    const storage = packedPublication ? await client.evaluate(`(async()=>{
+      const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('world-player-saves');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+      try {
+        const read=async(store,key)=>{const value=await new Promise((resolve,reject)=>{const r=db.transaction(store).objectStore(store).get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});return{packed:value.format==='world.player-packed-record',payloadBytes:value.data?.byteLength,canonicalBytes:value.byteLength,sha256:value.sha256}};
+        return{databaseVersion:db.version,recovery:await read('recovery-sessions',${JSON.stringify(fixture.projectId)}),quick:await read('save-slots',${JSON.stringify(fixture.projectId + '\0quick-1')})};
+      }finally{db.close()}
+    })()`) : null;
+    if (packedPublication) {
+      assert.equal(storage.databaseVersion, 4);
+      for (const record of [storage.recovery, storage.quick]) { assert.equal(record.packed, true); assert.ok(record.payloadBytes < record.canonicalBytes); }
+      assert.equal(storage.recovery.sha256, storage.quick.sha256);
+    }
     errors.push(...client.errors); await client.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: script.identifier });
     let restarted;
     if (kind === 'windows') { await closeWindows(); const host = await openWindows(directory); client = host.client; assert.notEqual(host.pid, processId); restarted = { previousPid: processId, pid: host.pid, exited: true, mode: 'test-process-termination' }; }
@@ -135,12 +149,12 @@ export async function runMixedPublication(initialClient, root, temporary, { rest
     assert.equal(await client.evaluate("document.querySelector('main').dataset.runtimeStateHash"), checkpoint.hash);
     assert.equal(await client.evaluate("Number(document.querySelector('main').dataset.historyLength)"), checkpoint.history);
     errors.push(...client.errors);
-    runs.push({ kind, browser, elapsedMilliseconds: performance.now() - started, transitions, media, permissionRetry: true, corruptVideoRetry: true, suspendHeld: true, checkpoint, coldRestart: restarted, recoveryAndQuickLoadHeld: true, screenshot: kind !== 'windows', retryButtonHitTest: true });
+    runs.push({ kind, browser, storage, elapsedMilliseconds: performance.now() - started, transitions, media, permissionRetry: true, corruptVideoRetry: true, suspendHeld: true, checkpoint, coldRestart: restarted, recoveryAndQuickLoadHeld: true, screenshot: kind !== 'windows', retryButtonHitTest: true });
     console.log('MIXED_PUBLICATION', kind, checkpoint.history);
   }
   assert.deepEqual(errors, []);
   const evidence = { schemaVersion: 1, scope: 'portable-mixed-project-production-editor-html-directory-windows', fixture, archiveSha256: digest(archive), htmlSha256: digest(html), directorySha256: digest(zip), sourceBytesPreserved: true, runs, exceptions: errors,
     limits: 'Synthetic PNG/WAV/VP8 WebM, actual Editor UI and build Worker. Permission denial via play() injection, corruption via real bad source decode, freeze/resume events injected; not OS events or phone. Normal HTML/ZIP bytes preserved; test instrumentation through CDP. Windows uses packaged exe with isolated test profile and hidden window, background timer throttling disabled for functional tests, no Windows screenshot/visual/performance acceptance, then test process termination. No physical-device/two-hour acceptance.' };
-  if (!diagnosticWindowsOnly) await writeFile(join(root, 'evidence/authoring/player-mixed-publication.json'), JSON.stringify(evidence, null, 2) + '\n');
+  if (!diagnosticWindowsOnly) await writeFile(join(root, `evidence/authoring/${prefix}.json`), JSON.stringify(evidence, null, 2) + '\n');
   return evidence;
 }

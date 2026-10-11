@@ -1,6 +1,8 @@
+import { packPlayerStorageRecord, unpackPlayerStorageRecord, PlayerStorageWriteQueue } from "./player-storage-packing";
+
 export const WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
-export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 3;
+export const WORLD_PLAYER_SAVE_DATABASE_VERSION = 4;
 export const WORLD_PLAYER_SAVE_STORE_NAME = "save-slots";
 export const WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME = "save-previews";
 export const WORLD_PLAYER_RECOVERY_STORE_NAME = "recovery-sessions";
@@ -250,6 +252,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   readonly backend = "indexeddb";
   private readonly database: Promise<IDBDatabase>;
   private readonly subtle: SubtleCrypto;
+  private readonly writes = new PlayerStorageWriteQueue();
 
   constructor(factory: IDBFactory = indexedDB, subtle: SubtleCrypto = crypto.subtle) {
     this.database = openDatabase(factory);
@@ -263,7 +266,10 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
     const done = transactionDone(transaction);
     const records = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).getAll());
     await done;
-    return records.map(normalizeSlot).filter((slot) => slot.projectId === projectId).sort((left, right) => left.slotId.localeCompare(right.slotId));
+    // Decode sequentially: listing many long saves must not inflate them all at once.
+    const slots: WorldPlayerSaveSlotV3[] = [];
+    for (const record of records) slots.push(normalizeSlot(await unpackPlayerStorageRecord(record, this.subtle)));
+    return slots.filter((slot) => slot.projectId === projectId).sort((left, right) => left.slotId.localeCompare(right.slotId));
   }
 
   async read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null> {
@@ -273,7 +279,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
     const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(key(projectId, slotId)));
     await done;
     if (record === undefined) return null;
-    const slot = normalizeSlot(record);
+    const slot = normalizeSlot(await unpackPlayerStorageRecord(record, this.subtle));
     if (slot.projectId !== projectId || slot.slotId !== slotId) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
     return slot;
   }
@@ -290,7 +296,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
     await done;
     if (metadataRecord === undefined && record === undefined) return null;
     if (metadataRecord === undefined) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
-    const slot = normalizeSlot(metadataRecord);
+    const slot = normalizeSlot(await unpackPlayerStorageRecord(metadataRecord, this.subtle));
     if (slot.projectId !== projectId || slot.slotId !== slotId) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
     if (slot.preview.status === "unavailable") {
       if (record !== undefined) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
@@ -308,18 +314,21 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   }
 
   async write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void> {
-    const checked = checkedWrite(slot);
-    if (!validPreviewBlobShape(checked, preview)) throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
-    if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {
-      throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
-    }
-    const database = await this.database;
-    const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
-    const done = transactionDone(transaction);
-    const recordKey = key(checked.projectId, checked.slotId);
-    transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(checked, recordKey);
-    if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
-    else transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, recordKey);
-    await done;
+    const checked = structuredClone(checkedWrite(slot));
+    return this.writes.run(async () => {
+      if (!validPreviewBlobShape(checked, preview)) throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
+      if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {
+        throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
+      }
+      const packed = await packPlayerStorageRecord(checked, this.subtle);
+      const database = await this.database;
+      const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
+      const done = transactionDone(transaction);
+      const recordKey = key(checked.projectId, checked.slotId);
+      transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
+      if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
+      else transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, recordKey);
+      await done;
+    });
   }
 }

@@ -17,7 +17,7 @@ const recoveryStore = await read("apps/player-shell/src/player-recovery-store.ts
 const policy = await read("apps/player-shell/src/player-save-policy.ts");
 const shell = await read("apps/player-shell/src/PlayerShell.tsx");
 const host = await read("apps/player-shell/src/player-host.tsx");
-for (const token of ["WORLD_PLAYER_SAVE_DATABASE_VERSION = 3", 'WORLD_PLAYER_RECOVERY_STORE_NAME = "recovery-sessions"']) if (!store.includes(token)) violations.push(`Save database token missing: ${token}`);
+for (const token of ["WORLD_PLAYER_SAVE_DATABASE_VERSION = 4", 'WORLD_PLAYER_RECOVERY_STORE_NAME = "recovery-sessions"']) if (!store.includes(token)) violations.push(`Save database token missing: ${token}`);
 for (const token of ['WORLD_PLAYER_RECOVERY_STORE_VERSION = "1.0.0" as const', 'format: "world.player-recovery"', "class IndexedDbWorldPlayerRecoveryStoreV1", 'durability: "strict"']) if (!recoveryStore.includes(token)) violations.push(`Recovery Store token missing: ${token}`);
 for (const token of ["class WorldPlayerRecoveryWriteCoordinatorV1", "this.tail.then(task, task)"]) if (!policy.includes(token)) violations.push(`Recovery policy token missing: ${token}`);
 for (const token of ["loadPlayerCoreSessionSaveV1", "WORLD_PLAYER_RECOVERY_METADATA_MISMATCH", "恢复上次进度", "放弃并清除", 'data-recovery-operation={recoveryOperation}']) if (!shell.includes(token)) violations.push(`Player recovery token missing: ${token}`);
@@ -33,6 +33,6 @@ for (const item of contract.requiredDocuments ?? []) {
   catch (error) { violations.push(`${item.path} cannot be read: ${error instanceof Error ? error.message : String(error)}`); }
 }
 
-const result = { status: violations.length === 0 ? "PASS" : "FAIL", node: contract.node, engineeringStatus: contract.engineeringStatus, productAcceptance: contract.productAcceptance, database: contract.database, recovery: contract.recovery, migrationMuseum: contract.migrationMuseum, routeCorrection: contract.routeCorrection, engineeringEvidence: contract.engineeringEvidence, nextSlice: contract.nextSlice, blocked: contract.blocked, violations };
+const result = { status: violations.length === 0 ? "PASS" : "FAIL", node: contract.node, engineeringStatus: contract.engineeringStatus, productAcceptance: contract.productAcceptance, historicalDatabaseContract: contract.database, currentDatabase: { version: 4, formalSaveSchema: 3, recoverySchema: 1, packing: "optional-lossless-gzip-v1", design: "docs/300-player-storage-packing.md" }, recovery: contract.recovery, migrationMuseum: contract.migrationMuseum, routeCorrection: contract.routeCorrection, engineeringEvidence: contract.engineeringEvidence, nextSlice: contract.nextSlice, blocked: contract.blocked, violations };
 console[violations.length === 0 ? "log" : "error"](JSON.stringify(result, null, 2));
 if (violations.length > 0) process.exitCode = 1;
