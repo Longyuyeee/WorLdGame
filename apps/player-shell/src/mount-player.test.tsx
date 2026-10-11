@@ -77,7 +77,8 @@ describe("N50-E6 versioned Player host embedding API", () => {
     expect(handle.apiVersion).toBe(WORLD_PLAYER_EMBED_API_VERSION);
     expect(handle.getObservation()).toEqual({
       schemaVersion: 1,
-      embedApiVersion: "1.2.0",
+      embedApiVersion: "1.3.0",
+      memoryPressure: "idle",
       mounted: true,
       status: "title",
       hostActivity: "active",

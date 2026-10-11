@@ -20,6 +20,7 @@ import { runPlayerContinuity } from './player-continuity-workflow.mjs';
 import { runPlayerInput } from './player-input-workflow.mjs';
 import { runPlayerVoice } from './player-voice-workflow.mjs';
 import { runPlayerCold } from './player-cold-workflow.mjs';
+import { runPlayerMemory } from './player-memory-workflow.mjs';
 
 const root = resolve(import.meta.dirname, "..");
 const sceneWriting = process.argv.includes('--scene-writing');
@@ -63,7 +64,7 @@ let browserPath;
 for (const path of candidates) { try { await access(path); browserPath = path; break; } catch {} }
 if (!browserPath) throw new Error("Install Chrome/Edge or set WORLD_STUDIO_BROWSER_PATH");
 const preview = spawn(process.execPath, [join(root, "node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", "5186", "--strictPort"], { cwd: join(root, "apps/editor"), stdio: "ignore", windowsHide: true });
-const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", ...(process.argv.includes('--player-pressure')||process.argv.includes('--player-soak') ? ['--disable-background-timer-throttling'] : []), "about:blank"], { stdio: "ignore", windowsHide: true });
+const browser = spawn(browserPath, ["--headless=new", "--remote-debugging-port=19236", `--user-data-dir=${join(temporary, "profile")}`, "--no-first-run", "--disable-background-networking", ...(process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')||process.argv.includes('--player-protected-soak') ? ['--disable-background-timer-throttling'] : []), "about:blank"], { stdio: "ignore", windowsHide: true });
 let client;
 let site;
 let siteUnavailable = false;
@@ -95,16 +96,18 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--player-cold')) {
+  if(process.argv.includes('--player-memory')) {
+    console.log(JSON.stringify(await runPlayerMemory(client,root,temporary,browser.pid),null,2));
+  } else if(process.argv.includes('--player-cold')) {
     console.log(JSON.stringify(await runPlayerCold(client,root,temporary),null,2));
   } else if(process.argv.includes('--player-voice')) {
     console.log(JSON.stringify(await runPlayerVoice(client,root,temporary),null,2));
   } else if(process.argv.includes('--player-input')) {
     console.log(JSON.stringify(await runPlayerInput(client,root,temporary),null,2));
-  } else if(process.argv.includes('--player-continuity')||process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')) {
+  } else if(process.argv.includes('--player-continuity')||process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')||process.argv.includes('--player-protected-soak')) {
     const duration=process.argv.find(arg=>arg.startsWith('--pressure-minutes='));
-    const naturalGc=process.argv.includes('--player-soak');
-    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:naturalGc||process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):naturalGc?10:3,naturalGc,browserPid:browser.pid}),null,2));
+    const protectHistory=process.argv.includes('--player-protected-soak'),naturalGc=protectHistory||process.argv.includes('--player-soak');
+    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:naturalGc||process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):naturalGc?10:3,naturalGc,browserPid:browser.pid,protectHistory}),null,2));
   } else if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')||process.argv.includes('--atlas-quality-workflow')||process.argv.includes('--atlas-sampling-workflow')||process.argv.includes('--atlas-lazy-workflow')||process.argv.includes('--atlas-coordination-workflow')||process.argv.includes('--atlas-recovery-workflow')||process.argv.includes('--atlas-isolation-workflow')) {
     const isolation=process.argv.includes('--atlas-isolation-workflow');
     const recovery=isolation||process.argv.includes('--atlas-recovery-workflow');

@@ -6,6 +6,7 @@ export type {
 } from "./mount-player";
 export type {
   PlayerHostActivityV1,
+  PlayerMemoryPressureStatusV1,
   PlayerShellProps,
   WorldPlayerPreviewCaptureRequestV1,
   WorldPlayerPreviewCaptureResultV1,

@@ -585,7 +585,7 @@ describe("N52-E5d Shell History user journey", () => {
     fireEvent.click(screen.getByRole("button", { name: /Right/u }));
 
     fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
-    expect(screen.getByRole("heading", { name: "旧分支 1" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "归档记录 1" })).toBeInTheDocument();
     expect(screen.getByText("The quiet route.")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "回退到：The quiet route." })).not.toBeInTheDocument();
   });
@@ -658,7 +658,7 @@ describe("N52-E5d Shell History user journey", () => {
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     await waitFor(() => expect(screen.getByText("The bright route.")).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "打开剧情历史" }));
-    expect(screen.getByRole("heading", { name: "旧分支 1" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "归档记录 1" })).toBeInTheDocument();
     expect(screen.getByText("The quiet route.")).toBeInTheDocument();
   });
 });

@@ -7,18 +7,23 @@ vi.mock("./mount-player",()=>({mountWorldPlayerV1:vi.fn()}));
 afterEach(()=>vi.resetAllMocks());
 const fixture=()=>{const root=document.createElement("div"),payload=document.createElement("script");payload.textContent="{}";return{root,payload};};
 it("shows loading, cancels, retries and cleans up only its own successful attempt",async()=>{
-  const {root,payload}=fixture(),dispose=vi.fn(),unmount=vi.fn();
+  const {root,payload}=fixture(),dispose=vi.fn(),unmount=vi.fn(),trimIdle=vi.fn(),notifyMemoryPressure=vi.fn();
   let finish!:(value:{media:never[];dispose:()=>void;trimIdle:()=>void})=>void;
   vi.mocked(hydrateNativeAtlasMediaAsync).mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
-  vi.mocked(hydrateNativeAtlasMediaAsync).mockResolvedValue({media:[],dispose,trimIdle:vi.fn()});
-  vi.mocked(mountWorldPlayerV1).mockReturnValue({unmount} as unknown as ReturnType<typeof mountWorldPlayerV1>);
+  vi.mocked(hydrateNativeAtlasMediaAsync).mockResolvedValue({media:[],dispose,trimIdle});
+  vi.mocked(mountWorldPlayerV1).mockReturnValue({unmount,notifyMemoryPressure} as unknown as ReturnType<typeof mountWorldPlayerV1>);
   const handle=startExportedPlayer(root,payload);expect(root.textContent).toContain("取消加载");
+  expect(()=>handle.notifyMemoryPressure("critical")).toThrow("NOT_READY");
   await vi.waitFor(()=>expect(finish).toBeTypeOf("function"));root.querySelector("button")!.click();
   expect(root.dataset.startupState).toBe("cancelled");
   const staleDispose=vi.fn();finish({media:[],dispose:staleDispose,trimIdle:vi.fn()});
   root.querySelector("button")!.click();await vi.waitFor(()=>expect(root.dataset.startupState).toBe("ready"));
   expect(staleDispose).toHaveBeenCalledOnce();expect(mountWorldPlayerV1).toHaveBeenCalledOnce();
+  expect(vi.mocked(mountWorldPlayerV1).mock.calls[0]![1].onReleaseIdleResources).toBe(trimIdle);
+  vi.mocked(mountWorldPlayerV1).mock.calls[0]![1].onReleaseIdleResources!();expect(trimIdle).toHaveBeenCalledOnce();
+  handle.notifyMemoryPressure("critical");expect(notifyMemoryPressure).toHaveBeenCalledWith("critical");
   handle.dispose();handle.dispose();expect(dispose).toHaveBeenCalledOnce();expect(unmount).toHaveBeenCalledOnce();
+  expect(()=>handle.notifyMemoryPressure("critical")).toThrow("NOT_READY");
 });
 it("offers retry on damaged payload and does not mount after non-persisted pagehide",async()=>{
   const {root,payload}=fixture();payload.textContent="invalid";

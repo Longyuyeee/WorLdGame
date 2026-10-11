@@ -17,6 +17,7 @@ import {
 import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
 import {
   createPlayerCore,
+  compactPlayerCoreHistoryV1,
   createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
   configurePlayerCoreLocaleV1,
@@ -72,10 +73,13 @@ export interface PlayerShellProps {
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
   readonly now?: () => number;
   readonly playbackPolicy?: WorldPlayerPlaybackPolicyV1;
+  readonly memoryPressureRequest?: { readonly serial: number; readonly level: "moderate" | "critical" };
+  readonly onReleaseIdleResources?: () => void;
 }
 
 type PlayerInputSource = "lifecycle" | GalAdvanceInputV1 | "system";
 export type PlayerHostActivityV1 = "active" | "suspended";
+export type PlayerMemoryPressureStatusV1 = "idle" | "protecting" | "released" | "protected" | "deferred" | "error";
 
 export interface WorldPlayerPreviewCaptureRequestV1 {
   readonly projectId: string;
@@ -174,9 +178,16 @@ function storePlayerLocalePreference(projectId: string, locale: string): void {
   }
 }
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 }: PlayerShellProps) {
+export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, memoryPressureRequest, onReleaseIdleResources }: PlayerShellProps) {
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
+  const liveState = useRef(state);
+  liveState.current = state;
+  const [memoryPressureStatus, setMemoryPressureStatus] = useState<PlayerMemoryPressureStatusV1>("idle");
+  const [handledMemorySerial, setHandledMemorySerial] = useState(0);
+  const [memoryPressureMessage, setMemoryPressureMessage] = useState("");
+  const [memoryPressureRetry, setMemoryPressureRetry] = useState(0);
+  const memoryWritePending = useRef<WorldPlayerRecoveryWriteCoordinatorV1 | null>(null);
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [imageAttempt, setImageAttempt] = useState(0);
@@ -818,6 +829,50 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, saveBoundaryAllowed, snapshot, state]);
 
   useEffect(() => {
+    if (memoryPressureRequest === undefined) { setMemoryPressureStatus("idle"); setMemoryPressureMessage(""); return; }
+    setHandledMemorySerial(memoryPressureRequest.serial);
+    setAutoEnabled(false); setAutoPlayback("off"); stopSkip();
+    let active = true;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const fail = (message: string) => { if (active) { setMemoryPressureStatus("error"); setMemoryPressureMessage(message); } };
+    try {
+      onReleaseIdleResources?.();
+      if (recoveryCoordinator !== undefined && memoryWritePending.current === recoveryCoordinator) {
+        fail("上次恢复点保存仍未结束，未继续排队。回滚历史不变，可先手动保存。"); return;
+      }
+      const protectedState = liveState.current;
+      const compacted = compactPlayerCoreHistoryV1(protectedState, memoryPressureRequest.level === "critical" ? 64 : 128);
+      if (compacted === protectedState) {
+        setMemoryPressureStatus("released"); setMemoryPressureMessage("已请求释放闲置资源；当前进度和回滚窗口保持不变。");
+        return;
+      }
+      if (recoveryCoordinator === undefined || recoveryStore === undefined || !saveBoundaryAllowed || snapshot.sceneReplay.active || recoveryCandidate !== null) {
+        fail("闲置资源已处理，但当前无法保护恢复点，回滚历史保持不变。可先手动保存。"); return;
+      }
+      const created = createPlayerCoreSessionSaveV1(protectedState);
+      if (!created.ok || snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || protectedState.runtimeState === null) throw Error("Cannot protect current state");
+      const record = createWorldPlayerRecoveryRecordV1({ projectId: project.manifest.projectId, buildId: snapshot.identities.buildId,
+        savedAtEpochMilliseconds: now(), title: snapshot.title, sceneId: protectedState.runtimeState.cursor.sceneId,
+        presentationKind: snapshot.presentation.kind, runtimeStateHash: snapshot.runtimeStateHash,
+        sessionArtifactHash: created.artifactHash, serializedSessionSave: created.serialized });
+      setMemoryPressureStatus("protecting"); setMemoryPressureMessage("内存保护：正在保存恢复点，暂不收缩历史。");
+      timeout = setTimeout(() => { fail("恢复点保存超时，回滚历史未收缩。请检查存储后重试。"); active = false; }, 8000);
+      memoryWritePending.current = recoveryCoordinator;
+      void recoveryCoordinator.write(record).then(() => {
+        if (!active) return;
+        clearTimeout(timeout);
+        if (liveState.current !== protectedState) { setMemoryPressureStatus("deferred"); setMemoryPressureMessage("进度已改变，已跳过本次历史收缩。可重新执行内存保护。"); return; }
+        setState(compacted);
+        setMemoryPressureStatus("protected");
+        setMemoryPressureMessage("恢复点已保存，较早历史已转为只读归档；当前句和正式存档不变。自动播放已停止。");
+      }).catch(() => { clearTimeout(timeout); fail("恢复点保存失败，回滚历史未收缩，正式存档保持不变。可重试。"); })
+        .finally(() => { if (memoryWritePending.current === recoveryCoordinator) memoryWritePending.current = null; });
+    } catch { fail("内存保护未完成，回滚历史保持不变。可重试或手动保存。"); }
+    return () => { active = false; clearTimeout(timeout); };
+    // A request is a transaction for one exact state, not a reaction to every story step.
+  }, [memoryPressureRequest, memoryPressureRetry, project, recoveryCoordinator, recoveryStore]);
+
+  useEffect(() => {
     if (presentedText === "") {
       setTextReady(true);
       return;
@@ -1193,6 +1248,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-history-panel={historyPanelOpen ? "open" : "closed"}
       data-additional-content={additionalContentOpen ? "open" : "closed"}
       data-history-archives={snapshot.history?.archives.length ?? 0}
+      data-memory-pressure={memoryPressureStatus}
+      data-memory-pressure-serial={handledMemorySerial}
       data-history-forward-policy={snapshot.history?.forwardPolicy.allowForwardAfterBack ?? settingsApplication.history.allowForwardAfterBack}
       data-save-store={saveStore?.backend ?? "unavailable"}
       data-save-store-version={saveStore?.version ?? "none"}
@@ -1418,6 +1475,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             }}>恢复声音</button>
           </aside>
         )}
+        {memoryPressureMessage !== "" && <aside className="player-memory-pressure" role="status" aria-live="polite"><span>{memoryPressureMessage}</span>
+          {["error", "deferred"].includes(memoryPressureStatus) && <button type="button" onClick={() => setMemoryPressureRetry(attempt => attempt + 1)}>重试内存保护</button>}
+          {memoryPressureStatus !== "protecting" && <button type="button" onClick={() => setMemoryPressureMessage("")}>知道了</button>}
+        </aside>}
         {hostActivity === "suspended" && (
           <div className="player-host-suspended" role="status" aria-live="polite">
             <span>PLAYER PAUSED</span>
@@ -1511,10 +1572,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               </section>
               {snapshot.history.archives.map((archive, archiveIndex) => (
                 <section className="player-history-panel__section player-history-panel__archive" key={archive.archiveId} data-archive-id={archive.archiveId}>
-                  <h3>旧分支 {archiveIndex + 1}</h3>
-                  <p>从历史位置 {archive.branchPointHistoryIndex} 分岔 · 只读</p>
+                  <h3>归档记录 {archiveIndex + 1}</h3>
+                  <p>旧分支或内存保护归档 · 只读，不支持回滚</p>
                   <ol className="player-history-list">
-                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 旧分支</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={playerHistoryEventLabel(entry.event)} locale={typography.locale} /></strong></div></li>)}
+                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 归档</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={playerHistoryEventLabel(entry.event)} locale={typography.locale} /></strong></div></li>)}
                   </ol>
                 </section>
               ))}

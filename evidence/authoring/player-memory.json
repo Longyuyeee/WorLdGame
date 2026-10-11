@@ -1,0 +1,219 @@
+{
+  "scope": "production-player-real-IndexedDB-injected-pressure-write-failure-not-OS-low-memory",
+  "rows": [
+    {
+      "width": 1440,
+      "initial": {
+        "beforeHash": "0c12451de26d92a580fb04f71371987e9a630b2b24788fd60d19b2a6a973909a",
+        "beforeLength": 151,
+        "cursor": 141
+      },
+      "beforeLength": 151,
+      "afterLength": 74,
+      "cursor": 64,
+      "future": 10,
+      "statePreserved": true,
+      "quickPreserved": true,
+      "archiveVisible": true,
+      "backForwardHeld": true,
+      "releases": 1,
+      "failedWriteHeld": true,
+      "retryProtected": true,
+      "unmounted": true,
+      "before": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 34920,
+            "workingSetBytes": 108396544,
+            "privateBytes": 60809216,
+            "role": "browser"
+          },
+          {
+            "pid": 44312,
+            "workingSetBytes": 10919936,
+            "privateBytes": 5562368,
+            "role": "helper"
+          },
+          {
+            "pid": 56124,
+            "workingSetBytes": 60981248,
+            "privateBytes": 34021376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 20496,
+            "workingSetBytes": 31260672,
+            "privateBytes": 14061568,
+            "role": "utility"
+          },
+          {
+            "pid": 53508,
+            "workingSetBytes": 42913792,
+            "privateBytes": 18493440,
+            "role": "renderer"
+          },
+          {
+            "pid": 43708,
+            "workingSetBytes": 169738240,
+            "privateBytes": 91586560,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 424210432,
+        "privateBytes": 224534528
+      },
+      "after": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 34920,
+            "workingSetBytes": 108265472,
+            "privateBytes": 60850176,
+            "role": "browser"
+          },
+          {
+            "pid": 44312,
+            "workingSetBytes": 10919936,
+            "privateBytes": 5562368,
+            "role": "helper"
+          },
+          {
+            "pid": 56124,
+            "workingSetBytes": 62648320,
+            "privateBytes": 34148352,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 20496,
+            "workingSetBytes": 31260672,
+            "privateBytes": 14061568,
+            "role": "utility"
+          },
+          {
+            "pid": 53508,
+            "workingSetBytes": 42913792,
+            "privateBytes": 18493440,
+            "role": "renderer"
+          },
+          {
+            "pid": 43708,
+            "workingSetBytes": 196349952,
+            "privateBytes": 117460992,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 452358144,
+        "privateBytes": 250576896
+      }
+    },
+    {
+      "width": 390,
+      "initial": {
+        "beforeHash": "78882618f80936c7c59874fbbfde05688f8b16f15cb9b9fbf7a3e3e9d0d7a907",
+        "beforeLength": 151,
+        "cursor": 141
+      },
+      "beforeLength": 151,
+      "afterLength": 74,
+      "cursor": 64,
+      "future": 10,
+      "statePreserved": true,
+      "quickPreserved": true,
+      "archiveVisible": true,
+      "backForwardHeld": true,
+      "releases": 1,
+      "failedWriteHeld": true,
+      "retryProtected": true,
+      "unmounted": true,
+      "before": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 34920,
+            "workingSetBytes": 109785088,
+            "privateBytes": 61497344,
+            "role": "browser"
+          },
+          {
+            "pid": 44312,
+            "workingSetBytes": 10919936,
+            "privateBytes": 5562368,
+            "role": "helper"
+          },
+          {
+            "pid": 56124,
+            "workingSetBytes": 55705600,
+            "privateBytes": 31268864,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 20496,
+            "workingSetBytes": 31289344,
+            "privateBytes": 14065664,
+            "role": "utility"
+          },
+          {
+            "pid": 53508,
+            "workingSetBytes": 42917888,
+            "privateBytes": 18493440,
+            "role": "renderer"
+          },
+          {
+            "pid": 43708,
+            "workingSetBytes": 200802304,
+            "privateBytes": 129527808,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 451420160,
+        "privateBytes": 260415488
+      },
+      "after": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 34920,
+            "workingSetBytes": 109551616,
+            "privateBytes": 61317120,
+            "role": "browser"
+          },
+          {
+            "pid": 44312,
+            "workingSetBytes": 10919936,
+            "privateBytes": 5562368,
+            "role": "helper"
+          },
+          {
+            "pid": 56124,
+            "workingSetBytes": 58425344,
+            "privateBytes": 31338496,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 20496,
+            "workingSetBytes": 31289344,
+            "privateBytes": 14065664,
+            "role": "utility"
+          },
+          {
+            "pid": 53508,
+            "workingSetBytes": 42917888,
+            "privateBytes": 18493440,
+            "role": "renderer"
+          },
+          {
+            "pid": 43708,
+            "workingSetBytes": 232890368,
+            "privateBytes": 157949952,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 485994496,
+        "privateBytes": 288727040
+      }
+    }
+  ],
+  "exceptions": [],
+  "limits": "Synthetic text, DOM actions, browser role and discrete process samples; no real low-memory device, native cache fixture or GPU/mapped-memory attribution"
+}

@@ -9,6 +9,7 @@ import { auditPlayerInput } from "./audit-player-input.mjs";
 import { auditPlayerVoice } from "./audit-player-voice.mjs";
 import { auditPlayerCold } from "./audit-player-cold.mjs";
 import { auditPlayerSoak } from "./audit-player-soak.mjs";
+import { auditPlayerMemory } from "./audit-player-memory.mjs";
 
 const root = process.cwd();
 const registry = JSON.parse(await readFile(join(root, "config", "golden-projects.json"), "utf8"));
@@ -466,6 +467,8 @@ try { console.log(JSON.stringify(await auditPlayerCold(root),null,2)); }
 catch(error) { violations.push(`Player cold-start sub-gate: ${error.message}`); }
 try { console.log(JSON.stringify(await auditPlayerSoak(root),null,2)); }
 catch(error) { violations.push(`Player natural-GC soak sub-gate: ${error.message}`); }
+try { console.log(JSON.stringify(await auditPlayerMemory(root),null,2)); }
+catch(error) { violations.push(`Player memory protection sub-gate: ${error.message}`); }
 if (violations.length > 0) {
   console.error(JSON.stringify({ status: "FAIL", violations }, null, 2));
   process.exitCode = 1;

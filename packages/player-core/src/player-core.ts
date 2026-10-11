@@ -7,6 +7,7 @@ import {
 import type { CanonicalProject, JsonObject, JsonValue } from "@world-studio/project-domain";
 import {
   RUNTIME_VERSION,
+  compactRuntimeHistoryV1,
   advanceRuntimeHistoryV1,
   backRuntimeHistoryV1,
   createRuntimeHistorySessionV1,
@@ -571,6 +572,14 @@ export function approvePlayerCoreBarrier(state: PlayerCoreState): PlayerCoreStat
   };
   if (state.historySession === null) return playerError(state, "PLAYER_HISTORY_MISSING", "Player Core has no Runtime History Session");
   return drivePlayerCore(resetPlayback(state), state.historySession, input);
+}
+
+/** Call only after the host has successfully protected this exact state. */
+export function compactPlayerCoreHistoryV1(state: PlayerCoreState, retainedBackSteps = 64): PlayerCoreState {
+  if (state.artifacts === null || state.historySession === null || state.replaySession !== null || !["presenting", "waiting-choice", "ended"].includes(state.status)) return state;
+  const compacted = compactRuntimeHistoryV1(state.artifacts.story, state.historySession, retainedBackSteps);
+  if (compacted.diagnostics.length > 0 || compacted.session === state.historySession) return state;
+  return resetPlayback({ ...state, historySession: compacted.session });
 }
 
 export function configurePlayerCoreHistoryPolicyV1(state: PlayerCoreState, historyPolicy: PlayerCoreHistoryPolicyV1): PlayerCoreState {

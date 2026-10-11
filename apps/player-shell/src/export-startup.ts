@@ -33,7 +33,7 @@ export function startExportedPlayer(root: HTMLElement, payload: HTMLElement) {
       if (closed || current !== generation) { native.dispose(); return; }
       dispose = native.dispose;
       root.replaceChildren();
-      player = mountWorldPlayerV1(root, { ...data, mediaAssets: native.media });
+      player = mountWorldPlayerV1(root, { ...data, mediaAssets: native.media, onReleaseIdleResources: native.trimIdle });
       root.dataset.startupState = "ready";
     } catch {
       if (closed || current !== generation) return;
@@ -45,5 +45,8 @@ export function startExportedPlayer(root: HTMLElement, payload: HTMLElement) {
   const onPageHide = (event: PageTransitionEvent) => { if (!event.persisted) close(); };
   window.addEventListener("pagehide", onPageHide);
   void run();
-  return { dispose: close };
+  return { dispose: close, notifyMemoryPressure: (level: "moderate" | "critical") => {
+    if (closed || player === undefined) throw Error("WORLD_PLAYER_NOT_READY");
+    player.notifyMemoryPressure(level);
+  } };
 }

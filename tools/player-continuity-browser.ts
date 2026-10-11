@@ -89,5 +89,15 @@ export function start(options:{pressure?:boolean}={}){
     if(index!==11){click(`进入场景 ${index+1}`);}else {click("回到标题");await until(()=>nativeAtlasDiagnostics().accountedBytes===0);}
   };
   const close=()=>{handle.unmount();document.removeEventListener("freeze",frozenEvent);document.removeEventListener("resume",resumedEvent);delete (document as unknown as Record<string,unknown>).visibilityState;style.remove();return {rows,native:nativeAtlasDiagnostics(),scope:options.pressure?"12-scene-2048px-CDP-freeze-pressure-not-physical-low-memory-device":"12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak"};};
-  return {begin,scene,close,prepareFreeze,finishFreeze};
+  const protect = async () => {
+    const beforeHash=hash(),before=Number(main().dataset.historyLength);
+    handle.notifyMemoryPressure("critical");
+    await until(()=>handle.getObservation().memoryPressure==="protected"&&Number(main().dataset.historyLength)<before&&Number(main().dataset.historyArchives)>0,"durable memory protection");
+    check(hash()===beforeHash,"Memory protection changed current story");
+    const after=Number(main().dataset.historyLength);
+    check(after<before&&Number(main().dataset.historyArchives)>0,"Memory protection did not archive old checkpoints");
+    click("知道了");
+    return {before,after,stateHeld:true,archived:true};
+  };
+  return {begin,scene,close,prepareFreeze,finishFreeze,protect};
 }

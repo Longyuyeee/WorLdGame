@@ -33,5 +33,13 @@ export async function sampleBrowserMemory(browserPid) {
     'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,WorkingSetSize,PrivatePageCount | ConvertTo-Json -Compress'],
   { windowsHide: true, timeout: 15000, maxBuffer: 4 * 1024 * 1024 });
   const rows = JSON.parse(stdout.replace(/^\uFEFF/, ''));
-  return selectBrowserMemory(Array.isArray(rows) ? rows : [rows], browserPid);
+  const result = selectBrowserMemory(Array.isArray(rows) ? rows : [rows], browserPid);
+  // Query command-line classification only for the validated browser tree; never return command lines.
+  const filter = result.processes.map(row => `ProcessId = ${row.pid}`).join(' OR ');
+  const roles = await execute('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
+    `Get-CimInstance Win32_Process -Filter '${filter}' | ForEach-Object { $role = 'helper'; if ($_.ProcessId -eq ${browserPid}) { $role = 'browser' } elseif ($_.CommandLine -match '--type=([a-z-]+)') { $role = $Matches[1] }; [pscustomobject]@{pid=$_.ProcessId;role=$role} } | ConvertTo-Json -Compress`],
+  { windowsHide: true, timeout: 15000, maxBuffer: 1024 * 1024 });
+  const classified = JSON.parse(roles.stdout.replace(/^\uFEFF/, ''));
+  for (const row of result.processes) row.role = (Array.isArray(classified) ? classified : [classified]).find(item => item.pid === row.pid)?.role ?? 'exited-before-classification';
+  return result;
 }

@@ -225,6 +225,34 @@ function validateRuntimeHistorySessionUnsafe(program: RuntimeProgramV1, session:
   return [];
 }
 
+/** Archive old presentation records without retaining their full VM checkpoints.
+ * The caller must durably protect the current session before applying this result.
+ * Recorded future, current State, barriers and accepted-input identities remain authoritative.
+ */
+export function compactRuntimeHistoryV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, retainedBackSteps: number): RuntimeHistoryResultV1 {
+  const validation = validateRuntimeHistorySessionV1(program, session);
+  if (validation.length > 0) return result(session, validation);
+  if (!Number.isSafeInteger(retainedBackSteps) || retainedBackSteps < 1) return result(session, [diagnostic("RUNTIME_HISTORY_INVALID", "Rollback window must be a positive integer")]);
+  const cut = Math.max(0, session.cursor - retainedBackSteps);
+  const current = session.checkpoints[session.cursor]!.state;
+  if (cut === 0 || current.pendingEffect !== null || current.pendingBarrier !== null) return result(session);
+  const removed = session.entries.slice(0, cut);
+  const unsigned: Omit<RuntimeHistoryArchiveV2, "archiveId"> = {
+    schemaVersion: 1, branchPointCheckpointId: session.checkpoints[0]!.checkpointId, branchPointHistoryIndex: 0,
+    entries: removed.map((entry, index) => ({ originalEntryId: entry.entryId, originalHistoryIndex: index,
+      input: entry.input, event: entry.event, barriers: entry.barriers, afterStateHash: session.checkpoints[index + 1]!.stateHash }))
+  };
+  const archived = { archiveId: archiveId(unsigned), ...unsigned };
+  const inputTombstones = [...session.inputTombstones];
+  for (const entry of removed) if (entry.input !== null && !inputTombstones.some(input => input.inputId === entry.input!.inputId)) inputTombstones.push(entry.input);
+  const checkpoints = session.checkpoints.slice(cut);
+  const next = { ...session, cursor: session.cursor - cut, checkpoints,
+    entries: rechainEntries(checkpoints, session.entries.slice(cut)), inputTombstones,
+    archives: session.archives.some(archive => archive.archiveId === archived.archiveId) ? session.archives : [...session.archives, archived] };
+  const diagnostics = validateRuntimeHistorySessionV1(program, next);
+  return diagnostics.length > 0 ? result(session, diagnostics) : result(next);
+}
+
 export function normalizeRuntimeHistorySessionSchemaV1(session: RuntimeHistorySessionLegacyV1): RuntimeHistorySessionV1 {
   return { ...session, schemaVersion: RUNTIME_HISTORY_SESSION_SCHEMA_VERSION, archives: [] };
 }

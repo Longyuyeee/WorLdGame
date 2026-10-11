@@ -1,0 +1,6029 @@
+{
+  "rows": [
+    {
+      "round": 0,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 0,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 0,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 1,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 1,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 2,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 2,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 3,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 3,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 4,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 4,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 5,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 5,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 6,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 6,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 7,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 7,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 8,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 8,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 9,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 9,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 10,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 10,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 11,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 11,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 12,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 12,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 13,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 13,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 14,
+      "scene": 0,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 1,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 2,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 3,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 4,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 5,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 6,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 7,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 8,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 9,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 10,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 14,
+      "scene": 11,
+      "mode": "auto",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "historyHeld": true,
+      "backgroundHeld": true,
+      "fullDelay": true,
+      "historyRoundTrip": true,
+      "quickSaveRestored": true
+    },
+    {
+      "round": 15,
+      "scene": 0,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 8,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 1,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 16,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 2,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 24,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 3,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 32,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 4,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 40,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 5,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 48,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 6,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 56,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 7,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 64,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 8,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 72,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 9,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 80,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 10,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 70,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    },
+    {
+      "round": 15,
+      "scene": 11,
+      "mode": "skipAll",
+      "boundaryHeld": true,
+      "historyLength": 78,
+      "native": {
+        "groups": 0,
+        "accountedBytes": 33554432,
+        "peakBytes": 33554432,
+        "budgetBytes": 67108864,
+        "activeDecodes": 0,
+        "queuedDecodes": 0,
+        "peakDecodes": 0,
+        "decodedGroups": 0,
+        "cacheHits": 0,
+        "quarantinedGroups": 0
+      }
+    }
+  ],
+  "native": {
+    "groups": 0,
+    "accountedBytes": 0,
+    "peakBytes": 33554432,
+    "budgetBytes": 67108864,
+    "activeDecodes": 0,
+    "queuedDecodes": 0,
+    "peakDecodes": 0,
+    "decodedGroups": 0,
+    "cacheHits": 0,
+    "quarantinedGroups": 0
+  },
+  "scope": "12-scene-2048px-natural-GC-Windows-process-samples-not-device-soak",
+  "elapsedMilliseconds": 601648.9979000001,
+  "rounds": 16,
+  "scenes": 12,
+  "exceptions": [],
+  "minimumMinutes": 10,
+  "lifecycle": [
+    {
+      "round": 0,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 1,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 2,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 3,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 4,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 5,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 6,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 7,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 8,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 9,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 10,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 11,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 12,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 13,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 14,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    },
+    {
+      "round": 15,
+      "frozenMilliseconds": 1500,
+      "freezeEvents": 1,
+      "resumeEvents": 1,
+      "resumedVisibility": "hidden",
+      "foreground": "controlled-visibility",
+      "held": true,
+      "freshDelay": true
+    }
+  ],
+  "samples": [
+    {
+      "phase": "first-picture",
+      "round": 0,
+      "elapsedMilliseconds": 1869.6279,
+      "heap": {
+        "usedSize": 4326084,
+        "totalSize": 9609216,
+        "embedderHeapUsedSize": 2338696,
+        "backingStorageSize": 1252786
+      },
+      "dom": {
+        "documents": 2,
+        "nodes": 187,
+        "jsEventListeners": 359
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 108122112,
+            "privateBytes": 61390848,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10915840,
+            "privateBytes": 5558272,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59543552,
+            "privateBytes": 29335552,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31424512,
+            "privateBytes": 14245888,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 42958848,
+            "privateBytes": 18509824,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 180133888,
+            "privateBytes": 73797632,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 433098752,
+        "privateBytes": 202838016
+      }
+    },
+    {
+      "phase": "title",
+      "round": 0,
+      "elapsedMilliseconds": 62085.0529,
+      "heap": {
+        "usedSize": 10522088,
+        "totalSize": 15425536,
+        "embedderHeapUsedSize": 1144608,
+        "backingStorageSize": 3356214
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 196
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 110043136,
+            "privateBytes": 62902272,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59170816,
+            "privateBytes": 28880896,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31350784,
+            "privateBytes": 14004224,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 42995712,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 361697280,
+            "privateBytes": 68521984,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 616153088,
+        "privateBytes": 198352896
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 1,
+      "elapsedMilliseconds": 64732.2743,
+      "heap": {
+        "usedSize": 10900508,
+        "totalSize": 15949824,
+        "embedderHeapUsedSize": 1390904,
+        "backingStorageSize": 3327146
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 310
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 109494272,
+            "privateBytes": 62357504,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59170816,
+            "privateBytes": 28880896,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31350784,
+            "privateBytes": 14004224,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 42995712,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 395177984,
+            "privateBytes": 85028864,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 649084928,
+        "privateBytes": 214315008
+      }
+    },
+    {
+      "phase": "title",
+      "round": 1,
+      "elapsedMilliseconds": 73578.8655,
+      "heap": {
+        "usedSize": 8852000,
+        "totalSize": 13635584,
+        "embedderHeapUsedSize": 1184264,
+        "backingStorageSize": 3533925
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 196
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111620096,
+            "privateBytes": 64823296,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59170816,
+            "privateBytes": 28880896,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31350784,
+            "privateBytes": 14004224,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 42995712,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 546033664,
+            "privateBytes": 68452352,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 802066432,
+        "privateBytes": 200204288
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 2,
+      "elapsedMilliseconds": 76173.6594,
+      "heap": {
+        "usedSize": 9267520,
+        "totalSize": 14159872,
+        "embedderHeapUsedSize": 1346008,
+        "backingStorageSize": 3504857
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 310
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111050752,
+            "privateBytes": 64258048,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59170816,
+            "privateBytes": 28880896,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31350784,
+            "privateBytes": 14004224,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 42995712,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 577740800,
+            "privateBytes": 82747392,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 833204224,
+        "privateBytes": 213934080
+      }
+    },
+    {
+      "phase": "title",
+      "round": 2,
+      "elapsedMilliseconds": 135993.2634,
+      "heap": {
+        "usedSize": 9778400,
+        "totalSize": 15732736,
+        "embedderHeapUsedSize": 1048408,
+        "backingStorageSize": 4893756
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112152576,
+            "privateBytes": 65339392,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31297536,
+            "privateBytes": 13901824,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 717266944,
+            "privateBytes": 72822784,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 973987840,
+        "privateBytes": 204922880
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 3,
+      "elapsedMilliseconds": 139000.2686,
+      "heap": {
+        "usedSize": 10157700,
+        "totalSize": 16257024,
+        "embedderHeapUsedSize": 1243464,
+        "backingStorageSize": 4864688
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 113123328,
+            "privateBytes": 66269184,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31297536,
+            "privateBytes": 13901824,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 733339648,
+            "privateBytes": 88473600,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 991031296,
+        "privateBytes": 221503488
+      }
+    },
+    {
+      "phase": "title",
+      "round": 3,
+      "elapsedMilliseconds": 148333.5307,
+      "heap": {
+        "usedSize": 8046820,
+        "totalSize": 12460032,
+        "embedderHeapUsedSize": 1061120,
+        "backingStorageSize": 4596043
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 114683904,
+            "privateBytes": 67837952,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31297536,
+            "privateBytes": 13901824,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 712642560,
+            "privateBytes": 68083712,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 971894784,
+        "privateBytes": 202682368
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 4,
+      "elapsedMilliseconds": 151080.0226,
+      "heap": {
+        "usedSize": 8461772,
+        "totalSize": 12984320,
+        "embedderHeapUsedSize": 1198464,
+        "backingStorageSize": 4566975
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 113192960,
+            "privateBytes": 66355200,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31297536,
+            "privateBytes": 13901824,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 728887296,
+            "privateBytes": 83931136,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 986648576,
+        "privateBytes": 217047040
+      }
+    },
+    {
+      "phase": "title",
+      "round": 4,
+      "elapsedMilliseconds": 211926.9008,
+      "heap": {
+        "usedSize": 10720196,
+        "totalSize": 18370560,
+        "embedderHeapUsedSize": 947872,
+        "backingStorageSize": 6271575
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 110551040,
+            "privateBytes": 63074304,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31338496,
+            "privateBytes": 13946880,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 712220672,
+            "privateBytes": 66781184,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 967380992,
+        "privateBytes": 196661248
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 5,
+      "elapsedMilliseconds": 215126.5147,
+      "heap": {
+        "usedSize": 12796984,
+        "totalSize": 18632704,
+        "embedderHeapUsedSize": 1168288,
+        "backingStorageSize": 6282032
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 110059520,
+            "privateBytes": 62558208,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31338496,
+            "privateBytes": 13946880,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 727871488,
+            "privateBytes": 82259968,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 982540288,
+        "privateBytes": 211623936
+      }
+    },
+    {
+      "phase": "title",
+      "round": 5,
+      "elapsedMilliseconds": 225438.0844,
+      "heap": {
+        "usedSize": 9504180,
+        "totalSize": 13078528,
+        "embedderHeapUsedSize": 1027672,
+        "backingStorageSize": 3533937
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 196
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112443392,
+            "privateBytes": 64987136,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31338496,
+            "privateBytes": 13946880,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 700710912,
+            "privateBytes": 55857152,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 957763584,
+        "privateBytes": 187650048
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 6,
+      "elapsedMilliseconds": 228421.5979,
+      "heap": {
+        "usedSize": 9872876,
+        "totalSize": 13602816,
+        "embedderHeapUsedSize": 1184336,
+        "backingStorageSize": 3504869
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 310
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111575040,
+            "privateBytes": 64086016,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31338496,
+            "privateBytes": 13946880,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 716656640,
+            "privateBytes": 71278592,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 972840960,
+        "privateBytes": 202170368
+      }
+    },
+    {
+      "phase": "title",
+      "round": 6,
+      "elapsedMilliseconds": 289010.3414,
+      "heap": {
+        "usedSize": 12875344,
+        "totalSize": 19324928,
+        "embedderHeapUsedSize": 985312,
+        "backingStorageSize": 5604735
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112574464,
+            "privateBytes": 65093632,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31346688,
+            "privateBytes": 13942784,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 710696960,
+            "privateBytes": 65888256,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 967888896,
+        "privateBytes": 197783552
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 7,
+      "elapsedMilliseconds": 291920.49409999995,
+      "heap": {
+        "usedSize": 13256472,
+        "totalSize": 19849216,
+        "embedderHeapUsedSize": 1184352,
+        "backingStorageSize": 5575667
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112078848,
+            "privateBytes": 64581632,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10895360,
+            "privateBytes": 5521408,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59359232,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31346688,
+            "privateBytes": 13942784,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43016192,
+            "privateBytes": 18522112,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 726638592,
+            "privateBytes": 81510400,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 983334912,
+        "privateBytes": 212893696
+      }
+    },
+    {
+      "phase": "title",
+      "round": 7,
+      "elapsedMilliseconds": 301459.6552,
+      "heap": {
+        "usedSize": 13115892,
+        "totalSize": 18522112,
+        "embedderHeapUsedSize": 1044000,
+        "backingStorageSize": 4225128
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 115441664,
+            "privateBytes": 67739648,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10973184,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59453440,
+            "privateBytes": 28901376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31395840,
+            "privateBytes": 13946880,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43126784,
+            "privateBytes": 18636800,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 707268608,
+            "privateBytes": 61542400,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 967659520,
+        "privateBytes": 196374528
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 8,
+      "elapsedMilliseconds": 304443.7767,
+      "heap": {
+        "usedSize": 13429044,
+        "totalSize": 18522112,
+        "embedderHeapUsedSize": 1205128,
+        "backingStorageSize": 4211036
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 113893376,
+            "privateBytes": 66138112,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10973184,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59453440,
+            "privateBytes": 28901376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31395840,
+            "privateBytes": 13946880,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43126784,
+            "privateBytes": 18636800,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 724115456,
+            "privateBytes": 78491648,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 982958080,
+        "privateBytes": 211722240
+      }
+    },
+    {
+      "phase": "title",
+      "round": 8,
+      "elapsedMilliseconds": 365680.02499999997,
+      "heap": {
+        "usedSize": 8933840,
+        "totalSize": 14553088,
+        "embedderHeapUsedSize": 967488,
+        "backingStorageSize": 5599923
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 115240960,
+            "privateBytes": 67620864,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10973184,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59453440,
+            "privateBytes": 28901376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31412224,
+            "privateBytes": 13950976,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43126784,
+            "privateBytes": 18636800,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 691302400,
+            "privateBytes": 63324160,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 951508992,
+        "privateBytes": 198041600
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 9,
+      "elapsedMilliseconds": 368535.4799,
+      "heap": {
+        "usedSize": 9057380,
+        "totalSize": 15077376,
+        "embedderHeapUsedSize": 1124432,
+        "backingStorageSize": 5570855
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 114466816,
+            "privateBytes": 66826240,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10973184,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59453440,
+            "privateBytes": 28901376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31412224,
+            "privateBytes": 13950976,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43126784,
+            "privateBytes": 18636800,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 723800064,
+            "privateBytes": 78630912,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 983232512,
+        "privateBytes": 212553728
+      }
+    },
+    {
+      "phase": "title",
+      "round": 9,
+      "elapsedMilliseconds": 377567.529,
+      "heap": {
+        "usedSize": 11191276,
+        "totalSize": 16199680,
+        "embedderHeapUsedSize": 990120,
+        "backingStorageSize": 4225128
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 113049600,
+            "privateBytes": 65232896,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10973184,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59453440,
+            "privateBytes": 28901376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31412224,
+            "privateBytes": 13950976,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43126784,
+            "privateBytes": 18636800,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 706502656,
+            "privateBytes": 61001728,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 964517888,
+        "privateBytes": 193331200
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 10,
+      "elapsedMilliseconds": 380382.84349999996,
+      "heap": {
+        "usedSize": 11156308,
+        "totalSize": 16199680,
+        "embedderHeapUsedSize": 1163784,
+        "backingStorageSize": 4211036
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111583232,
+            "privateBytes": 63795200,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10973184,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59453440,
+            "privateBytes": 28901376,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31412224,
+            "privateBytes": 13950976,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43126784,
+            "privateBytes": 18636800,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 721879040,
+            "privateBytes": 75997184,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 978427904,
+        "privateBytes": 206888960
+      }
+    },
+    {
+      "phase": "title",
+      "round": 10,
+      "elapsedMilliseconds": 440343.95489999995,
+      "heap": {
+        "usedSize": 8976820,
+        "totalSize": 12984320,
+        "embedderHeapUsedSize": 926608,
+        "backingStorageSize": 5244083
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 196
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112545792,
+            "privateBytes": 64786432,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 705933312,
+            "privateBytes": 61132800,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 963297280,
+        "privateBytes": 192716800
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 11,
+      "elapsedMilliseconds": 443002.7973,
+      "heap": {
+        "usedSize": 9365944,
+        "totalSize": 13508608,
+        "embedderHeapUsedSize": 1168624,
+        "backingStorageSize": 5215015
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 310
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112586752,
+            "privateBytes": 64831488,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 721739776,
+            "privateBytes": 76468224,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 979144704,
+        "privateBytes": 208097280
+      }
+    },
+    {
+      "phase": "title",
+      "round": 11,
+      "elapsedMilliseconds": 451789.0024,
+      "heap": {
+        "usedSize": 11303784,
+        "totalSize": 16199680,
+        "embedderHeapUsedSize": 1005400,
+        "backingStorageSize": 4225128
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 113602560,
+            "privateBytes": 65814528,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 705949696,
+            "privateBytes": 60223488,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 964370432,
+        "privateBytes": 192835584
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 12,
+      "elapsedMilliseconds": 454515.5992,
+      "heap": {
+        "usedSize": 11268416,
+        "totalSize": 16199680,
+        "embedderHeapUsedSize": 1175824,
+        "backingStorageSize": 4211036
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 114737152,
+            "privateBytes": 66912256,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 722132992,
+            "privateBytes": 76201984,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 981688320,
+        "privateBytes": 209911808
+      }
+    },
+    {
+      "phase": "title",
+      "round": 12,
+      "elapsedMilliseconds": 514482.61209999997,
+      "heap": {
+        "usedSize": 11667480,
+        "totalSize": 17395712,
+        "embedderHeapUsedSize": 970192,
+        "backingStorageSize": 6311001
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 114970624,
+            "privateBytes": 67239936,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 710586368,
+            "privateBytes": 65572864,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 970375168,
+        "privateBytes": 199610368
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 13,
+      "elapsedMilliseconds": 517077.75669999997,
+      "heap": {
+        "usedSize": 12068652,
+        "totalSize": 17920000,
+        "embedderHeapUsedSize": 1171272,
+        "backingStorageSize": 6281933
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 114102272,
+            "privateBytes": 66379776,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 728117248,
+            "privateBytes": 83005440,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 987037696,
+        "privateBytes": 216182784
+      }
+    },
+    {
+      "phase": "title",
+      "round": 13,
+      "elapsedMilliseconds": 525798.4239,
+      "heap": {
+        "usedSize": 8330804,
+        "totalSize": 13242368,
+        "embedderHeapUsedSize": 1048808,
+        "backingStorageSize": 4240104
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 196
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 112242688,
+            "privateBytes": 64380928,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 703037440,
+            "privateBytes": 57790464,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 960098304,
+        "privateBytes": 188968960
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 14,
+      "elapsedMilliseconds": 528379.6062,
+      "heap": {
+        "usedSize": 8737536,
+        "totalSize": 13766656,
+        "embedderHeapUsedSize": 1222280,
+        "backingStorageSize": 4211036
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 203,
+        "jsEventListeners": 310
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111296512,
+            "privateBytes": 63471616,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31387648,
+            "privateBytes": 13905920,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 719466496,
+            "privateBytes": 73814016,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 975581184,
+        "privateBytes": 204083200
+      }
+    },
+    {
+      "phase": "title",
+      "round": 14,
+      "elapsedMilliseconds": 588120.7808000001,
+      "heap": {
+        "usedSize": 11683076,
+        "totalSize": 17133568,
+        "embedderHeapUsedSize": 980904,
+        "backingStorageSize": 6311001
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 207
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111759360,
+            "privateBytes": 63938560,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31391744,
+            "privateBytes": 13901824,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 712024064,
+            "privateBytes": 67244032,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 968605696,
+        "privateBytes": 197976064
+      }
+    },
+    {
+      "phase": "first-picture",
+      "round": 15,
+      "elapsedMilliseconds": 590862.1424,
+      "heap": {
+        "usedSize": 12072120,
+        "totalSize": 17657856,
+        "embedderHeapUsedSize": 1215072,
+        "backingStorageSize": 6281933
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 201,
+        "jsEventListeners": 321
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 111820800,
+            "privateBytes": 64008192,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10932224,
+            "privateBytes": 5533696,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59408384,
+            "privateBytes": 28815360,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31391744,
+            "privateBytes": 13901824,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43089920,
+            "privateBytes": 18542592,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 727461888,
+            "privateBytes": 82202624,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 984104960,
+        "privateBytes": 213004288
+      }
+    },
+    {
+      "phase": "title",
+      "round": 15,
+      "elapsedMilliseconds": 599745.7168,
+      "heap": {
+        "usedSize": 8252060,
+        "totalSize": 12460032,
+        "embedderHeapUsedSize": 961808,
+        "backingStorageSize": 4240104
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 175,
+        "jsEventListeners": 196
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 114790400,
+            "privateBytes": 66895872,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10969088,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 59543552,
+            "privateBytes": 28975104,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31420416,
+            "privateBytes": 13942784,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43122688,
+            "privateBytes": 18604032,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 692514816,
+            "privateBytes": 57298944,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 952360960,
+        "privateBytes": 191324160
+      }
+    },
+    {
+      "phase": "unmounted",
+      "round": 16,
+      "elapsedMilliseconds": 600794.9626000001,
+      "heap": {
+        "usedSize": 8345832,
+        "totalSize": 12460032,
+        "embedderHeapUsedSize": 1213928,
+        "backingStorageSize": 4240104
+      },
+      "dom": {
+        "documents": 1,
+        "nodes": 177,
+        "jsEventListeners": 202
+      },
+      "process": {
+        "source": "Windows-Win32_Process-browser-tree",
+        "processes": [
+          {
+            "pid": 33916,
+            "workingSetBytes": 115171328,
+            "privateBytes": 66641920,
+            "role": "browser"
+          },
+          {
+            "pid": 33724,
+            "workingSetBytes": 10969088,
+            "privateBytes": 5607424,
+            "role": "helper"
+          },
+          {
+            "pid": 53700,
+            "workingSetBytes": 56061952,
+            "privateBytes": 29077504,
+            "role": "gpu-process"
+          },
+          {
+            "pid": 55940,
+            "workingSetBytes": 31420416,
+            "privateBytes": 13942784,
+            "role": "utility"
+          },
+          {
+            "pid": 52832,
+            "workingSetBytes": 43122688,
+            "privateBytes": 18604032,
+            "role": "renderer"
+          },
+          {
+            "pid": 46388,
+            "workingSetBytes": 687747072,
+            "privateBytes": 77946880,
+            "role": "renderer"
+          }
+        ],
+        "workingSetBytes": 944492544,
+        "privateBytes": 211820544
+      }
+    }
+  ],
+  "imageSize": 2048,
+  "pressureLevel": "none",
+  "backgroundTimerThrottling": false,
+  "measurementLimits": "CDP freeze/resume with controlled foreground; Windows browser-tree working sets can double-count shared pages; sampled maxima are not process/GPU peaks or physical low-memory evidence",
+  "gcPolicy": "natural-no-forced-GC-no-pressure-notification",
+  "protection": [
+    {
+      "round": 0,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 1,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 2,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 3,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 4,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 5,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 6,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 7,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 8,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 9,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 10,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 11,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 12,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 13,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 14,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    },
+    {
+      "round": 15,
+      "before": 82,
+      "after": 64,
+      "stateHeld": true,
+      "archived": true
+    }
+  ],
+  "productPressure": "explicit-host-critical-not-OS-notification"
+}
