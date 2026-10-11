@@ -21,8 +21,11 @@ import { runPlayerInput } from './player-input-workflow.mjs';
 import { runPlayerVoice } from './player-voice-workflow.mjs';
 import { runPlayerCold } from './player-cold-workflow.mjs';
 import { runPlayerMemory } from './player-memory-workflow.mjs';
+import { runMappingProbe } from './player-mapping-probe.mjs';
 
 const root = resolve(import.meta.dirname, "..");
+if(process.argv.includes('--working-set'))assert.ok(process.argv.includes('--player-protected-soak'),'--working-set requires --player-protected-soak');
+if(process.argv.includes('--probe-blob')||process.argv.includes('--trace-smoke'))assert.ok(process.argv.includes('--player-mapping-probe'),'Probe modifiers require --player-mapping-probe');
 const sceneWriting = process.argv.includes('--scene-writing');
 const branchTarget = process.argv.includes('--branch-target');
 const variableAuthor = process.argv.includes('--variable-author');
@@ -96,7 +99,9 @@ try {
   client = new Cdp((await response.json()).webSocketDebuggerUrl); await client.open();
   await client.send("Runtime.enable"); await client.send("Page.enable");
   await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
-  if(process.argv.includes('--player-memory')) {
+  if(process.argv.includes('--player-mapping-probe')) {
+    console.log(JSON.stringify(await runMappingProbe(client,root,temporary,browser.pid),null,2));
+  } else if(process.argv.includes('--player-memory')) {
     console.log(JSON.stringify(await runPlayerMemory(client,root,temporary,browser.pid),null,2));
   } else if(process.argv.includes('--player-cold')) {
     console.log(JSON.stringify(await runPlayerCold(client,root,temporary),null,2));
@@ -106,8 +111,8 @@ try {
     console.log(JSON.stringify(await runPlayerInput(client,root,temporary),null,2));
   } else if(process.argv.includes('--player-continuity')||process.argv.includes('--player-pressure')||process.argv.includes('--player-soak')||process.argv.includes('--player-protected-soak')) {
     const duration=process.argv.find(arg=>arg.startsWith('--pressure-minutes='));
-    const protectHistory=process.argv.includes('--player-protected-soak'),naturalGc=protectHistory||process.argv.includes('--player-soak');
-    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:naturalGc||process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):naturalGc?10:3,naturalGc,browserPid:browser.pid,protectHistory}),null,2));
+    const protectHistory=process.argv.includes('--player-protected-soak'),workingSet=process.argv.includes('--working-set'),naturalGc=protectHistory||process.argv.includes('--player-soak');
+    console.log(JSON.stringify(await runPlayerContinuity(client,root,temporary,{pressure:naturalGc||process.argv.includes('--player-pressure'),minimumMinutes:duration?Number(duration.split('=')[1]):naturalGc?10:3,naturalGc,browserPid:browser.pid,protectHistory,workingSet}),null,2));
   } else if(process.argv.includes('--atlas-scale-workflow')||process.argv.includes('--atlas-incremental-workflow')||process.argv.includes('--atlas-delivery-workflow')||process.argv.includes('--atlas-quality-workflow')||process.argv.includes('--atlas-sampling-workflow')||process.argv.includes('--atlas-lazy-workflow')||process.argv.includes('--atlas-coordination-workflow')||process.argv.includes('--atlas-recovery-workflow')||process.argv.includes('--atlas-isolation-workflow')) {
     const isolation=process.argv.includes('--atlas-isolation-workflow');
     const recovery=isolation||process.argv.includes('--atlas-recovery-workflow');

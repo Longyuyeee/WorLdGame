@@ -13,14 +13,19 @@ const text=()=>document.querySelector(".player-dialogue__text")?.textContent??""
 function click(name:string){const button=[...document.querySelectorAll<HTMLButtonElement>("button")].find(b=>b.getAttribute("aria-label")===name||b.textContent?.includes(name));check(button&&!button.disabled,`Unavailable action: ${name}`);button.click();}
 
 /** Real production Player/clock; controlled visibility boundary, not OS suspension or real artwork. */
-export function start(options:{pressure?:boolean}={}){
+export function start(options:{pressure?:boolean;sourceKind?:"data"|"blob"}={}){
   const style=document.createElement("style");style.textContent=css;document.head.append(style);
+  const ownedUrls:string[]=[];
   const mediaAssets=Array.from({length:4},(_,i)=>{
     const size=options.pressure?2048:256;
     const canvas=document.createElement("canvas");canvas.width=canvas.height=size;
     const context=canvas.getContext("2d")!;context.fillStyle=["#254663","#634425","#426325","#63254d"][i]!;context.fillRect(0,0,size,size);
     context.fillStyle="white";context.font="36px sans-serif";context.fillText(`Scene ${i}`,24,128);
-    const url=canvas.toDataURL();canvas.width=canvas.height=0;
+    let url=canvas.toDataURL();canvas.width=canvas.height=0;
+    if(options.sourceKind==="blob"){
+      const bytes=Uint8Array.from(atob(url.slice(url.indexOf(",")+1)),char=>char.charCodeAt(0));
+      url=URL.createObjectURL(new Blob([bytes],{type:"image/png"}));ownedUrls.push(url);
+    }
     return {assetId:`picture_${i}`,displayName:`Scene ${i}`,mimeType:"image/png",canvasSampling:true,url};
   });
   const source:S0Project={schemaVersion:0,id:"continuity_soak",title:"连续播放验收",entrySceneId:"scene_0",characters:[],scenes:Array.from({length:12},(_,scene):S0Project["scenes"][number]=>({
@@ -88,7 +93,7 @@ export function start(options:{pressure?:boolean}={}){
     rows.push({round,scene:index,mode:automatic?"auto":"skipAll",boundaryHeld:true,historyLength:Number(main().dataset.historyLength),native:memory});
     if(index!==11){click(`进入场景 ${index+1}`);}else {click("回到标题");await until(()=>nativeAtlasDiagnostics().accountedBytes===0);}
   };
-  const close=()=>{handle.unmount();document.removeEventListener("freeze",frozenEvent);document.removeEventListener("resume",resumedEvent);delete (document as unknown as Record<string,unknown>).visibilityState;style.remove();return {rows,native:nativeAtlasDiagnostics(),scope:options.pressure?"12-scene-2048px-CDP-freeze-pressure-not-physical-low-memory-device":"12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak"};};
+  const close=()=>{handle.unmount();ownedUrls.splice(0).forEach(url=>URL.revokeObjectURL(url));document.removeEventListener("freeze",frozenEvent);document.removeEventListener("resume",resumedEvent);delete (document as unknown as Record<string,unknown>).visibilityState;style.remove();return {rows,native:nativeAtlasDiagnostics(),scope:options.pressure?"12-scene-2048px-CDP-freeze-pressure-not-physical-low-memory-device":"12-scene-production-player-controlled-visibility-synthetic-PNG-not-device-soak"};};
   const protect = async () => {
     const beforeHash=hash(),before=Number(main().dataset.historyLength);
     handle.notifyMemoryPressure("critical");

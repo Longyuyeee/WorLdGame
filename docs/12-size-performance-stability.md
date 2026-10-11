@@ -181,6 +181,10 @@ Story Graph 为资源调度器提供安全预测：
 
 ### 5.4 内存生命周期
 
+驻留诊断口径（2026-10-11）：除 JS heap/引擎资源计账外，Windows 工程验收补充隔离浏览器进程树的 `QueryWorkingSet` + `VirtualQueryEx` 元数据采样，将驻留页按 private/mapped/image/unknown 区域和可共享/不可共享分别计数。`MEM_MAPPED` 不等于磁盘文件，也不等于 GPU；可共享不等于此刻由别的进程共享，写时复制页面仍可能属于 mapped/image 区域。不同进程的工作集不能直接相加为唯一物理用量，CIM 与逐进程页表采样不是同一瞬间，页面变化必须保留为测量限制。不得调用 EmptyWorkingSet、强制 GC 后冒称自然游玩结果。Chromium memory-infra 分配器 dump 在独立诊断运行中执行，只保留数值摘要，不保存原始 trace/文件路径；它用于辅助归因，不代替驻留页所有权或设备预算。实测结论以 #99 最新节为准。
+
+口径依据：[Windows 驻留页共享标记](https://learn.microsoft.com/en-us/windows/win32/api/psapi/ns-psapi-psapi_working_set_block)、[VirtualQueryEx 与写时复制](https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualqueryex)、[Chromium 诊断 dump 协议](https://chromedevtools.github.io/devtools-protocol/tot/Tracing/#method-requestMemoryDump)。
+
 资源管理器结合 Manifest 依赖、引用计数、LRU 和显式释放：
 
 - 当前场景、回滚窗口和预加载窗口分别计算引用；

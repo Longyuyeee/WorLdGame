@@ -1,4 +1,54 @@
-# 当前开发情况：低内存通知、恢复点保护与回滚归档
+# 当前开发情况：renderer 驻留页组成与浏览器缓存归因
+
+## 最新审计：2026-10-11 驻留高位诊断开发包
+
+本节优先，基线 `8db2f76`，远端接续已核对。按 #89/#289 接续，落实 #12 §2/§5.4 的真实内存计量要求：没有继续删 History 或降低画质以掩盖进程工作集，也没有把引擎 64 MiB 资源计账上限称为浏览器实际内存上限。
+
+### 新增诊断与完整流程验证
+
+- `player-working-set.ps1/.mjs` 仅对隔离浏览器已识别 PID 使用 Windows x64 `QueryWorkingSet` 和 `VirtualQueryEx`，按 private/mapped/image/unknown 区域 × 可共享/不可共享统计驻留页。只读取元数据，不读取内存内容、映射文件路径，不修改 OS 工作集或机器策略；PowerShell 执行策略仅作用于此次诊断子进程。进程退出、权限失败、采样不全或数值不一致直接失败，不补零。
+- 新入口 `--player-protected-soak --working-set` 保留现有存读档、回滚、Auto/Skip、冻结恢复、真实 IndexedDB 保护及自然 GC 规则，独立保存 `player-working-set.json/png`，不覆盖此前 soak/protected-soak。不同进程、不同采样时刻不作唯一物理内存加总；报告不把换 PID 的 renderer 当成同一个进程计算增量。
+- Windows 实测 **608.82 秒 /10.15 分钟、16 轮/192 场景、33 组样本**，最大采样间隔 61.26 秒；16 次保护均为 **82→64**、当前状态保持，exceptions 为空，卸载后引擎资源计账归零。标题 DOM 固定 **175**，监听器 **196–207**，标题 heap 首 24.96 MiB、末 7.97 MiB，最低 7.68 MiB。未强制 GC、未发 CDP 压力通知；宿主显式保护通知仍按原流程运行。
+- 浏览器树 CIM 工作集合计首 **414.79 MiB**、末 **902.79 MiB**，采样最大 **953.07 MiB**；private bytes 首 **197.32 MiB**、末 **207.98 MiB**。这不是设备峰值或去重物理用量。
+- 对同一个主要 renderer PID 13084，**首轮标题→末轮标题**的逐页驻留约 **359.04→659.88 MiB**，增加 **300.84 MiB**；其中可共享 mapped 页面 **223.45→549.32 MiB**，增加 **325.87 MiB**，private 区域不可共享驻留反而 **64.29→38.76 MiB**。与首图→卸载的全树指标口径不同，不混算。增长主要落在映射页，而不是 JS heap 或 private bytes；此层证据还不能独自确定资源所有者或 GPU 归属。
+
+### 归因实验的隔离原则
+
+新增 `--player-mapping-probe`，用独立浏览器运行同一生产 Player 的 6 轮完整 Skip 故事，在标题/卸载闲置后采集 Chromium memory-infra 分配器数值摘要，并在最后执行 CDP critical 回收对照。原始 trace、映射路径不写入仓库。`--probe-blob` 只改变合成 PNG 的 URL 来源，图像、剧情、画布采样不变；两种输入分开运行。单文件真实导出 `formal-web-export.ts` 使用 data URL，因此 data 输入具有对应产品场景；Blob 对照不能替代原路径验收。诊断 dump 和注入压力可能影响进程，不能混入前述自然 GC 结果。
+
+### 最终归因结果与纠偏
+
+最终独立证据为 `player-mapping-probe-data.json` 和 `player-mapping-probe-blob.json`，同一 **HeadlessChrome 151.0.7922.34 / revision 782af9cb30a53f54487e5d2e44738645a8ec457c**，每条 6 轮/72 场景，包含历史、前后台、回滚和快速存读档。它们是加速 Skip + 分配器 dump 的诊断，不与自然 Auto/Skip soak 做严格内存优劣比较。
+
+- data 路线 renderer PID 52876 的 `cc/image_memory` 在标题为 **512 MiB**，47 条 at-raster 元数据中 32 条持有 16 MiB，`locked_size` 全为 0；卸载闲置 5 秒、最后一次 CDP critical 后仍为 512 MiB。
+- Blob 路线 renderer PID 49844 同项也为 **512 MiB**，52 条元数据中 32 条持有 16 MiB，均未锁定；卸载后仍为 512 MiB，CDP critical 后为 **496 MiB**，只减少一份 16 MiB。此前探索运行看到 data 448 MiB/Blob 512 MiB，最终以仓库上述复跑证据为准，不把单次差值当版本性能结论。
+- 因而本轮已将主要高位从“未知 renderer 内存”进一步定位到 **Chromium 图像解码缓存 `cc/image_memory`、其 discardable/shared-memory 表示及 mapped 驻留页**。这些分配器父子层级会重复记账，不将 cc/discardable/shared_memory 相加；没有逐页到分配器的一一映射，不能宣称解释了每一个字节或排除其他资源问题。命名机制参考 [Chromium SoftwareImageDecodeCache dump](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/cc/tiles/software_image_decode_cache.cc)，实际数字来自本轮浏览器而不是源码推算。
+- **未采用单纯 data URL→Blob URL 替换**，因为对照未消除高位。现有画布离场清零、租约释放、引擎计账归零并不意味着浏览器解码缓存同步归零；“未锁定”也不等于已经回收。没有删除用户历史、降低 PNG 质量、调用工作集清空或篡改旧验收结果。本轮交付的是完整诊断/证据门禁开发包，**未声称产品内存占用已降低**。
+
+Trace 工具首两次探索因请求 GUID 与 trace-local ID 不一致而失败，未生成通过证据。现每次 trace 只发一个 detailed 请求、禁用周期 dump，接受明确 GUID 或唯一 detailed trace-local ID，多个候选拒绝；独立 smoke、反例及两条完整流程复跑通过。仅保留根节点、图像缓存明细及较大分配，省略微小内部桶并记录数量，避免把原始巨量 trace 混进仓库。
+
+### 接下来按整包实施，不拆成按钮补丁
+
+本轮收尾验证：**57 项 Golden 正反例**及 7 个 Golden/全部子门禁通过；围绕本次审查的原生图片、普通 Canvas、闲置资源、压力保护和 Runtime/Core，定向 **5 文件/51 项通过**（27.47 秒）。类型检查、Editor/Player 生产构建、50 项需求映射、架构及 17 工作区审计通过；Editor 大 chunk 提醒保留。产品生产源码没有修改，本轮没有重跑此前 1212 项宽回归或完整 `npm run check`，不复用旧通过数冒称新验收。文档 #12/#89/#99/#289 已对齐，旧 soak/pressure 证据未覆盖，未触碰原有 `.browser-diagnostic/`。
+
+1. **显式静态 PNG 解码所有权**：以普通 Canvas、Atlas PNG 回退、单文件与目录交付为同一问题面，先做生产调用路径的受控 `ImageBitmap`/解码复用原型，证明可关闭的解码对象确实减少 cc 图像缓存，而非只移动计账位置。不得仅替换 URL 或默认认为 `bitmap.close()` 就能使 OS 工作集下降。
+2. **取消、失败与预算闭环**：解码前校验尺寸/字节预算；不可取消的物理解码必须保留预留直到真正结束，迟到对象关闭且不能覆盖新画布；超时、解码不支持、Canvas 不可用、PNG 回退、压力清理与活跃资源保护一起验收。不能为清理缓存破坏图像采样一致性、色彩/透明像素或当前剧情。
+3. **同一整包的退出条件**：原图/优化图像素等价、桌面/移动视口、快速切场景、存读档/回滚、延迟完成及生产导出验证；重跑自然 GC 驻留分类与独立分配器对照，确认图像缓存和驻留改善，不能只看 JS heap。随后接实际宿主低内存信号、大规模单会话/音视频/存储失败压力预算。
+
+真实作品、Android/WebView 与 Windows 宿主硬件、系统杀进程、两小时真机和整体预算仍未验收；Dicing P0/N70/M1 不关闭。当前没有充分证据将浏览器缓存高位直接归类为不可回收泄漏，也没有足够证据宣布无泄漏。此结论比前轮更具体，但不夸大完成程度。
+
+复跑（本机可用 Chromium 路径按环境设置；固定端口禁止并行）：
+
+```powershell
+node tools/run-n80-web-export-browser.mjs --player-protected-soak --working-set --pressure-minutes=10
+node tools/run-n80-web-export-browser.mjs --player-mapping-probe --trace-smoke
+node tools/run-n80-web-export-browser.mjs --player-mapping-probe
+node tools/run-n80-web-export-browser.mjs --player-mapping-probe --probe-blob
+npm run audit:goldens
+npm run typecheck
+```
+
+以下为上一完整开发包及历史。
 
 ## 最新审计：2026-10-11 低内存保护工程闭环
 
