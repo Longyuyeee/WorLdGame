@@ -94,6 +94,7 @@ export function describeDebuggerStopReason(state: FormalPreviewState, breakpoint
 }
 
 export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, selectedStatementId, onProjectChange, onOpenSource, runBlocked = false }: DebugQaWorkspaceProps) {
+  const [tab, setTab] = useState<"issues" | "debugger">("issues");
   const [report, setReport] = useState<DebugQaReport | null>(null);
   const [filter, setFilter] = useState<"all" | "error" | "warning">("all");
   const [categoryFilter, setCategoryFilter] = useState<"all" | StoryQaCategory>("all");
@@ -141,20 +142,21 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
   return <section className="debug-qa-workspace view-enter" aria-labelledby="debug-qa-workspace-title">
     <header className="debug-qa-workspace__hero">
       <div>
-        <p className="eyebrow">DEBUG & QA · FORMAL COMPILER / RUNTIME / SOURCE MAP</p>
-        <h2 id="debug-qa-workspace-title">诊断与运行检查台</h2>
-        <p>对当前工程与稳定 ID 执行正式链检查；错误草稿会先阻断运行，所有可定位问题回到同一 Canonical 源修复。</p>
+        <p className="eyebrow">CHECKS</p>
+        <h2 id="debug-qa-workspace-title">检查与调试</h2>
+        <p>检查故事中的断路、缺失素材和运行问题，定位后返回原文修复。</p>
       </div>
       <button type="button" className="debug-qa-workspace__primary" onClick={runInspection}>运行正式 QA 检查</button>
     </header>
 
+    <nav className="workspace-section-tabs" aria-label="检查工作区"><button type="button" aria-pressed={tab === "issues"} onClick={() => setTab("issues")}>问题检查</button><button type="button" aria-pressed={tab === "debugger"} onClick={() => setTab("debugger")}>运行调试</button></nav>
     <div className="debug-qa-target" role="status">
       <span aria-hidden="true">◎</span>
       <div><small>当前检查目标</small><strong>{selectedSceneId} / {selectedStatementId}</strong></div>
       <button type="button" onClick={() => onOpenSource(selectedSceneId, selectedStatementId)}>在 Sequence 检查当前语句</button>
     </div>
 
-    <section className="debugger-session" data-testid="debugger-session" data-status={observation.status} aria-labelledby="debugger-session-title">
+    <section hidden={tab !== "debugger"} className="debugger-session" data-testid="debugger-session" data-status={observation.status} aria-labelledby="debugger-session-title">
       <div className="debugger-session__heading">
         <div>
           <p className="eyebrow">FORMAL RUNTIME · HISTORY · SOURCE MAP</p>
@@ -251,6 +253,7 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
       </div>
     </section>
 
+    <div hidden={tab !== "issues"}>
     {report === null ? <div className="debug-qa-empty">
       <strong>尚未运行检查</strong>
       <p>检查不会使用另一份测试剧情；它直接消费当前工程、当前草稿诊断与正式 Runtime。</p>
@@ -310,5 +313,6 @@ export function DebugQaWorkspace({ project, diagnostics, selectedSceneId, select
         </li>)}</ul>
       </section>}
     </>}
+    </div>
   </section>;
 }

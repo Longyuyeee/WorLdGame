@@ -1,0 +1,4620 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+xxx·xx·x······x·xx······x···············
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/asset-import-app.test.tsx > S0.30 typed resource manifest compiler integration > imports real File bytes, persists stable metadata and reports exact deduplication
+TestingLibraryElementError: Unable to find an accessible element with the role "dialog" and name "资源保险库"
+
+Here are the accessible roles:
+
+  banner:
+
+  Name "":
+  <header
+    class="workspace-header"
+  />
+
+  Name "":
+  <header
+    class="production-workspace__hero"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong
+    class="brand-product"
+  />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p
+    class="asset-library-empty"
+  />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p
+    class="asset-dialog__intro"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="asset-list__empty"
+  />
+
+  --------------------------------------------------
+  heading:
+
+  Name "黄昏广播":
+  <h1 />
+
+  Name "素材库":
+  <h2
+    id="production-workspace-title"
+  />
+
+  Name "全部素材":
+  <h3
+    id="production-table-title"
+  />
+
+  Name "素材管理":
+  <h2
+    id="asset-dialog-title"
+  />
+
+  Name "素材引用与恢复":
+  <h3 />
+
+  Name "资源血缘与安全回收":
+  <h3 />
+
+  Name "跨图片重复块分析":
+  <h4 />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <details
+    class="editor-preferences"
+  />
+
+  Name "编辑器主题":
+  <fieldset
+    class="editor-theme-control"
+  />
+
+  Name "":
+  <details />
+
+  Name "":
+  <details
+    class="production-pipeline-details"
+    open=""
+  />
+
+  Name "":
+  <details
+    class="asset-library-table"
+  />
+
+  Name "":
+  <details
+    class="asset-repair-details"
+  />
+
+  Name "":
+  <details
+    class="author-technical-details"
+  />
+
+  Name "":
+  <details
+    class="asset-all-items"
+    open=""
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "撤销上一步":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "重做上一步":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "清亮":
+  <button
+    aria-pressed="true"
+    type="button"
+  />
+
+  Name "石墨":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "暖纸":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "跟随系统":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "撤销":
+  <button
+    aria-label="撤销"
+    class="icon-button"
+    disabled=""
+  />
+
+  Name "重做":
+  <button
+    aria-label="重做"
+    class="icon-button"
+    disabled=""
+  />
+
+  Name "游戏外观":
+  <button
+    aria-pressed="false"
+    class="settings-open-button"
+    type="button"
+  />
+
+  Name "备份 0/5":
+  <button
+    class="backup-button"
+  />
+
+  Name "保存到本机":
+  <button
+    class="local-save-button local-save-button--unsaved"
+    title="保存项目快照到本机"
+  />
+
+  Name "故事":
+  <button
+    data-nav-item="story"
+    type="button"
+  />
+
+  Name "素材":
+  <button
+    aria-current="page"
+    data-nav-item="assets"
+    type="button"
+  />
+
+  Name "游戏外观":
+  <button
+    data-nav-item="appearance"
+    type="button"
+  />
+
+  Name "检查":
+  <button
+    data-nav-item="checks"
+    type="button"
+  />
+
+  Name "发布":
+  <button
+    data-nav-item="publish"
+    type="button"
+  />
+
+  Name "素材库":
+  <button
+    aria-current="page"
+    type="button"
+  />
+
+  Name "翻译与配音":
+  <button
+    type="button"
+  />
+
+  Name "附加内容":
+  <button
+    type="button"
+  />
+
+  Name "导入与管理素材":
+  <button
+    class="production-workspace__primary"
+    type="button"
+  />
+
+  Name "关闭资源保险库":
+  <button
+    aria-label="关闭资源保险库"
+    class="icon-button"
+  />
+
+  Name "撤销最近资源更新":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "重做最近资源更新":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "安全扫描":
+  <button
+    type="button"
+  />
+
+  Name "移入可恢复区":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "分析候选 · 0":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "导入到资源保险库":
+  <button
+    disabled=""
+    type="submit"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "工作模式":
+  <nav
+    aria-label="工作模式"
+    class="workspace-mode-switcher"
+    role="radiogroup"
+  />
+
+  Name "编辑复杂度":
+  <div
+    aria-label="编辑复杂度"
+    class="experience-switcher"
+    role="radiogroup"
+  />
+
+  Name "动效级别":
+  <div
+    aria-label="动效级别"
+    class="motion-preference__options"
+    role="radiogroup"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Writer":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="对白、叙事与结构化语句"
+    type="button"
+  />
+
+  Name "Director":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="舞台、时间线与即时预览"
+    type="button"
+  />
+
+  Name "Flow 模式":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="路线、结局与结构诊断"
+    type="button"
+  />
+
+  Name "Production":
+  <button
+    aria-checked="true"
+    class="workspace-mode-button is-active"
+    role="radio"
+    title="资源映射、批量状态与交付流水线"
+    type="button"
+  />
+
+  Name "Debug & QA":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="正式 Compiler、Runtime 与源码定位检查"
+    type="button"
+  />
+
+  Name "Mobile Focus":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="同一 Canonical 工程的手机专注创作"
+    type="button"
+  />
+
+  Name "Quick Start":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="收起项目树，聚焦当前场景"
+    type="button"
+  />
+
+  Name "Beginner":
+  <button
+    aria-checked="false"
+    class="experience-button"
+    role="radio"
+    title="场景、对白、舞台与预览"
+    type="button"
+  />
+
+  Name "Pro":
+  <button
+    aria-checked="true"
+    class="experience-button is-active"
+    role="radio"
+    title="完整结构、批量演出与专业诊断"
+    type="button"
+  />
+
+  Name "完整动效":
+  <button
+    aria-checked="false"
+    aria-label="完整动效"
+    class="motion-preference__button"
+    role="radio"
+    type="button"
+  />
+
+  Name "简化动效":
+  <button
+    aria-checked="true"
+    aria-label="简化动效"
+    class="motion-preference__button is-active"
+    role="radio"
+    type="button"
+  />
+
+  Name "静止动效":
+  <button
+    aria-checked="false"
+    aria-label="静止动效"
+    class="motion-preference__button"
+    role="radio"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <output
+    aria-live="polite"
+  />
+
+  Name "统一工作上下文":
+  <output
+    aria-label="统一工作上下文"
+    aria-live="polite"
+    class="workspace-mode-summary"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+    class="motion-preference__summary"
+  />
+
+  Name "":
+  <div
+    class="production-workspace__next"
+    role="status"
+  />
+
+  Name "":
+  <div
+    class="asset-lifecycle__notice"
+    role="status"
+  />
+
+  --------------------------------------------------
+  tablist:
+
+  Name "编辑视图":
+  <nav
+    aria-label="编辑视图"
+    class="mode-switcher"
+    role="tablist"
+  />
+
+  --------------------------------------------------
+  tab:
+
+  Name "Sequence":
+  <button
+    aria-selected="true"
+    class="mode-tab is-active"
+    role="tab"
+  />
+
+  Name "Script":
+  <button
+    aria-selected="false"
+    class="mode-tab"
+    role="tab"
+  />
+
+  Name "Flow":
+  <button
+    aria-selected="false"
+    class="mode-tab"
+    role="tab"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "主要功能":
+  <nav
+    aria-label="主要功能"
+    class="studio-task-nav"
+  />
+
+  Name "素材工作区":
+  <nav
+    aria-label="素材工作区"
+    class="studio-context-nav"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="workspace-grid"
+    data-settings-open="false"
+    data-workspace-mode="production"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "素材库":
+  <section
+    aria-labelledby="production-workspace-title"
+    class="production-workspace view-enter"
+  />
+
+  Name "全部素材":
+  <section
+    aria-labelledby="production-table-title"
+    class="production-table"
+  />
+
+  Name "素材引用与恢复":
+  <section
+    aria-label="素材引用与恢复"
+    class="asset-repair-panel"
+  />
+
+  Name "资源生命周期":
+  <section
+    aria-label="资源生命周期"
+    class="asset-lifecycle"
+  />
+
+  --------------------------------------------------
+  list:
+
+  Name "资源生产阶段":
+  <ol
+    aria-label="资源生产阶段"
+    class="production-pipeline"
+  />
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  <li
+    data-state="current"
+  />
+
+  Name "":
+  <li
+    data-state="blocked"
+  />
+
+  Name "":
+  <li
+    data-state="blocked"
+  />
+
+  Name "":
+  <li
+    data-state="blocked"
+  />
+
+  --------------------------------------------------
+  search:
+
+  Name "":
+  <div
+    class="production-table__filters"
+    role="search"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "搜索资源":
+  <input
+    placeholder="Asset ID、名称或标签"
+    value=""
+  />
+
+  Name "资源 Asset ID":
+  <input
+    aria-label="资源 Asset ID"
+    value=""
+  />
+
+  Name "资源显示名称":
+  <input
+    aria-label="资源显示名称"
+    value=""
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "筛选资源类型":
+  <select />
+
+  Name "资源类型":
+  <select
+    aria-label="资源类型"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "全部类型":
+  <option
+    value="all"
+  />
+
+  Name "背景":
+  <option
+    value="background"
+  />
+
+  Name "角色":
+  <option
+    value="character"
+  />
+
+  Name "CG":
+  <option
+    value="cg"
+  />
+
+  Name "音频":
+  <option
+    value="audio"
+  />
+
+  Name "视频":
+  <option
+    value="video"
+  />
+
+  Name "字体":
+  <option
+    value="font"
+  />
+
+  Name "UI":
+  <option
+    value="ui"
+  />
+
+  Name "其他":
+  <option
+    value="other"
+  />
+
+  Name "背景":
+  <option
+    value="background"
+  />
+
+  Name "角色":
+  <option
+    value="character"
+  />
+
+  Name "CG":
+  <option
+    value="cg"
+  />
+
+  Name "音频":
+  <option
+    value="audio"
+  />
+
+  Name "视频":
+  <option
+    value="video"
+  />
+
+  Name "字体":
+  <option
+    value="font"
+  />
+
+  Name "UI":
+  <option
+    value="ui"
+  />
+
+  Name "其他":
+  <option
+    value="other"
+  />
+
+  --------------------------------------------------
+  table:
+
+  Name "资源映射批量表":
+  <table
+    aria-label="资源映射批量表"
+  />
+
+  --------------------------------------------------
+  rowgroup:
+
+  Name "":
+  <thead />
+
+  Name "":
+  <tbody />
+
+  --------------------------------------------------
+  row:
+
+  Name "Asset ID 名称 类型 媒体检查 源文件 审阅状态":
+  <tr />
+
+  Name "尚无生产资源；从上方流水线导入第一项真实文件。":
+  <tr />
+
+  --------------------------------------------------
+  columnheader:
+
+  Name "Asset ID":
+  <th />
+
+  Name "名称":
+  <th />
+
+  Name "类型":
+  <th />
+
+  Name "媒体检查":
+  <th />
+
+  Name "源文件":
+  <th />
+
+  Name "审阅状态":
+  <th />
+
+  --------------------------------------------------
+  cell:
+
+  Name "尚无生产资源；从上方流水线导入第一项真实文件。":
+  <td
+    class="production-table__empty"
+    colspan="6"
+  />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="workspace-footer"
+  />
+
+  --------------------------------------------------
+  presentation:
+
+  Name "":
+  <div
+    class="asset-overlay"
+    role="presentation"
+  />
+
+  --------------------------------------------------
+  dialog:
+
+  Name "素材管理":
+  <section
+    aria-labelledby="asset-dialog-title"
+    aria-modal="true"
+    class="asset-dialog"
+    data-experience-level="pro"
+    role="dialog"
+  />
+
+  --------------------------------------------------
+  progressbar:
+
+  Name "资源导入进度":
+  <progress
+    aria-label="资源导入进度"
+    max="1"
+    value="0"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_school_gate"
+      data-context-statement-id="stmt_gate_bg"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_gate_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_school_gate"
+      data-runtime-statement-id="stmt_gate_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="assets"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="production"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="worksp...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/asset-import-app.test.tsx:27:26
+     25|     fireEvent.click(screen.getByRole("button", { name: "导入与管理素材" }));
+     26|
+     27|     const vault = screen.getByRole("dialog", { name: "资源保险库" });
+       |                          ^
+     28|     fireEvent.click(screen.getByText("文件信息与维护 · 0 项素材"));
+     29|     expect(screen.getByRole("heading", { name: "资源血缘与安全回收" })).toBeVis…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  apps/editor/src/author-repair-workflow.test.tsx > keeps a cross-scene error visible and repairable in pro
+TestingLibraryElementError: Found multiple elements with the role "button" and name `/导出方式$/`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<button
+  type="button"
+>
+  <span>
+    2
+  </span>
+  <strong>
+    导出方式
+  </strong>
+</button>
+
+Ignored nodes: comments, script, style
+<button
+  type="button"
+>
+  ← 导出方式
+</button>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_broadcast_room"
+      data-context-statement-id="stmt_radio_bg"
+      data-editor-view="script"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_radio_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_broadcast_room"
+      data-runtime-statement-id="stmt_radio_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="wo...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/author-repair-workflow.test.tsx:26:26
+     24|   fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+     25|   expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeDisabl…
+     26|   fireEvent.click(screen.getByRole("button", { name: /导出方式$/ }));
+       |                          ^
+     27|   fireEvent.click(screen.getByRole("radio", { name: /目录 ZIP/ }));
+     28|   fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  apps/editor/src/author-repair-workflow.test.tsx > keeps a cross-scene error visible and repairable in beginner
+TestingLibraryElementError: Found multiple elements with the role "button" and name `/导出方式$/`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<button
+  type="button"
+>
+  <span>
+    2
+  </span>
+  <strong>
+    导出方式
+  </strong>
+</button>
+
+Ignored nodes: comments, script, style
+<button
+  type="button"
+>
+  ← 导出方式
+</button>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_broadcast_room"
+      data-context-statement-id="stmt_radio_bg"
+      data-editor-view="script"
+      data-experience-level="beginner"
+      data-inspector-object-id="stmt_radio_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_broadcast_room"
+      data-runtime-statement-id="stmt_radio_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class=[3...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/author-repair-workflow.test.tsx:26:26
+     24|   fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+     25|   expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeDisabl…
+     26|   fireEvent.click(screen.getByRole("button", { name: /导出方式$/ }));
+       |                          ^
+     27|   fireEvent.click(screen.getByRole("radio", { name: /目录 ZIP/ }));
+     28|   fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  apps/editor/src/autosave-app.test.tsx > S0.12 autosave integration > debounces committed input and rotates the previous verified snapshot
+TestingLibraryElementError: Unable to find role="button" and name "已恢复 · s3"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_school_gate"
+      data-context-statement-id="stmt_gate_001"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_gate_001"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_school_gate"
+      data-runtime-statement-id="stmt_gate_001"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="2"
+      data-studio-page="story"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="workspace-mode-switcher"
+                  rol...
+
+Ignored nodes: comments, script, style
+<html
+  data-atlas-preview-scheduler="{\"maxConcurrentLoads\":1,\"maxResidentBytes\":67108864,\"activeLoads\":0,\"queuedLoads\":0,\"residentResources\":0,\"referencedResources\":0,\"residentBytes\":0,\"reservedBytes\":0,\"peakAccountedBytes\":0,\"cacheHits\":0,\"deduplicatedRequests\":0,\"evictions\":0,\"cancellations\":0}"
+>
+  <head />
+  <body>
+    <div>
+      <div
+        class="app-shell"
+        data-context-restore-status="session"
+        data-context-scene-id="scn_school_gate"
+        data-context-statement-id="stmt_gate_001"
+        data-editor-view="sequence"
+        data-experience-level="pro"
+        data-inspector-object-id="stmt_gate_001"
+        data-motion-frame-max=""
+        data-motion-frame-over-budget="0"
+        data-motion-frame-p95=""
+        data-motion-frame-result="idle"
+        data-motion-frame-samples="0"
+        data-motion-frame-status="idle"
+        data-motion-level="simplified"
+        data-motion-preference="simplified"
+        data-preview-open="true"
+        data-runtime-scene-id="scn_school_gate"
+        data-runtime-statement-id="stmt_gate_001"
+        data-scenes-open="false"
+        data-settings-open="false"
+        data-source-revision="2"
+        data-studio-page="story"
+        data-sync-audit-action=""
+        data-sync-audit-duration=""
+        data-sync-audit-projected-revision="0"
+        data-sync-audit-result="idle"
+        data-sync-audit-source-revision="0"
+        data-sync-audit-statement-id=""
+        data-sync-audit-status="idle"
+        data-system-reduced-motion="false"
+        data-testid="workspace-shell"
+        data-workspace-mode="writer"
+      >
+        <header
+          class="workspace-header"
+        >
+          <div
+            class="brand-lockup"
+          >
+            <span
+              aria-hidden="true"
+              class="brand-mark studio-logo"
+            >
+              W
+            </span>
+            <strong
+              class="brand-product"
+            >
+              WorLd Studio
+            </strong>
+            <div>
+              <p
+                class="eyebrow"
+              >
+                创作工作区
+              </p>
+              <h1>
+                黄昏广播
+              </h1>
+            </div>
+          </div>
+          <details
+            class="editor-preferences"
+          >
+            <summary>
+              <svg
+                aria-hidden="true"
+                class="studio-icon "
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+                />
+              </svg>
+              <span>
+                编辑器设置
+              </span>
+            </summary>
+            <div
+              class="editor-preferences__panel"
+            >
+              <div
+                class="mobile-history-actions"
+              >
+                <button
+                  type="button"
+                >
+                  撤销上一步
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  重做上一步
+                </button>
+              </div>
+              <fieldset
+                class="editor-theme-control"
+              >
+                <legend>
+                  编辑器主题
+                </legend>
+                <p>
+                  选择适合你的创作环境。
+                </p>
+                <div>
+                  <button
+                    aria-pressed="true"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--light"
+                    />
+                    清亮
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--dark"
+                    />
+                    石墨
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--paper"
+                    />
+                    暖纸
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="tr...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ apps/editor/src/autosave-app.test.tsx:43:11
+     41|     expect(screen.getByText("剧情 + 资源索引 · 崩溃可续")).toBeVisible();
+     42|     fireEvent.click(screen.getByRole("button", { name: "一致恢复为新版本" }));
+     43|     await waitFor(() => {
+       |           ^
+     44|       expect(screen.getByRole("button", { name: "已恢复 · s3" })).toBeVis…
+     45|     }, { timeout: 5_000 });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  apps/editor/src/cross-scene-repair.test.tsx > locates a cross-scene loop or false exit (false), repairs it, and restores risk on undo
+TestingLibraryElementError: Unable to find role="button" and name `/已保存/`
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="b"
+      data-context-statement-id="jump_b"
+      data-editor-view="flow"
+      data-experience-level="pro"
+      data-inspector-object-id="jump_b"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="b"
+      data-runtime-statement-id="jump_b"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="3"
+      data-studio-page="story"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              出口修复
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="workspace-mode-switcher"
+                  role="radiogroup"
+                >...
+
+Ignored nodes: comments, script, style
+<html
+  data-atlas-preview-scheduler="{\"maxConcurrentLoads\":1,\"maxResidentBytes\":67108864,\"activeLoads\":0,\"queuedLoads\":0,\"residentResources\":0,\"referencedResources\":0,\"residentBytes\":0,\"reservedBytes\":0,\"peakAccountedBytes\":0,\"cacheHits\":0,\"deduplicatedRequests\":0,\"evictions\":0,\"cancellations\":0}"
+>
+  <head />
+  <body>
+    <div>
+      <div
+        class="app-shell"
+        data-context-restore-status="session"
+        data-context-scene-id="b"
+        data-context-statement-id="jump_b"
+        data-editor-view="flow"
+        data-experience-level="pro"
+        data-inspector-object-id="jump_b"
+        data-motion-frame-max=""
+        data-motion-frame-over-budget="0"
+        data-motion-frame-p95=""
+        data-motion-frame-result="idle"
+        data-motion-frame-samples="0"
+        data-motion-frame-status="idle"
+        data-motion-level="simplified"
+        data-motion-preference="simplified"
+        data-preview-open="true"
+        data-runtime-scene-id="b"
+        data-runtime-statement-id="jump_b"
+        data-scenes-open="false"
+        data-settings-open="false"
+        data-source-revision="3"
+        data-studio-page="story"
+        data-sync-audit-action=""
+        data-sync-audit-duration=""
+        data-sync-audit-projected-revision="0"
+        data-sync-audit-result="idle"
+        data-sync-audit-source-revision="0"
+        data-sync-audit-statement-id=""
+        data-sync-audit-status="idle"
+        data-system-reduced-motion="false"
+        data-testid="workspace-shell"
+        data-workspace-mode="writer"
+      >
+        <header
+          class="workspace-header"
+        >
+          <div
+            class="brand-lockup"
+          >
+            <span
+              aria-hidden="true"
+              class="brand-mark studio-logo"
+            >
+              W
+            </span>
+            <strong
+              class="brand-product"
+            >
+              WorLd Studio
+            </strong>
+            <div>
+              <p
+                class="eyebrow"
+              >
+                创作工作区
+              </p>
+              <h1>
+                出口修复
+              </h1>
+            </div>
+          </div>
+          <details
+            class="editor-preferences"
+          >
+            <summary>
+              <svg
+                aria-hidden="true"
+                class="studio-icon "
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+                />
+              </svg>
+              <span>
+                编辑器设置
+              </span>
+            </summary>
+            <div
+              class="editor-preferences__panel"
+            >
+              <div
+                class="mobile-history-actions"
+              >
+                <button
+                  type="button"
+                >
+                  撤销上一步
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  重做上一步
+                </button>
+              </div>
+              <fieldset
+                class="editor-theme-control"
+              >
+                <legend>
+                  编辑器主题
+                </legend>
+                <p>
+                  选择适合你的创作环境。
+                </p>
+                <div>
+                  <button
+                    aria-pressed="true"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--light"
+                    />
+                    清亮
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--dark"
+                    />
+                    石墨
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--paper"
+                    />
+                    暖纸
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ apps/editor/src/cross-scene-repair.test.tsx:33:9
+     31|   expect(screen.queryByRole("button", { name: /进入诊断内容：CROSS_SCENE/ }))…
+     32|   fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
+     33|   await waitFor(() => expect(screen.getByRole("button", { name: /已保存/ …
+       |         ^
+     34|   fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+     35|   fireEvent.click(screen.getByRole("button", { name: "选择路线：绕路" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  apps/editor/src/cross-scene-repair.test.tsx > locates a cross-scene loop or false exit (true), repairs it, and restores risk on undo
+TestingLibraryElementError: Unable to find role="button" and name `/已保存/`
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="b"
+      data-context-statement-id="check_b"
+      data-editor-view="flow"
+      data-experience-level="pro"
+      data-inspector-object-id="check_b"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="b"
+      data-runtime-statement-id="check_b"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="3"
+      data-studio-page="story"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              出口修复
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="workspace-mode-switcher"
+                  role="radiogroup"
+                [36...
+
+Ignored nodes: comments, script, style
+<html
+  data-atlas-preview-scheduler="{\"maxConcurrentLoads\":1,\"maxResidentBytes\":67108864,\"activeLoads\":0,\"queuedLoads\":0,\"residentResources\":0,\"referencedResources\":0,\"residentBytes\":0,\"reservedBytes\":0,\"peakAccountedBytes\":0,\"cacheHits\":0,\"deduplicatedRequests\":0,\"evictions\":0,\"cancellations\":0}"
+>
+  <head />
+  <body>
+    <div>
+      <div
+        class="app-shell"
+        data-context-restore-status="session"
+        data-context-scene-id="b"
+        data-context-statement-id="check_b"
+        data-editor-view="flow"
+        data-experience-level="pro"
+        data-inspector-object-id="check_b"
+        data-motion-frame-max=""
+        data-motion-frame-over-budget="0"
+        data-motion-frame-p95=""
+        data-motion-frame-result="idle"
+        data-motion-frame-samples="0"
+        data-motion-frame-status="idle"
+        data-motion-level="simplified"
+        data-motion-preference="simplified"
+        data-preview-open="true"
+        data-runtime-scene-id="b"
+        data-runtime-statement-id="check_b"
+        data-scenes-open="false"
+        data-settings-open="false"
+        data-source-revision="3"
+        data-studio-page="story"
+        data-sync-audit-action=""
+        data-sync-audit-duration=""
+        data-sync-audit-projected-revision="0"
+        data-sync-audit-result="idle"
+        data-sync-audit-source-revision="0"
+        data-sync-audit-statement-id=""
+        data-sync-audit-status="idle"
+        data-system-reduced-motion="false"
+        data-testid="workspace-shell"
+        data-workspace-mode="writer"
+      >
+        <header
+          class="workspace-header"
+        >
+          <div
+            class="brand-lockup"
+          >
+            <span
+              aria-hidden="true"
+              class="brand-mark studio-logo"
+            >
+              W
+            </span>
+            <strong
+              class="brand-product"
+            >
+              WorLd Studio
+            </strong>
+            <div>
+              <p
+                class="eyebrow"
+              >
+                创作工作区
+              </p>
+              <h1>
+                出口修复
+              </h1>
+            </div>
+          </div>
+          <details
+            class="editor-preferences"
+          >
+            <summary>
+              <svg
+                aria-hidden="true"
+                class="studio-icon "
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+                />
+              </svg>
+              <span>
+                编辑器设置
+              </span>
+            </summary>
+            <div
+              class="editor-preferences__panel"
+            >
+              <div
+                class="mobile-history-actions"
+              >
+                <button
+                  type="button"
+                >
+                  撤销上一步
+                </button>
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  重做上一步
+                </button>
+              </div>
+              <fieldset
+                class="editor-theme-control"
+              >
+                <legend>
+                  编辑器主题
+                </legend>
+                <p>
+                  选择适合你的创作环境。
+                </p>
+                <div>
+                  <button
+                    aria-pressed="true"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--light"
+                    />
+                    清亮
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--dark"
+                    />
+                    石墨
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class="theme-swatch theme-swatch--paper"
+                    />
+                    暖纸
+                  </button>
+                  <button
+                    aria-pressed="false"
+                    type="button"
+                  >
+                    <span
+                      aria-hidden="true"
+                      class=[3...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ apps/editor/src/cross-scene-repair.test.tsx:33:9
+     31|   expect(screen.queryByRole("button", { name: /进入诊断内容：CROSS_SCENE/ }))…
+     32|   fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
+     33|   await waitFor(() => expect(screen.getByRole("button", { name: /已保存/ …
+       |         ^
+     34|   fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+     35|   fireEvent.click(screen.getByRole("button", { name: "选择路线：绕路" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  apps/editor/src/n43-production-workspace-app.test.tsx > N43-E5 Production resource task > imports a real file through Production, saves, closes and reopens the same Index and context
+Error: expect(element).toBeVisible()
+
+Received element is not visible:
+  <code />
+ ❯ apps/editor/src/n43-production-workspace-app.test.tsx:32:54
+     30|
+     31|     const table = screen.getByRole("table", { name: "资源映射批量表" });
+     32|     expect(within(table).getByText("production_cg")).toBeVisible();
+       |                                                      ^
+     33|     expect(within(table).getByText("✓ 已通过")).toBeVisible();
+     34|     fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  apps/editor/src/n43-progressive-disclosure-app.test.tsx > N43-E2 Beginner/Pro reversible disclosure > hides complexity without changing the selected story fact and restores Pro tools
+TestingLibraryElementError: Unable to find an accessible element with the role "region" and name "图形化演出轨道"
+
+Here are the accessible roles:
+
+  banner:
+
+  Name "":
+  <header
+    class="workspace-header"
+  />
+
+  Name "":
+  <header
+    class="runtime-inspector__header"
+  />
+
+  --------------------------------------------------
+  strong:
+
+  Name "":
+  <strong
+    class="brand-product"
+  />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  Name "":
+  <strong />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p
+    class="scene-intro"
+  />
+
+  Name "":
+  <p
+    class="field-help"
+  />
+
+  Name "":
+  <p
+    class="eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "黄昏广播":
+  <h1 />
+
+  Name "章节与场景":
+  <h2 />
+
+  Name "风中的天台":
+  <h2
+    id="sequence-heading"
+  />
+
+  Name "即时预览":
+  <h2
+    id="preview-heading"
+  />
+
+  --------------------------------------------------
+  group:
+
+  Name "":
+  <details
+    class="editor-preferences"
+    open=""
+  />
+
+  Name "编辑器主题":
+  <fieldset
+    class="editor-theme-control"
+  />
+
+  Name "":
+  <details
+    open=""
+  />
+
+  Name "":
+  <details
+    class="statement-tools"
+  />
+
+  Name "图形化演出轨道":
+  <details
+    aria-label="图形化演出轨道"
+    class="stage-track"
+    data-rendered-statements="3"
+    data-window-size="64"
+    open=""
+  />
+
+  Name "":
+  <details
+    class="director-tools"
+  />
+
+  Name "演出轨道可视窗口":
+  <div
+    aria-label="演出轨道可视窗口"
+    class="stage-track__window"
+    data-windowed="false"
+    role="group"
+  />
+
+  Name "时间线播放头":
+  <div
+    aria-label="时间线播放头"
+    class="stage-timeline-transport"
+    data-playhead-source="selection"
+    role="group"
+  />
+
+  Name "":
+  <details
+    class="preview-run-options"
+  />
+
+  Name "Runtime 启动位置":
+  <div
+    aria-label="Runtime 启动位置"
+    class="runtime-start-actions"
+    role="group"
+  />
+
+  Name "":
+  <details
+    class="preview-disclosure preview-disclosure--runtime"
+  />
+
+  --------------------------------------------------
+  button:
+
+  Name "撤销上一步":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "重做上一步":
+  <button
+    disabled=""
+    type="button"
+  />
+
+  Name "清亮":
+  <button
+    aria-pressed="true"
+    type="button"
+  />
+
+  Name "石墨":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "暖纸":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "跟随系统":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "撤销":
+  <button
+    aria-label="撤销"
+    class="icon-button"
+    disabled=""
+  />
+
+  Name "重做":
+  <button
+    aria-label="重做"
+    class="icon-button"
+    disabled=""
+  />
+
+  Name "游戏外观":
+  <button
+    aria-pressed="false"
+    class="settings-open-button"
+    type="button"
+  />
+
+  Name "备份 0/5":
+  <button
+    class="backup-button"
+  />
+
+  Name "保存到本机":
+  <button
+    class="local-save-button local-save-button--unsaved"
+    title="保存项目快照到本机"
+  />
+
+  Name "故事":
+  <button
+    aria-current="page"
+    data-nav-item="story"
+    type="button"
+  />
+
+  Name "素材":
+  <button
+    data-nav-item="assets"
+    type="button"
+  />
+
+  Name "游戏外观":
+  <button
+    data-nav-item="appearance"
+    type="button"
+  />
+
+  Name "检查":
+  <button
+    data-nav-item="checks"
+    type="button"
+  />
+
+  Name "发布":
+  <button
+    data-nav-item="publish"
+    type="button"
+  />
+
+  Name "场景列表":
+  <button
+    aria-pressed="false"
+    class="scene-toggle"
+    type="button"
+  />
+
+  Name "写作":
+  <button
+    type="button"
+  />
+
+  Name "演出":
+  <button
+    aria-current="page"
+    type="button"
+  />
+
+  Name "路线":
+  <button
+    type="button"
+  />
+
+  Name "脚本":
+  <button
+    type="button"
+  />
+
+  Name "收起预览":
+  <button
+    aria-pressed="true"
+    class="preview-toggle"
+    type="button"
+  />
+
+  Name "上一个全局搜索结果":
+  <button
+    aria-label="上一个全局搜索结果"
+    type="button"
+  />
+
+  Name "打开":
+  <button
+    type="submit"
+  />
+
+  Name "下一个全局搜索结果":
+  <button
+    aria-label="下一个全局搜索结果"
+    type="button"
+  />
+
+  Name "01放学后的校门4 个步骤":
+  <button
+    class="scene-item"
+  />
+
+  Name "02旧广播室3 个步骤":
+  <button
+    class="scene-item"
+  />
+
+  Name "03风中的天台3 个步骤":
+  <button
+    class="scene-item is-active"
+  />
+
+  Name "打开资源保险库":
+  <button
+    aria-label="打开资源保险库"
+    class="asset-vault-card"
+  />
+
+  Name "＋ 插入":
+  <button
+    aria-keyshortcuts="Control+Enter"
+    type="button"
+  />
+
+  Name "复制":
+  <button
+    type="button"
+  />
+
+  Name "语句上移":
+  <button
+    aria-label="语句上移"
+    type="button"
+  />
+
+  Name "语句下移":
+  <button
+    aria-label="语句下移"
+    disabled=""
+    type="button"
+  />
+
+  Name "多选":
+  <button
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "折叠":
+  <button
+    type="button"
+  />
+
+  Name "展开":
+  <button
+    type="button"
+  />
+
+  Name "删除所选":
+  <button
+    class="danger-button"
+    type="button"
+  />
+
+  Name "＋ 插入对白":
+  <button />
+
+  Name "对白上移":
+  <button
+    aria-label="对白上移"
+  />
+
+  Name "对白下移":
+  <button
+    aria-label="对白下移"
+  />
+
+  Name "删除":
+  <button
+    class="danger-button"
+  />
+
+  Name "演出左移":
+  <button
+    aria-label="演出左移"
+    disabled=""
+    type="button"
+  />
+
+  Name "演出右移":
+  <button
+    aria-label="演出右移"
+    disabled=""
+    type="button"
+  />
+
+  Name "复制演出":
+  <button
+    aria-label="复制演出"
+    disabled=""
+    type="button"
+  />
+
+  Name "开始演出多选":
+  <button
+    aria-label="开始演出多选"
+    aria-pressed="false"
+    type="button"
+  />
+
+  Name "删除演出":
+  <button
+    aria-label="删除演出"
+    class="is-danger"
+    disabled=""
+    type="button"
+  />
+
+  Name "＋ 背景":
+  <button
+    aria-keyshortcuts="Alt+1"
+    type="button"
+  />
+
+  Name "＋ 角色":
+  <button
+    aria-keyshortcuts="Alt+2"
+    type="button"
+  />
+
+  Name "＋ 音频":
+  <button
+    aria-keyshortcuts="Alt+3"
+    type="button"
+  />
+
+  Name "＋ 镜头":
+  <button
+    aria-keyshortcuts="Alt+4"
+    type="button"
+  />
+
+  Name "＋ 文本框":
+  <button
+    aria-keyshortcuts="Alt+5"
+    type="button"
+  />
+
+  Name "＋ 关键帧":
+  <button
+    class="stage-keyframe-button"
+    disabled=""
+    title="请先选择舞台上有效的角色 Show 或 Move Cue"
+    type="button"
+  />
+
+  Name "＋ 路径":
+  <button
+    class="stage-motion-path-button"
+    disabled=""
+    title="请先选择舞台上有效的角色 Show 或 Move Cue"
+    type="button"
+  />
+
+  Name "＋ 贝塞尔":
+  <button
+    class="stage-bezier-path-button"
+    disabled=""
+    title="请先选择舞台上有效的角色 Show 或 Move Cue"
+    type="button"
+  />
+
+  Name "上一个搜索结果":
+  <button
+    aria-label="上一个搜索结果"
+    disabled=""
+    type="button"
+  />
+
+  Name "跳转":
+  <button
+    disabled=""
+    type="submit"
+  />
+
+  Name "下一个搜索结果":
+  <button
+    aria-label="下一个搜索结果"
+    disabled=""
+    type="button"
+  />
+
+  Name "上一段演出步骤":
+  <button
+    aria-label="上一段演出步骤"
+    disabled=""
+    type="button"
+  />
+
+  Name "下一段演出步骤":
+  <button
+    aria-label="下一段演出步骤"
+    disabled=""
+    type="button"
+  />
+
+  Name "定位当前演出步骤":
+  <button
+    aria-label="定位当前演出步骤"
+    disabled=""
+    type="button"
+  />
+
+  Name "时间标记 00:00.000，步骤 1":
+  <button
+    aria-label="时间标记 00:00.000，步骤 1"
+    class="stage-timeline-tick"
+    type="button"
+  />
+
+  Name "时间标记 00:00.000，步骤 2":
+  <button
+    aria-label="时间标记 00:00.000，步骤 2"
+    class="stage-timeline-tick is-playhead"
+    type="button"
+  />
+
+  Name "时间标记 00:02.110，步骤 3":
+  <button
+    aria-label="时间标记 00:02.110，步骤 3"
+    class="stage-timeline-tick"
+    type="button"
+  />
+
+  Name "轨道步骤 1：action=clear":
+  <button
+    aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight Delete"
+    aria-label="轨道步骤 1：action=clear"
+    class="stage-cue"
+    draggable="true"
+    type="button"
+  />
+
+  Name "轨道步骤 2：留言里提到的那颗星，也许只有从这里才能看见。":
+  <button
+    aria-label="轨道步骤 2：留言里提到的那颗星，也许只有从这里才能看见。"
+    class="stage-cue is-active is-playhead"
+    draggable="false"
+    type="button"
+  />
+
+  Name "轨道步骤 3：结局 · 晚风知道答案":
+  <button
+    aria-label="轨道步骤 3：结局 · 晚风知道答案"
+    class="stage-cue"
+    draggable="false"
+    type="button"
+  />
+
+  Name "选择演出：action=clear":
+  <button
+    aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
+    aria-label="选择演出：action=clear"
+    class="statement-card statement-card--direction"
+    data-runtime-current="false"
+    id="statement-card-stmt_rooftop_bg"
+  />
+
+  Name "选择对白：留言里提到的那颗星，也许只有从这里才能看见。":
+  <button
+    aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
+    aria-label="选择对白：留言里提到的那颗星，也许只有从这里才能看见。"
+    class="statement-card statement-card--dialogue is-active"
+    data-runtime-current="false"
+    id="statement-card-stmt_rooftop_001"
+  />
+
+  Name "选择结局：结局 · 晚风知道答案":
+  <button
+    aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
+    aria-label="选择结局：结局 · 晚风知道答案"
+    class="statement-card statement-card--end"
+    data-runtime-current="false"
+    id="statement-card-stmt_rooftop_end"
+  />
+
+  Name "＋ 添加内容":
+  <button
+    class="add-story-content"
+    type="button"
+  />
+
+  Name "上一步":
+  <button
+    aria-label="上一步"
+  />
+
+  Name "下一步":
+  <button
+    aria-label="下一步"
+  />
+
+  Name "开始预览":
+  <button
+    aria-label="开始预览"
+    class="preview-playback__toggle"
+  />
+
+  Name "试玩完整流程":
+  <button
+    type="button"
+  />
+
+  Name "从当前场景运行":
+  <button
+    type="button"
+  />
+
+  Name "从当前语句运行":
+  <button
+    type="button"
+  />
+
+  --------------------------------------------------
+  radiogroup:
+
+  Name "工作模式":
+  <nav
+    aria-label="工作模式"
+    class="workspace-mode-switcher"
+    role="radiogroup"
+  />
+
+  Name "编辑复杂度":
+  <div
+    aria-label="编辑复杂度"
+    class="experience-switcher"
+    role="radiogroup"
+  />
+
+  Name "动效级别":
+  <div
+    aria-label="动效级别"
+    class="motion-preference__options"
+    role="radiogroup"
+  />
+
+  --------------------------------------------------
+  radio:
+
+  Name "Writer":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="对白、叙事与结构化语句"
+    type="button"
+  />
+
+  Name "Director":
+  <button
+    aria-checked="true"
+    class="workspace-mode-button is-active"
+    role="radio"
+    title="舞台、时间线与即时预览"
+    type="button"
+  />
+
+  Name "Flow 模式":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="路线、结局与结构诊断"
+    type="button"
+  />
+
+  Name "Production":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="资源映射、批量状态与交付流水线"
+    type="button"
+  />
+
+  Name "Debug & QA":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="正式 Compiler、Runtime 与源码定位检查"
+    type="button"
+  />
+
+  Name "Mobile Focus":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="同一 Canonical 工程的手机专注创作"
+    type="button"
+  />
+
+  Name "Quick Start":
+  <button
+    aria-checked="false"
+    class="workspace-mode-button"
+    role="radio"
+    title="收起项目树，聚焦当前场景"
+    type="button"
+  />
+
+  Name "Beginner":
+  <button
+    aria-checked="false"
+    class="experience-button"
+    role="radio"
+    title="场景、对白、舞台与预览"
+    type="button"
+  />
+
+  Name "Pro":
+  <button
+    aria-checked="true"
+    class="experience-button is-active"
+    role="radio"
+    title="完整结构、批量演出与专业诊断"
+    type="button"
+  />
+
+  Name "完整动效":
+  <button
+    aria-checked="false"
+    aria-label="完整动效"
+    class="motion-preference__button"
+    role="radio"
+    type="button"
+  />
+
+  Name "简化动效":
+  <button
+    aria-checked="true"
+    aria-label="简化动效"
+    class="motion-preference__button is-active"
+    role="radio"
+    type="button"
+  />
+
+  Name "静止动效":
+  <button
+    aria-checked="false"
+    aria-label="静止动效"
+    class="motion-preference__button"
+    role="radio"
+    type="button"
+  />
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  <output
+    aria-live="polite"
+  />
+
+  Name "统一工作上下文":
+  <output
+    aria-label="统一工作上下文"
+    aria-live="polite"
+    class="workspace-mode-summary"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+    class="motion-preference__summary"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+    id="project-search-status"
+  />
+
+  Name "Sequence 运行步骤高亮":
+  <div
+    aria-label="Sequence 运行步骤高亮"
+    class="sequence-runtime-trace"
+    role="status"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+    id="stage-search-status"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+  />
+
+  Name "":
+  <output />
+
+  Name "":
+  <div
+    class="stage-director-strip"
+    data-stage-director="ready"
+    role="status"
+  />
+
+  Name "":
+  <output
+    aria-live="polite"
+    class="preview-playback__status preview-playback__status--idle"
+  />
+
+  --------------------------------------------------
+  tablist:
+
+  Name "编辑视图":
+  <nav
+    aria-label="编辑视图"
+    class="mode-switcher"
+    role="tablist"
+  />
+
+  --------------------------------------------------
+  tab:
+
+  Name "Sequence":
+  <button
+    aria-selected="true"
+    class="mode-tab is-active"
+    role="tab"
+  />
+
+  Name "Script":
+  <button
+    aria-selected="false"
+    class="mode-tab"
+    role="tab"
+  />
+
+  Name "Flow":
+  <button
+    aria-selected="false"
+    class="mode-tab"
+    role="tab"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "主要功能":
+  <nav
+    aria-label="主要功能"
+    class="studio-task-nav"
+  />
+
+  Name "故事工作区":
+  <nav
+    aria-label="故事工作区"
+    class="studio-context-nav"
+  />
+
+  --------------------------------------------------
+  main:
+
+  Name "":
+  <main
+    class="workspace-grid"
+    data-settings-open="false"
+    data-workspace-mode="director"
+  />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "场景列表":
+  <aside
+    aria-label="场景列表"
+    class="scene-rail"
+  />
+
+  Name "即时预览":
+  <aside
+    aria-labelledby="preview-heading"
+    class="preview-panel"
+  />
+
+  --------------------------------------------------
+  search:
+
+  Name "搜索全部场景":
+  <form
+    aria-label="搜索全部场景"
+    class="project-search"
+    data-has-query="true"
+    role="search"
+  />
+
+  Name "搜索当前场景步骤":
+  <form
+    aria-label="搜索当前场景步骤"
+    class="stage-search"
+    data-has-query="false"
+    role="search"
+  />
+
+  --------------------------------------------------
+  searchbox:
+
+  Name "全局搜索":
+  <input
+    aria-controls="project-search-results"
+    aria-describedby="project-search-status"
+    autocomplete="off"
+    id="project-search-input"
+    placeholder="搜索场景或对白"
+    type="search"
+    value="风中的天台"
+  />
+
+  Name "定位步骤":
+  <input
+    aria-controls="stage-search-results"
+    aria-describedby="stage-search-status"
+    autocomplete="off"
+    id="stage-step-search"
+    placeholder="搜索步骤或对白"
+    type="search"
+    value=""
+  />
+
+  --------------------------------------------------
+  listbox:
+
+  Name "全部场景搜索结果":
+  <div
+    aria-label="全部场景搜索结果"
+    class="project-search__results"
+    id="project-search-results"
+    role="listbox"
+  />
+
+  --------------------------------------------------
+  option:
+
+  Name "#1打开场景 · 风中的天台stmt_rooftop_bg":
+  <button
+    aria-selected="true"
+    role="option"
+    type="button"
+  />
+
+  Name "对白":
+  <option
+    value="dialogue"
+  />
+
+  Name "旁白":
+  <option
+    value="narration"
+  />
+
+  Name "两选项选择":
+  <option
+    value="choice"
+  />
+
+  Name "标签":
+  <option
+    value="label"
+  />
+
+  Name "跳转":
+  <option
+    value="jump"
+  />
+
+  Name "调用":
+  <option
+    value="call"
+  />
+
+  Name "返回":
+  <option
+    value="return"
+  />
+
+  Name "设置变量":
+  <option
+    value="set"
+  />
+
+  Name "条件分支":
+  <option
+    value="condition"
+  />
+
+  Name "等待":
+  <option
+    value="wait"
+  />
+
+  Name "结局":
+  <option
+    value="end"
+  />
+
+  Name "背景":
+  <option
+    value="background"
+  />
+
+  Name "角色演出":
+  <option
+    value="show"
+  />
+
+  Name "镜头":
+  <option
+    value="camera"
+  />
+
+  Name "音频":
+  <option
+    value="audio"
+  />
+
+  Name "文本框模板":
+  <option
+    value="textbox"
+  />
+
+  Name "陆雨":
+  <option
+    value="char_yu"
+  />
+
+  Name "林夏":
+  <option
+    value="char_xia"
+  />
+
+  Name "16:9 · 标准横屏":
+  <option
+    value="landscape-16-9"
+  />
+
+  Name "16:10 · 桌面宽屏":
+  <option
+    value="desktop-16-10"
+  />
+
+  Name "4:3 · 经典画幅":
+  <option
+    value="classic-4-3"
+  />
+
+  Name "21:9 · 超宽银幕":
+  <option
+    value="cinema-21-9"
+  />
+
+  Name "9:16 · 手机竖屏":
+  <option
+    value="portrait-9-16"
+  />
+
+  Name "自定义 · 精确尺寸":
+  <option
+    value="custom"
+  />
+
+  Name "0.5×":
+  <option
+    value="half"
+  />
+
+  Name "1×":
+  <option
+    value="normal"
+  />
+
+  Name "2×":
+  <option
+    value="double"
+  />
+
+  Name "4×":
+  <option
+    value="quad"
+  />
+
+  Name "∞":
+  <option
+    value="instant"
+  />
+
+  --------------------------------------------------
+  code:
+
+  Name "":
+  <code />
+
+  --------------------------------------------------
+  region:
+
+  Name "风中的天台":
+  <section
+    aria-labelledby="sequence-heading"
+    class="authoring-panel view-enter"
+    data-stage-expanded="true"
+  />
+
+  Name "Runtime 状态检查器":
+  <section
+    aria-label="Runtime 状态检查器"
+    class="runtime-inspector runtime-inspector--idle"
+  />
+
+  Name "Runtime 变量":
+  <section
+    aria-label="Runtime 变量"
+  />
+
+  Name "Runtime 调用栈":
+  <section
+    aria-label="Runtime 调用栈"
+  />
+
+  Name "Runtime 结构化诊断":
+  <section
+    aria-label="Runtime 结构化诊断"
+    class="runtime-inspector__diagnostics"
+  />
+
+  --------------------------------------------------
+  combobox:
+
+  Name "插入 P0 语句类型":
+  <select
+    aria-label="插入 P0 语句类型"
+  />
+
+  Name "说话人":
+  <select
+    id="dialogue-speaker"
+  />
+
+  Name "预览尺寸":
+  <select
+    id="preview-viewport-profile"
+  />
+
+  Name "预览测试倍率":
+  <select
+    aria-label="预览测试倍率"
+  />
+
+  --------------------------------------------------
+  checkbox:
+
+  Name "插入到当前步骤之前":
+  <input
+    type="checkbox"
+  />
+
+  Name "安全区":
+  <input
+    checked=""
+    type="checkbox"
+  />
+
+  --------------------------------------------------
+  slider:
+
+  Name "时间线播放头位置":
+  <input
+    aria-label="时间线播放头位置"
+    max="2"
+    min="0"
+    step="1"
+    type="range"
+    value="1"
+  />
+
+  --------------------------------------------------
+  textbox:
+
+  Name "对白内容":
+  <textarea
+    data-input-state="committed"
+    id="dialogue-editor"
+    rows="4"
+  />
+
+  --------------------------------------------------
+  article:
+
+  Name "":
+  <article
+    class="statement-entry statement-entry--direction"
+  />
+
+  Name "":
+  <article
+    class="statement-entry statement-entry--dialogue is-active"
+  />
+
+  Name "":
+  <article
+    class="statement-entry statement-entry--end"
+  />
+
+  --------------------------------------------------
+  contentinfo:
+
+  Name "":
+  <footer
+    class="workspace-footer"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_rooftop"
+      data-context-statement-id="stmt_rooftop_001"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_rooftop_001"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_rooftop"
+      data-runtime-statement-id="stmt_rooftop_001"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="story"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="director"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+          open=""
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details
+              open=""
+            >
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav[39...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/n43-progressive-disclosure-app.test.tsx:26:19
+     24|     expect(shell).toHaveAttribute("data-experience-level", "pro");
+     25|     expect(screen.getByRole("tab", { name: "Script" })).toBeVisible();
+     26|     expect(screen.getByRole("region", { name: "图形化演出轨道" })).toBeVisibl…
+       |                   ^
+     27|
+     28|     fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  apps/editor/src/n61-localized-media-production-app.test.tsx > N61-E6 localized media production > imports real files, binds locale media and voice by stable IDs, then saves and reopens them
+TestingLibraryElementError: Unable to find role="region" and name "语言媒体与配音"
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="restored"
+      data-context-scene-id="scene_entry"
+      data-context-statement-id="scene_background"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="scene_background"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scene_entry"
+      data-runtime-statement-id="scene_background"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="assets"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="production"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              N61 Media Production
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+     ...
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="restored"
+      data-context-scene-id="scene_entry"
+      data-context-statement-id="scene_background"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="scene_background"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scene_entry"
+      data-runtime-statement-id="scene_background"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="assets"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="production"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              N61 Media Production
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+     ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ apps/editor/src/n61-localized-media-production-app.test.tsx:94:35
+     92|     render(<App initialProject={savedProject!} autosaveDebounceMs={60_…
+     93|     fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+     94|     const reopened = await screen.findByRole("region", { name: "语言媒体与配…
+       |                                   ^
+     95|     fireEvent.change(within(reopened).getByRole("combobox", { name: "媒…
+     96|     expect(within(reopened).getByRole("combobox", { name: "text_hello …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+ FAIL  apps/editor/src/playable-preview-app.test.tsx > playable preview integration > builds and exposes a downloadable independent playable file
+TestingLibraryElementError: Found multiple elements with the role "button" and name `/导出方式$/`
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+<button
+  type="button"
+>
+  <span>
+    2
+  </span>
+  <strong>
+    导出方式
+  </strong>
+</button>
+
+Ignored nodes: comments, script, style
+<button
+  type="button"
+>
+  ← 导出方式
+</button>
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_school_gate"
+      data-context-statement-id="stmt_gate_bg"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_gate_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_school_gate"
+      data-runtime-statement-id="stmt_gate_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="workspace...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getElementError node_modules/@testing-library/dom/dist/query-helpers.js:20:35
+ ❯ getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:23:10
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/editor/src/playable-preview-app.test.tsx:70:28
+     68|     expect(download).toHaveAttribute("href", "blob:playable-web");
+     69|     expect(createObjectUrl).toHaveBeenCalledWith(expect.objectContaini…
+     70|     fireEvent.click(screen.getByRole("button", { name: /导出方式$/ }));
+       |                            ^
+     71|     fireEvent.click(screen.getByRole("radio", { name: /目录 ZIP/ }));
+     72|     fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯
+
+
+ Test Files  8 failed | 10 passed (18)
+      Tests  10 failed | 30 passed (40)
+   Start at  17:21:15
+   Duration  142.26s (transform 8.29s, setup 4.69s, import 19.36s, tests 97.40s, environment 16.15s)
+

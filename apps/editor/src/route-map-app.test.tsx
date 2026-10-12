@@ -11,21 +11,27 @@ import { restoreStudioSession } from "./studio-session";
 
 afterEach(() => vi.unstubAllGlobals());
 
+function openRouteTools() {
+  for (const panel of document.querySelectorAll<HTMLDetailsElement>(".route-tools, .route-properties, .route-connections, .route-diagnostics-panel")) {
+    if (!panel.open) fireEvent.click(panel.querySelector("summary")!);
+  }
+}
+
 function renderRouteMap() {
   const onProjectChange = vi.fn();
   const project = projectCanonicalFromStory(campusStoryProject, "n40-route-map-app-tests");
   render(<App initialProject={project} onProjectChange={onProjectChange} />);
-  fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
   return { onProjectChange };
 }
 
 it("retargets to a scene outside the 64-node window while retaining the graph filter", () => {
   const project = projectCanonicalFromStory(branchingStory(130), "route-target-search");
   render(<App initialProject={project} />);
-  fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+  fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
   // Scope queries to the feature under test: avoid repeatedly computing accessible
   // names for the unrelated 130-scene sidebar on slower Windows CI workers.
-  const flow = within(screen.getByRole("region", { name: "Route Map" }));
+  const flow = within(screen.getByRole("region", { name: "故事路线" }));
   fireEvent.change(flow.getByLabelText("搜索路线图"), { target: { value: "route_ui_000" } });
   expect(flow.queryByLabelText("路线场景：Route UI Scene 129 · route_ui_129")).not.toBeInTheDocument();
   fireEvent.click(flow.getByRole("button", { name: "修改 Choice 目标" }));
@@ -144,10 +150,10 @@ describe("N40 Route Map product flow", () => {
       { id: "shared_scene", title: "共同片段", statements: [{ id: "return_shared", kind: "return" }] }
     ] };
     render(<App initialProject={projectCanonicalFromStory(story, "call-continuation")} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     fireEvent.click(screen.getByRole("button", { name: "定位调用后续：call_shared" }));
     expect(screen.getByRole("button", { name: /选择结局：.*继续主线/ })).toHaveFocus();
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     fireEvent.click(screen.getByRole("button", { name: "定位路线目标：调用 · shared_scene" }));
     expect(screen.getByRole("button", { name: "修改控制语句：return_shared" })).toBeEnabled();
     expect(screen.getByLabelText("控制流目标导航")).toHaveTextContent("没有调用记录时会报错");
@@ -163,7 +169,7 @@ describe("N40 Route Map product flow", () => {
       ...base.scripts.label_scene!.statements
     ] } } };
     render(<App initialProject={project} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     const edit = screen.getByRole("button", { name: "修改条件：condition_attended" });
     expect(edit).toHaveTextContent("已经赴约 [attended] == true");
     expect(edit).toHaveTextContent("不成立则继续下一步");
@@ -173,7 +179,7 @@ describe("N40 Route Map product flow", () => {
     expect(expression).toHaveValue("attended == true");
     fireEvent.change(expression, { target: { value: "attended == false" } });
     fireEvent.click(screen.getByRole("button", { name: "应用类型化参数" }));
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("button", { name: "修改条件：condition_attended" })).toHaveTextContent("已经赴约 [attended] == false");
   });
   it("edits a cross-scene jump from Flow, plays and reloads the saved route without Choice repair", async () => {
@@ -187,7 +193,7 @@ describe("N40 Route Map product flow", () => {
     ] };
     const project = projectCanonicalFromStory(story, "cross-scene-map");
     const view = render(<App initialProject={project} onProjectSave={onProjectSave} />);
-    fireEvent.click(await screen.findByRole("tab", { name: "Flow" }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByTestId("route-edge-jump_finish")).toHaveTextContent("出发");
     expect(screen.getByRole("button", { name: "定位路线目标：跳转 · finish_scene" })).toHaveTextContent("重逢");
     expect(screen.queryByRole("button", { name: "修改 Choice 目标" })).not.toBeInTheDocument();
@@ -196,7 +202,7 @@ describe("N40 Route Map product flow", () => {
     expect(screen.getByRole("button", { name: /选择跳转：/ })).toHaveFocus();
     fireEvent.change(document.querySelector('select[name="target"]')!, { target: { value: "changed_scene" } });
     fireEvent.click(screen.getByRole("button", { name: "应用类型化参数" }));
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("button", { name: "定位路线目标：跳转 · changed_scene" })).toHaveTextContent("告别");
     await waitFor(() => expect(screen.getByRole("button", { name: "保存到本机" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
@@ -206,7 +212,7 @@ describe("N40 Route Map product flow", () => {
     view.unmount();
     const restored = restoreStudioSession(persisted!, projectCanonicalForEditor(project).project);
     render(<App initialProject={projectCanonicalFromStory(restored.project, "cross-scene-map-reopened")} />);
-    fireEvent.click(await screen.findByRole("tab", { name: "Flow" }));
+    fireEvent.click(await screen.findByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("button", { name: "定位路线目标：跳转 · changed_scene" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
     expect(screen.getByText("流程完成：告别结局")).toBeVisible();
@@ -214,8 +220,8 @@ describe("N40 Route Map product flow", () => {
   it("searches the compiler-derived scene graph without changing stable IDs", () => {
     renderRouteMap();
 
-    expect(screen.getByRole("heading", { name: "Route Map" })).toBeVisible();
-    expect(screen.getByText("Compiler 图事实")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "故事路线" })).toBeVisible();
+    expect(screen.getByLabelText("路线图统计")).toBeVisible();
     const summary = screen.getByLabelText("路线图统计");
     expect(within(summary).getByText("3 场景")).toBeVisible();
     expect(within(summary).getByText("2 连接")).toBeVisible();
@@ -262,7 +268,7 @@ describe("N40 Route Map product flow", () => {
   it("mounts only a bounded route window and pages through a larger branching project", () => {
     const project = projectCanonicalFromStory(branchingStory(70), "n40-route-window-ui");
     render(<App initialProject={project} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
 
     const nodes = screen.getByLabelText("路线场景节点");
     expect(within(nodes).getAllByRole("button")).toHaveLength(64);
@@ -327,7 +333,7 @@ describe("N40 Route Map product flow", () => {
 
   it("anchors a Compiler diagnostic across a 64-node window", () => {
     render(<App initialProject={projectCanonicalFromStory(pagedDiagnosticStory(65), "n40-diagnostic-window")} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("status", { name: "路线窗口范围" })).toHaveTextContent("1–64 / 65");
     expect(document.querySelectorAll("datalist option")).toHaveLength(0);
     fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
@@ -339,7 +345,7 @@ describe("N40 Route Map product flow", () => {
 
   it("enters the exact diagnostic statement and fails closed for global diagnostics", () => {
     render(<App initialProject={projectCanonicalFromStory(diagnosticStory(), "n40-diagnostic-content")} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     const globalDiagnostic = screen.getByRole("button", { name: /定位诊断：NO_REACHABLE_ENDING · 全局/ });
     expect(globalDiagnostic).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "进入诊断内容：UNREACHABLE_STATEMENT · diagnostic_end" }));
@@ -354,7 +360,7 @@ describe("N40 Route Map product flow", () => {
     const onProjectSave = vi.fn<(project: StoryProject) => Promise<void>>(async () => undefined);
     render(<App initialProject={project} onProjectSave={onProjectSave} />);
     await waitFor(() => expect(screen.getByRole("button", { name: "保存到本机" })).toBeEnabled());
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
 
     expect(screen.getByRole("button", { name: "定位诊断：UNREACHABLE_SCENE · repair_goal" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "修改 Choice 目标" }));
@@ -393,7 +399,7 @@ describe("N40 Route Map product flow", () => {
   it("anchors ending-route steps across real 64-node Route windows", () => {
     const project = projectCanonicalFromStory(pagedRuntimeStory(65), "n40-ending-route-window");
     render(<App initialProject={project} />);
-    fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     fireEvent.change(screen.getByLabelText("审阅结局路线"), { target: { value: "runtime_route_064" } });
 
     const nodes = screen.getByLabelText("路线场景节点");

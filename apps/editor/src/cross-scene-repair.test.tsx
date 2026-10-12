@@ -30,7 +30,7 @@ it.each([false, true])("locates a cross-scene loop or false exit (%s), repairs i
   fireEvent.click(screen.getByRole("button", { name: "重做" }));
   expect(screen.queryByRole("button", { name: /进入诊断内容：CROSS_SCENE/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "保存到本机" }));
-  await waitFor(() => expect(screen.getByRole("button", { name: /已保存/ })).toBeEnabled());
+  await waitFor(() => expect(document.querySelector(".local-save-button")).toHaveTextContent("已保存"));
   fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
   fireEvent.click(screen.getByRole("button", { name: "选择路线：绕路" }));
   expect(screen.getByText("流程完成：完成")).toBeVisible();

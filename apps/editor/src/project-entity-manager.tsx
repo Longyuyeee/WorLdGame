@@ -1,13 +1,16 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { analyzeProjectEntityReferences, createCharacterEntity, createProjectService, createVariableEntity, executeProjectBatch, executeProjectCommand, markProjectDirty, redoProject, saveLifecycleProject, searchProjectEntities, undoProject, type ProjectCommand, type ProjectLifecycleSession, type ProjectWorkspace, type VariableScope, type VariableType } from "@world-studio/project-domain";
 
+import { StudioIcon } from "./studio-icon";
+
 type EntityKind="chapter"|"scene"|"character"|"variable";
 interface PendingDelete { readonly kind:EntityKind;readonly id:string;readonly references:ReturnType<typeof analyzeProjectEntityReferences>; }
 const field=(form:FormData,name:string)=>String(form.get(name)??"").trim();
 const defaultId=()=>crypto.randomUUID().replaceAll("-","").slice(0,16);
 
-export function ProjectEntityManager({session,workspace,onSession,onOpenEditor,idFactory=defaultId}:{readonly session:ProjectLifecycleSession;readonly workspace:ProjectWorkspace;readonly onSession:(session:ProjectLifecycleSession)=>void|Promise<void>;readonly onOpenEditor:(project:NonNullable<ProjectLifecycleSession["project"]>,sceneId?:string)=>void;readonly idFactory?:()=>string}){
-  const [writingSceneId,setWritingSceneId]=useState(session.project!.manifest.entrySceneId);
+export function ProjectEntityManager({session,workspace,onSession,onOpenEditor,initialSceneId,returnLabel="进入内容编辑器",idFactory=defaultId}:{readonly session:ProjectLifecycleSession;readonly workspace:ProjectWorkspace;readonly onSession:(session:ProjectLifecycleSession)=>void|Promise<void>;readonly onOpenEditor:(project:NonNullable<ProjectLifecycleSession["project"]>,sceneId?:string)=>void;readonly initialSceneId?:string;readonly returnLabel?:string;readonly idFactory?:()=>string}){
+  const [writingSceneId,setWritingSceneId]=useState(initialSceneId ?? session.project!.manifest.entrySceneId);
+  const [section,setSection]=useState<"chapters"|"characters"|"variables">("chapters");
   const [service,setService]=useState(()=>createProjectService(session.project!));const [query,setQuery]=useState("");const [message,setMessage]=useState("已同步");const [pendingDelete,setPendingDelete]=useState<PendingDelete|null>(null);const [replacement,setReplacement]=useState("");
   const project=service.project,results=useMemo(()=>searchProjectEntities(project,query),[project,query]);
   const run=(value:Omit<ProjectCommand,"commandId"|"expectedRevision">|Record<string,unknown>)=>{const result=executeProjectCommand(service,{commandId:`command_${idFactory()}`,expectedRevision:service.revision,...value} as ProjectCommand);if(!result.ok){setMessage(`${result.error.code}：${result.error.message}`);return false;}setService(result.state);setMessage(`有未保存修改 · revision ${result.state.revision}`);return true;};
@@ -18,15 +21,16 @@ export function ProjectEntityManager({session,workspace,onSession,onOpenEditor,i
   const save=async()=>{setMessage("正在保存…");try{const saved=await saveLifecycleProject(workspace,markProjectDirty(session,service.project));await onSession(saved);setMessage("已保存到工程目录");}catch(reason){setMessage(reason instanceof Error?reason.message:String(reason));}};
   const moveScene=(sceneId:string,delta:number)=>{const scenePath=`scenes/${sceneId}.json`;const chapter=project.chapters.find((item)=>item.scenePaths.includes(scenePath));if(!chapter)return;const at=chapter.scenePaths.indexOf(scenePath);run({kind:"scene.move",sceneId,chapterId:chapter.id,index:Math.max(0,Math.min(chapter.scenePaths.length-1,at+delta))});};
   return <main className="entity-manager" aria-label="项目结构管理">
-    <header className="entity-manager__header"><div><p className="eyebrow">PROJECT STRUCTURE</p><h1>{project.manifest.title}</h1><p>{session.reference.displayLocation}</p></div><div className="project-home__actions"><button onClick={()=>{setService(undoProject(service));setMessage("已撤销，尚未保存");}} disabled={service.undoStack.length===0}>撤销</button><button onClick={()=>{setService(redoProject(service));setMessage("已重做，尚未保存");}} disabled={service.redoStack.length===0}>重做</button><button onClick={()=>void save()}>保存工程</button><button onClick={()=>onOpenEditor(project)}>进入内容编辑器</button></div></header>
+    <header className="entity-manager__header"><div><p className="eyebrow"><StudioIcon name="story" />项目结构</p><h1>{project.manifest.title}</h1><p>{session.reference.displayLocation}</p></div><div className="project-home__actions"><button onClick={()=>{setService(undoProject(service));setMessage("已撤销，尚未保存");}} disabled={service.undoStack.length===0}>撤销</button><button onClick={()=>{setService(redoProject(service));setMessage("已重做，尚未保存");}} disabled={service.redoStack.length===0}>重做</button><button onClick={()=>void save()}>保存工程</button><button onClick={()=>onOpenEditor(project)}><StudioIcon name="back" />{returnLabel}</button></div></header>
     <p role="status">{message}</p>
-    <section className="entity-manager__search" aria-label="开始场景写作">
+    <details className="entity-manager__search entity-scene-jump" aria-label="开始场景写作"><summary>跳转到场景</summary>
       <label>要编辑的场景<select aria-label="要编辑的场景" value={project.scenes.some(scene=>scene.id===writingSceneId)?writingSceneId:project.manifest.entrySceneId} onChange={event=>setWritingSceneId(event.target.value)}>{project.chapters.flatMap(chapter=>chapter.scenePaths.map(path=>project.scenes.find(scene=>`scenes/${scene.id}.json`===path)).filter(scene=>scene!==undefined).map(scene=><option key={scene.id} value={scene.id}>{chapter.title} / {scene.title}</option>))}</select></label>
       <button onClick={()=>onOpenEditor(project,project.scenes.some(scene=>scene.id===writingSceneId)?writingSceneId:project.manifest.entrySceneId)}>编辑所选场景</button>
       <p>新增场景会自动选中，也可切换到已有场景直接写作；不会改变游戏入口。未保存的结构修改会一并带入编辑器，请继续保存工程。</p>
-    </section>
+    </details>
     <section className="entity-manager__search"><label>搜索全部实体<input aria-label="搜索全部实体" value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="名称、稳定 ID、类型或作用域" /></label>{query?<ul aria-label="搜索结果">{results.map((item)=><li key={`${item.kind}:${item.id}`}><strong>{item.label}</strong><span>{item.detail}</span><code>{item.id}</code></li>)}</ul>:null}</section>
-    <div className="entity-manager__grid">
+    <nav className="workspace-section-tabs" aria-label="项目结构分区">{([['chapters','章节与场景'],['characters','角色'],['variables','变量']] as const).map(([id,label])=><button type="button" key={id} aria-pressed={section===id} data-color={id==="chapters"?"violet":id==="characters"?"coral":"teal"} onClick={()=>setSection(id)}><StudioIcon name={id==="chapters"?"story":id==="characters"?"characters":"variables"} />{label}</button>)}</nav>
+    <div className="entity-manager__grid" data-entity-section={section}>
       <section className="entity-manager__card" aria-labelledby="chapters-heading"><h2 id="chapters-heading">章节与场景</h2>
         <form onSubmit={(event)=>submit(event,(data)=>run({kind:"chapter.create",chapterId:`chapter_${idFactory()}`,title:field(data,"title")}))}><input name="title" aria-label="新章节名称" required placeholder="章节名称"/><button>新增章节</button></form>
         <form onSubmit={(event)=>submit(event,(data)=>createScene(field(data,"chapterId"),field(data,"title")))}><select name="chapterId" aria-label="新场景所属章节">{project.chapters.map((item)=><option key={item.id} value={item.id}>{item.title}</option>)}</select><input name="title" aria-label="新场景名称" required placeholder="场景名称"/><button>新增场景</button></form>

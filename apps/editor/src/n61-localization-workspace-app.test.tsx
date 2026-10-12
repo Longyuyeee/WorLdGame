@@ -39,7 +39,8 @@ describe("N61-E1 Localization production path", () => {
     let changedProject: CanonicalProject | undefined;
     const first = render(<App initialProject={project} autosaveDebounceMs={60_000} onCanonicalProjectChange={(changed) => { changedProject = changed; }} />);
 
-    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    fireEvent.click(screen.getByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByRole("button", { name: "翻译与配音" }));
     const localization = screen.getByRole("region", { name: "本地化生产" });
     expect(within(localization).getByText("5 个稳定文本键")).toBeVisible();
     fireEvent.change(within(localization).getByRole("textbox", { name: "源语言" }), { target: { value: "zh-Hans" } });
@@ -71,7 +72,8 @@ describe("N61-E1 Localization production path", () => {
       }
     };
     render(<App initialProject={changedSource} autosaveDebounceMs={60_000} />);
-    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    fireEvent.click(screen.getByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByRole("button", { name: "翻译与配音" }));
     const reopened = screen.getByRole("region", { name: "本地化生产" });
     expect(within(reopened).getByDisplayValue("Welcome back.")).toBeVisible();
     const reopenedHelloRow = within(reopened).getByText("text_hello").closest("tr");
@@ -83,7 +85,8 @@ describe("N61-E1 Localization production path", () => {
     const project = projectCanonicalFromStory(localizationGoldenProject(), "n61-e2-localization-exchange");
     let changedProject: CanonicalProject | undefined;
     const session = render(<App initialProject={project} autosaveDebounceMs={60_000} onCanonicalProjectChange={(changed) => { changedProject = changed; }} />);
-    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    fireEvent.click(screen.getByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByRole("button", { name: "翻译与配音" }));
     const localization = screen.getByRole("region", { name: "本地化生产" });
     fireEvent.change(within(localization).getByRole("textbox", { name: "源语言" }), { target: { value: "zh-Hans" } });
     fireEvent.change(within(localization).getByRole("textbox", { name: "新目标语言" }), { target: { value: "en" } });
@@ -122,7 +125,8 @@ describe("N61-E1 Localization production path", () => {
 
     session.unmount();
     render(<App initialProject={changedProject!} autosaveDebounceMs={60_000} />);
-    fireEvent.click(screen.getByRole("radio", { name: "Production" }));
+    fireEvent.click(screen.getByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByRole("button", { name: "翻译与配音" }));
     expect(screen.getByRole("textbox", { name: "text_hello 的 en 翻译" })).toHaveValue("Welcome back.\nGood to see you.");
   }, 30_000);
 });

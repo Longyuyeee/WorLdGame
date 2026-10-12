@@ -86,13 +86,14 @@ export function StudioLauncher() {
     exportArchive: async (session) => {
       const assets = new IndexedDbAssetRepository(globalThis.indexedDB, session.projectId);
       const archive = await exportPortableProjectBundle(session, assets); const url = URL.createObjectURL(new Blob([archive as Uint8Array<ArrayBuffer>], { type: "application/zip" }));
-      return { href: url, filename: `${session.title.replace(/[^a-z0-9_-]+/gi, "-") || "world-project"}.zip`, byteLength: archive.byteLength, dispose: () => URL.revokeObjectURL(url) };
+      return { href: url, filename: `${session.title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").replace(/[. ]+$/g, "").trim() || "world-project"}.zip`, byteLength: archive.byteLength, dispose: () => URL.revokeObjectURL(url) };
     }
   };
   if (editing?.session.project) {
     if (editing.view === "structure") return <>
-      <button className="project-home-return" onClick={() => setEditing(null)}>返回项目首页</button>
       <ProjectEntityManager
+        returnLabel="返回创作"
+        {...(editing.sceneId === undefined ? {} : { initialSceneId: editing.sceneId })}
         session={editing.session}
         workspace={editing.workspace}
         onSession={async (session) => {
@@ -100,12 +101,20 @@ export function StudioLauncher() {
           compilers.current.set(session.reference.referenceId, compiled.compiler);
           setEditing((current) => current === null ? current : { ...current, session: compiled.session, compiler: compiled.compiler });
         }}
-        onOpenEditor={(project,sceneId) => setEditing({ ...editing, session: markProjectDirty(editing.session, project), view: "content", ...(sceneId===undefined?{sceneId:project.manifest.entrySceneId}:{sceneId}) })}
+        onOpenEditor={(project,sceneId) => setEditing({ ...editing, session: markProjectDirty(editing.session, project), view: "content", ...(sceneId===undefined?{sceneId:editing.sceneId ?? project.manifest.entrySceneId}:{sceneId}) })}
       />
     </>;
     return <>
-      <button className="project-home-return" onClick={() => setEditing({ ...editing, view: "structure" })}>返回项目结构</button>
       <App
+        onReturnHome={() => setEditing(null)}
+        onExportProject={async project => {
+          const download = await actions.exportArchive(markProjectDirty(editing.session, project));
+          const anchor = document.createElement("a");
+          anchor.href = download.href; anchor.download = download.filename;
+          document.body.append(anchor); anchor.click(); anchor.remove();
+          setTimeout(download.dispose, 60_000);
+        }}
+        onOpenProject={sceneId => setEditing(current => current === null ? current : { ...current, view: "structure", ...(sceneId === undefined ? {} : { sceneId }) })}
         initialProject={editing.session.project}
         {...(editing.sceneId===undefined?{}:{initialSceneId:editing.sceneId})}
         {...(editing.compiler === null ? {} : { routeCompiler: editing.compiler })}
@@ -131,5 +140,5 @@ export function StudioLauncher() {
       />
     </>;
   }
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"structure"});}} />;
+  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content"});}} />;
 }

@@ -1,0 +1,534 @@
+{
+  "url": "http://127.0.0.1:5173",
+  "checkedAt": "2026-10-12T09:29:56.195Z",
+  "checks": [
+    {
+      "label": "import opens writing directly without status or structure gate",
+      "passed": true
+    },
+    {
+      "label": "edit, undo, redo and save real dialogue",
+      "passed": true
+    },
+    {
+      "label": "two named projects enter writing directly and save before returning",
+      "passed": true
+    },
+    {
+      "label": "native create dialog restores keyboard focus on Escape",
+      "passed": true
+    },
+    {
+      "label": "project library fits 736px",
+      "passed": true
+    },
+    {
+      "label": "project library fits 390px",
+      "passed": true
+    },
+    {
+      "label": "project library fits 320px",
+      "passed": true
+    },
+    {
+      "label": "partial scene draft survives blocked navigation and Escape until deliberate discard",
+      "passed": true
+    },
+    {
+      "label": "one-click project reopen after reload preserves the saved dialogue",
+      "passed": true
+    },
+    {
+      "label": "project menu saves and exports a real portable ZIP",
+      "passed": true
+    },
+    {
+      "label": "invalid script draft blocks project switching and export until repaired",
+      "passed": true
+    },
+    {
+      "label": "asset drawer loads real image, renames, undoes and redoes metadata",
+      "passed": true
+    },
+    {
+      "label": "unapplied appearance changes block leaving the project",
+      "passed": true
+    },
+    {
+      "label": "build, download and run standalone real game",
+      "passed": true
+    },
+    {
+      "label": "hiding preview and switching to route retains the real runtime session",
+      "passed": true
+    },
+    {
+      "label": "故事 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "素材 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "游戏外观 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "检查 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "发布 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "演出 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "路线 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "route overview fits every actual scene and zoom restores correctly",
+      "passed": true
+    },
+    {
+      "label": "脚本 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "写作 at 1440px",
+      "width": 1440,
+      "height": 1000,
+      "document": 1440,
+      "documentHeight": 1000,
+      "shell": 1440,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "故事 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "素材 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "游戏外观 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "检查 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "发布 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "演出 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "路线 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "脚本 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "写作 at 1024px",
+      "width": 1024,
+      "height": 1000,
+      "document": 1024,
+      "documentHeight": 1000,
+      "shell": 1024,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "故事 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "素材 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "游戏外观 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "检查 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "发布 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "演出 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "路线 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "脚本 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "写作 at 736px",
+      "width": 736,
+      "height": 1000,
+      "document": 736,
+      "documentHeight": 1000,
+      "shell": 736,
+      "shellHeight": 1000,
+      "headerTop": 0
+    },
+    {
+      "label": "故事 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "素材 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "游戏外观 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "检查 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "发布 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "演出 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "路线 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "脚本 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "写作 at 390px",
+      "width": 390,
+      "height": 844,
+      "document": 390,
+      "documentHeight": 844,
+      "shell": 390,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "故事 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "素材 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "游戏外观 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "检查 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "发布 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "演出 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "路线 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "脚本 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "写作 at 320px",
+      "width": 320,
+      "height": 844,
+      "document": 320,
+      "documentHeight": 844,
+      "shell": 320,
+      "shellHeight": 844,
+      "headerTop": 0
+    },
+    {
+      "label": "mobile scene picker closes after selecting real scene",
+      "passed": true
+    },
+    {
+      "label": "project structure is accessible from mobile editor",
+      "passed": true
+    },
+    {
+      "label": "import reference art through actual asset pipeline, replace and preview the real stage",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

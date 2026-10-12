@@ -19,6 +19,7 @@ it("edits a resource without hand-copying its ID, preserves metadata on file sel
   const list = screen.getByLabelText("已导入资源");
   fireEvent.click(within(list).getByRole("button", { name: "编辑资源：sunset" }));
   expect(screen.getByLabelText("资源 Asset ID")).toBeDisabled();
+  fireEvent.click(screen.getByText("文件信息与维护 · 1 项素材"));
   fireEvent.change(screen.getByLabelText("资源显示名称"), { target: { value: "海边夕照" } });
   fireEvent.click(screen.getByRole("button", { name: "仅保存资源名称" }));
   await waitFor(() => expect(within(list).getByText("海边夕照")).toBeVisible());

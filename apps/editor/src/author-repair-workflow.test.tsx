@@ -19,12 +19,18 @@ it.each(["pro", "beginner"])("keeps a cross-scene error visible and repairable i
   await waitFor(() => expect(screen.getByRole("button", { name: "丢弃草稿" })).toBeEnabled());
   fireEvent.click(screen.getByRole("button", { name: /旧广播室/ }));
   expect(screen.getByRole("button", { name: "试玩完整流程" })).toBeDisabled();
-  fireEvent.click(screen.getByText("构建与导出").closest("summary")!);
+  fireEvent.click(screen.getByRole("button", { name: "发布" }));
+  fireEvent.click(screen.getByRole("button", { name: /继续：导出方式/ }));
+  fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
   expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeDisabled();
+  fireEvent.click(screen.getByRole("button", { name: "← 导出方式" }));
+  fireEvent.click(screen.getByRole("radio", { name: /目录 ZIP/ }));
+  fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
   expect(screen.getByRole("button", { name: "构建目录 ZIP" })).toBeDisabled();
   const alert = screen.getByRole("region", { name: "待修复脚本草稿" });
   expect(alert).toHaveTextContent("放学后的校门");
-  fireEvent.click(level === "beginner" ? screen.getByRole("button", { name: "检查与修复问题" }) : screen.getByRole("radio", { name: "Debug & QA" }));
+  fireEvent.click(screen.getByRole("button", { name: "检查" }));
+  fireEvent.click(screen.getByRole("button", { name: "运行调试" }));
   expect(screen.getByRole("button", { name: "从入口启动调试" })).toBeDisabled();
   fireEvent.click(within(screen.getByRole("region", { name: "待修复脚本草稿" })).getByRole("button", { name: "修复草稿：放学后的校门" }));
   expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(broken);
@@ -35,7 +41,8 @@ it.each(["pro", "beginner"])("keeps a cross-scene error visible and repairable i
   expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(source);
   fireEvent.click(screen.getByRole("button", { name: "重做" }));
   expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(source + "\n// 修复后继续创作\n");
-  fireEvent.click(level === "beginner" ? screen.getByRole("button", { name: "检查与修复问题" }) : screen.getByRole("radio", { name: "Debug & QA" }));
+  fireEvent.click(screen.getByRole("button", { name: "检查" }));
+  fireEvent.click(screen.getByRole("button", { name: "运行调试" }));
   expect(screen.getByRole("button", { name: "从入口启动调试" })).toBeEnabled();
   fireEvent.click(screen.getByRole("button", { name: "从入口启动调试" }));
   expect(screen.getByTestId("debugger-current-source")).toHaveTextContent("scn_school_gate");
@@ -54,6 +61,7 @@ it("maps a runtime failure to its failing statement instead of the rolled-back p
   };
   const open = vi.fn();
   render(<DebugQaWorkspace project={project} diagnostics={{}} selectedSceneId={sceneId} selectedStatementId="before_fault" onProjectChange={vi.fn()} onOpenSource={open} />);
+  fireEvent.click(screen.getByRole("button", { name: "运行调试" }));
   fireEvent.click(screen.getByRole("button", { name: "从入口启动调试" }));
   fireEvent.click(screen.getByRole("button", { name: "单步前进" }));
   expect(screen.getByTestId("debugger-stop-reason")).toHaveAttribute("data-kind", "error");

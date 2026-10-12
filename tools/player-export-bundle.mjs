@@ -6,6 +6,8 @@ export async function buildPlayerExportRuntime() {
     configFile: false,
     root: resolve(import.meta.dirname, "../apps/player-shell"),
     logLevel: "error",
+    mode: "production",
+    oxc: { jsx: { development: false } },
     define: { "process.env.NODE_ENV": JSON.stringify("production") },
     build: {
       write: false,

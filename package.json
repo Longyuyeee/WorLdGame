@@ -19,6 +19,7 @@
     "test:vm-conformance": "vitest run packages/narrative-vm-spike/src/vm-spike09.test.ts --maxWorkers=1",
     "test:watch": "vitest",
     "audit:workspaces": "node tools/audit-workspaces.mjs",
+    "audit:studio-ui": "node tools/run-studio-ui-check.mjs",
     "audit:requirements": "node tools/audit-requirements.mjs",
     "audit:risk-acceptances": "node tools/audit-risk-acceptances.mjs",
     "audit:n21-human-validation": "node tools/audit-n21-human-validation.mjs",

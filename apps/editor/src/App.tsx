@@ -1,5 +1,10 @@
 import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { variableOptionLabels } from './variable-option-labels';
+import { EditorThemeControl } from './editor-theme';
+import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-card';
+import { StudioNavigation, type StudioPage } from './studio-navigation';
+import { StudioIcon } from './studio-icon';
+import { ProjectMenu } from './project-menu';
 import { assetSourceUsages, checkAssetSource, republishAssetEntry } from './asset-repair';
 import { ConditionExpressionFields } from './condition-expression-fields';
 import { SceneFlowPanel } from './SceneFlowPanel';
@@ -362,6 +367,9 @@ interface CommonProps {
 }
 
 interface WorkspaceHeaderProps extends CommonProps {
+  readonly onOpenProject?: () => void | Promise<void>;
+  readonly onReturnHome?: () => void | Promise<void>;
+  readonly onExportProject?: () => void | Promise<void>;
   readonly mode: StudioMode;
   readonly workspaceMode: WorkspaceModeId;
   readonly experienceLevel: ExperienceLevelId;
@@ -498,20 +506,38 @@ function WorkspaceHeader({
   onOpenBackups,
   settingsOpen,
   onOpenSettings,
+  onOpenProject,
+  onReturnHome,
+  onExportProject,
   dispatch
 }: WorkspaceHeaderProps) {
+  useEffect(() => {
+    const close = (event: MouseEvent) => { const menu = document.querySelector<HTMLDetailsElement>(".editor-preferences"); if (menu && !menu.contains(event.target as Node)) menu.open = false; };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { const menu = document.querySelector<HTMLDetailsElement>(".editor-preferences"); if (menu) menu.open = false; } };
+    document.addEventListener("pointerdown", close); document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", close); document.removeEventListener("keydown", escape); };
+  }, []);
   const sourceSession = activeSourceSession(session);
   const pendingDraft = hasPendingDraft(session);
   return (
     <header className="workspace-header">
       <div className="brand-lockup">
-        <span className="brand-mark" aria-hidden="true">W</span>
-        <div>
-          <p className="eyebrow">WorLd Studio · S0.41</p>
+        <span className="brand-mark studio-logo" aria-hidden="true">W</span><strong className="brand-product">WorLd Studio</strong>
+        {onOpenProject ? <ProjectMenu title={session.project.title} disabled={inputDirty || pendingDraftSceneIds(session).length > 0 || ["loading", "saving", "autosaving", "unavailable"].includes(persistence.status)} blockedReason={pendingDraftSceneIds(session).length > 0 ? "请先修复或丢弃脚本草稿，再切换项目。" : ["loading", "saving", "autosaving"].includes(persistence.status) ? "正在保存或恢复，请稍候。" : "请先应用或放弃当前输入，再切换项目。"} onStructure={onOpenProject} {...(onReturnHome ? { onHome: onReturnHome } : {})} {...(onExportProject ? { onExport: onExportProject } : {})} /> : <div>
+          <p className="eyebrow">创作工作区</p>
           <h1>{session.project.title}</h1>
-        </div>
+        </div>}
       </div>
 
+      <details className="editor-preferences">
+        <summary><StudioIcon name="settings" /><span>编辑器设置</span></summary>
+        <div className="editor-preferences__panel">
+        <div className="mobile-history-actions">
+          <button type="button" disabled={sourceSession.history.length === 0 || pendingDraft || inputDirty} onClick={() => dispatch({ type: "undo" })}>撤销上一步</button>
+          <button type="button" disabled={sourceSession.future.length === 0 || pendingDraft || inputDirty} onClick={() => dispatch({ type: "redo" })}>重做上一步</button>
+        </div>
+        <EditorThemeControl />
+        <details><summary>高级编辑选项</summary>
       <WorkspaceNavigation
         mode={mode}
         workspaceMode={workspaceMode}
@@ -526,6 +552,9 @@ function WorkspaceHeader({
         onExperienceLevelChange={onExperienceLevelChange}
         onMotionPreferenceChange={onMotionPreferenceChange}
       />
+        </details>
+        </div>
+      </details>
 
       <div className="history-actions" aria-label="脚本历史">
         <button
@@ -550,15 +579,16 @@ function WorkspaceHeader({
             ? "错误草稿 · 未提交"
             : inputDirty
               ? "输入批次 · 未提交"
-              : `本地事务 · r${sourceSession.revision}`}
+              : "修改已同步"}
         </span>
         <button
           type="button"
           className={settingsOpen ? "settings-open-button is-active" : "settings-open-button"}
           aria-pressed={settingsOpen}
           onClick={onOpenSettings}
+          disabled={inputDirty}
         >
-          项目设置
+          游戏外观
         </button>
         <button
           className="backup-button"
@@ -592,13 +622,14 @@ function WorkspaceHeader({
 }
 
 interface SceneRailProps extends CommonProps {
+  readonly onSelectScene?: () => void;
   readonly assetIndex: AssetIndex;
   readonly assetStatus: AssetVaultStatus;
   readonly onOpenAssets: () => void;
   readonly onGlobalJump: (match: ProjectSearchMatch) => void;
 }
 
-function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump }: SceneRailProps) {
+function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump, onSelectScene }: SceneRailProps) {
   const [query, setQuery] = useState("");
   const [activeResult, setActiveResult] = useState(0);
   const index = useMemo(() => createProjectSearchIndex(session.project), [session.project]);
@@ -623,11 +654,11 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
       <div className="panel-heading">
         <div>
           <p className="eyebrow">PROJECT</p>
-          <h2>场景</h2>
+          <h2>章节与场景</h2>
         </div>
         <span className="count-badge">{session.project.scenes.length}</span>
       </div>
-      <form className="project-search" role="search" aria-label="搜索全部场景" onSubmit={(event) => {
+      <form className="project-search" data-has-query={query.trim().length > 0} role="search" aria-label="搜索全部场景" onSubmit={(event) => {
         event.preventDefault();
         jump(selectedMatch);
       }}>
@@ -637,7 +668,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
           type="search"
           value={query}
           autoComplete="off"
-          placeholder="场景、ID 或内容"
+          placeholder="搜索场景或对白"
           aria-controls="project-search-results"
           aria-describedby="project-search-status"
           onChange={(event) => setQuery(event.target.value)}
@@ -676,7 +707,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
           <button
             className={scene.id === session.activeSceneId ? "scene-item is-active" : "scene-item"}
             key={scene.id}
-            onClick={() => dispatch({ type: "select-scene", sceneId: scene.id })}
+            onClick={() => { dispatch({ type: "select-scene", sceneId: scene.id }); onSelectScene?.(); }}
           >
             <span className="scene-index">{String(index + 1).padStart(2, "0")}</span>
             <span>
@@ -755,7 +786,16 @@ function canBuildThumbnail(entry: AssetIndex["assets"][number]): boolean {
     (entry.source.mimeType === "image/png" || entry.source.mimeType === "image/jpeg" || entry.source.mimeType === "image/webp");
 }
 
+function directionAssetName(statement: Extract<StoryStatement, { kind: "direction" }>, index: AssetIndex): string | undefined {
+  const inspection = inspectDirectiveArguments(statement.summary);
+  const assetId = inspection.parameters.asset;
+  if (!assetId || inspection.duplicateKeys.includes("asset")) return undefined;
+  return index.assets.find(entry => entry.assetId === assetId)?.displayName;
+}
+
 interface AssetVaultDialogProps {
+  readonly reader: AssetLibraryReader | null;
+  readonly initialAssetId?: string | null;
   readonly experienceLevel: ExperienceLevelId;
   readonly onCheckSource: (entry: AssetIndexEntry) => Promise<string>;
   readonly project: StoryProject;
@@ -798,6 +838,8 @@ interface AssetVaultDialogProps {
 }
 
 function AssetVaultDialog({
+  reader,
+  initialAssetId,
   experienceLevel,
   project, onOpenUsage, onRename, onUndoAsset, onRedoAsset, canUndoAsset, canRedoAsset, onCheckSource,
   index,
@@ -836,6 +878,10 @@ function AssetVaultDialog({
   const [displayName, setDisplayName] = useState("");
   const [kind, setKind] = useState<AssetKind>("other");
   const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
+  useEffect(() => {
+    const entry = index.assets.find(item => item.assetId === initialAssetId);
+    if (entry) { setEditingAssetId(entry.assetId); setAssetId(entry.assetId); setDisplayName(entry.displayName); setKind(entry.kind); }
+  }, [initialAssetId]);
   const [sourceChecks, setSourceChecks] = useState<Record<string, { revision: number; message: string; pending: boolean }>>({});
   const usages = useMemo(() => assetSourceUsages(project), [project]);
   const missingUsages = usages.filter((usage) => !index.assets.some((entry) => entry.assetId === usage.assetId));
@@ -865,21 +911,28 @@ function AssetVaultDialog({
     <div className="asset-overlay" role="presentation" onMouseDown={(event) => {
       if (event.target === event.currentTarget && !importing) onClose();
     }}>
-      <section className="asset-dialog" role="dialog" aria-modal="true" aria-labelledby="asset-dialog-title">
+      <section className="asset-dialog" data-experience-level={experienceLevel} role="dialog" aria-modal="true" aria-labelledby="asset-dialog-title">
         <div className="asset-dialog__heading">
           <div>
-            <p className="eyebrow">CONTENT-ADDRESSED LOCAL VAULT</p>
-            <h2 id="asset-dialog-title">资源保险库</h2>
+            <p className="eyebrow">你的故事素材</p>
+            <h2 id="asset-dialog-title">素材管理</h2>
           </div>
           <div className="asset-dialog__summary">
-            <span>{index.assets.length} 资源</span><span>Index r{index.indexRevision}</span>
+            <span>{index.assets.length} 项素材</span>
             <button className="icon-button" aria-label="关闭资源保险库" onClick={onClose}>×</button>
           </div>
         </div>
         <p className="asset-dialog__intro">
-          单文件上限 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。Worker 检查真实签名、尺寸、时长与危险 SVG；通过后 Blob 与 Index 才在同一 fenced 事务中提交。
+          导入图片、音频或视频，供故事中的演出使用。单个文件最大 {formatBytes(WEB_ASSET_IMPORT_MAX_BYTES)}。
         </p>
+        {selectedExisting && <section className="asset-detail-overview" aria-label="当前素材预览">
+          <AssetLibraryPreview entry={selectedExisting} reader={reader} />
+          <h3>{selectedExisting.displayName}</h3>
+          <dl><div><dt>文件大小</dt><dd>{formatBytes(selectedExisting.source.byteLength)}</dd></div><div><dt>文件类型</dt><dd>{selectedExisting.source.mimeType}</dd></div><div><dt>媒体检查</dt><dd>{assetInspectionLabel(selectedExisting)}</dd></div></dl>
+          <div className="asset-detail-usages"><strong>故事中的使用位置</strong>{usages.filter(usage => usage.assetId === selectedExisting.assetId).map(usage => <button key={`${usage.sceneId}:${usage.statementId}:${usage.parameter}`} type="button" disabled={importing} onClick={() => onOpenUsage(usage.sceneId, usage.statementId)}>{usage.sceneTitle} <span aria-hidden="true">↗</span></button>)}{!usages.some(usage => usage.assetId === selectedExisting.assetId) && <small>尚未在已提交的故事中使用</small>}</div>
+        </section>}
 
+        <details className="asset-repair-details" open={missingUsages.length > 0}><summary>素材引用与恢复</summary>
         <section className="asset-repair-panel" aria-label="素材引用与恢复">
           <h3>素材引用与恢复</h3>
           <p>改名只改变显示名称；替换文件保留稳定 ID，所有使用位置会一起更新。剧情引用修改使用顶部脚本撤销；最近一次资源更新可在本窗口撤销/重做，关闭工程后请使用备份恢复。</p>
@@ -891,7 +944,8 @@ function AssetVaultDialog({
           </li>)}</ul>}
           <small>此列表检查已提交演出的 asset/transitionAsset 引用，不代表底层文件均可读取；有错误草稿请先修复。</small>
         </section>
-        <details className="author-technical-details" open={experienceLevel === "pro"}>
+        </details>
+        <details className="author-technical-details">
           <summary>高级资源维护与优化</summary>
         <section className="asset-lifecycle" aria-label="资源生命周期">
           <div className="asset-lifecycle__heading">
@@ -976,7 +1030,7 @@ function AssetVaultDialog({
         </details>
         <form className="asset-import-form" onSubmit={submit}>
           <label className="asset-file-picker">
-            <span>{file === null ? "选择图片、音频、视频或字体" : file.name}</span>
+            <span>{file === null ? selectedExisting ? "选择文件替换此素材" : "选择图片、音频、视频或字体" : file.name}</span>
             <small>{file === null ? "浏览本机文件" : `${formatBytes(file.size)} · ${file.type || "application/octet-stream"}`}</small>
             <input
               aria-label="选择资源文件"
@@ -995,7 +1049,7 @@ function AssetVaultDialog({
               <option value="ui">UI</option><option value="other">其他</option>
             </select></label>
           </div>
-          {selectedExisting !== undefined && <p className="asset-replace-notice">将更新稳定 ID <code>{assetId}</code> 的源内容；旧 Blob 保持不可变并进入孤儿审计。</p>}
+          {selectedExisting !== undefined && <p className="asset-replace-notice">替换文件后，故事中使用此素材的位置会一起更新。修改名称可单独保存。</p>}
           <div className={`asset-import-status asset-import-status--${importState.phase}`} aria-live="polite">
             <div><strong>{importState.phase === "reading" ? "正在读取文件"
               : importState.phase === "inspecting" ? "正在执行媒体安全检查"
@@ -1019,6 +1073,7 @@ function AssetVaultDialog({
           </div>
         </form>
 
+        <details className="asset-all-items" open={selectedExisting === undefined}><summary>文件信息与维护 · {index.assets.length} 项素材</summary>
         <div className="asset-list" aria-label="已导入资源">
           {index.assets.length === 0 ? <p className="asset-list__empty">尚未导入资源。导入不会修改原始文件，也不会把媒体写入剧情 JSON/WAL。</p> : index.assets.map((entry) => (
             <article className="asset-item" key={entry.assetId}>
@@ -1040,18 +1095,21 @@ function AssetVaultDialog({
             </article>
           ))}
         </div>
+        </details>
       </section>
     </div>
   );
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly stageExpanded?: boolean;
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
   readonly variableIds: readonly string[];
   readonly variableNames: Readonly<Record<string,string>>;
+  readonly variableDisplayNames: Readonly<Record<string, string>>;
   readonly requestedFocusStatementId: string | null;
   readonly onRequestedFocusHandled: () => void;
   readonly runtimeRouteTrace: RuntimeRouteTrace;
@@ -1780,7 +1838,7 @@ function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds
     {statement.kind==="condition"&&<><ConditionExpressionFields expression={statement.expression} variableIds={variableIds} variableNames={variableNames} disabled={disabled}/><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
-    <button type="submit" disabled={disabled}>应用类型化参数</button><small>字段按 AST 类型提交，不解析卡片显示文本。</small>
+    <button type="submit" disabled={disabled}>应用类型化参数</button><small>应用修改后，故事和预览会同步更新。</small>
   </form>;
 }
 
@@ -1793,9 +1851,11 @@ function SequenceView({
   assetIndex,
   variableIds,
   variableNames,
+  variableDisplayNames,
   requestedFocusStatementId,
   onRequestedFocusHandled,
-  runtimeRouteTrace
+  runtimeRouteTrace,
+  stageExpanded = true
 }: SequenceViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -1990,14 +2050,70 @@ function SequenceView({
   }, [pendingDraft]);
   useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
+  const selectedInspector = (<div className="inline-inspector">
+        <div className="inspector-label-row">
+          {selected.kind === "dialogue" ? (
+            <label htmlFor="dialogue-editor">对白内容</label>
+          ) : (
+            <span className="inspector-title">当前步骤 · 类型化参数</span>
+          )}
+          <span className="step-type-label">{statementKindLabel(selected)}</span>
+        </div>
+        {selected.kind === "dialogue" ? (
+          <>
+          <label htmlFor="dialogue-speaker">说话人</label>
+          <select id="dialogue-speaker" value={selected.speakerId} disabled={pendingDraft} onChange={event=>dispatch({type:'p0-update',commandId:createCommandId(),statementId:selected.id,patch:{speakerId:event.target.value}})}>
+            {!session.project.characters.some(character=>character.id===selected.speakerId) && <option value={selected.speakerId} disabled>缺失角色 · {selected.speakerId}（请选择已有角色）</option>}
+            {session.project.characters.map(character=><option key={character.id} value={character.id}>{character.displayName}</option>)}
+          </select>
+          <TransactionalTextarea
+            id="dialogue-editor"
+            value={selected.text}
+            rows={4}
+            disabled={pendingDraft}
+            onDirtyChange={onInputDirtyChange}
+            onCommit={(text) =>
+              dispatch({
+                type: "patch-dialogue",
+                commandId: createCommandId(),
+                statementId: selected.id,
+                text
+              })
+            }
+          />
+          </>
+        ) : selected.kind === "direction" ? (
+          <details key={selected.id} open={stageExpanded} className="step-properties"><summary>编辑演出参数 · {selected.summary}</summary>
+          <DirectionInspector
+            key={`${selected.id}:${selected.summary}`}
+            statement={selected}
+            assetIndex={assetIndex}
+            disabled={pendingDraft}
+            createCommandId={createCommandId}
+            dispatch={dispatch}
+          />
+          </details>
+        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
+        <p className="field-help">
+          点击下方步骤编辑内容。停止输入或离开输入框后自动应用。
+        </p>
+      </div>);
+  const displayStatement = (statement: StoryStatement) => {
+    let label = statementLabel(statement);
+    for (const [id, name] of Object.entries(variableDisplayNames)) label = label.replaceAll(id, name);
+    for (const asset of assetIndex.assets) label = label.replaceAll(asset.assetId, asset.displayName);
+    if (statement.kind === "jump" || statement.kind === "call") label = session.project.scenes.find(item => item.id === statement.targetLabel)?.title ?? statement.targetLabel;
+    return label;
+  };
   return (
-    <section className="authoring-panel view-enter" aria-labelledby="sequence-heading">
+    <section className="authoring-panel view-enter" data-stage-expanded={stageExpanded} aria-labelledby="sequence-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">SEQUENCE · CANONICAL STABLE-ID PATCH</p>
+          <p className="eyebrow">{stageExpanded ? "演出编排" : "场景写作"}</p>
           <h2 id="sequence-heading">{scene.title}</h2>
+          <p className="scene-intro">{scene.statements.filter(item => item.kind === "dialogue" || item.kind === "narration").length} 段文字 · {scene.statements.filter(item => item.kind === "choice").length} 处选择 · 每一段，都是故事的一部分</p>
         </div>
-        <span className="context-chip">权威脚本投影</span>
+        <span className="context-chip">{scene.statements.length} 个步骤</span>
       </div>
 
       <div
@@ -2017,6 +2133,7 @@ function SequenceView({
         )}
       </div>
 
+      <details className="statement-tools"><summary>插入与整理内容<span>复制、移动与多选</span></summary>
       <div className="statement-toolbar" aria-label="对白结构工具">
         <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
         <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={requestSequenceInsert}>＋ 插入</button>
@@ -2029,6 +2146,7 @@ function SequenceView({
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>current.filter((id)=>!selectedSequenceIds.includes(id)))}>展开</button>
         <button type="button" className="danger-button" disabled={pendingDraft||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
       </div>
+      </details>
       {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}</p>}
 
       <div className="statement-toolbar statement-toolbar--legacy" aria-label="对白快捷工具">
@@ -2093,9 +2211,11 @@ function SequenceView({
         </button>
       </div>
 
-      <section className="stage-track" aria-label="图形化演出轨道" data-window-size={stageWindow.size} data-rendered-statements={visibleStatements.length}>
+      <details key={stageExpanded ? "director" : "writer"} className="stage-track" open={stageExpanded} aria-label="图形化演出轨道" data-window-size={stageWindow.size} data-rendered-statements={visibleStatements.length}>
+        <summary>演出时间线与工具 <span>背景、角色、音频和镜头</span></summary>
+        <details className="director-tools">
+          <summary>添加与整理演出<span>背景、角色、镜头与运动</span></summary>
         <div className="stage-track__heading">
-          <div><span className="eyebrow">STAGE TRACK</span><strong>演出层级概览</strong></div>
           <div className="stage-track__tools">
             <div className="stage-track__actions" aria-label="当前演出指令操作">
               <button type="button" aria-label="演出左移" disabled={!canMoveDirectionLeft} onClick={() => {
@@ -2120,7 +2240,7 @@ function SequenceView({
             </div>
           </div>
         </div>
-        <form className="stage-search" role="search" aria-label="搜索当前场景步骤" onSubmit={(event: FormEvent) => {
+        <form className="stage-search" role="search" aria-label="搜索当前场景步骤" data-has-query={stageSearch.query.length > 0} onSubmit={(event: FormEvent) => {
           event.preventDefault();
           jumpToStageSearchMatch(selectedSearchMatch);
         }}>
@@ -2131,7 +2251,7 @@ function SequenceView({
               id="stage-step-search"
               type="search"
               value={stageSearchQuery}
-              placeholder="步骤号、Statement ID 或对白"
+              placeholder="搜索步骤或对白"
               autoComplete="off"
               aria-controls="stage-search-results"
               aria-describedby="stage-search-status"
@@ -2178,7 +2298,8 @@ function SequenceView({
           </div>}
           {pendingDraft && <small>当前 Script 草稿尚未提交；搜索继续使用最后一次有效场景。</small>}
         </form>
-        <div className="stage-track__window" role="group" aria-label="演出轨道可视窗口">
+        </details>
+        <div className="stage-track__window" role="group" aria-label="演出轨道可视窗口" data-windowed={stageWindow.hasPrevious || stageWindow.hasNext}>
           <button type="button" aria-label="上一段演出步骤" disabled={!stageWindow.hasPrevious || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, -1).start)}>← 上一段</button>
           <output aria-live="polite">步骤 {stageWindow.total === 0 ? 0 : stageWindow.start + 1}–{stageWindow.end} / {stageWindow.total}</output>
           <button type="button" aria-label="下一段演出步骤" disabled={!stageWindow.hasNext || draggedDirectionId !== null} onClick={() => setStageWindowStart(moveStageWindow(stageWindow, 1).start)}>下一段 →</button>
@@ -2227,7 +2348,7 @@ function SequenceView({
           </div>
           {(["background", "character", "camera", "audio", "text", "story"] as const).map((lane) => (
             <div className={`stage-lane stage-lane--${lane}`} key={lane}>
-              <span className="stage-lane__label">{lane === "background" ? "BG" : lane === "character" ? "CHAR" : lane === "camera" ? "CAM" : lane === "audio" ? "AUDIO" : lane === "text" ? "TEXT" : "STORY"}</span>
+              <span className="stage-lane__label">{lane === "background" ? "背景" : lane === "character" ? "角色" : lane === "camera" ? "镜头" : lane === "audio" ? "音频" : lane === "text" ? "文本" : "故事"}</span>
               <div className="stage-lane__steps">
                 {visibleStatements.map((statement, visibleIndex) => {
                   const index = stageWindow.start + visibleIndex;
@@ -2289,7 +2410,7 @@ function SequenceView({
                       }
                     }}
                   >
-                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? `@${statement.command}` : statementKindLabel(statement)}</strong>{isCharacterMoveCue(statement) && <em className="stage-cue__keyframe">KF</em>}
+                    <span>{String(index + 1).padStart(2, "0")}</span><strong>{statement.kind === "direction" ? directionAssetName(statement, assetIndex) ?? `@${statement.command}` : statementKindLabel(statement)}</strong>{isCharacterMoveCue(statement) && <em className="stage-cue__keyframe">KF</em>}
                   </button>
                 ) : <span className={`stage-cue stage-cue--empty${index === timelinePlayheadIndex ? " is-playhead" : ""}`} aria-hidden="true" key={`${statement.id}:empty`} />;
                 })}
@@ -2297,7 +2418,7 @@ function SequenceView({
             </div>
           ))}
         </div>
-      </section>
+      </details>
 
       {multiSelectMode && <BatchDirectionPanel
         key={`${scene.id}:${selectedDirections[0]?.command ?? "empty"}:${selectedDirections.every((item) => item.command === selectedDirections[0]?.command) ? "same" : "mixed"}`}
@@ -2391,11 +2512,15 @@ function SequenceView({
         onClose={() => setBezierPathOpen(false)}
       />}
 
+
+      {stageExpanded && selectedInspector}
+
       <div className="statement-list" aria-label={`剧情步骤，当前显示 ${stageWindow.start + 1} 至 ${stageWindow.end}，共 ${stageWindow.total} 步`}>
         {visibleStatements.map((statement, visibleIndex) => {
           const index = stageWindow.start + visibleIndex;
           const runtimeCurrent = statement.id === runtimeCurrentStatementId;
           return (
+          <article key={statement.id} className={`statement-entry statement-entry--${statement.kind}${statement.id === selected.id ? " is-active" : ""}`} >
           <button
             id={`statement-card-${statement.id}`}
             key={statement.id}
@@ -2413,60 +2538,22 @@ function SequenceView({
             onKeyDown={(event)=>{if(pendingDraft)return;if(sequenceMultiSelect&&event.shiftKey&&(event.key===" "||event.key==="Enter")){event.preventDefault();const ids=sequenceRangeAnchor===null?[statement.id]:sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id);setSequenceSelectedIds(ids);return;}if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowUp"){event.preventDefault();moveStatement(statement,-1);}else if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowDown"){event.preventDefault();moveStatement(statement,1);}else if(event.key==="Delete"){event.preventDefault();deleteSelected();}}}
             onDoubleClick={()=>setCollapsedStatementIds((current)=>current.includes(statement.id)?current.filter((id)=>id!==statement.id):[...current,statement.id])}
           >
-            <span className="statement-order">{String(index + 1).padStart(2, "0")}</span>
-            <span className="statement-kind">{statementKindLabel(statement)}</span>
-            <span className="statement-copy">{collapsedStatementIds.includes(statement.id)?"已折叠":statementLabel(statement)}</span>
+            <span className={`statement-avatar statement-avatar--${statement.kind}`} aria-hidden="true">{statement.kind === "dialogue" ? (session.project.characters.find(character => character.id === statement.speakerId)?.displayName ?? "?").slice(0, 1) : <StudioIcon name={statement.kind === "direction" ? "director" : statement.kind === "choice" ? "route" : statement.kind === "set" ? "variables" : statement.kind === "end" ? "checks" : "write"} />}</span>
+            <span className="statement-content">
+              <span className="statement-meta"><strong>{statement.kind === "dialogue" ? session.project.characters.find(character => character.id === statement.speakerId)?.displayName ?? "缺失角色" : statementKindLabel(statement)}</strong><span className="statement-order">{String(index + 1).padStart(2, "0")}</span></span>
+              <span className="statement-copy">{collapsedStatementIds.includes(statement.id) ? "已折叠" : displayStatement(statement)}</span>
+              {statement.kind === "choice" && !collapsedStatementIds.includes(statement.id) && <span className="statement-options">{statement.options.map(option => <span key={option.id}><span aria-hidden="true">→</span>{option.label}<small>{session.project.scenes.find(item => item.id === option.targetSceneId)?.title ?? "目标待设置"}</small></span>)}</span>}
+            </span>
           </button>
+          {!stageExpanded && statement.id === selected.id && !collapsedStatementIds.includes(statement.id) && selectedInspector}
+          </article>
         );
         })}
       </div>
 
-      <div className="inline-inspector">
-        <div className="inspector-label-row">
-          {selected.kind === "dialogue" ? (
-            <label htmlFor="dialogue-editor">对白内容</label>
-          ) : (
-            <span className="inspector-title">当前步骤 · 类型化参数</span>
-          )}
-          <code>{selected.id}</code>
-        </div>
-        {selected.kind === "dialogue" ? (
-          <>
-          <label htmlFor="dialogue-speaker">说话人</label>
-          <select id="dialogue-speaker" value={selected.speakerId} disabled={pendingDraft} onChange={event=>dispatch({type:'p0-update',commandId:createCommandId(),statementId:selected.id,patch:{speakerId:event.target.value}})}>
-            {!session.project.characters.some(character=>character.id===selected.speakerId) && <option value={selected.speakerId} disabled>缺失角色 · {selected.speakerId}（请选择已有角色）</option>}
-            {session.project.characters.map(character=><option key={character.id} value={character.id}>{character.displayName} · {character.id}</option>)}
-          </select>
-          <TransactionalTextarea
-            id="dialogue-editor"
-            value={selected.text}
-            rows={4}
-            disabled={pendingDraft}
-            onDirtyChange={onInputDirtyChange}
-            onCommit={(text) =>
-              dispatch({
-                type: "patch-dialogue",
-                commandId: createCommandId(),
-                statementId: selected.id,
-                text
-              })
-            }
-          />
-          </>
-        ) : selected.kind === "direction" ? (
-          <DirectionInspector
-            key={`${selected.id}:${selected.summary}`}
-            statement={selected}
-            assetIndex={assetIndex}
-            disabled={pendingDraft}
-            createCommandId={createCommandId}
-            dispatch={dispatch}
-          />
-        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
-        <p className="field-help">
-          Sequence 不持有第二份剧情；每次编辑都通过稳定 ID Patch 写回权威 Script，再重新投影。
-        </p>
-      </div>
+      {!stageExpanded && !selectedInStageWindow && selectedInspector}
+      <button type="button" className="add-story-content" disabled={pendingDraft} onClick={() => { const tools = document.querySelector<HTMLDetailsElement>(".statement-tools"); if (tools) { tools.open = true; tools.scrollIntoView({ block: "nearest" }); tools.querySelector<HTMLSelectElement>("select")?.focus(); } }}>＋ 添加内容</button>
+
     </section>
   );
 }
@@ -2704,6 +2791,31 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
     ...(windowOffset === undefined ? { anchorSceneId: routeWindowAnchorSceneId } : { offset: windowOffset })
   }), [query,chapterFilter,kindFilter,groupFilter,routeIndex, routeWindowAnchorSceneId, windowOffset]);
   const visibleNodes = routeWindow.nodes;
+  const routeCanvasRef = useRef<HTMLDivElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const [canvasMode, setCanvasMode] = useState<"fit" | "manual">("fit");
+  const [canvasZoom, setCanvasZoom] = useState<number | null>(null);
+  useEffect(() => {
+    const canvas = routeCanvasRef.current;
+    if (!canvas || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(entries => {
+      const rect = entries[0]?.contentRect;
+      if (rect) setCanvasSize({ width: rect.width, height: rect.height });
+    });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, []);
+  useEffect(() => { setCanvasZoom(null); setCanvasMode(graph.viewport.x === 0 && graph.viewport.y === 0 && graph.viewport.zoom === 1 ? "fit" : "manual"); }, [graph.viewport.x, graph.viewport.y, graph.viewport.zoom]);
+  const routeBounds = useMemo(() => ({
+    left: Math.min(...visibleNodes.map(node => node.layout.x), 0),
+    top: Math.min(...visibleNodes.map(node => node.layout.y), 0),
+    right: Math.max(...visibleNodes.map(node => node.layout.x + 250), 250),
+    bottom: Math.max(...visibleNodes.map(node => node.layout.y + 112), 112)
+  }), [visibleNodes]);
+  const fittedZoom = canvasSize.width > 0 ? Math.max(0.5, Math.min(1, (canvasSize.width - 48) / (routeBounds.right - routeBounds.left), (canvasSize.height - 48) / (routeBounds.bottom - routeBounds.top))) : graph.viewport.zoom;
+  const routeZoom = canvasZoom ?? (canvasMode === "fit" ? fittedZoom : graph.viewport.zoom);
+  const routeX = canvasMode === "fit" && canvasSize.width > 0 ? routeBounds.left * routeZoom - 24 : graph.viewport.x;
+  const routeY = canvasMode === "fit" && canvasSize.height > 0 ? routeBounds.top * routeZoom - 24 : graph.viewport.y;
   const sceneTitles = useMemo(() => new Map(graph.nodes.map((node) => [node.id, node.title])), [graph.nodes]);
   const selectedOutgoingEdges = selected === undefined ? [] : graph.edges.filter((edge)=>edge.sourceSceneId===selected.id);
   const choiceStatementIds = new Set(selected?.facts.filter((fact) => fact.kind === "choice").map((fact) => fact.id));
@@ -2790,11 +2902,11 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
     <section className="flow-panel view-enter" aria-labelledby="flow-heading">
       <div className="panel-heading authoring-heading">
         <div>
-          <p className="eyebrow">N40 · CANONICAL ROUTE GRAPH</p>
-          <h2 id="flow-heading">Route Map</h2>
-          {selected !== undefined && <button type="button" onClick={() => { const panel = document.getElementById("scene-flow-panel"); panel?.scrollIntoView({ block: "center" }); panel?.focus({ preventScroll: true }); }}>查看「{selected.title}」场景内走向</button>}
+          <p className="eyebrow">STORY ROUTES</p>
+          <h2 id="flow-heading">故事路线</h2>
+          {selected !== undefined && <button type="button" onClick={() => { const properties = document.querySelector<HTMLDetailsElement>(".route-properties"); if (properties) properties.open = true; const panel = document.getElementById("scene-flow-panel"); panel?.scrollIntoView({ block: "center" }); panel?.focus({ preventScroll: true }); }}>查看「{selected.title}」场景内走向</button>}
         </div>
-        <span className="context-chip context-chip--cyan">Compiler 图事实</span>
+        <span className="context-chip">{graph.nodes.length} 个场景</span>
       </div>
       <div className="route-toolbar">
         <div className="route-compiler-cache" role="status" aria-label="Route Compiler 缓存状态">{compilerStatus}</div>
@@ -2807,6 +2919,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
         </div>
         <div className="route-summary" aria-label="路线图统计"><span>{graph.nodes.length} 场景</span><span>{graph.edges.length} 连接</span><span>{graph.diagnostics.length} 诊断</span></div>
       </div>
+      <details className="route-tools"><summary>路线布局与评审工具</summary>
       <RouteReviewPanel project={canonicalProject} graph={graph} trace={reviewTrace} blocked={reviewBlocked} onOpen={onOpenSequence} />
       <div className="route-layout-toolbar" aria-label="路线布局工具">
         <div className="route-group-create"><label><span>分组 ID</span><input aria-label="新路线分组 ID" value={newGroupId} onChange={(event)=>setNewGroupId(event.target.value)} placeholder="group_route" /></label><label><span>分组名称</span><input aria-label="新路线分组名称" value={newGroupTitle} onChange={(event)=>setNewGroupTitle(event.target.value)} placeholder="路线名称" /></label><button type="button" onClick={createGroup}>创建路线分组</button></div>
@@ -2832,7 +2945,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
           </div>}
         </>}
       </section>
-      <div className="route-window-controls" aria-label="路线局部窗口">
+      </details>
+      <div className="route-window-controls" aria-label="路线局部窗口" data-windowed={routeWindow.hasPrevious || routeWindow.hasNext}>
         <button type="button" aria-label="上一段路线场景" disabled={!routeWindow.hasPrevious} onClick={() => setWindowOffset(Math.max(0, routeWindow.start - ROUTE_GRAPH_WINDOW_LIMIT))}>← 上一段</button>
         <span role="status" aria-label="路线窗口范围">{routeWindow.totalMatches === 0 ? "0 / 0" : `${routeWindow.start + 1}–${routeWindow.end} / ${routeWindow.totalMatches}`}</span>
         <button type="button" aria-label="下一段路线场景" disabled={!routeWindow.hasNext} onClick={() => setWindowOffset(routeWindow.end)}>下一段 →</button>
@@ -2844,8 +2958,16 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
           : "Runtime 未运行 · 启动试玩后将在此投影当前、已访问和已走连接"}
       </div>
       <div className="flow-canvas">
-        <div className="flow-grid" aria-label="路线场景节点" onDragOver={(event)=>event.preventDefault()} onDrop={(event)=>{event.preventDefault();const sceneId=event.dataTransfer.getData("text/plain"),rect=event.currentTarget.getBoundingClientRect();if(sceneId!=="")commitMutation(onSetScenePosition(sceneId,(event.clientX-rect.left+graph.viewport.x)/graph.viewport.zoom,(event.clientY-rect.top+graph.viewport.y)/graph.viewport.zoom),"拖拽位置已写入 Layout Sidecar");}}>
-          <div className="flow-grid__surface" aria-label="路线画布表面" style={{transform:`translate(-${graph.viewport.x}px, -${graph.viewport.y}px) scale(${graph.viewport.zoom})`} as CSSProperties}>
+        <div className="route-canvas-controls" aria-label="路线画布缩放"><button type="button" aria-label="缩小路线图" disabled={routeZoom <= 0.5} onClick={() => setCanvasZoom(Math.max(0.5, routeZoom - 0.1))}>−</button><output>{Math.round(routeZoom * 100)}%</output><button type="button" aria-label="放大路线图" disabled={routeZoom >= 2} onClick={() => setCanvasZoom(Math.min(2, routeZoom + 0.1))}>＋</button><button type="button" onClick={() => { setCanvasMode("fit"); setCanvasZoom(null); }}>适应画布</button></div>
+        <div ref={routeCanvasRef} className="flow-grid" aria-label="路线场景节点" onDragOver={(event)=>event.preventDefault()} onDrop={(event)=>{event.preventDefault();const sceneId=event.dataTransfer.getData("text/plain"),rect=event.currentTarget.getBoundingClientRect();if(sceneId!=="")commitMutation(onSetScenePosition(sceneId,(event.clientX-rect.left+routeX)/routeZoom,(event.clientY-rect.top+routeY)/routeZoom),"拖拽位置已写入 Layout Sidecar");}}>
+          <div className="flow-grid__surface" aria-label="路线画布表面" style={{transform:`translate(${-routeX}px, ${-routeY}px) scale(${routeZoom})`} as CSSProperties}>
+          <svg className="route-connections-svg" aria-hidden="true"><defs><marker id="studio-route-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="var(--wg-color-border-strong)" /></marker></defs>{routeWindow.edges.map(edge => {
+            const source = visibleNodes.find(node => node.id === edge.sourceSceneId), target = visibleNodes.find(node => node.id === edge.targetSceneId);
+            if (!source || !target || edge.status !== "valid") return null;
+            const x1 = source.layout.x + 250, y1 = source.layout.y + 56, x2 = target.layout.x, y2 = target.layout.y + 56;
+            const bend = Math.max(50, Math.abs(x2 - x1) / 2);
+            return <path key={edge.id} d={`M${x1} ${y1} C${x1 + bend} ${y1},${x2 - bend} ${y2},${x2} ${y2}`} fill="none" stroke="var(--wg-color-border-strong)" strokeWidth="2" markerEnd="url(#studio-route-arrow)" />;
+          })}</svg>
           {visibleNodes.map((node, index) => {
             const runtimeCurrent = runtimeRouteTrace.active && node.id === runtimeRouteTrace.currentSceneId;
             const runtimeVisited = runtimeRouteTrace.active && runtimeVisitedScenes.has(node.id);
@@ -2890,6 +3012,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
           {visibleNodes.length === 0 && <p className="route-empty">没有匹配的路线场景；权威工程未被修改。</p>}
           </div>
         </div>
+        <details className="route-connections"><summary>场景连接 · {routeWindow.edges.length} 条</summary>
         <div className="edge-list" aria-label="路线连接">
           <p className="eyebrow">CONNECTIONS</p>
           <small>静态连接不代表本次一定经过：条件仅成立时跳转，调用需执行返回语句才能回到原处。请试玩确认实际结局。</small>
@@ -2908,8 +3031,9 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
           })}
           {routeWindow.edgesTruncated && <p className="route-empty">当前相关连接超过局部上限；请缩小搜索或切换窗口。</p>}
         </div>
+        </details>
       </div>
-      {selected !== undefined && <aside className="route-inspector" aria-label="路线场景 Inspector">
+      {selected !== undefined && <details className="route-properties"><summary>当前场景属性与内部走向 · {selected.title}</summary><aside className="route-inspector" aria-label="路线场景 Inspector">
         <SceneFlowPanel key={selected.id} steps={sceneFlow} titles={stepTitles} sceneTitles={sceneTitles} sceneId={selected.id} onOpen={onOpenSequence} />
         <div><p className="eyebrow">STABLE SCENE</p><strong>{selected.title}</strong><code>{selected.id}</code></div>
         <label><span>路线场景名称</span><input aria-label="路线场景名称" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
@@ -2940,16 +3064,21 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
         <div className="route-nudge" aria-label="节点键盘与触控移动"><button type="button" aria-label="节点左移 24" onClick={()=>nudgeSelected("left")}>←</button><button type="button" aria-label="节点上移 24" onClick={()=>nudgeSelected("up")}>↑</button><button type="button" aria-label="节点下移 24" onClick={()=>nudgeSelected("down")}>↓</button><button type="button" aria-label="节点右移 24" onClick={()=>nudgeSelected("right")}>→</button><small>Alt＋方向键亦可移动</small></div>
         <div className="route-inspector__actions"><button type="button" onClick={saveTitle}>通过 Project Service 保存</button><button type="button" onClick={saveLayout}>保存节点布局</button><button type="button" onClick={assignGroup}>保存节点分组</button><button type="button" onClick={resetLayout}>重建自动布局</button><button type="button" onClick={() => onOpenSequence(selected.id)}>进入 Sequence</button></div>
         {editResult !== null && <p className={`route-edit-result route-edit-result--${editResult.tone}`} role={editResult.tone === "error" ? "alert" : "status"}>{editResult.text}</p>}
-      </aside>}
+      </aside></details>}
+      <details className="route-diagnostics-panel" open={graph.diagnostics.some(item => item.severity === "error")}><summary>路线诊断 · {graph.diagnostics.length} 项</summary>
       <section className="route-diagnostics" aria-label="Route Compiler 诊断">
         <p className="eyebrow">COMPILER DIAGNOSTICS · {graph.diagnostics.length}</p>
         {graph.diagnostics.length === 0 ? <p>正式 Compiler 未报告路线阻断。</p> : <ul>{graph.diagnostics.map((item, index) => {const location=locateRouteDiagnostic(graph,item);const statementExists=location.status==="located"&&location.statementId!==undefined&&session.project.scenes.find((scene)=>scene.id===location.sceneId)?.statements.some((statement)=>statement.id===location.statementId)===true;return <li key={`${item.code}:${item.sceneId ?? "project"}:${item.statementId ?? index}`}><div><code>{item.code}</code><span>{item.message}</span></div><div className="route-diagnostics__actions"><button type="button" disabled={location.status!=="located"} aria-label={`定位诊断：${item.code} · ${item.sceneId??"全局"}`} onClick={()=>{if(location.status==="located")focusRouteScene(location.sceneId!);}}>定位 Route</button>{statementExists&&<button type="button" aria-label={`进入诊断内容：${item.code} · ${item.statementId}`} onClick={()=>onOpenSequence(location.sceneId!,location.statementId)}>进入内容</button>}</div></li>;})}</ul>}
       </section>
+      </details>
     </section>
   );
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly hidden?: boolean;
+  readonly onDraftChange?: (dirty: boolean) => void;
+  readonly publicationOnly?: boolean;
   readonly onPublicationChange: (project: CanonicalProject) => void;
   readonly createCommandId: () => string;
   readonly inputDirty: boolean;
@@ -2977,9 +3106,13 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
+  const [publicationStep, setPublicationStep] = useState(0);
+  const [publicationFormat, setPublicationFormat] = useState<"html" | "directory">("html");
+  useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
+  useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
@@ -3005,8 +3138,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const playableActive = playable.status !== "idle";
   const previewObservation = observeFormalPreview(playable);
   useEffect(() => {
-    if (playableActive) setRuntimeDetailsOpen(true);
-  }, [playableActive]);
+    if (playable.status === "error") setRuntimeDetailsOpen(true);
+  }, [playable.status]);
   useEffect(() => {
     onRouteTraceChange(playableActive ? {
       active: true,
@@ -3343,7 +3476,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       ? `运行中 · ${speedProfile.label}`
       : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
   return (
-    <aside className="preview-panel" aria-labelledby="preview-heading">
+    <aside hidden={hidden} className={publicationOnly ? "preview-panel publication-page" : "preview-panel"} aria-labelledby={publicationOnly ? "publication-heading" : "preview-heading"}>
+      {!publicationOnly && <>
+      <div className="preview-stage-area">
       <div className="panel-heading">
         <div><p className="eyebrow">LIVE PREVIEW</p><h2 id="preview-heading">即时预览</h2></div>
         <span className={pendingDraft ? "live-badge is-locked" : inputDirty ? "live-badge is-buffered" : "live-badge"}>
@@ -3402,8 +3537,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </div>
       )}
       <div className="stage-director-strip" role="status" data-stage-director={playableActive ? "locked" : "ready"}>
-        <strong>DIRECTOR · 画布定位</strong>
-        <span>{stageDirectorMessage ?? "先选择角色 Show/Move 演出，再点击画布空白处写入稳定语义坐标"}</span>
+        <strong>舞台定位</strong>
+        <span>{stageDirectorMessage ?? "选中角色演出后，点击舞台设置角色位置。"}</span>
       </div>
       <div className="stage-viewport">
         <div
@@ -3517,7 +3652,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
                 </div>;
               })}
             </div>}
-            {statement.kind === "direction" && <div className="stage-note"><span>演出指令</span><strong>{statement.summary}</strong></div>}
+            {statement.kind === "direction" && <div className="stage-note"><span>演出预览</span><strong>{directionAssetName(statement, assetIndex) ?? statement.summary}</strong></div>}
             {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
               <div className="choice-preview" data-choice-layout={settingsApplication.choice.layout}>
@@ -3531,6 +3666,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           </div>
         </div>
       </div>
+      </div>
+      <div className="preview-session-area">
       <div className="preview-control-dock" aria-label="预览核心控制">
         <div className="preview-transport">
           <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
@@ -3569,8 +3706,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       </div>
       <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
         <div>
-          <strong>正式 Runtime 试玩</strong>
-          <small>{playableActive ? playableStatus : "Project Compiler → Runtime · 从入口执行到结局"}</small>
+          <strong>完整故事试玩</strong>
+          <small>{playableActive ? playableStatus : "从故事开头出发，体验选择与结局。"}</small>
         </div>
         {!playableActive && (
           <button type="button" onClick={beginPlayablePreview} disabled={projectRunBlocked}>试玩完整流程</button>
@@ -3645,6 +3782,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           )}
         </section>
       )}
+      {!playableActive && <details className="preview-run-options"><summary>选择试玩起点</summary>
       {!playableActive && (
         <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">
           <div><strong>Fresh Run</strong><small>变量恢复工程默认值 · 调用栈为空</small></div>
@@ -3652,6 +3790,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={projectRunBlocked}>从当前语句运行</button>
         </div>
       )}
+      </details>}
       <details
         className="preview-disclosure preview-disclosure--runtime"
         open={runtimeDetailsOpen}
@@ -3698,14 +3837,36 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </section>
       </section>
       </details>
-      <details className="preview-disclosure preview-disclosure--build">
-        <summary>
-          <span><strong>构建与导出</strong><small>独立、离线、可交付试玩产物</small></span>
-          <span>{webBuild === null ? "按需构建" : `${(webBuild.byteLength / 1024).toFixed(1)} KiB`}</span>
-        </summary>
-      <div className="playable-web-export" aria-label="独立试玩导出">
-        <div><strong>导出 Web 游戏</strong><small>包含当前工程、素材和正式播放器；下载后可独立打开。大型素材会增加文件大小。</small></div>
+      </div>
+      </>}
+      {publicationOnly && <>
+      <header className="publication-heading"><p className="eyebrow">让故事与更多人相遇</p><h2 id="publication-heading">发布游戏</h2><p>完成作品信息，选择导出方式，将你的故事交给玩家。</p></header>
+      <nav className="publication-steps" aria-label="发布流程">
+        {["作品信息", "导出方式", "生成游戏"].map((label, index) => <button key={label} type="button" aria-current={publicationStep === index ? "step" : undefined} disabled={publicationDirty && publicationStep !== index} onClick={() => setPublicationStep(index)}><span>{index + 1}</span><strong>{label}</strong></button>)}
+      </nav>
+      <div className="publication-layout">
+      <div className="publication-main">
+      <section className="publication-step-panel" hidden={publicationStep !== 0} aria-label="作品发布信息">
+        <h3>你的作品</h3><p className="publication-section-intro">这些信息会显示在游戏标题页和安装信息中。</p>
+        <div className="playable-web-export">
         <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationDirty} reader={assetRepository} />
+        </div>
+        <h3>发布平台</h3>
+        <div className="publication-platforms">
+          <div className="publication-platform is-selected"><span className="publication-platform__icon" aria-hidden="true">◎</span><strong>Web</strong><span>浏览器游戏</span><small>支持电脑和手机，无需安装。</small><b aria-hidden="true">✓</b></div>
+          <div className="publication-platform is-unavailable"><span className="publication-platform__icon" aria-hidden="true">⊞</span><strong>Windows</strong><span>桌面客户端</span><small>编辑器暂未开放打包入口</small></div>
+          <div className="publication-platform is-unavailable"><span className="publication-platform__icon" aria-hidden="true">▱</span><strong>Android</strong><span>手机应用</span><small>暂未开放</small></div>
+        </div>
+        <button className="studio-primary publication-next" type="button" disabled={publicationDirty} onClick={() => setPublicationStep(1)}>继续：导出方式 →</button>
+        {publicationDirty && <p className="publication-draft-note">请先应用或放弃上面的作品信息修改。</p>}
+      </section>
+      <section className="publication-step-panel" hidden={publicationStep !== 1} aria-label="选择导出方式">
+        <h3>选择适合你的交付方式</h3><p className="publication-section-intro">两种方式都包含当前故事、素材和播放器。</p>
+        <fieldset className="publication-formats"><legend className="sr-only">游戏导出格式</legend>
+          <label className={publicationFormat === "html" ? "is-selected" : ""}><input type="radio" name="publication-format" value="html" checked={publicationFormat === "html"} onChange={() => setPublicationFormat("html")} /><span><strong>单文件 HTML <em>推荐</em></strong><small>一个文件，下载后直接打开。适合试玩和分享。</small></span></label>
+          <label className={publicationFormat === "directory" ? "is-selected" : ""}><input type="radio" name="publication-format" value="directory" checked={publicationFormat === "directory"} onChange={() => setPublicationFormat("directory")} /><span><strong>网页目录 ZIP</strong><small>素材独立存放。适合大作品和网站部署。</small></span></label>
+        </fieldset>
+        <details className="publication-optimization"><summary>素材优化与高级交付设置</summary>
         <label><input type="checkbox" aria-label="安全 PNG 无损导出优化" checked={losslessExportEnabled(canonicalProject)} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => onPublicationChange(setLosslessExport(canonicalProject, event.target.checked))} />安全 PNG 无损导出优化（随工程保存）</label>
         <small>仅重压缩适用 PNG，逐字节验证数据；无收益或失败保留原文件。原素材不修改，不接入 Atlas，也不减少 GPU 内存。</small>
         <AtlasExportSettings project={canonicalProject} reader={assetRepository} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={onPublicationChange} />
@@ -3713,16 +3874,35 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         {webBuild && webBuild.optimizationReport.nativeAtlasGroups.length>0 && <details aria-label="原生 Atlas 交付报告"><summary>原生 Atlas 成本与回退</summary>{webBuild.optimizationReport.nativeAtlasGroups.map(row=><p key={row.groupId}>{row.groupId}：{row.adopted?"采用":"回退"}；{row.detail}；共享交付 {row.payloadBytes} B，图集 RGBA {row.pageRgbaBytes} B，回退解压 {row.fallbackRawBytes} B。</p>)}</details>}
         {webBuild && webBuild.optimizationReport.atlasGroups.length > 0 && <details aria-label="Atlas 兼容交付报告"><summary>Atlas 兼容交付报告</summary>{webBuild.optimizationReport.atlasGroups.map(group => <p key={group.groupId}>{group.groupId}：{group.status === "adopted" ? "采用兼容普通纹理" : "保留当前素材"}；{group.reason}</p>)}</details>}
 {webBuild && <details aria-label="资源优化交付报告"><summary>资源优化交付报告</summary><p>{webBuild.optimizationReport.mode === "native-atlas" ? "原生 Atlas 绘制与原图回退" : webBuild.optimizationReport.mode === "atlas-compatible" ? "Atlas 兼容普通纹理" : webBuild.optimizationReport.mode === "lossless-png" ? "安全 PNG 优化" : "原素材导出"}：去重资源 {webBuild.optimizationReport.uniqueOriginalBytes} → {webBuild.optimizationReport.uniqueExportBytes} 字节；交付文件 {webBuild.byteLength} 字节。</p><p>{webBuild.optimizationReport.limits}</p><ul>{webBuild.optimizationReport.rows.slice(0, 20).map(row => <li key={row.assetId}>{row.name}：{row.originalBytes} → {row.exportBytes} 字节；{row.reason}</li>)}</ul><small>此处最多展示 20 个素材；完整报告包含在 HTML 或目录 ZIP 中。</small></details>}
-        <button type="button" onClick={() => void preparePlayableWeb()} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏和素材…" : "构建试玩 HTML"}</button>
-        <button type="button" onClick={() => void preparePlayableWeb(true)} disabled={projectRunBlocked || webBuilding || publicationDirty}>构建目录 ZIP</button>
+        </details>
+        <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(0)}>← 作品信息</button><button className="studio-primary" type="button" onClick={() => setPublicationStep(2)}>继续：生成游戏 →</button></div>
+      </section>
+      <section className="publication-step-panel" hidden={publicationStep !== 2} aria-label="生成可运行的游戏">
+        <h3>准备好与玩家见面了</h3><p className="publication-section-intro">导出会使用当前已应用的工程内容。</p>
+        <div className="publication-package">
+          <span className="publication-package__mark" aria-hidden="true">W</span><div><strong>{canonicalProject.manifest.title}</strong><span>Web · {publicationFormat === "html" ? "单文件 HTML" : "网页目录 ZIP"}</span></div>
+        </div>
+        <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
+        <p className="publication-section-intro">生成后，请打开游戏试玩一遍，确认故事和分支的实际效果。</p>
+        <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏…" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
-        <small>单文件适合直接分享；目录 ZIP 将素材独立存放，解压后打开 index.html 即可试玩。上传 HTTPS 网站后，玩家可下载离线内容，并按浏览器支持安装游戏。</small>
-        <small>想检查网站离线功能？完整解压 ZIP 后，Windows 双击 start-preview.cmd 自动启动本地站点（需 Node.js 22+，无需安装项目依赖）；停止方法见启动窗口。</small>
-        {webBuild && <p role="status">{webBuild.directory ? "目录包已就绪：下载并完整解压后打开 index.html，中文使用说明在包内。" : "游戏已打包，可下载后独立打开。"}修改工程后需要重新构建。</p>}
-        {webBuild && !publicationDirty && <a href={webBuild.href} download={webBuild.filename}>下载 {(webBuild.byteLength / 1024).toFixed(1)} KiB</a>}
-        {webBuildError && <p role="alert">{webBuildError}</p>}
+        {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
+      </section>
       </div>
-      </details>
+      <aside className={`publication-result${webBuild ? " is-ready" : ""}`} aria-label="游戏导出结果">
+        <span className="publication-result__icon" aria-hidden="true">{webBuild ? "✓" : webBuilding ? "…" : "↗"}</span>
+        <h3>{webBuild ? "游戏已生成" : webBuilding ? "正在生成游戏" : "等待导出"}</h3>
+        <p>{webBuild ? "文件已准备好，可以下载并试玩。" : webBuilding ? "正在打包当前工程和素材，请稍候。" : "完成左侧步骤，生成属于你的游戏。"}</p>
+        {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.directory ? "目录 ZIP" : "单文件 HTML"}</dd></div></dl>
+          {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>下载游戏</a>}
+          {!webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
+          <small>修改工程后，需要重新生成文件。</small>
+        </>}
+        {webBuildError && <p className="publication-error" role="alert">{webBuildError}</p>}
+      </aside>
+      </div>
+      </>}
+      {!publicationOnly && <>
       <div className={`diagnostic-card diagnostic-card--${showBufferedNotice ? "draft" : session.notice.tone}`} aria-live="polite">
         <span className="diagnostic-icon" aria-hidden="true">{showBufferedNotice ? "…" : session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
         <div>
@@ -3739,11 +3919,15 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           {sourceSession.tombstones.slice(-3).map((item) => <code key={item.statementId}>{item.statementId}</code>)}
         </div>
       )}
+      </>}
     </aside>
   );
 }
 
 export interface AppProps {
+  readonly onOpenProject?: (sceneId?: string) => void;
+  readonly onReturnHome?: () => void;
+  readonly onExportProject?: (project: CanonicalProject) => Promise<void>;
   readonly initialProject?: CanonicalProject;
   readonly initialSceneId?: string;
   readonly routeCompiler?: EditorProjectCompilerState;
@@ -3753,7 +3937,7 @@ export interface AppProps {
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, initialSceneId, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialProject, initialSceneId, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
     const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
     return initialSceneId !== undefined && created.project.scenes.some(scene=>scene.id===initialSceneId)
@@ -3772,9 +3956,17 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const canonicalVariableNames = useMemo(() => variableOptionLabels(initialProject?.variables.variables ?? []), [initialProject]);
+  const canonicalVariableDisplayNames = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).flatMap(variable => typeof variable.id === "string" ? [[variable.id, typeof variable.name === "string" ? variable.name : variable.id]] : [])), [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [pageDirty, setPageDirty] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(true);
+  const [scenesOpen, setScenesOpen] = useState(false);
+  const [productionSection, setProductionSection] = useState<"assets" | "localization" | "collections">("assets");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
+  const workspaceGrid = useRef<HTMLElement>(null);
+  useEffect(() => { if (workspaceGrid.current) { workspaceGrid.current.scrollTop = 0; workspaceGrid.current.scrollLeft = 0; } }, [workspaceMode, mode, settingsOpen, publishOpen, productionSection]);
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevelId>("pro");
   const [motionPreference, setMotionPreference] = useState<MotionPreferenceId>(() => {
     try { return loadMotionPreference(globalThis.localStorage); } catch { return "simplified"; }
@@ -3849,6 +4041,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
   );
   const [assetImportState, setAssetImportState] = useState<AssetImportViewState>(IDLE_ASSET_IMPORT);
   const [assetPanelOpen, setAssetPanelOpen] = useState(false);
+  const [initialAssetId, setInitialAssetId] = useState<string | null>(null);
   const [assetUpdateHistory, setAssetUpdateHistory] = useState<{ before: AssetIndexEntry; after: AssetIndexEntry; undone: boolean } | null>(null);
   const assetRepositoryRef = useRef<IndexedDbAssetRepository | null>(null);
   const assetImportAbortRef = useRef<AbortController | null>(null);
@@ -4299,7 +4492,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
     const store = storeRef.current;
     const assetRepository = assetRepositoryRef.current;
     if (store === null || inputDirty || saveInFlight.current ||
-        (reason === "auto" && autosaveSuspended.current)) return;
+        (reason === "auto" && autosaveSuspended.current)) return Promise.resolve(false);
     const currentSnapshot = persistedSnapshotRef.current;
     const projectAtSaveStart = sessionRef.current.project;
     const canonicalProjectAtSaveStart = previewCanonicalProjectRef.current;
@@ -4311,7 +4504,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         errorCode: "UNAVAILABLE",
         detail: "资源备份协调器不可用；为避免创建缺少资源保护根的备份，本次保存未执行。"
       }));
-      return;
+      return Promise.resolve(false);
     }
     saveInFlight.current = true;
     if (reason === "manual") autosaveSuspended.current = false;
@@ -4339,7 +4532,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           currentSnapshot.storageRevision,
           nowMs
         );
-    void stageBackup.then((staged) => {
+    return stageBackup.then((staged) => {
       if (staged !== null) setAssetLifecycle(staged.manifest);
       return saveProjectWithBackups(store, snapshot, {
         transactionId,
@@ -4348,10 +4541,12 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         nowMs
       });
     }).then(async () => {
-      if (onCanonicalProjectSaveRef.current !== undefined) await onCanonicalProjectSaveRef.current(canonicalProjectAtSaveStart);
-      else await onProjectSaveRef.current?.(projectAtSaveStart);
+      // The local snapshot has committed even when saving the canonical workspace fails.
+      // Retrying must use that committed storage revision to avoid a stale-write error.
       persistedSnapshotRef.current = snapshot;
       storageRevision.current = nextRevision;
+      if (onCanonicalProjectSaveRef.current !== undefined) await onCanonicalProjectSaveRef.current(canonicalProjectAtSaveStart);
+      else await onProjectSaveRef.current?.(projectAtSaveStart);
       let verifiedBackups = backups;
       let backupWarning: string | undefined;
       try {
@@ -4381,9 +4576,11 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           : `${reason === "auto" ? "自动" : "手动"}保存已校验；保留 ${backupCount}/${BACKUP_POLICY.retention} 个轮换备份。`),
         ...(backupWarning === undefined ? {} : { errorCode: "CORRUPT_BACKUP" })
       });
+      return !changedDuringSave;
     }).catch((error: unknown) => {
-      if (handleBlockingStoreFailure(error, store, reason === "auto" ? "自动保存" : "手动保存")) return;
+      if (handleBlockingStoreFailure(error, store, reason === "auto" ? "自动保存" : "手动保存")) return false;
       setPersistence(persistenceFailure(error, storageRevision.current));
+      return false;
     }).finally(() => {
       saveInFlight.current = false;
     });
@@ -5031,10 +5228,21 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
 
   const workspaceContext = createWorkspaceContext(session, workspaceMode, mode, experienceLevel);
   const contextProjection = workspaceContextProjection(workspaceContext);
+  const studioPage: StudioPage = publishOpen ? "publish" : settingsOpen ? "appearance" : workspaceMode === "production" ? "assets" : workspaceMode === "debug-qa" ? "checks" : "story";
+  const openStudioPage = (page: StudioPage) => {
+    setSettingsOpen(page === "appearance"); setPublishOpen(page === "publish"); setScenesOpen(false);
+    if (page === "assets") selectWorkspaceMode("production");
+    else if (page === "checks") selectWorkspaceMode("debug-qa");
+    else if (page === "story" && (workspaceMode === "production" || workspaceMode === "debug-qa")) selectWorkspaceMode("writer");
+  };
   return (
     <div
       className="app-shell"
       data-workspace-mode={workspaceMode}
+      data-studio-page={studioPage}
+      data-source-revision={activeSourceSession(session).revision}
+      data-preview-open={previewOpen}
+      data-scenes-open={scenesOpen}
       data-editor-view={mode}
       data-experience-level={experienceLevel}
       data-motion-preference={motionPreference}
@@ -5063,6 +5271,9 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
       data-testid="workspace-shell"
     >
       <WorkspaceHeader
+        {...(onOpenProject === undefined ? {} : { onOpenProject: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); onOpenProject(sessionRef.current.activeSceneId); } })}
+        {...(onReturnHome === undefined ? {} : { onReturnHome: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); onReturnHome(); } })}
+        {...(onExportProject === undefined ? {} : { onExportProject: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); await onExportProject(previewCanonicalProjectRef.current); } })}
         mode={mode}
         workspaceMode={workspaceMode}
         experienceLevel={experienceLevel}
@@ -5070,18 +5281,26 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         effectiveMotion={effectiveMotion}
         systemReducedMotion={systemReducedMotion}
         session={session}
-        inputDirty={inputDirty}
+        inputDirty={inputDirty || pageDirty}
         onModeChange={(nextMode) => { setSettingsOpen(false); setMode(nextMode); }}
-        onWorkspaceModeChange={selectWorkspaceMode}
+        onWorkspaceModeChange={(next) => { setPublishOpen(false); selectWorkspaceMode(next); }}
         onExperienceLevelChange={setExperienceLevel}
         onMotionPreferenceChange={setMotionPreference}
         persistence={persistence}
         onSave={() => saveToLocal("manual")}
         onOpenBackups={openBackups}
         settingsOpen={settingsOpen}
-        onOpenSettings={() => setSettingsOpen((value) => !value)}
+        onOpenSettings={() => { setPublishOpen(false); setSettingsOpen((value) => !value); }}
         dispatch={dispatch}
       />
+      <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
+      {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
+      {studioPage === "story" && <nav className="studio-context-nav" aria-label="故事工作区">
+        <button type="button" className="scene-toggle" aria-pressed={scenesOpen} onClick={() => setScenesOpen(!scenesOpen)}>场景列表</button>
+        {([['writer', 'sequence', '写作'], ['director', 'sequence', '演出'], ['flow', 'flow', '路线'], ['writer', 'script', '脚本']] as const).map(([workspace, view, label]) => <button type="button" key={label} aria-current={workspaceMode === workspace && mode === view ? "page" : undefined} disabled={inputDirty} onClick={() => { selectWorkspaceMode(workspace); setMode(view); if (view === "flow") setPreviewOpen(false); }}><StudioIcon name={label === "写作" ? "write" : label === "演出" ? "director" : label === "路线" ? "route" : "script"} />{label}</button>)}
+        <button type="button" className="preview-toggle" aria-pressed={previewOpen} onClick={() => { const opening = !previewOpen; setPreviewOpen(opening); if (window.innerWidth < 960) { if (opening) requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView({ block: "start" })); else if (workspaceGrid.current) workspaceGrid.current.scrollTop = 0; } }}>{previewOpen ? "收起预览" : "打开预览"}</button>
+      </nav>}
+      {studioPage === "assets" && <nav className="studio-context-nav" aria-label="素材工作区">{([['assets', '素材库'], ['localization', '翻译与配音'], ['collections', '附加内容']] as const).map(([value, label]) => <button type="button" key={value} aria-current={productionSection === value ? "page" : undefined} onClick={() => setProductionSection(value)}>{label}</button>)}</nav>}
       {pendingDraftSceneIds(session).length > 0 && <section aria-label="待修复脚本草稿" className="diagnostic-card diagnostic-card--draft project-draft-notice">
         <p>工程有 {pendingDraftSceneIds(session).length} 个未提交的脚本草稿。请先修复或丢弃，再运行、调试或构建游戏；本地保存会保留草稿，其他场景仍可编辑。</p>
         {pendingDraftSceneIds(session).map((sceneId) => <button key={sceneId} type="button" disabled={inputDirty} onClick={() => {
@@ -5097,9 +5316,10 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
         <button type="button" disabled={inputDirty} onClick={() => { setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script"); }}>编辑脚本</button>
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。更换电脑请从项目首页导出工程 ZIP。"}</small>
       </nav>}
-      <main className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {settingsOpen ? <>
+      <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
+        {publishOpen ? <PreviewPanel publicationOnly onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
+            onDraftChange={setPageDirty}
             project={previewCanonicalProject}
             saveStatus={persistence.status}
             {...(persistence.detail === undefined ? {} : { saveDetail: persistence.detail })}
@@ -5107,15 +5327,17 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             onSave={() => saveToLocal("manual")}
             onClose={() => setSettingsOpen(false)}
           />
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />
         </> : workspaceMode === "production" ? (
           <ProductionWorkspace
+            section={productionSection}
+            reader={assetRepositoryRef.current}
+            onOpenAsset={(id) => { setInitialAssetId(id); setAssetPanelOpen(true); }}
             project={previewCanonicalProject}
             index={assetIndex}
             lifecycle={assetLifecycle}
             dicingReport={dicingReport}
             storageStatus={assetStatus}
-            onOpenPipeline={() => setAssetPanelOpen(true)}
+            onOpenPipeline={() => { setInitialAssetId(null); setAssetPanelOpen(true); }}
             onProjectChange={(project) => applyCanonicalProjectMutation(project, "本地化变更已进入 Canonical Project，等待保存。")}
           />
         ) : workspaceMode === "debug-qa" ? (
@@ -5145,19 +5367,21 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           />
         ) : <>
           <SceneRail
+          onSelectScene={() => setScenesOpen(false)}
           session={session}
           dispatch={dispatch}
           assetIndex={assetIndex}
           assetStatus={assetStatus}
           onOpenAssets={() => setAssetPanelOpen(true)}
           onGlobalJump={(match) => {
+            setScenesOpen(false);
             setMode("sequence");
             setRequestedFocusStatementId(match.statementId);
             dispatch({ type: "select-project-result", sceneId: match.sceneId, statementId: match.statementId });
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
@@ -5180,10 +5404,10 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             onDeleteGroup={deleteRouteGroupFromMap}
             onAssignGroup={assignRouteSceneGroupFromMap}
             onSetViewport={setRouteViewportFromMap}
-            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setMode("sequence");}}
+            onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setWorkspaceMode("writer");setMode("sequence");}}
           />
         )}
-          <PreviewPanel session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />
+          {<PreviewPanel hidden={!previewOpen} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
         </>}
       </main>
       <footer className="workspace-footer">
@@ -5227,6 +5451,8 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
       )}
       {assetPanelOpen && (
         <AssetVaultDialog
+          reader={assetRepositoryRef.current}
+          initialAssetId={initialAssetId}
           experienceLevel={experienceLevel}
           onCheckSource={(entry) => assetRepositoryRef.current === null ? Promise.resolve("资源仓库不可用，请重新打开工程后重试。") : checkAssetSource(assetRepositoryRef.current, entry)}
           project={session.project}

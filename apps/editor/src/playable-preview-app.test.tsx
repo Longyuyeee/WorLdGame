@@ -18,11 +18,12 @@ describe("playable preview integration", () => {
   it("lets a creator play from the entry scene through a choice to an ending", () => {
     render(<App />);
 
-    expect(screen.getByText("Project Compiler → Runtime · 从入口执行到结局")).toBeVisible();
+    expect(screen.getByRole("heading", { name: "即时预览" })).toBeVisible();
     const runtimeDisclosure = screen.getByText("Runtime 诊断").closest("details");
     expect(runtimeDisclosure).not.toHaveAttribute("open");
     expect(screen.getByLabelText("预览核心控制")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    fireEvent.click(screen.getByText("Runtime 诊断"));
     expect(runtimeDisclosure).toHaveAttribute("open");
     const inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
     expect(within(inspector).getByText("Preview Session")).toBeVisible();
@@ -56,20 +57,22 @@ describe("playable preview integration", () => {
     const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     const view = render(<App />);
 
-    const buildDisclosure = screen.getByText("构建与导出").closest("details");
-    expect(buildDisclosure).not.toHaveAttribute("open");
-    fireEvent.click(screen.getByText("构建与导出"));
-    expect(buildDisclosure).toHaveAttribute("open");
+    fireEvent.click(screen.getByRole("button", { name: "发布" }));
+    fireEvent.click(screen.getByRole("button", { name: /继续：导出方式/ }));
+    fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
     fireEvent.click(screen.getByRole("button", { name: "构建试玩 HTML" }));
 
-    expect(screen.getByRole("button", { name: "正在打包游戏和素材…" })).toBeDisabled();
-    const download = await screen.findByRole("link", { name: /下载 .* KiB/ }, { timeout: 10_000 });
+    expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeDisabled();
+    const download = await screen.findByRole("link", { name: "下载游戏" }, { timeout: 10_000 });
     expect(download).toHaveAttribute("download", "黄昏广播.html");
     expect(download).toHaveAttribute("href", "blob:playable-web");
     expect(createObjectUrl).toHaveBeenCalledWith(expect.objectContaining({ type: "text/html;charset=utf-8" }));
+    fireEvent.click(screen.getByRole("button", { name: "← 导出方式" }));
+    fireEvent.click(screen.getByRole("radio", { name: /目录 ZIP/ }));
+    fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
     fireEvent.click(screen.getByRole("button", { name: "构建目录 ZIP" }));
-    await waitFor(() => expect(screen.getByRole("link", { name: /下载 .* KiB/ })).toHaveAttribute("download", "黄昏广播-web.zip"));
-    expect(screen.getByText(/目录包已就绪/)).toBeVisible();
+    await waitFor(() => expect(screen.getByRole("link", { name: "下载游戏" })).toHaveAttribute("download", "黄昏广播-web.zip"));
+    expect(screen.getByRole("heading", { name: "游戏已生成" })).toBeVisible();
     expect(createObjectUrl).toHaveBeenLastCalledWith(expect.objectContaining({ type: "application/zip" }));
     view.unmount();
     expect(revokeObjectUrl).toHaveBeenCalledWith("blob:playable-web");
@@ -78,14 +81,17 @@ describe("playable preview integration", () => {
 
   it("starts the formal Runtime from the selected Scene and Statement", () => {
     render(<App />);
+    fireEvent.click(screen.getByText("选择试玩起点"));
     expect(screen.getByRole("group", { name: "Runtime 启动位置" })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /02旧广播室3 个步骤/ }));
     fireEvent.click(screen.getByRole("button", { name: "从当前场景运行" }));
+    fireEvent.click(screen.getByText("Runtime 诊断"));
     let inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
     expect(within(inspector).getByText(/direction · stmt_radio_bg/)).toBeVisible();
     expect(within(inspector).getByText(/scn_broadcast_room \/ stmt_radio_bg #0/)).toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: "退出试玩" }));
+    fireEvent.click(screen.getByText("选择试玩起点"));
     fireEvent.click(screen.getByRole("button", { name: /选择对白：这盘磁带的日期/ }));
     fireEvent.click(screen.getByRole("button", { name: "从当前语句运行" }));
     inspector = screen.getByRole("region", { name: "Runtime 状态检查器" });
@@ -96,6 +102,7 @@ describe("playable preview integration", () => {
   it("uses formal History controls and runs to the selected cursor", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    fireEvent.click(screen.getByText("Runtime 诊断"));
     const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
     expect(within(controls).getByText("History 1/1")).toBeVisible();
 
@@ -145,6 +152,7 @@ describe("playable preview integration", () => {
   it("applies safe presentation hot updates and requires an explicit restart for semantic changes", async () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "试玩完整流程" }));
+    fireEvent.click(screen.getByText("Runtime 诊断"));
     const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
     for (let index = 0; index < 3; index += 1) fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
     expect(within(controls).getByText("History 4/4")).toBeVisible();

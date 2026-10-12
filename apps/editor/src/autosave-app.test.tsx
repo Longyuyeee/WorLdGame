@@ -41,7 +41,7 @@ describe("S0.12 autosave integration", () => {
     expect(screen.getByText("剧情 + 资源索引 · 崩溃可续")).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "一致恢复为新版本" }));
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "已恢复 · s3" })).toBeVisible();
+      expect(document.querySelector(".local-save-button")).toHaveTextContent("已恢复 · s3");
     }, { timeout: 5_000 });
     fireEvent.click(screen.getByRole("button", { name: /选择对白：第一次自动保存/ }));
     expect(screen.getByLabelText("对白内容")).toHaveValue("第一次自动保存。");

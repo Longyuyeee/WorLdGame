@@ -50,15 +50,16 @@ describe("N61-E6 localized media production", () => {
       onCanonicalProjectSave={async (project) => { savedProject = project; }}
     />);
 
-    fireEvent.click(await screen.findByRole("radio", { name: "Production" }));
-    await waitFor(() => expect(screen.getByRole("button", { name: "打开资源生产流水线" })).toBeEnabled());
-    fireEvent.click(screen.getByRole("button", { name: "打开资源生产流水线" }));
+    fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "导入与管理素材" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "导入与管理素材" }));
     await importAsset("Base Scene.png", "base_scene", "cg", "media_sunset");
     await importAsset("Chinese Scene.png", "chinese_scene", "cg", "media_sunset");
     await importAsset("Voice English.wav", "voice_english", "audio", "media_theme");
     await importAsset("Voice Chinese.wav", "voice_chinese", "audio", "media_theme");
     fireEvent.click(screen.getByRole("button", { name: "关闭资源保险库" }));
 
+    fireEvent.click(screen.getByRole("button", { name: "翻译与配音" }));
     const production = screen.getByRole("region", { name: "语言媒体与配音" });
     fireEvent.change(within(production).getByRole("combobox", { name: "媒体与配音语言" }), { target: { value: "en" } });
     const sourceVoiceRow = within(production).getByText("text_hello").closest("tr")!;
@@ -89,7 +90,8 @@ describe("N61-E6 localized media production", () => {
 
     session.unmount();
     render(<App initialProject={savedProject!} autosaveDebounceMs={60_000} />);
-    fireEvent.click(await screen.findByRole("radio", { name: "Production" }));
+    fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByRole("button", { name: "翻译与配音" }));
     const reopened = await screen.findByRole("region", { name: "语言媒体与配音" });
     fireEvent.change(within(reopened).getByRole("combobox", { name: "媒体与配音语言" }), { target: { value: "zh-Hans" } });
     expect(within(reopened).getByRole("combobox", { name: "text_hello 的 zh-Hans 配音资源" })).toHaveValue("voice_chinese");

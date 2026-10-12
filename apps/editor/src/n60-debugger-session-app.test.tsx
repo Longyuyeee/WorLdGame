@@ -10,7 +10,8 @@ describe("N60-E1 Debugger session real creator path", () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App autosaveDebounceMs={60_000} />);
 
-    fireEvent.click(await screen.findByRole("radio", { name: "Debug & QA" }));
+    fireEvent.click(await screen.findByRole("button", { name: "检查" }));
+    fireEvent.click(screen.getByRole("button", { name: "运行调试" }));
     fireEvent.click(screen.getByRole("button", { name: "从当前场景启动" }));
 
     expect(screen.getByRole("heading", { name: "调试会话" })).toBeVisible();

@@ -20,10 +20,10 @@ describe("N21 Writer/Sequence user workflow",()=>{
     const optionLabels=screen.getAllByLabelText("选项文本");fireEvent.change(optionLabels[0]!,{target:{value:"留下"}});fireEvent.change(optionLabels[1]!,{target:{value:"继续"}});fireEvent.submit(screen.getByRole("form",{name:"选择类型化参数"}));expect(screen.getByRole("button",{name:/选择选择：请选择/})).toBeVisible();
     for(const value of ["set","condition","background","audio"]){fireEvent.change(kind,{target:{value}});expect(insert).toBeDisabled();}
     for(const value of ["label","end"]){fireEvent.change(kind,{target:{value}});fireEvent.click(insert);}
-    expect(screen.getByRole("form",{name:"结局类型化参数"})).toBeVisible();expect(screen.getByText(/本地事务 · r5/)).toBeVisible();
+    expect(screen.getByRole("form",{name:"结局类型化参数"})).toBeVisible();expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "5");
     fireEvent.click(screen.getByRole("tab",{name:"Script"}));const source=(screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value;
     expect(source).toContain('choice "请选择"');expect(source).toContain('"留下" ->');expect(source).toContain("label label_ui_");expect(source).toContain('end "新结局"');expect(source).not.toContain("asset_missing");expect(source).not.toContain("set flag");
   });
 
-  it("offers keyboard and touch alternatives plus multi-select collapse",()=>{render(<App/>);const tools=within(screen.getByLabelText("对白结构工具"));expect(tools.getByRole("button",{name:"＋ 插入"})).toHaveAttribute("aria-keyshortcuts","Control+Enter");fireEvent.click(tools.getByRole("button",{name:"多选"}));const cards=screen.getAllByRole("button",{name:/^选择/});fireEvent.click(cards[1]!);expect(tools.getByRole("button",{name:/已选/})).toBeVisible();fireEvent.click(tools.getByRole("button",{name:"折叠"}));expect(screen.getAllByText("已折叠")).toHaveLength(2);expect(tools.getByRole("button",{name:"展开"})).toBeEnabled();});
+  it("offers keyboard and touch alternatives plus multi-select collapse",()=>{render(<App/>);fireEvent.click(screen.getByText("插入与整理内容"));const tools=within(screen.getByLabelText("对白结构工具"));expect(tools.getByRole("button",{name:"＋ 插入"})).toHaveAttribute("aria-keyshortcuts","Control+Enter");fireEvent.click(tools.getByRole("button",{name:"多选"}));const cards=screen.getAllByRole("button",{name:/^选择/});fireEvent.click(cards[1]!);expect(tools.getByRole("button",{name:/已选/})).toBeVisible();fireEvent.click(tools.getByRole("button",{name:"折叠"}));expect(screen.getAllByText("已折叠")).toHaveLength(2);expect(tools.getByRole("button",{name:"展开"})).toBeEnabled();});
 });

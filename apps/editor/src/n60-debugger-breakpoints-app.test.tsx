@@ -10,7 +10,8 @@ describe("N60-E2 breakpoint collection and stop reasons", () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App autosaveDebounceMs={60_000} />);
 
-    fireEvent.click(await screen.findByRole("radio", { name: "Debug & QA" }));
+    fireEvent.click(await screen.findByRole("button", { name: "检查" }));
+    fireEvent.click(screen.getByRole("button", { name: "运行调试" }));
     fireEvent.click(screen.getByRole("button", { name: "添加选择语句断点" }));
     fireEvent.click(screen.getByRole("button", { name: "从入口启动调试" }));
     fireEvent.click(screen.getByRole("button", { name: "单步前进" }));

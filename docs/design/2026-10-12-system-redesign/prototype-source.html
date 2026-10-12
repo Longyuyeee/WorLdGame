@@ -1,0 +1,373 @@
+<div id="world-design-root" aria-label="WorLd Studio 界面与交互设计稿">
+  <div class="wd-review"><span>WorLd Studio <b>交互设计稿 · 示例数据</b></span><div><label>主题 <select id="wd-theme"><option value="light">晴空 · 浅色</option><option value="dark">夜航 · 深色</option><option value="paper">暖纸 · 写作</option><option value="system">跟随系统</option></select></label><label>设备 <select id="wd-device"><option value="desktop">桌面</option><option value="mobile">手机</option></select></label><label>状态 <select id="wd-scenario"><option value="normal">正常</option><option value="save-error">保存失败</option><option value="missing">素材缺失</option><option value="readonly">只读</option><option value="draft">脚本草稿错误</option><option value="empty">空工程</option></select></label><button data-act="directory">页面目录</button></div></div>
+  <div class="wd-product" data-theme="light">
+    <header class="wd-top" id="wd-top"></header>
+    <div class="wd-shell"><nav id="wd-nav" class="wd-nav" aria-label="项目主导航"></nav><main id="wd-main"></main></div>
+    <footer class="wd-status" id="wd-status"></footer>
+    <div class="wd-toast" role="status" aria-live="polite" hidden></div>
+    <dialog id="wd-dialog" aria-labelledby="wd-dialog-title"></dialog>
+  </div>
+</div>
+<style>
+#world-design-root{font-family:Inter,"Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;line-height:1.6;color:light-dark(#202737,#e6e8ee);width:100%;--wd-accent:#3564e9;--wd-radius:10px}
+#world-design-root *{box-sizing:border-box}
+#world-design-root [hidden]{display:none!important}
+#world-design-root .wd-review{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 2px 16px;font-size:12px}
+#world-design-root .wd-review b{font-weight:400;opacity:.6;margin-left:10px}
+#world-design-root .wd-review>div{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+#world-design-root .wd-review label{display:flex;align-items:center;gap:5px}
+#world-design-root .wd-review select,#world-design-root .wd-review button{background:light-dark(#f2f3f7,#252a35);color:inherit;border:1px solid light-dark(#dadee5,#404752);border-radius:7px;padding:6px 8px;font:inherit}
+#world-design-root .wd-product{--wd-bg:#f4f5f8;--wd-panel:#fff;--wd-ink:#202737;--wd-muted:#697384;--wd-line:#e5e8ef;--wd-soft:#eef3ff;--wd-danger:#b64345;--wd-ok:#287851;--wd-chrome:#fafbfc;background:var(--wd-bg);color:var(--wd-ink);border:1px solid var(--wd-line);border-radius:12px;overflow:hidden;position:relative;min-width:0;box-shadow:0 12px 34px #17233d0a}
+#world-design-root .wd-product[data-theme=dark]{color-scheme:dark;--wd-bg:#171b24;--wd-panel:#202631;--wd-ink:#e8ebf2;--wd-muted:#a8b2c3;--wd-line:#353d4b;--wd-soft:#2b3857;--wd-accent:#90acff;--wd-danger:#ff9895;--wd-ok:#8cd0a8;--wd-chrome:#1c212b}
+#world-design-root .wd-product[data-theme=paper]{--wd-bg:#f3eee5;--wd-panel:#fcf9f3;--wd-ink:#403c35;--wd-muted:#81776a;--wd-line:#e2dacf;--wd-soft:#eee8db;--wd-accent:#786348;--wd-chrome:#f8f3eb}
+#world-design-root .wd-product[data-theme=system]{--wd-bg:light-dark(#f4f5f8,#171b24);--wd-panel:light-dark(#fff,#202631);--wd-ink:light-dark(#202737,#e8ebf2);--wd-muted:light-dark(#697384,#a8b2c3);--wd-line:light-dark(#e5e8ef,#353d4b);--wd-soft:light-dark(#eef3ff,#2b3857);--wd-accent:light-dark(#3564e9,#90acff);--wd-chrome:light-dark(#fafbfc,#1c212b)}
+#world-design-root button,#world-design-root input,#world-design-root select,#world-design-root textarea{font:inherit}
+#world-design-root .wd-product button{border:1px solid var(--wd-line);border-radius:7px;background:var(--wd-panel);color:var(--wd-ink);padding:7px 12px;min-height:34px;white-space:normal;cursor:var(--cursor-interaction,pointer)}
+#world-design-root .wd-product button:hover{background:var(--wd-soft)}
+#world-design-root .wd-product button:disabled{opacity:.45;cursor:default}
+#world-design-root .wd-product .wd-primary{background:var(--wd-accent);border-color:var(--wd-accent);color:var(--wd-panel)}
+#world-design-root .wd-product[data-theme=dark] .wd-primary{color:#111b35}
+#world-design-root .wd-product .wd-ghost{background:transparent;border-color:transparent}
+#world-design-root .wd-product .wd-danger{color:var(--wd-danger)}
+#world-design-root .wd-product input:not([type=checkbox]):not([type=range]),#world-design-root .wd-product select,#world-design-root .wd-product textarea{width:100%;padding:9px 11px;border:1px solid var(--wd-line);border-radius:7px;background:var(--wd-panel);color:var(--wd-ink)}
+#world-design-root .wd-product textarea{resize:vertical;min-height:80px;line-height:1.85}
+#world-design-root .wd-product h1{font-size:25px;line-height:1.3;font-weight:600;margin:0 0 10px;letter-spacing:-.5px}
+#world-design-root .wd-product h2{font-size:18px;line-height:1.4;font-weight:600;margin:0 0 12px}
+#world-design-root .wd-product h3{font-size:15px;line-height:1.4;font-weight:600;margin:0 0 8px}
+#world-design-root .wd-product p{margin:0 0 14px}
+#world-design-root .wd-muted{color:var(--wd-muted)}
+#world-design-root .wd-small{font-size:12px}
+#world-design-root .wd-top{min-height:65px;border-bottom:1px solid var(--wd-line);display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:12px;background:var(--wd-panel)}
+#world-design-root .wd-top-left,#world-design-root .wd-top-right,#world-design-root .wd-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#world-design-root .wd-logo{font-size:24px;font-weight:800;color:var(--wd-accent);letter-spacing:-4px;width:30px}
+#world-design-root .wd-project-title{border-left:1px solid var(--wd-line);padding-left:14px;font-weight:500}
+#world-design-root .wd-saved{color:var(--wd-ok);font-size:12px}
+#world-design-root .wd-shell{display:grid;grid-template-columns:118px minmax(0,1fr);min-height:665px}
+#world-design-root .wd-nav{padding:18px 10px;background:var(--wd-chrome);border-right:1px solid var(--wd-line);display:flex;flex-direction:column;gap:7px}
+#world-design-root .wd-nav button{text-align:left;display:flex;gap:10px;align-items:center;border-color:transparent;background:transparent;padding:11px 9px;white-space:nowrap}
+#world-design-root .wd-nav button.active{background:var(--wd-soft);color:var(--wd-accent);font-weight:500}
+#world-design-root .wd-nav .wd-bottom{margin-top:auto}
+#world-design-root .wd-nav svg{width:17px;height:17px;flex-shrink:0}
+#world-design-root #wd-main{min-width:0;position:relative}
+#world-design-root .wd-sectionbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:12px 22px;border-bottom:1px solid var(--wd-line);background:var(--wd-panel)}
+#world-design-root .wd-sectionbar button{border:0;background:transparent;color:var(--wd-muted)}
+#world-design-root .wd-sectionbar button.active{background:var(--wd-soft);color:var(--wd-accent)}
+#world-design-root .wd-page{padding:30px 32px;max-width:1150px;margin:auto}
+#world-design-root .wd-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:25px;flex-wrap:wrap}
+#world-design-root .wd-breadcrumb{font-size:12px;color:var(--wd-muted);margin-bottom:14px}
+#world-design-root .wd-writing{display:grid;grid-template-columns:168px minmax(0,1fr)}
+#world-design-root .wd-scenes{padding:20px 12px;background:var(--wd-chrome);border-right:1px solid var(--wd-line)}
+#world-design-root .wd-scenes button{width:100%;text-align:left;margin:4px 0;border-color:transparent;background:transparent;font-size:13px}
+#world-design-root .wd-scenes .wd-row button{width:30px;margin-left:auto;text-align:center}
+#world-design-root .wd-scenes button.active{background:var(--wd-soft);color:var(--wd-accent)}
+#world-design-root .wd-document{padding:30px 34px;background:var(--wd-panel);min-width:0}
+#world-design-root .wd-document-content{max-width:650px;margin:0 auto}
+#world-design-root .wd-editor-tabs{border-bottom:1px solid var(--wd-line);display:flex;gap:6px;margin:24px 0 18px}
+#world-design-root .wd-editor-tabs button{border-radius:0;border:0;background:transparent;color:var(--wd-muted);padding:10px 16px}
+#world-design-root .wd-editor-tabs button.active{color:var(--wd-accent);border-bottom:2px solid var(--wd-accent)}
+#world-design-root .wd-dialogue{position:relative;padding:18px 15px;margin:3px -15px;display:grid;grid-template-columns:34px minmax(0,1fr) 32px;gap:14px;border-radius:8px;border:1px solid transparent}
+#world-design-root .wd-dialogue.selected{background:var(--wd-soft)}
+#world-design-root .wd-avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--wd-soft);color:var(--wd-accent);font-size:13px;font-weight:500;border:1px solid var(--wd-line)}
+#world-design-root .wd-dialogue p{line-height:1.95;font-size:16px;white-space:pre-wrap;margin:6px 0 0}
+#world-design-root .wd-dialogue .wd-select{border:0;padding:0;background:transparent;text-align:left;width:100%;min-height:0}
+#world-design-root .wd-dialogue .wd-more{padding:0;width:30px;height:30px;min-height:30px;align-self:start}
+#world-design-root .wd-cue{padding:10px 14px;border-radius:7px;background:var(--wd-bg);display:flex;align-items:center;justify-content:space-between;gap:10px;margin:9px 0;color:var(--wd-muted);font-size:13px}
+#world-design-root .wd-choice{border:1px solid var(--wd-line);border-radius:var(--wd-radius);padding:17px;margin:16px 0}
+#world-design-root .wd-choice button{display:block;width:100%;text-align:left;margin-top:8px;background:var(--wd-bg);border:0}
+#world-design-root .wd-add{width:100%;border-style:dashed!important;color:var(--wd-accent)!important;background:transparent!important;margin-top:20px}
+#world-design-root .wd-status{padding:7px 18px;border-top:1px solid var(--wd-line);background:var(--wd-panel);color:var(--wd-muted);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#world-design-root .wd-art{background-image:var(--wd-scene-image,linear-gradient(145deg,#223c53,#607386 58%,#263944));background-size:cover;background-position:center;position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/9;width:100%;min-width:0}
+#world-design-root .wd-art-caption{position:absolute;bottom:0;left:0;right:0;padding:18px 20px;color:#fff;background:linear-gradient(transparent,#101826b3);font-size:13px}
+#world-design-root .wd-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+#world-design-root .wd-item{border:1px solid var(--wd-line);border-radius:var(--wd-radius);overflow:hidden;background:var(--wd-panel);min-width:0}
+#world-design-root button.wd-item{padding:0;text-align:left;display:block;width:100%}
+#world-design-root .wd-item-info{padding:14px 16px}
+#world-design-root .wd-item-info p{font-size:12px;color:var(--wd-muted);margin:3px 0 0}
+#world-design-root .wd-chip{display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--wd-soft);color:var(--wd-accent)}
+#world-design-root .wd-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:20px}
+#world-design-root .wd-toolbar input{max-width:250px}
+#world-design-root .wd-filter{display:flex;gap:5px;flex-wrap:wrap}
+#world-design-root .wd-filter button{border-color:transparent;background:transparent}
+#world-design-root .wd-filter button.active{background:var(--wd-soft);color:var(--wd-accent)}
+#world-design-root .wd-table{width:100%;border-collapse:collapse;text-align:left;background:var(--wd-panel);font-size:13px}
+#world-design-root .wd-table th{color:var(--wd-muted);font-weight:400;background:var(--wd-chrome)}
+#world-design-root .wd-table th,#world-design-root .wd-table td{padding:14px 13px;border-bottom:1px solid var(--wd-line)}
+#world-design-root .wd-table td:last-child{width:110px}
+#world-design-root .wd-field{display:block;margin:0 0 18px;min-width:0}
+#world-design-root .wd-field>span{display:block;margin-bottom:7px;font-size:13px}
+#world-design-root .wd-field small{display:block;color:var(--wd-muted);margin-top:5px}
+#world-design-root .wd-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#world-design-root details{border-top:1px solid var(--wd-line);padding:14px 0;margin:15px 0}
+#world-design-root summary{cursor:var(--cursor-interaction,pointer);color:var(--wd-muted);margin-bottom:12px}
+#world-design-root .wd-notice{padding:12px 17px;background:var(--wd-soft);border-bottom:1px solid var(--wd-line);display:flex;gap:14px;align-items:center;justify-content:space-between;font-size:13px}
+#world-design-root .wd-notice.error{color:var(--wd-danger)}
+#world-design-root .wd-empty{padding:75px 25px;text-align:center}
+#world-design-root .wd-empty p{color:var(--wd-muted);max-width:370px;margin:0 auto 22px}
+#world-design-root .wd-home{padding:45px;max-width:1050px;margin:auto}
+#world-design-root .wd-home-feature{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;background:var(--wd-panel);border:1px solid var(--wd-line);border-radius:12px;padding:24px;margin:28px 0}
+#world-design-root .wd-route{position:relative;min-height:400px;max-width:780px;margin:auto;background-image:radial-gradient(var(--wd-line) .8px,transparent .8px);background-size:18px 18px;border-radius:10px}
+#world-design-root .wd-route svg.wd-lines{position:absolute;width:100%;height:100%;inset:0;stroke:var(--wd-muted);fill:none;stroke-width:1.5}
+#world-design-root .wd-node{position:absolute;width:26%;background:var(--wd-panel)!important;box-shadow:0 3px 10px #121d2d08;text-align:left;min-height:68px}
+#world-design-root .wd-node small{display:block;color:var(--wd-muted);font-size:12px}
+#world-design-root .wd-node.end{border-color:var(--wd-accent)}
+#world-design-root .wd-route-label{position:absolute;font-size:12px;color:var(--wd-muted);background:var(--wd-bg);padding:3px 7px}
+#world-design-root .wd-stage-layout{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:20px}
+#world-design-root .wd-stage-properties{padding:18px;background:var(--wd-panel);border:1px solid var(--wd-line);border-radius:9px}
+#world-design-root .wd-stage .wd-art{aspect-ratio:16/10}
+#world-design-root .wd-stage-target{position:absolute;left:56%;top:20%;height:65%;width:20%;border:1px solid #f6f8ffb3;display:grid;place-items:center;background:#3648586b;color:#fff;font-size:18px}
+#world-design-root .wd-product button.wd-stage-target{background:#c8daff15;border:1px dashed #f6f8ffb3;color:#fff;border-radius:0}
+#world-design-root .wd-timeline{margin-top:18px;background:var(--wd-panel);border:1px solid var(--wd-line);border-radius:9px;padding:14px 16px}
+#world-design-root .wd-track{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;margin:8px 0;font-size:12px;color:var(--wd-muted)}
+#world-design-root .wd-clip{border-radius:4px;padding:7px 12px;color:var(--wd-ink);background:var(--wd-soft);width:85%}
+#world-design-root .wd-code{white-space:pre-wrap;word-break:break-word;font-family:"Cascadia Code",Consolas,monospace;line-height:1.9;padding:20px;background:var(--wd-bg);border-radius:8px;color:var(--wd-ink)}
+#world-design-root .wd-settings-layout{display:grid;grid-template-columns:160px minmax(0,1fr);gap:30px}
+#world-design-root .wd-settings-nav button{width:100%;text-align:left;display:block;margin:4px 0;border-color:transparent;background:transparent}
+#world-design-root .wd-settings-nav button.active{background:var(--wd-soft);color:var(--wd-accent)}
+#world-design-root .wd-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}
+#world-design-root .wd-options button{padding:18px;text-align:left}
+#world-design-root .wd-options button.active{border-color:var(--wd-accent);background:var(--wd-soft)}
+#world-design-root .wd-options small{display:block;color:var(--wd-muted);margin-top:6px}
+#world-design-root .wd-steps{display:flex;gap:25px;flex-wrap:wrap;color:var(--wd-muted);margin:0 0 28px;font-size:13px}
+#world-design-root .wd-steps .active{color:var(--wd-accent)}
+#world-design-root .wd-divider{border:0;border-top:1px solid var(--wd-line);margin:22px 0}
+#world-design-root .wd-list-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--wd-line)}
+#world-design-root .wd-list-row p{margin:3px 0 0;color:var(--wd-muted);font-size:13px}
+#world-design-root .wd-game{background:#142131;color:#fbf7ee;min-height:580px;padding:28px;position:relative}
+#world-design-root .wd-game .wd-art{min-height:515px;border-radius:0}
+#world-design-root .wd-titlemenu{position:absolute;right:8%;top:13%;padding:24px;min-width:225px;background:#162231a3;border-radius:9px;color:#faf9f6}
+#world-design-root .wd-titlemenu h1{font-family:"Microsoft YaHei",serif;font-size:32px;letter-spacing:3px;margin:0 0 30px}
+#world-design-root .wd-titlemenu button{display:block;width:100%;margin:8px 0;background:transparent;border-color:transparent;color:#fff;text-align:left;padding:8px 0}
+#world-design-root .wd-game-dialogue{position:absolute;bottom:25px;left:25px;right:25px;background:#122034dd;color:#fff;border:1px solid #ffffff30;border-radius:8px;padding:20px 28px}
+#world-design-root .wd-game-dialogue p{font-size:17px;line-height:1.9;margin:8px 0 18px}
+#world-design-root .wd-game-dialogue button,#world-design-root .wd-game button.wd-game-btn{background:#15283dcc;border-color:#6d829e;color:#fff}
+#world-design-root .wd-game-choice{position:absolute;inset:22% 15% auto;display:grid;gap:14px}
+#world-design-root .wd-game-choice button{background:#15283deb;border-color:#6d829e;color:#fff;padding:17px}
+#world-design-root .wd-game-subpage{background:#1b293a;padding:28px;min-height:540px;border-radius:9px;color:#fff}
+#world-design-root .wd-game-subpage .wd-item{--wd-panel:#243447;--wd-line:#425268;--wd-ink:#fff;--wd-muted:#bcc8d8;--wd-bg:#1b293a;--wd-soft:#304760}
+#world-design-root .wd-game-subpage .wd-item button{background:#30465f;border-color:#536b89;color:#fff}
+#world-design-root .wd-game-subpage .wd-filter button{color:#ced8e6;background:transparent}
+#world-design-root .wd-game-subpage .wd-filter button.active{background:#304760;color:#fff}
+#world-design-root .wd-game-subpage .wd-field input,#world-design-root .wd-game-subpage .wd-field select{background:#243447;border-color:#425268;color:#fff}
+#world-design-root .wd-game-subpage .wd-list-row{border-color:#425268}
+#world-design-root .wd-game-subpage .wd-list-row p{color:#b9c6d8}
+#world-design-root .wd-toast{position:absolute;bottom:47px;left:50%;transform:translateX(-50%);background:var(--wd-ink);color:var(--wd-panel);padding:12px 20px;border-radius:9px;box-shadow:0 8px 30px #0003;max-width:90%;z-index:5;font-size:13px}
+#world-design-root dialog{background:var(--wd-panel);color:var(--wd-ink);border:1px solid var(--wd-line);border-radius:13px;padding:0;width:min(590px,calc(100% - 28px));max-height:88%;box-shadow:0 20px 70px #0003}
+#world-design-root dialog::backdrop{background:#111c3580}
+#world-design-root dialog.wd-drawer{margin:0 0 0 auto;height:100%;max-height:100%;width:min(460px,92%);border-radius:0}
+#world-design-root .wd-modal-head{padding:22px 24px 15px;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid var(--wd-line)}
+#world-design-root .wd-modal-head h2{margin:0}
+#world-design-root .wd-modal-content{padding:24px}
+#world-design-root .wd-modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--wd-line);background:var(--wd-chrome)}
+#world-design-root .wd-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#world-design-root .wd-modal-grid button{text-align:left;padding:16px}
+#world-design-root .wd-modal-grid small{display:block;color:var(--wd-muted);margin-top:5px}
+#world-design-root .wd-directory{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#world-design-root .wd-directory button{text-align:left;background:transparent;border-color:transparent}
+#world-design-root .wd-option-edit{border:1px solid var(--wd-line);border-radius:8px;padding:16px;margin:0 0 16px}
+#world-design-root .wd-phone{max-width:420px;margin:auto}
+#world-design-root .wd-phone .wd-shell{display:flex;flex-direction:column;min-height:690px}
+#world-design-root .wd-phone .wd-nav{order:2;flex-direction:row;justify-content:space-around;border:0;border-top:1px solid var(--wd-line);padding:7px 2px;position:relative}
+#world-design-root .wd-phone .wd-nav button{display:flex;flex-direction:column;gap:4px;align-items:center;padding:7px 8px;font-size:11px;min-width:55px}
+#world-design-root .wd-phone .wd-nav .wd-bottom{margin:0}
+#world-design-root .wd-mobile-only{display:none!important}
+#world-design-root .wd-phone .wd-desktop-only{display:none!important}
+#world-design-root .wd-phone .wd-mobile-only{display:flex!important}
+#world-design-root .wd-phone .wd-top{padding:12px;min-height:62px}
+#world-design-root .wd-phone .wd-top-right .wd-search-button,#world-design-root .wd-phone .wd-saved{display:none}
+#world-design-root .wd-phone .wd-project-title{font-size:13px;padding-left:9px}
+#world-design-root .wd-phone .wd-writing{display:block}
+#world-design-root .wd-phone .wd-scenes{display:none}
+#world-design-root .wd-phone .wd-document{padding:23px 22px}
+#world-design-root .wd-phone .wd-page,#world-design-root .wd-phone .wd-home{padding:24px 20px}
+#world-design-root .wd-phone .wd-grid,#world-design-root .wd-phone .wd-options{grid-template-columns:1fr 1fr}
+#world-design-root .wd-phone .wd-home-feature,#world-design-root .wd-phone .wd-stage-layout,#world-design-root .wd-phone .wd-settings-layout,#world-design-root .wd-phone .wd-two{grid-template-columns:1fr}
+#world-design-root .wd-phone .wd-stage-properties{display:none}
+#world-design-root .wd-phone .wd-sectionbar{padding:10px 12px;gap:2px}
+#world-design-root .wd-phone .wd-sectionbar button{padding:7px 9px;font-size:12px}
+#world-design-root .wd-phone .wd-route{min-height:550px;background:none}
+#world-design-root .wd-phone .wd-route svg,#world-design-root .wd-phone .wd-route-label{display:none}
+#world-design-root .wd-phone .wd-node{position:relative!important;left:auto!important;top:auto!important;width:100%;display:block;margin:13px 0}
+#world-design-root .wd-phone .wd-table,#world-design-root .wd-phone .wd-table tbody,#world-design-root .wd-phone .wd-table tr,#world-design-root .wd-phone .wd-table td{display:block}
+#world-design-root .wd-phone .wd-table thead{display:none}
+#world-design-root .wd-phone .wd-table td{border:0;padding:4px 14px}
+#world-design-root .wd-phone .wd-table tr{border-bottom:1px solid var(--wd-line);padding:12px 0}
+#world-design-root .wd-phone .wd-table td:last-child{width:auto}
+#world-design-root .wd-phone .wd-game{padding:12px;min-height:670px}
+#world-design-root .wd-phone .wd-game .wd-art{min-height:620px;aspect-ratio:auto}
+#world-design-root .wd-phone .wd-titlemenu{left:12%;right:12%;top:24%;min-width:0}
+#world-design-root .wd-phone .wd-titlemenu h1{font-size:26px}
+#world-design-root .wd-phone .wd-game-dialogue{left:12px;right:12px;bottom:12px;padding:18px}
+#world-design-root .wd-phone .wd-game-subpage{padding:20px 14px}
+#world-design-root .wd-phone dialog{border-radius:0}
+#world-design-root .wd-phone .wd-modal-head,#world-design-root .wd-phone .wd-modal-content{padding:20px}
+@media(max-width:760px){#world-design-root .wd-shell{grid-template-columns:82px minmax(0,1fr)}#world-design-root .wd-nav button{flex-direction:column;gap:4px;font-size:11px;text-align:center}#world-design-root .wd-writing{grid-template-columns:132px minmax(0,1fr)}#world-design-root .wd-document{padding:25px 22px}#world-design-root .wd-page{padding:25px 22px}#world-design-root .wd-grid{grid-template-columns:1fr 1fr}#world-design-root .wd-stage-layout{grid-template-columns:1fr}#world-design-root .wd-stage-properties{display:none}#world-design-root .wd-top-right .wd-search-button{display:none}}
+@media(max-width:560px){#world-design-root .wd-shell{display:flex;flex-direction:column;min-height:690px}#world-design-root .wd-nav{order:2;flex-direction:row;justify-content:space-around;border:0;border-top:1px solid var(--wd-line);padding:6px 2px}#world-design-root .wd-nav button{padding:7px 6px;min-width:45px}#world-design-root .wd-nav .wd-bottom{margin:0}#world-design-root .wd-writing{display:block}#world-design-root .wd-scenes{display:none}#world-design-root .wd-document{padding:23px 20px}#world-design-root .wd-top{padding:12px;flex-wrap:wrap}#world-design-root .wd-saved{display:none}#world-design-root .wd-home,#world-design-root .wd-page{padding:24px 18px}#world-design-root .wd-home-feature,#world-design-root .wd-two,#world-design-root .wd-settings-layout{grid-template-columns:1fr}#world-design-root .wd-options{grid-template-columns:1fr 1fr}#world-design-root .wd-table,#world-design-root .wd-table tbody,#world-design-root .wd-table tr,#world-design-root .wd-table td{display:block}#world-design-root .wd-table thead{display:none}#world-design-root .wd-table tr{padding:12px 0;border-bottom:1px solid var(--wd-line)}#world-design-root .wd-table td{padding:4px 12px;border:0}#world-design-root .wd-table td:last-child{width:auto}#world-design-root .wd-route{min-height:550px;background:none}#world-design-root .wd-route svg,#world-design-root .wd-route-label{display:none}#world-design-root .wd-node{position:relative!important;left:auto!important;top:auto!important;width:100%;display:block;margin:13px 0}#world-design-root .wd-game{padding:12px}#world-design-root .wd-game .wd-art{min-height:600px}#world-design-root .wd-titlemenu{left:8%;right:8%;top:17%;min-width:0}#world-design-root .wd-titlemenu h1{font-size:26px}#world-design-root .wd-game-subpage{padding:20px 14px}#world-design-root dialog{border-radius:0;width:100%;height:100%;max-height:100%;margin:0}#world-design-root .wd-directory{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:no-preference){#world-design-root .wd-product button{transition:background-color .12s ease,border-color .12s ease}}
+@media(max-width:560px){#world-design-root .wd-desktop-only{display:none!important}#world-design-root .wd-mobile-only{display:flex!important}#world-design-root .wd-product input:not([type=checkbox]):not([type=range]),#world-design-root .wd-product textarea,#world-design-root .wd-product select{font-size:16px}#world-design-root .wd-product button{min-height:44px}}
+#world-design-root .wd-phone input:not([type=checkbox]):not([type=range]),#world-design-root .wd-phone textarea,#world-design-root .wd-phone select{font-size:16px}
+#world-design-root .wd-phone button{min-height:44px}
+</style>
+<script>
+(()=>{
+const root=document.getElementById('world-design-root');
+const product=root.querySelector('.wd-product'), main=root.querySelector('#wd-main'), nav=root.querySelector('#wd-nav'), top=root.querySelector('#wd-top'), status=root.querySelector('#wd-status'), dialog=root.querySelector('#wd-dialog');
+const routes={home:['项目首页','home'],scenes:['章节与场景','story'],writing:['场景写作','story'],stage:['演出编辑','story'],script:['文本脚本','story'],flow:['故事路线','story'],characters:['角色','story'],variables:['变量','story'],assets:['素材库','assets'],localization:['本地化与配音','assets'],collections:['内容收录','assets'],appearance:['游戏界面','appearance'],defaults:['玩家默认设置','appearance'],issues:['问题检查','issues'],debug:['运行调试','issues'],publish:['发布游戏','publish'],settings:['项目设置','settings'],backup:['备份与恢复','settings'],'player-title':['玩家 · 标题','player'],'player-play':['玩家 · 阅读','player'],'player-choice':['玩家 · 选择','player'],'player-saves':['玩家 · 存档','player'],'player-history':['玩家 · 历史','player'],'player-settings':['玩家 · 设置','player'],'player-extras':['玩家 · 回忆','player'],'player-ending':['玩家 · 结局','player']};
+const groups={story:[['scenes','场景'],['flow','路线'],['characters','角色'],['variables','变量']],assets:[['assets','素材库'],['localization','本地化与配音'],['collections','内容收录']],appearance:[['appearance','游戏界面'],['defaults','玩家默认设置']],issues:[['issues','问题'],['debug','调试']],settings:[['settings','项目设置'],['backup','备份与恢复']]};
+let saved=window.openai?.widgetState?.privateContent;
+const state={route:routes[saved?.route]?saved.route:'writing',theme:saved?.theme||'light',device:saved?.device||'desktop',scenario:'normal',scene:'雨中的车站',selected:0,speakers:['夏音','主角'],dialogue:['雨停了。你还记得我们说过的话吗？','当然。我一直都记得。'],option:['留下来，陪她等下一班车','走向海边'],optionTargets:['留在车站','海边'],targetIndex:0,project:'雨后的约定',asset:'雨后的车站',assetFilter:'全部',publishStep:1,target:'Web',settingSection:'基本信息',playerReturn:'player-play',saveTab:'手动',locale:'日本語',collectionTab:'画廊',uiTab:'对话框',created:[],modal:'',parentModal:'',toastTimer:null};
+const esc=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icon=(name)=>`<i data-lucide="${name}" aria-hidden="true"></i>`;
+const btn=(label,act,kind='',extra='')=>`<button type="button" class="${kind}" data-act="${act}" ${extra}>${label}</button>`;
+const go=(label,route,kind='')=>btn(label,`go:${route}`,kind);
+const field=(label,control,hint='')=>`<label class="wd-field"><span>${label}</span>${control}${hint?`<small>${hint}</small>`:''}</label>`;
+const input=(value='',id='')=>`<input value="${esc(value)}" ${id?`id="${id}"`:''}>`;
+const select=(values,id='',chosen='')=>`<select ${id?`id="${id}"`:''}>${values.map(v=>`<option ${v===chosen?'selected':''}>${esc(v)}</option>`).join('')}</select>`;
+const art=(caption='',style='')=>`<div class="wd-art" ${style?`style="${style}"`:''}>${caption?`<div class="wd-art-caption">${caption}</div>`:''}</div>`;
+const heading=(title,subtitle='',actions='')=>`<div class="wd-page-head"><div><h1>${title}</h1>${subtitle?`<p class="wd-muted">${subtitle}</p>`:''}</div><div class="wd-row">${actions}</div></div>`;
+function persist(){window.openai?.setWidgetState?.({modelContent:{page:routes[state.route][0],theme:state.theme,device:state.device},privateContent:{route:state.route,theme:state.theme,device:state.device}})?.catch(()=>{});}
+function toast(msg){const box=root.querySelector('.wd-toast');box.textContent=msg;box.hidden=false;clearTimeout(state.toastTimer);state.toastTimer=setTimeout(()=>box.hidden=true,3500);}
+function navigate(route){if(!routes[route])return;if(dialog.open)dialog.close();state.modal='';state.route=route;render();persist();}
+function bar(group){return groups[group]?`<div class="wd-sectionbar">${groups[group].map(([r,l])=>go(l,r,state.route===r?'active':'')).join('')}</div>`:'';}
+function tabs(){return `<div class="wd-editor-tabs">${[['writing','写作'],['stage','演出'],['script','脚本']].map(([r,l])=>go(l,r,state.route===r?'active':'')).join('')}</div>`;}
+function table(headers,rows){return `<table class="wd-table"><thead><tr>${headers.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.map(row=>`<tr>${row.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</tbody></table>`;}
+function notice(){if(state.route==='home'||routes[state.route][1]==='player')return '';const notices={'save-error':['保存失败。这次修改还在本机，请重试或先导出工程副本。','retry-save','重试保存'],'missing':['当前场景的背景文件无法读取。剧情可以继续编辑。','repair','重新关联素材'],'readonly':['工程正在另一个窗口编辑。当前可以查看或导出副本。','readonly','查看原因'],'draft':['此场景的脚本有一处语法错误。修复后才能试玩和发布。','go:script','去修复']};const n=notices[state.scenario];return n?`<div class="wd-notice ${state.scenario==='save-error'?'error':''}" role="status"><span>${n[0]}</span>${btn(n[2],n[1])}</div>`:'';}
+function render(){
+product.dataset.theme=state.theme;product.classList.toggle('wd-phone',state.device==='mobile');root.querySelector('#wd-theme').value=state.theme;root.querySelector('#wd-device').value=state.device;
+const group=routes[state.route][1],player=group==='player',isHome=group==='home';
+top.innerHTML=`<div class="wd-top-left">${btn('<span class="wd-logo">W</span>','go:home','wd-ghost','aria-label="返回项目首页"')}<span class="wd-project-title">${isHome?'WorLd Studio':esc(state.project)}</span>${!isHome&&!player?`<span class="wd-saved">${state.scenario==='save-error'?'● 未安全保存':state.scenario==='readonly'?'只读':'✓ 示例已保存'}</span>`:''}</div><div class="wd-top-right">${!isHome&&!player?btn('搜索','search','wd-ghost wd-search-button')+btn('▷ 试玩','go:player-title','wd-primary',state.scenario==='draft'?'disabled aria-label="请先修复脚本错误"':''):player?go('返回编辑器','writing'):btn('＋ 新建工程','new-project','wd-primary')}</div>`;
+nav.hidden=isHome||player;root.querySelector('.wd-shell').style.gridTemplateColumns=isHome||player?'minmax(0,1fr)':'';
+nav.innerHTML=[['story','book-open','故事','scenes'],['assets','image','素材','assets'],['appearance','palette','游戏外观','appearance'],['issues','circle-check','检查','issues'],['publish','send','发布','publish'],['settings','settings','设置','settings']].map(([g,i,l,r])=>go(`${icon(i)}<span>${l}</span>`,r,`${g===group?'active':''} ${g==='settings'?'wd-bottom':''} ${['appearance','publish','settings'].includes(g)?'wd-desktop-only':''}`)).join('')+btn(icon('ellipsis')+'<span>更多</span>','mobile-more',`wd-mobile-only ${['appearance','publish','settings'].includes(group)?'active':''}`);
+const pages={home,scenes,writing,stage,script,flow,characters,variables,assets,localization,collections,appearance,defaults,issues,debug,publish,settings,backup,'player-title':playerTitle,'player-play':playerPlay,'player-choice':playerChoice,'player-saves':playerSaves,'player-history':playerHistory,'player-settings':playerSettings,'player-extras':playerExtras,'player-ending':playerEnding};
+main.innerHTML=notice()+(!isHome&&!player?bar(group):'')+pages[state.route]();status.innerHTML=`<span>${player?'游戏预览':isHome?'本地创作 · 无需账户':esc(state.scene)+' · '+routes[state.route][0]}</span><span>设计稿 · 所有数据均为示例</span>`;
+if(globalThis.lucide)globalThis.lucide.createIcons({attrs:{width:16,height:16}});
+if(state.scenario==='readonly'&&!player){main.querySelectorAll('textarea,input:not([id*="search"])').forEach(x=>x.disabled=true);main.querySelectorAll('button[data-act]').forEach(x=>{if(/^(new-|save-|apply-|create-|delete-|import-|choice-editor|character-edit|variable-edit|stage-object|motion-editor|connect|select-line|line-menu|pick-asset|audio)/.test(x.dataset.act))x.disabled=true;});}
+}
+function home(){return `<div class="wd-home">${heading('继续你的故事','打开一个工程，接着上次的位置写。',btn('导入工程','import-project'))}<section class="wd-home-feature">${art('雨后的约定')}<div><span class="wd-small wd-muted">最近编辑</span><h2>${esc(state.project)}</h2><p class="wd-muted">第一章 · ${esc(state.scene)}<br>保存在这台设备</p>${go('继续编辑','writing','wd-primary')} ${btn('工程选项','project-menu','wd-ghost')}</div></section><h3>其他工程</h3><div class="wd-grid">${['未命名的夏天','空白短篇',...state.created].map((x,i)=>`<button class="wd-item" data-act="open-project:${esc(x)}"><div class="wd-item-info"><h3>${esc(x)}</h3><p>${i?'空白工程':'本地工程'} · 打开</p></div></button>`).join('')}</div></div>`;}
+function scenes(){if(state.scenario==='empty')return `<div class="wd-empty"><h2>从第一个场景开始</h2><p>先写一段对话，之后再加入背景、音乐与分支。</p>${btn('创建第一个场景','new-scene','wd-primary')}</div>`;return `<div class="wd-page">${heading('章节与场景','第一章 · 雨停之前',btn('＋ 新建场景','new-scene','wd-primary')+btn('章节管理','chapters'))}<div class="wd-toolbar"><span class="wd-muted wd-small">按故事顺序排列</span>${go('查看本章路线','flow')}</div><div class="wd-grid">${['校门口','雨中的车站','留在车站','海边',...state.created].map((x,i)=>`<button class="wd-item" data-act="open-scene:${esc(x)}">${art('',i===3?'filter:sepia(.4) saturate(.7)':'')}<div class="wd-item-info"><h3>${esc(x)}</h3><p>${i===1?'当前编辑 · 有分支':i===3?'结局场景':'场景'} · 点击继续写作</p></div></button>`).join('')}</div></div>`;}
+function sceneRail(){return `<aside class="wd-scenes"><div class="wd-row"><strong class="wd-small">第一章</strong>${btn('⋯','chapters','wd-ghost','aria-label="章节管理"')}</div><p class="wd-muted wd-small">雨停之前</p>${['校门口','雨中的车站','留在车站','海边'].map(x=>btn(x,`open-scene:${x}`,x===state.scene?'active':'')).join('')}<hr class="wd-divider">${btn('＋ 新建场景','new-scene','wd-ghost')}${go('本章路线','flow','wd-ghost')}</aside>`;}
+function writing(){const locked=state.scenario==='readonly';return `<div class="wd-writing">${sceneRail()}<section class="wd-document"><div class="wd-document-content"><div class="wd-breadcrumb">${btn('第一章','scene-picker','wd-ghost')} / ${esc(state.scene)}</div><div class="wd-page-head"><div><h1>${esc(state.scene)}</h1><p class="wd-muted wd-small">雨停下来的车站，还有一些未说完的话。</p></div>${btn('画面预览','preview')}</div>${tabs()}<div class="wd-cue"><span>▧ 背景 · ${esc(state.asset)}</span>${btn('更换','pick-asset','wd-ghost',locked?'disabled':'')}</div>${state.dialogue.map((text,i)=>`<article class="wd-dialogue ${state.selected===i?'selected':''}"><span class="wd-avatar">${i?'主':'夏'}</span><div><button type="button" class="wd-select" data-act="select-line:${i}"><strong>${i?'主角':'夏音'}</strong><p>${esc(text)}</p></button></div>${btn('⋯',`line-menu:${i}`,'wd-ghost wd-more','aria-label="编辑对白属性"')}</article>`).join('')}<div class="wd-cue"><span>♫ 音乐 · 雨停之后</span>${btn('调整','audio','wd-ghost',locked?'disabled':'')}</div><section class="wd-choice"><div class="wd-row"><strong>选择</strong><span class="wd-muted wd-small">2 条分支</span></div>${state.option.map(x=>btn('→ '+esc(x),'choice-editor','',locked?'disabled':'')).join('')}</section>${btn('＋ 添加内容','add-content','wd-add',locked?'disabled':'')}<div class="wd-row" style="margin-top:24px">${btn('撤销','undo','wd-ghost')}<span class="wd-muted wd-small">当前场景的内容与演出共用一份工程</span></div></div></section></div>`;}
+function stage(){return `<div class="wd-page">${heading(state.scene,'第一章 / 场景演出',btn('场景列表','scene-picker')+btn('对象属性','stage-object'))}${tabs()}<div class="wd-stage-layout"><div class="wd-stage"><div class="wd-art"><button class="wd-stage-target" data-act="stage-object">夏音<br><small>示例角色占位</small></button><div class="wd-art-caption">${esc(state.dialogue[0])}</div></div><div class="wd-row" style="margin-top:12px">${btn('▶ 预览演出','preview')}${btn('更换背景','pick-asset')}${btn('添加角色','character-picker')}<label class="wd-small"><input type="checkbox" checked> 安全区</label></div></div><aside class="wd-stage-properties"><h3>夏音</h3><p class="wd-muted wd-small">只显示当前选中对象的属性</p>${field('表情',select(['普通','微笑','难过']))}<div class="wd-two">${field('X 位置',input('640'))}${field('Y 位置',input('120'))}</div>${field('入场',select(['淡入','从左滑入','立即显示']))}${btn('曲线与关键帧','motion-editor')}<details><summary>更多参数</summary>${field('旋转',input('0°'))}${field('图层',input('前景'))}</details></aside></div><div class="wd-timeline"><div class="wd-row"><strong>场景时间线</strong><span class="wd-muted wd-small">00:12 / 01:30</span>${btn('添加演出','add-content','wd-ghost')}</div>${[['背景','雨后的车站',100],['角色','夏音 · 淡入',58],['音频','雨停之后',80],['对白','雨停了。',64]].map(([a,b,w])=>`<div class="wd-track"><span>${a}</span><button class="wd-clip" style="width:${w}%" data-act="${a==='角色'?'motion-editor':a==='对白'?'line-menu:0':'audio'}">${b}</button></div>`).join('')}</div></div>`;}
+function script(){return `<div class="wd-writing">${sceneRail()}<section class="wd-document"><div class="wd-breadcrumb">第一章 / ${esc(state.scene)}</div><h1>${esc(state.scene)}</h1>${tabs()}${state.scenario==='draft'?'<p class="wd-danger" role="alert">第 5 行：选项缺少目标场景。选择一个场景后再运行。</p>':''}<label class="wd-field"><span>故事脚本</span><textarea id="wd-script" rows="16" style="font-family:Consolas,monospace">@background station_after_rain\n@audio rain_stops loop\n夏音：${esc(state.dialogue[0])}\n主角：${esc(state.dialogue[1])}\n@choice\n  留下来 → stay\n  走向海边 → seaside\n@end</textarea></label><div class="wd-row">${btn('应用脚本','apply-script','wd-primary')}${btn('格式化','format-script')}${btn('语法帮助','syntax-help','wd-ghost')}</div></section></div>`;}
+function flow(){return `<div class="wd-page">${heading('故事路线','第一章 · 只展示场景之间的走向',btn('连接场景','connect')+btn('查看路线清单','route-list'))}<div class="wd-route" aria-label="第一章六个场景的路线"><svg class="wd-lines" viewBox="0 0 780 400" preserveAspectRatio="none" role="img" aria-label="校门口到车站，分为留在车站与海边，再到两个结局"><path d="M390 70V140 M390 190C390 230 140 230 140 270 M390 190C390 230 640 230 640 270 M140 320V360 M640 320V360"/></svg>${[['校门口',37,0,'开始'],['雨中的车站',37,27,'2 条分支'],['留在车站',5,56,'陪她等车'],['海边',69,56,'走向海边'],['结局 · 雨停之后',5,82,'结局'],['结局 · 向着大海',69,82,'结局']].map(([n,x,y,d],i)=>`<button class="wd-node ${i>3?'end':''}" style="left:${x}%;top:${y}%" data-act="route-node:${n}"><strong>${n}</strong><small>${d}</small></button>`).join('')}<span class="wd-route-label" style="left:24%;top:48%">选择「留下来」</span><span class="wd-route-label" style="left:60%;top:48%">选择「走向海边」</span></div><div class="wd-list-row"><div><strong>路线检查</strong><p>从入口可到达两个结局。单个场景的对白在场景编辑器里修改。</p></div>${go('打开当前场景','writing','wd-primary')}</div></div>`;}
+function characters(){return `<div class="wd-page">${heading('角色','角色名、表情与立绘集中管理。',btn('＋ 新建角色','character-new','wd-primary'))}${table(['角色','立绘与表情','引用','操作'],[['<span class="wd-row"><span class="wd-avatar">夏</span>夏音</span>','普通 / 微笑 / 难过','4 个场景',btn('编辑','character-edit')],['主角','以文字为主','4 个场景',btn('编辑','character-edit')]])}</div>`;}
+function variables(){return `<div class="wd-page">${heading('变量','在选项和条件中使用，不需要每次记住变量 ID。',btn('＋ 新建变量','variable-new','wd-primary'))}${table(['名称','类型 / 初始值','用途','操作'],[['与夏音的关系','数字 · 0','3 处条件',btn('编辑','variable-edit')],['是否留在车站','开关 · 关闭','2 处条件',btn('编辑','variable-edit')]])}</div>`;}
+function assets(){const data=[['雨后的车站','背景'],['海边黄昏','背景'],['夏音 · 普通','立绘'],['雨停之后','音乐'],['夏音 · 第一场对白','配音'],['夜空','背景']].filter(([,type])=>state.assetFilter==='全部'||type===state.assetFilter);return `<div class="wd-page">${heading('素材库','导入、寻找和替换工程里的素材。',btn('导入素材','import-assets','wd-primary'))}<div class="wd-toolbar"><div class="wd-filter">${['全部','背景','立绘','音乐','配音'].map(x=>btn(x,`asset-filter:${x}`,state.assetFilter===x?'active':'')).join('')}</div><input id="wd-asset-search" placeholder="搜索素材名称" aria-label="搜索素材"></div><div class="wd-grid">${data.map(([n,t],i)=>`<button class="wd-item" data-act="asset-detail:${n}" data-asset-name="${n}">${t==='音乐'||t==='配音'?`<div style="height:125px;display:grid;place-items:center;background:var(--wd-soft)"><span style="font-size:32px;color:var(--wd-accent)">♫</span></div>`:art('',i===1?'filter:sepia(.65)':'')}<div class="wd-item-info"><h3>${n}</h3><p>${t} <span class="wd-chip">${state.scenario==='missing'&&i===0?'文件缺失':'已导入'}</span></p></div></button>`).join('')}</div></div>`;}
+function localization(){return `<div class="wd-page">${heading('本地化与配音','源语言：简体中文',btn('添加语言','add-locale')+btn('导入翻译','import-locale')+btn('导出翻译表','export-locale'))}<div class="wd-toolbar"><label class="wd-row">目标语言 ${select(['日本語','English'],'wd-locale',state.locale)}</label><span class="wd-muted wd-small">选中一行后翻译，不在素材页同时展开所有生产表。</span></div>${table(['源文本','译文','状态','操作'],[[esc(state.dialogue[0]),'雨が止んだね。あの約束、覚えてる？','待复核',btn('编辑','translation')],[esc(state.dialogue[1]),'もちろん。ずっと覚えている。','已完成',btn('编辑','translation')],['走向海边','未翻译','未翻译',btn('编辑','translation')]])}</div>`;}
+function collections(){return `<div class="wd-page">${heading('内容收录','设置玩家何时能在回忆页看见内容。',btn('＋ 新建收录项','collection-edit','wd-primary'))}<div class="wd-filter">${['画廊','音乐室','结局','场景回想'].map(x=>btn(x,`collection-tab:${x}`,state.collectionTab===x?'active':'')).join('')}</div><div style="margin-top:20px">${table(['内容','解锁条件','展示','操作'],[[state.collectionTab==='音乐室'?'雨停之后':'雨中的车站','在故事中首次出现','锁定时隐藏名称',btn('编辑','collection-edit')],[state.collectionTab==='结局'?'向着大海':'海边黄昏','到达结局「向着大海」','未解锁时显示占位',btn('编辑','collection-edit')]])}</div></div>`;}
+function appearance(){return `<div class="wd-page">${heading('游戏界面','编辑玩家看到的标题、对话框与菜单。',btn('更换游戏主题','game-theme'))}<div class="wd-filter">${['对话框','标题页','选择','菜单'].map(x=>btn(x,`ui-tab:${x}`,state.uiTab===x?'active':'')).join('')}</div><div class="wd-stage-layout" style="margin-top:20px"><div>${art(state.uiTab==='标题页'?'雨后的约定':state.dialogue[0])}<div class="wd-row" style="margin-top:14px">${btn('编辑布局','ui-layout')}${go('试玩实际界面','player-title')}</div></div><aside class="wd-stage-properties"><h3>${state.uiTab}样式</h3>${field('布局',select(['底部对话框','全屏文字','气泡']))}${field('字体大小',input('24'))}${field('背景透明度','<input type="range" min="0" max="100" value="85" aria-label="背景透明度">')}<details><summary>安全区与高级排版</summary>${field('边距',input('32'))}</details></aside></div><p class="wd-muted wd-small" style="margin-top:20px">编辑器主题在设置中选择，游戏外观随工程交付。</p></div>`;}
+function defaults(){return `<div class="wd-page">${heading('玩家默认设置','首次启动游戏时的默认值，玩家之后可以自行调整。')}<div class="wd-settings-layout"><aside class="wd-settings-nav">${['文本与阅读','声音','输入与无障碍','平台覆盖'].map(x=>btn(x,`default-section:${x}`,state.settingSection===x?'active':'')).join('')}</aside><section><h2>${['文本与阅读','声音','输入与无障碍','平台覆盖'].includes(state.settingSection)?state.settingSection:'文本与阅读'}</h2>${field('文字显示',select(['逐字显示','立即显示']))}${field('文字速度','<input type="range" min="10" max="100" value="50" aria-label="默认文字速度">')}${field('自动播放等待',input('2 秒'))}<label class="wd-field"><input type="checkbox" checked> 语音结束后再推进</label><details><summary>平台覆盖</summary>${field('使用独立配置的平台',select(['跟随项目','Windows','Web','Android']))}<p class="wd-muted wd-small">只有需要不同表现时才覆盖默认值。</p></details>${btn('保存默认设置','save-local','wd-primary')}</section></div></div>`;}
+function issues(){return `<div class="wd-page">${heading('问题检查','先看会阻止试玩和发布的问题。',btn('重新检查','run-check','wd-primary'))}<div class="wd-filter">${btn('全部（3）','issue-filter:all','active')}${btn('阻止运行（1）','issue-filter:errors')}${btn('提醒（2）','issue-filter:warnings')}</div>${[['缺少背景素材','第一章 / 雨中的车站','重新关联素材','repair'],['有一处未翻译的选项','本地化 / 日本語','去翻译','go:localization'],['场景没有连接到结局','第一章 / 校门口','查看路线','go:flow']].map(([t,p,l,a],i)=>`<div class="wd-list-row" data-issue-level="${i?'warnings':'errors'}"><div><strong>${i?'△':'!'} ${t}</strong><p>${p}</p></div>${btn(l,a)}</div>`).join('')}<details><summary>已忽略的问题</summary><p class="wd-muted">忽略必须写明理由，可随时恢复检查。</p>${btn('忽略选中的提醒','suppress')}</details></div>`;}
+function debug(){return `<div class="wd-page">${heading('运行调试','从当前场景开始，检查分支和变量。',btn('▷ 开始调试','debug-start','wd-primary')+go('回到场景','writing'))}<div class="wd-stage-layout"><div>${art(state.dialogue[0])}<div class="wd-row" style="margin-top:16px">${btn('继续','debug-continue')}${btn('下一步','debug-step')}${btn('停止','debug-stop')}</div><p id="wd-debug-status" class="wd-muted wd-small" style="margin-top:12px">未运行 · 雨中的车站</p></div><aside class="wd-stage-properties"><h3>变量</h3><div class="wd-list-row"><span>与夏音的关系</span><strong id="wd-debug-value">0</strong></div><details><summary>断点与观察表达式</summary><p>车站 / 第一条对白</p>${btn('添加观察项','watch')}</details><details><summary>运行日志与调用栈</summary><p class="wd-muted wd-small">运行后展开查看。故障可以直接定位到源语句。</p></details></aside></div></div>`;}
+function publish(){let content='';if(state.publishStep===1)content=`<h2>选择发布平台</h2><div class="wd-options">${['Web','Windows','Android'].map(x=>btn(x+`<small>${x==='Web'?'浏览器与离线网页':x==='Windows'?'桌面程序':'当前尚未开放'}</small>`,`target:${x}`,x===state.target?'active':'',x==='Android'?'disabled':'')).join('')}</div><h3>导出形式</h3>${field('交付文件',select(state.target==='Web'?['单文件网页','网页目录 ZIP']:['Windows 安装包','Windows 便携目录']))}<details><summary>高级资源优化</summary><label><input type="checkbox" checked> 安全无损优化</label><p class="wd-muted wd-small">检测无收益或不支持的资源时使用原素材。完整报告在导出后查看。</p></details>${btn('下一步：检查工程','publish-next','wd-primary')}`;else if(state.publishStep===2)content=`<h2>导出前检查</h2>${['故事入口与场景引用','素材完整性','存档与玩家配置'].map(x=>`<div class="wd-list-row"><span>${x}</span><span style="color:var(--wd-ok)">✓ 示例通过</span></div>`).join('')}<div class="wd-row" style="margin-top:24px">${btn('上一步','publish-prev')}${btn('生成游戏文件','publish-next','wd-primary')}</div>`;else content=`<div class="wd-empty" style="padding:45px 0"><span style="font-size:34px;color:var(--wd-ok)">✓</span><h2>导出结果示例</h2><p>雨后的约定 · ${state.target==='Web'?'单文件网页':'Windows 程序'}<br>这里展示成功后的界面，原型不会生成真实游戏文件。</p><div class="wd-row" style="justify-content:center">${go('试玩界面','player-title','wd-primary')}${btn('查看交付清单','build-result')}${btn('重新导出','publish-reset')}</div></div><details><summary>优化报告与构建日志</summary><p class="wd-muted">报告独立查看，不进入写作预览栏。此处为结构示例。</p></details>`;return `<div class="wd-page">${heading('发布游戏','把工程交给玩家。发布设置集中在这里。')}<div class="wd-steps">${['平台与形式','检查工程','导出结果'].map((x,i)=>`<span class="${state.publishStep===i+1?'active':''}">${i+1} · ${x}</span>`).join('')}</div><section style="max-width:650px">${content}</section></div>`;}
+function settings(){const sections=['基本信息','编辑器外观','保存与备份','显示与平台','高级'];let content=state.settingSection==='编辑器外观'?`${field('编辑器主题',`<select id="wd-setting-theme">${[['light','晴空 · 浅色'],['dark','夜航 · 深色'],['paper','暖纸 · 写作'],['system','跟随系统']].map(([v,l])=>`<option value="${v}" ${state.theme===v?'selected':''}>${l}</option>`).join('')}</select>`,'主题只影响编辑器，不改游戏内容。')}${field('动效',select(['跟随系统','标准','减少']))}${field('界面密度',select(['舒适','紧凑']))}`:state.settingSection==='保存与备份'?`${field('自动保存',select(['开启','关闭']))}<p class="wd-muted">最近保存与恢复记录在独立页面管理。</p>${go('查看备份与恢复','backup')}${btn('导出工程副本','export-project')}`:state.settingSection==='显示与平台'?`${field('游戏方向',select(['横屏','竖屏','自适应']))}${field('设计分辨率',select(['1920 × 1080','1280 × 720','1080 × 1920']))}${field('安全区',select(['跟随系统','固定边距']))}`:state.settingSection==='高级'?`<details open><summary>工程兼容信息</summary><p class="wd-muted">格式版本与诊断信息只在这里展示，复制报告时包含。</p>${btn('复制诊断信息','copy-diagnostic')}</details><hr class="wd-divider">${btn('删除本机工程','delete-project','wd-danger')}`:`${field('工程名称',input(state.project,'wd-project-name'))}${field('作者',input(''))}${field('作品简介','<textarea>雨停之后，我们再一次走向那个约定。</textarea>')}`;return `<div class="wd-page">${heading('项目设置')}<div class="wd-settings-layout"><aside class="wd-settings-nav">${sections.map(x=>btn(x,`setting-section:${x}`,state.settingSection===x?'active':'')).join('')}</aside><section><h2>${sections.includes(state.settingSection)?state.settingSection:'基本信息'}</h2>${content}<div style="margin-top:25px">${btn('保存设置','save-settings','wd-primary')}</div></section></div></div>`;}
+function backup(){return `<div class="wd-page">${heading('备份与恢复','恢复前先预览变化，保留当前工程副本。',btn('导出工程副本','export-project','wd-primary'))}${['今天 10:24 · 自动保存','今天 09:40 · 手动保存','昨天 18:32 · 手动保存'].map((x,i)=>`<div class="wd-list-row"><div><strong>${x}</strong><p>${i?'第一章 / 雨中的车站':'当前版本'} · 含剧情与素材索引</p></div>${btn('预览恢复',`restore:${i}`)}</div>`).join('')}<p class="wd-muted wd-small" style="margin-top:20px">跨设备使用工程 ZIP；玩家存档在游戏中管理。</p></div>`;}
+function playerTitle(){return `<div class="wd-game"><div class="wd-art"><div class="wd-titlemenu"><h1>雨后的约定</h1>${btn('开始游戏','new-game')}${go('继续游戏','player-play')}${btn('读取存档','player-load-title')}${go('回忆','player-extras')}${go('设置','player-settings')}<p class="wd-small" style="color:#c6d6e7;margin-top:24px">上次读到 · 雨中的车站</p></div></div></div>`;}
+function playerPlay(){return `<div class="wd-game"><div class="wd-art"><div class="wd-game-dialogue"><strong>夏音</strong><p>${esc(state.dialogue[0])}</p><div class="wd-row">${btn('下一句','go:player-choice','wd-game-btn')}${btn('自动','player-auto','wd-game-btn')}${btn('历史','player-history-open','wd-game-btn')}${btn('存档','player-save-open','wd-game-btn')}${btn('菜单','player-menu','wd-game-btn')}</div></div></div></div>`;}
+function playerChoice(){return `<div class="wd-game"><div class="wd-art"><div class="wd-game-choice">${state.option.map(x=>go(esc(x),'player-ending')).join('')}</div><div class="wd-game-dialogue"><strong>你会怎么回答？</strong><p>在这里做出选择。</p>${btn('返回上一句','go:player-play','wd-game-btn')}</div></div></div>`;}
+function playerSaves(){return `<div class="wd-page"><section class="wd-game-subpage">${heading('读取与保存',`${state.saveTab}存档`,btn('返回游戏','player-return'))}<div class="wd-filter">${['手动','自动','快速'].map(x=>btn(x,`save-tab:${x}`,state.saveTab===x?'active':'')).join('')}</div><div class="wd-grid" style="margin-top:20px">${[0,1,2,3].map(i=>`<div class="wd-item">${i===3?'<div style="height:118px;display:grid;place-items:center;color:#bcc8d8">空槽位</div>':art('')}<div class="wd-item-info"><h3>${i===3?'还没有存档':'雨中的车站'}</h3><p>${i===3?'在这里保存当前进度':'10月12日 10:24 · 已阅读 24 分钟'}</p><div class="wd-row" style="margin-top:13px">${i===3?btn('保存','player-save'):btn('读取',`player-load:${i}`)+btn('⋯',`slot-menu:${i}`,'','aria-label="存档选项"')}</div></div></div>`).join('')}</div></section></div>`;}
+function playerHistory(){return `<div class="wd-page"><section class="wd-game-subpage">${heading('历史记录','当前路线',btn('返回游戏','player-return'))}${state.dialogue.map((x,i)=>`<div class="wd-list-row"><div><strong>${i?'主角':'夏音'}</strong><p>${esc(x)}</p></div>${btn('回到这里',`rollback:${i}`)}</div>`).join('')}<details><summary>其他分支的记录</summary><p>旧分支可阅读。不能回退的记录说明原因，不显示可操作按钮。</p></details></section></div>`;}
+function playerSettings(){return `<div class="wd-page"><section class="wd-game-subpage">${heading('游戏设置','调整阅读与声音体验。',btn('返回','player-return'))}<div class="wd-two"><section>${field('文本显示',select(['逐字显示','立即显示']))}${field('文字速度','<input type="range" aria-label="文字速度" value="50">')}${field('游戏语言',select(['简体中文','日本語','English']))}</section><section>${field('主音量','<input type="range" aria-label="主音量" value="70">')}${field('音乐音量','<input type="range" aria-label="音乐音量" value="50">')}<label><input type="checkbox" checked> 减少动效</label></section></div>${btn('恢复默认','reset-player-settings')}</section></div>`;}
+function playerExtras(){return `<div class="wd-page"><section class="wd-game-subpage">${heading('回忆','故事里遇见的画面与声音。',go('返回标题','player-title'))}<div class="wd-filter">${['画廊','音乐室','结局','场景回想'].map(x=>btn(x,`collection-tab:${x}`,state.collectionTab===x?'active':'')).join('')}</div><div class="wd-grid" style="margin-top:20px"><button class="wd-item" data-act="gallery-open">${art('')}<div class="wd-item-info"><h3>${state.collectionTab==='音乐室'?'雨停之后':'雨后的车站'}</h3><p>已解锁 · 点击${state.collectionTab==='音乐室'?'试听':'查看'}</p></div></button><div class="wd-item"><div style="height:125px;display:grid;place-items:center;color:#bac7d9">未解锁</div><div class="wd-item-info"><h3>尚未发现</h3><p>继续故事后收录</p></div></div></div></section></div>`;}
+function playerEnding(){return `<div class="wd-game"><div class="wd-art"><div class="wd-titlemenu"><span class="wd-small">ENDING</span><h1>雨停之后</h1><p>我们一起等到了下一班车。</p>${go('返回标题','player-title')}${go('查看回忆','player-extras')}${btn('保存这段旅程','player-save-open')}</div></div></div>`;}
+let modalTrigger=null;
+function modal(title,body,footer='',drawer=false,key=''){state.modal=key;dialog.className=drawer?'wd-drawer':'';dialog.innerHTML=`<div class="wd-modal-head"><h2 id="wd-dialog-title">${title}</h2>${btn('×','close','wd-ghost','aria-label="关闭并返回"')}</div><div class="wd-modal-content">${body}</div>${footer?`<div class="wd-modal-footer">${footer}</div>`:''}`;if(!dialog.open){modalTrigger=document.activeElement;if(state.device==='mobile'||product.clientWidth<=560){Object.assign(dialog.style,{position:'absolute',inset:'0',width:'100%',height:'100%',maxHeight:'100%',margin:'0',borderRadius:'0'});dialog.setAttribute('aria-modal','true');[top,nav,main,status].forEach(x=>x.inert=true);dialog.show();dialog.querySelector('button').focus();}else{dialog.removeAttribute('style');dialog.showModal();}}if(globalThis.lucide)globalThis.lucide.createIcons({attrs:{width:16,height:16}});}
+function cancel(){return btn('取消','close');}
+let choiceDraft=null;
+function readChoiceDraft(){return {option:[0,1].map(i=>dialog.querySelector(`#wd-option-${i}`)?.value??state.option[i]),targets:[0,1].map(i=>dialog.querySelector(`#wd-option-target-${i}`)?.value??state.optionTargets[i])};}
+function openChoice(){const d=choiceDraft||{option:state.option,targets:state.optionTargets};modal('编辑选项',d.option.map((x,i)=>`<section class="wd-option-edit"><h3>选项 ${i+1}</h3>${field('选项文本',input(x,`wd-option-${i}`))}${field('前往场景',select(['留在车站','海边','校门口'],`wd-option-target-${i}`,d.targets[i]))}<details><summary>条件与变量变化</summary>${field('出现条件',select(['始终显示','与夏音的关系 ≥ 1']))}${field('选择后',select(['不改变变量','与夏音的关系 + 1']))}${btn('选择其他目标',`target-picker:${i}`)}</details></section>`).join(''),cancel()+btn('完成','save-choice','wd-primary'),false,'choice');}
+function picker(){modal('选择素材',`<p class="wd-muted">只选择当前需要的素材。导入后会返回这里。</p><div class="wd-grid">${['雨后的车站','海边黄昏','夜空'].map(x=>`<button class="wd-item" data-act="use-asset:${x}">${art('')}<div class="wd-item-info">${x}</div></button>`).join('')}</div><hr class="wd-divider">${btn('导入新素材','import-assets')}`,cancel(),true,'asset-picker');}
+root.addEventListener('click',e=>{const control=e.target.closest('[data-act]');if(!control||control.disabled)return;const action=control.dataset.act;const [a,...rest]=action.split(':');const value=rest.join(':');
+if(a==='go'){if(value==='player-settings')state.playerReturn=state.route;if(value==='player-extras')state.playerReturn='player-title';navigate(value);return;}
+if(a==='close'){dialog.close();state.modal='';return;}
+if(a==='open-scene'){state.scene=value;state.selected=0;navigate('writing');return;}
+if(a==='open-project'){state.project=value;navigate('writing');return;}
+if(a==='asset-filter'){state.assetFilter=value;render();return;}
+if(a==='collection-tab'){state.collectionTab=value;render();return;}
+if(a==='ui-tab'){state.uiTab=value;render();return;}
+if(a==='setting-section'||a==='default-section'){state.settingSection=value;render();return;}
+if(a==='target'){state.target=value;render();return;}
+if(a==='save-tab'){state.saveTab=value;render();return;}
+if(a==='select-line'){state.selected=Number(value);modal('编辑对白',field('说话人',select(['夏音','主角'], 'wd-speaker',state.selected?'主角':'夏音'))+field('对白',`<textarea id="wd-line-text">${esc(state.dialogue[state.selected])}</textarea>`)+btn('配音与更多属性',`line-menu:${state.selected}`),cancel()+btn('完成','save-line','wd-primary'),false,'line');return;}
+if(a==='line-menu'){state.selected=Number(value);modal('对白属性',field('说话人',select(['夏音','主角']))+field('配音',select(['未绑定','夏音 · 第一场对白']))+field('文字显示',select(['跟随默认','立即显示','逐字显示']))+`<details><summary>更多设置</summary>${field('文本键',input('自动生成'))}${btn('添加断点','add-breakpoint')}${btn('删除这条对白','delete-line','wd-danger')}</details>`,btn('完成','close','wd-primary'),true,'line-properties');return;}
+if(a==='save-line'){state.dialogue[state.selected]=dialog.querySelector('#wd-line-text').value;dialog.close();render();toast('对白已在设计稿中更新');return;}
+if(a==='choice-editor'){if(state.modal!=='target-picker')choiceDraft=null;openChoice();return;}
+if(a==='save-choice'){const d=readChoiceDraft();state.option=d.option;state.optionTargets=d.targets;choiceDraft=null;dialog.close();render();toast('选项与目标已更新');return;}
+if(a==='target-picker'){choiceDraft=readChoiceDraft();state.targetIndex=Number(value)||0;modal('选择目标场景',`<p class="wd-muted">返回后保留已输入内容。</p>${['留在车站','海边','校门口'].map(x=>btn(x,`target-picked:${x}`,'wd-ghost')).join('')}`,btn('返回选项编辑','choice-editor'),true,'target-picker');return;}
+if(a==='target-picked'){choiceDraft.targets[state.targetIndex]=value;openChoice();return;}
+if(a==='add-content'){modal('添加内容',`<div class="wd-modal-grid">${[['对话','一条角色对白','new-dialogue'],['旁白','叙事与心理描写','new-dialogue'],['画面','背景、角色或视频','pick-asset'],['音频','音乐、音效与配音','audio'],['选项','让玩家做选择','choice-editor'],['条件与跳转','根据变量决定走向','connect']].map(([t,d,a])=>btn(`${t}<small>${d}</small>`,a)).join('')}</div>`,cancel(),false,'add');return;}
+if(a==='new-dialogue'){state.dialogue.push('在这里写下新的对白。');dialog.close();render();toast('已添加一条对白，点击正文开始编辑');return;}
+if(a==='pick-asset'){picker();return;}
+if(a==='use-asset'){state.asset=value;if(state.scenario==='missing'){state.scenario='normal';root.querySelector('#wd-scenario').value='normal';}dialog.close();render();toast('背景已更换');return;}
+if(a==='asset-detail'){modal(value,art('')+`<div style="margin-top:20px">${field('素材名称',input(value))}<p class="wd-muted wd-small">背景 · 1920 × 1080 · 示例素材</p><h3>引用位置</h3>${go('第一章 / 雨中的车站','writing')}<hr class="wd-divider">${btn('替换文件','replace-file')}${btn('删除素材','delete-asset','wd-danger')}</div>`,btn('完成','close'),true,'asset-detail');return;}
+if(a==='preview'){modal('当前画面',art(state.dialogue[state.selected]||state.dialogue[0])+`<p class="wd-muted wd-small" style="margin-top:12px">从当前句开始试玩，不改变编辑位置。</p>`,cancel()+go('进入试玩','player-play','wd-primary'),true,'preview');return;}
+if(a==='scene-picker'){modal('章节与场景',`<h3>第一章 · 雨停之前</h3>${['校门口','雨中的车站','留在车站','海边'].map(x=>btn(x,`open-scene:${x}`)).join('')}`,cancel(),true,'scene-picker');return;}
+if(a==='new-scene'||a==='new-project'){modal(a==='new-scene'?'创建场景':'新建工程',field(a==='new-scene'?'场景名称':'工程名称',input(a==='new-scene'?'新的场景':'新的故事','wd-new-name'))+field(a==='new-scene'?'所属章节':'起步方式',select(a==='new-scene'?['第一章 · 雨停之前','新建章节']:['空白工程','短篇故事模板']))+`<p class="wd-muted wd-small">先创建最少内容，素材和高级设置可以之后添加。</p>`,cancel()+btn('创建',a==='new-scene'?'create-scene':'create-project','wd-primary'),false,a);return;}
+if(a==='create-scene'||a==='create-project'){const name=dialog.querySelector('#wd-new-name').value.trim();if(!name){toast('请输入名称');return;}state.created.push(name);if(a==='create-scene')state.scene=name;else state.project=name;state.scenario='normal';root.querySelector('#wd-scenario').value='normal';navigate('writing');toast('已创建示例，开始写作');return;}
+if(a==='chapters'){modal('章节管理',`<div class="wd-list-row"><strong>第一章 · 雨停之前</strong>${btn('重命名','rename-chapter')}</div><div class="wd-list-row"><strong>第二章 · 约定之后</strong>${btn('重命名','rename-chapter')}</div>${btn('＋ 添加章节','rename-chapter')}`,btn('完成','close'),true,'chapters');return;}
+if(a==='rename-chapter'){modal('章节名称',field('名称',input('第一章 · 雨停之前')),cancel()+btn('完成','save-local','wd-primary'));return;}
+if(a==='route-node'){modal('场景信息',art('')+`<h3 style="margin-top:18px">${value}</h3><p class="wd-muted">第一章 · 连接到两个结局</p>${field('场景简介','<textarea>雨后的车站，还有一些未说完的话。</textarea>')}<details><summary>连接与条件</summary><p>来自校门口，前往留在车站或海边。</p>${btn('编辑连接','connect')}</details>`,btn('打开场景',`open-scene:${value}`,'wd-primary'),true,'route-node');return;}
+if(a==='connect'){modal('连接场景',field('从场景',select(['雨中的车站','校门口','海边']))+field('前往场景',select(['留在车站','海边','校门口']))+field('连接方式',select(['直接前往','作为玩家选项','满足条件时前往']))+`<details><summary>条件</summary>${field('变量',select(['与夏音的关系','是否留在车站']))}${field('判断',select(['大于或等于','等于']))}${field('值',input('1'))}</details>`,cancel()+btn('创建连接','save-local','wd-primary'),false,'connect');return;}
+if(a==='route-list'){modal('路线清单',`${table(['场景','下一站'],[['校门口','雨中的车站'],['雨中的车站','留在车站 / 海边'],['留在车站','雨停之后'],['海边','向着大海']])}`,btn('返回路线','close'),true);return;}
+if(a==='character-new'||a==='character-edit'||a==='character-picker'){modal('角色',field('名称',input('夏音'))+field('显示名称',input('夏音'))+field('默认立绘',select(['夏音 · 普通','未绑定']))+`<details><summary>表情与引用</summary><p>普通 / 微笑 / 难过</p>${go('管理立绘文件','assets')}</details>`,cancel()+btn('完成','save-local','wd-primary'),true,'character');return;}
+if(a==='variable-new'||a==='variable-edit'){modal('变量',field('名称',input('与夏音的关系'))+field('类型',select(['数字','开关','文本']))+field('初始值',input('0'))+`<p class="wd-muted wd-small">修改类型或删除前展示引用与受影响的场景。</p>`,cancel()+btn('完成','save-local','wd-primary'),false,'variable');return;}
+if(a==='import-assets'||a==='import-project'||a==='import-locale'||a==='replace-file'){modal(a==='import-project'?'导入工程':a==='import-locale'?'导入翻译':'导入素材',`<label class="wd-field"><span>选择本机文件</span><input type="file" id="wd-files" multiple></label><p class="wd-muted">选择后先看预览，重名与损坏项在提交前处理。本原型仅展示操作步骤。</p>`,cancel()+btn('查看导入预览','import-preview','wd-primary'),false,a);return;}
+if(a==='import-preview'){const files=dialog.querySelector('#wd-files')?.files;modal('导入预览',`<p>${files?.length?files.length+' 个文件已选择':'这是导入预览示例'}</p>${table(['项目','结果'],[['station.png','新增素材'],['夏音-翻译表','更新前先检查差异']])}<p class="wd-muted">任何阻断错误都留在这一页，可移除后重试。</p>`,cancel()+btn('确认导入','save-local','wd-primary'));return;}
+if(a==='translation'){modal('翻译与配音',`<p class="wd-muted wd-small">第一章 / 雨中的车站 / 夏音</p><h3>源文本</h3><p>${esc(state.dialogue[0])}</p>${field(state.locale,'<textarea>雨が止んだね。あの約束、覚えてる？</textarea>')}${field('状态',select(['翻译中','待复核','已完成']))}${field('配音',select(['未绑定','夏音 · 第一场对白']))}<details><summary>文字预览与来源</summary>${art('译文在当前对话框里的排版预览')}</details>`,cancel()+btn('保存并下一条','next-translation','wd-primary'),true,'translation');return;}
+if(a==='next-translation'){toast('已保存示例译文，进入下一条');return;}
+if(a==='collection-edit'){modal('收录规则',field('展示名称',input('雨后的车站'))+field('内容类型',select(['画廊','音乐室','结局','场景回想']))+field('解锁规则',select(['故事中首次出现','到达指定结局','从一开始显示']))+field('未解锁时',select(['隐藏名称与缩略图','完全隐藏']))+btn('选择内容素材','pick-asset'),cancel()+btn('完成','save-local','wd-primary'),true,'collection');return;}
+if(a==='game-theme'||a==='ui-layout'){modal(a==='game-theme'?'选择游戏主题':'编辑游戏布局',art('游戏对话框预览')+`<div style="margin-top:18px">${field('主题',select(['雨夜','明亮','经典 ADV']))}${field('对话框位置',select(['底部','顶部','全屏']))}${field('边距',input('32'))}</div>`,cancel()+btn('应用','save-local','wd-primary'),true,'game-theme');return;}
+if(a==='stage-object'||a==='motion-editor'){modal(a==='motion-editor'?'动作与关键帧':'夏音 · 演出属性',field('动作',select(['淡入','移动','淡出']))+`<div class="wd-two">${field('X',input('640'))}${field('Y',input('120'))}</div>`+field('持续时间',input('800 毫秒'))+field('运动曲线',select(['缓入缓出','线性','贝塞尔']))+`<details><summary>关键帧与路径</summary><p class="wd-muted">在动作详情中编辑路径，不在写作页面显示所有数值。</p></details>`,cancel()+btn('应用到当前动作','save-local','wd-primary'),true,'motion');return;}
+if(a==='audio'){modal('音乐与声音',field('素材',select(['雨停之后','未选择']))+field('音轨',select(['背景音乐','音效','配音']))+field('音量','<input type="range" aria-label="音量" value="70">')+`<label><input type="checkbox" checked> 循环播放</label>`,cancel()+btn('完成','save-local','wd-primary'),true,'audio');return;}
+if(a==='search'){modal('搜索工程',`<input id="wd-global-search" placeholder="输入场景、对白、角色或素材" aria-label="搜索工程"><div class="wd-list-row"><span>场景 · 雨中的车站</span>${go('打开','writing')}</div><div class="wd-list-row"><span>角色 · 夏音</span>${go('打开','characters')}</div><div class="wd-list-row"><span>素材 · 雨后的车站</span>${go('打开','assets')}</div>`,cancel(),false,'search');return;}
+if(a==='directory'){modal('页面目录',`<div class="wd-directory">${Object.entries(routes).map(([r,[n]])=>go(n,r)).join('')}</div>`,btn('关闭','close'),true,'directory');return;}
+if(a==='mobile-more'){modal('更多',`<div class="wd-directory">${go('游戏外观','appearance')}${go('玩家默认设置','defaults')}${go('发布游戏','publish')}${go('项目设置','settings')}${go('备份与恢复','backup')}${go('返回项目首页','home')}</div>`,btn('返回','close'),true,'more');return;}
+if(a==='publish-next'){state.publishStep=Math.min(3,state.publishStep+1);render();return;}
+if(a==='publish-prev'){state.publishStep=Math.max(1,state.publishStep-1);render();return;}
+if(a==='publish-reset'){state.publishStep=1;render();return;}
+if(a==='save-settings'){const name=main.querySelector('#wd-project-name');if(name)state.project=name.value||state.project;toast('设置已在设计稿中更新');render();return;}
+if(a==='retry-save'){state.scenario='normal';root.querySelector('#wd-scenario').value='normal';render();toast('示例保存已恢复');return;}
+if(a==='repair'){modal('重新关联背景',`<p>「雨后的车站」的原文件缺失。选择替代文件，原引用位置会保留。</p>${btn('从素材库选择','pick-asset')}${btn('选择本机文件','replace-file')}`,cancel(),false,'repair');return;}
+if(a==='readonly'){modal('工程只读',`<p>此工程已在另一个窗口打开。关闭那个窗口后可重新获取编辑权，或导出独立副本。</p>`,cancel()+btn('导出副本','export-project'));return;}
+if(a==='restore'){modal('恢复预览',`<p>准备恢复：${value==='0'?'今天 10:24':'今天 09:40'}</p><div class="wd-list-row"><span>剧情</span><span>修改 2 条对白</span></div><div class="wd-list-row"><span>素材引用</span><span>恢复 1 项</span></div><p class="wd-muted" style="margin-top:18px">确认前会为当前版本保留一份备份。</p>`,cancel()+btn('确认恢复','restore-confirm','wd-primary'));return;}
+if(a==='restore-confirm'){dialog.close();toast('恢复界面示例：当前版本已保留为备份');return;}
+if(a==='player-load-title'){state.playerReturn='player-title';navigate('player-saves');return;}
+if(a==='player-history-open'){state.playerReturn=state.route;navigate('player-history');return;}
+if(a==='player-save-open'){state.playerReturn=state.route;navigate('player-saves');return;}
+if(a==='player-return'){navigate(state.playerReturn);return;}
+if(a==='player-load'||a==='rollback'){modal(a==='rollback'?'回到这条记录':'读取这份存档',`<p>当前阅读位置将切换到「雨中的车站」。最近的安全恢复点仍可在存档中找到。</p>`,cancel()+go('确认并继续','player-play','wd-primary'));return;}
+if(a==='slot-menu'){modal('存档选项',btn('覆盖为当前进度','overwrite-save')+btn('删除这份存档','delete-save','wd-danger'),cancel());return;}
+if(a==='overwrite-save'){modal('覆盖存档',`<p>原槽位的内容会被当前进度替换。其他存档不会受影响。</p>`,cancel()+btn('确认覆盖','player-save','wd-primary'));return;}
+if(a==='player-save'){dialog.close();toast('保存成功界面示例');return;}
+if(a==='player-menu'){modal('游戏菜单',`<div class="wd-modal-grid">${go('游戏设置','player-settings')}${go('读取存档','player-saves')}${go('历史记录','player-history')}${btn('返回标题','exit-title')}</div>`,btn('继续游戏','close'));return;}
+if(a==='exit-title'||a==='new-game'){modal(a==='new-game'?'开始新的故事':'返回标题',`<p>${a==='new-game'?'将从故事开头开始。旧存档仍可从读取存档中找到。':'先保住当前位置，再返回标题。保存失败时会留在游戏中。'}</p>`,cancel()+go(a==='new-game'?'开始新故事':'保存并返回标题',a==='new-game'?'player-play':'player-title','wd-primary'));return;}
+if(a==='gallery-open'){modal(state.collectionTab==='音乐室'?'雨停之后':'雨后的车站',art('')+`<p class="wd-muted" style="margin-top:14px">已经解锁的内容。未解锁项不显示剧透标题。</p>`,btn('返回回忆','close'),false,'gallery');return;}
+if(a==='delete-project'||a==='delete-asset'||a==='delete-save'||a==='delete-line'){modal('确认删除',`<p>${a==='delete-asset'?'这个素材被 2 个场景引用。先替换引用才能删除。':a==='delete-project'?'仅删除本机工程。请先导出需要保留的副本。':'删除前确认所选内容，完成后显示结果和可用恢复方式。'}</p>`,cancel()+btn(a==='delete-asset'?'先替换引用':'确认删除','delete-confirm','wd-danger'));return;}
+if(a==='delete-confirm'){dialog.close();toast('删除流程示例；设计稿中的示例数据仍保留');return;}
+if(a==='issue-filter'){main.querySelectorAll('[data-issue-level]').forEach(x=>x.hidden=value!=='all'&&x.dataset.issueLevel!==value);main.querySelectorAll('.wd-filter button').forEach(x=>x.classList.toggle('active',x===control));return;}
+if(a==='debug-start'||a==='debug-continue'||a==='debug-step'||a==='debug-stop'){const n=main.querySelector('#wd-debug-status');if(n)n.textContent=a==='debug-stop'?'已停止 · 可以返回编辑器':'示例会话 · 停在第一条对白';if(a==='debug-step')main.querySelector('#wd-debug-value').textContent='1';return;}
+if(a==='suppress'){modal('忽略提醒',field('理由','<textarea placeholder="说明为什么这条提醒可以忽略"></textarea>')+`<p class="wd-muted">在已忽略的问题中可重新启用检查。</p>`,cancel()+btn('保存理由','save-local','wd-primary'));return;}
+if(a==='apply-script'){state.scenario='normal';root.querySelector('#wd-scenario').value='normal';toast('脚本应用界面示例：完成后回到同一语句');render();return;}
+if(a==='syntax-help'){modal('脚本语法',`<p>对话使用「角色：文本」。选择与跳转可以在可视化编辑器中创建后切到脚本查看。</p>`,btn('返回脚本','close'),true);return;}
+if(a==='save-local'){dialog.close();toast('修改已在设计稿中确认');return;}
+if(a==='export-project'||a==='export-locale'){modal('导出确认',`<p>${a==='export-project'?'工程副本包含剧情、配置与素材，用于备份和跨设备。':'翻译表包含源文本、目标译文、状态与稳定文本键。'}</p><p class="wd-muted">本原型仅展示导出流程，不生成业务文件。</p>`,btn('完成','close'));return;}
+if(a==='build-result'){modal('交付清单',`<h3>雨后的约定</h3><p>游戏文件 / 资源摘要 / 优化报告 / 启动说明</p><p class="wd-muted">预览界面示例，未执行真实构建。</p>`,btn('完成','close'),true);return;}
+if(a==='project-menu'){modal('工程选项',go('项目设置','settings')+go('备份与恢复','backup')+btn('导出副本','export-project'),cancel());return;}
+if(a==='watch'||a==='add-locale'){modal(a==='watch'?'观察变量':'添加语言',field(a==='watch'?'表达式':'语言',input(a==='watch'?'与夏音的关系':'English')),cancel()+btn('添加','save-local','wd-primary'));return;}
+if(a==='undo'){toast('撤销按钮位置示例：正式接入工程已有撤销记录');return;}
+if(a==='player-auto'){control.textContent=control.textContent==='自动'?'停止自动':'自动';return;}
+if(a==='reset-player-settings'){toast('已恢复示例默认设置');return;}
+if(a==='format-script'){toast('格式化示例：正式实现保持语句身份与语义');return;}
+if(a==='run-check'){toast('已刷新示例问题列表');return;}
+if(a==='copy-diagnostic'){toast('诊断信息仅在高级设置中提供');return;}
+});
+root.addEventListener('change',e=>{if(e.target.id==='wd-theme'||e.target.id==='wd-setting-theme'){state.theme=e.target.value;render();persist();}if(e.target.id==='wd-device'){state.device=e.target.value;render();persist();}if(e.target.id==='wd-scenario'){state.scenario=e.target.value;render();}if(e.target.id==='wd-locale')state.locale=e.target.value;});
+root.addEventListener('input',e=>{if(e.target.id==='wd-asset-search'){const q=e.target.value;main.querySelectorAll('[data-asset-name]').forEach(x=>x.hidden=!x.dataset.assetName.includes(q));}});
+dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+dialog.addEventListener('close',()=>{[top,nav,main,status].forEach(x=>x.inert=false);if(modalTrigger?.isConnected)modalTrigger.focus();});
+root.addEventListener('keydown',e=>{if(!dialog.open||dialog.style.position!=='absolute')return;if(e.key==='Escape'){e.preventDefault();dialog.close();}if(e.key==='Tab'){const items=[...dialog.querySelectorAll('button,input,select,textarea,summary')].filter(x=>!x.disabled&&x.getClientRects().length);const i=items.indexOf(document.activeElement);if(e.shiftKey&&i===0){e.preventDefault();items.at(-1)?.focus();}else if(!e.shiftKey&&i===items.length-1){e.preventDefault();items[0]?.focus();}}});
+root.addEventListener('submit',e=>e.preventDefault());
+window.addEventListener('openai:set_globals',e=>{const data=e.detail?.globals?.widgetState?.privateContent;if(data&&routes[data.route]){state.route=data.route;state.theme=data.theme||state.theme;state.device=data.device||state.device;render();}});
+render();
+if(globalThis.Tweak){const tw=new Tweak({container:product,onChange:()=>product.style.setProperty('--wd-radius',state.corner+'px')});state.corner=10;tw.addSlider(state,'corner',{label:'内容容器圆角',min:2,max:16,unit:'px'});}
+})();
+</script>

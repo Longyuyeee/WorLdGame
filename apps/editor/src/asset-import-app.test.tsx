@@ -17,13 +17,16 @@ describe("S0.30 typed resource manifest compiler integration", () => {
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);
-    fireEvent.click(await screen.findByRole("radio", { name: "Production" }));
-    expect(screen.getByRole("heading", { name: "资源生产工作区" })).toBeVisible();
+    fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+    expect(screen.getByRole("heading", { name: "素材库" })).toBeVisible();
+    fireEvent.click(screen.getByText("素材处理进度与检查"));
     await waitFor(() => expect(screen.getByText("导入第一项生产资源")).toBeVisible());
-    await waitFor(() => expect(screen.getByRole("button", { name: "打开资源生产流水线" })).toBeEnabled());
-    fireEvent.click(screen.getByRole("button", { name: "打开资源生产流水线" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "导入与管理素材" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "导入与管理素材" }));
 
-    const vault = screen.getByRole("dialog", { name: "资源保险库" });
+    const vault = screen.getByRole("dialog", { name: "素材管理" });
+    fireEvent.click(screen.getByText("文件信息与维护 · 0 项素材"));
+    fireEvent.click(screen.getByText("高级资源维护与优化"));
     expect(screen.getByRole("heading", { name: "资源血缘与安全回收" })).toBeVisible();
     expect(within(vault).getByText("Lifecycle r1")).toBeVisible();
     expect(screen.getByRole("button", { name: "安全扫描" })).toBeEnabled();
@@ -188,7 +191,7 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "导入到资源保险库" }));
     await waitFor(() => expect(screen.getByText("文件声明与真实内容不一致")).toBeVisible());
-    expect(screen.getByText(/0 资源/)).toBeVisible();
+    expect(screen.getByText("文件信息与维护 · 0 项素材")).toBeVisible();
     expect(screen.getAllByText(/Index r0/)).not.toHaveLength(0);
     expect(within(screen.getByLabelText("已导入资源")).queryAllByRole("article")).toHaveLength(0);
   }, 10_000);

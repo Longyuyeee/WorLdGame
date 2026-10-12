@@ -32,7 +32,8 @@ describe("N60-E3 debugger Watch real creator path", () => {
     const project = projectCanonicalFromStory(watchStory, "n60-e3-watch-app");
     render(<App initialProject={project} autosaveDebounceMs={60_000} />);
 
-    fireEvent.click(await screen.findByRole("radio", { name: "Debug & QA" }));
+    fireEvent.click(await screen.findByRole("button", { name: "检查" }));
+    fireEvent.click(screen.getByRole("button", { name: "运行调试" }));
     fireEvent.click(screen.getByRole("button", { name: "从入口启动调试" }));
 
     const input = screen.getByRole("textbox", { name: "Watch 表达式" });
