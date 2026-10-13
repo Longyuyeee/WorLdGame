@@ -1,0 +1,201 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-13T16:33:24.816Z",
+  "artifactHashes": {
+    "source": "c8a418d4f16b87aaa68b1d7eb468e335d19da21cb993c3408e9f369c11eab29d",
+    "html": "c8e3d0e20521d6ea84b4b3615c94c00f6b128c325e12eef7b702f4fdfd8766da",
+    "directory": "45097f2ba3f5b1c1db401118cab014e2766652609a51f8694d26f2ab7fc0db1d"
+  },
+  "artifactBytes": {
+    "source": 24180243,
+    "html": 32751277,
+    "directory": 24738275
+  },
+  "story": {
+    "scenes": 9,
+    "paragraphs": 90,
+    "dialogue": 9,
+    "characters": 9544,
+    "statements": 179,
+    "directions": 71
+  },
+  "allTextAndStableIdsPreserved": true,
+  "sourceEntriesVerified": 62,
+  "sourceChangesLimitedToPublicationVersion": true,
+  "canonicalHtmlDirectoryIdentical": true,
+  "assets": [
+    {
+      "assetId": "coastal_morning",
+      "displayName": "雨后的海边街道",
+      "digest": "sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "byteLength": 3019235,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "letter_icon",
+      "displayName": "雨停之前·作品图标",
+      "digest": "sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "byteLength": 18633,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "morning_studio",
+      "displayName": "雨后的画室",
+      "digest": "sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "byteLength": 2417066,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "night_cafe",
+      "displayName": "雨夜面馆",
+      "digest": "sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "byteLength": 2435510,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "night_train",
+      "displayName": "夜行列车",
+      "digest": "sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "byteLength": 1968450,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "night_travel_theme",
+      "displayName": "夜行与回信（原创合成音乐）",
+      "digest": "sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a",
+      "byteLength": 1411244,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "sample_station",
+      "displayName": "雨夜站台",
+      "digest": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "byteLength": 2534090,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "soft_rain",
+      "displayName": "屋檐雨声（原创合成）",
+      "digest": "sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98",
+      "byteLength": 529244,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "station_chime",
+      "displayName": "进站提示音（原创合成）",
+      "digest": "sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863",
+      "byteLength": 66194,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_01",
+      "displayName": "林远·合成语音01",
+      "digest": "sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0",
+      "byteLength": 222222,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_02",
+      "displayName": "小夏·合成语音02",
+      "digest": "sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197",
+      "byteLength": 233942,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_03",
+      "displayName": "林远·合成语音03",
+      "digest": "sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27",
+      "byteLength": 159176,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_04",
+      "displayName": "林远·合成语音04",
+      "digest": "sha256:eccfe5a280ecf38ef861570ed7239cb4046caa94f53ad62709e387f990ed9221",
+      "byteLength": 215152,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_05",
+      "displayName": "小夏·合成语音05",
+      "digest": "sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057",
+      "byteLength": 216412,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_06",
+      "displayName": "小夏·合成语音06",
+      "digest": "sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a",
+      "byteLength": 257060,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_07",
+      "displayName": "小夏·合成语音07",
+      "digest": "sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028",
+      "byteLength": 211326,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_08",
+      "displayName": "林远·合成语音08",
+      "digest": "sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c",
+      "byteLength": 206130,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "voice_09",
+      "displayName": "小夏·合成语音09",
+      "digest": "sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a",
+      "byteLength": 224528,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "waiting_room",
+      "displayName": "候车室·旧信",
+      "digest": "sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "byteLength": 2308345,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "xia_letter",
+      "displayName": "小夏·手中的信",
+      "digest": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "byteLength": 1837533,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "xia_smile",
+      "displayName": "小夏·安心微笑",
+      "digest": "sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "byteLength": 1783270,
+      "sourceHtmlDirectoryIdentical": true
+    },
+    {
+      "assetId": "xia_thoughtful",
+      "displayName": "小夏·认真倾听",
+      "digest": "sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "byteLength": 1809416,
+      "sourceHtmlDirectoryIdentical": true
+    }
+  ],
+  "newSourceAssetsMatched": 16,
+  "testStationReplacedAtStableId": true,
+  "testStationAbsentFromCurrentGameMedia": true,
+  "publication": {
+    "schemaVersion": 1,
+    "name": "雨停之前",
+    "version": "1.4.0",
+    "iconAssetId": "letter_icon"
+  },
+  "appearance": {
+    "accent": "rose",
+    "coverAssetId": "sample_station",
+    "schemaVersion": 1,
+    "theme": "paper",
+    "titleTagline": "一场雨，两条路。读完旧信，把下一次见面写进日历。"
+  },
+  "buildInfoFilesVerified": 31,
+  "releasePermissionConfirmed": false,
+  "fullLengthWork": false
+}

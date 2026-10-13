@@ -3,17 +3,28 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { unzipSync, strFromU8 } from 'fflate';
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-story-direction');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_STORY_OUTPUT ?? 'evidence/web-story-direction');
+const expectedVersion = process.env.STUDIO_STORY_VERSION ?? '1.3.0';
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const json = bytes => JSON.parse(strFromU8(bytes));
 const payload = html => JSON.parse(html.match(/<script id="world-project" type="application\/json">([\s\S]*?)<\/script>/)[1]);
 const sourceBytes = await readFile(path.join(output, 'before-rain-stops-project.zip'));
 const source = unzipSync(sourceBytes), index = json(source['.world-assets/index.json']);
+const directionBaseline = unzipSync(await readFile(path.join(root, 'evidence/web-story-direction/before-rain-stops-project.zip')));
+assert.deepEqual(Object.keys(source).sort(), Object.keys(directionBaseline).sort());
+for (const name of Object.keys(source)) {
+  if (name !== 'world.project.json') assert.deepEqual(source[name], directionBaseline[name], `Source entry preserved: ${name}`);
+}
+const sourceManifest = json(source['world.project.json']), baselineManifest = json(directionBaseline['world.project.json']);
+assert.equal(sourceManifest.webPublication.version, expectedVersion);
+assert.deepEqual({ ...sourceManifest, webPublication: { ...sourceManifest.webPublication, version: baselineManifest.webPublication.version } }, baselineManifest);
 const previous = unzipSync(await readFile(path.join(root, 'evidence/web-story-media/before-rain-stops-project.zip')));
 const previousIndex = json(previous['.world-assets/index.json']);
 const htmlBytes = await readFile(path.join(output, 'before-rain-stops.html')), html = payload(htmlBytes.toString('utf8'));
 const directoryBytes = await readFile(path.join(output, 'before-rain-stops-web.zip')), directory = unzipSync(directoryBytes), web = payload(strFromU8(directory['index.html']));
 assert.deepEqual(html.project, web.project, 'HTML and directory share the same Canonical project');
+const { preservedFields: manifestExtras, ...manifestFields } = html.project.manifest;
+assert.deepEqual(sourceManifest, { ...manifestExtras, ...manifestFields }, 'Source and game manifests match');
 assert.equal(html.optimizationReport.mode, 'original');
 const assets = [];
 for (const entry of index.assets) {
@@ -43,7 +54,7 @@ const all = scripts.flatMap(item => item.script.statements), texts = all.filter(
 const characters = texts.reduce((sum, item) => sum + item.text.length, 0);
 assert.equal(characters, 9544); assert.equal(texts.filter(item => item.kind === 'narration').length, 90); assert.equal(texts.filter(item => item.kind === 'dialogue').length, 9);
 const publication = html.project.manifest.preservedFields.webPublication, appearance = html.project.ui.preservedFields.webPlayerAppearance;
-assert.equal(publication.version, '1.3.0'); assert.equal(publication.iconAssetId, 'letter_icon');
+assert.equal(publication.version, expectedVersion); assert.equal(publication.iconAssetId, 'letter_icon');
 assert.equal(appearance.coverAssetId, 'sample_station'); assert.equal(appearance.titleTagline, '一场雨，两条路。读完旧信，把下一次见面写进日历。');
 const buildInfo = json(directory['build-info.json']);
 for (const item of buildInfo.files) { assert.equal(directory[item.path].length, item.byteLength); assert.equal(`sha256:${sha(directory[item.path])}`, item.digest); }
@@ -52,7 +63,8 @@ const report = {
   artifactHashes: { source: sha(sourceBytes), html: sha(htmlBytes), directory: sha(directoryBytes) },
   artifactBytes: { source: sourceBytes.length, html: htmlBytes.length, directory: directoryBytes.length },
   story: { scenes: scripts.length, paragraphs: 90, dialogue: 9, characters, statements: all.length, directions: all.filter(item => item.kind === 'direction').length },
-  allTextAndStableIdsPreserved: true, canonicalHtmlDirectoryIdentical: true, assets, newSourceAssetsMatched: newSources.length,
+  allTextAndStableIdsPreserved: true, sourceEntriesVerified: Object.keys(source).length, sourceChangesLimitedToPublicationVersion: true,
+  canonicalHtmlDirectoryIdentical: true, assets, newSourceAssetsMatched: newSources.length,
   testStationReplacedAtStableId: true, testStationAbsentFromCurrentGameMedia: true, publication, appearance,
   buildInfoFilesVerified: buildInfo.files.length, releasePermissionConfirmed: false, fullLengthWork: false
 };
