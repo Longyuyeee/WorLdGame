@@ -16,6 +16,28 @@ async function openMenu() {
 }
 
 describe("Project navigation persistence", () => {
+  it("keeps undo and redo after visiting structure and uses fresh command IDs", async () => {
+    storage(); render(<StudioLauncher />);
+    fireEvent.click(screen.getByRole("button", { name: "新建项目" }));
+    fireEvent.change(screen.getByLabelText("项目名称"), { target: { value: "Continuous Story" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建并开始写作" }));
+    await screen.findByTestId("workspace-shell");
+    fireEvent.click(screen.getByRole("button", { name: "脚本" }));
+    const editor = screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement;
+    fireEvent.change(editor, { target: { value: editor.value.replace('end "Ending"', 'end "连续写作"') } }); fireEvent.blur(editor);
+    await openMenu(); fireEvent.click(screen.getByRole("button", { name: /章节与角色/ }));
+    await screen.findByRole("main", { name: "项目结构管理" });
+    fireEvent.click(screen.getByRole("button", { name: "返回创作" }));
+    await screen.findByTestId("workspace-shell");
+    await waitFor(() => expect(screen.getByRole("button", { name: "撤销" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "撤销" }));
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain('end "Ending"');
+    fireEvent.click(screen.getByRole("button", { name: "重做" }));
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain('end "连续写作"');
+    const resumed = screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement;
+    fireEvent.change(resumed, { target: { value: resumed.value.replace("连续写作", "再次修改") } }); fireEvent.blur(resumed);
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain('end "再次修改"');
+  });
   it("creates two scenes over an existing snapshot and preserves all three scenes when reopening", async () => {
     storage();
     render(<StudioLauncher />);

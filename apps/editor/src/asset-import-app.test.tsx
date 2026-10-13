@@ -46,8 +46,11 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     await waitFor(() => expect(screen.getByText(/媒体检查通过；新 Blob 与 broadcast_cg 已原子写入 Index r1/)).toBeVisible());
     expect(within(vault).getByText("Lifecycle r2")).toBeVisible();
     expect(screen.getAllByText("1", { selector: ".asset-lifecycle__metrics strong" })).toHaveLength(2);
+    // Import selects the new asset's detail; the maintenance list is now collapsed.
+    expect(within(screen.getByLabelText("当前素材预览")).getByRole("heading", { name: "Broadcast CG" })).toBeVisible();
+    fireEvent.click(screen.getByText("文件信息与维护 · 1 项素材"));
     expect(within(screen.getByLabelText("已导入资源")).getByText("Broadcast CG")).toBeVisible();
-    expect(screen.getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
+    expect(within(screen.getByLabelText("已导入资源")).getByText(/PASS · PNG · 1920×1080/)).toBeVisible();
     expect(screen.getByRole("button", { name: "生成缩略图" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "分析候选 · 1" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "保存到本机" })).toBeVisible();
@@ -173,9 +176,10 @@ describe("S0.30 typed resource manifest compiler integration", () => {
     expect(screen.getByText(/转场依赖 2 · 分支公共预取 1 · 未从描述文字猜测资源/)).toBeVisible();
     vi.stubGlobal("Worker", undefined);
     fireEvent.click(screen.getByRole("button", { name: "关闭资源保险库" }));
-    expect(screen.getByRole("heading", { name: "资源映射批量表" })).toBeVisible();
-    expect(screen.getByText("2/2 项可见")).toBeVisible();
-    expect(screen.getByText("审阅并发布可获益的 Atlas 候选")).toBeVisible();
+    fireEvent.click(screen.getByText("查看素材详细清单"));
+    expect(screen.getByRole("table", { name: "资源映射批量表" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "管理素材：Broadcast CG" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "管理素材：Broadcast CG Copy" })).toBeVisible();
     expect(screen.getAllByText("✓ 已通过")).toHaveLength(2);
   }, 20_000);
 

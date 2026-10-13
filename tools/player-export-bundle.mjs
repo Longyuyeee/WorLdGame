@@ -25,9 +25,25 @@ export async function buildPlayerExportRuntime() {
 
 export function playerExportPlugin() {
   const id = "virtual:world-player-export";
+  const runtimeSource = path => {
+    const relative = path.replaceAll("\\", "/");
+    return relative.includes("/apps/player-shell/src/") || /\/packages\/[^/]+\/src\//.test(relative);
+  };
   let runtime;
   return {
     name: "world-player-export",
+    configureServer(server) {
+      server.watcher.add([resolve(import.meta.dirname, "../apps/player-shell/src"), resolve(import.meta.dirname, "../packages")]);
+    },
+    handleHotUpdate(context) {
+      if (!runtimeSource(context.file)) return;
+      runtime = undefined;
+      const module = context.server.moduleGraph.getModuleById(`\0${id}`);
+      if (module) {
+        context.server.moduleGraph.invalidateModule(module);
+        return [...context.modules, module];
+      }
+    },
     resolveId(source) { return source === id ? `\0${id}` : undefined; },
     async load(source) {
       if (source !== `\0${id}`) return;

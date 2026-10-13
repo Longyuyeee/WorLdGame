@@ -7,3 +7,4 @@ export * from "./project-entities";
 export * from "./stable-id";
 export * from "./sha256";
 export * from "./types";
+export * from "./web-player-appearance";

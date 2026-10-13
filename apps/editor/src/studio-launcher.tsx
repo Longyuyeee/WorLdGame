@@ -18,6 +18,7 @@ import { readTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLazyScenePage } from "./lazy-scene-session";
 import { prepareN42MediaStageFixture } from "./n42-media-stage-fixture";
 import type { ProjectStructureIntent } from "./project-entity-dialog";
+import type { StudioContinuity } from "./studio-continuity";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -30,7 +31,7 @@ export function StudioLauncher() {
   const [recent, setRecent] = useState<readonly RecentProject[]>([]);
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean}|null>(null);
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
@@ -116,7 +117,8 @@ export function StudioLauncher() {
           document.body.append(anchor); anchor.click(); anchor.remove();
           setTimeout(download.dispose, 60_000);
         }}
-        onOpenProject={(sceneId, intent) => setEditing(current => current === null ? current : { ...current, view: "structure", intent, ...(sceneId === undefined ? {} : { sceneId }) })}
+        onOpenProject={(sceneId, intent, continuity) => setEditing(current => current === null ? current : { ...current, view: "structure", intent, continuity, ...(sceneId === undefined ? {} : { sceneId }) })}
+        {...(editing.continuity === undefined ? {} : { continuity: editing.continuity })}
         initialProject={editing.session.project}
         preferInitialProject={editing.preferInitialProject ?? false}
         {...(editing.sceneId===undefined?{}:{initialSceneId:editing.sceneId})}
@@ -124,7 +126,8 @@ export function StudioLauncher() {
         onCanonicalProjectChange={(project) => setEditing((current) => current === null ? current : { ...current, session: markProjectDirty(current.session, project) })}
         onProjectChange={(story) => setEditing((current) => {
           if (current === null || current.session.project === null) return current;
-          return { ...current, session: markProjectDirty(current.session, projectCanonicalWithStory(current.session.project, story)) };
+          // App owns the resumed history now; release the older handoff graph.
+          return { ...current, continuity: undefined, session: markProjectDirty(current.session, projectCanonicalWithStory(current.session.project, story)) };
         })}
         onCanonicalProjectSave={async (project) => {
           const current = editing;

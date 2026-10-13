@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PlayerAppearanceSettings } from "./PlayerAppearanceSettings";
 import {
   GAL_SETTING_DEFINITIONS,
   GAL_SETTINGS_PLATFORMS,
@@ -129,14 +130,15 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
   const [service, setService] = useState<ProjectServiceState>(() => createProjectService(project));
   const [mode, setMode] = useState<GalSettingsCatalogMode>("basic");
   const [layerId, setLayerId] = useState<SettingsLayerId>("project");
-  const [previewPlatform, setPreviewPlatform] = useState<GalSettingsPlatform>("windows");
+  const [previewPlatform, setPreviewPlatform] = useState<GalSettingsPlatform>("web");
   const [query, setQuery] = useState("");
   const [section, setSection] = useState<"all" | keyof typeof SECTION_LABELS>("display");
   const [drafts, setDrafts] = useState<Readonly<Record<string, DraftEdit>>>({});
+  const [appearanceDirty, setAppearanceDirty] = useState(false);
   const [message, setMessage] = useState("选择一项修改；同一分区的关联字段会作为一个原子 ChangeSet 提交。");
   const [errorPath, setErrorPath] = useState<string | null>(null);
   const commandSerial = useRef(0);
-  useEffect(() => { onDraftChange?.(Object.keys(drafts).length > 0); }, [drafts, onDraftChange]);
+  useEffect(() => { onDraftChange?.(appearanceDirty || Object.keys(drafts).length > 0); }, [appearanceDirty, drafts, onDraftChange]);
   useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
 
   useEffect(() => {
@@ -242,11 +244,14 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
           <p>设置玩家看到的文字、消息窗、舞台和操作方式。</p>
         </div>
         <div className="settings-workspace__hero-actions">
-          <button type="button" className="settings-secondary" onClick={onClose} disabled={Object.keys(drafts).length > 0}>返回创作</button>
+          <button type="button" className="settings-secondary" onClick={onClose} disabled={appearanceDirty || Object.keys(drafts).length > 0}>返回创作</button>
           <button type="button" className="settings-save" onClick={onSave} disabled={["saving", "autosaving", "loading", "readonly", "blocked", "unavailable"].includes(saveStatus)}>保存工程</button>
         </div>
       </header>
 
+      <PlayerAppearanceSettings project={service.project} onDirtyChange={setAppearanceDirty} onChange={next => {
+        setService(createProjectService(next)); onProjectChange(next);
+      }} />
       <div className="settings-command-bar">
         <div className="settings-mode-switch" role="radiogroup" aria-label="设置复杂度">
           {(["basic", "advanced"] as const).map((candidate) => <button type="button" role="radio" aria-checked={mode === candidate} className={mode === candidate ? "is-active" : ""} key={candidate} onClick={() => setMode(candidate)}>{candidate === "basic" ? "基础" : "高级"}</button>)}

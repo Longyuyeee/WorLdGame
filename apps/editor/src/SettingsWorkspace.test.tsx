@@ -35,7 +35,7 @@ describe("N51-E4 Settings workspace", () => {
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(2);
     fireEvent.change(screen.getByRole("combobox", { name: "设置分区" }), { target: { value: "all" } });
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(24);
-    expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("项目值")).toBeInTheDocument();
+    expect(within(container.querySelector('[data-setting-path="audio.master"]') as HTMLElement).getByText("Web 覆盖")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: "高级" }));
     expect(container.querySelectorAll("[data-setting-path]")).toHaveLength(37);

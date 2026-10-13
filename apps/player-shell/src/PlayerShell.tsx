@@ -14,7 +14,7 @@ import {
   type GalAudioBusV1,
   type GalSettingsPlatform
 } from "@world-studio/gal-settings";
-import { semanticHash, type CanonicalProject } from "@world-studio/project-domain";
+import { semanticHash, readWebPlayerAppearance, webPlayerCoverAssets, type CanonicalProject } from "@world-studio/project-domain";
 import {
   createPlayerCore,
   compactPlayerCoreHistoryV1,
@@ -185,6 +185,10 @@ function storePlayerLocalePreference(projectId: string, locale: string): void {
 }
 
 export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, memoryPressureRequest, onReleaseIdleResources }: PlayerShellProps) {
+  const appearance = readWebPlayerAppearance(project);
+  const coverAllowed = appearance !== null && webPlayerCoverAssets(project).some(asset => String(asset.assetId ?? asset.id) === appearance.coverAssetId);
+  const cover = coverAllowed ? mediaAssets.find(asset => asset.assetId === appearance?.coverAssetId && ["image/png", "image/jpeg", "image/webp"].includes(asset.mimeType)) : undefined;
+  const [failedCover, setFailedCover] = useState<string | null>(null);
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const liveState = useRef(state);
@@ -1329,6 +1333,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-runtime-host-snapshot-hash={snapshot.runtimeHostSnapshotHash}
       data-scene-replay={snapshot.sceneReplay.active ? snapshot.sceneReplay.replayId : "inactive"}
       data-settings-platform={platform}
+      data-player-theme={appearance?.theme}
+      data-player-accent={appearance?.accent}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
       data-settings-safe-area={settingsApplication.display.safeArea}
@@ -1953,9 +1959,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
         {content.kind === "title" && (
           <div className="player-title-screen">
-            <p className="player-eyebrow">A WORLd STUDIO STORY</p>
+            {cover?.url && failedCover !== cover.url && <img className="player-title-cover" src={cover.url} alt="" onError={() => setFailedCover(cover.url)} />}
+            <p className="player-eyebrow">{appearance === null ? "A WORLd STUDIO STORY" : "视觉小说"}</p>
             <h1>{snapshot.title}</h1>
-            <p>同一个故事核心，面向每一块屏幕。</p>
+            {appearance === null ? <p>同一个故事核心，面向每一块屏幕。</p> : appearance.titleTagline && <p className="player-title-tagline">{appearance.titleTagline}</p>}
             <button className="player-primary" type="button" disabled={hostActivity !== "active" || (recoveryStore !== undefined && recoveryOperation === "scanning")} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
               开始故事
               <span aria-hidden="true">→</span>

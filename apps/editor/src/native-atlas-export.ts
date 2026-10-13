@@ -50,7 +50,8 @@ export async function buildNativeAtlasDelivery(project: CanonicalProject, assets
       const ids = manifest.layoutManifest.images.map(image => image.assetId);
       const selected = ids.map(id => assets.find(asset => asset.assetId === id));
       const publicationSettings = project.manifest.preservedFields?.webPublication as { iconAssetId?: string } | undefined;
-      if (ids.length > 32 || ids.some(id => adopted.has(id) || id === publicationSettings?.iconAssetId) || selected.some(asset => !asset)) throw Error("组成员缺失、重叠或包含发布图标");
+      const coverId = (project.ui.preservedFields?.webPlayerAppearance as { coverAssetId?: string } | undefined)?.coverAssetId;
+      if (ids.length > 32 || ids.some(id => adopted.has(id) || id === publicationSettings?.iconAssetId || id === coverId) || selected.some(asset => !asset)) throw Error("组成员缺失、重叠或包含发布图标/标题封面");
       const sources = selected as ExportMedia[], rawBytes = sources.reduce((sum, asset) => sum + asset.bytes.length, 0);
       if (fallbackRawBytes + rawBytes > 32 * 1024 * 1024 || manifest.pages.reduce((n,p)=>n+p.width*p.height,0)>8_388_608 || manifest.layoutManifest.images.some(image=>image.width*image.height>4_194_304)) throw Error("组/回退数据超出内存预算");
       const minimumRenderBytes = manifest.pages.reduce((n,p)=>n+p.width*p.height*12,0) + Math.max(...manifest.layoutManifest.images.map(image=>image.width*image.height*8));

@@ -1,5 +1,5 @@
 import { compileProject } from "@world-studio/project-compiler";
-import { semanticHash, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { semanticHash, readWebPlayerAppearance, applyWebPlayerAppearance, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
 import { addWebOfflineFiles } from "./web-offline-export";
@@ -27,6 +27,8 @@ async function readExportMedia(
   signal?: AbortSignal, verify?: NativeAtlasVerifier
 ) {
   signal?.throwIfAborted();
+  const appearance = readWebPlayerAppearance(project);
+  if (appearance !== null) applyWebPlayerAppearance(project, appearance);
   const compilation = compileProject(project, "release");
   if (!compilation.ok) throw new Error(`请先修复工程问题：${compilation.diagnostics.filter((item) => item.severity === "error").map((item) => item.message).join("；")}`);
   const mediaAssets = [];

@@ -204,6 +204,7 @@ import { PreviewAudioLayer } from "./preview-audio-layer";
 import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
 import { WebPublicationSettings } from "./web-publication";
+import { resumeStudioSession, type StudioContinuity } from "./studio-continuity";
 import { losslessExportEnabled, setLosslessExport } from "./export-optimization";
 import { AtlasExportSettings } from "./AtlasExportSettings";
 import { atlasExportGroups, setAtlasExportGroups } from "./atlas-export";
@@ -3951,7 +3952,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 }
 
 export interface AppProps {
-  readonly onOpenProject?: (sceneId?: string, intent?: ProjectStructureIntent) => void;
+  readonly onOpenProject?: (sceneId?: string, intent?: ProjectStructureIntent, continuity?: StudioContinuity) => void;
+  readonly continuity?: StudioContinuity;
   readonly preferInitialProject?: boolean;
   readonly onReturnHome?: () => void;
   readonly onExportProject?: (project: CanonicalProject) => Promise<void>;
@@ -3964,8 +3966,9 @@ export interface AppProps {
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, initialSceneId, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
+    if (project !== undefined && continuity !== undefined) return resumeStudioSession(project, continuity, initialSceneId);
     const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
     return initialSceneId !== undefined && created.project.scenes.some(scene=>scene.id===initialSceneId)
       ? reduceStudioSession(created,{type:"select-scene",sceneId:initialSceneId}) : created;
@@ -4134,8 +4137,8 @@ export function App({ initialProject, initialSceneId, preferInitialProject = fal
     globalThis.addEventListener("keydown", closeOnEscape);
     return () => globalThis.removeEventListener("keydown", closeOnEscape);
   }, [assetPanelOpen]);
-  const commandSerial = useRef(0);
-  const entitySerial = useRef(0);
+  const commandSerial = useRef(continuity?.commandSerial ?? 0);
+  const entitySerial = useRef(continuity?.entitySerial ?? 0);
   const dispatch = (action: StudioAction) => {
     const editsStory = [
       "edit-script", "patch-dialogue", "patch-direction", "patch-directions", "insert-dialogue", "insert-direction", "duplicate-direction", "delete-dialogue",
@@ -5278,7 +5281,9 @@ export function App({ initialProject, initialSceneId, preferInitialProject = fal
   const openProjectStructure = async (intent?: ProjectStructureIntent) => {
     setStructureError(null);
     if (!await saveToLocal()) throw new Error("当前内容尚未保存成功，请检查保存状态后重试。");
-    onOpenProject?.(sessionRef.current.activeSceneId, intent);
+    onOpenProject?.(sessionRef.current.activeSceneId, intent, {
+      session: sessionRef.current, commandSerial: commandSerial.current, entitySerial: entitySerial.current
+    });
   };
   const createStoryEntity = (kind: Exclude<EntityKind, "chapter">) => {
     void openProjectStructure({ create: kind }).catch(reason => setStructureError(reason instanceof Error ? reason.message : String(reason)));

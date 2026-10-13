@@ -65,4 +65,12 @@ describe("native Atlas delivery admission", () => {
     const result = await buildNativeAtlasDelivery(f.project, [{ ...f.media[0]!, bytes }, f.media[1]!], f.reader, f.verify);
     expect(result.rows[0]?.detail).toContain("内存预算"); expect(f.verify).not.toHaveBeenCalled();
   });
+  it("keeps a title cover outside native atlas groups so ordinary title decoding remains available", async () => {
+    const f = fixture();
+    const project = { ...f.project, ui: { ...f.project.ui, preservedFields: { webPlayerAppearance: { coverAssetId: "a" } } } };
+    const result = await buildNativeAtlasDelivery(project, f.media, f.reader, f.verify);
+    expect(result.adopted.size).toBe(0);
+    expect(result.rows[0]?.detail).toContain("标题封面");
+    expect(f.verify).not.toHaveBeenCalled();
+  });
 });

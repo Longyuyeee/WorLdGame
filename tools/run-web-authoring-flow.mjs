@@ -7,13 +7,15 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import assert from 'node:assert/strict';
 import { unzipSync, strFromU8 } from 'fflate';
+import { extendWriting, configureAppearance, verifyTitle } from './web-writing-extension.mjs';
 
 const require = createRequire(import.meta.url);
 let chromium;
 try { ({ chromium } = require('playwright')); }
 catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
 const root = path.resolve(import.meta.dirname, '..');
-const output = path.join(root, 'evidence/web-authoring-flow');
+const nextBatch = process.argv.includes('--writing-appearance');
+const output = path.join(root, nextBatch ? 'evidence/web-writing-appearance' : 'evidence/web-authoring-flow');
 await mkdir(output, { recursive: true });
 const chrome = process.env.STUDIO_CHROME ?? 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const browser = await chromium.launch({ headless: true, ...(existsSync(chrome) ? { executablePath: chrome } : {}) });
@@ -21,6 +23,7 @@ const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, re
 page.setDefaultTimeout(15_000);
 const checks = [], errors = [];
 let server;
+let story = null;
 const watch = (target, prefix) => target.on('pageerror', error => errors.push(`${prefix}: ${error.message}`));
 watch(page, 'editor');
 page.on('console', message => { if (message.text().startsWith('WORLD_SAVE_TRACE')) console.log(message.text()); });
@@ -40,9 +43,13 @@ async function create(kind, name) {
 async function tools() { if (!await page.getByLabel('对白结构工具').isVisible()) await page.getByText('插入与整理内容', { exact: false }).first().click(); return page.getByLabel('对白结构工具'); }
 async function insert(kind) { const bar = await tools(); await bar.getByLabel('插入 P0 语句类型').selectOption(kind); await bar.getByRole('button', { name: '＋ 插入', exact: true }).click(); }
 async function ending(name) { await page.locator('.statement-card--end').click(); await page.getByLabel('结局名称', { exact: true }).fill(name); await page.locator('.sequence-inspector').getByRole('button', { name: '应用修改', exact: true }).click(); }
-async function reachChoice(target) { for (let step = 0; step < 20; step++) { if (await target.locator('.player-choice button').count()) return; await target.getByRole('button', { name: '继续下一句', exact: true }).click(); await target.waitForTimeout(100); } throw new Error('Player did not reach the authored choice'); }
+async function reachChoice(target) { for (let step = 0; step < 80; step++) { if (await target.locator('.player-choice button').count()) return; await target.getByRole('button', { name: '继续下一句', exact: true }).click(); await target.waitForTimeout(100); } throw new Error('Player did not reach the authored choice'); }
 async function finish(target, route, name) {
   await target.locator('.player-choice').getByRole('button', { name: new RegExp(route) }).click();
+  for (let step = 0; step < 80; step++) {
+    if (await target.locator('main[data-player-status]').getAttribute('data-player-status') === 'ended') break;
+    await target.getByRole('button', { name: '继续下一句', exact: true }).click(); await target.waitForTimeout(100);
+  }
   await target.waitForFunction(() => document.querySelector('main[data-player-status]')?.dataset.playerStatus === 'ended');
   assert.ok((await target.locator('.player-ending').innerText()).includes(name));
 }
@@ -122,14 +129,17 @@ try {
   await screen('write-branches');
   await trace('before preview');
   checked('write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing');
+  if (nextBatch) story = await extendWriting(page, { ready, create, projectAction, checked, screen });
   await page.getByRole('button', { name: '试玩完整流程', exact: true }).click();
-  for (let step = 0; step < 10; step++) { if (await page.getByRole('button', { name: '选择路线：留下等雨停', exact: true }).count()) break; await page.getByRole('button', { name: 'Continue', exact: true }).click(); }
+  for (let step = 0; step < 80; step++) { if (await page.getByRole('button', { name: '选择路线：留下等雨停', exact: true }).count()) break; await page.getByRole('button', { name: 'Continue', exact: true }).click(); }
   await page.getByRole('button', { name: '选择路线：留下等雨停', exact: true }).click();
+  if (nextBatch) for (let step = 0; step < 80; step++) { if (await page.getByText('流程完成：同行的约定', { exact: true }).count()) break; await page.getByRole('button', { name: 'Continue', exact: true }).click(); }
   await page.getByText('流程完成：同行的约定', { exact: true }).waitFor();
   await page.getByRole('button', { name: '退出试玩', exact: true }).click();
   await trace('after exit preview');
   await page.locator('.scene-rail').getByRole('button', { name: /车站的雨/ }).click();
   await trace('selected entry');
+  if (nextBatch) await configureAppearance(page, { nav, screen, checked });
   await projectAction('所有项目'); await page.getByRole('main', { name: '项目首页' }).waitFor(); await page.reload();
   await page.getByRole('button', { name: '打开项目：雨停之前', exact: true }).click(); await ready();
   await trace('reopened');
@@ -139,6 +149,14 @@ try {
   assert.equal(await page.getByLabel('选择提示').inputValue(), '最后一班车到了，你的决定是？');
   await screen('reopened-writing');
   checked('preview a complete route, save before returning home, and reopen the original scene with persisted choices');
+  if (nextBatch) {
+    await nav('游戏外观');
+    assert.equal(await page.getByLabel('玩家主题', { exact: true }).inputValue(), 'paper');
+    assert.equal(await page.getByLabel('玩家强调色', { exact: true }).inputValue(), 'rose');
+    await nav('发布'); await page.getByLabel('发布版本', { exact: true }).fill('1.1.0');
+    await page.getByRole('button', { name: '应用发布设置', exact: true }).click();
+    checked('reopened appearance stays intact; apply the release version before exporting the editable project');
+  }
   const engineeringDownload = page.waitForEvent('download');
   await projectAction('导出工程 ZIP');
   await (await engineeringDownload).saveAs(path.join(output, 'before-rain-stops-project.zip'));
@@ -150,16 +168,37 @@ try {
   const html = await download('下载游戏', 'before-rain-stops.html');
   await screen('published-game');
   const player = await browser.newPage({ viewport: { width: 1280, height: 800 } }); watch(player, 'HTML player');
-  await player.goto(pathToFileURL(html).href); await player.getByRole('button', { name: /^开始故事/ }).click(); await reachChoice(player);
+  await player.goto(pathToFileURL(html).href); if (nextBatch) await verifyTitle(player, path.join(output, 'player-title.png')); await player.getByRole('button', { name: /^开始故事/ }).click(); await reachChoice(player);
   await player.getByRole('button', { name: '快速保存', exact: true }).click();
   await player.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent === '快速读取' && !button.disabled));
   const savedHash = await player.locator('main[data-player-status]').getAttribute('data-runtime-state-hash');
+  if (nextBatch) {
+    await player.getByRole('button', { name: '存读档', exact: true }).click();
+    await player.locator('.player-save__panel').waitFor();
+    assert.equal(await player.locator('.player-save__panel').evaluate(element => {
+      const panel = element.getBoundingClientRect(), stage = document.querySelector('.player-stage').getBoundingClientRect();
+      return panel.top >= stage.top && panel.bottom <= stage.bottom && panel.height > 120;
+    }), true, 'Save header must remain inside the game stage');
+    await player.screenshot({ path: path.join(output, 'player-saves.png'), animations: 'disabled' });
+    assert.equal(await player.locator('.player-save__panel').evaluate(element => getComputedStyle(element).color), 'rgb(48, 43, 49)');
+    await player.getByRole('button', { name: '存读档', exact: true }).click();
+    await player.getByRole('button', { name: '打开剧情历史', exact: true }).click();
+    await player.screenshot({ path: path.join(output, 'player-history.png'), animations: 'disabled' });
+    await player.getByRole('button', { name: '关闭剧情历史', exact: true }).first().click();
+    checked('paper palette applies to actual save/history panels while quick save persists the authored route');
+  }
   await player.reload(); await player.getByRole('button', { name: '快速读取', exact: true }).click();
   await player.waitForFunction(hash => document.querySelector('main[data-player-status]')?.dataset.runtimeStateHash === hash, savedHash);
   await finish(player, '留下等雨停', '同行的约定');
   await player.screenshot({ path: path.join(output, 'player-first-ending.png'), animations: 'disabled' });
   const alternate = await browser.newPage({ viewport: { width: 390, height: 844 } }); watch(alternate, 'mobile HTML player');
-  await alternate.goto(pathToFileURL(html).href); await alternate.getByRole('button', { name: /^开始故事/ }).click(); await reachChoice(alternate);
+  await alternate.goto(pathToFileURL(html).href); if (nextBatch) await verifyTitle(alternate, path.join(output, 'player-mobile-title.png')); await alternate.getByRole('button', { name: /^开始故事/ }).click(); await reachChoice(alternate);
+  if (nextBatch) {
+    await alternate.getByRole('button', { name: '存读档', exact: true }).click();
+    assert.equal(await alternate.locator('.player-save__panel').evaluate(element => { const r = element.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }), true);
+    await alternate.screenshot({ path: path.join(output, 'player-mobile-saves.png'), animations: 'disabled' });
+    await alternate.getByRole('button', { name: '存读档', exact: true }).click();
+  }
   await finish(alternate, '去追最后一班车', '远行的约定');
   await alternate.screenshot({ path: path.join(output, 'player-mobile-ending.png'), animations: 'disabled' });
   assert.ok(await alternate.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
@@ -177,7 +216,7 @@ try {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const deployed = `http://127.0.0.1:${server.address().port}/gal/`;
   const hosted = await browser.newPage({ viewport: { width: 1280, height: 800 } }); watch(hosted, 'directory player');
-  await hosted.goto(deployed); await hosted.getByRole('button', { name: /^开始故事/ }).click(); await reachChoice(hosted); await finish(hosted, '留下等雨停', '同行的约定');
+  await hosted.goto(deployed); if (nextBatch) await verifyTitle(hosted, path.join(output, 'hosted-title.png')); await hosted.getByRole('button', { name: /^开始故事/ }).click(); await reachChoice(hosted); await finish(hosted, '留下等雨停', '同行的约定');
   await hosted.screenshot({ path: path.join(output, 'local-deployment-ending.png'), animations: 'disabled' });
   checked('export directory ZIP and complete a route through a real local HTTP deployment under /gal/');
   await nav('故事'); await projectAction('章节与角色');
@@ -188,7 +227,7 @@ try {
   await screen('mobile-create-character'); await page.getByRole('button', { name: '取消', exact: true }).click();
   checked('structure lists and native creation dialog fit 736/390/320px widths');
   assert.deepEqual(errors, []);
-  await writeFile(path.join(output, 'browser-checks.json'), JSON.stringify({ passed: true, checkedAt: new Date().toISOString(), checks, errors, localDeployment: true, publicDeployment: false, fullLengthWork: false }, null, 2));
+  await writeFile(path.join(output, 'browser-checks.json'), JSON.stringify({ passed: true, checkedAt: new Date().toISOString(), checks, errors, localDeployment: true, publicDeployment: false, fullLengthWork: false, story }, null, 2));
   console.log(JSON.stringify({ passed: true, checks: checks.length, errors }));
 } catch (error) {
   const storage = await page.evaluate(async () => {

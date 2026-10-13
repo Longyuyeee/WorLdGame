@@ -1,0 +1,45 @@
+WORLD_SAVE_TRACE {"action":"handoff","statements":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[]],"previous":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[]],"previous":[[]]}
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+WORLD_SAVE_TRACE {"action":"handoff","statements":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[]],"previous":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[]],"previous":[[]]}
+WORLD_SAVE_TRACE {"action":"handoff","statements":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[]],"previous":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[]],"previous":[[]]}
+WORLD_SAVE_TRACE {"action":"handoff","statements":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[],[]],"previous":[[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[],[]],"previous":[[]]}
+{"label":"created 留下","scenes":["车站的雨","留下"],"sceneId":"scene_ad64cc94a77841e8","save":"保存到本机"}
+WORLD_SAVE_TRACE {"action":"handoff","statements":[[],[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[],[],[]],"previous":[[],[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[],[],[]],"previous":[[],[]]}
+{"label":"created 远行","scenes":["车站的雨","留下","远行"],"sceneId":"scene_fe564eee20f5445f","save":"保存到本机"}
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+{"label":"before preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_3aaf813d12e1d64cd327","save":"保存到本机"}
+write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing
+WORLD_SAVE_TRACE {"action":"handoff","statements":[[{"id":"stmt_ui_2","kind":"dialogue","speakerId":"character_04311e67af994d79","textId":"txt_ui_3","text":"雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。"}],[],[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[{"id":"stmt_ui_2","kind":"dialogue","speakerId":"character_04311e67af994d79","textId":"txt_ui_3","text":"雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。"}],[],[]],"previous":[[{"id":"stmt_ui_2","kind":"dialogue","speakerId":"character_04311e67af994d79","textId":"txt_ui_3","text":"雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。"}],[],[]]}
+WORLD_SAVE_TRACE {"action":"resume","incoming":[[{"id":"stmt_ui_2","kind":"dialogue","speakerId":"character_04311e67af994d79","textId":"txt_ui_3","text":"雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。"}],[],[]],"previous":[[{"id":"stmt_ui_2","kind":"dialogue","speakerId":"character_04311e67af994d79","textId":"txt_ui_3","text":"雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。"}],[],[]]}
+node:internal/modules/run_main:122
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ '雨还没有停。你愿意留下来，等下一班列车吗？'
+- '雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。'
+                        ^
+
+    at extendWriting (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/web-writing-extension.mjs:64:79)
+    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-authoring-flow.mjs:132:26 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '雨还没有停。你愿意留下来，等下一班列车吗？',
+  expected: '雨还没有停。你愿意留下来，等下一班列车吗？ 我想先把话说完。',
+  operator: 'strictEqual'
+}
+
+Node.js v22.12.0
