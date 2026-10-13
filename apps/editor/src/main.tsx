@@ -6,6 +6,7 @@ import "./styles/app.css";
 import "./styles/motion.css";
 import "./styles/redesign.css";
 import "./styles/studio-polish.css";
+import "./styles/authoring-flow.css";
 import { initializeEditorTheme } from "./editor-theme";
 
 initializeEditorTheme();

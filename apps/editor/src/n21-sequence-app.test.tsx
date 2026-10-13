@@ -7,8 +7,8 @@ describe("N21 Writer/Sequence user workflow",()=>{
   it("blocks invalid reference inserts in a blank project and explains the required entity",()=>{
     render(<App initialProject={createProjectTemplate("Blank N21", "blank-n21-requirement")}/>);
     const tools=within(screen.getByLabelText("对白结构工具")),kind=tools.getByLabelText("插入 P0 语句类型"),insert=tools.getByRole("button",{name:"＋ 插入"});
-    expect(insert).toBeDisabled();expect(screen.getByText(/先返回项目结构创建至少一名角色/)).toBeVisible();
-    fireEvent.change(kind,{target:{value:"set"}});expect(insert).toBeDisabled();expect(screen.getByText(/先返回项目结构创建至少一个变量/)).toBeVisible();
+    expect(insert).toBeDisabled();expect(screen.getByText(/还没有角色/)).toBeVisible();
+    fireEvent.change(kind,{target:{value:"set"}});expect(insert).toBeDisabled();expect(screen.getByText(/还没有变量/)).toBeVisible();
     fireEvent.change(kind,{target:{value:"audio"}});expect(insert).toBeDisabled();expect(screen.getByText(/先打开资源保险库导入资源/)).toBeVisible();
     fireEvent.change(kind,{target:{value:"narration"}});expect(insert).toBeEnabled();
   });
@@ -16,7 +16,7 @@ describe("N21 Writer/Sequence user workflow",()=>{
   it("builds valid branching cards and refuses missing variable or asset references",()=>{
     render(<App/>);const tools=within(screen.getByLabelText("对白结构工具")),kind=tools.getByLabelText("插入 P0 语句类型"),insert=tools.getByRole("button",{name:"＋ 插入"});
     fireEvent.change(kind,{target:{value:"dialogue"}});fireEvent.click(insert);expect(screen.getByRole("button",{name:/选择对白：新对白/})).toBeVisible();
-    fireEvent.change(kind,{target:{value:"choice"}});fireEvent.click(insert);expect(screen.getByRole("form",{name:"选择类型化参数"})).toBeVisible();expect(screen.getAllByText(/option_ui_/)).toHaveLength(2);
+    fireEvent.change(kind,{target:{value:"choice"}});fireEvent.click(insert);expect(screen.getByRole("form",{name:"选择类型化参数"})).toBeVisible();expect(screen.getAllByRole("group",{name:/^选项 [12]$/})).toHaveLength(2);
     const optionLabels=screen.getAllByLabelText("选项文本");fireEvent.change(optionLabels[0]!,{target:{value:"留下"}});fireEvent.change(optionLabels[1]!,{target:{value:"继续"}});fireEvent.submit(screen.getByRole("form",{name:"选择类型化参数"}));expect(screen.getByRole("button",{name:/选择选择：请选择/})).toBeVisible();
     for(const value of ["set","condition","background","audio"]){fireEvent.change(kind,{target:{value}});expect(insert).toBeDisabled();}
     for(const value of ["label","end"]){fireEvent.change(kind,{target:{value}});fireEvent.click(insert);}

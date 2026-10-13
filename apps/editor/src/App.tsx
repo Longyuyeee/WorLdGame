@@ -5,6 +5,8 @@ import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-ca
 import { StudioNavigation, type StudioPage } from './studio-navigation';
 import { StudioIcon } from './studio-icon';
 import { ProjectMenu } from './project-menu';
+import { StoryCreateMenu } from './story-create-menu';
+import type { EntityKind, ProjectStructureIntent } from './project-entity-dialog';
 import { assetSourceUsages, checkAssetSource, republishAssetEntry } from './asset-repair';
 import { ConditionExpressionFields } from './condition-expression-fields';
 import { SceneFlowPanel } from './SceneFlowPanel';
@@ -622,6 +624,7 @@ function WorkspaceHeader({
 }
 
 interface SceneRailProps extends CommonProps {
+  readonly disabled?: boolean;
   readonly onSelectScene?: () => void;
   readonly assetIndex: AssetIndex;
   readonly assetStatus: AssetVaultStatus;
@@ -629,7 +632,7 @@ interface SceneRailProps extends CommonProps {
   readonly onGlobalJump: (match: ProjectSearchMatch) => void;
 }
 
-function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump, onSelectScene }: SceneRailProps) {
+function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, onGlobalJump, onSelectScene, disabled = false }: SceneRailProps) {
   const [query, setQuery] = useState("");
   const [activeResult, setActiveResult] = useState(0);
   const index = useMemo(() => createProjectSearchIndex(session.project), [session.project]);
@@ -706,6 +709,7 @@ function SceneRail({ session, dispatch, assetIndex, assetStatus, onOpenAssets, o
         {session.project.scenes.map((scene, index) => (
           <button
             className={scene.id === session.activeSceneId ? "scene-item is-active" : "scene-item"}
+            disabled={disabled}
             key={scene.id}
             onClick={() => { dispatch({ type: "select-scene", sceneId: scene.id }); onSelectScene?.(); }}
           >
@@ -1102,12 +1106,15 @@ function AssetVaultDialog({
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly onCreateEntity?: (kind: Exclude<EntityKind, "chapter">) => void;
   readonly stageExpanded?: boolean;
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: string) => string;
   readonly onInputDirtyChange: (dirty: boolean) => void;
   readonly assetIndex: AssetIndex;
   readonly variableIds: readonly string[];
+  readonly variableDefaults?: Readonly<Record<string, string>>;
+  readonly variableTypes?: Readonly<Record<string, "boolean" | "number" | "string">>;
   readonly variableNames: Readonly<Record<string,string>>;
   readonly variableDisplayNames: Readonly<Record<string, string>>;
   readonly requestedFocusStatementId: string | null;
@@ -1520,6 +1527,9 @@ interface DirectionInsertPanelProps {
 }
 
 function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => { if (!dialog.current?.open) dialog.current?.showModal(); }, []);
+  const parameterLabels: Readonly<Record<string, string>> = { set: "切换", clear: "清除", show: "显示", hide: "隐藏", move: "移动", reset: "恢复默认", play: "播放", stop: "停止", pause: "暂停", resume: "继续", fade: "渐变", dissolve: "叠化", slide: "滑动", linear: "匀速", "ease-in": "缓入", "ease-out": "缓出", "ease-in-out": "缓入缓出" };
   const defaultAction = resolveDirectiveAction(command, undefined)!;
   const [action, setAction] = useState(defaultAction);
   const [asset, setAsset] = useState("");
@@ -1557,6 +1567,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : command === "textbox" ? "文本框" : "音频";
 
   return (
+    <dialog ref={dialog} className="entity-edit-dialog direction-create-dialog" aria-label={`添加${commandLabel}演出`} onCancel={onClose}>
     <form className={`direction-insert direction-insert--${command}`} aria-label={`新增${commandLabel}演出`} onSubmit={(event) => {
       event.preventDefault();
       if (!canSubmit) return;
@@ -1597,31 +1608,32 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       onClose();
     }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
       <div className="direction-insert__heading">
-        <div><span className={`track-command track-command--${command}`}>@{command}</span><strong>新增{commandLabel}演出</strong></div>
+        <div><span className="entity-symbol"><StudioIcon name={command === "camera" ? "director" : "assets"} /></span><strong>新增{commandLabel}演出</strong></div>
         <button type="button" aria-label="关闭演出插入面板" onClick={onClose}>×</button>
       </div>
-      <p>插入锚点 <code>{afterId}</code></p>
+      <details><summary>技术信息</summary><p>插入位置：<code>{afterId}</code></p></details>
       <div className="direction-insert__fields">
-        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => setAction(event.target.value as typeof action)}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
-        {assetRequired && <label className="direction-insert__asset"><span>资源</span><select aria-label="新增演出资源" value={asset} disabled={disabled} onChange={(event)=>setAsset(event.target.value)}><option value="">{compatibleAssets.length===0?"请先导入兼容资源":"请选择资源"}</option>{compatibleAssets.map(entry=><option key={entry.assetId} value={entry.assetId}>{entry.displayName} · {entry.assetId}</option>)}</select></label>}
+        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => setAction(event.target.value as typeof action)}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label>
+        {assetRequired && <label className="direction-insert__asset"><span>资源</span><select aria-label="新增演出资源" value={asset} disabled={disabled} onChange={(event)=>setAsset(event.target.value)}><option value="">{compatibleAssets.length===0?"请先导入兼容资源":"请选择资源"}</option>{compatibleAssets.map(entry=><option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</select></label>}
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
-        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
+        {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
         {cameraMoveActive && <><label><span>偏移 X（%）</span><input aria-label="新增镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>偏移 Y（%）</span><input aria-label="新增镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>倍率</span><input aria-label="新增镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={zoom} disabled={disabled} onChange={(event) => setZoom(event.target.value)} /></label><label><span>旋转</span><input aria-label="新增镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={rotation} disabled={disabled} onChange={(event) => setRotation(event.target.value)} /></label></>}
-        {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
-        {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{value}</option>)}</select></label></>}
+        {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
+        {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
         {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
         {command === 'audio' && assetRequired && <label><input type="checkbox" aria-label="循环播放音频" checked={loop} disabled={disabled} onChange={event=>setLoop(event.target.checked)}/>循环播放（适合背景音乐）</label>}
         {command === "textbox" && action === "set" && <label><span>模板</span><select aria-label="新增文本框模板" value={template} disabled={disabled} onChange={(event) => setTemplate(event.target.value as DialogueTemplate)}>{DIALOGUE_TEMPLATES.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label>}
       </div>
-      {!assetValid && <small className="is-error">请选择 Asset Index 中类型兼容的资源</small>}
+      {!assetValid && <small className="is-error">请选择适合当前演出的素材</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
       {!moveGeometryValid && <small className="is-error">移动位置必须在 0–100 之间</small>}
       {!cameraGeometryValid && <small className="is-error">镜头偏移 -100–100，倍率 0.5–3，旋转 -30–30</small>}
       {!durationValid && <small className="is-error">转场或镜头时长必须带 ms 或 s 单位</small>}
-      <div className="direction-insert__actions"><span>提交后写回权威脚本并自动选中新步骤</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
+      <div className="direction-insert__actions"><span>添加后会自动选中新步骤，故事与预览同步更新</span><button type="submit" disabled={!canSubmit}>插入演出</button></div>
     </form>
+    </dialog>
   );
 }
 
@@ -1815,8 +1827,14 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
-function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds,variableNames,createCommandId,dispatch}:SequenceInspectorProps){
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly onDirtyChange:(dirty:boolean)=>void;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetIds,variableIds,variableNames,createCommandId,dispatch}:SequenceInspectorProps){
+  const form = useRef<HTMLFormElement>(null);
+  const baseline = useRef("");
+  const [dirty, setDirty] = useState(false);
+  const signature = () => form.current ? JSON.stringify([...new FormData(form.current).entries()]) : "";
+  useEffect(() => { form.current?.reset(); baseline.current = signature(); setDirty(false); onDirtyChange(false); }, [statement]);
+  useEffect(() => () => onDirtyChange(false), []);
   if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
   const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),value=(name:string)=>String(data.get(name)??"").trim();let patch:Readonly<Record<string,unknown>>={};
     if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
@@ -1829,16 +1847,16 @@ function SequenceInspector({statement,disabled,targetNames,targetIds,variableIds
     else patch={nameRaw:JSON.stringify(value("ending"))};
     dispatch({type:"p0-update",commandId:createCommandId(),statementId:statement.id,patch});
   };
-  return <form key={`${statement.id}:${statementLabel(statement)}`} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
+  return <form key={`${statement.id}:${statementLabel(statement)}`} ref={form} onChange={() => { const next = signature() !== baseline.current; setDirty(next); onDirtyChange(next); }} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
     {statement.kind==="narration"&&<label><span>旁白文本</span><textarea name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
-    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option)=><fieldset key={option.id}><legend>{option.id}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>目标稳定 ID</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></fieldset>)}</>}
+    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option, index)=><fieldset key={option.id}><legend>选项 {index + 1}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>接下来进入</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></fieldset>)}</>}
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
-    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>目标稳定 ID</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
-    {statement.kind==="set"&&<><label><span>变量稳定 ID</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{Object.hasOwn(variableNames,id) ? variableNames[id] : `脚本变量（未声明） · ${id}`}</option>)}</select></label><label><span>类型化表达式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
+    {(statement.kind==="jump"||statement.kind==="call")&&<label><span>接下来进入</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
+    {statement.kind==="set"&&<><label><span>要修改的变量</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{Object.hasOwn(variableNames,id) ? variableNames[id] : `脚本变量（未声明） · ${id}`}</option>)}</select></label><label><span>新的值或计算式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
     {statement.kind==="condition"&&<><ConditionExpressionFields expression={statement.expression} variableIds={variableIds} variableNames={variableNames} disabled={disabled}/><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
-    <button type="submit" disabled={disabled}>应用类型化参数</button><small>应用修改后，故事和预览会同步更新。</small>
+    <button type="submit" disabled={disabled}>应用修改</button>{dirty && <button type="button" onClick={() => { form.current?.reset(); setDirty(false); onDirtyChange(false); }}>放弃修改</button>}<small>{dirty ? "参数有未应用的修改。请先应用或放弃，再切换场景或添加内容。" : "应用修改后，故事和预览会同步更新。"}</small>
   </form>;
 }
 
@@ -1850,12 +1868,15 @@ function SequenceView({
   onInputDirtyChange,
   assetIndex,
   variableIds,
+  variableDefaults,
+  variableTypes,
   variableNames,
   variableDisplayNames,
   requestedFocusStatementId,
   onRequestedFocusHandled,
   runtimeRouteTrace,
-  stageExpanded = true
+  stageExpanded = true,
+  onCreateEntity
 }: SequenceViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -1883,6 +1904,7 @@ function SequenceView({
   const [sequenceSelectedIds,setSequenceSelectedIds]=useState<readonly string[]>([]);
   const [sequenceRangeAnchor,setSequenceRangeAnchor]=useState<string|null>(null);
   const [collapsedStatementIds,setCollapsedStatementIds]=useState<readonly string[]>([]);
+  const [inspectorDirty, setInspectorDirty] = useState(false);
   const stageWindow = createStageWindow(scene.statements.length, stageWindowStart);
   const visibleStatements = scene.statements.slice(stageWindow.start, stageWindow.end);
   const selectedInStageWindow = selectedIndex >= stageWindow.start && selectedIndex < stageWindow.end;
@@ -1902,17 +1924,19 @@ function SequenceView({
   const timelinePlayheadIndex = timelineFollowsRuntime ? runtimeCurrentIndex : selectedIndex;
   const timelinePlayheadCue = stageTimeline.cues[timelinePlayheadIndex];
   const syntaxNodes=activeSourceSession(session).committedDocument.nodes;
-  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId)};
+  const sequenceReferences={characterIds:session.project.characters.map((item)=>item.id),sceneIds:session.project.scenes.map((item)=>item.id),labelIds:syntaxNodes.flatMap((item)=>item.kind==="label"?[item.name]:[]),variableIds:[...new Set([...variableIds,...syntaxNodes.flatMap((item)=>item.kind==="set"?[item.variable]:[])])],assetIds:assetIndex.assets.map((item)=>item.assetId),...(variableDefaults ? {variableDefaults} : {}),...(variableTypes ? {variableTypes} : {})};
   const sequenceInsertRequirement = sequenceInsertKind === "dialogue" && sequenceReferences.characterIds.length === 0
-    ? "插入对白前，请先返回项目结构创建至少一名角色。"
+    ? "还没有角色。先创建一位角色，就可以写对白。"
     : (sequenceInsertKind === "set" || sequenceInsertKind === "condition") && sequenceReferences.variableIds.length === 0
-      ? "插入变量语句前，请先返回项目结构创建至少一个变量。"
+      ? "还没有变量。先创建变量，用来记录故事状态。"
       : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && compatibleDirectionAssets(sequenceInsertKind,assetIndex.assets).length === 0
         ? "插入演出语句前，请先打开资源保险库导入资源。"
         : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
+  const sceneTitleCounts = new Map<string, number>();
+  for (const scene of session.project.scenes) sceneTitleCounts.set(scene.title, (sceneTitleCounts.get(scene.title) ?? 0) + 1);
   const targetNames:Readonly<Record<string,string>>=Object.fromEntries([
-    ...session.project.scenes.map(item=>[item.id, `场景：${item.title} · ${item.id}`]),
+    ...session.project.scenes.map(item=>[item.id, `场景：${item.title}${(sceneTitleCounts.get(item.title) ?? 0) > 1 ? ` · ${item.id}` : ''}`]),
     ...sequenceReferences.labelIds.map(id=>[id, `当前场景标签：${id}`])
   ]);
   const selectedSequenceIds=sequenceMultiSelect?sequenceSelectedIds:[selected.id];
@@ -1920,6 +1944,7 @@ function SequenceView({
   const insertPlan=(plan:ReturnType<typeof createSequenceInsertPlan>)=>{const first=plan[0]?.node,selectedStatementId=first===undefined?undefined:first.kind==="dialogue"||first.kind==="narration"?first.statementId:first.id;dispatch({type:"p0-batch",commandId:createCommandId(),operations:plan.map((step)=>({kind:"insert" as const,afterId:step.afterId,node:step.node})),...(selectedStatementId===undefined?{}:{selectedStatementId})});};
   const choiceChildren=(statement:StoryStatement)=>statement.kind==="choice"?statement.options.map((item)=>item.id):[];
   const requestSequenceInsert=()=>{
+    if (inspectorDirty) return;
     if(sequenceInsertKind==='background'||sequenceInsertKind==='show'||sequenceInsertKind==='audio'||sequenceInsertKind==='camera'||sequenceInsertKind==='textbox') setInsertCommand(sequenceInsertKind);
     else insertPlan(createSequenceInsertPlan(sequenceInsertKind,insertionAnchor,sequenceReferences,createEntityId));
   };
@@ -2048,7 +2073,7 @@ function SequenceView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&!inspectorDirty&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   const selectedInspector = (<div className="inline-inspector">
         <div className="inspector-label-row">
@@ -2062,7 +2087,7 @@ function SequenceView({
         {selected.kind === "dialogue" ? (
           <>
           <label htmlFor="dialogue-speaker">说话人</label>
-          <select id="dialogue-speaker" value={selected.speakerId} disabled={pendingDraft} onChange={event=>dispatch({type:'p0-update',commandId:createCommandId(),statementId:selected.id,patch:{speakerId:event.target.value}})}>
+          <select id="dialogue-speaker" value={selected.speakerId} disabled={pendingDraft || inspectorDirty} onChange={event=>dispatch({type:'p0-update',commandId:createCommandId(),statementId:selected.id,patch:{speakerId:event.target.value}})}>
             {!session.project.characters.some(character=>character.id===selected.speakerId) && <option value={selected.speakerId} disabled>缺失角色 · {selected.speakerId}（请选择已有角色）</option>}
             {session.project.characters.map(character=><option key={character.id} value={character.id}>{character.displayName}</option>)}
           </select>
@@ -2070,7 +2095,7 @@ function SequenceView({
             id="dialogue-editor"
             value={selected.text}
             rows={4}
-            disabled={pendingDraft}
+            disabled={pendingDraft || inspectorDirty}
             onDirtyChange={onInputDirtyChange}
             onCommit={(text) =>
               dispatch({
@@ -2088,12 +2113,12 @@ function SequenceView({
             key={`${selected.id}:${selected.summary}`}
             statement={selected}
             assetIndex={assetIndex}
-            disabled={pendingDraft}
+            disabled={pendingDraft || inspectorDirty}
             createCommandId={createCommandId}
             dispatch={dispatch}
           />
           </details>
-        ) : <SequenceInspector statement={selected} disabled={pendingDraft} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
+        ) : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
           点击下方步骤编辑内容。停止输入或离开输入框后自动应用。
         </p>
@@ -2135,19 +2160,19 @@ function SequenceView({
 
       <details className="statement-tools"><summary>插入与整理内容<span>复制、移动与多选</span></summary>
       <div className="statement-toolbar" aria-label="对白结构工具">
-        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft||sequenceInsertRequirement!==null} onClick={requestSequenceInsert}>＋ 插入</button>
-        <label><input type="checkbox" checked={insertBefore} disabled={pendingDraft} onChange={event=>setInsertBefore(event.target.checked)}/>插入到当前步骤之前</label>
-        <button type="button" disabled={pendingDraft||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
-        <button type="button" aria-label="语句上移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
-        <button type="button" aria-label="语句下移" disabled={pendingDraft||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
-        <button type="button" aria-pressed={sequenceMultiSelect} disabled={pendingDraft} onClick={()=>{const next=!sequenceMultiSelect;setSequenceMultiSelect(next);setSequenceSelectedIds(next?[selected.id]:[]);setSequenceRangeAnchor(next?selected.id:null);}}>{sequenceMultiSelect?`${sequenceSelectedIds.length} 已选`:'多选'}</button>
+        <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft || inspectorDirty} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+        <button type="button" aria-keyshortcuts="Control+Enter" disabled={pendingDraft || inspectorDirty||sequenceInsertRequirement!==null} onClick={requestSequenceInsert}>＋ 插入</button>
+        <label><input type="checkbox" checked={insertBefore} disabled={pendingDraft || inspectorDirty} onChange={event=>setInsertBefore(event.target.checked)}/>插入到当前步骤之前</label>
+        <button type="button" disabled={pendingDraft || inspectorDirty||sequenceMultiSelect} onClick={duplicateSelected}>复制</button>
+        <button type="button" aria-label="语句上移" disabled={pendingDraft || inspectorDirty||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,-1)===undefined} onClick={()=>moveSelected(-1)}>↑</button>
+        <button type="button" aria-label="语句下移" disabled={pendingDraft || inspectorDirty||sequenceMultiSelect||sequenceMoveAfterId(scene.statements,scene.id,selected.id,1)===undefined} onClick={()=>moveSelected(1)}>↓</button>
+        <button type="button" aria-pressed={sequenceMultiSelect} disabled={pendingDraft || inspectorDirty} onClick={()=>{const next=!sequenceMultiSelect;setSequenceMultiSelect(next);setSequenceSelectedIds(next?[selected.id]:[]);setSequenceRangeAnchor(next?selected.id:null);}}>{sequenceMultiSelect?`${sequenceSelectedIds.length} 已选`:'多选'}</button>
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>[...new Set([...current,...selectedSequenceIds])])}>折叠</button>
         <button type="button" disabled={selectedSequenceIds.length===0} onClick={()=>setCollapsedStatementIds((current)=>current.filter((id)=>!selectedSequenceIds.includes(id)))}>展开</button>
-        <button type="button" className="danger-button" disabled={pendingDraft||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
+        <button type="button" className="danger-button" disabled={pendingDraft || inspectorDirty||selectedSequenceIds.length===0} onClick={deleteSelected}>删除所选</button>
       </div>
       </details>
-      {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}</p>}
+      {sequenceInsertRequirement !== null && <p className="sequence-insert-requirement" role="status">{sequenceInsertRequirement}{onCreateEntity && (sequenceInsertKind === "dialogue" || sequenceInsertKind === "set" || sequenceInsertKind === "condition") && <button type="button" disabled={pendingDraft || inspectorDirty} onClick={() => onCreateEntity(sequenceInsertKind === "dialogue" ? "character" : "variable")}>{sequenceInsertKind === "dialogue" ? "创建角色" : "创建变量"}</button>}</p>}
 
       <div className="statement-toolbar statement-toolbar--legacy" aria-label="对白快捷工具">
         <button
@@ -2227,16 +2252,16 @@ function SequenceView({
               <button type="button" aria-label="复制演出" disabled={multiSelectMode || selected.kind !== "direction" || pendingDraft} onClick={() => {
                 if (selected.kind === "direction") dispatch({ type: "duplicate-direction", commandId: createCommandId(), statementId: selected.id, newStatementId: createEntityId("stmt") });
               }}>复制</button>
-              <button type="button" aria-label={multiSelectMode ? "结束演出多选" : "开始演出多选"} aria-pressed={multiSelectMode} disabled={pendingDraft} onClick={toggleMultiSelect}>{multiSelectMode ? `${selectedDirectionIds.length} 已选` : "多选"}</button>
+              <button type="button" aria-label={multiSelectMode ? "结束演出多选" : "开始演出多选"} aria-pressed={multiSelectMode} disabled={pendingDraft || inspectorDirty} onClick={toggleMultiSelect}>{multiSelectMode ? `${selectedDirectionIds.length} 已选` : "多选"}</button>
               <button type="button" className="is-danger" aria-label="删除演出" disabled={multiSelectMode || selected.kind !== "direction" || pendingDraft} onClick={() => {
                 if (selected.kind === "direction") deleteDirection(selected.id);
               }}>删除</button>
             </div>
             <div className="stage-track__insert" aria-label="新增演出指令">
-              {([['background', '＋ 背景', 'Alt+1'], ['show', '＋ 角色', 'Alt+2'], ['audio', '＋ 音频', 'Alt+3'], ['camera', '＋ 镜头', 'Alt+4'], ['textbox', '＋ 文本框', 'Alt+5']] as const).map(([command, label, shortcut]) => <button key={command} type="button" aria-keyshortcuts={shortcut} disabled={pendingDraft} onClick={() => { setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(false); setInsertCommand(command); }}>{label}</button>)}
-              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setBezierPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
-              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setBezierPathOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
-              <button type="button" className="stage-bezier-path-button" disabled={pendingDraft || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "创建单一三次贝塞尔角色路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(true); }}>＋ 贝塞尔</button>
+              {([['background', '＋ 背景', 'Alt+1'], ['show', '＋ 角色', 'Alt+2'], ['audio', '＋ 音频', 'Alt+3'], ['camera', '＋ 镜头', 'Alt+4'], ['textbox', '＋ 文本框', 'Alt+5']] as const).map(([command, label, shortcut]) => <button key={command} type="button" aria-keyshortcuts={shortcut} disabled={pendingDraft || inspectorDirty} onClick={() => { setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(false); setInsertCommand(command); }}>{label}</button>)}
+              <button type="button" className="stage-keyframe-button" disabled={pendingDraft || inspectorDirty || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建下一关键帧" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setMotionPathOpen(false); setBezierPathOpen(false); setKeyframeInsertOpen(true); }}>＋ 关键帧</button>
+              <button type="button" className="stage-motion-path-button" disabled={pendingDraft || inspectorDirty || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "从当前角色状态创建两段运动路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setBezierPathOpen(false); setMotionPathOpen(true); }}>＋ 路径</button>
+              <button type="button" className="stage-bezier-path-button" disabled={pendingDraft || inspectorDirty || multiSelectMode || !keyframeSeed.ok} title={keyframeSeed.ok ? "创建单一三次贝塞尔角色路径" : "请先选择舞台上有效的角色 Show 或 Move Cue"} onClick={() => { setInsertCommand(null); setKeyframeInsertOpen(false); setMotionPathOpen(false); setBezierPathOpen(true); }}>＋ 贝塞尔</button>
             </div>
           </div>
         </div>
@@ -2338,7 +2363,7 @@ function SequenceView({
                   key={cue.statementId}
                   aria-label={`时间标记 ${formatStageTimelineTime(cue.startMilliseconds)}，步骤 ${cue.statementIndex + 1}`}
                   disabled={timelineFollowsRuntime || pendingDraft}
-                  onClick={() => dispatch({ type: "select-statement", statementId: cue.statementId })}
+                  onClick={() => { if (!inspectorDirty) dispatch({ type: "select-statement", statementId: cue.statementId }); }}
                 >
                   <span>{formatStageTimelineTime(cue.startMilliseconds)}</span>
                   <small>{cue.durationMilliseconds}ms</small>
@@ -2426,7 +2451,7 @@ function SequenceView({
         sceneDirections={sceneDirections}
         selectionPositions={selectionPositions}
         assetIndex={assetIndex}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         dispatch={dispatch}
         onSelectSameCommand={() => {
@@ -2475,7 +2500,7 @@ function SequenceView({
         command={insertCommand}
         afterId={insertionAnchor}
         assetIndex={assetIndex}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
@@ -2485,7 +2510,7 @@ function SequenceView({
       {keyframeInsertOpen && keyframeSeed.ok && <StageKeyframeInsertPanel
         key={keyframeSeed.seed.sourceStatementId}
         seed={keyframeSeed.seed}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
@@ -2495,7 +2520,7 @@ function SequenceView({
       {motionPathOpen && keyframeSeed.ok && <StageMotionPathPanel
         key={keyframeSeed.seed.sourceStatementId}
         seed={keyframeSeed.seed}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
@@ -2505,7 +2530,7 @@ function SequenceView({
       {bezierPathOpen && keyframeSeed.ok && <StageBezierPathPanel
         key={keyframeSeed.seed.sourceStatementId}
         seed={keyframeSeed.seed}
-        disabled={pendingDraft}
+        disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
         dispatch={dispatch}
@@ -2523,6 +2548,7 @@ function SequenceView({
           <article key={statement.id} className={`statement-entry statement-entry--${statement.kind}${statement.id === selected.id ? " is-active" : ""}`} >
           <button
             id={`statement-card-${statement.id}`}
+            disabled={inspectorDirty}
             key={statement.id}
             className={[
               `statement-card statement-card--${statement.kind}`,
@@ -2552,7 +2578,7 @@ function SequenceView({
       </div>
 
       {!stageExpanded && !selectedInStageWindow && selectedInspector}
-      <button type="button" className="add-story-content" disabled={pendingDraft} onClick={() => { const tools = document.querySelector<HTMLDetailsElement>(".statement-tools"); if (tools) { tools.open = true; tools.scrollIntoView({ block: "nearest" }); tools.querySelector<HTMLSelectElement>("select")?.focus(); } }}>＋ 添加内容</button>
+      <button type="button" className="add-story-content" disabled={pendingDraft || inspectorDirty} onClick={() => { const tools = document.querySelector<HTMLDetailsElement>(".statement-tools"); if (tools) { tools.open = true; tools.scrollIntoView({ block: "nearest" }); tools.querySelector<HTMLSelectElement>("select")?.focus(); } }}>＋ 添加内容</button>
 
     </section>
   );
@@ -3054,7 +3080,7 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
           {repairEdge !== undefined && repairEditorOpen && <div id={`route-target-repair-${selected.id}`} className="route-target-repair" aria-label="路线 Choice 目标修复">
             <label><span>选择要修改的选项</span><select aria-label="选择待修复路线连接" value={repairEdge.id} onChange={(event) => setRepairEdgeId(event.target.value)}>{repairableEdges.map((edge) => <option key={edge.id} value={edge.id}>{edge.label} · {edge.id}</option>)}</select></label>
             <RouteTargetPicker key={repairEdge.id} scenes={session.project.scenes} sourceSceneId={selected.id} currentTargetId={repairEdge.targetSceneId} targetId={repairTargets[repairEdge.id] ?? repairEdge.targetSceneId} disabled={pendingRepair !== null} onSelect={(id) => { setRepairTargets((current) => ({ ...current, [repairEdge.id]: id })); setEditResult(null); }} />
-            <label><span>目标稳定 ID（按名称选择后自动填写）</span><input aria-label={`修改选择目标：${repairEdge.label}`} list={`route-repair-targets-${selected.id}`} value={repairTargets[repairEdge.id] ?? repairEdge.targetSceneId} onChange={(event) => setRepairTargets((current) => ({ ...current, [repairEdge.id]: event.target.value }))} /></label>
+            <label><span>接下来进入（按名称选择后自动填写）</span><input aria-label={`修改选择目标：${repairEdge.label}`} list={`route-repair-targets-${selected.id}`} value={repairTargets[repairEdge.id] ?? repairEdge.targetSceneId} onChange={(event) => setRepairTargets((current) => ({ ...current, [repairEdge.id]: event.target.value }))} /></label>
             <datalist id={`route-repair-targets-${selected.id}`}>{visibleNodes.map((node) => <option key={node.id} value={node.id}>{node.title}</option>)}</datalist>
             <button type="button" aria-label={`应用选择目标：${repairEdge.label}`} disabled={(repairTargets[repairEdge.id] ?? repairEdge.targetSceneId) === repairEdge.targetSceneId || pendingRepair !== null} onClick={() => applyChoiceTarget(repairEdge.sourceSceneId, repairEdge.id, repairEdge.targetSceneId)}>应用目标</button>
             <small>只有点击应用才修改连接；支持脚本撤销/重做。保存后请试玩确认，两条分支都应检查。</small>
@@ -3614,7 +3640,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             pixelWidth={stageSurface.pixelWidth}
             pixelHeight={stageSurface.pixelHeight}
             selectedStatementId={session.selectedStatementId}
-            onSelect={(statementId) => dispatch({ type: "select-statement", statementId })}
+            onSelect={(statementId) => { if (!inputDirty) dispatch({ type: "select-statement", statementId }); }}
             onStagePoint={setLastStagePoint}
             onRuntimeError={reportRuntimeMediaError}
             defaultDurationMilliseconds={settingsApplication.stage.defaultDurationMilliseconds}
@@ -3925,7 +3951,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 }
 
 export interface AppProps {
-  readonly onOpenProject?: (sceneId?: string) => void;
+  readonly onOpenProject?: (sceneId?: string, intent?: ProjectStructureIntent) => void;
+  readonly preferInitialProject?: boolean;
   readonly onReturnHome?: () => void;
   readonly onExportProject?: (project: CanonicalProject) => Promise<void>;
   readonly initialProject?: CanonicalProject;
@@ -3937,7 +3964,7 @@ export interface AppProps {
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, initialSceneId, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialProject, initialSceneId, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
     const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
     return initialSceneId !== undefined && created.project.scenes.some(scene=>scene.id===initialSceneId)
@@ -3953,6 +3980,8 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
   previewCanonicalProjectRef.current = previewCanonicalProject;
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
+  const canonicalVariableDefaults = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), JSON.stringify(item.defaultValue)])), [initialProject]);
+  const canonicalVariableTypes = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), item.type as "boolean" | "number" | "string"])), [initialProject]);
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
     typeof item.id === "string" ? [item.id] : []) ?? [], [initialProject]);
   const canonicalVariableNames = useMemo(() => variableOptionLabels(initialProject?.variables.variables ?? []), [initialProject]);
@@ -3961,6 +3990,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const [pageDirty, setPageDirty] = useState(false);
+  const [structureError, setStructureError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(true);
   const [scenesOpen, setScenesOpen] = useState(false);
   const [productionSection, setProductionSection] = useState<"assets" | "localization" | "collections">("assets");
@@ -4369,15 +4399,25 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
             "项目已恢复，但备份索引需要检查。";
         }
         if (cancelled) return;
-        const restored = restoreSessionAndContext(
-          snapshot,
-          restoreStudioSession(snapshot, sessionRef.current.project)
-        );
+        // Structure editing starts only after saving all editor inputs. On its explicit
+        // return, use that fresh project; an older editor snapshot may have fewer scenes.
+        // Ordinary reopen/recovery keeps the existing snapshot restoration contract.
+        let contextSnapshot = snapshot;
+        let restoredSource: StudioSession;
+        if (preferInitialProject && lifecycleHosted) {
+          if (snapshot.projectId !== sessionRef.current.project.id) throw new Error("本地快照属于其他工程，无法合并。");
+          restoredSource = sessionRef.current;
+          const context = restoreWorkspaceContext(snapshot, restoredSource).context;
+          if (initialSceneId !== undefined && context.sceneId !== initialSceneId) {
+            contextSnapshot = persistWorkspaceContext(snapshot, { ...context, sceneId: restoredSource.activeSceneId, statementId: restoredSource.selectedStatementId });
+          }
+        } else restoredSource = restoreStudioSession(snapshot, sessionRef.current.project);
+        const restored = restoreSessionAndContext(contextSnapshot, restoredSource);
         persistedSnapshotRef.current = snapshot;
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
         setPersistence({
-          status: "restored",
+          status: preferInitialProject && lifecycleHosted ? "dirty" : "restored",
           revision: snapshot.storageRevision,
           backupCount,
           schemaVersion: CURRENT_PROJECT_SCHEMA_VERSION,
@@ -5235,6 +5275,14 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
     else if (page === "checks") selectWorkspaceMode("debug-qa");
     else if (page === "story" && (workspaceMode === "production" || workspaceMode === "debug-qa")) selectWorkspaceMode("writer");
   };
+  const openProjectStructure = async (intent?: ProjectStructureIntent) => {
+    setStructureError(null);
+    if (!await saveToLocal()) throw new Error("当前内容尚未保存成功，请检查保存状态后重试。");
+    onOpenProject?.(sessionRef.current.activeSceneId, intent);
+  };
+  const createStoryEntity = (kind: Exclude<EntityKind, "chapter">) => {
+    void openProjectStructure({ create: kind }).catch(reason => setStructureError(reason instanceof Error ? reason.message : String(reason)));
+  };
   return (
     <div
       className="app-shell"
@@ -5271,7 +5319,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
       data-testid="workspace-shell"
     >
       <WorkspaceHeader
-        {...(onOpenProject === undefined ? {} : { onOpenProject: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); onOpenProject(sessionRef.current.activeSceneId); } })}
+        {...(onOpenProject === undefined ? {} : { onOpenProject: () => openProjectStructure() })}
         {...(onReturnHome === undefined ? {} : { onReturnHome: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); onReturnHome(); } })}
         {...(onExportProject === undefined ? {} : { onExportProject: async () => { if (!await saveToLocal()) throw new Error("项目尚未保存成功，请检查保存状态后重试。"); await onExportProject(previewCanonicalProjectRef.current); } })}
         mode={mode}
@@ -5295,7 +5343,9 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
       />
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
       {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
+      {structureError && <p className="workspace-draft-hint" role="alert">{structureError}</p>}
       {studioPage === "story" && <nav className="studio-context-nav" aria-label="故事工作区">
+        {onOpenProject && <StoryCreateMenu disabled={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0 || ["loading", "saving", "autosaving", "unavailable"].includes(persistence.status)} onCreate={kind => openProjectStructure({ create: kind })} />}
         <button type="button" className="scene-toggle" aria-pressed={scenesOpen} onClick={() => setScenesOpen(!scenesOpen)}>场景列表</button>
         {([['writer', 'sequence', '写作'], ['director', 'sequence', '演出'], ['flow', 'flow', '路线'], ['writer', 'script', '脚本']] as const).map(([workspace, view, label]) => <button type="button" key={label} aria-current={workspaceMode === workspace && mode === view ? "page" : undefined} disabled={inputDirty} onClick={() => { selectWorkspaceMode(workspace); setMode(view); if (view === "flow") setPreviewOpen(false); }}><StudioIcon name={label === "写作" ? "write" : label === "演出" ? "director" : label === "路线" ? "route" : "script"} />{label}</button>)}
         <button type="button" className="preview-toggle" aria-pressed={previewOpen} onClick={() => { const opening = !previewOpen; setPreviewOpen(opening); if (window.innerWidth < 960) { if (opening) requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView({ block: "start" })); else if (workspaceGrid.current) workspaceGrid.current.scrollTop = 0; } }}>{previewOpen ? "收起预览" : "打开预览"}</button>
@@ -5367,6 +5417,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           />
         ) : <>
           <SceneRail
+          disabled={inputDirty}
           onSelectScene={() => setScenesOpen(false)}
           session={session}
           dispatch={dispatch}
@@ -5374,6 +5425,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           assetStatus={assetStatus}
           onOpenAssets={() => setAssetPanelOpen(true)}
           onGlobalJump={(match) => {
+            if (inputDirty) { setStructureError("请先应用或放弃当前输入，再切换场景。"); return; }
             setScenesOpen(false);
             setMode("sequence");
             setRequestedFocusStatementId(match.statementId);
@@ -5381,7 +5433,7 @@ export function App({ initialProject, initialSceneId, routeCompiler, onProjectCh
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (

@@ -1,0 +1,18 @@
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.selectOption: Error: strict mode violation: getByLabel('资源类型') resolved to 2 elements:
+    1) <select>…</select> aka getByLabel('筛选资源类型全部类型背景角色CG音频视频字体UI其他')
+    2) <select aria-label="资源类型">…</select> aka getByLabel('资源类型', { exact: true })
+
+Call log:
+  - waiting for getByLabel('资源类型')
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-authoring-flow.mjs:88:33 {
+  log: [ "  - waiting for getByLabel('资源类型')" ]
+}
+
+Node.js v24.14.0

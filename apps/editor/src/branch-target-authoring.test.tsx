@@ -10,11 +10,15 @@ it('chooses named scenes but writes stable IDs into Script, including duplicate 
     {id:'scene_right',title:'旧车站',statements:[{id:'end_right',kind:'end',endingName:'右线'}]},
   ]},'branch-author-project');
   render(<App initialProject={project}/>);
-  const target=screen.getByLabelText('目标稳定 ID');
+  const target=screen.getByLabelText('接下来进入');
   expect(within(target).getByRole('option',{name:'场景：旧车站 · scene_right'})).toHaveValue('scene_right');
   expect(within(target).getByRole('option',{name:'场景：旧车站 · scene_left'})).toHaveValue('scene_left');
   fireEvent.change(target,{target:{value:'scene_right'}});
-  fireEvent.click(screen.getByRole('button',{name:'应用类型化参数'}));
+  expect(screen.getByRole('button',{name:/02旧车站/})).toBeDisabled();
+  expect(screen.getByRole('button',{name:'试玩完整流程'})).toBeDisabled();
+  expect(screen.getByText(/参数有未应用的修改/)).toBeVisible();
+  fireEvent.click(screen.getByRole('button',{name:'应用修改'}));
+  expect(screen.getByRole('button',{name:/02旧车站/})).toBeEnabled();
   fireEvent.click(screen.getByRole('tab',{name:'Script'}));
   expect((screen.getByLabelText('权威脚本编辑器') as HTMLTextAreaElement).value).toContain('scene_right');
   expect((screen.getByLabelText('权威脚本编辑器') as HTMLTextAreaElement).value).not.toContain('旧车站');

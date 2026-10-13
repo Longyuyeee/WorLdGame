@@ -10,11 +10,11 @@ it('shows variable meaning and scope while committing stable IDs', () => {
   ]},'variable-author-project');
   const project={...base,variables:{...base.variables,variables:[createVariableEntity('trust_story','好感度','number',0,'story'),createVariableEntity('trust_scene','好感度','number',0,'scene')]}};
   render(<App initialProject={project}/>);
-  const input=screen.getByLabelText('变量稳定 ID');
+  const input=screen.getByLabelText('要修改的变量');
   expect(within(input).getByRole('option',{name:'好感度 · 数值 · 故事 · trust_story'})).toHaveValue('trust_story');
   fireEvent.change(input,{target:{value:'trust_scene'}});
   expect(within(input).getByRole('option',{name:'好感度 · 数值 · 场景 · trust_scene'})).toHaveValue('trust_scene');
-  fireEvent.click(screen.getByRole('button',{name:'应用类型化参数'}));
+  fireEvent.click(screen.getByRole('button',{name:'应用修改'}));
   fireEvent.click(screen.getByRole('tab',{name:'Script'}));
   expect((screen.getByLabelText('权威脚本编辑器') as HTMLTextAreaElement).value).toContain('trust_scene');
   expect((screen.getByLabelText('权威脚本编辑器') as HTMLTextAreaElement).value).not.toContain('好感度');

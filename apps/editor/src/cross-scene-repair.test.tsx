@@ -22,7 +22,7 @@ it.each([false, true])("locates a cross-scene loop or false exit (%s), repairs i
   const inspector = within(screen.getByRole("form", { name: constant ? "条件类型化参数" : "跳转类型化参数" }));
   if (constant) fireEvent.change(inspector.getByRole("textbox", { name: "条件表达式（可手动编辑复杂条件）" }), { target: { value: "true" } });
   else fireEvent.change(inspector.getByRole("combobox"), { target: { value: "finish" } });
-  fireEvent.click(inspector.getByRole("button", { name: "应用类型化参数" }));
+  fireEvent.click(inspector.getByRole("button", { name: "应用修改" }));
   fireEvent.click(screen.getByRole("tab", { name: "Flow" }));
   expect(screen.queryByRole("button", { name: /进入诊断内容：CROSS_SCENE/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "撤销" }));

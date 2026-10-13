@@ -17,6 +17,7 @@ import { readTrustedRouteOverview } from "./trusted-route-overview";
 import { readTrustedLazyEditIndex } from "./trusted-lazy-edit-index";
 import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLazyScenePage } from "./lazy-scene-session";
 import { prepareN42MediaStageFixture } from "./n42-media-stage-fixture";
+import type { ProjectStructureIntent } from "./project-entity-dialog";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -29,7 +30,7 @@ export function StudioLauncher() {
   const [recent, setRecent] = useState<readonly RecentProject[]>([]);
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string}|null>(null);
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
@@ -93,6 +94,7 @@ export function StudioLauncher() {
     if (editing.view === "structure") return <>
       <ProjectEntityManager
         returnLabel="返回创作"
+        {...(editing.intent ? { initialCreate: editing.intent.create, returnAfterCreate: true } : {})}
         {...(editing.sceneId === undefined ? {} : { initialSceneId: editing.sceneId })}
         session={editing.session}
         workspace={editing.workspace}
@@ -101,7 +103,7 @@ export function StudioLauncher() {
           compilers.current.set(session.reference.referenceId, compiled.compiler);
           setEditing((current) => current === null ? current : { ...current, session: compiled.session, compiler: compiled.compiler });
         }}
-        onOpenEditor={(project,sceneId) => setEditing({ ...editing, session: markProjectDirty(editing.session, project), view: "content", ...(sceneId===undefined?{sceneId:editing.sceneId ?? project.manifest.entrySceneId}:{sceneId}) })}
+        onOpenEditor={(project,sceneId) => setEditing(current => current === null ? current : { ...current, intent: undefined, preferInitialProject: true, session: markProjectDirty(current.session, project), view: "content", sceneId: sceneId ?? current.sceneId ?? project.manifest.entrySceneId })}
       />
     </>;
     return <>
@@ -114,8 +116,9 @@ export function StudioLauncher() {
           document.body.append(anchor); anchor.click(); anchor.remove();
           setTimeout(download.dispose, 60_000);
         }}
-        onOpenProject={sceneId => setEditing(current => current === null ? current : { ...current, view: "structure", ...(sceneId === undefined ? {} : { sceneId }) })}
+        onOpenProject={(sceneId, intent) => setEditing(current => current === null ? current : { ...current, view: "structure", intent, ...(sceneId === undefined ? {} : { sceneId }) })}
         initialProject={editing.session.project}
+        preferInitialProject={editing.preferInitialProject ?? false}
         {...(editing.sceneId===undefined?{}:{initialSceneId:editing.sceneId})}
         {...(editing.compiler === null ? {} : { routeCompiler: editing.compiler })}
         onCanonicalProjectChange={(project) => setEditing((current) => current === null ? current : { ...current, session: markProjectDirty(current.session, project) })}

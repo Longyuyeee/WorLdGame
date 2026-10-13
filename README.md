@@ -1,11 +1,13 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-10-12
+> 文档基线：2026-10-13
+> 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
+> 当前进展：[创作流程第一包 #305](docs/305-web-authoring-flow.md)已交付写作直接创建、结构列表/弹窗、草稿保护和新增场景的数据衔接。真实三场景/两结局工程已保存重开并导出 HTML/目录包，通过本地网页游玩；19 项相关回归、7 组浏览器任务通过。当前可查看 evidence/web-authoring-flow；完整作品与公网发布尚未完成。
 > 最新开发记录：[开发现状与界面改造审计 #303](docs/303-development-state-and-ui-audit.md)。实际编辑器已改造项目进入、导航、主题、素材与发布流程；64 项真实浏览器检查通过，扩大 Editor 回归后仍有 1 项素材导入可见性测试失败。完整 check、真机和 M1 未通过；按用户要求记录现状并推送，不继续追加修复。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：按完整作者任务推进。《雨后的约定》已贯通基础写作、媒体演出、选择赋值与跨场景条件结局、预览修改和保存重开；最新可编辑工程见 evidence/authoring/rainy-promise-conditions.zip（使用测试素材）。下一阶段为路线图理解、定位并持续修改完整分支作品。编辑能力与 M1 尚未全部完成，打包增强和真人验收后置。当前计划见 docs/89-engine-product-delivery-plan.md 顶部。
-> 当前交付边界：只规划到 M1；M2 以后保留为愿景池，不进入当前开发承诺。
+> 当前重心：从《雨后的约定》或用户提供的工程出发，在编辑器内完成一部完整分支作品，贯通发布配置、Web 导出、部署与玩家完整游玩。已有测试工程见 evidence/authoring/rainy-promise-conditions.zip；完整作品、真实上线与最终体验尚未验收。当前计划见 docs/304-web-complete-gal-delivery.md。
+> 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
 > 产品节奏纠偏：2026-09-01 [产品目标对齐审计](docs/262-product-goal-alignment-and-delivery-correction.md)确认功能语义仍对齐最初 PRD，但开发过程已过度偏向工程证明；从 E5c 起以真实用户任务、预期/实际差异和纵向可操作闭环作为主要完成判据。

@@ -14,9 +14,10 @@ it('carries a newly created scene into content editing without changing the game
   const session=await createProject(workspace,'写作测试','018f08d8-71a1-7bc2-a627-2f4a843ee190');
   const open=vi.fn(); let serial=0;
   render(<ProjectEntityManager session={session} workspace={workspace} onSession={()=>{}} onOpenEditor={open} idFactory={()=>`writing${++serial}`}/>);
-  fireEvent.change(screen.getByLabelText('新场景名称'),{target:{value:'第二幕'}});
   fireEvent.click(screen.getByRole('button',{name:'新增场景'}));
-  fireEvent.click(screen.getByRole('button',{name:'编辑所选场景'}));
+  fireEvent.change(screen.getByLabelText('新场景名称'),{target:{value:'第二幕'}});
+  fireEvent.click(screen.getByRole('button',{name:'创建场景'}));
+  fireEvent.click(screen.getByRole('button',{name:'编辑场景：第二幕'}));
   const [project,sceneId]=open.mock.calls[0]!;
   expect(project.manifest.entrySceneId).toBe(session.project!.manifest.entrySceneId);
   expect(sceneId).not.toBe(project.manifest.entrySceneId);

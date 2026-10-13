@@ -1,0 +1,29 @@
+blank-project guidance creates a character and returns to the original writing scene; dirty Escape preserves input
+{"label":"created 留下","scenes":["车站的雨","留下"],"sceneId":"scene_c985829e4c3e4d82","save":"保存到本机"}
+{"label":"created 远行","scenes":["车站的雨","留下","远行"],"sceneId":"scene_8c5f85cc2f3c4d19","save":"保存到本机"}
+create number variable and two ending scenes directly from writing; new scenes enter writing without changing the opening scene
+{"label":"before preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_015ecdd89a6d75b8740b","save":"保存到本机"}
+write real dialogue, assign a numeric variable with a valid default, and connect named choices to two authored endings without script editing
+{"label":"after exit preview","scenes":["车站的雨","留下","远行"],"sceneId":"scene_c985829e4c3e4d82","save":"保存到本机"}
+{"label":"selected entry","scenes":["车站的雨","留下","远行"],"sceneId":"scene_015ecdd89a6d75b8740b","save":"保存到本机"}
+{"label":"reopened","scenes":["车站的雨","留下","远行"],"sceneId":"scene_015ecdd89a6d75b8740b","save":"已恢复 · s6"}
+preview a complete route, save before returning home, and reopen the original scene with persisted choices
+export standalone HTML; complete both endings on desktop/mobile sizes; quick save and reload restore the same state hash
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert.ok(Object.keys(files).some(key => key.startsWith('assets/')))
+
+    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-authoring-flow.mjs:170:42 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

@@ -178,7 +178,7 @@ describe("N40 Route Map product flow", () => {
     const expression = document.querySelector('input[name="expression"]')!;
     expect(expression).toHaveValue("attended == true");
     fireEvent.change(expression, { target: { value: "attended == false" } });
-    fireEvent.click(screen.getByRole("button", { name: "应用类型化参数" }));
+    fireEvent.click(screen.getByRole("button", { name: "应用修改" }));
     fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("button", { name: "修改条件：condition_attended" })).toHaveTextContent("已经赴约 [attended] == false");
   });
@@ -201,7 +201,7 @@ describe("N40 Route Map product flow", () => {
     expect(screen.getByRole("tab", { name: "Sequence" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("button", { name: /选择跳转：/ })).toHaveFocus();
     fireEvent.change(document.querySelector('select[name="target"]')!, { target: { value: "changed_scene" } });
-    fireEvent.click(screen.getByRole("button", { name: "应用类型化参数" }));
+    fireEvent.click(screen.getByRole("button", { name: "应用修改" }));
     fireEvent.click(screen.getByRole("tab", { name: "Flow" })); openRouteTools();
     expect(screen.getByRole("button", { name: "定位路线目标：跳转 · changed_scene" })).toHaveTextContent("告别");
     await waitFor(() => expect(screen.getByRole("button", { name: "保存到本机" })).toBeEnabled());

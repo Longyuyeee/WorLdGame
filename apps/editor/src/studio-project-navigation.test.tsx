@@ -16,6 +16,31 @@ async function openMenu() {
 }
 
 describe("Project navigation persistence", () => {
+  it("creates two scenes over an existing snapshot and preserves all three scenes when reopening", async () => {
+    storage();
+    render(<StudioLauncher />);
+    fireEvent.click(screen.getByRole("button", { name: "新建项目" }));
+    fireEvent.change(screen.getByLabelText("项目名称"), { target: { value: "Scene Handoff" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建并开始写作" }));
+    await screen.findByTestId("workspace-shell");
+    for (const name of ["第一条路线", "第二条路线"]) {
+      await waitFor(() => expect(document.querySelector<HTMLButtonElement>(".local-save-button")?.disabled).toBe(false));
+      fireEvent.click(screen.getByRole("button", { name: "添加内容" }));
+      fireEvent.click(screen.getByRole("button", { name: "添加场景" }));
+      await screen.findByRole("dialog", { name: "创建场景" });
+      fireEvent.change(screen.getByLabelText("新场景名称"), { target: { value: name } });
+      fireEvent.click(screen.getByRole("button", { name: "创建并写作" }));
+      await screen.findByTestId("workspace-shell");
+      expect(screen.getByRole("heading", { name })).toBeVisible();
+    }
+    await openMenu();
+    fireEvent.click(screen.getByRole("button", { name: /所有项目/ }));
+    await screen.findByRole("main", { name: "项目首页" });
+    fireEvent.click(screen.getByRole("button", { name: "打开项目：Scene Handoff" }));
+    await screen.findByTestId("workspace-shell");
+    expect(document.querySelectorAll(".scene-item")).toHaveLength(3);
+    expect(screen.getByRole("heading", { name: "第二条路线" })).toBeVisible();
+  });
   it("saves structure changes and edited content before returning and reopening", async () => {
     storage();
     render(<StudioLauncher />);
@@ -26,8 +51,9 @@ describe("Project navigation persistence", () => {
     await openMenu();
     fireEvent.click(screen.getByRole("button", { name: /章节与角色/ }));
     await screen.findByRole("main", { name: "项目结构管理" });
-    fireEvent.change(screen.getByLabelText("新章节名称"), { target: { value: "第二章" } });
     fireEvent.click(screen.getByRole("button", { name: "新增章节" }));
+    fireEvent.change(screen.getByLabelText("新章节名称"), { target: { value: "第二章" } });
+    fireEvent.click(screen.getByRole("button", { name: "创建章节" }));
     fireEvent.click(screen.getByRole("button", { name: "返回创作" }));
     await screen.findByTestId("workspace-shell");
     fireEvent.click(screen.getByRole("button", { name: "脚本" }));
@@ -43,7 +69,7 @@ describe("Project navigation persistence", () => {
     await waitFor(() => expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain('end "保存后的结局"'));
     await openMenu();
     fireEvent.click(screen.getByRole("button", { name: /章节与角色/ }));
-    expect(await screen.findByLabelText("第二章章节名称")).toBeVisible();
+    expect(await screen.findByRole("heading", { name: "第二章" })).toBeVisible();
   });
   it("stays in the project on canonical save failure and retries without a stale local revision", async () => {
     storage();

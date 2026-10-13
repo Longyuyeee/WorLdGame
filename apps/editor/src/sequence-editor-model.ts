@@ -2,7 +2,7 @@ import type { StoryStatement } from "@world-studio/story-core";
 import type { P0EditableNode } from "@world-studio/story-language";
 
 export type SequenceInsertKind = "dialogue" | "narration" | "choice" | "label" | "jump" | "call" | "return" | "set" | "condition" | "wait" | "end" | "background" | "show" | "camera" | "audio" | "textbox";
-export interface SequenceReferences { readonly characterIds: readonly string[]; readonly sceneIds: readonly string[]; readonly labelIds: readonly string[]; readonly variableIds: readonly string[]; readonly assetIds: readonly string[]; }
+export interface SequenceReferences { readonly characterIds: readonly string[]; readonly sceneIds: readonly string[]; readonly labelIds: readonly string[]; readonly variableIds: readonly string[]; readonly assetIds: readonly string[]; readonly variableDefaults?: Readonly<Record<string, string>>; readonly variableTypes?: Readonly<Record<string, "boolean" | "number" | "string">>; }
 export interface SequenceInsertStep { readonly afterId: string; readonly node: P0EditableNode; }
 export type SequenceIdFactory = (prefix: string) => string;
 
@@ -26,8 +26,8 @@ export function createSequenceInsertPlan(kind: SequenceInsertKind, afterId: stri
   if(kind==="jump")return one({kind:"jump",targetLabel:target,id:statementId,trailingMetadata:""});
   if(kind==="call")return one({kind:"call",targetLabel:target,id:statementId,trailingMetadata:""});
   if(kind==="return")return one({kind:"return",id:statementId,trailingMetadata:""});
-  if(kind==="set")return one({kind:"set",variable,expressionRaw:"true",id:statementId,trailingMetadata:""});
-  if(kind==="condition")return one({kind:"condition",expressionRaw:variable,targetLabel:target,id:statementId,trailingMetadata:""});
+  if(kind==="set")return one({kind:"set",variable,expressionRaw:refs.variableDefaults?.[variable] ?? "true",id:statementId,trailingMetadata:""});
+  if(kind==="condition")return one({kind:"condition",expressionRaw:refs.variableTypes?.[variable] === "number" ? `${variable} > 0` : refs.variableTypes?.[variable] === "string" ? `${variable} != ""` : variable,targetLabel:target,id:statementId,trailingMetadata:""});
   if(kind==="wait")return one({kind:"wait",durationRaw:"500ms",id:statementId,trailingMetadata:""});
   if(kind==="end")return one({kind:"end",nameRaw:quote("新结局"),id:statementId,trailingMetadata:""});
   const optionA=createId("option"),optionB=createId("option");
