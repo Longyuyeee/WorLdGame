@@ -1,0 +1,556 @@
+{
+  "schemaVersion": 1,
+  "indexRevision": 23,
+  "assets": [
+    {
+      "assetId": "coastal_morning",
+      "kind": "background",
+      "displayName": "雨后的海边街道",
+      "source": {
+        "digest": "sha256:558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+        "byteLength": 3019235,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 3019235,
+          "isolation": "none",
+          "width": 1672,
+          "height": 941,
+          "pixelCount": 1573352
+        }
+      }
+    },
+    {
+      "assetId": "letter_icon",
+      "kind": "ui",
+      "displayName": "雨停之前·作品图标",
+      "source": {
+        "digest": "sha256:1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+        "byteLength": 18633,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 18633,
+          "isolation": "none",
+          "width": 512,
+          "height": 512,
+          "pixelCount": 262144
+        }
+      }
+    },
+    {
+      "assetId": "morning_studio",
+      "kind": "background",
+      "displayName": "雨后的画室",
+      "source": {
+        "digest": "sha256:598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+        "byteLength": 2417066,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 2417066,
+          "isolation": "none",
+          "width": 1672,
+          "height": 941,
+          "pixelCount": 1573352
+        }
+      }
+    },
+    {
+      "assetId": "night_cafe",
+      "kind": "background",
+      "displayName": "雨夜面馆",
+      "source": {
+        "digest": "sha256:9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+        "byteLength": 2435510,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 2435510,
+          "isolation": "none",
+          "width": 1672,
+          "height": 941,
+          "pixelCount": 1573352
+        }
+      }
+    },
+    {
+      "assetId": "night_train",
+      "kind": "background",
+      "displayName": "夜行列车",
+      "source": {
+        "digest": "sha256:6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+        "byteLength": 1968450,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 1968450,
+          "isolation": "none",
+          "width": 1672,
+          "height": 941,
+          "pixelCount": 1573352
+        }
+      }
+    },
+    {
+      "assetId": "night_travel_theme",
+      "kind": "audio",
+      "displayName": "夜行与回信（原创合成音乐）",
+      "source": {
+        "digest": "sha256:d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a",
+        "byteLength": 1411244,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 1411244,
+          "isolation": "none",
+          "durationSeconds": 32,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "sample_station",
+      "kind": "background",
+      "displayName": "雨夜站台",
+      "source": {
+        "digest": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+        "byteLength": 2534090,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 2534090,
+          "isolation": "none",
+          "width": 1672,
+          "height": 941,
+          "pixelCount": 1573352
+        }
+      }
+    },
+    {
+      "assetId": "soft_rain",
+      "kind": "audio",
+      "displayName": "屋檐雨声（原创合成）",
+      "source": {
+        "digest": "sha256:fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98",
+        "byteLength": 529244,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 529244,
+          "isolation": "none",
+          "durationSeconds": 12,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "station_chime",
+      "kind": "audio",
+      "displayName": "进站提示音（原创合成）",
+      "source": {
+        "digest": "sha256:78c4a9d21f19861265c4ce8c8e3b56f4a8bdb0777515ec93a9e53facbb17b863",
+        "byteLength": 66194,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 66194,
+          "isolation": "none",
+          "durationSeconds": 1.5,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_01",
+      "kind": "audio",
+      "displayName": "林远·合成语音01",
+      "source": {
+        "digest": "sha256:26be1da92d18729069c0fda981697a09631fbe7525d4517af5f3633824bf13c0",
+        "byteLength": 222222,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 222222,
+          "isolation": "none",
+          "durationSeconds": 5.038004535147392,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_02",
+      "kind": "audio",
+      "displayName": "小夏·合成语音02",
+      "source": {
+        "digest": "sha256:342b2b082636ff9d0e8fff71a0ad7f53dfc5bb3fb6125927371b0828cf417197",
+        "byteLength": 233942,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 233942,
+          "isolation": "none",
+          "durationSeconds": 5.303764172335601,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_03",
+      "kind": "audio",
+      "displayName": "林远·合成语音03",
+      "source": {
+        "digest": "sha256:9851880463e1d27bb758947fd998c834d942817f5c589fdd1b3ef31f870add27",
+        "byteLength": 159176,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 159176,
+          "isolation": "none",
+          "durationSeconds": 3.608390022675737,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_04",
+      "kind": "audio",
+      "displayName": "林远·合成语音04",
+      "source": {
+        "digest": "sha256:eccfe5a280ecf38ef861570ed7239cb4046caa94f53ad62709e387f990ed9221",
+        "byteLength": 215152,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 215152,
+          "isolation": "none",
+          "durationSeconds": 4.877687074829932,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_05",
+      "kind": "audio",
+      "displayName": "小夏·合成语音05",
+      "source": {
+        "digest": "sha256:eeff44bae98f46d3fefaf1b8d9e3f27ee08ac635043e8d660e759f57946d8057",
+        "byteLength": 216412,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 216412,
+          "isolation": "none",
+          "durationSeconds": 4.906258503401361,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_06",
+      "kind": "audio",
+      "displayName": "小夏·合成语音06",
+      "source": {
+        "digest": "sha256:0e68ac781943cf48422d833c6eb6550f66ee4fb31901f12f492e3ca8c079695a",
+        "byteLength": 257060,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 257060,
+          "isolation": "none",
+          "durationSeconds": 5.827981859410431,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_07",
+      "kind": "audio",
+      "displayName": "小夏·合成语音07",
+      "source": {
+        "digest": "sha256:cc0bd25e03762753601ed2464aff8cb0fadd99db43610a7eaebb752a7acef028",
+        "byteLength": 211326,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 211326,
+          "isolation": "none",
+          "durationSeconds": 4.79092970521542,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_08",
+      "kind": "audio",
+      "displayName": "林远·合成语音08",
+      "source": {
+        "digest": "sha256:b7b78ec4e28133260db750e20de3e4c56bda60e6e65f73b58b09412e75e76d4c",
+        "byteLength": 206130,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 206130,
+          "isolation": "none",
+          "durationSeconds": 4.673106575963719,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "voice_09",
+      "kind": "audio",
+      "displayName": "小夏·合成语音09",
+      "source": {
+        "digest": "sha256:f90e09e4c2dadc8c6d255c137cd4ce3bc5b40d8a7331e9467c813075a809786a",
+        "byteLength": 224528,
+        "mimeType": "audio/wav"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "audio/wav",
+          "mediaClass": "audio",
+          "format": "WAV",
+          "byteLength": 224528,
+          "isolation": "none",
+          "durationSeconds": 5.090294784580498,
+          "sampleRate": 22050,
+          "channels": 1
+        }
+      }
+    },
+    {
+      "assetId": "waiting_room",
+      "kind": "background",
+      "displayName": "候车室·旧信",
+      "source": {
+        "digest": "sha256:9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+        "byteLength": 2308345,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 2308345,
+          "isolation": "none",
+          "width": 1672,
+          "height": 941,
+          "pixelCount": 1573352
+        }
+      }
+    },
+    {
+      "assetId": "xia_letter",
+      "kind": "character",
+      "displayName": "小夏·手中的信",
+      "source": {
+        "digest": "sha256:db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+        "byteLength": 1837533,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 1837533,
+          "isolation": "none",
+          "width": 1024,
+          "height": 1536,
+          "pixelCount": 1572864
+        }
+      }
+    },
+    {
+      "assetId": "xia_smile",
+      "kind": "character",
+      "displayName": "小夏·安心微笑",
+      "source": {
+        "digest": "sha256:5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+        "byteLength": 1783270,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 1783270,
+          "isolation": "none",
+          "width": 1024,
+          "height": 1536,
+          "pixelCount": 1572864
+        }
+      }
+    },
+    {
+      "assetId": "xia_thoughtful",
+      "kind": "character",
+      "displayName": "小夏·认真倾听",
+      "source": {
+        "digest": "sha256:02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+        "byteLength": 1809416,
+        "mimeType": "image/png"
+      },
+      "tags": [],
+      "preservedFields": {
+        "inspection": {
+          "schemaVersion": 1,
+          "status": "pass",
+          "detectedMimeType": "image/png",
+          "mediaClass": "image",
+          "format": "PNG",
+          "byteLength": 1809416,
+          "isolation": "none",
+          "width": 1024,
+          "height": 1536,
+          "pixelCount": 1572864
+        }
+      }
+    }
+  ]
+}

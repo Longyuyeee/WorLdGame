@@ -3,6 +3,7 @@ import { variableOptionLabels } from './variable-option-labels';
 import { EditorThemeControl } from './editor-theme';
 import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-card';
 import { TextBatchDialog } from "./TextBatchDialog";
+import { normalizeAudioVolume } from "./audio-volume";
 import { StudioNavigation, type StudioPage } from './studio-navigation';
 import { StudioIcon } from './studio-icon';
 import { ProjectMenu } from './project-menu';
@@ -479,6 +480,7 @@ const WorkspaceNavigation = memo(function WorkspaceNavigation({
               className={candidate === mode ? "mode-tab is-active" : "mode-tab"}
               key={candidate}
               onClick={() => onModeChange(candidate)}
+              disabled={inputDirty}
               role="tab"
               aria-selected={candidate === mode}
             >
@@ -1180,17 +1182,26 @@ interface DirectionInspectorProps {
   readonly disabled: boolean;
   readonly createCommandId: () => string;
   readonly dispatch: (action: StudioAction) => void;
+  readonly assetReader?: AssetLibraryReader | null;
+  readonly onDirtyChange?: (dirty: boolean) => void;
 }
 
-function DirectionInspector({
+export function DirectionInspector({
   statement,
   assetIndex,
   disabled,
   createCommandId,
-  dispatch
+  dispatch,
+  assetReader = null,
+  onDirtyChange = () => {}
 }: DirectionInspectorProps) {
   const inspection = inspectDirectiveArguments(statement.summary);
   const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
+  const [baseline, setBaseline] = useState(() => JSON.stringify(inspection.parameters));
+  const [notice, setNotice] = useState("");
+  const dirty = JSON.stringify(form) !== baseline;
+  useEffect(() => { onDirtyChange(dirty); }, [dirty]);
+  useEffect(() => () => onDirtyChange(false), []);
   const action = resolveDirectiveAction(statement.command, form.action);
   const assetRequired = action !== undefined && directiveActionRequiresAsset(statement.command, action);
   const characterGeometryActive = statement.command === "show" && (action === "show" || action === "move");
@@ -1206,7 +1217,7 @@ function DirectionInspector({
   const duration = statement.command === "audio" ? (form.fade ?? "") : (form.duration ?? "");
   const durationValid = !durationActive || duration.length === 0 || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const volumeValid = !assetRequired || statement.command !== "audio" || form.volume === undefined || form.volume.length === 0 ||
-    (/^\d+(?:\.\d+)?$/.test(form.volume) && Number(form.volume) >= 0 && Number(form.volume) <= 1);
+    normalizeAudioVolume(form.volume) !== null;
   const busValid = statement.command !== "audio" || ["voice", "bgm", "sfx", "ambient"].includes(form.bus ?? "");
   const slot = form.slot ?? "primary";
   const slotValid = statement.command !== "show" || SAFE_STAGE_SLOT.test(slot);
@@ -1261,18 +1272,20 @@ function DirectionInspector({
     <form className="direction-inspector" onSubmit={(event) => {
       event.preventDefault();
       if (!canApply) return;
-      dispatch({
+      try { dispatch({
         type: "patch-direction",
         commandId: createCommandId(),
         statementId: statement.id,
         parameters: {
           ...fieldPatch(keys),
+          ...(statement.command === "audio" && assetRequired ? { volume: form.volume?.trim() ? normalizeAudioVolume(form.volume) : null } : {}),
           action: action ?? null,
           ...(statement.command === "show" && action === "show" ? { easing: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null } : {}),
           ...(!assetRequired ? inactiveResourcePatch : {})
         },
         removeLegacyPositional: inspection.positional.length > 0
-      });
+      }); setBaseline(JSON.stringify(form)); setNotice(""); }
+      catch (error) { setNotice((error as Error).message); }
     }}>
       <div className="direction-inspector__hero">
         <span className={`direction-command direction-command--${statement.command}`}>@{statement.command}</span>
@@ -1310,18 +1323,17 @@ function DirectionInspector({
 
       {assetRequired && <div className="direction-field direction-field--wide">
         <label htmlFor={`direction-asset-${statement.id}`}>主资源</label>
-        <input
+        <select
           id={`direction-asset-${statement.id}`}
           aria-label="演出主资源"
-          list={`direction-assets-${statement.id}`}
           value={assetId}
           disabled={disabled}
-          placeholder={compatibleAssets.length === 0 ? "先导入兼容资源" : "选择或输入 Asset ID"}
           onChange={(event) => setField("asset", event.target.value)}
-        />
-        <datalist id={`direction-assets-${statement.id}`}>
-          {compatibleAssets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName} · {entry.kind}</option>)}
-        </datalist>
+        ><option value="">请选择素材</option>{assetId && !assetKnown && <option value={assetId} disabled>缺失或不兼容 · {assetId}</option>}
+          {compatibleAssets.map(entry => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}
+        </select>
+        <details><summary>技术资源标识</summary><code>{assetId || "未选择"}</code></details>
+        {compatibleAssets.find(entry => entry.assetId === assetId) && <AssetLibraryPreview entry={compatibleAssets.find(entry => entry.assetId === assetId)!} reader={assetReader} />}
         <small className={assetId.length > 0 && !assetKnown ? "is-error" : ""}>
           {compatibleAssets.length === 0
             ? `Asset Index 中没有可用于 @${statement.command} 的资源`
@@ -1377,9 +1389,9 @@ function DirectionInspector({
         <div className="direction-field"><label htmlFor={`camera-easing-${statement.id}`}>镜头缓动</label><select id={`camera-easing-${statement.id}`} aria-label="镜头缓动" value={form.easing ?? ""} disabled={disabled} onChange={(event) => setField("easing", event.target.value)}><option value="">Linear（兼容默认）</option>{STAGE_EASINGS.filter((value) => value !== "linear").map((value) => <option key={value} value={value}>{value}</option>)}</select>{!easingValid && <small className="is-error">请选择冻结的缓动曲线</small>}</div>
       </>}
       {statement.command === "audio" && <>
-        <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></div>
+        <div className="direction-field"><label htmlFor={`direction-bus-${statement.id}`}>音轨</label><select id={`direction-bus-${statement.id}`} aria-label="音频总线" value={form.bus ?? ""} disabled={disabled} onChange={(event) => setField("bus", event.target.value)}><option value="">请选择</option><option value="voice">角色配音</option><option value="bgm">背景音乐</option><option value="sfx">音效</option><option value="ambient">环境声音</option></select></div>
         {assetRequired && <><div className="direction-field"><label htmlFor={`direction-loop-${statement.id}`}>循环</label><select id={`direction-loop-${statement.id}`} aria-label="音频循环" value={form.loop ?? ""} disabled={disabled} onChange={(event) => setField("loop", event.target.value)}><option value="">默认</option><option value="true">开启</option><option value="false">关闭</option></select></div>
-        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} /></div></>}
+        <div className="direction-field"><label htmlFor={`direction-volume-${statement.id}`}>音量 0–1</label><input id={`direction-volume-${statement.id}`} aria-label="音频音量" inputMode="decimal" value={form.volume ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("volume", event.target.value)} />{!volumeValid && <small role="alert">音量需要在 0–1 之间，最多三位小数。</small>}</div></>}
       </>}
       {durationActive && <div className="direction-field">
         <label htmlFor={`direction-duration-${statement.id}`}>{statement.command === "audio" ? "淡入/淡出" : statement.command === "camera" ? "镜头时长" : "时长"}</label>
@@ -1393,11 +1405,13 @@ function DirectionInspector({
         {!transitionAssetKnown && <small className="is-error">过渡资源不在 Asset Index 中</small>}
       </div>}
       <div className="direction-inspector__actions">
+        {dirty && <button type="button" disabled={disabled} onClick={() => { setForm({ ...inspection.parameters }); setBaseline(JSON.stringify(inspection.parameters)); setNotice(""); }}>放弃演出修改</button>}
         <span>{inspection.duplicateKeys.length === 0 ? "未知参数保持原样" : "提交已锁定"}</span>
         <button type="submit" disabled={!canApply}>
           {inspection.positional.length > 0 ? "迁移旧描述并应用" : "应用演出参数"}
         </button>
       </div>
+      {notice && <p role="alert">{notice}</p>}
     </form>
   );
 }
@@ -1569,7 +1583,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, assetReader = null
   const durationValid = command !== "camera" && !(command === "background" && transition.length > 0) || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const transitionValid = transition.length === 0 || (STAGE_TRANSITIONS as readonly string[]).includes(transition);
   const templateValid = command !== "textbox" || action === "reset" || isDialogueTemplate(template);
-  const volumeValid = command !== "audio" || !assetRequired || volume.trim() !== "" && Number.isFinite(Number(volume)) && Number(volume) >= 0 && Number(volume) <= 1 && Number.isSafeInteger(Number(volume) * 1000);
+  const volumeValid = command !== "audio" || !assetRequired || normalizeAudioVolume(volume) !== null;
   const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid && templateValid && volumeValid;
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : command === "textbox" ? "文本框" : "音频";
 
@@ -1602,7 +1616,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, assetReader = null
         parameters.bus = bus;
         if (assetRequired) {
           parameters.loop = String(loop);
-          parameters.volume = String(Number(volume));
+          parameters.volume = normalizeAudioVolume(volume)!;
         }
       }
       if (command === "camera") {
@@ -2126,14 +2140,20 @@ function SequenceView({
             key={`${selected.id}:${selected.summary}`}
             statement={selected}
             assetIndex={assetIndex}
-            disabled={pendingDraft || inspectorDirty}
+            disabled={pendingDraft}
             createCommandId={createCommandId}
-            dispatch={dispatch}
+            assetReader={assetReader}
+            onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }}
+            dispatch={action => {
+              const candidate = reduceStudioSession(session, action);
+              if (candidate.notice.tone === "error") throw new Error(candidate.notice.detail);
+              dispatch(action);
+            }}
           />
           </details>
         ) : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
-          点击下方步骤编辑内容。停止输入或离开输入框后自动应用。
+          点击下方步骤编辑内容。文字停止输入或失焦后自动应用；演出参数需点击“应用演出参数”，也可放弃修改。
         </p>
       </div>);
   const displayStatement = (statement: StoryStatement) => {
@@ -3954,7 +3974,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <span className="diagnostic-icon" aria-hidden="true">{showBufferedNotice ? "…" : session.notice.tone === "success" ? "✓" : session.notice.tone === "draft" ? "!" : "×"}</span>
         <div>
           <strong>{showBufferedNotice ? "输入批次尚未提交" : session.notice.title}</strong>
-          <p>{showBufferedNotice ? "Preview 保持最后有效投影；停止输入、失焦或按 Ctrl/Cmd+S 后提交。" : session.notice.detail}</p>
+          <p>{showBufferedNotice ? "预览保持已应用的内容。文字停止输入、失焦或按 Ctrl/Cmd+S 后提交；演出参数请点击应用或放弃修改。" : session.notice.detail}</p>
         </div>
       </div>
       <div className="transaction-strip">
@@ -5355,8 +5375,8 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         systemReducedMotion={systemReducedMotion}
         session={session}
         inputDirty={inputDirty || pageDirty}
-        onModeChange={(nextMode) => { setSettingsOpen(false); setMode(nextMode); }}
-        onWorkspaceModeChange={(next) => { setPublishOpen(false); selectWorkspaceMode(next); }}
+        onModeChange={(nextMode) => { if (inputDirty) return; setSettingsOpen(false); setMode(nextMode); }}
+        onWorkspaceModeChange={(next) => { if (inputDirty) return; setPublishOpen(false); selectWorkspaceMode(next); }}
         onExperienceLevelChange={setExperienceLevel}
         onMotionPreferenceChange={setMotionPreference}
         persistence={persistence}

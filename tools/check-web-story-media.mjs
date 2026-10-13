@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
 const browser = await chromium.launch({ headless: true, executablePath: process.env.STUDIO_CHROME });
-const output = path.resolve('evidence/web-story-media'), errors = [], checks = [];
+const output = path.resolve(process.env.STUDIO_STORY_OUTPUT ?? 'evidence/web-story-media'), errors = [], checks = [];
 try {
   for (const width of [320, 390]) {
     const page = await browser.newPage({ viewport: { width, height: 844 }, reducedMotion: 'reduce' });
@@ -44,10 +44,23 @@ try {
   await dialog.getByRole('button', { name: '放弃文字', exact: true }).click();
   assert.equal(await editor.locator('.statement-card--narration').count(), 10);
   await editor.locator('.statement-card--narration').first().click(); await editor.getByLabel('旁白文本', { exact: true }).waitFor();
-  checks.push({ editorWidth: 320, draftDialogFits: true, discardedDraftDidNotChangeStory: true, narrationEditorAccessible: true });
+  await editor.locator('.statement-card--direction').filter({ hasText: /action=set asset=/ }).first().click();
+  const properties = editor.locator('.step-properties'); if (!await properties.evaluate(item => item.open)) await properties.locator(':scope > summary').click();
+  const originalAsset = await editor.getByLabel('演出主资源').inputValue();
+  await editor.getByLabel('演出主资源').selectOption('coastal_morning');
+  await editor.waitForFunction(() => document.querySelector('[data-nav-item="assets"]')?.disabled);
+  await editor.locator('.editor-preferences > summary').click(); await editor.getByText('高级编辑选项', { exact: true }).click();
+  assert.ok(await editor.locator('.mode-switcher [role="tab"]').count() > 0);
+  assert.ok(await editor.locator('.mode-switcher [role="tab"]').evaluateAll(items => items.every(item => item.disabled)));
+  await editor.screenshot({ path: path.join(output, 'review-editor-320-direction-guard.png') });
+  await editor.locator('.editor-preferences > summary').click(); await editor.getByRole('button', { name: '放弃演出修改', exact: true }).click();
+  assert.equal(await editor.getByLabel('演出主资源').inputValue(), originalAsset);
+  await editor.waitForFunction(() => !document.querySelector('[data-nav-item="assets"]').disabled);
+  checks.push({ editorWidth: 320, draftDialogFits: true, discardedDraftDidNotChangeStory: true, narrationEditorAccessible: true, directionDraftProtectsAdvancedViews: true });
   // Make a separate disposable UI-authored stress export, not a patched HTML/IR fixture.
   const longText = '长段文字也必须能够完整读完。'.repeat(100);
-  await editor.locator('.statement-card--direction').last().click();
+  // Insert after the opening character cue, not a later expression/voice stop.
+  await editor.locator('.statement-card--direction').filter({ hasText: /action=show.*slot=/ }).first().click();
   await editor.getByRole('button', { name: '添加成段文字', exact: true }).click();
   const longDraft = editor.getByRole('dialog', { name: '添加成段文字', exact: true });
   await longDraft.getByLabel('成段文字', { exact: true }).fill(longText); await longDraft.getByRole('button', { name: '添加到故事', exact: true }).click();

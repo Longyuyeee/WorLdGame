@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "width": 320,
+      "inside": true,
+      "noControlsOverlap": true,
+      "scrollable": false,
+      "scrollHeight": 370,
+      "clientHeight": 370,
+      "scrollDidNotAdvance": true
+    },
+    {
+      "width": 390,
+      "inside": true,
+      "noControlsOverlap": true,
+      "scrollable": false,
+      "scrollHeight": 306,
+      "clientHeight": 306,
+      "scrollDidNotAdvance": true
+    },
+    {
+      "editorWidth": 320,
+      "draftDialogFits": true,
+      "discardedDraftDidNotChangeStory": true,
+      "narrationEditorAccessible": true,
+      "directionDraftProtectsAdvancedViews": true
+    },
+    {
+      "width": 320,
+      "uiAuthoredLongParagraphCharacters": 1400,
+      "scrollable": true,
+      "finalLineReachable": true,
+      "scrollDidNotAdvance": true
+    }
+  ],
+  "errors": [],
+  "physicalDevicePassed": false
+}

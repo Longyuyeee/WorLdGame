@@ -172,6 +172,19 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByRole("button", { name: "应用演出参数" })).toBeDisabled();
   });
 
+  it("protects direction drafts from advanced view changes as well as primary tasks", () => {
+    renderLegacyDirectionApp();
+    fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "clear" } });
+    expect(screen.getByRole("tab", { name: "Script" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "素材" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect(screen.getByLabelText("演出动作")).toHaveValue("clear");
+    fireEvent.click(screen.getByRole("button", { name: "放弃演出修改" }));
+    expect(screen.getByRole("tab", { name: "Script" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain("@background 黄昏校门 · 云层缓慢移动");
+  });
+
   it("converts an existing Show cue into a resource-free Move without dropping geometry controls", () => {
     renderLegacyDirectionApp();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
