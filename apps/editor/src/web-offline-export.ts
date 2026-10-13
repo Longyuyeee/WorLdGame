@@ -6,6 +6,9 @@ const client = String.raw`(() => {
   const layout = () => document.body.style.setProperty('--player-viewport-offset', Math.ceil((panel?.getBoundingClientRect().height ?? 0) + (version?.getBoundingClientRect().height ?? 0)) + 'px');
   layout();
   panel?.addEventListener('toggle', layout);
+  // details.toggle may be queued after its open attribute has already changed layout.
+  // Rebudget in the mutation microtask so the first expanded frame stays readable.
+  if (panel && typeof MutationObserver === 'function') new MutationObserver(layout).observe(panel, { attributes: true, attributeFilter: ['open'] });
   window.addEventListener('resize', layout);
   if (typeof ResizeObserver === 'function') {
     const observer = new ResizeObserver(layout);

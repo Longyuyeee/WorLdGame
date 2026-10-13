@@ -3,6 +3,10 @@ import { releaseAnimationsOnDetach } from "./owned-animations";
 import { startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
+import { applyPlayerPreferences } from './player-preferences';
+import { usePlayerPreferences } from './use-player-preferences';
+import { usePlayerFullscreen } from './use-player-fullscreen';
+import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
@@ -191,7 +195,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const coverAllowed = appearance !== null && webPlayerCoverAssets(project).some(asset => String(asset.assetId ?? asset.id) === appearance.coverAssetId);
   const cover = coverAllowed ? mediaAssets.find(asset => asset.assetId === appearance?.coverAssetId && ["image/png", "image/jpeg", "image/webp"].includes(asset.mimeType)) : undefined;
   const [failedCover, setFailedCover] = useState<string | null>(null);
-  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
+  const personal = usePlayerPreferences(project.manifest.projectId);
+  const baseSettings = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
+  const settingsApplication = useMemo(() => applyPlayerPreferences(baseSettings, personal.preferences), [baseSettings, personal.preferences]);
+  const fullscreen = usePlayerFullscreen();
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const preferencesPanel = useRef<HTMLDivElement | null>(null), preferencesTrigger = useRef<HTMLButtonElement | null>(null);
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const liveState = useRef(state);
   liveState.current = state;
@@ -378,12 +387,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     () => presentedText === "" || reducedReadingMotion ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, presentedText),
     [presentedText, settingsApplication, reducedReadingMotion]
   );
-  const reading = useReadingSurface(`${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}`);
+  const reading = useReadingSurface(`${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`);
   const readingRef = useCallback((element: HTMLButtonElement | null) => { reading.element.current = element; return releaseAnimationsOnDetach(element); }, [reading.element]);
   useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(false); }, [project.manifest.projectId]);
   useEffect(() => { if (!compactReading) setReadingMenuOpen(false); }, [compactReading]);
   const closeReadingMenu = useCallback(() => { setReadingMenuOpen(false); queueMicrotask(() => readingMenuTrigger.current?.focus()); }, []);
+  const closePreferences = useCallback(() => { setPreferencesOpen(false); queueMicrotask(() => (compactReading ? readingMenuTrigger.current : preferencesTrigger.current)?.focus()); }, [compactReading]);
   useEffect(() => { if (readingMenuOpen) readingMenu.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus(); }, [readingMenuOpen]);
+  useEffect(() => { if (preferencesOpen) preferencesPanel.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus(); }, [preferencesOpen]);
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
 
@@ -680,10 +691,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
-    if (source === 'system' && intent.kind === 'primary' && (readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
+    if (source === 'system' && intent.kind === 'primary' && (preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
       deferredMenuCompletion.current = { stateHash: snapshot.runtimeStateHash, hostHash: snapshot.runtimeHostSnapshotHash };
       return;
     }
+    if (preferencesOpen) return;
     if (readingMenuOpen) {
       if (intent.kind === 'back' || intent.kind === 'forward') setReadingMenuOpen(false);
       else return;
@@ -721,14 +733,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setLastInputAccepted(true);
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, settingsApplication, stopSkip, textReady, voicePlaying, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
+  }, [content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
   useEffect(() => {
-    if (hostActivity !== 'active' || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
+    if (hostActivity !== 'active' || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
     deferredMenuCompletion.current = null;
     // A load or history navigation must not complete a different pending effect.
     if (snapshot.status === 'waiting-effect' && completion.stateHash === snapshot.runtimeStateHash && completion.hostHash === snapshot.runtimeHostSnapshotHash) applyIntent({ kind: 'primary' }, 'system');
-  }, [hostActivity, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.status, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, applyIntent]);
+  }, [hostActivity, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.status, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, applyIntent]);
 
   useEffect(() => {
     autoSavedSceneIdentities.current.clear();
@@ -738,6 +750,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     additionalContentPlaybackReturn.current = null;
     setState(createLocalizedPlayerCore(project, settingsApplication.history));
     setReadingMenuOpen(false); deferredMenuCompletion.current = null;
+    setPreferencesOpen(false);
     setMediaErrors([]);
     setMediaGeneration(0);
     setSelectedChoiceIndex(0);
@@ -985,7 +998,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("stopped");
       return;
     }
-    if (hostActivity !== "active" || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
+    if (hostActivity !== "active" || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
       setAutoPlayback("suspended");
       return;
     }
@@ -1030,7 +1043,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("advancing");
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     });
-  }, [autoEnabled, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
+  }, [autoEnabled, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -1044,7 +1057,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (!skipActive || skipMode === null) return;
     // Do not cancel an awaited video or dispatch a batch while the player is away.
-    if (hostActivity !== "active" || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
+    if (hostActivity !== "active" || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
       stopSkip();
       return;
     }
@@ -1087,7 +1100,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen]);
+  }, [preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen]);
 
   useEffect(() => {
     if (!skipActive) return;
@@ -1175,6 +1188,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (preferencesOpen) {
+        if (event.key === 'Escape') { event.preventDefault(); closePreferences(); }
+        if (event.key === 'Tab') {
+          const controls = [...(preferencesPanel.current?.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),input:not(:disabled)') ?? [])];
+          const index = controls.indexOf(document.activeElement as HTMLElement);
+          if (controls.length) { event.preventDefault(); controls[(index + (event.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus(); }
+        }
+        return;
+      }
       if (readingMenuOpen) {
         if (event.key === 'Escape') { event.preventDefault(); closeReadingMenu(); }
         if (event.key === 'Tab') {
@@ -1245,11 +1267,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [historyPanelOpen, savePanelOpen, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active, readingMenuOpen, closeReadingMenu]);
+  }, [preferencesOpen, closePreferences, historyPanelOpen, savePanelOpen, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active, readingMenuOpen, closeReadingMenu]);
 
   const gamepadAction = useRef<(action: PlayerGamepadActionV1) => void>(() => {});
   // Keep the polling session's edge history while dispatching against the latest story.
   gamepadAction.current = (action) => {
+    if (preferencesOpen) { if (action === 'cancel') closePreferences(); return; }
     if (readingMenuOpen) { if (action === 'cancel') closeReadingMenu(); return; }
     if (action === "previous-choice" || action === "next-choice") {
       if (content.kind === "choice") {
@@ -1334,13 +1357,16 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, []);
 
   return (
-    <main
+    <main ref={fullscreen.element}
       className="player-shell"
       data-player-status={snapshot.status}
       data-reading-menu-open={readingMenuOpen}
       data-compact-reading={compactReading}
       data-reading-unread-below={reading.unread}
       data-reading-pace={readingPace}
+      data-preferences-open={preferencesOpen}
+      data-player-muted={personal.preferences.muted}
+      data-player-fullscreen={fullscreen.active}
       data-player-locale={snapshot.localization.selectedLocale}
       data-player-media-locale={snapshot.localization.selectedLocale}
       data-player-media-fallbacks={localizedMedia.fallbackResourceIds.length}
@@ -1433,6 +1459,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     >
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
+      {preferencesOpen && <PlayerPreferencesPanel panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />}
       <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
         {stageImageError && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
           {stageImageStates.includes("budget") ? "画面资源超过安全预算或仍在释放，已停止自动推进。可稍后重试当前画面或手动继续。" : <>{stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。</>}
@@ -1465,6 +1492,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               ref={(element) => {
                 if (element !== null) {
                   videoElement.current = element;
+                  element.volume = settingsApplication.resolved.values.audio.master;
                   element.dataset.shouldPlay = String(stage.video?.status === "playing");
                   if (element.dataset.playerPlayback === undefined) element.dataset.playerPlayback = hostActivity === "suspended" ? "suspended" : stage.video?.status ?? "ended";
                   return () => {
@@ -1539,6 +1567,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {appliedAudio.map((track) => (
           <audio
             key={`${mediaGeneration}:${track.bus}:${track.assetId}`}
+            muted={personal.preferences.muted}
             ref={(element) => {
               if (element !== null) {
                 audioElements.current.set(track.bus, element);
@@ -1645,12 +1674,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         )}
         {compactReading && <div className="player-compact-toolbar">
           {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
-          <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { if (readingMenuOpen) closeReadingMenu(); else { stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
+          <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { if (readingMenuOpen) closeReadingMenu(); else { stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && <p className="player-portrait-hint">横屏更适合观看演出</p>}
         <div id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} role={compactReading && readingMenuOpen ? 'dialog' : undefined} aria-modal={compactReading && readingMenuOpen ? true : undefined} aria-label={compactReading && readingMenuOpen ? '阅读菜单' : undefined}>
         {compactReading && readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
         <nav className="player-history-controls" aria-label="剧情历史控制">
+          <button ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { stopSkip(); setReadingMenuOpen(false); setPreferencesOpen(true); }}>设置</button>
           <button
             type="button"
             aria-label="后退一步"
@@ -1839,7 +1869,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     return <li key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
                       <span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.displayName}</strong>{unavailable
                         ? <><small role="status">资源暂不可用，收录记录仍然保留。</small>{onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}</>
-                        : <audio controls preload="metadata" aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
+                        : <audio controls preload="metadata" muted={personal.preferences.muted} ref={element => { if (element) element.volume = galAudioGainV1(settingsApplication, 'bgm'); }} aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
                     </li>;
                   })}
                 </ol>}
@@ -2088,7 +2118,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <i aria-hidden="true">{reading.unread ? '向下阅读 ⌄' : !textReady ? '点击显示全文' : '点击继续 →'}</i>
           </button>
         )}
-        {compactReading && (content.kind === 'dialogue' || content.kind === 'narration') && !readingMenuOpen && <p className="player-reading-caption">{reading.unread ? '下滑或点文字，读本段下一屏' : !textReady ? '点击文字显示全文' : '点击文字继续故事'}</p>}
+        {compactReading && (content.kind === 'dialogue' || content.kind === 'narration') && !readingMenuOpen && !preferencesOpen && <p className="player-reading-caption">{reading.unread ? '下滑或点文字，读本段下一屏' : !textReady ? '点击文字显示全文' : '点击文字继续故事'}</p>}
 
         {content.kind === "choice" && (
           <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">

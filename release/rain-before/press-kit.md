@@ -1,4 +1,4 @@
-# 《雨停之前》1.4.0 · Web 阅读与演出候选展示资料
+# 《雨停之前》1.5.0 · Web 玩家设置与演出候选展示资料
 
 日期：2026-10-14。面向渠道选择和上线准备；**不是已上线或授权已完成的发行声明**。
 
@@ -12,25 +12,26 @@
 
 包含画面和音乐、雨声及九句明确标注的系统合成语音；不是全篇配音或真人配音。故事涉及异地沟通、职业变化和关系选择。没有按特定渠道完成年龄分级或内容审核，暂不填写“全年龄认证”。
 
-1.4.0 保持 1.3.0 的全部正文、演出与素材，只更新玩家阅读体验：横屏按工程画幅等比显示、竖屏上图下文，手机操作收纳为菜单，长正文先读下一屏，Auto 等待未读下方并提供独立节奏。竖屏为备用阅读布局，不宣称与横屏有相同演出效果；当前只完成 Chromium 自动触控/尺寸检查，实际手机和人工阅读仍待验。
+1.5.0 保持原全部正文、演出与素材及 1.4.0 的等比画幅/长文阅读，补个人字号/文字显示/速度、六类音量/静音、减动效/高对比、本地偏好和主动全屏。竖屏为备用阅读布局，不宣称与横屏有相同演出效果。全屏可用性依实际浏览器/嵌入权限，失败时保留普通窗口游玩；当前 Windows 上三引擎自动检查不替代实际手机/Safari 或人工阅读。
 
 ## 交付与视觉资料
 
 | 资料 | 仓库位置 |
 | --- | --- |
-| 可编辑源工程 | `evidence/web-reading-mobile/before-rain-stops-project.zip` |
-| 单文件试玩 | `evidence/web-reading-mobile/before-rain-stops.html` |
-| 完整目录包 | `evidence/web-reading-mobile/before-rain-stops-web.zip` |
+| 可编辑源工程 | `evidence/web-player-settings/before-rain-stops-project.zip` |
+| 单文件试玩 | `evidence/web-player-settings/before-rain-stops.html` |
+| 完整目录包 | `evidence/web-player-settings/before-rain-stops-web.zip` |
 | 标题封面源图 | `assets/rain-story/station-night-v2.png` |
 | 512×512 作品图标 | `assets/rain-story/letter-icon.png`，可编辑源 `letter-icon.svg` |
-| 留下路线画面 | `evidence/web-reading-mobile/desktop-stay-1.png`、`desktop-stay-5.png` |
-| 手机远行画面 | `evidence/web-reading-mobile/touch-leave-1.png`、`touch-leave-4.png` |
+| 留下路线画面 | `evidence/web-player-settings/desktop-stay-1.png`、`desktop-stay-5.png` |
+| 手机远行画面 | `evidence/web-player-settings/touch-leave-1.png`、`touch-leave-4.png` |
 | 当前手机横竖屏 | 同目录 `phone-390-landscape.png`、`phone-390-reading.png` |
+| 设置与全屏 | 同目录 `chromium-settings-text.png`、`chromium-fullscreen.png`；截图环境见开发报告 |
 | 两种结局 | 同目录 `desktop-stay-ending.png`、`touch-leave-ending.png`（含剧透，按渠道选择是否展示） |
 | 来源与提示词 | `assets/rain-story/README.md`、`image-prompts-v1.3.json`、`source-manifest-v1.3.json` |
-| 开发/验收记录 | `docs/309-web-reading-mobile-experience.md`（1.4.0）；`docs/308-web-story-direction-release-kit.md`（素材制作来源） |
+| 开发/验收记录 | `docs/310-player-personal-settings-and-fullscreen.md`（1.5.0）；`docs/308-web-story-direction-release-kit.md`（素材制作来源） |
 
-截图是 Chromium 桌面进程的实际游戏画面；手机尺寸截图不是物理手机通过证明。未经裁剪的源背景/立绘不当成实际游戏截图。
+截图是实际浏览器进程的游戏画面，默认 Chromium，含引擎名称的按文件名/报告区分；手机尺寸截图不是物理手机通过证明。未经裁剪的源背景/立绘不当成实际游戏截图。
 
 作者/发行者署名、联系信息、渠道链接、发布日期及版权措辞待项目所有者确认，不虚构联系人、帐号或上架状态。
 
@@ -44,10 +45,10 @@
 
 1. 先确认托管渠道、帐号、目标域名/路径、署名和素材授权。当前没有这些发布输入，没有上传任何公网网站。
 2. 目录 ZIP 解压**全部文件**，以 `index.html` 为入口；不要只上传 HTML，不要混用不同构建的资源。当前已验证本地 HTTP `/gal/` 子路径。
-3. 先在预发布地址核对封面/图标/版本 1.4.0、全部资源 HTTP 响应和控制台错误；用实际浏览器点击开始后核对音频权限，静音设置和失败恢复。
+3. 先在预发布地址核对封面/图标/版本 1.5.0、全部资源 HTTP 响应和控制台错误；用实际浏览器点击开始后核对音频权限，个人静音/音量和失败恢复。
 4. 分别走留下/远行，核对候车室、列车、画室、角色表情、全部正文与结局；中途保存、刷新、读取。存档依赖浏览器本地数据和网址来源；清理站点数据、换设备/浏览器或换域名不能保证自动保留进度。
-5. 在约定的手机/浏览器上核对工程等比画幅、竖屏上图下文、菜单/返回焦点、触控长段滚动/点按下一屏、Auto 等未读下方、横竖屏、失焦恢复和音频；做实际人工节奏计时。当前仅 Chromium 自动检查，不能宣称主流手机普遍兼容。
-6. 更新时作为完整构建替换；验证新老页面/缓存及旧存档策略。当前没有做 1.3.0→1.4.0 玩家存档兼容验收，不因为文本 ID 保持稳定就承诺跨构建旧档必读。阅读节奏是本浏览器独立偏好，换设备不自动迁移。
+5. 在约定的手机/浏览器上核对工程等比画幅、竖屏上图下文、设置/返回焦点、触控长段滚动/点按下一屏、Auto 等未读下方、横竖屏、全屏成功/拒绝/退出、失焦恢复和音频；做实际人工节奏计时。当前三个 Windows 引擎不能宣称主流手机普遍兼容。
+6. 更新时作为完整构建替换；验证新老页面/缓存及旧存档策略。当前没有做 1.4.0→1.5.0 玩家存档兼容验收，不因为文本 ID 保持稳定就承诺跨构建旧档必读。阅读/声音/文字个人偏好是本浏览器独立项，换设备不自动迁移。
 7. 在实际 URL 完成以上回查后，再记录地址、构建摘要、已验证环境和剩余限制，并按渠道的嵌入尺寸/上传限制适配。单文件 HTML 为便捷试玩；是否允许下载或嵌入按选定渠道规定另行确认。
 
 尚未关闭：逐段人工阅读/配音发音与演出自然度、来源许可、公网与渠道提交、真机/跨浏览器/旋转、长期运行与既有长帧问题、结构页运行中试玩连续性。Windows/Android 原生产品化继续搁置，三端 M1 不因本包而关闭。

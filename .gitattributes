@@ -1,3 +1,4 @@
 # Keep exported game bytes stable across Windows/macOS/Linux checkouts.
 evidence/web-story-direction/before-rain-stops.html -text
 evidence/web-reading-mobile/before-rain-stops.html -text
+evidence/web-player-settings/before-rain-stops.html -text

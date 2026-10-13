@@ -9,7 +9,8 @@ import { unzipSync } from 'fflate';
 import { scenes } from '../assets/rain-story/story.mjs';
 const require = createRequire(import.meta.url); let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-reading-mobile'); await mkdir(output, { recursive: true });
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_READING_OUTPUT ?? 'evidence/web-reading-mobile'); await mkdir(output, { recursive: true });
+const version = process.env.STUDIO_READING_VERSION ?? '1.4.0';
 const browser = await chromium.launch({ headless: true, executablePath: process.env.STUDIO_CHROME });
 const editor = await browser.newPage({ viewport: { width: 1440, height: 1000 } }); editor.setDefaultTimeout(20000);
 const checks = [], errors = [], routes = {}, voices = new Set(); let server;
@@ -29,7 +30,9 @@ async function exportGame(directory, target) {
   const pending = editor.waitForEvent('download'); await editor.getByRole('link', { name: '下载游戏', exact: true }).click(); await (await pending).saveAs(target);
 }
 async function bounds(page) {
-  assert.ok(await page.locator('.player-dialogue').evaluate(item => { const r = item.getBoundingClientRect(), stage = document.querySelector('.player-stage').getBoundingClientRect(), toolbar = document.querySelector('.player-compact-toolbar')?.getBoundingClientRect(), playback = document.querySelector('.player-playback-controls').getBoundingClientRect(), save = document.querySelector('.player-save').getBoundingClientRect(); return r.top >= stage.top && r.bottom <= Math.min(innerHeight, stage.bottom) && r.bottom < save.top && r.top > (toolbar?.height ? toolbar.bottom : playback.bottom); }));
+  const result = await page.locator('.player-dialogue').evaluate(item => { const r = item.getBoundingClientRect(), stage = document.querySelector('.player-stage').getBoundingClientRect(), toolbar = document.querySelector('.player-compact-toolbar')?.getBoundingClientRect(), playback = document.querySelector('.player-playback-controls').getBoundingClientRect(), save = document.querySelector('.player-save').getBoundingClientRect(); return { passed: r.top >= stage.top && r.bottom <= Math.min(innerHeight, stage.bottom) && r.bottom < save.top && r.top > (toolbar?.height ? toolbar.bottom : playback.bottom), text: r.toJSON(), stage: stage.toJSON(), toolbar: toolbar?.toJSON(), playback: playback.toJSON(), save: save.toJSON(), viewport: innerHeight, offset: getComputedStyle(document.querySelector('main')).getPropertyValue('--player-viewport-offset') }; });
+  if (!result.passed) await page.screenshot({ path: path.join(output, 'failure-player-layout.png') });
+  assert.ok(result.passed, JSON.stringify(result));
 }
 async function frameProportions(page) {
   const frame = await page.locator('.player-stage-world').evaluate(item => { const r = item.getBoundingClientRect(), stage = document.querySelector('.player-stage').getBoundingClientRect(), ratio = parseFloat(getComputedStyle(document.querySelector('main')).getPropertyValue('--gal-stage-ratio')); return { width: r.width, height: r.height, ratio, inside: r.left >= stage.left - 1 && r.right <= stage.right + 1 && r.top >= stage.top - 1 && r.bottom <= stage.bottom + 1 }; });
@@ -68,11 +71,11 @@ async function route(url, label, branch, width, expected, ending) {
 }
 try {
   await editor.goto(process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5192/');
-  await editor.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.join(root, 'evidence/web-story-direction/before-rain-stops-project.zip')); await ready();
-  await nav('发布'); await editor.getByLabel('发布版本').fill('1.4.0'); await editor.getByRole('button', { name: '应用发布设置', exact: true }).click(); await ready();
+  await editor.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.resolve(root, process.env.STUDIO_READING_SOURCE ?? 'evidence/web-story-direction/before-rain-stops-project.zip')); await ready();
+  await nav('发布'); await editor.getByLabel('发布版本').fill(version); await editor.getByRole('button', { name: '应用发布设置', exact: true }).click(); await ready();
   await editor.getByLabel('项目菜单', { exact: true }).click(); const sourceDownload = editor.waitForEvent('download'); await editor.getByRole('button', { name: /导出工程 ZIP/ }).click(); await (await sourceDownload).saveAs(path.join(output, 'before-rain-stops-project.zip'));
   await exportGame(false, path.join(output, 'before-rain-stops.html')); await exportGame(true, path.join(output, 'before-rain-stops-web.zip'));
-  check('UI import, version 1.4.0, source ZIP, production HTML and directory export');
+  check(`UI import, version ${version}, source ZIP, production HTML and directory export`);
   const url = pathToFileURL(path.join(output, 'before-rain-stops.html')).href;
   for (const width of [320, 390]) {
     const context = await browser.newContext({ viewport: { width, height: 844 }, hasTouch: true, isMobile: true, reducedMotion: 'reduce' }); const page = await context.newPage(); watch(page);
