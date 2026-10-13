@@ -501,6 +501,9 @@ body { font-size: 14px; }
 .app-shell .scene-rail .project-search__field { background: var(--wg-color-bg-surface-2); border: 0; box-shadow: none; }
 .app-shell .scene-rail .project-search__field input { border: 0; background: transparent; }
 .preview-stage-area, .preview-session-area { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.preview-resume-notice { margin: 0; padding: 12px; border: 1px solid var(--wg-color-border-subtle); border-radius: 8px; background: var(--wg-color-bg-surface-2); color: var(--wg-color-text-secondary); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.app-shell .preview-panel .stage-canvas-hit-proxy { background: transparent; border: 0; }
+.app-shell .preview-panel .stage-canvas-hit-proxy:hover:not(:disabled) { background: transparent; border: 0; }
 .preview-panel .stage-viewport { padding: 0; border: 0; border-radius: 8px; background: #151a22; }
 .director-tools > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: var(--wg-color-text-secondary); }
 .director-tools > summary::before { content: "＋"; color: var(--studio-accent); }

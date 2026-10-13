@@ -21,6 +21,8 @@
     "audit:workspaces": "node tools/audit-workspaces.mjs",
     "audit:studio-ui": "node tools/run-studio-ui-check.mjs",
     "audit:web-authoring-flow": "node tools/run-web-authoring-flow.mjs",
+    "audit:web-preview-continuity": "vitest run apps/editor/src/preview-continuity.test.ts apps/editor/src/preview-structure-continuity.test.tsx apps/editor/src/formal-preview-stage.test.ts apps/editor/src/preview-canvas-host.test.tsx apps/editor/src/studio-continuity.test.ts apps/editor/src/studio-project-navigation.test.tsx apps/editor/src/playable-preview-app.test.tsx apps/editor/src/formal-preview-hot-update.test.ts apps/editor/src/formal-preview-runtime.test.ts apps/editor/src/preview-transport-app.test.tsx apps/editor/src/preview-audio-layer.test.tsx apps/editor/src/writer-lease-unmount.test.tsx apps/editor/src/n60-debugger-session-app.test.tsx apps/editor/src/n60-debugger-breakpoints-app.test.tsx apps/editor/src/n60-debugger-watch-app.test.tsx apps/editor/src/writing-workflow.test.tsx apps/editor/src/formal-web-export.test.ts apps/editor/src/web-offline-layout.test.ts apps/editor/src/n51-settings-runtime-app.test.tsx apps/editor/src/n51-settings-workspace-app.test.tsx apps/editor/src/App.test.tsx apps/player-shell/src/player-reading.test.ts apps/player-shell/src/player-reading-shell.test.tsx apps/player-shell/src/player-shell.test.tsx --maxWorkers=1",
+    "audit:web-preview-continuity:browser": "node tools/run-preview-structure-continuity.mjs",
     "audit:requirements": "node tools/audit-requirements.mjs",
     "audit:risk-acceptances": "node tools/audit-risk-acceptances.mjs",
     "audit:n21-human-validation": "node tools/audit-n21-human-validation.mjs",

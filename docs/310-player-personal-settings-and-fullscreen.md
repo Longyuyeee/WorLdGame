@@ -57,3 +57,5 @@ typecheck、Editor/Player 生产构建及架构/需求映射/工作区/整合基
 复现：安装依赖、typecheck、构建 Editor/Player，`apps/editor` 中运行 `npx vite preview --host 127.0.0.1 --port 5193 --strictPort`。设置 `STUDIO_UI_URL`（默认 5193）和 `STUDIO_CHROME` 为实际 Chromium 路径，运行 `node tools/run-web-player-settings.mjs`。正常模式先通过 Editor UI 导出，再跑全部三个引擎；`STUDIO_SETTINGS_ONLY=1` 仅诊断现有导出包，不用于最终代码改动后的全链结论；`STUDIO_SETTINGS_ENGINES` 可选安装的引擎，最终报告必须明确实际列表。没有下载新浏览器或新增锁定依赖。设置 `STUDIO_STORY_OUTPUT=evidence/web-player-settings`、`STUDIO_STORY_VERSION=1.5.0` 后运行产物审计。未指定外部目标，不发布公网。
 
 下一整包：两路线人工自然节奏/发音/演出校订及实际计时；主流手机真实浏览器、前后台/耳机与横屏完整游玩；确认来源/声线再分发、署名、托管目标及更新旧档政策后实际 URL 的上线/离线/更新回查。Windows 上的三个浏览器引擎不等于 Android Chrome/iOS Safari 真机通过，尤其全屏可用性必须按实际宿主记录。旧 616.6ms 长帧、长期运行、跨结构页运行中试玩、全仓/历史脚本与最终作品/M1 仍开放，Windows/Android 原生主线继续搁置。
+
+2026-10-14 后续 [#311](311-web-preview-structure-continuity.md) 已关闭上段的跨结构页运行中试玩债务，并覆盖作者其他工作区往返；同时纠正正式预览的跨场景演出来源和代理白底。#310 的 1.5.0 源工程/HTML/目录及本页历史结论不变，人工/真机/发行授权/公网和其余质量门继续开放。

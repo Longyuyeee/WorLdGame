@@ -1,0 +1,142 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "url": "http://127.0.0.1:5193/",
+  "editorBundle": "/assets/index-Bea4WQqn.js",
+  "checks": [
+    {
+      "name": "choice-history-future",
+      "passed": true,
+      "detail": {
+        "scene": "scn_broadcast_room",
+        "statement": "stmt_radio_bg",
+        "history": "History 5/5",
+        "status": "试玩中 · 旧广播室 · 5 个节点",
+        "text": "演出预览action=clear"
+      }
+    },
+    {
+      "name": "actual-story-choice-handoff",
+      "passed": true,
+      "detail": {
+        "scene": "scene_f3c19020bde744aa",
+        "statement": "stmt_ui_83",
+        "history": "History 52/52",
+        "status": "请选择路线 · 已经过 3 个场景",
+        "text": "最后一班车到了，你准备怎样继续这个约定？1留下等雨停2去追最后一班车"
+      }
+    },
+    {
+      "name": "character-hit-area-does-not-cover-portrait",
+      "passed": true,
+      "detail": {
+        "background": "rgba(0, 0, 0, 0)"
+      }
+    },
+    {
+      "name": "native-media-release-and-reload-without-story-advance",
+      "passed": true,
+      "detail": {
+        "sameCheckpoint": true,
+        "oldAudioReleased": true,
+        "newObjectUrl": true,
+        "clockRestored": false
+      }
+    },
+    {
+      "name": "four-author-workspaces-return-to-same-preview",
+      "passed": true,
+      "detail": {
+        "scene": "scene_f3c19020bde744aa",
+        "statement": "stmt_ui_83",
+        "history": "History 52/52",
+        "status": "请选择路线 · 已经过 3 个场景",
+        "text": "最后一班车到了，你准备怎样继续这个约定？1留下等雨停2去追最后一班车"
+      }
+    },
+    {
+      "name": "scene-title-correction-preserves-branch",
+      "passed": true,
+      "detail": {
+        "scene": "scene_f3c19020bde744aa",
+        "statement": "stmt_ui_83",
+        "history": "History 52/52",
+        "status": "请选择路线 · 已经过 3 个场景",
+        "text": "最后一班车到了，你准备怎样继续这个约定？1留下等雨停2去追最后一班车"
+      }
+    },
+    {
+      "name": "character-correction-preserves-branch",
+      "passed": true,
+      "detail": {
+        "scene": "scene_f3c19020bde744aa",
+        "statement": "stmt_ui_83",
+        "history": "History 52/52",
+        "status": "请选择路线 · 已经过 3 个场景",
+        "text": "最后一班车到了，你准备怎样继续这个约定？1留下等雨停2去追最后一班车"
+      }
+    },
+    {
+      "name": "actual-story-route-and-ending",
+      "passed": true,
+      "detail": {
+        "routeName": "选择路线：留下等雨停",
+        "steps": 58,
+        "narration": 60,
+        "dialogue": 6,
+        "checkpoint": {
+          "scene": "scene_9f0052a9d0d84faa",
+          "statement": "statement_ad77f6123fe043ee",
+          "history": "History 111/111",
+          "status": "流程完成：同行的约定",
+          "text": "ENDING同行的约定"
+        }
+      }
+    },
+    {
+      "name": "variable-change-explicit-restart",
+      "passed": true,
+      "detail": {
+        "scene": "scene_87825610ea97b89eeea8",
+        "statement": "stmt_ui_1",
+        "history": "History 1/1",
+        "status": "试玩中 · 车站的雨 · 校订 · 1 个节点",
+        "text": "演出预览雨夜站台"
+      }
+    },
+    {
+      "name": "deleted-start-no-crash-entry-recovery",
+      "passed": true,
+      "detail": {
+        "scene": "scene_87825610ea97b89eeea8",
+        "statement": "stmt_ui_1",
+        "history": "History 1/1",
+        "status": "试玩中 · 车站的雨 · 校订 · 1 个节点",
+        "text": "演出预览雨夜站台"
+      }
+    },
+    {
+      "name": "actual-story-second-route-and-ending",
+      "passed": true,
+      "detail": {
+        "narration": 60,
+        "dialogue": 6,
+        "checkpoint": {
+          "scene": "scene_9a1c57d3f36349f1",
+          "statement": "statement_1709efa4f5ca41ba",
+          "history": "History 114/114",
+          "status": "流程完成：远行的约定",
+          "text": "ENDING远行的约定"
+        }
+      }
+    },
+    {
+      "name": "project-close-and-browser-reload-do-not-revive-preview",
+      "passed": true,
+      "detail": {
+        "errors": []
+      }
+    }
+  ],
+  "errors": []
+}

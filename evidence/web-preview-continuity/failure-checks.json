@@ -1,0 +1,29 @@
+{
+  "passed": false,
+  "checks": [
+    {
+      "name": "choice-history-future",
+      "passed": true,
+      "detail": {
+        "scene": "scn_broadcast_room",
+        "statement": "stmt_radio_bg",
+        "history": "History 5/5",
+        "status": "试玩中 · 旧广播室 · 5 个节点",
+        "text": "演出预览action=clear"
+      }
+    },
+    {
+      "name": "actual-story-choice-handoff",
+      "passed": true,
+      "detail": {
+        "scene": "scene_f3c19020bde744aa",
+        "statement": "stmt_ui_83",
+        "history": "History 52/52",
+        "status": "请选择路线 · 已经过 3 个场景",
+        "text": "最后一班车到了，你准备怎样继续这个约定？1留下等雨停2去追最后一班车"
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "locator.hover: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.stage-canvas-hit-proxy').first()\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" data-stage-x=\"20\" data-stage-y=\"100\" aria-pressed=\"false\" data-stage-slot=\"primary\" data-stage-easing=\"linear\" class=\"stage-canvas-hit-proxy\" aria-label=\"选择 Stage 角色 xia_smile\" data-testid=\"preview-character-primary\"></button>\u001b[22m\n\u001b[2m  - attempting hover action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" aria-label=\"选择路线：留下等雨停\">…</button> from <div class=\"stage-content\" data-testid=\"preview-step\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m      - element is visible and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button type=\"button\" aria-label=\"选择路线：留下等雨停\">…</button> from <div class=\"stage-content\" data-testid=\"preview-step\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m    - retrying hover action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    29 × waiting for element to be visible and stable\u001b[22m\n\u001b[2m       - element is visible and stable\u001b[22m\n\u001b[2m       - scrolling into view if needed\u001b[22m\n\u001b[2m       - done scrolling\u001b[22m\n\u001b[2m       - <button type=\"button\" aria-label=\"选择路线：留下等雨停\">…</button> from <div class=\"stage-content\" data-testid=\"preview-step\">…</div> subtree intercepts pointer events\u001b[22m\n\u001b[2m     - retrying hover action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-preview-structure-continuity.mjs:99:26"
+}

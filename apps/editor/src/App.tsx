@@ -207,12 +207,14 @@ import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
 import { WebPublicationSettings } from "./web-publication";
 import { resumeStudioSession, type StudioContinuity } from "./studio-continuity";
+import { previewStartTargetExists, resumePreviewContinuity, type PreviewContinuity } from "./preview-continuity";
+import { deriveFormalPreviewStage } from "./formal-preview-stage";
 import { losslessExportEnabled, setLosslessExport } from "./export-optimization";
 import { AtlasExportSettings } from "./AtlasExportSettings";
 import { atlasExportGroups, setAtlasExportGroups } from "./atlas-export";
 import { nativeAtlasEnabled, setNativeAtlas } from "./native-atlas-export";
 import { NativeAtlasPreviewSession } from "./native-atlas-preview";
-import { projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
+import { projectCanonicalForEditor, projectCanonicalFromStory, projectCanonicalWithAssetIndex, projectCanonicalWithStory } from "./canonical-project-adapter";
 import { choiceOptionTarget, planRouteChoiceRetarget } from "./route-repair";
 import {
   approveFormalPreviewBarrier,
@@ -3143,6 +3145,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly continuity?: PreviewContinuity | undefined;
+  readonly onContinuityChange?: ((continuity: PreviewContinuity) => void) | undefined;
   readonly hidden?: boolean;
   readonly onDraftChange?: (dirty: boolean) => void;
   readonly publicationOnly?: boolean;
@@ -3173,7 +3177,7 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
   const [publicationStep, setPublicationStep] = useState(0);
@@ -3188,21 +3192,31 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
   const [stageDirectorMessage, setStageDirectorMessage] = useState<string | null>(null);
   const devicePixelRatio = useDevicePixelRatio();
-  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(canonicalProject.settings, "web"), [canonicalProject.settings]);
+  const [resumption, releaseResumption] = useState<ReturnType<typeof resumePreviewContinuity> | null>(() => resumePreviewContinuity(canonicalProject, assetIndex, continuity));
+  const [previewSource, setPreviewSource] = useState(() => ({ project: resumption!.continuity.project, assetIndex: resumption!.continuity.assetIndex }));
+  useEffect(() => { releaseResumption(null); }, []);
   const [transport, transportDispatch] = useReducer(
     reducePreviewTransport,
     undefined,
     createPreviewTransportState
   );
-  const [playable, setPlayable] = useState<FormalPreviewState>(createIdleFormalPreviewState);
-  const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(false);
-  const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(null);
+  const [playable, setPlayable] = useState<FormalPreviewState>(() => resumption!.continuity.playable);
+  const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(() => resumption!.continuity.detailsOpen);
+  const [resumed, setResumed] = useState(() => resumption!.resumed);
+  const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(() => resumption!.update);
   const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly dispose: () => void }) | null>(null);
   const [webBuilding, setWebBuilding] = useState(false);
   const webBuildGeneration = useRef(0);
   const webBuildController = useRef<AbortController | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
   const playableActive = playable.status !== "idle";
+  const presentationProject = playableActive ? previewSource.project : canonicalProject;
+  const presentationIndex = playableActive ? previewSource.assetIndex : assetIndex;
+  const presentationStory = useMemo(() => projectCanonicalForEditor(presentationProject).project, [presentationProject]);
+  const settingsApplication = useMemo(() => createGalSettingsApplicationV1(presentationProject.settings, "web"), [presentationProject.settings]);
+  const restartRequired = hotUpdate?.kind === "restart-required";
+  const startTargetExists = previewStartTargetExists(canonicalProject, playable);
+  useEffect(() => { onContinuityChange?.({ ...previewSource, playable, detailsOpen: runtimeDetailsOpen }); }, [onContinuityChange, previewSource, playable, runtimeDetailsOpen]);
   const previewObservation = observeFormalPreview(playable);
   useEffect(() => {
     if (playable.status === "error") setRuntimeDetailsOpen(true);
@@ -3236,7 +3250,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   );
   const previewSceneId = playableActive && playable.sceneId !== null ? playable.sceneId : session.activeSceneId;
   const previewIndex = playableActive ? playable.statementIndex : session.previewIndex;
-  const scene = findScene(session.project, previewSceneId);
+  const scene = findScene(presentationStory, previewSceneId);
   const statement = scene.statements[previewIndex];
   if (statement === undefined) throw new Error(`Preview index is outside scene: ${previewIndex}`);
   const sourceSession = activeSourceSession(session);
@@ -3257,7 +3271,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   );
   const hostCommitPending = previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null;
   const committedPreviewIndex = playableActive && hostCommitPending ? previewIndex - 1 : previewIndex;
-  const stagePlan = committedPreviewIndex < 0
+  const formalStagePlan = useMemo(() => deriveFormalPreviewStage(playable, settingsApplication.ui.defaultTextboxTemplate), [playable, settingsApplication.ui.defaultTextboxTemplate]);
+  const stagePlan = playableActive ? formalStagePlan : committedPreviewIndex < 0
     ? derivePreviewStagePlan([], 0, settingsApplication.ui.defaultTextboxTemplate)
     : stageTimeline[committedPreviewIndex] ?? derivePreviewStagePlan([], 0, settingsApplication.ui.defaultTextboxTemplate);
   const dialoguePresentation = deriveDialoguePresentation(scene.statements, committedPreviewIndex, stagePlan.dialogueTemplate);
@@ -3275,8 +3290,13 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   useEffect(() => {
     if (!playableActive) return;
     const result = updateFormalPreviewProject(canonicalProject, playable);
-    if (result.kind === "unchanged") return;
+    if (result.kind === "unchanged") {
+      setPreviewSource(previous => ({ ...previous, project: canonicalProject, assetIndex }));
+      setHotUpdate(previous => previous?.kind === "restart-required" ? null : previous);
+      return;
+    }
     if (result.kind === "applied") setPlayable(result.state);
+    if (result.kind === "applied") setPreviewSource(previous => ({ ...previous, project: canonicalProject, assetIndex }));
     setHotUpdate(result);
   }, [canonicalProject, playableActive]);
 
@@ -3323,8 +3343,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       return () => controller.abort();
     }
     const reader = assetRepository ?? { read: async () => null };
-    void loadPreviewMedia(stagePlan, assetIndex, reader, urlFactory, controller.signal)
-      .then(media => atlasPreview.attach(media, canonicalProject, reader, controller.signal))
+    void loadPreviewMedia(stagePlan, presentationIndex, reader, urlFactory, controller.signal)
+      .then(media => atlasPreview.attach(media, presentationProject, reader, controller.signal))
       .then((media) => {
         if (controller.signal.aborted || generation !== mediaGenerationRef.current) {
           releasePreviewMedia(media, urlFactory);
@@ -3347,7 +3367,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       controller.abort();
       if (owned !== undefined) releasePreviewMedia(owned, urlFactory);
     };
-  }, [assetIndex, assetRepository, stagePlan.resourceKey, urlFactory, canonicalProject]);
+  }, [presentationIndex, assetRepository, stagePlan.resourceKey, urlFactory, presentationProject]);
 
   const loadedMedia = mediaView.status === "ready" && mediaView.planKey === stagePlan.resourceKey && mediaView.media.planKey === stagePlan.resourceKey
     ? mediaView.media
@@ -3402,11 +3422,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   }, [session.activeSceneId]);
 
   useEffect(() => {
-    if (!playableActive || playable.sceneId === null) return;
+    if (!playableActive || playable.sceneId === null || restartRequired || !session.project.scenes.some(scene => scene.id === playable.sceneId)) return;
     if (session.activeSceneId !== playable.sceneId) {
       dispatch({ type: "select-scene", sceneId: playable.sceneId });
     }
-  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId]);
+  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.project.scenes, restartRequired]);
 
   useEffect(() => {
     if (!playableActive || transport.mode !== "playing") return;
@@ -3461,6 +3481,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
     setPlayable(startFormalPreview(canonicalProject));
   };
 
@@ -3468,6 +3490,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
     setPlayable(startFormalPreviewFromScene(canonicalProject, session.activeSceneId));
   };
 
@@ -3475,6 +3499,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
     setPlayable(startFormalPreviewFromStatement(canonicalProject, session.activeSceneId, session.selectedStatementId));
   };
 
@@ -3482,11 +3508,14 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     if (projectRunBlocked) return;
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
-    setPlayable(startFormalPreview(canonicalProject, playable.startTarget ?? { kind: "entry" }));
+    setResumed(false);
+    setPreviewSource({ project: canonicalProject, assetIndex });
+    setPlayable(startFormalPreview(canonicalProject, startTargetExists ? playable.startTarget ?? { kind: "entry" } : { kind: "entry" }));
   };
 
   const exitPlayablePreview = () => {
     setHotUpdate(null);
+    setResumed(false);
     setPlayable(createIdleFormalPreviewState());
   };
 
@@ -3681,7 +3710,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             pixelWidth={stageSurface.pixelWidth}
             pixelHeight={stageSurface.pixelHeight}
             selectedStatementId={session.selectedStatementId}
-            onSelect={(statementId) => { if (!inputDirty) dispatch({ type: "select-statement", statementId }); }}
+            onSelect={(statementId) => { if (!inputDirty && !playableActive) dispatch({ type: "select-statement", statementId }); }}
             onStagePoint={setLastStagePoint}
             onRuntimeError={reportRuntimeMediaError}
             defaultDurationMilliseconds={settingsApplication.stage.defaultDurationMilliseconds}
@@ -3689,7 +3718,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
-              const playback = stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
+              const playback = restartRequired ? "paused" : stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
               return <PreviewAudioLayer
                 key={`${layer.bus}:${layer.statementId}:${layer.url}`}
                 layer={{ ...layer, playback }}
@@ -3707,25 +3736,29 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           {loadedMedia !== undefined && mediaErrorCount > 0 && (
             <div className="stage-media-errors" role="status" data-runtime-errors={mediaView.runtimeErrors.length}>
               <strong>安全占位</strong><span>{mediaErrorCount} 项资源未执行</span>
+              <details><summary>查看预览问题</summary><ul>
+                {loadedMedia.errors.map((error, index) => <li key={`load-${index}`}>{error}</li>)}
+                {mediaView.runtimeErrors.map((error, index) => <li key={`decode-${index}`}>{error.statementId}：{error.assetId} · {error.role} 解码失败，请检查原素材。</li>)}
+              </ul></details>
             </div>
           )}
           <div className="stage-content" key={statement.id} data-testid="preview-step">
             {(statement.kind === "dialogue" || statement.kind === "narration") && <div key={`${statement.id}:${dialogueRevealDuration}`} className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
               {dialoguePresentation.lines.map((item) => {
-                const character = item.speakerId === undefined ? undefined : findCharacter(session.project.characters, item.speakerId);
+                const character = item.speakerId === undefined ? undefined : findCharacter(presentationStory.characters, item.speakerId);
                 return <div className="dialogue-presentation__line" key={item.statementId}>
                   <span className="speaker-name" style={{ "--speaker-color": character?.color ?? "#8B7CFF" } as CSSProperties}>{character?.displayName ?? (item.speakerId === undefined ? "旁白" : "未知角色")}</span>
                   <p>{item.text}</p>
                 </div>;
               })}
             </div>}
-            {statement.kind === "direction" && <div className="stage-note"><span>演出预览</span><strong>{directionAssetName(statement, assetIndex) ?? statement.summary}</strong></div>}
+            {statement.kind === "direction" && <div className="stage-note"><span>演出预览</span><strong>{directionAssetName(statement, presentationIndex) ?? statement.summary}</strong></div>}
             {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
               <div className="choice-preview" data-choice-layout={settingsApplication.choice.layout}>
                 <strong>{statement.prompt}</strong>
                 {statement.options.map((option, optionIndex) => playable.status === "waiting-choice"
-                  ? <button key={option.id} type="button" onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
+                  ? <button key={option.id} type="button" disabled={restartRequired} onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
                   : <span key={option.id}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</span>)}
               </div>
             )}
@@ -3735,6 +3768,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       </div>
       </div>
       <div className="preview-session-area">
+      {resumed && playableActive && <p className="preview-resume-notice" role="status" aria-label="试玩接续状态">已接续上次试玩：位置、分支与历史已保留。离开期间不推进剧情；媒体重新载入，不恢复播放时钟。</p>}
       <div className="preview-control-dock" aria-label="预览核心控制">
         <div className="preview-transport">
           <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
@@ -3790,11 +3824,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             <strong>History {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
             <small>{historyStatus}</small>
           </div>
-          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={!previewObservation.history?.canBack} aria-label="Runtime 后退一步">← Back</button>
-          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={!previewObservation.history?.canForward} aria-label="Runtime 前进一步">Forward →</button>
-          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Continue</button>
-          <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
-          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={projectRunBlocked}>Run to Cursor</button>
+          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canBack} aria-label="Runtime 后退一步">← Back</button>
+          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canForward} aria-label="Runtime 前进一步">Forward →</button>
+          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>Continue</button>
+          <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
+          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={projectRunBlocked || restartRequired}>Run to Cursor</button>
         </div>
       )}
       {playableActive && (previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null || previewObservation.effectHost.operationCount > 0) && (
@@ -3808,8 +3842,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <div><strong>等待宿主完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
               <p>{previewObservation.pendingEffect.kind} · {previewObservation.pendingEffect.channel} · scope {previewObservation.pendingEffect.cancellationScope}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成 Effect</button>
-                <button type="button" className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
+                <button type="button" disabled={restartRequired} onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成 Effect</button>
+                <button type="button" disabled={restartRequired} className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
               </div>
             </div>
           )}
@@ -3818,7 +3852,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <div><strong>不可逆边界</strong><code>{previewObservation.pendingBarrier.descriptorId}</code></div>
               <p>{previewObservation.pendingBarrier.reason}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
+                <button type="button" disabled={restartRequired} onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
                 <button type="button" className="is-secondary" onClick={exitPlayablePreview}>拒绝并退出试玩</button>
               </div>
             </div>
@@ -3839,10 +3873,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           ) : (
             <>
               <header><div><span aria-hidden="true">!</span><strong>需要明确重启试玩</strong></div><small>OLD SESSION PRESERVED</small></header>
-              <p>当前试玩仍运行旧 IR，没有静默迁移或自动重启。</p>
+              <p>当前画面与诊断保留旧构建，已暂停剧情操作；不会把新脚本拼接进旧试玩。</p>
               <ul>{hotUpdate.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
               <div className="runtime-hot-update__actions">
-                <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>以当前启动目标重启</button>
+                {!startTargetExists && <p>原启动场景或语句已删除，请从新的故事入口重新试玩。</p>}
+                <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>{startTargetExists ? "以当前启动目标重启" : "从故事入口重新试玩"}</button>
                 <button type="button" className="is-secondary" onClick={exitPlayablePreview}>退出试玩并保留编辑</button>
               </div>
             </>
@@ -4034,7 +4069,12 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   const [publishOpen, setPublishOpen] = useState(false);
   const [pageDirty, setPageDirty] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? true);
+  // Launcher releases its handoff when App reports its source; Preview mounts
+  // only after persistence is ready, so retain the initial handoff locally.
+  const [initialPreviewContinuity, releasePreviewContinuity] = useState(continuity?.preview);
+  const previewContinuityRef = useRef(continuity?.preview);
+  const receivePreviewContinuity = useCallback((preview: PreviewContinuity) => { previewContinuityRef.current = preview; releasePreviewContinuity(undefined); }, []);
   const [scenesOpen, setScenesOpen] = useState(false);
   const [productionSection, setProductionSection] = useState<"assets" | "localization" | "collections">("assets");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
@@ -5322,7 +5362,8 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
     setStructureError(null);
     if (!await saveToLocal()) throw new Error("当前内容尚未保存成功，请检查保存状态后重试。");
     onOpenProject?.(sessionRef.current.activeSceneId, intent, {
-      session: sessionRef.current, commandSerial: commandSerial.current, entitySerial: entitySerial.current
+      session: sessionRef.current, commandSerial: commandSerial.current, entitySerial: entitySerial.current,
+      preview: previewContinuityRef.current, previewOpen
     });
   };
   const createStoryEntity = (kind: Exclude<EntityKind, "chapter">) => {
@@ -5504,7 +5545,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setWorkspaceMode("writer");setMode("sequence");}}
           />
         )}
-          {<PreviewPanel hidden={!previewOpen} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
+          {<PreviewPanel hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
         </>}
       </main>
       <footer className="workspace-footer">

@@ -1,11 +1,14 @@
 import type { CanonicalProject } from "@world-studio/project-domain";
 import { createStudioSessionFromCanonical, reduceStudioSession, type StudioSession } from "./studio-session";
+import type { PreviewContinuity } from "./preview-continuity";
 
 /** In-memory handoff within one open project, never a persisted trust marker. */
 export interface StudioContinuity {
   readonly session: StudioSession;
   readonly commandSerial: number;
   readonly entitySerial: number;
+  readonly preview?: PreviewContinuity | undefined;
+  readonly previewOpen?: boolean | undefined;
 }
 
 export function resumeStudioSession(project: CanonicalProject, continuity: StudioContinuity, sceneId?: string): StudioSession {
