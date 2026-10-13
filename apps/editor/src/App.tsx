@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, ty
 import { variableOptionLabels } from './variable-option-labels';
 import { EditorThemeControl } from './editor-theme';
 import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-card';
+import { TextBatchDialog } from "./TextBatchDialog";
 import { StudioNavigation, type StudioPage } from './studio-navigation';
 import { StudioIcon } from './studio-icon';
 import { ProjectMenu } from './project-menu';
@@ -1107,6 +1108,7 @@ function AssetVaultDialog({
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly assetReader?: AssetLibraryReader | null;
   readonly onCreateEntity?: (kind: Exclude<EntityKind, "chapter">) => void;
   readonly stageExpanded?: boolean;
   readonly createCommandId: () => string;
@@ -1520,6 +1522,7 @@ interface DirectionInsertPanelProps {
   readonly command: DirectionCommand;
   readonly afterId: string;
   readonly assetIndex: AssetIndex;
+  readonly assetReader?: AssetLibraryReader | null;
   readonly disabled: boolean;
   readonly createCommandId: () => string;
   readonly createEntityId: (prefix: "stmt" | "txt") => string;
@@ -1527,7 +1530,7 @@ interface DirectionInsertPanelProps {
   readonly onClose: () => void;
 }
 
-function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
+function DirectionInsertPanel({ command, afterId, assetIndex, assetReader = null, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => { if (!dialog.current?.open) dialog.current?.showModal(); }, []);
   const parameterLabels: Readonly<Record<string, string>> = { set: "切换", clear: "清除", show: "显示", hide: "隐藏", move: "移动", reset: "恢复默认", play: "播放", stop: "停止", pause: "暂停", resume: "继续", fade: "渐变", dissolve: "叠化", slide: "滑动", linear: "匀速", "ease-in": "缓入", "ease-out": "缓出", "ease-in-out": "缓入缓出" };
@@ -1545,6 +1548,8 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const [transition, setTransition] = useState("");
   const [bus, setBus] = useState("bgm");
   const [loop,setLoop] = useState(false);
+  const [volume, setVolume] = useState("0.6");
+  const [position, setPosition] = useState("center");
   const [template, setTemplate] = useState<DialogueTemplate>("adv");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
   const assetRequired = directiveActionRequiresAsset(command, action);
@@ -1564,7 +1569,8 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
   const durationValid = command !== "camera" && !(command === "background" && transition.length > 0) || /^\d+(?:\.\d+)?(?:ms|s)$/.test(duration);
   const transitionValid = transition.length === 0 || (STAGE_TRANSITIONS as readonly string[]).includes(transition);
   const templateValid = command !== "textbox" || action === "reset" || isDialogueTemplate(template);
-  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid && templateValid;
+  const volumeValid = command !== "audio" || !assetRequired || volume.trim() !== "" && Number.isFinite(Number(volume)) && Number(volume) >= 0 && Number(volume) <= 1 && Number.isSafeInteger(Number(volume) * 1000);
+  const canSubmit = !disabled && assetValid && slotValid && zValid && moveGeometryValid && cameraGeometryValid && durationValid && transitionValid && templateValid && volumeValid;
   const commandLabel = command === "background" ? "背景" : command === "show" ? "角色" : command === "camera" ? "镜头" : command === "textbox" ? "文本框" : "音频";
 
   return (
@@ -1580,7 +1586,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
       }
       if (command === "show") {
         parameters.slot = slot;
-        if (assetRequired) parameters.z = z;
+        if (assetRequired) { parameters.z = z; parameters.position = position; }
         if (moveActive) {
           parameters.x = x;
           parameters.y = y;
@@ -1596,7 +1602,7 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         parameters.bus = bus;
         if (assetRequired) {
           parameters.loop = String(loop);
-          parameters.volume = "1";
+          parameters.volume = String(Number(volume));
         }
       }
       if (command === "camera") {
@@ -1618,14 +1624,18 @@ function DirectionInsertPanel({ command, afterId, assetIndex, disabled, createCo
         {assetRequired && <label className="direction-insert__asset"><span>资源</span><select aria-label="新增演出资源" value={asset} disabled={disabled} onChange={(event)=>setAsset(event.target.value)}><option value="">{compatibleAssets.length===0?"请先导入兼容资源":"请选择资源"}</option>{compatibleAssets.map(entry=><option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</select></label>}
         {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
+        {command === "show" && assetRequired && <label><span>画面位置</span><select aria-label="新增角色位置" value={position} disabled={disabled} onChange={event => setPosition(event.target.value)}><option value="left">左侧</option><option value="center">中央</option><option value="right">右侧</option></select></label>}
         {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
         {cameraMoveActive && <><label><span>偏移 X（%）</span><input aria-label="新增镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>偏移 Y（%）</span><input aria-label="新增镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>倍率</span><input aria-label="新增镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={zoom} disabled={disabled} onChange={(event) => setZoom(event.target.value)} /></label><label><span>旋转</span><input aria-label="新增镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={rotation} disabled={disabled} onChange={(event) => setRotation(event.target.value)} /></label></>}
         {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
         {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
-        {command === "audio" && <label><span>总线</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">Voice</option><option value="bgm">BGM</option><option value="sfx">SFX</option><option value="ambient">Ambient</option></select></label>}
+        {command === "audio" && <label><span>音轨</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">角色配音</option><option value="bgm">背景音乐</option><option value="sfx">音效</option><option value="ambient">环境声音</option></select></label>}
+        {command === "audio" && assetRequired && <label><span>音量</span><input aria-label="新增音频音量" type="number" min="0" max="1" step="0.001" value={volume} disabled={disabled} onChange={event => setVolume(event.target.value)} /></label>}
         {command === 'audio' && assetRequired && <label><input type="checkbox" aria-label="循环播放音频" checked={loop} disabled={disabled} onChange={event=>setLoop(event.target.checked)}/>循环播放（适合背景音乐）</label>}
         {command === "textbox" && action === "set" && <label><span>模板</span><select aria-label="新增文本框模板" value={template} disabled={disabled} onChange={(event) => setTemplate(event.target.value as DialogueTemplate)}>{DIALOGUE_TEMPLATES.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label>}
       </div>
+      {assetRequired && compatibleAssets.find(entry => entry.assetId === asset) && <AssetLibraryPreview entry={compatibleAssets.find(entry => entry.assetId === asset)!} reader={assetReader} />}
+      {!volumeValid && <p role="alert">音量需要在 0–1 之间，最多三位小数。</p>}
       {!assetValid && <small className="is-error">请选择适合当前演出的素材</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
       {!zValid && <small className="is-error">层级必须是 {MIN_STAGE_Z}–{MAX_STAGE_Z} 的整数</small>}
@@ -1849,7 +1859,7 @@ function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetI
     dispatch({type:"p0-update",commandId:createCommandId(),statementId:statement.id,patch});
   };
   return <form key={`${statement.id}:${statementLabel(statement)}`} ref={form} onChange={() => { const next = signature() !== baseline.current; setDirty(next); onDirtyChange(next); }} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
-    {statement.kind==="narration"&&<label><span>旁白文本</span><textarea name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
+    {statement.kind==="narration"&&<label><span>旁白文本</span><textarea aria-label="旁白文本" name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
     {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option, index)=><fieldset key={option.id}><legend>选项 {index + 1}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>接下来进入</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></fieldset>)}</>}
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
     {(statement.kind==="jump"||statement.kind==="call")&&<label><span>接下来进入</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
@@ -1868,6 +1878,7 @@ function SequenceView({
   createEntityId,
   onInputDirtyChange,
   assetIndex,
+  assetReader = null,
   variableIds,
   variableDefaults,
   variableTypes,
@@ -1887,6 +1898,7 @@ function SequenceView({
   const nextStatement = scene.statements[selectedIndex + 1];
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
+  const [textBatchOpen, setTextBatchOpen] = useState(false);
   const [keyframeInsertOpen, setKeyframeInsertOpen] = useState(false);
   const [motionPathOpen, setMotionPathOpen] = useState(false);
   const [bezierPathOpen, setBezierPathOpen] = useState(false);
@@ -2065,7 +2077,7 @@ function SequenceView({
   }, [requestedFocusStatementId, selected.id, selectedIndex]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
-      if (!event.altKey || pendingDraft) return;
+      if (!event.altKey || pendingDraft || inspectorDirty || textBatchOpen) return;
       const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : event.key === "5" ? "textbox" : null;
       if (command === null) return;
       event.preventDefault();
@@ -2073,8 +2085,8 @@ function SequenceView({
     };
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
-  }, [pendingDraft]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&!inspectorDirty&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  }, [pendingDraft, inspectorDirty, textBatchOpen]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   const selectedInspector = (<div className="inline-inspector">
         <div className="inspector-label-row">
@@ -2139,7 +2151,7 @@ function SequenceView({
           <h2 id="sequence-heading">{scene.title}</h2>
           <p className="scene-intro">{scene.statements.filter(item => item.kind === "dialogue" || item.kind === "narration").length} 段文字 · {scene.statements.filter(item => item.kind === "choice").length} 处选择 · 每一段，都是故事的一部分</p>
         </div>
-        <span className="context-chip">{scene.statements.length} 个步骤</span>
+        <div><span className="context-chip">{scene.statements.length} 个步骤</span><button type="button" disabled={pendingDraft || inspectorDirty} onClick={() => setTextBatchOpen(true)}>添加成段文字</button></div>
       </div>
 
       <div
@@ -2496,11 +2508,19 @@ function SequenceView({
         selectionNotice={selectionNotice}
       />}
 
+      {textBatchOpen && <TextBatchDialog characters={session.project.characters} afterId={insertionAnchor} createId={createEntityId}
+        onDirtyChange={onInputDirtyChange} onClose={() => setTextBatchOpen(false)} onApply={(operations, selectedStatementId) => {
+          const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations, selectedStatementId };
+          const candidate = reduceStudioSession(session, action);
+          if (activeSourceSession(candidate).revision === activeSourceSession(session).revision) throw new Error(candidate.notice.detail);
+          dispatch(action);
+        }} />}
       {insertCommand !== null && <DirectionInsertPanel
         key={`${insertCommand}:${selected.id}`}
         command={insertCommand}
         afterId={insertionAnchor}
         assetIndex={assetIndex}
+        assetReader={assetReader}
         disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
@@ -5438,7 +5458,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (

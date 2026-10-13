@@ -83,7 +83,7 @@ export async function createFormalWebArtifact(
   if (icon) publicationIconSize(Uint8Array.from(atob(icon.url.split(',')[1]!), value => value.charCodeAt(0)));
   const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>${runtime.css.replace(/<\/style/gi, "<\\/style")}</style></head><body><div id="player-root">正在打开游戏…</div><script id="world-project" type="application/json">${payload}</script><script>${runtime.javascript.replace(/<\/script/gi, "<\\/script")}</script></body></html>`;
   const stem = exportStem(project);
-  const brandedHtml = html.replace('</head>', `${icon ? `<link rel="icon" type="image/png" href="${icon.url}">` : ""}<meta name="application-version" content="${htmlText(publication.version)}"></head>`).replace('<body>', `<body><p style="margin:0;padding:4px 12px;background:#181827;color:#eee;font:12px system-ui">${title} · ${htmlText(publication.version)}</p>`);
+  const brandedHtml = html.replace('</head>', `${icon ? `<link rel="icon" type="image/png" href="${icon.url}">` : ""}<meta name="application-version" content="${htmlText(publication.version)}"></head>`).replace('<body>', `<body style="--player-viewport-offset:24px"><p style="margin:0;height:24px;padding:4px 12px;background:#181827;color:#eee;font:12px/16px system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${title} · ${htmlText(publication.version)}</p>`);
   return { filename: `${stem}.html`, html: brandedHtml, byteLength: new TextEncoder().encode(brandedHtml).byteLength, projectDigest: semanticHash(project), optimizationReport: delivery.report };
 }
 

@@ -3,8 +3,8 @@
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-13
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：[连续写作与玩家外观 #306](docs/306-web-writing-appearance-delivery.md)已交付结构返回的写作撤销/重做、标题简介/封面/配色及发布版本保存；修复存档面板裁切和开发导出缓存。真实作品扩展为 41 条对白、3 场景/2 结局，提供可编辑工程、HTML 和本地部署目录包，见 evidence/web-writing-appearance。119 项相关回归、11 组完整浏览器任务和 3 项独立外观回查通过；完整篇幅与公网仍待完成。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#306](docs/306-web-writing-appearance-delivery.md)。#303 的素材导入测试已按当前详情/清单操作路径迁移后通过；历史脚本迁移、完整 check、真实设备及 M1 仍未关闭，历史验证不作本轮结果。
+> 当前进展：[完整剧情与演出素材 #307](docs/307-web-story-media-production.md)已把《雨停之前》1.2.0 推进到 9 场景/2 结局、90 段旁白+9 句角色对白、9,544 字符；新增立绘、背景及原创合成音乐/雨声/提示音。成段文字、音频试听、站位/音量与手机阅读路径已补齐，提供可编辑工程、HTML 和目录包，见 evidence/web-story-media。20 文件/191 项相关回归通过；阅读计时、最终美术/授权、真机与公网仍待完成。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#307](docs/307-web-story-media-production.md)。#306 的连续写作与玩家外观保留；历史脚本迁移、完整 check、真实设备及 M1 仍未关闭，历史验证不作本轮结果。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
 > 当前重心：从《雨后的约定》或用户提供的工程出发，在编辑器内完成一部完整分支作品，贯通发布配置、Web 导出、部署与玩家完整游玩。已有测试工程见 evidence/authoring/rainy-promise-conditions.zip；完整作品、真实上线与最终体验尚未验收。当前计划见 docs/304-web-complete-gal-delivery.md。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。

@@ -102,3 +102,10 @@
  .player-appearance-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
  .player-appearance-actions button { min-height: 44px; }
  @media (max-width: 600px) { .player-appearance-form { grid-template-columns: 1fr; } }
+ .text-batch-dialog { width: min(720px, calc(100vw - 28px)); max-height: calc(100dvh - 28px); overflow: auto; }
+ .text-batch-dialog form, .text-batch-dialog label { display: grid; gap: 10px; }
+ .text-batch-dialog textarea { width: 100%; min-height: 200px; resize: vertical; }
+ .text-batch-dialog :is(select, textarea) { color: var(--wg-color-text-primary); background: var(--wg-color-bg-surface-1); padding: 12px; border: 1px solid var(--wg-color-border-strong); border-radius: 10px; }
+ .asset-audio-preview { display: grid; gap: 10px; padding: 16px; min-width: 0; border: 1px solid var(--wg-color-border-strong); border-radius: 14px; }
+ .asset-audio-preview audio { width: 100%; max-width: 100%; }
+ .asset-audio-preview p { margin: 0; line-height: 1.5; }

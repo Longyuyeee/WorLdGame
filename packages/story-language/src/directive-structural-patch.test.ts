@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  insertDirectiveAfter,
   deleteDirective,
   duplicateDirective,
   moveDirectiveAfter,
@@ -17,6 +18,18 @@ end "完成" @id(stmt_end)
 `;
 
 describe("stable-ID directive structural patches", () => {
+  it("inserts or moves media after narration and other named P0 steps without losing their source", () => {
+    const original = 'scene "连续写作" @id(scene)\nnarrate "一段旁白" @sid(para) @id(txt_para)\nlabel next @id(label_next)\nwait 10ms @id(wait_next)\nend "完成" @id(end)\n';
+    expect(parseStory(original).diagnostics).toEqual([]);
+    for (const anchor of ["para", "label_next", "wait_next"]) {
+      const result = insertDirectiveAfter(original, parseStory(original), { afterId: anchor, statementId: "new_bg", command: "background", parameters: { action: "set", asset: "bg" } });
+      expect(result.ok).toBe(true); if (!result.ok) throw Error(result.error.message);
+      expect(result.source).toContain('narrate "一段旁白" @sid(para) @id(txt_para)');
+      expect(result.source.indexOf("new_bg")).toBeGreaterThan(result.source.indexOf(anchor));
+      expect(moveDirectiveAfter(result.source, result.storyDocument, "new_bg", "para").ok).toBe(true);
+    }
+    expect(insertDirectiveAfter(original, parseStory(original), { afterId: "para", statementId: "txt_para", command: "background", parameters: { action: "set", asset: "bg" } })).toMatchObject({ ok: false, error: { code: "STRUCTURAL_DUPLICATE_ID" } });
+  });
   it("deletes one directive and records a lossless directive tombstone", () => {
     const result = deleteDirective(source, parseStory(source), "stmt_audio");
     expect(result.ok).toBe(true);

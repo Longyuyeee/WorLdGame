@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { AssetIndexEntry, BlobDigest } from "@world-studio/project-persistence";
+import { createBlobDigest, type AssetIndexEntry, type BlobDigest } from "@world-studio/project-persistence";
 import { assetInspectionPassed } from "./production-workspace";
 
 export interface AssetLibraryReader { read(digest: BlobDigest): Promise<Uint8Array | null>; }
@@ -20,7 +20,34 @@ function useAssetImage(entry: AssetIndexEntry | undefined, reader: AssetLibraryR
 }
 export function AssetLibraryPreview({ entry, reader }: { readonly entry: AssetIndexEntry; readonly reader: AssetLibraryReader | null }) {
   const url = useAssetImage(entry, reader, true);
-  return <div className="asset-detail-preview">{url ? <img src={url} alt={entry.displayName} /> : <span>{entry.kind === "audio" ? "♫" : "◇"}</span>}</div>;
+  if (entry.kind === "audio") return <AssetAudioPreview entry={entry} reader={reader} />;
+  return <div className="asset-detail-preview">{url ? <img src={url} alt={entry.displayName} /> : <span>◇</span>}</div>;
+}
+function AssetAudioPreview({ entry, reader }: { readonly entry: AssetIndexEntry; readonly reader: AssetLibraryReader | null }) {
+  const audio = useRef<HTMLAudioElement>(null);
+  const [source, setSource] = useState<{ digest: string; url: string } | null>(null);
+  const [status, setStatus] = useState("正在准备试听…");
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    let active = true, url: string | undefined;
+    setSource(null); setStatus("正在准备试听…");
+    if (reader === null || !assetInspectionPassed(entry) || entry.source.byteLength > 16 * 1024 * 1024) {
+      setStatus("试听暂不可用。请检查素材；超过 16 MB 的音频可在完整流程中试听。"); return;
+    }
+    void reader.read(entry.source.digest).then(bytes => {
+      if (!active) return;
+      if (bytes === null || bytes.length !== entry.source.byteLength || createBlobDigest(bytes) !== entry.source.digest) throw Error("音频缺失或不完整");
+      url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: entry.source.mimeType }));
+      setSource({ digest: entry.source.digest, url }); setStatus("点击播放试听，不会修改故事中的音乐。");
+    }).catch(() => { if (active) setStatus("音频读取失败，可重试或重新导入素材。"); });
+    return () => { active = false; if (url) URL.revokeObjectURL(url); };
+  }, [reader, entry.source.digest, entry.source.mimeType, entry.source.byteLength, entry.preservedFields, attempt]);
+  const current = source?.digest === entry.source.digest ? source.url : null;
+  useEffect(() => { const element = audio.current; return () => { if (element) { element.pause(); element.removeAttribute("src"); element.load(); } }; }, [current]);
+  return <div className="asset-audio-preview"><strong>试听：{entry.displayName}</strong>
+    {current && <audio ref={audio} key={current} controls preload="none" src={current} aria-label={`试听 ${entry.displayName}`} onError={() => setStatus("音频无法播放，可重新导入支持的格式后重试。")} />}
+    <p role="status">{status}</p><button type="button" onClick={() => setAttempt(value => value + 1)}>重新准备试听</button>
+  </div>;
 }
 export function AssetLibraryCard({ entry, reader, onOpen }: { readonly entry: AssetIndexEntry; readonly reader: AssetLibraryReader | null; readonly onOpen: () => void }) {
   const [visible, setVisible] = useState(false);

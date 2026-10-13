@@ -147,7 +147,7 @@ export function derivePlayerStagePresentationV1(
         displayName: asset.displayName,
         url: asset.url,
         slot: text(effect, "slot") ?? effect.channel,
-        x: number(effect, "x", 50),
+        x: number(effect, "x", text(effect, "position") === "left" ? 20 : text(effect, "position") === "right" ? 80 : 50),
         y: number(effect, "y", 100),
         scale: number(effect, "scale", 1),
         rotation: number(effect, "rotation", 0),

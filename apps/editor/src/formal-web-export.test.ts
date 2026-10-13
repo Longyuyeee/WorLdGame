@@ -37,6 +37,9 @@ describe("formal Web game packaging", () => {
     const project = loadProject(saveProject(applyWebPublication(source, settings)));
     expect(project.manifest.title).toBe(source.manifest.title);
     expect(readWebPublication(project)).toEqual(settings);
+    const single = await createFormalWebArtifact(project, { read: async () => null }, { javascript: "", css: "" });
+    expect(single.html).toContain('--player-viewport-offset:24px');
+    expect(single.html).toContain('font:12px/16px');
     const artifact = await createFormalWebDirectoryArtifact(project, { read: async () => null }, { javascript: "", css: "" });
     const files = unzipSync(artifact.archive);
     const text = (path: string) => new TextDecoder().decode(files[path]);
