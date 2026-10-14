@@ -636,6 +636,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     } catch {
       setSaveOperation("error");
       setSaveMessage("存档损坏或与当前构建不兼容");
+      if (slotId.startsWith("quick-")) setSaveView("quick");
+      setReadingMenuOpen(false);
+      setSavePanelOpen(true);
     }
   }, [project.manifest.projectId, recoveryStore, saveStore, state]);
 
@@ -1974,7 +1977,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             >存读档</button>
             {savePanelOpen && (
               <div id="player-save-panel" className="player-save__panel" aria-label="存读档槽位">
-                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : saveView === "quick" ? "快速存档" : "剧情检查点"}</strong><span data-save-message>{saveMessage}</span></header>
+                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : saveView === "quick" ? "快速存档" : "剧情检查点"}</strong><button type="button" aria-label="关闭存读档" onClick={() => setSavePanelOpen(false)}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : undefined}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
                 <nav className="player-save__views" aria-label="存档类型">
                   <button type="button" aria-pressed={saveView === "manual"} onClick={() => setSaveView("manual")}>手动</button>
                   <button type="button" aria-pressed={saveView === "auto"} onClick={() => setSaveView("auto")}>自动</button>

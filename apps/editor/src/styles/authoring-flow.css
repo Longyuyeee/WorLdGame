@@ -109,3 +109,37 @@
  .asset-audio-preview { display: grid; gap: 10px; padding: 16px; min-width: 0; border: 1px solid var(--wg-color-border-strong); border-radius: 14px; }
  .asset-audio-preview audio { width: 100%; max-width: 100%; }
  .asset-audio-preview p { margin: 0; line-height: 1.5; }
+
+/* Keep common author tasks readable in the narrow preview column. */
+.app-shell .preview-control-dock[hidden] { display: none; }
+.app-shell .runtime-debug-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; min-width: 0; }
+.runtime-debug-actions__history { grid-column: 1 / -1; }
+.app-shell .runtime-debug-actions__history small { font-size: 11px; white-space: normal; }
+.app-shell .runtime-debug-actions > button { min-width: 0; min-height: 40px; padding: 8px; font-size: 13px; }
+.app-shell .runtime-debug-actions .preview-continue-story { grid-column: 1 / -1; background: var(--studio-accent); color: var(--wg-color-bg-surface-1); border-color: transparent; }
+.app-shell .playable-preview > .playable-preview__secondary { color: var(--wg-color-text-primary); background: var(--wg-color-bg-surface-1); border: 1px solid var(--wg-color-border-strong); }
+.preview-debug-tools { grid-column: 1 / -1; min-width: 0; }
+.preview-debug-tools > summary, .preview-effect-details > summary { padding: 10px 0; font-size: 12px; cursor: pointer; }
+.preview-debug-tools > div { display: grid; gap: 8px; padding: 6px 0; }
+.app-shell .preview-debug-tools button { min-height: 40px; font-size: 12px; }
+.preview-effect-details { width: 100%; min-width: 0; border-top: 1px solid var(--wg-color-border-subtle); }
+.preview-effect-details .runtime-effect-host { min-width: 0; overflow-wrap: anywhere; }
+.app-shell .preview-resume-notice { margin: 0; padding: 10px 12px; font-size: 12px; line-height: 1.6; }
+.app-shell .publication-platforms--web { grid-template-columns: minmax(0, 1fr); max-width: 440px; }
+.app-shell .publication-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.app-shell .publication-steps button { min-width: 0; }
+.release-next-steps { display: grid; gap: 16px; padding-left: 24px; margin: 24px 0; }
+.release-next-steps li { padding-left: 6px; color: var(--studio-accent); }
+.release-next-steps strong { color: var(--wg-color-text-primary); font-size: 15px; }
+.release-next-steps p { margin: 6px 0 0; color: var(--wg-color-text-secondary); line-height: 1.8; }
+.web-release-guide details { border-top: 1px solid var(--wg-color-border-subtle); padding: 14px 0; }
+.web-release-guide summary { cursor: pointer; font-size: 14px; }
+.web-release-guide ul { color: var(--wg-color-text-secondary); line-height: 1.8; padding-left: 20px; }
+.authoring-panel[data-stage-expanded="false"] .statement-entry.is-active:is(.statement-entry--narration, .statement-entry--dialogue) .statement-copy { display: none; }
+.app-shell .sequence-inspector textarea { font-size: 16px; line-height: 1.8; font-weight: 400; min-height: 180px; }
+@media (max-width: 959px) {
+  .publication-layout > .publication-result.is-ready { order: -1; }
+}
+@media (max-width: 639px) {
+  .app-shell .publication-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
+}

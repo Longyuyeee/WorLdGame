@@ -1,0 +1,27 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/preview-structure-continuity.test.tsx (4 tests | 1 failed) 20788ms
+     × retains a choice, future, diagnostics and route across repeated structure visits, but not project reopen 15026ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/preview-structure-continuity.test.tsx > author Preview continuity across structure > retains a choice, future, diagnostics and route across repeated structure visits, but not project reopen
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/editor/src/preview-structure-continuity.test.tsx:30:3
+     28|
+     29| describe("author Preview continuity across structure", () => {
+     30|   it("retains a choice, future, diagnostics and route across repeated …
+       |   ^
+     31|     await example(); fireEvent.click(screen.getByText("调试详情"));
+     32|     fireEvent.click(screen.getByRole("button", { name: "选择路线：去广播室" }));
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 18 passed (19)
+   Start at  09:53:01
+   Duration  39.80s (transform 3.15s, setup 780ms, import 6.08s, tests 29.43s, environment 2.73s)
+

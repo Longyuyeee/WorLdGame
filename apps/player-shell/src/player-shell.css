@@ -242,6 +242,10 @@ button { font: inherit; }
 .player-save__panel { position: absolute; right: 0; bottom: 54px; display: grid; width: min(440px, calc(100vw - 48px)); max-height: calc(min(1180px, 100vw - 40px, (100dvh - 40px) * var(--gal-stage-ratio, 1.7778)) / var(--gal-stage-ratio, 1.7778) - 100px); overflow-y: auto; overscroll-behavior: contain; gap: 8px; padding: 16px; border: 1px solid rgba(196,181,253,.28); border-radius: 20px; background: rgba(8,10,25,.94); box-shadow: 0 24px 70px rgba(0,0,0,.48); backdrop-filter: blur(24px); }
 .player-save__panel > header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 2px 4px 8px; }
 .player-save__panel > header span { color: rgba(255,255,255,.55); font-size: 11px; }
+.player-save__panel > header { flex-wrap: wrap; }
+.player-save__panel > header [data-save-message] { flex-basis: 100%; }
+.player-save__panel > header [role="alert"] { font-size: 14px; color: inherit; line-height: 1.6; }
+.player-save__panel > header [role="alert"] small { display: block; font-size: 12px; margin-top: 6px; }
 .player-save__views { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .player-save__views button[aria-pressed="true"] { border-color: rgba(196,181,253,.65); color: #fff; background: rgba(139,92,246,.24); }
 .player-save__slot { display: grid; grid-template-columns: 68px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.04); }

@@ -1,14 +1,14 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 最新交付（2026-10-14）：[#311 跨页连续试玩](docs/311-web-preview-structure-continuity.md)。结构/素材/外观/检查/发布页往返保留兼容的试玩位置、分支与历史；逻辑变化明确重启，删除起点可从入口恢复。正式预览继承已执行 Host 演出，修复跨场景假警告、音乐丢失及白底点击区遮立绘。24 文件/220 项回归与 12 组生产浏览器流程见 #311；作品仍用 evidence/web-player-settings 的 1.5.0，人工/真机/授权/公网与最终作品未验收。以下 #310 等为历史交付。
+> 最新交付（2026-10-14）：[#312 Web 创作界面收尾与作品交付](docs/312-web-authoring-polish-and-release-flow.md)。演出摘要、试玩工具收纳、文字编辑去重、深色/窄栏可读性和四步 Web 发布已落地。《雨停之前》1.5.1 校订四段旁白；读取旧版存档失败会直接显示原因并保留原档。23 个不同相关测试经整组/定向复跑通过，6 组生产浏览器检查及两条完整路线通过；精确范围、超时和未跑项见 #312。当前三份产物在 evidence/web-authoring-polish，人工定稿、真机、授权、离线更新及公网仍待验。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-14
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：[玩家个人设置与全屏 #310](docs/310-player-personal-settings-and-fullscreen.md)交付《雨停之前》1.5.0：个人字号/文字显示与速度、六类音量/静音、减动效/高对比、偏好重开/默认恢复，以及用户主动全屏和失败反馈。作品画幅/正文/稳定 ID/71 演出/22 素材保持；纸色结局按钮对比、减动效引起的外部栏首帧布局过渡已修正。16 文件/161 项相关回归，生产完整路线及三浏览器引擎结果详见 #310；Windows WebKit 不代表 iOS，真机/人工/授权/公网仍待验。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#311](docs/311-web-preview-structure-continuity.md)。1.5.0 源工程/HTML/目录仍在 evidence/web-player-settings，其玩家交付见 #310；旧 1.4.0 与画幅纠偏见 #309，媒体来源/提示词在 assets/rain-story，展示/部署清单在 release/rain-before/press-kit.md。历史脚本迁移、完整 check、真实设备及 M1 仍未关闭，历史验证不作本轮结果。
+> 当前进展：[#312](docs/312-web-authoring-polish-and-release-flow.md) 交付 1.5.1 可编辑工程、HTML 和目录 ZIP，9 场景/两结局、90 段旁白+9 句对白、9,626 字符、71 演出及原素材。1.5.0→1.5.1 同源旧档实际拒绝且不改当前状态，回原版仍可读取；没有旧档迁移。以下 #311/#310 等保持历史记录。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#312](docs/312-web-authoring-polish-and-release-flow.md)。当前源工程/HTML/目录在 evidence/web-authoring-polish；发布资料在 release/rain-before/press-kit.md，版本边界在 release-notes-1.5.1.md。完整全仓、真实设备和最终作品尚未验收，历史验证不作本轮结果。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：沿《雨停之前》1.5.0 可编辑工程做人工阅读/演出定稿、真实手机及授权/上线整包，源工程见 evidence/web-player-settings/before-rain-stops-project.zip；原《雨后的约定》只保留为历史起点。桌面引擎/尺寸验证不等于真机，完整作品、来源授权、真实上线与最终体验尚未验收。当前计划见 docs/304-web-complete-gal-delivery.md。
+> 当前重心：沿《雨停之前》1.5.1 做自然阅读/发音/演出定稿、真机与来源确认，继续通用 Web 部署/离线/更新回查。源工程见 evidence/web-authoring-polish/before-rain-stops-project.zip；不要求先选具体发布平台。当前计划见 docs/304-web-complete-gal-delivery.md。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

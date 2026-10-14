@@ -423,7 +423,7 @@ describe("N40 Route Map product flow", () => {
 
     const controls = screen.getByRole("group", { name: "Runtime 调试控制" });
     for (let index = 0; index < 3; index += 1) {
-      fireEvent.click(within(controls).getByRole("button", { name: "Continue" }));
+      fireEvent.click(within(controls).getByRole("button", { name: "继续故事" }));
     }
     fireEvent.click(screen.getByRole("button", { name: "选择路线：去广播室" }));
 

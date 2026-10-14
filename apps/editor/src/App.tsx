@@ -3,6 +3,8 @@ import { variableOptionLabels } from './variable-option-labels';
 import { EditorThemeControl } from './editor-theme';
 import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-card';
 import { TextBatchDialog } from "./TextBatchDialog";
+import { describeDirection } from "./direction-description";
+import { WebReleaseGuide } from "./WebReleaseGuide";
 import { normalizeAudioVolume } from "./audio-volume";
 import { StudioNavigation, type StudioPage } from './studio-navigation';
 import { StudioIcon } from './studio-icon';
@@ -2109,7 +2111,7 @@ function SequenceView({
           {selected.kind === "dialogue" ? (
             <label htmlFor="dialogue-editor">对白内容</label>
           ) : (
-            <span className="inspector-title">当前步骤 · 类型化参数</span>
+            <span className="inspector-title">编辑{statementKindLabel(selected)}</span>
           )}
           <span className="step-type-label">{statementKindLabel(selected)}</span>
         </div>
@@ -2137,7 +2139,7 @@ function SequenceView({
           />
           </>
         ) : selected.kind === "direction" ? (
-          <details key={selected.id} open={stageExpanded} className="step-properties"><summary>编辑演出参数 · {selected.summary}</summary>
+          <details key={selected.id} open={stageExpanded} className="step-properties"><summary>编辑演出 · {describeDirection(selected, assetIndex)}</summary>
           <DirectionInspector
             key={`${selected.id}:${selected.summary}`}
             statement={selected}
@@ -2152,6 +2154,7 @@ function SequenceView({
               dispatch(action);
             }}
           />
+          <details className="direction-source-details"><summary>查看脚本参数</summary><code>@{selected.command} {selected.summary}</code></details>
           </details>
         ) : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
@@ -2159,6 +2162,7 @@ function SequenceView({
         </p>
       </div>);
   const displayStatement = (statement: StoryStatement) => {
+    if (statement.kind === "direction") return describeDirection(statement, assetIndex);
     let label = statementLabel(statement);
     for (const [id, name] of Object.entries(variableDisplayNames)) label = label.replaceAll(id, name);
     for (const asset of assetIndex.assets) label = label.replaceAll(asset.assetId, asset.displayName);
@@ -2183,13 +2187,13 @@ function SequenceView({
       >
         <span aria-hidden="true">◆</span>
         {runtimeCurrentIndex >= 0 ? (
-          <span>Runtime 当前步骤 · <strong>{runtimeCurrentStatementId}</strong></span>
+          <span>试玩到第 <strong>{runtimeCurrentIndex + 1}</strong> 步 · {statementKindLabel(scene.statements[runtimeCurrentIndex]!)}</span>
         ) : runtimeRouteTrace.active && runtimeRouteTrace.currentSceneId !== scene.id ? (
-          <span>Runtime 当前位于其他场景 · <strong>{runtimeRouteTrace.currentSceneId}</strong></span>
+          <span>正在试玩 · <strong>{session.project.scenes.find(item => item.id === runtimeRouteTrace.currentSceneId)?.title ?? "其他场景"}</strong></span>
         ) : runtimeRouteTrace.active ? (
-          <span>Runtime 当前内部指令未映射到剧情步骤</span>
+          <span>正在处理演出，完成后继续故事</span>
         ) : (
-          <span>Runtime 未运行 · 启动试玩后高亮正式执行位置</span>
+          <span>写作中 · 点击步骤编辑，完整试玩时会标出故事位置</span>
         )}
       </div>
 
@@ -2602,7 +2606,7 @@ function SequenceView({
             aria-pressed={sequenceMultiSelect?sequenceSelectedIds.includes(statement.id):undefined}
             aria-current={runtimeCurrent ? "step" : undefined}
             data-runtime-current={runtimeCurrent}
-            aria-label={`选择${statementKindLabel(statement)}：${statementLabel(statement)}`}
+            aria-label={`选择${statementKindLabel(statement)}：${statement.kind === "direction" ? displayStatement(statement) : statementLabel(statement)}`}
             aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown Delete Shift+Space"
             onKeyDown={(event)=>{if(pendingDraft)return;if(sequenceMultiSelect&&event.shiftKey&&(event.key===" "||event.key==="Enter")){event.preventDefault();const ids=sequenceRangeAnchor===null?[statement.id]:sequenceRangeSelection(scene.statements,sequenceRangeAnchor,statement.id);setSequenceSelectedIds(ids);return;}if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowUp"){event.preventDefault();moveStatement(statement,-1);}else if(!sequenceMultiSelect&&event.altKey&&event.key==="ArrowDown"){event.preventDefault();moveStatement(statement,1);}else if(event.key==="Delete"){event.preventDefault();deleteSelected();}}}
             onDoubleClick={()=>setCollapsedStatementIds((current)=>current.includes(statement.id)?current.filter((id)=>id!==statement.id):[...current,statement.id])}
@@ -3188,7 +3192,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     DEFAULT_PREVIEW_VIEWPORT_ID
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
-  const [showSafeArea, setShowSafeArea] = useState(true);
+  const [showSafeArea, setShowSafeArea] = useState(false);
   const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
   const [stageDirectorMessage, setStageDirectorMessage] = useState<string | null>(null);
   const devicePixelRatio = useDevicePixelRatio();
@@ -3544,27 +3548,28 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     }
   };
 
+  const playableSceneTitle = presentationProject.scenes.find(item => item.id === playable.sceneId)?.title ?? scene.title;
   const playableStatus = playable.status === "waiting-choice"
     ? `请选择路线 · 已经过 ${playable.visitedSceneIds.length} 个场景`
     : playable.status === "waiting-effect"
-      ? `等待 Effect Host · ${previewObservation.pendingEffect?.descriptorId ?? "未知 Effect"}`
+      ? "演出等待确认 · 请在下方完成或取消"
       : playable.status === "waiting-barrier"
-        ? `等待明确批准 · ${previewObservation.pendingBarrier?.descriptorId ?? "未知 Barrier"}`
+        ? "操作需要确认 · 请查看下方说明"
     : playable.status === "ended"
       ? `流程完成：${playable.endingName ?? "未命名结局"}`
       : playable.status === "error"
         ? `流程中止：${playable.error ?? "未知错误"}`
         : playable.status === "paused"
-          ? `已暂停 · ${scene.title} · ${playable.statementId ?? "光标位置"}`
-          : `试玩中 · ${scene.title} · ${playable.visitedStatementIds.length} 个节点`;
+          ? `已暂停 · ${playableSceneTitle}`
+          : `试玩中 · ${playableSceneTitle} · 已走 ${playable.visitedStatementIds.length} 个步骤`;
   const reconciliationOperationCount = (previewObservation.reconciliation?.compensations.length ?? 0) + (previewObservation.reconciliation?.replayEffects.length ?? 0);
   const historyStatus = previewObservation.history?.transient
-    ? "光标临时状态"
+    ? "正在定位选中步骤"
     : previewObservation.reconciliation === null
-      ? "确定性 checkpoint"
+      ? "当前位置已记录"
       : reconciliationOperationCount === 0
-        ? `${previewObservation.reconciliation.direction} · checkpoint 已恢复`
-        : `${previewObservation.reconciliation.direction} · ${reconciliationOperationCount} 项 Host 协调`;
+        ? "已恢复历史位置"
+        : `已恢复历史位置与演出（${reconciliationOperationCount} 项）`;
 
   const transportStatus = playableActive
     ? "完整流程试玩接管中"
@@ -3752,7 +3757,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
                 </div>;
               })}
             </div>}
-            {statement.kind === "direction" && <div className="stage-note"><span>演出预览</span><strong>{directionAssetName(statement, presentationIndex) ?? statement.summary}</strong></div>}
+            {statement.kind === "direction" && <div className="stage-note"><span>演出预览</span><strong>{describeDirection(statement, presentationIndex)}</strong></div>}
             {statement.kind === "wait" && <div className="stage-note"><span>等待</span><strong>{statement.duration} ms</strong></div>}
             {statement.kind === "choice" && (
               <div className="choice-preview" data-choice-layout={settingsApplication.choice.layout}>
@@ -3768,8 +3773,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       </div>
       </div>
       <div className="preview-session-area">
-      {resumed && playableActive && <p className="preview-resume-notice" role="status" aria-label="试玩接续状态">已接续上次试玩：位置、分支与历史已保留。离开期间不推进剧情；媒体重新载入，不恢复播放时钟。</p>}
-      <div className="preview-control-dock" aria-label="预览核心控制">
+      {resumed && playableActive && <p className="preview-resume-notice" role="status" aria-label="试玩接续状态">已接续上次试玩，当前位置、选择和历史均已保留。</p>}
+      <div hidden={playableActive} className="preview-control-dock" aria-label="预览核心控制">
         <div className="preview-transport">
           <button aria-label="上一步" onClick={() => stepPreview(-1)} disabled={playableActive || previewIndex === 0}>←</button>
           <div><strong>{previewIndex + 1} / {scene.statements.length}</strong><small>{statementKindLabel(statement)} · {statement.id}</small></div>
@@ -3821,28 +3826,30 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       {playableActive && playable.status !== "error" && (
         <div className="runtime-debug-actions" aria-label="Runtime 调试控制" role="group">
           <div className="runtime-debug-actions__history">
-            <strong>History {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
+            <strong>试玩记录 {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
             <small>{historyStatus}</small>
           </div>
-          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canBack} aria-label="Runtime 后退一步">← Back</button>
-          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canForward} aria-label="Runtime 前进一步">Forward →</button>
-          <button type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>Continue</button>
-          <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>Step Over</button>
-          <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={projectRunBlocked || restartRequired}>Run to Cursor</button>
+          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canBack} aria-label="Runtime 后退一步">← 回退</button>
+          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canForward} aria-label="Runtime 前进一步">前进 →</button>
+          <button className="preview-continue-story" type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>继续故事</button>
+          <details className="preview-debug-tools"><summary>更多调试操作</summary><div>
+            <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>执行下一步</button>
+            <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={projectRunBlocked || restartRequired}>运行到选中步骤</button>
+          </div></details>
         </div>
       )}
       {playableActive && (previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null || previewObservation.effectHost.operationCount > 0) && (
-        <section className="runtime-effect-host" aria-label="Runtime Effect Host">
+        <details className="preview-effect-details" open={previewObservation.pendingEffect !== null || previewObservation.pendingBarrier !== null}><summary>{previewObservation.pendingEffect !== null ? "演出等待确认" : previewObservation.pendingBarrier !== null ? "操作需要确认" : "演出运行详情"}</summary><section className="runtime-effect-host" aria-label="Runtime Effect Host">
           <header>
             <div><span aria-hidden="true">◆</span><strong>Effect / Stage Host</strong></div>
             <small>{previewObservation.effectHost.activeChannels.length} active · {previewObservation.effectHost.operationCount} operations</small>
           </header>
           {previewObservation.pendingEffect !== null && (
             <div className="runtime-effect-host__request" data-host-state="awaited">
-              <div><strong>等待宿主完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
+              <div><strong>等待演出完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
               <p>{previewObservation.pendingEffect.kind} · {previewObservation.pendingEffect.channel} · scope {previewObservation.pendingEffect.cancellationScope}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" disabled={restartRequired} onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成 Effect</button>
+                <button type="button" disabled={restartRequired} onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成本次演出</button>
                 <button type="button" disabled={restartRequired} className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
               </div>
             </div>
@@ -3860,19 +3867,18 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           {previewObservation.pendingEffect === null && previewObservation.pendingBarrier === null && (
             <p className="runtime-effect-host__settled"><span aria-hidden="true">✓</span> Host 已协调 · last {previewObservation.effectHost.lastOperation ?? "none"}{previewObservation.effectHost.checkpointId === null ? "" : ` · ${previewObservation.effectHost.checkpointId.slice(0, 12)}`}</p>
           )}
-        </section>
+        </section></details>
       )}
       {playableActive && hotUpdate !== null && (
         <section className={`runtime-hot-update runtime-hot-update--${hotUpdate.kind}`} aria-label="Runtime 热更新" aria-live="polite">
           {hotUpdate.kind === "applied" ? (
             <>
-              <header><div><span aria-hidden="true">↻</span><strong>安全热更新已应用</strong></div><small>STATE PRESERVED</small></header>
-              <p>新 IR 已用记录输入重新回放；State、History、分支位置与已执行 Host receipt 保持一致。</p>
-              <code>{hotUpdate.previousBuildId.slice(0, 10)} → {hotUpdate.buildId.slice(0, 10)}</code>
+              <header><div><span aria-hidden="true">↻</span><strong>修改已同步到试玩</strong></div></header>
+              <p>当前位置、历史和已选路线保持不变。</p>
             </>
           ) : (
             <>
-              <header><div><span aria-hidden="true">!</span><strong>需要明确重启试玩</strong></div><small>OLD SESSION PRESERVED</small></header>
+              <header><div><span aria-hidden="true">!</span><strong>需要明确重启试玩</strong></div></header>
               <p>当前画面与诊断保留旧构建，已暂停剧情操作；不会把新脚本拼接进旧试玩。</p>
               <ul>{hotUpdate.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
               <div className="runtime-hot-update__actions">
@@ -3887,7 +3893,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       {!playableActive && <details className="preview-run-options"><summary>选择试玩起点</summary>
       {!playableActive && (
         <div className="runtime-start-actions" aria-label="Runtime 启动位置" role="group">
-          <div><strong>Fresh Run</strong><small>变量恢复工程默认值 · 调用栈为空</small></div>
+          <div><strong>从指定位置试玩</strong><small>每次开始都会使用工程默认变量</small></div>
           <button type="button" onClick={beginPlayablePreviewFromScene} disabled={projectRunBlocked}>从当前场景运行</button>
           <button type="button" onClick={beginPlayablePreviewFromStatement} disabled={projectRunBlocked}>从当前语句运行</button>
         </div>
@@ -3899,7 +3905,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         onToggle={(event) => setRuntimeDetailsOpen(event.currentTarget.open)}
       >
         <summary>
-          <span><strong>Runtime 诊断</strong><small>变量、调用栈与结构化诊断</small></span>
+          <span><strong>调试详情</strong><small>变量、调用记录与问题定位</small></span>
           <span>r{previewObservation.stateRevision ?? "—"} · h{previewObservation.history?.cursor ?? "—"}/{previewObservation.history?.length ?? "—"}</span>
         </summary>
       <section className={`runtime-inspector runtime-inspector--${playable.status}`} aria-label="Runtime 状态检查器">
@@ -3944,7 +3950,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       {publicationOnly && <>
       <header className="publication-heading"><p className="eyebrow">让故事与更多人相遇</p><h2 id="publication-heading">发布游戏</h2><p>完成作品信息，选择导出方式，将你的故事交给玩家。</p></header>
       <nav className="publication-steps" aria-label="发布流程">
-        {["作品信息", "导出方式", "生成游戏"].map((label, index) => <button key={label} type="button" aria-current={publicationStep === index ? "step" : undefined} disabled={publicationDirty && publicationStep !== index} onClick={() => setPublicationStep(index)}><span>{index + 1}</span><strong>{label}</strong></button>)}
+        {["作品信息", "导出方式", "生成游戏", "试玩与部署"].map((label, index) => <button key={label} type="button" aria-current={publicationStep === index ? "step" : undefined} disabled={publicationDirty && publicationStep !== index} onClick={() => setPublicationStep(index)}><span>{index + 1}</span><strong>{label}</strong></button>)}
       </nav>
       <div className="publication-layout">
       <div className="publication-main">
@@ -3953,11 +3959,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <div className="playable-web-export">
         <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationDirty} reader={assetRepository} />
         </div>
-        <h3>发布平台</h3>
-        <div className="publication-platforms">
+        <h3>Web 游戏</h3>
+        <div className="publication-platforms publication-platforms--web">
           <div className="publication-platform is-selected"><span className="publication-platform__icon" aria-hidden="true">◎</span><strong>Web</strong><span>浏览器游戏</span><small>支持电脑和手机，无需安装。</small><b aria-hidden="true">✓</b></div>
-          <div className="publication-platform is-unavailable"><span className="publication-platform__icon" aria-hidden="true">⊞</span><strong>Windows</strong><span>桌面客户端</span><small>编辑器暂未开放打包入口</small></div>
-          <div className="publication-platform is-unavailable"><span className="publication-platform__icon" aria-hidden="true">▱</span><strong>Android</strong><span>手机应用</span><small>暂未开放</small></div>
         </div>
         <button className="studio-primary publication-next" type="button" disabled={publicationDirty} onClick={() => setPublicationStep(1)}>继续：导出方式 →</button>
         {publicationDirty && <p className="publication-draft-note">请先应用或放弃上面的作品信息修改。</p>}
@@ -3989,12 +3993,17 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏…" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
         {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
+        {webBuild && <button className="studio-primary publication-next" type="button" onClick={() => setPublicationStep(3)}>继续：试玩与部署 →</button>}
+      </section>
+      <section className="publication-step-panel" hidden={publicationStep !== 3} aria-label="试玩与部署">
+        <WebReleaseGuide format={webBuild ? webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} />
+        <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(2)}>← 生成游戏</button><button type="button" onClick={() => setPublicationStep(1)}>更换导出方式</button></div>
       </section>
       </div>
       <aside className={`publication-result${webBuild ? " is-ready" : ""}`} aria-label="游戏导出结果">
         <span className="publication-result__icon" aria-hidden="true">{webBuild ? "✓" : webBuilding ? "…" : "↗"}</span>
         <h3>{webBuild ? "游戏已生成" : webBuilding ? "正在生成游戏" : "等待导出"}</h3>
-        <p>{webBuild ? "文件已准备好，可以下载并试玩。" : webBuilding ? "正在打包当前工程和素材，请稍候。" : "完成左侧步骤，生成属于你的游戏。"}</p>
+        <p>{webBuild ? "可以下载并试玩。文件还未上传到网站。" : webBuilding ? "正在打包当前工程和素材，请稍候。" : "完成左侧步骤，生成属于你的游戏。"}</p>
         {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.directory ? "目录 ZIP" : "单文件 HTML"}</dd></div></dl>
           {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>下载游戏</a>}
           {!webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
@@ -5450,7 +5459,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         <button type="button" disabled={inputDirty} onClick={() => selectWorkspaceMode("flow")}>查看分支走向</button>
         <button type="button" disabled={inputDirty} onClick={() => selectWorkspaceMode("debug-qa")}>检查与修复问题</button>
         <button type="button" disabled={inputDirty} onClick={() => { setSettingsOpen(false); setWorkspaceMode("writer"); setMode("script"); }}>编辑脚本</button>
-        <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。更换电脑请从项目首页导出工程 ZIP。"}</small>
+        <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
         {publishOpen ? <PreviewPanel publicationOnly onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>

@@ -249,7 +249,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByLabelText("演出过渡")).toHaveValue("");
     expect(screen.queryByLabelText("过渡资源")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "迁移旧描述并应用" }));
-    expect(screen.getByRole("button", { name: "选择演出：action=clear" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "选择演出：清除背景" })).toBeVisible();
     expect(screen.queryByTestId("preview-background")).not.toBeInTheDocument();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
   });

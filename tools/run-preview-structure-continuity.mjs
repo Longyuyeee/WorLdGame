@@ -61,7 +61,7 @@ async function reachChoice() {
   for (let i = 0; i < 250; i++) {
     await rememberStep();
     if (await page.getByRole('button', { name: /^选择路线：/ }).count()) return;
-    const next = page.getByRole('button', { name: 'Continue', exact: true });
+    const next = page.getByRole('button', { name: '继续故事', exact: true });
     assert.equal(await next.isEnabled(), true, 'unexpected host or terminal stop before choice');
     await next.click();
   }
@@ -73,7 +73,7 @@ try {
   assert.match(await page.title(), /WorLd/i);
   await page.getByRole('button', { name: '打开示例工程', exact: true }).click(); await ready();
   await page.getByRole('button', { name: '试玩完整流程', exact: true }).click(); await reachChoice();
-  await page.getByText('Runtime 诊断', { exact: true }).click();
+  await page.getByText('调试详情', { exact: true }).click();
   await page.getByRole('button', { name: '选择路线：去广播室', exact: true }).click();
   await page.getByRole('button', { name: 'Runtime 后退一步', exact: true }).click();
   await unchangedVisit();
@@ -148,7 +148,7 @@ try {
   while (!/流程完成/.test((await snapshot()).status ?? '')) {
     await rememberStep();
     assert.ok(steps++ < 250, 'story did not reach ending');
-    await page.getByRole('button', { name: 'Continue', exact: true }).click();
+    await page.getByRole('button', { name: '继续故事', exact: true }).click();
   }
   await unchangedVisit(); await screenshot('rain-ending-restored');
   record('actual-story-route-and-ending', { routeName, steps, ...routeBudget(), checkpoint: await snapshot() });
@@ -162,7 +162,7 @@ try {
   assert.equal(await page.getByRole('button', { name: 'Runtime 后退一步', exact: true }).isEnabled(), false);
   await screenshot('variable-restart-required');
   await page.getByRole('button', { name: '以当前启动目标重启', exact: true }).click();
-  assert.equal((await snapshot()).history, 'History 1/1');
+  assert.equal((await snapshot()).history, '试玩记录 1/1');
   record('variable-change-explicit-restart', await snapshot());
 
   await page.getByRole('button', { name: '退出试玩', exact: true }).click();
@@ -181,17 +181,17 @@ try {
   } else await page.getByRole('button', { name: '确认删除', exact: true }).click();
   await page.getByRole('alertdialog', { name: '删除前引用分析' }).waitFor({ state: 'hidden' }); await back();
   assert.equal((await snapshot()).scene, removedStart);
-  assert.equal(await page.getByRole('button', { name: 'Continue', exact: true }).isEnabled(), false);
+  assert.equal(await page.getByRole('button', { name: '继续故事', exact: true }).isEnabled(), false);
   await screenshot('deleted-start-source-frozen');
   await page.getByRole('button', { name: '从故事入口重新试玩', exact: true }).click();
   assert.notEqual((await snapshot()).scene, removedStart);
-  assert.equal((await snapshot()).history, 'History 1/1');
+  assert.equal((await snapshot()).history, '试玩记录 1/1');
   record('deleted-start-no-crash-entry-recovery', await snapshot());
   routeStatements = new Map(); await reachChoice();
   await page.getByRole('button', { name: /^选择路线：/ }).last().click();
   for (let step = 0; !/流程完成/.test((await snapshot()).status ?? ''); step++) {
     assert.ok(step < 250); await rememberStep();
-    await page.getByRole('button', { name: 'Continue', exact: true }).click();
+    await page.getByRole('button', { name: '继续故事', exact: true }).click();
   }
   await unchangedVisit(); await screenshot('rain-other-ending-restored');
   record('actual-story-second-route-and-ending', { ...routeBudget(), checkpoint: await snapshot() });

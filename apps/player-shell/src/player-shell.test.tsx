@@ -1398,6 +1398,19 @@ describe("N51-E5 Player settings application", () => {
     fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
+    const original = records.get("golden_branching\0quick-1")!;
+    const invalid = { ...original, sceneId: "removed-scene" };
+    records.set("golden_branching\0quick-1", invalid);
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    const hash = container.querySelector("main")?.getAttribute("data-runtime-state-hash");
+    fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("存档损坏或与当前构建不兼容"));
+    expect(container.querySelector(".player-save")).toHaveAttribute("data-open", "true");
+    expect(screen.getByRole("button", { name: "快速" })).toHaveAttribute("aria-pressed", "true");
+    expect(container.querySelector("main")).toHaveAttribute("data-runtime-state-hash", hash);
+    expect(records.get("golden_branching\0quick-1")).toEqual(invalid);
+    fireEvent.click(screen.getByRole("button", { name: "关闭存读档" }));
+    expect(container.querySelector(".player-save")).toHaveAttribute("data-open", "false");
   });
 
   it("persists, lists, and loads an exact build-authored checkpoint without stopping presentation", async () => {
