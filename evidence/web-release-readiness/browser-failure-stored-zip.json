@@ -1,0 +1,9 @@
+{
+  "passed": false,
+  "checks": [
+    "22 actual sources inspected; light/dark and 1180/800/390 layout; route/preview return retains directory format; partial playtest is not marked complete",
+    "real HTML/directory exports preserve semantic project identity, full payload, player bundles and media of 1.5.4; inventory hashes valid; JSON key order may differ; format changes invalidate links and draft settings hide both links; local HTML starts"
+  ],
+  "errors": [],
+  "failure": "page.waitForFunction: Timeout 20000ms exceeded.\n    at ready (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-release-readiness.mjs:35:28)\n    at importProject (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-release-readiness.mjs:42:15)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-release-readiness.mjs:132:3"
+}

@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    "22 actual sources inspected; light/dark and 1180/800/390 layout; route/preview return retains directory format; partial playtest is not marked complete",
+    "real HTML/directory exports preserve semantic project identity, full payload, player bundles and media of 1.5.4; inventory hashes valid; JSON key order may differ; format changes invalidate links and draft settings hide both links; local HTML starts",
+    "broken asset reference prevents generation, navigates to exact stable statement; Script correction returns directly to generation with directory format and fresh clear inspection",
+    "isolated storage deletion reports both missing sources, 390px list fits; each repair opens correct locked Asset ID and original-file replacement clears blockers",
+    "source removed after preflight is caught by actual build, reveals actionable blocker and produces no download; fresh restoration/recheck permits retry"
+  ],
+  "browser": "155.0.8059.41",
+  "artifacts": {
+    "directory": {
+      "byteLength": 24788688,
+      "sha256": "3233033f31e7e8e056ae784a311bb4a82910d77f816adcad378adf9a819048f4"
+    },
+    "html": {
+      "byteLength": 32799709,
+      "sha256": "b2166c95fe2493530b94c880760d5d032aac35130d0f101f7808d7458de768b4"
+    }
+  },
+  "errors": [],
+  "playerRuntimeChanged": false,
+  "fullEndingsRerun": false,
+  "physicalPhone": false
+}

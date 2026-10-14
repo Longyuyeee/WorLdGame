@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
 import { semanticHash } from "@world-studio/project-domain";
+import { compileProject } from "@world-studio/project-compiler";
 import { buildRouteGraph } from "@world-studio/route-graph";
 import { projectCanonicalFromStory } from "./canonical-project-adapter";
 import { createRouteReview, routeReviewHtml, routeReviewSvg, type RouteReviewTrace } from "./route-review";
@@ -28,6 +29,16 @@ it("exports escaped, offline review artifacts and caps only the SVG", () => {
   expect(JSON.parse(JSON.stringify(report)).graph).toEqual(graph);
   const large = { ...report, scenes: Array.from({ length: 250 }, (_, index) => ({ ...report.scenes[0]!, sceneId: `scene_${index}` })) };
   expect(routeReviewSvg(large)).toContain("200/250"); expect(routeReviewHtml(large)).toContain('id="scene-249"');
+});
+it("uses the same source identity as Compiler when a save compatibility receipt exists", () => {
+  const initial = reviewProject(), base = { ...initial, scripts: { ...initial.scripts, start: { ...initial.scripts.start!, statements: [{ id: "done", kind: "end", endingName: "完成" }] } } };
+  const project = { ...base, manifest: { ...base.manifest, preservedFields: { ...base.manifest.preservedFields, webSaveCompatibility: { schemaVersion: 1, fingerprint: "test", versions: ["1.0.0"] } } } };
+  const compiled = compileProject(project, "debug"); expect(compiled.ok).toBe(true);
+  if (!compiled.ok) throw Error("Expected a valid test project");
+  const trace: RouteReviewTrace = { sourceHash: compiled.artifacts.manifest.sourceHash, buildId: compiled.artifacts.manifest.buildId, status: "ended", startKind: "entry", endingName: "完成", sceneIds: ["start"], statementIds: ["done"], choiceIds: [] };
+  expect(createRouteReview(project, buildRouteGraph(project), trace, "").traceState).toBe("current");
+  const changed = { ...project, manifest: { ...project.manifest, title: "修改了作品" } };
+  expect(createRouteReview(changed, buildRouteGraph(changed), trace, "").traceState).toBe("stale");
 });
 it("keeps reviewed/locked/draft semantics and reports registered references without claiming readable files", () => {
   const base = reviewProject();

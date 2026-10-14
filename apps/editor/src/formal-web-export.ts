@@ -1,10 +1,10 @@
-import { compileProject } from "@world-studio/project-compiler";
-import { semanticHash, readWebPlayerAppearance, applyWebPlayerAppearance, readWebSaveCompatibility, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { semanticHash, readWebSaveCompatibility, type CanonicalProject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
 import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
-import { readWebPublication, applyWebPublication, publicationIconSize } from "./web-publication";
+import { readWebPublication, publicationIconSize } from "./web-publication";
+import { inspectWebReleaseSources, assertWebReleaseReady } from "./web-release-readiness";
 import { optimizeExportMedia, type ExportOptimizationReport } from "./export-optimization";
 import type { AtlasExportReader } from "./atlas-export";
 import type { NativeAtlasVerifier } from "./native-atlas-export";
@@ -26,35 +26,9 @@ async function readExportMedia(
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
   signal?: AbortSignal, verify?: NativeAtlasVerifier
 ) {
-  signal?.throwIfAborted();
-  const appearance = readWebPlayerAppearance(project);
-  if (appearance !== null) applyWebPlayerAppearance(project, appearance);
-  const compilation = compileProject(project, "release");
-  if (!compilation.ok) throw new Error(`请先修复工程问题：${compilation.diagnostics.filter((item) => item.severity === "error").map((item) => item.message).join("；")}`);
-  const mediaAssets = [];
-  // Per-build only: deduplicate shared blobs without masking later deletion/corruption.
-  const sourceReads = new Map<string, Uint8Array | null>();
-  for (const asset of project.assets.assets) {
-    signal?.throwIfAborted();
-    const assetId = String(asset.assetId ?? asset.id);
-    const source = asset.source as JsonObject | undefined;
-    const name = String(asset.displayName ?? assetId);
-    if (typeof source?.digest !== "string" || !/^sha256:[a-f0-9]{64}$/.test(source.digest) || typeof source.mimeType !== "string") {
-      throw new Error(`资源“${name}”没有可导出的源文件，请重新导入后重试。`);
-    }
-    let bytes = sourceReads.get(source.digest);
-    if (bytes === undefined) {
-      bytes = await reader.read(source.digest as BlobDigest);
-      if (bytes !== null && createBlobDigest(bytes) !== source.digest) throw new Error(`资源“${name}”缺失或不完整，请重新导入后重试。`);
-      sourceReads.set(source.digest, bytes);
-    }
-    signal?.throwIfAborted();
-    if (bytes === null || bytes.byteLength !== source.byteLength) {
-      throw new Error(`资源“${name}”缺失或不完整，请重新导入后重试。`);
-    }
-    mediaAssets.push({ assetId, displayName: name, mimeType: source.mimeType, digest: source.digest, bytes });
-  }
-  return optimizeExportMedia(project, mediaAssets, undefined, reader, signal, verify);
+  const inspection = await inspectWebReleaseSources(project, reader, signal);
+  assertWebReleaseReady(inspection.findings);
+  return optimizeExportMedia(project, inspection.assets, undefined, reader, signal, verify);
 }
 
 function exportStem(project: CanonicalProject): string {
@@ -66,7 +40,6 @@ export async function createFormalWebArtifact(
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
   runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
 ): Promise<FormalWebArtifact> {
-  applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
   project = { ...project, manifest: { ...project.manifest, title: publication.name } };
   const delivery = await readExportMedia(project, reader, signal, verify);
@@ -92,7 +65,6 @@ export async function createFormalWebDirectoryArtifact(
   reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } & AtlasExportReader,
   runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
 ) {
-  applyWebPublication(project, readWebPublication(project));
   const publication = readWebPublication(project);
   project = { ...project, manifest: { ...project.manifest, title: publication.name } };
   const encode = (text: string) => new TextEncoder().encode(text);

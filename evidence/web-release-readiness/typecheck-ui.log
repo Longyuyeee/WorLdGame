@@ -1,0 +1,7 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/editor/src/web-release-workflow.test.tsx(56,110): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.

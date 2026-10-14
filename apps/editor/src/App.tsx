@@ -5,6 +5,8 @@ import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-ca
 import { TextBatchDialog } from "./TextBatchDialog";
 import { describeDirection } from "./direction-description";
 import { WebReleaseGuide } from "./WebReleaseGuide";
+import { WebReleaseReadiness, useWebReleaseInspection } from "./WebReleaseReadiness";
+import { WebReleaseValidationError, type WebReleaseFinding } from "./web-release-readiness";
 import { normalizeAudioVolume } from "./audio-volume";
 import { StudioNavigation, type StudioPage } from './studio-navigation';
 import { StudioIcon } from './studio-icon';
@@ -207,7 +209,7 @@ import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
 import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
-import { WebPublicationSettings } from "./web-publication";
+import { WebPublicationSettings, readWebPublication } from "./web-publication";
 import { resumeStudioSession, type StudioContinuity } from "./studio-continuity";
 import { previewStartTargetExists, resumePreviewContinuity, type PreviewContinuity } from "./preview-continuity";
 import { deriveFormalPreviewStage } from "./formal-preview-stage";
@@ -3149,6 +3151,11 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly initialPublicationStep?: number;
+  readonly initialPublicationFormat?: "html" | "directory";
+  readonly reviewTrace?: RouteReviewTrace | null;
+  readonly onReleaseFix?: (finding: WebReleaseFinding, format: "html" | "directory") => void;
+  readonly onReleaseReview?: (route: boolean, format: "html" | "directory") => void;
   readonly continuity?: PreviewContinuity | undefined;
   readonly onContinuityChange?: ((continuity: PreviewContinuity) => void) | undefined;
   readonly hidden?: boolean;
@@ -3181,11 +3188,11 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange }: PreviewPanelProps) {
+function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
-  const [publicationStep, setPublicationStep] = useState(0);
-  const [publicationFormat, setPublicationFormat] = useState<"html" | "directory">("html");
+  const [publicationStep, setPublicationStep] = useState(initialPublicationStep);
+  const [publicationFormat, setPublicationFormat] = useState<"html" | "directory">(initialPublicationFormat);
   useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
   useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
@@ -3213,6 +3220,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const webBuildGeneration = useRef(0);
   const webBuildController = useRef<AbortController | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
+  const releaseInspection = useWebReleaseInspection(canonicalProject, assetRepository, publicationOnly && publicationStep === 2, projectRunBlocked || publicationDirty);
   const playableActive = playable.status !== "idle";
   const presentationProject = playableActive ? previewSource.project : canonicalProject;
   const presentationIndex = playableActive ? previewSource.assetIndex : assetIndex;
@@ -3322,7 +3330,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
     setWebBuilding(false);
     setWebBuildError(null);
     return () => { webBuildGeneration.current += 1; webBuildController.current?.abort(); };
-  }, [canonicalProject, projectRunBlocked]);
+  }, [canonicalProject, projectRunBlocked, publicationFormat]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -3524,7 +3532,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   };
 
   const preparePlayableWeb = async (directory = false) => {
-    if (projectRunBlocked) return;
+    if (projectRunBlocked || publicationDirty || webBuilding || !releaseInspection.ready) return;
     webBuildController.current?.abort();
     const controller = new AbortController(); webBuildController.current = controller;
     const generation = ++webBuildGeneration.current;
@@ -3542,7 +3550,12 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
       setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, href, dispose: () => URL.revokeObjectURL(href) });
     } catch (error) {
-      if (generation === webBuildGeneration.current) setWebBuildError(error instanceof Error ? error.message : String(error));
+      if (generation === webBuildGeneration.current) {
+        if (error instanceof WebReleaseValidationError) {
+          releaseInspection.receiveBuildFailure(error.findings);
+          setWebBuildError("生成前发现文件或工程问题，请修复左侧清单后重试。");
+        } else setWebBuildError(error instanceof Error ? error.message : String(error));
+      }
     } finally {
       if (generation === webBuildGeneration.current) setWebBuilding(false);
     }
@@ -3983,14 +3996,14 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         </details>
         <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(0)}>← 作品信息</button><button className="studio-primary" type="button" onClick={() => setPublicationStep(2)}>继续：生成游戏 →</button></div>
       </section>
-      <section className="publication-step-panel" hidden={publicationStep !== 2} aria-label="生成可运行的游戏">
-        <h3>准备好与玩家见面了</h3><p className="publication-section-intro">导出会使用当前已应用的工程内容。</p>
+      <section className="publication-step-panel publication-generation" hidden={publicationStep !== 2} aria-label="生成可运行的游戏">
+        <h3>检查当前作品并生成游戏</h3><p className="publication-section-intro">自动核对故事和源文件，发现问题后可以直接定位修复。</p>
         <div className="publication-package">
-          <span className="publication-package__mark" aria-hidden="true">W</span><div><strong>{canonicalProject.manifest.title}</strong><span>Web · {publicationFormat === "html" ? "单文件 HTML" : "网页目录 ZIP"}</span></div>
+          <span className="publication-package__mark" aria-hidden="true"><StudioIcon name="publish" /></span><div><strong>{readWebPublication(canonicalProject).name}</strong><span>{readWebPublication(canonicalProject).version} · Web · {publicationFormat === "html" ? "单文件 HTML" : "网页目录 ZIP"}</span></div>
         </div>
         <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
-        <p className="publication-section-intro">生成后，请打开游戏试玩一遍，确认故事和分支的实际效果。</p>
-        <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty}>{webBuilding ? "正在打包游戏…" : "↗ 导出游戏"}</button></div>
+        <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
+        <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
         {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
         {webBuild && <button className="studio-primary publication-next" type="button" onClick={() => setPublicationStep(3)}>继续：试玩与部署 →</button>}
@@ -4006,7 +4019,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         <p>{webBuild ? "可以下载并试玩。文件还未上传到网站。" : webBuilding ? "正在打包当前工程和素材，请稍候。" : "完成左侧步骤，生成属于你的游戏。"}</p>
         {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.directory ? "目录 ZIP" : "单文件 HTML"}</dd></div></dl>
           {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>下载游戏</a>}
-          {!webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
+          {!publicationDirty && !webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
           <small>修改工程后，需要重新生成文件。</small>
         </>}
         {webBuildError && <p className="publication-error" role="alert">{webBuildError}</p>}
@@ -4076,6 +4089,8 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   const [mode, setMode] = useState<StudioMode>("sequence");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [releaseEntry, setReleaseEntry] = useState<{ step: number; format: "html" | "directory" }>({ step: 0, format: "html" });
+  const [releaseReturnFormat, setReleaseReturnFormat] = useState<"html" | "directory" | null>(null);
   const [pageDirty, setPageDirty] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? true);
@@ -5362,10 +5377,34 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   const contextProjection = workspaceContextProjection(workspaceContext);
   const studioPage: StudioPage = publishOpen ? "publish" : settingsOpen ? "appearance" : workspaceMode === "production" ? "assets" : workspaceMode === "debug-qa" ? "checks" : "story";
   const openStudioPage = (page: StudioPage) => {
+    if (page === "publish") {
+      setReleaseEntry({ step: releaseReturnFormat === null ? 0 : 2, format: releaseReturnFormat ?? "html" });
+      setReleaseReturnFormat(null);
+    }
     setSettingsOpen(page === "appearance"); setPublishOpen(page === "publish"); setScenesOpen(false);
     if (page === "assets") selectWorkspaceMode("production");
     else if (page === "checks") selectWorkspaceMode("debug-qa");
     else if (page === "story" && (workspaceMode === "production" || workspaceMode === "debug-qa")) selectWorkspaceMode("writer");
+  };
+  const openReleaseFix = (finding: WebReleaseFinding, format: "html" | "directory") => {
+    setReleaseReturnFormat(format);
+    openStudioPage(finding.target === "publication" ? "publish" : finding.target);
+    if (finding.target === "assets") {
+      setProductionSection("assets"); setInitialAssetId(finding.assetId ?? null); setAssetPanelOpen(true);
+    } else if (finding.target === "story" && finding.sceneId !== undefined) {
+      const scene = session.project.scenes.find(scene => scene.id === finding.sceneId);
+      if (scene) {
+        if (scene.statements.some(statement => statement.id === finding.statementId)) {
+          setRequestedFocusStatementId(finding.statementId!);
+          dispatch({ type: "select-project-result", sceneId: scene.id, statementId: finding.statementId! });
+        } else dispatch({ type: "select-scene", sceneId: scene.id });
+        setWorkspaceMode("writer"); setMode(pendingDraftSceneIds(session).includes(scene.id) ? "script" : "sequence");
+      }
+    }
+  };
+  const openReleaseReview = (route: boolean, format: "html" | "directory") => {
+    setReleaseReturnFormat(format); openStudioPage("story");
+    setWorkspaceMode(route ? "flow" : "writer"); setMode(route ? "flow" : "sequence"); setPreviewOpen(!route);
   };
   const openProjectStructure = async (intent?: ProjectStructureIntent) => {
     setStructureError(null);
@@ -5437,6 +5476,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         dispatch={dispatch}
       />
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
+      {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
       {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
       {structureError && <p className="workspace-draft-hint" role="alert">{structureError}</p>}
       {studioPage === "story" && <nav className="studio-context-nav" aria-label="故事工作区">
@@ -5462,7 +5502,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {publishOpen ? <PreviewPanel publicationOnly onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
+        {publishOpen ? <PreviewPanel publicationOnly initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
             onDraftChange={setPageDirty}
             project={previewCanonicalProject}
