@@ -555,12 +555,12 @@ describe("N50-E1 shared Player Shell", () => {
 describe("N52-E1 Player History controls", () => {
   it("exposes accessible Back and Forward controls with truthful disabled state", () => {
     const { container } = render(<PlayerShell project={branching()} />);
+    expect(screen.queryByRole("button", { name: "后退一步" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     const back = screen.getByRole("button", { name: "后退一步" });
     const forward = screen.getByRole("button", { name: "前进一步" });
-    expect(back).toBeDisabled();
     expect(forward).toBeDisabled();
 
-    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(back).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: /Right/u }));
     expect(screen.getByText("The bright route.")).toBeInTheDocument();
@@ -671,7 +671,7 @@ describe("N52-E5d Shell History user journey", () => {
     first.unmount();
 
     render(<PlayerShell project={branching()} saveStore={store} />);
-    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
     await waitFor(() => expect(screen.getAllByRole("button", { name: "读取" })[0]).toBeEnabled());
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     await waitFor(() => expect(screen.getByText("The bright route.")).toBeInTheDocument());
@@ -1257,7 +1257,11 @@ describe("N51-E5 Player settings application", () => {
     expect(screen.getByText(/Main \/ Fork/u)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice");
+    fireEvent.click(screen.getByRole("button", { name: "关闭存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
@@ -1283,7 +1287,7 @@ describe("N51-E5 Player settings application", () => {
       async write() {}
     };
     render(<PlayerShell project={branching()} saveStore={store} />);
-    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
     expect(screen.getByText("槽位 1")).toBeInTheDocument();
     expect(screen.getByText("槽位 6")).toBeInTheDocument();
     expect(screen.queryByText("槽位 7")).not.toBeInTheDocument();
@@ -1364,7 +1368,7 @@ describe("N51-E5 Player settings application", () => {
       async write(value) { if (value.schemaVersion !== 3) throw new Error("legacy"); records.set(`${value.projectId}\0${value.slotId}`, value); }
     };
     render(<PlayerShell project={branching()} saveStore={store} now={() => clock++} />);
-    expect(screen.getByRole("button", { name: "快速保存" })).toBeDisabled();
+    expect(screen.queryByRole("button", { name: "快速保存" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     await waitFor(() => expect(records.get("golden_branching\0auto-1")).toMatchObject({ kind: "auto", sceneId: "branch_start", presentationKind: "choice" }));
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
@@ -1436,8 +1440,10 @@ describe("N51-E5 Player settings application", () => {
     expect(screen.getByText(/Fork · checkpoint_fork/u)).toBeInTheDocument();
     expect(screen.getByText("检查点 3")).toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: "关闭存读档" }));
     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
     expect(container.querySelector("main")).toHaveAttribute("data-player-status", "presenting");
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
     await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-player-status", "waiting-choice"));
     expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "loaded");
@@ -1504,8 +1510,10 @@ describe("N51-E5 Player settings application", () => {
     let finishScan!: (record: WorldPlayerRecoveryRecordV1 | null) => void;
     const delayedStore: WorldPlayerRecoveryStoreV1 = { ...recoveryStore, read: () => new Promise(resolve => { finishScan = resolve; }) };
     const fourth = render(<PlayerShell project={branching()} saveStore={saveStore} recoveryStore={delayedStore} now={() => clock++} />);
-    await waitFor(() => expect(screen.getByRole("button", { name: "快速读取" })).toBeEnabled());
-    fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    fireEvent.click(screen.getByRole("button", { name: "读取存档" }));
+    fireEvent.click(screen.getByRole("button", { name: "快速" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "读取" })).toBeEnabled());
+    fireEvent.click(screen.getByRole("button", { name: "读取" }));
     await screen.findByText("The quiet route.");
     await act(async () => finishScan(original));
     expect(screen.queryByRole("button", { name: "恢复上次进度" })).not.toBeInTheDocument();

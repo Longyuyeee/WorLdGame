@@ -1,0 +1,3352 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+ ❯ apps/player-shell/src/player-shell.test.tsx (80 tests | 8 failed) 26973ms
+     × exposes accessible Back and Forward controls with truthful disabled state 283ms
+     × keeps the archived branch after save, unmount, remount, and load 694ms
+     × saves and loads a manual Host slot through the formal bridge (summary API: false) 371ms
+     × saves and loads a manual Host slot through the formal bridge (summary API: true) 405ms
+     × paginates twelve manual slots six at a time 168ms
+     × writes one automatic save per scene identity and exposes the five-slot view 171ms
+     × persists, lists, and loads an exact build-authored checkpoint without stopping presentation 380ms
+     × writes isolated recovery boundaries and restores them only after an explicit player decision 6171ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N52-E1 Player History controls > exposes accessible Back and Forward controls with truthful disabled state
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "后退一步"
+
+Here are the accessible roles:
+
+  main:
+
+  Name "":
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="0"
+    data-history-can-back="false"
+    data-history-can-forward="false"
+    data-history-cursor="0"
+    data-history-forward-policy="true"
+    data-history-length="0"
+    data-history-panel="closed"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="idle"
+    data-memory-pressure-serial="0"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="title"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="idle"
+    data-recovery-store="unavailable"
+    data-recovery-store-version="none"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+    data-runtime-state-hash="none"
+    data-save-operation="idle"
+    data-save-store="unavailable"
+    data-save-store-version="none"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "Branching Golden 游戏画面":
+  <section
+    aria-label="Branching Golden 游戏画面"
+    class="player-stage"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="player-eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Branching Golden":
+  <h1 />
+
+  --------------------------------------------------
+  button:
+
+  Name "开始故事":
+  <button
+    class="player-primary"
+    type="button"
+  />
+
+  Name "打开玩家设置":
+  <button
+    aria-label="打开玩家设置"
+    type="button"
+  />
+
+  Name "打开附加内容":
+  <button
+    aria-label="打开附加内容"
+    type="button"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "作品菜单":
+  <nav
+    aria-label="作品菜单"
+    class="player-title-actions"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="idle"
+      data-recovery-store="unavailable"
+      data-recovery-store-version="none"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="unavailable"
+      data-save-store-version="none"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Branching Golden 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <label>
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label>
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label>
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            Branching Golden
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <span
+            class="player-hint"
+          >
+            Enter / Space
+          </span>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/player-shell.test.tsx:558:25
+    556|   it("exposes accessible Back and Forward controls with truthful disab…
+    557|     const { container } = render(<PlayerShell project={branching()} />…
+    558|     const back = screen.getByRole("button", { name: "后退一步" });
+       |                         ^
+    559|     const forward = screen.getByRole("button", { name: "前进一步" });
+    560|     expect(back).toBeDisabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N52-E5d Shell History user journey > keeps the archived branch after save, unmount, remount, and load
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "存读档"
+
+Here are the accessible roles:
+
+  main:
+
+  Name "":
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="0"
+    data-history-can-back="false"
+    data-history-can-forward="false"
+    data-history-cursor="0"
+    data-history-forward-policy="true"
+    data-history-length="0"
+    data-history-panel="closed"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="idle"
+    data-memory-pressure-serial="0"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="title"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="idle"
+    data-recovery-store="unavailable"
+    data-recovery-store-version="none"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+    data-runtime-state-hash="none"
+    data-save-operation="idle"
+    data-save-store="memory-test"
+    data-save-store-version="3.0.0"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "Branching Golden 游戏画面":
+  <section
+    aria-label="Branching Golden 游戏画面"
+    class="player-stage"
+  />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "":
+  <aside
+    class="player-save"
+    data-open="false"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="player-eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Branching Golden":
+  <h1 />
+
+  --------------------------------------------------
+  button:
+
+  Name "开始故事":
+  <button
+    class="player-primary"
+    type="button"
+  />
+
+  Name "读取存档":
+  <button
+    type="button"
+  />
+
+  Name "打开玩家设置":
+  <button
+    aria-label="打开玩家设置"
+    type="button"
+  />
+
+  Name "打开附加内容":
+  <button
+    aria-label="打开附加内容"
+    type="button"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "作品菜单":
+  <nav
+    aria-label="作品菜单"
+    class="player-title-actions"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="idle"
+      data-recovery-store="unavailable"
+      data-recovery-store-version="none"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="memory-test"
+      data-save-store-version="3.0.0"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Branching Golden 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <label>
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label>
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label>
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+          <aside
+            class="player-save"
+            data-open="false"
+          >
+            <div
+              aria-label="快速存读档"
+              class="player-save__quick-controls"
+              hidden=""
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                快速保存
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                快速读取
+              </button>
+            </div>
+            <button
+              aria-controls="player-save-panel"
+              aria-expanded="false"
+              class="player-save__toggle"
+              hidden=""
+              type="button"
+            >
+              存读档
+            </button>
+          </aside>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            Branching Golden
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <span
+            class="player-hint"
+          >
+            Enter / Space
+          </span>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              type="button"
+            >
+              读取存档
+            </button>
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/player-shell.test.tsx:674:28
+    672|
+    673|     render(<PlayerShell project={branching()} saveStore={store} />);
+    674|     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+       |                            ^
+    675|     await waitFor(() => expect(screen.getAllByRole("button", { name: "…
+    676|     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > saves and loads a manual Host slot through the formal bridge (summary API: false)
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > saves and loads a manual Host slot through the formal bridge (summary API: true)
+Error: expect(element).toHaveAttribute("data-player-status", "presenting") // element.getAttribute("data-player-status") === "presenting"
+
+Expected the element to have attribute:
+  data-player-status="presenting"
+Received:
+  data-player-status="waiting-choice"
+ ❯ apps/player-shell/src/player-shell.test.tsx:1260:45
+    1258|
+    1259|     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    1260|     expect(container.querySelector("main")).toHaveAttribute("data-play…
+       |                                             ^
+    1261|     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    1262|     await waitFor(() => expect(container.querySelector("main")).toHave…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > paginates twelve manual slots six at a time
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "存读档"
+
+Here are the accessible roles:
+
+  main:
+
+  Name "":
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="0"
+    data-history-can-back="false"
+    data-history-can-forward="false"
+    data-history-cursor="0"
+    data-history-forward-policy="true"
+    data-history-length="0"
+    data-history-panel="closed"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="idle"
+    data-memory-pressure-serial="0"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="title"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="idle"
+    data-recovery-store="unavailable"
+    data-recovery-store-version="none"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+    data-runtime-state-hash="none"
+    data-save-operation="idle"
+    data-save-store="memory-test"
+    data-save-store-version="3.0.0"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "Branching Golden 游戏画面":
+  <section
+    aria-label="Branching Golden 游戏画面"
+    class="player-stage"
+  />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "":
+  <aside
+    class="player-save"
+    data-open="false"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="player-eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Branching Golden":
+  <h1 />
+
+  --------------------------------------------------
+  button:
+
+  Name "开始故事":
+  <button
+    class="player-primary"
+    type="button"
+  />
+
+  Name "读取存档":
+  <button
+    type="button"
+  />
+
+  Name "打开玩家设置":
+  <button
+    aria-label="打开玩家设置"
+    type="button"
+  />
+
+  Name "打开附加内容":
+  <button
+    aria-label="打开附加内容"
+    type="button"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "作品菜单":
+  <nav
+    aria-label="作品菜单"
+    class="player-title-actions"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="idle"
+      data-recovery-store="unavailable"
+      data-recovery-store-version="none"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="memory-test"
+      data-save-store-version="3.0.0"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Branching Golden 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <label>
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label>
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label>
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+          <aside
+            class="player-save"
+            data-open="false"
+          >
+            <div
+              aria-label="快速存读档"
+              class="player-save__quick-controls"
+              hidden=""
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                快速保存
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                快速读取
+              </button>
+            </div>
+            <button
+              aria-controls="player-save-panel"
+              aria-expanded="false"
+              class="player-save__toggle"
+              hidden=""
+              type="button"
+            >
+              存读档
+            </button>
+          </aside>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            Branching Golden
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <span
+            class="player-hint"
+          >
+            Enter / Space
+          </span>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              type="button"
+            >
+              读取存档
+            </button>
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/player-shell.test.tsx:1286:28
+    1284|     };
+    1285|     render(<PlayerShell project={branching()} saveStore={store} />);
+    1286|     fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+       |                            ^
+    1287|     expect(screen.getByText("槽位 1")).toBeInTheDocument();
+    1288|     expect(screen.getByText("槽位 6")).toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > writes one automatic save per scene identity and exposes the five-slot view
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "快速保存"
+
+Here are the accessible roles:
+
+  main:
+
+  Name "":
+  <main
+    class="player-shell"
+    data-additional-content="closed"
+    data-auto-playback="off"
+    data-compact-reading="false"
+    data-compiler="0.2.0"
+    data-effect-operation="none"
+    data-history-archives="0"
+    data-history-can-back="false"
+    data-history-can-forward="false"
+    data-history-cursor="0"
+    data-history-forward-policy="true"
+    data-history-length="0"
+    data-history-panel="closed"
+    data-host-activity="active"
+    data-input-accepted="true"
+    data-input-source="lifecycle"
+    data-memory-pressure="idle"
+    data-memory-pressure-serial="0"
+    data-playback-activation="none"
+    data-playback-mode="normal"
+    data-playback-policy="1.2.0"
+    data-playback-speed="normal"
+    data-playback-stop-reason="none"
+    data-player-core="0.5.0"
+    data-player-font="system"
+    data-player-fullscreen="false"
+    data-player-locale="und"
+    data-player-locale-fallbacks="0"
+    data-player-media-fallbacks="0"
+    data-player-media-locale="und"
+    data-player-media-missing="0"
+    data-player-muted="false"
+    data-player-status="title"
+    data-player-typography="standard"
+    data-preferences-open="false"
+    data-reading-menu-open="false"
+    data-reading-pace="standard"
+    data-reading-unread-below="false"
+    data-recovery-operation="idle"
+    data-recovery-store="unavailable"
+    data-recovery-store-version="none"
+    data-runtime="0.6.0"
+    data-runtime-host="0.1.0"
+    data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+    data-runtime-state-hash="none"
+    data-save-operation="idle"
+    data-save-store="memory-test"
+    data-save-store-version="3.0.0"
+    data-scene-replay="inactive"
+    data-settings-allow-hold="true"
+    data-settings-application="1"
+    data-settings-audio-ambient="0.8"
+    data-settings-audio-bgm="0.8"
+    data-settings-audio-master="1"
+    data-settings-audio-resume="true"
+    data-settings-audio-sfx="0.9"
+    data-settings-audio-ui="0.9"
+    data-settings-audio-voice="1"
+    data-settings-audio-voice-ducking="0.35"
+    data-settings-choice-layout="vertical"
+    data-settings-choice-numbers="true"
+    data-settings-high-contrast="false"
+    data-settings-history-forward="true"
+    data-settings-input-gamepad="true"
+    data-settings-input-hints="true"
+    data-settings-input-keyboard="true"
+    data-settings-input-pointer="true"
+    data-settings-input-touch="true"
+    data-settings-orientation="landscape"
+    data-settings-platform="web"
+    data-settings-quality="high"
+    data-settings-reduce-flashing="false"
+    data-settings-reduce-motion="false"
+    data-settings-safe-area="system"
+    data-settings-stage-duration="360"
+    data-settings-stage-easing="linear"
+    data-settings-text-cps="30"
+    data-settings-text-minimum="350"
+    data-settings-text-punctuation="120"
+    data-settings-textbox-default="adv"
+    data-settings-wait-for-voice="true"
+    data-skip-active="false"
+    data-skip-media="normal"
+    data-stage-images-pending="false"
+    data-video-policy-stop-reason="none"
+    style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+  />
+
+  --------------------------------------------------
+  region:
+
+  Name "Branching Golden 游戏画面":
+  <section
+    aria-label="Branching Golden 游戏画面"
+    class="player-stage"
+  />
+
+  --------------------------------------------------
+  complementary:
+
+  Name "":
+  <aside
+    class="player-save"
+    data-open="false"
+  />
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  <p
+    class="player-eyebrow"
+  />
+
+  Name "":
+  <p />
+
+  --------------------------------------------------
+  heading:
+
+  Name "Branching Golden":
+  <h1 />
+
+  --------------------------------------------------
+  button:
+
+  Name "开始故事":
+  <button
+    class="player-primary"
+    type="button"
+  />
+
+  Name "读取存档":
+  <button
+    type="button"
+  />
+
+  Name "打开玩家设置":
+  <button
+    aria-label="打开玩家设置"
+    type="button"
+  />
+
+  Name "打开附加内容":
+  <button
+    aria-label="打开附加内容"
+    type="button"
+  />
+
+  --------------------------------------------------
+  navigation:
+
+  Name "作品菜单":
+  <nav
+    aria-label="作品菜单"
+    class="player-title-actions"
+  />
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="idle"
+      data-recovery-store="unavailable"
+      data-recovery-store-version="none"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="memory-test"
+      data-save-store-version="3.0.0"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Branching Golden 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <label>
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label>
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label>
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+          <aside
+            class="player-save"
+            data-open="false"
+          >
+            <div
+              aria-label="快速存读档"
+              class="player-save__quick-controls"
+              hidden=""
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                快速保存
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                快速读取
+              </button>
+            </div>
+            <button
+              aria-controls="player-save-panel"
+              aria-expanded="false"
+              class="player-save__toggle"
+              hidden=""
+              type="button"
+            >
+              存读档
+            </button>
+          </aside>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            Branching Golden
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <span
+            class="player-hint"
+          >
+            Enter / Space
+          </span>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              type="button"
+            >
+              读取存档
+            </button>
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/player-shell.test.tsx:1367:19
+    1365|     };
+    1366|     render(<PlayerShell project={branching()} saveStore={store} now={(…
+    1367|     expect(screen.getByRole("button", { name: "快速保存" })).toBeDisabled(…
+       |                   ^
+    1368|     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    1369|     await waitFor(() => expect(records.get("golden_branching\0auto-1")…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > persists, lists, and loads an exact build-authored checkpoint without stopping presentation
+Error: expect(element).toHaveAttribute("data-player-status", "presenting") // element.getAttribute("data-player-status") === "presenting"
+
+Expected the element to have attribute:
+  data-player-status="presenting"
+Received:
+  data-player-status="waiting-choice"
+ ❯ apps/player-shell/src/player-shell.test.tsx:1440:45
+    1438|
+    1439|     fireEvent.click(screen.getByRole("button", { name: /Left/u }));
+    1440|     expect(container.querySelector("main")).toHaveAttribute("data-play…
+       |                                             ^
+    1441|     fireEvent.click(screen.getAllByRole("button", { name: "读取" })[0]!);
+    1442|     await waitFor(() => expect(container.querySelector("main")).toHave…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+ FAIL  apps/player-shell/src/player-shell.test.tsx > N51-E5 Player settings application > writes isolated recovery boundaries and restores them only after an explicit player decision
+TestingLibraryElementError: Unable to find role="button" and name "快速读取"
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+  <div />
+  <div />
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="false"
+      data-history-can-forward="false"
+      data-history-cursor="0"
+      data-history-forward-policy="true"
+      data-history-length="0"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="lifecycle"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="title"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="scanning"
+      data-recovery-store="memory-recovery"
+      data-recovery-store-version="1.0.0"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="none"
+      data-save-operation="idle"
+      data-save-store="memory-save"
+      data-save-store-version="3.0.0"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="350"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Branching Golden 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+          hidden=""
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            title
+          </span>
+        </header>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+            hidden=""
+          >
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              disabled=""
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              0
+              /
+              0
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+            hidden=""
+          >
+            <label>
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              disabled=""
+              type="button"
+            >
+              全部
+            </button>
+            <label>
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label>
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+          <aside
+            class="player-save"
+            data-open="false"
+          >
+            <div
+              aria-label="快速存读档"
+              class="player-save__quick-controls"
+              hidden=""
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                快速保存
+              </button>
+              <button
+                type="button"
+              >
+                快速读取
+              </button>
+            </div>
+            <button
+              aria-controls="player-save-panel"
+              aria-expanded="false"
+              class="player-save__toggle"
+              hidden=""
+              type="button"
+            >
+              存读档
+            </button>
+          </aside>
+        </div>
+        <div
+          class="player-title-screen"
+        >
+          <p
+            class="player-eyebrow"
+          >
+            A WORLd STUDIO STORY
+          </p>
+          <h1>
+            Branching Golden
+          </h1>
+          <p>
+            同一个故事核心，面向每一块屏幕。
+          </p>
+          <button
+            class="player-primary"
+            disabled=""
+            type="button"
+          >
+            开始故事
+            <span
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </button>
+          <span
+            class="player-hint"
+          >
+            Enter / Space
+          </span>
+          <nav
+            aria-label="作品菜单"
+            class="player-title-actions"
+          >
+            <button
+              type="button"
+            >
+              读取存档
+            </button>
+            <button
+              aria-label="打开玩家设置"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="打开附加内容"
+              type="button"
+            >
+              附加内容
+            </button>
+          </nav>
+          <div
+            aria-label="开始与恢复进度"
+            class="player-title-recovery"
+          >
+            <div
+              aria-busy="true"
+              aria-live="polite"
+              class="player-recovery"
+              role="status"
+            >
+              <div>
+                <strong>
+                  恢复保护
+                </strong>
+                <span>
+                  正在检查恢复记录…
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+
+Ignored nodes: comments, script, style
+<html>
+  <head />
+  <body>
+    <div />
+    <div />
+    <div />
+    <div>
+      <main
+        class="player-shell"
+        data-additional-content="closed"
+        data-auto-playback="off"
+        data-compact-reading="false"
+        data-compiler="0.2.0"
+        data-effect-operation="none"
+        data-history-archives="0"
+        data-history-can-back="false"
+        data-history-can-forward="false"
+        data-history-cursor="0"
+        data-history-forward-policy="true"
+        data-history-length="0"
+        data-history-panel="closed"
+        data-host-activity="active"
+        data-input-accepted="true"
+        data-input-source="lifecycle"
+        data-memory-pressure="idle"
+        data-memory-pressure-serial="0"
+        data-playback-activation="none"
+        data-playback-mode="normal"
+        data-playback-policy="1.2.0"
+        data-playback-speed="normal"
+        data-playback-stop-reason="none"
+        data-player-core="0.5.0"
+        data-player-font="system"
+        data-player-fullscreen="false"
+        data-player-locale="und"
+        data-player-locale-fallbacks="0"
+        data-player-media-fallbacks="0"
+        data-player-media-locale="und"
+        data-player-media-missing="0"
+        data-player-muted="false"
+        data-player-status="title"
+        data-player-typography="standard"
+        data-preferences-open="false"
+        data-reading-menu-open="false"
+        data-reading-pace="standard"
+        data-reading-unread-below="false"
+        data-recovery-operation="scanning"
+        data-recovery-store="memory-recovery"
+        data-recovery-store-version="1.0.0"
+        data-runtime="0.6.0"
+        data-runtime-host="0.1.0"
+        data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+        data-runtime-state-hash="none"
+        data-save-operation="idle"
+        data-save-store="memory-save"
+        data-save-store-version="3.0.0"
+        data-scene-replay="inactive"
+        data-settings-allow-hold="true"
+        data-settings-application="1"
+        data-settings-audio-ambient="0.8"
+        data-settings-audio-bgm="0.8"
+        data-settings-audio-master="1"
+        data-settings-audio-resume="true"
+        data-settings-audio-sfx="0.9"
+        data-settings-audio-ui="0.9"
+        data-settings-audio-voice="1"
+        data-settings-audio-voice-ducking="0.35"
+        data-settings-choice-layout="vertical"
+        data-settings-choice-numbers="true"
+        data-settings-high-contrast="false"
+        data-settings-history-forward="true"
+        data-settings-input-gamepad="true"
+        data-settings-input-hints="true"
+        data-settings-input-keyboard="true"
+        data-settings-input-pointer="true"
+        data-settings-input-touch="true"
+        data-settings-orientation="landscape"
+        data-settings-platform="web"
+        data-settings-quality="high"
+        data-settings-reduce-flashing="false"
+        data-settings-reduce-motion="false"
+        data-settings-safe-area="system"
+        data-settings-stage-duration="360"
+        data-settings-stage-easing="linear"
+        data-settings-text-cps="30"
+        data-settings-text-minimum="350"
+        data-settings-text-punctuation="120"
+        data-settings-textbox-default="adv"
+        data-settings-wait-for-voice="true"
+        data-skip-active="false"
+        data-skip-media="normal"
+        data-stage-images-pending="false"
+        data-video-policy-stop-reason="none"
+        style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+      >
+        <div
+          class="player-glow player-glow--violet"
+        />
+        <div
+          class="player-glow player-glow--cyan"
+        />
+        <section
+          aria-label="Branching Golden 游戏画面"
+          class="player-stage"
+        >
+          <div
+            aria-label="正式媒体舞台"
+            class="player-stage-world"
+            data-skip-media="normal"
+            style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+          />
+          <header
+            aria-label="播放器状态"
+            class="player-brand"
+            hidden=""
+          >
+            <span
+              aria-hidden="true"
+              class="player-brand__mark"
+            >
+              W
+            </span>
+            <span>
+              WorLd Player
+            </span>
+            <span
+              class="player-brand__status"
+            >
+              title
+            </span>
+          </header>
+          <div
+            class="player-control-layer"
+            data-open="false"
+            id="player-reading-menu"
+          >
+            <nav
+              aria-label="剧情历史控制"
+              class="player-history-controls"
+              hidden=""
+            >
+              <button
+                aria-label="打开玩家设置"
+                type="button"
+              >
+                设置
+              </button>
+              <button
+                aria-label="后退一步"
+                disabled=""
+                type="button"
+              >
+                <span
+                  aria-hidden="true"
+                >
+                  ←
+                </span>
+                <span>
+                  后退
+                </span>
+              </button>
+              <span
+                aria-label="历史位置"
+                class="player-history-controls__position"
+              >
+                0
+                /
+                0
+              </span>
+              <button
+                aria-label="前进一步"
+                disabled=""
+                type="button"
+              >
+                <span>
+                  前进
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  →
+                </span>
+              </button>
+              <button
+                aria-expanded="false"
+                aria-label="打开剧情历史"
+                class="player-history-controls__open"
+                type="button"
+              >
+                <span
+                  aria-hidden="true"
+                >
+                  ☰
+                </span>
+                <span>
+                  历史
+                </span>
+              </button>
+              <button
+                aria-expanded="false"
+                aria-label="打开附加内容"
+                class="player-history-controls__additional"
+                type="button"
+              >
+                <span
+                  aria-hidden="true"
+                >
+                  ✦
+                </span>
+                <span>
+                  附加内容
+                </span>
+              </button>
+            </nav>
+            <div
+              aria-label="播放控制"
+              class="player-playback-controls"
+              hidden=""
+            >
+              <label>
+                自动阅读节奏
+                <select
+                  aria-label="自动阅读节奏"
+                >
+                  <option
+                    value="standard"
+                  >
+                    标准
+                  </option>
+                  <option
+                    value="calm"
+                  >
+                    从容
+                  </option>
+                  <option
+                    value="brisk"
+                  >
+                    快速
+                  </option>
+                  <option
+                    value="policy"
+                  >
+                    原速
+                  </option>
+                </select>
+              </label>
+              <button
+                aria-label="自动播放"
+                aria-pressed="false"
+                disabled=""
+                type="button"
+              >
+                自动
+              </button>
+              <button
+                aria-label="快进已读"
+                aria-pressed="false"
+                disabled=""
+                type="button"
+              >
+                已读
+              </button>
+              <button
+                aria-label="快进全部"
+                aria-pressed="false"
+                disabled=""
+                type="button"
+              >
+                全部
+              </button>
+              <label>
+                方式
+                <select
+                  aria-label="快进激活方式"
+                >
+                  <option
+                    value="toggle"
+                  >
+                    切换
+                  </option>
+                  <option
+                    value="hold"
+                  >
+                    按住
+                  </option>
+                </select>
+              </label>
+              <label>
+                速度
+                <select
+                  aria-label="快进速度"
+                >
+                  <option
+                    value="5"
+                  >
+                    5×
+                  </option>
+                  <option
+                    value="10"
+                  >
+                    10×
+                  </option>
+                  <option
+                    value="20"
+                  >
+                    20×
+                  </option>
+                  <option
+                    value="40"
+                  >
+                    40×
+                  </option>
+                  <option
+                    value="instant"
+                  >
+                    瞬时
+                  </option>
+                </select>
+              </label>
+              <span
+                aria-live="polite"
+              >
+                自动播放关闭
+              </span>
+            </div>
+            <aside
+              class="player-save"
+              data-open="false"
+            >
+              <div
+                aria-label="快速存读档"
+                class="player-save__quick-controls"
+                hidden=""
+              >
+                <button
+                  disabled=""
+                  type="button"
+                >
+                  快速保存
+                </button>
+                <button
+                  type="button"
+                >
+                  快速读取
+                </button>
+              </div>
+              <button
+                aria-controls="player-save-panel"
+                aria-expanded="false"
+                class="player-save__toggle"
+                hidden=""
+                type="button"
+              >
+                存读档
+              </button>
+            </aside>
+          </div>
+          <div
+            class="player-title-screen"
+          >
+            <p
+              class="player-eyebrow"
+            >
+              A WORLd STUDIO STORY
+            </p>
+            <h1>
+              Branching Golden
+            </h1>
+            <p>
+              同一个故事核心，面向每一块屏幕。
+            </p>
+            <button
+              class="player-primary"
+              disabled=""
+              type="button"
+            >
+              开始故事
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <span
+              class="player-hint"
+            >
+              Enter / Space
+            </span>
+            <nav
+              aria-label="作品菜单"
+              class="player-title-actions"
+            >
+              <button
+                type="button"
+              >
+                读取存档
+              </button>
+              <button
+                aria-label="打开玩家设置"
+                type="button"
+              >
+                设置
+              </button>
+              <button
+                aria-label="打开附加内容"
+                type="button"
+              >
+                附加内容
+              </button>
+            </nav>
+            <div
+              aria-label="开始与恢复进度"
+              class="player-title-recovery"
+            >
+              <div
+                aria-busy="true"
+                aria-live="polite"
+                class="player-recovery"
+                role="status"
+              >
+                <div>
+                  <strong>
+                    恢复保护
+                  </strong>
+                  <span>
+                    正在检查恢复记录…
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ apps/player-shell/src/player-shell.test.tsx:1507:11
+    1505|     const delayedStore: WorldPlayerRecoveryStoreV1 = { ...recoveryStor…
+    1506|     const fourth = render(<PlayerShell project={branching()} saveStore…
+    1507|     await waitFor(() => expect(screen.getByRole("button", { name: "快速读…
+       |           ^
+    1508|     fireEvent.click(screen.getByRole("button", { name: "快速读取" }));
+    1509|     await screen.findByText("The quiet route.");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/8]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  8 failed | 93 passed (101)
+   Start at  10:29:41
+   Duration  74.24s (transform 4.69s, setup 8.13s, import 7.92s, tests 31.86s, environment 24.04s)
+

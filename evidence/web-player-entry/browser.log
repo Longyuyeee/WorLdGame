@@ -1,0 +1,16 @@
+"UI version 1.5.2 and three exports; all source entries unchanged except publication version"
+{"route":"desktop-stay","paragraphs":60,"voices":6,"visited":["车站的雨","候车室的旧信","站台前的约定","留下","灯下的回信","雨后的天明"],"saveRefresh":true,"nativeSaveDialog":true,"physicalPhone":false,"humanReadTiming":false}
+{"route":"mobile-leave","paragraphs":60,"voices":6,"visited":["车站的雨","候车室的旧信","站台前的约定","远行","车窗与海","再一次见面"],"saveRefresh":true,"nativeSaveDialog":true,"physicalPhone":false,"humanReadTiming":false}
+"cached 1.5.1 restarts offline, restores quick progress and plays cached background audio"
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 30000ms exceeded.
+    at quick (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-player-entry.mjs:42:14)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-player-entry.mjs:109:191 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

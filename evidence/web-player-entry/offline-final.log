@@ -1,0 +1,3 @@
+"cached 1.5.1 restarts offline, restores quick progress and plays cached background audio"
+"update waits without interrupting 1.5.1, then activates 1.5.2; old quick save is rejected with visible feedback; new-version manual save resumes offline with audio"
+"operator restores original directory through the same offline update lifecycle; original 1.5.1 quick save remains readable"

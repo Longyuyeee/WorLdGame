@@ -1,0 +1,80 @@
+{
+  "passed": true,
+  "checks": [
+    "UI version 1.5.2 and three exports; all source entries unchanged except publication version",
+    {
+      "route": "desktop-stay",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    {
+      "route": "mobile-leave",
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    }
+  ],
+  "routes": {
+    "desktop-stay": {
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "留下",
+        "灯下的回信",
+        "雨后的天明"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    },
+    "mobile-leave": {
+      "paragraphs": 60,
+      "voices": 6,
+      "visited": [
+        "车站的雨",
+        "候车室的旧信",
+        "站台前的约定",
+        "远行",
+        "车窗与海",
+        "再一次见面"
+      ],
+      "saveRefresh": true,
+      "nativeSaveDialog": true,
+      "physicalPhone": false,
+      "humanReadTiming": false
+    }
+  },
+  "hashes": {
+    "before-rain-stops-project.zip": "403d51dfece11d55b4be1a2462758aee72f380508f96660adafc401b3df070ff",
+    "before-rain-stops.html": "4a2d1dd8b7a708f84c892fd07f5a2372854d847aca273b6ba5e12e0472640f7b",
+    "before-rain-stops-web.zip": "b63e27a316c52a2bc54cf27f99d10cc4f154d6e289216bcad44361b912a3c85b"
+  },
+  "errors": []
+}

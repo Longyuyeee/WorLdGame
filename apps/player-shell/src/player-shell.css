@@ -474,4 +474,17 @@ button { font: inherit; }
 .player-shell:fullscreen .player-stage { width: min(100%, calc((100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom)) * var(--gal-stage-ratio, 1.7778))); border: 0; border-radius: 0; }
 @media (orientation: landscape) { .player-shell:fullscreen { background: #080a12; } }
 .player-memory-pressure button { min-height:44px; padding:8px 12px; border:1px solid #6b9eb4; border-radius:10px; background:#102c42; color:inherit; }
+/* Title entry and save modal are separate player tasks. */
+.player-shell [hidden] { display: none !important; }
+.player-title-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+.player-title-actions button, .player-save__panel > header button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--player-muted, #c1bed2); border-radius: 12px; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); cursor: pointer; }
+.player-title-actions button:focus-visible { outline: 3px solid var(--player-accent, #b9a1ff); outline-offset: 3px; }
+.player-title-actions button:disabled { opacity: .45; cursor: default; }
+.player-title-locale { display: flex; align-items: center; gap: 8px; }
+.player-title-locale select { min-height: 44px; padding: 8px 12px; border-radius: 10px; color: inherit; background: var(--player-panel, #111425); border: 1px solid var(--player-muted, #c1bed2); }
+.player-shell .player-save__panel { position: fixed; z-index: 65; inset: calc(16px + var(--player-viewport-offset, 0px)) 14px auto; width: min(780px, calc(100% - 28px)); max-height: calc(100dvh - var(--player-viewport-offset, 0px) - 32px); margin: 0 auto; color: var(--player-ink, #f8f7ff); background: var(--player-panel, #111425); }
+.player-save__panel::backdrop { background: #080a1280; backdrop-filter: blur(4px); }
+.player-save__panel:not([open]) { display: none; }
+.player-save__panel > header { position: sticky; z-index: 1; top: -16px; padding-top: 12px; background: var(--player-panel, #111425); }
+.player-save-feedback { position: fixed; z-index: 32; bottom: 14px; left: 14px; max-width: calc(100% - 148px); margin: 0; padding: 8px 12px; border: 1px solid var(--player-muted, #c1bed2); border-radius: 10px; font-size: 13px; line-height: 1.5; color: var(--player-ink, #f8f7ff); background: var(--player-panel, #111425); pointer-events: none; }
 @media (max-width: 720px) { .player-memory-pressure { position:fixed; top:calc(env(safe-area-inset-top) + 160px + var(--player-viewport-offset, 0px)); left:14px; right:14px; } }
