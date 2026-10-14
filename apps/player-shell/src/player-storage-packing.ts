@@ -92,7 +92,7 @@ export function readPlayerStorageMetadata(value: unknown): Record<string, unknow
 /** Preserve invocation order across asynchronous encoding, without poisoning later writes. */
 export class PlayerStorageWriteQueue {
   private tail: Promise<unknown> = Promise.resolve();
-  run(operation: () => Promise<void>): Promise<void> {
+  run<T>(operation: () => Promise<T>): Promise<T> {
     const pending = this.tail.then(operation);
     this.tail = pending.catch(() => undefined);
     return pending;

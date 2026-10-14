@@ -1,4 +1,5 @@
 import { packPlayerStorageRecord, unpackPlayerStorageRecord, readPlayerStorageMetadata, PlayerStorageWriteQueue } from "./player-storage-packing";
+import { canonicalRuntimeStringify } from "@world-studio/runtime";
 
 export const WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
@@ -95,6 +96,7 @@ export interface WorldPlayerSaveStoreV3 {
   read(projectId: string, slotId: string): Promise<WorldPlayerSaveSlotV3 | null>;
   readPreview(projectId: string, slotId: string): Promise<Blob | null>;
   write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void>;
+  writeIfUnchanged?(slot: WorldPlayerSaveSlotV3, expected: WorldPlayerSaveSummaryV3 | null, preview?: Blob): Promise<boolean>;
 }
 
 export async function listWorldPlayerSaveSummariesV3(store: WorldPlayerSaveStoreV3, projectId: string): Promise<readonly WorldPlayerSaveSummaryV3[]> {
@@ -170,6 +172,11 @@ function validV2Fields(value: Record<string, unknown>): boolean {
 
 function validSlotV3(value: unknown): value is WorldPlayerSaveSlotV3 {
   return isRecord(value) && hasExactKeys(value, slotV3Keys) && validPayload(value) && validV3Fields(value);
+}
+
+export function readWorldPlayerSaveSlotV3(value: unknown): WorldPlayerSaveSlotV3 {
+  if (!validSlotV3(value)) throw new TypeError("WORLD_PLAYER_SAVE_CORRUPT");
+  return value;
 }
 
 function validV3Fields(value: Record<string, unknown>): boolean {
@@ -384,7 +391,17 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
   }
 
   async write(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob): Promise<void> {
+    await this.writeRecord(slot, preview);
+  }
+
+  async writeIfUnchanged(slot: WorldPlayerSaveSlotV3, expected: WorldPlayerSaveSummaryV3 | null, preview?: Blob): Promise<boolean> {
+    if (expected !== null && (expected.projectId !== slot.projectId || expected.slotId !== slot.slotId)) throw new TypeError("WORLD_PLAYER_SAVE_EXPECTATION_INVALID");
+    return this.writeRecord(slot, preview, expected);
+  }
+
+  private async writeRecord(slot: WorldPlayerSaveSlotV1 | WorldPlayerSaveSlotV2 | WorldPlayerSaveSlotV3, preview?: Blob, expected?: WorldPlayerSaveSummaryV3 | null): Promise<boolean> {
     const checked = structuredClone(checkedWrite(slot));
+    const expectation = expected === undefined ? undefined : structuredClone(expected);
     return this.writes.run(async () => {
       if (!validPreviewBlobShape(checked, preview)) throw new TypeError("WORLD_PLAYER_SAVE_PREVIEW_INVALID");
       if (checked.preview.status === "available" && preview !== undefined && await worldPlayerSavePreviewSha256V1(preview, this.subtle) !== checked.preview.sha256) {
@@ -395,10 +412,22 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
       const transaction = database.transaction([WORLD_PLAYER_SAVE_STORE_NAME, WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME], "readwrite", { durability: "strict" });
       const done = transactionDone(transaction);
       const recordKey = key(checked.projectId, checked.slotId);
-      transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
-      if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
-      else transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, recordKey);
-      await done;
+      try {
+        if (expectation !== undefined) {
+          const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(recordKey));
+          const actual = record === undefined ? null : normalizeSummary(record);
+          if (canonicalRuntimeStringify(actual) !== canonicalRuntimeStringify(expectation)) { await done; return false; }
+        }
+        transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
+        if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
+        else transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).put(preview, recordKey);
+        await done;
+        return true;
+      } catch (error) {
+        try { transaction.abort(); } catch { /* A request failure may have aborted it already. */ }
+        await done.catch(() => undefined);
+        throw error;
+      }
     });
   }
 }

@@ -36,6 +36,7 @@ import {
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { playerSaveLabel } from './player-save-label';
+import { PlayerSaveBackupPanel } from "./PlayerSaveBackupPanel";
 import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
 import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
 import { browserGamepadFrameV1, createPlayerGamepadTrackerV1, type PlayerGamepadActionV1 } from "./player-input";
@@ -250,7 +251,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [savePanelOpen, setSavePanelOpen] = useState(false);
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSummaryV3[]>([]);
   const [savePage, setSavePage] = useState(0);
-  const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint">("manual");
+  const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint" | "backup">("manual");
   const [pendingOverwriteSlotId, setPendingOverwriteSlotId] = useState<string | null>(null);
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
@@ -573,8 +574,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [previewCapture]);
 
-  const persistCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
-    if (saveStore === undefined || capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
+  const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
+    if (capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
     const created = createPlayerCoreSessionSaveV1(capturedState);
     if (!created.ok) {
       throw new Error(created.diagnostics[0]?.message ?? "WORLD_PLAYER_SAVE_NOT_READY");
@@ -587,7 +588,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
       const chapter = scenePath === undefined ? undefined : project.chapters.find((candidate) => candidate.scenePaths.includes(scenePath));
       const captured = await captureSavePreview(projectId, sceneId);
-      await saveStore.write(createWorldPlayerSaveSlotV3({
+      const slot = createWorldPlayerSaveSlotV3({
         kind,
         slotId,
         projectId,
@@ -606,9 +607,16 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         sessionArtifactHash: created.artifactHash,
         serializedSessionSave: created.serialized,
         checkpointStepId: null
-      }), captured.blob);
-      return captured.metadata.status;
-  }, [captureSavePreview, now, project, saveStore, snapshot, state]);
+      });
+      return { slot, ...(captured.blob === undefined ? {} : { preview: captured.blob }) };
+  }, [captureSavePreview, now, project, snapshot, state]);
+
+  const persistCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
+    if (saveStore === undefined) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
+    const captured = await captureCurrentSlot(kind, slotId, capturedState, capturedSnapshot);
+    await saveStore.write(captured.slot, captured.preview);
+    return captured.slot.preview.status;
+  }, [captureCurrentSlot, saveStore, snapshot, state]);
 
   const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string) => {
     if (saveCoordinator === undefined) return;
@@ -642,7 +650,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     void saveToSlot("manual", slotId);
   }, [pendingOverwriteSlotId, saveToSlot]);
 
-  const loadFromSlot = useCallback(async (slotId: string) => {
+  const loadFromSlot = useCallback(async (slotId: string, expectedArtifactHash?: string) => {
     if (saveStore === undefined) return;
     setSaveOperation("busy");
     setSaveMessage("正在校验…");
@@ -651,6 +659,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       const slot = await saveStore.read(projectId, slotId);
       if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       if (slot === null) throw new Error("WORLD_PLAYER_SAVE_MISSING");
+      if (expectedArtifactHash !== undefined && slot.sessionArtifactHash !== expectedArtifactHash) throw new Error("WORLD_PLAYER_SAVE_CHANGED");
       const loaded = loadPlayerCoreSessionSaveV1(state, slot.serializedSessionSave);
       if (!loaded.ok && loaded.diagnostics[0]?.code === "RUNTIME_SAVE_BUILD_MISMATCH") throw new Error("WORLD_PLAYER_SAVE_VERSION_UNVERIFIED");
       if (!loaded.ok || loaded.artifactHash !== slot.sessionArtifactHash) throw new Error("WORLD_PLAYER_SAVE_REJECTED");
@@ -675,7 +684,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveOperation("error");
       setSaveMessage(error instanceof Error && error.message === "WORLD_PLAYER_SAVE_VERSION_UNVERIFIED"
         ? "这个存档来自尚未核对的游戏版本。当前进度和原存档保持不变，请使用原版继续或联系作品作者。"
-        : "存档损坏或与当前构建不兼容");
+        : error instanceof Error && error.message === "WORLD_PLAYER_SAVE_CHANGED"
+          ? "这个槽位已经更新，请重新核对后读取，或把备份重新导入空槽位。当前进度保持不变。"
+          : "存档损坏或与当前构建不兼容");
       if (slotId.startsWith("quick-")) setSaveView("quick");
       openSavePanel();
     }
@@ -2017,14 +2028,20 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               }}
             >存读档</button>
             {savePanelOpen && (
-              <dialog ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); closeSavePanel(); }}>
-                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : saveView === "quick" ? "快速存档" : "剧情检查点"}</strong><button type="button" aria-label="关闭存读档" autoFocus onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : undefined}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
+              <dialog ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (saveOperation !== "busy") closeSavePanel(); }}>
+                <header><strong>{saveView === "manual" ? "手动存档" : saveView === "auto" ? "自动存档" : saveView === "quick" ? "快速存档" : saveView === "backup" ? "存档备份与恢复" : "剧情检查点"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy"} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : undefined}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
                 <nav className="player-save__views" aria-label="存档类型">
-                  <button type="button" aria-pressed={saveView === "manual"} onClick={() => setSaveView("manual")}>手动</button>
-                  <button type="button" aria-pressed={saveView === "auto"} onClick={() => setSaveView("auto")}>自动</button>
-                  <button type="button" aria-pressed={saveView === "quick"} onClick={() => setSaveView("quick")}>快速</button>
-                  <button type="button" aria-pressed={saveView === "checkpoint"} onClick={() => setSaveView("checkpoint")}>检查点</button>
+                  <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "manual"} onClick={() => setSaveView("manual")}>手动</button>
+                  <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "auto"} onClick={() => setSaveView("auto")}>自动</button>
+                  <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "quick"} onClick={() => setSaveView("quick")}>快速</button>
+                  <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "checkpoint"} onClick={() => setSaveView("checkpoint")}>检查点</button>
+                  <button type="button" disabled={saveOperation === "busy"} aria-pressed={saveView === "backup"} onClick={() => setSaveView("backup")}>备份</button>
                 </nav>
+                {saveView === "backup" && saveCoordinator !== undefined && <PlayerSaveBackupPanel key={`${project.manifest.projectId}:${snapshot.identities.buildId}`} state={state} store={saveStore} coordinator={saveCoordinator} slots={saveSlots}
+                  currentAllowed={saveBoundaryAllowed && !snapshot.sceneReplay.active} captureCurrent={() => captureCurrentSlot("manual", "manual-1")}
+                  onImported={async () => { await refreshSaveSlots(); }} onRead={(slotId, artifactHash) => void loadFromSlot(slotId, artifactHash)} externalBusy={saveOperation === "busy"}
+                  onBusyChange={busy => { setSaveOperation(busy ? "busy" : "idle"); setSaveMessage(busy ? "正在处理备份…" : "备份与恢复"); }}
+                  isCurrent={() => saveContext.current.projectId === project.manifest.projectId && saveContext.current.store === saveStore && liveState.current.artifacts?.manifest.buildId === snapshot.identities.buildId} />}
                 {saveView === "manual" && Array.from({ length: 6 }, (_, index) => savePage * 6 + index + 1).map((slotNumber) => {
                   const slotId = `manual-${slotNumber}`;
                   const slot = saveSlots.find((candidate) => candidate.slotId === slotId);

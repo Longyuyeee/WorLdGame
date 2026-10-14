@@ -1,4 +1,4 @@
-# 《雨停之前》1.5.3 · Web 兼容更新候选展示资料
+# 《雨停之前》1.5.4 · Web 存档携带候选展示资料
 
 日期：2026-10-14。面向部署与作品展示准备；**不是已上线或授权已完成的发行声明**。
 
@@ -16,24 +16,24 @@
 
 ## 交付与视觉资料
 
-1.5.3 增加发布页旧版工程核对、同内容版本号更新的旧档继续游玩/离线恢复，以及同一作品 ZIP 新正文的导入修复。本轮正文、演出和媒体保持；核对声明为 1.5.1/1.5.2，实际更新链为 1.5.2→1.5.3。内容变化时原核对失效并拒绝旧档，不宣称剧情变化迁移。
+1.5.3 增加发布页旧版工程核对和导入新正文保护。1.5.4 继续增加当前进度/单槽位文件备份、导入核对/空槽位/覆盖确认、两窗口原子保护和显式读取；手机核对通过时收起导出区。本轮正文、演出和媒体保持，核对声明为 1.5.1/1.5.2/1.5.3；实际备份来源为 1.5.3 的会话，在 1.5.4 中完成隔离浏览器/不同来源迁移、离线和本地 HTML 恢复。内容变化仍拒绝，不宣称剧情变化迁移或物理设备通过。
 
 | 资料 | 仓库位置 |
 | --- | --- |
-| 可编辑源工程 | `evidence/web-save-updates/before-rain-stops-project.zip` |
-| 单文件试玩 | `evidence/web-save-updates/before-rain-stops.html` |
-| 完整目录包 | `evidence/web-save-updates/before-rain-stops-web.zip` |
+| 可编辑源工程 | `evidence/web-save-backup/before-rain-stops-project.zip` |
+| 单文件试玩 | `evidence/web-save-backup/before-rain-stops.html` |
+| 完整目录包 | `evidence/web-save-backup/before-rain-stops-web.zip` |
 | 标题封面源图 | `assets/rain-story/station-night-v2.png` |
 | 512×512 作品图标 | `assets/rain-story/letter-icon.png`，可编辑源 `letter-icon.svg` |
-| 当前兼容恢复标题 | `evidence/web-save-updates/compatible-recovery-title.png` |
-| 当前手机尺寸/存档 | `evidence/web-save-updates/mobile-compatible-save.png`、`continued-save-resumed.png` |
+| 上一包兼容恢复标题（1.5.3） | `evidence/web-save-updates/compatible-recovery-title.png` |
+| 当前手机尺寸/备份 | `evidence/web-save-backup/mobile-backup-preview.png`、`mobile-overwrite-confirmation.png`、`mobile-migrated-progress.png` |
 | 上一包完整路线（1.5.2） | `evidence/web-player-entry/desktop-stay-title.png`、`desktop-stay-ending.png`、`mobile-leave-ending.png`（结局含剧透，本轮未重跑） |
 | 历史横竖屏画幅参考（1.5.0） | `evidence/web-player-settings/phone-390-landscape.png`、`phone-390-reading.png`；本轮未复测横竖屏 |
 | 历史设置与全屏（1.5.0） | `evidence/web-player-settings/chromium-settings-text.png`、`chromium-fullscreen.png`；本轮未复测全屏 |
-| 离线与更新 | `evidence/web-save-updates/old-save-offline.png`、`changed-update-rejected.png`（后者为内容变化测试包的拒绝画面） |
-| 作者核对步骤 | `evidence/web-save-updates/editor-compatibility.png`、`editor-stale-compatibility.png` |
+| 当前离线备份/并发拒绝 | `evidence/web-save-backup/mobile-offline-reexport.png`、`concurrent-import-rejected.png`、`wrong-work-backup-rejected.png` |
+| 上一包更新与作者核对（1.5.3） | `evidence/web-save-updates/old-save-offline.png`、`editor-compatibility.png`、`editor-stale-compatibility.png`；范围见 #314 |
 | 来源与提示词 | `assets/rain-story/README.md`、`image-prompts-v1.3.json`、`source-manifest-v1.3.json` |
-| 开发/验收记录 | `docs/314-web-verified-save-updates.md`、`release-notes-1.5.3.md`；素材制作来源见 #308 |
+| 开发/验收记录 | `docs/315-web-player-save-backup.md`、`release-notes-1.5.4.md`；素材制作来源见 #308 |
 
 截图是实际浏览器进程的游戏画面，默认 Chromium，含引擎名称的按文件名/报告区分；手机尺寸截图不是物理手机通过证明。未经裁剪的源背景/立绘不当成实际游戏截图。
 
@@ -49,10 +49,10 @@
 
 1. 按平台无关的静态目录交付。公开部署前核对作品资料、素材来源和实际网址；当前没有上传任何公网网站。
 2. 目录 ZIP 解压**全部文件**，以 `index.html` 为入口；不要只上传 HTML，不要混用不同构建的资源。当前已验证本地 HTTP `/gal/` 子路径。
-3. 先在预发布地址核对封面/图标/版本 1.5.3、全部资源 HTTP 响应和控制台错误；用实际浏览器点击开始后核对音频权限，个人静音/音量和失败恢复。
-4. 分别走留下/远行，核对候车室、列车、画室、角色表情、全部正文与结局；中途保存、刷新、读取。存档依赖浏览器本地数据和网址来源；清理站点数据、换设备/浏览器或换域名不能保证自动保留进度。
+3. 先在预发布地址核对封面/图标/版本 1.5.4、全部资源 HTTP 响应和控制台错误；用实际浏览器点击开始后核对音频权限，个人静音/音量和失败恢复。
+4. 分别走留下/远行，核对候车室、列车、画室、角色表情、全部正文与结局；中途保存、刷新、读取。存档依赖浏览器本地数据和网址来源；清理数据或换环境前，在“存读档→备份”导出 .worldsave 文件。在新环境打开相同/核对过的兼容作品，核对备份后导入手动槽位并显式读取；个人设置/其他槽位分别保留，不自动迁移。
 5. 在约定的手机/浏览器上核对工程等比画幅、竖屏上图下文、设置/返回焦点、触控长段滚动/点按下一屏、Auto 等未读下方、横竖屏、全屏成功/拒绝/退出、失焦恢复和音频；做实际人工节奏计时。当前三个 Windows 引擎不能宣称主流手机普遍兼容。
-6. 更新前在发布设置核对上一版完整工程 ZIP，保存后重新生成，完整替换目录。已检查 1.5.2→1.5.3 的旧恢复点、快速档和继续保存/断网刷新；原快速槽位字节保持。正文变化的测试更新使核对失效并拒绝旧档，需要保留原版入口，详见 release-notes-1.5.3.md 和包内 save-compatibility.json。兼容不替代完整校验或跨设备携带；个人偏好同样不会自动跨设备迁移。
+6. 更新前在发布设置核对上一版完整工程 ZIP，保存后重新生成，完整替换目录；范围见 save-compatibility.json。#314 已检查等待/启用和正文变化拒绝；本版额外检查 1.5.3 档文件携带到 1.5.4、显式读档/断网重开和再导出原会话字节。覆盖需确认，两窗口改目标会拒绝过期确认；详见 release-notes-1.5.4.md。内容变化后需要保留原版入口，备份文件不自动实现剧情变化迁移。
 7. 在实际 URL 完成以上回查后，再记录地址、构建摘要、已验证环境和剩余限制，并按渠道的嵌入尺寸/上传限制适配。单文件 HTML 为便捷试玩；是否允许下载或嵌入按选定渠道规定另行确认。
 
-尚未关闭：逐段自然阅读/配音听感与演出定稿、来源许可、公网、真机/旋转、长期运行与既有长帧问题、完整全仓与所有浏览器/设备兼容、剧情变化的存档迁移与存档携带；当前目录缓存下载、断网、等待更新和核对过的旧档读取已检查。结构页试玩已在 #311 交付。Windows/Android 原生产品化继续搁置。
+尚未关闭：逐段自然阅读/配音听感与演出定稿、来源许可、公网、真机/物理跨设备/旋转、长期运行与既有长帧问题、完整全仓与所有浏览器兼容、剧情变化迁移；当前目录缓存下载、断网、等待更新和核对过的旧档读取、手动文件携带已检查，测试范围分版记录。结构页试玩已在 #311 交付。Windows/Android 原生产品化继续搁置。

@@ -1,0 +1,7 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/player-shell/src/player-save-backup-shell.test.tsx(55,107): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'URL'.
+apps/player-shell/src/player-save-backup-shell.test.tsx(55,137): error TS4114: This member must have an 'override' modifier because it overrides a member in the base class 'URL'.
+apps/player-shell/src/player-save-backup-shell.test.tsx(61,99): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.

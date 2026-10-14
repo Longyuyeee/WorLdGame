@@ -5,3 +5,5 @@ evidence/web-player-settings/before-rain-stops.html -text
 evidence/web-authoring-polish/before-rain-stops.html -text
 evidence/web-player-entry/before-rain-stops.html -text
 evidence/web-save-updates/before-rain-stops.html -text
+evidence/web-save-backup/before-rain-stops.html -text
+evidence/web-save-backup/*.worldsave -text

@@ -1,14 +1,14 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 最新交付（2026-10-14）：[#314 Web 更新与已核对旧档](docs/314-web-verified-save-updates.md)。发布页核对上一版工程 ZIP，内容一致的版本号更新可继续旧档；正文/设置/素材变化自动失效。修复同一作品新 ZIP 正文被旧本机快照替代的问题。1.5.3 源工程/HTML/目录在 evidence/web-save-updates；162 个不同相关测试、7 组实际浏览器流程通过，1.5.2→1.5.3 旧档与恢复/再保存/断网刷新已验证。剧情变化迁移、人工/真机/授权/公网仍未验收。
+> 最新交付（2026-10-14）：[#315 Web 玩家存档备份与恢复](docs/315-web-player-save-backup.md)。当前进度/单槽位可导出 .worldsave，导入先核对、优先空手动槽位，覆盖和读取均有并发保护；手机摘要收纳。1.5.4 源工程/HTML/目录在 evidence/web-save-backup；118 项相关测试、7 组实际浏览器流程通过，不同来源/隔离浏览器迁移、断网刷新/再导出和本地 HTML 导入已验证。剧情变化迁移、人工/真机/授权/公网仍未验收。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-14
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：[已核对更新 #314](docs/314-web-verified-save-updates.md) 的 1.5.3 延续全部正文和素材：9 场景/两结局、9,626 字符/71 演出。标题/设置、原生存档弹窗和反馈沿用 #313；本轮补版本号兼容和导入来源优先级。核对 1.5.1/1.5.2，实际跨版本离线链为 1.5.2→1.5.3；内容变化继续拒绝旧档，没有剧情变动迁移或玩家原版切换入口。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#314](docs/314-web-verified-save-updates.md)。当前三产物在 evidence/web-save-updates，展示资料/版本边界在 release/rain-before。此前 #313/#312 为历史；本轮未重跑完整两结局、全仓、所有引擎或长期运行。
+> 当前进展：[备份恢复 #315](docs/315-web-player-save-backup.md) 的 1.5.4 延续全部正文和素材：9 场景/两结局、9,626 字符/71 演出。核对 1.5.1/1.5.2/1.5.3，实际备份来源为 1.5.3 的会话；跨站点来源/隔离浏览器可恢复同一进度和历史。备份是一份会话，个人设置/其他槽位分别保留；不支持剧情变化后的迁移。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#315](docs/315-web-player-save-backup.md)。当前三产物在 evidence/web-save-backup，展示资料/版本边界在 release/rain-before。此前 #314/#313 为历史；本轮未重跑完整两结局、全仓、所有引擎或长期运行。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：沿《雨停之前》1.5.3 继续实际作品定稿和交付，补存档携带/备份、自然阅读与演出、真机和来源许可。当前源工程 evidence/web-save-updates/before-rain-stops-project.zip；不要求先选具体发布平台。
+> 当前重心：沿《雨停之前》1.5.4 继续实际作品定稿和交付，处理编辑/游玩中的自然阅读与演出、真机和来源许可。当前源工程 evidence/web-save-backup/before-rain-stops-project.zip；不要求先选具体发布平台。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
