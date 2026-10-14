@@ -11,7 +11,7 @@ export function WebReleaseGuide({ format, ready }: { format: "html" | "directory
     <details><summary>上线与更新前检查</summary><ul>
       <li>在实际网址重新检查所有素材、两条路线、声音、保存刷新与读取。</li>
       <li>确认展示资料、署名和素材使用许可；导出不会替你完成这些确认。</li>
-      <li>当前存档限定原构建，修改发布版本也可能导致旧档不能读取。更新前检查兼容并保留旧版入口，完整替换同一构建的文件。</li>
+      <li>更新前在发布设置核对上一版工程 ZIP。只有版本号变化、内容完全一致时支持旧档；其他变化需要保留原版入口。完整替换同一构建的文件。</li>
     </ul></details>
   </section>;
 }

@@ -326,6 +326,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   recoveryContext.current = { projectId: project.manifest.projectId, store: recoveryStore };
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
+  const recoveryBuildCompatible = recoveryCandidate === null || recoveryCandidate.buildId === state.artifacts?.manifest.buildId || state.compatibleSaveBuildIds.includes(recoveryCandidate.buildId);
   const buildStopInstructionIds = state.artifacts?.playerPlaybackPolicy.stopInstructionIds ?? [];
   const saveCoordinator = useMemo(() => saveStore === undefined ? undefined : new WorldPlayerSaveWriteCoordinatorV1(saveStore), [saveStore]);
   const recoveryCoordinator = useMemo(() => recoveryStore === undefined ? undefined : new WorldPlayerRecoveryWriteCoordinatorV1(recoveryStore), [recoveryStore]);
@@ -590,7 +591,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         kind,
         slotId,
         projectId,
-        buildId: capturedSnapshot.identities.buildId,
+        buildId: capturedState.runtimeState.buildId,
         savedAtEpochMilliseconds: now(),
         title: capturedSnapshot.title,
         chapterId: chapter?.id ?? null,
@@ -651,9 +652,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       if (slot === null) throw new Error("WORLD_PLAYER_SAVE_MISSING");
       const loaded = loadPlayerCoreSessionSaveV1(state, slot.serializedSessionSave);
+      if (!loaded.ok && loaded.diagnostics[0]?.code === "RUNTIME_SAVE_BUILD_MISMATCH") throw new Error("WORLD_PLAYER_SAVE_VERSION_UNVERIFIED");
       if (!loaded.ok || loaded.artifactHash !== slot.sessionArtifactHash) throw new Error("WORLD_PLAYER_SAVE_REJECTED");
       const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
-      if (slot.projectId !== projectId || slot.buildId !== loadedSnapshot.identities.buildId || slot.runtimeStateHash !== loaded.savedRuntimeStateHash ||
+      if (slot.projectId !== projectId || slot.buildId !== loaded.savedBuildId || slot.runtimeStateHash !== loaded.savedRuntimeStateHash ||
           slot.sceneId !== loaded.savedSceneId || slot.presentationKind !== loadedSnapshot.presentation.kind || slot.title !== loadedSnapshot.title) {
         throw new Error("WORLD_PLAYER_SAVE_METADATA_MISMATCH");
       }
@@ -668,10 +670,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveOperation("loaded");
       setSaveMessage(`${playerSaveLabel(slotId)}已读取`);
       setSavePanelOpen(false);
-      setSaveFeedback('存档已读取，继续当前故事');
-    } catch {
+      setSaveFeedback(loaded.compatibility === "verified-previous" ? '已读取核对过的旧版存档，可以继续故事' : '存档已读取，继续当前故事');
+    } catch (error) {
       setSaveOperation("error");
-      setSaveMessage("存档损坏或与当前构建不兼容");
+      setSaveMessage(error instanceof Error && error.message === "WORLD_PLAYER_SAVE_VERSION_UNVERIFIED"
+        ? "这个存档来自尚未核对的游戏版本。当前进度和原存档保持不变，请使用原版继续或联系作品作者。"
+        : "存档损坏或与当前构建不兼容");
       if (slotId.startsWith("quick-")) setSaveView("quick");
       openSavePanel();
     }
@@ -685,7 +689,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       const loaded = loadPlayerCoreSessionSaveV1(state, recoveryCandidate.serializedSessionSave);
       if (!loaded.ok || loaded.artifactHash !== recoveryCandidate.sessionArtifactHash) throw new Error("WORLD_PLAYER_RECOVERY_REJECTED");
       const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
-      if (recoveryCandidate.projectId !== project.manifest.projectId || recoveryCandidate.buildId !== loadedSnapshot.identities.buildId ||
+      if (recoveryCandidate.projectId !== project.manifest.projectId || recoveryCandidate.buildId !== loaded.savedBuildId ||
           recoveryCandidate.runtimeStateHash !== loaded.savedRuntimeStateHash || recoveryCandidate.sceneId !== loaded.savedSceneId ||
           recoveryCandidate.presentationKind !== loadedSnapshot.presentation.kind || recoveryCandidate.title !== loadedSnapshot.title) {
         throw new Error("WORLD_PLAYER_RECOVERY_METADATA_MISMATCH");
@@ -696,7 +700,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setState(loaded.state);
       setRecoveryCandidate(null);
       setRecoveryOperation("loaded");
-      setRecoveryMessage("已恢复上次安全进度");
+      setRecoveryMessage(loaded.compatibility === "verified-previous" ? "已恢复核对过的旧版进度" : "已恢复上次安全进度");
       setRecoveryErrorAction(null);
     } catch {
       setRecoveryOperation("error");
@@ -880,8 +884,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   useEffect(() => {
     if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
-    const buildId = snapshot.identities.buildId;
     for (const candidate of state.checkpointSaveCandidates) {
+      const buildId = candidate.buildId;
       const identity = `${buildId}\0${candidate.stepId}\0${candidate.artifactHash}`;
       if (consumedCheckpointCandidates.current.has(identity)) continue;
       consumedCheckpointCandidates.current.add(identity);
@@ -923,7 +927,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     if (!created.ok) return;
     const record = createWorldPlayerRecoveryRecordV1({
       projectId: project.manifest.projectId,
-      buildId: snapshot.identities.buildId,
+      buildId: state.runtimeState.buildId,
       savedAtEpochMilliseconds: now(),
       title: snapshot.title,
       sceneId: state.runtimeState.cursor.sceneId,
@@ -996,7 +1000,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }
       const created = createPlayerCoreSessionSaveV1(protectedState);
       if (!created.ok || snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || protectedState.runtimeState === null) throw Error("Cannot protect current state");
-      const record = createWorldPlayerRecoveryRecordV1({ projectId: project.manifest.projectId, buildId: snapshot.identities.buildId,
+      const record = createWorldPlayerRecoveryRecordV1({ projectId: project.manifest.projectId, buildId: protectedState.runtimeState.buildId,
         savedAtEpochMilliseconds: now(), title: snapshot.title, sceneId: protectedState.runtimeState.cursor.sceneId,
         presentationKind: snapshot.presentation.kind, runtimeStateHash: snapshot.runtimeStateHash,
         sessionArtifactHash: created.artifactHash, serializedSessionSave: created.serialized });
@@ -2026,7 +2030,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   const slot = saveSlots.find((candidate) => candidate.slotId === slotId);
                   return <section className="player-save__slot" key={slotId}>
                     <PlayerSavePreview projectId={project.manifest.projectId} slot={slot} store={saveStore} />
-                    <div><strong>槽位 {slotNumber}</strong><span>{slot === undefined ? "空槽位" : `${slot.chapterTitle === null ? "未归属章节" : slot.chapterTitle} / ${slot.sceneTitle} · ${new Date(slot.savedAtEpochMilliseconds).toLocaleString("zh-CN", { hour12: false })} UTC · ${slot.preview.status === "available" ? "有截图" : "无预览"}`}</span></div>
+                    <div><strong>槽位 {slotNumber}</strong><span>{slot === undefined ? "空槽位" : `${slot.chapterTitle === null ? "未归属章节" : slot.chapterTitle} / ${slot.sceneTitle} · ${new Date(slot.savedAtEpochMilliseconds).toLocaleString("zh-CN", { hour12: false })} · 本地时间 · ${slot.preview.status === "available" ? "有截图" : "无预览"}`}</span></div>
                     <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || snapshot.history === null} onClick={() => requestSaveToSlot(slotId, slot !== undefined)}>{pendingOverwriteSlotId === slotId ? "确认覆盖" : "保存"}</button>
                     <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || slot === undefined} onClick={() => void loadFromSlot(slotId)}>读取</button>
                   </section>;
@@ -2073,7 +2077,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               <span>{recoveryMessage}</span>
               {recoveryCandidate !== null && <small>{recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toLocaleString("zh-CN", { hour12: false })} · 本地时间</small>}
             </div>
-            {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || recoveryCandidate.buildId !== state.artifacts?.manifest.buildId} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
+            {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
             <button type="button" disabled={recoveryErrorAction === "retry" && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
               if (recoveryErrorAction === "retry") {
                 setRecoveryOperation("idle");
@@ -2118,7 +2122,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 <div><strong>{newStoryConfirmation ? "确认开始新故事？" : recoveryCandidate ? "发现可恢复进度" : "恢复保护"}</strong>
                   <span>{newStoryConfirmation ? "将清除旧的自动恢复记录。手动、快速及检查点存档保持不变。" : recoveryMessage}</span>
                   {!newStoryConfirmation && recoveryCandidate !== null && <small>{project.scenes.find(scene => scene.id === recoveryCandidate.sceneId)?.title ?? recoveryCandidate.sceneId} · {new Date(recoveryCandidate.savedAtEpochMilliseconds).toLocaleString("zh-CN", { hour12: false })} · 本地时间</small>}
-                  {!newStoryConfirmation && recoveryCandidate !== null && recoveryCandidate.buildId !== state.artifacts?.manifest.buildId && <span>这个进度来自其他游戏版本，不能在当前版本恢复。原记录仍保留，可用对应版本继续或确认开始新故事。</span>}
+                  {!newStoryConfirmation && recoveryCandidate !== null && recoveryCandidate.buildId !== state.artifacts?.manifest.buildId && <span>{recoveryBuildCompatible ? "这份旧版进度已核对兼容，可以继续上次的故事。" : "这个进度来自尚未核对的游戏版本，不能在当前版本恢复。原记录仍保留，可用对应版本继续或确认开始新故事。"}</span>}
                   {newStoryConfirmation && recoveryOperation === "error" && <span>{recoveryMessage}</span>}
                 </div>
                 {newStoryConfirmation ? <>
@@ -2133,7 +2137,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   <button type="button" disabled={recoveryOperation === "scanning"} onClick={() => setNewStoryConfirmation(false)}>保留原进度</button>
                 </> : <>
                   {recoveryOperation === "error" && <button type="button" onClick={() => setRecoveryScanAttempt(attempt => attempt + 1)}>重新检查恢复记录</button>}
-                  {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning" || recoveryCandidate.buildId !== state.artifacts?.manifest.buildId} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
+                  {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning" || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
                   {(recoveryCandidate !== null || recoveryOperation === "error") && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning"} onClick={() => void clearRecovery()}>放弃并清除</button>}
                 </>}
               </div>

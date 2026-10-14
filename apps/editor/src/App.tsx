@@ -4491,8 +4491,8 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
             "项目已恢复，但备份索引需要检查。";
         }
         if (cancelled) return;
-        // Structure editing starts only after saving all editor inputs. On its explicit
-        // return, use that fresh project; an older editor snapshot may have fewer scenes.
+        // Explicit ZIP imports and structure returns own the fresh source. An older
+        // local snapshot of the same Project ID must not replace the imported text.
         // Ordinary reopen/recovery keeps the existing snapshot restoration contract.
         let contextSnapshot = snapshot;
         let restoredSource: StudioSession;

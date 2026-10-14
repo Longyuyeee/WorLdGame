@@ -1,5 +1,5 @@
 import { compileProject } from "@world-studio/project-compiler";
-import { semanticHash, readWebPlayerAppearance, applyWebPlayerAppearance, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { semanticHash, readWebPlayerAppearance, applyWebPlayerAppearance, readWebSaveCompatibility, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
 import { addWebOfflineFiles } from "./web-offline-export";
@@ -112,6 +112,9 @@ export async function createFormalWebDirectoryArtifact(
   files["index.html"] = encode(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${htmlText(project.manifest.title)}</title><link rel="stylesheet" href="player.css"></head><body><div id="player-root">正在打开游戏…如果一直停留在这里，请先解压整个 ZIP，再打开 index.html，并确认 player.js 与它在同一文件夹。</div><script id="world-project" type="application/json">${payload}</script><script src="player.js"></script></body></html>`);
   files["player.js"] = encode(runtime.javascript);
   files["player.css"] = encode(runtime.css);
+  const saveCompatibility = readWebSaveCompatibility(project);
+  files["save-compatibility.json"] = encode(JSON.stringify({ schemaVersion: 1, status: saveCompatibility.status,
+    verifiedVersions: saveCompatibility.versions, scope: "publication-version-only", contentChangesSupported: false }, null, 2));
   const icon = assets.find(asset => asset.assetId === publication.iconAssetId);
   const iconInfo = icon ? { path: mediaAssets.find(asset => asset.assetId === icon.assetId)!.url, size: publicationIconSize(icon.bytes) } : undefined;
   addWebOfflineFiles(files, project.manifest.title, publication.version, iconInfo);
@@ -141,7 +144,8 @@ preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需�
 网站离线与安装：
 将完整目录发布到 HTTPS 站点（开发调试可用 localhost），不要仅上传 index.html。玩家展开页面顶部“离线与安装”，主动下载离线内容；显示“离线内容已就绪”后才能保证断网重开。首次未下载、下载失败或浏览器清理数据后不可假定能离线。
 安装按钮在浏览器提供安装入口时出现，也可使用浏览器菜单“安装/添加到主屏幕”；不同浏览器支持有差异。本地 file 地址不注册离线缓存，但仍可直接玩。
-检查更新后若显示“新版已下载”，当前窗口继续原版，不会强制重载剧情。更新后旧存档可能与新构建不兼容；修改发布版本号也可能影响兼容。建议先完成当前游玩，或由发布者提供旧版入口。关闭所有游戏窗口后重新打开会使用新版；旧存档不会被清空，但保存不等于新版一定能读取。离线缓存并非永久存储保证。
+检查更新后若显示“新版已下载”，当前窗口继续原版，不会强制重载剧情。关闭所有游戏窗口后重新打开会使用新版。只有作者核对过、内容完全一致的版本号更新支持继续旧档；正文、分支、设置和素材变化不支持本轮兼容，需要提供原版入口。旧存档不会被清空，读取不会改写原槽位，继续保存仍遵循槽位覆盖规则。离线缓存并非永久存储保证。
+本包已核对旧版本：${saveCompatibility.status === "verified" ? saveCompatibility.versions.join("、") : "无（未核对或核对已失效）"}。范围见 save-compatibility.json；作者在发布设置上传上一版完整工程 ZIP 核对，保存工程后重新生成游戏。
 站点发布请完整替换目录，最后发布 sw.js；不要将缺失文件返回为 index.html，建议 sw.js 使用 Cache-Control: no-cache。部分文件未上传完整时离线更新会失败，原版缓存保留，补齐文件后重试。
 
 素材导出策略：${delivery.report.mode === "native-atlas" ? "原生 Atlas Canvas 图块绘制，包含离线原图回退包" : delivery.report.mode === "atlas-compatible" ? "Atlas 兼容普通纹理（不是原生图集渲染）" : delivery.report.mode === "lossless-png" ? "安全 PNG 无损重压缩，不适用或无收益时保留原文件" : "原始文件"}。optimization-report.json 记录素材/共享组成本与回退原因。源工程原素材不修改；恢复原素材导出后重新构建即可恢复。普通媒体使用目录文件；原生 Atlas 组内嵌于 index.html，成本已包含 Base64。打包与播放仍需要浏览器内存，不保证 GPU 内存收益。build-info.json 记录工程标识、文件大小与摘要。

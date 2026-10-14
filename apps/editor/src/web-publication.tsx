@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CanonicalProject, JsonObject } from "@world-studio/project-domain";
 import type { BlobDigest } from "@world-studio/project-persistence";
+import { WebSaveCompatibilitySettings } from "./WebSaveCompatibilitySettings";
 
 export interface WebPublication { readonly name: string; readonly version: string; readonly iconAssetId: string; }
 export function readWebPublication(project: CanonicalProject): WebPublication {
@@ -50,5 +51,6 @@ export function WebPublicationSettings({ project, onChange, onDirtyChange, reade
     {iconUrl && <img src={iconUrl} alt="发布图标预览" width={64} height={64} style={{ objectFit: "contain" }} />}
     <div><button type="button" disabled={!dirty} onClick={() => { try { onChange(applyWebPublication(project, draft)); setMessage("发布设置已应用，请保存工程；重新构建后生效。"); } catch (error) { setMessage((error as Error).message); } }}>应用发布设置</button> <button type="button" disabled={!dirty} onClick={() => { setDraft(saved); setMessage(""); }}>放弃修改</button></div>
     {dirty && <p>发布设置尚未应用，请先应用或放弃修改再构建。</p>}{message && <p role="status">{message}</p>}
+    <WebSaveCompatibilitySettings project={project} dirty={dirty} onChange={onChange} />
   </fieldset>;
 }

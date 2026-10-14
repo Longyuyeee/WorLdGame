@@ -31,6 +31,7 @@ export function StudioLauncher() {
   const [recent, setRecent] = useState<readonly RecentProject[]>([]);
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
+  const importedReferences = useRef(new Set<string>());
   const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
@@ -83,7 +84,9 @@ export function StudioLauncher() {
         try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
         finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
       }
-      return finish(workspace,await openCompiledLifecycleProject(workspace));
+      const opened = await finish(workspace,await openCompiledLifecycleProject(workspace));
+      importedReferences.current.add(opened.reference.referenceId);
+      return opened;
     },
     exportArchive: async (session) => {
       const assets = new IndexedDbAssetRepository(globalThis.indexedDB, session.projectId);
@@ -146,5 +149,5 @@ export function StudioLauncher() {
       />
     </>;
   }
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content"});}} />;
+  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId)});}} />;
 }

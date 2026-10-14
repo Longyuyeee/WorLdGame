@@ -45,7 +45,7 @@ const client = String.raw`(() => {
   });
   const waiting = () => {
     if (!registration?.waiting) return false;
-    say('新版已下载，当前故事仍使用原版，不会自动打断。更新后旧存档可能无法读取，建议先完成游玩或保留旧版入口；关闭所有游戏窗口后重新打开会使用新版。');
+    say('新版已下载，当前故事仍使用原版，不会自动打断。只有作者核对过的兼容版本才能继续旧档；未经核对的更新请保留原版入口。关闭所有游戏窗口后重新打开会使用新版。');
     action.disabled = false; action.textContent = '检查更新'; return true;
   };
   const ready = async () => {

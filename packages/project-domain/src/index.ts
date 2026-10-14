@@ -8,3 +8,4 @@ export * from "./stable-id";
 export * from "./sha256";
 export * from "./types";
 export * from "./web-player-appearance";
+export * from "./web-save-compatibility";

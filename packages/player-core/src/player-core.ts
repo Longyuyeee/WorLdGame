@@ -1,10 +1,11 @@
 import {
   PROJECT_COMPILER_VERSION,
   compileProject,
+  compilerBuildIdForSource,
   type CompilerArtifactsV1,
   type CompilerDiagnostic
 } from "@world-studio/project-compiler";
-import type { CanonicalProject, JsonObject, JsonValue } from "@world-studio/project-domain";
+import { semanticHash, readWebSaveCompatibility, webProjectAtPublicationVersion, type CanonicalProject, type JsonObject, type JsonValue } from "@world-studio/project-domain";
 import {
   RUNTIME_VERSION,
   compactRuntimeHistoryV1,
@@ -66,6 +67,7 @@ export interface PlayerCoreState {
   readonly projectId: string;
   readonly title: string;
   readonly artifacts: CompilerArtifactsV1 | null;
+  readonly compatibleSaveBuildIds: readonly string[];
   readonly runtimeState: RuntimeStateV1 | null;
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly historyPolicy: PlayerCoreHistoryPolicyV1;
@@ -137,6 +139,7 @@ export interface PlayerHistoryBarrierSnapshotV1 {
 }
 
 export interface PlayerCheckpointSaveCandidateV1 {
+  readonly buildId: string;
   readonly stepId: string;
   readonly sceneId: string;
   readonly serializedSessionSave: string;
@@ -416,6 +419,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
       projectId: project.manifest.projectId,
       title: project.manifest.title,
       artifacts: null,
+      compatibleSaveBuildIds: [],
       runtimeState: null,
       historySession: null,
       historyPolicy,
@@ -435,6 +439,11 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
     projectId: project.manifest.projectId,
     title: project.manifest.title,
     artifacts: compiled.artifacts,
+    compatibleSaveBuildIds: (() => {
+      const receipt = readWebSaveCompatibility(project);
+      return receipt.status !== "verified" ? [] : receipt.versions.map(version => compilerBuildIdForSource(
+        project.manifest.projectId, semanticHash(webProjectAtPublicationVersion(project, version)), compiled.artifacts.manifest.artifacts, "release"));
+    })(),
     runtimeState: null,
     historySession: null,
     historyPolicy,
@@ -467,7 +476,7 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
     if (result.event?.kind === "checkpoint-reached") {
       const created = createRuntimeSessionSaveV1(artifacts.story, historySession);
       if (!created.ok) return { ...base, runtimeState, historySession, hostState, currentEvent: null, checkpointSaveCandidates, status: "error", diagnostics: [...base.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
-      checkpointSaveCandidates.push({ stepId: result.event.stepId, sceneId: runtimeState.cursor.sceneId, serializedSessionSave: created.serialized, artifactHash: created.artifactHash, runtimeStateHash: runtimeStateHashV1(runtimeState) });
+      checkpointSaveCandidates.push({ buildId: runtimeState.buildId, stepId: result.event.stepId, sceneId: runtimeState.cursor.sceneId, serializedSessionSave: created.serialized, artifactHash: created.artifactHash, runtimeStateHash: runtimeStateHashV1(runtimeState) });
     }
     const current = { ...base, runtimeState, historySession, hostState, currentEvent: result.event, checkpointSaveCandidates };
     if (result.diagnostics.length > 0) {
@@ -487,7 +496,7 @@ export type CreatePlayerCoreSessionSaveResultV1 =
   | { readonly ok: false; readonly diagnostics: readonly PlayerCoreDiagnostic[] };
 
 export type LoadPlayerCoreSessionSaveResultV1 =
-  | { readonly ok: true; readonly state: PlayerCoreState; readonly artifactHash: string; readonly savedRuntimeStateHash: string; readonly savedSceneId: string }
+  | { readonly ok: true; readonly state: PlayerCoreState; readonly artifactHash: string; readonly savedBuildId: string; readonly compatibility: "current" | "verified-previous"; readonly savedRuntimeStateHash: string; readonly savedSceneId: string }
   | { readonly ok: false; readonly diagnostics: readonly PlayerCoreDiagnostic[] };
 
 export function startPlayerCore(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
@@ -620,6 +629,7 @@ function checkpointCandidateAtCursor(artifacts: CompilerArtifactsV1, history: Ru
   if (!created.ok) return null;
   const runtimeState = exactHistory.checkpoints[cursor]!.state;
   return {
+    buildId: runtimeState.buildId,
     stepId: entry.event.stepId,
     sceneId: runtimeState.cursor.sceneId,
     serializedSessionSave: created.serialized,
@@ -778,10 +788,18 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   if (state.artifacts === null) {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_BUILD_MISSING", message: "Player Core has no verified Compiler artifacts", sceneId: null, statementId: null, instructionId: null }] };
   }
-  const loaded = loadRuntimeSessionSaveV1(state.artifacts.story, serialized, {
+  const options = {
     expectedBuildId: state.artifacts.manifest.buildId,
     ...(state.runtimeState === null ? {} : { currentMetaProgress: state.runtimeState.metaProgress })
-  });
+  };
+  let loaded = loadRuntimeSessionSaveV1(state.artifacts.story, serialized, options);
+  if (!loaded.ok && loaded.diagnostics[0]?.code === "RUNTIME_SAVE_BUILD_MISMATCH") {
+    // The first strict parse already checked canonical bytes/envelope/project/version.
+    const buildId = (JSON.parse(serialized) as { buildId: unknown }).buildId;
+    if (typeof buildId === "string" && state.compatibleSaveBuildIds.includes(buildId)) {
+      loaded = loadRuntimeSessionSaveV1(state.artifacts.story, serialized, { ...options, expectedBuildId: buildId });
+    }
+  }
   if (!loaded.ok) return { ok: false, diagnostics: loaded.diagnostics.map(runtimeDiagnostic) };
   const event = eventAtHistoryCursor(loaded.session);
   const status = navigatedStatus(loaded.session, event);
@@ -796,6 +814,8 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   return {
     ok: true,
     artifactHash: loaded.artifactHash,
+    savedBuildId: loaded.save.buildId,
+    compatibility: loaded.save.buildId === state.artifacts.manifest.buildId ? "current" : "verified-previous",
     savedRuntimeStateHash: runtimeStateHashV1(savedCheckpoint.state),
     savedSceneId: savedCheckpoint.state.cursor.sceneId,
     state: { ...restoredState, checkpointSaveCandidates: [] }
