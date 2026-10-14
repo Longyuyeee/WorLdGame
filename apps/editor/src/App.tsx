@@ -2,8 +2,11 @@ import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState, ty
 import { variableOptionLabels } from './variable-option-labels';
 import { EditorThemeControl } from './editor-theme';
 import { AssetLibraryPreview, type AssetLibraryReader } from './asset-library-card';
+import { DirectionAssetPicker } from "./DirectionAssetPicker";
+import { CharacterTargetFields } from "./CharacterTargetFields";
+import { directionStageContext, type DirectionStageContext } from "./direction-stage-context";
 import { TextBatchDialog } from "./TextBatchDialog";
-import { describeDirection } from "./direction-description";
+import { describeDirection, directionActionLabel, directionParameterLabel } from "./direction-description";
 import { WebReleaseGuide } from "./WebReleaseGuide";
 import { WebReleaseReadiness, useWebReleaseInspection } from "./WebReleaseReadiness";
 import { WebReleaseValidationError, type WebReleaseFinding } from "./web-release-readiness";
@@ -1196,6 +1199,7 @@ interface DirectionInspectorProps {
   readonly dispatch: (action: StudioAction) => void;
   readonly assetReader?: AssetLibraryReader | null;
   readonly onDirtyChange?: (dirty: boolean) => void;
+  readonly stageContext?: DirectionStageContext;
 }
 
 export function DirectionInspector({
@@ -1205,7 +1209,8 @@ export function DirectionInspector({
   createCommandId,
   dispatch,
   assetReader = null,
-  onDirtyChange = () => {}
+  onDirtyChange = () => {},
+  stageContext = { characters: [], newSlot: "actor_1" }
 }: DirectionInspectorProps) {
   const inspection = inspectDirectiveArguments(statement.summary);
   const [form, setForm] = useState<DirectionForm>(() => ({ ...inspection.parameters }));
@@ -1300,10 +1305,10 @@ export function DirectionInspector({
       catch (error) { setNotice((error as Error).message); }
     }}>
       <div className="direction-inspector__hero">
-        <span className={`direction-command direction-command--${statement.command}`}>@{statement.command}</span>
+        <span className={`direction-command direction-command--${statement.command}`}><StudioIcon name={statement.command === "show" ? "characters" : statement.command === "audio" ? "audio" : statement.command === "camera" ? "director" : "assets"} /></span>
         <div>
-          <strong>图形化演出参数</strong>
-          <small>稳定 ID 局部提交 · Index r{assetIndex.indexRevision}</small>
+          <strong>{describeDirection(statement, assetIndex)}</strong>
+          <small>调整后应用，立即在舞台预览中查看</small>
         </div>
       </div>
 
@@ -1321,7 +1326,7 @@ export function DirectionInspector({
       <div className="direction-field">
         <label htmlFor={`direction-action-${statement.id}`}>动作</label>
         <select id={`direction-action-${statement.id}`} aria-label="演出动作" value={action ?? ""} disabled={disabled} onChange={(event) => setField("action", event.target.value)}>
-          {directiveActionOptions(statement.command).map((option) => <option key={option} value={option}>{option}</option>)}
+          {directiveActionOptions(statement.command).map((option) => <option key={option} value={option}>{directionActionLabel(statement.command, option)}</option>)}
         </select>
       </div>
 
@@ -1334,21 +1339,10 @@ export function DirectionInspector({
       </div>}
 
       {assetRequired && <div className="direction-field direction-field--wide">
-        <label htmlFor={`direction-asset-${statement.id}`}>主资源</label>
-        <select
-          id={`direction-asset-${statement.id}`}
-          aria-label="演出主资源"
-          value={assetId}
-          disabled={disabled}
-          onChange={(event) => setField("asset", event.target.value)}
-        ><option value="">请选择素材</option>{assetId && !assetKnown && <option value={assetId} disabled>缺失或不兼容 · {assetId}</option>}
-          {compatibleAssets.map(entry => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}
-        </select>
-        <details><summary>技术资源标识</summary><code>{assetId || "未选择"}</code></details>
-        {compatibleAssets.find(entry => entry.assetId === assetId) && <AssetLibraryPreview entry={compatibleAssets.find(entry => entry.assetId === assetId)!} reader={assetReader} />}
+        <DirectionAssetPicker modalBrowser assets={compatibleAssets} value={assetId} disabled={disabled} label="演出主资源" reader={assetReader} onChange={value => setField("asset", value)} />
         <small className={assetId.length > 0 && !assetKnown ? "is-error" : ""}>
           {compatibleAssets.length === 0
-            ? `Asset Index 中没有可用于 @${statement.command} 的资源`
+            ? "还没有适合这项演出的素材，请在素材页导入"
             : assetId.length === 0
               ? `${compatibleAssets.length} 个兼容资源可选`
               : assetKnown ? "资源类型与索引均已验证" : "该 ID 不存在或资源类型不兼容"}
@@ -1359,17 +1353,18 @@ export function DirectionInspector({
         <div className="direction-field">
           <label htmlFor={`direction-transition-${statement.id}`}>过渡</label>
           <select id={`direction-transition-${statement.id}`} aria-label="演出过渡" value={form.transition ?? ""} disabled={disabled} onChange={(event) => setField("transition", event.target.value)}>
-            <option value="">无</option>{STAGE_TRANSITIONS.map((transition) => <option key={transition} value={transition}>{transition[0]!.toUpperCase() + transition.slice(1)}</option>)}
+            <option value="">无</option>{STAGE_TRANSITIONS.map((transition) => <option key={transition} value={transition}>{directionParameterLabel(transition)}</option>)}
           </select>
           {!transitionValid && <small className="is-error">仅支持 fade、dissolve 或 slide</small>}
         </div>
       )}
       {statement.command === "show" && <>
-        <div className="direction-field"><label htmlFor={`direction-slot-${statement.id}`}>角色槽位</label><input id={`direction-slot-${statement.id}`} aria-label="角色槽位" value={slot} disabled={disabled} placeholder="primary" onChange={(event) => setField("slot", event.target.value)} />{!slotValid && <small className="is-error">需为稳定标识符</small>}</div>
+        <CharacterTargetFields context={stageContext} index={assetIndex} value={slot} action={action ?? "show"} disabled={disabled} label="角色槽位" onChange={value => setField("slot", value)} />
+        {!slotValid && <small className="is-error">角色位置标识需以字母或下划线开头，只能使用字母、数字、下划线或连字符。</small>}
         {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-z-${statement.id}`}>层级</label><input id={`direction-z-${statement.id}`} aria-label="角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={form.z ?? ""} disabled={disabled} placeholder="0" onChange={(event) => setField("z", event.target.value)} />{!zValid && <small className="is-error">范围 {MIN_STAGE_Z}–{MAX_STAGE_Z}</small>}</div>}
         {assetRequired && <div className="direction-field"><label htmlFor={`direction-expression-${statement.id}`}>表情</label><input id={`direction-expression-${statement.id}`} aria-label="角色表情" value={form.expression ?? ""} disabled={disabled} placeholder="smile" onChange={(event) => setField("expression", event.target.value)} /></div>}
         {characterGeometryActive && <div className="direction-field"><label htmlFor={`direction-position-${statement.id}`}>位置</label><select id={`direction-position-${statement.id}`} aria-label="角色位置" value={form.position ?? ""} disabled={disabled} onChange={(event) => setField("position", event.target.value)}><option value="">默认</option><option value="left">左</option><option value="center">中</option><option value="right">右</option></select></div>}
-        {characterGeometryActive && <div className="direction-geometry" aria-label="角色舞台几何">
+        {characterGeometryActive && <details className="direction-advanced"><summary>精细位置、缩放与锚点</summary><div className="direction-geometry" aria-label="角色舞台几何">
           <div className="direction-field"><label htmlFor={`direction-x-${statement.id}`}>X（%）</label><input id={`direction-x-${statement.id}`} aria-label="角色水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.x ?? ""} disabled={disabled} placeholder="50" onChange={(event) => setField("x", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-y-${statement.id}`}>Y（%）</label><input id={`direction-y-${statement.id}`} aria-label="角色垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={form.y ?? ""} disabled={disabled} placeholder="100" onChange={(event) => setField("y", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-scale-${statement.id}`}>缩放</label><input id={`direction-scale-${statement.id}`} aria-label="角色缩放" type="number" min={MIN_STAGE_SCALE} max={MAX_STAGE_SCALE} step="0.01" value={form.scale ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("scale", event.target.value)} /></div>
@@ -1377,7 +1372,7 @@ export function DirectionInspector({
           <div className="direction-field"><label htmlFor={`direction-anchor-x-${statement.id}`}>锚点 X</label><input id={`direction-anchor-x-${statement.id}`} aria-label="角色水平锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorX ?? ""} disabled={disabled} placeholder="0.5" onChange={(event) => setField("anchorX", event.target.value)} /></div>
           <div className="direction-field"><label htmlFor={`direction-anchor-y-${statement.id}`}>锚点 Y</label><input id={`direction-anchor-y-${statement.id}`} aria-label="角色垂直锚点" type="number" min={MIN_STAGE_ANCHOR} max={MAX_STAGE_ANCHOR} step="0.01" value={form.anchorY ?? ""} disabled={disabled} placeholder="1" onChange={(event) => setField("anchorY", event.target.value)} /></div>
           {!geometryValid && <small className="is-error">位置 0–100，缩放 0.1–4，旋转 -360–360，锚点 0–1</small>}
-        </div>}
+        </div></details>}
         {action === "move" && !moveHasGeometry && <small className="is-error">Move 至少需要一个位置、缩放、旋转、锚点或层级参数</small>}
         {action === "move" && <div className="direction-field"><label htmlFor={`direction-curve-${statement.id}`}>空间路径</label><select id={`direction-curve-${statement.id}`} aria-label="角色空间路径" value={form.curve ?? ""} disabled={disabled} onChange={(event) => {
           const curve = event.target.value;
@@ -1410,12 +1405,12 @@ export function DirectionInspector({
         <input id={`direction-duration-${statement.id}`} aria-label="演出时长" value={duration} disabled={disabled} placeholder="300ms / 0.5s" onChange={(event) => setField(statement.command === "audio" ? "fade" : "duration", event.target.value)} />
         {!durationValid && <small className="is-error">必须带 ms 或 s 单位</small>}
       </div>}
-      {assetRequired && <div className="direction-field direction-field--wide">
+      {assetRequired && <details className="direction-advanced"><summary>高级过渡素材</summary><div className="direction-field direction-field--wide">
         <label htmlFor={`direction-transition-asset-${statement.id}`}>过渡资源（可选）</label>
         <input id={`direction-transition-asset-${statement.id}`} aria-label="过渡资源" list={`transition-assets-${statement.id}`} value={transitionAsset} disabled={disabled} placeholder="可选 Asset ID" onChange={(event) => setField("transitionAsset", event.target.value)} />
         <datalist id={`transition-assets-${statement.id}`}>{assetIndex.assets.map((entry) => <option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</datalist>
         {!transitionAssetKnown && <small className="is-error">过渡资源不在 Asset Index 中</small>}
-      </div>}
+      </div></details>}
       <div className="direction-inspector__actions">
         {dirty && <button type="button" disabled={disabled} onClick={() => { setForm({ ...inspection.parameters }); setBaseline(JSON.stringify(inspection.parameters)); setNotice(""); }}>放弃演出修改</button>}
         <span>{inspection.duplicateKeys.length === 0 ? "未知参数保持原样" : "提交已锁定"}</span>
@@ -1423,6 +1418,7 @@ export function DirectionInspector({
           {inspection.positional.length > 0 ? "迁移旧描述并应用" : "应用演出参数"}
         </button>
       </div>
+      {(!geometryValid || !transitionAssetKnown) && <p role="alert">精细位置或高级过渡素材需要修正，请展开对应参数后检查。</p>}
       {notice && <p role="alert">{notice}</p>}
     </form>
   );
@@ -1545,6 +1541,8 @@ function BatchDirectionPanel({ statements, sceneDirections, selectionPositions, 
 }
 
 interface DirectionInsertPanelProps {
+  readonly stageContext: DirectionStageContext;
+  readonly insertionLabel: string;
   readonly command: DirectionCommand;
   readonly afterId: string;
   readonly assetIndex: AssetIndex;
@@ -1556,14 +1554,14 @@ interface DirectionInsertPanelProps {
   readonly onClose: () => void;
 }
 
-function DirectionInsertPanel({ command, afterId, assetIndex, assetReader = null, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
+export function DirectionInsertPanel({ stageContext, insertionLabel, command, afterId, assetIndex, assetReader = null, disabled, createCommandId, createEntityId, dispatch, onClose }: DirectionInsertPanelProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => { if (!dialog.current?.open) dialog.current?.showModal(); }, []);
   const parameterLabels: Readonly<Record<string, string>> = { set: "切换", clear: "清除", show: "显示", hide: "隐藏", move: "移动", reset: "恢复默认", play: "播放", stop: "停止", pause: "暂停", resume: "继续", fade: "渐变", dissolve: "叠化", slide: "滑动", linear: "匀速", "ease-in": "缓入", "ease-out": "缓出", "ease-in-out": "缓入缓出" };
   const defaultAction = resolveDirectiveAction(command, undefined)!;
   const [action, setAction] = useState(defaultAction);
   const [asset, setAsset] = useState("");
-  const [slot, setSlot] = useState("primary");
+  const [slot, setSlot] = useState(stageContext.newSlot);
   const [z, setZ] = useState("0");
   const [x, setX] = useState(command === "camera" ? "0" : "50");
   const [y, setY] = useState(command === "camera" ? "0" : "100");
@@ -1573,8 +1571,9 @@ function DirectionInsertPanel({ command, afterId, assetIndex, assetReader = null
   const [easing, setEasing] = useState("ease-in-out");
   const [transition, setTransition] = useState("");
   const [bus, setBus] = useState("bgm");
-  const [loop,setLoop] = useState(false);
+  const [loop,setLoop] = useState(true);
   const [volume, setVolume] = useState("0.6");
+  const [notice, setNotice] = useState("");
   const [position, setPosition] = useState("center");
   const [template, setTemplate] = useState<DialogueTemplate>("adv");
   const compatibleAssets = compatibleDirectionAssets(command, assetIndex.assets);
@@ -1637,30 +1636,31 @@ function DirectionInsertPanel({ command, afterId, assetIndex, assetReader = null
         if (cameraMoveActive) Object.assign(parameters, { x, y, zoom, rotation });
       }
       if (command === "textbox" && action === "set") parameters.template = template;
-      dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters });
-      onClose();
+      try { dispatch({ type: "insert-direction", commandId: createCommandId(), afterId, statementId: createEntityId("stmt"), command, parameters }); onClose(); }
+      catch (error) { setNotice((error as Error).message); }
     }} onKeyDown={(event) => { if (event.key === "Escape") onClose(); }}>
       <div className="direction-insert__heading">
         <div><span className="entity-symbol"><StudioIcon name={command === "camera" ? "director" : "assets"} /></span><strong>新增{commandLabel}演出</strong></div>
         <button type="button" aria-label="关闭演出插入面板" onClick={onClose}>×</button>
       </div>
+      <p className="direction-insertion-context">{insertionLabel}</p>
       <details><summary>技术信息</summary><p>插入位置：<code>{afterId}</code></p></details>
       <div className="direction-insert__fields">
-        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => setAction(event.target.value as typeof action)}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label>
-        {assetRequired && <label className="direction-insert__asset"><span>资源</span><select aria-label="新增演出资源" value={asset} disabled={disabled} onChange={(event)=>setAsset(event.target.value)}><option value="">{compatibleAssets.length===0?"请先导入兼容资源":"请选择资源"}</option>{compatibleAssets.map(entry=><option key={entry.assetId} value={entry.assetId}>{entry.displayName}</option>)}</select></label>}
-        {command === "show" && <label><span>槽位</span><input aria-label="新增角色槽位" value={slot} disabled={disabled} onChange={(event) => setSlot(event.target.value)} /></label>}
+        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => { const next = event.target.value as typeof action; setAction(next); if (command === "show") setSlot(next === "show" ? stageContext.newSlot : stageContext.characters.length === 1 ? stageContext.characters[0]?.slot ?? "" : ""); }}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{directionActionLabel(command, value)}</option>)}</select></label>
+        {assetRequired && <DirectionAssetPicker assets={compatibleAssets} value={asset} disabled={disabled} label="新增演出资源" reader={assetReader} onChange={setAsset} />}
+        {command === "show" && <CharacterTargetFields context={stageContext} index={assetIndex} value={slot} action={action} disabled={disabled} label="新增角色槽位" onChange={setSlot} />}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
         {command === "show" && assetRequired && <label><span>画面位置</span><select aria-label="新增角色位置" value={position} disabled={disabled} onChange={event => setPosition(event.target.value)}><option value="left">左侧</option><option value="center">中央</option><option value="right">右侧</option></select></label>}
         {moveActive && <><label><span>X（%）</span><input aria-label="新增移动水平位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>Y（%）</span><input aria-label="新增移动垂直位置" type="number" min={MIN_STAGE_PERCENT} max={MAX_STAGE_PERCENT} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增移动缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
         {cameraMoveActive && <><label><span>偏移 X（%）</span><input aria-label="新增镜头水平偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={x} disabled={disabled} onChange={(event) => setX(event.target.value)} /></label><label><span>偏移 Y（%）</span><input aria-label="新增镜头垂直偏移" type="number" min={MIN_CAMERA_OFFSET} max={MAX_CAMERA_OFFSET} step="0.1" value={y} disabled={disabled} onChange={(event) => setY(event.target.value)} /></label><label><span>倍率</span><input aria-label="新增镜头倍率" type="number" min={MIN_CAMERA_ZOOM} max={MAX_CAMERA_ZOOM} step="0.05" value={zoom} disabled={disabled} onChange={(event) => setZoom(event.target.value)} /></label><label><span>旋转</span><input aria-label="新增镜头旋转" type="number" min={MIN_CAMERA_ROTATION} max={MAX_CAMERA_ROTATION} step="0.1" value={rotation} disabled={disabled} onChange={(event) => setRotation(event.target.value)} /></label></>}
         {command === "background" && <><label><span>转场</span><select aria-label="新增背景转场" value={transition} disabled={disabled} onChange={(event) => setTransition(event.target.value)}><option value="">无</option>{STAGE_TRANSITIONS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label>{transition.length > 0 && <label><span>时长</span><input aria-label="新增背景转场时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label>}</>}
         {command === "camera" && <><label><span>时长</span><input aria-label="新增镜头时长" value={duration} disabled={disabled} onChange={(event) => setDuration(event.target.value)} /></label><label><span>缓动</span><select aria-label="新增镜头缓动" value={easing} disabled={disabled} onChange={(event) => setEasing(event.target.value)}>{STAGE_EASINGS.map((value) => <option key={value} value={value}>{parameterLabels[value] ?? value}</option>)}</select></label></>}
-        {command === "audio" && <label><span>音轨</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => setBus(event.target.value)}><option value="voice">角色配音</option><option value="bgm">背景音乐</option><option value="sfx">音效</option><option value="ambient">环境声音</option></select></label>}
+        {command === "audio" && <label><span>音轨</span><select aria-label="新增音频总线" value={bus} disabled={disabled} onChange={(event) => { const value = event.target.value; setBus(value); setLoop(value === "bgm" || value === "ambient"); }}><option value="voice">角色配音</option><option value="bgm">背景音乐</option><option value="sfx">音效</option><option value="ambient">环境声音</option></select></label>}
         {command === "audio" && assetRequired && <label><span>音量</span><input aria-label="新增音频音量" type="number" min="0" max="1" step="0.001" value={volume} disabled={disabled} onChange={event => setVolume(event.target.value)} /></label>}
         {command === 'audio' && assetRequired && <label><input type="checkbox" aria-label="循环播放音频" checked={loop} disabled={disabled} onChange={event=>setLoop(event.target.checked)}/>循环播放（适合背景音乐）</label>}
         {command === "textbox" && action === "set" && <label><span>模板</span><select aria-label="新增文本框模板" value={template} disabled={disabled} onChange={(event) => setTemplate(event.target.value as DialogueTemplate)}>{DIALOGUE_TEMPLATES.map((value) => <option key={value} value={value}>{value.toUpperCase()}</option>)}</select></label>}
       </div>
-      {assetRequired && compatibleAssets.find(entry => entry.assetId === asset) && <AssetLibraryPreview entry={compatibleAssets.find(entry => entry.assetId === asset)!} reader={assetReader} />}
+      {notice && <p role="alert">{notice}</p>}
       {!volumeValid && <p role="alert">音量需要在 0–1 之间，最多三位小数。</p>}
       {!assetValid && <small className="is-error">请选择适合当前演出的素材</small>}
       {!slotValid && <small className="is-error">槽位必须是稳定标识符</small>}
@@ -1977,9 +1977,7 @@ function SequenceView({
     ? "还没有角色。先创建一位角色，就可以写对白。"
     : (sequenceInsertKind === "set" || sequenceInsertKind === "condition") && sequenceReferences.variableIds.length === 0
       ? "还没有变量。先创建变量，用来记录故事状态。"
-      : (sequenceInsertKind === "background" || sequenceInsertKind === "show" || sequenceInsertKind === "audio") && compatibleDirectionAssets(sequenceInsertKind,assetIndex.assets).length === 0
-        ? "插入演出语句前，请先打开资源保险库导入资源。"
-        : null;
+      : null;
   const targetIds=[...new Set([...sequenceReferences.labelIds,...sequenceReferences.sceneIds])];
   const sceneTitleCounts = new Map<string, number>();
   for (const scene of session.project.scenes) sceneTitleCounts.set(scene.title, (sceneTitleCounts.get(scene.title) ?? 0) + 1);
@@ -2112,7 +2110,7 @@ function SequenceView({
   }, [requestedFocusStatementId, selected.id, selectedIndex]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
-      if (!event.altKey || pendingDraft || inspectorDirty || textBatchOpen) return;
+      if (!event.altKey || pendingDraft || inspectorDirty || textBatchOpen || document.querySelector("dialog[open]")) return;
       const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : event.key === "5" ? "textbox" : null;
       if (command === null) return;
       event.preventDefault();
@@ -2121,7 +2119,7 @@ function SequenceView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft, inspectorDirty, textBatchOpen]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!document.querySelector("dialog[open]")&&!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   const selectedInspector = (<div className="inline-inspector">
         <div className="inspector-label-row">
@@ -2158,6 +2156,7 @@ function SequenceView({
         ) : selected.kind === "direction" ? (
           <details key={selected.id} open={stageExpanded} className="step-properties"><summary>编辑演出 · {describeDirection(selected, assetIndex)}</summary>
           <DirectionInspector
+            stageContext={directionStageContext(scene.statements, selectedIndex, session.project.scenes.flatMap(item => item.statements))}
             key={`${selected.id}:${selected.summary}`}
             statement={selected}
             assetIndex={assetIndex}
@@ -2223,6 +2222,7 @@ function SequenceView({
         )}
       </div>
 
+      <div className="direction-quick-actions" aria-label="场景演出快捷操作"><span>场景演出</span>{([ ["background", "背景", "assets"], ["show", "角色", "characters"], ["audio", "声音", "audio"], ["camera", "镜头", "director"], ["textbox", "对白框", "appearance"] ] as const).map(([command, label, icon]) => <button key={command} type="button" data-command={command} disabled={inputDirty || pendingDraft || inspectorDirty} onClick={() => setInsertCommand(command)}><StudioIcon name={icon} />添加{label}</button>)}</div>
       <details className="statement-tools"><summary>插入与整理内容<span>复制、移动与多选</span></summary>
       <div className="statement-toolbar" aria-label="对白结构工具">
         <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft || inspectorDirty} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
@@ -2570,13 +2570,15 @@ function SequenceView({
       {insertCommand !== null && <DirectionInsertPanel
         key={`${insertCommand}:${selected.id}`}
         command={insertCommand}
+        stageContext={directionStageContext(scene.statements, insertionAnchor === scene.id ? 0 : scene.statements.findIndex(item => item.id === selected.id) + (insertBefore || selected.kind === "end" ? 0 : 1), session.project.scenes.flatMap(item => item.statements))}
+        insertionLabel={`${scene.title} · ${insertionAnchor === scene.id ? "在场景开头" : insertBefore || selected.kind === "end" ? "在当前步骤之前" : "在当前步骤之后"}插入`}
         afterId={insertionAnchor}
         assetIndex={assetIndex}
         assetReader={assetReader}
         disabled={pendingDraft || inspectorDirty}
         createCommandId={createCommandId}
         createEntityId={createEntityId}
-        dispatch={dispatch}
+        dispatch={action => { const candidate = reduceStudioSession(session, action); if (candidate.notice.tone === "error") throw new Error(candidate.notice.detail); dispatch(action); }}
         onClose={() => setInsertCommand(null)}
       />}
 

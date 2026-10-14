@@ -1,0 +1,45 @@
+visual background search/cancel protects canonical draft; 390px gallery fits; new actor uses a distinct slot; insertion Undo/Redo
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.selectOption: Timeout 20000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog').getByLabel('新增角色槽位选择')
+    - locator resolved to <select aria-label="新增角色槽位选择">…</select>
+  - attempting select option action
+    2 × waiting for element to be visible and enabled
+      - did not find some options
+    - retrying select option action
+    - waiting 20ms
+    2 × waiting for element to be visible and enabled
+      - did not find some options
+    - retrying select option action
+      - waiting 100ms
+    39 × waiting for element to be visible and enabled
+       - did not find some options
+     - retrying select option action
+       - waiting 500ms
+
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-direction-authoring.mjs:76:39 {
+  log: [
+    "  - waiting for getByRole('dialog').getByLabel('新增角色槽位选择')",
+    '    - locator resolved to <select aria-label="新增角色槽位选择">…</select>',
+    '  - attempting select option action',
+    '    2 × waiting for element to be visible and enabled',
+    '      - did not find some options',
+    '    - retrying select option action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible and enabled',
+    '      - did not find some options',
+    '    - retrying select option action',
+    '      - waiting 100ms',
+    '    39 × waiting for element to be visible and enabled',
+    '       - did not find some options',
+    '     - retrying select option action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

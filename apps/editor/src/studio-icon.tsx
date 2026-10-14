@@ -1,7 +1,8 @@
 import type { CSSProperties } from "react";
 
-export type StudioIconName = "story" | "assets" | "appearance" | "checks" | "publish" | "plus" | "folder" | "import" | "sparkles" | "search" | "arrow" | "chevron" | "back" | "characters" | "variables" | "write" | "director" | "route" | "script" | "settings";
+export type StudioIconName = "story" | "assets" | "audio" | "appearance" | "checks" | "publish" | "plus" | "folder" | "import" | "sparkles" | "search" | "arrow" | "chevron" | "back" | "characters" | "variables" | "write" | "director" | "route" | "script" | "settings";
 const PATHS: Record<StudioIconName, string> = {
+  audio: "M9 18V5l10-2v13 M9 7l10-2 M9 18c0 3-6 3-6 0s6-3 6 0 M19 16c0 3-6 3-6 0s6-3 6 0",
   story: "M3 5h6a3 3 0 0 1 3 3v12a4 4 0 0 0-4-2H3z M21 5h-6a3 3 0 0 0-3 3v12a4 4 0 0 1 4-2h5z M6 9h3 M15 9h3 M6 12h3 M15 12h3",
   assets: "M4 4h16v16H4z M4 16l5-5 4 4 3-3 4 5 M8 8h.01",
   appearance: "M4 5h16v12H4z M8 21h8 M12 17v4 M7 8h3 M7 11h6",

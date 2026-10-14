@@ -12,6 +12,8 @@ const actions: Record<string, Record<string, string>> = {
 const positions: Record<string, string> = { left: "左侧", center: "中央", right: "右侧" };
 const transitions: Record<string, string> = { fade: "淡入淡出", dissolve: "溶解", slide: "滑入" };
 const channels: Record<string, string> = { bgm: "背景音乐", voice: "配音", sfx: "音效", ambient: "环境声", ui: "提示音" };
+export function directionActionLabel(command: string, action: string): string { return actions[command]?.[action] ?? action; }
+export function directionParameterLabel(value: string): string { return ({ fade: "淡入淡出", dissolve: "溶解", slide: "滑动", linear: "匀速", "ease-in": "缓入", "ease-out": "缓出", "ease-in-out": "缓入缓出", adv: "标准对白", nvl: "全屏叙述", bubble: "气泡对白" } as Record<string, string>)[value] ?? value; }
 
 /** Presentation only; never rewrites author arguments or hides invalid syntax. */
 export function describeDirection(statement: Extract<StoryStatement, { kind: "direction" }>, index: AssetIndex): string {

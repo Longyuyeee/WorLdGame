@@ -10,7 +10,7 @@ it("selects media by display name and protects or discards an existing direction
   const dispatch = vi.fn(), dirty = vi.fn();
   render(<DirectionInspector statement={{ kind: "direction", id: "stmt", command: "background", summary: "action=set asset=old custom=preserved" }} assetIndex={index} disabled={false} createCommandId={() => "cmd"} dispatch={dispatch} onDirtyChange={dirty} />);
   fireEvent.change(screen.getByLabelText("演出主资源"), { target: { value: "new" } });
-  expect(screen.getByRole("option", { name: "候车室" })).toHaveValue("new"); expect(dirty).toHaveBeenLastCalledWith(true);
+  expect(screen.getByLabelText("演出主资源")).toHaveValue("new"); expect(dirty).toHaveBeenLastCalledWith(true);
   expect(dispatch).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "放弃演出修改" }));
   expect(screen.getByLabelText("演出主资源")).toHaveValue("old"); expect(dirty).toHaveBeenLastCalledWith(false);
