@@ -1,0 +1,3 @@
+optional HTML production ZIP uses one saved source; different internal/published names kept correctly; manifest bytes/digests and optional notes verified; packaged local game reaches short ending at 390px
+changing included notes invalidates both downloads; home imports the full production ZIP directly; explicit idempotent review merge; consumed restore prompt does not reappear on normal reopen
+Rain 1.5.4 directory production ZIP contains all 22 unchanged source blobs; every delivered file digest matches; real game/ prefix serves player/CSS/media and actual BGM; no review included by default

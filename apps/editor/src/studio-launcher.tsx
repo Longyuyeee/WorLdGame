@@ -10,7 +10,8 @@ import { projectCanonicalFromStory, projectCanonicalWithStory } from "./canonica
 import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
-import { exportPortableProjectBundle, importPortableProjectBundle } from "./portable-project-bundle";
+import { exportPortableProjectBundle } from "./portable-project-bundle";
+import { importStudioProjectArchive } from "./web-delivery-bundle";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
 import { readTrustedRouteOverview } from "./trusted-route-overview";
@@ -32,7 +33,7 @@ export function StudioLauncher() {
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
   const importedReferences = useRef(new Set<string>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined}|null>(null);
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined;deliveryReview?:string|undefined}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
@@ -43,6 +44,7 @@ export function StudioLauncher() {
     if (handle === null) throw new Error("目录授权已失效，请重新选择工程目录");
     return new BrowserDirectoryProjectWorkspace(handle, item.reference.referenceId);
   };
+  const importedReviews = useRef(new Map<string, string>());
   const actions: ProjectHomeActions = {
     create: async (title) => {const workspace=managedWorkspace();const session=await createProject(workspace,title,entropy());return finish(workspace,await compileLifecycleProject(workspace,session));},
     openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openCompiledLifecycleProject(workspace)); },
@@ -72,7 +74,7 @@ export function StudioLauncher() {
       return finish(workspace, await openCompiledLifecycleProject(workspace));
     },
     importArchive: async (file) => {
-      const imported = importPortableProjectBundle(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();
+      const imported = importStudioProjectArchive(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();
       await workspace.writeFiles(saveProject(imported.project), null);
       if (!imported.legacyTextOnly) {
         const now = Date.now(); const ownerId = `portable-import-${entropy()}`;
@@ -86,6 +88,7 @@ export function StudioLauncher() {
       }
       const opened = await finish(workspace,await openCompiledLifecycleProject(workspace));
       importedReferences.current.add(opened.reference.referenceId);
+      if (imported.reviewNotes !== null) importedReviews.current.set(opened.reference.referenceId, imported.reviewNotes);
       return opened;
     },
     exportArchive: async (session) => {
@@ -112,6 +115,8 @@ export function StudioLauncher() {
     </>;
     return <>
       <App
+        initialDeliveryReview={editing.deliveryReview}
+        onDeliveryReviewConsumed={() => { importedReviews.current.delete(editing.session.reference.referenceId); setEditing(current => current === null ? null : { ...current, deliveryReview: undefined }); }}
         onReturnHome={() => setEditing(null)}
         onExportProject={async project => {
           const download = await actions.exportArchive(markProjectDirty(editing.session, project));
@@ -149,5 +154,5 @@ export function StudioLauncher() {
       />
     </>;
   }
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId)});}} />;
+  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId),deliveryReview:importedReviews.current.get(session.reference.referenceId)});}} />;
 }

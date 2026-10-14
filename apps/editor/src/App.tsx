@@ -27,6 +27,7 @@ import { SceneFlowPanel } from './SceneFlowPanel';
 import { RouteTargetPicker } from './RouteTargetPicker';
 import { RouteReviewPanel } from './RouteReviewPanel';
 import { routeReviewSourceHash, type RouteReviewTrace } from './route-review';
+import { createWebDeliveryBundle } from "./web-delivery-bundle";
 import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
@@ -3180,6 +3181,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly beforeDeliverySave?: (signal: AbortSignal) => Promise<boolean>;
+  readonly deliveryReviewNotes?: readonly PlaytestNote[];
   readonly revisionTarget?: { readonly sceneId: string; readonly statementId: string } | null;
   readonly onRevise?: (location: PlaytestNoteLocation) => void;
   readonly onRecordIssue?: (location: PlaytestNoteLocation) => void;
@@ -3226,9 +3229,11 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
+  const [includeProductionBundle, setIncludeProductionBundle] = useState(false);
+  const [includeReviewNotes, setIncludeReviewNotes] = useState(false);
   const [publicationStep, setPublicationStep] = useState(initialPublicationStep);
   const [publicationFormat, setPublicationFormat] = useState<"html" | "directory">(initialPublicationFormat);
   useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
@@ -3253,8 +3258,9 @@ function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinish
   const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(() => resumption!.continuity.detailsOpen);
   const [resumed, setResumed] = useState(() => resumption!.resumed);
   const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(() => resumption!.update);
-  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly dispose: () => void }) | null>(null);
+  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly production?: { readonly href: string; readonly filename: string; readonly byteLength: number; readonly notesIncluded: boolean }; readonly dispose: () => void }) | null>(null);
   const [webBuilding, setWebBuilding] = useState(false);
+  const [webBuildPhase, setWebBuildPhase] = useState("正在打包当前游戏…");
   const webBuildGeneration = useRef(0);
   const webBuildController = useRef<AbortController | null>(null);
   const [webBuildError, setWebBuildError] = useState<string | null>(null);
@@ -3371,7 +3377,7 @@ function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinish
     setWebBuilding(false);
     setWebBuildError(null);
     return () => { webBuildGeneration.current += 1; webBuildController.current?.abort(); };
-  }, [canonicalProject, projectRunBlocked, publicationFormat]);
+  }, [canonicalProject, projectRunBlocked, publicationFormat, includeProductionBundle, includeReviewNotes, includeProductionBundle && includeReviewNotes ? deliveryReviewNotes : null]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -3592,17 +3598,23 @@ function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinish
     const generation = ++webBuildGeneration.current;
     setWebBuild(null);
     setWebBuildError(null);
-    setWebBuilding(true);
+    setWebBuilding(true); setWebBuildPhase(includeProductionBundle ? "正在保存当前工程…" : "正在打包当前游戏…");
     try {
+      if (includeProductionBundle && beforeDeliverySave && !await beforeDeliverySave(controller.signal)) throw Error("工程尚未保存成功，请检查保存状态后重新生成制作交付包。");
+      controller.signal.throwIfAborted();
+      setWebBuildPhase("正在生成游戏文件…");
       const { default: runtime } = await import("virtual:world-player-export");
       const reader = assetRepository ?? { read: async () => null };
       const artifact = directory
         ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify)
         : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify);
+      const production = includeProductionBundle ? await createWebDeliveryBundle(canonicalProject, assetIndex, reader, artifact, includeReviewNotes ? deliveryReviewNotes : null, controller.signal, label => { if (generation === webBuildGeneration.current) setWebBuildPhase(label); }) : null;
       if (generation !== webBuildGeneration.current) return;
       const contents = "archive" in artifact ? new Uint8Array(artifact.archive) : artifact.html;
       const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
-      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, href, dispose: () => URL.revokeObjectURL(href) });
+      let productionHref: string | null = null;
+      try { productionHref = production ? URL.createObjectURL(new Blob([new Uint8Array(production.archive)], { type: "application/zip" })) : null; } catch (error) { URL.revokeObjectURL(href); throw error; }
+      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, href, ...(production && productionHref ? { production: { href: productionHref, filename: production.filename, byteLength: production.byteLength, notesIncluded: includeReviewNotes } } : {}), dispose: () => { URL.revokeObjectURL(href); if (productionHref) URL.revokeObjectURL(productionHref); } });
     } catch (error) {
       if (generation === webBuildGeneration.current) {
         if (error instanceof WebReleaseValidationError) {
@@ -4044,6 +4056,7 @@ function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinish
           <label className={publicationFormat === "html" ? "is-selected" : ""}><input type="radio" name="publication-format" value="html" checked={publicationFormat === "html"} onChange={() => setPublicationFormat("html")} /><span><strong>单文件 HTML <em>推荐</em></strong><small>一个文件，下载后直接打开。适合试玩和分享。</small></span></label>
           <label className={publicationFormat === "directory" ? "is-selected" : ""}><input type="radio" name="publication-format" value="directory" checked={publicationFormat === "directory"} onChange={() => setPublicationFormat("directory")} /><span><strong>网页目录 ZIP</strong><small>素材独立存放。适合大作品和网站部署。</small></span></label>
         </fieldset>
+        <section className="production-delivery-options" aria-label="制作交付选项"><label><input type="checkbox" aria-label="同时生成制作交付包" checked={includeProductionBundle} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeProductionBundle(event.target.checked)} /><span><strong>同时生成制作交付包</strong><small>先保存当前内容，再把游戏、可编辑工程和交付清单放进一个 ZIP，方便备份与继续制作。</small></span></label>{includeProductionBundle && <label className="production-delivery-review"><input type="checkbox" aria-label="附带校订记录" checked={includeReviewNotes} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeReviewNotes(event.target.checked)} /><span>附带校订记录（{deliveryReviewNotes.length} 条）<small>作者资料只放在交付包的 review 文件夹，玩家游戏不含这些记录。</small></span></label>}</section>
         <details className="publication-optimization"><summary>素材优化与高级交付设置</summary>
         <label><input type="checkbox" aria-label="安全 PNG 无损导出优化" checked={losslessExportEnabled(canonicalProject)} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => onPublicationChange(setLosslessExport(canonicalProject, event.target.checked))} />安全 PNG 无损导出优化（随工程保存）</label>
         <small>仅重压缩适用 PNG，逐字节验证数据；无收益或失败保留原文件。原素材不修改，不接入 Atlas，也不减少 GPU 内存。</small>
@@ -4069,16 +4082,18 @@ function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinish
         {webBuild && <button className="studio-primary publication-next" type="button" onClick={() => setPublicationStep(3)}>继续：试玩与部署 →</button>}
       </section>
       <section className="publication-step-panel" hidden={publicationStep !== 3} aria-label="试玩与部署">
-        <WebReleaseGuide format={webBuild ? webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} />
+        <WebReleaseGuide format={webBuild ? webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} productionReady={webBuild?.production !== undefined} />
         <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(2)}>← 生成游戏</button><button type="button" onClick={() => setPublicationStep(1)}>更换导出方式</button></div>
       </section>
       </div>
       <aside className={`publication-result${webBuild ? " is-ready" : ""}`} aria-label="游戏导出结果">
         <span className="publication-result__icon" aria-hidden="true">{webBuild ? "✓" : webBuilding ? "…" : "↗"}</span>
         <h3>{webBuild ? "游戏已生成" : webBuilding ? "正在生成游戏" : "等待导出"}</h3>
-        <p>{webBuild ? "可以下载并试玩。文件还未上传到网站。" : webBuilding ? "正在打包当前工程和素材，请稍候。" : "完成左侧步骤，生成属于你的游戏。"}</p>
+        <p>{webBuild ? "可以下载并试玩。文件还未上传到网站。" : webBuilding ? webBuildPhase : "完成左侧步骤，生成属于你的游戏。"}</p>
         {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.directory ? "目录 ZIP" : "单文件 HTML"}</dd></div></dl>
           {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>下载游戏</a>}
+          {!publicationDirty && webBuild.production && <a className="production-delivery-download" href={webBuild.production.href} download={webBuild.production.filename}>下载制作交付包</a>}
+          {webBuild.production && <p className="production-delivery-summary">含可编辑工程、游戏和交付清单{webBuild.production.notesIncluded ? "及校订记录" : ""} · {formatBytes(webBuild.production.byteLength)}。可从首页导入这个包继续制作；网站仅部署包内 game 文件夹。</p>}
           {!publicationDirty && !webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
           <small>修改工程后，需要重新生成文件。</small>
         </>}
@@ -4117,13 +4132,15 @@ export interface AppProps {
   readonly initialProject?: CanonicalProject;
   readonly initialSceneId?: string;
   readonly routeCompiler?: EditorProjectCompilerState;
+  readonly initialDeliveryReview?: string | undefined;
+  readonly onDeliveryReviewConsumed?: () => void;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
   readonly onCanonicalProjectSave?: (project: CanonicalProject) => Promise<void>;
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
     if (project !== undefined && continuity !== undefined) return resumeStudioSession(project, continuity, initialSceneId);
     const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
@@ -4141,6 +4158,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   const pendingReviewNotes = notesStore.notes.filter(note => noteReviewState(note, noteSourceHash) !== "verified").length;
   const [noteDialog, setNoteDialog] = useState<{ location: PlaytestNoteLocation; note: PlaytestNote | null } | null>(null);
   const [noteFileError, setNoteFileError] = useState("");
+  const [incomingReview, setIncomingReview] = useState(initialDeliveryReview ?? null);
   const [revisionTarget, setRevisionTarget] = useState<{ sceneId: string; statementId: string } | null>(continuity?.preview?.revisionTarget ?? null);
   const [playtestRequest, setPlaytestRequest] = useState<{ serial: number; sceneId: string; statementId: string } | null>(null);
   const playtestSerial = useRef(0);
@@ -4263,6 +4281,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   const persistedSnapshotRef = useRef<ProjectSnapshot | null>(null);
   const saveSerial = useRef(0);
   const saveInFlight = useRef(false);
+  const activeSavePromise = useRef<Promise<boolean> | null>(null);
   const autosaveSuspended = useRef(false);
   const editGeneration = useRef(0);
   const routeChangedSceneIds = useRef<Set<string> | null>(new Set());
@@ -4748,7 +4767,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
           currentSnapshot.storageRevision,
           nowMs
         );
-    return stageBackup.then((staged) => {
+    const saveTask = stageBackup.then((staged) => {
       if (staged !== null) setAssetLifecycle(staged.manifest);
       return saveProjectWithBackups(store, snapshot, {
         transactionId,
@@ -4798,8 +4817,10 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
       setPersistence(persistenceFailure(error, storageRevision.current));
       return false;
     }).finally(() => {
-      saveInFlight.current = false;
+      saveInFlight.current = false; activeSavePromise.current = null;
     });
+    activeSavePromise.current = saveTask;
+    return saveTask;
   };
 
   useEffect(() => {
@@ -5556,6 +5577,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
       {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
       {revisionTarget !== null && <div className="playtest-revision-return" role="region" aria-label="校订返回试玩"><StudioIcon name="write" /><span>正在校订 · {session.project.scenes.find(scene => scene.id === revisionTarget.sceneId)?.title ?? "原场景"}。完成修改后可返回试玩。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen || pendingDraftSceneIds(session).length > 0} onClick={() => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView?.({ block: "start" })); }}>返回试玩</button></div>}
+      {incomingReview !== null && <section className="delivery-review-restore" aria-label="交付包校订记录"><div><strong>这个制作交付包附带校订记录</strong><p>源工程已恢复。可以合并到本机清单；内容相同的记录不会重复，不同版本不会覆盖。</p></div><button type="button" disabled={inputDirty || pageDirty} onClick={() => { try { const notes = readPlaytestNotes(incomingReview, previewCanonicalProject.manifest.projectId); if (notesStore.commit(mergePlaytestNotes(notesStore.notes, notes))) { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); openStudioPage("checks"); } } catch (error) { setNoteFileError((error as Error).message); } }}>合并校订记录</button><button type="button" onClick={() => { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); }}>保留本机记录</button>{(noteFileError || notesStore.error) && <p role="alert">{noteFileError || notesStore.error}</p>}</section>}
       {noteDialog && <PlaytestNoteDialog key={noteDialog.note?.id ?? "new"} location={noteDialog.location} note={noteDialog.note} error={notesStore.error || noteFileError} onClose={() => setNoteDialog(null)} onSave={(text, category) => { if (noteDialog.note && JSON.stringify(notesStore.notes.find(item => item.id === noteDialog.note?.id)) !== JSON.stringify(noteDialog.note)) { setNoteFileError("此记录已在其他窗口修改或删除，请重新核对；当前输入仍保留。"); return; } const now = Math.max(Date.now(), noteDialog.note?.updatedAt ?? 0); const note: PlaytestNote = noteDialog.note ? { ...noteDialog.note, text, category, updatedAt: now, ...(text !== noteDialog.note.text || category !== noteDialog.note.category ? { status: "open" as const, checkedSourceHash: null } : {}) } : { ...noteDialog.location, id: crypto.randomUUID(), text, category, status: "open", checkedSourceHash: null, createdAt: now, updatedAt: now }; if (notesStore.commit(noteDialog.note ? notesStore.notes.map(item => item.id === note.id ? note : item) : [...notesStore.notes, note])) setNoteDialog(null); }} />}
       {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
       {structureError && <p className="workspace-draft-hint" role="alert">{structureError}</p>}
@@ -5582,7 +5604,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {publishOpen ? <PreviewPanel publicationOnly pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
+        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
             onDraftChange={setPageDirty}
             project={previewCanonicalProject}

@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "optional HTML production ZIP uses one saved source; different internal/published names kept correctly; manifest bytes/digests and optional notes verified; packaged local game reaches short ending at 390px",
+    "changing included notes invalidates both downloads; home imports the full production ZIP directly; explicit idempotent review merge; consumed restore prompt does not reappear on normal reopen",
+    "Rain 1.5.4 directory production ZIP contains all 22 unchanged source blobs; every delivered file digest matches; real game/ prefix serves player/CSS/media and actual BGM; no review included by default"
+  ],
+  "errors": [],
+  "artifacts": {
+    "short-production.zip": {
+      "byteLength": 604233,
+      "digest": "sha256:2f289782491b2afc06e165a3c15da3a39c6b0aaa1333c4a61a590ede3d5ab695"
+    },
+    "rain-directory-production.zip": {
+      "byteLength": 48979262,
+      "digest": "sha256:f7530c2435e33c2f25c76bdbadc9c1630e377f221dbf7e5c26fe25aa07947ad8"
+    }
+  },
+  "rainSourceBlobs": 22,
+  "scope": "short HTML ending plus real Rain media/directory smoke; not a full Rain route rerun or public deployment; Rain production ZIP tested in temporary storage only"
+}

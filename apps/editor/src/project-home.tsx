@@ -139,7 +139,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
     </header>
     <section className="home-quick-start" aria-label="开始创作">
       <button className="home-start-card" data-color="violet" aria-label="打开工程目录" disabled={busy} onClick={() => void run(actions.openDirectory)}><span className="home-start-icon"><StudioIcon name="folder" /></span><span><strong>本地目录</strong><small>打开文件夹里的故事项目</small></span><StudioIcon name="arrow" /></button>
-      <button className="home-start-card" data-color="blue" disabled={busy} onClick={() => importInput.current?.click()}><span className="home-start-icon"><StudioIcon name="import" /></span><span><strong>导入项目</strong><small>继续编辑已有的 ZIP 工程</small></span><StudioIcon name="arrow" /></button>
+      <button className="home-start-card" data-color="blue" disabled={busy} onClick={() => importInput.current?.click()}><span className="home-start-icon"><StudioIcon name="import" /></span><span><strong>导入项目</strong><small>打开工程 ZIP 或制作交付包继续编辑</small></span><StudioIcon name="arrow" /></button>
       <button className="home-start-card" data-color="coral" aria-label="打开示例工程" disabled={busy} onClick={() => void run(actions.openExample)}><span className="home-start-icon"><StudioIcon name="sparkles" /></span><span><strong>探索示例</strong><small>打开一个故事，边看边学</small></span><StudioIcon name="arrow" /></button>
       <input className="home-file-input" ref={importInput} aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void run(() => actions.importArchive(file)); }} />
     </section>

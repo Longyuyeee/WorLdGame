@@ -72,27 +72,35 @@ export async function exportPortableProjectBundle(
   source: PortableProjectBundleSource
 ): Promise<Uint8Array> {
   if (session.project === null) throw new AssetBlobError("INVALID_ASSET", "index", session.projectId, "Read-only projects cannot be exported as portable bundles");
-  const index = parseAssetIndex(serializeAssetIndex(await source.loadIndex()));
+  return exportPortableCanonicalProject(session.project, await source.loadIndex(), source);
+}
+
+export async function exportPortableCanonicalProject(project: CanonicalProject, assetIndex: AssetIndex, source: Pick<AssetBlobStore, "read">, signal?: AbortSignal): Promise<Uint8Array> {
+  signal?.throwIfAborted();
+  const index = parseAssetIndex(serializeAssetIndex(assetIndex));
   const digests = [...new Set(index.assets.map((entry) => entry.source.digest))].sort();
   const files: Record<string, Uint8Array> = Object.fromEntries(
-    Object.entries(saveProject(session.project)).map(([path, text]) => [path, encoder.encode(text)])
+    Object.entries(saveProject(project)).map(([path, text]) => [path, encoder.encode(text)])
   );
   let referencedBytes = 0;
   for (const digest of digests) {
+    signal?.throwIfAborted();
     const bytes = await source.read(digest);
-    if (bytes === null || createBlobDigest(bytes) !== digest) throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Referenced source Blob is missing or corrupt during export");
-    files[blobArchivePath(digest)] = bytes;
+    signal?.throwIfAborted();
+    if (bytes === null || createBlobDigest(bytes) !== digest || index.assets.some(entry => entry.source.digest === digest && entry.source.byteLength !== bytes.length)) throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Referenced source Blob is missing, corrupt or has the wrong size during export");
+    files[blobArchivePath(digest)] = bytes.slice();
     referencedBytes += bytes.byteLength;
   }
   const manifest: PortableBundleManifest = {
     schemaVersion: 1,
-    projectId: session.project.manifest.projectId,
+    projectId: project.manifest.projectId,
     assetCount: index.assets.length,
     blobCount: digests.length,
     referencedBytes
   };
   files[BUNDLE_INDEX_PATH] = encoder.encode(serializeAssetIndex(index));
   files[BUNDLE_MANIFEST_PATH] = encoder.encode(JSON.stringify(manifest));
+  signal?.throwIfAborted();
   return exportProjectBinaryZip(files);
 }
 

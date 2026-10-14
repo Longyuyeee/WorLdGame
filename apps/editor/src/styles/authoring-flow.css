@@ -1,4 +1,14 @@
 .entity-workspace { max-width: 1400px; margin: 0 auto; color: var(--wg-color-text-primary); }
+.production-delivery-options { margin: 20px 0; padding: 18px; border: 1px solid var(--wg-color-border-subtle); border-radius: 14px; background: var(--studio-teal-bg); }
+.production-delivery-options label { display: flex; align-items: flex-start; gap: 10px; margin: 0; cursor: pointer; }
+.production-delivery-options input { flex-shrink: 0; margin-top: 4px; }.production-delivery-options label > span { display: grid; gap: 8px; font-size: 14px; min-width: 0; }
+.production-delivery-options small { color: var(--wg-color-text-muted); font-size: 12px; line-height: 1.7; }.production-delivery-options .production-delivery-review { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--wg-color-border-subtle); }
+.app-shell .production-delivery-download { display: block; padding: 12px; border-radius: 10px; border: 1px solid var(--studio-teal); color: var(--studio-teal); background: var(--studio-teal-bg); text-align: center; text-decoration: none; font-weight: 600; margin-top: 14px; }
+.production-delivery-summary { color: var(--wg-color-text-muted); font-size: 12px; line-height: 1.8; }
+.delivery-review-restore { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 16px 24px; margin-left: var(--studio-nav-width); color: var(--wg-color-text-primary); background: var(--studio-teal-bg); border-bottom: 1px solid var(--wg-color-border-subtle); }
+.delivery-review-restore > div { flex: 1; min-width: 220px; }.delivery-review-restore p { margin: 6px 0 0; font-size: 12px; color: var(--wg-color-text-muted); line-height: 1.7; }
+.delivery-review-restore button { padding: 9px 12px; background: var(--wg-color-bg-surface-1); border: 1px solid var(--wg-color-border-subtle); border-radius: 10px; color: var(--wg-color-text-primary); cursor: pointer; }.delivery-review-restore button:disabled { opacity: .45; }
+@media (max-width: 600px) { .production-delivery-options { padding: 14px; }.delivery-review-restore { margin-left: 0; padding: 14px; } }
 .playtest-checks-workspace { min-width: 0; grid-column: 1 / -1; }
 .playtest-review-board { max-width: 1200px; margin: 0 auto 24px; padding: 28px; border: 1px solid var(--wg-color-border-subtle); border-radius: 18px; background: var(--wg-color-bg-surface-1); color: var(--wg-color-text-primary); }
 .playtest-review-board > header { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
