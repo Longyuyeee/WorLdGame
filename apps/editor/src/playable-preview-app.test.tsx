@@ -60,6 +60,7 @@ describe("playable preview integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "发布" }));
     fireEvent.click(screen.getByRole("button", { name: /继续：导出方式/ }));
     fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "构建试玩 HTML" }));
 
     expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeDisabled();
@@ -70,6 +71,7 @@ describe("playable preview integration", () => {
     fireEvent.click(screen.getByRole("button", { name: "← 导出方式" }));
     fireEvent.click(screen.getByRole("radio", { name: /目录 ZIP/ }));
     fireEvent.click(screen.getByRole("button", { name: /继续：生成游戏/ }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "构建目录 ZIP" })).toBeEnabled());
     fireEvent.click(screen.getByRole("button", { name: "构建目录 ZIP" }));
     await waitFor(() => expect(screen.getByRole("link", { name: "下载游戏" })).toHaveAttribute("download", "黄昏广播-web.zip"));
     expect(screen.getByRole("heading", { name: "游戏已生成" })).toBeVisible();

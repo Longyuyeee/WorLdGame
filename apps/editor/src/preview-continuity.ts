@@ -9,6 +9,7 @@ export interface PreviewContinuity {
   readonly assetIndex: AssetIndex;
   readonly playable: FormalPreviewState;
   readonly detailsOpen: boolean;
+  readonly revisionTarget?: { readonly sceneId: string; readonly statementId: string } | null;
 }
 
 export function resumePreviewContinuity(project: CanonicalProject, assetIndex: AssetIndex, previous?: PreviewContinuity): {

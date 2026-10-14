@@ -26,7 +26,10 @@ import type { ExpressionValueType } from "@world-studio/story-language";
 import { SceneFlowPanel } from './SceneFlowPanel';
 import { RouteTargetPicker } from './RouteTargetPicker';
 import { RouteReviewPanel } from './RouteReviewPanel';
-import type { RouteReviewTrace } from './route-review';
+import { routeReviewSourceHash, type RouteReviewTrace } from './route-review';
+import { usePlaytestNotes } from "./use-playtest-notes";
+import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
+import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
 import { projectSceneFlow } from '@world-studio/route-graph';
 import { compileProject } from '@world-studio/project-compiler';
 import {
@@ -123,7 +126,7 @@ import {
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
-import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff } from "./writer-lease-owner";
+import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff, rememberBrowserWriterLeaseOwnerId } from "./writer-lease-owner";
 import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
 import { MobileFocusWorkspace } from "./MobileFocusWorkspace";
 import {
@@ -3177,6 +3180,15 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
 }
 
 interface PreviewPanelProps extends CommonProps {
+  readonly revisionTarget?: { readonly sceneId: string; readonly statementId: string } | null;
+  readonly onRevise?: (location: PlaytestNoteLocation) => void;
+  readonly onRecordIssue?: (location: PlaytestNoteLocation) => void;
+  readonly onFinishRevision?: () => void;
+  readonly reviewDialogOpen?: boolean;
+  readonly playtestRequest?: { readonly serial: number; readonly sceneId: string; readonly statementId: string } | null;
+  readonly onPlaytestRequestHandled?: () => void;
+  readonly pendingReviewNotes?: number;
+  readonly onOpenReviewNotes?: () => void;
   readonly initialPublicationStep?: number;
   readonly initialPublicationFormat?: "html" | "directory";
   readonly reviewTrace?: RouteReviewTrace | null;
@@ -3214,7 +3226,7 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+function PreviewPanel({ revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
   const [publicationStep, setPublicationStep] = useState(initialPublicationStep);
@@ -3253,8 +3265,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   const presentationStory = useMemo(() => projectCanonicalForEditor(presentationProject).project, [presentationProject]);
   const settingsApplication = useMemo(() => createGalSettingsApplicationV1(presentationProject.settings, "web"), [presentationProject.settings]);
   const restartRequired = hotUpdate?.kind === "restart-required";
+  const revisionEditing = revisionTarget !== null;
+  const playbackBlocked = restartRequired || projectRunBlocked || revisionEditing || reviewDialogOpen;
+  const handledPlaytestRequest = useRef<number | null>(null);
   const startTargetExists = previewStartTargetExists(canonicalProject, playable);
-  useEffect(() => { onContinuityChange?.({ ...previewSource, playable, detailsOpen: runtimeDetailsOpen }); }, [onContinuityChange, previewSource, playable, runtimeDetailsOpen]);
+  useEffect(() => { onContinuityChange?.({ ...previewSource, playable, detailsOpen: runtimeDetailsOpen, revisionTarget }); }, [onContinuityChange, previewSource, playable, runtimeDetailsOpen, revisionTarget]);
   const previewObservation = observeFormalPreview(playable);
   useEffect(() => {
     if (playable.status === "error") setRuntimeDetailsOpen(true);
@@ -3460,11 +3475,11 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   }, [session.activeSceneId]);
 
   useEffect(() => {
-    if (!playableActive || playable.sceneId === null || restartRequired || !session.project.scenes.some(scene => scene.id === playable.sceneId)) return;
+    if (revisionEditing || playtestRequest !== null || !playableActive || playable.sceneId === null || restartRequired || !session.project.scenes.some(scene => scene.id === playable.sceneId)) return;
     if (session.activeSceneId !== playable.sceneId) {
       dispatch({ type: "select-scene", sceneId: playable.sceneId });
     }
-  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.project.scenes, restartRequired]);
+  }, [dispatch, playable.sceneId, playableActive, session.activeSceneId, session.project.scenes, restartRequired, revisionEditing, playtestRequest]);
 
   useEffect(() => {
     if (!playableActive || transport.mode !== "playing") return;
@@ -3517,6 +3532,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 
   const beginPlayablePreview = () => {
     if (projectRunBlocked) return;
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setResumed(false);
@@ -3526,6 +3542,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 
   const beginPlayablePreviewFromScene = () => {
     if (projectRunBlocked) return;
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setResumed(false);
@@ -3535,6 +3552,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 
   const beginPlayablePreviewFromStatement = () => {
     if (projectRunBlocked) return;
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setResumed(false);
@@ -3544,6 +3562,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
 
   const restartPlayablePreview = () => {
     if (projectRunBlocked) return;
+    onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
     setResumed(false);
@@ -3552,10 +3571,19 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
   };
 
   const exitPlayablePreview = () => {
+    onFinishRevision?.();
     setHotUpdate(null);
     setResumed(false);
     setPlayable(createIdleFormalPreviewState());
   };
+
+  useEffect(() => {
+    if (!playtestRequest || projectRunBlocked || handledPlaytestRequest.current === playtestRequest.serial) return;
+    handledPlaytestRequest.current = playtestRequest.serial;
+    transportDispatch({ type: "reset" }); setHotUpdate(null); setResumed(false); setPreviewSource({ project: canonicalProject, assetIndex });
+    setPlayable(startFormalPreviewFromStatement(canonicalProject, playtestRequest.sceneId, playtestRequest.statementId));
+    onPlaytestRequestHandled?.();
+  }, [playtestRequest, projectRunBlocked, canonicalProject, assetIndex, onPlaytestRequestHandled]);
 
   const preparePlayableWeb = async (directory = false) => {
     if (projectRunBlocked || publicationDirty || webBuilding || !releaseInspection.ready) return;
@@ -3610,6 +3638,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         ? "已恢复历史位置"
         : `已恢复历史位置与演出（${reconciliationOperationCount} 项）`;
 
+  const currentRevisionLocation: PlaytestNoteLocation | null = playable.sceneId && previewObservation.current?.statementId && playable.reviewSourceHash ? { sceneId: playable.sceneId, statementId: previewObservation.current.statementId, sceneTitle: playableSceneTitle, excerpt: String(presentationProject.scripts[playable.sceneId]?.statements.find(item => item.id === previewObservation.current?.statementId)?.text ?? presentationProject.scripts[playable.sceneId]?.statements.find(item => item.id === previewObservation.current?.statementId)?.prompt ?? "").slice(0, 400), sourceHash: playable.reviewSourceHash } : null;
+  const revisionLocationExists = currentRevisionLocation !== null && canonicalProject.scripts[currentRevisionLocation.sceneId]?.statements.some(item => item.id === currentRevisionLocation.statementId) === true;
   const transportStatus = playableActive
     ? "完整流程试玩接管中"
     : transport.mode === "playing"
@@ -3762,7 +3792,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           />
           <div className="stage-audio-stack" aria-live="polite">
             {loadedMedia?.audio.map((layer) => {
-              const playback = restartRequired ? "paused" : stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
+              const playback = playbackBlocked || hidden ? "paused" : stagePlan.audio.find((candidate) => candidate.bus === layer.bus)?.playback ?? layer.playback;
               return <PreviewAudioLayer
                 key={`${layer.bus}:${layer.statementId}:${layer.url}`}
                 layer={{ ...layer, playback }}
@@ -3802,7 +3832,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <div className="choice-preview" data-choice-layout={settingsApplication.choice.layout}>
                 <strong>{statement.prompt}</strong>
                 {statement.options.map((option, optionIndex) => playable.status === "waiting-choice"
-                  ? <button key={option.id} type="button" disabled={restartRequired} onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
+                  ? <button key={option.id} type="button" disabled={playbackBlocked} onClick={() => setPlayable(selectFormalPreviewChoice(playable, option.id))} aria-label={`选择路线：${option.label}`}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</button>
                   : <span key={option.id}>{settingsApplication.choice.showOptionNumbers && <b data-choice-number aria-hidden="true">{optionIndex + 1}</b>}{option.label}</span>)}
               </div>
             )}
@@ -3851,8 +3881,9 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
       </div>
       <div className={`playable-preview playable-preview--${playable.status}`} aria-label="完整流程试玩">
         <div>
-          <strong>完整故事试玩</strong>
+          <strong>{playableActive && playable.startTarget?.kind !== "entry" ? "局部内容试玩" : "完整故事试玩"}</strong>
           <small>{playableActive ? playableStatus : "从故事开头出发，体验选择与结局。"}</small>
+          {playableActive && playable.startTarget?.kind !== "entry" && <small>从默认变量启动，完整路线仍需从故事入口确认。</small>}
         </div>
         {!playableActive && (
           <button type="button" onClick={beginPlayablePreview} disabled={projectRunBlocked}>试玩完整流程</button>
@@ -3860,6 +3891,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
         {(playable.status === "ended" || playable.status === "error") && (
           <button type="button" onClick={restartPlayablePreview} disabled={projectRunBlocked}>重新试玩</button>
         )}
+        {playableActive && currentRevisionLocation && onRevise && <button type="button" disabled={projectRunBlocked || revisionEditing || !revisionLocationExists} onClick={() => onRevise(currentRevisionLocation)}>修改当前内容</button>}
+        {playableActive && currentRevisionLocation && onRecordIssue && <button type="button" disabled={projectRunBlocked || reviewDialogOpen} onClick={() => onRecordIssue(currentRevisionLocation)}>记录问题</button>}
         {playableActive && <button type="button" className="playable-preview__secondary" onClick={exitPlayablePreview}>退出试玩</button>}
       </div>
       {playableActive && playable.status !== "error" && (
@@ -3868,12 +3901,12 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
             <strong>试玩记录 {previewObservation.history?.cursor ?? 0}/{previewObservation.history?.length ?? 0}</strong>
             <small>{historyStatus}</small>
           </div>
-          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canBack} aria-label="Runtime 后退一步">← 回退</button>
-          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={restartRequired || !previewObservation.history?.canForward} aria-label="Runtime 前进一步">前进 →</button>
-          <button className="preview-continue-story" type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>继续故事</button>
+          <button type="button" onClick={() => setPlayable(backFormalPreview(playable))} disabled={playbackBlocked || !previewObservation.history?.canBack} aria-label="Runtime 后退一步">← 回退</button>
+          <button type="button" onClick={() => setPlayable(forwardFormalPreview(playable))} disabled={playbackBlocked || !previewObservation.history?.canForward} aria-label="Runtime 前进一步">前进 →</button>
+          <button className="preview-continue-story" type="button" onClick={() => setPlayable(advanceFormalPreview(playable))} disabled={playbackBlocked || playable.status !== "presenting" && playable.status !== "paused"}>继续故事</button>
           <details className="preview-debug-tools"><summary>更多调试操作</summary><div>
-            <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={restartRequired || playable.status !== "presenting" && playable.status !== "paused"}>执行下一步</button>
-            <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={projectRunBlocked || restartRequired}>运行到选中步骤</button>
+            <button type="button" onClick={() => setPlayable(stepOverFormalPreview(playable))} disabled={playbackBlocked || playable.status !== "presenting" && playable.status !== "paused"}>执行下一步</button>
+            <button type="button" onClick={() => setPlayable(runFormalPreviewToStatement(playable, session.activeSceneId, session.selectedStatementId))} disabled={playbackBlocked}>运行到选中步骤</button>
           </div></details>
         </div>
       )}
@@ -3888,8 +3921,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <div><strong>等待演出完成</strong><code>{previewObservation.pendingEffect.descriptorId}</code></div>
               <p>{previewObservation.pendingEffect.kind} · {previewObservation.pendingEffect.channel} · scope {previewObservation.pendingEffect.cancellationScope}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" disabled={restartRequired} onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成本次演出</button>
-                <button type="button" disabled={restartRequired} className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
+                <button type="button" disabled={playbackBlocked} onClick={() => setPlayable(completeFormalPreviewEffect(playable))}>完成本次演出</button>
+                <button type="button" disabled={playbackBlocked} className="is-secondary" onClick={() => setPlayable(cancelFormalPreviewEffect(playable))}>安全取消</button>
               </div>
             </div>
           )}
@@ -3898,7 +3931,7 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
               <div><strong>不可逆边界</strong><code>{previewObservation.pendingBarrier.descriptorId}</code></div>
               <p>{previewObservation.pendingBarrier.reason}</p>
               <div className="runtime-effect-host__actions">
-                <button type="button" disabled={restartRequired} onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
+                <button type="button" disabled={playbackBlocked} onClick={() => setPlayable(approveFormalPreviewBarrier(playable))}>理解并批准</button>
                 <button type="button" className="is-secondary" onClick={exitPlayablePreview}>拒绝并退出试玩</button>
               </div>
             </div>
@@ -4028,7 +4061,8 @@ function PreviewPanel({ session, dispatch, createCommandId, inputDirty, assetInd
           <span className="publication-package__mark" aria-hidden="true"><StudioIcon name="publish" /></span><div><strong>{readWebPublication(canonicalProject).name}</strong><span>{readWebPublication(canonicalProject).version} · Web · {publicationFormat === "html" ? "单文件 HTML" : "网页目录 ZIP"}</span></div>
         </div>
         <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
-        <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
+        {pendingReviewNotes > 0 && <section className="release-review-notes" aria-label="发布前校订提醒"><StudioIcon name="write" /><div><strong>{pendingReviewNotes} 条试玩问题仍待跟进</strong><p>请确认这些问题是否影响交付；记录不会自动判定作品通过。</p></div><button type="button" disabled={projectRunBlocked || publicationDirty || webBuilding} onClick={onOpenReviewNotes}>查看校订清单</button></section>}
+      <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
         <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
         {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
@@ -4102,6 +4136,14 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
     () => projectCanonicalWithAssetIndex(projectCanonicalWithStory(canonicalBase, session.project), assetIndex),
     [assetIndex, canonicalBase, session.project]
   );
+  const notesStore = usePlaytestNotes(previewCanonicalProject.manifest.projectId);
+  const noteSourceHash = useMemo(() => routeReviewSourceHash(previewCanonicalProject), [previewCanonicalProject]);
+  const pendingReviewNotes = notesStore.notes.filter(note => noteReviewState(note, noteSourceHash) !== "verified").length;
+  const [noteDialog, setNoteDialog] = useState<{ location: PlaytestNoteLocation; note: PlaytestNote | null } | null>(null);
+  const [noteFileError, setNoteFileError] = useState("");
+  const [revisionTarget, setRevisionTarget] = useState<{ sceneId: string; statementId: string } | null>(continuity?.preview?.revisionTarget ?? null);
+  const [playtestRequest, setPlaytestRequest] = useState<{ serial: number; sceneId: string; statementId: string } | null>(null);
+  const playtestSerial = useRef(0);
   const previewCanonicalProjectRef = useRef(previewCanonicalProject);
   previewCanonicalProjectRef.current = previewCanonicalProject;
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
@@ -4215,7 +4257,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   );
   const storeRef = useRef<IndexedDbProjectFileStore | null>(null);
   const leaseRef = useRef<ProjectWriterLease | null>(null);
-  const leaseOwnerId = useRef(createBrowserWriterLeaseOwnerId());
+  const [leaseOwnerId] = useState(createBrowserWriterLeaseOwnerId);
   const [leaseRetry, setLeaseRetry] = useState(0);
   const storageRevision = useRef(0);
   const persistedSnapshotRef = useRef<ProjectSnapshot | null>(null);
@@ -4398,7 +4440,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
 
     const start = async () => {
       const acquisition = await store.acquire(
-        leaseOwnerId.current,
+        leaseOwnerId,
         Date.now(),
         WRITER_LEASE_TTL_MS
       );
@@ -4420,6 +4462,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         return;
       }
 
+      rememberBrowserWriterLeaseOwnerId(acquisition.lease.ownerId);
       leaseRef.current = acquisition.lease;
       store.activateWriterLease(acquisition.lease);
       assetRepository.activateWriterLease(acquisition.lease);
@@ -5443,6 +5486,15 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
   const createStoryEntity = (kind: Exclude<EntityKind, "chapter">) => {
     void openProjectStructure({ create: kind }).catch(reason => setStructureError(reason instanceof Error ? reason.message : String(reason)));
   };
+  const openRevision = (location: PlaytestNoteLocation) => {
+    if (inputDirty || pageDirty || pendingDraftSceneIds(session).length) return;
+    const target = session.project.scenes.find(scene => scene.id === location.sceneId)?.statements.find(item => item.id === location.statementId);
+    if (!target) { setStructureError("原内容已删除，校订记录仍保留。"); return; }
+    setRevisionTarget({ sceneId: location.sceneId, statementId: location.statementId }); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode(target.kind === "direction" ? "director" : "writer"); setMode("sequence"); setPreviewOpen(false);
+    setRequestedFocusStatementId(location.statementId); dispatch({ type: "select-project-result", sceneId: location.sceneId, statementId: location.statementId });
+  };
+  const exportNotes = () => { try { const url = URL.createObjectURL(new Blob([writePlaytestNotes(previewCanonicalProject.manifest.projectId, notesStore.notes)], { type: "application/json" })); const link = document.createElement("a"); link.href = url; link.download = "playtest-notes.worldreview"; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); setNoteFileError(""); } catch (error) { setNoteFileError((error as Error).message); } };
+  const importNotes = async (file: File) => { try { if (file.size > 2 * 1024 * 1024) throw Error("记录文件超过 2 MB。"); const imported = readPlaytestNotes(await file.text(), previewCanonicalProject.manifest.projectId); if (notesStore.commit(mergePlaytestNotes(notesStore.notes, imported))) setNoteFileError(""); } catch (error) { setNoteFileError((error as Error).message); } };
   return (
     <div
       className="app-shell"
@@ -5503,6 +5555,8 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
       />
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
       {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
+      {revisionTarget !== null && <div className="playtest-revision-return" role="region" aria-label="校订返回试玩"><StudioIcon name="write" /><span>正在校订 · {session.project.scenes.find(scene => scene.id === revisionTarget.sceneId)?.title ?? "原场景"}。完成修改后可返回试玩。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen || pendingDraftSceneIds(session).length > 0} onClick={() => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView?.({ block: "start" })); }}>返回试玩</button></div>}
+      {noteDialog && <PlaytestNoteDialog key={noteDialog.note?.id ?? "new"} location={noteDialog.location} note={noteDialog.note} error={notesStore.error || noteFileError} onClose={() => setNoteDialog(null)} onSave={(text, category) => { if (noteDialog.note && JSON.stringify(notesStore.notes.find(item => item.id === noteDialog.note?.id)) !== JSON.stringify(noteDialog.note)) { setNoteFileError("此记录已在其他窗口修改或删除，请重新核对；当前输入仍保留。"); return; } const now = Math.max(Date.now(), noteDialog.note?.updatedAt ?? 0); const note: PlaytestNote = noteDialog.note ? { ...noteDialog.note, text, category, updatedAt: now, ...(text !== noteDialog.note.text || category !== noteDialog.note.category ? { status: "open" as const, checkedSourceHash: null } : {}) } : { ...noteDialog.location, id: crypto.randomUUID(), text, category, status: "open", checkedSourceHash: null, createdAt: now, updatedAt: now }; if (notesStore.commit(noteDialog.note ? notesStore.notes.map(item => item.id === note.id ? note : item) : [...notesStore.notes, note])) setNoteDialog(null); }} />}
       {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
       {structureError && <p className="workspace-draft-hint" role="alert">{structureError}</p>}
       {studioPage === "story" && <nav className="studio-context-nav" aria-label="故事工作区">
@@ -5528,7 +5582,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {publishOpen ? <PreviewPanel publicationOnly initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
+        {publishOpen ? <PreviewPanel publicationOnly pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
             onDraftChange={setPageDirty}
             project={previewCanonicalProject}
@@ -5552,6 +5606,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
             onProjectChange={(project) => applyCanonicalProjectMutation(project, "本地化变更已进入 Canonical Project，等待保存。")}
           />
         ) : workspaceMode === "debug-qa" ? (
+          <div className="playtest-checks-workspace"><PlaytestReviewBoard project={previewCanonicalProject} notes={notesStore.notes} sourceHash={noteSourceHash} blocked={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} error={notesStore.error || noteFileError} onOpen={openRevision} onReplay={note => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); setPlaytestRequest({ serial: ++playtestSerial.current, sceneId: note.sceneId, statementId: note.statementId }); }} onEdit={note => { setNoteFileError(""); setNoteDialog({ location: note, note }); }} onStatus={(note, status) => notesStore.commit(notesStore.notes.map(item => item.id === note.id ? { ...item, status, updatedAt: Math.max(Date.now(), item.updatedAt), checkedSourceHash: status === "verified" ? noteSourceHash : null } : item))} onDelete={note => notesStore.commit(notesStore.notes.filter(item => item.id !== note.id))} onExport={exportNotes} onImport={file => void importNotes(file)} />
           <DebugQaWorkspace
             project={previewCanonicalProject}
             runBlocked={inputDirty || pendingDraftSceneIds(session).length > 0}
@@ -5569,6 +5624,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
               setMode(pendingDraftSceneIds(session).includes(sceneId) ? "script" : "sequence");
             }}
           />
+          </div>
         ) : workspaceMode === "mobile-focus" ? (
           <MobileFocusWorkspace
             session={session}
@@ -5620,7 +5676,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setWorkspaceMode("writer");setMode("sequence");}}
           />
         )}
-          {<PreviewPanel hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
+          {<PreviewPanel revisionTarget={revisionTarget} onRevise={openRevision} onRecordIssue={location => { setNoteFileError(""); setNoteDialog({ location, note: null }); }} onFinishRevision={() => setRevisionTarget(null)} reviewDialogOpen={noteDialog !== null} playtestRequest={playtestRequest} onPlaytestRequestHandled={() => setPlaytestRequest(null)} hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
         </>}
       </main>
       <footer className="workspace-footer">

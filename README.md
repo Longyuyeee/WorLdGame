@@ -1,12 +1,12 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 最新交付（2026-10-14）：[#318 Web 演出素材和角色操作](docs/318-web-direction-authoring-workflow.md)。五个彩色演出入口、素材缩略图搜索/独立弹窗、真实试听和循环默认值、角色目标选择与精细参数收纳完成。51 项相关测试、5 组生产浏览器流程通过，真实源 ZIP 保留媒体字节，导出 HTML 跑完两层立绘/移动/退场的短篇。当前作品仍为 1.5.4，人工/真机/许可/公网待验。
+> 最新交付（2026-10-14）：[#319 Web 试玩校订与复测](docs/319-web-playtest-revision-workflow.md)。试玩直接定位修改/记录问题，保留原路线和历史；校订清单、原文复测、修改/人工复核/过期提醒、独立记录文件和发布提醒贯通。42 项相关测试、4 组生产浏览器流程通过，修复快速刷新后的 writer owner 保存冲突，修改后的独立 HTML 跑至短篇结局。当前作品仍为 1.5.4，人工/真机/许可/公网待验。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-14
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
 > 当前进展：[备份恢复 #315](docs/315-web-player-save-backup.md) 的 1.5.4 延续全部正文和素材：9 场景/两结局、9,626 字符/71 演出。核对 1.5.1/1.5.2/1.5.3，实际备份来源为 1.5.3 的会话；跨站点来源/隔离浏览器可恢复同一进度和历史。备份是一份会话，个人设置/其他槽位分别保留；不支持剧情变化后的迁移。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#318](docs/318-web-direction-authoring-workflow.md)。当前作品三产物在 evidence/web-save-backup，展示资料/版本边界在 release/rain-before。本批没有增加作品版本；本批短流程不替代《雨停之前》完整两结局、全仓、所有引擎或长期运行验收。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#319](docs/319-web-playtest-revision-workflow.md)。当前作品三产物在 evidence/web-save-backup，展示资料/版本边界在 release/rain-before。本批没有增加作品版本；本批短流程不替代《雨停之前》完整两结局、全仓、所有引擎或长期运行验收。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
 > 当前重心：沿《雨停之前》1.5.4 继续实际作品定稿和交付，处理编辑/游玩中的自然阅读与演出、真机和来源许可。当前源工程 evidence/web-save-backup/before-rain-stops-project.zip；不要求先选具体发布平台。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。

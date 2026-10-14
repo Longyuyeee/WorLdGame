@@ -1,0 +1,403 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/playable-preview-app.test.tsx (7 tests | 1 failed) 19892ms
+     × builds and exposes a downloadable independent playable file 10869ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/playable-preview-app.test.tsx > playable preview integration > builds and exposes a downloadable independent playable file
+TestingLibraryElementError: Unable to find role="link" and name "下载游戏"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_school_gate"
+      data-context-statement-id="stmt_gate_bg"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_gate_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_school_gate"
+      data-runtime-statement-id="stmt_gate_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="workspace...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scn_school_gate"
+      data-context-statement-id="stmt_gate_bg"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="stmt_gate_bg"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scn_school_gate"
+      data-runtime-statement-id="stmt_gate_bg"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <div>
+            <p
+              class="eyebrow"
+            >
+              创作工作区
+            </p>
+            <h1>
+              黄昏广播
+            </h1>
+          </div>
+        </div>
+        <details
+          class="editor-preferences"
+        >
+          <summary>
+            <svg
+              aria-hidden="true"
+              class="studio-icon "
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"
+              />
+            </svg>
+            <span>
+              编辑器设置
+            </span>
+          </summary>
+          <div
+            class="editor-preferences__panel"
+          >
+            <div
+              class="mobile-history-actions"
+            >
+              <button
+                disabled=""
+                type="button"
+              >
+                撤销上一步
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                重做上一步
+              </button>
+            </div>
+            <fieldset
+              class="editor-theme-control"
+            >
+              <legend>
+                编辑器主题
+              </legend>
+              <p>
+                选择适合你的创作环境。
+              </p>
+              <div>
+                <button
+                  aria-pressed="true"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--light"
+                  />
+                  清亮
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--dark"
+                  />
+                  石墨
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--paper"
+                  />
+                  暖纸
+                </button>
+                <button
+                  aria-pressed="false"
+                  type="button"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="theme-swatch theme-swatch--system"
+                  />
+                  跟随系统
+                </button>
+              </div>
+            </fieldset>
+            <details>
+              <summary>
+                高级编辑选项
+              </summary>
+              <div
+                class="workspace-navigation"
+              >
+                <nav
+                  aria-label="工作模式"
+                  class="workspace...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ apps/editor/src/playable-preview-app.test.tsx:66:35
+     64|
+     65|     expect(screen.getByRole("button", { name: "构建试玩 HTML" })).toBeDisa…
+     66|     const download = await screen.findByRole("link", { name: "下载游戏" },…
+       |                                   ^
+     67|     expect(download).toHaveAttribute("download", "黄昏广播.html");
+     68|     expect(download).toHaveAttribute("href", "blob:playable-web");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 2 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: document.getElementById(...)?.closest(...)?.scrollIntoView is not a function
+ ❯ apps/editor/src/App.tsx:5556:650
+
+ ❯ invokeTheCallbackFunction node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26
+ ❯ runAnimationFrameCallbacks node_modules/jsdom/lib/jsdom/browser/Window.js:688:13
+ ❯ Timeout._onTimeout node_modules/jsdom/lib/jsdom/browser/Window.js:666:11
+ ❯ listOnTimeout node:internal/timers:605:17
+ ❯ processTimers node:internal/timers:541:7
+
+This error originated in "apps/editor/src/playtest-revision-app.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "captures a stable target, edits it without advancing the run, then resumes the same history". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯⎯ Uncaught Exception ⎯⎯⎯⎯⎯
+TypeError: document.getElementById(...)?.closest(...)?.scrollIntoView is not a function
+ ❯ apps/editor/src/App.tsx:5556:650
+
+ ❯ invokeTheCallbackFunction node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26
+ ❯ runAnimationFrameCallbacks node_modules/jsdom/lib/jsdom/browser/Window.js:688:13
+ ❯ Timeout.<anonymous> node_modules/jsdom/lib/jsdom/browser/Window.js:666:11
+ ❯ listOnTimeout node:internal/timers:605:17
+ ❯ processTimers node:internal/timers:541:7
+
+This error originated in "apps/editor/src/playtest-revision-app.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "captures a stable target, edits it without advancing the run, then resumes the same history". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 32 passed (33)
+     Errors  2 errors
+   Start at  16:13:38
+   Duration  68.72s (transform 3.24s, setup 2.10s, import 8.21s, tests 50.19s, environment 6.46s)
+
