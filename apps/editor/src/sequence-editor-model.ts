@@ -31,10 +31,11 @@ export function createSequenceInsertPlan(kind: SequenceInsertKind, afterId: stri
   if(kind==="wait")return one({kind:"wait",durationRaw:"500ms",id:statementId,trailingMetadata:""});
   if(kind==="end")return one({kind:"end",nameRaw:quote("新结局"),id:statementId,trailingMetadata:""});
   const optionA=createId("option"),optionB=createId("option");
+  const choiceTarget = stable(refs.sceneIds, "scene_missing");
   return [
     {afterId,node:{kind:"choice",promptRaw:quote("请选择"),id:statementId,trailingMetadata:""}},
-    {afterId:statementId,node:{kind:"choice-option",labelRaw:quote("选项 A"),targetLabel:target,id:optionA,trailingMetadata:""}},
-    {afterId:optionA,node:{kind:"choice-option",labelRaw:quote("选项 B"),targetLabel:target,id:optionB,trailingMetadata:""}}
+    {afterId:statementId,node:{kind:"choice-option",labelRaw:quote("选项 A"),targetLabel:choiceTarget,id:optionA,trailingMetadata:""}},
+    {afterId:optionA,node:{kind:"choice-option",labelRaw:quote("选项 B"),targetLabel:choiceTarget,id:optionB,trailingMetadata:""}}
   ];
 }
 

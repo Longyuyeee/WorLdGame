@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  15:17:50
+   Duration  17.36s (transform 2.72s, setup 676ms, import 5.73s, tests 8.32s, environment 2.06s)
+

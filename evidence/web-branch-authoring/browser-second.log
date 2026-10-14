@@ -1,0 +1,114 @@
+"draft cancel keeps two options; add/remove/reorder apply once; one Undo/Redo restores full option group; only real scenes offered; light/dark and 390px controls fit"
+"enter selected target, edit its narration with pending-input protection, return to exact original choice"
+"numeric increase, boolean and quoted Chinese text applied; declared boolean comparison locked to type; complex condition preserved until explicit generation, discard restores it; wrong-type/incomplete expressions show errors without source changes"
+"actual Editor Runtime follows the generated condition and all three edited options to their distinct endings"
+failure page: W
+WorLd Studio
+分支创作流程
+编辑器设置
+↶
+↷
+修改已同步
+备份 1/5
+已恢复 · s1
+故事
+素材
+游戏外观
+检查
+发布
+添加内容
+写作
+演出
+路线
+脚本
+收起预览
+章节与场景
+4
+⌕
+01
+车站选择
+7 个步骤
+02
+留下
+2 个步骤
+03
+远行
+2 个步骤
+04
+同行
+2 个步骤
+
+场景写作
+
+远行
+
+1 段文字 · 0 处选择 · 每一段，都是故事的一部分
+
+2 个步骤添加成段文字
+插入与整理内容
+复制、移动与多选
+
+还没有角色。先创建一位角色，就可以写对白。创建角色
+
+演出时间线与工具
+背景、角色、音频和镜头
+旁白
+01
+旁白文本
+应用修改
+应用修改后，故事和预览会同步更新。
+结局
+02
+结局 · 远行的约定
+＋ 添加内容
+即时预览
+LIVE
+预览尺寸
+16:9 · 标准横屏
+16:10 · 桌面宽屏
+4:3 · 经典画幅
+21:9 · 超宽银幕
+9:16 · 手机竖屏
+自定义 · 精确尺寸
+安全区
+远行
+旁白
+
+你踏上远行的列车。
+
+←
+1 / 2
+→
+▶
+运行
+测试倍率
+0.5×
+1×
+2×
+4×
+∞
+准备运行
+完整故事试玩
+从故事开头出发，体验选择与结局。
+试玩完整流程
+选择试玩起点
+调试详情
+变量、调用记录与问题定位
+r— · h—/—
+本地优先
+无账户
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 20000ms exceeded.
+Call log:
+  - waiting for locator('#statement-card-choice')
+
+    at select (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-branch-authoring.mjs:26:62)
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-branch-authoring.mjs:122:115 {
+  log: [ "  - waiting for locator('#statement-card-choice')" ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

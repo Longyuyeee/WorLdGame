@@ -1,0 +1,85 @@
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { App } from "./App";
+import { ChoiceInspector } from "./ChoiceInspector";
+import { branchAuthoringFixture } from "./branch-authoring-fixture";
+import type { ChoiceStatement } from "./choice-edit";
+import { projectCanonicalForEditor } from "./canonical-project-adapter";
+
+const fixture = () => branchAuthoringFixture();
+const choice = () => projectCanonicalForEditor(fixture()).project.scenes[0]!.statements.at(-1) as ChoiceStatement;
+
+describe("branch authoring controls", () => {
+  it("edits an ordered option draft, blocks empty text and target navigation, then applies once or discards", () => {
+    const onApply = vi.fn(), onOpenTarget = vi.fn(), onDirtyChange = vi.fn();
+    render(<ChoiceInspector statement={choice()} scenes={fixture().scenes} disabled={false} createId={() => "new_option"} onApply={onApply} onOpenTarget={onOpenTarget} onDirtyChange={onDirtyChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "添加选项" }));
+    expect(screen.getByRole("button", { name: "应用修改" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "进入选项 1 的目标场景", hidden: true })).toBeDisabled();
+    fireEvent.change(screen.getAllByLabelText("选项文本")[2]!, { target: { value: "一起离开" } });
+    fireEvent.change(screen.getByLabelText("选项 3 的目标场景"), { target: { value: "scene_c" } });
+    fireEvent.click(screen.getByRole("button", { name: "上移选项 3" }));
+    fireEvent.click(screen.getByRole("button", { name: "上移选项 2" }));
+    fireEvent.click(screen.getByRole("button", { name: "删除选项 3" }));
+    fireEvent.click(screen.getByRole("button", { name: "应用修改" }));
+    expect(onApply).toHaveBeenCalledTimes(1);
+    expect(onApply).toHaveBeenCalledWith(expect.objectContaining({ options: [expect.objectContaining({ id: "new_option", targetSceneId: "scene_c" }), expect.objectContaining({ id: "option_a" })] }));
+    fireEvent.click(screen.getByRole("button", { name: "放弃修改" }));
+    expect(screen.getAllByLabelText("选项文本")).toHaveLength(2); expect(onDirtyChange).toHaveBeenLastCalledWith(false);
+    fireEvent.click(screen.getByRole("button", { name: "进入选项 1 的目标场景" })); expect(onOpenTarget).toHaveBeenCalledWith("scene_a");
+    fireEvent.click(screen.getByRole("button", { name: "编辑选项 2" }));
+    expect(screen.getByRole("button", { name: "编辑选项 1" })).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getByRole("button", { name: "编辑选项 2" })).toHaveAttribute("aria-expanded", "true");
+  });
+  it("keeps a missing target explicit, prevents deleting the last option and requires a real scene", () => {
+    render(<ChoiceInspector statement={{ ...choice(), options: [{ ...choice().options[0]!, targetSceneId: "local_label" }] }} scenes={fixture().scenes} disabled={false} createId={() => "new_option"} onApply={() => {}} onOpenTarget={() => {}} onDirtyChange={() => {}} />);
+    expect(screen.getByRole("button", { name: "删除选项 1" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "应用修改" })).toBeDisabled();
+    expect(screen.getByRole("alert")).toHaveTextContent("不能把场景内的标签作为选项目标");
+    expect(screen.getAllByRole("option").map(option => option.textContent)).not.toContain("当前场景标签：choose");
+    fireEvent.change(screen.getByLabelText("选项 1 的目标场景"), { target: { value: "scene_c" } });
+    expect(screen.getByRole("button", { name: "应用修改" })).toBeEnabled();
+  });
+  it("navigates to a branch scene and returns to the original stable choice in the real App", async () => {
+    const view = render(<App initialProject={fixture()} autosaveDebounceMs={60_000} />);
+    fireEvent.click(view.container.querySelector<HTMLButtonElement>("#statement-card-choice")!);
+    fireEvent.click(screen.getByRole("button", { name: "进入选项 1 的目标场景" }));
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-scene-id", "scene_a");
+    expect(screen.getByRole("button", { name: "返回分支" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "返回分支" }));
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-context-statement-id", "choice");
+    expect(screen.getByRole("form", { name: "选择类型化参数" })).toBeVisible();
+  });
+  it("marks generated assignments and conditions dirty, discards controlled values, and rejects wrong types without changing source", async () => {
+    const view = render(<App initialProject={fixture()} autosaveDebounceMs={60_000} />);
+    const publish = within(screen.getByRole("navigation", { name: "主要功能" })).getByRole("button", { name: "发布" });
+    fireEvent.click(view.container.querySelector<HTMLButtonElement>("#statement-card-set_count")!);
+    fireEvent.change(screen.getByLabelText("变量修改方式"), { target: { value: "add" } });
+    fireEvent.change(screen.getByLabelText("变量的新值"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "生成赋值表达式" }));
+    expect(publish).toBeDisabled(); expect(screen.getByLabelText("新的值或计算式")).toHaveValue("count + 2");
+    fireEvent.click(screen.getByRole("button", { name: "放弃修改" }));
+    expect(screen.getByLabelText("新的值或计算式")).toHaveValue("0"); expect(publish).toBeEnabled();
+    fireEvent.change(screen.getByLabelText("变量修改方式"), { target: { value: "add" } });
+    fireEvent.change(screen.getByLabelText("变量的新值"), { target: { value: "2" } });
+    fireEvent.click(screen.getByRole("button", { name: "生成赋值表达式" })); fireEvent.click(screen.getByRole("button", { name: "应用修改" }));
+    await waitFor(() => expect(publish).toBeEnabled());
+    fireEvent.click(view.container.querySelector<HTMLButtonElement>("#statement-card-condition")!);
+    const expression = screen.getByLabelText("条件表达式（可手动编辑复杂条件）");
+    expect(expression).toHaveValue("ready && count >= 2");
+    fireEvent.change(screen.getByLabelText("判断变量"), { target: { value: "ready" } });
+    expect(screen.getByLabelText("比较值类型")).toHaveValue("boolean"); expect(screen.getByLabelText("比较值类型")).toBeDisabled();
+    expect(screen.queryByRole("option", { name: "大于" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "生成条件表达式" })); expect(publish).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "放弃修改" }));
+    expect(screen.getByLabelText("条件表达式（可手动编辑复杂条件）")).toHaveValue("ready && count >= 2"); expect(publish).toBeEnabled();
+    fireEvent.change(screen.getByLabelText("条件表达式（可手动编辑复杂条件）"), { target: { value: "count + 1" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用修改" })); expect(screen.getByRole("alert")).toHaveTextContent("类型不匹配");
+    fireEvent.change(screen.getByLabelText("条件表达式（可手动编辑复杂条件）"), { target: { value: "(count +" } });
+    fireEvent.click(screen.getByRole("button", { name: "应用修改" })); expect(screen.getByRole("alert")).toHaveTextContent("不完整");
+    expect(publish).toBeDisabled(); fireEvent.click(screen.getByRole("button", { name: "放弃修改" })); expect(publish).toBeEnabled();
+    fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain("count + 2");
+    expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).value).toContain("ready && count >= 2");
+  });
+});

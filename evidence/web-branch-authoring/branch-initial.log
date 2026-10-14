@@ -1,0 +1,41 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/branch-authoring-app.test.tsx (4 tests | 1 failed) 7030ms
+     × marks generated assignments and conditions dirty, discards controlled values, and rejects wrong types without changing source 4912ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/branch-authoring-app.test.tsx > branch authoring controls > marks generated assignments and conditions dirty, discards controlled values, and rejects wrong types without changing source
+Error: expect(element).toHaveValue(StringContaining)
+
+Expected the element to have value:
+  StringContaining "count + 2"
+Received:
+  scene "车站选择" @id(entry)
+  set count = count + 2 @id(set_count)
+  set ready = false @id(set_ready)
+  set note = "起点" @id(set_note)
+  if ready && count >= 2 -> choose @id(condition)
+  narrate "雨声渐渐停下，你会走向哪里？" @sid(intro) @id(intro_text)
+  label choose @id(choose_label)
+  choice "选择下一段故事" @id(choice)
+    "留在车站" -> scene_a @id(option_a)
+    "乘车出发" -> scene_b @id(option_b)
+
+ ❯ apps/editor/src/branch-authoring-app.test.tsx:79:46
+     77|     expect(publish).toBeDisabled(); fireEvent.click(screen.getByRole("…
+     78|     fireEvent.click(screen.getByRole("tab", { name: "Script" }));
+     79|     expect(screen.getByLabelText("权威脚本编辑器")).toHaveValue(expect.string…
+       |                                              ^
+     80|     expect((screen.getByLabelText("权威脚本编辑器") as HTMLTextAreaElement).v…
+     81|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 18 passed (19)
+   Start at  15:05:26
+   Duration  19.32s (transform 3.04s, setup 1.20s, import 6.21s, tests 7.17s, environment 3.71s)
+

@@ -7,3 +7,4 @@ evidence/web-player-entry/before-rain-stops.html -text
 evidence/web-save-updates/before-rain-stops.html -text
 evidence/web-save-backup/before-rain-stops.html -text
 evidence/web-save-backup/*.worldsave -text
+evidence/web-branch-authoring/branch-authoring.html -text

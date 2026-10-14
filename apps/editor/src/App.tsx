@@ -15,6 +15,11 @@ import { StoryCreateMenu } from './story-create-menu';
 import type { EntityKind, ProjectStructureIntent } from './project-entity-dialog';
 import { assetSourceUsages, checkAssetSource, republishAssetEntry } from './asset-repair';
 import { ConditionExpressionFields } from './condition-expression-fields';
+import { ChoiceInspector } from "./ChoiceInspector";
+import { choiceEditOperations } from "./choice-edit";
+import { VariableAssignmentFields } from "./ExpressionFields";
+import { expressionProblem } from "./expression-edit";
+import type { ExpressionValueType } from "@world-studio/story-language";
 import { SceneFlowPanel } from './SceneFlowPanel';
 import { RouteTargetPicker } from './RouteTargetPicker';
 import { RouteReviewPanel } from './RouteReviewPanel';
@@ -1116,6 +1121,7 @@ function AssetVaultDialog({
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly inputDirty: boolean;
   readonly assetReader?: AssetLibraryReader | null;
   readonly onCreateEntity?: (kind: Exclude<EntityKind, "chapter">) => void;
   readonly stageExpanded?: boolean;
@@ -1858,18 +1864,26 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"}>;readonly disabled:boolean;readonly onDirtyChange:(dirty:boolean)=>void;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
-function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetIds,variableIds,variableNames,createCommandId,dispatch}:SequenceInspectorProps){
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"|"choice"}>;readonly disabled:boolean;readonly onDirtyChange:(dirty:boolean)=>void;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly variableTypes:Readonly<Record<string,"boolean"|"number"|"string">>;readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetIds,variableIds,variableNames,variableTypes,createCommandId,dispatch}:SequenceInspectorProps){
   const form = useRef<HTMLFormElement>(null);
   const baseline = useRef("");
   const [dirty, setDirty] = useState(false);
-  const signature = () => form.current ? JSON.stringify([...new FormData(form.current).entries()]) : "";
-  useEffect(() => { form.current?.reset(); baseline.current = signature(); setDirty(false); onDirtyChange(false); }, [statement]);
+  const [resetSerial, setResetSerial] = useState(0);
+  const [error, setError] = useState("");
+  const signature = (overrides: Readonly<Record<string,string>> = {}) => form.current ? JSON.stringify([...new FormData(form.current).entries()].map(([key, value]) => [key, overrides[key] ?? value])) : "";
+  const markDirty = (overrides: Readonly<Record<string,string>> = {}) => { const next = signature(overrides) !== baseline.current; setDirty(next); onDirtyChange(next); setError(""); };
+  useEffect(() => { form.current?.reset(); baseline.current = signature(); setDirty(false); onDirtyChange(false); setError(""); }, [statement, resetSerial]);
   useEffect(() => () => onDirtyChange(false), []);
   if(statement.kind==="return")return <div className="readonly-step">返回调用方；该语句没有可编辑参数。</div>;
   const submit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();const data=new FormData(event.currentTarget),value=(name:string)=>String(data.get(name)??"").trim();let patch:Readonly<Record<string,unknown>>={};
+    if (disabled) return;
+    if (statement.kind === "set" || statement.kind === "condition") {
+      const symbols: Readonly<Record<string, ExpressionValueType>> = Object.fromEntries(variableIds.map(id => [id, variableTypes[id] ?? "unknown"]));
+      const problem = expressionProblem(value("expression"), symbols, statement.kind === "condition" ? "boolean" : variableTypes[value("variable")] ?? "unknown");
+      if (problem) { setError(problem); return; }
+    }
     if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
-    else if(statement.kind==="choice"){const operations=[{kind:"update" as const,statementId:statement.id,patch:{promptRaw:JSON.stringify(value("prompt"))}},...statement.options.map((option)=>({kind:"update" as const,statementId:option.id,patch:{labelRaw:JSON.stringify(value(`label:${option.id}`)),targetLabel:value(`target:${option.id}`)}}))];dispatch({type:"p0-batch",commandId:createCommandId(),operations,selectedStatementId:statement.id});return;}
     else if(statement.kind==="label")patch={name:value("name")};
     else if(statement.kind==="jump"||statement.kind==="call")patch={targetLabel:value("target")};
     else if(statement.kind==="set")patch={variable:value("variable"),expressionRaw:value("expression")};
@@ -1878,16 +1892,15 @@ function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetI
     else patch={nameRaw:JSON.stringify(value("ending"))};
     dispatch({type:"p0-update",commandId:createCommandId(),statementId:statement.id,patch});
   };
-  return <form key={`${statement.id}:${statementLabel(statement)}`} ref={form} onChange={() => { const next = signature() !== baseline.current; setDirty(next); onDirtyChange(next); }} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
+  return <form key={`${statement.id}:${statementLabel(statement)}:${resetSerial}`} ref={form} onChange={() => markDirty()} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
     {statement.kind==="narration"&&<label><span>旁白文本</span><textarea aria-label="旁白文本" name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
-    {statement.kind==="choice"&&<><label><span>选择提示</span><input name="prompt" defaultValue={statement.prompt} required disabled={disabled}/></label>{statement.options.map((option, index)=><fieldset key={option.id}><legend>选项 {index + 1}</legend><label><span>选项文本</span><input name={`label:${option.id}`} defaultValue={option.label} required disabled={disabled}/></label><label><span>接下来进入</span><select name={`target:${option.id}`} defaultValue={option.targetSceneId} disabled={disabled}>{[...new Set([option.targetSceneId,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></fieldset>)}</>}
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
     {(statement.kind==="jump"||statement.kind==="call")&&<label><span>接下来进入</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
-    {statement.kind==="set"&&<><label><span>要修改的变量</span><select name="variable" defaultValue={statement.variable} disabled={disabled}>{[...new Set([statement.variable,...variableIds])].map((id)=><option key={id} value={id}>{Object.hasOwn(variableNames,id) ? variableNames[id] : `脚本变量（未声明） · ${id}`}</option>)}</select></label><label><span>新的值或计算式</span><input name="expression" defaultValue={statement.expression} required disabled={disabled}/></label></>}
-    {statement.kind==="condition"&&<><ConditionExpressionFields expression={statement.expression} variableIds={variableIds} variableNames={variableNames} disabled={disabled}/><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label></>}
+    {statement.kind === "set" && <VariableAssignmentFields variable={statement.variable} expression={statement.expression} variableIds={variableIds} variableNames={variableNames} variableTypes={variableTypes} disabled={disabled} onDraftChange={(expression, variable) => markDirty({ expression, variable })} />}
+    {statement.kind==="condition"&&<><ConditionExpressionFields expression={statement.expression} variableIds={variableIds} variableNames={variableNames} variableTypes={variableTypes} disabled={disabled} onDraftChange={expression => markDirty({ expression })}/><label><span>成立时目标</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label><small className="condition-flow-hint">条件成立时进入所选场景或标签；不成立时继续下一个步骤。</small></>}
     {statement.kind==="wait"&&<label><span>等待时长</span><input name="duration" defaultValue={statement.duration} required pattern="[0-9]+(?:\.[0-9]+)?(?:ms|s)" disabled={disabled}/></label>}
     {statement.kind==="end"&&<label><span>结局名称</span><input name="ending" defaultValue={statement.endingName} required disabled={disabled}/></label>}
-    <button type="submit" disabled={disabled}>应用修改</button>{dirty && <button type="button" onClick={() => { form.current?.reset(); setDirty(false); onDirtyChange(false); }}>放弃修改</button>}<small>{dirty ? "参数有未应用的修改。请先应用或放弃，再切换场景或添加内容。" : "应用修改后，故事和预览会同步更新。"}</small>
+    <button type="submit" disabled={disabled}>应用修改</button>{dirty && <button type="button" onClick={() => { setResetSerial(value => value + 1); setDirty(false); onDirtyChange(false); }}>放弃修改</button>}<small>{dirty ? "参数有未应用的修改。请先应用或放弃，再切换场景或添加内容。" : "应用修改后，故事和预览会同步更新。"}</small>{error && <p role="alert">{error}</p>}
   </form>;
 }
 
@@ -1899,6 +1912,7 @@ function SequenceView({
   onInputDirtyChange,
   assetIndex,
   assetReader = null,
+  inputDirty,
   variableIds,
   variableDefaults,
   variableTypes,
@@ -1927,6 +1941,7 @@ function SequenceView({
   const [selectedDirectionIds, setSelectedDirectionIds] = useState<readonly string[]>([]);
   const [rangeAnchorId, setRangeAnchorId] = useState<string | null>(null);
   const [selectionNotice, setSelectionNotice] = useState<string | null>(null);
+  const [choiceReturn, setChoiceReturn] = useState<{ sceneId: string; statementId: string } | null>(null);
   const [stageWindowStart, setStageWindowStart] = useState(0);
   const [stageSearchQuery, setStageSearchQuery] = useState("");
   const [activeStageSearchResult, setActiveStageSearchResult] = useState(0);
@@ -2158,7 +2173,12 @@ function SequenceView({
           />
           <details className="direction-source-details"><summary>查看脚本参数</summary><code>@{selected.command} {selected.summary}</code></details>
           </details>
-        ) : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} createCommandId={createCommandId} dispatch={dispatch}/>}
+        ) : selected.kind === "choice" ? <ChoiceInspector key={selected.id} statement={selected} scenes={session.project.scenes} disabled={pendingDraft} createId={createEntityId} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} onApply={draft => {
+          const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations: choiceEditOperations(selected, draft, sequenceReferences.sceneIds), selectedStatementId: selected.id };
+          const candidate = reduceStudioSession(session, action);
+          if (candidate.notice.tone === "error") throw new Error(candidate.notice.detail);
+          dispatch(action);
+        }} onOpenTarget={sceneId => { setChoiceReturn({ sceneId: scene.id, statementId: selected.id }); dispatch({ type: "select-scene", sceneId }); }} /> : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} variableTypes={variableTypes ?? {}} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
           点击下方步骤编辑内容。文字停止输入或失焦后自动应用；演出参数需点击“应用演出参数”，也可放弃修改。
         </p>
@@ -2181,6 +2201,10 @@ function SequenceView({
         </div>
         <div><span className="context-chip">{scene.statements.length} 个步骤</span><button type="button" disabled={pendingDraft || inspectorDirty} onClick={() => setTextBatchOpen(true)}>添加成段文字</button></div>
       </div>
+      {choiceReturn !== null && (choiceReturn.sceneId !== scene.id || choiceReturn.statementId !== selected.id) && <div className="choice-return" aria-label="分支写作返回入口"><StudioIcon name="route" /><span>来自“{session.project.scenes.find(item => item.id === choiceReturn.sceneId)?.title ?? "原场景"}”的选择</span><button type="button" disabled={inputDirty || pendingDraft || inspectorDirty || !session.project.scenes.find(item => item.id === choiceReturn.sceneId)?.statements.some(item => item.id === choiceReturn.statementId)} onClick={() => {
+        const origin = choiceReturn; setChoiceReturn(null); dispatch({ type: "select-project-result", sceneId: origin.sceneId, statementId: origin.statementId });
+        requestAnimationFrame(() => document.getElementById(`statement-card-${origin.statementId}`)?.scrollIntoView({ block: "nearest" }));
+      }}>返回分支<StudioIcon name="back" /></button></div>}
 
       <div
         className={runtimeRouteTrace.active ? "sequence-runtime-trace is-active" : "sequence-runtime-trace"}
@@ -5568,7 +5592,7 @@ export function App({ initialProject, initialSceneId, continuity, preferInitialP
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView inputDirty={inputDirty} assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
