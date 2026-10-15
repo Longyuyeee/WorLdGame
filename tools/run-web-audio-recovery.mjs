@@ -19,6 +19,7 @@ const compatibleVersions = [...new Set([...priorManifest.webSaveCompatibility.ve
 const mediaProbePath = path.resolve(root, process.env.STUDIO_MEDIA_PROBE_REPORT ?? path.join(output, 'native-media-probe.json'));
 const assertWorker = process.env.STUDIO_ASSERT_RECOVERY_WORKER === '1';
 const assertDirectPng = process.env.STUDIO_ASSERT_DIRECT_PNG === '1';
+const assertForeground = process.env.STUDIO_ASSERT_FOREGROUND_SESSION === '1';
 const checks = [], errors = [], routes = []; let browser, current, server, files, port, served, fail = new Set();
 const selectedEngines = (process.env.STUDIO_BROWSER_ENGINES ?? 'chromium,firefox,webkit').split(',');
 assert.ok(selectedEngines.length > 0 && new Set(selectedEngines).size === selectedEngines.length && selectedEngines.every(engine => ['chromium', 'firefox', 'webkit'].includes(engine)));
@@ -114,12 +115,15 @@ async function route(engines, engine, source, branch, ending) {
   if (assertWorker) {
     workerDiagnostics = await assertBackgroundRecovery(page, payloadProjectId(source)); const endingHash = workerDiagnostics.protectedStateHash;
     await page.reload(); await page.getByRole('button', { name: '恢复上次进度', exact: true }).click();
+    await page.waitForFunction(()=>document.querySelector('main.player-shell')?.dataset.recoveryOperation==='loaded');
     assert.equal(await hash(page), endingHash); assert.equal(await page.locator('main.player-shell').getAttribute('data-player-status'), 'ended');
     await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.stageImagesPending === 'false');
     assert.equal(await page.locator('.player-media-error').count(), 0);
   }
   const imageDecodeModes=assertDirectPng?await directPng(page):null;
-  await shot(page, engine + '-' + (branch === '留下等雨停' ? 'stay' : 'leave') + '-ending'); routes.push({ engine, branch, ending, narrationCount: narrations.size, naturallyEndedVoices: voices.size, textIds: ids, noStaleAudioRecoveryAtEnding: true, humanListening: false, workerDiagnostics, imageDecodeModes, endingRestoredAfterReload: assertWorker, restoredStageReady: assertWorker }); check(engine + '-' + ending + '-full-route'); await context.close(); await browser.close(); browser = null;
+  const foregroundDiagnostics=assertForeground?await page.evaluate(()=>JSON.parse(document.documentElement.dataset.foregroundSerializer??'null')):null;
+  if(assertForeground){assert.equal(foregroundDiagnostics.active,0);assert.equal(foregroundDiagnostics.fallback,0);assert.equal(foregroundDiagnostics.failed,0);assert.ok(foregroundDiagnostics.completed>0);}
+  await shot(page, engine + '-' + (branch === '留下等雨停' ? 'stay' : 'leave') + '-ending'); routes.push({ engine, branch, ending, narrationCount: narrations.size, naturallyEndedVoices: voices.size, textIds: ids, noStaleAudioRecoveryAtEnding: true, humanListening: false, workerDiagnostics, imageDecodeModes, foregroundDiagnostics, endingRestoredAfterReload: assertWorker, restoredStageReady: assertWorker }); check(engine + '-' + ending + '-full-route'); await context.close(); await browser.close(); browser = null;
 }
 const payloadProjectId = source => json(source['world.project.json']).projectId;
 async function assertBackgroundRecovery(page, projectId) {
@@ -144,5 +148,5 @@ try {
   if (engines && !process.argv.includes('--reuse-artifacts')) await writeFile(path.join(output, 'author-check.json'), JSON.stringify({ passed: true, candidateVersion, artifacts: audited.artifacts, checks, sourceReused: false }, null, 2));
   if (process.argv.includes('--author-only')) process.exitCode = 0;
   if (engines && !process.argv.includes('--author-only')) { await startServer(); for (const engine of selectedEngines) { await recovery(engines, engine, audited.payload); await upgrade(engines, engine, audited.payload); for (const [branch, ending] of [['留下等雨停', '同行的约定'], ['去追最后一班车', '远行的约定']]) await route(engines, engine, audited.source, branch, ending); } assert.deepEqual(errors, []); await writeFile(path.join(output, 'browser-checks.json'), JSON.stringify({ passed: true, hostPlatform: process.platform, requestedEngines: selectedEngines, recoveryMatrixComplete: selectedEngines.length === 3, candidateVersion, priorVersion, assertedBackgroundWorker: assertWorker, mediaProbeReport: path.relative(root, mediaProbePath).replaceAll('\\', '/'), artifacts: audited.artifacts, checks, routes, errors, sourceReused: process.argv.includes('--reuse-artifacts'), offlineAudioFixed: false, fullOfflineAudioMatrixPassed: false, physicalDevice: false, publicDeployment: false, permissionsVerified: false }, null, 2)); }
-} catch (error) { if (current && !current.isClosed()) await shot(current, 'failure'); await writeFile(path.join(output, 'browser-failure.json'), JSON.stringify({ checks, errors, error: String(error), stack: error.stack }, null, 2)); throw error; }
+} catch (error) { let diagnostic=null;if(current&&!current.isClosed()){diagnostic=await current.evaluate(()=>{const button=document.querySelector('.player-dialogue'),main=document.querySelector('main.player-shell'),style=button&&getComputedStyle(button);return{state:main?.dataset,dialogue:button?{rect:button.getBoundingClientRect().toJSON(),disabled:button.disabled,style:{display:style.display,visibility:style.visibility,pointerEvents:style.pointerEvents,transform:style.transform},animations:button.getAnimations().map(value=>({playState:value.playState,currentTime:value.currentTime}))}:null,audio:[...document.querySelectorAll('audio')].map(value=>({bus:value.dataset.audioBus,paused:value.paused,ended:value.ended,readyState:value.readyState,error:value.error?.code??null}))};}).catch(()=>null);await shot(current,'failure');}await writeFile(path.join(output,'browser-failure.json'),JSON.stringify({checks,errors,error:String(error),stack:error.stack,diagnostic},null,2));throw error; }
 finally { if (browser) await browser.close(); if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); } }

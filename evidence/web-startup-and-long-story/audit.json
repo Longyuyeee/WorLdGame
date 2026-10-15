@@ -1,0 +1,333 @@
+{
+  "passed": true,
+  "scope": "exact production/export identities, fresh-context startup, real UI synthetic history and bounded release; not statistical or physical-device acceptance",
+  "runtimeHash": "2ff0f07c09e63f289b1c24eeefa7a1a379b471a3003fd205b2206b8378df2bbe",
+  "priorRuntimeHash": "4bf6d14943f9311e1f31c04c968dbffeadc2a77be7c4924d659a4db64214e163",
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31683044,
+      "sha256": "3f51ca8e4d483c59d4a7d7e48d2ffd5593444fe66d4c7f737119f76022a0cd09"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42903956,
+      "sha256": "1d95ca315b66e1bcd5431b30d970e24fd5e7e3845c6f7082f820148d60d9a94e"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32417669,
+      "sha256": "fc97ad45934c9ee1f25f28451187a837b5707a3d324e9e9e2f2db64f5c856758"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "tests": {
+    "baseline": 420,
+    "baselineFiles": 45,
+    "playerHost": 476,
+    "playerHostFiles": 59,
+    "overlapTests": 134,
+    "overlapFiles": 8,
+    "nodeTests": 5,
+    "distinct": 767,
+    "distinctFiles": 98
+  },
+  "coldBaseline": [
+    {
+      "readyMs": 187.89999999850988,
+      "longTasks": [
+        89
+      ],
+      "longestFrameMs": 134.19999999925494
+    },
+    {
+      "readyMs": 184.30000000074506,
+      "longTasks": [
+        82
+      ],
+      "longestFrameMs": 99.80000000074506
+    },
+    {
+      "readyMs": 194.30000000074506,
+      "longTasks": [
+        91
+      ],
+      "longestFrameMs": 127.5
+    },
+    {
+      "readyMs": 197.10000000149012,
+      "longTasks": [
+        89
+      ],
+      "longestFrameMs": 109.40000000223517
+    },
+    {
+      "readyMs": 184.69999999925494,
+      "longTasks": [
+        86
+      ],
+      "longestFrameMs": 102.69999999925494
+    }
+  ],
+  "coldCurrent": [
+    {
+      "readyMs": 152.09999999403954,
+      "longTasks": [
+        58
+      ],
+      "longestFrameMs": 104
+    },
+    {
+      "readyMs": 140.29999999701977,
+      "longTasks": [
+        50
+      ],
+      "longestFrameMs": 66.89999999850988
+    },
+    {
+      "readyMs": 145.70000000298023,
+      "longTasks": [
+        52
+      ],
+      "longestFrameMs": 70.60000000149012
+    },
+    {
+      "readyMs": 137,
+      "longTasks": [
+        50
+      ],
+      "longestFrameMs": 67.29999999701977
+    },
+    {
+      "readyMs": 142.19999999552965,
+      "longTasks": [],
+      "longestFrameMs": 66.20000000298023
+    }
+  ],
+  "coldCandidate": [
+    {
+      "readyMs": 186.70000000298023,
+      "longTasks": [
+        67
+      ],
+      "longestFrameMs": 120.70000000298023
+    },
+    {
+      "readyMs": 185,
+      "longTasks": [
+        64
+      ],
+      "longestFrameMs": 84.30000000447035
+    },
+    {
+      "readyMs": 373.5,
+      "longTasks": [
+        109
+      ],
+      "longestFrameMs": 145.5
+    },
+    {
+      "readyMs": 190.79999999701977,
+      "longTasks": [
+        80
+      ],
+      "longestFrameMs": 98.29999999701977
+    },
+    {
+      "readyMs": 185.89999999850988,
+      "longTasks": [
+        75
+      ],
+      "longestFrameMs": 118.5
+    }
+  ],
+  "longBaseline": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 95.39999999850988,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 19.199999999254942
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 64.40000000223517,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 19.199999999254942
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 195.60000000149012,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 48.5
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 183.89999999850988,
+      "longTasks": [
+        {
+          "start": 11299.10000000149,
+          "duration": 83
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 11294.800000000745,
+          "duration": 88.5
+        }
+      ],
+      "maximumHeartbeatGapMs": 107.69999999925494
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 94.80000000074506,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 39.19999999925494
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 280.30000000074506,
+      "longTasks": [
+        {
+          "start": 11661,
+          "duration": 127
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 11660.5,
+          "duration": 128.10000000149012
+        }
+      ],
+      "maximumHeartbeatGapMs": 133.59999999776483
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 249,
+      "longTasks": [
+        {
+          "start": 28995.800000000745,
+          "duration": 144
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 28994.199999999255,
+          "duration": 146.40000000223517
+        }
+      ],
+      "maximumHeartbeatGapMs": 181.5
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 96.30000000074506,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 49.100000001490116
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 364.1000000014901,
+      "longTasks": [
+        {
+          "start": 29410.60000000149,
+          "duration": 227
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 29409.800000000745,
+          "duration": 228.39999999850988
+        }
+      ],
+      "maximumHeartbeatGapMs": 242.10000000149012
+    }
+  ],
+  "longCurrent": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 112.79999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 18
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 64.39999999850988,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 22.299999997019768
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 212.60000000149012,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 29.5
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 185.29999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 34.5
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 79.70000000298023,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 20.899999998509884
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 264.5,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 21.700000002980232
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 334.80000000447035,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 76
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 133.60000000149012,
+      "longTasks": [
+        {
+          "start": 29530.40000000596,
+          "duration": 69
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 29528.30000000447,
+          "duration": 71.69999999552965
+        }
+      ],
+      "maximumHeartbeatGapMs": 85.20000000298023
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 510.79999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 40.30000000447035
+    }
+  ],
+  "browserChecks": 17,
+  "continuousCycles": 8,
+  "continuousWallMilliseconds": 272904,
+  "physicalDevice": false,
+  "twoHourSoakPassed": false,
+  "physicalMemoryLeakFreeProven": false,
+  "fullOfflineAudioMatrixPassed": false,
+  "permissionsVerified": false,
+  "publicDeployment": false
+}

@@ -21,10 +21,10 @@ export function recoveryWorkerPlugin(overrides = []) {
       });
       return `export default ${JSON.stringify(await pending)};`;
     },
-    configureServer(server) { server.watcher.add([resolve(import.meta.dirname, "../apps/player-shell/src/recovery-session.worker.ts"), resolve(import.meta.dirname, "../apps/player-shell/src/recovery-session-task.ts"), resolve(import.meta.dirname, "../packages")]); },
+    configureServer(server) { server.watcher.add([resolve(import.meta.dirname, "../apps/player-shell/src/recovery-session.worker.ts"), resolve(import.meta.dirname, "../apps/player-shell/src/recovery-session-task.ts"), resolve(import.meta.dirname, "../apps/player-shell/src/foreground-session-task.ts"), resolve(import.meta.dirname, "../packages")]); },
     handleHotUpdate(context) {
       const path = context.file.replaceAll("\\", "/");
-      if (!/\/packages\/[^/]+\/src\//.test(path) && !/\/recovery-session(?:\.worker|-task)\.ts$/.test(path)) return;
+      if (!/\/packages\/[^/]+\/src\//.test(path) && !/\/(?:recovery-session(?:\.worker|-task)|foreground-session-task)\.ts$/.test(path)) return;
       pending = undefined;
       const module = context.server.moduleGraph.getModuleById(`\0${id}`);
       if (module) { context.server.moduleGraph.invalidateModule(module); return [...context.modules, module]; }

@@ -8,6 +8,9 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-session-responsiveness": "npm run audit:web-playback-responsiveness && vitest run apps/player-shell/src packages/player-core/src packages/runtime-host/src --maxWorkers=1 --reporter=default --reporter=json --outputFile=evidence/web-startup-and-long-story/player-runtime-tests.json && node --test tools/poll-browser-state.test.mjs tools/player-fixture-build.test.mjs && node tools/run-web-session-candidate.mjs --audit-only",
+    "audit:web-session-responsiveness:profile": "node tools/run-web-session-profile.mjs",
+    "audit:web-session-responsiveness:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-session-candidate.mjs && node tools/run-web-session-candidate.mjs --continuous && node tools/audit-web-session-responsiveness.mjs",
     "audit:web-image-decode": "npm run audit:web-playback-responsiveness && vitest run apps/player-shell/src packages/player-core/src packages/runtime-host/src --maxWorkers=1 --reporter=default --reporter=json --outputFile=evidence/web-image-decode/player-runtime-tests.json && node --test tools/poll-browser-state.test.mjs tools/player-fixture-build.test.mjs && node tools/run-web-image-candidate.mjs --audit-only",
     "audit:web-image-decode:profile": "node tools/run-web-image-profile.mjs",
     "audit:web-image-decode:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-image-parity.mjs && node tools/run-web-image-candidate.mjs && node tools/run-web-image-candidate.mjs --continuous && node tools/audit-web-image-decode.mjs",

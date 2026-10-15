@@ -1,0 +1,233 @@
+{
+  "passed": true,
+  "label": "candidate",
+  "browser": "151.0.7922.34",
+  "candidateArchiveSha256": "fc97ad45934c9ee1f25f28451187a837b5707a3d324e9e9e2f2db64f5c856758",
+  "runtimeHash": "2ff0f07c09e63f289b1c24eeefa7a1a379b471a3003fd205b2206b8378df2bbe",
+  "samples": [
+    {
+      "run": 0,
+      "readyMs": 186.70000000298023,
+      "cpuProfilerAttached": true,
+      "cpu": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 73.29899999999998
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:4 He",
+          "sampledMs": 30.774000000000004
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 29.27300000000001
+        },
+        {
+          "location": "layout http://127.0.0.1:13586/offline.js",
+          "sampledMs": 26.488999999999994
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:125 ",
+          "sampledMs": 4.276
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 _o",
+          "sampledMs": 3.205
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:185 nn",
+          "sampledMs": 2.6870000000000003
+        },
+        {
+          "location": "../src/PlayerShell.tsx:1445 n",
+          "sampledMs": 2.4530000000000003
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:27 g",
+          "sampledMs": 2.451
+        },
+        {
+          "location": "../src/PlayerShell.tsx:207 zd",
+          "sampledMs": 2.253
+        },
+        {
+          "location": "(anonymous) http://127.0.0.1:13586/player.js",
+          "sampledMs": 2.141
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:126 Ze",
+          "sampledMs": 1.839
+        },
+        {
+          "location": "(garbage collector) ",
+          "sampledMs": 1.629
+        },
+        {
+          "location": "../src/player-recovery-store.ts:72 Ed",
+          "sampledMs": 1.464
+        },
+        {
+          "location": "../../../packages/player-core/src/player-core.ts:1086 Qa",
+          "sampledMs": 1.171
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:117 L",
+          "sampledMs": 1.166
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:9384 ul",
+          "sampledMs": 1.138
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:7392 Tc",
+          "sampledMs": 1.103
+        },
+        {
+          "location": "isElementHiddenForAria ",
+          "sampledMs": 1.096
+        },
+        {
+          "location": "callMatchedElements ",
+          "sampledMs": 1.091
+        },
+        {
+          "location": "UtilityScript ",
+          "sampledMs": 1.088
+        },
+        {
+          "location": "getTextAlternativeInternal ",
+          "sampledMs": 1.085
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:8571 Fc",
+          "sampledMs": 1.082
+        },
+        {
+          "location": "../src/export-startup.ts:18 l",
+          "sampledMs": 1.071
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11524 Iu",
+          "sampledMs": 1.069
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:3 m",
+          "sampledMs": 1.068
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:8725 Hc",
+          "sampledMs": 1.067
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:330 ",
+          "sampledMs": 1.065
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:7955 Mc",
+          "sampledMs": 1.065
+        },
+        {
+          "location": "elementSafeTagName ",
+          "sampledMs": 1.065
+        }
+      ],
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 31.5,
+            "duration": 67
+          }
+        ],
+        "frames": [
+          {
+            "start": 11.399999998509884,
+            "duration": 120.70000000298023
+          }
+        ]
+      }
+    },
+    {
+      "run": 1,
+      "readyMs": 185,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 52.29999999701977,
+            "duration": 64
+          }
+        ],
+        "frames": [
+          {
+            "start": 52.29999999701977,
+            "duration": 84.30000000447035
+          }
+        ]
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 373.5,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 53.899999998509884,
+            "duration": 109
+          }
+        ],
+        "frames": [
+          {
+            "start": 53.899999998509884,
+            "duration": 145.5
+          }
+        ]
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 190.79999999701977,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 54.29999999701977,
+            "duration": 80
+          }
+        ],
+        "frames": [
+          {
+            "start": 54.29999999701977,
+            "duration": 98.29999999701977
+          }
+        ]
+      }
+    },
+    {
+      "run": 4,
+      "readyMs": 185.89999999850988,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 56.20000000298023,
+            "duration": 75
+          }
+        ],
+        "frames": [
+          {
+            "start": 28.299999997019768,
+            "duration": 118.5
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark",
+  "physicalDevice": false
+}

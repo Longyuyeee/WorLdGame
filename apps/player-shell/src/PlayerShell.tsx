@@ -27,6 +27,7 @@ import {
   type GalSettingsPlatform
 } from "@world-studio/gal-settings";
 import { semanticHash, readWebPlayerAppearance, webPlayerCoverAssets, type CanonicalProject } from "@world-studio/project-domain";
+import { ForegroundSessionError,ForegroundSessionRunner } from "./foreground-session-client";
 import {
   createPlayerCore,
   canEnterPlayerCoreReplayV1,
@@ -36,7 +37,6 @@ import {
   configurePlayerCoreLocaleV1,
   configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
-  loadPlayerCoreSessionSaveV1,
   schedulePlayerCorePlaybackV1,
   type PlayerCoreIntentV1,
   type PlayerHistoryVisibleEventV1
@@ -288,7 +288,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [recoveryCandidate, setRecoveryCandidate] = useState<WorldPlayerRecoveryRecordV1 | null>(null);
   const [recoveryOperation, setRecoveryOperation] = useState<"scanning" | "idle" | "available" | "ready" | "loaded" | "error">("scanning");
   const [recoveryMessage, setRecoveryMessage] = useState("正在检查恢复记录…");
-  const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | null>(null);
+  const [recoveryErrorAction, setRecoveryErrorAction] = useState<"clear" | "retry" | "load" | null>(null);
   const [newStoryConfirmation, setNewStoryConfirmation] = useState(false);
   const [recoveryScanAttempt, setRecoveryScanAttempt] = useState(0);
   const recoveryGeneration = useRef(0);
@@ -358,6 +358,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
   recoveryContext.current = { projectId: project.manifest.projectId, store: recoveryStore };
   const executableProjectHash = useMemo(() => semanticHash({ ...project, settings: createGalSettingsDocument() }), [project]);
+  // The state initializer already built this exact project. Only replace it
+  // after a real executable change, including during effect replay in dev.
+  const initializedProjectHash = useRef(executableProjectHash);
+  const sessionRunner=useMemo(()=>new ForegroundSessionRunner(),[executableProjectHash,saveStore,recoveryStore,previewCapture]);
+  useEffect(()=>{sessionRunner.resume();setSaveOperation("idle");setSaveMessage("请选择槽位");setPendingRead(null);return()=>sessionRunner.cancelPending();},[sessionRunner]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const recoveryBuildCompatible = recoveryCandidate === null || recoveryCandidate.buildId === state.artifacts?.manifest.buildId || state.compatibleSaveBuildIds.includes(recoveryCandidate.buildId);
   const buildStopInstructionIds = state.artifacts?.playerPlaybackPolicy.stopInstructionIds ?? [];
@@ -627,10 +632,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
   const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
     if (capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
-    const created = createPlayerCoreSessionSaveV1(capturedState);
-    if (!created.ok) {
-      throw new Error(created.diagnostics[0]?.message ?? "WORLD_PLAYER_SAVE_NOT_READY");
-    }
+    if(capturedState.projectId!==project.manifest.projectId)throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
+    const {result:created}=await sessionRunner.run({kind:"save",source:{replaySession:capturedState.replaySession,artifacts:capturedState.artifacts,historySession:capturedState.historySession,runtimeState:capturedState.runtimeState}});
     const projectId = project.manifest.projectId;
       const sceneId = capturedState.runtimeState.cursor.sceneId;
       const sceneIndex = project.scenes.findIndex((scene) => scene.id === sceneId);
@@ -660,14 +663,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         checkpointStepId: null
       });
       return { slot, ...(captured.blob === undefined ? {} : { preview: captured.blob }) };
-  }, [captureSavePreview, now, project, snapshot, state]);
+  }, [captureSavePreview, now, project, snapshot, state,sessionRunner]);
 
   const persistCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
     if (saveStore === undefined) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
     const captured = await captureCurrentSlot(kind, slotId, capturedState, capturedSnapshot);
+    if(!sessionRunner.active||saveContext.current.projectId!==captured.slot.projectId||saveContext.current.store!==saveStore)throw new DOMException("Save scope changed","AbortError");
     await saveStore.write(captured.slot, captured.preview);
     return captured.slot.preview.status;
-  }, [captureCurrentSlot, saveStore, snapshot, state]);
+  }, [captureCurrentSlot, saveStore, snapshot, state,sessionRunner]);
 
   const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string) => {
     if (saveCoordinator === undefined) return;
@@ -677,19 +681,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const projectId = project.manifest.projectId;
     try {
       const previewStatus = await saveCoordinator.writeFixed(() => persistCurrentSlot(kind, slotId));
-      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
+      if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
       await refreshSaveSlots();
+      if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       setPendingOverwriteSlotId(null);
       setSaveOperation("saved");
       setSaveMessage(`${playerSaveLabel(slotId)}已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}`);
       setSaveFeedback(kind === 'quick' ? '快速存档已保存' : '手动存档已保存');
     } catch {
+      if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       setSaveOperation("error");
       setSaveMessage("写入失败，原存档保持不变");
       if (kind === 'quick') setSaveView('quick');
       openSavePanel();
     }
-  }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel]);
+  }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel,sessionRunner]);
 
   const requestSaveToSlot = useCallback((slotId: string, occupied: boolean) => {
     if (occupied && pendingOverwriteSlotId !== slotId) {
@@ -708,10 +714,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const projectId = project.manifest.projectId;
     try {
       const slot = await saveStore.read(projectId, slotId);
-      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       if (slot === null) throw new Error("WORLD_PLAYER_SAVE_MISSING");
       if (expectedArtifactHash !== undefined && slot.sessionArtifactHash !== expectedArtifactHash) throw new Error("WORLD_PLAYER_SAVE_CHANGED");
-      const loaded = loadPlayerCoreSessionSaveV1(state, slot.serializedSessionSave);
+      const {result:loaded}=await sessionRunner.run({kind:"load",state,serialized:slot.serializedSessionSave});
+      if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       if (!loaded.ok && loaded.diagnostics[0]?.code === "RUNTIME_SAVE_BUILD_MISMATCH") throw new Error("WORLD_PLAYER_SAVE_VERSION_UNVERIFIED");
       if (!loaded.ok || loaded.artifactHash !== slot.sessionArtifactHash) throw new Error("WORLD_PLAYER_SAVE_REJECTED");
       const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
@@ -737,7 +744,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSavePanelOpen(false);
       setSaveFeedback(loaded.compatibility === "verified-previous" ? '已读取核对过的旧版存档，可以继续故事' : '存档已读取，继续当前故事');
     } catch (error) {
-      if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       try { await refreshSaveSlots(); } catch { /* Keep the load error and the current story. */ }
       if (saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
       setSaveOperation("error");
@@ -745,11 +752,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         ? "这个存档来自尚未核对的游戏版本。当前进度和原存档保持不变，请使用原版继续或联系作品作者。"
         : error instanceof Error && error.message === "WORLD_PLAYER_SAVE_CHANGED"
           ? "这个槽位已经更新，请重新核对后读取，或把备份重新导入空槽位。当前进度保持不变。"
-          : "存档损坏或与当前构建不兼容");
+          : error instanceof ForegroundSessionError ? "后台存档校验未完成，请重试读取。当前进度和原存档保持不变。" : "存档损坏或与当前构建不兼容");
       if (slotId.startsWith("quick-")) setSaveView("quick");
       openSavePanel("load");
     }
-  }, [project.manifest.projectId, recoveryStore, saveStore, state, openSavePanel, stopSkip, refreshSaveSlots]);
+  }, [project.manifest.projectId, recoveryStore, saveStore, state, openSavePanel, stopSkip, refreshSaveSlots,sessionRunner]);
 
   const requestLoadFromSlot = useCallback((slotId: string, expectedArtifactHash?: string) => {
     const slot = saveSlots.find(candidate => candidate.slotId === slotId), expected = expectedArtifactHash ?? slot?.sessionArtifactHash;
@@ -763,8 +770,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     if (recoveryCandidate === null || recoveryStore === undefined) return;
     setRecoveryOperation("scanning");
     setRecoveryMessage("正在校验恢复记录…");
+    const generation=++recoveryGeneration.current;
     try {
-      const loaded = loadPlayerCoreSessionSaveV1(state, recoveryCandidate.serializedSessionSave);
+      const {result:loaded}=await sessionRunner.run({kind:"load",state,serialized:recoveryCandidate.serializedSessionSave});
+      if(!sessionRunner.active||generation!==recoveryGeneration.current)return;
       if (!loaded.ok || loaded.artifactHash !== recoveryCandidate.sessionArtifactHash) throw new Error("WORLD_PLAYER_RECOVERY_REJECTED");
       const loadedSnapshot = createPlayerCoreSnapshotV1(loaded.state);
       if (recoveryCandidate.projectId !== project.manifest.projectId || recoveryCandidate.buildId !== loaded.savedBuildId ||
@@ -780,12 +789,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setRecoveryOperation("loaded");
       setRecoveryMessage(loaded.compatibility === "verified-previous" ? "已恢复核对过的旧版进度" : "已恢复上次安全进度");
       setRecoveryErrorAction(null);
-    } catch {
+    } catch(error) {
+      if(!sessionRunner.active||generation!==recoveryGeneration.current)return;
       setRecoveryOperation("error");
-      setRecoveryMessage("恢复记录损坏或与当前构建不兼容，正式存档未受影响");
-      setRecoveryErrorAction("clear");
+      setRecoveryMessage(error instanceof ForegroundSessionError?"后台恢复校验未完成，可以重试；原恢复点和正式存档保持不变。":"恢复记录损坏或与当前构建不兼容，正式存档未受影响");
+      setRecoveryErrorAction(error instanceof ForegroundSessionError?"load":"clear");
     }
-  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state]);
+  }, [project.manifest.projectId, recoveryCandidate, recoveryStore, state,sessionRunner]);
 
   const clearRecovery = useCallback(async () => {
     if (recoveryCoordinator === undefined || recoveryStore === undefined) return false;
@@ -868,6 +878,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [artworkView, hostActivity, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.status, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, applyIntent]);
 
   useEffect(() => {
+    if (initializedProjectHash.current === executableProjectHash) return;
+    initializedProjectHash.current = executableProjectHash;
     autoSavedSceneIdentities.current.clear();
     consumedCheckpointCandidates.current.clear();
     lastRecoveryRuntimeStateHash.current = null;
@@ -955,11 +967,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const capturedState = state;
     const capturedSnapshot = snapshot;
     void saveCoordinator.writeAuto(project.manifest.projectId, sceneIdentity, async (slotId) => { await persistCurrentSlot("auto", slotId, capturedState, capturedSnapshot); }).then(async (result) => {
-      if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
       await refreshSaveSlots();
+      if(!sessionRunner.active)return;
       if (result.status === "written") setSaveMessage(`${result.slotId} 已自动保存`);
     }).catch(() => {
-      if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+      if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
       setSaveOperation("error");
       setSaveMessage("自动保存失败，原存档保持不变");
     });
@@ -2167,11 +2180,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             </div>
             {recoveryCandidate !== null && <button type="button" disabled={hostActivity !== "active" || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
             <button type="button" disabled={recoveryErrorAction === "retry" && recoveryWritePending.current?.coordinator === recoveryCoordinator} onClick={() => {
+              if(recoveryErrorAction === "load"){void restoreRecovery();return;}
               if (recoveryErrorAction === "retry") {
                 setRecoveryOperation("idle");
                 setRecoveryErrorAction(null);
               } else void clearRecovery();
-            }}>{recoveryErrorAction === "retry" ? "重试恢复保护" : "放弃并清除"}</button>
+            }}>{recoveryErrorAction === "load" ? "重试读取恢复记录" : recoveryErrorAction === "retry" ? "重试恢复保护" : "放弃并清除"}</button>
           </aside>
         )}
 
@@ -2231,7 +2245,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   }}>确认开始新故事</button>
                   <button type="button" disabled={recoveryOperation === "scanning"} onClick={() => setNewStoryConfirmation(false)}>保留原进度</button>
                 </> : <>
-                  {recoveryOperation === "error" && <button type="button" onClick={() => setRecoveryScanAttempt(attempt => attempt + 1)}>重新检查恢复记录</button>}
+                  {recoveryOperation === "error" && <button type="button" onClick={() => {if(recoveryErrorAction==='load')void restoreRecovery();else setRecoveryScanAttempt(attempt=>attempt+1);}}>{recoveryErrorAction==='load'?'重试读取恢复记录':'重新检查恢复记录'}</button>}
                   {recoveryCandidate !== null && <button className="player-primary" type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning" || !recoveryBuildCompatible} onClick={() => void restoreRecovery()}>恢复上次进度</button>}
                   {(recoveryCandidate !== null || recoveryOperation === "error") && <button type="button" disabled={hostActivity !== "active" || recoveryOperation === "scanning"} onClick={() => void clearRecovery()}>放弃并清除</button>}
                 </>}

@@ -43,7 +43,7 @@ it("keeps one physical recovery write during 150 story steps and persists only t
   const reopened = render(<PlayerShell project={test.project} recoveryStore={test.store} />);
   await waitFor(() => expect(reopened.getByRole("button", { name: "恢复上次进度" })).toBeDefined());
   fireEvent.click(reopened.getByRole("button", { name: "恢复上次进度" }));
-  expect(reopened.container.querySelector("main")!.dataset.runtimeStateHash).toBe(finalHash);
+  await waitFor(()=>expect(reopened.container.querySelector("main")!.dataset.runtimeStateHash).toBe(finalHash));
 });
 
 it("keeps timeout visible until physical settlement and explicit retry saves the current line", async () => {

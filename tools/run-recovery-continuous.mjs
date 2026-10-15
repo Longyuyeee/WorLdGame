@@ -9,6 +9,7 @@ import { readGamePayload, sha } from './audit-rain-story-refinement.mjs';
 import { pollBrowserState } from './poll-browser-state.mjs';
 const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_CONTINUOUS_OUTPUT_DIRECTORY ?? 'evidence/web-recovery-worker');
 const assertDirectPng = process.env.STUDIO_ASSERT_DIRECT_PNG === '1';
+const assertForeground = process.env.STUDIO_ASSERT_FOREGROUND_SESSION === '1';
 await mkdir(output, { recursive: true });
 const archive = await readFile(path.join(output, 'before-rain-stops-web.zip')), files = unzipSync(archive);
 const projectId = readGamePayload(strFromU8(files['index.html'])).project.manifest.projectId;
@@ -24,14 +25,14 @@ const browser = await chromium.launch({ headless: true }), context = await brows
 const page = await context.newPage(), liveWorkers = new Set(), errors = [], cycles = []; let peakLiveWorkers = 0;
 page.on('worker', worker => { liveWorkers.add(worker); peakLiveWorkers = Math.max(peakLiveWorkers, liveWorkers.size); worker.once('close', () => liveWorkers.delete(worker)); });
 page.on('pageerror', error => errors.push(String(error))); page.setDefaultTimeout(30000);
-await page.addInitScript(() => {
+await page.addInitScript(assertForeground => {
   const NativeWorker = window.Worker, revoke = URL.revokeObjectURL.bind(URL), liveUrls = new Set();
   const observed = window.recoveryUse = { created: 0, revoked: 0, liveUrls };
   window.Worker = class extends NativeWorker {
-    constructor(url, options) { super(url, options); if (options?.name === 'world-player-recovery') { observed.created++; liveUrls.add(String(url)); } }
+    constructor(url, options) { super(url, options); if (options?.name === 'world-player-recovery'||assertForeground&&options?.name==='world-player-session') { observed.created++; liveUrls.add(String(url)); } }
   };
   URL.revokeObjectURL = url => { if (liveUrls.delete(String(url))) observed.revoked++; return revoke(url); };
-});
+},assertForeground);
 const cdp = await context.newCDPSession(page); await cdp.send('Performance.enable');
 const started = Date.now();
 try {
@@ -74,6 +75,7 @@ try {
     assert.equal(liveWorkers.size, 0);
     const resources = await page.evaluate(() => ({
       recovery: JSON.parse(document.documentElement.dataset.recoverySerializer),
+      foreground: JSON.parse(document.documentElement.dataset.foregroundSerializer??'null'),
       atlas: JSON.parse(document.documentElement.dataset.nativeAtlasScheduler ?? 'null'),
       ownedWorkerUrls: { created: recoveryUse.created, revoked: recoveryUse.revoked, live: recoveryUse.liveUrls.size },
       localStorageCharacters: Object.entries(localStorage).reduce((sum, [key, value]) => sum + key.length + value.length, 0)
@@ -81,6 +83,7 @@ try {
     assert.equal(resources.recovery.peakActive, 1); assert.equal(resources.recovery.failed, 0); assert.equal(resources.recovery.fallback, 0);
     assert.ok(resources.ownedWorkerUrls.created > 0); assert.equal(resources.ownedWorkerUrls.created, resources.ownedWorkerUrls.revoked);
     assert.equal(resources.atlas.accountedBytes, 0); assert.equal(resources.atlas.ordinaryBitmapDecodes, 0);
+    if(assertForeground){assert.equal(resources.foreground.active,0);assert.equal(resources.foreground.fallback,0);assert.equal(resources.foreground.failed,0);assert.equal(resources.foreground.peakActive,1);}
     assert.equal(await page.locator('audio').count(), 0);
     cycles.push({ cycle, ending, texts: texts.size, naturallyEndedVoices: voices.size, imageDecodeModes:[...imageDecodeModes], nativeWorkersLive: liveWorkers.size, resources, performanceMetrics: (await cdp.send('Performance.getMetrics')).metrics });
     console.log(`PASS continuous cycle ${cycle + 1}/8: ${ending}, title resources released`);

@@ -28,6 +28,9 @@ evidence/web-recovery-worker/prior-runtime.json -text
 evidence/web-image-decode/before-rain-stops.html -text
 evidence/web-image-decode/*.worldsave -text
 evidence/web-image-decode/*.worldreview -text
+evidence/web-startup-and-long-story/before-rain-stops.html -text
+evidence/web-startup-and-long-story/*.worldsave -text
+evidence/web-startup-and-long-story/*.worldreview -text
 evidence/web-branch-authoring/branch-authoring.html -text
 
 evidence/web-playtest-revision/review-notes.worldreview -text
