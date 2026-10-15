@@ -70,6 +70,7 @@ import {
   type WorldPlayerPlaybackPolicyV1
 } from "./player-playback-policy";
 import "./player-shell.css";
+import "./player-reading-controls.css";
 
 export interface PlayerShellProps {
   readonly project: CanonicalProject;
@@ -230,6 +231,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const compactReading = useCompactReadingLayout();
   const reducedReadingMotion = useReadingMediaQuery('(prefers-reduced-motion: reduce)');
   const [readingMenuOpen, setReadingMenuOpen] = useState(false);
+  const [artworkView, setArtworkView] = useState(false);
   const readingMenu = useRef<HTMLDivElement | null>(null), readingMenuTrigger = useRef<HTMLButtonElement | null>(null);
   const deferredMenuCompletion = useRef<{ stateHash: string | null; hostHash: string } | null>(null);
   const initialPace = () => {
@@ -393,16 +395,16 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     return id === undefined || displayName === undefined ? [] : [[id, displayName] as const];
   })), [project.characters.characters]);
   const presentedText = content.kind === "dialogue" || content.kind === "narration" ? content.text : "";
+  const canViewArtwork = content.kind === "dialogue" || content.kind === "narration" || snapshot.status === "waiting-effect" && stage.video !== null;
   const textRevealDuration = useMemo(
     () => presentedText === "" || reducedReadingMotion ? 0 : galTextRevealDurationMillisecondsV1(settingsApplication, presentedText),
     [presentedText, settingsApplication, reducedReadingMotion]
   );
   const reading = useReadingSurface(`${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`);
   const readingRef = useCallback((element: HTMLButtonElement | null) => { reading.element.current = element; return releaseAnimationsOnDetach(element); }, [reading.element]);
-  useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(false); }, [project.manifest.projectId]);
-  useEffect(() => { if (!compactReading) setReadingMenuOpen(false); }, [compactReading]);
+  useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(false); setArtworkView(false); }, [project.manifest.projectId]);
   const closeReadingMenu = useCallback(() => { setReadingMenuOpen(false); queueMicrotask(() => readingMenuTrigger.current?.focus()); }, []);
-  const closePreferences = useCallback(() => { setPreferencesOpen(false); queueMicrotask(() => (content.kind === 'title' ? titlePreferencesTrigger.current : compactReading ? readingMenuTrigger.current : preferencesTrigger.current)?.focus()); }, [compactReading, content.kind]);
+  const closePreferences = useCallback(() => { setPreferencesOpen(false); queueMicrotask(() => (content.kind === 'title' ? titlePreferencesTrigger.current : readingMenuTrigger.current)?.focus()); }, [content.kind]);
   const openSavePanel = useCallback(() => {
     saveDialogTrigger.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
     setReadingMenuOpen(false); setHistoryPanelOpen(false); setPendingOverwriteSlotId(null); setSavePanelOpen(true);
@@ -412,9 +414,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     queueMicrotask(() => {
       const trigger = saveDialogTrigger.current;
       if (trigger?.isConnected) trigger.focus();
-      if (!trigger || document.activeElement !== trigger) (content.kind === 'title' ? titleSaveTrigger.current : compactReading ? readingMenuTrigger.current : saveToggle.current)?.focus();
+      if (!trigger || document.activeElement !== trigger) (content.kind === 'title' ? titleSaveTrigger.current : readingMenuTrigger.current)?.focus();
     });
-  }, [content.kind, compactReading]);
+  }, [content.kind]);
   useEffect(() => {
     if (!savePanelOpen || !saveDialog.current) return;
     const dialog = saveDialog.current;
@@ -472,6 +474,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setSkipMode(null);
   }, []);
   const startSkip = useCallback((mode: "skipRead" | "skipAll") => {
+    setReadingMenuOpen(false);
     skipAwaitingDispatch.current = true;
     skipModeCurrent.current = mode;
     setVideoPolicyStopReason("none");
@@ -479,6 +482,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setAutoPlayback("off");
     setSkipMode(mode);
   }, []);
+
+  const restoreReading = useCallback(() => { setArtworkView(false); queueMicrotask(() => (reading.element.current ?? readingMenuTrigger.current)?.focus()); }, [reading.element]);
+  const showArtwork = useCallback(() => { stopSkip(); setAutoEnabled(false); setAutoPlayback("off"); setReadingMenuOpen(false); setArtworkView(true); }, [stopSkip]);
 
   const restorePlaybackControls = useCallback((playback: NonNullable<typeof replayPlaybackReturn.current>) => {
     setAutoEnabled(playback.autoEnabled);
@@ -531,7 +537,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       restorePlaybackControls(playback);
     }
     setMediaErrors([]);
-    setTimeout(() => (titleAdditionalContentTrigger.current ?? additionalContentTrigger.current)?.focus(), 0);
+    setTimeout(() => (titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus(), 0);
   }, [project, restorePlaybackControls, state.replaySession]);
 
   const refreshSaveSlots = useCallback(async () => {
@@ -744,11 +750,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
-    if (source === 'system' && intent.kind === 'primary' && (preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
+    if (source === 'system' && intent.kind === 'primary' && (artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
       deferredMenuCompletion.current = { stateHash: snapshot.runtimeStateHash, hostHash: snapshot.runtimeHostSnapshotHash };
       return;
     }
-    if (preferencesOpen) return;
+    if (artworkView || preferencesOpen) return;
     if ((savePanelOpen || historyPanelOpen || additionalContentOpen) && (intent.kind === 'primary' || intent.kind === 'select-choice')) return;
     if (readingMenuOpen) {
       if (intent.kind === 'back' || intent.kind === 'forward') setReadingMenuOpen(false);
@@ -787,14 +793,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setLastInputAccepted(true);
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
+  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
   useEffect(() => {
-    if (hostActivity !== 'active' || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
+    if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
     deferredMenuCompletion.current = null;
     // A load or history navigation must not complete a different pending effect.
     if (snapshot.status === 'waiting-effect' && completion.stateHash === snapshot.runtimeStateHash && completion.hostHash === snapshot.runtimeHostSnapshotHash) applyIntent({ kind: 'primary' }, 'system');
-  }, [hostActivity, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.status, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, applyIntent]);
+  }, [artworkView, hostActivity, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.status, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, applyIntent]);
 
   useEffect(() => {
     autoSavedSceneIdentities.current.clear();
@@ -803,7 +809,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     replayPlaybackReturn.current = null;
     additionalContentPlaybackReturn.current = null;
     setState(createLocalizedPlayerCore(project, settingsApplication.history));
-    setReadingMenuOpen(false); deferredMenuCompletion.current = null;
+    setReadingMenuOpen(false); setArtworkView(false); deferredMenuCompletion.current = null;
     setPreferencesOpen(false);
     setMediaErrors([]);
     setMediaGeneration(0);
@@ -1053,7 +1059,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("stopped");
       return;
     }
-    if (hostActivity !== "active" || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
+    if (hostActivity !== "active" || artworkView || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
       setAutoPlayback("suspended");
       return;
     }
@@ -1098,7 +1104,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setAutoPlayback("advancing");
       setState((current) => schedulePlayerCorePlaybackV1(current, policy));
     });
-  }, [autoEnabled, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
+  }, [artworkView, autoEnabled, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy, content, hostActivity, snapshot.playback.stopReason, snapshot.status, stage.video, stage.audio, textReady, mediaGeneration, localizedMedia.voice?.assetId, readingMenuOpen, reading.unread, readingPace]);
 
   useEffect(() => {
     if (!autoEnabled) return;
@@ -1112,7 +1118,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (!skipActive || skipMode === null) return;
     // Do not cancel an awaited video or dispatch a batch while the player is away.
-    if (hostActivity !== "active" || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
+    if (hostActivity !== "active" || artworkView || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen) {
       stopSkip();
       return;
     }
@@ -1155,7 +1161,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }));
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen]);
+  }, [artworkView, preferencesOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, stageImagesPending, buildStopInstructionIds, canonicalPlaybackPolicy.skip, hostActivity, project, skipActivation, skipActive, skipMode, skipSpeed, snapshot.history?.cursor, snapshot.playback.accumulatedInstructions, snapshot.playback.executedInstructions, snapshot.playback.mode, snapshot.playback.stopReason, snapshot.status, stage.video, stopSkip, readingMenuOpen]);
 
   useEffect(() => {
     if (!skipActive) return;
@@ -1202,7 +1208,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     if (additionalContentWasOpen.current) {
       additionalContentWasOpen.current = false;
-      (titleAdditionalContentTrigger.current ?? additionalContentTrigger.current)?.focus();
+      (titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus();
     }
     setAdditionalContentView("overview");
     setSelectedGalleryAssetId(null);
@@ -1243,6 +1249,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (artworkView) {
+        if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && ['h', 'H', 'Escape', 'Enter', ' '].includes(event.key)) { event.preventDefault(); restoreReading(); }
+        return;
+      }
       if (preferencesOpen) {
         if (event.key === 'Escape') { event.preventDefault(); closePreferences(); }
         if (event.key === 'Tab') {
@@ -1292,6 +1302,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         if (event.key === "Escape") { event.preventDefault(); setHistoryPanelOpen(false); closeSavePanel(); }
         return;
       }
+      if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'h' && canViewArtwork && !(event.target instanceof HTMLElement && event.target.closest('input,select,textarea,[contenteditable]'))) { event.preventDefault(); showArtwork(); return; }
       if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,button:not(.player-dialogue)')) return;
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
@@ -1322,11 +1333,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [preferencesOpen, closePreferences, historyPanelOpen, savePanelOpen, closeSavePanel, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active, readingMenuOpen, closeReadingMenu]);
+  }, [artworkView, canViewArtwork, restoreReading, showArtwork, preferencesOpen, closePreferences, historyPanelOpen, savePanelOpen, closeSavePanel, additionalContentOpen, additionalContentView, applyIntent, closeAdditionalContent, content, exitSceneReplay, hostActivity, selectedChoiceIndex, selectedGalleryAssetId, settingsApplication.advance.allowHold, snapshot.sceneReplay.active, readingMenuOpen, closeReadingMenu]);
 
   const gamepadAction = useRef<(action: PlayerGamepadActionV1) => void>(() => {});
   // Keep the polling session's edge history while dispatching against the latest story.
   gamepadAction.current = (action) => {
+    if (artworkView) { if (action === 'cancel' || action === 'primary') restoreReading(); return; }
     if (preferencesOpen) { if (action === 'cancel') closePreferences(); return; }
     if (readingMenuOpen) { if (action === 'cancel') closeReadingMenu(); return; }
     if (action === "previous-choice" || action === "next-choice") {
@@ -1415,6 +1427,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     <main ref={fullscreen.element}
       className="player-shell"
       data-player-status={snapshot.status}
+      data-artwork-view={artworkView}
       data-reading-menu-open={readingMenuOpen}
       data-compact-reading={compactReading}
       data-reading-unread-below={reading.unread}
@@ -1727,15 +1740,17 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <button ref={replayExitButton} type="button" onClick={exitSceneReplay}>退出回想，返回原剧情</button>
           </aside>
         )}
-        {compactReading && content.kind !== 'title' && <div className="player-compact-toolbar">
+        {content.kind !== 'title' && <div className="player-compact-toolbar" inert={artworkView}>
+          {canViewArtwork && <button type="button" className="player-artwork-trigger" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> 欣赏画面</button>}
           {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { if (readingMenuOpen) closeReadingMenu(); else { stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && content.kind !== 'title' && <p className="player-portrait-hint">横屏更适合观看演出</p>}
-        <div id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} role={compactReading && readingMenuOpen ? 'dialog' : undefined} aria-modal={compactReading && readingMenuOpen ? true : undefined} aria-label={compactReading && readingMenuOpen ? '阅读菜单' : undefined}>
-        {compactReading && readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
+        <div id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
+        {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
-          <button ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { stopSkip(); setReadingMenuOpen(false); setPreferencesOpen(true); }}>设置</button>
+          <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
+          <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { stopSkip(); setReadingMenuOpen(false); setPreferencesOpen(true); }}>设置</button>
           <button
             type="button"
             aria-label="后退一步"
@@ -1761,7 +1776,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <button
             ref={additionalContentTrigger}
             type="button"
-            className="player-history-controls__additional"
+            className="player-history-controls__additional player-menu-only"
             aria-label={additionalContentOpen ? "关闭附加内容" : "打开附加内容"}
             aria-expanded={additionalContentOpen}
             disabled={snapshot.sceneReplay.active || hostActivity !== "active" || snapshot.status === "waiting-effect" || snapshot.status === "waiting-barrier"}
@@ -1959,17 +1974,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           </output>
         )}
         <div hidden={content.kind === 'title'} className="player-playback-controls" aria-label="播放控制">
-          <label>自动阅读节奏<select aria-label="自动阅读节奏" value={readingPace} onChange={event => {
+          <h3 className="player-menu-only player-menu-section-title">自动阅读与快进</h3>
+          <label className="player-menu-only">自动阅读节奏<select aria-label="自动阅读节奏" value={readingPace} onChange={event => {
             const pace = event.target.value as PlayerReadingPace; setReadingPace(pace);
             try { storePlayerReadingPace(globalThis.localStorage, project.manifest.projectId, pace); } catch { /* Denied storage does not block reading. */ }
           }}><option value="standard">标准</option><option value="calm">从容</option><option value="brisk">快速</option><option value="policy">原速</option></select></label>
           {content.kind !== 'title' && snapshot.localization.availableLocales.length > 1 && <>
-            <label className="player-locale-control">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
+            <label className="player-locale-control player-menu-only">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
               const locale = event.target.value;
               setState((current) => configurePlayerCoreLocaleV1(current, locale));
               storePlayerLocalePreference(project.manifest.projectId, locale);
             }}>{snapshot.localization.availableLocales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>
-            <span role="status" aria-label="语言状态">{snapshot.localization.selectedLocale === snapshot.localization.sourceLocale
+            <span className="player-menu-only" role="status" aria-label="语言状态">{snapshot.localization.selectedLocale === snapshot.localization.sourceLocale
               ? `${snapshot.localization.sourceLocale} · 工程源语言`
               : snapshot.localization.missingTranslationCount > 0
                 ? `${snapshot.localization.selectedLocale} · ${snapshot.localization.missingTranslationCount} 项缺失译文继续显示 ${snapshot.localization.sourceLocale} 原文`
@@ -1999,6 +2015,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           >已读</button>
           <button
             type="button"
+            className="player-menu-only"
             aria-label="快进全部"
             aria-pressed={skipMode === "skipAll"}
             disabled={snapshot.status !== "presenting"}
@@ -2006,13 +2023,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             onKeyDown={(event) => { if (skipActivation === "hold" && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); event.stopPropagation(); startSkip("skipAll"); } }}
             onClick={() => { if (skipActivation === "toggle") { if (skipMode === "skipAll") stopSkip(); else startSkip("skipAll"); } }}
           >全部</button>
-          <label>方式<select aria-label="快进激活方式" value={skipActivation} onChange={(event) => { stopSkip(); setSkipActivation(event.target.value as WorldPlayerSkipActivationV1); }}><option value="toggle">切换</option><option value="hold">按住</option></select></label>
-          <label>速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
+          <label className="player-menu-only">方式<select aria-label="快进激活方式" value={skipActivation} onChange={(event) => { stopSkip(); setSkipActivation(event.target.value as WorldPlayerSkipActivationV1); }}><option value="toggle">切换</option><option value="hold">按住</option></select></label>
+          <label className="player-menu-only">速度<select aria-label="快进速度" value={String(skipSpeed)} onChange={(event) => { stopSkip(); setSkipSpeed(event.target.value === "instant" ? "instant" : Number(event.target.value) as 5 | 10 | 20 | 40); }}><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option><option value="instant">瞬时</option></select></label>
           <span aria-live="polite">{(autoEnabled || skipActive) && stageImagesPending ? "等待画面资源，准备好后继续" : autoEnabled ? readingMenuOpen ? "返回故事后继续自动阅读" : autoPlayback === 'waiting-reading' ? "请向下读完本段，再自动继续" : autoPlayback === "suspended" ? "自动播放已暂停" : autoPlayback === "waiting-voice" ? "等待语音结束，可关闭自动播放切回手动" : "自动播放中" : autoPlayback === "stopped" ? "自动播放已停止" : "自动播放关闭"}</span>
         </div>
         {saveStore !== undefined && !snapshot.sceneReplay.active && (
           <aside className="player-save" data-open={savePanelOpen}>
-            <div hidden={content.kind === 'title'} className="player-save__quick-controls" aria-label="快速存读档">
+            <h3 hidden={content.kind === 'title'} className="player-menu-only player-menu-section-title">进度与备份</h3>
+            <div hidden={content.kind === 'title'} className="player-save__quick-controls player-menu-only" aria-label="快速存读档">
               <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || !saveBoundaryAllowed} onClick={() => void saveToSlot("quick", "quick-1")}>快速保存</button>
               <button type="button" disabled={hostActivity !== "active" || saveOperation === "busy" || quickSlot === undefined} onClick={() => void loadFromSlot("quick-1")}>快速读取</button>
             </div>
@@ -2162,8 +2180,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           </div>
         )}
 
+        {artworkView && <button type="button" className="player-artwork-return" aria-label="恢复阅读" autoFocus onClick={restoreReading}><span>恢复阅读 <kbd>H / Esc</kbd></span></button>}
         {(content.kind === "dialogue" || content.kind === "narration") && (
           <button
+            inert={artworkView || readingMenuOpen}
             className={`player-dialogue player-dialogue--${stage.textboxTemplate}`}
             ref={readingRef}
             type="button"

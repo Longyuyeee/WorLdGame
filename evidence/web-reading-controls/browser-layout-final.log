@@ -1,0 +1,3 @@
+"actual production UI exports HTML and directory with the new reading controls; source remains Rain 1.5.4"
+"desktop-stay: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize, high contrast and return from additional content; advanced controls visible only in menu"
+"mobile-go: compact stage controls; artwork/restore preserves paragraph; desktop/mobile menu focus, resize, high contrast and return from additional content; advanced controls visible only in menu"
