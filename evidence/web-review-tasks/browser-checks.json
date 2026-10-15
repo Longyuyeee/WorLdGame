@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "browser": "155.0.8059.41",
+  "checks": [
+    "two issues recorded through actual preview; publishing reminder opens filtered checklist with return-to-generation; exact original text opens with its issue task, dirty edits block transitions; fix-and-retest starts actual revised content and manual confirmation stays separate",
+    "next issue opens directly at its source; save/reload/home card resumes the unfinished task with no live proof or automatic runtime; fresh local replay is required before confirmation; dark 390px task fits and actual preview is brought into view",
+    "continue-editing clears prior replay eligibility; another source edit makes the earlier verification stale, and next-outstanding includes that record; fresh replay/explicit confirmation clears it; returning preserves search/type and highlights the handled issue",
+    "return-to-generation keeps directory and attached author choices; real production download contains two explicitly verified notes and no falsely completed ending progress; task/list personal navigation stays out of the delivered player"
+  ],
+  "errors": [],
+  "artifacts": {
+    "delivery": {
+      "bytes": 663677,
+      "sha256": "59e319938b12f6c9c1ae0d77f8bcba4802e41e8f07014a6e8a9d4aaeb5f871aa",
+      "verifiedNotes": 2
+    }
+  },
+  "scope": "Actual short fixture, editor recording/editing/local Runtime replay/confirmation and production directory export. UI confirmation is exercised by automation, not human reading/hearing acceptance. No injected notes or completion receipts; no long Rain route, physical phone, full repository audit or public deployment."
+}

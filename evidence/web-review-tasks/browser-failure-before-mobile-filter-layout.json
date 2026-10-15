@@ -1,0 +1,6 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(select.y + select.height - button.y - button.height) < 2)\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(select.y + select.height - button.y - button.height) < 2)\n\n    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-review-tasks.mjs:33:181"
+}

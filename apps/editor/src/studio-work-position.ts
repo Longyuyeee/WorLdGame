@@ -2,6 +2,7 @@ import type { StudioPage } from './studio-navigation';
 import { reduceStudioSession, type StudioSession } from './studio-session';
 import { WORKSPACE_MODES, type WorkspaceModeId } from './workspace-modes';
 import type { StudioMode } from './studio-session';
+import { readReviewList, readReviewTask, type ReviewListView, type ReviewTask } from './playtest-review-task';
 
 export interface PublicationWorkflow {
   readonly step: number;
@@ -24,6 +25,8 @@ export interface StudioWorkPosition {
   readonly previewOpen: boolean;
   readonly publication: PublicationWorkflow;
   readonly releaseReturnFormat: 'html' | 'directory' | null;
+  readonly reviewTask?: ReviewTask | null;
+  readonly reviewList?: ReviewListView;
 }
 const pages = ['story', 'assets', 'appearance', 'checks', 'publish'];
 const format = (value: unknown) => value === 'html' || value === 'directory';
@@ -34,7 +37,7 @@ export function readStudioWorkPosition(raw: string | null, referenceId: string, 
   if (raw.length > 8192) throw Error('工作位置记录过大。');
   const value = JSON.parse(raw) as StudioWorkPosition, p = value?.publication;
   if (!value || value.schemaVersion !== 1 || value.referenceId !== referenceId || value.projectId !== projectId || !pages.includes(value.page) || !WORKSPACE_MODES.some(mode => mode.id === value.workspaceMode && mode.available) || !['sequence', 'script', 'flow'].includes(value.editorView) || typeof value.sceneId !== 'string' || value.sceneId.length > 128 || typeof value.statementId !== 'string' || value.statementId.length > 128 || !['assets', 'localization', 'collections'].includes(value.productionSection) || typeof value.previewOpen !== 'boolean' || value.releaseReturnFormat !== null && !format(value.releaseReturnFormat) || !p || !Number.isInteger(p.step) || p.step < 0 || p.step > 3 || !format(p.format) || typeof p.includeProductionBundle !== 'boolean' || typeof p.includeReviewNotes !== 'boolean' || typeof p.includePlaytestProgress !== 'boolean') throw Error('工作位置版本或工程不匹配。');
-  return { schemaVersion: 1, referenceId, projectId, page: value.page, workspaceMode: value.workspaceMode, editorView: value.editorView, sceneId: value.sceneId, statementId: value.statementId, productionSection: value.productionSection, previewOpen: value.previewOpen, publication: { step: p.step, format: p.format, includeProductionBundle: p.includeProductionBundle, includeReviewNotes: p.includeReviewNotes, includePlaytestProgress: p.includePlaytestProgress }, releaseReturnFormat: value.releaseReturnFormat };
+  return { schemaVersion: 1, referenceId, projectId, page: value.page, workspaceMode: value.workspaceMode, editorView: value.editorView, sceneId: value.sceneId, statementId: value.statementId, productionSection: value.productionSection, previewOpen: value.previewOpen, publication: { step: p.step, format: p.format, includeProductionBundle: p.includeProductionBundle, includeReviewNotes: p.includeReviewNotes, includePlaytestProgress: p.includePlaytestProgress }, releaseReturnFormat: value.releaseReturnFormat, ...(value.reviewTask === undefined ? {} : { reviewTask: readReviewTask(value.reviewTask) }), ...(value.reviewList === undefined ? {} : { reviewList: readReviewList(value.reviewList) }) };
 }
 export const resumePublicationWorkflow = (value: PublicationWorkflow): PublicationWorkflow => ({ ...value, step: Math.min(value.step, 2) });
 export function loadStudioWorkPosition(referenceId: string | undefined, projectId: string) {
@@ -55,6 +58,7 @@ export function studioWorkDescription(referenceId: string, projectId: string): s
   const value = loadStudioWorkPosition(referenceId, projectId).value; if (!value) return;
   if (value.page === 'publish') return `继续发布 · ${['作品信息', '导出方式', '生成游戏'][Math.min(value.publication.step, 2)]} · ${value.publication.format === 'html' ? '单文件 HTML' : '目录 ZIP'}`;
   if (value.page === 'assets') return `继续${({ assets: '整理素材', localization: '翻译与配音', collections: '制作附加内容' })[value.productionSection]}`;
+  if (value.page === 'story' && value.reviewTask) return '继续校订';
   if (value.page === 'story') return value.workspaceMode === 'director' ? '继续编排演出' : value.workspaceMode === 'flow' ? '继续整理路线' : '继续写作';
   return ({ appearance: '继续设置游戏外观', checks: '继续检查与校订' })[value.page];
 }
