@@ -64,4 +64,4 @@ Shell 的 state initializer 已用工程创建 Core，但项目重置 effect 在
 2. 有真实 Safari/macOS/iOS 和物理主流手机后补后台/锁屏/键盘、低内存和严格离线媒体；缺环境继续未验。
 3. 所有者补真实许可（含系统合成语音再分发）、署名/联系方式和获准 HTTPS，再进行真实站点发布/更新/回退。自然阅读全文、11 条人工复核/听感/美术/计时、最终 Stable/M1 仍开放；原生搁置。
 
-复跑：`npm run audit:web-session-responsiveness`；`npm run audit:web-session-responsiveness:profile` 串行测量前后两组（不要与构建/回归/其他浏览器任务并跑）；`npm run audit:web-session-responsiveness:browser` 实际作者导出、三引擎矩阵、八轮和审计。Editor 生产预览默认 5195，可设 `STUDIO_UI_URL`。复用已有包只重跑矩阵：`node tools/run-web-session-candidate.mjs --reuse-artifacts`；连续使用 `--continuous`。最终 `node tools/audit-web-session-responsiveness.mjs`，源码变化后必须重新验证对应报告身份。
+复跑：`npm run audit:web-session-responsiveness`；`npm run audit:web-session-responsiveness:profile` 串行测量前后两组（不要与构建/回归/其他浏览器任务并跑）；`npm run audit:web-session-responsiveness:browser` 实际作者导出、三引擎矩阵、八轮、重新测量实际包启动并审计。重导出后必须以新 ZIP 摘要刷新 `startup-candidate.json`，不能沿用旧包报告；该命令已串行安排此步骤。Editor 生产预览默认 5195，可设 `STUDIO_UI_URL`。复用已有包只重跑矩阵：`node tools/run-web-session-candidate.mjs --reuse-artifacts`；连续使用 `--continuous`。最终 `node tools/audit-web-session-responsiveness.mjs`，源码变化后必须重新验证对应报告身份。
