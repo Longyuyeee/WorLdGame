@@ -1,0 +1,4972 @@
+{
+  "passed": true,
+  "label": "current",
+  "samples": 3,
+  "browser": "151.0.7922.34",
+  "candidateArchiveSha256": "79ed789e6cd1d8464d694d726bf822babc26535e182f52472c446baba35f9eed",
+  "originalRuntimeHash": "6ed20682624104a756571a5fc3186d9ce7da8ffa7fb886ad12fcd47f1362a58e",
+  "diagnosticRuntimeHash": "ffb0065d7fbd4c8b88fce0ab4e61417e13b0100f1cbee41fc12a430d28ad1513",
+  "telemetryInstrumented": true,
+  "tasks": [
+    {
+      "name": "0-open",
+      "wallMs": 174.300048828125,
+      "longTasks": [
+        {
+          "start": 28,
+          "duration": 75,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 11,
+          "duration": 117.10000000149012,
+          "blockingDuration": 26.4,
+          "scripts": [
+            {
+              "sourceURL": "",
+              "invoker": "TimerHandler:setTimeout",
+              "duration": 75.60000000149012,
+              "function": "",
+              "position": -1
+            },
+            {
+              "sourceURL": "http://127.0.0.1:14712/offline.js",
+              "invoker": "http://127.0.0.1:14712/offline.js",
+              "duration": 21.5,
+              "function": "",
+              "position": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "0-start",
+      "wallMs": 137.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-0",
+      "wallMs": 58,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-1",
+      "wallMs": 60.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-2",
+      "wallMs": 56.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-3",
+      "wallMs": 61.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-4",
+      "wallMs": 72.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-5",
+      "wallMs": 63.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-6",
+      "wallMs": 65.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-7",
+      "wallMs": 59.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-8",
+      "wallMs": 59.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-9",
+      "wallMs": 67.7998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-10",
+      "wallMs": 66.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-11",
+      "wallMs": 62.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-12",
+      "wallMs": 55,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-13",
+      "wallMs": 62,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-14",
+      "wallMs": 55.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-15",
+      "wallMs": 78,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-16",
+      "wallMs": 57.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-17",
+      "wallMs": 61.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-save-10",
+      "wallMs": 131.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-load-10",
+      "wallMs": 150,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-18",
+      "wallMs": 80.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-19",
+      "wallMs": 58.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-20",
+      "wallMs": 61.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-21",
+      "wallMs": 60.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-22",
+      "wallMs": 61.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-23",
+      "wallMs": 60.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-24",
+      "wallMs": 77.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-25",
+      "wallMs": 57.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-26",
+      "wallMs": 63.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-27",
+      "wallMs": 57.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-28",
+      "wallMs": 61.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-29",
+      "wallMs": 58.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-30",
+      "wallMs": 62.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-31",
+      "wallMs": 54,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-32",
+      "wallMs": 77.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-33",
+      "wallMs": 58.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-34",
+      "wallMs": 61.7998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-35",
+      "wallMs": 59.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-36",
+      "wallMs": 78.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-37",
+      "wallMs": 79.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-38",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-39",
+      "wallMs": 63.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-40",
+      "wallMs": 58.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-41",
+      "wallMs": 104.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-42",
+      "wallMs": 64.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-43",
+      "wallMs": 76.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-44",
+      "wallMs": 60.7998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-45",
+      "wallMs": 60.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-46",
+      "wallMs": 58.2001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-47",
+      "wallMs": 80.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-48",
+      "wallMs": 57,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-49",
+      "wallMs": 77,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-50",
+      "wallMs": 60.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-51",
+      "wallMs": 76.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-52",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-53",
+      "wallMs": 77.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-54",
+      "wallMs": 63.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-55",
+      "wallMs": 75,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-save-30",
+      "wallMs": 128.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-load-30",
+      "wallMs": 148.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-56",
+      "wallMs": 64.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-57",
+      "wallMs": 79.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-58",
+      "wallMs": 60,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-59",
+      "wallMs": 77.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-60",
+      "wallMs": 57.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-61",
+      "wallMs": 80.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-62",
+      "wallMs": 98.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-choice",
+      "wallMs": 116.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-64",
+      "wallMs": 59.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-65",
+      "wallMs": 75,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-66",
+      "wallMs": 60.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-67",
+      "wallMs": 77.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-68",
+      "wallMs": 79.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-69",
+      "wallMs": 58.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-70",
+      "wallMs": 112.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-71",
+      "wallMs": 57.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-72",
+      "wallMs": 75.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-73",
+      "wallMs": 60.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-74",
+      "wallMs": 75.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-75",
+      "wallMs": 60.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-76",
+      "wallMs": 78.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-77",
+      "wallMs": 61,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-78",
+      "wallMs": 75.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-79",
+      "wallMs": 59.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-80",
+      "wallMs": 79.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-81",
+      "wallMs": 62,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-82",
+      "wallMs": 75,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-83",
+      "wallMs": 60.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-84",
+      "wallMs": 113.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-85",
+      "wallMs": 58.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-86",
+      "wallMs": 75.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-87",
+      "wallMs": 63,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-88",
+      "wallMs": 76,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-89",
+      "wallMs": 61.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-90",
+      "wallMs": 77.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-91",
+      "wallMs": 61.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-92",
+      "wallMs": 100.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-93",
+      "wallMs": 66.2001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-94",
+      "wallMs": 95.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-save-50",
+      "wallMs": 114.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-load-50",
+      "wallMs": 149.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-95",
+      "wallMs": 101.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-96",
+      "wallMs": 58.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-97",
+      "wallMs": 76.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-98",
+      "wallMs": 59.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-99",
+      "wallMs": 78,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-100",
+      "wallMs": 58.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-101",
+      "wallMs": 76.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-102",
+      "wallMs": 59.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-103",
+      "wallMs": 114.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-104",
+      "wallMs": 57,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-105",
+      "wallMs": 146.89990234375,
+      "longTasks": [
+        {
+          "start": 32988.5,
+          "duration": 50,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 32986.60000000149,
+          "duration": 53,
+          "blockingDuration": 1,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 50.30000000074506,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "0-next-106",
+      "wallMs": 58.7001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-107",
+      "wallMs": 97.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-108",
+      "wallMs": 56.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-109",
+      "wallMs": 95.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-110",
+      "wallMs": 57.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-111",
+      "wallMs": 95.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-112",
+      "wallMs": 60.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-113",
+      "wallMs": 93.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-114",
+      "wallMs": 98.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-115",
+      "wallMs": 57.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-116",
+      "wallMs": 93.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-117",
+      "wallMs": 61.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-118",
+      "wallMs": 129.800048828125,
+      "longTasks": [
+        {
+          "start": 39304.800000000745,
+          "duration": 54,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 39302.800000000745,
+          "duration": 57.19999999925494,
+          "blockingDuration": 5,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 54.100000001490116,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "0-next-119",
+      "wallMs": 60.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-120",
+      "wallMs": 94.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-121",
+      "wallMs": 57.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-122",
+      "wallMs": 93.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-123",
+      "wallMs": 61.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-124",
+      "wallMs": 108.5,
+      "longTasks": [
+        {
+          "start": 39855.10000000149,
+          "duration": 54,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 39852.400000002235,
+          "duration": 57.29999999701977,
+          "blockingDuration": 4.4,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 53.599999997764826,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "0-next-125",
+      "wallMs": 55.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "0-next-126",
+      "wallMs": 126.5,
+      "longTasks": [
+        {
+          "start": 40039.800000000745,
+          "duration": 70,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 40036.199999999255,
+          "duration": 74.70000000298023,
+          "blockingDuration": 21.1,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 66.40000000223517,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-open",
+      "wallMs": 184.5,
+      "longTasks": [
+        {
+          "start": 48.19999999925494,
+          "duration": 82,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 48.19999999925494,
+          "duration": 99.10000000149012,
+          "blockingDuration": 33.4,
+          "scripts": [
+            {
+              "sourceURL": "",
+              "invoker": "TimerHandler:setTimeout",
+              "duration": 82.80000000074506,
+              "function": "",
+              "position": -1
+            },
+            {
+              "sourceURL": "http://127.0.0.1:14712/offline.js",
+              "invoker": "http://127.0.0.1:14712/offline.js",
+              "duration": 14.5,
+              "function": "",
+              "position": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-start",
+      "wallMs": 154,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-0",
+      "wallMs": 57.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-1",
+      "wallMs": 62.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-2",
+      "wallMs": 59.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-3",
+      "wallMs": 78,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-4",
+      "wallMs": 67.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-5",
+      "wallMs": 56.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-6",
+      "wallMs": 58.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-7",
+      "wallMs": 63.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-8",
+      "wallMs": 55.7001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-9",
+      "wallMs": 67.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-10",
+      "wallMs": 70.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-11",
+      "wallMs": 60.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-12",
+      "wallMs": 56.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-13",
+      "wallMs": 65.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-14",
+      "wallMs": 55.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-15",
+      "wallMs": 88.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-16",
+      "wallMs": 56.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-17",
+      "wallMs": 59.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-save-10",
+      "wallMs": 130.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-load-10",
+      "wallMs": 148.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-18",
+      "wallMs": 67.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-19",
+      "wallMs": 60,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-20",
+      "wallMs": 72.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-21",
+      "wallMs": 63.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-22",
+      "wallMs": 62.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-23",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-24",
+      "wallMs": 60.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-25",
+      "wallMs": 55.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-26",
+      "wallMs": 61.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-27",
+      "wallMs": 59.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-28",
+      "wallMs": 62.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-29",
+      "wallMs": 58.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-30",
+      "wallMs": 63,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-31",
+      "wallMs": 58.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-32",
+      "wallMs": 68.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-33",
+      "wallMs": 68.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-34",
+      "wallMs": 63.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-35",
+      "wallMs": 58.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-36",
+      "wallMs": 75.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-37",
+      "wallMs": 82.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-38",
+      "wallMs": 60.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-39",
+      "wallMs": 73.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-40",
+      "wallMs": 59.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-41",
+      "wallMs": 104.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-42",
+      "wallMs": 62.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-43",
+      "wallMs": 60.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-44",
+      "wallMs": 59.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-45",
+      "wallMs": 77.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-46",
+      "wallMs": 59.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-47",
+      "wallMs": 81.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-48",
+      "wallMs": 60.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-49",
+      "wallMs": 61.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-50",
+      "wallMs": 57.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-51",
+      "wallMs": 62.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-52",
+      "wallMs": 58.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-53",
+      "wallMs": 79.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-54",
+      "wallMs": 57.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-55",
+      "wallMs": 75.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-save-30",
+      "wallMs": 128.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-load-30",
+      "wallMs": 131.2001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-56",
+      "wallMs": 64.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-57",
+      "wallMs": 79.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-58",
+      "wallMs": 57.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-59",
+      "wallMs": 62.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-60",
+      "wallMs": 60.2001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-61",
+      "wallMs": 77.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-62",
+      "wallMs": 80.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-choice",
+      "wallMs": 114,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-64",
+      "wallMs": 57.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-65",
+      "wallMs": 74.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-66",
+      "wallMs": 62.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-67",
+      "wallMs": 79.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-68",
+      "wallMs": 82,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-69",
+      "wallMs": 59,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-70",
+      "wallMs": 111.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-71",
+      "wallMs": 59.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-72",
+      "wallMs": 71.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-73",
+      "wallMs": 63.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-74",
+      "wallMs": 75.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-75",
+      "wallMs": 60.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-76",
+      "wallMs": 77.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-77",
+      "wallMs": 62.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-78",
+      "wallMs": 76.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-79",
+      "wallMs": 58,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-80",
+      "wallMs": 77.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-81",
+      "wallMs": 60.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-82",
+      "wallMs": 92.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-83",
+      "wallMs": 60.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-84",
+      "wallMs": 126.599853515625,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 26114.599999997765,
+          "duration": 53.30000000074506,
+          "blockingDuration": 0,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 45.100000001490116,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-next-85",
+      "wallMs": 53.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-86",
+      "wallMs": 93,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-87",
+      "wallMs": 58.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-88",
+      "wallMs": 79,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-89",
+      "wallMs": 56.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-90",
+      "wallMs": 77,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-91",
+      "wallMs": 61,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-92",
+      "wallMs": 102,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-93",
+      "wallMs": 57.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-94",
+      "wallMs": 95.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-save-50",
+      "wallMs": 115.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-load-50",
+      "wallMs": 163.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-95",
+      "wallMs": 121,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-96",
+      "wallMs": 70.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-97",
+      "wallMs": 94.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-98",
+      "wallMs": 54.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-99",
+      "wallMs": 92.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-100",
+      "wallMs": 60.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-101",
+      "wallMs": 92,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-102",
+      "wallMs": 59.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-103",
+      "wallMs": 116.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-104",
+      "wallMs": 59.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-105",
+      "wallMs": 164.89990234375,
+      "longTasks": [
+        {
+          "start": 32967.199999999255,
+          "duration": 65,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 32964.89999999851,
+          "duration": 68.10000000149012,
+          "blockingDuration": 15.6,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 64.5,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-next-106",
+      "wallMs": 55.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-107",
+      "wallMs": 112.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-108",
+      "wallMs": 56.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-109",
+      "wallMs": 111.800048828125,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 33381.39999999851,
+          "duration": 51.400000002235174,
+          "blockingDuration": 0,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 48.19999999925494,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-next-110",
+      "wallMs": 55.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-111",
+      "wallMs": 90.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-112",
+      "wallMs": 60.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-113",
+      "wallMs": 115.89990234375,
+      "longTasks": [
+        {
+          "start": 33734.300000000745,
+          "duration": 53,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 33731.800000000745,
+          "duration": 56.29999999701977,
+          "blockingDuration": 3.9,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 53.099999997764826,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-next-114",
+      "wallMs": 98.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-115",
+      "wallMs": 58.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-116",
+      "wallMs": 94.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-117",
+      "wallMs": 60.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-118",
+      "wallMs": 130.800048828125,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 39348.300000000745,
+          "duration": 52,
+          "blockingDuration": 0,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 49,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-next-119",
+      "wallMs": 60.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-120",
+      "wallMs": 91.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-121",
+      "wallMs": 58.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-122",
+      "wallMs": 95.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-123",
+      "wallMs": 60.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-124",
+      "wallMs": 126.800048828125,
+      "longTasks": [
+        {
+          "start": 39900.39999999851,
+          "duration": 59,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 39898.300000000745,
+          "duration": 62.599999997764826,
+          "blockingDuration": 10.3,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 59.399999998509884,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1-next-125",
+      "wallMs": 57.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "1-next-126",
+      "wallMs": 144.599853515625,
+      "longTasks": [
+        {
+          "start": 40100.699999999255,
+          "duration": 83,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 40098,
+          "duration": 86.59999999776483,
+          "blockingDuration": 33.8,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 77.59999999776483,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-open",
+      "wallMs": 183.099853515625,
+      "longTasks": [
+        {
+          "start": 49.600000001490116,
+          "duration": 81,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 25,
+          "duration": 122.30000000074506,
+          "blockingDuration": 47.6,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "http://127.0.0.1:14712/player.js",
+              "duration": 24.400000002235174,
+              "function": "",
+              "position": 0
+            },
+            {
+              "sourceURL": "",
+              "invoker": "TimerHandler:setTimeout",
+              "duration": 81.69999999925494,
+              "function": "",
+              "position": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-start",
+      "wallMs": 169.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-0",
+      "wallMs": 67.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-1",
+      "wallMs": 66.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-2",
+      "wallMs": 57.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-3",
+      "wallMs": 60.7998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-4",
+      "wallMs": 56.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-5",
+      "wallMs": 62.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-6",
+      "wallMs": 57.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-7",
+      "wallMs": 61.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-8",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-9",
+      "wallMs": 68.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-10",
+      "wallMs": 63.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-11",
+      "wallMs": 63.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-12",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-13",
+      "wallMs": 61.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-14",
+      "wallMs": 60.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-15",
+      "wallMs": 62.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-16",
+      "wallMs": 60.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-17",
+      "wallMs": 60.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-save-10",
+      "wallMs": 132.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-load-10",
+      "wallMs": 134.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-18",
+      "wallMs": 64.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-19",
+      "wallMs": 58.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-20",
+      "wallMs": 73.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-21",
+      "wallMs": 59,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-22",
+      "wallMs": 64,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-23",
+      "wallMs": 57.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-24",
+      "wallMs": 63.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-25",
+      "wallMs": 57.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-26",
+      "wallMs": 61.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-27",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-28",
+      "wallMs": 64.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-29",
+      "wallMs": 57.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-30",
+      "wallMs": 58.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-31",
+      "wallMs": 59.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-32",
+      "wallMs": 82.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-33",
+      "wallMs": 56.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-34",
+      "wallMs": 60.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-35",
+      "wallMs": 58.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-36",
+      "wallMs": 78.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-37",
+      "wallMs": 66.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-38",
+      "wallMs": 56.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-39",
+      "wallMs": 62.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-40",
+      "wallMs": 59.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-41",
+      "wallMs": 129.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-42",
+      "wallMs": 66.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-43",
+      "wallMs": 61.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-44",
+      "wallMs": 58.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-45",
+      "wallMs": 77.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-46",
+      "wallMs": 60.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-47",
+      "wallMs": 85.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-48",
+      "wallMs": 72.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-49",
+      "wallMs": 74,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-50",
+      "wallMs": 56.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-51",
+      "wallMs": 60.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-52",
+      "wallMs": 56.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-53",
+      "wallMs": 78.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-54",
+      "wallMs": 59.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-55",
+      "wallMs": 78,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-save-30",
+      "wallMs": 129.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-load-30",
+      "wallMs": 130.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-56",
+      "wallMs": 63.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-57",
+      "wallMs": 77.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-58",
+      "wallMs": 62.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-59",
+      "wallMs": 97.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-60",
+      "wallMs": 68.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-61",
+      "wallMs": 114.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-62",
+      "wallMs": 80.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-choice",
+      "wallMs": 115,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-64",
+      "wallMs": 58.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-65",
+      "wallMs": 79.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-66",
+      "wallMs": 57.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-67",
+      "wallMs": 78.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-68",
+      "wallMs": 84.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-69",
+      "wallMs": 58.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-70",
+      "wallMs": 98.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-71",
+      "wallMs": 54.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-72",
+      "wallMs": 77.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-73",
+      "wallMs": 61.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-74",
+      "wallMs": 77.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-75",
+      "wallMs": 59.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-76",
+      "wallMs": 77,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-77",
+      "wallMs": 58.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-78",
+      "wallMs": 79.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-79",
+      "wallMs": 58.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-80",
+      "wallMs": 78.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-81",
+      "wallMs": 58.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-82",
+      "wallMs": 91.900146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-83",
+      "wallMs": 60.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-84",
+      "wallMs": 151.10009765625,
+      "longTasks": [
+        {
+          "start": 26248.900000002235,
+          "duration": 50,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 26246.699999999255,
+          "duration": 53.70000000298023,
+          "blockingDuration": 1.3,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 50.399999998509884,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-85",
+      "wallMs": 64.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-86",
+      "wallMs": 109.2998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-87",
+      "wallMs": 67.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-88",
+      "wallMs": 102.699951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-89",
+      "wallMs": 57.099853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-90",
+      "wallMs": 94.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-91",
+      "wallMs": 59.10009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-92",
+      "wallMs": 110,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-93",
+      "wallMs": 69.39990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-94",
+      "wallMs": 96.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-save-50",
+      "wallMs": 147.7001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-load-50",
+      "wallMs": 277.5,
+      "longTasks": [
+        {
+          "start": 32298.900000002235,
+          "duration": 59,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 32298.900000002235,
+          "duration": 59.326,
+          "blockingDuration": 9.4,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "IDBTransaction.oncomplete",
+              "duration": 59.29999999701977,
+              "function": "",
+              "position": 428453
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-95",
+      "wallMs": 288.300048828125,
+      "longTasks": [
+        {
+          "start": 32651.800000000745,
+          "duration": 81,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 32651.5,
+          "duration": 81.69999999925494,
+          "blockingDuration": 31.2,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 80.10000000149012,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-96",
+      "wallMs": 88.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-97",
+      "wallMs": 166.400146484375,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 33081.199999999255,
+          "duration": 51.20000000298023,
+          "blockingDuration": 0,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 42.5,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-98",
+      "wallMs": 102.89990234375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-99",
+      "wallMs": 158,
+      "longTasks": [
+        {
+          "start": 33441.199999999255,
+          "duration": 52,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 33431.699999999255,
+          "duration": 62.70000000298023,
+          "blockingDuration": 3,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 51.900000002235174,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-100",
+      "wallMs": 94.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-101",
+      "wallMs": 162.900146484375,
+      "longTasks": [
+        {
+          "start": 33757.900000002235,
+          "duration": 56,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 33757.900000002235,
+          "duration": 59.79999999701977,
+          "blockingDuration": 9.7,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 55.80000000074506,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-102",
+      "wallMs": 128.7001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-103",
+      "wallMs": 165.5,
+      "longTasks": [
+        {
+          "start": 34084.400000002235,
+          "duration": 69,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 34079.699999999255,
+          "duration": 76.60000000149012,
+          "blockingDuration": 21.8,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 68.79999999701977,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-104",
+      "wallMs": 81.7998046875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-105",
+      "wallMs": 272.89990234375,
+      "longTasks": [
+        {
+          "start": 34420.699999999255,
+          "duration": 111,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 34413.10000000149,
+          "duration": 120.19999999925494,
+          "blockingDuration": 62.4,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 111.30000000074506,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        },
+        {
+          "start": 34535.900000002235,
+          "duration": 56,
+          "blockingDuration": 0,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "IDBTransaction.oncomplete",
+              "duration": 38.899999998509884,
+              "function": "",
+              "position": 428453
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-106",
+      "wallMs": 68.199951171875,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-107",
+      "wallMs": 145.300048828125,
+      "longTasks": [
+        {
+          "start": 34800.900000002235,
+          "duration": 72,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 34798.699999999255,
+          "duration": 75.30000000074506,
+          "blockingDuration": 22.7,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 71.40000000223517,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-108",
+      "wallMs": 65.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-109",
+      "wallMs": 155.89990234375,
+      "longTasks": [
+        {
+          "start": 35069.400000002235,
+          "duration": 69,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 35062.699999999255,
+          "duration": 77,
+          "blockingDuration": 20.1,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 68.69999999925494,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-110",
+      "wallMs": 59.400146484375,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-111",
+      "wallMs": 122.2998046875,
+      "longTasks": [
+        {
+          "start": 35320.699999999255,
+          "duration": 53,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 35314.199999999255,
+          "duration": 60.600000001490116,
+          "blockingDuration": 4.1,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 52.899999998509884,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-112",
+      "wallMs": 66.599853515625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-113",
+      "wallMs": 159.39990234375,
+      "longTasks": [
+        {
+          "start": 35532.900000002235,
+          "duration": 73,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 35530.199999999255,
+          "duration": 76.80000000074506,
+          "blockingDuration": 24,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 72.90000000223517,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-114",
+      "wallMs": 163.60009765625,
+      "longTasks": [
+        {
+          "start": 40819,
+          "duration": 73,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 40813,
+          "duration": 79.80000000074506,
+          "blockingDuration": 23.8,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 72.79999999701977,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-115",
+      "wallMs": 59.5,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-116",
+      "wallMs": 136.699951171875,
+      "longTasks": [
+        {
+          "start": 41081.60000000149,
+          "duration": 57,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 41079.60000000149,
+          "duration": 59.899999998509884,
+          "blockingDuration": 7.8,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 56.599999997764826,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-117",
+      "wallMs": 70.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-118",
+      "wallMs": 191.199951171875,
+      "longTasks": [
+        {
+          "start": 41318.800000000745,
+          "duration": 81,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 41313.199999999255,
+          "duration": 87.80000000074506,
+          "blockingDuration": 32.1,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 81,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-119",
+      "wallMs": 70.60009765625,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-120",
+      "wallMs": 103.599853515625,
+      "longTasks": [
+        {
+          "start": 41601.699999999255,
+          "duration": 56,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 41597.900000002235,
+          "duration": 60.69999999925494,
+          "blockingDuration": 6.9,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 55.600000001490116,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-121",
+      "wallMs": 58.800048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-122",
+      "wallMs": 139.5,
+      "longTasks": [
+        {
+          "start": 41799.400000002235,
+          "duration": 65,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 41797.199999999255,
+          "duration": 69.70000000298023,
+          "blockingDuration": 17.4,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 64.70000000298023,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-123",
+      "wallMs": 67.300048828125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-124",
+      "wallMs": 175.2001953125,
+      "longTasks": [
+        {
+          "start": 42032.199999999255,
+          "duration": 89,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 42030,
+          "duration": 92.10000000149012,
+          "blockingDuration": 39.8,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 88.69999999925494,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2-next-125",
+      "wallMs": 72.7001953125,
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "2-next-126",
+      "wallMs": 200.89990234375,
+      "longTasks": [
+        {
+          "start": 42321.5,
+          "duration": 123,
+          "blockingDuration": null,
+          "scripts": []
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 42312.60000000149,
+          "duration": 133.19999999925494,
+          "blockingDuration": 74.1,
+          "scripts": [
+            {
+              "sourceURL": "http://127.0.0.1:14712/player.js",
+              "invoker": "DIV#player-root.onclick",
+              "duration": 116,
+              "function": "cp",
+              "position": 181263
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "self": [
+        {
+          "location": "(idle) ",
+          "sampledMs": 36367.172000000006
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 1242.8579999999995
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:74 Nn",
+          "sampledMs": 276.84899999999993
+        },
+        {
+          "location": "packages/runtime/src/sha256.ts:10 zn",
+          "sampledMs": 271.94499999999977
+        },
+        {
+          "location": "createImageBitmap ",
+          "sampledMs": 229.01200000000006
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:16 kn",
+          "sampledMs": 200.70899999999992
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:41 jn",
+          "sampledMs": 134.22100000000006
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:32 An",
+          "sampledMs": 108.63199999999998
+        },
+        {
+          "location": "(garbage collector) ",
+          "sampledMs": 88.85899999999998
+        },
+        {
+          "location": "removeEventListener ",
+          "sampledMs": 73.574
+        },
+        {
+          "location": "(anonymous) ",
+          "sampledMs": 65.72799999999998
+        },
+        {
+          "location": "../src/PlayerShell.tsx:1426 n",
+          "sampledMs": 60.93800000000002
+        },
+        {
+          "location": "../src/player-reading.ts:13 y",
+          "sampledMs": 54.74999999999999
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:60 ",
+          "sampledMs": 53.699999999999996
+        },
+        {
+          "location": "../src/owned-animations.ts:5 f",
+          "sampledMs": 42.07200000000001
+        },
+        {
+          "location": "packages/project-domain/src/sha256.ts:4 st",
+          "sampledMs": 39.032000000000025
+        },
+        {
+          "location": "../src/use-reading-surface.ts:21 ",
+          "sampledMs": 31.423
+        },
+        {
+          "location": "../src/player-storage-packing.ts:48 Nl",
+          "sampledMs": 28.771999999999995
+        },
+        {
+          "location": "packages/runtime/src/sha256.ts:8 Rn",
+          "sampledMs": 28.733999999999998
+        },
+        {
+          "location": "../src/native-atlas.ts:123 nl",
+          "sampledMs": 27.938999999999997
+        },
+        {
+          "location": "../src/PlayerShell.tsx:206 xd",
+          "sampledMs": 26.776
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 vo",
+          "sampledMs": 23.963
+        },
+        {
+          "location": "../src/player-recovery-store.ts:53 sd",
+          "sampledMs": 23.249000000000002
+        },
+        {
+          "location": "elementsFromPoint ",
+          "sampledMs": 21.794999999999998
+        },
+        {
+          "location": "layout http://127.0.0.1:14712/offline.js",
+          "sampledMs": 21.16
+        }
+      ],
+      "inclusive": [
+        {
+          "location": "(root) ",
+          "sampledMs": 40133.2739999999
+        },
+        {
+          "location": "(idle) ",
+          "sampledMs": 36367.172000000006
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:10681 mu",
+          "sampledMs": 1578.7679999999978
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:12084 cd",
+          "sampledMs": 1538.2719999999983
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11918 rd",
+          "sampledMs": 1538.2719999999983
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:12089 ",
+          "sampledMs": 1468.7399999999989
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11966 ad",
+          "sampledMs": 1467.699999999999
+        },
+        {
+          "location": "(program) ",
+          "sampledMs": 1242.8579999999995
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11457 Fu",
+          "sampledMs": 889.0319999999988
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:10848 hu",
+          "sampledMs": 889.0319999999988
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:110 Fn",
+          "sampledMs": 791.4969999999997
+        },
+        {
+          "location": "packages/runtime/src/history.ts:269 wi",
+          "sampledMs": 782.5349999999996
+        },
+        {
+          "location": "packages/runtime/src/history.ts:167 bi",
+          "sampledMs": 781.5039999999997
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:8571 Ic",
+          "sampledMs": 743.2689999999992
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11741 Vu",
+          "sampledMs": 739.0509999999992
+        },
+        {
+          "location": "packages/runtime/src/hash.ts:14 Jn",
+          "sampledMs": 702.124
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11120 Eu",
+          "sampledMs": 691.8239999999996
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11670 Ru",
+          "sampledMs": 690.8549999999994
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11735 Bu",
+          "sampledMs": 689.8039999999995
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11181 Du",
+          "sampledMs": 689.6729999999997
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11304 Au",
+          "sampledMs": 688.6359999999997
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:7392 Ec",
+          "sampledMs": 673.2509999999996
+        },
+        {
+          "location": "packages/runtime/src/canonical.ts:106 Pn",
+          "sampledMs": 665.8800000000002
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:6489 lc",
+          "sampledMs": 662.511
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:10109 Sl",
+          "sampledMs": 661.6669999999998
+        }
+      ],
+      "wallMs": 40133.435,
+      "scope": "sampled CPU; inclusive overlap, not additive operation times"
+    }
+  ],
+  "results": [
+    {
+      "run": 0,
+      "paragraphs": 66,
+      "saves": 3,
+      "before": [
+        {
+          "name": "Timestamp",
+          "value": 25599.953333
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 4
+        },
+        {
+          "name": "Frames",
+          "value": 4
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 396
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 86
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 576
+        },
+        {
+          "name": "Resources",
+          "value": 11
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 16
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 4
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 4
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 2
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 355
+        },
+        {
+          "name": "LayoutCount",
+          "value": 8
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 15
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.03255
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.004498
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.011161
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 0.030774
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000426
+        },
+        {
+          "name": "TaskDuration",
+          "value": 0.219273
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 0.139864
+        },
+        {
+          "name": "ThreadTime",
+          "value": 0.237659
+        },
+        {
+          "name": "ProcessTime",
+          "value": 0.375124
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 9850996
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 16089088
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 25599.774244
+        },
+        {
+          "name": "NavigationStart",
+          "value": 25599.639199
+        }
+      ],
+      "after": [
+        {
+          "name": "Timestamp",
+          "value": 25639.778838
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 442
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 71
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 888
+        },
+        {
+          "name": "Resources",
+          "value": 4
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 16
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 1
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 2652
+        },
+        {
+          "name": "LayoutCount",
+          "value": 278
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 1151
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.130338
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.078941
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.394417
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 1.686784
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000426
+        },
+        {
+          "name": "TaskDuration",
+          "value": 4.102067
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 1.811161
+        },
+        {
+          "name": "ThreadTime",
+          "value": 4.172467
+        },
+        {
+          "name": "ProcessTime",
+          "value": 6.200887
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 32723268
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 72548352
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 25599.783244
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 25599.774244
+        },
+        {
+          "name": "NavigationStart",
+          "value": 25599.639199
+        }
+      ],
+      "telemetry": {
+        "longTasks": [
+          {
+            "start": 28,
+            "duration": 75,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 32988.5,
+            "duration": 50,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 39304.800000000745,
+            "duration": 54,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 39855.10000000149,
+            "duration": 54,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 40039.800000000745,
+            "duration": 70,
+            "blockingDuration": null,
+            "scripts": []
+          }
+        ],
+        "frames": [
+          {
+            "start": 11,
+            "duration": 117.10000000149012,
+            "blockingDuration": 26.4,
+            "scripts": [
+              {
+                "sourceURL": "",
+                "invoker": "TimerHandler:setTimeout",
+                "duration": 75.60000000149012,
+                "function": "",
+                "position": -1
+              },
+              {
+                "sourceURL": "http://127.0.0.1:14712/offline.js",
+                "invoker": "http://127.0.0.1:14712/offline.js",
+                "duration": 21.5,
+                "function": "",
+                "position": 0
+              }
+            ]
+          },
+          {
+            "start": 32986.60000000149,
+            "duration": 53,
+            "blockingDuration": 1,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 50.30000000074506,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 39302.800000000745,
+            "duration": 57.19999999925494,
+            "blockingDuration": 5,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 54.100000001490116,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 39852.400000002235,
+            "duration": 57.29999999701977,
+            "blockingDuration": 4.4,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 53.599999997764826,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 40036.199999999255,
+            "duration": 74.70000000298023,
+            "blockingDuration": 21.1,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 66.40000000223517,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "run": 1,
+      "paragraphs": 66,
+      "saves": 3,
+      "before": [
+        {
+          "name": "Timestamp",
+          "value": 25640.267951
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 281
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 47
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 509
+        },
+        {
+          "name": "Resources",
+          "value": 3
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 13
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 1
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 2
+        },
+        {
+          "name": "LayoutCount",
+          "value": 10
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 18
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.038114
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.004688
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.010379
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 0.051344
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000044
+        },
+        {
+          "name": "TaskDuration",
+          "value": 0.272791
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 0.168222
+        },
+        {
+          "name": "ThreadTime",
+          "value": 0.290831
+        },
+        {
+          "name": "ProcessTime",
+          "value": 0.456084
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 4918712
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 14745600
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 25640.077176
+        },
+        {
+          "name": "NavigationStart",
+          "value": 25639.925798
+        }
+      ],
+      "after": [
+        {
+          "name": "Timestamp",
+          "value": 25680.145944
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 239
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 54
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 467
+        },
+        {
+          "name": "Resources",
+          "value": 2
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 10
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 1
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 2
+        },
+        {
+          "name": "LayoutCount",
+          "value": 279
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 1150
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.140442
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.084965
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.410622
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 1.858365
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000044
+        },
+        {
+          "name": "TaskDuration",
+          "value": 4.42982
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 1.935382
+        },
+        {
+          "name": "ThreadTime",
+          "value": 4.314258
+        },
+        {
+          "name": "ProcessTime",
+          "value": 5.824085
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 7702760
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 72364032
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 25640.089785
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 25640.077176
+        },
+        {
+          "name": "NavigationStart",
+          "value": 25639.925798
+        }
+      ],
+      "telemetry": {
+        "longTasks": [
+          {
+            "start": 48.19999999925494,
+            "duration": 82,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 32967.199999999255,
+            "duration": 65,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 33734.300000000745,
+            "duration": 53,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 39900.39999999851,
+            "duration": 59,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 40100.699999999255,
+            "duration": 83,
+            "blockingDuration": null,
+            "scripts": []
+          }
+        ],
+        "frames": [
+          {
+            "start": 48.19999999925494,
+            "duration": 99.10000000149012,
+            "blockingDuration": 33.4,
+            "scripts": [
+              {
+                "sourceURL": "",
+                "invoker": "TimerHandler:setTimeout",
+                "duration": 82.80000000074506,
+                "function": "",
+                "position": -1
+              },
+              {
+                "sourceURL": "http://127.0.0.1:14712/offline.js",
+                "invoker": "http://127.0.0.1:14712/offline.js",
+                "duration": 14.5,
+                "function": "",
+                "position": 0
+              }
+            ]
+          },
+          {
+            "start": 26114.599999997765,
+            "duration": 53.30000000074506,
+            "blockingDuration": 0,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 45.100000001490116,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 32964.89999999851,
+            "duration": 68.10000000149012,
+            "blockingDuration": 15.6,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 64.5,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 33381.39999999851,
+            "duration": 51.400000002235174,
+            "blockingDuration": 0,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 48.19999999925494,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 33731.800000000745,
+            "duration": 56.29999999701977,
+            "blockingDuration": 3.9,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 53.099999997764826,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 39348.300000000745,
+            "duration": 52,
+            "blockingDuration": 0,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 49,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 39898.300000000745,
+            "duration": 62.599999997764826,
+            "blockingDuration": 10.3,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 59.399999998509884,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 40098,
+            "duration": 86.59999999776483,
+            "blockingDuration": 33.8,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 77.59999999776483,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "run": 2,
+      "paragraphs": 66,
+      "saves": 3,
+      "before": [
+        {
+          "name": "Timestamp",
+          "value": 25680.5855
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 311
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 47
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 510
+        },
+        {
+          "name": "Resources",
+          "value": 4
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 13
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 1
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 2
+        },
+        {
+          "name": "LayoutCount",
+          "value": 10
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 20
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.039559
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.005067
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.012083
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 0.058452
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000061
+        },
+        {
+          "name": "TaskDuration",
+          "value": 0.286537
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 0.171315
+        },
+        {
+          "name": "ThreadTime",
+          "value": 0.307753
+        },
+        {
+          "name": "ProcessTime",
+          "value": 0.478263
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 5136680
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 14483456
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 0
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 25680.380837
+        },
+        {
+          "name": "NavigationStart",
+          "value": 25680.226274
+        }
+      ],
+      "after": [
+        {
+          "name": "Timestamp",
+          "value": 25722.710701
+        },
+        {
+          "name": "AudioHandlers",
+          "value": 0
+        },
+        {
+          "name": "AudioWorkletProcessors",
+          "value": 0
+        },
+        {
+          "name": "Documents",
+          "value": 1
+        },
+        {
+          "name": "Frames",
+          "value": 1
+        },
+        {
+          "name": "JSEventListeners",
+          "value": 353
+        },
+        {
+          "name": "LayoutObjects",
+          "value": 68
+        },
+        {
+          "name": "MediaKeySessions",
+          "value": 0
+        },
+        {
+          "name": "MediaKeys",
+          "value": 0
+        },
+        {
+          "name": "Nodes",
+          "value": 742
+        },
+        {
+          "name": "Resources",
+          "value": 3
+        },
+        {
+          "name": "ContextLifecycleStateObservers",
+          "value": 14
+        },
+        {
+          "name": "V8PerContextDatas",
+          "value": 2
+        },
+        {
+          "name": "WorkerGlobalScopes",
+          "value": 0
+        },
+        {
+          "name": "UACSSResources",
+          "value": 0
+        },
+        {
+          "name": "RTCPeerConnections",
+          "value": 0
+        },
+        {
+          "name": "ResourceFetchers",
+          "value": 1
+        },
+        {
+          "name": "AdSubframes",
+          "value": 0
+        },
+        {
+          "name": "DetachedScriptStates",
+          "value": 0
+        },
+        {
+          "name": "ArrayBufferContents",
+          "value": 12
+        },
+        {
+          "name": "LayoutCount",
+          "value": 278
+        },
+        {
+          "name": "RecalcStyleCount",
+          "value": 1197
+        },
+        {
+          "name": "LayoutDuration",
+          "value": 0.143017
+        },
+        {
+          "name": "RecalcStyleDuration",
+          "value": 0.095315
+        },
+        {
+          "name": "DevToolsCommandDuration",
+          "value": 0.504912
+        },
+        {
+          "name": "ScriptDuration",
+          "value": 2.429703
+        },
+        {
+          "name": "V8CompileDuration",
+          "value": 0.000061
+        },
+        {
+          "name": "TaskDuration",
+          "value": 5.484522
+        },
+        {
+          "name": "TaskOtherDuration",
+          "value": 2.311514
+        },
+        {
+          "name": "ThreadTime",
+          "value": 5.130457
+        },
+        {
+          "name": "ProcessTime",
+          "value": 6.798365
+        },
+        {
+          "name": "JSHeapUsedSize",
+          "value": 9506468
+        },
+        {
+          "name": "JSHeapTotalSize",
+          "value": 77881344
+        },
+        {
+          "name": "FirstMeaningfulPaint",
+          "value": 25680.378678
+        },
+        {
+          "name": "DomContentLoaded",
+          "value": 25680.380837
+        },
+        {
+          "name": "NavigationStart",
+          "value": 25680.226274
+        }
+      ],
+      "telemetry": {
+        "longTasks": [
+          {
+            "start": 49.600000001490116,
+            "duration": 81,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 26248.900000002235,
+            "duration": 50,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 32298.900000002235,
+            "duration": 59,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 32651.800000000745,
+            "duration": 81,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 33441.199999999255,
+            "duration": 52,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 33757.900000002235,
+            "duration": 56,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 34084.400000002235,
+            "duration": 69,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 34420.699999999255,
+            "duration": 111,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 34800.900000002235,
+            "duration": 72,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 35069.400000002235,
+            "duration": 69,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 35320.699999999255,
+            "duration": 53,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 35532.900000002235,
+            "duration": 73,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 40819,
+            "duration": 73,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 41081.60000000149,
+            "duration": 57,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 41318.800000000745,
+            "duration": 81,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 41601.699999999255,
+            "duration": 56,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 41799.400000002235,
+            "duration": 65,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 42032.199999999255,
+            "duration": 89,
+            "blockingDuration": null,
+            "scripts": []
+          },
+          {
+            "start": 42321.5,
+            "duration": 123,
+            "blockingDuration": null,
+            "scripts": []
+          }
+        ],
+        "frames": [
+          {
+            "start": 25,
+            "duration": 122.30000000074506,
+            "blockingDuration": 47.6,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "http://127.0.0.1:14712/player.js",
+                "duration": 24.400000002235174,
+                "function": "",
+                "position": 0
+              },
+              {
+                "sourceURL": "",
+                "invoker": "TimerHandler:setTimeout",
+                "duration": 81.69999999925494,
+                "function": "",
+                "position": -1
+              }
+            ]
+          },
+          {
+            "start": 26246.699999999255,
+            "duration": 53.70000000298023,
+            "blockingDuration": 1.3,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 50.399999998509884,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 32298.900000002235,
+            "duration": 59.326,
+            "blockingDuration": 9.4,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "IDBTransaction.oncomplete",
+                "duration": 59.29999999701977,
+                "function": "",
+                "position": 428453
+              }
+            ]
+          },
+          {
+            "start": 32651.5,
+            "duration": 81.69999999925494,
+            "blockingDuration": 31.2,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 80.10000000149012,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 33081.199999999255,
+            "duration": 51.20000000298023,
+            "blockingDuration": 0,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 42.5,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 33431.699999999255,
+            "duration": 62.70000000298023,
+            "blockingDuration": 3,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 51.900000002235174,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 33757.900000002235,
+            "duration": 59.79999999701977,
+            "blockingDuration": 9.7,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 55.80000000074506,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 34079.699999999255,
+            "duration": 76.60000000149012,
+            "blockingDuration": 21.8,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 68.79999999701977,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 34413.10000000149,
+            "duration": 120.19999999925494,
+            "blockingDuration": 62.4,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 111.30000000074506,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 34535.900000002235,
+            "duration": 56,
+            "blockingDuration": 0,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "IDBTransaction.oncomplete",
+                "duration": 38.899999998509884,
+                "function": "",
+                "position": 428453
+              }
+            ]
+          },
+          {
+            "start": 34798.699999999255,
+            "duration": 75.30000000074506,
+            "blockingDuration": 22.7,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 71.40000000223517,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 35062.699999999255,
+            "duration": 77,
+            "blockingDuration": 20.1,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 68.69999999925494,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 35314.199999999255,
+            "duration": 60.600000001490116,
+            "blockingDuration": 4.1,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 52.899999998509884,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 35530.199999999255,
+            "duration": 76.80000000074506,
+            "blockingDuration": 24,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 72.90000000223517,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 40813,
+            "duration": 79.80000000074506,
+            "blockingDuration": 23.8,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 72.79999999701977,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 41079.60000000149,
+            "duration": 59.899999998509884,
+            "blockingDuration": 7.8,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 56.599999997764826,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 41313.199999999255,
+            "duration": 87.80000000074506,
+            "blockingDuration": 32.1,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 81,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 41597.900000002235,
+            "duration": 60.69999999925494,
+            "blockingDuration": 6.9,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 55.600000001490116,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 41797.199999999255,
+            "duration": 69.70000000298023,
+            "blockingDuration": 17.4,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 64.70000000298023,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 42030,
+            "duration": 92.10000000149012,
+            "blockingDuration": 39.8,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 88.69999999925494,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          },
+          {
+            "start": 42312.60000000149,
+            "duration": 133.19999999925494,
+            "blockingDuration": 74.1,
+            "scripts": [
+              {
+                "sourceURL": "http://127.0.0.1:14712/player.js",
+                "invoker": "DIV#player-root.onclick",
+                "duration": 116,
+                "function": "cp",
+                "position": 181263
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "physicalDevice": false,
+  "humanTiming": false,
+  "statisticalBenchmark": false,
+  "twoHourSoakPassed": false
+}

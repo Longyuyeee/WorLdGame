@@ -27,35 +27,66 @@ export function assertCanonicalRuntimeString(value: string): void {
   }
 }
 
-export function canonicalRuntimeStringify(value: unknown): string {
+// A bounded table of immutable primitives, local to one serialization. Never
+// cache records/checkpoints: callers can mutate them between (or within) calls.
+function quoteCanonicalString(value: string, strings: Map<string, string>): string {
+  const previous = strings.get(value);
+  if (previous !== undefined) return previous;
+  assertCanonicalRuntimeString(value);
+  const quoted = JSON.stringify(value);
+  if (value.length <= 512 && strings.size < 256) strings.set(value, quoted);
+  return quoted;
+}
+
+function stringify(value: unknown, strings: Map<string, string>): string {
   if (value === null) return "null";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "number") {
     if (!Number.isSafeInteger(value)) throw new TypeError("Runtime numbers must be safe integers");
     return Object.is(value, -0) ? "0" : value.toString(10);
   }
-  if (typeof value === "string") { assertCanonicalRuntimeString(value); return JSON.stringify(value); }
-  if (Array.isArray(value)) return `[${value.map(canonicalRuntimeStringify).join(",")}]`;
+  if (typeof value === "string") return quoteCanonicalString(value, strings);
+  if (Array.isArray(value)) {
+    // Do not dispatch an input's own map/join or Array species: the encoded
+    // text must consist solely of values validated by this serializer.
+    const members: string[] = [], length = value.length;
+    for (let index = 0; index < length; index++) members.push(index in value ? stringify(value[index], strings) : "");
+    return `[${members.join(",")}]`;
+  }
   if (typeof value === "object") {
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) throw new TypeError("Runtime objects must be plain records");
     const record = value as Record<string, unknown>;
     const members = Object.keys(record).sort(compareCodePoints).map((key) => {
-      assertCanonicalRuntimeString(key);
+      const quotedKey = quoteCanonicalString(key, strings);
       if (record[key] === undefined) throw new TypeError("Runtime objects cannot contain undefined members");
-      return `${JSON.stringify(key)}:${canonicalRuntimeStringify(record[key])}`;
+      return `${quotedKey}:${stringify(record[key], strings)}`;
     });
     return `{${members.join(",")}}`;
   }
   throw new TypeError(`Runtime values cannot contain ${typeof value}`);
 }
 
+export function canonicalRuntimeStringify(value: unknown): string {
+  return stringify(value, new Map());
+}
+
 export function utf8Encode(value: string): Uint8Array {
-  assertCanonicalRuntimeString(value);
+  if (value !== value.normalize("NFC")) throw new TypeError("Runtime strings must use Unicode NFC");
   // Exact allocation avoids a large growable boxed-number array plus a copy.
   // Keep this portable implementation independent of host TextEncoder APIs.
   let length = 0;
   for (let index = 0; index < value.length; index++) {
+    // Fuse surrogate validation with byte counting instead of scanning the
+    // complete text a third time. NFC still applies to the final JSON too:
+    // an escaped newline followed by a combining acute becomes ASCII n + acute.
+    const code = value.charCodeAt(index);
+    if (code >= 0xd800 && code <= 0xdbff) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) throw new TypeError("Runtime strings cannot contain an unpaired high surrogate");
+    } else if (code >= 0xdc00 && code <= 0xdfff) {
+      throw new TypeError("Runtime strings cannot contain an unpaired low surrogate");
+    }
     const point = value.codePointAt(index)!;
     length += point <= 0x7f ? 1 : point <= 0x7ff ? 2 : point <= 0xffff ? 3 : 4;
     if (point > 0xffff) index++;
@@ -73,5 +104,10 @@ export function utf8Encode(value: string): Uint8Array {
 }
 
 export function canonicalRuntimeBytes(value: unknown): Uint8Array {
-  return utf8Encode(canonicalRuntimeStringify(value));
+  return canonicalRuntimeEncoding(value).bytes;
+}
+
+export function canonicalRuntimeEncoding(value: unknown): { serialized: string; bytes: Uint8Array } {
+  const serialized = canonicalRuntimeStringify(value);
+  return { serialized, bytes: utf8Encode(serialized) };
 }

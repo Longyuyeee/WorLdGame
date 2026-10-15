@@ -1,4 +1,4 @@
-import { canonicalRuntimeStringify, utf8Encode } from "./canonical";
+import { canonicalRuntimeEncoding, canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1 } from "./hash";
 import { hashCanonicalSessionSaveBytes } from "./session-save-bytes";
 import { mergeRuntimeHistoryMetaProgressV1, normalizeRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionV1 } from "./history";
@@ -64,8 +64,7 @@ export function createRuntimeSessionSaveV1(program: RuntimeProgramV1, history: R
       historyHash: runtimeHistorySessionHashV1(history),
       history
     };
-    const serialized = canonicalRuntimeStringify(save);
-    const bytes = utf8Encode(serialized);
+    const { serialized, bytes } = canonicalRuntimeEncoding(save);
     if (bytes.length > MAX_RUNTIME_SESSION_SAVE_BYTES) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save exceeds the supported byte limit")] };
     }

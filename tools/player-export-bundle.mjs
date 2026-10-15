@@ -1,7 +1,7 @@
 import { build } from "vite";
 import { resolve } from "node:path";
 
-export async function buildPlayerExportRuntime() {
+export async function buildPlayerExportRuntime({ sourceMap = false } = {}) {
   const result = await build({
     configFile: false,
     root: resolve(import.meta.dirname, "../apps/player-shell"),
@@ -12,14 +12,18 @@ export async function buildPlayerExportRuntime() {
     build: {
       write: false,
       minify: true,
+      sourcemap: sourceMap ? 'hidden' : false,
       lib: { entry: resolve(import.meta.dirname, "../apps/player-shell/src/export-main.ts"), name: "WorldExport", formats: ["iife"] },
       cssCodeSplit: false
     }
   });
   const outputs = (Array.isArray(result) ? result : [result]).flatMap((item) => item.output);
+  const map = sourceMap ? outputs.find(item => item.type === "asset" && item.fileName.endsWith(".js.map")) : undefined;
+  if (sourceMap && !map) throw new Error("Player diagnostic build did not produce a JavaScript source map");
   return {
     javascript: outputs.filter((item) => item.type === "chunk").map((item) => item.code).join("\n"),
-    css: outputs.filter((item) => item.type === "asset" && item.fileName.endsWith(".css")).map((item) => String(item.source)).join("\n")
+    css: outputs.filter((item) => item.type === "asset" && item.fileName.endsWith(".css")).map((item) => String(item.source)).join("\n"),
+    ...(map ? { sourceMap: JSON.parse(String(map.source)) } : {})
   };
 }
 

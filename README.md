@@ -1,14 +1,14 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 当前接续（2026-10-16）：[#341 声音恢复与媒体基线](docs/341-web-audio-recovery-and-runtime-baseline.md)。声音失败可按音轨重试、选择本次无声阅读并在工具栏恢复，不改进度或个人音量。最新源/HTML/目录/校订记录均在 evidence/web-audio-compatibility，候选 1.7.3。
+> 当前接续（2026-10-16）：[#342 连续阅读与存档响应](docs/342-web-playback-responsiveness.md)。修复历史序列化中的重复字符串处理，不跳过存档校验；当前源码重新导出才带入修复。打包源/HTML/目录/校订记录仍为 evidence/web-audio-compatibility 的 1.7.3，原包不覆盖。
 
-> 最新交付（2026-10-16）：[#341](docs/341-web-audio-recovery-and-runtime-baseline.md) 334 项相关测试；三引擎声音故障恢复、1.7.2→1.7.3 多窗口升级/真实旧备份与各两条在线完整路线，并修复结局残留声音恢复提示。独立对照定位本机 Windows WebKit 原生媒体绕过 Worker，HTTP 可播、Blob/data/离线失败；无声回退不是音频修复，严格三引擎离线音频仍未过。25 项发行条件 pending，未上线、非真机/人工验收。
+> 最新工作（2026-10-16）：[#342](docs/342-web-playback-responsiveness.md) 完整路线三次本机对照，主线程长任务 23/9/27→5/5/19，仍有长帧及明显波动；不是手机性能或长期稳定性验收。三引擎旧档/备份与完整两路线核对当前生产 runtime。25 项发行条件、真实上线/设备/人工定稿及严格离线音频仍开放。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-16
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
 > 当前进展：1.7.3 保持 9 场景/两结局、9,672 字符/74 演出/25 项素材和来源台账，只改版本/兼容回执；核对 1.7.0、1.7.1、1.7.2，本批现场备份来源为 1.7.2。1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#341 接续顺序及验证边界](docs/341-web-audio-recovery-and-runtime-baseline.md)。本机媒体限制不再盲改缓存；可用 Safari/macOS/iOS 环境下补严格离线音频。下一主任务为真实发行依据/署名和获准 HTTPS 发布闭环；人工内容/听感和真实设备继续开放。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#342 接续顺序及验证边界](docs/342-web-playback-responsiveness.md)。继续定位剩余长帧/连续使用，正式新包需重导出复核；可用 Safari/macOS/iOS 环境下补严格离线音频。真实发行依据/署名、获准 HTTPS、人工内容/听感和物理设备继续开放。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
 > 当前重心：沿《雨停之前》1.7.3 和 11 条待复核任务继续实际作品定稿与交付；当前源工程及独立校订文件在 evidence/web-audio-compatibility。自然阅读/听感、真机系统键盘/锁屏/低内存、真实 Safari 离线音频、来源许可与实际公网仍待验。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。

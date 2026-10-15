@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { describe, expect, it } from "vitest";
-import { canonicalRuntimeBytes, canonicalRuntimeStringify, utf8Encode } from "./canonical";
+import { describe, expect, it, vi } from "vitest";
+import { canonicalRuntimeBytes, canonicalRuntimeEncoding, canonicalRuntimeStringify, utf8Encode } from "./canonical";
 import { sha256Hex } from "./sha256";
 
 // Independent scalar-order oracle: JS default sort uses UTF-16, not code points.
@@ -34,6 +34,7 @@ describe("canonical allocation optimization compatibility", () => {
       const points = Array.from({ length: Math.min(4096, 0x110000 - start) }, (_, i) => start + i).filter(p => p < 0xd800 || p > 0xdfff);
       const value = String.fromCodePoint(...points).normalize("NFC");
       expect(Buffer.from(utf8Encode(value)).equals(Buffer.from(value, "utf8"))).toBe(true);
+      expect(Buffer.from(canonicalRuntimeBytes(value)).equals(Buffer.from(JSON.stringify(value), "utf8"))).toBe(true);
     }
     for (const value of ["", "ascii".repeat(400_000), "中😀é".repeat(200_000)]) {
       expect(Buffer.from(utf8Encode(value)).equals(Buffer.from(value, "utf8"))).toBe(true);
@@ -49,5 +50,70 @@ describe("canonical allocation optimization compatibility", () => {
     for (const value of [undefined, NaN, Infinity, 0.5, Number.MAX_SAFE_INTEGER + 1, 1n, new Date(), { x: undefined }]) {
       expect(() => canonicalRuntimeStringify(value)).toThrow(TypeError);
     }
+  });
+
+  it("encodes exact canonical bytes and keeps the final text boundary validated", () => {
+    const value = { text: "中文😀é\u0000\"\\", nested: [{ "é": "\u0301" }, { "😀": "é" }] };
+    const expected = reference(value);
+    const normalize = vi.spyOn(String.prototype, "normalize");
+    try {
+      const encoded = canonicalRuntimeEncoding(value);
+      expect(encoded.serialized).toBe(expected);
+      expect(Buffer.from(encoded.bytes)).toEqual(Buffer.from(expected, "utf8"));
+      expect(normalize.mock.contexts.map(String).filter(value => value === expected)).toHaveLength(1);
+    } finally { normalize.mockRestore(); }
+    for (const text of ["e\u0301", "\ud800", "\udfff"]) {
+      expect(() => canonicalRuntimeEncoding({ text })).toThrow(TypeError);
+      // The public text encoder must continue validating untrusted input.
+      expect(() => utf8Encode(text)).toThrow(TypeError);
+    }
+  });
+
+  it("rejects JSON escape/combining sequences that the original text encoder rejects", () => {
+    for (const value of ["\n\u0301", "\t\u0307", "\b\u0307", "\r\u0301"]) {
+      expect(value.normalize("NFC")).toBe(value);
+      const serialized = canonicalRuntimeStringify({ value });
+      expect(serialized.normalize("NFC")).not.toBe(serialized);
+      expect(() => utf8Encode(serialized)).toThrow("Unicode NFC");
+      expect(() => canonicalRuntimeEncoding({ value })).toThrow("Unicode NFC");
+      expect(() => canonicalRuntimeBytes({ value })).toThrow("Unicode NFC");
+    }
+  });
+
+  it("reuses only immutable string encodings within one operation", () => {
+    const value = Array.from({ length: 100 }, () => ({ text: "中文😀é", status: "ready" }));
+    const normalize = vi.spyOn(String.prototype, "normalize");
+    try {
+      expect(canonicalRuntimeStringify(value)).toBe(reference(value));
+      for (const text of ["text", "status", "中文😀é", "ready"]) {
+        expect(normalize.mock.contexts.map(String).filter(context => context === text)).toHaveLength(1);
+      }
+    } finally { normalize.mockRestore(); }
+    // No mutable object is memoized, even when a getter changes during a call.
+    let reads = 0;
+    const shared = { get value() { reads++; return reads <= 2 ? "first" : "second"; } };
+    expect(canonicalRuntimeStringify([shared, shared])).toBe('[{"value":"first"},{"value":"second"}]');
+    const mutable = { value: "first" };
+    expect(canonicalRuntimeStringify(mutable)).toBe('{"value":"first"}');
+    mutable.value = "e\u0301";
+    expect(() => canonicalRuntimeStringify(mutable)).toThrow(TypeError);
+  });
+
+  it("keeps scalar ordering and validation after the bounded string table fills", () => {
+    const value = Array.from({ length: 700 }, (_, i) => ({ [`key-${i}😀`]: `中文-${i}`, same: "é" }));
+    const expected = reference(value);
+    expect(canonicalRuntimeEncoding(value)).toEqual({ serialized: expected, bytes: new Uint8Array(Buffer.from(expected, "utf8")) });
+    expect(() => canonicalRuntimeBytes([...value, { invalid: "e\u0301" }])).toThrow(TypeError);
+    expect(() => canonicalRuntimeBytes([...value, { "\ud800": true }])).toThrow(TypeError);
+  });
+
+  it("does not let input array methods bypass canonical string validation", () => {
+    const value = ["e\u0301"];
+    value.map = () => [];
+    expect(() => canonicalRuntimeEncoding(value)).toThrow(TypeError);
+    class OwnSpecies extends Array<string> {
+      static override get [Symbol.species](): ArrayConstructor { throw new Error("must not execute input species"); }
+    }
+    expect(canonicalRuntimeEncoding(new OwnSpecies("中文😀"))).toEqual({ serialized: '["中文😀"]', bytes: new Uint8Array(Buffer.from('["中文😀"]', "utf8")) });
   });
 });

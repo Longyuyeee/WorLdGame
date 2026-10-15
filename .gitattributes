@@ -20,6 +20,7 @@ evidence/web-deployment-flow/*.worldreview -text
 evidence/web-audio-compatibility/before-rain-stops.html -text
 evidence/web-audio-compatibility/*.worldreview -text
 evidence/web-audio-compatibility/*.worldsave -text
+evidence/web-playback-responsiveness/*.worldsave -text
 evidence/web-branch-authoring/branch-authoring.html -text
 
 evidence/web-playtest-revision/review-notes.worldreview -text

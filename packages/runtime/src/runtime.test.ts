@@ -740,6 +740,21 @@ describe("N31-E11 canonical Runtime Session Save", () => {
     expect(runtimeStateHashV1(loaded.state)).toBe(runtimeStateHashV1(waiting.state));
   });
 
+  it("revalidates a previously saved history after an in-place checkpoint mutation", () => {
+    const { story, buildId } = branching();
+    const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));
+    const mutable = JSON.parse(JSON.stringify(waiting.session)) as RuntimeHistorySessionV1;
+    const original = save(story, mutable);
+    const state = mutable.checkpoints[0]!.state as { buildId: string };
+    state.buildId = "tampered-after-save";
+    expect(createRuntimeSessionSaveV1(story, mutable)).toMatchObject({ ok: false });
+    expect(validateRuntimeHistorySessionV1(story, mutable)).not.toEqual([]);
+    const restored = loadRuntimeSessionSaveV1(story, original.serialized, { expectedBuildId: buildId });
+    expect(restored.ok).toBe(true);
+    state.buildId = buildId;
+    expect(save(story, mutable).serialized).toBe(original.serialized);
+  });
+
   it("dual-reads a strict v1 artifact, verifies its v1 hash before normalization, and writes only v2", () => {
     const { story, buildId } = branching();
     const waiting = advanceRuntimeHistoryV1(story, history(story, start(story, buildId)));

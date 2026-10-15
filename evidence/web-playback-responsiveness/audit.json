@@ -1,0 +1,127 @@
+{
+  "passed": true,
+  "originalArchiveSha256": "79ed789e6cd1d8464d694d726bf822babc26535e182f52472c446baba35f9eed",
+  "originalRuntimeHash": "6ed20682624104a756571a5fc3186d9ce7da8ffa7fb886ad12fcd47f1362a58e",
+  "currentRuntimeHash": "ffb0065d7fbd4c8b88fce0ab4e61417e13b0100f1cbee41fc12a430d28ad1513",
+  "scope": "functional continuity and report/code identity; local observations, not a statistical performance threshold",
+  "baseline": {
+    "runs": [
+      {
+        "run": 0,
+        "cpuProfilerAttached": true,
+        "longTasks": 23,
+        "longTaskMs": 1812,
+        "longestTaskMs": 132,
+        "longFrames": 27,
+        "longestFrameMs": 145,
+        "readingLongTasks": 20,
+        "readingLongTaskMs": 1597
+      },
+      {
+        "run": 1,
+        "cpuProfilerAttached": false,
+        "longTasks": 9,
+        "longTaskMs": 576,
+        "longestTaskMs": 78,
+        "longFrames": 11,
+        "longestFrameMs": 111.80000000074506,
+        "readingLongTasks": 8,
+        "readingLongTaskMs": 502
+      },
+      {
+        "run": 2,
+        "cpuProfilerAttached": false,
+        "longTasks": 27,
+        "longTaskMs": 1788,
+        "longestTaskMs": 102,
+        "longFrames": 33,
+        "longestFrameMs": 104.69999999925494,
+        "readingLongTasks": 25,
+        "readingLongTaskMs": 1651
+      }
+    ],
+    "sampledStringValidationSelfMs": 1097.1219999999994,
+    "cpuWallMs": 46752.076
+  },
+  "current": {
+    "runs": [
+      {
+        "run": 0,
+        "cpuProfilerAttached": true,
+        "longTasks": 5,
+        "longTaskMs": 303,
+        "longestTaskMs": 75,
+        "longFrames": 5,
+        "longestFrameMs": 117.10000000149012,
+        "readingLongTasks": 4,
+        "readingLongTaskMs": 228
+      },
+      {
+        "run": 1,
+        "cpuProfilerAttached": false,
+        "longTasks": 5,
+        "longTaskMs": 342,
+        "longestTaskMs": 83,
+        "longFrames": 8,
+        "longestFrameMs": 99.10000000149012,
+        "readingLongTasks": 4,
+        "readingLongTaskMs": 260
+      },
+      {
+        "run": 2,
+        "cpuProfilerAttached": false,
+        "longTasks": 19,
+        "longTaskMs": 1370,
+        "longestTaskMs": 123,
+        "longFrames": 21,
+        "longestFrameMs": 133.19999999925494,
+        "readingLongTasks": 17,
+        "readingLongTaskMs": 1230
+      }
+    ],
+    "sampledStringValidationSelfMs": 200.70899999999992,
+    "cpuWallMs": 40133.435
+  },
+  "backups": {
+    "chromium-original.worldsave": {
+      "bytes": 89297,
+      "sha256": "391c02b0f6fec2c8fc267b13fd2c5b51f028fc53f8dc686843e33e9d49ac6ac3"
+    },
+    "chromium-restored.worldsave": {
+      "bytes": 89297,
+      "sha256": "67fa8c28215b2ced73d997db1d869fc9f01e08da8a02889474140b6d2f31514c"
+    },
+    "chromium-imported.worldsave": {
+      "bytes": 89294,
+      "sha256": "2768b5628049b837b0115d11fa5338fb3fb4eb23c762062ec581f1ddc22a4532"
+    },
+    "firefox-original.worldsave": {
+      "bytes": 89297,
+      "sha256": "6101458b6379a7738a2e078847e12968e338b3390743712f9e13af5d3d584c08"
+    },
+    "firefox-restored.worldsave": {
+      "bytes": 89297,
+      "sha256": "7fb1c3271d7d876af7a9f32452f85dccef003e303d362db6d2d150f79771537d"
+    },
+    "firefox-imported.worldsave": {
+      "bytes": 89294,
+      "sha256": "24c83f73d2ecc4a3a142c46cad1dc0d590f27c426b4d115542c06ca7936f0439"
+    },
+    "webkit-original.worldsave": {
+      "bytes": 89297,
+      "sha256": "e31ee9d72e725534490da0e45bfa75322d2e0d3ab6b90fbeabc0779163b3163a"
+    },
+    "webkit-restored.worldsave": {
+      "bytes": 89297,
+      "sha256": "9d4e580fb59b4a0b167b07a7b5c406e13793ab301de3b2220a61733445a0de50"
+    },
+    "webkit-imported.worldsave": {
+      "bytes": 89294,
+      "sha256": "715afce60a174eb2f4e9d40179cf79b826bb9ebd4bea27f3bf1e332cb549adf5"
+    }
+  },
+  "legacy616msFrameClosed": false,
+  "physicalDevice": false,
+  "twoHourSoakPassed": false,
+  "publicDeployment": false
+}
