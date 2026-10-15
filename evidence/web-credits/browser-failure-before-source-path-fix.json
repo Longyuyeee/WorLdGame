@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "real publishing form: ordered contributor edit, invalid link rejection, Escape retains draft, explicit discard, actual local save/reload/home reopen preserves applied credits; desktop and 390px light/dark dialogs fit"
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(Object.keys(unzipSync(files['source/project.zip'])).some(name => name.endsWith('manifest.json')))\n",
+  "stack": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(Object.keys(unzipSync(files['source/project.zip'])).some(name => name.endsWith('manifest.json')))\n\n    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-credits.mjs:35:466"
+}

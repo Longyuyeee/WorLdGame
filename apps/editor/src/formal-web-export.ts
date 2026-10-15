@@ -1,6 +1,7 @@
 import { semanticHash, readWebSaveCompatibility, type CanonicalProject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
+import { readWebCredits, hasWebCredits, formatWebCredits } from '@world-studio/project-domain';
 import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
 import { readWebPublication, publicationIconSize } from "./web-publication";
@@ -84,6 +85,8 @@ export async function createFormalWebDirectoryArtifact(
   files["index.html"] = encode(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${htmlText(project.manifest.title)}</title><link rel="stylesheet" href="player.css"></head><body><div id="player-root">正在打开游戏…如果一直停留在这里，请先解压整个 ZIP，再打开 index.html，并确认 player.js 与它在同一文件夹。</div><script id="world-project" type="application/json">${payload}</script><script src="player.js"></script></body></html>`);
   files["player.js"] = encode(runtime.javascript);
   files["player.css"] = encode(runtime.css);
+  const credits = readWebCredits(project);
+  if (hasWebCredits(credits)) files['credits.txt'] = encode(formatWebCredits(credits, publication.name));
   const saveCompatibility = readWebSaveCompatibility(project);
   files["save-compatibility.json"] = encode(JSON.stringify({ schemaVersion: 1, status: saveCompatibility.status,
     verifiedVersions: saveCompatibility.versions, scope: "publication-version-only", contentChangesSupported: false }, null, 2));

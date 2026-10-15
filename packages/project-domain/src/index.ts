@@ -9,3 +9,4 @@ export * from "./sha256";
 export * from "./types";
 export * from "./web-player-appearance";
 export * from "./web-save-compatibility";
+export * from "./web-credits";

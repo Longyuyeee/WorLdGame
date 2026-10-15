@@ -1,0 +1,19 @@
+real publishing form: ordered contributor edit, invalid link rejection, Escape retains draft, explicit discard, actual local save/reload/home reopen preserves applied credits; desktop and 390px light/dark dialogs fit
+actual HTML and directory production downloads carry applied credits; readable credits.txt matches build-info hash and offline inventory, and editable source is packaged; no private review attached
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.evaluate: Timeout 20000ms exceeded.
+Call log:
+  - waiting for getByRole('dialog', { name: '制作名单与致谢', exact: true })
+
+    at fit (E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-credits.mjs:22:58)
+    at E:\Project\AIProject\ClaudeProject\WorLdGame\tools\run-web-credits.mjs:42:531 {
+  log: [
+    "  - waiting for getByRole('dialog', { name: '制作名单与致谢', exact: true })"
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.14.0

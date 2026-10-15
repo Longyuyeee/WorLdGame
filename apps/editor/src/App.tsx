@@ -36,6 +36,7 @@ import { useRememberStudioWorkPosition } from './use-studio-work-position';
 import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { PlaytestReviewTask } from "./PlaytestReviewTask";
+import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
 import { DEFAULT_REVIEW_LIST, canConfirmReview, nextPendingReview, reviewLocationExists, reviewNoteSignature, type ReviewListView, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
 import { projectSceneFlow } from '@world-studio/route-graph';
@@ -3244,7 +3245,9 @@ function useDevicePixelRatio(): number {
 
 function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
-  const [publicationDirty, setPublicationDirty] = useState(false);
+  const [publicationSettingsDirty, setPublicationSettingsDirty] = useState(false);
+  const [creditsOpen, setCreditsOpen] = useState(false);
+  const publicationDirty = publicationSettingsDirty || creditsOpen;
   const [localPublicationWorkflow, setLocalPublicationWorkflow] = useState<PublicationWorkflow>(() => ({ ...DEFAULT_PUBLICATION_WORKFLOW, step: initialPublicationStep, format: initialPublicationFormat }));
   const workflow = publicationWorkflow ?? localPublicationWorkflow;
   const updateWorkflow = (patch: Partial<PublicationWorkflow>) => (onPublicationWorkflowChange ?? setLocalPublicationWorkflow)({ ...workflow, ...patch });
@@ -4063,8 +4066,10 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
       <section className="publication-step-panel" hidden={publicationStep !== 0} aria-label="作品发布信息">
         <h3>你的作品</h3><p className="publication-section-intro">这些信息会显示在游戏标题页和安装信息中。</p>
         <div className="playable-web-export">
-        <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationDirty} reader={assetRepository} />
+        <WebPublicationSettings project={canonicalProject} onChange={onPublicationChange} onDirtyChange={setPublicationSettingsDirty} reader={assetRepository} />
         </div>
+        <section className="web-credits-entry" aria-label="作品制作名单"><span className="web-credits-mark"><StudioIcon name="characters" /></span><div><strong>制作名单与致谢</strong><p>{creditsSummary(canonicalProject)}</p></div><button type="button" disabled={publicationSettingsDirty || projectRunBlocked} onClick={() => setCreditsOpen(true)}>编辑制作名单</button></section>
+        {creditsOpen && <WebCreditsDialog project={canonicalProject} onApply={onPublicationChange} onClose={() => setCreditsOpen(false)} />}
         <h3>Web 游戏</h3>
         <div className="publication-platforms publication-platforms--web">
           <div className="publication-platform is-selected"><span className="publication-platform__icon" aria-hidden="true">◎</span><strong>Web</strong><span>浏览器游戏</span><small>支持电脑和手机，无需安装。</small><b aria-hidden="true">✓</b></div>

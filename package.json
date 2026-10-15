@@ -20,6 +20,7 @@
     "audit:web-production-delivery:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-production-delivery.mjs",
     "audit:web-reading-controls:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-reading-controls.mjs",
     "audit:web-review-tasks:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-review-tasks.mjs",
+    "audit:web-credits:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-credits.mjs",
     "audit:web-work-resume:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-work-resume.mjs",
     "audit:web-playtest-handoff:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-playtest-handoff.mjs",
     "audit:web-playtest-progress:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-playtest-progress.mjs",

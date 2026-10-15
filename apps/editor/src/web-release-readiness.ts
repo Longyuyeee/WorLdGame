@@ -1,5 +1,5 @@
 import { compileProject, type CompilerDiagnostic } from "@world-studio/project-compiler";
-import { applyWebPlayerAppearance, readWebPlayerAppearance, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { applyWebPlayerAppearance, readWebPlayerAppearance, readWebCredits, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { applyWebPublication, publicationIconSize, readWebPublication } from "./web-publication";
 
@@ -69,6 +69,8 @@ export async function inspectWebReleaseSources(project: CanonicalProject,
   signal?.throwIfAborted();
   const findings: WebReleaseFinding[] = [];
   const publication = readWebPublication(project);
+  try { readWebCredits(project); }
+  catch (error) { findings.push({ severity: 'error', code: 'WEB_CREDITS_INVALID', title: '制作名单需要修改', message: error instanceof Error ? error.message : String(error), target: 'publication' }); }
   try { applyWebPublication(project, publication); }
   catch (error) { findings.push({ severity: "error", code: "WEB_PUBLICATION_INVALID", title: "作品信息需要修改", message: error instanceof Error ? error.message : String(error), target: "publication" }); }
   try {

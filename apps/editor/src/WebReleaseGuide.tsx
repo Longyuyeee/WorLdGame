@@ -10,7 +10,7 @@ export function WebReleaseGuide({ format, ready, productionReady = false }: { fo
     </ol>
     <details><summary>上线与更新前检查</summary><ul>
       <li>在实际网址重新检查所有素材、两条路线、声音、保存刷新与读取。</li>
-      <li>确认展示资料、署名和素材使用许可；导出不会替你完成这些确认。</li>
+      <li>在作品信息中填写制作名单与致谢；玩家可在游戏内查看，目录包同时提供 credits.txt。确认展示资料和素材使用许可。</li>
       <li>更新前在发布设置核对上一版工程 ZIP。只有版本号变化、内容完全一致时支持旧档；其他变化需要保留原版入口。完整替换同一构建的文件。</li>
     </ul></details>
   </section>;

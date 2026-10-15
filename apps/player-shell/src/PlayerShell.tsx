@@ -9,6 +9,8 @@ import { restorePlayerCollection, usePlayerCollection } from './use-player-colle
 import { restorePlayerReplayArchive, usePlayerReplayArchive } from './use-player-replay-archive';
 import { usePlayerFullscreen } from './use-player-fullscreen';
 import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
+import { PlayerCreditsPanel } from './PlayerCreditsPanel';
+import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
@@ -210,6 +212,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const settingsApplication = useMemo(() => applyPlayerPreferences(baseSettings, personal.preferences), [baseSettings, personal.preferences]);
   const fullscreen = usePlayerFullscreen();
   const [preferencesOpen, setPreferencesOpen] = useState(false);
+  const [infoView, setInfoView] = useState<'preferences' | 'credits'>('preferences');
+  const infoTrigger = useRef<HTMLElement | null>(null);
+  const credits = useMemo(() => { try { return readWebCredits(project); } catch { return DEFAULT_WEB_CREDITS; } }, [project]);
   const preferencesPanel = useRef<HTMLDivElement | null>(null), preferencesTrigger = useRef<HTMLButtonElement | null>(null);
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const collection = usePlayerCollection(state, setState);
@@ -417,7 +422,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const readingRef = useCallback((element: HTMLButtonElement | null) => { reading.element.current = element; return releaseAnimationsOnDetach(element); }, [reading.element]);
   useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(false); setArtworkView(false); }, [project.manifest.projectId]);
   const closeReadingMenu = useCallback(() => { setReadingMenuOpen(false); queueMicrotask(() => readingMenuTrigger.current?.focus()); }, []);
-  const closePreferences = useCallback(() => { setPreferencesOpen(false); queueMicrotask(() => (content.kind === 'title' ? titlePreferencesTrigger.current : readingMenuTrigger.current)?.focus()); }, [content.kind]);
+  const closePreferences = useCallback(() => { setPreferencesOpen(false); queueMicrotask(() => {
+    const trigger = infoView === 'credits' ? infoTrigger.current : null;
+    if (trigger?.isConnected) trigger.focus();
+    if (!trigger || document.activeElement !== trigger) (content.kind === 'title' ? titlePreferencesTrigger.current : readingMenuTrigger.current)?.focus();
+  }); }, [content.kind, infoView]);
+  const openCredits = () => { infoTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; stopSkip(); setReadingMenuOpen(false); setInfoView('credits'); setPreferencesOpen(true); };
   const openSavePanel = useCallback((intent?: 'save' | 'load') => {
     saveDialogTrigger.current = document.activeElement instanceof HTMLElement && document.activeElement !== document.body ? document.activeElement : null;
     setSaveIntent(intent ?? (content.kind === 'title' ? 'load' : 'save')); setPendingRead(null);
@@ -1286,7 +1296,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (preferencesOpen) {
         if (event.key === 'Escape') { event.preventDefault(); closePreferences(); }
         if (event.key === 'Tab') {
-          const controls = [...(preferencesPanel.current?.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),input:not(:disabled)') ?? [])];
+          const controls = [...(preferencesPanel.current?.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),input:not(:disabled),a[href]') ?? [])];
           const index = controls.indexOf(document.activeElement as HTMLElement);
           if (controls.length) { event.preventDefault(); controls[(index + (event.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus(); }
         }
@@ -1560,8 +1570,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     >
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
-      {preferencesOpen && <PlayerPreferencesPanel panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />}
-      <section className="player-stage" aria-label={`${snapshot.title} 游戏画面`}>
+      {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
+      <section className="player-stage" inert={preferencesOpen} aria-label={`${snapshot.title} 游戏画面`}>
         {stageImageError && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
           {stageImageStates.includes("budget") ? "画面资源超过安全预算或仍在释放，已停止自动推进。可稍后重试当前画面或手动继续。" : <>{stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。</>}
           <button type="button" style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); }}>重试画面资源</button>
@@ -1783,7 +1793,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
           <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
-          <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { stopSkip(); setReadingMenuOpen(false); setPreferencesOpen(true); }}>设置</button>
+          <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { stopSkip(); setReadingMenuOpen(false); setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
+          {hasWebCredits(credits) && <button className="player-menu-only" type="button" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={openCredits}>制作名单</button>}
           <button
             type="button"
             aria-label="后退一步"
@@ -2163,7 +2174,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             {settingsApplication.ui.showInputHints && <span className="player-hint">按 Enter 或空格开始</span>}
             <nav className="player-title-actions" aria-label="作品菜单">
               {saveStore !== undefined && <button ref={titleSaveTrigger} type="button" disabled={hostActivity !== 'active'} onClick={() => openSavePanel("load")}>读取存档</button>}
-              <button ref={titlePreferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active'} onClick={() => setPreferencesOpen(true)}>设置</button>
+              <button ref={titlePreferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active'} onClick={() => { setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
+              {hasWebCredits(credits) && <button type="button" disabled={hostActivity !== 'active'} onClick={openCredits}>制作名单</button>}
               <button ref={titleAdditionalContentTrigger} type="button" aria-label="打开附加内容" disabled={hostActivity !== 'active'} onClick={openAdditionalContent}>附加内容</button>
               {snapshot.localization.availableLocales.length > 1 && <label className="player-title-locale">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={event => {
                 const locale = event.target.value; setState(current => configurePlayerCoreLocaleV1(current, locale)); storePlayerLocalePreference(project.manifest.projectId, locale);
@@ -2257,6 +2269,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               <p className="player-ending-note">已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。</p>
               {collection.error && <p className="player-collection-error" role="alert">本机收藏记录暂未保存，请保留故事存档后重试。<button type="button" onClick={collection.retry}>重试保存收藏</button></p>}
               <button className="player-primary" type="button" onClick={() => { openAdditionalContent(); setAdditionalContentView('endings'); }}>查看收藏与结局</button>
+              {hasWebCredits(credits) && <button className="player-secondary" type="button" disabled={hostActivity !== 'active'} onClick={openCredits}>制作名单</button>}
               {saveStore && <button className="player-secondary" type="button" onClick={() => openSavePanel('load')}>读取存档探索其他路线</button>}
             </>}
             <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : "回到标题"}</button>
