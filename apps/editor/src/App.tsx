@@ -38,6 +38,8 @@ import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { PlaytestReviewTask } from "./PlaytestReviewTask";
 import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
 import { TextReplaceDialog } from './TextReplaceDialog';
+import { BatchAssetImportDialog } from './BatchAssetImportDialog';
+import { batchImportError, type BatchAssetResult } from './asset-batch-import';
 import { DEFAULT_REVIEW_LIST, canConfirmReview, nextPendingReview, reviewLocationExists, reviewNoteSignature, type ReviewListView, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
 import { projectSceneFlow } from '@world-studio/route-graph';
@@ -4230,6 +4232,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const [releaseReturnFormat, setReleaseReturnFormat] = useState<"html" | "directory" | null>(loadedWorkPosition.value?.releaseReturnFormat ?? null);
   const [pageDirty, setPageDirty] = useState(false);
   const [textReplaceOpen, setTextReplaceOpen] = useState(false);
+  const [batchAssetOpen, setBatchAssetOpen] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? loadedWorkPosition.value?.previewOpen ?? true);
   // Launcher releases its handoff when App reports its source; Preview mounts
@@ -5007,6 +5010,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
     setAssetPanelOpen(false);
   };
   const publishAssetUpdate = (result: IndexedDbAssetImportResult) => {
+    assetIndexRef.current = result.index;
     setAssetIndex(result.index);
     setAssetLifecycle(result.lifecycle);
     applyCanonicalProjectMutation(projectCanonicalWithAssetIndex(
@@ -5039,10 +5043,11 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
     }
   };
-  const importAssetFile = (
+  const importAssetFile = async (
     file: File,
-    metadata: Omit<AssetImportInput, "bytes" | "mimeType">
-  ) => {
+    metadata: Omit<AssetImportInput, "bytes" | "mimeType">,
+    newOnly = false
+  ): Promise<BatchAssetResult> => {
     const repository = assetRepositoryRef.current;
     if (repository === null || assetImportAbortRef.current !== null) {
       setAssetStatus("error");
@@ -5052,17 +5057,18 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
         detail: "当前窗口没有有效的资源写入权；请重新获取编辑权后再试。",
         errorCode: "LEASE_REQUIRED"
       });
-      return;
+      return { status: 'error', halt: true, message: '当前没有素材写入权，请恢复工程编辑权后重试。' };
     }
     const previousEntry = assetIndexRef.current.assets.find((entry) => entry.assetId === metadata.assetId);
+    if (newOnly && previousEntry) return { status: 'error', message: '这个素材标识已存在，本项未覆盖。请重新选择文件生成新条目。' };
     if (previousEntry !== undefined && previousEntry.kind !== metadata.kind) {
-      setAssetImportState({ phase: "error", progress: 0, detail: "替换文件必须保留原资源类型；不同用途请导入为新资源，再修改演出引用。" }); return;
+      setAssetImportState({ phase: "error", progress: 0, detail: "替换文件必须保留原资源类型；不同用途请导入为新资源，再修改演出引用。" }); return { status: 'error', message: '替换文件必须保留原资源类型。' };
     }
     const controller = new AbortController();
     assetImportAbortRef.current = controller;
     setAssetStatus("importing");
     setAssetImportState({ phase: "reading", progress: 0, detail: `正在读取 ${file.name}…` });
-    void readAssetFile(file, {
+    return readAssetFile(file, {
       maxBytes: WEB_ASSET_IMPORT_MAX_BYTES,
       signal: controller.signal,
       onProgress: (progress) => setAssetImportState({
@@ -5074,6 +5080,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       const declaredMimeType = (file.type || "application/octet-stream").toLowerCase();
       setAssetImportState({ phase: "inspecting", progress: 0.8, detail: "正在隔离 Worker 中核对文件签名、结构与媒体预算…" });
       const inspected = await inspectAssetBytes(bytes, declaredMimeType, metadata.kind, controller.signal);
+      if (newOnly && assetIndexRef.current.assets.some(entry => entry.assetId === metadata.assetId)) throw Error('素材已发生变化，本项没有覆盖已有文件。请重新选择文件。');
       setAssetImportState({
         phase: "committing",
         progress: 0.88,
@@ -5109,6 +5116,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
           ? `媒体检查通过并复用相同 SHA-256 Blob；${result.entry.assetId} 已写入 Index r${result.index.indexRevision}。`
           : `媒体检查通过；新 Blob 与 ${result.entry.assetId} 已原子写入 Index r${result.index.indexRevision}。`
       });
+      return { status: 'success' as const, message: result.blobStatus === 'existing' ? '已导入，复用相同文件内容。' : '已通过媒体检查并导入。' };
     }).catch((error: unknown) => {
       const code = error instanceof AssetBlobError ? error.code : undefined;
       const wasCancelled = code === "CANCELLED" || controller.signal.aborted;
@@ -5135,6 +5143,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
           errorCode: code
         });
       }
+      return { status: wasCancelled ? 'cancelled' as const : 'error' as const, halt: fatal, message: wasCancelled ? '本项已停止，未完成的写入不计为导入成功。' : batchImportError(code, error instanceof Error ? error.message : '导入失败，请重试。') };
     }).finally(() => {
       if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null;
     });
@@ -5724,6 +5733,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
           />
         </> : workspaceMode === "production" ? (
           <ProductionWorkspace
+            onBatchImport={() => setBatchAssetOpen(true)}
             section={productionSection}
             reader={assetRepositoryRef.current}
             onOpenAsset={(id) => { setInitialAssetId(id); setAssetPanelOpen(true); }}
@@ -5848,6 +5858,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
           </section>
         </div>
       )}
+      {batchAssetOpen && <BatchAssetImportDialog index={assetIndex} ready={['ready', 'success', 'cancelled'].includes(assetStatus)} phase={assetImportState.phase === 'reading' ? '正在读取文件…' : assetImportState.phase === 'inspecting' ? '正在检查文件是否完整、能否使用…' : assetImportState.phase === 'committing' ? '正在保存这项素材…' : '正在准备下一项…'} createId={fileName => canonicalAssetId(fileName, ++assetFileSerial.current)} onImport={(file, metadata) => importAssetFile(file, metadata, true)} onCancel={cancelAssetImport} onClose={() => setBatchAssetOpen(false)} onInspect={assetId => { setBatchAssetOpen(false); setInitialAssetId(assetId); setAssetPanelOpen(true); }} />}
       {assetPanelOpen && (
         <AssetVaultDialog
           reader={assetRepositoryRef.current}

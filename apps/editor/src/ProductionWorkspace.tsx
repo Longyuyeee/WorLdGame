@@ -36,10 +36,12 @@ import {
 } from "./localization-media-production";
 import { createAdditionalContentAuthoringModel } from "./additional-content-authoring";
 import { AssetLibraryCard, type AssetLibraryReader } from "./asset-library-card";
+import { StudioIcon } from './studio-icon';
 
 type ProductionStorageStatus = "loading" | "unavailable" | "ready" | "importing" | "success" | "cancelled" | "error";
 
 interface ProductionWorkspaceProps {
+  readonly onBatchImport?: () => void;
   readonly reader?: AssetLibraryReader | null;
   readonly onOpenAsset?: (assetId: string) => void;
   readonly section?: "all" | "assets" | "localization" | "collections";
@@ -108,7 +110,8 @@ export function ProductionWorkspace({
   onProjectChange,
   section = "all",
   reader = null,
-  onOpenAsset
+  onOpenAsset,
+  onBatchImport
 }: ProductionWorkspaceProps) {
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<"all" | AssetKind>("all");
@@ -159,9 +162,11 @@ export function ProductionWorkspace({
           <h2 id="production-workspace-title">{section === "localization" ? "翻译与配音" : section === "collections" ? "附加内容" : "素材库"}</h2>
           <p>{section === "localization" ? "管理故事翻译、语言媒体和角色配音。" : section === "collections" ? "设置玩家在画廊、音乐和结局回顾中看到的内容。" : "管理背景、角色、音乐及其他创作素材。"}</p>
         </div>
-        <button type="button" className="production-workspace__primary" onClick={onOpenPipeline}>
+        <div className="production-workspace__actions">{onBatchImport && (section === 'all' || section === 'assets') && <button type="button" className="production-workspace__primary" disabled={storageStatus === 'loading' || storageStatus === 'unavailable' || storageStatus === 'importing' || storageStatus === 'error'} onClick={onBatchImport}><StudioIcon name="import" />批量导入素材</button>}
+        <button type="button" className="production-workspace__primary production-workspace__manage" onClick={onOpenPipeline}>
           导入与管理素材
         </button>
+        </div>
       </header>
 
       <details hidden={section !== "all" && section !== "assets"} className="production-pipeline-details" open={section === "all"}><summary>素材处理进度与检查</summary>
