@@ -1,5 +1,5 @@
 import { createPlayerCoreSnapshotV1, loadPlayerCoreSessionSaveV1, type PlayerCoreState } from "@world-studio/player-core";
-import { canonicalRuntimeStringify } from "@world-studio/runtime";
+import { canonicalPlayerDataStringifyV1 } from "@world-studio/player-core";
 import { DEFAULT_MEDIA_INSPECTION_POLICY, inspectUntrustedMedia } from "@world-studio/project-persistence";
 import { createWorldPlayerSaveSlotV3, readWorldPlayerSaveSlotV3, worldPlayerSavePreviewSha256V1, type WorldPlayerSaveSlotV3 } from "./player-save-store";
 
@@ -10,7 +10,7 @@ const keys = (value: Record<string, unknown>, names: string[]) => Object.keys(va
 export interface PlayerSaveBackup { readonly slot: WorldPlayerSaveSlotV3; readonly preview?: Blob; readonly origin: "current" | "slot"; readonly compatibility: "current" | "verified-previous"; }
 
 async function digest(value: unknown, subtle: SubtleCrypto): Promise<string> {
-  const result = await subtle.digest("SHA-256", encoder.encode(canonicalRuntimeStringify(value)));
+  const result = await subtle.digest("SHA-256", encoder.encode(canonicalPlayerDataStringifyV1(value)));
   return Array.from(new Uint8Array(result), byte => byte.toString(16).padStart(2, "0")).join("");
 }
 async function verifyPreview(slot: WorldPlayerSaveSlotV3, bytes: Uint8Array<ArrayBuffer> | null, subtle: SubtleCrypto): Promise<Blob | undefined> {

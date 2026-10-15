@@ -3,7 +3,7 @@ import { Blob as NodeBlob } from "node:buffer";
 import { IDBFactory } from "fake-indexeddb";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { loadProject, migrateS0Project, verifyWebSaveCompatibility, type S0Project } from "@world-studio/project-domain";
-import { canonicalRuntimeStringify } from "@world-studio/runtime";
+import { canonicalPlayerDataStringifyV1 } from "@world-studio/player-core";
 import { createPlayerCore, startPlayerCore, selectPlayerCoreChoice, backPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1, loadPlayerCoreSessionSaveV1 } from "@world-studio/player-core";
 import source from "../../../fixtures/projects/branching/project.s0.json";
 import { createWorldPlayerSaveSlotV3, IndexedDbWorldPlayerSaveStoreV3, worldPlayerSaveSummaryV3 } from "./player-save-store";
@@ -26,7 +26,7 @@ export function backupFixture(version = "1.0.0") {
   return { project, state, slot };
 }
 async function reseal(value: { payload: unknown; sha256: string }) {
-  value.sha256 = Array.from(new Uint8Array(await subtle.digest("SHA-256", new TextEncoder().encode(canonicalRuntimeStringify(value.payload)))), byte => byte.toString(16).padStart(2, "0")).join("");
+  value.sha256 = Array.from(new Uint8Array(await subtle.digest("SHA-256", new TextEncoder().encode(canonicalPlayerDataStringifyV1(value.payload)))), byte => byte.toString(16).padStart(2, "0")).join("");
   return new TextEncoder().encode(JSON.stringify(value));
 }
 
@@ -61,7 +61,7 @@ it("rejects corrupted bytes, future envelopes, forged metadata and runtime tampe
   const metadata = JSON.parse(new TextDecoder().decode(original)); metadata.payload.slot.runtimeStateHash = "0".repeat(64);
   await expect(readPlayerSaveBackup(await reseal(metadata), target)).rejects.toThrow("信息与完整进度不一致");
   const runtime = JSON.parse(new TextDecoder().decode(original)), session = JSON.parse(runtime.payload.slot.serializedSessionSave); session.historyHash = "0".repeat(64);
-  runtime.payload.slot.serializedSessionSave = canonicalRuntimeStringify(session);
+  runtime.payload.slot.serializedSessionSave = canonicalPlayerDataStringifyV1(session);
   await expect(readPlayerSaveBackup(await reseal(runtime), target)).rejects.toThrow("完整进度校验失败");
   const unknown = JSON.parse(new TextDecoder().decode(original)); unknown.payload.slot.unknown = true;
   await expect(readPlayerSaveBackup(await reseal(unknown), target)).rejects.toThrow("字段损坏");

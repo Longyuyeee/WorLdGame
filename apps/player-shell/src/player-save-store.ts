@@ -1,5 +1,5 @@
 import { packPlayerStorageRecord, unpackPlayerStorageRecord, readPlayerStorageMetadata, PlayerStorageWriteQueue } from "./player-storage-packing";
-import { canonicalRuntimeStringify } from "@world-studio/runtime";
+import { canonicalPlayerDataStringifyV1 } from "@world-studio/player-core";
 
 export const WORLD_PLAYER_SAVE_STORE_VERSION = "3.0.0" as const;
 export const WORLD_PLAYER_SAVE_DATABASE_NAME = "world-player-saves";
@@ -416,7 +416,7 @@ export class IndexedDbWorldPlayerSaveStoreV3 implements WorldPlayerSaveStoreV3 {
         if (expectation !== undefined) {
           const record = await requestResult(transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).get(recordKey));
           const actual = record === undefined ? null : normalizeSummary(record);
-          if (canonicalRuntimeStringify(actual) !== canonicalRuntimeStringify(expectation)) { await done; return false; }
+          if (canonicalPlayerDataStringifyV1(actual) !== canonicalPlayerDataStringifyV1(expectation)) { await done; return false; }
         }
         transaction.objectStore(WORLD_PLAYER_SAVE_STORE_NAME).put(packed, recordKey);
         if (preview === undefined) transaction.objectStore(WORLD_PLAYER_SAVE_PREVIEW_STORE_NAME).delete(recordKey);
