@@ -33,7 +33,7 @@ async function run(right = false) {
   throw Error('Short fixture did not reach an ending');
 }
 async function publish(directory = false) {
-  await nav('发布'); await page.getByRole('button', { name: '继续：导出方式 →', exact: true }).click(); if (directory) await page.getByRole('radio', { name: /网页目录 ZIP/ }).check(); await page.getByRole('button', { name: '继续：生成游戏 →', exact: true }).click(); await page.getByText('故事与素材检查通过', { exact: true }).waitFor();
+  await nav('发布'); await page.getByRole('navigation', { name: '发布流程' }).getByRole('button', { name: /导出方式/ }).click(); if (directory) await page.getByRole('radio', { name: /网页目录 ZIP/ }).check(); await page.getByRole('button', { name: '继续：生成游戏 →', exact: true }).click(); await page.getByText('故事与素材检查通过', { exact: true }).waitFor();
 }
 try {
   await page.goto(process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5194/'); await page.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.join(root, 'evidence/web-playtest-revision/revised-source.zip')); await ready();

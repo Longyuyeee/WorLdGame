@@ -1,0 +1,369 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/studio-work-position-app.test.tsx (6 tests | 2 failed) 10321ms
+   × remembers scene, script view and collapsed preview without requiring a source edit or save 675ms
+   × preserves corrupt preferences until explicit retry, and exposes failed writes without blocking editing 320ms
+ ❯ apps/editor/src/web-release-workflow.test.tsx (4 tests | 1 failed) 8708ms
+   × takes a creator from a real release blocker to its stable source and back to the selected export format 7795ms
+ ❯ apps/editor/src/studio-work-position-launcher.test.tsx (1 test | 1 failed) 8905ms
+   × shows the saved task on the home card, resumes after launcher restart and lets an explicit structure scene override the last page 8903ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/studio-work-position-app.test.tsx > remembers scene, script view and collapsed preview without requiring a source edit or save
+Error: expect(element).toHaveAttribute("data-context-scene-id", "go") // element.getAttribute("data-context-scene-id") === "go"
+
+Expected the element to have attribute:
+  data-context-scene-id="go"
+Received:
+  data-context-scene-id="entry"
+ ❯ apps/editor/src/studio-work-position-app.test.tsx:22:49
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  apps/editor/src/studio-work-position-app.test.tsx > preserves corrupt preferences until explicit retry, and exposes failed writes without blocking editing
+Error: 工作位置版本或工程不匹配。
+ ❯ readStudioWorkPosition apps/editor/src/studio-work-position.ts:36:866
+
+ ❯ apps/editor/src/studio-work-position-app.test.tsx:45:77
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  apps/editor/src/studio-work-position-launcher.test.tsx > shows the saved task on the home card, resumes after launcher restart and lets an explicit structure scene override the last page
+TestingLibraryElementError: Unable to find role="button" and name "打开项目：制作接续"
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scene_7111c3da183e80358df4"
+      data-context-statement-id="statement_960de4561658755d51b9"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="statement_960de4561658755d51b9"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scene_7111c3da183e80358df4"
+      data-runtime-statement-id="statement_960de4561658755d51b9"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <details
+            class="project-switcher"
+          >
+            <summary
+              aria-label="项目菜单"
+            >
+              <h1>
+                制作接续
+              </h1>
+              <svg
+                aria-hidden="true"
+                class="studio-icon "
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 9l6 6 6-6"
+                />
+              </svg>
+            </summary>
+            <div
+              class="project-switcher__panel"
+            >
+              <p
+                class="project-switcher__title"
+              >
+                制作接续
+                <small>
+                  当前项目
+                </small>
+              </p>
+              <button
+                disabled=""
+                type="button"
+              >
+                <span
+                  class="project-menu-icon"
+                  data-color="blue"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 7V5h6l2 2h10v13H3z M3 11h18"
+                    />
+                  </svg>
+                </span>
+                <span>
+                  所有项目
+                  <small>
+                    保存并返回项目列表
+                  </small>
+                </span>
+                <svg
+                  aria-hidden="true"
+                  class="studio-icon "
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.7"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M4 12h16 M14 6l6 6-6 6"
+                  />
+                </svg>
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                <span
+                  class="project-menu-icon"
+                  data-color="violet"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 5h6a3 3 0 0 1 3 3v12a4 4 0 0 0-4-2H3z M21 5h-6a3 3 0 0 0-3 3v12a4 4 0 0 1 4-2h5z M6 ...
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="app-shell"
+      data-context-restore-status="session"
+      data-context-scene-id="scene_7111c3da183e80358df4"
+      data-context-statement-id="statement_960de4561658755d51b9"
+      data-editor-view="sequence"
+      data-experience-level="pro"
+      data-inspector-object-id="statement_960de4561658755d51b9"
+      data-motion-frame-max=""
+      data-motion-frame-over-budget="0"
+      data-motion-frame-p95=""
+      data-motion-frame-result="idle"
+      data-motion-frame-samples="0"
+      data-motion-frame-status="idle"
+      data-motion-level="simplified"
+      data-motion-preference="simplified"
+      data-preview-open="true"
+      data-runtime-scene-id="scene_7111c3da183e80358df4"
+      data-runtime-statement-id="statement_960de4561658755d51b9"
+      data-scenes-open="false"
+      data-settings-open="false"
+      data-source-revision="0"
+      data-studio-page="publish"
+      data-sync-audit-action=""
+      data-sync-audit-duration=""
+      data-sync-audit-projected-revision="0"
+      data-sync-audit-result="idle"
+      data-sync-audit-source-revision="0"
+      data-sync-audit-statement-id=""
+      data-sync-audit-status="idle"
+      data-system-reduced-motion="false"
+      data-testid="workspace-shell"
+      data-workspace-mode="writer"
+    >
+      <header
+        class="workspace-header"
+      >
+        <div
+          class="brand-lockup"
+        >
+          <span
+            aria-hidden="true"
+            class="brand-mark studio-logo"
+          >
+            W
+          </span>
+          <strong
+            class="brand-product"
+          >
+            WorLd Studio
+          </strong>
+          <details
+            class="project-switcher"
+          >
+            <summary
+              aria-label="项目菜单"
+            >
+              <h1>
+                制作接续
+              </h1>
+              <svg
+                aria-hidden="true"
+                class="studio-icon "
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 9l6 6 6-6"
+                />
+              </svg>
+            </summary>
+            <div
+              class="project-switcher__panel"
+            >
+              <p
+                class="project-switcher__title"
+              >
+                制作接续
+                <small>
+                  当前项目
+                </small>
+              </p>
+              <button
+                disabled=""
+                type="button"
+              >
+                <span
+                  class="project-menu-icon"
+                  data-color="blue"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 7V5h6l2 2h10v13H3z M3 11h18"
+                    />
+                  </svg>
+                </span>
+                <span>
+                  所有项目
+                  <small>
+                    保存并返回项目列表
+                  </small>
+                </span>
+                <svg
+                  aria-hidden="true"
+                  class="studio-icon "
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.7"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M4 12h16 M14 6l6 6-6 6"
+                  />
+                </svg>
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                <span
+                  class="project-menu-icon"
+                  data-color="violet"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="studio-icon "
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.7"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M3 5h6a3 3 0 0 1 3 3v12a4 4 0 0 0-4-2H3z M21 5h-6a3 3 0 0 0-3 3v12a4 4 0 0 1 4-2h5z M6 ...
+ ❯ waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ apps/editor/src/studio-work-position-launcher.test.tsx:12:134
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  apps/editor/src/web-release-workflow.test.tsx > takes a creator from a real release blocker to its stable source and back to the selected export format
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ apps/editor/src/web-release-workflow.test.tsx:55:1
+     53| });
+     54|
+     55| it("takes a creator from a real release blocker to its stable source a…
+       | ^
+     56|   render(<App initialProject={project()} autosaveDebounceMs={60_000} /…
+     57|   fireEvent.click(within(screen.getByRole("navigation", { name: "主要功能"…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  3 failed | 4 passed (7)
+      Tests  4 failed | 25 passed (29)
+   Start at  12:06:54
+   Duration  87.41s (transform 5.49s, setup 3.80s, import 13.44s, tests 53.17s, environment 12.16s)
+

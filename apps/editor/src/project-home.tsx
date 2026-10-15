@@ -33,7 +33,8 @@ function projectColor(title: string) {
   return ["violet", "teal", "coral", "blue"][(hash >>> 16) % 4];
 }
 
-export function ProjectHome({ recent, actions, onEnter }: {
+export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
+  readonly resumeDescription?: (item: RecentProject) => string | undefined;
   readonly recent: readonly RecentProject[];
   readonly actions: ProjectHomeActions;
   readonly onEnter: (session: ProjectLifecycleSession) => void;
@@ -149,7 +150,7 @@ export function ProjectHome({ recent, actions, onEnter }: {
         : <ul className="project-home__recent home-project-grid">{recent.filter(item => item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase())).map(item => <li key={item.reference.referenceId} data-color={projectColor(item.title)}>
           <button className="home-project-card" aria-label={`打开项目：${item.title}`} disabled={busy} onClick={() => void run(() => actions.openRecent(item))}>
             <span className="home-project-cover" aria-hidden="true"><span className="home-cover-orbit" /><span className="home-cover-letter">{item.title.slice(0, 1)}</span><StudioIcon name="story" /><span className="home-cover-caption">STORY PROJECT</span></span>
-            <span className="home-project-caption"><strong>{item.title}</strong><span><span className="home-storage-dot" />{item.reference.hostKind === "web-file-system" ? "本地目录" : "本机项目"}<span className="home-project-time">{new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric" }).format(item.lastOpenedAtMs)} 打开</span></span></span>
+            <span className="home-project-caption"><strong>{item.title}</strong><span><span className="home-storage-dot" />{item.reference.hostKind === "web-file-system" ? "本地目录" : "本机项目"}<span className="home-project-time">{new Intl.DateTimeFormat("zh-CN", { month: "short", day: "numeric" }).format(item.lastOpenedAtMs)} 打开</span></span>{resumeDescription?.(item) && <small className="home-project-resume"><StudioIcon name="arrow" />{resumeDescription(item)}</small>}</span>
             <span className="home-project-open"><StudioIcon name="arrow" /></span>
           </button>
           {actions.openRouteOverview !== undefined && item.reference.hostKind === "web-indexeddb" ? <details className="home-project-more"><summary aria-label={`${item.title}的更多选项`}>•••</summary><div><button disabled={busy} aria-label={`快速查看 ${item.title} Route`} onClick={event => { event.currentTarget.closest("details")?.removeAttribute("open"); void openRouteOverview(item); }}><StudioIcon name="route" />大项目分场景编辑</button></div></details> : null}

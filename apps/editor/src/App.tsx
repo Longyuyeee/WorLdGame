@@ -31,6 +31,8 @@ import { createWebDeliveryBundle } from "./web-delivery-bundle";
 import { usePlaytestProgress, type PlaytestProgressState } from './use-playtest-progress';
 import { PlaytestProgressPanel } from './PlaytestProgressPanel';
 import { PlaytestProgressRestore } from './PlaytestProgressTransfer';
+import { DEFAULT_PUBLICATION_WORKFLOW, loadStudioWorkPosition, resumePublicationWorkflow, resumeWorkSelection, type PublicationWorkflow } from './studio-work-position';
+import { useRememberStudioWorkPosition } from './use-studio-work-position';
 import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
@@ -3186,6 +3188,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
 type PreviewPlaytestRequest = { readonly serial: number; readonly target: NonNullable<Parameters<typeof startFormalPreview>[1]> };
 
 interface PreviewPanelProps extends CommonProps {
+  readonly publicationWorkflow?: PublicationWorkflow;
+  readonly onPublicationWorkflowChange?: (workflow: PublicationWorkflow) => void;
   readonly beforeDeliverySave?: (signal: AbortSignal) => Promise<boolean>;
   readonly deliveryReviewNotes?: readonly PlaytestNote[];
   readonly revisionTarget?: { readonly sceneId: string; readonly statementId: string } | null;
@@ -3236,14 +3240,18 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
-  const [includeProductionBundle, setIncludeProductionBundle] = useState(false);
-  const [includeReviewNotes, setIncludeReviewNotes] = useState(false);
-  const [includePlaytestProgress, setIncludePlaytestProgress] = useState(false);
-  const [publicationStep, setPublicationStep] = useState(initialPublicationStep);
-  const [publicationFormat, setPublicationFormat] = useState<"html" | "directory">(initialPublicationFormat);
+  const [localPublicationWorkflow, setLocalPublicationWorkflow] = useState<PublicationWorkflow>(() => ({ ...DEFAULT_PUBLICATION_WORKFLOW, step: initialPublicationStep, format: initialPublicationFormat }));
+  const workflow = publicationWorkflow ?? localPublicationWorkflow;
+  const updateWorkflow = (patch: Partial<PublicationWorkflow>) => (onPublicationWorkflowChange ?? setLocalPublicationWorkflow)({ ...workflow, ...patch });
+  const { includeProductionBundle, includeReviewNotes, includePlaytestProgress, step: publicationStep, format: publicationFormat } = workflow;
+  const setIncludeProductionBundle = (value: boolean) => updateWorkflow({ includeProductionBundle: value });
+  const setIncludeReviewNotes = (value: boolean) => updateWorkflow({ includeReviewNotes: value });
+  const setIncludePlaytestProgress = (value: boolean) => updateWorkflow({ includePlaytestProgress: value });
+  const setPublicationStep = (value: number) => updateWorkflow({ step: value });
+  const setPublicationFormat = (value: 'html' | 'directory') => updateWorkflow({ format: value });
   useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
   useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
   const [viewportProfileId, setViewportProfileId] = useState<PreviewViewportProfileId>(
@@ -4149,6 +4157,7 @@ export interface AppProps {
   readonly onExportProject?: (project: CanonicalProject) => Promise<void>;
   readonly initialProject?: CanonicalProject;
   readonly initialSceneId?: string;
+  readonly workspaceReferenceId?: string;
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly initialDeliveryReview?: string | undefined;
   readonly initialDeliveryProgress?: string | undefined;
@@ -4160,7 +4169,7 @@ export interface AppProps {
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDeliveryProgress, onDeliveryProgressConsumed, initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryReviewConsumed, initialDeliveryProgress, onDeliveryProgressConsumed, initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
     if (project !== undefined && continuity !== undefined) return resumeStudioSession(project, continuity, initialSceneId);
     const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
@@ -4187,6 +4196,8 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
   previewCanonicalProjectRef.current = previewCanonicalProject;
   const projectStorageId = initialProject?.manifest.projectId ?? "prj_twilight_broadcast";
   const lifecycleHosted = initialProject !== undefined;
+  const [loadedWorkPosition] = useState(() => loadStudioWorkPosition(workspaceReferenceId, projectStorageId));
+  const [workPositionReady, setWorkPositionReady] = useState(false);
   const canonicalVariableDefaults = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), JSON.stringify(item.defaultValue)])), [initialProject]);
   const canonicalVariableTypes = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), item.type as "boolean" | "number" | "string"])), [initialProject]);
   const canonicalVariableIds = useMemo(() => initialProject?.variables.variables.flatMap((item) =>
@@ -4194,20 +4205,20 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
   const canonicalVariableNames = useMemo(() => variableOptionLabels(initialProject?.variables.variables ?? []), [initialProject]);
   const canonicalVariableDisplayNames = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).flatMap(variable => typeof variable.id === "string" ? [[variable.id, typeof variable.name === "string" ? variable.name : variable.id]] : [])), [initialProject]);
   const [mode, setMode] = useState<StudioMode>("sequence");
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [publishOpen, setPublishOpen] = useState(false);
-  const [releaseEntry, setReleaseEntry] = useState<{ step: number; format: "html" | "directory" }>({ step: 0, format: "html" });
-  const [releaseReturnFormat, setReleaseReturnFormat] = useState<"html" | "directory" | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(loadedWorkPosition.value?.page === "appearance");
+  const [publishOpen, setPublishOpen] = useState(loadedWorkPosition.value?.page === "publish");
+  const [publicationWorkflow, setPublicationWorkflow] = useState<PublicationWorkflow>(() => resumePublicationWorkflow(loadedWorkPosition.value?.publication ?? DEFAULT_PUBLICATION_WORKFLOW));
+  const [releaseReturnFormat, setReleaseReturnFormat] = useState<"html" | "directory" | null>(loadedWorkPosition.value?.releaseReturnFormat ?? null);
   const [pageDirty, setPageDirty] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? true);
+  const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? loadedWorkPosition.value?.previewOpen ?? true);
   // Launcher releases its handoff when App reports its source; Preview mounts
   // only after persistence is ready, so retain the initial handoff locally.
   const [initialPreviewContinuity, releasePreviewContinuity] = useState(continuity?.preview);
   const previewContinuityRef = useRef(continuity?.preview);
   const receivePreviewContinuity = useCallback((preview: PreviewContinuity) => { previewContinuityRef.current = preview; releasePreviewContinuity(undefined); }, []);
   const [scenesOpen, setScenesOpen] = useState(false);
-  const [productionSection, setProductionSection] = useState<"assets" | "localization" | "collections">("assets");
+  const [productionSection, setProductionSection] = useState<"assets" | "localization" | "collections">(loadedWorkPosition.value?.productionSection ?? "assets");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceModeId>("writer");
   const workspaceGrid = useRef<HTMLElement>(null);
   useEffect(() => { if (workspaceGrid.current) { workspaceGrid.current.scrollTop = 0; workspaceGrid.current.scrollLeft = 0; } }, [workspaceMode, mode, settingsOpen, publishOpen, productionSection]);
@@ -4329,6 +4340,26 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
     setWorkspaceContextStatus(resolution.status);
     return resolution.session;
   }, []);
+
+  useEffect(() => {
+    if (workPositionReady || ['loading', 'migrating', 'blocked', 'readonly', 'conflict', 'unavailable'].includes(persistence.status)) return;
+    const last = loadedWorkPosition.value;
+    if (last) {
+      // An explicit scene chosen while managing structure takes precedence.
+      const explicitScene = preferInitialProject && initialSceneId !== undefined;
+      const page = explicitScene ? 'story' : last.page;
+      setPublishOpen(page === 'publish'); setSettingsOpen(page === 'appearance');
+      if (!explicitScene) { setWorkspaceMode(last.workspaceMode); setMode(last.editorView); }
+      if (page === 'assets') { setWorkspaceMode('production'); setMode('sequence'); }
+      else if (page === 'checks') { setWorkspaceMode('debug-qa'); setMode('flow'); }
+      else if (page === 'story' && ['production', 'debug-qa'].includes(explicitScene ? workspaceModeRef.current : last.workspaceMode)) { setWorkspaceMode('writer'); setMode('sequence'); }
+      if (!explicitScene) {
+        const restored = resumeWorkSelection(sessionRef.current, last);
+        baseDispatch({ type: 'restore-session', session: restored }); setRequestedFocusStatementId(restored.selectedStatementId);
+      }
+    }
+    setWorkPositionReady(true);
+  }, [persistence.status, workPositionReady, loadedWorkPosition, preferInitialProject, initialSceneId]);
 
   useEffect(() => {
     if (lifecycleHosted) onProjectChangeRef.current?.(session.project);
@@ -5431,13 +5462,17 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
     }
   };
 
-  if (persistence.status === "loading" || persistence.status === "migrating") {
+  const studioPage: StudioPage = publishOpen ? "publish" : settingsOpen ? "appearance" : workspaceMode === "production" ? "assets" : workspaceMode === "debug-qa" ? "checks" : "story";
+  const workPosition = useRememberStudioWorkPosition({ schemaVersion: 1, projectId: projectStorageId, referenceId: workspaceReferenceId ?? '', page: studioPage, workspaceMode, editorView: mode, sceneId: session.activeSceneId, statementId: session.selectedStatementId, productionSection, previewOpen, publication: publicationWorkflow, releaseReturnFormat }, workspaceReferenceId !== undefined && workPositionReady && !['loading', 'migrating', 'blocked', 'readonly', 'conflict', 'unavailable'].includes(persistence.status), loadedWorkPosition.error);
+
+  const restoringWorkPosition = workspaceReferenceId !== undefined && !workPositionReady && !["unavailable", "blocked", "readonly", "conflict"].includes(persistence.status);
+  if (persistence.status === "loading" || persistence.status === "migrating" || restoringWorkPosition) {
     return (
       <div className="startup-gate" role="status" aria-live="polite">
         <span className="startup-gate__orb" aria-hidden="true" />
-        <p className="eyebrow">{persistence.status === "migrating" ? "SAFE SCHEMA MIGRATION" : "SINGLE-WRITER STARTUP"}</p>
-        <h1>{persistence.status === "migrating" ? "正在安全升级项目格式…" : "正在获取安全编辑权…"}</h1>
-        <p>{persistence.detail ?? "取得带 fencing token 的写入租约后，再检查版本、WAL 与 SHA-256 完整性。"}</p>
+        <p className="eyebrow">{restoringWorkPosition && persistence.status !== "loading" && persistence.status !== "migrating" ? "继续制作" : persistence.status === "migrating" ? "SAFE SCHEMA MIGRATION" : "SINGLE-WRITER STARTUP"}</p>
+        <h1>{persistence.status === "migrating" ? "正在安全升级项目格式…" : restoringWorkPosition && persistence.status !== "loading" ? "正在恢复工作位置…" : "正在获取安全编辑权…"}</h1>
+        <p>{restoringWorkPosition && persistence.status !== "loading" && persistence.status !== "migrating" ? "正在找回上次的页面、场景和导出选择。" : persistence.detail ?? "取得带 fencing token 的写入租约后，再检查版本、WAL 与 SHA-256 完整性。"}</p>
       </div>
     );
   }
@@ -5487,10 +5522,9 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
 
   const workspaceContext = createWorkspaceContext(session, workspaceMode, mode, experienceLevel);
   const contextProjection = workspaceContextProjection(workspaceContext);
-  const studioPage: StudioPage = publishOpen ? "publish" : settingsOpen ? "appearance" : workspaceMode === "production" ? "assets" : workspaceMode === "debug-qa" ? "checks" : "story";
   const openStudioPage = (page: StudioPage) => {
-    if (page === "publish") {
-      setReleaseEntry({ step: releaseReturnFormat === null ? 0 : 2, format: releaseReturnFormat ?? "html" });
+    if (page === "publish" && !publishOpen) {
+      setPublicationWorkflow(current => releaseReturnFormat === null ? resumePublicationWorkflow(current) : { ...current, step: 2, format: releaseReturnFormat });
       setReleaseReturnFormat(null);
     }
     setSettingsOpen(page === "appearance"); setPublishOpen(page === "publish"); setScenesOpen(false);
@@ -5600,6 +5634,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
         onOpenSettings={() => { setPublishOpen(false); setSettingsOpen((value) => !value); }}
         dispatch={dispatch}
       />
+      {workPosition.error && <div className="work-position-notice" role="status"><span>{workPosition.error}</span><button type="button" onClick={workPosition.retry}>重新记住当前位置</button></div>}
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
       {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
       {revisionTarget !== null && <div className="playtest-revision-return" role="region" aria-label="校订返回试玩"><StudioIcon name="write" /><span>正在校订 · {session.project.scenes.find(scene => scene.id === revisionTarget.sceneId)?.title ?? "原场景"}。完成修改后可返回试玩。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen || pendingDraftSceneIds(session).length > 0} onClick={() => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView?.({ block: "start" })); }}>返回试玩</button></div>}
@@ -5631,7 +5666,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDe
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
+        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} publicationWorkflow={publicationWorkflow} onPublicationWorkflowChange={setPublicationWorkflow} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
             onDraftChange={setPageDirty}
             project={previewCanonicalProject}

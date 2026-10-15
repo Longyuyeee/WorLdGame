@@ -21,6 +21,7 @@ import { beginLazyScenePageLoad, createLazyScenePage, loadLazyScenePage, saveLaz
 import { prepareN42MediaStageFixture } from "./n42-media-stage-fixture";
 import type { ProjectStructureIntent } from "./project-entity-dialog";
 import type { StudioContinuity } from "./studio-continuity";
+import { studioWorkDescription } from "./studio-work-position";
 
 function entropy(): string { return crypto.randomUUID(); }
 function browserApi(): BrowserProjectPicker {
@@ -117,6 +118,7 @@ export function StudioLauncher() {
     </>;
     return <>
       <App
+        workspaceReferenceId={editing.session.reference.referenceId}
         initialDeliveryReview={editing.deliveryReview}
         initialDeliveryProgress={editing.deliveryProgress}
         onDeliveryProgressConsumed={() => { consumeDeliveryMaterial(editing.session.reference.referenceId, "progress"); setEditing(current => current === null ? null : { ...current, deliveryProgress: undefined }); }}
@@ -158,5 +160,5 @@ export function StudioLauncher() {
       />
     </>;
   }
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId),deliveryReview:pendingDeliveryMaterial(session.reference.referenceId, "notes"),deliveryProgress:pendingDeliveryMaterial(session.reference.referenceId, "progress")});}} />;
+  return <ProjectHome recent={recent} actions={actions} resumeDescription={item => studioWorkDescription(item.reference.referenceId, item.projectId)} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId),deliveryReview:pendingDeliveryMaterial(session.reference.referenceId, "notes"),deliveryProgress:pendingDeliveryMaterial(session.reference.referenceId, "progress")});}} />;
 }
