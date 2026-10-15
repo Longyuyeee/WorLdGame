@@ -1,0 +1,405 @@
+{
+  "passed": true,
+  "matrixComplete": true,
+  "playOnly": false,
+  "reusedArtifacts": true,
+  "checks": [
+    {
+      "name": "exact-unchanged-content-media-notes-and-real-dual-artifacts",
+      "detail": {}
+    },
+    {
+      "name": "chromium-editor-ime-shortcuts-rotation-chinese-save-reopen-and-all-media",
+      "detail": {
+        "nativeComposition": [
+          {
+            "type": "compositionstart",
+            "trusted": true,
+            "composing": null
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "composing": true
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "composing": true
+          },
+          {
+            "type": "compositionend",
+            "trusted": false,
+            "composing": null
+          }
+        ],
+        "systemPhoneKeyboard": false
+      }
+    },
+    {
+      "name": "chromium-stay-touch-rotation-large-text-lifecycle-save-and-full-ending",
+      "detail": {}
+    },
+    {
+      "name": "chromium-leave-touch-rotation-large-text-lifecycle-save-and-full-ending",
+      "detail": {}
+    },
+    {
+      "name": "chromium-actual-1.7.0-backup-import-and-read-same-hash",
+      "detail": {
+        "stageReady": true,
+        "media": [
+          {
+            "bus": "ambient",
+            "playing": true,
+            "failed": false
+          },
+          {
+            "bus": "bgm",
+            "playing": true,
+            "failed": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "firefox-editor-ime-shortcuts-rotation-chinese-save-reopen-and-all-media",
+      "detail": {
+        "nativeComposition": null,
+        "systemPhoneKeyboard": false
+      }
+    },
+    {
+      "name": "firefox-stay-touch-rotation-large-text-lifecycle-save-and-full-ending",
+      "detail": {}
+    },
+    {
+      "name": "firefox-leave-touch-rotation-large-text-lifecycle-save-and-full-ending",
+      "detail": {}
+    },
+    {
+      "name": "firefox-actual-1.7.0-backup-import-and-read-same-hash",
+      "detail": {
+        "stageReady": true,
+        "media": [
+          {
+            "bus": "ambient",
+            "playing": true,
+            "failed": false
+          },
+          {
+            "bus": "bgm",
+            "playing": true,
+            "failed": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "webkit-editor-ime-shortcuts-rotation-chinese-save-reopen-and-all-media",
+      "detail": {
+        "nativeComposition": null,
+        "systemPhoneKeyboard": false
+      }
+    },
+    {
+      "name": "webkit-stay-touch-rotation-large-text-lifecycle-save-and-full-ending",
+      "detail": {}
+    },
+    {
+      "name": "webkit-leave-touch-rotation-large-text-lifecycle-save-and-full-ending",
+      "detail": {}
+    },
+    {
+      "name": "webkit-actual-1.7.0-backup-import-and-read-same-hash",
+      "detail": {
+        "stageReady": true,
+        "media": [
+          {
+            "bus": "ambient",
+            "playing": true,
+            "failed": false
+          },
+          {
+            "bus": "bgm",
+            "playing": true,
+            "failed": false
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "routes": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "branch": "留下等雨停",
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 430,
+          "height": 932
+        },
+        {
+          "width": 844,
+          "height": 390
+        }
+      ],
+      "textsInExactOrder": 66,
+      "naturallyEndedVoices": 6,
+      "lifecycle": {
+        "hidden": "suspended",
+        "tapBlocked": true,
+        "resumed": "active",
+        "simulatedPageTransition": true
+      },
+      "nativeFreeze": {
+        "attempted": true,
+        "events": [],
+        "observed": false,
+        "acceptedAsNativeCoverage": false
+      },
+      "navigationPagehide": {
+        "trusted": true,
+        "persisted": false,
+        "mounted": false,
+        "activity": "unmounted",
+        "paused": true,
+        "mediaNodes": 0
+      },
+      "navigationReturn": "reload-and-explicit-save-read",
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanListening": false
+    },
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "branch": "去追最后一班车",
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 430,
+          "height": 932
+        },
+        {
+          "width": 844,
+          "height": 390
+        }
+      ],
+      "textsInExactOrder": 66,
+      "naturallyEndedVoices": 6,
+      "lifecycle": {
+        "hidden": "suspended",
+        "tapBlocked": true,
+        "resumed": "active",
+        "simulatedPageTransition": true
+      },
+      "nativeFreeze": null,
+      "navigationPagehide": {
+        "trusted": true,
+        "persisted": false,
+        "mounted": false,
+        "activity": "unmounted",
+        "paused": true,
+        "mediaNodes": 0
+      },
+      "navigationReturn": "reload-and-explicit-save-read",
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanListening": false
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "branch": "留下等雨停",
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 430,
+          "height": 932
+        },
+        {
+          "width": 844,
+          "height": 390
+        }
+      ],
+      "textsInExactOrder": 66,
+      "naturallyEndedVoices": 6,
+      "lifecycle": {
+        "hidden": "suspended",
+        "tapBlocked": true,
+        "resumed": "active",
+        "simulatedPageTransition": true
+      },
+      "nativeFreeze": null,
+      "navigationPagehide": {
+        "trusted": true,
+        "persisted": false,
+        "mounted": false,
+        "activity": "unmounted",
+        "paused": true,
+        "mediaNodes": 0
+      },
+      "navigationReturn": "reload-and-explicit-save-read",
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanListening": false
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "branch": "去追最后一班车",
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 430,
+          "height": 932
+        },
+        {
+          "width": 844,
+          "height": 390
+        }
+      ],
+      "textsInExactOrder": 66,
+      "naturallyEndedVoices": 6,
+      "lifecycle": {
+        "hidden": "suspended",
+        "tapBlocked": true,
+        "resumed": "active",
+        "simulatedPageTransition": true
+      },
+      "nativeFreeze": null,
+      "navigationPagehide": {
+        "trusted": true,
+        "persisted": false,
+        "mounted": false,
+        "activity": "unmounted",
+        "paused": true,
+        "mediaNodes": 0
+      },
+      "navigationReturn": "reload-and-explicit-save-read",
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanListening": false
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "branch": "留下等雨停",
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 430,
+          "height": 932
+        },
+        {
+          "width": 844,
+          "height": 390
+        }
+      ],
+      "textsInExactOrder": 66,
+      "naturallyEndedVoices": 6,
+      "lifecycle": {
+        "hidden": "suspended",
+        "tapBlocked": true,
+        "resumed": "active",
+        "simulatedPageTransition": true
+      },
+      "nativeFreeze": null,
+      "navigationPagehide": {
+        "trusted": true,
+        "persisted": false,
+        "mounted": false,
+        "activity": "unmounted",
+        "paused": true,
+        "mediaNodes": 0
+      },
+      "navigationReturn": "reload-and-explicit-save-read",
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanListening": false
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "branch": "去追最后一班车",
+      "viewports": [
+        {
+          "width": 390,
+          "height": 844
+        },
+        {
+          "width": 360,
+          "height": 800
+        },
+        {
+          "width": 430,
+          "height": 932
+        },
+        {
+          "width": 844,
+          "height": 390
+        }
+      ],
+      "textsInExactOrder": 66,
+      "naturallyEndedVoices": 6,
+      "lifecycle": {
+        "hidden": "suspended",
+        "tapBlocked": true,
+        "resumed": "active",
+        "simulatedPageTransition": true
+      },
+      "nativeFreeze": null,
+      "navigationPagehide": {
+        "trusted": true,
+        "persisted": false,
+        "mounted": false,
+        "activity": "unmounted",
+        "paused": true,
+        "mediaNodes": 0
+      },
+      "navigationReturn": "reload-and-explicit-save-read",
+      "quickSaveReload": true,
+      "physicalPhone": false,
+      "humanListening": false
+    }
+  ],
+  "scope": "Desktop browser engines with responsive/touch automation; Chromium protocol composition start/input trusted but end untrusted; protocol freeze only counted if emitted; other IME/page transitions explicitly synthetic; real HTTP navigation and saves; no physical phone, OS keyboard, low-memory, public deploy, human timing/listening or full offline-upgrade acceptance"
+}

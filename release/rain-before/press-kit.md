@@ -1,28 +1,28 @@
-# 《雨停之前》1.7.0 Web 候选展示资料
+# 《雨停之前》1.7.1 Web 候选展示资料
 
-2026-10-16 更新。当前候选为**对白节拍与配音演出校订版 1.7.0**，不是已上线、已授权或 Stable 发行声明。下面的历史资料不能用于为新候选的旧档兼容背书。
+2026-10-16 更新。当前候选为**输入与返回阅读接续版 1.7.1**，不是已上线、已授权或 Stable 发行声明。只核对 1.7.0 存档，不沿用历史已变剧情的兼容承诺。
 
 ## 当前作品与交付
 
 一句话：一场雨，两条路。读完旧信，把下一次见面写进日历。
 
-生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。1.7.0 将对白放回实际说话时机、减少重复转述、补未来行程和人物退场，并修正退票后的出发配音。纸色说话人恢复深色显示；保留原分支、全部既有稳定 ID 和 24 份未改媒体。
+生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正；1.7.1 不改剧情和媒体，修复中文输入快捷键、暂停点按和页面返回阅读保护。
 
 | 资料 | 当前路径 |
 | --- | --- |
-| 可编辑源工程 | `evidence/web-story-beats/before-rain-stops-project.zip` |
-| 单文件游戏 | `evidence/web-story-beats/before-rain-stops.html` |
-| Web 部署目录 | `evidence/web-story-beats/before-rain-stops-web.zip` |
-| 待人工复核的 11 条记录 | `evidence/web-story-beats/before-rain-stops.worldreview` |
-| 内容/演出修订与边界 | `release-notes-1.7.0.md`、`docs/337-web-story-dialogue-beats.md` |
-| 当前三产物摘要 | `evidence/web-story-beats/artifact-audit.json` |
+| 可编辑源工程 | `evidence/web-mobile-continuity/before-rain-stops-project.zip` |
+| 单文件游戏 | `evidence/web-mobile-continuity/before-rain-stops.html` |
+| Web 部署目录 | `evidence/web-mobile-continuity/before-rain-stops-web.zip` |
+| 待人工复核的 11 条记录 | `evidence/web-mobile-continuity/before-rain-stops.worldreview` |
+| 当前更新与边界 | `release-notes-1.7.1.md`、`docs/338-web-mobile-input-and-resume.md` |
+| 当前三产物摘要 | `evidence/web-mobile-continuity/artifact-audit.json` |
 | 当前语音来源及技术指标 | `assets/rain-story/voice-revision-v1.7.json`、`source-manifest-v1.7.json` |
 | 背景来源/完整提示词 | `assets/rain-story/source-manifest-v1.6.json`、`image-prompts-v1.6.json` |
-| 实际手机尺寸对白图 | `evidence/web-story-beats/directory-leave-stmt_ui_196.png`、`directory-leave-stmt_ui_250.png` |
+| 手机尺寸实际阅读/旧档恢复图 | `evidence/web-mobile-continuity/firefox-stay-large-reading.png`、`firefox-compatible-old-save.png` |
 
-本地 HTML 和 HTTP 子目录分别完整走过两路线，移位对白的保存刷新读取与回想恢复通过。截图来自 Chromium 151 的实际 Player，390 px 不是物理手机。11 条校订任务只标记已修改、待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音，技术自然结束不等于人工听感验收。
+当前 HTTP 子目录在本机 Chromium 151、Firefox 153、WebKit 26.5 分别完整走过两路线，横竖屏/触控大字号、导航返回/存档恢复和旧版备份读取检查通过。390 px 等截图不是物理手机，WebKit 不代表 iPhone Safari；系统键盘、冻结/锁屏/低内存未计通过。11 条校订任务只标记已修改、待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音，技术自然结束不等于人工听感验收。
 
-**1.7.0 未核对为 1.6.0 或更早的旧档兼容版本。** 实际 1.6.0 备份导入会被拒绝；原 1.6.0 三产物保留在 `evidence/web-story-refinement`，1.5.4 在 `evidence/web-save-backup`，旧进度使用原版继续。1.6.0 修订记录见 `release-notes-1.6.0.md`。请保留旧游戏与备份，不用新候选覆盖玩家唯一的原版入口。
+**1.7.1 已核对相同内容的 1.7.0，三引擎实查该版备份导入并读取。** 没有核对 1.6.0 或更早已变剧情的旧档；对应旧进度继续用原游戏。1.7.0 原版在 `evidence/web-story-beats`，1.6.0 在 `evidence/web-story-refinement`，1.5.4 在 `evidence/web-save-backup`。请保留原游戏和备份再更新；本批未重验完整离线更新链。
 
 新背景通过内置 imagegen 对本项目图片作光照变体，生成来源与参考摘要可追溯，但许可和最终美术仍待确认；原系统合成语音的对外再分发许可同样未关闭。作者/发行者、联系方式、版权声明、渠道和发布日期不虚构。公开部署前仍需人工全文/听感、美术、实际手机与支持浏览器、来源许可和实际 URL 回查；当前未上传公网。
 

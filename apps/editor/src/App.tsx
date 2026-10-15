@@ -2140,7 +2140,7 @@ function SequenceView({
   }, [requestedFocusStatementId, selected.id, selectedIndex]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
-      if (!event.altKey || pendingDraft || inspectorDirty || textBatchOpen || document.querySelector("dialog[open]")) return;
+      if (event.isComposing || event.keyCode === 229 || !event.altKey || pendingDraft || inspectorDirty || textBatchOpen || document.querySelector("dialog[open]")) return;
       const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : event.key === "5" ? "textbox" : null;
       if (command === null) return;
       event.preventDefault();
@@ -2149,7 +2149,7 @@ function SequenceView({
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
   }, [pendingDraft, inspectorDirty, textBatchOpen]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(!document.querySelector("dialog[open]")&&!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(event.isComposing||event.keyCode===229)return;if(!document.querySelector("dialog[open]")&&!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   const selectedInspector = (<div className="inline-inspector">
         <div className="inspector-label-row">
@@ -4403,7 +4403,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   useEffect(() => {
     if (!backupPanelOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setBackupPanelOpen(false);
+      if (!event.isComposing && event.keyCode !== 229 && event.key === "Escape") setBackupPanelOpen(false);
     };
     globalThis.addEventListener("keydown", closeOnEscape);
     return () => globalThis.removeEventListener("keydown", closeOnEscape);
@@ -4411,7 +4411,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   useEffect(() => {
     if (!assetPanelOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && assetImportAbortRef.current === null) setAssetPanelOpen(false);
+      if (!event.isComposing && event.keyCode !== 229 && event.key === "Escape" && assetImportAbortRef.current === null) setAssetPanelOpen(false);
     };
     globalThis.addEventListener("keydown", closeOnEscape);
     return () => globalThis.removeEventListener("keydown", closeOnEscape);

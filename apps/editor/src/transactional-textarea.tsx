@@ -131,6 +131,9 @@ export function TransactionalTextarea({
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (composingRef.current || event.nativeEvent.isComposing || event.keyCode === 229) {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") event.preventDefault();
+      // IME confirmation/navigation belongs to the input, never an enclosing
+      // step card or a global insert/direction shortcut (even before onChange).
+      event.stopPropagation();
       return;
     }
     if (onNavigate && event.altKey && !event.ctrlKey && !event.metaKey && (event.key === "PageUp" || event.key === "PageDown")) {

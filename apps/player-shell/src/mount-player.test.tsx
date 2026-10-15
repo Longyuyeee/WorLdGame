@@ -35,6 +35,27 @@ function mount(container = connectedContainer(), project = branching()): WorldPl
 }
 
 describe("N50-E6 versioned Player host embedding API", () => {
+  it("suspends synchronously for pagehide and respects host/visibility ceilings on pageshow", () => {
+    const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible");
+    const container = connectedContainer(), handle = mount(container); fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const hash = container.querySelector('main')!.dataset.runtimeStateHash;
+    fireEvent(window, new Event("pagehide")); expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.setHostActivity("active"); expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("hidden"); fireEvent(window, new Event("pageshow")); expect(handle.getObservation().hostActivity).toBe("suspended");
+    visibility.mockReturnValue("visible"); fireEvent(window, new Event("pageshow")); expect(handle.getObservation().hostActivity).toBe("active");
+    expect(container.querySelector('main')!.dataset.runtimeStateHash).toBe(hash);
+    fireEvent(window, new Event("pagehide")); handle.setHostActivity("suspended"); fireEvent(window, new Event("pageshow"));
+    expect(handle.getObservation().hostActivity).toBe("suspended");
+    handle.unmount(); fireEvent(window, new Event("pagehide")); fireEvent(window, new Event("pageshow"));
+  });
+  it("does not let pageshow clear freeze or resume clear pagehide", () => {
+    vi.spyOn(document, "visibilityState", "get").mockReturnValue("visible"); const handle = mount();
+    fireEvent(document, new Event("freeze")); fireEvent(window, new Event("pagehide")); fireEvent(window, new Event("pageshow"));
+    expect(handle.getObservation().hostActivity).toBe("suspended");
+    fireEvent(document, new Event("resume")); expect(handle.getObservation().hostActivity).toBe("active");
+    fireEvent(window, new Event("pagehide")); fireEvent(document, new Event("resume")); expect(handle.getObservation().hostActivity).toBe("suspended");
+    fireEvent(window, new Event("pageshow")); expect(handle.getObservation().hostActivity).toBe("active");
+  });
   it("reports actual voice waiting as active and suspends it through the host API", async () => {
     const demo = createPlayerMediaMultichannelDemoV1();
     const container = connectedContainer();

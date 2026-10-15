@@ -14,6 +14,16 @@ afterEach(() => {
 });
 
 describe("S0.30 typed resource manifest compiler integration", () => {
+  it("keeps the asset dialog open for IME Escape and closes it for a normal Escape", async () => {
+    vi.stubGlobal("indexedDB", new IDBFactory()); render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "素材" }));
+    fireEvent.click(screen.getByText("素材处理进度与检查"));
+    fireEvent.click(await screen.findByRole("button", { name: "导入与管理素材" }));
+    const dialog = screen.getByRole("dialog", { name: "素材管理" }), input = screen.getByLabelText("资源显示名称");
+    fireEvent.keyDown(input, { key: "Escape", isComposing: true }); expect(dialog).toBeInTheDocument();
+    fireEvent.keyDown(input, { key: "Escape", keyCode: 229 }); expect(dialog).toBeInTheDocument();
+    fireEvent.keyDown(input, { key: "Escape" }); expect(screen.queryByRole("dialog", { name: "素材管理" })).not.toBeInTheDocument();
+  });
   it("imports real File bytes, persists stable metadata and reports exact deduplication", async () => {
     vi.stubGlobal("indexedDB", new IDBFactory());
     render(<App />);

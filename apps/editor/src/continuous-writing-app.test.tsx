@@ -16,6 +16,17 @@ const project = () => projectCanonicalFromStory({ schemaVersion: 0, id: 'continu
 const field = () => screen.getByRole('textbox', { name: /旁白文本|对白内容/ });
 function open() { render(<App initialProject={project()}/>); fireEvent.click(screen.getByRole('button', { name: '选择旁白：开场第一段' })); }
 
+it('does not insert content or open direction dialogs from IME shortcut keys before the first input change', () => {
+  open(); const input = field(), revision = screen.getByTestId('workspace-shell').getAttribute('data-source-revision');
+  fireEvent.compositionStart(input);
+  fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true, isComposing: true });
+  expect(screen.getByTestId('workspace-shell')).toHaveAttribute('data-source-revision', revision);
+  expect(field()).toBe(input);
+  fireEvent.keyDown(input, { key: '1', altKey: true, keyCode: 229 });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  fireEvent.compositionEnd(input);
+});
+
 it('auto-applies narration without remounting its input or losing whitespace; undo and redo retain IDs', async () => {
   open(); const input = field(), text = ' 开场修改\n第二行。 ';
   fireEvent.change(input, { target: { value: text } });

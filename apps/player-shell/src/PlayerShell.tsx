@@ -790,6 +790,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
+    // Pointer callbacks and already queued media completions must honor the same
+    // host ceiling as keyboard/Auto, including the final event before pagehide.
+    if (audioActivity.current.hostActivity !== 'active') return;
     if (source === 'system' && intent.kind === 'primary' && (artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
       deferredMenuCompletion.current = { stateHash: snapshot.runtimeStateHash, hostHash: snapshot.runtimeHostSnapshotHash };
       return;
@@ -1289,6 +1292,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => {
     if (hostActivity !== "active") return;
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
       if (artworkView) {
         if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && ['h', 'H', 'Escape', 'Enter', ' '].includes(event.key)) { event.preventDefault(); restoreReading(); }
         return;
@@ -1344,7 +1348,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       }
       if (event.key === 'Escape' && snapshot.sceneReplay.active) { event.preventDefault(); exitSceneReplay(); return; }
       if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'h' && canViewArtwork && !(event.target instanceof HTMLElement && event.target.closest('input,select,textarea,[contenteditable]'))) { event.preventDefault(); showArtwork(); return; }
-      if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,button:not(.player-dialogue)')) return;
+      if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,[contenteditable],button:not(.player-dialogue)')) return;
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
       if (content.kind === "choice" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
         event.preventDefault();

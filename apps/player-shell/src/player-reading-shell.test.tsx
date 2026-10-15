@@ -4,6 +4,7 @@ import { withProjectSettings } from '@world-studio/gal-settings';
 import { loadProject, migrateS0Project, type S0Project } from '@world-studio/project-domain';
 import tiny from '../../../fixtures/projects/tiny/project.s0.json';
 import { PlayerShell } from './PlayerShell';
+import { WebPlayerHost } from './player-host';
 import { DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1 } from './player-playback-policy';
 import { createPlayerVideoDemoV1 } from './media-demo';
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); localStorage.clear(); });
@@ -17,6 +18,43 @@ function project() {
 }
 const policy = { ...DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, auto: { ...DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.auto, baseDelayMilliseconds: 10, millisecondsPerReadableUnit: 0 } };
 function compact() { vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener() {}, removeEventListener() {} })); }
+it('pauses the real Auto timer on pagehide and schedules a fresh wait after pageshow without catching up', async () => {
+  vi.useFakeTimers(); const view = render(<WebPlayerHost project={project()} playbackPolicy={policy} />);
+  fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+  fireEvent.click(screen.getByRole('button', { name: '自动播放' }));
+  const hash = view.container.querySelector('main')!.dataset.runtimeStateHash;
+  fireEvent(window, new Event('pagehide'));
+  await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+  expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  expect(view.container.querySelector('main')).toHaveAttribute('data-auto-playback', 'suspended');
+  fireEvent(window, new Event('pageshow')); expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  await act(async () => { await vi.advanceTimersByTimeAsync(11); });
+  expect(view.container.querySelector('.player-dialogue__text')).toHaveTextContent('B');
+});
+it('ignores IME confirmation keys, legacy 229 and editable content without advancing or closing the reading menu', async () => {
+  const view = render(<PlayerShell project={project()} />); fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});
+  const hash = view.container.querySelector('main')!.dataset.runtimeStateHash;
+  fireEvent.keyDown(window, { key: 'Enter', isComposing: true });
+  fireEvent.keyDown(window, { key: ' ', keyCode: 229 });
+  expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  const editable = document.createElement('div'); editable.setAttribute('contenteditable', 'true'); document.body.append(editable);
+  try { fireEvent.keyDown(editable, { key: 'Enter' }); expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash); }
+  finally { editable.remove(); }
+  fireEvent.click(screen.getByRole('button', { name: '打开阅读菜单' }));
+  fireEvent.keyDown(window, { key: 'Escape', isComposing: true });
+  expect(screen.getByRole('dialog', { name: '阅读菜单' })).toBeInTheDocument();
+  fireEvent.keyDown(window, { key: 'Escape' }); expect(screen.queryByRole('dialog', { name: '阅读菜单' })).not.toBeInTheDocument();
+});
+it('does not accept a pointer advance while the host is suspended and resumes at the same paragraph', async () => {
+  const source = project(), view = render(<PlayerShell project={source} />); fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});
+  const hash = view.container.querySelector('main')!.dataset.runtimeStateHash;
+  view.rerender(<PlayerShell project={source} hostActivity="suspended" />);
+  fireEvent.click(screen.getByRole('button', { name: '继续下一句' }));
+  expect(view.container.querySelector('main')).toHaveAttribute('data-runtime-state-hash', hash);
+  view.rerender(<PlayerShell project={source} hostActivity="active" />);
+  expect(view.container.querySelector('.player-dialogue__text')).toHaveTextContent('A');
+  fireEvent.click(screen.getByRole('button', { name: '继续下一句' })); expect(view.container.querySelector('.player-dialogue__text')).toHaveTextContent('B');
+});
 it('marks the actual speaker for the authored paper-theme contrast rule', async () => {
   const source = loadProject(migrateS0Project(tiny as S0Project).files);
   const view = render(<PlayerShell project={source} />);
