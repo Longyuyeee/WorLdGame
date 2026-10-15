@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "story": {
+    "scenes": 9,
+    "narration": 90,
+    "dialogue": 9,
+    "textCharacters": 9662,
+    "changedText": 5,
+    "changedBackgrounds": 5,
+    "addedAudioCues": 2,
+    "directions": 73,
+    "assets": 25,
+    "originalBlobsPreserved": 22,
+    "stableOriginalIdsPreserved": true
+  },
+  "canonicalSourceHtmlDirectoryMatch": true,
+  "mediaBytesMatch": true,
+  "buildInfoFilesVerified": 35,
+  "artifacts": {
+    "source": {
+      "bytes": 31659524,
+      "sha256": "45ab1bbc3c36ef05abca52eebe9bcb4b3563c153af9a9362778331b7291c97c5"
+    },
+    "html": {
+      "bytes": 42804399,
+      "sha256": "e4aab51870960a76febd423e62c284830487e2966d6986b5c919de0501aa6ff1"
+    },
+    "directory": {
+      "bytes": 32304216,
+      "sha256": "cec887378c7231348a9f0dbe5cd130c2c5515a764dadcabaf9615dbe1c2d9a8d"
+    }
+  }
+}

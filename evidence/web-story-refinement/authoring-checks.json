@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "eight-real-editor-review-notes",
+      "detail": {
+        "importMs": 1343.269,
+        "humanAcceptance": false
+      }
+    },
+    {
+      "name": "native-refresh-warning-preserves-unapplied-draft",
+      "detail": {}
+    },
+    {
+      "name": "editor-applied-five-texts-five-backgrounds-two-audio-cues-and-version",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "importMs": 1343.269,
+  "notes": {
+    "count": 8,
+    "status": "fixed",
+    "humanReviewed": false
+  },
+  "browser": "151.0.7922.34"
+}

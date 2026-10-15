@@ -1,0 +1,30 @@
+{
+  "version": "1.6.0",
+  "createdAt": "2026-10-15",
+  "assets": [
+    {
+      "file": "station-day.png",
+      "reference": "station-night-v2.png",
+      "method": "built-in imagegen",
+      "useCase": "lighting-weather",
+      "prompt": "Use case: lighting-weather. Asset type: production visual-novel environment background. Input image 1 is the edit target: our existing hand-painted anime railway platform at night. Create its morning-after-rain variant for the same story location, wide landscape 16:9. Change ONLY illumination, weather and atmosphere: soft overcast daylight, pale bright sky, damp paving with daylight reflections, no active rain, distant hills and water clearly readable. Keep the exact camera, architectural geometry, platform, rail tracks, benches, roof columns, distant buildings, train and foreground breathing room unchanged. Switch off the warm station lamps and train interior glow so it is unmistakably daytime. Preserve the painterly detail, composition and original proportions; no added people, signs, text, logos, interface or watermark. One polished game background, no borders or collage.",
+      "releasePermissionConfirmed": false
+    },
+    {
+      "file": "day-cafe.png",
+      "reference": "night-cafe.png",
+      "method": "built-in imagegen",
+      "useCase": "lighting-weather",
+      "prompt": "Use case: lighting-weather. Asset type: production visual-novel environment background. Input image 1 is the edit target: our existing hand-painted anime noodle cafe interior beside a railway station. Create its overcast daytime variant for breakfast and an afternoon rainy reunion, wide landscape 16:9. Change ONLY illumination, weather and atmosphere: diffuse neutral daylight fills the room and bright cloudy sky outside, lightly rain-streaked window and damp street, pendant lamps off or very subdued, warm natural wood rather than amber night glow. Preserve the exact interior layout, camera, table with two bowls and cups, booth seats, counter, plants, window, station outside, foreground character space and all object positions. Keep original hand-painted visual-novel style and proportions. No people, new props, readable lettering, signs, logos, interface, watermark, borders or collage. One polished reusable background.",
+      "releasePermissionConfirmed": false
+    },
+    {
+      "file": "night-studio.png",
+      "reference": "morning-studio.png",
+      "method": "built-in imagegen",
+      "useCase": "lighting-weather",
+      "prompt": "Use case: lighting-weather. Asset type: production visual-novel background. Input image 1 is the edit target, our hand-painted anime artist's room in morning sunlight. Make the SAME room late at night for a character returning home after saying goodbye. Change only lighting and atmosphere: deep blue night sky and very dim silhouettes outside, scattered distant city lights, soft warm pool of light from the existing desk lamp on the right and gentle reflected fill, no sunlight or bright daytime shadows. Preserve exact architecture, furniture, open windows, easel, paintings, table, chairs, plants, floor rug, camera perspective, framing and foreground breathing room. Keep the painterly detail and 16:9 landscape proportions. No people, extra objects, text, logos, interface, watermark, border or collage. One polished story background.",
+      "releasePermissionConfirmed": false
+    }
+  ]
+}

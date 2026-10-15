@@ -1,5 +1,7 @@
 # Web 批量素材导入与完整作品回查 · 2026-10-15
 
+> 后续接续已由 [#334](334-web-story-refinement-and-leave-protection.md) 推进到《雨停之前》1.6.0：实际校订正文/演出并生成新候选，当前源工程改用 `evidence/web-story-refinement`。本文的 1.5.4 保持和临时测试包描述属于 #333 当批事实。
+
 接续 `8a1b942`（[#332 依赖边界修正](332-web-resume-dependency-boundary.md)），完成 [#331](331-web-batch-assets-pause-checkpoint.md) 暂停时留下的批量素材验收。当前恢复开发，继续按 [#304](304-web-complete-gal-delivery.md) 的 Web 完整作品路线推进；不恢复原生主线，也不把自动游玩记为人工定稿。
 
 ## 这批交付了什么

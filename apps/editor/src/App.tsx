@@ -39,6 +39,7 @@ import { PlaytestReviewTask } from "./PlaytestReviewTask";
 import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
 import { TextReplaceDialog } from './TextReplaceDialog';
 import { BatchAssetImportDialog } from './BatchAssetImportDialog';
+import { usePageLeaveGuard } from './use-page-leave-guard';
 import { batchImportError, type BatchAssetResult } from './asset-batch-import';
 import { DEFAULT_REVIEW_LIST, canConfirmReview, nextPendingReview, reviewLocationExists, reviewNoteSignature, type ReviewListView, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
@@ -4340,6 +4341,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const activeSavePromise = useRef<Promise<boolean> | null>(null);
   const autosaveSuspended = useRef(false);
   const editGeneration = useRef(0);
+  const savedEditGeneration = useRef(0);
   const routeChangedSceneIds = useRef<Set<string> | null>(new Set());
   const sessionRef = useRef(session);
   sessionRef.current = session;
@@ -4353,6 +4355,8 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const [backupPanelOpen, setBackupPanelOpen] = useState(false);
   const [backups, setBackups] = useState<readonly ProjectBackup[]>([]);
   const [backupsLoading, setBackupsLoading] = useState(false);
+  usePageLeaveGuard(inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0 || assetStatus === 'importing' ||
+    editGeneration.current !== savedEditGeneration.current || ['dirty', 'saving', 'autosaving'].includes(persistence.status));
 
   const restoreSessionAndContext = useCallback((snapshot: ProjectSnapshot, restoredSession: StudioSession) => {
     const resolution = restoreWorkspaceContext(snapshot, restoredSession);
@@ -4686,6 +4690,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
         persistedSnapshotRef.current = snapshot;
         storageRevision.current = snapshot.storageRevision;
         baseDispatch({ type: "restore-session", session: restored });
+        if (!preferInitialProject || !lifecycleHosted) savedEditGeneration.current = editGeneration.current;
         setPersistence({
           status: preferInitialProject && lifecycleHosted ? "dirty" : "restored",
           revision: snapshot.storageRevision,
@@ -4877,6 +4882,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       }
       const backupCount = verifiedBackups.length;
       const changedDuringSave = editGeneration.current !== generation;
+      savedEditGeneration.current = generation;
       setPersistence({
         status: changedDuringSave ? "dirty" : reason === "auto" ? "autosaved" : "saved",
         revision: nextRevision,
@@ -4973,6 +4979,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       persistedSnapshotRef.current = result.snapshot;
       storageRevision.current = result.snapshot.storageRevision;
       editGeneration.current += 1;
+      savedEditGeneration.current = editGeneration.current;
       baseDispatch({ type: "restore-session", session: restored });
       const items = await loadProjectBackups(store, BACKUP_POLICY);
       const reconciliation = await assetRepository.reconcileBackupSnapshots(items);

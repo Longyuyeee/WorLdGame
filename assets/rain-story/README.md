@@ -2,6 +2,18 @@
 
 项目制作样例素材，2026-10-13。
 
+## 1.6.0 昼夜变体
+
+2026-10-15 使用内置 imagegen 的光照/天气编辑生成三张背景，保留原图，未用 CLI、外部下载或代码调色替代。实际游戏仍使用工程等比画幅。生成式编辑保持地点和构图意图，不承诺逐像素几何一致；最终美术和发行许可仍待确认。
+
+| 新素材 | 编辑参考 | 用途 |
+| --- | --- | --- |
+| [station-day.png](station-day.png) | `station-night-v2.png` | 白天到站、重逢 |
+| [day-cafe.png](day-cafe.png) | `night-cafe.png` | 早餐和下午店内 |
+| [night-studio.png](night-studio.png) | `morning-studio.png` | 晚间回房 |
+
+三张均为 1672×941 PNG。完整最终提示词在 [image-prompts-v1.6.json](image-prompts-v1.6.json)，新旧文件的 SHA-256 和字节数在 [source-manifest-v1.6.json](source-manifest-v1.6.json)。演出绑定与剧情修订见 [editorial-review-v1.6.md](editorial-review-v1.6.md)。下方为历史素材来源。
+
 - `xia-letter.png`：内置 imagegen 生成的小夏立绘，1024×1536；实际检查角落 alpha=0、895,591 个全透明像素，保留原输出透明度。
 - `night-cafe.png`：内置 imagegen 生成的雨夜店内背景。
 - `coastal-morning.png`：内置 imagegen 生成的雨后海边街道背景。
