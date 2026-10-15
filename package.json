@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
+    "audit:web-batch-assets:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-batch-assets.mjs",
     "audit:web-authoring-polish:browser": "node tools/run-web-authoring-polish.mjs",
     "audit:web-player-entry:browser": "node tools/run-web-player-entry.mjs",
     "audit:web-save-updates:browser": "node tools/run-web-save-updates.mjs",

@@ -15,6 +15,12 @@ export function BatchAssetImportDialog({ index, ready, phase, createId, onImport
   const patch = (id: string, values: Partial<BatchAssetRow>) => { if (alive.current) setRows(current => current.map(row => row.assetId === id ? { ...row, ...values } : row)); };
   const stop = () => { controller.current?.abort(); onCancel(); setNotice('正在停止；已完成的素材会保留。'); };
   const unfinished = rows.filter(row => row.state !== 'success'), selected = unfinished.filter(row => row.selected), succeeded = rows.filter(row => row.state === 'success').length;
+  const firstFailure = rows.find(row => row.state === 'error' || !!batchRowError(row));
+  const locateFailure = () => {
+    const target = [...(dialog.current?.querySelectorAll<HTMLElement>('[data-batch-asset-id]') ?? [])].find(element => element.dataset.batchAssetId === firstFailure?.assetId);
+    target?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    target?.querySelector<HTMLInputElement>('input:not([type="checkbox"])')?.focus({ preventScroll: true });
+  };
   const start = async () => {
     if (running.current || !ready || !selected.length) return;
     running.current = true; setBusy(true); setError(''); setNotice(''); const abort = new AbortController(); controller.current = abort;
@@ -30,6 +36,6 @@ export function BatchAssetImportDialog({ index, ready, phase, createId, onImport
       {error && <p className="batch-assets-error" role="alert">{error}</p>}
       {!ready && !busy && <p role="status">素材写入暂不可用。请恢复工程编辑权后再继续；已完成项仍保留。</p>}
     </div>
-    <footer><div role="status" aria-live="polite"><strong>{busy ? '正在逐项导入…' : `已导入 ${succeeded} / ${rows.length} 项`}</strong><p>{busy ? phase : notice || '失败项可调整后重试；关闭后，未导入的文件选择不保存。'}</p></div><div>{busy ? <button type="button" onClick={stop}>停止导入</button> : <><button type="button" onClick={onClose}>{succeeded ? '返回素材库' : '关闭'}</button><button type="button" className="studio-primary" disabled={!ready || !selected.length || selected.every(row => !!batchRowError(row))} onClick={() => void start()}>导入所选 {selected.length} 项</button></>}</div></footer>
+    <footer><div><div role="status" aria-live="polite"><strong>{busy ? '正在逐项导入…' : `已导入 ${succeeded} / ${rows.length} 项`}</strong><p>{busy ? phase : notice || '失败项可调整后重试；关闭后，未导入的文件选择不保存。'}</p></div>{!busy && firstFailure && <button type="button" onClick={locateFailure}>定位失败项</button>}</div><div>{busy ? <button type="button" onClick={stop}>停止导入</button> : <><button type="button" onClick={onClose}>{succeeded ? '返回素材库' : '关闭'}</button><button type="button" className="studio-primary" disabled={!ready || !selected.length || selected.every(row => !!batchRowError(row))} onClick={() => void start()}>导入所选 {selected.length} 项</button></>}</div></footer>
   </dialog>;
 }

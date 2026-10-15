@@ -27,3 +27,18 @@ it('stops the current file, retains completed rows and resumes only the unfinish
   const importer = vi.fn().mockResolvedValueOnce({ status: 'success', message: '已导入' }).mockImplementationOnce(() => new Promise<BatchAssetResult>(resolve => { finish = resolve; })).mockResolvedValue({ status: 'success', message: '已导入' });
   render(<BatchAssetImportDialog index={createAssetIndex()} ready phase="检查中" createId={name => canonicalAssetId(name, 1)} onImport={importer} onCancel={cancel} onClose={() => {}} onInspect={() => {}} />); fireEvent.change(screen.getByLabelText('选择批量素材文件'), { target: { files: [png(), png()] } }); fireEvent.click(screen.getByRole('button', { name: '导入所选 2 项' })); await waitFor(() => expect(importer).toHaveBeenCalledTimes(2)); fireEvent.click(screen.getByRole('button', { name: '停止导入' })); await act(async () => {}); expect(dialog()).toHaveTextContent('本批已停止'); expect(dialog().querySelectorAll('[data-batch-state="success"]')).toHaveLength(1); fireEvent.click(screen.getByRole('button', { name: '导入所选 1 项' })); await waitFor(() => expect(dialog()).toHaveTextContent('已导入 2 / 2 项')); expect(importer).toHaveBeenCalledTimes(3);
 });
+it('locates a failed file for keyboard repair and moves to the next failure after removal', async () => {
+  const scroll = vi.fn();
+  const previous = HTMLElement.prototype.scrollIntoView; HTMLElement.prototype.scrollIntoView = scroll;
+  try {
+    render(<BatchAssetImportDialog index={createAssetIndex()} ready phase="" createId={name => canonicalAssetId(name, 1)} onImport={vi.fn().mockResolvedValue({ status: 'error', message: '文件内容不完整' })} onCancel={() => {}} onClose={() => {}} onInspect={() => {}} />);
+    fireEvent.change(screen.getByLabelText('选择批量素材文件'), { target: { files: [png(), png()] } });
+    fireEvent.click(screen.getByRole('button', { name: '导入所选 2 项' })); await screen.findByText(/本批处理完成：本次成功 0 项，失败 2 项/);
+    fireEvent.click(screen.getByRole('button', { name: '定位失败项' })); expect(screen.getByLabelText('素材名称 1')).toHaveFocus(); expect(scroll).toHaveBeenCalledWith({ block: 'center', behavior: 'instant' });
+    fireEvent.click(within(dialog().querySelector('[data-batch-asset-id="scene"]') as HTMLElement).getByRole('button', { name: '从本批移除' }));
+    fireEvent.click(screen.getByRole('button', { name: '定位失败项' })); expect(screen.getByLabelText('素材名称 1')).toHaveFocus(); expect(dialog().querySelector('[data-batch-asset-id="scene_2"]')).toContainElement(document.activeElement as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: '从本批移除' })); expect(screen.queryByRole('button', { name: '定位失败项' })).toBeNull();
+    fireEvent.change(screen.getByLabelText('选择批量素材文件'), { target: { files: [png()] } }); fireEvent.change(screen.getByLabelText('素材名称 1'), { target: { value: ' ' } });
+    fireEvent.click(screen.getByRole('button', { name: '定位失败项' })); expect(screen.getByLabelText('素材名称 1')).toHaveFocus(); expect(screen.getByRole('button', { name: '导入所选 1 项' })).toBeDisabled();
+  } finally { if (previous) HTMLElement.prototype.scrollIntoView = previous; else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView'); }
+});

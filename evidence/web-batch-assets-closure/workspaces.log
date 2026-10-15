@@ -1,0 +1,17 @@
+
+> world-studio@0.0.0-s0.41 audit:workspaces
+> node tools/audit-workspaces.mjs
+
+{
+  "status": "PASS",
+  "registry": "config/workspace-boundaries.json",
+  "auditedWorkspaces": 17,
+  "plannedProductBoundaries": 4,
+  "classifications": {
+    "product": 2,
+    "portable-candidate": 10,
+    "adapter": 1,
+    "spike": 1,
+    "conformance": 3
+  }
+}
