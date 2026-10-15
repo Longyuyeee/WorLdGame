@@ -2,6 +2,12 @@
 
 项目制作样例素材，2026-10-13。
 
+## 当前 1.7.0 配音修订
+
+2026-10-15，`voice-04-v1.7.wav` 替换当前工程的 `voice_04`，改为“出发的事明早确认，今晚的回信不用再等。”；不覆盖旧 `voice-04.wav`。其余 24 份媒体和所有图片不变。九段旁白及七组配音位置随实际剧情一起校订，详见 [editorial-review-v1.7.md](editorial-review-v1.7.md) / [editorial-v1.7.mjs](editorial-v1.7.mjs)。
+
+台词/声线、生成方法及未验收边界在 [voice-revision-v1.7.json](voice-revision-v1.7.json)，技术指标及新旧摘要在 [source-manifest-v1.7.json](source-manifest-v1.7.json)。生成脚本 `tools/generate-rain-story-voice-v1.7.ps1` 本机使用 PowerShell 7.6.5 和 Microsoft Kangkang，UTF-8 读取台词 JSON；不同宿主需先确认对应声线可用。仍为系统合成语音，不是人工录音；自然听感与再分发许可保持待复核。当前工程与双游戏产物在 `evidence/web-story-beats`；下方为历史制作记录。
+
 ## 1.6.0 昼夜变体
 
 2026-10-15 使用内置 imagegen 的光照/天气编辑生成三张背景，保留原图，未用 CLI、外部下载或代码调色替代。实际游戏仍使用工程等比画幅。生成式编辑保持地点和构图意图，不承诺逐像素几何一致；最终美术和发行许可仍待确认。
@@ -40,7 +46,7 @@
 
 `letter-icon.svg` 是原创代码绘制的雨滴/信封图标，`letter-icon.png` 是通过 `tools/create-rain-story-icon.mjs` 栅格化的 512×512 PNG。不是 AI 生成位图；可以从 SVG 重生成。
 
-`voice-01.wav`–`voice-09.wav` 是 Windows **System.Speech 合成语音样片**：林远采用 Microsoft Kangkang，小夏采用 Microsoft Huihui，速率 -1，单声道 PCM16 / 22,050 Hz。准确台词/声线见 `voice-lines.json`；生成脚本 `tools/generate-rain-story-voice.ps1` 需要本机安装相同声线。只覆盖九句角色对白，不是九十段旁白配音、真人录音或全篇配音。音轨在对应台词前播放、台词后停止，玩家可正常继续，不强制听完。
+`voice-01.wav`–`voice-09.wav` 是 Windows **System.Speech 合成语音样片**：林远采用 Microsoft Kangkang，小夏采用 Microsoft Huihui，速率 -1，单声道 PCM16 / 22,050 Hz。准确台词/声线见 `voice-lines.json`；生成脚本 `tools/generate-rain-story-voice.ps1` 需要本机安装相同声线。只覆盖九句角色对白，不是九十段旁白配音、真人录音或全篇配音。音轨在对应台词前播放、台词后停止；推进遵循工程的“等待语音结束”设置，当前默认开启，不能将这里旧有的“不强制听完”表述作为实际行为承诺。
 
 来源与发行状态：系统 TTS 声线/输出的再分发条件尚未确认；公网前应核实授权或换成有明确授权的录制/合成素材。全部图片、音乐、文本和图标也需由项目所有者完成最终来源确认与展示声明，不能因使用内部工具就统一标记授权通过。未提供真人演出者，也不声明任何真人声音授权。
 

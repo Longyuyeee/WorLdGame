@@ -10,6 +10,8 @@ evidence/web-save-backup/*.worldsave -text
 evidence/web-story-refinement/before-rain-stops.html -text
 evidence/web-story-refinement/*.worldsave -text
 evidence/web-story-refinement/*.worldreview -text
+evidence/web-story-beats/before-rain-stops.html -text
+evidence/web-story-beats/*.worldreview -text
 evidence/web-branch-authoring/branch-authoring.html -text
 
 evidence/web-playtest-revision/review-notes.worldreview -text

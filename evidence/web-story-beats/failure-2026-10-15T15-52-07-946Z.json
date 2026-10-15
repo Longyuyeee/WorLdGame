@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "name": "eight-existing-notes-imported-and-three-actual-issues-recorded",
+      "detail": {}
+    },
+    {
+      "name": "ten-text-revisions-and-nine-voice-beats-applied-through-editor-with-undo-redo",
+      "detail": {}
+    },
+    {
+      "name": "voice-replacement-save-refresh-reopen-and-real-html-directory-exports",
+      "detail": {}
+    },
+    {
+      "name": "strict-source-identity-order-media-and-both-artifact-audit",
+      "detail": {
+        "scenes": 9,
+        "narration": 90,
+        "dialogue": 9,
+        "textCharacters": 9672,
+        "revisedNarrations": 9,
+        "revisedVoices": 1,
+        "movedVoiceBlocks": 7,
+        "voiceBeats": 9,
+        "directions": 74,
+        "assets": 25,
+        "unchangedMedia": 24,
+        "existingIdsPreserved": true
+      }
+    }
+  ],
+  "errors": [],
+  "failure": "locator.waitFor: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('audio[data-audio-bus=\"voice\"]') to be visible\u001b[22m\n\u001b[2m    14 × locator resolved to hidden <audio data-volume=\"1\" data-audio-bus=\"voice\" data-applied-volume=\"1\" data-should-play=\"true\" data-asset-id=\"voice_01\" data-voice-failed=\"false\" data-voice-completed=\"false\" aria-label=\"林远·合成语音01 · voice\" data-player-playback=\"playing\" data-observed-should-play=\"true\" src=\"data:audio/wav;base64,UklGRgZkAwBXQVZFZm10IBIAAAABAAEAIlYAAESsAAACABAAAABkYXRh4GMDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA…></audio>\u001b[22m\n\u001b[2m    39 × locator resolved to hidden <audio data-volume=\"1\" data-audio-bus=\"voice\" data-applied-volume=\"1\" data-should-play=\"true\" data-asset-id=\"voice_01\" data-voice-failed=\"false\" data-voice-completed=\"true\" data-player-playback=\"ended\" aria-label=\"林远·合成语音01 · voice\" data-observed-should-play=\"true\" src=\"data:audio/wav;base64,UklGRgZkAwBXQVZFZm10IBIAAAABAAEAIlYAAESsAAACABAAAABkYXRh4GMDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA…></audio>\u001b[22m\n\n    at route (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-story-beats.mjs:130:77)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-beats.mjs:174:3"
+}

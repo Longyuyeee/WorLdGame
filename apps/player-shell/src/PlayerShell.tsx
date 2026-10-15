@@ -2225,7 +2225,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             onClick={event => { if (event.detail > 0 && reading.gesture.current.moved) return; applyIntent({ kind: "primary" }, pointerInput.current); }}
             aria-label="继续下一句"
           >
-            {content.kind === "dialogue" && <strong>{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
+            {content.kind === "dialogue" && <strong className="player-dialogue__speaker">{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
             <span
               key={`${presentedText}:${textRevealDuration}`}
               ref={releaseAnimationsOnDetach}

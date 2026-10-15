@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @world-studio/editor",
+    "audit:web-story-beats": "node --test tools/audit-rain-story-beats.test.mjs && node tools/audit-rain-story-beats.mjs",
+    "audit:web-story-beats:browser": "node tools/run-web-story-beats.mjs",
     "audit:web-story-refinement": "node --test tools/audit-rain-story-refinement.test.mjs && node tools/audit-rain-story-refinement.mjs",
     "audit:web-story-refinement:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-story-refinement.mjs",
     "audit:web-batch-assets:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-batch-assets.mjs",

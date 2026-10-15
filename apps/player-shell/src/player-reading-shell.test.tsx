@@ -17,6 +17,14 @@ function project() {
 }
 const policy = { ...DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, auto: { ...DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.auto, baseDelayMilliseconds: 10, millisecondsPerReadableUnit: 0 } };
 function compact() { vi.stubGlobal('matchMedia', () => ({ matches: true, addEventListener() {}, removeEventListener() {} })); }
+it('marks the actual speaker for the authored paper-theme contrast rule', async () => {
+  const source = loadProject(migrateS0Project(tiny as S0Project).files);
+  const view = render(<PlayerShell project={source} />);
+  fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => {});
+  const speaker = view.container.querySelector('.player-dialogue > strong');
+  expect(speaker).toHaveTextContent('Narrator');
+  expect(speaker).toHaveClass('player-dialogue__speaker');
+});
 it('pauses Auto and ignores underlying primary while the mobile reading menu is open', async () => {
   compact(); vi.useFakeTimers(); const view = render(<PlayerShell project={project()} playbackPolicy={policy} />);
   fireEvent.click(screen.getByRole('button', { name: /开始故事/ })); await act(async () => { await vi.advanceTimersByTimeAsync(0); });

@@ -1,0 +1,14 @@
+{
+  "checks": [
+    {
+      "name": "eight-existing-notes-imported-and-three-actual-issues-recorded",
+      "detail": {}
+    },
+    {
+      "name": "ten-text-revisions-and-nine-voice-beats-applied-through-editor-with-undo-redo",
+      "detail": {}
+    }
+  ],
+  "errors": [],
+  "failure": "locator.click: Timeout 25000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '管理素材', exact: true })\u001b[22m\n\n    at author (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-story-beats.mjs:86:82)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-story-beats.mjs:170:46"
+}
