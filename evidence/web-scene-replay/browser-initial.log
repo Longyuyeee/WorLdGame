@@ -1,0 +1,44 @@
+route 留下等雨停: step 0
+route 留下等雨停: step 30
+route 留下等雨停: step 60
+route 留下等雨停: step 0
+desktop HTML: full stay route creates the actual Rain replay entry; replay starts, reaches its ending, and Space restores exactly the parent Runtime hash, host hash, history cursor and ending; save entry stays hidden during replay
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   cursor: '4',
++   host: '003856e5f6f98087bf9412c7e5725db48e436e142feb00dfd538a6224311d60b',
++   runtime: '50eaa7da2be42901692d42e1bf246a29b4f5c971ff24729e2b960792350b7cd5',
++   status: 'presenting'
+-   cursor: '111',
+-   host: '9adfe225a58ce0ad18ba9f1df7be212bb00689a44197447fd4fbcafd8f39db44',
+-   runtime: '2249301cfbae53ce6444dc26af2b1c9bb12ca44b92b3541142dd68a58eb9faee',
+-   status: 'ended'
+  }
+
+    at returned (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-scene-replay.mjs:64:45)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-scene-replay.mjs:77:129 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: {
+    runtime: '50eaa7da2be42901692d42e1bf246a29b4f5c971ff24729e2b960792350b7cd5',
+    host: '003856e5f6f98087bf9412c7e5725db48e436e142feb00dfd538a6224311d60b',
+    cursor: '4',
+    status: 'presenting'
+  },
+  expected: {
+    runtime: '2249301cfbae53ce6444dc26af2b1c9bb12ca44b92b3541142dd68a58eb9faee',
+    host: '9adfe225a58ce0ad18ba9f1df7be212bb00689a44197447fd4fbcafd8f39db44',
+    cursor: '111',
+    status: 'ended'
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.14.0

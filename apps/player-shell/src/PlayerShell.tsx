@@ -6,6 +6,7 @@ import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from
 import { applyPlayerPreferences } from './player-preferences';
 import { usePlayerPreferences } from './use-player-preferences';
 import { restorePlayerCollection, usePlayerCollection } from './use-player-collection';
+import { restorePlayerReplayArchive, usePlayerReplayArchive } from './use-player-replay-archive';
 import { usePlayerFullscreen } from './use-player-fullscreen';
 import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
@@ -76,6 +77,7 @@ import "./player-shell.css";
 import "./player-reading-controls.css";
 import "./player-save-flow.css";
 import "./player-ending-flow.css";
+import "./player-replay-flow.css";
 
 export interface PlayerShellProps {
   readonly project: CanonicalProject;
@@ -181,7 +183,7 @@ function playerLocalePreferenceKey(projectId: string): string {
 }
 
 function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1]) {
-  const core = restorePlayerCollection(createPlayerCore(project, historyPolicy));
+  const core = restorePlayerReplayArchive(restorePlayerCollection(createPlayerCore(project, historyPolicy)));
   try {
     const preferred = globalThis.localStorage?.getItem(playerLocalePreferenceKey(project.manifest.projectId));
     return preferred === null || preferred === undefined ? core : configurePlayerCoreLocaleV1(core, preferred);
@@ -211,6 +213,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const preferencesPanel = useRef<HTMLDivElement | null>(null), preferencesTrigger = useRef<HTMLButtonElement | null>(null);
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
   const collection = usePlayerCollection(state, setState);
+  const replayArchive = usePlayerReplayArchive(state, setState);
   const liveState = useRef(state);
   liveState.current = state;
   const [memoryPressureStatus, setMemoryPressureStatus] = useState<PlayerMemoryPressureStatusV1>("idle");
@@ -537,6 +540,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setHistoryPanelOpen(false);
     setSavePanelOpen(false);
     setAdditionalContentOpen(false);
+    setSaveFeedback(null);
     setMediaErrors([]);
   }, [autoEnabled, autoPlayback, project, skipActivation, skipMode, skipSpeed, state, stopSkip]);
 
@@ -1328,6 +1332,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         if (event.key === "Escape") { event.preventDefault(); if (saveOperation === "busy") return; if (pendingRead) cancelRead(); else { setHistoryPanelOpen(false); closeSavePanel(); } }
         return;
       }
+      if (event.key === 'Escape' && snapshot.sceneReplay.active) { event.preventDefault(); exitSceneReplay(); return; }
       if (!event.repeat && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 'h' && canViewArtwork && !(event.target instanceof HTMLElement && event.target.closest('input,select,textarea,[contenteditable]'))) { event.preventDefault(); showArtwork(); return; }
       if (event.target instanceof HTMLElement && event.target.closest('input,select,textarea,button:not(.player-dialogue)')) return;
       if (event.repeat && !settingsApplication.advance.allowHold || event.altKey || event.ctrlKey || event.metaKey) return;
@@ -1765,7 +1770,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {snapshot.sceneReplay.active && (
           <aside className="player-replay-status" role="status" aria-label="场景回想状态">
             <div><span>SCENE REPLAY</span><strong>正在回想：{snapshot.sceneReplay.title}</strong><small>回想期间不会覆盖原剧情进度</small></div>
-            <button ref={replayExitButton} type="button" onClick={exitSceneReplay}>退出回想，返回原剧情</button>
+            <button ref={replayExitButton} type="button" aria-label="退出回想，返回原剧情" onClick={exitSceneReplay}>退出回想</button>
           </aside>
         )}
         {content.kind !== 'title' && <div className="player-compact-toolbar" inert={artworkView}>
@@ -1869,6 +1874,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
             </header>
             {collection.error && <p className="player-collection-error" role="alert">本机收藏记录暂时无法读取或保存。本次记录仍在，请保留故事存档后重试。<button type="button" onClick={collection.retry}>重试保存收藏</button></p>}
+            {replayArchive.error && <p className="player-collection-error" role="alert">本机回想记录暂时无法读取或保存。本次游玩仍可继续，请稍后重试。<button type="button" onClick={replayArchive.retry}>重试保存回想</button></p>}
             {additionalContentView === "overview" && <>
               <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
               <div className="player-additional-content__grid">
@@ -1939,7 +1945,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               <p className="player-additional-content__replay-note">回想会从你实际走过的场景入口重新开始；退出后，剧情、演出和播放状态都会回到进入前。</p>
               {snapshot.sceneReplay.error !== null && <p className="player-additional-content__replay-error" role="alert">{snapshot.sceneReplay.error}</p>}
               {snapshot.additionalContent.replayItems.some(item => item.unlocked && !canEnterPlayerCoreReplayV1(state, item.replayId)) && <div className="player-replay-context">
-                <p>回想需要对应路线的变量和场景入口记录。请读取含有该场景入口的路线存档；仅有收藏记录时无法直接回想。</p>
+                <p>这段回想尚未保留路线入口。请读取包含该场景的旧存档，或重新走过对应路线；之后可直接从这里重温。</p>
                 {saveStore && <button type="button" onClick={() => { setAdditionalContentOpen(false); openSavePanel('load'); }}>读取路线存档</button>}
               </div>}
               {snapshot.additionalContent.replayItems.length === 0
@@ -1948,7 +1954,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                   {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
                     {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
-                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{!item.unlocked ? "达成相关结局后解锁" : canEnterPlayerCoreReplayV1(state, item.replayId) ? "可从原路线安全重温" : "已解锁 · 当前记录缺少可用入口"}</small></div>
+                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{!item.unlocked ? "达成相关结局后解锁" : canEnterPlayerCoreReplayV1(state, item.replayId) ? "按当时的路线重温 · 原进度保持" : "已解锁 · 等待路线入口"}</small></div>
                     <button type="button" disabled={!canEnterPlayerCoreReplayV1(state, item.replayId)} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
                   </li>)}
                 </ol>}
@@ -2244,7 +2250,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
         {content.kind === "ending" && (
           <div className="player-ending" role="status">
-            <span>故事告一段落</span>
+            <span>{snapshot.sceneReplay.active ? '回想结束' : '故事告一段落'}</span>
             <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
             {!snapshot.sceneReplay.active && <>
               <p className="player-ending-progress">已达成 {snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 个结局</p>

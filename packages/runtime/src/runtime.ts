@@ -589,6 +589,17 @@ function applyInput(program: RuntimeProgramV1, state: RuntimeStateV1, input: Run
 }
 
 export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeStateV1, options: RuntimeRunOptionsV1 = {}): RuntimeRunResultV1 {
+  return executeRuntime(program, initialState, options);
+}
+
+/** Observe actual scene entrances using the same interpreter, without dispatching host effects. */
+export function traceRuntimeSceneEntriesV1(program: RuntimeProgramV1, initialState: RuntimeStateV1, options: RuntimeRunOptionsV1 = {}): RuntimeRunResultV1 & { readonly sceneEntries: readonly RuntimeStateV1[] } {
+  const sceneEntries: RuntimeStateV1[] = [];
+  const result = executeRuntime(program, initialState, options, state => sceneEntries.push(state));
+  return { ...result, sceneEntries };
+}
+
+function executeRuntime(program: RuntimeProgramV1, initialState: RuntimeStateV1, options: RuntimeRunOptionsV1, onSceneEntry?: (state: RuntimeStateV1) => void): RuntimeRunResultV1 {
   const programDiagnostics = validateRuntimeProgramV1(program);
   if (programDiagnostics.length > 0) return { state: initialState, event: null, executedInstructions: 0, diagnostics: programDiagnostics, effects: [], barrierRequest: null };
   let stateDiagnostics: readonly RuntimeDiagnosticV1[];
@@ -606,6 +617,7 @@ export function runRuntime(program: RuntimeProgramV1, initialState: RuntimeState
   if (!Number.isSafeInteger(budget) || budget < 1) return failure(state, "RUNTIME_INVALID_STATE", "Instruction budget must be a positive safe integer");
   const scenes = scenesById(program);
   for (let executed = 0; executed < budget; executed += 1) {
+    if (state.cursor.instructionIndex === 0) onSceneEntry?.(state);
     const scene = scenes.get(state.cursor.sceneId);
     if (scene === undefined) return failure(state, "RUNTIME_MISSING_SCENE", `Scene does not exist: ${state.cursor.sceneId}`, undefined, executed);
     const instruction = scene.instructions[state.cursor.instructionIndex];

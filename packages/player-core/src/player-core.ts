@@ -21,6 +21,7 @@ import {
   mergeRuntimeHistoryMetaProgressV1,
   validateRuntimeMetaProgressV1,
   runtimeStateHashV1,
+  traceRuntimeSceneEntriesV1,
   scheduleRuntimeBatchV1,
   type RuntimeDiagnosticV1,
   type RuntimeEventV1,
@@ -43,6 +44,7 @@ import {
   settleRuntimePresentationEffectV1,
   type RuntimePresentationHostStateV1
 } from "@world-studio/runtime-host";
+import { createPlayerReplayEntryV1, loadPlayerReplayEntryV1, type PlayerReplayEntryV1 } from './player-replay-entry';
 
 export const PLAYER_CORE_VERSION = "0.5.0" as const;
 const MAX_PLAYER_DRIVE_STEPS = 10_000;
@@ -84,6 +86,7 @@ export interface PlayerCoreState {
   readonly diagnostics: readonly PlayerCoreDiagnostic[];
   readonly replaySession: PlayerCoreReplaySessionV1 | null;
   readonly replayError: string | null;
+  readonly replayEntries: readonly PlayerReplayEntryV1[];
 }
 
 export interface PlayerCoreReplaySessionV1 {
@@ -426,6 +429,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
       compatibleSaveBuildIds: [],
       runtimeState: null,
       retainedMetaProgress: null,
+      replayEntries: [],
       historySession: null,
       historyPolicy,
       localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
@@ -451,6 +455,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
     })(),
     runtimeState: null,
     retainedMetaProgress: null,
+    replayEntries: [],
     historySession: null,
     historyPolicy,
     localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
@@ -471,10 +476,13 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
   let historySession = initialHistory;
   let runtimeState = historySession.checkpoints[historySession.cursor]!.state;
   let hostState = base.hostState;
+  let replayEntries = base.replayEntries;
   const checkpointSaveCandidates: PlayerCheckpointSaveCandidateV1[] = [];
   let nextInput = input;
   for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
+    const beforeCursor = historySession.cursor;
     const result = advanceRuntimeHistoryV1(artifacts.story, historySession, nextInput === undefined ? {} : { input: nextInput });
+    replayEntries = captureReplayEntries({ ...base, replayEntries }, result.session, beforeCursor, hostState);
     nextInput = undefined;
     historySession = result.session;
     runtimeState = result.state;
@@ -484,7 +492,7 @@ function drivePlayerCore(base: PlayerCoreState, initialHistory: RuntimeHistorySe
       if (!created.ok) return { ...base, runtimeState, historySession, hostState, currentEvent: null, checkpointSaveCandidates, status: "error", diagnostics: [...base.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
       checkpointSaveCandidates.push({ buildId: runtimeState.buildId, stepId: result.event.stepId, sceneId: runtimeState.cursor.sceneId, serializedSessionSave: created.serialized, artifactHash: created.artifactHash, runtimeStateHash: runtimeStateHashV1(runtimeState) });
     }
-    const current = { ...base, runtimeState, historySession, hostState, currentEvent: result.event, checkpointSaveCandidates };
+    const current = { ...base, runtimeState, historySession, hostState, replayEntries, currentEvent: result.event, checkpointSaveCandidates };
     if (result.diagnostics.length > 0) {
       return { ...current, status: "error", currentEvent: null, diagnostics: [...base.diagnostics, ...result.diagnostics.map(runtimeDiagnostic)] };
     }
@@ -678,6 +686,7 @@ export function schedulePlayerCorePlaybackV1(state: PlayerCoreState, policy: Pla
   for (let step = 0; step < MAX_PLAYER_DRIVE_STEPS; step += 1) {
     const beforeCursor = scheduler.history.cursor;
     const result = scheduleRuntimeBatchV1(state.artifacts.story, scheduler, policy);
+    const replayEntries = captureReplayEntries(current, result.session.history, beforeCursor, current.hostState);
     scheduler = result.session;
     executedInstructions += result.executedInstructions;
     const hostState = consumeRuntimePresentationEffectsV1(current.hostState, result.effects);
@@ -696,6 +705,7 @@ export function schedulePlayerCorePlaybackV1(state: PlayerCoreState, policy: Pla
       hostState,
       currentEvent: event,
       checkpointSaveCandidates,
+      replayEntries,
       playback
     };
 
@@ -745,29 +755,63 @@ function replayCheckpointIndex(state: PlayerCoreState, sceneId: string): number 
   return -1;
 }
 
+/** Re-execute only newly committed formal steps to recover entrances hidden inside jumps/choices. */
+function captureReplayEntries(state: PlayerCoreState, history: RuntimeHistorySessionV1, fromCursor: number, initialHost: RuntimePresentationHostStateV1): readonly PlayerReplayEntryV1[] {
+  if (state.replaySession !== null || state.artifacts === null || state.artifacts.catalogs.replay.length === 0) return state.replayEntries;
+  let entries = state.replayEntries;
+  const effects = new Map(Object.values(initialHost.activeByChannel).map(effect => [effect.channel, effect]));
+  for (let cursor = fromCursor; cursor < history.cursor; cursor++) {
+    const step = history.entries[cursor]!, before = history.checkpoints[cursor]!.state;
+    const traced = traceRuntimeSceneEntriesV1(state.artifacts.story, before, { ...(step.input === null ? {} : { input: step.input }), instructionBudget: Math.max(1024, step.executedInstructions) });
+    if (traced.diagnostics.length === 0 && runtimeStateHashV1(traced.state) === history.checkpoints[cursor + 1]!.stateHash) {
+      if (step.input?.kind === 'effectCancelled') for (const [channel, effect] of effects) if (effect.effectId === step.input.effectId) effects.delete(channel);
+      for (const entrance of traced.sceneEntries) {
+        const entry = createPlayerReplayEntryV1(state.artifacts, entrance, [...effects.values()]);
+        if (entry !== null) entries = [...entries.filter(item => item.sceneId !== entry.sceneId), entry];
+      }
+    }
+    for (const effect of step.effects) effects.set(effect.channel, effect);
+  }
+  return entries;
+}
+
+export function mergePlayerCoreReplayEntriesV1(state: PlayerCoreState, incoming: readonly PlayerReplayEntryV1[]): PlayerCoreState {
+  if (state.artifacts === null || state.replaySession !== null) return state;
+  let entries = state.replayEntries;
+  for (const item of incoming) {
+    const loaded = loadPlayerReplayEntryV1(state.artifacts, item, state.compatibleSaveBuildIds);
+    if (loaded === null || entries.some(existing => existing.sceneId === item.sceneId)) continue;
+    entries = [...entries, loaded.entry];
+  }
+  return entries === state.replayEntries ? state : { ...state, replayEntries: entries };
+}
+
 export function canEnterPlayerCoreReplayV1(state: PlayerCoreState, replayId: string): boolean {
-  if (state.replaySession !== null || state.artifacts === null || state.runtimeState === null || state.historySession === null || state.runtimeState.pendingEffect !== null || state.runtimeState.pendingBarrier !== null) return false;
+  if (state.replaySession !== null || state.artifacts === null || state.runtimeState?.pendingEffect || state.runtimeState?.pendingBarrier) return false;
   const replay = state.artifacts.catalogs.replay.find(item => item.replayId === replayId);
-  return replay !== undefined && replay.endingIds.some(id => state.runtimeState!.metaProgress.reachedEndingIds.includes(id)) && replayCheckpointIndex(state, replay.sceneId) >= 0;
+  return replay !== undefined && replay.endingIds.some(id => playerCoreMetaProgressV1(state)?.reachedEndingIds.includes(id)) && (state.replayEntries.some(entry => entry.sceneId === replay.sceneId) || replayCheckpointIndex(state, replay.sceneId) >= 0);
 }
 
 export function enterPlayerCoreReplayV1(state: PlayerCoreState, replayId: string): PlayerCoreState {
-  if (state.replaySession !== null || state.artifacts === null || state.runtimeState === null || state.historySession === null || state.runtimeState.pendingEffect !== null || state.runtimeState.pendingBarrier !== null) return state;
+  if (state.replaySession !== null || state.artifacts === null || state.runtimeState?.pendingEffect || state.runtimeState?.pendingBarrier) return state;
   const replay = state.artifacts.catalogs.replay.find((item) => item.replayId === replayId);
-  if (replay === undefined || !replay.endingIds.some((endingId) => state.runtimeState!.metaProgress.reachedEndingIds.includes(endingId))) {
+  if (replay === undefined || !replay.endingIds.some((endingId) => playerCoreMetaProgressV1(state)?.reachedEndingIds.includes(endingId))) {
     return { ...state, replayError: "这个回想尚未解锁。" };
   }
   const checkpointIndex = replayCheckpointIndex(state, replay.sceneId);
-  if (checkpointIndex < 0) return { ...state, replayError: "当前记录中找不到可安全开始的场景位置，原剧情未改变。" };
-  const checkpoint = state.historySession.checkpoints[checkpointIndex]!;
-  const created = createRuntimeHistorySessionV1(state.artifacts.story, checkpoint.state);
+  const stored = state.replayEntries.find(entry => entry.sceneId === replay.sceneId);
+  const archived = stored ? loadPlayerReplayEntryV1(state.artifacts, stored, state.compatibleSaveBuildIds) : null;
+  const checkpoint = checkpointIndex < 0 ? null : state.historySession!.checkpoints[checkpointIndex]!;
+  const entrance = archived?.state ?? checkpoint?.state;
+  if (!entrance) return { ...state, replayError: "当前记录中找不到可安全开始的场景位置，原剧情未改变。" };
+  const created = createRuntimeHistorySessionV1(state.artifacts.story, entrance);
   if (created.diagnostics.length > 0) return { ...state, replayError: "场景回想无法安全启动，原剧情未改变。" };
-  const sourceHistory = { ...state.historySession, cursor: checkpointIndex };
-  const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(sourceHistory), checkpoint.checkpointId);
+  const inherited = archived?.entry.inheritedEffects ?? checkpointEffects({ ...state.historySession!, cursor: checkpointIndex });
+  const hostState = rehydrateRuntimePresentationHostV1(inherited, created.session.checkpoints[0]!.checkpointId);
   const replayState: PlayerCoreState = {
     ...state,
     status: "presenting",
-    runtimeState: checkpoint.state,
+    runtimeState: entrance,
     historySession: created.session,
     schedulerSession: null,
     playback: idlePlayback(),
@@ -825,7 +869,8 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   const checkpoint = loaded.session.checkpoints[loaded.session.cursor]!;
   const savedCheckpoint = loaded.save.history.checkpoints[loaded.save.cursor]!;
   const hostState = rehydrateRuntimePresentationHostV1(checkpointEffects(loaded.session), checkpoint.checkpointId);
-  const loadedState: PlayerCoreState = { ...state, status: status === "continue" ? "presenting" : status, runtimeState: loaded.state, historySession: loaded.session, schedulerSession: null, playback: idlePlayback(), hostState, currentEvent: event, checkpointSaveCandidates: [] };
+  const replayEntries = captureReplayEntries(state, loaded.session, 0, createRuntimePresentationHostStateV1());
+  const loadedState: PlayerCoreState = { ...state, replayEntries, status: status === "continue" ? "presenting" : status, runtimeState: loaded.state, historySession: loaded.session, schedulerSession: null, playback: idlePlayback(), hostState, currentEvent: event, checkpointSaveCandidates: [] };
   const restoredState = status === "continue" ? drivePlayerCore(loadedState, loaded.session) : loadedState;
   return {
     ok: true,
@@ -901,6 +946,7 @@ export function backPlayerCoreToHistoryEntryV1(state: PlayerCoreState, entryId: 
 export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: CanonicalProject, intent: PlayerCoreIntentV1): PlayerCoreState {
   if (intent.kind === "enter-scene-replay") return enterPlayerCoreReplayV1(state, intent.replayId);
   if (intent.kind === "exit-scene-replay") return exitPlayerCoreReplayV1(state);
+  if (state.replaySession !== null && (state.status === 'ended' || state.status === 'error') && (intent.kind === 'primary' || intent.kind === 'restart')) return exitPlayerCoreReplayV1(state);
   if (intent.kind === "select-choice") return selectPlayerCoreChoice(state, intent.optionId);
   if (intent.kind === "cancel") return settlePlayerCoreEffect(state, "cancel");
   if (intent.kind === "back") return backPlayerCore(state);
@@ -983,7 +1029,7 @@ export function mergePlayerCoreMetaProgressV1(state: PlayerCoreState, incoming: 
 }
 
 function restartPlayerCoreWithProgress(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
-  const fresh = configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale), progress = playerCoreMetaProgressV1(state);
+  const fresh = { ...configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale), replayEntries: state.replayEntries }, progress = playerCoreMetaProgressV1(state);
   return progress === null ? fresh : mergePlayerCoreMetaProgressV1(fresh, progress);
 }
 

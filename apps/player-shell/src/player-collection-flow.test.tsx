@@ -12,7 +12,10 @@ it('keeps unlocked endings after return to title and a fresh mount without readi
   fireEvent.click(screen.getByRole('button', { name: '查看收藏与结局' })); expect(screen.getByRole('region', { name: '结局内容' })).toHaveTextContent('1 / 1 已达成'); fireEvent.click(screen.getByRole('button', { name: '返回剧情' }));
   fireEvent.click(screen.getByRole('button', { name: '回到标题' })); view.unmount(); render(<PlayerShell project={project} />); fireEvent.click(screen.getByRole('button', { name: '打开附加内容' }));
   expect(within(screen.getByRole('group', { name: '结局' })).getByText('1 / 1 已发现')).toBeVisible();
-  fireEvent.click(screen.getByRole('button', { name: '查看 场景回想' })); expect(screen.getByText(/回想需要对应路线/)).toBeVisible(); expect(screen.getByRole('button', { name: /^开始回想/ })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: '查看 场景回想' })); expect(screen.getByRole('button', { name: /^开始回想/ })).toBeEnabled();
+  fireEvent.click(screen.getByRole('button', { name: /^开始回想/ })); expect(screen.getByRole('status', { name: '场景回想状态' })).toBeVisible();
+  const exit = screen.getByRole('button', { name: '退出回想，返回原剧情' }); exit.focus(); fireEvent.keyDown(exit, { key: 'Escape' });
+  expect(screen.getByRole('button', { name: /开始故事/ })).toBeVisible(); expect(screen.queryByRole('status', { name: '场景回想状态' })).not.toBeInTheDocument();
 });
 it('keeps in-memory collection and offers retry when local storage cannot save', async () => {
   const blocked = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw Error('quota'); }); render(<PlayerShell project={source()} />); await finish();

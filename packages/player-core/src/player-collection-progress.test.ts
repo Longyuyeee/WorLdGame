@@ -34,7 +34,7 @@ it('merges external knowledge into an active story without moving its cursor, va
   expect(merged.historySession!.cursor).toBe(active.historySession!.cursor); expect(merged.runtimeState!.cursor).toEqual(active.runtimeState!.cursor); expect(merged.runtimeState!.variables).toEqual(active.runtimeState!.variables);
   expect(playerCoreMetaProgressV1(merged)!.reachedEndingIds).toHaveLength(1); expect(createPlayerCoreSessionSaveV1(merged).ok).toBe(true);
 });
-it('preserves title knowledge when loading an older route save and identifies missing replay entrances', () => {
+it('preserves title knowledge and rebuilds replay entrances when loading an older route save', () => {
   const source = project(), first = finish(createPlayerCore(source)), save = createPlayerCoreSessionSaveV1(first);
   expect(save.ok).toBe(true); if (!save.ok) throw Error('fixture save failed');
   const second = finish(dispatchPlayerCoreIntentV1(first, source, { kind: 'restart' }), false);
@@ -42,7 +42,8 @@ it('preserves title knowledge when loading an older route save and identifies mi
   const loaded = loadPlayerCoreSessionSaveV1(title, save.serialized); expect(loaded.ok).toBe(true); if (!loaded.ok) throw Error('fixture load failed');
   expect(playerCoreMetaProgressV1(loaded.state)!.reachedEndingIds).toHaveLength(2);
   const replayId = createPlayerCoreSnapshotV1(loaded.state).additionalContent.replayItems.find(item => item.unlocked && item.sceneId === loaded.state.runtimeState!.cursor.sceneId)!.replayId;
-  expect(canEnterPlayerCoreReplayV1(loaded.state, replayId)).toBe(false);
+  expect(canEnterPlayerCoreReplayV1(loaded.state, replayId)).toBe(true);
   const replay = dispatchPlayerCoreIntentV1(loaded.state, source, { kind: 'enter-scene-replay', replayId });
-  expect(replay.replaySession).toBeNull(); expect(replay.replayError).toContain('找不到可安全开始'); expect(replay.runtimeState).toEqual(loaded.state.runtimeState);
+  expect(replay.replaySession).not.toBeNull(); expect(replay.replayError).toBeNull();
+  expect(dispatchPlayerCoreIntentV1(replay, source, { kind: 'exit-scene-replay' })).toEqual(loaded.state);
 });

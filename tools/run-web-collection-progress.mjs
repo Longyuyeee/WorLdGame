@@ -58,9 +58,9 @@ async function titleCollections(p, count) {
   await p.getByRole('button', { name: '打开附加内容', exact: true }).click();
   assert.ok((await p.getByRole('group', { name: '结局', exact: true }).innerText()).includes(`${count} / 2 已发现`));
   await p.getByRole('button', { name: '查看 场景回想', exact: true }).click();
-  await p.getByText(/仅有收藏记录时无法直接回想/).waitFor();
+  assert.equal(await p.getByText(/这段回想尚未保留路线入口/).count(), 0);
   const buttons = p.getByRole('button', { name: /^开始回想/ }); assert.ok(await buttons.count());
-  for (const button of await buttons.all()) assert.ok(await button.isDisabled());
+  for (const button of await buttons.all()) assert.ok(await button.isEnabled());
 }
 try {
   await editor.goto(process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5194/'); await editor.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(path.join(root, 'evidence/web-save-backup/before-rain-stops-project.zip')); await editor.waitForFunction(() => document.querySelector('.local-save-button')?.disabled === false);
@@ -74,18 +74,13 @@ try {
   await overview(page); await page.getByRole('button', { name: '查看 场景回想', exact: true }).click(); const available = page.getByRole('button', { name: /^开始回想/ });
   const originalHash = await hash(page), originalCursor = await main(page).getAttribute('data-history-cursor'); let replayed = false;
   for (const button of await available.all()) { if (await button.isEnabled()) { await button.click(); replayed = true; break; } }
-  if (replayed) {
-    await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.sceneReplay !== 'inactive'); await page.getByRole('button', { name: '退出回想，返回原剧情', exact: true }).click();
-  } else {
-    await page.getByText(/仅有收藏记录时无法直接回想/).waitFor();
-    assert.ok(await available.count()); for (const button of await available.all()) assert.ok(await button.isDisabled());
-    await shot(page, 'desktop-missing-replay-entry'); await page.getByRole('button', { name: '返回剧情', exact: true }).click();
-  }
+  assert.ok(replayed, 'The real Rain route must retain an available scene entrance');
+  await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.sceneReplay !== 'inactive'); await page.getByRole('button', { name: '退出回想，返回原剧情', exact: true }).click();
   assert.equal(await hash(page), originalHash); assert.equal(await main(page).getAttribute('data-history-cursor'), originalCursor); assert.equal(await main(page).getAttribute('data-player-status'), 'ended');
-  check({ replayed, limitation: replayed ? null : 'Rain authored replay has no safe scene entrance in current History; disabled guidance checked, actual replay not claimed' });
+  check({ replayed });
   await page.getByRole('button', { name: '回到标题', exact: true }).click(); await titleCollections(page, 1); await shot(page, 'desktop-title-replay-context'); await page.getByRole('button', { name: '返回剧情', exact: true }).click();
   await page.reload(); await titleCollections(page, 1); await page.getByRole('button', { name: '返回剧情', exact: true }).click();
-  check('desktop HTML: first full route unlocks one ending, real gallery image and music remain available; replay availability is checked without changing the ending hash/cursor; title and refresh retain collection without loading a story save; missing route contexts are explained and disabled');
+  check('desktop HTML: first full route unlocks one ending, real gallery image and music remain available; replay availability is checked without changing the ending hash/cursor; title and refresh retain collection without loading a story save; recorded route contexts stay directly available after refresh');
   await start(page); await finish(page, '去追最后一班车', '远行的约定'); await page.getByText('已达成 2 / 2 个结局', { exact: true }).waitFor(); await shot(page, 'desktop-both-endings');
   await page.getByRole('button', { name: '读取存档探索其他路线', exact: true }).click(); await card(page, 'manual-1').getByRole('button', { name: '读取', exact: true }).click(); await confirm(page);
   await page.getByRole('button', { name: '打开阅读菜单', exact: true }).click(); await page.getByRole('button', { name: '打开附加内容', exact: true }).click();
@@ -100,8 +95,8 @@ try {
   await mobile.setViewportSize({ width: 844, height: 390 }); await fit(mobile, '.player-ending'); await shot(mobile, 'mobile-landscape-ending'); await mobile.setViewportSize({ width: 390, height: 844 });
   await mobile.getByRole('button', { name: '查看收藏与结局', exact: true }).click(); await endingCount(mobile, 1); await fit(mobile, '.player-additional-content'); await shot(mobile, 'mobile-collection'); await mobile.getByRole('button', { name: '返回剧情', exact: true }).click();
   await mobile.getByRole('button', { name: '回到标题', exact: true }).click(); await mobile.reload(); await titleCollections(mobile, 1); await fit(mobile, '.player-additional-content'); await shot(mobile, 'mobile-refreshed-replay-context');
-  await mobile.getByRole('button', { name: '读取路线存档', exact: true }).click(); await dialog(mobile).waitFor(); await fit(mobile, '.player-save__panel'); assert.ok(await dialog(mobile).getByRole('button', { name: '读取进度', exact: true }).getAttribute('aria-pressed') === 'true');
-  check('390px HTTP directory: full other route reaches ending; portrait and 844x390 ending card fit; collection and refreshed title persist one ending in the independent browser storage; replay guidance opens native read mode');
+  await mobile.getByRole('button', { name: /^开始回想/ }).click(); await mobile.getByRole('button', { name: '退出回想，返回原剧情', exact: true }).click(); assert.equal(await main(mobile).getAttribute('data-player-status'), 'title');
+  check('390px HTTP directory: full other route reaches ending; portrait and 844x390 ending card fit; collection and refreshed title persist one ending in the independent browser storage; refreshed title starts its recorded replay and returns to title');
   assert.deepEqual(errors, []); await writeFile(path.join(output, 'browser-checks.json'), JSON.stringify({ passed: true, browser: browser.version(), checks, errors, exports, artifactsRetained: false, scope: 'Rain 1.5.4 real UI exports; desktop both branches sequentially, mobile one branch; manual fast reading, no human text/voice acceptance, physical phone, service-worker lifecycle, cross-version collection migration or public deployment' }, null, 2));
 } catch (error) { await writeFile(path.join(output, 'browser-failure.json'), JSON.stringify({ checks, errors, error: String(error), stack: error.stack }, null, 2)); await shot(current, 'failure'); throw error; }
 finally { await browser.close(); if (server) await new Promise(resolve => server.close(resolve)); const resolved = path.resolve(temporary); assert.equal(path.dirname(resolved), path.resolve(tmpdir())); assert.ok(path.basename(resolved).startsWith('world-collection-progress-')); await rm(resolved, { recursive: true, force: true }); }
