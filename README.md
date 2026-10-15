@@ -1,14 +1,14 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 当前接续（2026-10-15）：[#334 完整作品校订与离开保护](docs/334-web-story-refinement-and-leave-protection.md)，已生成《雨停之前》1.6.0 新候选。#332 依赖边界和 #333 批量素材已交付，#331 暂停检查点保留为历史。
+> 当前接续（2026-10-15）：[#335 连续写作与试玩回改](docs/335-web-continuous-writing-and-playtest.md)。编辑器连续文字制作已交付，当前作品仍为 #334 的《雨停之前》1.6.0 候选；验证副本不替代正式源。
 
-> 最新交付（2026-10-15）：[#334](docs/334-web-story-refinement-and-leave-protection.md) 校订 5 段时间线、补三张昼夜背景、修正 5 处背景和两步雨声起止；编辑器增加未保存/写入中刷新提醒。45 项相关回归、5 项审计测试、类型和双构建通过，作者 3 项及产物/玩家 4 项检查通过；两完整路线、存读档/回想和旧内容备份拒绝已实际检查，8 条任务保留待人工复核。
+> 最新交付（2026-10-15）：[#335](docs/335-web-continuous-writing-and-playtest.md) 统一对白/旁白自动应用，增加上下段与键盘连续校读，保护中文输入/错误草稿，修复旧确认覆盖和长窗口失焦。107 项相关回归、类型/双构建及边界审计通过；完整工程实际修改、跨场景试玩回改、保存重开、源/媒体核对与独立 HTML 两结局通过。下一批定位实际冷导入/切场景阻塞，不宣称卡顿已解决。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-15
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
 > 当前进展：1.6.0 为 9 场景/两结局、9,662 字符/73 演出/25 项素材；可编辑工程、HTML 和目录包在 evidence/web-story-refinement。正文和演出已变，不宣称兼容 1.5.x 旧档；[旧版备份恢复 #315](docs/315-web-player-save-backup.md) 的兼容记录仅属于原版，旧游戏保留回退。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#334 接续顺序及验证边界](docs/334-web-story-refinement-and-leave-protection.md)。实际新候选已重新生成，原 1.5.4 三产物仍在 evidence/web-save-backup；接下来继续任务复核、连续制作体验与兼容/发布准备。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#335 接续顺序及验证边界](docs/335-web-continuous-writing-and-playtest.md)。1.6.0 源/游戏在 evidence/web-story-refinement，原 1.5.4 三产物仍在 evidence/web-save-backup；接下来处理实际卡顿、任务复核与兼容/发布准备。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
 > 当前重心：沿《雨停之前》1.6.0 和 8 条待复核任务继续实际作品定稿、连续制作/运行问题与交付。当前源工程 evidence/web-story-refinement/before-rain-stops-project.zip；自然阅读/听感、真机、来源许可和公网仍待验，不要求先选具体发布平台。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。

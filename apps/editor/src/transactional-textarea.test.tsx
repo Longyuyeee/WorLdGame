@@ -127,4 +127,63 @@ describe("TransactionalTextarea", () => {
     expect(dirtyStates).toContain(true);
     expect(dirtyStates.at(-1)).toBe(false);
   });
+
+  it("does not erase newer input when an earlier batch is acknowledged", () => {
+    vi.useFakeTimers(); const commit = vi.fn();
+    const { rerender } = render(<TransactionalTextarea aria-label="延迟确认" value="A" onCommit={commit}/>);
+    const input = screen.getByLabelText('延迟确认');
+    fireEvent.change(input, { target: { value: 'AB' } });
+    act(() => vi.advanceTimersByTime(DEFAULT_INPUT_BATCH_DELAY_MS));
+    fireEvent.change(input, { target: { value: 'ABC' } });
+    rerender(<TransactionalTextarea aria-label="延迟确认" value="AB" onCommit={commit}/>);
+    expect(input).toHaveValue('ABC'); expect(input).toHaveAttribute('data-input-state', 'buffered');
+    act(() => vi.advanceTimersByTime(DEFAULT_INPUT_BATCH_DELAY_MS));
+    expect(commit).toHaveBeenLastCalledWith('ABC', 'idle');
+    rerender(<TransactionalTextarea aria-label="延迟确认" value="ABC" onCommit={commit}/>);
+    expect(input).toHaveAttribute('data-input-state', 'committed');
+  });
+
+  it("flushes before paragraph navigation and retains rejected text", () => {
+    const order: string[] = [], navigate = vi.fn(() => order.push('navigate'));
+    render(<TransactionalTextarea aria-label="连续编辑" value="A" onCommit={text => { order.push(text); return text !== 'bad'; }} onNavigate={navigate}/>);
+    const input = screen.getByLabelText('连续编辑');
+    fireEvent.change(input, { target: { value: 'AB' } });
+    fireEvent.keyDown(input, { key: 'PageDown', altKey: true });
+    fireEvent.blur(input); expect(order).toEqual(['AB', 'navigate']);
+    fireEvent.change(input, { target: { value: 'bad' } });
+    fireEvent.keyDown(input, { key: 'PageUp', altKey: true });
+    expect(navigate).toHaveBeenCalledTimes(1); expect(input).toHaveValue('bad');
+    expect(input).toHaveAttribute('data-input-state', 'buffered');
+  });
+
+  it('commits a return to the old text against the latest acknowledged value, not a stale timer closure', () => {
+    vi.useFakeTimers(); const first = vi.fn(), latest = vi.fn();
+    const { rerender } = render(<TransactionalTextarea aria-label="回删确认" value="A" onCommit={first}/>);
+    const input = screen.getByLabelText('回删确认');
+    fireEvent.change(input, { target: { value: 'AB' } });
+    act(() => vi.advanceTimersByTime(DEFAULT_INPUT_BATCH_DELAY_MS));
+    fireEvent.change(input, { target: { value: 'A' } });
+    rerender(<TransactionalTextarea aria-label="回删确认" value="AB" onCommit={latest}/>);
+    expect(input).toHaveValue('A');
+    act(() => vi.advanceTimersByTime(DEFAULT_INPUT_BATCH_DELAY_MS));
+    expect(latest).toHaveBeenCalledWith('A', 'idle'); expect(first).toHaveBeenCalledTimes(1);
+    rerender(<TransactionalTextarea aria-label="回删确认" value="A" onCommit={latest}/>);
+    expect(input).toHaveAttribute('data-input-state', 'committed'); expect(input).toHaveValue('A');
+  });
+
+  it("ignores navigation, save and Escape during IME composition", () => {
+    vi.useFakeTimers(); const commit = vi.fn(), navigate = vi.fn();
+    render(<TransactionalTextarea aria-label="组合输入" value="A" onCommit={commit} onNavigate={navigate}/>);
+    const input = screen.getByLabelText('组合输入');
+    fireEvent.compositionStart(input); fireEvent.change(input, { target: { value: 'pin' } });
+    fireEvent.keyDown(input, { key: 'PageDown', altKey: true });
+    expect(fireEvent.keyDown(input, { key: 's', ctrlKey: true })).toBe(false); fireEvent.keyDown(input, { key: 'Escape' });
+    expect(input).toHaveValue('pin'); expect(commit).not.toHaveBeenCalled(); expect(navigate).not.toHaveBeenCalled();
+    fireEvent.compositionEnd(input, { data: '拼' });
+    fireEvent.change(input, { target: { value: '拼' } });
+    fireEvent.keyDown(input, { key: 'PageDown', altKey: true, isComposing: true });
+    expect(navigate).not.toHaveBeenCalled();
+    fireEvent.keyDown(input, { key: 'PageDown', altKey: true });
+    expect(commit).toHaveBeenLastCalledWith('拼', 'shortcut'); expect(navigate).toHaveBeenCalledWith(1);
+  });
 });

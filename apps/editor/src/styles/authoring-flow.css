@@ -241,6 +241,10 @@
 .web-release-guide ul { color: var(--wg-color-text-secondary); line-height: 1.8; padding-left: 20px; }
 .authoring-panel[data-stage-expanded="false"] .statement-entry.is-active:is(.statement-entry--narration, .statement-entry--dialogue) .statement-copy { display: none; }
 .app-shell .sequence-inspector textarea { font-size: 16px; line-height: 1.8; font-weight: 400; min-height: 180px; }
+.writing-text-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.writing-text-actions span { color: var(--wg-color-text-muted); font-size: 12px; }
+.app-shell .writing-text-actions button { min-height: 44px; padding: 8px 12px; }
+.writing-text-inspector small { line-height: 1.7; color: var(--wg-color-text-secondary); }
 .web-save-compatibility { padding: 16px; margin-top: 8px; border: 1px solid var(--wg-color-border-subtle); border-radius: 12px; background: var(--wg-color-bg-surface-2); }
 .web-save-compatibility summary { cursor: pointer; font-weight: 600; color: var(--wg-color-semantic-choice); }
 .web-save-compatibility p { font-size: 13px; line-height: 1.8; color: var(--wg-color-text-secondary); }

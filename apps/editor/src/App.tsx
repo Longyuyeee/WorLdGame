@@ -139,6 +139,7 @@ import {
   type StudioSession
 } from "./studio-session";
 import { TransactionalTextarea } from "./transactional-textarea";
+import { WritingTextInspector } from "./writing-text-inspector";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { createBrowserWriterLeaseOwnerId, markBrowserWriterLeaseOwnerHandoff, rememberBrowserWriterLeaseOwnerId } from "./writer-lease-owner";
 import { WORKSPACE_MODES, workspaceModeDescriptor, type WorkspaceModeId } from "./workspace-modes";
@@ -1881,7 +1882,7 @@ function isCharacterMoveCue(statement: StoryStatement): boolean {
   return inspected.duplicateKeys.length === 0 && inspected.positional.length === 0 && resolveDirectiveAction("show", inspected.parameters.action) === "move";
 }
 
-interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"direction"|"choice"}>;readonly disabled:boolean;readonly onDirtyChange:(dirty:boolean)=>void;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly variableTypes:Readonly<Record<string,"boolean"|"number"|"string">>;readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
+interface SequenceInspectorProps { readonly statement: Exclude<StoryStatement,{readonly kind:"dialogue"|"narration"|"direction"|"choice"}>;readonly disabled:boolean;readonly onDirtyChange:(dirty:boolean)=>void;readonly characterIds:readonly string[];readonly targetNames:Readonly<Record<string,string>>;readonly targetIds:readonly string[];readonly variableNames:Readonly<Record<string,string>>;readonly variableIds:readonly string[];readonly variableTypes:Readonly<Record<string,"boolean"|"number"|"string">>;readonly createCommandId:()=>string;readonly dispatch:(action:StudioAction)=>void; }
 function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetIds,variableIds,variableNames,variableTypes,createCommandId,dispatch}:SequenceInspectorProps){
   const form = useRef<HTMLFormElement>(null);
   const baseline = useRef("");
@@ -1900,8 +1901,7 @@ function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetI
       const problem = expressionProblem(value("expression"), symbols, statement.kind === "condition" ? "boolean" : variableTypes[value("variable")] ?? "unknown");
       if (problem) { setError(problem); return; }
     }
-    if(statement.kind==="narration")patch={textRaw:JSON.stringify(value("text"))};
-    else if(statement.kind==="label")patch={name:value("name")};
+    if(statement.kind==="label")patch={name:value("name")};
     else if(statement.kind==="jump"||statement.kind==="call")patch={targetLabel:value("target")};
     else if(statement.kind==="set")patch={variable:value("variable"),expressionRaw:value("expression")};
     else if(statement.kind==="condition")patch={expressionRaw:value("expression"),targetLabel:value("target")};
@@ -1910,7 +1910,6 @@ function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetI
     dispatch({type:"p0-update",commandId:createCommandId(),statementId:statement.id,patch});
   };
   return <form key={`${statement.id}:${statementLabel(statement)}:${resetSerial}`} ref={form} onChange={() => markDirty()} className="sequence-inspector" aria-label={`${statementKindLabel(statement)}类型化参数`} onSubmit={submit}>
-    {statement.kind==="narration"&&<label><span>旁白文本</span><textarea aria-label="旁白文本" name="text" defaultValue={statement.text} rows={3} required disabled={disabled}/></label>}
     {statement.kind==="label"&&<label><span>标签稳定名</span><input name="name" defaultValue={statement.name} required pattern="[A-Za-z_][A-Za-z0-9_.-]*" disabled={disabled}/></label>}
     {(statement.kind==="jump"||statement.kind==="call")&&<label><span>接下来进入</span><select name="target" defaultValue={statement.targetLabel} disabled={disabled}>{[...new Set([statement.targetLabel,...targetIds])].map((id)=><option key={id} value={id}>{targetNames[id] ?? `失效目标 · ${id}`}</option>)}</select></label>}
     {statement.kind === "set" && <VariableAssignmentFields variable={statement.variable} expression={statement.expression} variableIds={variableIds} variableNames={variableNames} variableTypes={variableTypes} disabled={disabled} onDraftChange={(expression, variable) => markDirty({ expression, variable })} />}
@@ -1970,6 +1969,9 @@ function SequenceView({
   const [sequenceRangeAnchor,setSequenceRangeAnchor]=useState<string|null>(null);
   const [collapsedStatementIds,setCollapsedStatementIds]=useState<readonly string[]>([]);
   const [inspectorDirty, setInspectorDirty] = useState(false);
+  const [pendingWritingFocusId, setPendingWritingFocusId] = useState<string | null>(null);
+  const textStatements = scene.statements.filter(item => item.kind === "dialogue" || item.kind === "narration");
+  const textPosition = textStatements.findIndex(item => item.id === selected.id);
   const stageWindow = createStageWindow(scene.statements.length, stageWindowStart);
   const visibleStatements = scene.statements.slice(stageWindow.start, stageWindow.end);
   const selectedInStageWindow = selectedIndex >= stageWindow.start && selectedIndex < stageWindow.end;
@@ -2120,6 +2122,17 @@ function SequenceView({
     }
   }, [pendingStageFocusId, selected.id, stageWindow.start]);
   useEffect(() => {
+    // The fallback inspector is replaced when a bounded card window moves.
+    // Focus only the final mounted input, not that temporary copy.
+    if (pendingWritingFocusId !== selected.id || !selectedInStageWindow) return;
+    const target = document.getElementById(`writing-text-${pendingWritingFocusId}`);
+    if (target instanceof HTMLTextAreaElement) {
+      target.focus({ preventScroll: true });
+      target.scrollIntoView?.({ block: "nearest" });
+      setPendingWritingFocusId(null);
+    }
+  }, [pendingWritingFocusId, selected.id, stageWindow.start]);
+  useEffect(() => {
     if (requestedFocusStatementId === null || requestedFocusStatementId !== selected.id) return;
     setStageWindowStart(revealStageIndex(stageWindow, selectedIndex).start);
     setPendingStageFocusId(requestedFocusStatementId);
@@ -2141,35 +2154,30 @@ function SequenceView({
   const selectedInspector = (<div className="inline-inspector">
         <div className="inspector-label-row">
           {selected.kind === "dialogue" ? (
-            <label htmlFor="dialogue-editor">对白内容</label>
+            <label htmlFor={`writing-text-${selected.id}`}>对白内容</label>
           ) : (
             <span className="inspector-title">编辑{statementKindLabel(selected)}</span>
           )}
           <span className="step-type-label">{statementKindLabel(selected)}</span>
         </div>
-        {selected.kind === "dialogue" ? (
-          <>
-          <label htmlFor="dialogue-speaker">说话人</label>
-          <select id="dialogue-speaker" value={selected.speakerId} disabled={pendingDraft || inspectorDirty} onChange={event=>dispatch({type:'p0-update',commandId:createCommandId(),statementId:selected.id,patch:{speakerId:event.target.value}})}>
-            {!session.project.characters.some(character=>character.id===selected.speakerId) && <option value={selected.speakerId} disabled>缺失角色 · {selected.speakerId}（请选择已有角色）</option>}
-            {session.project.characters.map(character=><option key={character.id} value={character.id}>{character.displayName}</option>)}
-          </select>
-          <TransactionalTextarea
-            id="dialogue-editor"
-            value={selected.text}
-            rows={4}
-            disabled={pendingDraft || inspectorDirty}
-            onDirtyChange={onInputDirtyChange}
-            onCommit={(text) =>
-              dispatch({
-                type: "patch-dialogue",
-                commandId: createCommandId(),
-                statementId: selected.id,
-                text
-              })
-            }
+        {selected.kind === "dialogue" || selected.kind === "narration" ? (
+          <WritingTextInspector key={selected.id} statement={selected} characters={session.project.characters} disabled={pendingDraft} position={textPosition + 1} total={textStatements.length} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }}
+            onCommit={text => {
+              const action: StudioAction = selected.kind === "dialogue"
+                ? { type: "patch-dialogue", commandId: createCommandId(), statementId: selected.id, text }
+                : { type: "p0-update", commandId: createCommandId(), statementId: selected.id, patch: { textRaw: JSON.stringify(text) } };
+              const candidate = reduceStudioSession(session, action);
+              if (candidate.notice.tone === "error") return candidate.notice.detail;
+              dispatch(action); return null;
+            }}
+            onSpeakerChange={speakerId => dispatch({ type: "p0-update", commandId: createCommandId(), statementId: selected.id, patch: { speakerId } })}
+            onNavigate={direction => {
+              const target = textStatements[textPosition + direction];
+              if (!target) return;
+              setPendingWritingFocusId(target.id);
+              dispatch({ type: "select-statement", statementId: target.id });
+            }}
           />
-          </>
         ) : selected.kind === "direction" ? (
           <details key={selected.id} open={stageExpanded} className="step-properties"><summary>编辑演出 · {describeDirection(selected, assetIndex)}</summary>
           <DirectionInspector
@@ -2196,7 +2204,7 @@ function SequenceView({
           dispatch(action);
         }} onOpenTarget={sceneId => { setChoiceReturn({ sceneId: scene.id, statementId: selected.id }); dispatch({ type: "select-scene", sceneId }); }} /> : <SequenceInspector statement={selected} disabled={pendingDraft} onDirtyChange={dirty => { setInspectorDirty(dirty); onInputDirtyChange(dirty); }} characterIds={sequenceReferences.characterIds} targetIds={targetIds} targetNames={targetNames} variableIds={sequenceReferences.variableIds} variableNames={variableNames} variableTypes={variableTypes ?? {}} createCommandId={createCommandId} dispatch={dispatch}/>}
         <p className="field-help">
-          点击下方步骤编辑内容。文字停止输入或失焦后自动应用；演出参数需点击“应用演出参数”，也可放弃修改。
+          点击下方步骤编辑内容。对白和旁白停止输入或失焦后自动应用；其他参数需应用或放弃修改。
         </p>
       </div>);
   const displayStatement = (statement: StoryStatement) => {

@@ -146,11 +146,11 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
   it("exposes a typed graphical Inspector for the selected direction without guessing legacy text", () => {
     renderLegacyDirectionApp();
-    expect(screen.getByText("图形化演出参数")).toBeVisible();
+    expect(screen.getByText('调整后应用，立即在舞台预览中查看')).toBeVisible();
     expect(screen.getByText("检测到旧式描述")).toBeVisible();
     expect(screen.getByLabelText("演出主资源")).toHaveValue("");
     expect(screen.getByRole("button", { name: "迁移旧描述并应用" })).toBeDisabled();
-    expect(screen.getByText(/Asset Index 中没有可用于 @background 的资源/)).toBeVisible();
+    expect(screen.getByText('还没有适合这项演出的素材，请在素材页导入')).toBeVisible();
   });
 
   it("exposes bounded character geometry without requiring Script syntax", () => {
@@ -164,6 +164,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     ) } });
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
     fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
+    fireEvent.click(screen.getByText('精细位置、缩放与锚点'));
     expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
     expect(screen.getByLabelText("角色水平位置")).toHaveAttribute("min", "0");
     expect(screen.getByLabelText("角色缩放")).toHaveAttribute("max", "4");
@@ -197,6 +198,7 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.keyDown(scriptEditor, { key: "s", ctrlKey: true });
     fireEvent.click(screen.getByRole("tab", { name: "Sequence" }));
     fireEvent.change(screen.getByLabelText("演出动作"), { target: { value: "move" } });
+    fireEvent.click(screen.getByText('精细位置、缩放与锚点'));
     expect(screen.queryByLabelText("演出主资源")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("角色表情")).not.toBeInTheDocument();
     expect(screen.getByLabelText("角色舞台几何")).toBeVisible();
@@ -263,21 +265,23 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "clear" } });
     expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
-    expect(screen.getAllByText("action=clear").length).toBeGreaterThan(0);
+    expect(document.querySelector('.statement-card.is-active')).toHaveAccessibleName('选择演出：清除背景');
+    expect(document.querySelector('.statement-card.is-active')).toBeVisible();
     expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
 
     fireEvent.keyDown(window, { key: "3", altKey: true });
     expect(screen.getByRole("form", { name: "新增音频演出" })).toBeVisible();
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "stop" } });
     fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
-    expect(screen.getAllByText("action=stop bus=bgm").length).toBeGreaterThan(0);
+    expect(within(document.querySelector('.statement-list') as HTMLElement).getByRole('button', { name: '选择演出：停止背景音乐' })).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "撤销" }));
-    expect(screen.queryAllByText("action=stop bus=bgm")).toHaveLength(0);
+    expect(screen.queryByRole('button', { name: '选择演出：停止背景音乐' })).not.toBeInTheDocument();
   });
   it("inserts a resource-free bounded Move cue from the graphical Stage track", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: "＋ 角色" }));
     fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "move" } });
+    fireEvent.change(screen.getByLabelText('新增角色槽位'), { target: { value: 'primary' } });
     expect(screen.queryByLabelText("新增演出资源")).not.toBeInTheDocument();
     expect(screen.getByLabelText("新增移动水平位置")).toHaveValue(50);
     expect(screen.getByLabelText("新增移动垂直位置")).toHaveValue(100);
@@ -708,8 +712,9 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     fireEvent.change(editor, { target: { value: "暂不支持\n多行对白" } });
     fireEvent.blur(editor);
 
-    expect(screen.getByText("操作未执行")).toBeVisible();
-    expect(screen.getByText(/raw newline/)).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('对白暂不支持直接换行');
+    fireEvent.click(screen.getByRole('button', { name: '下一段文字' }));
+    expect(screen.getByLabelText('对白内容')).toHaveValue('暂不支持\n多行对白');
     expect(screen.getByText("BUFFER")).toBeVisible();
     expect(editor).toHaveValue("暂不支持\n多行对白");
     expect(
@@ -856,6 +861,8 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
     expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-contract", "2");
     expect(screen.getByTestId("preview-visual-host")).toHaveAttribute("data-render-backend", "dom-media-v1");
     expect(stage.style.getPropertyValue("--preview-aspect")).toBe("1920 / 1080");
+    expect(screen.queryByTestId("preview-safe-area")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("安全区"));
     expect(screen.getByTestId("preview-safe-area")).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("安全区"));
     expect(screen.queryByTestId("preview-safe-area")).not.toBeInTheDocument();
