@@ -1,4 +1,4 @@
-import { semanticHash, withoutWebSaveCompatibility, type CanonicalProject } from "@world-studio/project-domain";
+import { semanticHash, webProjectSourceForRuntime, type CanonicalProject } from "@world-studio/project-domain";
 import type { RouteGraphV1 } from "@world-studio/route-graph";
 import { inspectDirectiveArguments } from "@world-studio/story-language";
 import { localizationSourceEntries, localizationTranslations, targetLocales } from "./localization-production";
@@ -17,7 +17,7 @@ export interface RouteReviewTrace {
   readonly endingSceneId?: string | null;
 }
 
-export const routeReviewSourceHash = (project: CanonicalProject) => semanticHash(withoutWebSaveCompatibility(project));
+export const routeReviewSourceHash = (project: CanonicalProject) => semanticHash(webProjectSourceForRuntime(project));
 
 export function createRouteReview(project: CanonicalProject, graph: RouteGraphV1, trace: RouteReviewTrace | null, locale: string) {
   const sourceHash = routeReviewSourceHash(project);

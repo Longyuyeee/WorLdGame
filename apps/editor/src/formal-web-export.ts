@@ -1,7 +1,7 @@
 import { semanticHash, readWebSaveCompatibility, type CanonicalProject } from "@world-studio/project-domain";
 import { createBlobDigest, type BlobDigest } from "@world-studio/project-persistence";
 import { zip } from "fflate";
-import { readWebCredits, hasWebCredits, formatWebCredits } from '@world-studio/project-domain';
+import { readWebCredits, hasWebCredits, formatWebCredits, withoutWebAuthoringMetadata } from '@world-studio/project-domain';
 import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
 import { readWebPublication, publicationIconSize } from "./web-publication";
@@ -42,7 +42,7 @@ export async function createFormalWebArtifact(
   runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
 ): Promise<FormalWebArtifact> {
   const publication = readWebPublication(project);
-  project = { ...project, manifest: { ...project.manifest, title: publication.name } };
+  project = withoutWebAuthoringMetadata({ ...project, manifest: { ...project.manifest, title: publication.name } });
   const delivery = await readExportMedia(project, reader, signal, verify);
   signal?.throwIfAborted();
   const mediaAssets = delivery.assets.map(({ bytes, digest: _digest, ...asset }) => {
@@ -67,7 +67,7 @@ export async function createFormalWebDirectoryArtifact(
   runtime: { readonly javascript: string; readonly css: string }, signal?: AbortSignal, verify?: NativeAtlasVerifier
 ) {
   const publication = readWebPublication(project);
-  project = { ...project, manifest: { ...project.manifest, title: publication.name } };
+  project = withoutWebAuthoringMetadata({ ...project, manifest: { ...project.manifest, title: publication.name } });
   const encode = (text: string) => new TextEncoder().encode(text);
   const files: Record<string, Uint8Array> = {};
   const extensions: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "image/svg+xml": "svg", "image/gif": "gif", "audio/wav": "wav", "audio/x-wav": "wav", "audio/mpeg": "mp3", "audio/ogg": "ogg", "video/mp4": "mp4", "video/webm": "webm", "font/woff2": "woff2", "font/woff": "woff", "font/ttf": "ttf", "font/otf": "otf" };

@@ -29,6 +29,7 @@ export function WebSaveCompatibilitySettings({ project, dirty, onChange }: {
   return <details className="web-save-compatibility">
     <summary>旧版存档兼容 · {status.status === "verified" ? "已核对" : status.status === "unchecked" ? "未核对" : "需要重新核对"}</summary>
     <p>发布更新时，上传上一版完整工程 ZIP。只改版本号且内容一致时，玩家可以继续旧档；正文、分支、设置、素材或发布名称变化时，需保留原版入口。</p>
+    <p>内部素材来源台账不改变剧情构建；加入玩家致谢属于公开内容修改，原核对可能失效，需要重新核对。</p>
     {status.status === "verified" && <p role="status">已核对版本：{status.versions.join("、")}。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。</p>}
     {(status.status === "stale" || status.status === "invalid") && <p role="status">之前的核对已失效，本次生成不会接受这些旧档。请重新核对，或保留原版入口。</p>}
     <label>核对上一版工程 ZIP<input type="file" accept=".zip,application/zip" aria-label="核对上一版工程 ZIP" disabled={dirty || busy} onChange={event => {

@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "name": "all-25-real-media-matched-by-sha-and-written-via-ui-saved-reopened-source-roundtrip",
+      "detail": {
+        "imagegen": 12,
+        "systemTts": 9,
+        "proceduralAudio": 3,
+        "icon": 1,
+        "permissionConfirmed": 0,
+        "unchangedNonManifestEntries": 64
+      }
+    }
+  ],
+  "artifacts": {
+    "source": {
+      "byteLength": 31682969,
+      "sha256": "7790a8b5b519e6d55fb79f0a4b20b90c63636198493a42c4bfbf1f284d4cfaec"
+    },
+    "preparation": {
+      "byteLength": 16256,
+      "sha256": "d0105f151d6569092d3688a3cafab92d46e17b1c549a0eee8797ae8700117a2d"
+    }
+  },
+  "errors": [],
+  "scope": "Author-source UI creation/save/reopen only; all permission records pending."
+}

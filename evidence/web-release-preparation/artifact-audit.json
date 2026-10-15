@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "source": {
+    "byteLength": 31682969,
+    "sha256": "7790a8b5b519e6d55fb79f0a4b20b90c63636198493a42c4bfbf1f284d4cfaec"
+  },
+  "assets": 25,
+  "identicalNonManifestEntries": 64,
+  "publicCandidate": "1.7.1 unchanged at evidence/web-mobile-continuity",
+  "factsMatchRepositoryMedia": true,
+  "permissionConfirmed": 0,
+  "deploymentVerified": false
+}

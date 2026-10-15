@@ -1,4 +1,5 @@
 import { semanticHash } from "./codec";
+import { withoutWebAuthoringMetadata } from './web-asset-sources';
 import type { CanonicalProject, JsonObject } from "./types";
 
 const key = "webSaveCompatibility";
@@ -8,12 +9,17 @@ function object(value: unknown): value is JsonObject {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-/** Compatibility declarations are delivery metadata, never executable source identity. */
+/** Remove only the receipt: also used by the author's explicit remove action. */
 export function withoutWebSaveCompatibility(project: CanonicalProject): CanonicalProject {
   if (project.manifest.preservedFields?.[key] === undefined) return project;
   const { [key]: _receipt, ...fields } = project.manifest.preservedFields;
   const { preservedFields: _fields, ...manifest } = project.manifest;
   return { ...project, manifest: Object.keys(fields).length ? { ...manifest, preservedFields: fields } : manifest };
+}
+
+/** Runtime/review identity omits delivery receipts and private author evidence, not public credits. */
+export function webProjectSourceForRuntime(project: CanonicalProject): CanonicalProject {
+  return withoutWebAuthoringMetadata(withoutWebSaveCompatibility(project));
 }
 
 function publication(project: CanonicalProject): JsonObject {
@@ -27,7 +33,7 @@ function publication(project: CanonicalProject): JsonObject {
 
 /** Reconstructs an earlier version from the same complete source, not a caller supplied Build ID. */
 export function webProjectAtPublicationVersion(project: CanonicalProject, version: string): CanonicalProject {
-  const clean = withoutWebSaveCompatibility(project);
+  const clean = webProjectSourceForRuntime(project);
   return { ...clean, manifest: { ...clean.manifest, preservedFields: { ...clean.manifest.preservedFields,
     webPublication: { ...publication(clean), version } } } };
 }

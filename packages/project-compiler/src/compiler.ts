@@ -1,4 +1,4 @@
-import { semanticHash, sha256, withoutWebSaveCompatibility, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
+import { semanticHash, sha256, webProjectSourceForRuntime, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
 import { isDialogueTemplate, isStageTransition, parseTypedExpression, validateStageBezierMotionParameters, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
 import { conditionAwareExitDiagnostics } from "./condition-exits";
@@ -439,7 +439,7 @@ export function compileProjectIncremental(project: CanonicalProject, options: In
   const artifactValues: Record<string, JsonValue> = { "story.ir.json": story as unknown as JsonValue, ...(profile === "debug" ? { "source-map.json": sourceMap as unknown as JsonValue } : {}), "asset-manifest.json": assetManifest as unknown as JsonValue, "catalogs.json": catalogs as unknown as JsonValue, "release-inputs.json": releaseInputs as unknown as JsonValue, ...(stopInstructionIds.length === 0 ? {} : { "player-playback-policy.json": playerPlaybackPolicy as unknown as JsonValue }) };
   const artifactFiles = Object.fromEntries(Object.entries(artifactValues).map(([path, value]) => [path, `${canonicalJson(value)}\n`]));
   const artifactHashes = Object.fromEntries(Object.entries(artifactFiles).map(([path, value]) => [path, sha256(value)] as const).sort((left, right) => compareCanonicalStrings(left[0], right[0])));
-  const sourceHash = semanticHash(withoutWebSaveCompatibility(project)); const buildId = compilerBuildIdForSource(project.manifest.projectId, sourceHash, artifactHashes, profile);
+  const sourceHash = semanticHash(webProjectSourceForRuntime(project)); const buildId = compilerBuildIdForSource(project.manifest.projectId, sourceHash, artifactHashes, profile);
   const manifest = { schemaVersion: 1 as const, compilerVersion: PROJECT_COMPILER_VERSION, irVersion: RUNTIME_IR_VERSION, profile, projectId: project.manifest.projectId, sourceHash, buildId, entrySceneId: project.manifest.entrySceneId, debugSymbols: profile === "debug", artifacts: artifactHashes };
   const files = { "manifest.json": `${canonicalJson(manifest as unknown as JsonValue)}\n`, ...artifactFiles }; const artifacts: CompilerArtifactsV1 = { manifest, story, sourceMap, assetManifest, catalogs, releaseInputs, playerPlaybackPolicy, files };
   return { ok: true, diagnostics: sortedDiagnostics, artifacts, cache, stats };

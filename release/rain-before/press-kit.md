@@ -2,6 +2,8 @@
 
 2026-10-16 更新。当前候选为**输入与返回阅读接续版 1.7.1**，不是已上线、已授权或 Stable 发行声明。只核对 1.7.0 存档，不沿用历史已变剧情的兼容承诺。
 
+本批补充 [#339 来源与发布准备](../../docs/339-web-asset-provenance-and-release-preparation.md)：作者源已包含 25 项逐文件核对的内部台账，来源事实可追溯但全部发行条件仍待确认，公开署名/作者身份未代填。此为作者交接更新，不重发游戏版本；内部准备清单不是可以直接对外展示的许可声明。
+
 ## 当前作品与交付
 
 一句话：一场雨，两条路。读完旧信，把下一次见面写进日历。
@@ -10,12 +12,13 @@
 
 | 资料 | 当前路径 |
 | --- | --- |
-| 可编辑源工程 | `evidence/web-mobile-continuity/before-rain-stops-project.zip` |
+| 最新可编辑源工程（含内部来源台账） | `evidence/web-release-preparation/before-rain-stops-project.zip` |
 | 单文件游戏 | `evidence/web-mobile-continuity/before-rain-stops.html` |
 | Web 部署目录 | `evidence/web-mobile-continuity/before-rain-stops-web.zip` |
 | 待人工复核的 11 条记录 | `evidence/web-mobile-continuity/before-rain-stops.worldreview` |
 | 当前更新与边界 | `release-notes-1.7.1.md`、`docs/338-web-mobile-input-and-resume.md` |
 | 当前三产物摘要 | `evidence/web-mobile-continuity/artifact-audit.json` |
+| 最新作者源与内部待办 | `evidence/web-release-preparation/artifact-audit.json`、`preparation.json`、`发布准备.txt`（仅作者资料，不上传玩家网站） |
 | 当前语音来源及技术指标 | `assets/rain-story/voice-revision-v1.7.json`、`source-manifest-v1.7.json` |
 | 背景来源/完整提示词 | `assets/rain-story/source-manifest-v1.6.json`、`image-prompts-v1.6.json` |
 | 手机尺寸实际阅读/旧档恢复图 | `evidence/web-mobile-continuity/firefox-stay-large-reading.png`、`firefox-compatible-old-save.png` |

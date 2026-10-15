@@ -2,6 +2,8 @@
 
 项目制作样例素材，2026-10-13。
 
+2026-10-16 来源准备更新：当前 25 项媒体均与 1.7.1 工程逐份 SHA-256 对齐，来源事实已通过编辑器写入 `evidence/web-release-preparation/before-rain-stops-project.zip` 的内部素材台账，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。玩家候选仍为 `evidence/web-mobile-continuity` 的 1.7.1，媒体未改；下方为各版本制作事实，不能据此统一宣称许可通过。
+
 ## 当前 1.7.0 配音修订
 
 2026-10-15，`voice-04-v1.7.wav` 替换当前工程的 `voice_04`，改为“出发的事明早确认，今晚的回信不用再等。”；不覆盖旧 `voice-04.wav`。其余 24 份媒体和所有图片不变。九段旁白及七组配音位置随实际剧情一起校订，详见 [editorial-review-v1.7.md](editorial-review-v1.7.md) / [editorial-v1.7.mjs](editorial-v1.7.mjs)。
