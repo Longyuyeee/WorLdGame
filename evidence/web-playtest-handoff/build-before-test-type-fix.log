@@ -1,0 +1,12 @@
+
+> @world-studio/editor@0.0.0-s0.41 build
+> tsc -b && vite build
+
+src/pending-delivery-materials.test.ts(18,141): error TS2683: 'this' implicitly has type 'any' because it does not have a type annotation.
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path E:\Project\AIProject\ClaudeProject\WorLdGame\apps\editor
+npm error workspace @world-studio/editor@0.0.0-s0.41
+npm error location E:\Project\AIProject\ClaudeProject\WorLdGame\apps\editor
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc -b && vite build

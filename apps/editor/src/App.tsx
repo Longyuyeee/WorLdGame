@@ -30,6 +30,7 @@ import { routeReviewSourceHash, type RouteReviewTrace } from './route-review';
 import { createWebDeliveryBundle } from "./web-delivery-bundle";
 import { usePlaytestProgress, type PlaytestProgressState } from './use-playtest-progress';
 import { PlaytestProgressPanel } from './PlaytestProgressPanel';
+import { PlaytestProgressRestore } from './PlaytestProgressTransfer';
 import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
@@ -3240,6 +3241,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
   const [publicationDirty, setPublicationDirty] = useState(false);
   const [includeProductionBundle, setIncludeProductionBundle] = useState(false);
   const [includeReviewNotes, setIncludeReviewNotes] = useState(false);
+  const [includePlaytestProgress, setIncludePlaytestProgress] = useState(false);
   const [publicationStep, setPublicationStep] = useState(initialPublicationStep);
   const [publicationFormat, setPublicationFormat] = useState<"html" | "directory">(initialPublicationFormat);
   useEffect(() => { onDraftChange?.(publicationDirty); }, [publicationDirty, onDraftChange]);
@@ -3264,7 +3266,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
   const [runtimeDetailsOpen, setRuntimeDetailsOpen] = useState(() => resumption!.continuity.detailsOpen);
   const [resumed, setResumed] = useState(() => resumption!.resumed);
   const [hotUpdate, setHotUpdate] = useState<Exclude<FormalPreviewHotUpdateResult, { readonly kind: "unchanged" }> | null>(() => resumption!.update);
-  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly production?: { readonly href: string; readonly filename: string; readonly byteLength: number; readonly notesIncluded: boolean }; readonly dispose: () => void }) | null>(null);
+  const [webBuild, setWebBuild] = useState<(Omit<FormalWebArtifact, "html"> & { readonly directory: boolean; readonly href: string; readonly production?: { readonly href: string; readonly filename: string; readonly byteLength: number; readonly notesIncluded: boolean; readonly progressIncluded: boolean }; readonly dispose: () => void }) | null>(null);
   const [webBuilding, setWebBuilding] = useState(false);
   const [webBuildPhase, setWebBuildPhase] = useState("正在打包当前游戏…");
   const webBuildGeneration = useRef(0);
@@ -3384,7 +3386,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
     setWebBuilding(false);
     setWebBuildError(null);
     return () => { webBuildGeneration.current += 1; webBuildController.current?.abort(); };
-  }, [canonicalProject, projectRunBlocked, publicationFormat, includeProductionBundle, includeReviewNotes, includeProductionBundle && includeReviewNotes ? deliveryReviewNotes : null]);
+  }, [canonicalProject, projectRunBlocked, publicationFormat, includeProductionBundle, includeReviewNotes, includeProductionBundle && includeReviewNotes ? deliveryReviewNotes : null, includePlaytestProgress, includeProductionBundle && includePlaytestProgress ? playtestProgress?.completions : null, includeProductionBundle && includePlaytestProgress ? playtestProgress?.error : null]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -3607,6 +3609,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
     setWebBuildError(null);
     setWebBuilding(true); setWebBuildPhase(includeProductionBundle ? "正在保存当前工程…" : "正在打包当前游戏…");
     try {
+      if (includeProductionBundle && includePlaytestProgress && playtestProgress?.error) throw Error("试玩进度尚未完整读取或保存。请在检查页重试，或取消附带试玩进度后生成。");
       if (includeProductionBundle && beforeDeliverySave && !await beforeDeliverySave(controller.signal)) throw Error("工程尚未保存成功，请检查保存状态后重新生成制作交付包。");
       controller.signal.throwIfAborted();
       setWebBuildPhase("正在生成游戏文件…");
@@ -3615,13 +3618,13 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
       const artifact = directory
         ? await createFormalWebDirectoryArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify)
         : await createFormalWebArtifact(canonicalProject, reader, runtime, controller.signal, atlasPreview.verification.verify);
-      const production = includeProductionBundle ? await createWebDeliveryBundle(canonicalProject, assetIndex, reader, artifact, includeReviewNotes ? deliveryReviewNotes : null, controller.signal, label => { if (generation === webBuildGeneration.current) setWebBuildPhase(label); }) : null;
+      const production = includeProductionBundle ? await createWebDeliveryBundle(canonicalProject, assetIndex, reader, artifact, includeReviewNotes ? deliveryReviewNotes : null, controller.signal, label => { if (generation === webBuildGeneration.current) setWebBuildPhase(label); }, includePlaytestProgress ? playtestProgress?.completions ?? [] : null) : null;
       if (generation !== webBuildGeneration.current) return;
       const contents = "archive" in artifact ? new Uint8Array(artifact.archive) : artifact.html;
       const href = URL.createObjectURL(new Blob([contents], { type: directory ? "application/zip" : "text/html;charset=utf-8" }));
       let productionHref: string | null = null;
       try { productionHref = production ? URL.createObjectURL(new Blob([new Uint8Array(production.archive)], { type: "application/zip" })) : null; } catch (error) { URL.revokeObjectURL(href); throw error; }
-      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, href, ...(production && productionHref ? { production: { href: productionHref, filename: production.filename, byteLength: production.byteLength, notesIncluded: includeReviewNotes } } : {}), dispose: () => { URL.revokeObjectURL(href); if (productionHref) URL.revokeObjectURL(productionHref); } });
+      setWebBuild({ filename: artifact.filename, byteLength: artifact.byteLength, projectDigest: artifact.projectDigest, optimizationReport: artifact.optimizationReport, directory, href, ...(production && productionHref ? { production: { href: productionHref, filename: production.filename, byteLength: production.byteLength, notesIncluded: includeReviewNotes, progressIncluded: includePlaytestProgress } } : {}), dispose: () => { URL.revokeObjectURL(href); if (productionHref) URL.revokeObjectURL(productionHref); } });
     } catch (error) {
       if (generation === webBuildGeneration.current) {
         if (error instanceof WebReleaseValidationError) {
@@ -4063,7 +4066,15 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
           <label className={publicationFormat === "html" ? "is-selected" : ""}><input type="radio" name="publication-format" value="html" checked={publicationFormat === "html"} onChange={() => setPublicationFormat("html")} /><span><strong>单文件 HTML <em>推荐</em></strong><small>一个文件，下载后直接打开。适合试玩和分享。</small></span></label>
           <label className={publicationFormat === "directory" ? "is-selected" : ""}><input type="radio" name="publication-format" value="directory" checked={publicationFormat === "directory"} onChange={() => setPublicationFormat("directory")} /><span><strong>网页目录 ZIP</strong><small>素材独立存放。适合大作品和网站部署。</small></span></label>
         </fieldset>
-        <section className="production-delivery-options" aria-label="制作交付选项"><label><input type="checkbox" aria-label="同时生成制作交付包" checked={includeProductionBundle} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeProductionBundle(event.target.checked)} /><span><strong>同时生成制作交付包</strong><small>先保存当前内容，再把游戏、可编辑工程和交付清单放进一个 ZIP，方便备份与继续制作。</small></span></label>{includeProductionBundle && <label className="production-delivery-review"><input type="checkbox" aria-label="附带校订记录" checked={includeReviewNotes} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeReviewNotes(event.target.checked)} /><span>附带校订记录（{deliveryReviewNotes.length} 条）<small>作者资料只放在交付包的 review 文件夹，玩家游戏不含这些记录。</small></span></label>}</section>
+        <section className="production-delivery-options" aria-label="制作交付选项">
+          <label><input type="checkbox" aria-label="同时生成制作交付包" checked={includeProductionBundle} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeProductionBundle(event.target.checked)} /><span><strong>同时生成制作交付包</strong><small>先保存当前内容，再把游戏、可编辑工程和交付清单放进一个 ZIP，方便备份与继续制作。</small></span></label>
+          {includeProductionBundle && <fieldset className="production-delivery-materials"><legend>随包附带作者资料</legend>
+            <label><input type="checkbox" aria-label="附带校订记录" checked={includeReviewNotes} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => setIncludeReviewNotes(event.target.checked)} /><span>附带校订记录（{deliveryReviewNotes.length} 条）</span></label>
+            <label><input type="checkbox" aria-label="附带试玩进度" checked={includePlaytestProgress} disabled={projectRunBlocked || webBuilding || publicationDirty || !playtestProgress} onChange={event => setIncludePlaytestProgress(event.target.checked)} /><span>附带试玩进度（{playtestProgress?.completions.length ?? 0} 条）<small>保留当前稿和旧稿的结局到达记录，换浏览器后可以合并。</small></span></label>
+            <small>作者资料只放在交付包的 review 文件夹，玩家游戏不含这些记录。恢复工程后，由你选择是否合并。</small>
+            {includePlaytestProgress && playtestProgress?.error && <p role="alert">试玩进度暂不可完整导出，请到检查页重试保存，或取消附带。</p>}
+          </fieldset>}
+        </section>
         <details className="publication-optimization"><summary>素材优化与高级交付设置</summary>
         <label><input type="checkbox" aria-label="安全 PNG 无损导出优化" checked={losslessExportEnabled(canonicalProject)} disabled={projectRunBlocked || webBuilding || publicationDirty} onChange={event => onPublicationChange(setLosslessExport(canonicalProject, event.target.checked))} />安全 PNG 无损导出优化（随工程保存）</label>
         <small>仅重压缩适用 PNG，逐字节验证数据；无收益或失败保留原文件。原素材不修改，不接入 Atlas，也不减少 GPU 内存。</small>
@@ -4100,7 +4111,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
         {webBuild && <><div className="publication-file"><span aria-hidden="true">▤</span><strong>{webBuild.filename}</strong></div><dl><div><dt>文件大小</dt><dd>{formatBytes(webBuild.byteLength)}</dd></div><div><dt>格式</dt><dd>{webBuild.directory ? "目录 ZIP" : "单文件 HTML"}</dd></div></dl>
           {!publicationDirty && <a className="studio-primary" href={webBuild.href} download={webBuild.filename}>下载游戏</a>}
           {!publicationDirty && webBuild.production && <a className="production-delivery-download" href={webBuild.production.href} download={webBuild.production.filename}>下载制作交付包</a>}
-          {webBuild.production && <p className="production-delivery-summary">含可编辑工程、游戏和交付清单{webBuild.production.notesIncluded ? "及校订记录" : ""} · {formatBytes(webBuild.production.byteLength)}。可从首页导入这个包继续制作；网站仅部署包内 game 文件夹。</p>}
+          {webBuild.production && <p className="production-delivery-summary">含可编辑工程、游戏和交付清单{webBuild.production.notesIncluded ? "、校订记录" : ""}{webBuild.production.progressIncluded ? "、试玩进度" : ""} · {formatBytes(webBuild.production.byteLength)}。可从首页导入这个包继续制作；网站仅部署包内 game 文件夹。</p>}
           {!publicationDirty && !webBuild.directory && <a className="publication-open" href={webBuild.href} target="_blank" rel="noreferrer">▷ 打开试玩</a>}
           <small>修改工程后，需要重新生成文件。</small>
         </>}
@@ -4140,6 +4151,8 @@ export interface AppProps {
   readonly initialSceneId?: string;
   readonly routeCompiler?: EditorProjectCompilerState;
   readonly initialDeliveryReview?: string | undefined;
+  readonly initialDeliveryProgress?: string | undefined;
+  readonly onDeliveryProgressConsumed?: () => void;
   readonly onDeliveryReviewConsumed?: () => void;
   readonly onProjectChange?: (project: StoryProject) => void;
   readonly onProjectSave?: (project: StoryProject) => Promise<void>;
@@ -4147,7 +4160,7 @@ export interface AppProps {
   readonly onCanonicalProjectChange?: (project: CanonicalProject) => void;
   readonly autosaveDebounceMs?: number;
 }
-export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
+export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialDeliveryProgress, onDeliveryProgressConsumed, initialProject, initialSceneId, continuity, preferInitialProject = false, routeCompiler, onProjectChange, onProjectSave, onCanonicalProjectSave, onCanonicalProjectChange, onOpenProject, onReturnHome, onExportProject, autosaveDebounceMs = AUTOSAVE_DEBOUNCE_MS }: AppProps = {}) {
   const [session, baseDispatch] = useReducer(reduceStudioSession, initialProject, (project) => {
     if (project !== undefined && continuity !== undefined) return resumeStudioSession(project, continuity, initialSceneId);
     const created = project === undefined ? createStudioSession() : createStudioSessionFromCanonical(project);
@@ -4166,6 +4179,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
   const [noteDialog, setNoteDialog] = useState<{ location: PlaytestNoteLocation; note: PlaytestNote | null } | null>(null);
   const [noteFileError, setNoteFileError] = useState("");
   const [incomingReview, setIncomingReview] = useState(initialDeliveryReview ?? null);
+  const [incomingProgress, setIncomingProgress] = useState(initialDeliveryProgress ?? null);
   const [revisionTarget, setRevisionTarget] = useState<{ sceneId: string; statementId: string } | null>(continuity?.preview?.revisionTarget ?? null);
   const [playtestRequest, setPlaytestRequest] = useState<PreviewPlaytestRequest | null>(null);
   const playtestSerial = useRef(0);
@@ -5589,6 +5603,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
       {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
       {revisionTarget !== null && <div className="playtest-revision-return" role="region" aria-label="校订返回试玩"><StudioIcon name="write" /><span>正在校订 · {session.project.scenes.find(scene => scene.id === revisionTarget.sceneId)?.title ?? "原场景"}。完成修改后可返回试玩。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen || pendingDraftSceneIds(session).length > 0} onClick={() => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView?.({ block: "start" })); }}>返回试玩</button></div>}
+      {incomingProgress !== null && <div className="delivery-progress-restore"><PlaytestProgressRestore raw={incomingProgress} project={previewCanonicalProject} progress={playtestProgress} disabled={inputDirty || pageDirty} fromBundle onClose={() => { setIncomingProgress(null); onDeliveryProgressConsumed?.(); }} onMerged={() => { setIncomingProgress(null); onDeliveryProgressConsumed?.(); openStudioPage("checks"); }} /></div>}
       {incomingReview !== null && <section className="delivery-review-restore" aria-label="交付包校订记录"><div><strong>这个制作交付包附带校订记录</strong><p>源工程已恢复。可以合并到本机清单；内容相同的记录不会重复，不同版本不会覆盖。</p></div><button type="button" disabled={inputDirty || pageDirty} onClick={() => { try { const notes = readPlaytestNotes(incomingReview, previewCanonicalProject.manifest.projectId); if (notesStore.commit(mergePlaytestNotes(notesStore.notes, notes))) { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); openStudioPage("checks"); } } catch (error) { setNoteFileError((error as Error).message); } }}>合并校订记录</button><button type="button" onClick={() => { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); }}>保留本机记录</button>{(noteFileError || notesStore.error) && <p role="alert">{noteFileError || notesStore.error}</p>}</section>}
       {noteDialog && <PlaytestNoteDialog key={noteDialog.note?.id ?? "new"} location={noteDialog.location} note={noteDialog.note} error={notesStore.error || noteFileError} onClose={() => setNoteDialog(null)} onSave={(text, category) => { if (noteDialog.note && JSON.stringify(notesStore.notes.find(item => item.id === noteDialog.note?.id)) !== JSON.stringify(noteDialog.note)) { setNoteFileError("此记录已在其他窗口修改或删除，请重新核对；当前输入仍保留。"); return; } const now = Math.max(Date.now(), noteDialog.note?.updatedAt ?? 0); const note: PlaytestNote = noteDialog.note ? { ...noteDialog.note, text, category, updatedAt: now, ...(text !== noteDialog.note.text || category !== noteDialog.note.category ? { status: "open" as const, checkedSourceHash: null } : {}) } : { ...noteDialog.location, id: crypto.randomUUID(), text, category, status: "open", checkedSourceHash: null, createdAt: now, updatedAt: now }; if (notesStore.commit(noteDialog.note ? notesStore.notes.map(item => item.id === note.id ? note : item) : [...notesStore.notes, note])) setNoteDialog(null); }} />}
       {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}

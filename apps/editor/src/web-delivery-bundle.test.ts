@@ -7,6 +7,9 @@ import { createWebDeliveryBundle, importStudioProjectArchive } from "./web-deliv
 import { exportPortableCanonicalProject } from "./portable-project-bundle";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact } from "./formal-web-export";
 import type { PlaytestNote } from "./playtest-notes";
+import { completionFromTrace, readPlaytestProgress, writePlaytestProgress } from './playtest-progress';
+import { progressTrace } from './playtest-progress-fixture';
+import { advanceFormalPreview, startFormalPreview } from './formal-preview-runtime';
 
 const bytes = new Uint8Array([1, 2, 3]); const digest = createBlobDigest(bytes);
 const index: AssetIndex = { schemaVersion: 1, indexRevision: 1, assets: [{ assetId: "source_image", displayName: "原图", kind: "background", tags: [], source: { digest, byteLength: 3, mimeType: "image/png" }, preservedFields: { inspection: { status: "pass" } } }] };
@@ -54,5 +57,35 @@ it("rejects changed files, missing entries, and unexpected entries before restor
 });
 it("continues to accept normal portable project ZIPs without adding review data", async () => {
   const normal = await exportPortableCanonicalProject(project, index, reader);
-  expect(importStudioProjectArchive(normal).reviewNotes).toBeNull(); expect(importStudioProjectArchive(normal).index).toEqual(index);
+  expect(importStudioProjectArchive(normal).reviewNotes).toBeNull(); expect(importStudioProjectArchive(normal).playtestProgress).toBeNull(); expect(importStudioProjectArchive(normal).index).toEqual(index);
+});
+it('roundtrips opted-in current and older progress separately from source and game, for HTML and directory', async () => {
+  const record = completionFromTrace(project, progressTrace(advanceFormalPreview(startFormalPreview(project))), 1)!;
+  const records = [{ ...record, sourceHash: record.sourceHash }, { ...record, sourceHash: 'a'.repeat(64) }];
+  for (const game of [await createFormalWebArtifact(project, reader, runtime), await createFormalWebDirectoryArtifact(project, reader, runtime)]) {
+    const result = await createWebDeliveryBundle(project, index, reader, game, [note], undefined, undefined, records), files = importProjectBinaryZip(result.archive);
+    expect(readPlaytestProgress(importStudioProjectArchive(result.archive).playtestProgress, project.manifest.projectId)).toEqual(records);
+    expect(result.manifest.progressEntry).toBe('review/playtest-progress.worldplaytest');
+    expect(importStudioProjectArchive(files['source/project.zip']!).playtestProgress).toBeNull();
+    expect(Object.keys(files).filter(name => name.startsWith('game/')).some(name => name.includes('worldplaytest'))).toBe(false);
+    expect(new TextDecoder().decode(files['game/index.html'])).not.toContain('world-playtest-progress');
+    expect(new TextDecoder().decode(files['开始使用.txt'])).toContain('旧稿记录不会计入当前稿');
+  }
+});
+it('accepts previous manifests without a progress field and keeps progress excluded by default', async () => {
+  const game = await createFormalWebArtifact(project, reader, runtime), result = await createWebDeliveryBundle(project, index, reader, game, null), files = importProjectBinaryZip(result.archive);
+  expect(importStudioProjectArchive(result.archive).playtestProgress).toBeNull();
+  const manifest = JSON.parse(new TextDecoder().decode(files['delivery.json'])); delete manifest.progressEntry;
+  files['delivery.json'] = new TextEncoder().encode(JSON.stringify(manifest));
+  expect(importStudioProjectArchive(exportProjectBinaryZip(files)).playtestProgress).toBeNull();
+});
+it('validates progress contents and project identity even when all file digests are correct', async () => {
+  const game = await createFormalWebArtifact(project, reader, runtime), record = completionFromTrace(project, progressTrace(advanceFormalPreview(startFormalPreview(project))), 1)!;
+  const result = await createWebDeliveryBundle(project, index, reader, game, null, undefined, undefined, [record]);
+  for (const raw of [writePlaytestProgress('another-project', [record]), JSON.stringify({ schemaVersion: 1, kind: 'world-playtest-progress', projectId: project.manifest.projectId, completions: [{ ...record, completedAt: -1 }] })]) {
+    const files = importProjectBinaryZip(result.archive), manifest = JSON.parse(new TextDecoder().decode(files['delivery.json'])), entry = manifest.progressEntry;
+    files[entry] = new TextEncoder().encode(raw); manifest.files = manifest.files.map((row: { path: string }) => row.path === entry ? { path: entry, byteLength: files[entry]!.length, digest: createBlobDigest(files[entry]!) } : row);
+    files['delivery.json'] = new TextEncoder().encode(JSON.stringify(manifest));
+    expect(() => importStudioProjectArchive(exportProjectBinaryZip(files))).toThrow(/试玩进度/);
+  }
 });

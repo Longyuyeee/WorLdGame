@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CanonicalProject } from '@world-studio/project-domain';
 import type { RouteReviewTrace } from './route-review';
-import { completionFromTrace, mergePlaytestCompletions, playtestProgressKey, readPlaytestProgress, writePlaytestProgress, type PlaytestCompletion } from './playtest-progress';
+import { completionFromTrace, mergePlaytestCompletions, playtestProgressKey, readPlaytestProgress, writePlaytestProgress, PLAYTEST_PROGRESS_LIMIT, type PlaytestCompletion } from './playtest-progress';
 
-export interface PlaytestProgressState { readonly completions: readonly PlaytestCompletion[]; readonly error: string; readonly retry: () => void; }
+export type PlaytestProgressMergeResult = { readonly ok: true; readonly count: number } | { readonly ok: false; readonly error: string };
+export interface PlaytestProgressState { readonly completions: readonly PlaytestCompletion[]; readonly error: string; readonly retry: () => void; readonly merge: (raw: string) => PlaytestProgressMergeResult; }
 export function usePlaytestProgress(project: CanonicalProject, trace: RouteReviewTrace | null): PlaytestProgressState {
   const projectId = project.manifest.projectId, key = playtestProgressKey(projectId);
   const [snapshot, setSnapshot] = useState<{ projectId: string; completions: readonly PlaytestCompletion[]; error: string }>({ projectId, completions: [], error: '' });
@@ -26,5 +27,20 @@ export function usePlaytestProgress(project: CanonicalProject, trace: RouteRevie
     sync(); const receive = (event: StorageEvent) => { if (event.key === key || event.key === null) sync(); };
     window.addEventListener('storage', receive); return () => window.removeEventListener('storage', receive);
   }, [projectId, key, completion, attempt]);
-  return { completions: snapshot.projectId === projectId ? snapshot.completions : [], error: snapshot.projectId === projectId ? snapshot.error : '', retry: () => retry(value => value + 1) };
+  const merge = useCallback((raw: string): PlaytestProgressMergeResult => {
+    try {
+      const incoming = readPlaytestProgress(raw, projectId);
+      const previous = readPlaytestProgress(localStorage.getItem(key), projectId);
+      const local = mergePlaytestCompletions(previous, pending.current.projectId === projectId ? pending.current.completions : []);
+      if (new Set([...local, ...incoming].map(item => `${item.sourceHash}:${item.endingId}`)).size > PLAYTEST_PROGRESS_LIMIT) throw Error(`合并后超过 ${PLAYTEST_PROGRESS_LIMIT} 条，请分别保留备份文件。`);
+      const merged = mergePlaytestCompletions(local, incoming);
+      if (merged !== previous) localStorage.setItem(key, writePlaytestProgress(projectId, merged));
+      pending.current = { projectId, completions: [] };
+      setSnapshot({ projectId, completions: merged, error: '' });
+      return { ok: true, count: merged.length };
+    } catch (reason) {
+      return { ok: false, error: `无法合并试玩进度，本机记录未被覆盖。${reason instanceof Error ? reason.message : '请检查文件和浏览器存储。'}` };
+    }
+  }, [projectId, key]);
+  return { completions: snapshot.projectId === projectId ? snapshot.completions : [], error: snapshot.projectId === projectId ? snapshot.error : '', retry: () => retry(value => value + 1), merge };
 }

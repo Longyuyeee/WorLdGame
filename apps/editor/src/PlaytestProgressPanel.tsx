@@ -4,6 +4,7 @@ import { routeReviewSourceHash, type RouteReviewTrace } from './route-review';
 import { playtestEndingTargets } from './playtest-progress';
 import type { PlaytestProgressState } from './use-playtest-progress';
 import { StudioIcon } from './studio-icon';
+import { PlaytestProgressTransfer } from './PlaytestProgressTransfer';
 import './styles/playtest-progress.css';
 
 export function PlaytestProgressPanel({ project, progress, trace, blocked, onStart, onRoutes }: {
@@ -35,6 +36,7 @@ export function PlaytestProgressPanel({ project, progress, trace, blocked, onSta
       {targets.length > 8 && <nav aria-label="结局试玩分页"><button type="button" disabled={offset === 0} onClick={() => setPage(Math.max(0, offset / 8 - 1))}>上一页结局</button><span>{offset + 1}–{Math.min(offset + 8, targets.length)} / {targets.length}</span><button type="button" disabled={offset + 8 >= targets.length} onClick={() => setPage(offset / 8 + 1)}>下一页结局</button></nav>}
       {older.length > 0 && <p>{older.length} 条旧版本到达记录已保留；不计入当前版本。</p>}
     </details>
-    <small className="playtest-progress__scope">这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。仅存于本浏览器，不随工程或游戏导出。</small>
+    <PlaytestProgressTransfer key={project.manifest.projectId} project={project} progress={progress} disabled={blocked} />
+    <small className="playtest-progress__scope">这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。平时保存在本浏览器，换机前请备份。</small>
   </section>;
 }

@@ -1,0 +1,26 @@
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
+import { IDBFactory } from 'fake-indexeddb';
+import { createAssetIndex } from '@world-studio/project-persistence';
+import { StudioLauncher } from './studio-launcher';
+import { progressProject, endedTrace } from './playtest-progress-fixture';
+import { completionFromTrace, playtestProgressKey, readPlaytestProgress } from './playtest-progress';
+import { createFormalWebArtifact } from './formal-web-export';
+import { createWebDeliveryBundle } from './web-delivery-bundle';
+afterEach(() => { localStorage.clear(); vi.unstubAllGlobals(); });
+it('keeps unconsumed bundle progress across launcher remount and clears only the chosen material after a real merge', async () => {
+  vi.stubGlobal('indexedDB', new IDBFactory()); const project = progressProject(), reader = { read: async () => null };
+  const game = await createFormalWebArtifact(project, reader, { javascript: '', css: '' });
+  const delivery = await createWebDeliveryBundle(project, createAssetIndex(), reader, game, [], undefined, undefined, [completionFromTrace(project, endedTrace(), 1)!]);
+  const file = new File([new Uint8Array(delivery.archive)], 'production.zip', { type: 'application/zip' }); Object.defineProperty(file, 'arrayBuffer', { value: async () => delivery.archive.slice().buffer });
+  const view = render(<StudioLauncher />); fireEvent.change(screen.getByLabelText('导入工程 ZIP'), { target: { files: [file] } });
+  await screen.findByRole('region', { name: '交付包试玩进度' }, { timeout: 8000 }); expect(localStorage.getItem(playtestProgressKey(project.manifest.projectId))).toBeNull();
+  view.unmount(); const reopened = render(<StudioLauncher />); fireEvent.click(await screen.findByRole('button', { name: /^打开项目：结局进度/ }));
+  await screen.findByRole('region', { name: '交付包试玩进度' }); fireEvent.click(screen.getByRole('button', { name: '合并试玩进度' }));
+  await waitFor(() => expect(readPlaytestProgress(localStorage.getItem(playtestProgressKey(project.manifest.projectId)), project.manifest.projectId)).toHaveLength(1));
+  expect(screen.getByRole('region', { name: '交付包校订记录' })).toBeVisible(); expect(screen.queryByRole('region', { name: '交付包试玩进度' })).toBeNull();
+  reopened.unmount(); render(<StudioLauncher />); fireEvent.click(await screen.findByRole('button', { name: /^打开项目：结局进度/ }));
+  await screen.findByRole('region', { name: '交付包校订记录' }); expect(screen.queryByRole('region', { name: '交付包试玩进度' })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: '保留本机记录' }));
+  fireEvent.click(within(screen.getByRole('navigation', { name: '主要功能' })).getByRole('button', { name: '检查' })); expect(screen.getByRole('region', { name: '结局试玩进度' })).toHaveTextContent('1 / 2');
+}, 15000);

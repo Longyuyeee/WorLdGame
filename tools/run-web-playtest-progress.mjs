@@ -22,7 +22,7 @@ const nav = name => page.getByRole('navigation', { name: '主要功能' }).getBy
 const board = () => page.getByRole('region', { name: '结局试玩进度', exact: true });
 const shot = name => page.screenshot({ path: path.join(output, `${name}.png`), animations: 'disabled' });
 async function count(value) { await board().getByText(`当前版本已从开头到达 ${value} / 2 个结局`, { exact: true }).waitFor(); }
-async function details() { if (!await board().locator('details').evaluate(el => el.open)) await board().locator('summary').click(); }
+async function details() { if (!await board().locator('details').first().evaluate(el => el.open)) await board().locator('summary').first().click(); }
 async function fit() { const r = await board().evaluate(el => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, width: innerWidth, scroll: el.scrollWidth, client: el.clientWidth }; }); assert.ok(r.left >= -1 && r.right <= r.width + 1 && r.scroll <= r.client + 1, JSON.stringify(r)); }
 async function run(right = false) {
   for (let i = 0; i < 20; i++) {

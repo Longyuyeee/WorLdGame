@@ -1,0 +1,6 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: {\"textTop\":771.9375,\"inputTop\":789.28125,\"textLeft\":359.796875,\"inputRight\":342.796875}",
+  "stack": "AssertionError [ERR_ASSERTION]: {\"textTop\":771.9375,\"inputTop\":789.28125,\"textLeft\":359.796875,\"inputRight\":342.796875}\n    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-playtest-handoff.mjs:41:16"
+}

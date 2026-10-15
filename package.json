@@ -19,6 +19,7 @@
     "audit:web-playtest-revision:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-playtest-revision.mjs",
     "audit:web-production-delivery:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-production-delivery.mjs",
     "audit:web-reading-controls:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-reading-controls.mjs",
+    "audit:web-playtest-handoff:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-playtest-handoff.mjs",
     "audit:web-playtest-progress:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-playtest-progress.mjs",
     "audit:web-scene-replay:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-scene-replay.mjs",
     "audit:web-collection-progress:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-collection-progress.mjs",

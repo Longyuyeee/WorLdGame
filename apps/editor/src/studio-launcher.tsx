@@ -12,6 +12,7 @@ import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import { exportPortableProjectBundle } from "./portable-project-bundle";
 import { importStudioProjectArchive } from "./web-delivery-bundle";
+import { stageDeliveryMaterials, pendingDeliveryMaterial, consumeDeliveryMaterial } from "./pending-delivery-materials";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
 import { readTrustedRouteOverview } from "./trusted-route-overview";
@@ -33,7 +34,7 @@ export function StudioLauncher() {
   const workspaces=useRef(new Map<string,ProjectWorkspace>());
   const compilers=useRef(new Map<string,EditorProjectCompilerState|null>());
   const importedReferences = useRef(new Set<string>());
-  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined;deliveryReview?:string|undefined}|null>(null);
+  const [editing, setEditing] = useState<{session:ProjectLifecycleSession;workspace:ProjectWorkspace;compiler:EditorProjectCompilerState|null;view:"structure"|"content";sceneId?:string;intent?:ProjectStructureIntent|undefined;preferInitialProject?:boolean;continuity?:StudioContinuity|undefined;deliveryReview?:string|undefined;deliveryProgress?:string|undefined}|null>(null);
   useEffect(() => { void recentStore.load().then(setRecent); }, [recentStore]);
   const finish = async (workspace:ProjectWorkspace,opened:CompiledLifecycleProject) => {const {session,compiler}=opened;workspaces.current.set(session.reference.referenceId,workspace);compilers.current.set(session.reference.referenceId,compiler);await rememberRecent(recentStore, session, Date.now()); setRecent(await recentStore.load()); return session; };
   const managedWorkspace = () => new IndexedDbProjectWorkspace(globalThis.indexedDB, `project-${entropy()}`, "受管工程");
@@ -44,7 +45,6 @@ export function StudioLauncher() {
     if (handle === null) throw new Error("目录授权已失效，请重新选择工程目录");
     return new BrowserDirectoryProjectWorkspace(handle, item.reference.referenceId);
   };
-  const importedReviews = useRef(new Map<string, string>());
   const actions: ProjectHomeActions = {
     create: async (title) => {const workspace=managedWorkspace();const session=await createProject(workspace,title,entropy());return finish(workspace,await compileLifecycleProject(workspace,session));},
     openDirectory: async () => { const id = `directory-${entropy()}`; const workspace = await pickBrowserDirectoryWorkspace(browserApi(), id); await saveDirectoryHandle(id, workspace.directoryHandle); return finish(workspace,await openCompiledLifecycleProject(workspace)); },
@@ -75,21 +75,23 @@ export function StudioLauncher() {
     },
     importArchive: async (file) => {
       const imported = importStudioProjectArchive(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();
-      await workspace.writeFiles(saveProject(imported.project), null);
-      if (!imported.legacyTextOnly) {
-        const now = Date.now(); const ownerId = `portable-import-${entropy()}`;
-        const files = new IndexedDbProjectFileStore(globalThis.indexedDB, imported.project.manifest.projectId);
-        const acquisition = await files.acquire(ownerId, now, 30_000);
-        if (acquisition.status !== "acquired") throw new Error("同一项目的资源库正在被其他编辑器写入，请关闭该项目后重试导入");
-        const assets = new IndexedDbAssetRepository(globalThis.indexedDB, imported.project.manifest.projectId);
-        files.activateWriterLease(acquisition.lease); assets.activateWriterLease(acquisition.lease);
-        try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
-        finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
-      }
-      const opened = await finish(workspace,await openCompiledLifecycleProject(workspace));
-      importedReferences.current.add(opened.reference.referenceId);
-      if (imported.reviewNotes !== null) importedReviews.current.set(opened.reference.referenceId, imported.reviewNotes);
-      return opened;
+      stageDeliveryMaterials(workspace.reference.referenceId, imported.project.manifest.projectId, imported.reviewNotes, imported.playtestProgress);
+      try {
+        await workspace.writeFiles(saveProject(imported.project), null);
+        if (!imported.legacyTextOnly) {
+          const now = Date.now(); const ownerId = `portable-import-${entropy()}`;
+          const files = new IndexedDbProjectFileStore(globalThis.indexedDB, imported.project.manifest.projectId);
+          const acquisition = await files.acquire(ownerId, now, 30_000);
+          if (acquisition.status !== "acquired") throw new Error("同一项目的资源库正在被其他编辑器写入，请关闭该项目后重试导入");
+          const assets = new IndexedDbAssetRepository(globalThis.indexedDB, imported.project.manifest.projectId);
+          files.activateWriterLease(acquisition.lease); assets.activateWriterLease(acquisition.lease);
+          try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
+          finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
+        }
+        const opened = await finish(workspace,await openCompiledLifecycleProject(workspace));
+        importedReferences.current.add(opened.reference.referenceId);
+        return opened;
+      } catch (error) { consumeDeliveryMaterial(workspace.reference.referenceId, "notes"); consumeDeliveryMaterial(workspace.reference.referenceId, "progress"); throw error; }
     },
     exportArchive: async (session) => {
       const assets = new IndexedDbAssetRepository(globalThis.indexedDB, session.projectId);
@@ -116,7 +118,9 @@ export function StudioLauncher() {
     return <>
       <App
         initialDeliveryReview={editing.deliveryReview}
-        onDeliveryReviewConsumed={() => { importedReviews.current.delete(editing.session.reference.referenceId); setEditing(current => current === null ? null : { ...current, deliveryReview: undefined }); }}
+        initialDeliveryProgress={editing.deliveryProgress}
+        onDeliveryProgressConsumed={() => { consumeDeliveryMaterial(editing.session.reference.referenceId, "progress"); setEditing(current => current === null ? null : { ...current, deliveryProgress: undefined }); }}
+        onDeliveryReviewConsumed={() => { consumeDeliveryMaterial(editing.session.reference.referenceId, "notes"); setEditing(current => current === null ? null : { ...current, deliveryReview: undefined }); }}
         onReturnHome={() => setEditing(null)}
         onExportProject={async project => {
           const download = await actions.exportArchive(markProjectDirty(editing.session, project));
@@ -154,5 +158,5 @@ export function StudioLauncher() {
       />
     </>;
   }
-  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId),deliveryReview:importedReviews.current.get(session.reference.referenceId)});}} />;
+  return <ProjectHome recent={recent} actions={actions} onEnter={(session)=>{const workspace=workspaces.current.get(session.reference.referenceId),compiler=compilers.current.get(session.reference.referenceId);if(workspace===undefined||compiler===undefined)throw new Error("Project workspace is unavailable");setEditing({session,workspace,compiler,view:"content",preferInitialProject:importedReferences.current.delete(session.reference.referenceId),deliveryReview:pendingDeliveryMaterial(session.reference.referenceId, "notes"),deliveryProgress:pendingDeliveryMaterial(session.reference.referenceId, "progress")});}} />;
 }

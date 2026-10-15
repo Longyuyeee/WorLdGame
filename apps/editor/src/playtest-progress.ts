@@ -11,7 +11,8 @@ export interface PlaytestCompletion {
   readonly completedAt: number;
 }
 export const playtestProgressKey = (projectId: string) => `world-studio:playtest-progress:${projectId}`;
-const LIMIT = 1000;
+export const PLAYTEST_PROGRESS_LIMIT = 1000;
+const LIMIT = PLAYTEST_PROGRESS_LIMIT;
 const endingCache = new WeakMap<CanonicalProject, readonly { endingId: string; sceneId: string; sceneTitle: string; name: string }[]>();
 export function playtestEndingTargets(project: CanonicalProject) {
   const cached = endingCache.get(project); if (cached) return cached;

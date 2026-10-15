@@ -12,4 +12,13 @@
 .playtest-progress nav { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: 11px; }
 .playtest-progress__error { padding: 10px; border: 1px solid var(--wg-color-status-warning); border-radius: 10px; }.playtest-progress__error p { margin: 0 0 8px; }
 .playtest-checks-workspace > .playtest-progress { margin-bottom: 18px; }
+.playtest-progress-transfer { border-top: 1px solid var(--wg-color-border-subtle); padding-top: 12px; }
+.playtest-progress-transfer > .playtest-progress__actions { margin-top: 10px; }
+.playtest-progress__file { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 8px 12px; box-sizing: border-box; border: 1px solid var(--wg-color-border-subtle); border-radius: 8px; font-size: 12px; cursor: pointer; }
+.playtest-progress__file input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.playtest-progress__file:focus-within { outline: 2px solid var(--studio-accent); outline-offset: 3px; }.playtest-progress__file[aria-disabled="true"] { opacity: .5; cursor: default; }
+.playtest-progress-restore { min-width: 0; display: grid; gap: 10px; margin: 12px 0; padding: 16px; border: 1px solid var(--wg-color-border-subtle); border-radius: 14px; background: var(--wg-color-bg-surface-1); color: var(--wg-color-text-primary); }
+.playtest-progress-restore p, .playtest-progress-restore small { margin: 6px 0 0; color: var(--wg-color-text-secondary); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.playtest-progress-restore button { min-height: 40px; font-size: 12px; }.playtest-progress-restore [role="alert"] { color: var(--wg-color-status-warning); }
 @media (max-width: 639px) { .playtest-progress { padding: 14px; }.playtest-progress button { min-height: 44px; }.playtest-progress__actions > button { flex: 1; }.playtest-progress li { flex-direction: column; gap: 6px; } }
+@media (max-width: 639px) { .playtest-progress__file { min-height: 44px; flex: 1; }.playtest-progress-restore button { min-height: 44px; } }
