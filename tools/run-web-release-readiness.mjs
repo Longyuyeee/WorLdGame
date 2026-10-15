@@ -89,19 +89,18 @@ try {
   await shot(editor, 'desktop-ready');
   await editor.locator('.editor-preferences > summary').click(); await editor.getByRole('button', { name: '石墨', exact: true }).click(); await editor.locator('.editor-preferences > summary').click(); await shot(editor, 'dark-ready');
   await editor.locator('.editor-preferences > summary').click(); await editor.getByRole('button', { name: '清亮', exact: true }).click(); await editor.locator('.editor-preferences > summary').click();
-  for (const width of [1180, 800, 390]) { await editor.setViewportSize({ width, height: width < 500 ? 844 : 1000 }); await fit(editor, '.release-check'); await fit(editor, '.release-playtest'); await shot(editor, `ready-${width}`); }
+  for (const width of [1180, 800, 390]) { await editor.setViewportSize({ width, height: width < 500 ? 844 : 1000 }); await fit(editor, '.release-check'); await fit(editor, '.playtest-progress'); await shot(editor, `ready-${width}`); }
   await editor.getByRole('button', { name: '构建目录 ZIP', exact: true }).scrollIntoViewIfNeeded(); await shot(editor, 'mobile-generate-actions');
   await editor.setViewportSize({ width: 1440, height: 1000 });
   await editor.getByRole('button', { name: '查看路线', exact: true }).click(); await fit(editor, '.release-return'); await shot(editor, 'route-return');
   await editor.getByRole('button', { name: '返回生成游戏', exact: true }).click();
   await editor.getByRole('button', { name: '构建目录 ZIP', exact: true }).waitFor(); await editor.getByText('故事与素材检查通过', { exact: true }).waitFor();
-  await editor.getByRole('button', { name: '回到故事试玩', exact: true }).click();
-  await editor.getByRole('button', { name: '试玩完整流程', exact: true }).click();
+  await editor.getByRole('button', { name: '从头试玩当前版本', exact: true }).click();
   await editor.getByTestId('preview-visual-host').waitFor(); await editor.waitForFunction(() => document.querySelector('[data-testid="preview-visual-host"]')?.dataset.renderStatus === 'ready');
   await editor.getByRole('button', { name: '返回生成游戏', exact: true }).click();
-  console.log('playtest receipt:', await editor.getByRole('region', { name: '作品试玩状态' }).innerText());
+  console.log('playtest receipt:', await editor.getByRole('region', { name: '结局试玩进度' }).innerText());
   await shot(editor, 'partial-playtest-receipt');
-  await editor.getByText('最近一次试玩尚未从入口完成全程', { exact: true }).waitFor();
+  await editor.getByText('本次从开头试玩仍在进行，可以继续走到结局。', { exact: true }).waitFor();
   check('22 actual sources inspected; light/dark and 1180/800/390 layout; route/preview return retains directory format; partial playtest is not marked complete');
   const directory = await build(editor, true), delivered = unzipSync(directory.bytes), previous = unzipSync(await readFile(path.join(root, 'evidence/web-save-backup/before-rain-stops-web.zip')));
   assert.deepEqual(Object.keys(delivered).sort(), Object.keys(previous).sort());

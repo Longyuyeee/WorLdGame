@@ -1,0 +1,15 @@
+.playtest-progress { min-width: 0; display: grid; gap: 12px; padding: 16px; border: 1px solid var(--wg-color-border-subtle); border-radius: 14px; background: color-mix(in srgb, var(--studio-accent) 4%, var(--wg-color-bg-surface-1)); color: var(--wg-color-text-primary); }
+.playtest-progress > header { display: flex; align-items: start; gap: 12px; }
+.playtest-progress > header > div { min-width: 0; flex: 1; }
+.playtest-progress__icon { display: grid; place-items: center; flex-shrink: 0; width: 36px; height: 36px; border-radius: 12px; background: var(--studio-accent-soft); color: var(--studio-accent); }
+.playtest-progress h3 { margin: 0 0 6px; font-size: 13px; }.playtest-progress strong { font-size: 12px; overflow-wrap: anywhere; }
+.playtest-progress p, .playtest-progress small { margin: 6px 0 0; color: var(--wg-color-text-secondary); font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
+.playtest-progress progress { width: 100%; height: 6px; border: 0; accent-color: var(--studio-accent); }
+.playtest-progress button { min-height: 38px; padding: 8px 12px; font-size: 12px; }.playtest-progress__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.playtest-progress summary { cursor: pointer; font-size: 12px; }.playtest-progress ul { padding: 0; margin: 10px 0 0; list-style: none; }
+.playtest-progress li { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--wg-color-border-subtle); }.playtest-progress li > div { display: grid; min-width: 0; gap: 2px; }.playtest-progress li small { margin: 0; }
+.playtest-progress li > span { flex-shrink: 0; font-size: 11px; color: var(--wg-color-text-secondary); }.playtest-progress li[data-completed="true"] > span { color: var(--wg-color-status-success); }
+.playtest-progress nav { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: 11px; }
+.playtest-progress__error { padding: 10px; border: 1px solid var(--wg-color-status-warning); border-radius: 10px; }.playtest-progress__error p { margin: 0 0 8px; }
+.playtest-checks-workspace > .playtest-progress { margin-bottom: 18px; }
+@media (max-width: 639px) { .playtest-progress { padding: 14px; }.playtest-progress button { min-height: 44px; }.playtest-progress__actions > button { flex: 1; }.playtest-progress li { flex-direction: column; gap: 6px; } }

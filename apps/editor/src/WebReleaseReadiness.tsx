@@ -4,6 +4,8 @@ import type { BlobDigest } from "@world-studio/project-persistence";
 import { routeReviewSourceHash, type RouteReviewTrace } from "./route-review";
 import { StudioIcon } from "./studio-icon";
 import { inspectWebReleaseSources, type WebReleaseFinding } from "./web-release-readiness";
+import { PlaytestProgressPanel } from './PlaytestProgressPanel';
+import type { PlaytestProgressState } from './use-playtest-progress';
 
 export function useWebReleaseInspection(project: CanonicalProject, reader: { read(digest: BlobDigest): Promise<Uint8Array | null> } | null, active: boolean, blocked: boolean) {
   const [attempt, setAttempt] = useState(0);
@@ -28,9 +30,10 @@ export function useWebReleaseInspection(project: CanonicalProject, reader: { rea
 }
 
 export type WebReleaseInspectionState = ReturnType<typeof useWebReleaseInspection>;
-export function WebReleaseReadiness({ project, inspection, blocked, busy, trace, onOpen, onPreview, onRoutes }: {
+export function WebReleaseReadiness({ project, inspection, blocked, busy, trace, progress, onRestartPreview, onOpen, onPreview, onRoutes }: {
   project: CanonicalProject; inspection: WebReleaseInspectionState; blocked: boolean; busy: boolean; trace: RouteReviewTrace | null;
   onOpen: (finding: WebReleaseFinding) => void; onPreview: () => void; onRoutes: () => void;
+  progress?: PlaytestProgressState | undefined; onRestartPreview?: (() => void) | undefined;
 }) {
   const [offset, setOffset] = useState(0);
   useEffect(() => setOffset(0), [inspection.report]);
@@ -62,6 +65,6 @@ export function WebReleaseReadiness({ project, inspection, blocked, busy, trace,
       {warnings.length > 0 && <details className="release-check__warnings"><summary>编译提醒 · {warnings.length} 项（可继续生成）</summary>{rows(warnings.slice(0, 6))}{warnings.length > 6 && <p>此处显示前 6 项。<button type="button" disabled={blocked || busy} onClick={() => onOpen({ severity: "warning", code: "WEB_ALL_WARNINGS", title: "全部编译提醒", message: "", target: "checks" })}>查看全部编译提醒</button></p>}</details>}
       {inspection.ready && <small className="release-check__hint">生成时会再次核对文件；此检查不代表分支、阅读节奏和配音已经试玩确认。</small>}
     </section>
-    <section className="release-playtest" aria-label="作品试玩状态"><StudioIcon name="director" /><div><strong>{trace === null ? "还没有本次创作会话的试玩记录" : !traceCurrent ? "作品已修改，请重新试玩" : trace.status === "ended" && trace.startKind === "entry" ? `最近从入口试玩到结局：${trace.endingName ?? "未命名结局"}` : "最近一次试玩尚未从入口完成全程"}</strong><p>只记录最近一次试玩；请分别确认每条分支、声音与存读档。</p></div><div className="release-playtest__actions"><button type="button" disabled={blocked || busy} onClick={onPreview}>回到故事试玩</button><button type="button" disabled={blocked || busy} onClick={onRoutes}>查看路线</button></div></section>
+    {progress ? <PlaytestProgressPanel project={project} progress={progress} trace={trace} blocked={blocked || busy} onStart={onRestartPreview ?? onPreview} onRoutes={onRoutes} /> : <section className="release-playtest" aria-label="作品试玩状态"><StudioIcon name="director" /><div><strong>{trace === null ? "还没有本次创作会话的试玩记录" : !traceCurrent ? "作品已修改，请重新试玩" : trace.status === "ended" && trace.startKind === "entry" ? `最近从入口试玩到结局：${trace.endingName ?? "未命名结局"}` : "最近一次试玩尚未从入口完成全程"}</strong><p>只记录最近一次试玩；请分别确认每条分支、声音与存读档。</p></div><div className="release-playtest__actions"><button type="button" disabled={blocked || busy} onClick={onPreview}>回到故事试玩</button><button type="button" disabled={blocked || busy} onClick={onRoutes}>查看路线</button></div></section>}
   </>;
 }

@@ -12,6 +12,9 @@ export interface RouteReviewTrace {
   readonly sceneIds: readonly string[];
   readonly statementIds: readonly string[];
   readonly choiceIds: readonly string[];
+  readonly playtestSourceHash?: string | null;
+  readonly endingId?: string | null;
+  readonly endingSceneId?: string | null;
 }
 
 export const routeReviewSourceHash = (project: CanonicalProject) => semanticHash(withoutWebSaveCompatibility(project));

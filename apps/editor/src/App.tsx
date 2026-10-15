@@ -28,6 +28,8 @@ import { RouteTargetPicker } from './RouteTargetPicker';
 import { RouteReviewPanel } from './RouteReviewPanel';
 import { routeReviewSourceHash, type RouteReviewTrace } from './route-review';
 import { createWebDeliveryBundle } from "./web-delivery-bundle";
+import { usePlaytestProgress, type PlaytestProgressState } from './use-playtest-progress';
+import { PlaytestProgressPanel } from './PlaytestProgressPanel';
 import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
@@ -3180,6 +3182,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
   );
 }
 
+type PreviewPlaytestRequest = { readonly serial: number; readonly target: NonNullable<Parameters<typeof startFormalPreview>[1]> };
+
 interface PreviewPanelProps extends CommonProps {
   readonly beforeDeliverySave?: (signal: AbortSignal) => Promise<boolean>;
   readonly deliveryReviewNotes?: readonly PlaytestNote[];
@@ -3188,13 +3192,15 @@ interface PreviewPanelProps extends CommonProps {
   readonly onRecordIssue?: (location: PlaytestNoteLocation) => void;
   readonly onFinishRevision?: () => void;
   readonly reviewDialogOpen?: boolean;
-  readonly playtestRequest?: { readonly serial: number; readonly sceneId: string; readonly statementId: string } | null;
+  readonly playtestRequest?: PreviewPlaytestRequest | null;
   readonly onPlaytestRequestHandled?: () => void;
   readonly pendingReviewNotes?: number;
   readonly onOpenReviewNotes?: () => void;
   readonly initialPublicationStep?: number;
   readonly initialPublicationFormat?: "html" | "directory";
   readonly reviewTrace?: RouteReviewTrace | null;
+  readonly playtestProgress?: PlaytestProgressState;
+  readonly onRestartPlaytest?: (format: "html" | "directory") => void;
   readonly onReleaseFix?: (finding: WebReleaseFinding, format: "html" | "directory") => void;
   readonly onReleaseReview?: (route: boolean, format: "html" | "directory") => void;
   readonly continuity?: PreviewContinuity | undefined;
@@ -3229,7 +3235,7 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationDirty, setPublicationDirty] = useState(false);
   const [includeProductionBundle, setIncludeProductionBundle] = useState(false);
@@ -3289,10 +3295,11 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
       visitedEdgeIds: playable.visitedRouteEdgeIds,
       ...(playable.reviewSourceHash === null || playable.buildId === null ? {} : { review: {
         sourceHash: playable.reviewSourceHash, buildId: playable.buildId, status: playable.status, startKind: playable.startTarget?.kind ?? "unknown",
+        playtestSourceHash: playable.playtestSourceHash, endingId: playable.runtimeState?.terminal.kind === 'ended' ? playable.runtimeState.terminal.endingId : null, endingSceneId: playable.status === 'ended' ? playable.sceneId : null,
         endingName: playable.endingName ?? null, sceneIds: playable.visitedSceneIds, statementIds: playable.visitedStatementIds, choiceIds: playable.visitedRouteEdgeIds
       } })
     } : IDLE_RUNTIME_ROUTE_TRACE);
-  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playable.visitedStatementIds, playable.reviewSourceHash, playable.buildId, playable.status, playable.startTarget, playable.endingName, playableActive, previewObservation.current?.statementId]);
+  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playable.visitedStatementIds, playable.reviewSourceHash, playable.buildId, playable.status, playable.startTarget, playable.endingName, playable.playtestSourceHash, playable.runtimeState?.terminal, playableActive, previewObservation.current?.statementId]);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -3587,7 +3594,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
     if (!playtestRequest || projectRunBlocked || handledPlaytestRequest.current === playtestRequest.serial) return;
     handledPlaytestRequest.current = playtestRequest.serial;
     transportDispatch({ type: "reset" }); setHotUpdate(null); setResumed(false); setPreviewSource({ project: canonicalProject, assetIndex });
-    setPlayable(startFormalPreviewFromStatement(canonicalProject, playtestRequest.sceneId, playtestRequest.statementId));
+    setPlayable(startFormalPreview(canonicalProject, playtestRequest.target));
     onPlaytestRequestHandled?.();
   }, [playtestRequest, projectRunBlocked, canonicalProject, assetIndex, onPlaytestRequestHandled]);
 
@@ -4075,7 +4082,7 @@ function PreviewPanel({ beforeDeliverySave, deliveryReviewNotes = [], revisionTa
         </div>
         <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
         {pendingReviewNotes > 0 && <section className="release-review-notes" aria-label="发布前校订提醒"><StudioIcon name="write" /><div><strong>{pendingReviewNotes} 条试玩问题仍待跟进</strong><p>请确认这些问题是否影响交付；记录不会自动判定作品通过。</p></div><button type="button" disabled={projectRunBlocked || publicationDirty || webBuilding} onClick={onOpenReviewNotes}>查看校订清单</button></section>}
-      <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
+      <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} progress={playtestProgress} onRestartPreview={() => onRestartPlaytest?.(publicationFormat)} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
         <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
         {projectRunBlocked && <p className="publication-draft-note" role="status">工程有尚未应用或待修复的内容，请先完成编辑再导出。</p>}
@@ -4160,7 +4167,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
   const [noteFileError, setNoteFileError] = useState("");
   const [incomingReview, setIncomingReview] = useState(initialDeliveryReview ?? null);
   const [revisionTarget, setRevisionTarget] = useState<{ sceneId: string; statementId: string } | null>(continuity?.preview?.revisionTarget ?? null);
-  const [playtestRequest, setPlaytestRequest] = useState<{ serial: number; sceneId: string; statementId: string } | null>(null);
+  const [playtestRequest, setPlaytestRequest] = useState<PreviewPlaytestRequest | null>(null);
   const playtestSerial = useRef(0);
   const previewCanonicalProjectRef = useRef(previewCanonicalProject);
   previewCanonicalProjectRef.current = previewCanonicalProject;
@@ -4235,6 +4242,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
   }, []);
   const [runtimeRouteTrace, setRuntimeRouteTrace] = useState<RuntimeRouteTrace>(IDLE_RUNTIME_ROUTE_TRACE);
   const [reviewTrace, setReviewTrace] = useState<RouteReviewTrace | null>(null);
+  const playtestProgress = usePlaytestProgress(previewCanonicalProject, reviewTrace);
   const receiveRouteTrace = useCallback((trace: RuntimeRouteTrace) => {
     setRuntimeRouteTrace(trace);
     if (trace.review !== undefined) setReviewTrace(trace.review);
@@ -5496,6 +5504,10 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
     setReleaseReturnFormat(format); openStudioPage("story");
     setWorkspaceMode(route ? "flow" : "writer"); setMode(route ? "flow" : "sequence"); setPreviewOpen(!route);
   };
+  const restartWorkPlaytest = () => {
+    setRevisionTarget(null); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(true);
+    setPlaytestRequest({ serial: ++playtestSerial.current, target: { kind: 'entry' } });
+  };
   const openProjectStructure = async (intent?: ProjectStructureIntent) => {
     setStructureError(null);
     if (!await saveToLocal()) throw new Error("当前内容尚未保存成功，请检查保存状态后重试。");
@@ -5604,7 +5616,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
         <small>{inputDirty ? "请先提交或放弃当前输入，再切换任务或保存。" : "写作页可试玩完整流程；顶部保存到本机。备份或迁移工程请使用左上角项目菜单中的导出工程 ZIP。"}</small>
       </nav>}
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
-        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
+        {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => openStudioPage("checks")} initialPublicationStep={releaseEntry.step} initialPublicationFormat={releaseEntry.format} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
             onDraftChange={setPageDirty}
             project={previewCanonicalProject}
@@ -5628,7 +5640,7 @@ export function App({ initialDeliveryReview, onDeliveryReviewConsumed, initialPr
             onProjectChange={(project) => applyCanonicalProjectMutation(project, "本地化变更已进入 Canonical Project，等待保存。")}
           />
         ) : workspaceMode === "debug-qa" ? (
-          <div className="playtest-checks-workspace"><PlaytestReviewBoard project={previewCanonicalProject} notes={notesStore.notes} sourceHash={noteSourceHash} blocked={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} error={notesStore.error || noteFileError} onOpen={openRevision} onReplay={note => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); setPlaytestRequest({ serial: ++playtestSerial.current, sceneId: note.sceneId, statementId: note.statementId }); }} onEdit={note => { setNoteFileError(""); setNoteDialog({ location: note, note }); }} onStatus={(note, status) => notesStore.commit(notesStore.notes.map(item => item.id === note.id ? { ...item, status, updatedAt: Math.max(Date.now(), item.updatedAt), checkedSourceHash: status === "verified" ? noteSourceHash : null } : item))} onDelete={note => notesStore.commit(notesStore.notes.filter(item => item.id !== note.id))} onExport={exportNotes} onImport={file => void importNotes(file)} />
+          <div className="playtest-checks-workspace"><PlaytestProgressPanel project={previewCanonicalProject} progress={playtestProgress} trace={reviewTrace} blocked={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} onStart={restartWorkPlaytest} onRoutes={() => { openStudioPage("story"); setWorkspaceMode("flow"); setMode("flow"); setPreviewOpen(false); }} /><PlaytestReviewBoard project={previewCanonicalProject} notes={notesStore.notes} sourceHash={noteSourceHash} blocked={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} error={notesStore.error || noteFileError} onOpen={openRevision} onReplay={note => { setRevisionTarget(null); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode("writer"); setMode("sequence"); setPreviewOpen(true); setPlaytestRequest({ serial: ++playtestSerial.current, target: { kind: "statement", sceneId: note.sceneId, statementId: note.statementId } }); }} onEdit={note => { setNoteFileError(""); setNoteDialog({ location: note, note }); }} onStatus={(note, status) => notesStore.commit(notesStore.notes.map(item => item.id === note.id ? { ...item, status, updatedAt: Math.max(Date.now(), item.updatedAt), checkedSourceHash: status === "verified" ? noteSourceHash : null } : item))} onDelete={note => notesStore.commit(notesStore.notes.filter(item => item.id !== note.id))} onExport={exportNotes} onImport={file => void importNotes(file)} />
           <DebugQaWorkspace
             project={previewCanonicalProject}
             runBlocked={inputDirty || pendingDraftSceneIds(session).length > 0}

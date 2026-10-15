@@ -73,6 +73,7 @@ export interface FormalPreviewObservation {
 
 export interface FormalPreviewState {
   readonly reviewSourceHash: string | null;
+  readonly playtestSourceHash: string | null;
   readonly status: FormalPreviewStatus;
   readonly program: RuntimeProgramV1 | null;
   readonly sourceMap: RuntimeSourceMapV1 | null;
@@ -116,6 +117,7 @@ export type FormalPreviewWatchInspection =
 export function createIdleFormalPreviewState(): FormalPreviewState {
   return {
     reviewSourceHash: null,
+    playtestSourceHash: null,
     status: "idle",
     program: null,
     sourceMap: null,
@@ -305,6 +307,7 @@ export function startFormalPreview(project: CanonicalProject, target: FormalPrev
     status: "presenting",
     program: compiled.artifacts.story,
     reviewSourceHash: compiled.artifacts.manifest.sourceHash,
+    playtestSourceHash: compiled.artifacts.manifest.sourceHash,
     sourceMap: compiled.artifacts.sourceMap,
     compilerWarnings: compiled.diagnostics.filter((item) => item.severity === "warning"),
     diagnostics: compiled.diagnostics.filter((item) => item.severity === "warning").map(compilerDiagnostic),

@@ -1,0 +1,28 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/playtest-progress.test.ts (5 tests | 1 failed) 107ms
+   × uses the formal Compiler ending catalog and excludes disconnected draft endings 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/playtest-progress.test.ts > uses the formal Compiler ending catalog and excludes disconnected draft endings
+ProjectDomainError: scene path mismatch
+ ❯ fail packages/project-domain/src/codec.ts:10:109
+
+ ❯ packages/project-domain/src/codec.ts:125:477
+ ❯ saveProject packages/project-domain/src/codec.ts:125:424
+ ❯ semanticHash packages/project-domain/src/codec.ts:127:97
+ ❯ compileProjectIncremental packages/project-compiler/src/compiler.ts:442:22
+ ❯ compileProject packages/project-compiler/src/compiler.ts:448:125
+ ❯ playtestEndingTargets apps/editor/src/playtest-progress.ts:18:20
+ ❯ apps/editor/src/playtest-progress.test.ts:28:10
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 7 passed (8)
+      Tests  1 failed | 46 passed (47)
+   Start at  11:35:20
+   Duration  43.35s (transform 3.78s, setup 2.25s, import 8.99s, tests 21.41s, environment 8.44s)
+

@@ -1,0 +1,8 @@
+
+> world-studio@0.0.0-s0.41 typecheck
+> tsc -b
+
+apps/editor/src/App.tsx(4085,8): error TS2375: Type '{ project: CanonicalProject; inspection: { report: { project: CanonicalProject; attempt: number; findings: readonly WebReleaseFinding[]; checked: number; } | null; ... 5 more ...; receiveBuildFailure: (findings: readonly WebReleaseFinding[]) => void; }; ... 7 more ...; onRoutes: () => void | undefined; }' is not assignable to type '{ project: CanonicalProject; inspection: { report: { project: CanonicalProject; attempt: number; findings: readonly WebReleaseFinding[]; checked: number; } | null; ... 5 more ...; receiveBuildFailure: (findings: readonly WebReleaseFinding[]) => void; }; ... 7 more ...; onRestartPreview?: () => void; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'progress' are incompatible.
+    Type 'PlaytestProgressState | undefined' is not assignable to type 'PlaytestProgressState'.
+      Type 'undefined' is not assignable to type 'PlaytestProgressState'.
