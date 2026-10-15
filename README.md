@@ -1,16 +1,16 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 当前接续（2026-10-16）：[#339 来源台账与发布准备](docs/339-web-asset-provenance-and-release-preparation.md)。发布页可逐素材核对来源、替换重核和明确添加公开署名，内部依据随工程/交付包保存且不进入玩家游戏。最新作者源在 evidence/web-release-preparation；玩家候选仍为 evidence/web-mobile-continuity 的 1.7.1，剧情/25 份媒体及已核对 1.7.0 保持。
+> 当前接续（2026-10-16）：[#340 部署核对与离线更新](docs/340-web-deployment-check-and-offline-update.md)。目录包新增 Node-only 核对/纯网站目录生成/只读网站核对，本地预览核对全部文件；修复新版下载失败后只重缓存旧版的问题。最新源/HTML/目录/校订记录均在 evidence/web-deployment-flow，候选 1.7.2。
 
-> 最新交付（2026-10-16）：[#339](docs/339-web-asset-provenance-and-release-preparation.md) 190 项相关回归、类型/双构建和四项审计通过；实际台账保存/交付恢复、双格式隐私核对及三引擎横竖屏/素材替换接续。25 项来源均已匹配仓库原文件，但发行条件全部 pending，未宣称获授权或上线。#338 的完整路线与旧备份检查为历史记录，本批未重跑；11 条人工任务、真机/公网及旧长帧仍开放。
+> 最新交付（2026-10-16）：[#340](docs/340-web-deployment-check-and-offline-update.md) 206 项相关测试、类型/双构建和四项审计通过；10 项实际制作/部署工具及 Chromium、Firefox 离线升级、旧备份、缺文件重试、不兼容拒绝和回滚检查通过。完整三引擎矩阵未通过：Windows WebKit 离线原生音频失败，原 1.7.1 也复现，根因待查。25 项发行条件仍 pending；未上线、非真机/人工验收。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-16
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：1.7.1 为 9 场景/两结局、9,672 字符/74 演出/25 项素材；最新含来源台账的作者源在 evidence/web-release-preparation，HTML/目录仍在 evidence/web-mobile-continuity。与 1.7.0 内容和媒体保持并已核对该版存档；1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#339 接续顺序及验证边界](docs/339-web-asset-provenance-and-release-preparation.md)。下一批按台账补真实发行依据/署名并在获准的 HTTPS 地址完成部署与离线升级/旧档回查；人工内容/听感和真实设备继续开放。
+> 当前进展：1.7.2 保持 9 场景/两结局、9,672 字符/74 演出/25 项素材和来源台账，只改版本/兼容回执；核对 1.7.0、1.7.1，本批现场备份来源为 1.7.1。1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#340 接续顺序及验证边界](docs/340-web-deployment-check-and-offline-update.md)。下一批先隔离并修复离线原生音频、重跑严格三引擎链；真实发行依据/署名、获准 HTTPS 部署、人工内容/听感和真实设备继续开放。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：沿《雨停之前》1.7.1 和 11 条待复核任务继续实际作品定稿与许可/发布。当前源工程 evidence/web-release-preparation/before-rain-stops-project.zip；校订记录仍从 evidence/web-mobile-continuity 单独导入。自然阅读/听感、真机系统键盘/锁屏/低内存、来源许可与实际公网仍待验。
+> 当前重心：沿《雨停之前》1.7.2 和 11 条待复核任务继续实际作品定稿与交付；当前源工程及独立校订文件在 evidence/web-deployment-flow。优先解决已发现的离线音频问题；自然阅读/听感、真机系统键盘/锁屏/低内存、来源许可与实际公网仍待验。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

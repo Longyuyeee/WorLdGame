@@ -54,7 +54,7 @@ const client = String.raw`(() => {
     try {
       const result = await request(registration.active, 'STATUS');
       if (waiting()) return;
-      if (result.ready) { say('离线内容已就绪，可断网后重开此网址。浏览器清理站点数据后需重新下载。'); action.textContent = '检查更新'; }
+      if (result.ready) { say('离线内容已就绪（文件已缓存）。请在当前浏览器断网重开并核对画面、声音和存读档；浏览器清理站点数据后需重新下载。'); action.textContent = '检查更新'; }
       else { say('离线内容不完整，请联网重新下载；在线游玩仍可继续。'); action.textContent = '重试离线下载'; }
     } catch { say('暂时无法确认离线内容，请联网重试。'); action.textContent = '重试离线下载'; }
     action.disabled = false;
@@ -65,7 +65,7 @@ const client = String.raw`(() => {
     const changed = () => {
       if (worker.state === 'activated') void ready();
       if (worker.state === 'installed') { if (!waiting()) say('离线下载完成，正在准备…'); }
-      if (worker.state === 'redundant') { say('离线下载失败，请检查网络和可用空间后重试；在线游戏仍可继续。'); action.disabled = false; action.textContent = '重试离线下载'; }
+      if (worker.state === 'redundant') failed(false);
     };
     worker.addEventListener('statechange', changed); changed();
   };
@@ -73,11 +73,17 @@ const client = String.raw`(() => {
     registration.addEventListener('updatefound', () => observe(registration.installing));
     if (registration.installing) observe(registration.installing); else void ready();
   };
+  const failed = cacheRepair => {
+    const updating = Boolean(registration?.active) && !cacheRepair;
+    say(updating ? '新版下载或更新失败，原有离线内容保留。请检查网络和可用空间后重试更新；当前故事不会切换。' : '离线下载失败，请检查网络和可用空间后重试；在线游戏仍可继续。');
+    action.disabled = false; action.textContent = updating ? '重试更新' : '重试离线下载';
+  };
   action.onclick = async () => {
+    const cacheRepair = action.textContent === '重试离线下载' && Boolean(registration?.active);
     action.disabled = true;
     try {
       if (!registration || (!registration.active && !registration.waiting && !registration.installing)) { registration = await navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }); watch(); }
-      else if (action.textContent === '重试离线下载' && registration.active) {
+      else if (cacheRepair) {
         say('正在重新下载离线内容…');
         const result = await request(registration.active, 'CACHE');
         if (!result.ready) throw new Error('cache failed');
@@ -86,7 +92,7 @@ const client = String.raw`(() => {
         await registration.update();
         if (!registration.installing) await ready();
       }
-    } catch { say('离线下载或更新失败，请检查网络和可用空间后重试；现有游戏可继续。'); action.disabled = false; action.textContent = '重试离线下载'; }
+    } catch { failed(cacheRepair); }
   };
   navigator.serviceWorker.getRegistration('./').then(value => {
     if (value && value.scope === new URL('./', location.href).href) { registration = value; watch(); }

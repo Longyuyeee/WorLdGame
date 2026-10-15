@@ -1,0 +1,112 @@
+[
+  {
+    "url": "http://127.0.0.1:12966/gal/media/fbbc665d5ebb4e5dad123383d1077f3d968a620b7e36cce46795c08669605c98.wav",
+    "bus": "ambient",
+    "error": 4,
+    "message": "",
+    "readyState": 0,
+    "paused": true,
+    "currentTime": 0,
+    "fetched": {
+      "status": 206,
+      "headers": [
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "cache-control",
+          "no-cache"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-length",
+          "2"
+        ],
+        [
+          "content-range",
+          "bytes 0-1/529244"
+        ],
+        [
+          "content-type",
+          "audio/wav"
+        ],
+        [
+          "date",
+          "Thu, 15 Oct 2026 17:55:41 GMT"
+        ],
+        [
+          "keep-alive",
+          "timeout=4"
+        ],
+        [
+          "proxy-connection",
+          "keep-alive"
+        ],
+        [
+          "transfer-encoding",
+          "chunked"
+        ]
+      ],
+      "length": 2
+    }
+  },
+  {
+    "url": "http://127.0.0.1:12966/gal/media/d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a.wav",
+    "bus": "bgm",
+    "error": 4,
+    "message": "",
+    "readyState": 0,
+    "paused": true,
+    "currentTime": 0,
+    "fetched": {
+      "status": 206,
+      "headers": [
+        [
+          "accept-ranges",
+          "bytes"
+        ],
+        [
+          "cache-control",
+          "no-cache"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-length",
+          "2"
+        ],
+        [
+          "content-range",
+          "bytes 0-1/1411244"
+        ],
+        [
+          "content-type",
+          "audio/wav"
+        ],
+        [
+          "date",
+          "Thu, 15 Oct 2026 17:55:41 GMT"
+        ],
+        [
+          "keep-alive",
+          "timeout=4"
+        ],
+        [
+          "proxy-connection",
+          "keep-alive"
+        ],
+        [
+          "transfer-encoding",
+          "chunked"
+        ]
+      ],
+      "length": 2
+    }
+  }
+]

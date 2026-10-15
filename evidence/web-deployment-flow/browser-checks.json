@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "matrixComplete": false,
+  "requestedEngines": [
+    "chromium",
+    "firefox"
+  ],
+  "sourceReused": false,
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31682984,
+      "sha256": "4706ed70109b5cf665ddb76535750f5951b9c8df43b091cbd05a99c8436e5f6d"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42814356,
+      "sha256": "cb21dc581c240775ea50aa68d186392fc1d6c1c641e2424bab2a93368d45374d"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32327985,
+      "sha256": "fedc2e9e0ef40855a5454d7cded72ad816d91b2591212267ea7fe899aaa5533b"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "checks": [
+    {
+      "name": "1.7.2-saved-reopened-formal-dual-export-with-verified-1.7.0-and-1.7.1",
+      "detail": {}
+    },
+    {
+      "name": "actual-author-content-edit-produces-stale-incompatible-test-build-not-a-public-release",
+      "detail": {}
+    },
+    {
+      "name": "downloaded-kit-prepares-only-public-files-and-local-preview-validates-and-serves-exact-inventory",
+      "detail": {}
+    },
+    {
+      "name": "chromium-1.7.1-offline-two-window-update-to-1.7.2-preserves-old-slot-and-state",
+      "detail": {
+        "actualOldBackupImportedOffline": true,
+        "readOnlyAfterExplicitAction": true,
+        "media": [
+          {
+            "bus": "ambient",
+            "playing": true,
+            "error": false
+          },
+          {
+            "bus": "bgm",
+            "playing": true,
+            "error": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "chromium-partial-deploy-retains-offline-old-version-one-retry-fetches-new-worker-and-rejects-changed-story-save",
+      "detail": {
+        "backupBytes": 15470,
+        "oldSlotUnchanged": true,
+        "missingFile": "media/d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a.wav",
+        "publicDeployment": false
+      }
+    },
+    {
+      "name": "chromium-compatible-rollback-and-offline-load-retain-original-slot",
+      "detail": {}
+    },
+    {
+      "name": "chromium-single-html-imports-real-1.7.1-backup-and-explicitly-loads-after-file-reload",
+      "detail": {}
+    },
+    {
+      "name": "firefox-1.7.1-offline-two-window-update-to-1.7.2-preserves-old-slot-and-state",
+      "detail": {
+        "actualOldBackupImportedOffline": true,
+        "readOnlyAfterExplicitAction": true,
+        "media": [
+          {
+            "bus": "ambient",
+            "playing": true,
+            "error": false
+          },
+          {
+            "bus": "bgm",
+            "playing": true,
+            "error": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "firefox-partial-deploy-retains-offline-old-version-one-retry-fetches-new-worker-and-rejects-changed-story-save",
+      "detail": {
+        "backupBytes": 15470,
+        "oldSlotUnchanged": true,
+        "missingFile": "media/d69d2e28ca0d7d547c27f32cbd49703ebc40ddf36b0224f56001f7d2a73bd16a.wav",
+        "publicDeployment": false
+      }
+    },
+    {
+      "name": "firefox-compatible-rollback-and-offline-load-retain-original-slot",
+      "detail": {}
+    }
+  ],
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "offlineUpdateChainPassed": true,
+      "outageMechanism": "browser-context-offline",
+      "originalRuntimeStateHash": "aec2f4c478fbb516231fa5c7c90694a91e50163b89ce7464e0c64f58be2655b0",
+      "physicalDevicePassed": false
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "offlineUpdateChainPassed": true,
+      "outageMechanism": "browser-context-offline",
+      "originalRuntimeStateHash": "aec2f4c478fbb516231fa5c7c90694a91e50163b89ce7464e0c64f58be2655b0",
+      "physicalDevicePassed": false
+    }
+  ],
+  "errors": [],
+  "scope": "Only listed workflows/engines passed; a subset is not a full three-engine acceptance. WebKit failures and probe data are retained separately.",
+  "publicDeployment": false,
+  "permissionVerified": false,
+  "physicalDevicePassed": false,
+  "fullRoutesRerun": false,
+  "scratch": ".browser-diagnostic\\deployment-flow\\run-shmPBw"
+}

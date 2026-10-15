@@ -4,6 +4,7 @@ import { zip } from "fflate";
 import { readWebCredits, hasWebCredits, formatWebCredits, withoutWebAuthoringMetadata } from '@world-studio/project-domain';
 import { addWebOfflineFiles } from "./web-offline-export";
 import previewServer from "./export-preview-server.mjs?raw";
+import deploymentCheck from './export-deployment-check.mjs?raw';
 import { readWebPublication, publicationIconSize } from "./web-publication";
 import { inspectWebReleaseSources, assertWebReleaseReady } from "./web-release-readiness";
 import { optimizeExportMedia, type ExportOptimizationReport } from "./export-optimization";
@@ -96,6 +97,8 @@ export async function createFormalWebDirectoryArtifact(
   const projectDigest = semanticHash(project);
   files["build-info.json"] = encode(JSON.stringify({ schemaVersion: 1, format: "world-web-directory", projectTitle: project.manifest.title, publication, projectId: project.manifest.projectId, projectDigest, entry: "index.html", files: Object.entries(files).map(([path, bytes]) => ({ path, byteLength: bytes.byteLength, digest: createBlobDigest(bytes) })) }, null, 2));
   files["preview.mjs"] = encode(previewServer);
+  files['deployment-check.mjs'] = encode(deploymentCheck);
+  files['check-deployment.cmd'] = encode('@echo off\r\nchcp 65001 >nul\r\nwhere node >nul 2>nul\r\nif errorlevel 1 (\r\n  echo 请先安装 Node.js 22 或更高版本：https://nodejs.org/\r\n  pause\r\n  exit /b 1\r\n)\r\nnode "%~dp0deployment-check.mjs" --interactive\r\npause\r\n');
   files["start-preview.cmd"] = encode('@echo off\r\nchcp 65001 >nul\r\nwhere node >nul 2>nul\r\nif errorlevel 1 (\r\n  echo 请先安装 Node.js 22 或更高版本：https://nodejs.org/\r\n  echo 安装后重新双击 start-preview.cmd，无需 npm install。\r\n  pause\r\n  exit /b 1\r\n)\r\nnode "%~dp0preview.mjs" %*\r\nif errorlevel 1 pause\r\n');
   files["使用说明.txt"] = encode(`Web 游戏目录包
 
@@ -108,17 +111,18 @@ export async function createFormalWebDirectoryArtifact(
 电脑需已安装 Node.js 22 或更高版本，无需 npm install。Windows 双击 start-preview.cmd，自动启动本机站点并打开浏览器；其他系统在解压目录运行 node preview.mjs。缺少 Node.js 时入口会显示安装提示；普通剧情试玩仍可直接打开 index.html。
 保持启动窗口打开，输入 q 后回车或按 Ctrl+C 停止。网址仅本机可访问，不能发给他人当作网站地址。默认端口 4178，被占用时自动尝试后续端口；端口改变会改变存档/离线缓存位置，需要连续使用时请关闭旧预览，保持原网址。
 更新预览时先保存并关闭旧游戏窗口、停止服务，将新包完整解压到新文件夹，再启动新包。不要混合两版文件；离线页面的更新仍按下方提示处理。
-preview.mjs 与 start-preview.cmd 仅供作者本地使用，公开站点只需上传 build-info.json 中列出的游戏文件；启动器不属于离线缓存。
+preview.mjs、deployment-check.mjs 和两个 CMD 入口仅供作者本地使用，不属于离线缓存。纯网站目录会保留 build-info.json 和清单列出的游戏文件，排除这些助手及作者资料。
 
 分享和发布：
-分享整个 ZIP，不要只发送 index.html。也可以将解压后的全部文件上传到静态网站，访问该目录的 index.html。
+分享整个 ZIP，不要只发送 index.html。发布网站前先双击 check-deployment.cmd，选择“生成纯网站目录”；其他系统运行 node deployment-check.mjs --prepare。它会逐份核对文件大小/摘要，再生成独立 website-ready-* 文件夹，不覆盖原目录、不上传网站。只上传该文件夹中的内容（含 build-info.json），最后上传 sw.js；不要直接上传源工程、作者交付资料或整个解压根目录。
+已有网站时，双击 check-deployment.cmd 选择“只读核对已部署网站”，填写有权限核对的最终 HTTPS 目录地址；其他系统运行 node deployment-check.mjs --url=https://example.invalid/your-game/ 。该地址只是格式示例，不是已部署网址。检查器只 GET 本包列出的公开文件，逐份比对本地/远端大小与 SHA-256，发现漏传、混版、错误类型、跳转或 SPA 回退会指出具体文件。不会上传文件、登录账户或修改网站；不检查素材许可或替代实际游玩/真机/离线更新验收。报告可加 --json 输出到终端。
 
 遇到问题：
 页面停在“正在打开游戏”时检查是否完整解压；素材缺失时重新解压整个包。声音可能需要点击开始故事后才播放。
 本地文件存档取决于浏览器支持，移动文件夹、换浏览器或换电脑不保证保留存档。请保留原目录和原浏览器，不要把游戏 ZIP 当作存档备份。
 迁移进度：打开“存读档”→“备份”，导出当前进度或已有槽位的 .worldsave 文件；在新浏览器/设备打开同一作品后，在“备份”页选择文件、核对进度并导入到手动槽位，再点击读取继续。默认选择空槽位，覆盖旧槽位需确认。备份包含一份完整进度、历史和可用截图；个人设置和游戏素材需另行保留。文件上限 96 MiB，只接受当前或作者核对过的兼容版本，剧情变化的迁移未实现。离线也可以导出/导入；当前播放器需要安全导入支持，写入失败不会部分覆盖原槽位。
 网站离线与安装：
-将完整目录发布到 HTTPS 站点（开发调试可用 localhost），不要仅上传 index.html。玩家展开页面顶部“离线与安装”，主动下载离线内容；显示“离线内容已就绪”后才能保证断网重开。首次未下载、下载失败或浏览器清理数据后不可假定能离线。
+将完整目录发布到 HTTPS 站点（开发调试可用 localhost），不要仅上传 index.html。玩家展开页面顶部“离线与安装”，主动下载离线内容；“离线内容已就绪”表示清单中的文件已缓存，不代替目标浏览器实际断网重开及画面、声音、存读档检查。首次未下载、下载失败或浏览器清理数据后不可假定能离线。媒体错误时可联网后重试媒体或下载完整游戏文件，并反馈具体浏览器/设备。
 安装按钮在浏览器提供安装入口时出现，也可使用浏览器菜单“安装/添加到主屏幕”；不同浏览器支持有差异。本地 file 地址不注册离线缓存，但仍可直接玩。
 检查更新后若显示“新版已下载”，当前窗口继续原版，不会强制重载剧情。关闭所有游戏窗口后重新打开会使用新版。只有作者核对过、内容完全一致的版本号更新支持继续旧档；正文、分支、设置和素材变化不支持本轮兼容，需要提供原版入口。旧存档不会被清空，读取不会改写原槽位，继续保存仍遵循槽位覆盖规则。离线缓存并非永久存储保证。
 本包已核对旧版本：${saveCompatibility.status === "verified" ? saveCompatibility.versions.join("、") : "无（未核对或核对已失效）"}。范围见 save-compatibility.json；作者在发布设置上传上一版完整工程 ZIP 核对，保存工程后重新生成游戏。

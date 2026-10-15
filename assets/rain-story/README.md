@@ -2,7 +2,7 @@
 
 项目制作样例素材，2026-10-13。
 
-2026-10-16 来源准备更新：当前 25 项媒体均与 1.7.1 工程逐份 SHA-256 对齐，来源事实已通过编辑器写入 `evidence/web-release-preparation/before-rain-stops-project.zip` 的内部素材台账，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。玩家候选仍为 `evidence/web-mobile-continuity` 的 1.7.1，媒体未改；下方为各版本制作事实，不能据此统一宣称许可通过。
+2026-10-16 当前候选为 `evidence/web-deployment-flow` 的 1.7.2，见 [#340](../../docs/340-web-deployment-check-and-offline-update.md)；全部 25 媒体和 #339 内部来源台账逐份保持，仅版本/兼容回执变化。来源事实由实际工程 SHA-256 与仓库对齐，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。Windows WebKit 离线原生音频失败仍待查，不能据文件缓存或来源可追溯宣称播放/许可通过；下方为各版本制作事实。
 
 ## 当前 1.7.0 配音修订
 

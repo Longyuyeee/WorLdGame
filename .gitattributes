@@ -15,6 +15,8 @@ evidence/web-story-beats/*.worldreview -text
 evidence/web-mobile-continuity/before-rain-stops.html -text
 evidence/web-mobile-continuity/*.worldreview -text
 evidence/web-release-preparation/*.txt -text
+evidence/web-deployment-flow/before-rain-stops.html -text
+evidence/web-deployment-flow/*.worldreview -text
 evidence/web-branch-authoring/branch-authoring.html -text
 
 evidence/web-playtest-revision/review-notes.worldreview -text

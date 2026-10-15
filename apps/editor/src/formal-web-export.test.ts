@@ -82,6 +82,9 @@ describe("formal Web game packaging", () => {
     expect(text("使用说明.txt")).toContain("Node.js 22");
     expect(text("start-preview.cmd")).toContain('node "%~dp0preview.mjs" %*');
     expect(text("preview.mjs")).toContain("127.0.0.1");
+    expect(text('deployment-check.mjs')).toContain('prepareWebsiteDirectory');
+    expect(text('check-deployment.cmd')).toContain('--interactive');
+    expect(text('preview.mjs')).toContain('inspectLocalSite');
     const info = JSON.parse(text("build-info.json"));
     expect(info.projectDigest).toBe(artifact.projectDigest);
     for (const file of info.files) expect(createBlobDigest(files[file.path]!)).toBe(file.digest);
@@ -93,6 +96,9 @@ describe("formal Web game packaging", () => {
     const inventory = JSON.parse(text("sw.js").match(/^const inventory = (.*);$/m)![1]!);
     expect(inventory["preview.mjs"]).toBeUndefined();
     expect(inventory["start-preview.cmd"]).toBeUndefined();
+    expect(inventory['deployment-check.mjs']).toBeUndefined();
+    expect(inventory['check-deployment.cmd']).toBeUndefined();
+    expect(info.files.some((row: { path: string }) => row.path === 'deployment-check.mjs')).toBe(false);
     for (const [path, digest] of Object.entries(inventory)) expect(createBlobDigest(files[path]!)).toBe(digest);
     expect(() => new Function(text("sw.js"))).not.toThrow();
     expect(() => new Function(text("offline.js"))).not.toThrow();

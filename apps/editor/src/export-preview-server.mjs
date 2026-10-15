@@ -1,18 +1,20 @@
 // Distributed with the game. Uses only Node.js built-ins; no npm install.
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
-import { readFile, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { dirname, resolve, sep, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
+import { inspectLocalSite } from './deployment-check.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif', '.mp3': 'audio/mpeg', '.wav': 'audio/wav', '.ogg': 'audio/ogg', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf', '.otf': 'font/otf' };
 
 async function main() {
   if (Number(process.versions.node.split('.')[0]) < 22) throw new Error('需要 Node.js 22 或更高版本。安装后重新打开预览入口。');
-  const info = JSON.parse(await readFile(resolve(root, 'build-info.json'), 'utf8'));
-  const allowed = new Set(info.files.map(file => file.path));
+  console.log('正在核对本地游戏文件…');
+  const { info } = await inspectLocalSite(root, (done, total, path) => console.log(`核对 ${done}/${total} · ${path}`));
+  const allowed = new Set(['build-info.json', ...info.files.map(file => file.path)]);
   for (const file of ['index.html', 'player.js', 'player.css']) {
     if (!allowed.has(file)) throw new Error('游戏目录不完整，请完整解压 ZIP 后重试。');
     await stat(resolve(root, file));
