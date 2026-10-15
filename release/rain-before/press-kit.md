@@ -1,31 +1,31 @@
-# 《雨停之前》1.7.3 Web 候选展示资料
+# 《雨停之前》1.7.4 Web 候选展示资料
 
-2026-10-16 更新。当前候选为**声音恢复版 1.7.3**，不是已上线、已授权或 Stable 发行声明。核对相同内容的 1.7.0、1.7.1、1.7.2 存档，不沿用历史已变剧情的兼容承诺。
+2026-10-16 更新。当前候选为**后台恢复版 1.7.4**，不是已上线、已授权或 Stable 发行声明。核对相同内容的 1.7.0、1.7.1、1.7.2、1.7.3 存档，不沿用历史已变剧情的兼容承诺。
 
-本批完成 [#341 声音恢复与媒体基线](../../docs/341-web-audio-recovery-and-runtime-baseline.md)：声音按失败音轨重试，可选择本次无声阅读并显式恢复，进度/个人音量不变；保留 [#340 部署助手](../../docs/340-web-deployment-check-and-offline-update.md) 与 [#339 来源台账](../../docs/339-web-asset-provenance-and-release-preparation.md)。25 项发行条件仍待确认，公开署名/作者身份未代填；内部准备清单不是许可声明。本机 Windows WebKit 原生媒体绕过 Worker，故障恢复可用，但离线声音不算通过，不能等同真实 Safari 验收。
+本批完成 [#343 后台恢复与新候选](../../docs/343-web-background-recovery-and-candidate.md)：独立恢复区完整校验移到受控线程，保留最新进度背压、取消/超时和线程/URL 释放，带入 #342 优化。保留 #341 的失败音轨重试、无声阅读/显式恢复，以及 [#340 部署助手](../../docs/340-web-deployment-check-and-offline-update.md) 与 [#339 来源台账](../../docs/339-web-asset-provenance-and-release-preparation.md)。25 项发行条件仍待确认，公开署名/作者身份未代填；内部准备清单不是许可声明。本机 Windows WebKit 原生媒体绕过 Worker，故障恢复可用，但离线声音不算通过，不能等同真实 Safari 验收。
 
 ## 当前作品与交付
 
 一句话：一场雨，两条路。读完旧信，把下一次见面写进日历。
 
-生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正，保留中文输入/返回保护；1.7.3 不改剧情和媒体。
+生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正，保留中文输入/返回保护；1.7.4 不改剧情和媒体。
 
 | 资料 | 当前路径 |
 | --- | --- |
-| 最新可编辑源工程（含内部来源台账） | `evidence/web-audio-compatibility/before-rain-stops-project.zip` |
-| 单文件游戏 | `evidence/web-audio-compatibility/before-rain-stops.html` |
-| Web 部署目录 | `evidence/web-audio-compatibility/before-rain-stops-web.zip` |
-| 待人工复核的 11 条记录 | `evidence/web-audio-compatibility/before-rain-stops.worldreview` |
-| 当前更新与边界 | `release-notes-1.7.3.md`、`docs/341-web-audio-recovery-and-runtime-baseline.md` |
-| 当前四产物摘要 | `evidence/web-audio-compatibility/artifact-audit.json` |
+| 最新可编辑源工程（含内部来源台账） | `evidence/web-recovery-worker/before-rain-stops-project.zip` |
+| 单文件游戏 | `evidence/web-recovery-worker/before-rain-stops.html` |
+| Web 部署目录 | `evidence/web-recovery-worker/before-rain-stops-web.zip` |
+| 待人工复核的 11 条记录 | `evidence/web-recovery-worker/before-rain-stops.worldreview` |
+| 当前更新与边界 | `release-notes-1.7.4.md`、`docs/343-web-background-recovery-and-candidate.md` |
+| 当前四产物摘要 | `evidence/web-recovery-worker/artifact-audit.json` |
 | 内部来源待办（历史准备报告，当前事实保持） | `evidence/web-release-preparation/preparation.json`、`发布准备.txt`（仅作者资料，不上传玩家网站） |
 | 当前语音来源及技术指标 | `assets/rain-story/voice-revision-v1.7.json`、`source-manifest-v1.7.json` |
 | 背景来源/完整提示词 | `assets/rain-story/source-manifest-v1.6.json`、`image-prompts-v1.6.json` |
-| 手机尺寸声音失败/无声阅读 | `evidence/web-audio-compatibility/firefox-sound-failure.png`、`firefox-silent-320.png` |
+| 手机尺寸声音失败/无声阅读 | `evidence/web-recovery-worker/firefox-sound-failure.png`、`firefox-silent-320.png` |
 
-本机 Chromium 151、Firefox 153、WebKit 26.5 检查当前候选声音恢复和各两条 HTTP 在线完整路线，每路线六句语音自然结束；1.7.2→1.7.3 多窗口更新、离线旧备份/快速槽位接续。Chromium/Firefox 断网声音播放；WebKit origin 停服后提示失败、无声阅读，恢复服务后显式恢复声音，不计其离线声音通过。320/390 px 和横屏截图不是物理手机，WebKit 不代表 iPhone Safari；系统键盘、冻结/锁屏/低内存未计通过。11 条校订任务仍待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音。
+本机 Chromium 151、Firefox 153、WebKit 26.5 核对当前候选声音恢复和各两条 HTTP 在线完整路线，每路线六句语音自然结束、后台恢复点写入后刷新显式恢复；1.7.3→1.7.4 多窗口更新、离线旧备份/快速槽位接续，最终范围见 #343 报告。Chromium/Firefox 断网声音播放；WebKit origin 停服后提示失败、无声阅读，恢复服务后显式恢复声音，不计其离线声音通过。320/390 px 和横屏截图不是物理手机，WebKit 不代表 iPhone Safari；系统键盘、冻结/锁屏/低内存未计通过。11 条校订任务仍待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音。
 
-**1.7.3 已核对相同内容的 1.7.0、1.7.1、1.7.2。** 本批现场旧备份来自 1.7.2，不扩写成全部旧版本都重新实查；1.6.0/更早已变剧情仍用原游戏。1.7.2 在 `evidence/web-deployment-flow`，1.7.1 在 `evidence/web-mobile-continuity`，1.7.0 在 `evidence/web-story-beats`。保留原游戏和备份再更新；严格三引擎/实际公网离线音频未验收，未承诺 WebKit 本地 HTML 播放。发布目录先用包内助手生成纯网站目录，不要直接上传全部作者交付资料。
+**1.7.4 已核对相同内容的 1.7.0、1.7.1、1.7.2、1.7.3。** 本批现场旧备份来自 1.7.3，不扩写成全部旧版本都重新实查；1.6.0/更早已变剧情仍用原游戏。1.7.3 在 `evidence/web-audio-compatibility`，1.7.2 在 `evidence/web-deployment-flow`，1.7.1 在 `evidence/web-mobile-continuity`，1.7.0 在 `evidence/web-story-beats`。保留原游戏和备份再更新；严格三引擎/实际公网离线音频未验收，未承诺 WebKit 本地 HTML 播放。发布目录先用包内助手生成纯网站目录，不要直接上传全部作者交付资料。
 
 新背景通过内置 imagegen 对本项目图片作光照变体，生成来源与参考摘要可追溯，但许可和最终美术仍待确认；原系统合成语音的对外再分发许可同样未关闭。作者/发行者、联系方式、版权声明、渠道和发布日期不虚构。公开部署前仍需人工全文/听感、美术、实际手机与支持浏览器、来源许可和实际 URL 回查；当前未上传公网。
 
@@ -80,10 +80,10 @@
 
 1. 按平台无关的静态目录交付。公开部署前核对作品资料、素材来源和实际网址；当前没有上传任何公网网站。
 2. 目录 ZIP 解压**全部文件**，以 `index.html` 为入口；不要只上传 HTML，不要混用不同构建的资源。当前已验证本地 HTTP `/gal/` 子路径。
-3. 先在预发布地址核对封面/图标/版本 1.5.4、全部资源 HTTP 响应和控制台错误；用实际浏览器点击开始后核对音频权限，个人静音/音量和失败恢复。
+3. 先在预发布地址核对封面/图标/版本 1.7.4、全部资源 HTTP 响应和控制台错误；用实际浏览器点击开始后核对音频权限，个人静音/音量和失败恢复。
 4. 分别走留下/远行，核对候车室、列车、画室、角色表情、全部正文与结局；中途保存、刷新、读取。存档依赖浏览器本地数据和网址来源；清理数据或换环境前，在“存读档→备份”导出 .worldsave 文件。在新环境打开相同/核对过的兼容作品，核对备份后导入手动槽位并显式读取；个人设置/其他槽位分别保留，不自动迁移。
 5. 在约定的手机/浏览器上核对工程等比画幅、竖屏上图下文、设置/返回焦点、触控长段滚动/点按下一屏、Auto 等未读下方、横竖屏、全屏成功/拒绝/退出、失焦恢复和音频；做实际人工节奏计时。当前三个 Windows 引擎不能宣称主流手机普遍兼容。
-6. 更新前在发布设置核对上一版完整工程 ZIP，保存后重新生成，完整替换目录；范围见 save-compatibility.json。#314 已检查等待/启用和正文变化拒绝；本版额外检查 1.5.3 档文件携带到 1.5.4、显式读档/断网重开和再导出原会话字节。覆盖需确认，两窗口改目标会拒绝过期确认；详见 release-notes-1.5.4.md。内容变化后需要保留原版入口，备份文件不自动实现剧情变化迁移。
+6. 更新前在发布设置核对上一版完整工程 ZIP，保存后重新生成，完整替换目录；范围见 save-compatibility.json。本版现场核对 1.7.3→1.7.4 多窗口等待/激活、离线旧快速槽位与备份显式读取、原快速槽位保留；后台恢复和结局刷新另核对，详见 release-notes-1.7.4.md 与 #343。历史正文变化拒绝、回退和旧版检查按各版记录保留；覆盖需确认，两窗口改目标会拒绝过期确认。内容变化后需要保留原版入口，备份文件不自动实现剧情变化迁移。
 7. 在实际 URL 完成以上回查后，再记录地址、构建摘要、已验证环境和剩余限制，并按渠道的嵌入尺寸/上传限制适配。单文件 HTML 为便捷试玩；是否允许下载或嵌入按选定渠道规定另行确认。
 
 尚未关闭：逐段自然阅读/配音听感与演出定稿、来源许可、公网、真机/物理跨设备/旋转、长期运行与既有长帧问题、完整全仓与所有浏览器兼容、剧情变化迁移；当前目录缓存下载、断网、等待更新和核对过的旧档读取、手动文件携带已检查，测试范围分版记录。结构页试玩已在 #311 交付。Windows/Android 原生产品化继续搁置。

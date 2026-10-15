@@ -1,4 +1,4 @@
-import { build } from 'vite';
+import { build } from './player-fixture-build.mjs';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';

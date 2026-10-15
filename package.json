@@ -8,6 +8,9 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-recovery-worker": "npm run audit:web-playback-responsiveness && vitest run apps/player-shell/src packages/player-core/src packages/runtime-host/src --maxWorkers=1 --reporter=default --reporter=json --outputFile=evidence/web-recovery-worker/player-runtime-tests.json && node --test tools/poll-browser-state.test.mjs tools/player-fixture-build.test.mjs && node tools/run-web-recovery-worker.mjs --audit-only",
+    "audit:web-recovery-worker:profile": "node tools/run-recovery-profile.mjs",
+    "audit:web-recovery-worker:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-recovery-worker.mjs && node tools/run-recovery-continuous.mjs && node tools/audit-web-recovery-worker.mjs",
     "audit:web-playback-responsiveness": "npm run audit:web-audio-recovery && vitest run packages/runtime/src/canonical.test.ts packages/runtime/src/sha256.test.ts packages/runtime/src/runtime.test.ts packages/runtime/src/scheduler-validation.test.ts packages/runtime/src/scene-entry-trace.test.ts --maxWorkers=1",
     "audit:web-playback-responsiveness:browser": "node tools/run-web-playback-profile.mjs && node tools/run-web-runtime-continuity.mjs && node tools/audit-web-playback-responsiveness.mjs",
     "audit:web-audio-recovery": "npm run audit:web-deployment-flow && vitest run apps/player-shell/src/player-audio-recovery.test.tsx apps/player-shell/src/audio-playback-request.test.ts apps/player-shell/src/player-shell.test.tsx apps/player-shell/src/player-reading-shell.test.tsx apps/player-shell/src/player-reading-controls.test.tsx apps/player-shell/src/player-preferences-shell.test.tsx --maxWorkers=1 && node tools/run-web-audio-recovery.mjs --audit-only",

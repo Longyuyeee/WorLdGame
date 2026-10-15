@@ -9,12 +9,18 @@ import { buildPlayerExportRuntime } from './player-export-bundle.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
 const require = createRequire(import.meta.url); let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-playback-responsiveness'), scratchRoot = path.join(root, '.browser-diagnostic/playback-profile');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.PLAYBACK_OUTPUT_DIRECTORY ?? 'evidence/web-playback-responsiveness'), scratchRoot = path.join(root, '.browser-diagnostic/playback-profile');
 await mkdir(output, { recursive: true }); await mkdir(scratchRoot, { recursive: true }); const scratch = await mkdtemp(path.join(scratchRoot, 'run-'));
 const label = process.argv.includes('--baseline') ? 'baseline' : 'current', samples = Number(process.env.PLAYBACK_SAMPLES ?? 3);
 assert.ok(Number.isSafeInteger(samples) && samples >= 1 && samples <= 10);
 const archive = await readFile(path.join(root, 'evidence/web-audio-compatibility/before-rain-stops-web.zip')), files = unzipSync(archive), runtime = await buildPlayerExportRuntime({ sourceMap: true });
 const originalRuntimeHash = sha(files['player.js']);
+let baselineBundleSha256 = null;
+if (label === 'baseline' && process.env.PLAYBACK_BASELINE_BUNDLE) {
+  const bytes = await readFile(path.resolve(root, process.env.PLAYBACK_BASELINE_BUNDLE)), bundle = JSON.parse(bytes);
+  assert.equal(typeof bundle.javascript, 'string'); assert.equal(typeof bundle.css, 'string');
+  baselineBundleSha256 = sha(bytes); files['player.js'] = new TextEncoder().encode(bundle.javascript); files['player.css'] = new TextEncoder().encode(bundle.css);
+}
 if (label === 'current') { files['player.js'] = new TextEncoder().encode(runtime.javascript); files['player.css'] = new TextEncoder().encode(runtime.css); }
 // A future baseline rerun must still execute the original candidate, not label
 // current code as "before". Never map old generated offsets through a new map.
@@ -50,8 +56,9 @@ try {
     }
     assert.equal(await page.locator('main.player-shell').getAttribute('data-player-status'), 'ended'); assert.equal(paragraphs.size, 66); assert.equal(saves, 3); const after = (await cdp.send('Performance.getMetrics')).metrics;
     if (run === 0) { const { profile } = await cdp.send('Profiler.stop'); await writeFile(path.join(scratch, label + '.cpuprofile'), JSON.stringify(profile)); profiles.push(summarize(profile)); }
-    results.push({ run, paragraphs: paragraphs.size, saves, before, after, telemetry: await page.evaluate(() => telemetry) }); await page.screenshot({ path: path.join(output, label + '-ending.png') }); console.log('PASS ' + label + ' full route ' + run); await context.close();
+    await page.waitForFunction(() => { const value = document.documentElement.dataset.recoverySerializer; return !value || JSON.parse(value).active === 0; });
+    results.push({ run, paragraphs: paragraphs.size, saves, before, after, recoverySerializer: await page.evaluate(() => JSON.parse(document.documentElement.dataset.recoverySerializer ?? 'null')), telemetry: await page.evaluate(() => telemetry) }); await page.screenshot({ path: path.join(output, label + '-ending.png') }); console.log('PASS ' + label + ' full route ' + run); await context.close();
   }
-  assert.deepEqual(errors, []); await writeFile(path.join(output, label + '.json'), JSON.stringify({ passed: true, label, samples, browser: browser.version(), candidateArchiveSha256: sha(archive), originalRuntimeHash, diagnosticRuntimeHash: sha(files['player.js']), telemetryInstrumented: true, tasks, profiles, results, errors, physicalDevice: false, humanTiming: false, statisticalBenchmark: false, twoHourSoakPassed: false }, null, 2));
+  assert.deepEqual(errors, []); await writeFile(path.join(output, label + '.json'), JSON.stringify({ passed: true, label, samples, browser: browser.version(), candidateArchiveSha256: sha(archive), originalRuntimeHash, diagnosticRuntimeHash: sha(files['player.js']), baselineBundleSha256, telemetryInstrumented: true, tasks, profiles, results, errors, physicalDevice: false, humanTiming: false, statisticalBenchmark: false, twoHourSoakPassed: false }, null, 2));
 } catch (error) { if (current && !current.isClosed()) await current.screenshot({ path: path.join(output, label + '-failure.png') }); await writeFile(path.join(output, label + '-failure.json'), JSON.stringify({ error: String(error), stack: error.stack, tasks, errors }, null, 2)); throw error; }
 finally { await browser.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }

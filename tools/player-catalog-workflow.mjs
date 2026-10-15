@@ -1,4 +1,4 @@
-import { build } from 'vite';
+import { build } from './player-fixture-build.mjs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';

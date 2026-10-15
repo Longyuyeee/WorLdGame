@@ -1,9 +1,11 @@
 import { build } from "vite";
 import { resolve } from "node:path";
+import { recoveryWorkerPlugin } from "./recovery-worker-bundle.mjs";
 
 export async function buildPlayerExportRuntime({ sourceMap = false } = {}) {
   const result = await build({
     configFile: false,
+    plugins: [recoveryWorkerPlugin()],
     root: resolve(import.meta.dirname, "../apps/player-shell"),
     logLevel: "error",
     mode: "production",

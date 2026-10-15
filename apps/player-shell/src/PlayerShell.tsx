@@ -1,5 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
+import { RecoverySessionError, serializeRecoverySession } from "./recovery-session-client";
 import { startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
@@ -227,7 +228,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [memoryPressureMessage, setMemoryPressureMessage] = useState("");
   const [memoryPressureRetry, setMemoryPressureRetry] = useState(0);
   const memoryWritePending = useRef<WorldPlayerRecoveryWriteCoordinatorV1 | null>(null);
-  const recoveryWritePending = useRef<{ coordinator: WorldPlayerRecoveryWriteCoordinatorV1; timer: ReturnType<typeof setTimeout> } | null>(null);
+  const recoveryWritePending = useRef<{ coordinator: WorldPlayerRecoveryWriteCoordinatorV1; timer: ReturnType<typeof setTimeout>; controller: AbortController } | null>(null);
   const [recoveryWriteRevision, setRecoveryWriteRevision] = useState(0);
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
   const [silentReading, setSilentReading] = useState(false);
@@ -721,6 +722,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (loadedSnapshot.identities.buildId !== null) autoSavedSceneIdentities.current.add(worldPlayerSaveSceneIdentityV1(loadedSnapshot.identities.buildId, slot.sceneId));
       // An explicit slot load supersedes an in-flight startup scan or old recovery prompt.
       recoveryGeneration.current++;
+      recoveryWritePending.current?.controller.abort();
+      // A cancelled computation may never have reached durable storage, even
+      // when the loaded hash equals it. Re-establish protection after loading.
+      lastRecoveryRuntimeStateHash.current = null;
       setRecoveryCandidate(null);
       setRecoveryOperation(recoveryStore === undefined ? "idle" : "loaded");
       setRecoveryErrorAction(null);
@@ -785,7 +790,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const clearRecovery = useCallback(async () => {
     if (recoveryCoordinator === undefined || recoveryStore === undefined) return false;
     const projectId = project.manifest.projectId;
-    const generation = recoveryGeneration.current;
+    const generation = ++recoveryGeneration.current;
+    recoveryWritePending.current?.controller.abort();
     setRecoveryOperation("scanning");
     try {
       await recoveryCoordinator.clear(projectId);
@@ -993,31 +999,22 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state.checkpointSaveCandidates, state.runtimeState]);
 
   useEffect(() => () => {
-    if (recoveryWritePending.current !== null) clearTimeout(recoveryWritePending.current.timer);
-  }, [recoveryCoordinator]);
+    if (recoveryWritePending.current !== null) {
+      clearTimeout(recoveryWritePending.current.timer);
+      recoveryWritePending.current.controller.abort();
+    }
+  }, [recoveryCoordinator, project.manifest.projectId]);
 
   useEffect(() => {
     if (snapshot.sceneReplay.active || recoveryCoordinator === undefined || recoveryStore === undefined || recoveryWritePending.current?.coordinator === recoveryCoordinator || memoryWritePending.current === recoveryCoordinator || hostActivity !== "active" || state.runtimeState === null ||
         snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || !saveBoundaryAllowed || recoveryCandidate !== null ||
         !["idle", "ready", "loaded"].includes(recoveryOperation) || lastRecoveryRuntimeStateHash.current === snapshot.runtimeStateHash) return;
-    const created = createPlayerCoreSessionSaveV1(state);
-    if (!created.ok) return;
-    const record = createWorldPlayerRecoveryRecordV1({
-      projectId: project.manifest.projectId,
-      buildId: state.runtimeState.buildId,
-      savedAtEpochMilliseconds: now(),
-      title: snapshot.title,
-      sceneId: state.runtimeState.cursor.sceneId,
-      presentationKind: snapshot.presentation.kind,
-      runtimeStateHash: snapshot.runtimeStateHash,
-      sessionArtifactHash: created.artifactHash,
-      serializedSessionSave: created.serialized
-    });
+    const projectId = project.manifest.projectId, runtimeState = state.runtimeState;
     lastRecoveryRuntimeStateHash.current = snapshot.runtimeStateHash;
     const generation = recoveryGeneration.current;
-    const current = () => generation === recoveryGeneration.current && recoveryContext.current.projectId === record.projectId && recoveryContext.current.store === recoveryStore;
+    const current = () => generation === recoveryGeneration.current && recoveryContext.current.projectId === projectId && recoveryContext.current.store === recoveryStore;
     let timedOut = false;
-    const pending = { coordinator: recoveryCoordinator, timer: setTimeout(() => {
+    const pending = { coordinator: recoveryCoordinator, controller: new AbortController(), timer: setTimeout(() => {
       if (!current()) return;
       timedOut = true;
       setRecoveryOperation("error");
@@ -1025,7 +1022,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setRecoveryErrorAction("retry");
     }, 8000) };
     recoveryWritePending.current = pending;
-    void recoveryCoordinator.write(record).then(() => {
+    void serializeRecoverySession({ artifacts: state.artifacts, historySession: state.historySession, runtimeState, replaySession: state.replaySession }, pending.controller.signal).then(async created => {
+      if (!current()) return;
+      const record = createWorldPlayerRecoveryRecordV1({
+        projectId, buildId: runtimeState.buildId, savedAtEpochMilliseconds: now(), title: snapshot.title,
+        sceneId: runtimeState.cursor.sceneId, presentationKind: snapshot.presentation.kind,
+        runtimeStateHash: snapshot.runtimeStateHash!, sessionArtifactHash: created.artifactHash, serializedSessionSave: created.serialized
+      });
+      await recoveryCoordinator.write(record);
       if (!current()) return;
       // A late physical success is real, but must not silently dismiss the timeout warning.
       if (timedOut) {
@@ -1042,7 +1046,9 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       if (!current()) return;
       lastRecoveryRuntimeStateHash.current = null;
       setRecoveryOperation("error");
-      setRecoveryMessage(typeof error === "object" && error !== null && "name" in error && error.name === "QuotaExceededError"
+      setRecoveryMessage(error instanceof RecoverySessionError
+        ? "恢复保护后台校验失败，旧恢复点和正式存档保持不变；可重试或手动保存。"
+        : typeof error === "object" && error !== null && "name" in error && error.name === "QuotaExceededError"
         ? "设备存储空间不足，恢复保护未写入。旧恢复点和正式存档保持不变；请释放空间后重试，不要清除本游戏的网站数据。"
         : "恢复保护写入失败，旧恢复点和正式存档保持不变");
       setRecoveryErrorAction("retry");
@@ -1050,7 +1056,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       clearTimeout(pending.timer);
       if (recoveryWritePending.current === pending) recoveryWritePending.current = null;
       // Serialize only the newest live state after IO settles, not every skipped line.
-      if (recoveryContext.current.projectId === record.projectId && recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
+      if (recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
     });
   }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, recoveryWriteRevision, saveBoundaryAllowed, snapshot, state]);
 

@@ -1,0 +1,23 @@
+{
+  "checks": [
+    {
+      "name": "chromium-real-http-failure-retry-keeps-healthy-rain-and-story"
+    },
+    {
+      "name": "chromium-silent-session-rotation-restore-retains-progress-and-preferences"
+    },
+    {
+      "name": "chromium-actual-1.7.3-update-two-windows-offline-backup-explicit-read",
+      "offlineAudioPlays": true,
+      "silentFallbackAndOnlineResume": false,
+      "outageMechanism": "browser-offline"
+    },
+    {
+      "name": "chromium-file-html-actual-old-backup-and-media",
+      "inlineWorkerChecked": true
+    }
+  ],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nundefined !== 0\n",
+  "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\nundefined !== 0\n\n    at assertBackgroundRecovery (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-audio-recovery.mjs:130:10)\n    at async route (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-audio-recovery.mjs:109:25)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-audio-recovery.mjs:136:253"
+}

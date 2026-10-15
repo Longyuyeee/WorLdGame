@@ -40,16 +40,22 @@ describe("N61-E3 Player localization path", () => {
 
     expect(screen.getByRole("combobox", { name: "显示语言" })).toHaveValue("en");
     fireEvent.change(screen.getByRole("combobox", { name: "显示语言" }), { target: { value: "zh-Hans" } });
-    expect(screen.getByRole("status", { name: "语言状态" })).toHaveTextContent("缺失译文继续显示 en 原文");
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     expect(screen.getByRole("group", { name: "选择路线" })).toBeVisible();
     expect(screen.getByRole("button", { name: /左侧/u })).toBeVisible();
     expect(screen.getByRole("button", { name: /Right/u })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "打开阅读菜单" }));
+    expect(screen.getByRole("status", { name: "语言状态" })).toHaveTextContent("缺失译文继续显示 en 原文");
+    fireEvent.click(screen.getByRole("button", { name: "返回故事" }));
     fireEvent.click(screen.getByRole("button", { name: /左侧/u }));
     expect(screen.getByText("安静的路线。")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "打开阅读菜单" }));
     fireEvent.change(screen.getByRole("combobox", { name: "显示语言" }), { target: { value: "en" } });
+    fireEvent.click(screen.getByRole("button", { name: "返回故事" }));
     expect(screen.getByText("The quiet route.")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "打开阅读菜单" }));
     fireEvent.change(screen.getByRole("combobox", { name: "显示语言" }), { target: { value: "zh-Hans" } });
+    fireEvent.click(screen.getByRole("button", { name: "返回故事" }));
     expect(screen.getByText("安静的路线。")).toBeVisible();
 
     first.unmount();

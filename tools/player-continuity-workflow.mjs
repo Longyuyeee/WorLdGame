@@ -1,4 +1,4 @@
-import {build} from 'vite';
+import {build} from './player-fixture-build.mjs';
 import {writeFile,mkdtemp} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';

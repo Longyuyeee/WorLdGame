@@ -828,7 +828,7 @@ export function exitPlayerCoreReplayV1(state: PlayerCoreState): PlayerCoreState 
   return state.replaySession === null ? state : { ...state.replaySession.checkpoint, replayError: null };
 }
 
-export function createPlayerCoreSessionSaveV1(state: PlayerCoreState): CreatePlayerCoreSessionSaveResultV1 {
+export function createPlayerCoreSessionSaveV1(state: Pick<PlayerCoreState, "replaySession" | "artifacts" | "historySession" | "runtimeState">): CreatePlayerCoreSessionSaveResultV1 {
   if (state.replaySession !== null) {
     return { ok: false, diagnostics: [{ origin: "player", code: "PLAYER_SAVE_REPLAY_ISOLATED", message: "Scene Replay is isolated from formal saves", sceneId: state.runtimeState?.cursor.sceneId ?? null, statementId: null, instructionId: null }] };
   }
