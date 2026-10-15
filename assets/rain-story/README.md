@@ -2,7 +2,7 @@
 
 项目制作样例素材，2026-10-13。
 
-2026-10-16 当前候选为 `evidence/web-deployment-flow` 的 1.7.2，见 [#340](../../docs/340-web-deployment-check-and-offline-update.md)；全部 25 媒体和 #339 内部来源台账逐份保持，仅版本/兼容回执变化。来源事实由实际工程 SHA-256 与仓库对齐，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。Windows WebKit 离线原生音频失败仍待查，不能据文件缓存或来源可追溯宣称播放/许可通过；下方为各版本制作事实。
+2026-10-16 当前候选为 `evidence/web-audio-compatibility` 的 1.7.3，见 [#341](../../docs/341-web-audio-recovery-and-runtime-baseline.md)；全部 25 媒体和 #339 内部来源台账逐份保持，仅版本/兼容回执变化。来源事实由实际工程 SHA-256 与仓库对齐，见 [#339](../../docs/339-web-asset-provenance-and-release-preparation.md)。12 图、9 系统合成语音、3 程序合成音频、1 图标的发行状态全部待确认，未代填依据/确认人/日期。本机 Windows WebKit 已用独立探针定位原生媒体绕过 Worker，离线原生播放未过；当前新增玩家故障恢复，不将回退或来源可追溯说成播放/许可通过。下方为各版本制作事实。
 
 ## 当前 1.7.0 配音修订
 

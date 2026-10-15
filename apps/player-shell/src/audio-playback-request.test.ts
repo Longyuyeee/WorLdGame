@@ -1,6 +1,20 @@
 import { describe, expect, it, vi } from "vitest";
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback } from "./audio-playback-request";
 describe("owned audio permission request", () => {
+  it('separates unsupported media from gesture permission when an owned media failure handler is present', async () => {
+    const audio = document.createElement('audio'), failed = vi.fn(), changed = vi.fn();
+    audio.play = vi.fn().mockRejectedValue(new DOMException('unsupported', 'NotSupportedError'));
+    requestPlayerAudioPlayback(audio, () => true, changed, 'resuming', failed);
+    await Promise.resolve(); await Promise.resolve();
+    expect(audio.dataset.playerPlayback).toBe('error'); expect(failed).toHaveBeenCalledOnce(); expect(changed).toHaveBeenCalledOnce();
+  });
+  it('never forwards an obsolete media failure after cancellation', async () => {
+    const audio = document.createElement('audio'), failed = vi.fn(), changed = vi.fn(); let reject!: (error: Error) => void;
+    audio.play = vi.fn().mockImplementation(() => new Promise<void>((_, fail) => { reject = fail; }));
+    requestPlayerAudioPlayback(audio, () => true, changed, 'resuming', failed); cancelPlayerAudioRequest(audio);
+    reject(new DOMException('old unsupported', 'NotSupportedError')); await Promise.resolve(); await Promise.resolve();
+    expect(failed).not.toHaveBeenCalled(); expect(changed).not.toHaveBeenCalled();
+  });
   it("reports rejection and permits an explicit retry", async () => {
     const audio = document.createElement("audio"), changed = vi.fn();
     audio.play = vi.fn().mockRejectedValueOnce(new DOMException("gesture", "NotAllowedError")).mockResolvedValue(undefined);

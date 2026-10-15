@@ -22,13 +22,15 @@ it('warns for unsaved text and clears only after the canonical save finishes', a
   render(<App onCanonicalProjectSave={save} autosaveDebounceMs={60000} />); await ready(); expect(warned()).toBe(false);
   await edit('离开前保留这句。'); expect(warned()).toBe(true); await ready(); fireEvent.click(document.querySelector('.local-save-button')!);
   await waitFor(() => expect(save).toHaveBeenCalledOnce()); expect(warned()).toBe(true); await act(async () => { complete(); });
-  await screen.findByRole('button', { name: '已保存 · s1' }); expect(warned()).toBe(false);
+  await screen.findByRole('button', { name: '已保存 · s1' });
+  // The saved DOM commits before the passive beforeunload-effect cleanup.
+  await waitFor(() => expect(warned()).toBe(false));
 });
 it('keeps the warning after a failed save and clears it after a successful retry', async () => {
   vi.stubGlobal('indexedDB', new IDBFactory()); const save = vi.fn().mockRejectedValueOnce(new Error('workspace failed')).mockResolvedValue(undefined);
   render(<App onCanonicalProjectSave={save} autosaveDebounceMs={60000} />); await ready(); await edit('保存失败后仍提醒。'); await ready(); fireEvent.click(document.querySelector('.local-save-button')!);
   await waitFor(() => expect(save).toHaveBeenCalledOnce()); await ready(); expect(warned()).toBe(true);
-  fireEvent.click(document.querySelector('.local-save-button')!); await screen.findByRole('button', { name: '已保存 · s2' }); expect(warned()).toBe(false);
+  fireEvent.click(document.querySelector('.local-save-button')!); await screen.findByRole('button', { name: '已保存 · s2' }); await waitFor(() => expect(warned()).toBe(false));
 });
 it('does not clear newer edits when an older in-flight save succeeds', async () => {
   vi.stubGlobal('indexedDB', new IDBFactory()); let complete: () => void = () => {};

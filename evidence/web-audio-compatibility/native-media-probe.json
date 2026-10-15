@@ -1,0 +1,678 @@
+{
+  "schemaVersion": 1,
+  "hostPlatform": "win32",
+  "baselineHasNoGameCodeOrWorker": true,
+  "controlledCasesUseIsolatedWorker": true,
+  "publicDeployment": false,
+  "physicalDevice": false,
+  "results": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "capabilities": {
+        "audio/wav": "maybe",
+        "audio/wav; codecs=\"1\"": "probably",
+        "audio/mpeg": "probably",
+        "audio/ogg; codecs=\"vorbis\"": "probably",
+        "audio/mp4; codecs=\"mp4a.40.2\"": "probably"
+      },
+      "cases": [
+        {
+          "file": "tone.wav",
+          "mode": "http",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.111985,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "tone.wav",
+          "mode": "blob",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.111904,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "tone.wav",
+          "mode": "data",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.118003,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "http",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.114636,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "blob",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.114419,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "data",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.115166,
+          "paused": false,
+          "playError": null
+        }
+      ],
+      "webAudio": {
+        "available": true,
+        "decoded": true,
+        "duration": 1,
+        "sampleRate": 48000
+      },
+      "cachedFetch": {
+        "status": 206,
+        "worker": "worker",
+        "length": 2
+      },
+      "workerCases": [
+        {
+          "file": "tone.wav",
+          "outage": false,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [
+            {
+              "url": "http://127.0.0.1:3267/controlled/tone.wav",
+              "range": "bytes=0-"
+            }
+          ],
+          "originHits": []
+        },
+        {
+          "file": "sw-only.wav",
+          "outage": false,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [
+            {
+              "url": "http://127.0.0.1:3267/controlled/sw-only.wav",
+              "range": "bytes=0-"
+            }
+          ],
+          "originHits": []
+        },
+        {
+          "file": "offline-only.wav",
+          "outage": true,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [
+            {
+              "url": "http://127.0.0.1:3267/controlled/offline-only.wav",
+              "range": "bytes=0-"
+            }
+          ],
+          "originHits": []
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "capabilities": {
+        "audio/wav": "maybe",
+        "audio/wav; codecs=\"1\"": "probably",
+        "audio/mpeg": "maybe",
+        "audio/ogg; codecs=\"vorbis\"": "probably",
+        "audio/mp4; codecs=\"mp4a.40.2\"": "probably"
+      },
+      "cases": [
+        {
+          "file": "tone.wav",
+          "mode": "http",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.133,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "tone.wav",
+          "mode": "blob",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.136416,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "tone.wav",
+          "mode": "data",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.133437,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "http",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.138083,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "blob",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.137916,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "data",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.134187,
+          "paused": false,
+          "playError": null
+        }
+      ],
+      "webAudio": {
+        "available": true,
+        "decoded": true,
+        "duration": 1,
+        "sampleRate": 48000
+      },
+      "cachedFetch": {
+        "status": 206,
+        "worker": "worker",
+        "length": 2
+      },
+      "workerCases": [
+        {
+          "file": "tone.wav",
+          "outage": false,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [
+            {
+              "url": "http://127.0.0.1:3267/controlled/tone.wav",
+              "range": "bytes=0-"
+            }
+          ],
+          "originHits": []
+        },
+        {
+          "file": "sw-only.wav",
+          "outage": false,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [
+            {
+              "url": "http://127.0.0.1:3267/controlled/sw-only.wav",
+              "range": "bytes=0-"
+            }
+          ],
+          "originHits": []
+        },
+        {
+          "file": "offline-only.wav",
+          "outage": true,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [
+            {
+              "url": "http://127.0.0.1:3267/controlled/offline-only.wav",
+              "range": "bytes=0-"
+            }
+          ],
+          "originHits": []
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "capabilities": {
+        "audio/wav": "probably",
+        "audio/wav; codecs=\"1\"": "probably",
+        "audio/mpeg": "probably",
+        "audio/ogg; codecs=\"vorbis\"": "",
+        "audio/mp4; codecs=\"mp4a.40.2\"": "probably"
+      },
+      "cases": [
+        {
+          "file": "tone.wav",
+          "mode": "http",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 3,
+          "currentTime": 0.1135417,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "tone.wav",
+          "mode": "blob",
+          "passed": false,
+          "errorCode": 4,
+          "message": "",
+          "readyState": 0,
+          "currentTime": 0,
+          "paused": true,
+          "playError": {
+            "name": "NotSupportedError",
+            "message": "The operation is not supported."
+          }
+        },
+        {
+          "file": "tone.wav",
+          "mode": "data",
+          "passed": false,
+          "errorCode": 4,
+          "message": "",
+          "readyState": 0,
+          "currentTime": 0,
+          "paused": true,
+          "playError": {
+            "name": "NotSupportedError",
+            "message": "The operation is not supported."
+          }
+        },
+        {
+          "file": "rain.wav",
+          "mode": "http",
+          "passed": true,
+          "errorCode": null,
+          "message": null,
+          "readyState": 4,
+          "currentTime": 0.1061042,
+          "paused": false,
+          "playError": null
+        },
+        {
+          "file": "rain.wav",
+          "mode": "blob",
+          "passed": false,
+          "errorCode": 4,
+          "message": "",
+          "readyState": 0,
+          "currentTime": 0,
+          "paused": true,
+          "playError": {
+            "name": "NotSupportedError",
+            "message": "The operation is not supported."
+          }
+        },
+        {
+          "file": "rain.wav",
+          "mode": "data",
+          "passed": false,
+          "errorCode": null,
+          "message": null,
+          "readyState": 0,
+          "currentTime": 0,
+          "paused": false,
+          "playError": null
+        }
+      ],
+      "webAudio": {
+        "available": false
+      },
+      "cachedFetch": {
+        "status": 206,
+        "worker": "worker",
+        "length": 2
+      },
+      "workerCases": [
+        {
+          "file": "tone.wav",
+          "outage": false,
+          "passed": true,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [],
+          "originHits": [
+            {
+              "url": "/controlled/tone.wav",
+              "range": "bytes=0-"
+            }
+          ]
+        },
+        {
+          "file": "sw-only.wav",
+          "outage": false,
+          "passed": false,
+          "errorCode": 4,
+          "playError": {
+            "name": "NotSupportedError",
+            "message": "The operation is not supported."
+          },
+          "workerHits": [],
+          "originHits": [
+            {
+              "url": "/controlled/sw-only.wav",
+              "range": "bytes=0-"
+            },
+            {
+              "url": "/controlled/sw-only.wav",
+              "range": null
+            },
+            {
+              "url": "/controlled/sw-only.wav",
+              "range": "bytes=0-"
+            },
+            {
+              "url": "/controlled/sw-only.wav",
+              "range": null
+            }
+          ]
+        },
+        {
+          "file": "offline-only.wav",
+          "outage": true,
+          "passed": false,
+          "errorCode": null,
+          "playError": null,
+          "workerHits": [],
+          "originHits": []
+        }
+      ]
+    }
+  ],
+  "hits": [
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/controlled/",
+      "range": null
+    },
+    {
+      "url": "/controlled/sw.js",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/favicon.ico",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/controlled/",
+      "range": null
+    },
+    {
+      "url": "/controlled/sw.js",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/rain.wav",
+      "range": null
+    },
+    {
+      "url": "/",
+      "range": null
+    },
+    {
+      "url": "/controlled/",
+      "range": null
+    },
+    {
+      "url": "/controlled/sw.js",
+      "range": null
+    },
+    {
+      "url": "/tone.wav",
+      "range": null
+    },
+    {
+      "url": "/controlled/tone.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/controlled/sw-only.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/controlled/sw-only.wav",
+      "range": null
+    },
+    {
+      "url": "/controlled/sw-only.wav",
+      "range": "bytes=0-"
+    },
+    {
+      "url": "/controlled/sw-only.wav",
+      "range": null
+    }
+  ]
+}

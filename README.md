@@ -1,16 +1,16 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 当前接续（2026-10-16）：[#340 部署核对与离线更新](docs/340-web-deployment-check-and-offline-update.md)。目录包新增 Node-only 核对/纯网站目录生成/只读网站核对，本地预览核对全部文件；修复新版下载失败后只重缓存旧版的问题。最新源/HTML/目录/校订记录均在 evidence/web-deployment-flow，候选 1.7.2。
+> 当前接续（2026-10-16）：[#341 声音恢复与媒体基线](docs/341-web-audio-recovery-and-runtime-baseline.md)。声音失败可按音轨重试、选择本次无声阅读并在工具栏恢复，不改进度或个人音量。最新源/HTML/目录/校订记录均在 evidence/web-audio-compatibility，候选 1.7.3。
 
-> 最新交付（2026-10-16）：[#340](docs/340-web-deployment-check-and-offline-update.md) 206 项相关测试、类型/双构建和四项审计通过；10 项实际制作/部署工具及 Chromium、Firefox 离线升级、旧备份、缺文件重试、不兼容拒绝和回滚检查通过。完整三引擎矩阵未通过：Windows WebKit 离线原生音频失败，原 1.7.1 也复现，根因待查。25 项发行条件仍 pending；未上线、非真机/人工验收。
+> 最新交付（2026-10-16）：[#341](docs/341-web-audio-recovery-and-runtime-baseline.md) 334 项相关测试；三引擎声音故障恢复、1.7.2→1.7.3 多窗口升级/真实旧备份与各两条在线完整路线，并修复结局残留声音恢复提示。独立对照定位本机 Windows WebKit 原生媒体绕过 Worker，HTTP 可播、Blob/data/离线失败；无声回退不是音频修复，严格三引擎离线音频仍未过。25 项发行条件 pending，未上线、非真机/人工验收。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
 > 文档基线：2026-10-16
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
-> 当前进展：1.7.2 保持 9 场景/两结局、9,672 字符/74 演出/25 项素材和来源台账，只改版本/兼容回执；核对 1.7.0、1.7.1，本批现场备份来源为 1.7.1。1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#340 接续顺序及验证边界](docs/340-web-deployment-check-and-offline-update.md)。下一批先隔离并修复离线原生音频、重跑严格三引擎链；真实发行依据/署名、获准 HTTPS 部署、人工内容/听感和真实设备继续开放。
+> 当前进展：1.7.3 保持 9 场景/两结局、9,672 字符/74 演出/25 项素材和来源台账，只改版本/兼容回执；核对 1.7.0、1.7.1、1.7.2，本批现场备份来源为 1.7.2。1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#341 接续顺序及验证边界](docs/341-web-audio-recovery-and-runtime-baseline.md)。本机媒体限制不再盲改缓存；可用 Safari/macOS/iOS 环境下补严格离线音频。下一主任务为真实发行依据/署名和获准 HTTPS 发布闭环；人工内容/听感和真实设备继续开放。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：沿《雨停之前》1.7.2 和 11 条待复核任务继续实际作品定稿与交付；当前源工程及独立校订文件在 evidence/web-deployment-flow。优先解决已发现的离线音频问题；自然阅读/听感、真机系统键盘/锁屏/低内存、来源许可与实际公网仍待验。
+> 当前重心：沿《雨停之前》1.7.3 和 11 条待复核任务继续实际作品定稿与交付；当前源工程及独立校订文件在 evidence/web-audio-compatibility。自然阅读/听感、真机系统键盘/锁屏/低内存、真实 Safari 离线音频、来源许可与实际公网仍待验。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。

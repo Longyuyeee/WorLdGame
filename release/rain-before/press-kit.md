@@ -1,31 +1,31 @@
-# 《雨停之前》1.7.2 Web 候选展示资料
+# 《雨停之前》1.7.3 Web 候选展示资料
 
-2026-10-16 更新。当前候选为**部署与离线更新版 1.7.2**，不是已上线、已授权或 Stable 发行声明。核对相同内容的 1.7.0、1.7.1 存档，不沿用历史已变剧情的兼容承诺。
+2026-10-16 更新。当前候选为**声音恢复版 1.7.3**，不是已上线、已授权或 Stable 发行声明。核对相同内容的 1.7.0、1.7.1、1.7.2 存档，不沿用历史已变剧情的兼容承诺。
 
-本批完成 [#340 部署核对与离线更新](../../docs/340-web-deployment-check-and-offline-update.md)：目录包新增核对/纯网站目录/只读站点检查，修复更新失败后只重缓存旧版。保留 [#339 来源台账](../../docs/339-web-asset-provenance-and-release-preparation.md) 的 25 项事实，全部发行条件仍待确认，公开署名/作者身份未代填；内部准备清单不是可以对外展示的许可声明。Windows WebKit 离线原生音频仍失败，三引擎完整离线验收未过。
+本批完成 [#341 声音恢复与媒体基线](../../docs/341-web-audio-recovery-and-runtime-baseline.md)：声音按失败音轨重试，可选择本次无声阅读并显式恢复，进度/个人音量不变；保留 [#340 部署助手](../../docs/340-web-deployment-check-and-offline-update.md) 与 [#339 来源台账](../../docs/339-web-asset-provenance-and-release-preparation.md)。25 项发行条件仍待确认，公开署名/作者身份未代填；内部准备清单不是许可声明。本机 Windows WebKit 原生媒体绕过 Worker，故障恢复可用，但离线声音不算通过，不能等同真实 Safari 验收。
 
 ## 当前作品与交付
 
 一句话：一场雨，两条路。读完旧信，把下一次见面写进日历。
 
-生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正，保留 1.7.1 中文输入/返回保护；1.7.2 不改剧情和媒体。
+生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正，保留中文输入/返回保护；1.7.3 不改剧情和媒体。
 
 | 资料 | 当前路径 |
 | --- | --- |
-| 最新可编辑源工程（含内部来源台账） | `evidence/web-deployment-flow/before-rain-stops-project.zip` |
-| 单文件游戏 | `evidence/web-deployment-flow/before-rain-stops.html` |
-| Web 部署目录 | `evidence/web-deployment-flow/before-rain-stops-web.zip` |
-| 待人工复核的 11 条记录 | `evidence/web-deployment-flow/before-rain-stops.worldreview` |
-| 当前更新与边界 | `release-notes-1.7.2.md`、`docs/340-web-deployment-check-and-offline-update.md` |
-| 当前四产物摘要 | `evidence/web-deployment-flow/artifact-audit.json` |
+| 最新可编辑源工程（含内部来源台账） | `evidence/web-audio-compatibility/before-rain-stops-project.zip` |
+| 单文件游戏 | `evidence/web-audio-compatibility/before-rain-stops.html` |
+| Web 部署目录 | `evidence/web-audio-compatibility/before-rain-stops-web.zip` |
+| 待人工复核的 11 条记录 | `evidence/web-audio-compatibility/before-rain-stops.worldreview` |
+| 当前更新与边界 | `release-notes-1.7.3.md`、`docs/341-web-audio-recovery-and-runtime-baseline.md` |
+| 当前四产物摘要 | `evidence/web-audio-compatibility/artifact-audit.json` |
 | 内部来源待办（历史准备报告，当前事实保持） | `evidence/web-release-preparation/preparation.json`、`发布准备.txt`（仅作者资料，不上传玩家网站） |
 | 当前语音来源及技术指标 | `assets/rain-story/voice-revision-v1.7.json`、`source-manifest-v1.7.json` |
 | 背景来源/完整提示词 | `assets/rain-story/source-manifest-v1.6.json`、`image-prompts-v1.6.json` |
-| 手机尺寸离线更新/旧备份恢复图 | `evidence/web-deployment-flow/firefox-failed-update-retains-current.png`、`firefox-offline-backup-explicit-read-media.png` |
+| 手机尺寸声音失败/无声阅读 | `evidence/web-audio-compatibility/firefox-sound-failure.png`、`firefox-silent-320.png` |
 
-历史 1.7.1 的本地 HTTP 子目录在 Chromium 151、Firefox 153、WebKit 26.5 完整走过两路线，横竖屏/触控大字号、返回/存档和 1.7.0 备份读取通过；本批没有重跑完整路线。1.7.2 本地 Chromium/Firefox 完整离线升级、媒体播放、真实 1.7.1 备份、失败重试及回滚通过；WebKit 原生离线雨声/BGM 失败，原 1.7.1 同样复现，根因待查。390 px 截图不是物理手机，WebKit 不代表 iPhone Safari；系统键盘、冻结/锁屏/低内存未计通过。11 条校订任务仍待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音。
+本机 Chromium 151、Firefox 153、WebKit 26.5 检查当前候选声音恢复和各两条 HTTP 在线完整路线，每路线六句语音自然结束；1.7.2→1.7.3 多窗口更新、离线旧备份/快速槽位接续。Chromium/Firefox 断网声音播放；WebKit origin 停服后提示失败、无声阅读，恢复服务后显式恢复声音，不计其离线声音通过。320/390 px 和横屏截图不是物理手机，WebKit 不代表 iPhone Safari；系统键盘、冻结/锁屏/低内存未计通过。11 条校订任务仍待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音。
 
-**1.7.2 已核对相同内容的 1.7.0 和 1.7.1。** 本批现场备份来源为 1.7.1，不能扩写成两个旧版本都重新实查；1.6.0/更早已变剧情仍用原游戏。1.7.1 原版在 `evidence/web-mobile-continuity`，1.7.0 在 `evidence/web-story-beats`，1.6.0 在 `evidence/web-story-refinement`。请保留原游戏和备份再更新；完整三引擎/实际公网离线更新链尚未验收。发布目录先用包内助手生成纯网站目录，不要直接上传全部作者交付资料。
+**1.7.3 已核对相同内容的 1.7.0、1.7.1、1.7.2。** 本批现场旧备份来自 1.7.2，不扩写成全部旧版本都重新实查；1.6.0/更早已变剧情仍用原游戏。1.7.2 在 `evidence/web-deployment-flow`，1.7.1 在 `evidence/web-mobile-continuity`，1.7.0 在 `evidence/web-story-beats`。保留原游戏和备份再更新；严格三引擎/实际公网离线音频未验收，未承诺 WebKit 本地 HTML 播放。发布目录先用包内助手生成纯网站目录，不要直接上传全部作者交付资料。
 
 新背景通过内置 imagegen 对本项目图片作光照变体，生成来源与参考摘要可追溯，但许可和最终美术仍待确认；原系统合成语音的对外再分发许可同样未关闭。作者/发行者、联系方式、版权声明、渠道和发布日期不虚构。公开部署前仍需人工全文/听感、美术、实际手机与支持浏览器、来源许可和实际 URL 回查；当前未上传公网。
 

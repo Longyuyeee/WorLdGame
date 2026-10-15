@@ -12,6 +12,7 @@ import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
+import { playerAudioFailureHint } from './audio-failure';
 import { NativeAtlasImage } from "./NativeAtlasImage";
 import { DeferredAtlasImage } from "./DeferredAtlasImage";
 import {
@@ -229,6 +230,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const recoveryWritePending = useRef<{ coordinator: WorldPlayerRecoveryWriteCoordinatorV1; timer: ReturnType<typeof setTimeout> } | null>(null);
   const [recoveryWriteRevision, setRecoveryWriteRevision] = useState(0);
   const [mediaErrors, setMediaErrors] = useState<readonly string[]>([]);
+  const [silentReading, setSilentReading] = useState(false);
+  const [audioAttempts, setAudioAttempts] = useState<Readonly<Record<string, number>>>({});
   const [mediaGeneration, setMediaGeneration] = useState(0);
   const [imageAttempt, setImageAttempt] = useState(0);
   const imageGeneration = `${mediaGeneration}:${imageAttempt}`;
@@ -307,12 +310,21 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [, refreshAudioTransport] = useState(0);
   const audioActivity = useRef({ hostActivity, skipActive: skipMode !== null });
   audioActivity.current = { hostActivity, skipActive: skipMode !== null };
+  const audioFailed = useCallback((element: HTMLAudioElement, error?: unknown) => {
+    if (!element.isConnected || audioElements.current.get(element.dataset.audioBus ?? '') !== element) return;
+    element.dataset.playerPlayback = 'error';
+    element.dataset.audioFailureCode = String(element.error?.code ?? (error instanceof DOMException && error.name === 'NotSupportedError' ? 4 : 0));
+    if (element.dataset.audioBus === 'voice') { element.dataset.voiceFailed = 'true'; setVoicePlaying(false); }
+    const id = element.dataset.assetId;
+    if (id) setMediaErrors(current => current.includes(id) ? current : [...current, id]);
+    refreshAudioTransport(revision => revision + 1);
+  }, []);
   const requestAudio = useCallback((element: HTMLAudioElement, reason: "resuming" | "resuming-after-skip" = "resuming") => {
     const isCurrent = () => element.isConnected && audioElements.current.get(element.dataset.audioBus ?? "") === element
       && audioActivity.current.hostActivity === "active" && !audioActivity.current.skipActive;
     if (!isCurrent()) return;
-    requestPlayerAudioPlayback(element, isCurrent, () => refreshAudioTransport(revision => revision + 1), reason);
-  }, []);
+    requestPlayerAudioPlayback(element, isCurrent, () => refreshAudioTransport(revision => revision + 1), reason, error => audioFailed(element, error));
+  }, [audioFailed]);
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const [, refreshVideoTransport] = useState(0);
   const requestVideo = useCallback((element: HTMLVideoElement) => {
@@ -382,7 +394,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     status: "playing" as const
   }];
   const audibleTracks = [...stage.audio.filter((track) => !(localizedMedia.voiceMapped && track.bus === "voice")), ...localizedVoice];
-  const appliedAudio = audibleTracks.map((track) => ({
+  const appliedAudio = (silentReading ? [] : audibleTracks).map((track) => ({
     ...track,
     appliedVolume: galAudioGainV1(
       settingsApplication,
@@ -391,7 +403,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       voicePlaying
     )
   }));
-  const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${track.bus}:${track.assetId}:${track.status}`).join("|");
+  const failedAudio = appliedAudio.filter(track => mediaErrors.includes(track.assetId) && audioElements.current.get(track.bus)?.dataset.playerPlayback === 'error');
+  const currentMediaIds = new Set([stage.background?.assetId, ...stage.characters.map(item => item.assetId), stage.video?.assetId, ...failedAudio.map(track => track.assetId)]);
+  const visibleMediaErrors = mediaErrors.filter(id => currentMediaIds.has(id));
+  const visualMediaErrors = visibleMediaErrors.filter(id => !appliedAudio.some(track => track.assetId === id));
+  const audioPlaybackSignature = appliedAudio.map(track => `${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}:${track.status}`).join("|");
   useEffect(() => {
     for (const element of audioElements.current.values()) {
       const shouldPlay = element.dataset.shouldPlay;
@@ -856,6 +872,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setPreferencesOpen(false);
     setMediaErrors([]);
     setMediaGeneration(0);
+    setSilentReading(false); setAudioAttempts({});
     setSelectedChoiceIndex(0);
     setLastInputSource("lifecycle");
     setLastInputAccepted(true);
@@ -1513,6 +1530,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-input-source={lastInputSource}
       data-input-accepted={lastInputAccepted}
       data-host-activity={hostActivity}
+      data-audio-mode={silentReading ? 'silent' : 'enabled'}
       data-playback-policy={canonicalPlaybackPolicy.policyVersion}
       data-playback-mode={autoEnabled ? "auto" : skipMode ?? snapshot.playback.mode}
       data-playback-activation={skipMode === null ? snapshot.playback.skipActivation ?? "none" : skipActivation}
@@ -1681,7 +1699,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         </div>
         {appliedAudio.map((track) => (
           <audio
-            key={`${mediaGeneration}:${track.bus}:${track.assetId}`}
+            key={`${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}`}
             muted={personal.preferences.muted}
             ref={(element) => {
               if (element !== null) {
@@ -1697,6 +1715,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                     if (element.isConnected) return;
                     cancelPlayerAudioRequest(element);
                     if (!element.paused) element.pause();
+                    element.removeAttribute('src');
+                    element.load();
                   });
                 };
               }
@@ -1737,18 +1757,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
                 setVoicePlaying(false);
               }
             }}
-            onError={(event) => {
-              event.currentTarget.dataset.playerPlayback = "error";
-              refreshAudioTransport(revision => revision + 1);
-              if (track.bus === "voice") {
-                event.currentTarget.dataset.voiceFailed = "true";
-                setVoicePlaying(false);
-              }
-              setMediaErrors((current) => [...new Set([...current, track.assetId])]);
-            }}
+            onError={(event) => audioFailed(event.currentTarget)}
           />
         ))}
-        {hostActivity === "active" && !skipActive && [...audioElements.current.values()].some(element => element.isConnected && element.dataset.shouldPlay === "true" && !element.ended && !element.error && ["blocked", "interrupted", "paused-by-policy"].includes(element.dataset.playerPlayback ?? "")) && (
+        {hostActivity === "active" && !skipActive && appliedAudio.some(track => {
+          const element = audioElements.current.get(track.bus);
+          return element?.isConnected && element.dataset.assetId === track.assetId && element.dataset.shouldPlay === "true" && !element.ended && !element.error && ["blocked", "interrupted", "paused-by-policy"].includes(element.dataset.playerPlayback ?? "");
+        }) && (
           <aside className="player-audio-recovery" role="status" aria-live="polite">
             <span>声音尚未播放或已中断。点击恢复声音；也可关闭自动播放，手动阅读。</span>
             <button type="button" onClick={() => {
@@ -1788,11 +1803,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           </aside>
         )}
         {content.kind !== 'title' && <div className="player-compact-toolbar" inert={artworkView}>
-          {canViewArtwork && <button type="button" className="player-artwork-trigger" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> 欣赏画面</button>}
+          {canViewArtwork && <button type="button" className="player-artwork-trigger" aria-label="欣赏画面" title="隐藏对白并停止自动推进（H）" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={showArtwork}><svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" /><path d="m3 17 5-5 4 4 4-7 5 8" /></svg> {silentReading ? '画面' : '欣赏画面'}</button>}
+          {silentReading && <><span className="player-sound-status" role="status">本次无声阅读。进度和个人音量未改变；恢复时会重新播放当前声音。</span><button type="button" aria-label="恢复当前声音" title="本次无声阅读；点击重新播放当前声音，不改变剧情进度或个人音量" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || readingMenuOpen} onClick={() => { setSilentReading(false); setMediaErrors(current => current.filter(id => !audibleTracks.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>无声 · 恢复</button></>}
           {autoEnabled && <button type="button" aria-label="停止自动阅读" onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); }}>自动中 · 停止</button>}
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { if (readingMenuOpen) closeReadingMenu(); else { stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
-        {compactReading && content.kind !== 'title' && <p className="player-portrait-hint">横屏更适合观看演出</p>}
+        {compactReading && content.kind !== 'title' && !silentReading && <p className="player-portrait-hint">横屏更适合观看演出</p>}
         <div id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
         {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
@@ -2153,14 +2169,19 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           </aside>
         )}
 
-        {(stage.missingAssetIds.length > 0 || mediaErrors.length > 0) && (
+        {(stage.missingAssetIds.length > 0 || visibleMediaErrors.length > 0) && (
           <div className="player-media-error" role="alert">
-            <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...mediaErrors])].join("、")}</span>
-            <button type="button" onClick={() => {
-              setMediaErrors([]);
-              setMediaGeneration((current) => current + 1);
-              onRetryMedia?.();
+            {(stage.missingAssetIds.length > 0 || visualMediaErrors.length > 0) && <span>媒体未能安全呈现：{[...new Set([...stage.missingAssetIds, ...visualMediaErrors])].join("、")}</span>}
+            {failedAudio.map(track => <span key={track.bus}>声音“{track.displayName}”：{playerAudioFailureHint(Number(audioElements.current.get(track.bus)?.dataset.audioFailureCode))}</span>)}
+            <button type="button" disabled={hostActivity !== 'active'} onClick={() => {
+              if (stage.missingAssetIds.length === 0 && visualMediaErrors.length === 0) {
+                setMediaErrors(current => current.filter(id => !failedAudio.some(track => track.assetId === id)));
+                setAudioAttempts(current => Object.fromEntries(appliedAudio.map(track => [track.bus, (current[track.bus] ?? 0) + (failedAudio.some(failed => failed.bus === track.bus) ? 1 : 0)])));
+                onRetryMedia?.();
+              } else { setMediaErrors([]); setMediaGeneration(current => current + 1); onRetryMedia?.(); }
+              queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
             }}>重试媒体</button>
+            {failedAudio.length > 0 && <button type="button" disabled={hostActivity !== 'active'} onClick={() => { setAutoEnabled(false); setAutoPlayback('off'); stopSkip(); setVoicePlaying(false); setSilentReading(true); setMediaErrors(current => current.filter(id => !appliedAudio.some(track => track.assetId === id))); queueMicrotask(() => reading.element.current?.focus({ preventScroll: true })); }}>本次先无声阅读</button>}
           </div>
         )}
 
