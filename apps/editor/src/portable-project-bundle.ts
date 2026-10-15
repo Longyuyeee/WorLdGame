@@ -7,6 +7,7 @@ import {
   type ProjectFiles,
   type ProjectLifecycleSession
 } from "@world-studio/project-domain";
+import { ProjectArchiveError, type ProjectArchiveBinaryFiles } from "@world-studio/project-domain";
 import {
   AssetBlobError,
   assetBlobPath,
@@ -105,7 +106,19 @@ export async function exportPortableCanonicalProject(project: CanonicalProject, 
 }
 
 export function importPortableProjectBundle(archive: Uint8Array): ImportedPortableProjectBundle {
-  const binary = importProjectBinaryZip(archive, BUNDLE_LIMITS);
+  return importPortableProjectFiles(importProjectBinaryZip(archive, BUNDLE_LIMITS));
+}
+
+/** Reuse an already CRC-checked ZIP entry map; portable limits still apply. */
+export function importPortableProjectFiles(binary: ProjectArchiveBinaryFiles): ImportedPortableProjectBundle {
+  const entries = Object.entries(binary);
+  if (entries.length > BUNDLE_LIMITS.maxEntries) throw new ProjectArchiveError('SIZE_LIMIT', 'ZIP has too many entries');
+  let total = 0;
+  for (const [path, bytes] of entries) {
+    if (!path || path.length > 240 || path.startsWith('/') || path.includes('\\') || path.includes('\0') || /^[A-Za-z]:/u.test(path) || path.split('/').some(part => !part || part === '.' || part === '..') || Object.hasOwn(Object.prototype, path)) throw new ProjectArchiveError('UNSAFE_PATH', `Unsafe archive path: ${path}`);
+    total += bytes.byteLength;
+    if (bytes.byteLength > BUNDLE_LIMITS.maxEntryBytes || total > BUNDLE_LIMITS.maxTotalBytes) throw new ProjectArchiveError('SIZE_LIMIT', 'ZIP entry exceeds the import budget');
+  }
   const hasManifest = BUNDLE_MANIFEST_PATH in binary;
   const hasIndex = BUNDLE_INDEX_PATH in binary;
   if (hasManifest !== hasIndex) throw new AssetBlobError("INVALID_ASSET", "index", BUNDLE_PREFIX, "Portable asset manifest and index must both be present");

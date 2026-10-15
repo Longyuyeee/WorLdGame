@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { createBlobDigest, type AssetIndexEntry, type BlobDigest } from "@world-studio/project-persistence";
+import { type AssetIndexEntry, type BlobDigest } from "@world-studio/project-persistence";
+import { browserBlobDigest } from './browser-blob-digest';
 import { assetInspectionPassed } from "./production-workspace";
 
 export interface AssetLibraryReader { read(digest: BlobDigest): Promise<Uint8Array | null>; }
@@ -9,8 +10,8 @@ function useAssetImage(entry: AssetIndexEntry | undefined, reader: AssetLibraryR
     let active = true; let objectUrl: string | undefined;
     setUrl(null);
     if (visible && reader && entry && entry.source.byteLength <= 8 * 1024 * 1024 && assetInspectionPassed(entry) && ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(entry.source.mimeType)) {
-      void reader.read(entry.source.digest).then(bytes => {
-        if (!active || !bytes || bytes.length !== entry.source.byteLength || createBlobDigest(bytes) !== entry.source.digest) return;
+      void reader.read(entry.source.digest).then(async bytes => {
+        if (!active || !bytes || bytes.length !== entry.source.byteLength || await browserBlobDigest(bytes) !== entry.source.digest || !active) return;
         objectUrl = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: entry.source.mimeType })); setUrl(objectUrl);
       }).catch(() => { /* A missing preview does not hide the asset or its status. */ });
     }
@@ -34,9 +35,10 @@ function AssetAudioPreview({ entry, reader }: { readonly entry: AssetIndexEntry;
     if (reader === null || !assetInspectionPassed(entry) || entry.source.byteLength > 16 * 1024 * 1024) {
       setStatus("试听暂不可用。请检查素材；超过 16 MB 的音频可在完整流程中试听。"); return;
     }
-    void reader.read(entry.source.digest).then(bytes => {
+    void reader.read(entry.source.digest).then(async bytes => {
       if (!active) return;
-      if (bytes === null || bytes.length !== entry.source.byteLength || createBlobDigest(bytes) !== entry.source.digest) throw Error("音频缺失或不完整");
+      if (bytes === null || bytes.length !== entry.source.byteLength || await browserBlobDigest(bytes) !== entry.source.digest) throw Error("音频缺失或不完整");
+      if (!active) return;
       url = URL.createObjectURL(new Blob([new Uint8Array(bytes)], { type: entry.source.mimeType }));
       setSource({ digest: entry.source.digest, url }); setStatus("点击播放试听，不会修改故事中的音乐。");
     }).catch(() => { if (active) setStatus("音频读取失败，可重试或重新导入素材。"); });

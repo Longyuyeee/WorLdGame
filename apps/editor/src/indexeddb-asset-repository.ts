@@ -1,3 +1,4 @@
+import { browserBlobDigest } from './browser-blob-digest';
 import {
   AssetBlobError,
   ASSET_RESTORE_INTENT_RECORD_ID,
@@ -352,11 +353,16 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
     if (expectedDigests.size !== blobs.size) {
       throw new AssetBlobError("INVALID_ASSET", "index", this.projectId, "Portable bundle Blob inventory does not match its Asset Index");
     }
-    for (const entry of index.assets) {
-      const bytes = blobs.get(entry.source.digest);
-      if (bytes === undefined || bytes.byteLength !== entry.source.byteLength || createBlobDigest(bytes) !== entry.source.digest) {
-        throw new AssetBlobError("CORRUPT_BLOB", "put", entry.source.digest, `Portable bundle Blob failed verification for ${entry.assetId}`);
-      }
+    // Snapshot before the first await: callers cannot mutate a validated payload
+    // while asynchronous hashing is pending. Hash each shared digest only once.
+    const verifiedBlobs = new Map<BlobDigest, Uint8Array>();
+    for (const digest of expectedDigests) {
+      const bytes = blobs.get(digest);
+      if (bytes === undefined || index.assets.some(entry => entry.source.digest === digest && bytes.byteLength !== entry.source.byteLength)) throw new AssetBlobError('CORRUPT_BLOB', 'put', digest, 'Portable bundle Blob has the wrong size');
+      verifiedBlobs.set(digest, new Uint8Array(bytes));
+    }
+    for (const [digest, bytes] of verifiedBlobs) {
+      if (await browserBlobDigest(bytes) !== digest) throw new AssetBlobError('CORRUPT_BLOB', 'put', digest, 'Portable bundle Blob failed SHA-256 verification');
     }
     const database = await this.database;
     const transaction = database.transaction(
@@ -378,11 +384,11 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       const blobStore = transaction.objectStore(ASSET_BLOB_STORE_NAME);
       let createdBlobCount = 0;
       let existingBlobCount = 0;
-      for (const [digest, bytes] of blobs) {
+      for (const [digest, bytes] of verifiedBlobs) {
         const key = this.blobKey(digest);
         const existingValue = await indexedDbRequestResult(blobStore.get(key));
         if (existingValue === undefined) {
-          blobStore.put(bytes.slice(), key);
+          blobStore.put(bytes, key);
           createdBlobCount += 1;
         } else {
           const existing = storedBytes(existingValue);
@@ -445,7 +451,7 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
       await indexedDbTransactionDone(transaction);
       if (value === undefined) return null;
       const bytes = storedBytes(value);
-      if (bytes === null || createBlobDigest(bytes) !== digest) {
+      if (bytes === null || await browserBlobDigest(bytes) !== digest) {
         throw new AssetBlobError("CORRUPT_BLOB", "read", digest, "Stored IndexedDB blob failed SHA-256 verification");
       }
       return bytes.slice();

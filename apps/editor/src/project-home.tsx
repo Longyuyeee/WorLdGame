@@ -6,6 +6,8 @@ import { TransactionalTextarea } from "./transactional-textarea";
 import { LazySequenceEditor } from "./lazy-sequence-editor";
 import { EditorThemeControl } from "./editor-theme";
 import { StudioIcon } from "./studio-icon";
+import { usePageLeaveGuard } from './use-page-leave-guard';
+import type { ProjectArchiveImportOptions, ProjectImportPhase } from './project-archive-import-protocol';
 
 export interface ProjectArchiveDownload {
   readonly href: string;
@@ -20,7 +22,7 @@ export interface ProjectHomeActions {
   readonly openExample: () => Promise<ProjectLifecycleSession>;
   readonly openN23Benchmark: () => Promise<ProjectLifecycleSession>;
   readonly openN42MediaStage: () => Promise<ProjectLifecycleSession>;
-  readonly importArchive: (file: File) => Promise<ProjectLifecycleSession>;
+  readonly importArchive: (file: File, options?: ProjectArchiveImportOptions) => Promise<ProjectLifecycleSession>;
   readonly exportArchive: (session: ProjectLifecycleSession) => Promise<ProjectArchiveDownload>;
   readonly openRouteOverview?: (item: RecentProject, offset?: number) => Promise<TrustedRouteOverview>;
   readonly openLazyScene?: (item: RecentProject, overview: TrustedRouteOverview, sceneId: string) => Promise<LazyScenePage>;
@@ -45,8 +47,14 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
   const createDialog = useRef<HTMLDialogElement>(null);
   const routeDialog = useRef<HTMLDialogElement>(null);
   const importInput = useRef<HTMLInputElement>(null);
+  const importTrigger = useRef<HTMLButtonElement>(null);
   const [selected, setSelected] = useState<ProjectLifecycleSession | null>(null);
   const [busy, setBusy] = useState(false);
+  const importController = useRef<AbortController | null>(null);
+  const [importPhase, setImportPhase] = useState<ProjectImportPhase | null>(null);
+  const [importNotice, setImportNotice] = useState('');
+  usePageLeaveGuard(importPhase !== null);
+  useEffect(() => () => { importController.current?.abort(); importController.current = null; }, []);
   const [error, setError] = useState<string | null>(null);
   const [download, setDownload] = useState<ProjectArchiveDownload | null>(null);
   const [routeOverview, setRouteOverview] = useState<{ readonly item: RecentProject; readonly overview: TrustedRouteOverview } | null>(null);
@@ -80,6 +88,7 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
     setBusy(true);
     setError(null);
     setDownload(null);
+    setImportNotice('');
     try {
       const opened = await action();
       if (opened.access === "editable" && opened.project !== null) onEnter(opened);
@@ -87,6 +96,27 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
     }
     catch (reason) { setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
+  };
+  const importArchive = async (file: File) => {
+    if (busy || importController.current) return;
+    const controller = new AbortController(); importController.current = controller;
+    setBusy(true); setError(null); setDownload(null); setImportNotice(''); setImportPhase('reading');
+    let restoreFocus = false;
+    try {
+      const opened = await actions.importArchive(file, { signal: controller.signal, onProgress: phase => { if (importController.current === controller) setImportPhase(phase); } });
+      if (!controller.signal.aborted && importController.current === controller) {
+        if (opened.access === 'editable' && opened.project !== null) onEnter(opened);
+        else { setSelected(opened); setCreateOpen(false); }
+      }
+    } catch (reason) {
+      restoreFocus = true;
+      if (importController.current === controller) {
+        if (controller.signal.aborted || reason instanceof DOMException && reason.name === 'AbortError') setImportNotice('已取消导入；现有项目未更改，可以重新选择文件。');
+        else setError(reason instanceof Error ? reason.message : String(reason));
+      }
+    } finally {
+      if (importController.current === controller) { importController.current = null; setImportPhase(null); setBusy(false); if (restoreFocus) globalThis.requestAnimationFrame?.(() => importTrigger.current?.focus()); }
+    }
   };
   const prepareExport = async (action: () => Promise<ProjectArchiveDownload>) => {
     setBusy(true);
@@ -140,9 +170,9 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
     </header>
     <section className="home-quick-start" aria-label="开始创作">
       <button className="home-start-card" data-color="violet" aria-label="打开工程目录" disabled={busy} onClick={() => void run(actions.openDirectory)}><span className="home-start-icon"><StudioIcon name="folder" /></span><span><strong>本地目录</strong><small>打开文件夹里的故事项目</small></span><StudioIcon name="arrow" /></button>
-      <button className="home-start-card" data-color="blue" disabled={busy} onClick={() => importInput.current?.click()}><span className="home-start-icon"><StudioIcon name="import" /></span><span><strong>导入项目</strong><small>打开工程 ZIP 或制作交付包继续编辑</small></span><StudioIcon name="arrow" /></button>
+      <button ref={importTrigger} className="home-start-card" data-color="blue" disabled={busy} onClick={() => importInput.current?.click()}><span className="home-start-icon"><StudioIcon name="import" /></span><span><strong>导入项目</strong><small>打开工程 ZIP 或制作交付包继续编辑</small></span><StudioIcon name="arrow" /></button>
       <button className="home-start-card" data-color="coral" aria-label="打开示例工程" disabled={busy} onClick={() => void run(actions.openExample)}><span className="home-start-icon"><StudioIcon name="sparkles" /></span><span><strong>探索示例</strong><small>打开一个故事，边看边学</small></span><StudioIcon name="arrow" /></button>
-      <input className="home-file-input" ref={importInput} aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void run(() => actions.importArchive(file)); }} />
+      <input className="home-file-input" ref={importInput} aria-label="导入工程 ZIP" type="file" accept=".zip,application/zip" disabled={busy} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void importArchive(file); }} />
     </section>
     <section className="home-projects" aria-labelledby="recent-title">
       <div className="home-section-heading"><div><h2 id="recent-title">我的项目 <span>{recent.length}</span></h2><p>点击卡片，直接进入创作。</p></div><label className="home-project-search"><StudioIcon name="search" /><input aria-label="搜索项目" placeholder="搜索项目…" value={query} onChange={event => setQuery(event.target.value)} /></label></div>
@@ -207,7 +237,7 @@ export function ProjectHome({ recent, actions, onEnter, resumeDescription }: {
         {download ? <a className="button-like" href={download.href} download={download.filename}>下载工程 ZIP · {(download.byteLength / 1024).toFixed(1)} KiB</a> : null}
       </div>
     </section> : null}
-    {busy ? <p className="home-operation-status" role="status">正在打开项目…</p> : null}
+    {busy ? <div className="home-operation-status" role="status"><span>{importPhase === 'reading' ? '正在读取工程文件…' : importPhase === 'checking' ? '正在后台校验工程与素材…' : importPhase === 'writing' ? '校验通过，正在保存到本机…' : importPhase === 'opening' ? '正在准备编辑器…' : '正在打开项目…'}</span>{importPhase && <button type="button" disabled={importPhase === 'writing' || importPhase === 'opening'} onClick={() => importController.current?.abort()}>取消导入</button>}{(importPhase === 'writing' || importPhase === 'opening') && <small>正在完成本机写入，请勿关闭页面。</small>}</div> : importNotice ? <p className="home-operation-status" role="status">{importNotice}</p> : null}
     {error && !createOpen && !routeOverview ? <p className="home-operation-status is-error" role="alert">{error}</p> : null}
   </main>;
 }

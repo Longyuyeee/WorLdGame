@@ -1,5 +1,5 @@
 import { IDBFactory } from "fake-indexeddb";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   auditAssetBlobStore,
   buildLosslessDicingAtlas,
@@ -24,6 +24,7 @@ import {
 } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { republishAssetEntry } from "./asset-repair";
+afterEach(() => vi.unstubAllGlobals());
 
 async function writableRepository(
   indexedDb = new IDBFactory(),
@@ -142,6 +143,18 @@ describe("IndexedDbAssetRepository", () => {
     await expect(assets.replaceFromPortableBundle(index, new Map([[digest, new Uint8Array(bytes.byteLength)]]))).rejects.toMatchObject({ code: "CORRUPT_BLOB" });
     await expect(assets.loadIndex()).resolves.toMatchObject({ indexRevision: 0, assets: [] });
     await expect(assets.list()).resolves.toEqual([]);
+  });
+
+  it('snapshots portable inputs before asynchronous validation so caller mutation cannot corrupt publication', async () => {
+    const { assets } = await writableRepository();
+    // Buffer-like Uint8Array subclasses may implement slice as an alias.
+    const bytes = new (class extends Uint8Array { override slice() { return this.subarray(); } })(new TextEncoder().encode('original verified bytes'));
+    const original = new Uint8Array(bytes), digest = createBlobDigest(bytes);
+    const index = { schemaVersion: 1 as const, indexRevision: 1, assets: [{ assetId: 'original', kind: 'other' as const, displayName: 'Original', source: { digest, byteLength: bytes.length, mimeType: 'application/octet-stream' }, tags: [] }] };
+    let release: () => void = () => {}; const gate = new Promise<void>(resolve => { release = resolve; }); let first = true;
+    vi.stubGlobal('crypto', { subtle: { digest: async (_algorithm: string, input: Uint8Array<ArrayBuffer>) => { const hash = new Uint8Array(createBlobDigest(input).slice(7).match(/../gu)!.map(h => parseInt(h, 16))).buffer; if (first) { first = false; await gate; } return hash; } } });
+    const pending = assets.replaceFromPortableBundle(index, new Map([[digest, bytes]])); bytes.fill(0); release();
+    await expect(pending).resolves.toMatchObject({ createdBlobCount: 1 }); expect(Array.from(await assets.read(digest) ?? [])).toEqual(Array.from(original));
   });
 
   it("aborts both Blob and Index when cancellation arrives between their publication phases", async () => {

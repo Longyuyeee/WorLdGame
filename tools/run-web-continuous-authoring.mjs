@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url); let chromium;
 try { ({ chromium } = require('playwright')); }
 catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
 const root = path.resolve(import.meta.dirname, '..');
-const output = path.join(root, 'evidence/web-continuous-authoring');
+const output = path.resolve(root, process.env.STUDIO_CONTINUOUS_OUTPUT ?? 'evidence/web-continuous-authoring');
 const scratch = path.join(root, '.browser-diagnostic/continuous-authoring-output');
 await mkdir(output, { recursive: true });
 await mkdir(scratch, { recursive: true });

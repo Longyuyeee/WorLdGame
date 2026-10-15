@@ -245,6 +245,10 @@
 .writing-text-actions span { color: var(--wg-color-text-muted); font-size: 12px; }
 .app-shell .writing-text-actions button { min-height: 44px; padding: 8px 12px; }
 .writing-text-inspector small { line-height: 1.7; color: var(--wg-color-text-secondary); }
+.home-operation-status { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.home-operation-status button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--wg-color-border-subtle); border-radius: 8px; background: var(--wg-color-bg-surface-1); color: var(--wg-color-text-primary); }
+.home-operation-status small { flex-basis: 100%; }
+.home-operation-status.is-error { max-width: min(560px, calc(100vw - 32px)); overflow-wrap: anywhere; white-space: pre-line; }
 .web-save-compatibility { padding: 16px; margin-top: 8px; border: 1px solid var(--wg-color-border-subtle); border-radius: 12px; background: var(--wg-color-bg-surface-2); }
 .web-save-compatibility summary { cursor: pointer; font-weight: 600; color: var(--wg-color-semantic-choice); }
 .web-save-compatibility p { font-size: 13px; line-height: 1.8; color: var(--wg-color-text-secondary); }

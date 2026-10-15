@@ -1,6 +1,6 @@
 import { importProjectBinaryZip, semanticHash, type CanonicalProject } from "@world-studio/project-domain";
 import { createBlobDigest, type AssetIndex, type BlobDigest } from "@world-studio/project-persistence";
-import { exportPortableCanonicalProject, importPortableProjectBundle } from "./portable-project-bundle";
+import { exportPortableCanonicalProject, importPortableProjectBundle, importPortableProjectFiles } from "./portable-project-bundle";
 import { readWebPublication } from "./web-publication";
 import { readPlaytestNotes, writePlaytestNotes, type PlaytestNote } from "./playtest-notes";
 import { readPlaytestProgress, writePlaytestProgress, type PlaytestCompletion } from "./playtest-progress";
@@ -51,7 +51,7 @@ export async function createWebDeliveryBundle(project: CanonicalProject, index: 
 /** No writes: validate the full delivery before restoring its author source. */
 export function importStudioProjectArchive(archive: Uint8Array) {
   const files = importProjectBinaryZip(archive, LIMITS);
-  if (Object.hasOwn(files, "world.project.json") || !Object.hasOwn(files, "delivery.json")) return { ...importPortableProjectBundle(archive), reviewNotes: null, playtestProgress: null };
+  if (Object.hasOwn(files, "world.project.json") || !Object.hasOwn(files, "delivery.json")) return { ...importPortableProjectFiles(files), reviewNotes: null, playtestProgress: null };
   if (files["delivery.json"]!.length > 2 * 1024 * 1024) throw Error("制作交付清单超过大小限制。");
   const raw: unknown = JSON.parse(decode(files["delivery.json"]!));
   if (!raw || typeof raw !== "object") throw Error("制作交付清单格式不正确。");

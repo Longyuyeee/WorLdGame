@@ -11,7 +11,7 @@ import { IndexedDbAssetRepository } from "./indexeddb-asset-repository";
 import { IndexedDbProjectFileStore } from "./indexeddb-project-store";
 import { IndexedDbProjectWorkspace } from "./indexeddb-project-workspace";
 import { exportPortableProjectBundle } from "./portable-project-bundle";
-import { importStudioProjectArchive } from "./web-delivery-bundle";
+import { importProjectArchiveInWorker } from "./project-archive-import-client";
 import { stageDeliveryMaterials, pendingDeliveryMaterial, consumeDeliveryMaterial } from "./pending-delivery-materials";
 import { loadN23BenchmarkProject } from "./n23-benchmark-project";
 import { compileLifecycleProject, openCompiledLifecycleProject, saveCompiledLifecycleProject, type CompiledLifecycleProject, type EditorProjectCompilerState } from "./editor-project-compilation";
@@ -74,8 +74,13 @@ export function StudioLauncher() {
       await workspace.writeFiles(saveProject(prepared.project), null);
       return finish(workspace, await openCompiledLifecycleProject(workspace));
     },
-    importArchive: async (file) => {
-      const imported = importStudioProjectArchive(new Uint8Array(await file.arrayBuffer())); const workspace = managedWorkspace();
+    importArchive: async (file, options) => {
+      const imported = await importProjectArchiveInWorker(file, options);
+      options?.signal?.throwIfAborted();
+      // Cancellation ends here: source and asset publication must finish or
+      // report a write failure, not abandon a live IndexedDB transaction/lease.
+      options?.onProgress?.('writing');
+      const workspace = managedWorkspace();
       stageDeliveryMaterials(workspace.reference.referenceId, imported.project.manifest.projectId, imported.reviewNotes, imported.playtestProgress);
       try {
         await workspace.writeFiles(saveProject(imported.project), null);
@@ -89,6 +94,7 @@ export function StudioLauncher() {
           try { await assets.replaceFromPortableBundle(imported.index, imported.blobs); }
           finally { assets.activateWriterLease(null); files.activateWriterLease(null); await files.release(acquisition.lease).catch(() => false); }
         }
+        options?.onProgress?.('opening');
         const opened = await finish(workspace,await openCompiledLifecycleProject(workspace));
         importedReferences.current.add(opened.reference.referenceId);
         return opened;
