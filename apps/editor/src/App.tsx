@@ -37,6 +37,7 @@ import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { PlaytestReviewTask } from "./PlaytestReviewTask";
 import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
+import { TextReplaceDialog } from './TextReplaceDialog';
 import { DEFAULT_REVIEW_LIST, canConfirmReview, nextPendingReview, reviewLocationExists, reviewNoteSignature, type ReviewListView, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
 import { projectSceneFlow } from '@world-studio/route-graph';
@@ -129,6 +130,7 @@ import {
   pendingDraftSceneIds,
   reduceStudioSession,
   restoreStudioSession,
+  studioHistorySceneIds,
   type StudioAction,
   type StudioMode,
   type StudioSession
@@ -4227,6 +4229,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const [publicationWorkflow, setPublicationWorkflow] = useState<PublicationWorkflow>(() => resumePublicationWorkflow(loadedWorkPosition.value?.publication ?? DEFAULT_PUBLICATION_WORKFLOW));
   const [releaseReturnFormat, setReleaseReturnFormat] = useState<"html" | "directory" | null>(loadedWorkPosition.value?.releaseReturnFormat ?? null);
   const [pageDirty, setPageDirty] = useState(false);
+  const [textReplaceOpen, setTextReplaceOpen] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? loadedWorkPosition.value?.previewOpen ?? true);
   // Launcher releases its handoff when App reports its source; Preview mounts
@@ -4400,6 +4403,12 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   }, [assetPanelOpen]);
   const commandSerial = useRef(continuity?.commandSerial ?? 0);
   const entitySerial = useRef(continuity?.entitySerial ?? 0);
+  const markStoryEdited = (sceneIds: readonly string[]) => {
+    for (const id of sceneIds) routeChangedSceneIds.current?.add(id);
+    editGeneration.current += 1;
+    setEditVersion(value => value + 1);
+    setPersistence(current => ['unavailable', 'conflict', 'readonly', 'blocked', 'loading', 'migrating', 'saving', 'autosaving', 'degraded'].includes(current.status) ? current : { status: 'dirty', revision: current.revision, ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount }) });
+  };
   const dispatch = (action: StudioAction) => {
     const editsStory = [
       "edit-script", "patch-dialogue", "patch-direction", "patch-directions", "insert-dialogue", "insert-direction", "duplicate-direction", "delete-dialogue",
@@ -4408,25 +4417,18 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
     if (editsStory) crossViewSyncAudit.begin(action.type, sessionRef.current.selectedStatementId, activeSourceSession(sessionRef.current).revision);
     baseDispatch(action);
     if (editsStory) {
-      routeChangedSceneIds.current?.add(sessionRef.current.activeSceneId);
-      editGeneration.current += 1;
-      setEditVersion((value) => value + 1);
-      setPersistence((current) => current.status === "unavailable" || current.status === "conflict" ||
-        current.status === "readonly" || current.status === "blocked" || current.status === "loading" ||
-        current.status === "migrating"
-        ? current
-        : current.status === "saving" || current.status === "autosaving"
-          ? current
-          : current.status === "degraded"
-            ? current
-            : {
-                status: "dirty",
-                revision: current.revision,
-                ...(current.backupCount === undefined ? {} : { backupCount: current.backupCount })
-              });
+      markStoryEdited(action.type === 'undo' || action.type === 'redo' ? studioHistorySceneIds(sessionRef.current, action.type) : [sessionRef.current.activeSceneId]);
     }
   };
   const createCommandId = () => `cmd_ui_${++commandSerial.current}`;
+  const commitTextAction = (action: Extract<StudioAction, { type: 'replace-project-text' | 'undo' | 'redo' }>): string | null => {
+    if (inputDirty || pageDirty || pendingDraftSceneIds(sessionRef.current).length) return '请先应用或处理当前草稿。';
+    const current = sessionRef.current, next = reduceStudioSession(current, action);
+    if (next.notice.tone === 'error') return next.notice.detail;
+    const sceneIds = action.type === 'replace-project-text' ? [...new Set(action.plan.matches.map(row => row.sceneId))] : studioHistorySceneIds(current, action.type);
+    crossViewSyncAudit.begin(action.type, current.selectedStatementId, activeSourceSession(current).revision);
+    baseDispatch({ type: 'restore-session', session: next }); markStoryEdited(sceneIds); return null;
+  };
   const createEntityId = (prefix: string) => {
     const used = new Set<string>();
     for (const scene of sessionRef.current.project.scenes) {
@@ -5686,11 +5688,13 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       {pageDirty && <p className="workspace-draft-hint" role="status">有尚未应用的修改，请先应用或放弃，再离开此页面。</p>}
       {structureError && <p className="workspace-draft-hint" role="alert">{structureError}</p>}
       {studioPage === "story" && <nav className="studio-context-nav" aria-label="故事工作区">
+        <button type="button" disabled={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0} onClick={() => setTextReplaceOpen(true)}><StudioIcon name="search" />查找替换</button>
         {onOpenProject && <StoryCreateMenu disabled={inputDirty || pageDirty || pendingDraftSceneIds(session).length > 0 || ["loading", "saving", "autosaving", "unavailable"].includes(persistence.status)} onCreate={kind => openProjectStructure({ create: kind })} />}
         <button type="button" className="scene-toggle" aria-pressed={scenesOpen} onClick={() => setScenesOpen(!scenesOpen)}>场景列表</button>
         {([['writer', 'sequence', '写作'], ['director', 'sequence', '演出'], ['flow', 'flow', '路线'], ['writer', 'script', '脚本']] as const).map(([workspace, view, label]) => <button type="button" key={label} aria-current={workspaceMode === workspace && mode === view ? "page" : undefined} disabled={inputDirty} onClick={() => { selectWorkspaceMode(workspace); setMode(view); if (view === "flow") setPreviewOpen(false); }}><StudioIcon name={label === "写作" ? "write" : label === "演出" ? "director" : label === "路线" ? "route" : "script"} />{label}</button>)}
         <button type="button" className="preview-toggle" aria-pressed={previewOpen} onClick={() => { const opening = !previewOpen; setPreviewOpen(opening); if (window.innerWidth < 960) { if (opening) requestAnimationFrame(() => document.getElementById("preview-heading")?.closest("aside")?.scrollIntoView({ block: "start" })); else if (workspaceGrid.current) workspaceGrid.current.scrollTop = 0; } }}>{previewOpen ? "收起预览" : "打开预览"}</button>
       </nav>}
+      {textReplaceOpen && <TextReplaceDialog session={session} onApply={plan => commitTextAction({ type: 'replace-project-text', commandId: createCommandId(), plan })} onHistory={direction => commitTextAction({ type: direction })} onLocate={row => { setTextReplaceOpen(false); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(false); setRequestedFocusStatementId(row.statementId); dispatch({ type: 'select-project-result', sceneId: row.sceneId, statementId: row.statementId }); }} onClose={() => setTextReplaceOpen(false)} />}
       {studioPage === "assets" && <nav className="studio-context-nav" aria-label="素材工作区">{([['assets', '素材库'], ['localization', '翻译与配音'], ['collections', '附加内容']] as const).map(([value, label]) => <button type="button" key={value} aria-current={productionSection === value ? "page" : undefined} onClick={() => setProductionSection(value)}>{label}</button>)}</nav>}
       {pendingDraftSceneIds(session).length > 0 && <section aria-label="待修复脚本草稿" className="diagnostic-card diagnostic-card--draft project-draft-notice">
         <p>工程有 {pendingDraftSceneIds(session).length} 个未提交的脚本草稿。请先修复或丢弃，再运行、调试或构建游戏；本地保存会保留草稿，其他场景仍可编辑。</p>
@@ -5802,7 +5806,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setWorkspaceMode("writer");setMode("sequence");}}
           />
         )}
-          {<PreviewPanel revisionTarget={revisionTarget} onRevise={openRevision} onRecordIssue={location => { setNoteFileError(""); setNoteDialog({ location, note: null }); }} onFinishRevision={() => { setRevisionTarget(null); setReviewRun(null); }} reviewDialogOpen={noteDialog !== null} playtestRequest={playtestRequest} onPlaytestRequestHandled={receiveReviewStart} hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
+          {<PreviewPanel revisionTarget={revisionTarget} onRevise={openRevision} onRecordIssue={location => { setNoteFileError(""); setNoteDialog({ location, note: null }); }} onFinishRevision={() => { setRevisionTarget(null); setReviewRun(null); }} reviewDialogOpen={noteDialog !== null || textReplaceOpen} playtestRequest={playtestRequest} onPlaytestRequestHandled={receiveReviewStart} hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
         </>}
       </main>
       <footer className="workspace-footer">

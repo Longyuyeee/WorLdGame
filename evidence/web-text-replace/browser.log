@@ -1,0 +1,4 @@
+actual literal preview covers three scenes; changing conditions disables stale apply, selecting two rows commits both scenes, dialog fits desktop/390px, modal undo/redo reverses the complete batch
+ordinary header undo/redo also treats all affected scenes as one batch; dark mobile preview and locate-original reaches the exact other-scene source without applying the proposed second change
+actual directory production package contains both selected revised scenes, the excluded third scene stays unchanged, editable source agrees, and private batch history is absent; cold reopen keeps saved text and starts fresh history
+downloaded production game runs independently over local HTTP at /game/, displays the replaced text in the actual 390px player and reaches the existing ending

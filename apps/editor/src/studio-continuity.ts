@@ -27,7 +27,7 @@ export function resumeStudioSession(project: CanonicalProject, continuity: Studi
   const sourceSessions = { ...fresh.sourceSessions }, sourceDrafts = { ...fresh.sourceDrafts };
   for (const id of unchanged) { sourceSessions[id] = previous.sourceSessions[id]!; sourceDrafts[id] = previous.sourceDrafts[id]!; }
   const active = fresh.project.scenes.find(scene => scene.id === (sceneId ?? previous.activeSceneId)) ?? fresh.project.scenes.find(scene => scene.id === fresh.activeSceneId)!;
-  let resumed = reduceStudioSession({ ...fresh, sourceSessions, sourceDrafts }, { type: "select-scene", sceneId: active.id });
+  let resumed = reduceStudioSession({ ...fresh, sourceSessions, sourceDrafts, ...(previous.textReplaceGroups ? { textReplaceGroups: previous.textReplaceGroups } : {}) }, { type: "select-scene", sceneId: active.id });
   if (active.id === previous.activeSceneId && unchanged.has(active.id)) resumed = { ...resumed,
     selectedStatementId: previous.selectedStatementId, previewIndex: previous.previewIndex };
   return { ...resumed, notice: { tone: "success", title: "继续写作",

@@ -1,0 +1,27 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/editor/src/project-text-replace.test.ts (5 tests | 1 failed) 29ms
+   × refuses partial group undo/redo after another scene changes and resumes atomic history through an unchanged structure roundtrip 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/editor/src/project-text-replace.test.ts > refuses partial group undo/redo after another scene changes and resumes atomic history through an unchanged structure roundtrip
+Error: Stored snapshot does not match the current prototype project
+ ❯ restoreStudioSession apps/editor/src/studio-session.ts:275:11
+    273|       snapshot.entrySceneId !== baseProject.entrySceneId ||
+    274|       snapshot.scenes.length !== baseProject.scenes.length) {
+    275|     throw new Error("Stored snapshot does not match the current protot…
+       |           ^
+    276|   }
+    277|   const sourceSessions = Object.fromEntries(baseProject.scenes.map((sc…
+ ❯ apps/editor/src/project-text-replace.test.ts:34:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 30 passed (31)
+   Start at  16:53:19
+   Duration  18.76s (transform 3.24s, setup 1.01s, import 6.93s, tests 6.11s, environment 3.63s)
+
