@@ -17,6 +17,9 @@ import {
   createRuntimeState,
   forwardRuntimeHistoryV1,
   loadRuntimeSessionSaveV1,
+  mergeRuntimeMetaProgressV1,
+  mergeRuntimeHistoryMetaProgressV1,
+  validateRuntimeMetaProgressV1,
   runtimeStateHashV1,
   scheduleRuntimeBatchV1,
   type RuntimeDiagnosticV1,
@@ -69,6 +72,7 @@ export interface PlayerCoreState {
   readonly artifacts: CompilerArtifactsV1 | null;
   readonly compatibleSaveBuildIds: readonly string[];
   readonly runtimeState: RuntimeStateV1 | null;
+  readonly retainedMetaProgress: RuntimeStateV1["metaProgress"] | null;
   readonly historySession: RuntimeHistorySessionV1 | null;
   readonly historyPolicy: PlayerCoreHistoryPolicyV1;
   readonly localization: PlayerCoreLocalizationStateV1;
@@ -421,6 +425,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
       artifacts: null,
       compatibleSaveBuildIds: [],
       runtimeState: null,
+      retainedMetaProgress: null,
       historySession: null,
       historyPolicy,
       localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
@@ -445,6 +450,7 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
         project.manifest.projectId, semanticHash(webProjectAtPublicationVersion(project, version)), compiled.artifacts.manifest.artifacts, "release"));
     })(),
     runtimeState: null,
+    retainedMetaProgress: null,
     historySession: null,
     historyPolicy,
     localization: { sourceLocale: project.manifest.defaultLocale, selectedLocale: project.manifest.defaultLocale },
@@ -509,7 +515,9 @@ export function startPlayerCore(state: PlayerCoreState, project: CanonicalProjec
     initialVariables: initialVariables(project)
   });
   if (!created.ok) return { ...state, status: "error", diagnostics: [...state.diagnostics, ...created.diagnostics.map(runtimeDiagnostic)] };
-  const history = createRuntimeHistorySessionV1(state.artifacts.story, created.state);
+  const progress = playerCoreMetaProgressV1(state);
+  const merged = progress === null ? null : mergeRuntimeMetaProgressV1(created.state.metaProgress, progress);
+  const history = createRuntimeHistorySessionV1(state.artifacts.story, merged?.ok ? { ...created.state, metaProgress: merged.progress } : created.state);
   if (history.diagnostics.length > 0) return { ...state, status: "error", diagnostics: [...state.diagnostics, ...history.diagnostics.map(runtimeDiagnostic)] };
   return drivePlayerCore(resetPlayback(state), history.session);
 }
@@ -727,21 +735,29 @@ function checkpointEffects(history: RuntimeHistorySessionV1) {
   return [...activeByChannel.values()];
 }
 
+function replayCheckpointIndex(state: PlayerCoreState, sceneId: string): number {
+  if (state.historySession === null) return -1;
+  for (let index = Math.min(state.historySession.cursor, state.historySession.checkpoints.length - 1); index >= 0; index -= 1) {
+    const candidate = state.historySession.checkpoints[index]!.state;
+    if (candidate.cursor.sceneId === sceneId && candidate.cursor.instructionIndex === 0 && candidate.terminal.kind === "running" &&
+        candidate.pendingChoice === null && candidate.pendingEffect === null && candidate.pendingBarrier === null) return index;
+  }
+  return -1;
+}
+
+export function canEnterPlayerCoreReplayV1(state: PlayerCoreState, replayId: string): boolean {
+  if (state.replaySession !== null || state.artifacts === null || state.runtimeState === null || state.historySession === null || state.runtimeState.pendingEffect !== null || state.runtimeState.pendingBarrier !== null) return false;
+  const replay = state.artifacts.catalogs.replay.find(item => item.replayId === replayId);
+  return replay !== undefined && replay.endingIds.some(id => state.runtimeState!.metaProgress.reachedEndingIds.includes(id)) && replayCheckpointIndex(state, replay.sceneId) >= 0;
+}
+
 export function enterPlayerCoreReplayV1(state: PlayerCoreState, replayId: string): PlayerCoreState {
   if (state.replaySession !== null || state.artifacts === null || state.runtimeState === null || state.historySession === null || state.runtimeState.pendingEffect !== null || state.runtimeState.pendingBarrier !== null) return state;
   const replay = state.artifacts.catalogs.replay.find((item) => item.replayId === replayId);
   if (replay === undefined || !replay.endingIds.some((endingId) => state.runtimeState!.metaProgress.reachedEndingIds.includes(endingId))) {
     return { ...state, replayError: "这个回想尚未解锁。" };
   }
-  let checkpointIndex = -1;
-  for (let index = Math.min(state.historySession.cursor, state.historySession.checkpoints.length - 1); index >= 0; index -= 1) {
-    const candidate = state.historySession.checkpoints[index]!.state;
-    if (candidate.cursor.sceneId === replay.sceneId && candidate.cursor.instructionIndex === 0 && candidate.terminal.kind === "running" &&
-        candidate.pendingChoice === null && candidate.pendingEffect === null && candidate.pendingBarrier === null) {
-      checkpointIndex = index;
-      break;
-    }
-  }
+  const checkpointIndex = replayCheckpointIndex(state, replay.sceneId);
   if (checkpointIndex < 0) return { ...state, replayError: "当前记录中找不到可安全开始的场景位置，原剧情未改变。" };
   const checkpoint = state.historySession.checkpoints[checkpointIndex]!;
   const created = createRuntimeHistorySessionV1(state.artifacts.story, checkpoint.state);
@@ -790,7 +806,7 @@ export function loadPlayerCoreSessionSaveV1(state: PlayerCoreState, serialized: 
   }
   const options = {
     expectedBuildId: state.artifacts.manifest.buildId,
-    ...(state.runtimeState === null ? {} : { currentMetaProgress: state.runtimeState.metaProgress })
+    ...(playerCoreMetaProgressV1(state) === null ? {} : { currentMetaProgress: playerCoreMetaProgressV1(state)! })
   };
   let loaded = loadRuntimeSessionSaveV1(state.artifacts.story, serialized, options);
   if (!loaded.ok && loaded.diagnostics[0]?.code === "RUNTIME_SAVE_BUILD_MISMATCH") {
@@ -891,13 +907,13 @@ export function dispatchPlayerCoreIntentV1(state: PlayerCoreState, project: Cano
   if (intent.kind === "forward") return forwardPlayerCore(state);
   if (intent.kind === "history-back-to") return backPlayerCoreToHistoryEntryV1(state, intent.entryId);
   if (intent.kind === "restart") return state.status === "ended" || state.status === "error"
-    ? configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale)
+    ? restartPlayerCoreWithProgress(state, project)
     : state;
   if (state.status === "title") return state.historySession === null ? startPlayerCore(state, project) : forwardPlayerCore(state);
   if (state.status === "presenting") return advancePlayerCore(state);
   if (state.status === "waiting-effect") return settlePlayerCoreEffect(state, "complete");
   if (state.status === "waiting-barrier") return approvePlayerCoreBarrier(state);
-  if (state.status === "ended" || state.status === "error") return configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale);
+  if (state.status === "ended" || state.status === "error") return restartPlayerCoreWithProgress(state, project);
   return state;
 }
 
@@ -950,9 +966,30 @@ function localizedHistoryEvent(state: PlayerCoreState, event: PlayerHistoryVisib
   return event;
 }
 
+export function playerCoreMetaProgressV1(state: PlayerCoreState): RuntimeStateV1["metaProgress"] | null {
+  return state.replaySession !== null ? playerCoreMetaProgressV1(state.replaySession.checkpoint) : state.runtimeState?.metaProgress ?? state.retainedMetaProgress;
+}
+
+/** Merge collection knowledge without moving the story cursor or executing effects. */
+export function mergePlayerCoreMetaProgressV1(state: PlayerCoreState, incoming: RuntimeStateV1["metaProgress"]): PlayerCoreState {
+  if (state.replaySession !== null || incoming.projectId !== state.projectId || incoming.progressScopeId !== "player" || validateRuntimeMetaProgressV1(incoming).length > 0) return state;
+  const current = playerCoreMetaProgressV1(state), merged = mergeRuntimeMetaProgressV1(current ?? { schemaVersion: 1, projectId: state.projectId, progressScopeId: "player", readTextIds: [], unlockedGalleryAssetIds: [], reachedEndingIds: [] }, incoming);
+  if (!merged.ok || current !== null && !merged.changed) return state;
+  if (state.historySession !== null && state.artifacts !== null && state.runtimeState !== null) {
+    const history = mergeRuntimeHistoryMetaProgressV1(state.artifacts.story, state.historySession, merged.progress);
+    return history.diagnostics.length > 0 ? state : { ...state, retainedMetaProgress: merged.progress, historySession: history.session, runtimeState: history.state };
+  }
+  return { ...state, retainedMetaProgress: merged.progress };
+}
+
+function restartPlayerCoreWithProgress(state: PlayerCoreState, project: CanonicalProject): PlayerCoreState {
+  const fresh = configurePlayerCoreLocaleV1(createPlayerCore(project, state.historyPolicy), state.localization.selectedLocale), progress = playerCoreMetaProgressV1(state);
+  return progress === null ? fresh : mergePlayerCoreMetaProgressV1(fresh, progress);
+}
+
 function additionalContentSnapshot(state: PlayerCoreState): PlayerAdditionalContentSnapshotV1 {
   const catalogs = state.artifacts?.catalogs;
-  const progress = state.replaySession?.checkpoint.runtimeState?.metaProgress ?? state.runtimeState?.metaProgress;
+  const progress = playerCoreMetaProgressV1(state);
   // Meta Progress v1 stores monotonic unlocked asset IDs in this compatibility-stable field.
   // Compiler catalogs decide whether an unlocked asset belongs to Gallery or Music.
   const unlockedAssetIds = new Set(progress?.unlockedGalleryAssetIds ?? []);

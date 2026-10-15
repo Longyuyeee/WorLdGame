@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type JsonObject, type S0Project } from "@world-studio/project-domain";
 import { updateAdditionalContentCatalogOverride } from "@world-studio/project-compiler";
-import { configurePlayerCoreLocaleV1, createPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1, dispatchPlayerCoreIntentV1, startPlayerCore } from "./player-core";
+import { canEnterPlayerCoreReplayV1, configurePlayerCoreLocaleV1, createPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1, dispatchPlayerCoreIntentV1, mergePlayerCoreMetaProgressV1, playerCoreMetaProgressV1, startPlayerCore } from "./player-core";
 
 function mediaProject(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/media/project.s0.json"), "utf8")) as S0Project;
@@ -66,6 +66,9 @@ describe("N62-E1-E4 Player Core additional-content projection", () => {
     ]);
 
     const replayDialogue = dispatchPlayerCoreIntentV1(parent, project, { kind: "enter-scene-replay", replayId: "media_stage" });
+    expect(canEnterPlayerCoreReplayV1(parent, "media_stage")).toBe(true);
+    expect(playerCoreMetaProgressV1(replayDialogue)).toEqual(playerCoreMetaProgressV1(parent));
+    expect(mergePlayerCoreMetaProgressV1(replayDialogue, playerCoreMetaProgressV1(parent)!)).toBe(replayDialogue);
     expect(createPlayerCoreSnapshotV1(replayDialogue).sceneReplay).toEqual({ active: true, replayId: "media_stage", title: "Stage", error: null });
     expect(replayDialogue.status).toBe("presenting");
     expect(createPlayerCoreSessionSaveV1(replayDialogue)).toMatchObject({ ok: false, diagnostics: [{ code: "PLAYER_SAVE_REPLAY_ISOLATED" }] });

@@ -18,7 +18,7 @@ import * as nativeAtlas from "./native-atlas";
 import { IMAGE_LOAD_TIMEOUT_MS } from "./image-load-policy";
 import { ImageResourceBudgetError } from "./image-resource-policy";
 
-afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); localStorage.clear(); });
 
 function branching(): CanonicalProject {
   const source = JSON.parse(readFileSync(join(process.cwd(), "fixtures/projects/branching/project.s0.json"), "utf8")) as S0Project;

@@ -1,0 +1,6 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "AssertionError [ERR_ASSERTION]: At least the reached opening scene has a safe replay entrance",
+  "stack": "AssertionError [ERR_ASSERTION]: At least the reached opening scene has a safe replay entrance\n    at file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-collection-progress.mjs:77:10"
+}

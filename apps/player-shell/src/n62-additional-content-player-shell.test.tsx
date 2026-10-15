@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { PlayerShell } from "./PlayerShell";
 import { createPlayerMediaDemoV1 } from "./media-demo";
+afterEach(() => localStorage.clear());
 
 describe("N62-E1-E4 additional-content Player path", () => {
   it("offers local gallery retry without a host reload hook and preserves story and collection", async () => {
@@ -68,7 +69,7 @@ describe("N62-E1-E4 additional-content Player path", () => {
 
     fireEvent.click(within(panel).getByRole("button", { name: "返回剧情" }));
     expect(screen.queryByRole("dialog", { name: "附加内容" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "打开附加内容" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "打开阅读菜单" })).toHaveFocus();
     expect(shell).toHaveAttribute("data-runtime-state-hash", beforeHash);
     expect(shell).toHaveAttribute("data-history-cursor", beforeCursor);
   });

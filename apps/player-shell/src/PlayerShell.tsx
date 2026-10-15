@@ -5,6 +5,7 @@ import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUn
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
 import { applyPlayerPreferences } from './player-preferences';
 import { usePlayerPreferences } from './use-player-preferences';
+import { restorePlayerCollection, usePlayerCollection } from './use-player-collection';
 import { usePlayerFullscreen } from './use-player-fullscreen';
 import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
@@ -23,6 +24,7 @@ import {
 import { semanticHash, readWebPlayerAppearance, webPlayerCoverAssets, type CanonicalProject } from "@world-studio/project-domain";
 import {
   createPlayerCore,
+  canEnterPlayerCoreReplayV1,
   compactPlayerCoreHistoryV1,
   createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
@@ -73,6 +75,7 @@ import {
 import "./player-shell.css";
 import "./player-reading-controls.css";
 import "./player-save-flow.css";
+import "./player-ending-flow.css";
 
 export interface PlayerShellProps {
   readonly project: CanonicalProject;
@@ -178,7 +181,7 @@ function playerLocalePreferenceKey(projectId: string): string {
 }
 
 function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1]) {
-  const core = createPlayerCore(project, historyPolicy);
+  const core = restorePlayerCollection(createPlayerCore(project, historyPolicy));
   try {
     const preferred = globalThis.localStorage?.getItem(playerLocalePreferenceKey(project.manifest.projectId));
     return preferred === null || preferred === undefined ? core : configurePlayerCoreLocaleV1(core, preferred);
@@ -207,6 +210,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const preferencesPanel = useRef<HTMLDivElement | null>(null), preferencesTrigger = useRef<HTMLButtonElement | null>(null);
   const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
+  const collection = usePlayerCollection(state, setState);
   const liveState = useRef(state);
   liveState.current = state;
   const [memoryPressureStatus, setMemoryPressureStatus] = useState<PlayerMemoryPressureStatusV1>("idle");
@@ -1864,6 +1868,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               <div><span>EXTRAS</span><h2>附加内容</h2></div>
               <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
             </header>
+            {collection.error && <p className="player-collection-error" role="alert">本机收藏记录暂时无法读取或保存。本次记录仍在，请保留故事存档后重试。<button type="button" onClick={collection.retry}>重试保存收藏</button></p>}
             {additionalContentView === "overview" && <>
               <p className="player-additional-content__intro">随着剧情推进，已发现的收藏与结局会自动记录在这里。</p>
               <div className="player-additional-content__grid">
@@ -1933,14 +1938,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               </div>
               <p className="player-additional-content__replay-note">回想会从你实际走过的场景入口重新开始；退出后，剧情、演出和播放状态都会回到进入前。</p>
               {snapshot.sceneReplay.error !== null && <p className="player-additional-content__replay-error" role="alert">{snapshot.sceneReplay.error}</p>}
+              {snapshot.additionalContent.replayItems.some(item => item.unlocked && !canEnterPlayerCoreReplayV1(state, item.replayId)) && <div className="player-replay-context">
+                <p>回想需要对应路线的变量和场景入口记录。请读取含有该场景入口的路线存档；仅有收藏记录时无法直接回想。</p>
+                {saveStore && <button type="button" onClick={() => { setAdditionalContentOpen(false); openSavePanel('load'); }}>读取路线存档</button>}
+              </div>}
               {snapshot.additionalContent.replayItems.length === 0
                 ? <p className="player-additional-content__empty">这个故事暂时没有可回想的场景。</p>
                 : <ol className="player-additional-content__replay">
                   {snapshot.additionalContent.replayItems.map((item, index) => <li key={item.replayId} data-unlocked={item.unlocked}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
                     {item.coverAssetId !== null && additionalContentSources.get(item.coverAssetId)?.mimeType.startsWith("image/") === true && <DeferredAtlasImage atlas={additionalContentSources.get(item.coverAssetId)!.atlas} className="player-additional-content__catalog-cover" src={additionalContentSources.get(item.coverAssetId)!.url} alt="" />}
-                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{item.unlocked ? "可从原路线安全重温" : "达成相关结局后解锁"}</small></div>
-                    <button type="button" disabled={!item.unlocked} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
+                    <div><strong>{item.title ?? "未解锁的场景"}</strong><small>{!item.unlocked ? "达成相关结局后解锁" : canEnterPlayerCoreReplayV1(state, item.replayId) ? "可从原路线安全重温" : "已解锁 · 当前记录缺少可用入口"}</small></div>
+                    <button type="button" disabled={!canEnterPlayerCoreReplayV1(state, item.replayId)} aria-label={item.unlocked ? `开始回想 ${item.title}` : `场景 ${index + 1} 尚未解锁`} onClick={() => enterSceneReplay(item.replayId)}>{item.unlocked ? "开始回想" : "未解锁"}</button>
                   </li>)}
                 </ol>}
             </section>}
@@ -2235,8 +2244,15 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
         {content.kind === "ending" && (
           <div className="player-ending" role="status">
-            <span>ENDING</span>
+            <span>故事告一段落</span>
             <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
+            {!snapshot.sceneReplay.active && <>
+              <p className="player-ending-progress">已达成 {snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 个结局</p>
+              <p className="player-ending-note">已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。</p>
+              {collection.error && <p className="player-collection-error" role="alert">本机收藏记录暂未保存，请保留故事存档后重试。<button type="button" onClick={collection.retry}>重试保存收藏</button></p>}
+              <button className="player-primary" type="button" onClick={() => { openAdditionalContent(); setAdditionalContentView('endings'); }}>查看收藏与结局</button>
+              {saveStore && <button className="player-secondary" type="button" onClick={() => openSavePanel('load')}>读取存档探索其他路线</button>}
+            </>}
             <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : "回到标题"}</button>
           </div>
         )}

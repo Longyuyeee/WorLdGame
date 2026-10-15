@@ -1,0 +1,10 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+Error: Paragraph did not advance after reading below-fold text
+    at advance (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-collection-progress.mjs:25:233)
+    at async finish (file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-collection-progress.mjs:46:10)
+    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-collection-progress.mjs:69:3
+
+Node.js v24.14.0
