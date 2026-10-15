@@ -18,12 +18,17 @@ const candidateVersion = process.env.STUDIO_CANDIDATE_VERSION ?? '1.7.3';
 const compatibleVersions = [...new Set([...priorManifest.webSaveCompatibility.versions, priorVersion])];
 const mediaProbePath = path.resolve(root, process.env.STUDIO_MEDIA_PROBE_REPORT ?? path.join(output, 'native-media-probe.json'));
 const assertWorker = process.env.STUDIO_ASSERT_RECOVERY_WORKER === '1';
+const assertDirectPng = process.env.STUDIO_ASSERT_DIRECT_PNG === '1';
 const checks = [], errors = [], routes = []; let browser, current, server, files, port, served, fail = new Set();
 const selectedEngines = (process.env.STUDIO_BROWSER_ENGINES ?? 'chromium,firefox,webkit').split(',');
 assert.ok(selectedEngines.length > 0 && new Set(selectedEngines).size === selectedEngines.length && selectedEngines.every(engine => ['chromium', 'firefox', 'webkit'].includes(engine)));
 const check = (name, detail = {}) => { checks.push({ name, ...detail }); console.log('PASS ' + name); };
 const shot = (page, name) => page.screenshot({ path: path.join(output, name + '.png'), animations: 'disabled' });
 const watch = page => page.on('pageerror', e => errors.push(String(e)));
+async function directPng(page) {
+  const modes=await page.locator('canvas[data-image-decode]').evaluateAll(elements=>elements.map(element=>element.dataset.imageDecode));
+  assert.ok(modes.length>0);assert.ok(modes.every(mode=>mode==='owned-blob-bitmap'));return modes;
+}
 const hash = page => page.locator('main.player-shell').getAttribute('data-runtime-state-hash');
 const nav = (page, name) => page.getByRole('navigation', { name: '主要功能' }).getByRole('button', { name, exact: true }).click();
 const ready = page => page.waitForFunction(() => document.querySelector('.local-save-button')?.disabled === false);
@@ -81,7 +86,7 @@ async function upgrade(engines, engine, payload) {
   if (engine === 'webkit') { await page.getByRole('button', { name: '本次先无声阅读', exact: true }).waitFor(); await shot(page, engine + '-actual-offline-media-failure'); await page.getByRole('button', { name: '本次先无声阅读', exact: true }).click(); assert.equal(await hash(page), oldHash); assert.equal(await page.locator('audio').count(), 0); await shot(page, engine + '-actual-offline-silent-old-save'); await connectivity(context, engine, false); await page.getByRole('button', { name: '恢复当前声音', exact: true }).click(); await mediaReady(page); }
   else { await mediaReady(page); await shot(page, engine + '-offline-updated-backup-playing'); await connectivity(context, engine, false); }
   assert.equal(await hash(page), oldHash); assert.equal(await slotBytes(page, payload.project.manifest.projectId), originalSlot); check(`${engine}-actual-${priorVersion}-update-two-windows-offline-backup-explicit-read`, { offlineAudioPlays: engine !== 'webkit', silentFallbackAndOnlineResume: engine === 'webkit', outageMechanism: engine === 'webkit' ? 'origin-stopped' : 'browser-offline' }); await context.close();
-  if (engine === 'chromium') { const local = await browser.newContext(), file = await local.newPage(); current = file; watch(file); await file.goto(pathToFileURL(path.join(output, 'before-rain-stops.html')).href); const target = await slots(file, '备份'); await target.getByLabel('选择存档备份文件', { exact: true }).setInputFiles({ name: 'old.worldsave', mimeType: 'application/json', buffer: backup }); await target.getByRole('button', { name: '导入到所选槽位', exact: true }).click(); await target.getByRole('button', { name: '读取导入的存档', exact: true }).click(); await mediaReady(file); assert.equal(await hash(file), oldHash); if (assertWorker) await assertBackgroundRecovery(file, payload.project.manifest.projectId); await shot(file, 'chromium-local-html-old-backup'); check('chromium-file-html-actual-old-backup-and-media', { inlineWorkerChecked: assertWorker }); await local.close(); }
+  if (engine === 'chromium') { const local = await browser.newContext(), file = await local.newPage(); current = file; watch(file); await file.goto(pathToFileURL(path.join(output, 'before-rain-stops.html')).href); const target = await slots(file, '备份'); await target.getByLabel('选择存档备份文件', { exact: true }).setInputFiles({ name: 'old.worldsave', mimeType: 'application/json', buffer: backup }); await target.getByRole('button', { name: '导入到所选槽位', exact: true }).click(); await target.getByRole('button', { name: '读取导入的存档', exact: true }).click(); await mediaReady(file); assert.equal(await hash(file), oldHash); if (assertWorker) await assertBackgroundRecovery(file, payload.project.manifest.projectId); const imageDecodeModes=assertDirectPng?await directPng(file):null; await shot(file, 'chromium-local-html-old-backup'); check('chromium-file-html-actual-old-backup-and-media', { inlineWorkerChecked: assertWorker, imageDecodeModes }); await local.close(); }
   await browser.close(); browser = null;
 }
 async function recovery(engines, engine, payload) {
@@ -113,7 +118,8 @@ async function route(engines, engine, source, branch, ending) {
     await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.stageImagesPending === 'false');
     assert.equal(await page.locator('.player-media-error').count(), 0);
   }
-  await shot(page, engine + '-' + (branch === '留下等雨停' ? 'stay' : 'leave') + '-ending'); routes.push({ engine, branch, ending, narrationCount: narrations.size, naturallyEndedVoices: voices.size, textIds: ids, noStaleAudioRecoveryAtEnding: true, humanListening: false, workerDiagnostics, endingRestoredAfterReload: assertWorker, restoredStageReady: assertWorker }); check(engine + '-' + ending + '-full-route'); await context.close(); await browser.close(); browser = null;
+  const imageDecodeModes=assertDirectPng?await directPng(page):null;
+  await shot(page, engine + '-' + (branch === '留下等雨停' ? 'stay' : 'leave') + '-ending'); routes.push({ engine, branch, ending, narrationCount: narrations.size, naturallyEndedVoices: voices.size, textIds: ids, noStaleAudioRecoveryAtEnding: true, humanListening: false, workerDiagnostics, imageDecodeModes, endingRestoredAfterReload: assertWorker, restoredStageReady: assertWorker }); check(engine + '-' + ending + '-full-route'); await context.close(); await browser.close(); browser = null;
 }
 const payloadProjectId = source => json(source['world.project.json']).projectId;
 async function assertBackgroundRecovery(page, projectId) {

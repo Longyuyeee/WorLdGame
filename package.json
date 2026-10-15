@@ -8,6 +8,9 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-image-decode": "npm run audit:web-playback-responsiveness && vitest run apps/player-shell/src packages/player-core/src packages/runtime-host/src --maxWorkers=1 --reporter=default --reporter=json --outputFile=evidence/web-image-decode/player-runtime-tests.json && node --test tools/poll-browser-state.test.mjs tools/player-fixture-build.test.mjs && node tools/run-web-image-candidate.mjs --audit-only",
+    "audit:web-image-decode:profile": "node tools/run-web-image-profile.mjs",
+    "audit:web-image-decode:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-image-parity.mjs && node tools/run-web-image-candidate.mjs && node tools/run-web-image-candidate.mjs --continuous && node tools/audit-web-image-decode.mjs",
     "audit:web-recovery-worker": "npm run audit:web-playback-responsiveness && vitest run apps/player-shell/src packages/player-core/src packages/runtime-host/src --maxWorkers=1 --reporter=default --reporter=json --outputFile=evidence/web-recovery-worker/player-runtime-tests.json && node --test tools/poll-browser-state.test.mjs tools/player-fixture-build.test.mjs && node tools/run-web-recovery-worker.mjs --audit-only",
     "audit:web-recovery-worker:profile": "node tools/run-recovery-profile.mjs",
     "audit:web-recovery-worker:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-recovery-worker.mjs && node tools/run-recovery-continuous.mjs && node tools/audit-web-recovery-worker.mjs",

@@ -1,5 +1,6 @@
 import { unzlib, unzlibSync } from "fflate";
 import { ImageResourceBudgetError, preflightPngPixels } from "./image-resource-policy";
+import { readOrdinaryPngSource } from "./ordinary-png-source";
 import { createBlobDigest, createLosslessDicingRgbaDigest, parseLosslessDicingPngDeliveryManifest, type LosslessDicingPngDeliveryManifest } from "@world-studio/project-persistence";
 
 export interface NativeAtlasDelivery {
@@ -123,24 +124,37 @@ function reserve(bytes: number) { if (!Number.isSafeInteger(bytes) || bytes < 0 
 export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvasElement, signal?: AbortSignal) {
   signal?.throwIfAborted();
   if(ordinaryQuarantinedDecodes>0)throw new ImageResourceBudgetError("Ordinary decode quarantined; wait for physical completion");
-  const image = new Image();
-  let bytes=0, released=false, physicalPending=false;
+  let image: HTMLImageElement | undefined;
+  let bytes=0, encodedBytes=0, released=false, physicalPending=false;
   const clearBudget=()=>{if(!physicalPending){accountedBytes-=bytes;bytes=0;publishDiagnostics();}};
-  const release=()=>{if(released)return;released=true;image.onload=image.onerror=null;image.src="";canvas.width=canvas.height=0;clearBudget();};
+  const release=()=>{if(released)return;released=true;if(image){image.onload=image.onerror=null;image.src="";}canvas.width=canvas.height=0;clearBudget();};
   try {
-    const owned=typeof createImageBitmap==="function",preflight=await preflightPngPixels(url,signal);
+    const owned=typeof createImageBitmap==="function";
+    const source=owned?await readOrdinaryPngSource(url,signal,(width,height)=>{
+      if(ordinaryQuarantinedDecodes>0)throw new ImageResourceBudgetError("Ordinary decode quarantined");
+      reserve(width*height*12);bytes+=width*height*12;
+    },count=>{reserve(count);encodedBytes+=count;bytes+=count;}):undefined;
+    if(!source&&encodedBytes>0){accountedBytes-=encodedBytes;bytes-=encodedBytes;encodedBytes=0;publishDiagnostics();}
+    const preflight=source?source.width*source.height:await preflightPngPixels(url,signal);
     signal?.throwIfAborted();
     if(ordinaryQuarantinedDecodes>0)throw new ImageResourceBudgetError("Ordinary decode quarantined");
-    if(preflight!==undefined){reserve(preflight*(owned?12:8));bytes=preflight*(owned?12:8);}
-    await new Promise<void>((resolve,reject)=>{
-      const cancel=()=>{image.onload=image.onerror=null;image.src="";reject(signal!.reason);};
+    if(bytes===0&&preflight!==undefined){reserve(preflight*(owned?12:8));bytes=preflight*(owned?12:8);}
+    const loadImage=async()=>{
+      const checkedImage=new Image();image=checkedImage;
+      await new Promise<void>((resolve,reject)=>{
+      const cancel=()=>{checkedImage.onload=checkedImage.onerror=null;checkedImage.src="";reject(signal!.reason);};
       signal?.addEventListener("abort",cancel,{once:true});
-      const finish=(error?:Error)=>{signal?.removeEventListener("abort",cancel);image.onload=image.onerror=null;error?reject(error):resolve();};
-      image.onload=()=>finish();image.onerror=()=>finish(Error("Ordinary PNG decode failed"));image.src=url;
-    });
+      const finish=(error?:Error)=>{signal?.removeEventListener("abort",cancel);checkedImage.onload=checkedImage.onerror=null;error?reject(error):resolve();};
+      checkedImage.onload=()=>finish();checkedImage.onerror=()=>finish(Error("Ordinary PNG decode failed"));checkedImage.src=url;
+      if(signal?.aborted)cancel();
+      });
+      signal?.throwIfAborted();
+      if(checkedImage.naturalWidth<1||checkedImage.naturalHeight<1||checkedImage.naturalWidth*checkedImage.naturalHeight>4_194_304||preflight!==undefined&&checkedImage.naturalWidth*checkedImage.naturalHeight!==preflight||source&&(checkedImage.naturalWidth!==source.width||checkedImage.naturalHeight!==source.height))throw new ImageResourceBudgetError("Ordinary Canvas pixel budget exceeded or changed");
+      return checkedImage;
+    };
+    if(!source)await loadImage();
     signal?.throwIfAborted();
-    const width=image.naturalWidth,height=image.naturalHeight;
-    if(width<1||height<1||width*height>4_194_304||preflight!==undefined&&width*height!==preflight)throw new ImageResourceBudgetError("Ordinary Canvas pixel budget exceeded or changed");
+    const width=source?.width??image!.naturalWidth,height=source?.height??image!.naturalHeight;
     if(bytes===0){reserve(width*height*(owned?12:8));bytes=width*height*(owned?12:8);}
     canvas.width=width;canvas.height=height;
     const context=canvas.getContext("2d",{willReadFrequently:true});if(!context)throw Error("Canvas unsupported");
@@ -148,7 +162,7 @@ export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvas
     if(owned){
       physicalPending=true;ordinaryBitmapDecodes++;publishDiagnostics();
       let quarantined=false,timer:ReturnType<typeof setTimeout>|undefined,cancel:(()=>void)|undefined;
-      const physical=Promise.resolve().then(()=>{if(released)throw new DOMException("Image cancelled","AbortError");return createImageBitmap(image);});
+      const physical=Promise.resolve().then(()=>{if(released)throw new DOMException("Image cancelled","AbortError");return createImageBitmap(source?.blob??image!);});
       const settled=()=>{physicalPending=false;ordinaryBitmapDecodes--;if(quarantined)ordinaryQuarantinedDecodes--;clearTimeout(timer);if(cancel)signal?.removeEventListener("abort",cancel);if(released)clearBudget();publishDiagnostics();};
       try {
         const bitmap=await new Promise<ImageBitmap>((resolve,reject)=>{
@@ -158,17 +172,18 @@ export async function acquireOrdinaryCanvasImage(url: string, canvas: HTMLCanvas
           physical.then(bitmap=>{settled();if(released){bitmap.close();return;}resolve(bitmap);},error=>{settled();reject(error);});
           if(signal?.aborted)cancel();
         });
-        try { signal?.throwIfAborted();if(bitmap.width!==width||bitmap.height!==height)throw Error("Bitmap dimensions changed");context.drawImage(bitmap,0,0);canvas.dataset.imageDecode="owned-bitmap"; }
+        try { signal?.throwIfAborted();if(bitmap.width!==width||bitmap.height!==height)throw new ImageResourceBudgetError("Bitmap dimensions changed");context.drawImage(bitmap,0,0);canvas.dataset.imageDecode=source?"owned-blob-bitmap":"owned-bitmap"; }
         finally { bitmap.close(); }
       }catch(error){
-        if(released||signal?.aborted)throw error;
+        if(released||signal?.aborted||error instanceof ImageResourceBudgetError)throw error;
         // A settled unsupported/rejected bitmap may use the original checked Image.
-        context.drawImage(image,0,0);canvas.dataset.imageDecode="legacy-image";
+        if(!image)await loadImage();
+        signal?.throwIfAborted();context.drawImage(image!,0,0);canvas.dataset.imageDecode="legacy-image";
       }
-    }else {context.drawImage(image,0,0);canvas.dataset.imageDecode="legacy-image";}
+    }else {context.drawImage(image!,0,0);canvas.dataset.imageDecode="legacy-image";}
     canvas.dataset.imagePreflight=preflight===undefined?"unavailable":"png-header";
     const retained=width*height*8;accountedBytes-=bytes-retained;bytes=retained;publishDiagnostics();
-    image.src="";
+    if(image)image.src="";
     return {source:canvas,width,height,release};
   } catch(error){release();throw error;}
 }

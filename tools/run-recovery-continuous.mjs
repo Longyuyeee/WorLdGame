@@ -7,7 +7,8 @@ import assert from 'node:assert/strict';
 import { unzipSync, strFromU8 } from 'fflate';
 import { readGamePayload, sha } from './audit-rain-story-refinement.mjs';
 import { pollBrowserState } from './poll-browser-state.mjs';
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-recovery-worker');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_CONTINUOUS_OUTPUT_DIRECTORY ?? 'evidence/web-recovery-worker');
+const assertDirectPng = process.env.STUDIO_ASSERT_DIRECT_PNG === '1';
 await mkdir(output, { recursive: true });
 const archive = await readFile(path.join(output, 'before-rain-stops-web.zip')), files = unzipSync(archive);
 const projectId = readGamePayload(strFromU8(files['index.html'])).project.manifest.projectId;
@@ -38,11 +39,15 @@ try {
   for (let cycle = 0; cycle < 8; cycle++) {
     const [branch, ending] = cycle % 2 ? ['去追最后一班车', '远行的约定'] : ['留下等雨停', '同行的约定'];
     await page.getByRole('button', { name: '开始故事', exact: true }).click();
-    const texts = new Set(), voices = new Set();
+    const texts = new Set(), voices = new Set(), imageDecodeModes = new Set();
     for (let i = 0; i < 500; i++) {
       if (await page.locator('main.player-shell').getAttribute('data-player-status') === 'ended') break;
       if (await page.locator('.player-choice button').count()) { await page.locator('.player-choice').getByRole('button', { name: branch, exact: true }).click(); continue; }
       await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.stageImagesPending === 'false');
+      if (assertDirectPng) {
+        const modes=await page.locator('canvas[data-image-decode]').evaluateAll(elements=>elements.map(element=>element.dataset.imageDecode));
+        assert.ok(modes.length>0);for(const mode of modes){assert.equal(mode,'owned-blob-bitmap');imageDecodeModes.add(mode);}
+      }
       texts.add((await page.locator('.player-dialogue__text').innerText()).trim());
       if (await page.locator('audio[data-audio-bus="voice"]').count()) {
         await page.waitForFunction(() => document.querySelector('audio[data-audio-bus="voice"]')?.ended);
@@ -77,7 +82,7 @@ try {
     assert.ok(resources.ownedWorkerUrls.created > 0); assert.equal(resources.ownedWorkerUrls.created, resources.ownedWorkerUrls.revoked);
     assert.equal(resources.atlas.accountedBytes, 0); assert.equal(resources.atlas.ordinaryBitmapDecodes, 0);
     assert.equal(await page.locator('audio').count(), 0);
-    cycles.push({ cycle, ending, texts: texts.size, naturallyEndedVoices: voices.size, nativeWorkersLive: liveWorkers.size, resources, performanceMetrics: (await cdp.send('Performance.getMetrics')).metrics });
+    cycles.push({ cycle, ending, texts: texts.size, naturallyEndedVoices: voices.size, imageDecodeModes:[...imageDecodeModes], nativeWorkersLive: liveWorkers.size, resources, performanceMetrics: (await cdp.send('Performance.getMetrics')).metrics });
     console.log(`PASS continuous cycle ${cycle + 1}/8: ${ending}, title resources released`);
   }
   assert.deepEqual(errors, []); await page.screenshot({ path: path.join(output, 'continuous-title.png') });

@@ -1,0 +1,5981 @@
+{
+  "passed": true,
+  "priorCommit": "fca1b02da8d5b4d70ce5c688162945fe1b640ffb",
+  "priorSourceSha256": "5c786eabcaf84f742ba07fb38753f43f74e06ecb1e7fbfaa8d5c44b2b8e91a40",
+  "sourceHashLineEndings": "LF-normalized",
+  "currentSourceSha256": "763027eb6957dea7fe7b90139919bc6b2a7412066358babd2beed27dcc42091b",
+  "readerSourceSha256": "efce2efeff1de48ae57c36b0cb751a8c18092fa656932fc14e8586f644808c8f",
+  "policySourceSha256": "4187101e49098b2696cf2465fbc5f50607ce39eef3a22753617de7e990f89587",
+  "candidateArchiveSha256": "68168028818873d46a1695ba6b94a0f1e6f9511c4a42ae97b469e34446d3a3c0",
+  "cases": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "108e6ac5901b33aeed1688a964fe9d3435d70d3d183a7fc8786af7f8ccafedb2",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "108e6ac5901b33aeed1688a964fe9d3435d70d3d183a7fc8786af7f8ccafedb2",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "108e6ac5901b33aeed1688a964fe9d3435d70d3d183a7fc8786af7f8ccafedb2",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "108e6ac5901b33aeed1688a964fe9d3435d70d3d183a7fc8786af7f8ccafedb2",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "108e6ac5901b33aeed1688a964fe9d3435d70d3d183a7fc8786af7f8ccafedb2",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "108e6ac5901b33aeed1688a964fe9d3435d70d3d183a7fc8786af7f8ccafedb2",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "63e523b183389ccd5fab6c676103b81627b1eb1a92f4f0c9d21db88d7ca63bda",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "63e523b183389ccd5fab6c676103b81627b1eb1a92f4f0c9d21db88d7ca63bda",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "63e523b183389ccd5fab6c676103b81627b1eb1a92f4f0c9d21db88d7ca63bda",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "63e523b183389ccd5fab6c676103b81627b1eb1a92f4f0c9d21db88d7ca63bda",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "63e523b183389ccd5fab6c676103b81627b1eb1a92f4f0c9d21db88d7ca63bda",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "63e523b183389ccd5fab6c676103b81627b1eb1a92f4f0c9d21db88d7ca63bda",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "735233b3c40309914784890d0173e9eb0c4946ae4e55e4de545245b5389d3ca0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "735233b3c40309914784890d0173e9eb0c4946ae4e55e4de545245b5389d3ca0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "735233b3c40309914784890d0173e9eb0c4946ae4e55e4de545245b5389d3ca0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "735233b3c40309914784890d0173e9eb0c4946ae4e55e4de545245b5389d3ca0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "735233b3c40309914784890d0173e9eb0c4946ae4e55e4de545245b5389d3ca0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "735233b3c40309914784890d0173e9eb0c4946ae4e55e4de545245b5389d3ca0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "f9dab47b52e854609a8a69a4d932e270d54f4804deb2e6dadfbb869ea5535ebe",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "f9dab47b52e854609a8a69a4d932e270d54f4804deb2e6dadfbb869ea5535ebe",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "f9dab47b52e854609a8a69a4d932e270d54f4804deb2e6dadfbb869ea5535ebe",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "f9dab47b52e854609a8a69a4d932e270d54f4804deb2e6dadfbb869ea5535ebe",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "f9dab47b52e854609a8a69a4d932e270d54f4804deb2e6dadfbb869ea5535ebe",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "f9dab47b52e854609a8a69a4d932e270d54f4804deb2e6dadfbb869ea5535ebe",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "e707687405ac6dd62f79f13644e7b6d987768cad117774b42b26c068521ab449",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "e707687405ac6dd62f79f13644e7b6d987768cad117774b42b26c068521ab449",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "e707687405ac6dd62f79f13644e7b6d987768cad117774b42b26c068521ab449",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "e707687405ac6dd62f79f13644e7b6d987768cad117774b42b26c068521ab449",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "e707687405ac6dd62f79f13644e7b6d987768cad117774b42b26c068521ab449",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "e707687405ac6dd62f79f13644e7b6d987768cad117774b42b26c068521ab449",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "2fe1aa04278db12cc8ab56790c5487afb386e18ca3075859a8082c5bad9aef4c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "2fe1aa04278db12cc8ab56790c5487afb386e18ca3075859a8082c5bad9aef4c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "2fe1aa04278db12cc8ab56790c5487afb386e18ca3075859a8082c5bad9aef4c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "2fe1aa04278db12cc8ab56790c5487afb386e18ca3075859a8082c5bad9aef4c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "2fe1aa04278db12cc8ab56790c5487afb386e18ca3075859a8082c5bad9aef4c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "2fe1aa04278db12cc8ab56790c5487afb386e18ca3075859a8082c5bad9aef4c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "27b8c37848e476401fb6f0b10d5190e62f689a3d4c56aa7635cdf0df4b676741",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "27b8c37848e476401fb6f0b10d5190e62f689a3d4c56aa7635cdf0df4b676741",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "27b8c37848e476401fb6f0b10d5190e62f689a3d4c56aa7635cdf0df4b676741",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "27b8c37848e476401fb6f0b10d5190e62f689a3d4c56aa7635cdf0df4b676741",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "27b8c37848e476401fb6f0b10d5190e62f689a3d4c56aa7635cdf0df4b676741",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "27b8c37848e476401fb6f0b10d5190e62f689a3d4c56aa7635cdf0df4b676741",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "fa0a1f3f354246917743967fec45bde5be53e4458697d74a64ff261f976f7a1a",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "fa0a1f3f354246917743967fec45bde5be53e4458697d74a64ff261f976f7a1a",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "fa0a1f3f354246917743967fec45bde5be53e4458697d74a64ff261f976f7a1a",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "fa0a1f3f354246917743967fec45bde5be53e4458697d74a64ff261f976f7a1a",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "fa0a1f3f354246917743967fec45bde5be53e4458697d74a64ff261f976f7a1a",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "fa0a1f3f354246917743967fec45bde5be53e4458697d74a64ff261f976f7a1a",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e.png",
+      "sourceSha256": "558c25c6e369f18b98ff550165c38a06fc96f1ba0fba89ab69c3dc45f08bf94e",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "4748d52786af08f8d1e6fbd97f11398219a506213d6d6388b7c52e767ce8145c",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75.png",
+      "sourceSha256": "cd749f04403e3b4c8483350b77e79fb01bf9166de3f65e9d701583d43afead75",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0f1d01b71d8d734f76250959893d827caa2b43b259e153e80f61ec8979ea6942",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "0ee7ab1d51864255fb6c83bffa22bafe914f23192b3f7a31b81a7833011b59fa",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "0ee7ab1d51864255fb6c83bffa22bafe914f23192b3f7a31b81a7833011b59fa",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "0ee7ab1d51864255fb6c83bffa22bafe914f23192b3f7a31b81a7833011b59fa",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "0ee7ab1d51864255fb6c83bffa22bafe914f23192b3f7a31b81a7833011b59fa",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a.png",
+      "sourceSha256": "1ed954eeb7d22cd6176cb702dbc78977684c6a47261a8b36e152654d2700968a",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "0ee7ab1d51864255fb6c83bffa22bafe914f23192b3f7a31b81a7833011b59fa",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 512,
+          "height": 512,
+          "digest": "0ee7ab1d51864255fb6c83bffa22bafe914f23192b3f7a31b81a7833011b59fa",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f.png",
+      "sourceSha256": "598b41535295814f1e98a4388d8df83012897402090b83d988e5e2c6b583b57f",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "e19b6511f6c1c47e6e5d5bfb6bd1feeffe4c7e48d5213381cab47f45b38bd0c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698.png",
+      "sourceSha256": "9ded1d5e951474c53f36f92fa7dc5ab6fcf575ebc3d6fb648a2759c5f9015698",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "0a715ab44139bc4fc02f675ac198df0fd7e5c3c972460f87ba803978f5d8b356",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96.png",
+      "sourceSha256": "d8721a9d412e6589161ceffc2ada4f65e9c20ff7402319569b4a86623ab00c96",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "3f258f6a2228fb350516ae679a84f37f185309c9d1b221864688ce19ae11eaf9",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b.png",
+      "sourceSha256": "6ef4b958c86328d5515b034a7060e5081430fcdc279536ceeaac43f15ce7f83b",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "145a763923ade646d401d59b9e0e04eadffd1b90722a07d2f645c6e2083daccf",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd.png",
+      "sourceSha256": "7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "19adf350f3a2b28a2b0da88219b85223c34fef38388a5620029a40a68aefe6f1",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807.png",
+      "sourceSha256": "49e0d7f4aedf5242a8c5001d3875ec3cae7836d5c73e57415db7f5fdaf627807",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "d1e02a1d4a8240e3bdada790079898e3c874e3be1aa0d44cc768be049c389c75",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b.png",
+      "sourceSha256": "9a2a3bce8a89205a0ae6ac1cd22620dedae77bd519db5ec5c90b2302b55db47b",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1672,
+          "height": 941,
+          "digest": "391f77c5148b5b86505d7628dd02ba381dfda29c41fa303667a6bc5ab31577a0",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "7e80c79b21d70cd14029fdb97c5f2aa66098f6fad349216b7c41cbf95839e129",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "7e80c79b21d70cd14029fdb97c5f2aa66098f6fad349216b7c41cbf95839e129",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "7e80c79b21d70cd14029fdb97c5f2aa66098f6fad349216b7c41cbf95839e129",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "7e80c79b21d70cd14029fdb97c5f2aa66098f6fad349216b7c41cbf95839e129",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6.png",
+      "sourceSha256": "db56676dcd83122d0f0442173693870abb9f6df05d732d510f9915ccea963fc6",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "7e80c79b21d70cd14029fdb97c5f2aa66098f6fad349216b7c41cbf95839e129",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "7e80c79b21d70cd14029fdb97c5f2aa66098f6fad349216b7c41cbf95839e129",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "3ff9f489d089afa8188992595d02ce8433f24d47fd5d142b80e7d7ecca7ab868",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "3ff9f489d089afa8188992595d02ce8433f24d47fd5d142b80e7d7ecca7ab868",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "3ff9f489d089afa8188992595d02ce8433f24d47fd5d142b80e7d7ecca7ab868",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "3ff9f489d089afa8188992595d02ce8433f24d47fd5d142b80e7d7ecca7ab868",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37.png",
+      "sourceSha256": "5ab4b3cf1b83bf897d386238f1fad4e87f36b6eea3d940e0c3d4101204404e37",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "3ff9f489d089afa8188992595d02ce8433f24d47fd5d142b80e7d7ecca7ab868",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "3ff9f489d089afa8188992595d02ce8433f24d47fd5d142b80e7d7ecca7ab868",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "http",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "e0a6dbc3efdd9a2807b5171b9c96fed62f128b0d49dbbedc8753997dcd9066c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "e0a6dbc3efdd9a2807b5171b9c96fed62f128b0d49dbbedc8753997dcd9066c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "blob",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "e0a6dbc3efdd9a2807b5171b9c96fed62f128b0d49dbbedc8753997dcd9066c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "e0a6dbc3efdd9a2807b5171b9c96fed62f128b0d49dbbedc8753997dcd9066c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "name": "media/02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a.png",
+      "sourceSha256": "02ab310670cd897e865ebb590e66094b188c305ee61959e8b4160e6f30ba2e9a",
+      "kind": "data",
+      "samples": [
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "e0a6dbc3efdd9a2807b5171b9c96fed62f128b0d49dbbedc8753997dcd9066c6",
+          "decode": "owned-bitmap"
+        },
+        {
+          "width": 1024,
+          "height": 1536,
+          "digest": "e0a6dbc3efdd9a2807b5171b9c96fed62f128b0d49dbbedc8753997dcd9066c6",
+          "decode": "owned-blob-bitmap"
+        }
+      ],
+      "diagnostics": [
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 18880224,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        },
+        {
+          "groups": 0,
+          "accountedBytes": 0,
+          "peakBytes": 24918694,
+          "budgetBytes": 67108864,
+          "activeDecodes": 0,
+          "queuedDecodes": 0,
+          "peakDecodes": 0,
+          "decodedGroups": 0,
+          "cacheHits": 0,
+          "quarantinedGroups": 0,
+          "ordinaryBitmapDecodes": 0,
+          "ordinaryQuarantinedDecodes": 0
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "physicalDevice": false
+}

@@ -8,6 +8,8 @@ function setup(width=8,height=8){
   const assigned:string[]=[];
   class FakeImage{naturalWidth=width;naturalHeight=height;onload:(()=>void)|null=null;onerror:(()=>void)|null=null;set src(value:string){assigned.push(value);if(value)queueMicrotask(()=>this.onload?.());}}
   vi.stubGlobal("Image",FakeImage);
+  // Exercise the retained Image compatibility path independently of Blob fetch.
+  vi.stubGlobal("fetch",undefined);
   const draw=vi.fn();vi.spyOn(HTMLCanvasElement.prototype,"getContext").mockReturnValue({drawImage:draw} as unknown as CanvasRenderingContext2D);
   return {assigned,draw};
 }
@@ -42,10 +44,15 @@ describe("ordinary PNG ownership and policy",()=>{
     reject(Error("late"));await vi.waitFor(()=>expect(nativeAtlasDiagnostics().accountedBytes).toBe(0));
     vi.stubGlobal("createImageBitmap",undefined);const lease=await acquireOrdinaryCanvasImage(url(),document.createElement("canvas"));expect(draw).toHaveBeenCalledOnce();lease.release();
   });
-  it.each(["unsupported","rejected","wrong-size"])("uses the checked original Image on %s bitmap path",async mode=>{
+  it.each(["unsupported","rejected"])("uses the checked original Image on %s bitmap path",async mode=>{
     setup();const close=vi.fn();vi.stubGlobal("createImageBitmap",mode==="unsupported"?undefined:vi.fn(mode==="rejected"?async()=>{throw Error("unsupported");}:async()=>({width:9,height:8,close})));
     const canvas=document.createElement("canvas"),lease=await acquireOrdinaryCanvasImage(url(),canvas);expect(canvas.dataset.imageDecode).toBe("legacy-image");lease.release();
-    if(mode==="wrong-size")expect(close).toHaveBeenCalledOnce();expect(nativeAtlasDiagnostics().accountedBytes).toBe(0);
+    expect(nativeAtlasDiagnostics().accountedBytes).toBe(0);
+  });
+  it("closes but rejects a changed bitmap without drawing or bypassing the pixel check",async()=>{
+    const {draw}=setup(),close=vi.fn();vi.stubGlobal("createImageBitmap",vi.fn(async()=>({width:9,height:8,close})));
+    await expect(acquireOrdinaryCanvasImage(url(),document.createElement("canvas"))).rejects.toBeInstanceOf(ImageResourceBudgetError);
+    expect(close).toHaveBeenCalledOnce();expect(draw).not.toHaveBeenCalled();expect(nativeAtlasDiagnostics().accountedBytes).toBe(0);
   });
   it("rejects oversized and changed dimensions without bypassing the budget",async()=>{
     const {assigned}=setup(16,16);vi.stubGlobal("createImageBitmap",vi.fn());
