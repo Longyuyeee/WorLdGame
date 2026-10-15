@@ -7,9 +7,9 @@ import assert from 'node:assert/strict';
 import { unzipSync } from 'fflate';
 import { buildPlayerExportRuntime } from './player-export-bundle.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
-const root=path.resolve(import.meta.dirname,'..'),output=path.join(root,'evidence/web-startup-and-long-story');await mkdir(output,{recursive:true});
+const root=path.resolve(import.meta.dirname,'..'),output=path.resolve(root,process.env.STUDIO_SESSION_OUTPUT_DIRECTORY??'evidence/web-startup-and-long-story');await mkdir(output,{recursive:true});
 const packaged=process.argv.includes('--candidate');
-const archive=await readFile(path.join(root,packaged?'evidence/web-startup-and-long-story/before-rain-stops-web.zip':'evidence/web-image-decode/before-rain-stops-web.zip')),files=unzipSync(archive),runtime=await buildPlayerExportRuntime({sourceMap:true});
+const archive=await readFile(path.resolve(root,packaged?path.join(output,'before-rain-stops-web.zip'):process.env.STUDIO_SESSION_BASELINE_ARCHIVE??'evidence/web-image-decode/before-rain-stops-web.zip')),files=unzipSync(archive),runtime=await buildPlayerExportRuntime({sourceMap:true});
 const baseline=process.argv.includes('--baseline'),label=packaged?'candidate':baseline?'baseline':'current';
 if(!baseline&&!packaged){files['player.js']=new TextEncoder().encode(runtime.javascript);files['player.css']=new TextEncoder().encode(runtime.css);}
 const map=sha(files['player.js'])===sha(runtime.javascript)?new SourceMap(runtime.sourceMap):null;
@@ -30,6 +30,6 @@ try{
     if(run===0)await page.screenshot({path:path.join(output,`startup-${label}.png`)});await context.close();
   }
   assert.deepEqual(errors,[]);await writeFile(path.join(output,`startup-${label}.json`),JSON.stringify({passed:true,label,browser:browser.version(),candidateArchiveSha256:sha(archive),runtimeHash:sha(files['player.js']),samples,errors,scope:'five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark',physicalDevice:false},null,2));
-  console.log(`PASS ${label}: five real ${packaged?'1.7.6':'1.7.5'} cold title entries`);
+  console.log(`PASS ${label}: five real ${packaged?'candidate':'fixed-input'} cold title entries`);
 }catch(error){if(current&&!current.isClosed())await current.screenshot({path:path.join(output,`startup-${label}-failure.png`)});await writeFile(path.join(output,`startup-${label}-failure.json`),JSON.stringify({error:String(error),stack:error.stack,samples,errors},null,2));throw error;}
 finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

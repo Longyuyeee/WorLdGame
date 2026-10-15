@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadProject, migrateS0Project, saveProject, verifyWebSaveCompatibility, readWebSaveCompatibility, withoutWebSaveCompatibility, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
+import { loadProject, migrateS0Project, saveProject, verifyWebSaveCompatibility, readWebSaveCompatibility, withoutWebSaveCompatibility, webSaveCompatibilityFingerprint, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
 import { compileProject } from "@world-studio/project-compiler";
 import { canonicalRuntimeStringify } from "@world-studio/runtime";
 import source from "../../../fixtures/projects/branching/project.s0.json";
@@ -12,6 +12,23 @@ function project(version: string): CanonicalProject {
 }
 
 describe("verified Web save updates", () => {
+  it('reconstructs all 32 exact prior build identities and strictly loads their complete saves', () => {
+    const versions = Array.from({ length: 32 }, (_, index) => `1.0.${index}`), current = project('1.1.0');
+    const target = createPlayerCore({ ...current, manifest: { ...current.manifest, preservedFields: { ...current.manifest.preservedFields,
+      webSaveCompatibility: { schemaVersion: 1, fingerprint: webSaveCompatibilityFingerprint(current), versions }
+    } } });
+    expect(target.compatibleSaveBuildIds).toHaveLength(32);
+    for (const [index, version] of versions.entries()) {
+      const previous = project(version), old = startPlayerCore(createPlayerCore(previous), previous), saved = createPlayerCoreSessionSaveV1(old);
+      expect(target.compatibleSaveBuildIds[index]).toBe(old.artifacts!.manifest.buildId);
+      expect(saved.ok).toBe(true);
+      if (saved.ok) {
+        const loaded = loadPlayerCoreSessionSaveV1(target, saved.serialized);
+        expect(loaded.ok).toBe(true);
+        if (loaded.ok) expect(createPlayerCoreSessionSaveV1(loaded.state)).toEqual(saved);
+      }
+    }
+  });
   it("persists a version-only receipt, keeps build identity unchanged and inherits validated older versions", () => {
     const previous = project("1.0.0"), current = project("1.0.1");
     const verified = loadProject(saveProject(verifyWebSaveCompatibility(current, previous)));

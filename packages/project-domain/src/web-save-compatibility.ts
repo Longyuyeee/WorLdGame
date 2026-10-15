@@ -1,6 +1,6 @@
-import { semanticHash } from "./codec";
+import { createProjectFileRehasher, PROJECT_MANIFEST_PATH, saveProject, saveProjectManifest, semanticHash } from "./codec";
 import { withoutWebAuthoringMetadata } from './web-asset-sources';
-import type { CanonicalProject, JsonObject } from "./types";
+import type { CanonicalProject, JsonObject, ProjectManifest } from "./types";
 
 const key = "webSaveCompatibility";
 const versionPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/u;
@@ -38,9 +38,13 @@ export function webProjectAtPublicationVersion(project: CanonicalProject, versio
     webPublication: { ...publication(clean), version } } } };
 }
 
-export function webSaveCompatibilityFingerprint(project: CanonicalProject): string {
+function fingerprintSource(project: CanonicalProject): CanonicalProject {
   const candidate = webProjectAtPublicationVersion(project, "compatibility-version");
-  return semanticHash({ ...candidate, manifest: { ...candidate.manifest, title: publication(candidate).name as string } });
+  return { ...candidate, manifest: { ...candidate.manifest, title: publication(candidate).name as string } };
+}
+
+export function webSaveCompatibilityFingerprint(project: CanonicalProject): string {
+  return semanticHash(fingerprintSource(project));
 }
 
 export type WebSaveCompatibilityStatus =
@@ -48,6 +52,10 @@ export type WebSaveCompatibilityStatus =
   | { readonly status: "verified"; readonly versions: readonly string[] };
 
 export function readWebSaveCompatibility(project: CanonicalProject): WebSaveCompatibilityStatus {
+  return inspectCompatibility(project, () => webSaveCompatibilityFingerprint(project));
+}
+
+function inspectCompatibility(project: CanonicalProject, fingerprint: () => string): WebSaveCompatibilityStatus {
   const value = project.manifest.preservedFields?.[key];
   if (value === undefined) return { status: "unchecked", versions: [] };
   try {
@@ -57,9 +65,34 @@ export function readWebSaveCompatibility(project: CanonicalProject): WebSaveComp
         !Array.isArray(value.versions) || value.versions.length === 0 || value.versions.length > maximumVersions ||
         value.versions.some(version => typeof version !== "string" || !versionPattern.test(version)) ||
         new Set(value.versions).size !== value.versions.length) return { status: "invalid", versions: [] };
-    if (value.fingerprint !== webSaveCompatibilityFingerprint(project)) return { status: "stale", versions: [] };
+    if (value.fingerprint !== fingerprint()) return { status: "stale", versions: [] };
     return { status: "verified", versions: value.versions as readonly string[] };
   } catch { return { status: "invalid", versions: [] }; }
+}
+
+/** Complete source digests for verified versions only. Serialization is shared
+ * within this call, never cached by mutable project identity across calls.
+ * Every version still hashes all canonical files with the original encoding.
+ */
+export function verifiedWebSaveSourceHashes(project: CanonicalProject): readonly string[] {
+  let hashManifest: ((manifest: ProjectManifest) => string) | undefined;
+  const hash = (manifest: ProjectManifest): string => {
+    if (hashManifest === undefined) {
+      const source = webProjectSourceForRuntime(project), files = saveProject(source);
+      // Non-canonical callers may alias another file onto the manifest path.
+      // Preserve the old serializer's overwrite order instead of changing the
+      // identity of such input with an unsafe manifest-only replacement.
+      if (files[PROJECT_MANIFEST_PATH] !== saveProjectManifest(source.manifest)) {
+        hashManifest = value => semanticHash({ ...source, manifest: value });
+      } else {
+        const rehash = createProjectFileRehasher(files, PROJECT_MANIFEST_PATH);
+        hashManifest = value => rehash(saveProjectManifest(value));
+      }
+    }
+    return hashManifest(manifest);
+  };
+  const receipt = inspectCompatibility(project, () => hash(fingerprintSource(project).manifest));
+  return receipt.status !== 'verified' ? [] : receipt.versions.map(version => hash(webProjectAtPublicationVersion(project, version).manifest));
 }
 
 export function verifyWebSaveCompatibility(current: CanonicalProject, previous: CanonicalProject): CanonicalProject {

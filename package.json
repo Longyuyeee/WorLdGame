@@ -8,6 +8,9 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-source-hashing": "node tools/run-web-source-tests.mjs",
+    "audit:web-source-hashing:profile": "node tools/run-web-source-hash-profile.mjs --baseline && node tools/run-web-source-hash-profile.mjs && node tools/run-web-source-hashing.mjs --profile",
+    "audit:web-source-hashing:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-source-hashing.mjs && node tools/run-web-source-hashing.mjs --continuous && node tools/run-web-source-hashing.mjs --profile --current-only && node tools/audit-web-source-hashing.mjs",
     "audit:web-session-responsiveness": "npm run audit:web-playback-responsiveness && vitest run apps/player-shell/src packages/player-core/src packages/runtime-host/src --maxWorkers=1 --reporter=default --reporter=json --outputFile=evidence/web-startup-and-long-story/player-runtime-tests.json && node --test tools/poll-browser-state.test.mjs tools/player-fixture-build.test.mjs && node tools/run-web-session-candidate.mjs --audit-only",
     "audit:web-session-responsiveness:profile": "node tools/run-web-session-profile.mjs",
     "audit:web-session-responsiveness:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-session-candidate.mjs && node tools/run-web-session-candidate.mjs --continuous && node tools/run-web-startup-profile.mjs --candidate && node tools/audit-web-session-responsiveness.mjs",

@@ -5,7 +5,7 @@ import {
   type CompilerArtifactsV1,
   type CompilerDiagnostic
 } from "@world-studio/project-compiler";
-import { semanticHash, readWebSaveCompatibility, webProjectAtPublicationVersion, type CanonicalProject, type JsonObject, type JsonValue } from "@world-studio/project-domain";
+import { verifiedWebSaveSourceHashes, type CanonicalProject, type JsonObject, type JsonValue } from "@world-studio/project-domain";
 import {
   RUNTIME_VERSION,
   compactRuntimeHistoryV1,
@@ -448,11 +448,8 @@ export function createPlayerCore(project: CanonicalProject, historyPolicy: Playe
     projectId: project.manifest.projectId,
     title: project.manifest.title,
     artifacts: compiled.artifacts,
-    compatibleSaveBuildIds: (() => {
-      const receipt = readWebSaveCompatibility(project);
-      return receipt.status !== "verified" ? [] : receipt.versions.map(version => compilerBuildIdForSource(
-        project.manifest.projectId, semanticHash(webProjectAtPublicationVersion(project, version)), compiled.artifacts.manifest.artifacts, "release"));
-    })(),
+    compatibleSaveBuildIds: verifiedWebSaveSourceHashes(project).map(sourceHash => compilerBuildIdForSource(
+      project.manifest.projectId, sourceHash, compiled.artifacts.manifest.artifacts, "release")),
     runtimeState: null,
     retainedMetaProgress: null,
     replayEntries: [],

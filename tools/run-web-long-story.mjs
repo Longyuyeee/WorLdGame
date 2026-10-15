@@ -8,9 +8,9 @@ import assert from 'node:assert/strict';
 import { build } from './player-fixture-build.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
 
-const root=path.resolve(import.meta.dirname,'..'),output=path.join(root,'evidence/web-startup-and-long-story');await mkdir(output,{recursive:true});
-const baseline=process.argv.includes('--baseline'),label=baseline?'baseline':'current',priorCommit='0bb5e72158a5b465b982479eb9a90f72b23a1b50';
-const overridePaths=['apps/player-shell/src/PlayerShell.tsx','apps/player-shell/src/recovery-session.worker.ts'];
+const root=path.resolve(import.meta.dirname,'..'),output=path.resolve(root,process.env.STUDIO_SESSION_OUTPUT_DIRECTORY??'evidence/web-startup-and-long-story');await mkdir(output,{recursive:true});
+const baseline=process.argv.includes('--baseline'),label=baseline?'baseline':'current',priorCommit=process.env.STUDIO_SESSION_BASELINE_COMMIT??'0bb5e72158a5b465b982479eb9a90f72b23a1b50';
+const overridePaths=process.env.STUDIO_SESSION_BASELINE_PATHS?JSON.parse(process.env.STUDIO_SESSION_BASELINE_PATHS):['apps/player-shell/src/PlayerShell.tsx','apps/player-shell/src/recovery-session.worker.ts'];
 const oldSources=new Map(baseline?overridePaths.map(name=>[path.join(root,name).replaceAll('\\','/'),execFileSync('git',['show',`${priorCommit}:${name}`],{cwd:root,encoding:'utf8',windowsHide:true})]):[]);
 const bundle=await build({configFile:false,logLevel:'error',plugins:[{name:'long-story-frozen-baseline',load(id){return oldSources.get(id.replaceAll('\\','/'));}}],define:{'process.env.NODE_ENV':JSON.stringify('production')},build:{write:false,minify:true,lib:{entry:path.join(root,'tools/fixtures/long-story-player.ts'),name:'LongStory',formats:['iife']}}});
 const outputs=(Array.isArray(bundle)?bundle:[bundle]).flatMap(item=>item.output),code=outputs.filter(item=>item.type==='chunk').map(item=>item.code).join('\n');

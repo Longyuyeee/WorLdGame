@@ -31,6 +31,9 @@ evidence/web-image-decode/*.worldreview -text
 evidence/web-startup-and-long-story/before-rain-stops.html -text
 evidence/web-startup-and-long-story/*.worldsave -text
 evidence/web-startup-and-long-story/*.worldreview -text
+evidence/web-source-hashing/before-rain-stops.html -text
+evidence/web-source-hashing/*.worldsave -text
+evidence/web-source-hashing/*.worldreview -text
 evidence/web-branch-authoring/branch-authoring.html -text
 
 evidence/web-playtest-revision/review-notes.worldreview -text
