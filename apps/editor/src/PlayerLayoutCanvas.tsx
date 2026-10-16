@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
-import { type WebLayoutBox, type WebLayoutSurface, type WebPageLayout } from "@world-studio/project-domain";
+import { webLayoutIsPanel, webLayoutRegionNames, type WebLayoutBox, type WebLayoutSurface, type WebPageLayout } from "@world-studio/project-domain";
 import { layoutComponentVisible, layoutMinimum, resolvePlayerLayout, type LayoutRect } from "@world-studio/player-shell/layout";
 import { gestureLayoutBox, repairLayoutTarget, replaceLayoutBox, selectedLayoutBox, type LayoutDevice } from "./player-layout-edit";
 import "./styles/player-layout-canvas.css";
@@ -19,6 +19,16 @@ function useFrameGeometry(frame: RefObject<HTMLIFrameElement | null>, revision: 
     let observedStage: HTMLElement | null = null, observedSafe: HTMLElement | null = null;
     const resize = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => measure());
     const measure = () => {
+      if (webLayoutIsPanel(binding.surface)) {
+        const probe = document.querySelector<HTMLElement>(`.player-panel-layout-safe[data-layout-surface="${binding.surface}"]`);
+        const panel = document.querySelector<HTMLElement>(`[data-layout-panel-surface="${binding.surface}"]`);
+        if (!probe || !panel) return;
+        if (observedSafe !== probe) { resize?.disconnect(); resize?.observe(probe); observedSafe = probe; }
+        const rect = probe.getBoundingClientRect();
+        const next = { area: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }, left: 0, top: 0 };
+        setGeometry(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+        return;
+      }
       const stage = document.querySelector<HTMLElement>(".player-stage"), safe = document.querySelector<HTMLElement>(".player-layout-safe"), root = document.querySelector("main.player-shell");
       if (!stage || !safe || !root) return;
       if (!document.querySelector(binding.surface === "title" ? ".player-title-screen" : ".player-dialogue")) return;
@@ -32,7 +42,7 @@ function useFrameGeometry(frame: RefObject<HTMLIFrameElement | null>, revision: 
     };
     measure();
     const mutation = new MutationObserver(measure);
-    mutation.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-layout-title", "data-layout-reading"] });
+    mutation.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-layout-title", "data-layout-reading", "data-panel-layout"] });
     return () => { resize?.disconnect(); mutation.disconnect(); };
   }, [frame, revision, binding.surface, binding.device, binding.page.inset]);
   return geometry;
@@ -62,7 +72,8 @@ export function LayoutCanvasEditor({ binding, geometry, scale, host }: { binding
     window.addEventListener("blur", onBlur); document.addEventListener("visibilitychange", onVisibility);
     return () => { window.removeEventListener("blur", onBlur); document.removeEventListener("visibilitychange", onVisibility); };
   }, []);
-  const name = (target: string) => target === "primary" ? surface === "title" ? "作品信息" : "对白与姓名头像" : target === "secondary" ? surface === "title" ? "开始与作品操作" : "阅读常用操作" : page.components.find(row => row.id === target)?.text ?? "组件";
+  const names = webLayoutRegionNames(surface);
+  const name = (target: string) => target === "primary" || target === "secondary" ? names[target] : page.components.find(row => row.id === target)?.text ?? "组件";
   const minimum = (target: string) => layoutMinimum(surface, target, page.components.find(row => row.id === target)?.kind);
   const choose = (target: string, focus = false) => {
     cancel(); onSelect(target);
@@ -117,7 +128,7 @@ export function LayoutCanvasEditor({ binding, geometry, scale, host }: { binding
     <label>画布组件<select aria-label="预览布局组件" value={selection} onChange={event => choose(event.target.value, true)}><option value="primary">{name("primary")}</option><option value="secondary">{name("secondary")}</option>{page.components.map(row => <option key={row.id} value={row.id}>{name(row.id)}{!layoutComponentVisible(row, compact) ? "（此设备隐藏）" : ""}</option>)}</select></label>
     <p id="layout-canvas-help">编辑模式不会触发游戏按钮。拖动框移动，右下角调整尺寸；方向键移动 1%，Shift 加快至 5%，Alt + 方向键调整尺寸。Esc 取消拖动。虚线框是被保护的位置，下方列出原因；退出编辑可试玩真实结果。</p>
     {hidden && <p>所选组件在当前设备隐藏。<button type="button" onClick={() => onChange({ ...page, components: page.components.map(row => row.id === selection ? { ...row, visibility: "all" } : row) })}>恢复此组件在所有设备显示</button></p>}
-    {!layout && <p role="status">当前舞台过小，播放器已回到原模板；请放大预览后继续。</p>}
+    {!layout && <p role="status">当前可见区域过小，播放器已回到原模板；请放大预览后继续。</p>}
     {!!repairs.length && <ul className="skin-layout-issues">{repairs.map(({ issue, next }) => <li key={issue.target}>
       <button type="button" onClick={() => choose(issue.target, true)}>定位：{name(issue.target)}</button>
       <span>{issue.reason === "clamped" ? "请求位置超出安全区，实际显示已收回边界。" : issue.target === "primary" || issue.target === "secondary" ? "主组件重叠，实际显示采用安全布局。" : `与${issue.with.map(name).join("、")}重叠，此按钮已并入操作区。`}</span>

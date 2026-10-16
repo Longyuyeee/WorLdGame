@@ -5,7 +5,7 @@ import { applyWebAssetSources, applyWebCredits, applyWebPlayerAppearance, create
 import { createBlobDigest, inspectUntrustedMedia, type BlobDigest } from "@world-studio/project-persistence";
 import { mediaInspectionToJson } from "./media-inspection-client";
 import { applySkinImportPlan, defaultSkinChoices, exportSkinBundle, prepareSkinImport, readSkinBundle, type SkinAssetChoice } from "./player-skin-bundle";
-import { defaultWebPlayerLayout, defaultWebPlayerSkinImages, defaultWebPlayerSkinTemplate, webPlayerSkinReferences } from "@world-studio/project-domain";
+import { defaultWebPageLayout, defaultWebPlayerLayout, defaultWebPlayerSkinImages, defaultWebPlayerSkinTemplate, webPlayerSkinReferences } from "@world-studio/project-domain";
 import { exportPlayerSkinPreset, importPlayerSkinPreset } from "./player-skin-preset";
 const png = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
 function fixture() {
@@ -51,6 +51,18 @@ it("retains hidden-device assets and visibility during portable bundle reuse", a
   const bundle = await readSkinBundle(await exportSkinBundle(f.project, appearance, "Visibility", f.reader, "", false));
   const plan = await prepareSkinImport(bundle, target(), defaultSkinChoices(bundle, target()), null);
   expect(plan.appearance.skin?.layout?.title.components[0]).toMatchObject({ visibility: "desktop", assetId: expect.any(String) }); expect(plan.inputs).toHaveLength(2); expect(plan.previewProject.scripts).toEqual(target().scripts);
+});
+it("carries image bytes referenced only by optional panels and remaps all three pages without copying plot", async () => {
+  const f = fixture(), layout = defaultWebPlayerLayout();
+  const component = { id: "layout_panel", kind: "image" as const, text: "Panel art", action: "resume" as const, assetId: "cover", fit: "contain" as const, visibility: "desktop" as const, desktop: defaultWebPageLayout("menu").desktop.primary, mobile: null };
+  const appearance = { ...f.appearance, coverAssetId: "", skin: { ...f.appearance.skin, reading: { ...f.appearance.skin.reading, windowAssetId: "" }, layout: { ...layout, menu: { ...defaultWebPageLayout("menu"), enabled: true, components: [component] }, save: { ...defaultWebPageLayout("save"), enabled: true, components: [component] }, history: { ...defaultWebPageLayout("history"), enabled: true, components: [component] } } } };
+  const bundle = await readSkinBundle(await exportSkinBundle(f.project, appearance, "Panels", f.reader, "", false));
+  const plan = await prepareSkinImport(bundle, target(), defaultSkinChoices(bundle, target()), null);
+  for (const surface of ["menu", "save", "history"] as const) expect(plan.appearance.skin?.layout?.[surface]?.components[0]).toMatchObject({ visibility: "desktop", assetId: expect.any(String) });
+  expect(plan.inputs).toHaveLength(2); expect(plan.previewProject.scripts).toEqual(target().scripts);
+  const fallback = await prepareSkinImport(bundle, target(), { ...defaultSkinChoices(bundle, target()), cover: { mode: "fallback" } }, null);
+  for (const surface of ["menu", "save", "history"] as const) expect(fallback.appearance.skin?.layout?.[surface]?.components[0]?.assetId).toBe("");
+  expect(fallback.inputs).toHaveLength(1);
 });
 it("carries more than eight independent image references through JSON, ZIP, remapping and missing-image fallback", async () => {
   const f = fixture(), empty = defaultWebPlayerSkinImages(), extra = Array.from({ length: 13 }, (_, i) => ({ ...f.project.assets.assets[0]!, assetId: `image_${i}` }));

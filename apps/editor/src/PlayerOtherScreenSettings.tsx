@@ -1,4 +1,5 @@
 import { defaultWebPlayerScreens, WEB_PLAYER_SCREEN_LABELS, type WebPlayerScreenId, type WebPlayerScreenPanel, type WebPlayerScreens } from "@world-studio/project-domain";
+import type { ReactNode } from "react";
 
 const descriptions: Record<WebPlayerScreenId, string> = {
   menu: "玩家暂停阅读、调整推进方式和进入其他页面的地方。",
@@ -11,8 +12,9 @@ const descriptions: Record<WebPlayerScreenId, string> = {
 };
 const ranges = [["本页宽度", "width", 320, 1200, 20, "px"], ["本页圆角", "radius", 0, 40, 1, "px"], ["本页内边距", "padding", 12, 40, 1, "px"], ["本页不透明度", "opacity", 55, 100, 1, "%"], ["本页文字大小", "fontSize", 12, 24, 1, "px"]] as const;
 
-export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChange }: {
+export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChange, layoutControls, freeLayout = false }: {
   screens: WebPlayerScreens; selected: WebPlayerScreenId; onSelect: (id: WebPlayerScreenId) => void; onChange: (screens: WebPlayerScreens) => void;
+  layoutControls?: ReactNode; freeLayout?: boolean;
 }) {
   const panel = screens.panels[selected];
   const edit = (patch: Partial<WebPlayerScreenPanel>) => onChange({ ...screens, panels: { ...screens.panels, [selected]: { ...panel, ...patch } } });
@@ -20,13 +22,15 @@ export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChang
     <div className="skin-section-heading"><h4>把每一页都照顾好</h4><p>先选页面，再调整窗体。配色与字体沿用当前皮肤，手机自动收窄。</p></div>
     <label>正在编辑的界面<select aria-label="正在编辑的界面" value={selected} onChange={event => onSelect(event.target.value as WebPlayerScreenId)}>{Object.entries(WEB_PLAYER_SCREEN_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
     <p className="skin-screen-description">{descriptions[selected]}</p>
+    {layoutControls}
+    {freeLayout && <p className="skin-screen-description">自由布局已启用：在组件中调整内容区、标题与返回区的位置和尺寸。下面的窗体宽度、位置与面板预设暂停使用，圆角、字体、底色和素材仍生效；内边距用于内容区，返回区保持紧凑。较窄的存档内容区自动采用单列。</p>}
     <div className="skin-screen-presets" aria-label="本页布局预设">
-      <button type="button" onClick={() => edit({ width: 560, radius: 14, padding: 20, placement: "center" })}>紧凑卡片</button>
-      <button type="button" onClick={() => edit({ width: 1040, radius: 28, padding: 32, placement: "center" })}>宽阔面板</button>
-      <button type="button" onClick={() => edit({ width: 460, radius: 20, padding: 24, placement: "right" })}>侧边抽屉</button>
+      <button type="button" disabled={freeLayout} onClick={() => edit({ width: 560, radius: 14, padding: 20, placement: "center" })}>紧凑卡片</button>
+      <button type="button" disabled={freeLayout} onClick={() => edit({ width: 1040, radius: 28, padding: 32, placement: "center" })}>宽阔面板</button>
+      <button type="button" disabled={freeLayout} onClick={() => edit({ width: 460, radius: 20, padding: 24, placement: "right" })}>侧边抽屉</button>
     </div>
-    {ranges.map(([label, key, min, max, step, unit]) => <label className="skin-range" key={key}><span>{label}<span aria-hidden="true" className="skin-range-value">{panel[key]}{unit}</span></span><input aria-label={label} type="range" min={min} max={max} step={step} value={panel[key]} onChange={event => edit({ [key]: Number(event.target.value) })} /></label>)}
-    <label>本页位置<select aria-label="本页位置" value={panel.placement} onChange={event => edit({ placement: event.target.value as WebPlayerScreenPanel["placement"] })}><option value="center">居中</option><option value="right">靠右</option></select></label>
+    {ranges.map(([label, key, min, max, step, unit]) => <label className="skin-range" key={key}><span>{label}<span aria-hidden="true" className="skin-range-value">{panel[key]}{unit}</span></span><input aria-label={label} disabled={freeLayout && key === "width"} type="range" min={min} max={max} step={step} value={panel[key]} onChange={event => edit({ [key]: Number(event.target.value) })} /></label>)}
+    <label>本页位置<select aria-label="本页位置" disabled={freeLayout} value={panel.placement} onChange={event => edit({ placement: event.target.value as WebPlayerScreenPanel["placement"] })}><option value="center">居中</option><option value="right">靠右</option></select></label>
     <label>本页入场动效<select aria-label="本页入场动效" value={panel.motion} onChange={event => edit({ motion: event.target.value as WebPlayerScreenPanel["motion"] })}><option value="none">无</option><option value="fade">渐显</option><option value="rise">轻盈上浮</option></select></label>
     {selected === "save" && <label>宽屏存档列数<select aria-label="宽屏存档列数" value={screens.saveColumns} onChange={event => onChange({ ...screens, saveColumns: Number(event.target.value) as 1 | 2 | 3 })}><option value="1">一列</option><option value="2">两列</option><option value="3">三列</option></select></label>}
     {selected === "ending" && <>

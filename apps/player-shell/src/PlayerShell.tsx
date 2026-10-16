@@ -94,7 +94,8 @@ import { PlayerDialogueIdentity } from "./PlayerDialogueIdentity";
 import { captureBrowserSavePreview } from "./browser-save-preview";
 import { saveReadingExcerpt } from "./save-reading-excerpt";
 import { PlayerLayoutBox, PlayerLayoutComponents, usePlayerLayout } from "./PlayerLayout";
-import type { WebLayoutAction } from "@world-studio/project-domain";
+import { webLayoutActions, type WebLayoutAction } from "@world-studio/project-domain";
+import { PlayerPanelRegion, usePlayerPanelLayout, type PlayerLayoutPanel } from "./PlayerPanelLayout";
 import "./player-skin-template.css";
 
 export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
@@ -384,6 +385,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const layoutSurface = content.kind === "title" ? "title" : "reading";
   const layoutEligible = content.kind === "title" || content.kind === "dialogue" || content.kind === "narration";
   const { layout: componentLayout, probe: layoutProbe } = usePlayerLayout(layoutEligible ? skin?.layout?.[layoutSurface] : undefined, layoutSurface);
+  const menuLayout = usePlayerPanelLayout(skin?.layout?.menu, "menu", readingMenuOpen);
+  const saveLayout = usePlayerPanelLayout(skin?.layout?.save, "save", savePanelOpen);
+  const historyLayout = usePlayerPanelLayout(skin?.layout?.history, "history", historyPanelOpen);
+  const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout };
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
   const latestSlot = saveSlots.slice().sort((a, b) => b.savedAtEpochMilliseconds - a.savedAtEpochMilliseconds || a.slotId.localeCompare(b.slotId))[0];
@@ -463,6 +468,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     if (trigger?.isConnected) trigger.focus();
     if (!trigger || document.activeElement !== trigger) readingMenuTrigger.current?.focus();
   }); }, []);
+  const historyPanelElement = useRef<HTMLElement>(null);
+  useEffect(() => { if (historyPanelOpen) historyPanelElement.current?.querySelector<HTMLButtonElement>("header button")?.focus(); }, [historyPanelOpen]);
   useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(editorPreview?.initialPanel === 'menu'); setArtworkView(false); }, [project.manifest.projectId]);
   const closeReadingMenu = useCallback(() => { setReadingMenuOpen(false); queueMicrotask(() => {
     const trigger = readingMenuReturnTrigger.current;
@@ -1558,6 +1565,20 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     else if (action === "menu") { readingMenuReturnTrigger.current = trigger; stopSkip(); setReadingMenuOpen(true); }
   };
   const inlineLayoutComponents = <PlayerLayoutComponents rows={componentLayout?.components} inline media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} />;
+  const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement) => {
+    if (hostActivity !== "active" || saveOperation === "busy" || !panelLayouts[surface].layout || !webLayoutActions(surface).includes(action) || !layoutActionEnabled(action)) return;
+    if (action === "resume") { if (surface === "menu") closeReadingMenu(); else if (surface === "history") closeHistoryPanel(); else closeSavePanel(); return; }
+    if (surface !== "menu") return;
+    trigger.focus({ preventScroll: true }); setReadingMenuOpen(false);
+    if (action === "save" || action === "load") openSavePanel(action);
+    else if (action === "preferences") { infoTrigger.current = trigger; stopSkip(); setInfoView("preferences"); setPreferencesOpen(true); }
+    else if (action === "history") { historyDialogTrigger.current = trigger; setHistoryPanelOpen(true); }
+    else if (action === "credits") openCredits();
+    else if (action === "additional") openAdditionalContent();
+  };
+  const panelComponents = (surface: PlayerLayoutPanel, inline = false) => <PlayerLayoutComponents rows={panelLayouts[surface].layout?.components} inline={inline} media={mediaAssets} disabled={hostActivity !== "active" || saveOperation === "busy"} onAction={(action, trigger) => panelAction(surface, action, trigger)} actionEnabled={layoutActionEnabled} />;
+  const panelProps = (surface: PlayerLayoutPanel) => ({ ...playerScreenProps(skin, surface), "data-layout-panel-surface": panelLayouts[surface].enabled ? surface : undefined, "data-panel-layout": panelLayouts[surface].layout ? surface : undefined });
+  const panelAudit = (surface: PlayerLayoutPanel) => editorPreview && panelLayouts[surface].layout?.fallback ? <p className="player-layout-audit" role="status">布局保护：内容与返回区使用安全布局，冲突按钮并入内容操作区。</p> : null;
 
   return (
     <main ref={fullscreen.element}
@@ -1678,6 +1699,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         ...playerSkinStyle(skin, mediaAssets)
       } as React.CSSProperties}
     >
+      {menuLayout.probe}{saveLayout.probe}{historyLayout.probe}
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
       {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel skin={skin} credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel skin={skin} panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
@@ -1905,8 +1927,12 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { if (readingMenuOpen) closeReadingMenu(); else { readingMenuReturnTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && content.kind !== 'title' && !silentReading && <p className="player-portrait-hint">横屏更适合观看演出</p>}
-        <div {...(readingMenuOpen ? playerScreenProps(skin, 'menu') : {})} id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
-        {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
+        <div {...(readingMenuOpen ? panelProps('menu') : {})} id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
+        <PlayerPanelRegion enabled={menuLayout.enabled} rect={menuLayout.layout?.secondary} kind="secondary">
+          {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
+        </PlayerPanelRegion>
+        <PlayerPanelRegion enabled={menuLayout.enabled} rect={menuLayout.layout?.primary} kind="primary">
+        {readingMenuOpen && panelComponents("menu", true)}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
           <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
           <button className="player-menu-only" ref={preferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={event => { infoTrigger.current = event.currentTarget; stopSkip(); setReadingMenuOpen(false); setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
@@ -1947,16 +1973,22 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           ><span aria-hidden="true">✦</span><span>附加内容</span></button>
         </nav>
         {historyPanelOpen && (
-          <aside {...playerScreenProps(skin, 'history')} className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
+          <aside {...panelProps('history')} ref={historyPanelElement} className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
+            <PlayerPanelRegion enabled={historyLayout.enabled} rect={historyLayout.layout?.secondary} kind="secondary">
             <header>
               <div><span>HISTORY</span><h2>剧情历史</h2></div>
               <button type="button" aria-label="关闭剧情历史" onClick={closeHistoryPanel}>关闭</button>
             </header>
+            </PlayerPanelRegion>
+            <PlayerPanelRegion enabled={historyLayout.enabled} rect={historyLayout.layout?.primary} kind="primary">
+            {panelComponents("history", true)}
             {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <PlayerHistoryContent history={snapshot.history} locale={typography.locale} canNavigate={hostActivity === 'active'} renderText={text => <PlayerRichText text={text} locale={typography.locale} />} onNavigate={entryId => {
               applyIntent({ kind: 'history-back-to', entryId }, pointerInput.current);
               setHistoryPanelOpen(false);
               queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
             }} />}
+            </PlayerPanelRegion>
+            {panelComponents("history")}{panelAudit("history")}
           </aside>
         )}
         {additionalContentOpen && (
@@ -2177,8 +2209,12 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               }}
             >存读档</button>
             {savePanelOpen && (
-              <dialog {...playerScreenProps(skin, 'save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (saveOperation !== "busy") { if (pendingRead) cancelRead(); else closeSavePanel(); } }}>
+              <dialog {...panelProps('save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (saveOperation !== "busy") { if (pendingRead) cancelRead(); else closeSavePanel(); } }}>
+                <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.secondary} kind="secondary">
                 <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy"} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
+                </PlayerPanelRegion>
+                <PlayerPanelRegion enabled={saveLayout.enabled} rect={saveLayout.layout?.primary} kind="primary">
+                {panelComponents("save", true)}
                 {pendingRead ? <section className="player-load-confirm" role="region" aria-label="确认读取存档">
                   <h3>读取{playerSaveLabel(pendingRead.slotId)}？</h3><p>当前未保存的进度会被所选存档替换。取消可回到槽位列表。</p>
                   <p>当前：{project.scenes.find(scene => scene.id === state.runtimeState?.cursor.sceneId)?.title ?? '当前故事'}</p>
@@ -2207,10 +2243,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 })}</div>}
                 {saveView === 'manual' && <nav className="player-save__pages" aria-label="手动存档分页"><button type="button" disabled={savePage === 0 || saveOperation === 'busy'} onClick={() => { setSavePage(0); setPendingOverwriteSlotId(null); }}>上一页</button><span>第 {savePage + 1} / 2 页</span><button type="button" disabled={savePage === 1 || saveOperation === 'busy'} onClick={() => { setSavePage(1); setPendingOverwriteSlotId(null); }}>下一页</button></nav>}
                 </>}
+                </PlayerPanelRegion>
+                {panelComponents("save")}{panelAudit("save")}
               </dialog>
             )}
           </aside>
         )}
+        </PlayerPanelRegion>
+        {readingMenuOpen && <>{panelComponents("menu")}{panelAudit("menu")}</>}
         </div>
         {saveFeedback && !savePanelOpen && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
         {backgroundSaveFailure && content.kind !== "title" && !savePanelOpen && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !additionalContentOpen && !artworkView && !snapshot.sceneReplay.active && <aside className="player-background-save-notice" role="alert" aria-label="后台保存提醒">

@@ -2,7 +2,7 @@ import type { CanonicalProject, JsonObject } from "./types";
 import { isWebPlayerScreens, type WebPlayerScreens } from "./web-player-screens";
 import { isWebPlayerSkinImages, type WebPlayerSkinImages } from "./web-player-skin-images";
 import { isWebPlayerSkinTemplate, type WebPlayerSkinTemplate } from "./web-player-skin-template";
-import { isWebPlayerLayout, type WebPlayerLayout, type WebPageLayout } from "./web-player-layout";
+import { isWebPlayerLayout, webPlayerLayoutPages, type WebPlayerLayout, type WebPageLayout } from "./web-player-layout";
 
 export type WebPlayerFontSelection = "inherit" | "sans" | "serif" | `asset:${string}`;
 export interface WebPlayerSkin extends JsonObject {
@@ -60,14 +60,14 @@ export function webPlayerFontAssets(project: CanonicalProject): readonly JsonObj
     return asset.kind === "font" && ["font/woff", "font/woff2", "font/ttf", "font/otf"].includes(String(source?.mimeType)) && typeof source?.byteLength === "number" && source.byteLength > 0 && source.byteLength <= 32 * 1024 * 1024 && inspection?.status === "pass";
   });
 }
-export function webPlayerSkinImageReferences(skin: WebPlayerSkin): readonly string[] { return [...new Set([skin.reading.windowAssetId, ...Object.values(skin.images?.backgrounds ?? {}).map(row => row.assetId), ...Object.values(skin.images?.buttons ?? {}), skin.template?.name.backgroundAssetId ?? "", ...(skin.template?.portrait.bindings.map(row => row.assetId) ?? []), ...(skin.layout ? [skin.layout.title, skin.layout.reading].flatMap(page => page.components.map(component => component.assetId)) : [])].filter(Boolean))]; }
+export function webPlayerSkinImageReferences(skin: WebPlayerSkin): readonly string[] { return [...new Set([skin.reading.windowAssetId, ...Object.values(skin.images?.backgrounds ?? {}).map(row => row.assetId), ...Object.values(skin.images?.buttons ?? {}), skin.template?.name.backgroundAssetId ?? "", ...(skin.template?.portrait.bindings.map(row => row.assetId) ?? []), ...(skin.layout ? webPlayerLayoutPages(skin.layout).flatMap(page => page.components.map(component => component.assetId)) : [])].filter(Boolean))]; }
 export function webPlayerSkinReferences(skin: WebPlayerSkin): readonly string[] { return [...new Set([...webPlayerSkinImageReferences(skin), ...Object.values(skin.fonts).map(webPlayerSkinFontAssetId)].filter(Boolean))]; }
 /** A single mapping authority for configuration, portable packages and explicit missing-image fallback. */
 export function remapWebPlayerSkinReferences(skin: WebPlayerSkin, replacement: (id: string) => string): WebPlayerSkin {
   const map = (id: string) => id ? replacement(id) : "";
   const mapPage = (page: WebPageLayout): WebPageLayout => ({ ...page, components: page.components.map(component => ({ ...component, assetId: map(component.assetId) })) });
   return { ...skin, reading: { ...skin.reading, windowAssetId: map(skin.reading.windowAssetId) },
-    ...(skin.layout ? { layout: { title: mapPage(skin.layout.title), reading: mapPage(skin.layout.reading) } } : {}),
+    ...(skin.layout ? { layout: { title: mapPage(skin.layout.title), reading: mapPage(skin.layout.reading), ...(skin.layout.menu ? { menu: mapPage(skin.layout.menu) } : {}), ...(skin.layout.save ? { save: mapPage(skin.layout.save) } : {}), ...(skin.layout.history ? { history: mapPage(skin.layout.history) } : {}) } } : {}),
     ...(skin.template ? { template: { ...skin.template, name: { ...skin.template.name, backgroundAssetId: map(skin.template.name.backgroundAssetId) }, portrait: { ...skin.template.portrait, bindings: skin.template.portrait.bindings.flatMap(row => map(row.assetId) ? [{ ...row, assetId: map(row.assetId) }] : []) } } } : {}),
     fonts: Object.fromEntries(Object.entries(skin.fonts).map(([role, selection]) => [role, selection.startsWith("asset:") ? map(selection.slice(6)) ? `asset:${map(selection.slice(6))}` : "sans" : selection])) as WebPlayerSkin["fonts"],
     ...(skin.images ? { images: { backgrounds: Object.fromEntries(Object.entries(skin.images.backgrounds).map(([surface, row]) => [surface, { ...row, assetId: map(row.assetId) }])) as WebPlayerSkinImages["backgrounds"], buttons: Object.fromEntries(Object.entries(skin.images.buttons).map(([state, id]) => [state, map(id)])) as WebPlayerSkinImages["buttons"] } } : {}) };

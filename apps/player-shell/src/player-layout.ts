@@ -1,10 +1,11 @@
-import { defaultWebLayoutPair, type WebLayoutBox, type WebLayoutComponent, type WebPageLayout, type WebLayoutSurface } from "@world-studio/project-domain";
+import { defaultWebLayoutPair, webLayoutIsPanel, type WebLayoutBox, type WebLayoutComponent, type WebPageLayout, type WebLayoutSurface } from "@world-studio/project-domain";
 
 export interface LayoutRect { readonly left: number; readonly top: number; readonly width: number; readonly height: number; }
 export interface LayoutIssue { readonly target: string; readonly reason: "overlap" | "clamped"; readonly with: readonly string[]; }
 export const layoutOverlap = (a: LayoutRect, b: LayoutRect) => a.left < b.left + b.width && a.left + a.width > b.left && a.top < b.top + b.height && a.top + a.height > b.top;
 export const layoutComponentVisible = (component: WebLayoutComponent, compact: boolean) => !component.visibility || component.visibility === "all" || component.visibility === (compact ? "mobile" : "desktop");
 export function layoutMinimum(surface: WebLayoutSurface, target: string, kind?: WebLayoutComponent["kind"]): readonly [number, number] {
+  if (webLayoutIsPanel(surface) && (target === "primary" || target === "secondary")) return target === "primary" ? [240, 120] : [240, 64];
   if (target === "primary") return surface === "reading" ? [220, 96] : [160, 64];
   if (target === "secondary") return [160, surface === "reading" ? 48 : 140];
   return kind === "button" ? [88, 44] : [24, 24];

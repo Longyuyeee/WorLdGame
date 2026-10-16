@@ -1,11 +1,11 @@
-import { defaultWebLayoutPair, defaultWebPlayerLayout, WEB_LAYOUT_ACTION_LABELS, webLayoutActions, type CanonicalProject, type WebLayoutBox, type WebLayoutComponent, type WebPageLayout, type WebLayoutSurface, type WebPlayerLayout } from "@world-studio/project-domain";
+import { defaultWebLayoutPair, defaultWebPageLayout, WEB_LAYOUT_ACTION_LABELS, WEB_LAYOUT_SURFACE_LABELS, webLayoutActions, webLayoutRegionNames, webLayoutIsPanel, type CanonicalProject, type WebLayoutBox, type WebLayoutComponent, type WebPageLayout, type WebLayoutSurface, type WebPlayerLayout } from "@world-studio/project-domain";
 import { ImageSelect } from "./PlayerSkinImageSettings";
 import "./styles/player-layout-settings.css";
 import type { LayoutDevice } from "./player-layout-edit";
 
 export function PlayerLayoutSettings({ value, surface, project, onChange, selection, setSelection, device, setDevice }: { value: WebPlayerLayout; surface: WebLayoutSurface; project: CanonicalProject; onChange: (value: WebPlayerLayout) => void; selection: string; setSelection: (value: string) => void; device: LayoutDevice; setDevice: (value: LayoutDevice) => void }) {
-  const page = value[surface], label = surface === "title" ? "标题" : "阅读";
-  const names = surface === "title" ? { primary: "作品信息", secondary: "开始与作品操作" } : { primary: "对白与姓名头像", secondary: "阅读常用操作" };
+  const page = value[surface] ?? defaultWebPageLayout(surface), label = WEB_LAYOUT_SURFACE_LABELS[surface];
+  const names = webLayoutRegionNames(surface);
   const selected = page.components.find(row => row.id === selection), target = selected ? selection : selection === "secondary" ? "secondary" : "primary";
   const pair = device === "mobile" ? page.mobile ?? defaultWebLayoutPair(surface, true) : page.desktop;
   const box = selected ? device === "mobile" ? selected.mobile ?? selected.desktop : selected.desktop : pair[target as "primary" | "secondary"];
@@ -18,12 +18,12 @@ export function PlayerLayoutSettings({ value, surface, project, onChange, select
   const add = (kind: WebLayoutComponent["kind"]) => {
     const id = Array.from({ length: 7 }, (_, index) => `layout_${index + 1}`).find(id => !page.components.some(row => row.id === id));
     if (!id || page.components.length >= 6) return;
-    const component: WebLayoutComponent = { id, kind, text: kind === "text" ? "写给玩家的一句话" : kind === "image" ? "装饰图片" : "打开玩家设置", assetId: "", action: "preferences", fit: "contain", desktop: { anchor: "middle-left", x: 0, y: 0, width: 24, height: 16 }, mobile: null };
+    const component: WebLayoutComponent = { id, kind, text: kind === "text" ? "写给玩家的一句话" : kind === "image" ? "装饰图片" : webLayoutIsPanel(surface) ? "返回原页面" : "打开玩家设置", assetId: "", action: webLayoutIsPanel(surface) ? "resume" : "preferences", fit: "contain", desktop: { anchor: "middle-left", x: 0, y: 0, width: 24, height: 16 }, mobile: null };
     setPage({ components: [...page.components, component] }); setSelection(id);
   };
   return <details className="skin-layout-settings"><summary>{label}自由组件与响应式布局</summary>
     <label className="skin-layout-check"><input type="checkbox" aria-label={`启用${label}自由布局`} checked={page.enabled} onChange={event => setPage({ enabled: event.target.checked })} />启用{label}自由布局</label>
-    <p>以实际舞台为边界，坐标和尺寸用百分比；越界自动收回安全区。主组件冲突时回退安全布局，自定义按钮冲突时并入操作区。默认操作和返回入口始终保留。</p>
+    <p>以{webLayoutIsPanel(surface) ? "可见视口" : "实际舞台"}为边界，坐标和尺寸用百分比；越界自动收回安全区。主组件冲突时回退安全布局，自定义按钮冲突时并入{webLayoutIsPanel(surface) ? "内容操作区" : "操作区"}。默认操作和返回入口始终保留。{(surface === "save" || surface === "history") && "本页自定义按钮只负责返回；槽位确认、备份和历史回退继续由原控件完成。"}</p>
     <fieldset disabled={!page.enabled}><legend>布局组件</legend>
       <label>选择布局组件<select aria-label="选择布局组件" value={target} onChange={event => setSelection(event.target.value)}><option value="primary">{names.primary}</option><option value="secondary">{names.secondary}</option>{page.components.map(row => <option key={row.id} value={row.id}>{row.kind === "button" ? "按钮" : row.kind === "image" ? "图片" : "文字"}：{row.text.slice(0, 24)}</option>)}</select></label>
       <div className="skin-layout-add">{([['text', '添加文字组件'], ['image', '添加图片组件'], ['button', '添加功能按钮']] as const).map(([kind, name]) => <button key={kind} type="button" disabled={page.components.length >= 6} onClick={() => add(kind)}>{name}</button>)}</div><small>每页最多六个自定义组件。图片与文字是装饰，不拦截剧情操作；正文、姓名和原有按钮仍由正式播放器负责。</small>
@@ -41,6 +41,6 @@ export function PlayerLayoutSettings({ value, surface, project, onChange, select
         <div className="skin-layout-add"><button type="button" disabled={page.components[0]?.id === selected.id} onClick={() => { const rows = [...page.components], index = rows.findIndex(row => row.id === selected.id); [rows[index - 1], rows[index]] = [rows[index]!, rows[index - 1]!]; setPage({ components: rows }); }}>前移组件顺序</button><button type="button" onClick={() => { setPage({ components: page.components.filter(row => row.id !== selected.id) }); setSelection("primary"); }}>删除所选组件</button></div><small>顺序用于显示、键盘访问和按钮回退区；装饰始终在剧情文字下方。</small>
       </>}
       <label>布局安全间距 px<input aria-label="布局安全间距" type="number" min={12} max={40} step={1} value={Number.isFinite(page.inset) ? page.inset : ""} onChange={event => setPage({ inset: event.target.value === "" ? NaN : Number(event.target.value) })} /></label>
-    </fieldset><button type="button" onClick={() => { onChange({ ...value, [surface]: defaultWebPlayerLayout()[surface] }); setSelection("primary"); }}>恢复本页默认布局</button><small>恢复会关闭本页自由布局并移除本页自定义组件，可用“撤销外观调整”恢复；其他页面、剧情和素材不变。</small>
+    </fieldset><button type="button" onClick={() => { onChange({ ...value, [surface]: defaultWebPageLayout(surface) }); setSelection("primary"); }}>恢复本页默认布局</button><small>恢复会关闭本页自由布局并移除本页自定义组件，可用“撤销外观调整”恢复；其他页面、剧情和素材不变。</small>
   </details>;
 }
