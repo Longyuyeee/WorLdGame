@@ -15,7 +15,7 @@ beforeEach(() => {
   vi.stubGlobal('Worker', function() { const value = worker(); workers.push(value); return value; });
   vi.stubGlobal('URL', { createObjectURL: vi.fn(() => `blob:session-${workers.length}`), revokeObjectURL: vi.fn() });
 });
-afterEach(() => { dispose.splice(0).forEach(close => close()); vi.useRealTimers(); vi.unstubAllGlobals(); });
+afterEach(() => { dispose.splice(0).forEach(close => close()); vi.restoreAllMocks(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 function fixture() {
   const project = loadProject(migrateS0Project({ schemaVersion: 0, id: 'pooled', title: 'Pooled', entrySceneId: 'main', characters: [], scenes: [{ id: 'main', title: 'Main', statements: [{ id: 'line', kind: 'narration', textId: 'text', text: '中文正文' }, { id: 'end', kind: 'end', endingName: 'Done' }] }] }).files);
   const state = startPlayerCore(createPlayerCore(project), project), saved = createPlayerCoreSessionSaveV1(state); if (!saved.ok) throw Error('fixture');
@@ -67,9 +67,66 @@ it('releases pressure/suspension ownership without cancelling active computation
   const next = runner.run(task), fresh = await started(); expect(workers).toHaveLength(2); reply(fresh); await next;
 });
 it('reuses the recovery worker but revalidates a subsequently changed old checkpoint', async () => {
+  // The immediate hidden-document path must retain pool reuse and validation.
+  vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
   const { state, saved } = fixture(), runner = recovery(), first = runner.run(state, new AbortController().signal), value = await started(); reply(value); expect(await first).toEqual(saved);
   const changed = structuredClone(state); (changed.historySession!.checkpoints[0]!.state as { buildId: string }).buildId = 'changed';
   const second = runner.run(changed, new AbortController().signal), rejected = expect(second).rejects.toBeInstanceOf(Error); await started();
   expect(workers).toHaveLength(1); reply(value); await rejected; expect(value.terminate).toHaveBeenCalledOnce();
   const next = runner.run(state, new AbortController().signal), fresh = await started(); expect(workers).toHaveLength(2); reply(fresh); expect(await next).toEqual(saved);
+});
+
+it.each(['release', 'abort', 'reuse', 'hidden'] as const)('does not copy before painting and handles %s during the wait', async kind => {
+  vi.useFakeTimers();
+  vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+  const frames: FrameRequestCallback[] = [];
+  vi.stubGlobal('requestAnimationFrame', vi.fn((action: FrameRequestCallback) => { frames.push(action); return frames.length; }));
+  vi.stubGlobal('cancelAnimationFrame', vi.fn());
+  const { state, saved } = fixture(), runner = recovery(), controller = new AbortController();
+  // A real prior send establishes the slow-copy signal; no history is forged.
+  vi.spyOn(performance, 'now').mockReturnValueOnce(0).mockReturnValue(5);
+  const warmup = runner.run(state, new AbortController().signal), warm = await started(); reply(warm); await warmup;
+  const pending = runner.run(state, controller.signal); await started();
+  expect(workers).toHaveLength(1); expect(warm.postMessage).toHaveBeenCalledOnce();
+  if (kind === 'abort') {
+    const rejected = expect(pending).rejects.toMatchObject({ name: 'AbortError' });
+    controller.abort(); await rejected; await vi.advanceTimersByTimeAsync(101);
+    expect(workers).toHaveLength(1); expect(warm.postMessage).toHaveBeenCalledOnce(); runner.releaseIdle();
+  } else {
+    if (kind === 'release') runner.releaseIdle();
+    if (kind === 'hidden') {
+      vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+      document.dispatchEvent(new Event('visibilitychange'));
+    } else {
+      frames.shift()!(0); await started(); expect(warm.postMessage).toHaveBeenCalledOnce();
+      frames.shift()!(16);
+    }
+    const value = await started(); reply(value);
+    expect(await pending).toEqual(saved);
+    if (kind !== 'release') { expect(value.terminate).not.toHaveBeenCalled(); runner.releaseIdle(); }
+    expect(value.terminate).toHaveBeenCalledOnce(); expect(URL.revokeObjectURL).toHaveBeenCalledTimes(kind === 'release' ? 2 : 1);
+  }
+  expect(vi.getTimerCount()).toBe(0);
+});
+
+it('keeps fast copies immediate and forgets only timing when resources are released', async () => {
+  vi.useFakeTimers(); vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+  const raf = vi.fn(); vi.stubGlobal('requestAnimationFrame', raf); vi.stubGlobal('cancelAnimationFrame', vi.fn());
+  const { state, saved } = fixture(), runner = recovery();
+  for (let i = 0; i < 2; i++) { const pending = runner.run(state, new AbortController().signal), value = await started(); reply(value); expect(await pending).toEqual(saved); }
+  expect(raf).not.toHaveBeenCalled(); expect(workers).toHaveLength(1);
+  runner.releaseIdle();
+  const pending = runner.run(state, new AbortController().signal), value = await started(); reply(value); await pending;
+  expect(raf).not.toHaveBeenCalled(); expect(workers).toHaveLength(2); runner.releaseIdle();
+});
+
+it.each(['missing', 'throwing', 'nonfinite'] as const)('does not let a %s optional clock break or retain a recovery worker', async kind => {
+  vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+  const raf = vi.fn(); vi.stubGlobal('requestAnimationFrame', raf);
+  if (kind === 'missing') vi.stubGlobal('performance', undefined);
+  else vi.spyOn(performance, 'now').mockImplementation(() => { if (kind === 'throwing') throw Error('restricted'); return NaN; });
+  const { state, saved } = fixture(), runner = recovery();
+  for (let i = 0; i < 2; i++) { const pending = runner.run(state, new AbortController().signal), value = await started(); reply(value); expect(await pending).toEqual(saved); }
+  expect(raf).not.toHaveBeenCalled(); expect(workers).toHaveLength(1);
+  runner.releaseIdle(); expect(workers[0]!.terminate).toHaveBeenCalledOnce();
 });

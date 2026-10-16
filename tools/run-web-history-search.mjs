@@ -15,6 +15,7 @@ const require=createRequire(import.meta.url);let chromium;try{({chromium}=requir
 const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1280,height:900},reducedMotion:'reduce'}),checks=[],errors=[];
 page.on('pageerror',error=>errors.push(String(error)));page.setDefaultTimeout(30000);
 const main=page.locator('main.player-shell'),hash=()=>main.getAttribute('data-runtime-state-hash'),dialog=page.getByRole('dialog',{name:'剧情历史',exact:true}),field=page.getByRole('searchbox',{name:'查找已记录的剧情',exact:true});
+let busyProtectionRetry=false;
 async function menu(){await page.mouse.move(1110,160);await page.getByRole('button',{name:'打开阅读菜单',exact:true}).click();}
 async function history(){await menu();await page.getByRole('button',{name:'打开剧情历史',exact:true}).click();await dialog.waitFor();}
 function inside(bounds,viewport){assert.ok(bounds&&bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=viewport.width+1&&bounds.y+bounds.height<=viewport.height+1,JSON.stringify({bounds,viewport}));}
@@ -41,11 +42,19 @@ try{
   await history();await field.fill('长篇第 94 句');await dialog.getByText('找到 1 条记录',{exact:true}).waitFor();assert.equal(await dialog.getByRole('button',{name:/回退到/}).count(),0);
   await dialog.getByRole('button',{name:'关闭剧情历史',exact:true}).click();await menu();await page.getByRole('button',{name:'快速读取',exact:true}).click();
   await page.locator('.player-load-confirm').waitFor();await page.getByRole('button',{name:'确认读取',exact:true}).click();await page.waitForFunction(()=>document.querySelector('main')?.dataset.saveOperation==='loaded');assert.equal(await hash(),savedHash);
-  await page.evaluate(()=>readingAdvanceHost.notifyMemoryPressure('critical'));await page.waitForFunction(()=>readingAdvanceHost.getObservation().memoryPressure==='protected');assert.equal(await hash(),savedHash);
+  await page.evaluate(()=>readingAdvanceHost.notifyMemoryPressure('critical'));
+  await page.waitForFunction(()=>['protected','error'].includes(readingAdvanceHost.getObservation().memoryPressure));
+  if(await main.getAttribute('data-memory-pressure')==='error'){
+    await page.getByText('上次恢复点保存仍未结束，未继续排队。回滚历史不变，可先手动保存。',{exact:true}).waitFor();
+    assert.equal(await hash(),savedHash);assert.equal(await main.getAttribute('data-history-length'),'95');
+    await page.waitForFunction(()=>document.querySelector('main')?.dataset.recoveryOperation==='ready');
+    await page.getByRole('button',{name:'重试内存保护',exact:true}).click();busyProtectionRetry=true;
+  }
+  await page.waitForFunction(()=>readingAdvanceHost.getObservation().memoryPressure==='protected');assert.equal(await hash(),savedHash);
   await history();await field.fill('长篇第 20 句');await dialog.getByText('找到 1 条记录',{exact:true}).waitFor();assert.equal(await dialog.getByRole('button',{name:/回退到/}).count(),0);await dialog.getByText('旧分支或内存保护归档 · 只读，不支持回滚',{exact:true}).waitFor();
   await page.screenshot({path:path.join(output,'history-search-archive.png')});await dialog.getByRole('button',{name:'关闭剧情历史',exact:true}).click();await page.getByRole('button',{name:'继续下一句',exact:true}).click();assert.notEqual(await hash(),savedHash);
   await page.evaluate(()=>readingAdvanceHost.unmount());assert.deepEqual(errors,[]);
-  await writeFile(path.join(output,'history-search-browser.json'),JSON.stringify({passed:true,browser:browser.version(),bundleHash:sha(code),cssHash:sha(css),checks,errors,returnedToCursor:21,continuedToCursor:22,recordedFutureRetained:95,nativeQuickLoad:true,archiveSearchReadonly:true,scope:'actual UI/native Worker/IndexedDB; public host pressure notification, not physical memory; viewport simulation, not physical devices'},null,2));
+  await writeFile(path.join(output,'history-search-browser.json'),JSON.stringify({passed:true,browser:browser.version(),bundleHash:sha(code),cssHash:sha(css),checks,errors,returnedToCursor:21,continuedToCursor:22,recordedFutureRetained:95,nativeQuickLoad:true,archiveSearchReadonly:true,busyProtectionRetry,scope:'actual UI/native Worker/IndexedDB; public host pressure notification, not physical memory; viewport simulation, not physical devices'},null,2));
   console.log('PASS history search: 3 viewports, 95 real lines, bounded matches, Back→primary, future/compacted archive read-only, original quick save restored');
 }catch(error){await page.screenshot({path:path.join(output,'history-search-failure.png')});await writeFile(path.join(output,'history-search-failure.json'),JSON.stringify({error:String(error),stack:error.stack,checks,errors},null,2));throw error;}
 finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

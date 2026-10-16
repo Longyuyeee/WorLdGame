@@ -1,5 +1,7 @@
 # 370 长篇存读档校验与完整进度恢复
 
+> 后续接续为 [#371 正文显示与后台恢复复制](371-web-reading-paint-and-recovery.md)。本页实测和四产物来源按当时范围保留，不用后续代码覆盖原基线。
+
 2026-10-17，接续 [#369](369-web-preview-reading-and-focus.md) 和 [#353](353-web-history-search-and-reading-continuity.md)，处理玩家长时间阅读后读取旧进度的等待。目标仍是 [#304 Web 完整 Gal 制作与交付](304-web-complete-gal-delivery.md)，不扩展装饰模板、原生产品化或发行范围。
 
 ## 读档路径与校验边界

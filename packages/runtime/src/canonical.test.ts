@@ -69,6 +69,24 @@ describe("canonical allocation optimization compatibility", () => {
     });
   });
 
+  it.each(["count", "characters", "single-length"])("caps the %s quote cache without skipping later validation", limit => {
+    const values = limit === "count" ? Array.from({ length: 600 }, (_, i) => `id.${i}`)
+      : limit === "characters" ? Array.from({ length: 100 }, (_, i) => `id.${i}.${"x".repeat(400)}`)
+      : ["x".repeat(513)];
+    const quote = vi.spyOn(JSON, "stringify");
+    try {
+      withCanonicalRuntimeStringCache(() => {
+        const first = canonicalRuntimeStringify(values), calls = quote.mock.calls.length;
+        expect(canonicalRuntimeStringify(values)).toBe(first);
+        const misses = quote.mock.calls.length - calls;
+        expect(misses).toBeGreaterThan(0);
+        if (limit !== "single-length") expect(misses).toBeLessThan(values.length);
+        expect(() => canonicalRuntimeStringify([...values, "e\u0301"])).toThrow(TypeError);
+        expect(() => canonicalRuntimeStringify([...values, "\ud800"])).toThrow(TypeError);
+      });
+    } finally { quote.mockRestore(); }
+  });
+
   it("retains scalar key order, nested serialization and SHA-256 bytes", () => {
     const bmpOnly = { "\uffff": true, "\ue000": false, "中文": 1, "é": 2, z: 3, a: 4 };
     expect(canonicalRuntimeStringify(bmpOnly)).toBe(reference(bmpOnly));

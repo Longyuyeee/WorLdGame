@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-advance-validation:profile": "node tools/run-web-advance-validation.mjs --profile",
+    "audit:web-advance-validation:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-advance-validation.mjs --browser",
     "audit:web-session-cost:profile": "node tools/run-web-session-cost.mjs --freeze --baseline && node tools/run-web-session-cost.mjs",
     "audit:web-session-cost:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-session-work.mjs",
     "audit:web-preview-reading:browser": "node tools/run-web-preview-reading.mjs",

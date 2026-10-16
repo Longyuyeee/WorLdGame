@@ -1,5 +1,6 @@
 import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection } from "./session-worker-pool";
 import { createRecoverySession, recoverySessionSource, type RecoverySessionSource, type RecoverySessionResult } from "./recovery-session-task";
+import { yieldBeforeRecoveryCopy } from "./recovery-paint-yield";
 
 export class RecoverySessionError extends Error {
   override readonly name = "RecoverySessionError";
@@ -9,6 +10,10 @@ const diagnostics = { active: 0, peakActive: 0, started: 0, completed: 0, cancel
 function publish() {
   if (typeof document !== "undefined") document.documentElement.dataset.recoverySerializer = JSON.stringify(diagnostics);
 }
+function copyClock(): number | undefined {
+  try { const value = performance.now(); return Number.isFinite(value) ? value : undefined; }
+  catch { return undefined; }
+}
 
 /** One bounded task per caller. Cancellation terminates the computation, not IO.
  * Inline worker keeps the same implementation usable in standalone HTML too.
@@ -17,7 +22,7 @@ export async function serializeRecoverySession(source: RecoverySessionSource, si
   return serializeSession(source, signal, timeoutMs);
 }
 
-async function serializeSession(source: RecoverySessionSource, signal: AbortSignal, timeoutMs = 5000, pool?: SessionWorkerPool): Promise<RecoverySessionResult> {
+async function serializeSession(source: RecoverySessionSource, signal: AbortSignal, timeoutMs = 5000, pool?: SessionWorkerPool, copied?: (milliseconds: number) => void): Promise<RecoverySessionResult> {
   signal.throwIfAborted();
   const fallback = () => {
     diagnostics.fallback++; publish(); signal.throwIfAborted();
@@ -56,16 +61,33 @@ async function serializeSession(source: RecoverySessionSource, signal: AbortSign
     };
     signal.addEventListener("abort", abort, { once: true });
     if (signal.aborted) { abort(); return; }
+    const start = copied ? copyClock() : undefined;
     try { worker.postMessage({ id, source: recoverySessionSource(source) }); } catch { fail(); }
+    finally { const end = start === undefined ? undefined : copyClock(); if (start !== undefined && end !== undefined) copied!(Math.max(0, end - start)); }
   });
 }
 
 export class RecoverySessionRunner {
   private pool = new SessionWorkerPool("world-player-recovery");
   private tail: Promise<void> = Promise.resolve();
-  releaseIdle() { this.pool.releaseIdle(); }
+  private generation = 0;
+  private lastCopyMilliseconds = 0;
+  releaseIdle() { this.generation++; this.lastCopyMilliseconds = 0; this.pool.releaseIdle(); }
   run(source: RecoverySessionSource, signal: AbortSignal): Promise<RecoverySessionResult> {
-    const pending = this.tail.then(() => serializeSession(source, signal, 5000, this.pool));
+    const generation = this.generation;
+    const pending = this.tail.then(async () => {
+      // Only the background runner yields. Explicit saves/loads and the public
+      // one-shot compatibility path keep their existing timing and semantics.
+      // Remember timing only, never a source/result/validation conclusion.
+      // Sub-4ms copies keep the immediate path instead of delaying protection.
+      const paint = typeof Worker === "undefined" || this.lastCopyMilliseconds < 4 ? undefined : yieldBeforeRecoveryCopy(signal);
+      if (paint !== undefined) await paint;
+      // Suspension/pressure during the yield must not park a newly acquired
+      // worker after ownership was released. Finish this task as a one-shot.
+      return serializeSession(source, signal, 5000, generation === this.generation ? this.pool : undefined, milliseconds => {
+        if (generation === this.generation) this.lastCopyMilliseconds = milliseconds;
+      });
+    });
     this.tail = pending.then(() => undefined, () => undefined);
     return pending;
   }
