@@ -1,0 +1,7 @@
+{
+  "passed": false,
+  "scope": "Browser failure-injection harness only",
+  "reason": "The injection initially derived its route pattern from the single-file HTML's embedded data URL instead of the directory game's bounded asset path. The task-owned test runner was stopped; this run was not accepted.",
+  "repair": "Use the directory payload asset URL, require a /gal/ path shorter than 512 characters, fail only its first image request, and await Player readiness after DOMContentLoaded.",
+  "applicationCodeChangedForThisHarnessError": false
+}

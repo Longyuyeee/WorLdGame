@@ -11,6 +11,7 @@ export * from "./web-player-appearance";
 export * from "./web-player-skin";
 export * from "./web-player-skin-images";
 export * from "./web-player-skin-template";
+export * from "./web-player-layout";
 export * from "./web-player-screens";
 export * from "./web-save-compatibility";
 export * from "./web-credits";

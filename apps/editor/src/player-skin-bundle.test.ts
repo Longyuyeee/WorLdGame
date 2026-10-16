@@ -5,7 +5,7 @@ import { applyWebAssetSources, applyWebCredits, applyWebPlayerAppearance, create
 import { createBlobDigest, inspectUntrustedMedia, type BlobDigest } from "@world-studio/project-persistence";
 import { mediaInspectionToJson } from "./media-inspection-client";
 import { applySkinImportPlan, defaultSkinChoices, exportSkinBundle, prepareSkinImport, readSkinBundle, type SkinAssetChoice } from "./player-skin-bundle";
-import { defaultWebPlayerSkinImages, defaultWebPlayerSkinTemplate, webPlayerSkinReferences } from "@world-studio/project-domain";
+import { defaultWebPlayerLayout, defaultWebPlayerSkinImages, defaultWebPlayerSkinTemplate, webPlayerSkinReferences } from "@world-studio/project-domain";
 import { exportPlayerSkinPreset, importPlayerSkinPreset } from "./player-skin-preset";
 const png = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
 function fixture() {
@@ -22,6 +22,14 @@ function fixture() {
   return { project, appearance, reader: { read: async (id: BlobDigest) => blobs.get(id) ?? null } };
 }
 const target = () => createProjectTemplate("新的故事", "018f08d8-71a1-7bc2-a627-2f4a843ee151");
+it("carries image-only component references and bounded action layouts through a portable bundle and explicit fallback", async () => {
+  const f = fixture(), layout = defaultWebPlayerLayout(), appearance = { ...f.appearance, coverAssetId: "", skin: { ...f.appearance.skin, reading: { ...f.appearance.skin.reading, windowAssetId: "" }, layout: { ...layout, title: { ...layout.title, enabled: true, components: [{ id: "layout_image", kind: "image" as const, text: "Layout image", action: "preferences" as const, assetId: "cover", fit: "contain" as const, desktop: layout.title.desktop.primary, mobile: null }] } } } };
+  const bundle = await readSkinBundle(await exportSkinBundle(f.project, appearance, "布局", f.reader, "", false));
+  const plan = await prepareSkinImport(bundle, target(), defaultSkinChoices(bundle, target()), null);
+  expect(plan.appearance.skin?.layout?.title.components[0]?.assetId).toBeTruthy(); expect(plan.inputs).toHaveLength(2);
+  const fallback = await prepareSkinImport(bundle, target(), { ...defaultSkinChoices(bundle, target()), cover: { mode: "fallback" } }, null);
+  expect(fallback.appearance.skin?.layout?.title.components[0]?.assetId).toBe(""); expect(fallback.inputs).toHaveLength(1); expect(fallback.previewProject.scripts).toEqual(target().scripts);
+});
 it("requires explicit portrait-role mapping, prunes unused portrait-only files and never copies characters", async () => {
   const f = fixture(), template = defaultWebPlayerSkinTemplate(), project = { ...f.project, characters: { ...f.project.characters, characters: [{ id: "source_hero", displayName: "同名" }] } };
   const appearance = { ...f.appearance, coverAssetId: "", skin: { ...f.appearance.skin, reading: { ...f.appearance.skin.reading, windowAssetId: "" }, template: { ...template, portrait: { ...template.portrait, enabled: true, bindings: [{ characterId: "source_hero", characterName: "同名", assetId: "cover" }] } } } };

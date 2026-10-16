@@ -71,7 +71,7 @@ export function captureBrowserSavePreview(
       target = document.createElementNS(XHTML, source.tagName.toLowerCase());
       for (const child of shallow ? [] : source.childNodes) {
         if (child.nodeType === Node.TEXT_NODE) target.appendChild(document.createTextNode(child.textContent ?? ""));
-        else if (child instanceof Element && !child.matches("script,style,audio,source,i")) target.appendChild(clone(child));
+        else if (child instanceof Element && !child.matches("script,style,audio,source,i,[data-layout-kind='button']")) target.appendChild(clone(child));
       }
     }
     for (const key of Array.from({ length: computed.length }, (_, index) => computed.item(index))) {
@@ -94,7 +94,7 @@ export function captureBrowserSavePreview(
     frozen = clone(stage, true);
     // Only current story art/text/choices/ending; never capture a menu or the
     // thumbnails themselves. Keep the original DOM so focus and Auto are intact.
-    frozen.replaceChildren(...Array.from(stage.children).filter(node => node.matches(".player-stage-world,.player-dialogue,.player-choice,.player-ending")).map(node => clone(node)));
+    frozen.replaceChildren(...Array.from(stage.children).filter(node => node.matches(".player-stage-world,.player-dialogue,.player-choice,.player-ending,.player-layout-components")).map(node => clone(node)));
     Object.assign(frozen.style, { position: "relative", width: `${bounds.width}px`, height: `${bounds.height}px`, margin: "0", transform: "none", boxSizing: "border-box" });
   } catch { return Promise.resolve(null); }
   return (async () => {

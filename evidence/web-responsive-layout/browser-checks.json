@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T19:00:36.076Z",
+  "browser": "151.0.7922.34",
+  "checks": [
+    "Actual main-story authoring configures four title components and two reading actions, rejects invalid width, undoes deletion, saves/reopens and exports a source project, skin configuration and both formal formats.",
+    "Desktop file:// title and reading anchors stay in-stage; custom load/preferences/save actions preserve the current paragraph and return focus; the full first route reaches its ending.",
+    "390×844 touch-enabled directory game uses mobile-safe and independent coordinates, survives 844×390 rotation, keeps menus/save focus intact and reaches the other ending.",
+    "Explicit failure of the first decorative-image request shows its description; settings and entry into the actual story remain usable.",
+    "A second blank project imports layout and actual image/font bytes without copying source scripts or characters; an intentionally overlapping author draft visibly uses safe layout protection."
+  ],
+  "errors": [],
+  "screenshots": [
+    "desktop-title.png",
+    "desktop-reading.png",
+    "desktop-save.png",
+    "desktop-ending.png",
+    "phone-title.png",
+    "phone-reading.png",
+    "phone-save.png",
+    "landscape-reading.png",
+    "phone-ending.png",
+    "missing-decoration-fallback.png",
+    "author-layout-protection.png"
+  ],
+  "formalEndingCoverage": "2/2 combined: HTML first route, directory other route; not all format×route combinations",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "desktopRoute": "1\n留下来，把今晚写完",
+  "mobileRoute": "2\n带上信，去下一座城市",
+  "siteFiles": 18,
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.5.0-project.zip",
+      "bytes": 10689047,
+      "sha256": "03521275ac56d19965903626c1a7b058fe32f7213bd3f19f809fdb435e0fb0e1"
+    },
+    {
+      "name": "tomorrow-letter-0.5.0.html",
+      "bytes": 15020676,
+      "sha256": "e084bdb11686df2833d0bb58472e57b25d154ab69523c8f101e7edee08d0f6fe"
+    },
+    {
+      "name": "tomorrow-letter-0.5.0-web.zip",
+      "bytes": 11525279,
+      "sha256": "be4af606e0266484c9f98fec20a09982067a013e4570e85bc3db56e2a09d5a65"
+    },
+    {
+      "name": "letter-layout.worldskin.json",
+      "bytes": 8299,
+      "sha256": "1720ea60362e4be8f442eb9cc416aaf334ef730dc875cf04fd12905256aa01a7"
+    },
+    {
+      "name": "letter-layout.worldskin.zip",
+      "bytes": 4630227,
+      "sha256": "55b103d9cd4e85afd7f0c5237ab75d2b078057b07dddcc6ec1b9c88ca1893d6d"
+    },
+    {
+      "name": "reused-layout-project.zip",
+      "bytes": 4635724,
+      "sha256": "2c991d76279f4c088f0e55164987cff3c3d46b5d9602cab3f7a1b90d7ef6a516"
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 import type { CanonicalProject, JsonObject } from "./types";
 import { isWebPlayerSkin, webPlayerFontAssets, webPlayerSkinFontAssetId, webPlayerSkinImageReferences, type WebPlayerSkin } from "./web-player-skin";
+import { isWebPlayerLayout } from "./web-player-layout";
 
 export interface WebPlayerAppearance {
   readonly schemaVersion: 1;
@@ -37,6 +38,7 @@ export function webPlayerCoverAssets(project: CanonicalProject): readonly JsonOb
   });
 }
 export function applyWebPlayerAppearance(project: CanonicalProject, value: WebPlayerAppearance): CanonicalProject {
+  if (value?.skin?.layout !== undefined && !isWebPlayerLayout(value.skin.layout)) throw new Error("请检查自由布局：偏移 -50～50、宽度 12～100、高度 8～90、安全间距 12～40，均为整数；每页最多六个组件，按钮文字最多 48 字，其他文字最多 200 字。动作需使用本页支持的功能。");
   if (!valid(value)) throw new Error("请检查玩家主题、配色、外观参数和标题简介（最多 200 字）。");
   if (value.coverAssetId && !webPlayerCoverAssets(project).some(asset => String(asset.assetId ?? asset.id) === value.coverAssetId)) {
     throw new Error("封面素材缺失或不受支持，请重新选择。支持已检查、不超过 8 MB / 400 万像素的 PNG/JPEG/WebP。");

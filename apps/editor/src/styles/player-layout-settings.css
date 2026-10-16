@@ -1,0 +1,10 @@
+.skin-layout-settings { padding: 14px; border: 1px solid #d9d5ec; border-radius: 12px; }
+.skin-layout-settings summary { cursor: pointer; font-weight: 700; }
+.skin-layout-settings :is(p,small) { display: block; line-height: 1.6; font-size: 12px; white-space: normal; }
+.skin-layout-settings fieldset { min-width: 0; display: grid; gap: 12px; margin: 12px 0; padding: 12px; border: 1px solid #ddd9ed; border-radius: 10px; }
+.skin-layout-settings label { display: grid; gap: 6px; font-size: 12px; }
+.skin-layout-settings .skin-layout-check { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+.skin-layout-check input { width: auto; }
+.skin-layout-numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.skin-layout-add { display: flex; flex-wrap: wrap; gap: 8px; }
+.skin-layout-settings :is(button,input,select,textarea) { min-height: 40px; max-width: 100%; }
