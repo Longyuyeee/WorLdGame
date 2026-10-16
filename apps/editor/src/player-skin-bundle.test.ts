@@ -45,6 +45,13 @@ it("requires explicit portrait-role mapping, prunes unused portrait-only files a
   const templateWithTwo = { ...b.appearance.skin.template!, portrait: { ...b.appearance.skin.template!.portrait, bindings: [...b.appearance.skin.template!.portrait.bindings, { characterId: "source_two", characterName: "第二人", assetId: "cover" }] } };
   await expect(prepareSkinImport({ ...b, appearance: { ...b.appearance, skin: { ...b.appearance.skin, template: templateWithTwo } } }, p, choices, null, undefined, { source_hero: "target_hero", source_two: "target_hero" })).rejects.toThrow("同一角色");
 });
+it("retains hidden-device assets and visibility during portable bundle reuse", async () => {
+  const f = fixture(), layout = defaultWebPlayerLayout();
+  const appearance = { ...f.appearance, skin: { ...f.appearance.skin, layout: { ...layout, title: { ...layout.title, enabled: true, components: [{ id: "layout_device", kind: "image" as const, text: "Desktop image", action: "preferences" as const, assetId: "cover", fit: "contain" as const, visibility: "desktop" as const, desktop: layout.title.desktop.primary, mobile: null }] } } } };
+  const bundle = await readSkinBundle(await exportSkinBundle(f.project, appearance, "Visibility", f.reader, "", false));
+  const plan = await prepareSkinImport(bundle, target(), defaultSkinChoices(bundle, target()), null);
+  expect(plan.appearance.skin?.layout?.title.components[0]).toMatchObject({ visibility: "desktop", assetId: expect.any(String) }); expect(plan.inputs).toHaveLength(2); expect(plan.previewProject.scripts).toEqual(target().scripts);
+});
 it("carries more than eight independent image references through JSON, ZIP, remapping and missing-image fallback", async () => {
   const f = fixture(), empty = defaultWebPlayerSkinImages(), extra = Array.from({ length: 13 }, (_, i) => ({ ...f.project.assets.assets[0]!, assetId: `image_${i}` }));
   const images = { backgrounds: Object.fromEntries(Object.entries(empty.backgrounds).map(([surface, row], i) => [surface, { ...row, assetId: `image_${i}` }])) as typeof empty.backgrounds, buttons: { normal: "image_9", hover: "image_10", pressed: "image_11", disabled: "image_12" } };

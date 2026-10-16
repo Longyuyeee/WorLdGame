@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { applyWebPlayerAppearance, createProjectTemplate, DEFAULT_WEB_PLAYER_APPEARANCE, defaultWebPlayerLayout, defaultWebPlayerSkin, type WebLayoutAction, type WebLayoutComponent } from "@world-studio/project-domain";
 import { PlayerShell } from "./PlayerShell";
 
-afterEach(() => { vi.restoreAllMocks(); localStorage.clear(); });
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); localStorage.clear(); });
 function fixture() {
   vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(1000); vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(560);
   const base = createProjectTemplate("Layout", "018f08d8-71a1-7bc2-a627-2f4a843ee164"), sceneId = base.manifest.entrySceneId;
@@ -29,4 +29,14 @@ it("shows a readable replacement for an unavailable decorative image without blo
   const original = fixture(), appearance = original.ui.preservedFields!.webPlayerAppearance as unknown as typeof DEFAULT_WEB_PLAYER_APPEARANCE;
   const layout = appearance.skin!.layout!, project = applyWebPlayerAppearance(original, { ...appearance, skin: { ...appearance.skin!, layout: { ...layout, title: { ...layout.title, components: [...layout.title.components, { ...layout.title.components[0]!, id: "layout_image", kind: "image", text: "Missing decoration", action: "preferences", assetId: "" }] } } } });
   render(<PlayerShell project={project} />); expect(screen.getByText("Missing decoration")).toBeVisible(); fireEvent.click(screen.getByRole("button", { name: "Custom start" })); expect(screen.getByRole("button", { name: "继续下一句" })).toHaveTextContent("A saved sentence");
+});
+it("removes custom device-hidden actions from keyboard and pointer access without removing the original entry", async () => {
+  const original = fixture(), appearance = original.ui.preservedFields!.webPlayerAppearance as unknown as typeof DEFAULT_WEB_PLAYER_APPEARANCE;
+  const layout = appearance.skin!.layout!, project = applyWebPlayerAppearance(original, { ...appearance, skin: { ...appearance.skin!, layout: { ...layout, title: { ...layout.title, components: layout.title.components.map(row => ({ ...row, visibility: "desktop" })) } } } });
+  vi.stubGlobal("innerWidth", 390); vi.stubGlobal("innerHeight", 844);
+  const { container } = render(<PlayerShell project={project} />);
+  expect(screen.queryByRole("button", { name: "Custom start" })).not.toBeInTheDocument(); expect(container.querySelector("[data-layout-component]")).toBeNull();
+  expect(screen.getByRole("button", { name: "开始故事" })).toBeEnabled();
+  vi.stubGlobal("innerWidth", 1280); fireEvent(window, new Event("resize"));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Custom start" })).toBeInTheDocument());
 });

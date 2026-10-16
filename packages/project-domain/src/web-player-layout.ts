@@ -13,6 +13,7 @@ export interface WebLayoutComponent extends JsonObject {
   readonly id: string; readonly kind: "text" | "image" | "button"; readonly text: string;
   readonly assetId: string; readonly action: WebLayoutAction; readonly fit: "cover" | "contain";
   readonly desktop: WebLayoutBox; readonly mobile: WebLayoutBox | null;
+  readonly visibility?: "all" | "desktop" | "mobile";
 }
 export interface WebPageLayout extends JsonObject {
   readonly enabled: boolean; readonly inset: number; readonly desktop: WebLayoutPair; readonly mobile: WebLayoutPair | null;
@@ -29,6 +30,7 @@ export function defaultWebPlayerLayout(): WebPlayerLayout {
 }
 const object = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
 const keys = (value: unknown, names: readonly string[]): value is Record<string, unknown> => object(value) && Object.keys(value).length === names.length && names.every(name => Object.hasOwn(value, name));
+const componentKeys = (value: unknown): value is Record<string, unknown> => object(value) && keys(Object.fromEntries(Object.entries(value).filter(([key]) => key !== "visibility")), ["id", "kind", "text", "assetId", "action", "fit", "desktop", "mobile"]) && (!Object.hasOwn(value, "visibility") || ["all", "desktop", "mobile"].includes(String(value.visibility)));
 const number = (value: unknown, min: number, max: number) => typeof value === "number" && Number.isFinite(value) && Number.isInteger(value) && value >= min && value <= max;
 export function isWebLayoutBox(value: unknown): value is WebLayoutBox {
   return keys(value, ["anchor", "x", "y", "width", "height"]) && typeof value.anchor === "string" && /^(top|middle|bottom)-(left|center|right)$/u.test(value.anchor) && number(value.x, -50, 50) && number(value.y, -50, 50) && number(value.width, 12, 100) && number(value.height, 8, 90);
@@ -38,6 +40,6 @@ export function isWebPlayerLayout(value: unknown): value is WebPlayerLayout {
   return keys(value, ["title", "reading"]) && (["title", "reading"] as const).every(surface => {
     const page = value[surface];
     return keys(page, ["enabled", "inset", "desktop", "mobile", "components"]) && typeof page.enabled === "boolean" && number(page.inset, 12, 40) && pair(page.desktop) && (page.mobile === null || pair(page.mobile)) && Array.isArray(page.components) && page.components.length <= 6 && new Set(page.components.map(component => object(component) ? component.id : null)).size === page.components.length && page.components.every(component =>
-      keys(component, ["id", "kind", "text", "assetId", "action", "fit", "desktop", "mobile"]) && typeof component.id === "string" && /^layout_[a-zA-Z0-9_-]{1,48}$/u.test(component.id) && ["text", "image", "button"].includes(String(component.kind)) && typeof component.text === "string" && component.text.trim().length > 0 && component.text.length <= (component.kind === "button" ? 48 : 200) && typeof component.assetId === "string" && (component.assetId === "" || /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/u.test(component.assetId)) && (component.kind === "image" || component.assetId === "") && webLayoutActions(surface).includes(component.action as WebLayoutAction) && ["cover", "contain"].includes(String(component.fit)) && isWebLayoutBox(component.desktop) && (component.mobile === null || isWebLayoutBox(component.mobile)));
+      componentKeys(component) && typeof component.id === "string" && /^layout_[a-zA-Z0-9_-]{1,48}$/u.test(component.id) && ["text", "image", "button"].includes(String(component.kind)) && typeof component.text === "string" && component.text.trim().length > 0 && component.text.length <= (component.kind === "button" ? 48 : 200) && typeof component.assetId === "string" && (component.assetId === "" || /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/u.test(component.assetId)) && (component.kind === "image" || component.assetId === "") && webLayoutActions(surface).includes(component.action as WebLayoutAction) && ["cover", "contain"].includes(String(component.fit)) && isWebLayoutBox(component.desktop) && (component.mobile === null || isWebLayoutBox(component.mobile)));
   });
 }

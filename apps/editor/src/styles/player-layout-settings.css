@@ -5,6 +5,7 @@
 .skin-layout-settings label { display: grid; gap: 6px; font-size: 12px; }
 .skin-layout-settings .skin-layout-check { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
 .skin-layout-check input { width: auto; }
+.skin-editor .skin-layout-check input[type="checkbox"] { width: 20px; min-height: 20px; height: 20px; padding: 0; flex: 0 0 20px; }
 .skin-layout-numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .skin-layout-add { display: flex; flex-wrap: wrap; gap: 8px; }
 .skin-layout-settings :is(button,input,select,textarea) { min-height: 40px; max-width: 100%; }

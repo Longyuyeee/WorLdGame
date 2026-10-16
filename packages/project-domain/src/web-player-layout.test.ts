@@ -20,3 +20,16 @@ it("uses the same image-reference/remapping authority for new layout assets", ()
   expect(remapWebPlayerSkinReferences(skin, () => "mapped").layout?.title.components[0]?.assetId).toBe("mapped");
   expect(remapWebPlayerSkinReferences(skin, () => "").layout?.title.components[0]?.assetId).toBe("");
 });
+it("preserves optional device visibility across save/remap while rejecting unrecognized visibility fields", () => {
+  const base = defaultWebPlayerLayout(), project = createProjectTemplate("Visibility", "018f08d8-71a1-7bc2-a627-2f4a843ee165");
+  for (const visibility of [undefined, "all", "desktop", "mobile"] as const) {
+    const row = { ...component, kind: "image" as const, assetId: "picture", ...(visibility ? { visibility } : {}) };
+    const skin = { ...defaultWebPlayerSkin(), layout: { ...base, title: { ...base.title, components: [row] } } };
+    expect(isWebPlayerSkin(skin)).toBe(true);
+    const changed = applyWebPlayerAppearance(project, { ...DEFAULT_WEB_PLAYER_APPEARANCE, skin: { ...skin, layout: { ...skin.layout, title: { ...skin.layout.title, components: [{ ...row, assetId: "" }] } } } });
+    expect(readWebPlayerAppearance(loadProject(saveProject(changed)))?.skin?.layout?.title.components[0]?.visibility).toBe(visibility);
+    expect(remapWebPlayerSkinReferences(skin, () => "remapped").layout?.title.components[0]).toMatchObject({ assetId: "remapped", ...(visibility ? { visibility } : {}) });
+    expect(webPlayerSkinImageReferences(skin)).toContain("picture");
+  }
+  for (const visibility of [null, true, "none", 1, {}]) expect(isWebPlayerSkin({ ...defaultWebPlayerSkin(), layout: { ...base, title: { ...base.title, components: [{ ...component, visibility }] } } })).toBe(false);
+});
