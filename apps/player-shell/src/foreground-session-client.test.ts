@@ -69,3 +69,54 @@ it.each(['cursor','state-hash','artifact-type','playback'] as const)('rejects a 
 });
 it("serializes foreground work, cancels queued generations and can resume after effect replay",async()=>{const t=task("save"),test=setup(),runner=new ForegroundSessionRunner(),first=runner.run(t),second=runner.run(t);const rejected1=expect(first).rejects.toMatchObject({name:"AbortError"}),rejected2=expect(second).rejects.toMatchObject({name:"AbortError"});await Promise.resolve();expect(factory).toHaveBeenCalledOnce();runner.cancelPending();await Promise.all([rejected1,rejected2]);expect(factory).toHaveBeenCalledOnce();await expect(runner.run(t)).rejects.toMatchObject({name:"AbortError"});runner.resume();const third=runner.run(t);await Promise.resolve();test.reply(executeForegroundSessionTask(t));await third;expect(factory).toHaveBeenCalledTimes(2);runner.cancelPending();});
 it("does not retain the last large successful session in the idle queue tail",async()=>{const t=task("save"),test=setup(),runner=new ForegroundSessionRunner(),pending=runner.run(t);await Promise.resolve();test.reply(executeForegroundSessionTask(t));await pending;expect(await(runner as unknown as {tail:Promise<unknown>}).tail).toBeUndefined();runner.cancelPending();});
+
+it('executes a complete ordinary advance on the owned worker and transports only execution fields back', async () => {
+  const { state } = fixture(), t = { kind: 'advance' as const, state }, test = setup();
+  const pending = runForegroundSessionTask(t, new AbortController().signal);
+  const sent = structuredClone(test.worker.postMessage.mock.calls[0]![0]), reply = executeForegroundSessionWorkerTask(sent.task);
+  expect(reply.kind).toBe('advance'); if (reply.kind !== 'advance' || !reply.result.ok) throw Error('fixture');
+  expect(reply.result.patch).not.toHaveProperty('artifacts'); expect(reply.result.patch).not.toHaveProperty('localization');
+  test.reply(structuredClone(reply)); const actual = await pending;
+  if (actual.kind !== 'advance' || !actual.result.ok) throw Error('advance');
+  expect({ ...state, ...actual.result.patch }).toEqual(advancePlayerCore(state));
+  expect(test.worker.terminate).toHaveBeenCalledOnce();
+});
+it.each(['source', 'project', 'build', 'cursor', 'truncated', 'revision', 'nonfinite', 'playback', 'owner', 'missing'] as const)('rejects malformed advance patches: %s', async kind => {
+  const { state } = fixture(), t = { kind: 'advance' as const, state }, reply = executeForegroundSessionWorkerTask(foregroundSessionWorkerTask(t));
+  if (reply.kind !== 'advance' || !reply.result.ok) throw Error('fixture');
+  const result = structuredClone(reply.result), patch = result.patch;
+  if (kind === 'source') Object.assign(result, { sourceHash: '0'.repeat(64) });
+  if (kind === 'project') Object.assign(patch.runtimeState!, { projectId: 'foreign' });
+  if (kind === 'build') Object.assign(patch.historySession!, { buildId: 'foreign' });
+  if (kind === 'cursor') Object.assign(patch.historySession!, { cursor: 999 });
+  if (kind === 'truncated') Object.assign(patch.historySession!, { checkpoints: [] });
+  if (kind === 'revision') Object.assign(patch.runtimeState!, { stateRevision: state.runtimeState!.stateRevision });
+  if (kind === 'nonfinite') Object.assign(patch.runtimeState!, { stateRevision: Infinity });
+  if (kind === 'playback') Object.assign(patch.playback, { mode: 'skipAll' });
+  if (kind === 'owner') Object.assign(patch, { artifacts: state.artifacts });
+  if (kind === 'missing') delete (patch as unknown as Record<string, unknown>).hostState;
+  const test = setup(), pending = runForegroundSessionTask(t, new AbortController().signal), rejected = expect(pending).rejects.toBeInstanceOf(ForegroundSessionError);
+  test.reply({ kind: 'advance', result }); await rejected; expect(test.worker.terminate).toHaveBeenCalledOnce();
+});
+it('cancels a single advance without cancelling the following explicit save or retaining signal listeners', async () => {
+  const { state } = fixture(), test = setup(), runner = new ForegroundSessionRunner(), controller = new AbortController();
+  const add = vi.spyOn(controller.signal, 'addEventListener'), remove = vi.spyOn(controller.signal, 'removeEventListener');
+  const first = runner.run({ kind: 'advance', state }, controller.signal), rejected = expect(first).rejects.toMatchObject({ name: 'AbortError' });
+  const next = runner.run({ kind: 'save', source: state }); await Promise.resolve();
+  const late = test.worker.onmessage!, id = test.worker.postMessage.mock.calls[0]![0].id;
+  controller.abort(); await rejected; await Promise.resolve(); await Promise.resolve();
+  const latest = test.worker.onmessage; late({ data: { id, result: executeForegroundSessionTask({ kind: 'advance', state }) } } as MessageEvent);
+  expect(test.worker.onmessage).toBe(latest);
+  test.reply(executeForegroundSessionTask({ kind: 'save', source: state })); expect((await next).result.ok).toBe(true);
+  expect(add).toHaveBeenCalledOnce(); expect(remove).toHaveBeenCalledOnce(); runner.cancelPending();
+});
+
+it('does not terminate an active save when a queued advance alone is cancelled', async () => {
+  const { state } = fixture(), test = setup(), runner = new ForegroundSessionRunner(), controller = new AbortController();
+  const saving = runner.run({ kind: 'save', source: state });
+  const advancing = runner.run({ kind: 'advance', state }, controller.signal), rejected = expect(advancing).rejects.toMatchObject({ name: 'AbortError' });
+  await Promise.resolve(); controller.abort(); expect(test.worker.terminate).not.toHaveBeenCalled();
+  expect(test.worker.postMessage).toHaveBeenCalledOnce(); test.reply(executeForegroundSessionTask({ kind: 'save', source: state }));
+  expect((await saving).result.ok).toBe(true); await rejected;
+  expect(test.worker.terminate).not.toHaveBeenCalled(); expect(test.worker.postMessage).toHaveBeenCalledOnce(); runner.cancelPending();
+});

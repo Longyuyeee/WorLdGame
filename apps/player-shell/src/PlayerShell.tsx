@@ -3,6 +3,7 @@ import { releaseAnimationsOnDetach } from "./owned-animations";
 import { storyMotionStyle } from "./story-motion-style";
 import "./story-motion.css";
 import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-client";
+import { useStoryAdvance } from './use-story-advance';
 import { startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
@@ -404,6 +405,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout, preferences: preferencesLayout, credits: creditsLayout, ending: endingLayout, additional: overviewLayout, gallery: galleryLayout, music: musicLayout, replay: replayLayout, endings: endingsLayout };
   const additionalLayout = panelLayouts[additionalSurface];
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
+  const storyAdvance = useStoryAdvance(state, setState, sessionRunner, !editorPreview && hostActivity === 'active' && !artworkView && !preferencesOpen && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !additionalContentOpen && !autoEnabled && skipMode === null && memoryPressureStatus !== 'protecting' && (memoryPressureRequest === undefined || memoryPressureRequest.serial === handledMemorySerial));
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
   const latestSlot = saveSlots.slice().sort((a, b) => b.savedAtEpochMilliseconds - a.savedAtEpochMilliseconds || a.slotId.localeCompare(b.slotId))[0];
   const mediaSignature = useMemo(() => mediaAssets.map((asset) => `${asset.assetId}\0${asset.mimeType}\0${asset.url}`).join("\x01"), [mediaAssets]);
@@ -699,6 +701,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [captureCurrentSlot, saveStore, snapshot, state,sessionRunner]);
 
   const saveToSlot = useCallback(async (kind: "manual" | "quick", slotId: string) => {
+    storyAdvance.cancel();
     if (saveCoordinator === undefined) return;
     setSaveOperation("busy");
     setSaveMessage("正在写入…");
@@ -735,6 +738,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [pendingOverwriteSlotId, saveToSlot]);
 
   const loadFromSlot = useCallback(async (slotId: string, expectedArtifactHash?: string) => {
+    storyAdvance.cancel();
     if (saveStore === undefined) return;
     setSaveOperation("busy");
     setSaveMessage("正在校验…");
@@ -794,6 +798,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [saveSlots, content.kind, loadFromSlot, openSavePanel]);
 
   const restoreRecovery = useCallback(async () => {
+    storyAdvance.cancel();
     if (recoveryCandidate === null || recoveryStore === undefined) return;
     setRecoveryOperation("scanning");
     setRecoveryMessage("正在校验恢复记录…");
@@ -849,6 +854,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   }, [project.manifest.projectId, recoveryCoordinator, recoveryStore]);
 
   const applyIntent = useCallback((intent: PlayerCoreIntentV1, source: PlayerInputSource) => {
+    if (intent.kind !== 'primary') storyAdvance.cancel();
+    else if (storyAdvance.isPending()) return;
     // Pointer callbacks and already queued media completions must honor the same
     // host ceiling as keyboard/Auto, including the final event before pagehide.
     if (audioActivity.current.hostActivity !== 'active') return;
@@ -895,6 +902,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       return;
     }
     setLastInputAccepted(true);
+    if (intent.kind === 'primary' && source !== 'system' && source !== 'lifecycle' && storyAdvance.tryStart()) return;
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
   }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
   useEffect(() => {
@@ -1617,6 +1625,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     <main ref={fullscreen.element}
       className="player-shell"
       data-player-status={snapshot.status}
+      data-story-operation={storyAdvance.busy ? 'busy' : storyAdvance.error ? 'error' : 'idle'}
       data-layout-title={!!componentLayout && layoutSurface === "title"}
       data-layout-reading={!!componentLayout && layoutSurface === "reading"}
       data-layout-fallback={componentLayout?.fallback ?? false}
@@ -2390,6 +2399,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           </div>
         )}
 
+        {(storyAdvance.busy || storyAdvance.error) && <aside className="player-story-progress" role={storyAdvance.error ? 'alert' : 'status'}>
+          <span>{storyAdvance.error ?? '正在继续故事，当前句保持不变…'}</span>
+          {storyAdvance.error ? <><button type="button" onClick={() => applyIntent({ kind: 'primary' }, 'pointer')}>重试推进</button><button type="button" onClick={() => { storyAdvance.useCompatibility(); applyIntent({ kind: 'primary' }, 'pointer'); }}>使用兼容模式继续</button></>
+            : <button type="button" onClick={() => { storyAdvance.cancel(); reading.element.current?.focus({ preventScroll: true }); }}>取消推进</button>}
+        </aside>}
         {artworkView && <button type="button" className="player-artwork-return" aria-label="恢复阅读" autoFocus onClick={restoreReading}><span>恢复阅读 <kbd>H / Esc</kbd></span></button>}
         {(content.kind === "dialogue" || content.kind === "narration") && (
           <button
@@ -2398,6 +2412,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             style={componentLayout && layoutSurface === "reading" ? componentLayout.primary : undefined}
             ref={readingRef}
             type="button"
+            disabled={storyAdvance.busy}
+            aria-busy={storyAdvance.busy}
             data-text-ready={textReady}
             data-text-reveal-duration={textRevealDuration}
             onScroll={reading.measure}

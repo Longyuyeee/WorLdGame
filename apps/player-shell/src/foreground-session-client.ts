@@ -1,5 +1,6 @@
 import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection } from "./session-worker-pool";
 import { executeForegroundSessionTask, foregroundSessionWorkerTask, applyForegroundSessionWorkerResult, type ForegroundSessionTask, type ForegroundSessionResult, type ForegroundSessionWorkerResult } from "./foreground-session-task";
+import { validStoryAdvanceReply } from './story-advance-task';
 
 export class ForegroundSessionError extends Error { override readonly name="ForegroundSessionError"; }
 let serial=0;
@@ -19,7 +20,8 @@ function validReply(task:ForegroundSessionTask,value:unknown):value is Foregroun
       typeof reply.result.serialized === 'string' && reply.result.serialized.length > 0 && reply.result.serialized.length <= 64 * 1024 * 1024 && typeof reply.result.artifactHash === 'string' && /^[a-f0-9]{64}$/.test(reply.result.artifactHash);
   }
   if(!reply.result.ok)return Array.isArray(reply.result.diagnostics)&&reply.result.diagnostics.length>0&&reply.result.diagnostics.every(item=>typeof item.code==="string");
-  if (task.kind !== 'load') return false;
+  if (task.kind === 'advance' && reply.kind === 'advance') return validStoryAdvanceReply(task.state, reply.result);
+  if (task.kind !== 'load' || reply.kind !== 'load') return false;
   const patch = reply.result.patch, history = patch?.historySession, runtime = patch?.runtimeState;
   return task.state.artifacts !== null && !task.state.replaySession && runtime?.projectId === task.state.projectId &&
     history?.projectId === task.state.projectId && history.buildId === reply.result.savedBuildId && runtime.buildId === history.buildId &&
@@ -77,10 +79,15 @@ export class ForegroundSessionRunner {
   resume(){this.active=true;}
   releaseIdle(){this.pool.releaseIdle();}
   cancelPending(){this.active=false;this.controller.abort();this.controller=new AbortController();this.pool.releaseIdle();}
-  async run<T extends ForegroundSessionTask>(task:T):Promise<Extract<ForegroundSessionResult,{kind:T["kind"]}>>{
+  async run<T extends ForegroundSessionTask>(task:T, externalSignal?: AbortSignal):Promise<Extract<ForegroundSessionResult,{kind:T["kind"]}>>{
     if(!this.active)throw new DOMException("Session scope closed","AbortError");
-    const signal=this.controller.signal;
-    const pending=this.tail.then(()=>executeSessionTask(task,signal,5000,this.pool));this.tail=pending.then(()=>undefined,()=>undefined);
-    const result=await pending;signal.throwIfAborted();return result as Extract<ForegroundSessionResult,{kind:T["kind"]}>;
+    const owner=this.controller.signal, linked=externalSignal === undefined ? undefined : new AbortController();
+    const cancelOwner=()=>linked?.abort(owner.reason), cancelExternal=()=>linked?.abort(externalSignal?.reason);
+    if(linked){owner.addEventListener('abort',cancelOwner,{once:true});externalSignal!.addEventListener('abort',cancelExternal,{once:true});if(owner.aborted)cancelOwner();if(externalSignal!.aborted)cancelExternal();}
+    const signal=linked?.signal??owner;
+    try {
+      const pending=this.tail.then(()=>executeSessionTask(task,signal,5000,this.pool));this.tail=pending.then(()=>undefined,()=>undefined);
+      const result=await pending;signal.throwIfAborted();return result as Extract<ForegroundSessionResult,{kind:T["kind"]}>;
+    } finally {if(linked){owner.removeEventListener('abort',cancelOwner);externalSignal!.removeEventListener('abort',cancelExternal);}}
   }
 }

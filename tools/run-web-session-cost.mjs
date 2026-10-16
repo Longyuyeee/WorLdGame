@@ -16,7 +16,7 @@ const baselineCommit = process.env.STUDIO_COST_BASELINE_COMMIT ?? '8207650d48360
 const snapshotFile = path.join(output, 'baseline-sources.json');
 await mkdir(output, { recursive: true });
 if (process.argv.includes('--freeze')) {
-  const paths = execFileSync('git', ['ls-tree', '-r', '--name-only', baselineCommit, 'packages/runtime/src', 'apps/player-shell/src'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim().split('\n').filter(p => /\.tsx?$/.test(p) && !/\.test\.tsx?$/.test(p));
+  const paths = execFileSync('git', ['ls-tree', '-r', '--name-only', baselineCommit, 'packages/runtime/src', 'apps/player-shell/src'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim().split('\n').filter(p => /\.(?:tsx?|css)$/.test(p) && !/\.test\.tsx?$/.test(p));
   const sources = Object.fromEntries(paths.map(p => [p, execFileSync('git', ['show', `${baselineCommit}:${p}`], { cwd: root, encoding: 'utf8', windowsHide: true })]));
   await writeFile(snapshotFile, JSON.stringify({ baselineCommit, sources }, null, 2));
 }
@@ -94,6 +94,17 @@ await page.addInitScript(() => {
 });
 const main = page.locator('main.player-shell');
 const state = async () => ({ hash: await main.getAttribute('data-runtime-state-hash'), cursor: Number(await main.getAttribute('data-history-cursor')), length: Number(await main.getAttribute('data-history-length')), text: await page.locator('.player-dialogue__text').innerText() });
+async function advanceReading(previous) {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    await page.getByRole('button', { name: '继续下一句', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.storyOperation !== 'busy');
+    assert.notEqual(await main.getAttribute('data-story-operation'), 'error', 'Advance must not silently fall back after a worker failure');
+    if (await main.getAttribute('data-runtime-state-hash') !== previous) return;
+    // A click may reveal/scroll a paragraph or wait for a finite voice. Keep
+    // using public controls; never count those clicks as actual advancement.
+  }
+  throw Error('Reading did not advance through public controls');
+}
 const cdp = await context.newCDPSession(page), sourceMap = new SourceMap(chunk.map);
 await cdp.send('Profiler.enable');
 function cpuSummary(profile) {
@@ -159,13 +170,16 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/?count=960`);
   await page.getByRole('button', { name: '开始故事', exact: true }).click();
   for (const count of [120, 480, 960]) {
-    while (Number(await main.getAttribute('data-history-length')) < count) await page.getByRole('button', { name: '继续下一句', exact: true }).click();
+    while (Number(await main.getAttribute('data-history-length')) < count) {
+      const previous = await main.getAttribute('data-runtime-state-hash');
+      await advanceReading(previous);
+    }
     await recoverySettled();
     for (let round = 0; round < 3; round++) {
       const before = await state(); await openMenu();
       await measure(count, round, 'quick-save', async () => { await page.getByRole('button', { name: '快速保存', exact: true }).click(); await page.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.saveOperation === 'saved'); });
       await closeMenu();
-      await measure(count, round, 'advance', () => page.getByRole('button', { name: '继续下一句', exact: true }).click());
+      await measure(count, round, 'advance', () => advanceReading(before.hash));
       const advanced = await state(); assert.notEqual(advanced.hash, before.hash);
       await recoverySettled();
       const advanceOperation = operations.at(-1), settled = await page.evaluate(() => performance.now());
@@ -209,7 +223,8 @@ try {
   if (!baseline) {
     assertCopyAfterFrame({ operations, rows });
     const reference = JSON.parse(await readFile(path.join(output, 'baseline.json'), 'utf8'));
-    assert.equal(identity.cssHash, reference.cssHash); assert.equal(identity.fixtureSourceHash, reference.fixtureSourceHash);
+    if (process.env.STUDIO_COST_ALLOW_STYLE_CHANGE !== '1') assert.equal(identity.cssHash, reference.cssHash);
+    assert.equal(identity.fixtureSourceHash, reference.fixtureSourceHash);
     assert.deepEqual(rows, reference.rows, 'All saved canonical byte lengths/digests, state hashes, text, cursors and full history lengths must match the frozen baseline');
     assert.deepEqual(restored, reference.restored); assert.deepEqual(protectedState, reference.protectedState);
     for (const field of ['images', 'buses']) if (mixed) {

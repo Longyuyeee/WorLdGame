@@ -506,3 +506,10 @@ button { font: inherit; }
 .player-backup-export > summary::before { content: "▸"; color: var(--player-accent, #b9a1ff); }.player-backup-export[open] > summary::before { content: "▾"; }
 @media (max-width: 520px) { .player-save__views button { padding-inline: 4px; font-size: 13px; }.player-save-backup fieldset { padding: 12px; } }
 @media (max-width: 720px) { .player-memory-pressure { position:fixed; top:calc(env(safe-area-inset-top) + 160px + var(--player-viewport-offset, 0px)); left:14px; right:14px; } }
+.player-story-progress {
+  position: absolute; z-index: 52; top: max(76px, env(safe-area-inset-top)); left: 4%; right: 4%;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px;
+  color: var(--player-ink, #fff); background: var(--player-panel, #142039); border: 1px solid var(--player-muted, #8aa5bc); border-radius: 12px;
+}
+.player-story-progress span { flex: 1 1 220px; }
+.player-story-progress button { min-height: 44px; padding: 8px 12px; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 8px; }
