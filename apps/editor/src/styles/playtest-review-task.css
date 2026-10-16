@@ -8,4 +8,6 @@
 @media (max-width: 639px) { .review-task { margin-left: 0; padding: 10px 14px; max-height: 32dvh; }.review-task button { min-height: 44px; }.review-task__actions > button { flex: 1 1 auto; }.review-search-controls input, .review-search-controls select { min-height: 44px; } }
 
 .review-search-controls > button { min-height: 40px; }
+.review-task__range { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }.review-task__range select { min-height: 38px; max-width: 100%; padding: 6px 10px; border: 1px solid var(--wg-color-border-subtle); border-radius: 8px; background: var(--wg-color-bg-surface-1); color: var(--wg-color-text-primary); }
+@media (max-width: 639px), (max-height: 480px), (pointer: coarse) { .review-task__range select, .review-task button { min-height: 44px; }.review-task button.review-task__close { width: 44px; } }
 @media (max-width: 639px) { .review-search-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; }.review-search-controls label:first-child { grid-column: 1 / -1; min-width: 0; }.review-search-controls > button { min-height: 44px; } }

@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-contextual-review:browser": "node tools/run-web-contextual-review.mjs",
     "audit:web-reading-throughput:browser": "node tools/run-web-reading-throughput.mjs",
     "audit:web-reading-throughput:profile": "node tools/run-web-reading-throughput.mjs --profile",
     "audit:web-load-responsiveness:browser": "node tools/run-web-load-responsiveness.mjs",

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "issue": "Stage note starts at the narration, omitting the preceding station_day background and xia_letter entrance; confirmation is already enabled.",
+  "sourceSha256": "69d7baf39c919f429c3ef3f4921bd569190a068e0e4c8ae34ff6608fed3a4cec",
+  "notesSha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be",
+  "ui": "当前校订任务 · 待复核\n画面与演出 · 雨后的天明\n×\n\n白天到站仍是雨夜背景；同一地点补白天变体并核对三个白天站台入口。\n\n问题详情与记录时内容\n\n已用当前内容从这条记录的位置启动复测。画面、文字和声音确认无误后，再由你确认。\n\n确认已复核\n继续修改\n下一条待跟进\n返回校订清单",
+  "errors": []
+}

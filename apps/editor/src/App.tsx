@@ -46,7 +46,7 @@ import { TextReplaceDialog } from './TextReplaceDialog';
 import { BatchAssetImportDialog } from './BatchAssetImportDialog';
 import { usePageLeaveGuard } from './use-page-leave-guard';
 import { batchImportError, type BatchAssetResult } from './asset-batch-import';
-import { DEFAULT_REVIEW_LIST, canConfirmReview, nextPendingReview, reviewLocationExists, reviewNoteSignature, type ReviewListView, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
+import { DEFAULT_REVIEW_LIST, canConfirmReview, defaultReviewRange, nextPendingReview, reviewLocationExists, reviewNoteSignature, reviewRunIsCurrent, type ReviewListView, type ReviewRange, type ReviewRun, type ReviewStartResult, type ReviewTask } from "./playtest-review-task";
 import { mergePlaytestNotes, noteReviewState, readPlaytestNotes, writePlaytestNotes, type PlaytestNote, type PlaytestNoteLocation } from "./playtest-notes";
 import { projectSceneFlow } from '@world-studio/route-graph';
 import { compileProject } from '@world-studio/project-compiler';
@@ -3340,6 +3340,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
   const revisionEditing = revisionTarget !== null;
   const playbackBlocked = restartRequired || projectRunBlocked || revisionEditing || reviewDialogOpen;
   const handledPlaytestRequest = useRef<number | null>(null);
+  const [reviewSerial, setReviewSerial] = useState<number | null>(null);
   const startTargetExists = previewStartTargetExists(canonicalProject, playable);
   useEffect(() => { onContinuityChange?.({ ...previewSource, playable, detailsOpen: runtimeDetailsOpen, revisionTarget }); }, [onContinuityChange, previewSource, playable, runtimeDetailsOpen, revisionTarget]);
   const previewObservation = observeFormalPreview(playable);
@@ -3354,12 +3355,12 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
       visitedSceneIds: playable.visitedSceneIds,
       visitedEdgeIds: playable.visitedRouteEdgeIds,
       ...(playable.reviewSourceHash === null || playable.buildId === null ? {} : { review: {
-        sourceHash: playable.reviewSourceHash, buildId: playable.buildId, status: playable.status, startKind: playable.startTarget?.kind ?? "unknown",
+        sourceHash: playable.reviewSourceHash, buildId: playable.buildId, status: playable.status, startKind: playable.startTarget?.kind ?? "unknown", reviewSerial,
         playtestSourceHash: playable.playtestSourceHash, endingId: playable.runtimeState?.terminal.kind === 'ended' ? playable.runtimeState.terminal.endingId : null, endingSceneId: playable.status === 'ended' ? playable.sceneId : null,
         endingName: playable.endingName ?? null, sceneIds: playable.visitedSceneIds, statementIds: playable.visitedStatementIds, choiceIds: playable.visitedRouteEdgeIds
       } })
     } : IDLE_RUNTIME_ROUTE_TRACE);
-  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playable.visitedStatementIds, playable.reviewSourceHash, playable.buildId, playable.status, playable.startTarget, playable.endingName, playable.playtestSourceHash, playable.runtimeState?.terminal, playableActive, previewObservation.current?.statementId]);
+  }, [onRouteTraceChange, playable.sceneId, playable.visitedRouteEdgeIds, playable.visitedSceneIds, playable.visitedStatementIds, playable.reviewSourceHash, playable.buildId, playable.status, playable.startTarget, playable.endingName, playable.playtestSourceHash, playable.runtimeState?.terminal, playableActive, previewObservation.current?.statementId, reviewSerial]);
   const selectedPreset = findPreviewViewportPreset(viewportProfileId);
   const viewport = viewportProfileId === "custom" ? {
     id: "custom" as const,
@@ -3605,6 +3606,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
 
   const beginPlayablePreview = () => {
     if (projectRunBlocked) return;
+    setReviewSerial(null);
     onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
@@ -3615,6 +3617,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
 
   const beginPlayablePreviewFromScene = () => {
     if (projectRunBlocked) return;
+    setReviewSerial(null);
     onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
@@ -3625,6 +3628,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
 
   const beginPlayablePreviewFromStatement = () => {
     if (projectRunBlocked) return;
+    setReviewSerial(null);
     onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
@@ -3635,6 +3639,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
 
   const restartPlayablePreview = () => {
     if (projectRunBlocked) return;
+    setReviewSerial(null);
     onFinishRevision?.();
     transportDispatch({ type: "reset" });
     setHotUpdate(null);
@@ -3644,6 +3649,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
   };
 
   const exitPlayablePreview = () => {
+    setReviewSerial(null);
     onFinishRevision?.();
     setHotUpdate(null);
     setResumed(false);
@@ -3655,9 +3661,8 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
     handledPlaytestRequest.current = playtestRequest.serial;
     transportDispatch({ type: "reset" }); setHotUpdate(null); setResumed(false); setPreviewSource({ project: canonicalProject, assetIndex });
     const started = startFormalPreview(canonicalProject, playtestRequest.target);
-    setPlayable(started);
-    const target = playtestRequest.target;
-    onPlaytestRequestHandled?.({ serial: playtestRequest.serial, sourceHash: started.reviewSourceHash, targetReached: started.status !== 'error' && target.kind === 'statement' && started.visitedSceneIds.includes(target.sceneId) && started.visitedStatementIds.includes(target.statementId) });
+    setPlayable(started); setReviewSerial(playtestRequest.serial);
+    onPlaytestRequestHandled?.({ serial: playtestRequest.serial, sourceHash: started.reviewSourceHash, started: started.status !== 'error' && started.status !== 'idle' });
   }, [playtestRequest, projectRunBlocked, canonicalProject, assetIndex, onPlaytestRequestHandled]);
 
   const preparePlayableWeb = async (directory = false) => {
@@ -3900,7 +3905,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
               </ul></details>
             </div>
           )}
-          <div className="stage-content" key={statement.id} data-testid="preview-step">
+          <div className="stage-content" key={statement.id} data-testid="preview-step" data-scene-id={scene.id} data-statement-id={statement.id}>
             {(statement.kind === "dialogue" || statement.kind === "narration") && <div key={`${statement.id}:${dialogueRevealDuration}`} className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
               {dialoguePresentation.lines.map((item) => {
                 const character = item.speakerId === undefined ? undefined : findCharacter(presentationStory.characters, item.speakerId);
@@ -4265,8 +4270,8 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const [reviewRun, setReviewRun] = useState<ReviewRun | null>(null);
   const receiveReviewStart = useCallback((result: ReviewStartResult) => {
     setPlaytestRequest(current => current?.serial === result.serial ? null : current);
-    setReviewRun(current => current?.serial === result.serial && current.sourceHash === result.sourceHash ? { ...current, started: result.targetReached } : current);
-    if (result.targetReached && window.innerWidth < 960) requestAnimationFrame(() => document.getElementById('preview-heading')?.closest('aside')?.scrollIntoView?.({ block: 'start' }));
+    setReviewRun(current => current?.serial === result.serial && current.sourceHash === result.sourceHash ? { ...current, started: result.started } : current);
+    if (result.started && window.innerWidth < 960) requestAnimationFrame(() => document.getElementById('preview-heading')?.closest('aside')?.scrollIntoView?.({ block: 'start' }));
   }, []);
   const canonicalVariableDefaults = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), JSON.stringify(item.defaultValue)])), [initialProject]);
   const canonicalVariableTypes = useMemo(() => Object.fromEntries((initialProject?.variables.variables ?? []).map(item => [String(item.id), item.type as "boolean" | "number" | "string"])), [initialProject]);
@@ -5682,7 +5687,8 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
     if (inputDirty || pageDirty || pendingDraftSceneIds(session).length) return;
     const matching = notesStore.notes.filter(note => note.sceneId === location.sceneId && note.statementId === location.statementId && noteReviewState(note, noteSourceHash) !== 'verified');
     const selected = noteId ?? matching.find(note => note.id === activeReview?.noteId)?.id ?? (matching.length === 1 ? matching[0]!.id : undefined);
-    setActiveReview(selected ? { noteId: selected, phase: 'editing' } : null); setReviewRun(null); setNoteFileError(''); setStructureError(null);
+    const selectedNote = notesStore.notes.find(note => note.id === selected);
+    setActiveReview(selectedNote ? { noteId: selectedNote.id, phase: 'editing', range: activeReview?.noteId === selectedNote.id ? activeReview.range ?? defaultReviewRange(selectedNote) : defaultReviewRange(selectedNote) } : null); setReviewRun(null); setNoteFileError(''); setStructureError(null);
     const target = session.project.scenes.find(scene => scene.id === location.sceneId)?.statements.find(item => item.id === location.statementId);
     if (!target) { setRevisionTarget(null); if (selected) openStudioPage("story"); else setStructureError("原内容已删除，校订记录仍保留。"); return; }
     setRevisionTarget({ sceneId: location.sceneId, statementId: location.statementId }); openStudioPage("story"); setSettingsOpen(false); setPublishOpen(false); setWorkspaceMode(target.kind === "direction" ? "director" : "writer"); setMode("sequence"); setPreviewOpen(false);
@@ -5692,18 +5698,19 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const activeReviewNote = notesStore.notes.find(note => note.id === activeReview?.noteId);
   const nextReview = activeReview ? nextPendingReview(notesStore.notes, activeReview.noteId, noteSourceHash) : null;
   const reviewCanConfirm = !!activeReviewNote && canConfirmReview(previewCanonicalProject, activeReviewNote, reviewRun, reviewTrace, noteSourceHash);
-  const startNoteReview = (note: PlaytestNote, markFixed = false) => {
+  const reviewRunCurrent = !!activeReviewNote && reviewRunIsCurrent(previewCanonicalProject, activeReviewNote, reviewRun, reviewTrace, noteSourceHash);
+  const startNoteReview = (note: PlaytestNote, markFixed = false, range: ReviewRange = defaultReviewRange(note)) => {
     if (reviewBlocked) return;
     if (!reviewLocationExists(previewCanonicalProject, note)) { setNoteFileError('原内容已删除，记录仍保留。'); return; }
     const updated = markFixed && note.status === 'open' ? { ...note, status: 'fixed' as const, updatedAt: Math.max(Date.now(), note.updatedAt), checkedSourceHash: null } : note;
     if (updated !== note && !notesStore.commit(notesStore.notes.map(item => item.id === note.id ? updated : item))) return;
     const serial = ++playtestSerial.current;
-    setActiveReview({ noteId: note.id, phase: 'retesting' }); setReviewRun({ serial, noteId: note.id, noteSignature: reviewNoteSignature(updated), sourceHash: noteSourceHash, started: false }); setReviewTrace(null); setNoteFileError('');
+    setActiveReview({ noteId: note.id, phase: 'retesting', range }); setReviewRun({ serial, noteId: note.id, noteSignature: reviewNoteSignature(updated), sourceHash: noteSourceHash, started: false, range }); setReviewTrace(null); setNoteFileError('');
     setRevisionTarget(null); openStudioPage('story'); setWorkspaceMode('writer'); setMode('sequence'); setPreviewOpen(true);
-    setPlaytestRequest({ serial, target: { kind: 'statement', sceneId: note.sceneId, statementId: note.statementId } });
+    setPlaytestRequest({ serial, target: range === 'entry' ? { kind: 'entry' } : range === 'scene' ? { kind: 'scene', sceneId: note.sceneId } : { kind: 'statement', sceneId: note.sceneId, statementId: note.statementId } });
   };
   const confirmNoteReview = () => {
-    if (reviewBlocked || !activeReviewNote || !canConfirmReview(previewCanonicalProjectRef.current, activeReviewNote, reviewRun, reviewTrace)) { setNoteFileError('本次复测已变化，请重新从此处复测后再确认。'); return; }
+    if (reviewBlocked || !activeReviewNote || !canConfirmReview(previewCanonicalProjectRef.current, activeReviewNote, reviewRun, reviewTrace)) { setNoteFileError('本次复测尚未到达问题位置或内容已变化，请重新复测后再确认。'); return; }
     const updated: PlaytestNote = { ...activeReviewNote, status: 'verified', checkedSourceHash: noteSourceHash, updatedAt: Math.max(Date.now(), activeReviewNote.updatedAt) };
     if (notesStore.commit(notesStore.notes.map(note => note.id === updated.id ? updated : note))) { setReviewRun(null); setNoteFileError(''); }
   };
@@ -5773,7 +5780,18 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       <StudioNavigation page={studioPage} disabled={inputDirty || pageDirty} onChange={openStudioPage} />
       {releaseReturnFormat !== null && studioPage !== "publish" && <div className="release-return" role="region" aria-label="作品生成返回入口"><StudioIcon name="publish" /><span>修复或试玩完成后，继续生成作品。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen} onClick={() => openStudioPage("publish")}>返回生成游戏<StudioIcon name="arrow" /></button></div>}
       {revisionTarget !== null && activeReview === null && <div className="playtest-revision-return" role="region" aria-label="校订返回试玩"><StudioIcon name="write" /><span>正在校订 · {session.project.scenes.find(scene => scene.id === revisionTarget.sceneId)?.title ?? "原场景"}。完成修改后可返回试玩。</span><button type="button" disabled={inputDirty || pageDirty || assetPanelOpen || pendingDraftSceneIds(session).length > 0} onClick={resumeRevisionPreview}>返回试玩</button></div>}
-      {studioPage === 'story' && activeReview && <PlaytestReviewTask task={activeReview} note={activeReviewNote} project={previewCanonicalProject} sourceHash={noteSourceHash} blocked={reviewBlocked} canConfirm={reviewCanConfirm} canResume={revisionTarget !== null && previewContinuityRef.current?.playable.status !== 'idle' && previewContinuityRef.current !== undefined} hasNext={nextReview !== null} error={notesStore.error || noteFileError} onEdit={() => { if (activeReviewNote) openRevision(activeReviewNote, activeReviewNote.id); }} onReplay={() => { if (activeReviewNote) startNoteReview(activeReviewNote, true); }} onConfirm={confirmNoteReview} onNext={() => { if (nextReview) openRevision(nextReview, nextReview.id); }} onList={() => { setRevisionTarget(null); openStudioPage('checks'); }} onResume={resumeRevisionPreview} onClose={() => { setActiveReview(null); setReviewRun(null); setRevisionTarget(null); setNoteFileError(''); }} />}
+      {studioPage === 'story' && activeReview && <PlaytestReviewTask
+        task={activeReview} note={activeReviewNote} project={previewCanonicalProject} sourceHash={noteSourceHash}
+        blocked={reviewBlocked} canConfirm={reviewCanConfirm} runCurrent={reviewRunCurrent}
+        canResume={revisionTarget !== null && previewContinuityRef.current?.playable.status !== 'idle' && previewContinuityRef.current !== undefined}
+        hasNext={nextReview !== null} error={notesStore.error || noteFileError}
+        onRangeChange={range => { if (!reviewBlocked) { setActiveReview({ ...activeReview, range, phase: 'editing' }); setReviewRun(null); setNoteFileError(''); } }}
+        onEdit={() => { if (activeReviewNote) openRevision(activeReviewNote, activeReviewNote.id); }}
+        onReplay={() => { if (activeReviewNote) startNoteReview(activeReviewNote, true, activeReview.range ?? defaultReviewRange(activeReviewNote)); }}
+        onConfirm={confirmNoteReview} onNext={() => { if (nextReview) openRevision(nextReview, nextReview.id); }}
+        onList={() => { setRevisionTarget(null); openStudioPage('checks'); }} onResume={resumeRevisionPreview}
+        onClose={() => { setActiveReview(null); setReviewRun(null); setRevisionTarget(null); setNoteFileError(''); }}
+      />}
       {incomingProgress !== null && <div className="delivery-progress-restore"><PlaytestProgressRestore raw={incomingProgress} project={previewCanonicalProject} progress={playtestProgress} disabled={inputDirty || pageDirty} fromBundle onClose={() => { setIncomingProgress(null); onDeliveryProgressConsumed?.(); }} onMerged={() => { setIncomingProgress(null); onDeliveryProgressConsumed?.(); openStudioPage("checks"); }} /></div>}
       {incomingReview !== null && <section className="delivery-review-restore" aria-label="交付包校订记录"><div><strong>这个制作交付包附带校订记录</strong><p>源工程已恢复。可以合并到本机清单；内容相同的记录不会重复，不同版本不会覆盖。</p></div><button type="button" disabled={inputDirty || pageDirty} onClick={() => { try { const notes = readPlaytestNotes(incomingReview, previewCanonicalProject.manifest.projectId); if (notesStore.commit(mergePlaytestNotes(notesStore.notes, notes))) { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); openStudioPage("checks"); } } catch (error) { setNoteFileError((error as Error).message); } }}>合并校订记录</button><button type="button" onClick={() => { setIncomingReview(null); setNoteFileError(""); onDeliveryReviewConsumed?.(); }}>保留本机记录</button>{(noteFileError || notesStore.error) && <p role="alert">{noteFileError || notesStore.error}</p>}</section>}
       {noteDialog && <PlaytestNoteDialog key={noteDialog.note?.id ?? "new"} location={noteDialog.location} note={noteDialog.note} error={notesStore.error || noteFileError} onClose={() => setNoteDialog(null)} onSave={(text, category) => { if (noteDialog.note && JSON.stringify(notesStore.notes.find(item => item.id === noteDialog.note?.id)) !== JSON.stringify(noteDialog.note)) { setNoteFileError("此记录已在其他窗口修改或删除，请重新核对；当前输入仍保留。"); return; } const now = Math.max(Date.now(), noteDialog.note?.updatedAt ?? 0); const note: PlaytestNote = noteDialog.note ? { ...noteDialog.note, text, category, updatedAt: now, ...(text !== noteDialog.note.text || category !== noteDialog.note.category ? { status: "open" as const, checkedSourceHash: null } : {}) } : { ...noteDialog.location, id: crypto.randomUUID(), text, category, status: "open", checkedSourceHash: null, createdAt: now, updatedAt: now }; if (notesStore.commit(noteDialog.note ? notesStore.notes.map(item => item.id === note.id ? note : item) : [...notesStore.notes, note])) setNoteDialog(null); }} />}

@@ -15,6 +15,8 @@ export interface RouteReviewTrace {
   readonly playtestSourceHash?: string | null;
   readonly endingId?: string | null;
   readonly endingSceneId?: string | null;
+  /** Transient editor review request identity, not a content approval or completion receipt. */
+  readonly reviewSerial?: number | null;
 }
 
 export const routeReviewSourceHash = (project: CanonicalProject) => semanticHash(webProjectSourceForRuntime(project));

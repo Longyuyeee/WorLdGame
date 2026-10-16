@@ -6,15 +6,15 @@ import { DEFAULT_REVIEW_LIST, canConfirmReview, nextPendingReview, readReviewLis
 import { routeReviewSourceHash } from './route-review';
 import { DEFAULT_PUBLICATION_WORKFLOW, readStudioWorkPosition } from './studio-work-position';
 it('requires a fresh successful start and actual current-version target observation before task confirmation', () => {
-  const project = reviewTaskProject(), note = reviewTaskNotes()[0]!, trace = progressTrace(startFormalPreviewFromStatement(project, note.sceneId, note.statementId));
-  const run: ReviewRun = { serial: 1, noteId: note.id, noteSignature: reviewNoteSignature(note), sourceHash: routeReviewSourceHash(project), started: true };
+  const project = reviewTaskProject(), note = reviewTaskNotes()[0]!, trace = { ...progressTrace(startFormalPreviewFromStatement(project, note.sceneId, note.statementId)), reviewSerial: 1 };
+  const run: ReviewRun = { serial: 1, noteId: note.id, noteSignature: reviewNoteSignature(note), sourceHash: routeReviewSourceHash(project), started: true, range: 'statement' };
   expect(canConfirmReview(project, note, run, trace)).toBe(true);
-  for (const changed of [null, { ...trace, statementIds: [] }, { ...trace, sceneIds: [] }, { ...trace, playtestSourceHash: null }, { ...trace, status: 'error' }, { ...trace, startKind: 'entry' }]) expect(canConfirmReview(project, note, run, changed)).toBe(false);
+  for (const changed of [null, { ...trace, statementIds: [] }, { ...trace, sceneIds: [] }, { ...trace, playtestSourceHash: null }, { ...trace, status: 'error' }, { ...trace, startKind: 'entry' }, { ...trace, reviewSerial: null }, { ...trace, reviewSerial: 2 }]) expect(canConfirmReview(project, note, run, changed)).toBe(false);
   expect(canConfirmReview(project, note, null, trace)).toBe(false); expect(canConfirmReview(project, note, { ...run, started: false }, trace)).toBe(false);
 });
 it('rejects changed notes, changed source and missing locations, while property order does not invalidate a note', () => {
-  const project = reviewTaskProject(), note = reviewTaskNotes()[0]!, trace = progressTrace(startFormalPreviewFromStatement(project, note.sceneId, note.statementId));
-  const run: ReviewRun = { serial: 1, noteId: note.id, noteSignature: reviewNoteSignature(note), sourceHash: routeReviewSourceHash(project), started: true };
+  const project = reviewTaskProject(), note = reviewTaskNotes()[0]!, trace = { ...progressTrace(startFormalPreviewFromStatement(project, note.sceneId, note.statementId)), reviewSerial: 1 };
+  const run: ReviewRun = { serial: 1, noteId: note.id, noteSignature: reviewNoteSignature(note), sourceHash: routeReviewSourceHash(project), started: true, range: 'statement' };
   expect(canConfirmReview(project, { ...note, text: 'another issue' }, run, trace)).toBe(false);
   expect(canConfirmReview({ ...project, manifest: { ...project.manifest, title: 'changed' } }, note, run, trace)).toBe(false);
   expect(reviewLocationExists(project, { ...note, sceneId: '__proto__' })).toBe(false);
@@ -35,4 +35,6 @@ it('keeps old work-position records compatible and validates optional task/list 
   const extended = { ...value, reviewTask: { noteId: 'first', phase: 'retesting' }, reviewList: { ...DEFAULT_REVIEW_LIST, query: '开场', page: 1 }, reviewRun: { started: true } };
   const restored = readStudioWorkPosition(JSON.stringify(extended), 'ref', value.projectId)!; expect(restored.reviewTask).toEqual(extended.reviewTask); expect(restored.reviewList).toEqual(extended.reviewList); expect(restored).not.toHaveProperty('reviewRun');
   expect(() => readReviewTask({ noteId: '', phase: 'retesting' })).toThrow(); expect(() => readReviewList({ ...DEFAULT_REVIEW_LIST, category: '__proto__' })).toThrow(); expect(() => readReviewList({ ...DEFAULT_REVIEW_LIST, query: 'a'.repeat(121) })).toThrow();
+  expect(readReviewTask({ noteId: 'first', phase: 'editing', range: 'entry' })).toEqual({ noteId: 'first', phase: 'editing', range: 'entry' });
+  for (const range of ['__proto__', 'all', null, 1]) expect(() => readReviewTask({ noteId: 'first', phase: 'editing', range })).toThrow();
 });
