@@ -7,6 +7,7 @@ import { CharacterTargetFields } from "./CharacterTargetFields";
 import { directionStageContext, type DirectionStageContext } from "./direction-stage-context";
 import { TextBatchDialog } from "./TextBatchDialog";
 import { MotionPresetDialog } from "./MotionPresetDialog";
+import { applySkinImportPlan, type SkinImportPlan } from "./player-skin-bundle";
 import { STORY_MOTION_PARAMETERS, storyMotionError } from "@world-studio/story-core";
 import { describeDirection, directionActionLabel, directionParameterLabel } from "./direction-description";
 import { WebReleaseGuide } from "./WebReleaseGuide";
@@ -5064,6 +5065,32 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       projectCanonicalWithStory(previewCanonicalProjectRef.current, sessionRef.current.project), result.index
     ), "资源更新已进入工程，请保存以保持剧情与资源备份一致。");
   };
+  const importSkinToProject = async (plan: SkinImportPlan, signal: AbortSignal): Promise<CanonicalProject> => {
+    if (activeSavePromise.current) await activeSavePromise.current;
+    signal.throwIfAborted();
+    const repository = assetRepositoryRef.current, current = previewCanonicalProjectRef.current;
+    if (!repository || assetImportAbortRef.current) throw Error("当前没有素材写入权或另一个导入尚未完成，请稍后重试。");
+    if (current.manifest.projectId !== plan.baseProjectId || JSON.stringify(current.assets) !== plan.baseAssets || JSON.stringify(current.ui.preservedFields?.webPlayerAppearance ?? null) !== plan.baseAppearance) throw Error("工程素材或外观已变化，请重新检查并预览皮肤；没有覆盖新版本。");
+    // Validate credits/references before starting the single fenced asset transaction.
+    const candidate = applySkinImportPlan({ ...current, assets: plan.previewProject.assets }, plan);
+    const controller = new AbortController(), abort = () => controller.abort(); signal.addEventListener("abort", abort, { once: true });
+    assetImportAbortRef.current = controller; setAssetStatus("importing");
+    try {
+      const result = await repository.importNewAssets(plan.inputs, { expectedIndexRevision: assetIndexRef.current.indexRevision, maxBytes: WEB_ASSET_IMPORT_MAX_BYTES, signal: controller.signal });
+      const next = projectCanonicalWithAssetIndex(candidate, result.index);
+      assetIndexRef.current = result.index; setAssetIndex(result.index); setAssetLifecycle(result.lifecycle); setAssetUpdateHistory(null); setAssetStatus("success");
+      // A completed transaction is success even if a late cancel arrives afterwards.
+      applyCanonicalProjectMutation(next, "皮肤、素材与来源已一起进入工程，请保存到本机。");
+      return next;
+    } catch (error) {
+      setAssetStatus("ready");
+      if (error instanceof AssetBlobError && ["LEASE_REQUIRED", "LEASE_LOST"].includes(error.code)) {
+        repository.activateWriterLease(null); assetRepositoryRef.current = null; storeRef.current?.activateWriterLease(null); storeRef.current = null; leaseRef.current = null;
+        setPersistence({ status: "conflict", revision: storageRevision.current, detail: "导入期间编辑权失效，素材批次已回滚，请恢复编辑权后重试。", errorCode: error.code });
+      }
+      throw error;
+    } finally { signal.removeEventListener("abort", abort); if (assetImportAbortRef.current === controller) assetImportAbortRef.current = null; }
+  };
   const updateAssetMetadata = async (entry: AssetIndexEntry, historyDirection?: "undo" | "redo") => {
     const repository = assetRepositoryRef.current;
     if (repository === null || assetImportAbortRef.current !== null) return;
@@ -5770,6 +5797,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
         {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => { setReleaseReturnFormat(publicationWorkflow.format); openStudioPage("checks"); }} publicationWorkflow={publicationWorkflow} onPublicationWorkflowChange={setPublicationWorkflow} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
+            onImportSkin={importSkinToProject}
             assetReader={assetRepositoryRef.current}
             onOpenAssets={() => setAssetPanelOpen(true)}
             onDraftChange={setPageDirty}

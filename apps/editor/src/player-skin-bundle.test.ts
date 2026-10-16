@@ -1,0 +1,70 @@
+/// <reference types="node" />
+import { readFileSync } from "node:fs";
+import { expect, it } from "vitest";
+import { applyWebAssetSources, applyWebCredits, applyWebPlayerAppearance, createProjectTemplate, DEFAULT_WEB_PLAYER_APPEARANCE, exportProjectBinaryZip, importProjectBinaryZip, readWebAssetSources, readWebCredits, readWebPlayerAppearance, webPlayerSkinPreset } from "@world-studio/project-domain";
+import { createBlobDigest, inspectUntrustedMedia, type BlobDigest } from "@world-studio/project-persistence";
+import { mediaInspectionToJson } from "./media-inspection-client";
+import { applySkinImportPlan, defaultSkinChoices, exportSkinBundle, prepareSkinImport, readSkinBundle, type SkinAssetChoice } from "./player-skin-bundle";
+const png = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
+function fixture() {
+  const font = new Uint8Array(readFileSync("assets/skin-demo/letter-demo.woff2"));
+  const data = [{ assetId: "cover", kind: "cg" as const, displayName: "夜色窗体", mimeType: "image/png", bytes: png }, { assetId: "font", kind: "font" as const, displayName: "回信字体", mimeType: "font/woff2", bytes: font }];
+  const blobs = new Map(data.map(row => [createBlobDigest(row.bytes), row.bytes]));
+  const base = createProjectTemplate("原故事", "018f08d8-71a1-7bc2-a627-2f4a843ee150");
+  const assets = data.map(row => ({ assetId: row.assetId, kind: row.kind, displayName: row.displayName, source: { mimeType: row.mimeType, digest: createBlobDigest(row.bytes), byteLength: row.bytes.length }, assetIndexMetadata: { inspection: mediaInspectionToJson(inspectUntrustedMedia(row.bytes, row.mimeType, row.kind)) } }));
+  let project = { ...base, assets: { ...base.assets, assets } };
+  const skin = webPlayerSkinPreset("letter"), appearance = { ...DEFAULT_WEB_PLAYER_APPEARANCE, titleTagline: "不要带到另一部作品", coverAssetId: "cover", skin: { ...skin, reading: { ...skin.reading, windowAssetId: "cover" }, fonts: { ...skin.fonts, body: "asset:font" as const } } };
+  project = applyWebPlayerAppearance(project, appearance) as typeof project;
+  project = applyWebCredits(project, { schemaVersion: 1, studio: "原团队不会复制", website: "", copyright: "", entries: [], acknowledgements: "公开字体许可说明" }) as typeof project;
+  project = applyWebAssetSources(project, { schemaVersion: 1, records: [{ assetId: "font", digest: createBlobDigest(font), sourceKind: "third-party", source: "字体来源", permission: "documented", evidence: "PRIVATE_EVIDENCE_FIXTURE", reviewedBy: "TEST_REVIEWER", reviewedOn: "2026-10-17", credit: "公开字体许可说明" }] }) as typeof project;
+  return { project, appearance, reader: { read: async (id: BlobDigest) => blobs.get(id) ?? null } };
+}
+const target = () => createProjectTemplate("新的故事", "018f08d8-71a1-7bc2-a627-2f4a843ee151");
+async function bundle(privateSources = false) { const f = fixture(); return readSkinBundle(await exportSkinBundle(f.project, f.appearance, "来信皮肤", f.reader, "公开字体许可说明", privateSources)); }
+it("round-trips only referenced bytes, preserves the target plot/title, and keeps provenance private and pending", async () => {
+  const b = await bundle(true), p = target(), plan = await prepareSkinImport(b, p, defaultSkinChoices(b, p), null);
+  expect(plan.inputs).toHaveLength(2); expect(plan.previewProject.scripts).toEqual(p.scripts); expect(plan.previewProject.manifest.title).toBe("新的故事");
+  expect(readWebPlayerAppearance(plan.previewProject)?.titleTagline).toBe("");
+  expect(readWebCredits(plan.previewProject).studio).toBe(""); expect(readWebCredits(plan.previewProject).acknowledgements).toBe("公开字体许可说明");
+  expect(readWebAssetSources(plan.previewProject).records.find(row => row.evidence)).toMatchObject({ permission: "pending", evidence: "PRIVATE_EVIDENCE_FIXTURE" });
+  expect(plan.mappings.get("cover")).not.toBe("cover");
+  expect(await plan.reader.read(plan.inputs[0]!.bytes ? createBlobDigest(plan.inputs[0]!.bytes) : "invalid" as BlobDigest)).toBeTruthy();
+  expect(p.assets.assets).toHaveLength(0);
+});
+it("excludes internal evidence/reviewer data by default and verifies every exported source", async () => {
+  const b = await bundle(); expect(JSON.stringify(b.records)).not.toContain("PRIVATE_EVIDENCE"); expect(JSON.stringify(b.records)).not.toContain("TEST_REVIEWER");
+  const f = fixture(); await expect(exportSkinBundle(f.project, f.appearance, "bad", { read: async () => null }, "", false)).rejects.toThrow("缺失或损坏");
+});
+it("never treats a colliding ID as the same file and reuses exact content across IDs", async () => {
+  const b = await bundle(), p = target();
+  const f = fixture(), existing = { ...f.project.assets.assets[1]!, assetId: "renamed_font" };
+  const collision = { ...f.project.assets.assets[0]!, assetId: "font" };
+  const project = { ...p, assets: { ...p.assets, assets: [existing, collision] } };
+  const choices = defaultSkinChoices(b, project); expect(choices.font).toEqual({ mode: "existing", assetId: "renamed_font" });
+  const plan = await prepareSkinImport(b, project, choices, f.reader); expect(plan.mappings.get("font")).toBe("renamed_font");
+  expect(plan.inputs).toHaveLength(0); expect(plan.previewProject.assets.assets).toEqual(project.assets.assets);
+});
+it("repairs missing members with a chosen file or explicit readable fallback without mutating the project", async () => {
+  const f = fixture(), bytes = await exportSkinBundle(f.project, f.appearance, "missing", f.reader, "", false), files = importProjectBinaryZip(bytes);
+  for (const key of Object.keys(files)) if (key.startsWith("blobs/")) delete files[key];
+  const b = await readSkinBundle(exportProjectBinaryZip(files)), p = target();
+  await expect(prepareSkinImport(b, p, defaultSkinChoices(b, p), null)).rejects.toThrow("请为");
+  const fallback = Object.fromEntries(b.assets.map(a => [a.assetId, { mode: "fallback" } as const]));
+  const plan = await prepareSkinImport(b, p, fallback, null); expect(plan.inputs).toHaveLength(0); expect(readWebPlayerAppearance(plan.previewProject)?.skin?.fonts.body).toBe("sans");
+  const repaired: Record<string, SkinAssetChoice> = { ...fallback, cover: { mode: "file", bytes: png, mimeType: "image/png", name: "repair.png" } };
+  expect((await prepareSkinImport(b, p, repaired, null)).inputs).toHaveLength(1); expect(p.assets.assets).toHaveLength(0);
+});
+it("rejects undeclared, corrupt, oversized or executable bundle data before any publication", async () => {
+  const f = fixture(), bytes = await exportSkinBundle(f.project, f.appearance, "test", f.reader, "", false);
+  let files = importProjectBinaryZip(bytes); files["payload.js"] = new Uint8Array([1]); await expect(readSkinBundle(exportProjectBinaryZip(files))).rejects.toThrow("未声明");
+  files = importProjectBinaryZip(bytes); const blob = Object.keys(files).find(key => key.startsWith("blobs/"))!; files[blob]![0] = files[blob]![0]! ^ 1; await expect(readSkinBundle(exportProjectBinaryZip(files))).rejects.toThrow("摘要");
+  files = importProjectBinaryZip(bytes); const descriptor = JSON.parse(new TextDecoder().decode(files["skin.json"])); descriptor.script = "alert(1)"; files["skin.json"] = new TextEncoder().encode(JSON.stringify(descriptor)); await expect(readSkinBundle(exportProjectBinaryZip(files))).rejects.toThrow("格式");
+});
+it("validates credits and cancellation before committing and does not overwrite existing source records", async () => {
+  const b = await bundle(true), p = target(), controller = new AbortController(); controller.abort();
+  await expect(prepareSkinImport(b, p, defaultSkinChoices(b, p), null, controller.signal)).rejects.toThrow();
+  const plan = await prepareSkinImport(b, p, defaultSkinChoices(b, p), null), current = plan.previewProject;
+  expect(readWebCredits(applySkinImportPlan(current, plan)).acknowledgements).toBe("公开字体许可说明");
+  const full = applyWebCredits(current, { ...readWebCredits(current), acknowledgements: "x".repeat(12000) });
+  expect(() => applySkinImportPlan(full, plan)).toThrow("12000");
+});

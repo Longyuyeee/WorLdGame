@@ -59,6 +59,7 @@ evidence/web-player-customization/*.html -text
 evidence/web-player-pages/*.html -text
 evidence/web-motion-presets/*.html -text
 evidence/web-motion-presets/*.worldmotion.json -text
+evidence/web-skin-bundles/*.html -text
 assets/skin-demo/OFL.txt -text
 evidence/web-reading-throughput/*.worldsave -text
 evidence/web-reading-throughput/*.worldreview -text

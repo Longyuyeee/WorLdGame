@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PlayerAppearanceSettings } from "./PlayerAppearanceSettings";
+import type { CommitSkinImport } from "./PlayerSkinBundleTools";
 import type { AssetLibraryReader } from "./asset-library-card";
 import {
   GAL_SETTING_DEFINITIONS,
@@ -26,6 +27,7 @@ import {
 export type SettingsSaveStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" | "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" | "autosaved" | "restored" | "degraded" | "error";
 
 export interface SettingsWorkspaceProps {
+  readonly onImportSkin?: CommitSkinImport;
   readonly assetReader?: AssetLibraryReader | null;
   readonly onOpenAssets?: () => void;
   readonly onDraftChange?: (dirty: boolean) => void;
@@ -129,7 +131,7 @@ function saveStatusLabel(status: SettingsSaveStatus): string {
   return "设置已接入工程事务";
 }
 
-export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectChange, onSave, onClose, onDraftChange, assetReader = null, onOpenAssets }: SettingsWorkspaceProps) {
+export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectChange, onSave, onClose, onDraftChange, assetReader = null, onOpenAssets, onImportSkin }: SettingsWorkspaceProps) {
   const [service, setService] = useState<ProjectServiceState>(() => createProjectService(project));
   const [mode, setMode] = useState<GalSettingsCatalogMode>("basic");
   const [layerId, setLayerId] = useState<SettingsLayerId>("project");
@@ -253,7 +255,7 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
         </div>
       </header>
 
-      <PlayerAppearanceSettings key={service.project.manifest.projectId} reader={assetReader} {...(onOpenAssets ? { onOpenAssets } : {})} project={service.project} onDirtyChange={setAppearanceDirty} onChange={next => {
+      <PlayerAppearanceSettings key={service.project.manifest.projectId} reader={assetReader} onImportSkin={onImportSkin && !["readonly", "blocked", "conflict", "unavailable"].includes(saveStatus) ? async (plan, signal) => { const next = await onImportSkin(plan, signal); setService(createProjectService(next)); return next; } : undefined} {...(onOpenAssets ? { onOpenAssets } : {})} project={service.project} onDirtyChange={setAppearanceDirty} onChange={next => {
         setService(createProjectService(next)); onProjectChange(next);
       }} />
       <div className="settings-command-bar">

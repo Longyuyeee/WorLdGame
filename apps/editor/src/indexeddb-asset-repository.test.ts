@@ -71,6 +71,29 @@ function inspectedPngHeader(width: number, height: number, fill: number): Uint8A
 }
 
 describe("IndexedDbAssetRepository", () => {
+  it("publishes an additive skin batch atomically without overwriting existing IDs", async () => {
+    const { assets } = await writableRepository();
+    const inputs = ["one", "two"].map((assetId, i) => ({ assetId, kind: "cg" as const, displayName: assetId, mimeType: "image/png", bytes: inspectedPngHeader(1, 1, i) }));
+    const result = await assets.importNewAssets(inputs, { expectedIndexRevision: 0, maxBytes: 1024 });
+    expect(result.index.assets.map(a => a.assetId)).toEqual(["one", "two"]); expect((await assets.loadIndex()).indexRevision).toBe(2);
+    await expect(assets.importNewAssets(inputs, { expectedIndexRevision: 2, maxBytes: 1024 })).rejects.toMatchObject({ code: "INVALID_ASSET" });
+    expect(await assets.loadIndex()).toEqual(result.index);
+  });
+  it("rolls back every new blob/index entry when a skin batch is cancelled at publication", async () => {
+    const { assets } = await writableRepository(), controller = new AbortController();
+    const inputs = ["one", "two"].map((assetId, i) => ({ assetId, kind: "cg" as const, displayName: assetId, mimeType: "image/png", bytes: inspectedPngHeader(1, 1, i) }));
+    await expect(assets.importNewAssets(inputs, { expectedIndexRevision: 0, maxBytes: 1024, signal: controller.signal, onPhase: () => controller.abort() })).rejects.toMatchObject({ code: "CANCELLED" });
+    expect((await assets.loadIndex()).assets).toEqual([]);
+    for (const input of inputs) expect(await assets.read(createBlobDigest(input.bytes))).toBeNull();
+  });
+  it("rejects stale or lost-writer batches without publishing a partial skin", async () => {
+    const { assets } = await writableRepository();
+    const input = { assetId: "one", kind: "cg" as const, displayName: "one", mimeType: "image/png", bytes: inspectedPngHeader(1, 1, 1) };
+    await expect(assets.importNewAssets([input], { expectedIndexRevision: 5, maxBytes: 1024 })).rejects.toMatchObject({ code: "STALE_INDEX_REVISION" });
+    assets.activateWriterLease(null);
+    await expect(assets.importNewAssets([input], { expectedIndexRevision: 0, maxBytes: 1024 })).rejects.toMatchObject({ code: "LEASE_REQUIRED" });
+    expect((await assets.loadIndex()).assets).toEqual([]);
+  });
   it("passes the shared Blob conformance suite under an active writer lease", async () => {
     const { assets } = await writableRepository();
     const report = await auditAssetBlobStore(assets);
