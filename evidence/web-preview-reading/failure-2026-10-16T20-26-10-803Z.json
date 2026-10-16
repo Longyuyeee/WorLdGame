@@ -1,0 +1,10 @@
+{
+  "error": "TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.",
+  "stack": "page.waitForFunction: Timeout 30000ms exceeded.\n    at textSeparated (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-preview-reading.mjs:29:14)\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-preview-reading.mjs:129:187",
+  "checks": [
+    "Long original Rain paragraph is outside the unchanged-ratio stage; focus widens it, preserves native canvas pixels, current sentence and history, and never approves the note.",
+    "390/844/320 viewports and four aspect presets retain geometry; native text scrolling reaches the end without advancing; Escape returns to the same editor toggle.",
+    "An actual six-paragraph temporary edit overflows, scrolls to the last line by keyboard and retains that reading position through focus toggles; undo restores the original sentence and does not advance Runtime."
+  ],
+  "errors": []
+}

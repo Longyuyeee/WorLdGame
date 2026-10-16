@@ -4,9 +4,10 @@ import { REVIEW_RANGE_LABELS, defaultReviewRange, reviewLocationExists, type Rev
 import { StudioIcon } from './studio-icon';
 import './styles/playtest-review-task.css';
 
-export function PlaytestReviewTask({ task, note, project, sourceHash, blocked, canConfirm, runCurrent, canResume, hasNext, error, onRangeChange, onEdit, onReplay, onConfirm, onNext, onList, onResume, onClose }: {
+export function PlaytestReviewTask({ task, note, project, sourceHash, blocked, canConfirm, runCurrent, canResume, hasNext, error, onRangeChange, onEdit, onShowPreview, onReplay, onConfirm, onNext, onList, onResume, onClose }: {
   task: ReviewTask; note: PlaytestNote | undefined; project: CanonicalProject; sourceHash: string; blocked: boolean; canConfirm: boolean; runCurrent: boolean; canResume: boolean; hasNext: boolean; error: string;
   onRangeChange: (range: ReviewRange) => void;
+  onShowPreview: () => void;
   onEdit: () => void; onReplay: () => void; onConfirm: () => void; onNext: () => void; onList: () => void; onResume: () => void; onClose: () => void;
 }) {
   const exists = !!note && reviewLocationExists(project, note), status = note ? noteReviewState(note, sourceHash) : null;
@@ -25,6 +26,7 @@ export function PlaytestReviewTask({ task, note, project, sourceHash, blocked, c
     </>}
     {exists && task.phase === 'retesting' && status !== 'verified' && <p className="review-task__hint" role="status">{canConfirm ? '本次复测已到达问题位置。请继续检查前后文、画面和声音，无误后再由你确认；到达不代表自动复核。' : runCurrent ? '本次复测尚未到达问题位置。请继续阅读并选择对应路线；目标到达前不能确认。' : '需要用当前内容重新复测；修改作品或记录、换复测范围、刷新重开后，旧复测不能直接用于确认。'}</p>}
     <div className="review-task__actions">
+      {task.phase === 'retesting' && <button type="button" onClick={onShowPreview}>查看试玩画面</button>}
       {exists && status !== 'verified' && task.phase === 'editing' && <button type="button" className="studio-primary" disabled={blocked} onClick={onReplay}>{status === 'open' ? '标记已修改并复测' : replayLabel}</button>}
       {exists && status !== 'verified' && task.phase === 'retesting' && <><button type="button" className="studio-primary" disabled={blocked || !canConfirm} onClick={onConfirm}>确认已复核</button>{!canConfirm && !runCurrent && <button type="button" disabled={blocked} onClick={onReplay}>重新{replayLabel}</button>}<button type="button" disabled={blocked} onClick={onEdit}>继续修改</button></>}
       {task.phase === 'editing' && canResume && <button type="button" disabled={blocked} onClick={onResume}>返回试玩</button>}

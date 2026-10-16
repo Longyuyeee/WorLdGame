@@ -39,6 +39,7 @@ import { useRememberStudioWorkPosition } from './use-studio-work-position';
 import { usePlaytestNotes } from "./use-playtest-notes";
 import { PlaytestNoteDialog, PlaytestReviewBoard } from "./PlaytestReview";
 import { PlaytestReviewTask } from "./PlaytestReviewTask";
+import { PreviewTranscript } from './PreviewTranscript';
 import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
 import { WebAssetSourcesDialog } from './WebAssetSourcesDialog';
 import { WebReleasePreparation } from './WebReleasePreparation';
@@ -1157,6 +1158,7 @@ function AssetVaultDialog({
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly editingShortcutsEnabled?: boolean;
   readonly canonicalProject?: CanonicalProject;
   readonly onMotionProjectChange?: (project: CanonicalProject) => void;
   readonly inputDirty: boolean;
@@ -1940,6 +1942,7 @@ function SequenceInspector({statement,disabled,onDirtyChange,targetNames,targetI
 }
 
 function SequenceView({
+  editingShortcutsEnabled = true,
   session,
   dispatch,
   createCommandId,
@@ -2161,6 +2164,7 @@ function SequenceView({
     onRequestedFocusHandled();
   }, [requestedFocusStatementId, selected.id, selectedIndex]);
   useEffect(() => {
+    if (!editingShortcutsEnabled) return;
     const shortcut = (event: KeyboardEvent) => {
       if (event.isComposing || event.keyCode === 229 || !event.altKey || pendingDraft || inspectorDirty || textBatchOpen || document.querySelector("dialog[open]")) return;
       const command = event.key === "1" ? "background" : event.key === "2" ? "show" : event.key === "3" ? "audio" : event.key === "4" ? "camera" : event.key === "5" ? "textbox" : null;
@@ -2170,8 +2174,8 @@ function SequenceView({
     };
     globalThis.addEventListener("keydown", shortcut);
     return () => globalThis.removeEventListener("keydown", shortcut);
-  }, [pendingDraft, inspectorDirty, textBatchOpen]);
-  useEffect(()=>{const shortcut=(event:KeyboardEvent)=>{if(event.isComposing||event.keyCode===229)return;if(!document.querySelector("dialog[open]")&&!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
+  }, [editingShortcutsEnabled, pendingDraft, inspectorDirty, textBatchOpen]);
+  useEffect(()=>{if(!editingShortcutsEnabled)return;const shortcut=(event:KeyboardEvent)=>{if(event.isComposing||event.keyCode===229)return;if(!document.querySelector("dialog[open]")&&!pendingDraft&&!inspectorDirty&&!textBatchOpen&&sequenceInsertRequirement===null&&event.ctrlKey&&event.key==="Enter"){event.preventDefault();requestSequenceInsert();}};globalThis.addEventListener("keydown",shortcut);return()=>globalThis.removeEventListener("keydown",shortcut);},[editingShortcutsEnabled,pendingDraft,inspectorDirty,textBatchOpen,sequenceInsertKind,sequenceInsertRequirement,insertionAnchor,session.project,assetIndex]);
 
   const selectedInspector = (<div className="inline-inspector">
         <div className="inspector-label-row">
@@ -3234,6 +3238,8 @@ function FlowView({ session, dispatch, canonicalProject, runtimeRouteTrace, revi
 type PreviewPlaytestRequest = { readonly serial: number; readonly target: NonNullable<Parameters<typeof startFormalPreview>[1]> };
 
 interface PreviewPanelProps extends CommonProps {
+  readonly focusMode?: boolean;
+  readonly onFocusModeChange?: (value: boolean) => void;
   readonly publicationWorkflow?: PublicationWorkflow;
   readonly onPublicationWorkflowChange?: (workflow: PublicationWorkflow) => void;
   readonly beforeDeliverySave?: (signal: AbortSignal) => Promise<boolean>;
@@ -3286,7 +3292,8 @@ function useDevicePixelRatio(): number {
   return ratio;
 }
 
-function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflow, onPublicationWorkflowChange, beforeDeliverySave, deliveryReviewNotes = [], revisionTarget = null, onRevise, onRecordIssue, onFinishRevision, reviewDialogOpen = false, playtestRequest = null, onPlaytestRequestHandled, pendingReviewNotes = 0, onOpenReviewNotes, session, dispatch, createCommandId, inputDirty, assetIndex, assetRepository, canonicalProject, onRouteTraceChange, onPublicationChange, publicationOnly = false, onDraftChange, hidden = false, continuity, onContinuityChange, initialPublicationStep = 0, initialPublicationFormat = "html", reviewTrace = null, playtestProgress, onRestartPlaytest, onReleaseFix, onReleaseReview }: PreviewPanelProps) {
+  const focusToggle = useRef<HTMLButtonElement>(null);
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationSettingsDirty, setPublicationSettingsDirty] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
@@ -3733,11 +3740,15 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
       ? `运行中 · ${speedProfile.label}`
       : previewStopReasonLabel(transport.stopReason ?? transportBarrier);
   return (
-    <aside hidden={hidden} className={publicationOnly ? "preview-panel publication-page" : "preview-panel"} aria-labelledby={publicationOnly ? "publication-heading" : "preview-heading"}>
+    <aside hidden={hidden} className={publicationOnly ? "preview-panel publication-page" : "preview-panel"} aria-labelledby={publicationOnly ? "publication-heading" : "preview-heading"} onKeyDown={event => {
+      if (!focusMode || event.defaultPrevented || event.key !== 'Escape' || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229 || document.querySelector('dialog[open]') || (event.target as HTMLElement).closest('input,textarea,select,[contenteditable="true"]')) return;
+      event.preventDefault(); event.stopPropagation(); onFocusModeChange?.(false); focusToggle.current?.focus();
+    }}>
       {!publicationOnly && <>
       <div className="preview-stage-area">
       <div className="panel-heading">
         <div><p className="eyebrow">LIVE PREVIEW</p><h2 id="preview-heading">即时预览</h2></div>
+        <button ref={focusToggle} id="preview-focus-toggle" type="button" className="preview-focus-toggle" title={focusMode ? '返回原来的编辑布局与校订任务，不重新启动试玩。' : '收起编辑区和任务详情，查看舞台与正文。'} aria-pressed={focusMode} onClick={() => onFocusModeChange?.(!focusMode)}>{focusMode ? '返回编辑布局' : '专注预览'}</button>
         <span className={pendingDraft ? "live-badge is-locked" : inputDirty ? "live-badge is-buffered" : "live-badge"}>
           {pendingDraft ? "LOCKED" : inputDirty ? "BUFFER" : "LIVE"}
         </span>
@@ -3847,6 +3858,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
           onPointerDown={placeOnStage}
           style={{
             "--preview-aspect": `${viewport.width} / ${viewport.height}`,
+            "--preview-design-ratio": viewport.width / viewport.height,
             "--gal-font-scale": settingsApplication.text.fontScale,
             "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
             "--gal-line-height": settingsApplication.text.lineHeight,
@@ -3905,7 +3917,14 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
               </ul></details>
             </div>
           )}
-          <div className="stage-content" key={statement.id} data-testid="preview-step" data-scene-id={scene.id} data-statement-id={statement.id}>
+        </div>
+      </div>
+          <PreviewTranscript sceneId={scene.id} statementId={statement.id} template={dialoguePresentation.template} highContrast={settingsApplication.accessibility.highContrast} reduceMotion={settingsApplication.accessibility.reduceMotion} style={{
+            '--gal-font-scale': settingsApplication.text.fontScale,
+            '--gal-line-height': settingsApplication.text.lineHeight,
+            '--gal-letter-spacing': `${settingsApplication.text.letterSpacingEm}em`,
+            '--gal-text-reveal-duration': `${dialogueRevealDuration}ms`
+          } as CSSProperties}>
             {(statement.kind === "dialogue" || statement.kind === "narration") && <div key={`${statement.id}:${dialogueRevealDuration}`} className={`dialogue-presentation dialogue-presentation--${dialoguePresentation.template}`} data-dialogue-template={dialoguePresentation.template}>
               {dialoguePresentation.lines.map((item) => {
                 const character = item.speakerId === undefined ? undefined : findCharacter(presentationStory.characters, item.speakerId);
@@ -3926,9 +3945,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
               </div>
             )}
             {statement.kind === "end" && <div className="ending-preview"><span>ENDING</span><strong>{statement.endingName}</strong></div>}
-          </div>
-        </div>
-      </div>
+          </PreviewTranscript>
       </div>
       <div className="preview-session-area">
       {resumed && playableActive && <p className="preview-resume-notice" role="status" aria-label="试玩接续状态">已接续上次试玩，当前位置、选择和历史均已保留。</p>}
@@ -4289,6 +4306,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
   const [batchAssetOpen, setBatchAssetOpen] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(continuity?.previewOpen ?? loadedWorkPosition.value?.previewOpen ?? true);
+  const [previewFocus, setPreviewFocus] = useState(false);
   // Launcher releases its handoff when App reports its source; Preview mounts
   // only after persistence is ready, so retain the initial handoff locally.
   const [initialPreviewContinuity, releasePreviewContinuity] = useState(continuity?.preview);
@@ -5725,6 +5743,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       data-studio-page={studioPage}
       data-source-revision={activeSourceSession(session).revision}
       data-preview-open={previewOpen}
+      data-preview-focus={previewFocus && previewOpen && studioPage === 'story'}
       data-scenes-open={scenesOpen}
       data-editor-view={mode}
       data-experience-level={experienceLevel}
@@ -5787,6 +5806,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
         hasNext={nextReview !== null} error={notesStore.error || noteFileError}
         onRangeChange={range => { if (!reviewBlocked) { setActiveReview({ ...activeReview, range, phase: 'editing' }); setReviewRun(null); setNoteFileError(''); } }}
         onEdit={() => { if (activeReviewNote) openRevision(activeReviewNote, activeReviewNote.id); }}
+        onShowPreview={() => { setPreviewOpen(true); setPreviewFocus(true); requestAnimationFrame(() => document.getElementById('preview-focus-toggle')?.focus()); }}
         onReplay={() => { if (activeReviewNote) startNoteReview(activeReviewNote, true, activeReview.range ?? defaultReviewRange(activeReviewNote)); }}
         onConfirm={confirmNoteReview} onNext={() => { if (nextReview) openRevision(nextReview, nextReview.id); }}
         onList={() => { setRevisionTarget(null); openStudioPage('checks'); }} onResume={resumeRevisionPreview}
@@ -5894,7 +5914,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView canonicalProject={previewCanonicalProject} onMotionProjectChange={project => applyCanonicalProjectMutation(project, "动效预设已更新，等待保存工程。")} inputDirty={inputDirty} assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView editingShortcutsEnabled={!previewFocus || !previewOpen} canonicalProject={previewCanonicalProject} onMotionProjectChange={project => applyCanonicalProjectMutation(project, "动效预设已更新，等待保存工程。")} inputDirty={inputDirty} assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (
@@ -5920,7 +5940,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
             onOpenSequence={(sceneId, statementId) => {if(statementId===undefined){dispatch({type:"select-scene",sceneId});}else{setRequestedFocusStatementId(statementId);dispatch({type:"select-project-result",sceneId,statementId});}setWorkspaceMode("writer");setMode("sequence");}}
           />
         )}
-          {<PreviewPanel revisionTarget={revisionTarget} onRevise={openRevision} onRecordIssue={location => { setNoteFileError(""); setNoteDialog({ location, note: null }); }} onFinishRevision={() => { setRevisionTarget(null); setReviewRun(null); }} reviewDialogOpen={noteDialog !== null || textReplaceOpen} playtestRequest={playtestRequest} onPlaytestRequestHandled={receiveReviewStart} hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
+          {<PreviewPanel focusMode={previewFocus} onFocusModeChange={setPreviewFocus} revisionTarget={revisionTarget} onRevise={openRevision} onRecordIssue={location => { setNoteFileError(""); setNoteDialog({ location, note: null }); }} onFinishRevision={() => { setRevisionTarget(null); setReviewRun(null); }} reviewDialogOpen={noteDialog !== null || textReplaceOpen} playtestRequest={playtestRequest} onPlaytestRequestHandled={receiveReviewStart} hidden={!previewOpen} continuity={initialPreviewContinuity ?? previewContinuityRef.current} onContinuityChange={receivePreviewContinuity} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} />}
         </>}
       </main>
       <footer className="workspace-footer">

@@ -227,9 +227,10 @@ describe("WorLd Studio S0.32 verified live-stage media prototype", () => {
 
     const stage = screen.getByTestId("preview-stage");
     Object.defineProperty(stage, "getBoundingClientRect", { configurable: true, value: () => ({ left: 0, top: 0, width: 1000, height: 562.5, right: 1000, bottom: 562.5, x: 0, y: 0, toJSON: () => ({}) }) });
-    const stageContent = stage.querySelector(".stage-content");
-    expect(stageContent).not.toBeNull();
-    fireEvent.pointerDown(stageContent!, { clientX: 750, clientY: 253.125 });
+    // Reading copy is no longer a spatial editing surface.
+    fireEvent.pointerDown(screen.getByTestId('preview-step'), { clientX: 750, clientY: 253.125 });
+    expect(screen.getByTestId("workspace-shell")).toHaveAttribute("data-source-revision", "1");
+    fireEvent.pointerDown(stage, { clientX: 750, clientY: 253.125 });
 
     expect(screen.getByText("lead 已定位到 X 75% · Y 45%")).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "Script" }));

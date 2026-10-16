@@ -1,0 +1,9 @@
+{
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '撤销', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '撤销', exact: true })\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-preview-reading.mjs:123:24",
+  "checks": [
+    "Long original Rain paragraph is outside the unchanged-ratio stage; focus widens it, preserves native canvas pixels, current sentence and history, and never approves the note.",
+    "390/844/320 viewports and four aspect presets retain geometry; native text scrolling reaches the end without advancing; Escape returns to the same editor toggle."
+  ],
+  "errors": []
+}
