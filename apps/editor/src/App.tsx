@@ -604,6 +604,7 @@ function WorkspaceHeader({
         <button
           className="icon-button"
           aria-label="撤销"
+          title="撤销当前场景的写作修改；整批文字替换会一起撤销。不撤销结构管理修改。"
           disabled={sourceSession.history.length === 0 || pendingDraft || inputDirty}
           onClick={() => dispatch({ type: "undo" })}
         >
@@ -612,11 +613,19 @@ function WorkspaceHeader({
         <button
           className="icon-button"
           aria-label="重做"
+          title="重做当前场景的写作修改；整批文字替换会一起重做。"
           disabled={sourceSession.future.length === 0 || pendingDraft || inputDirty}
           onClick={() => dispatch({ type: "redo" })}
         >
           ↷
         </button>
+        <details className="history-boundary">
+          <summary>撤销范围</summary>
+          <div>
+          <p>撤销与重做针对当前场景的已应用写作修改；跨场景整批文字替换一起恢复。结构管理的新增、改名、删除不由这里撤销。关闭工程或刷新后，写作历史重新开始，已保存内容不受影响。</p>
+          {session.historyBoundary && <p role="status">最近重建历史：{session.historyBoundary.resetSceneNames.join("、")}。{session.historyBoundary.reason}其他未受影响的场景仍保留原记录。</p>}
+          </div>
+        </details>
         <span className={pendingDraft ? "save-state is-draft" : inputDirty ? "save-state is-buffered" : "save-state"}>
           <span className="save-state__dot" aria-hidden="true" />
           {pendingDraft

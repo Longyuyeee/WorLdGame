@@ -91,6 +91,8 @@ import "./player-screen-skin.css";
 import "./player-skin-images.css";
 import { useSkinButtonFeedback } from "./use-skin-button-feedback";
 import { PlayerDialogueIdentity } from "./PlayerDialogueIdentity";
+import { captureBrowserSavePreview } from "./browser-save-preview";
+import { saveReadingExcerpt } from "./save-reading-excerpt";
 import "./player-skin-template.css";
 
 export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
@@ -118,6 +120,8 @@ export type PlayerMemoryPressureStatusV1 = "idle" | "protecting" | "released" | 
 export interface WorldPlayerPreviewCaptureRequestV1 {
   readonly projectId: string;
   readonly sceneId: string;
+  /** Freeze this view synchronously, before any asynchronous host work. */
+  readonly runtimeStateHash?: string;
   readonly maximumWidth: typeof WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH;
   readonly maximumHeight: typeof WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT;
   readonly maximumBytes: typeof WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES;
@@ -170,9 +174,9 @@ export function PlayerSavePreview({ projectId, slot, store }: { readonly project
   }, [projectId, slot, store]);
 
   const hasFailed = slot !== undefined && failed === slot;
-  return source === null || source.slot !== slot
+  return source === null || source.slot !== slot || hasFailed
     ? <span className="player-save__preview" data-preview-status={hasFailed ? "error" : slot?.preview.status ?? "empty"} aria-label={hasFailed ? "截图读取失败" : slot?.preview.status === "available" ? "截图正在读取" : "没有存档截图"} />
-    : <img className="player-save__preview" src={source.url} alt={`${slot?.sceneTitle ?? "存档"} 截图`} />;
+    : <img className="player-save__preview" src={source.url} alt={`${slot?.sceneTitle ?? "存档"} 截图`} onError={() => { if (slot) setFailed(slot); }} />;
 }
 
 function playerLocalePreferenceKey(projectId: string): string {
@@ -577,17 +581,27 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
 
   useEffect(() => { if (savePanelOpen) void refreshSaveSlots(); }, [savePanelOpen, refreshSaveSlots]);
 
-  const captureSavePreview = useCallback(async (projectId: string, sceneId: string): Promise<{ readonly metadata: WorldPlayerSavePreviewV2; readonly blob?: Blob }> => {
-    if (previewCapture === undefined) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
+  const previewPending = useRef(0);
+  const previewControllers = useRef(new Set<AbortController>());
+  useEffect(() => () => { for (const controller of previewControllers.current) controller.abort(); }, [sessionRunner]);
+  const captureSavePreview = useCallback(async (projectId: string, sceneId: string, runtimeStateHash: string | null): Promise<{ readonly metadata: WorldPlayerSavePreviewV2; readonly blob?: Blob }> => {
+    if (previewCapture === undefined && platform !== "web" || runtimeStateHash === null || fullscreen.element.current?.dataset.runtimeStateHash !== runtimeStateHash || previewPending.current >= 2) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
+    previewPending.current++;
+    const controller = new AbortController();
+    previewControllers.current.add(controller);
+    let timer: ReturnType<typeof setTimeout> | undefined;
     try {
-      const captured = await previewCapture.capture({
+      const request: WorldPlayerPreviewCaptureRequestV1 = {
         projectId,
         sceneId,
+        runtimeStateHash,
         maximumWidth: WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH,
         maximumHeight: WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_HEIGHT,
         maximumBytes: WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
         mimeTypes: ["image/webp", "image/png"]
-      });
+      };
+      const pending = previewCapture ? previewCapture.capture(request) : captureBrowserSavePreview(fullscreen.element.current, request, skinFonts.captureFonts, controller.signal);
+      const captured = await Promise.race([pending, new Promise<null>(resolve => { timer = setTimeout(() => { controller.abort(); resolve(null); }, 3000); })]);
       if (captured === null) return { metadata: { status: "unavailable", reason: "capture-unavailable" } };
       const valid = (captured.blob.type === "image/webp" || captured.blob.type === "image/png") && captured.blob.size > 0 && captured.blob.size <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES &&
         Number.isSafeInteger(captured.width) && captured.width > 0 && captured.width <= WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_WIDTH &&
@@ -599,10 +613,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       };
     } catch {
       return { metadata: { status: "unavailable", reason: "capture-failed" } };
-    }
-  }, [previewCapture]);
+    } finally { clearTimeout(timer); controller.abort(); previewControllers.current.delete(controller); previewPending.current--; }
+  }, [previewCapture, platform, fullscreen.element, skinFonts.captureFonts]);
 
-  const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
+  const captureCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot, prepared = { preview: captureSavePreview(project.manifest.projectId, capturedState.runtimeState?.cursor.sceneId ?? "", capturedSnapshot.runtimeStateHash), savedAt: now() }) => {
     if (capturedSnapshot.identities.buildId === null || capturedSnapshot.runtimeStateHash === null || capturedState.runtimeState === null) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
     if(capturedState.projectId!==project.manifest.projectId)throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
     const {result:created}=await sessionRunner.run({kind:"save",source:{replaySession:capturedState.replaySession,artifacts:capturedState.artifacts,historySession:capturedState.historySession,runtimeState:capturedState.runtimeState}});
@@ -613,13 +627,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
       const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
       const chapter = scenePath === undefined ? undefined : project.chapters.find((candidate) => candidate.scenePaths.includes(scenePath));
-      const captured = await captureSavePreview(projectId, sceneId);
+      const captured = await prepared.preview;
       const slot = createWorldPlayerSaveSlotV3({
         kind,
         slotId,
         projectId,
         buildId: capturedState.runtimeState.buildId,
-        savedAtEpochMilliseconds: now(),
+        savedAtEpochMilliseconds: prepared.savedAt,
         title: capturedSnapshot.title,
         chapterId: chapter?.id ?? null,
         chapterTitle: chapter?.title ?? null,
@@ -627,6 +641,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         sceneTitle: scene.title,
         route: null,
         customMetadata: {},
+        ...(saveReadingExcerpt(capturedSnapshot.presentation) ? { readingExcerpt: saveReadingExcerpt(capturedSnapshot.presentation)! } : {}),
         preview: captured.metadata,
         presentationKind: capturedSnapshot.presentation.kind,
         runtimeStateHash: capturedSnapshot.runtimeStateHash,
@@ -637,9 +652,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       return { slot, ...(captured.blob === undefined ? {} : { preview: captured.blob }) };
   }, [captureSavePreview, now, project, snapshot, state,sessionRunner]);
 
-  const persistCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot) => {
+  const persistCurrentSlot = useCallback(async (kind: "manual" | "auto" | "quick", slotId: string, capturedState = state, capturedSnapshot = snapshot, prepared?: { preview: ReturnType<typeof captureSavePreview>; savedAt: number }) => {
     if (saveStore === undefined) throw new Error("WORLD_PLAYER_SAVE_NOT_READY");
-    const captured = await captureCurrentSlot(kind, slotId, capturedState, capturedSnapshot);
+    const captured = await captureCurrentSlot(kind, slotId, capturedState, capturedSnapshot, prepared);
     if(!sessionRunner.active||saveContext.current.projectId!==captured.slot.projectId||saveContext.current.store!==saveStore)throw new DOMException("Save scope changed","AbortError");
     await saveStore.write(captured.slot, captured.preview);
     return captured.slot.preview.status;
@@ -651,8 +666,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     setSaveMessage("正在写入…");
     setSaveFeedback(null);
     const projectId = project.manifest.projectId;
+    const prepared = { preview: captureSavePreview(projectId, state.runtimeState?.cursor.sceneId ?? "", snapshot.runtimeStateHash), savedAt: now() };
     try {
-      const previewStatus = await saveCoordinator.writeFixed(() => persistCurrentSlot(kind, slotId));
+      const previewStatus = await saveCoordinator.writeFixed(() => persistCurrentSlot(kind, slotId, state, snapshot, prepared));
       if (!sessionRunner.active || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore || saveContext.current.previewCapture !== previewCapture) return;
       await refreshSaveSlots();
       if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
@@ -668,7 +684,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (kind === 'quick') setSaveView('quick');
       openSavePanel();
     }
-  }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel,sessionRunner]);
+  }, [persistCurrentSlot, previewCapture, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, openSavePanel,sessionRunner, captureSavePreview, now, state, snapshot]);
 
   const requestSaveToSlot = useCallback((slotId: string, occupied: boolean) => {
     if (occupied && pendingOverwriteSlotId !== slotId) {
@@ -940,7 +956,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     autoSavedSceneIdentities.current.add(sceneIdentity);
     const capturedState = state;
     const capturedSnapshot = snapshot;
-    void saveCoordinator.writeAuto(project.manifest.projectId, sceneIdentity, async (slotId) => { await persistCurrentSlot("auto", slotId, capturedState, capturedSnapshot); }).then(async (result) => {
+    const prepared = { preview: captureSavePreview(project.manifest.projectId, state.runtimeState.cursor.sceneId, snapshot.runtimeStateHash), savedAt: now() };
+    void saveCoordinator.writeAuto(project.manifest.projectId, sceneIdentity, async (slotId) => { await persistCurrentSlot("auto", slotId, capturedState, capturedSnapshot, prepared); }).then(async (result) => {
       if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
       await refreshSaveSlots(false);
       if(!sessionRunner.active)return;
@@ -952,7 +969,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
       setBackgroundSaveFailure({ kind: "auto", message: "自动保存失败，原存档保持不变。可以手动保存当前进度，或继续阅读。" });
     });
-  }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
+  }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state, captureSavePreview, now]);
 
   useEffect(() => {
     if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null) return;
@@ -972,7 +989,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
         const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
         const chapter = scenePath === undefined ? undefined : project.chapters.find((item) => item.scenePaths.includes(scenePath));
-        const captured = await captureSavePreview(project.manifest.projectId, state.runtimeState?.cursor.sceneId ?? candidate.sceneId);
+        // Checkpoints are non-visible interpreter boundaries. A later sentence
+        // must never be attached to that older exact session.
+        const captured = { metadata: { status: "unavailable", reason: "capture-unavailable" } as WorldPlayerSavePreviewV2, blob: undefined };
         assertOwner();
         await saveStore.write(createWorldPlayerSaveSlotV3({
           kind: "checkpoint", slotId, projectId: project.manifest.projectId, buildId, savedAtEpochMilliseconds: now(), title: snapshot.title,

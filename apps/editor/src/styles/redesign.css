@@ -44,6 +44,11 @@ button, input, select, textarea { font: inherit; }
 .app-shell .brand-mark { width: 36px; height: 36px; color: white; background: #526fd0; border: 0; border-radius: 11px; box-shadow: none; font-size: 19px; }
 .app-shell .history-actions { display: flex; flex-wrap: nowrap; gap: 6px; }
 .app-shell .history-actions .settings-open-button { display: none; }
+.history-boundary { position: relative; font-size: 12px; }
+.history-boundary summary { padding: 10px 8px; cursor: pointer; }
+.history-boundary p { white-space: normal; overflow-wrap: anywhere; line-height: 1.6; }
+.history-boundary[open] { z-index: 50; }
+.history-boundary[open] > div { position: fixed; top: 70px; right: 16px; width: min(340px, calc(100vw - 40px)); max-height: calc(100dvh - 100px); overflow-y: auto; padding: 12px; margin: 0; border: 1px solid var(--border, #434255); border-radius: 12px; color: var(--text, #eee); background: var(--panel, #242330); box-shadow: 0 12px 24px #0004; }
 .app-shell .save-state { font-size: 11px; color: var(--wg-color-text-muted); }
 .app-shell button, .entity-manager button, .project-home button, .project-home .button-like { border: 1px solid var(--wg-color-border-subtle); background: var(--wg-color-bg-surface-1); color: var(--wg-color-text-primary); box-shadow: none; border-radius: 8px; cursor: pointer; }
 .app-shell button:hover:not(:disabled), .entity-manager button:hover:not(:disabled), .project-home button:hover:not(:disabled) { background: var(--wg-context-hover-bg); border-color: var(--wg-color-border-strong); }

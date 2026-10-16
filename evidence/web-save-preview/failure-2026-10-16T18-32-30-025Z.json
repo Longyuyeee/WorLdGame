@@ -1,0 +1,8 @@
+{
+  "checks": [
+    "Actual editor imports the retained source unchanged, exposes undo scope and produces both independent Web formats."
+  ],
+  "errors": [],
+  "failure": "locator.selectOption: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('备份来源', { exact: true })\u001b[22m\n\n    at backup (E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-save-preview.mjs:34:323)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-save-preview.mjs:44:595",
+  "text": "九宫格与头像复用验证 · 0.1.0\n\n欣赏画面\n菜单 ☰\n←\n→\n☰\n历史\n文楷·回信字集 · 项目字体已加载\n自动\n已读\n存读档\n存档备份与恢复\n返回故事 ×\n手动存档 1已保存（含截图）\n保存进度\n读取进度\n\n选择一个手动或快速槽位保存当前故事。已有存档需要确认覆盖。\n\n手动\n自动\n快速\n检查点\n备份\n\n把一份完整进度和历史存成文件，换浏览器或设备后可导入同一作品。个人设置和游戏素材需另行保留。\n\n导出备份\n备份进度\n当前游玩进度\n自动存档 1 · Start\n手动存档 1 · Start\n导出备份文件\n导入备份\n选择存档备份文件\n青禾·用于姓名框换行验证的较长名字\n边框不再随按钮一起拉宽。\n点击继续 →"
+}

@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { PlayerSavePreview } from "./PlayerShell";
 import type { WorldPlayerSaveStoreV3, WorldPlayerSaveSummaryV3 } from "./player-save-store";
@@ -17,6 +17,15 @@ it.each(["reject", "null"])("shows a failed preview instead of permanent loading
   render(<PlayerSavePreview projectId="catalog" slot={summary} store={store(async () => { if (mode === "reject") throw Error("broken"); return null; })} />);
   await waitFor(() => expect(screen.getByLabelText("截图读取失败")).toBeTruthy());
   expect(screen.queryByLabelText("截图正在读取")).toBeNull();
+});
+it("falls back when decoded screenshot bytes fail, and a later slot can display again", async () => {
+  vi.stubGlobal("URL", class extends URL { static override createObjectURL = () => "blob:preview"; static override revokeObjectURL = vi.fn(); });
+  const adapter = store(async () => new Blob(["image"]));
+  const view = render(<PlayerSavePreview projectId="catalog" slot={summary} store={adapter} />);
+  fireEvent.error(await screen.findByRole("img"));
+  expect(screen.getByLabelText("截图读取失败")).toBeTruthy(); expect(screen.queryByRole("img")).toBeNull();
+  view.rerender(<PlayerSavePreview projectId="catalog" slot={{ ...summary, savedAtEpochMilliseconds: 2 }} store={adapter} />);
+  expect(await screen.findByRole("img")).toBeTruthy();
 });
 it("hides and revokes the prior image while a replacement is pending, and ignores late completion after unmount", async () => {
   const revoke = vi.fn(), create = vi.fn(() => "blob:preview");

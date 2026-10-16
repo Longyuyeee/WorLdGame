@@ -25,5 +25,6 @@ export function usePlayerSkinFonts(body: PlayerTypographyProfileV1, project: Can
   }, [profiles]);
   const status = (profile: PlayerTypographyProfileV1): FontStatus => profile.projectFont ? loaded[profile.projectFont.runtimeFamily] ?? "loading" : "system";
   const families = Object.fromEntries(Object.entries(profiles).map(([role, profile]) => [role, profile.projectFont && status(profile) === "ready" ? `"${profile.projectFont.runtimeFamily}", ${profile.fallbackStack}` : profile.fallbackStack])) as Record<keyof typeof profiles, string>;
-  return { families, bodyStatus: status(body), failedRoles: Object.entries(profiles).filter(([, profile]) => status(profile) === "fallback").map(([role]) => role) };
+  const captureFonts = useMemo(() => [...new Map(Object.values(profiles).flatMap(profile => profile.projectFont && loaded[profile.projectFont.runtimeFamily] === "ready" ? [[profile.projectFont.runtimeFamily, profile.projectFont] as const] : [])).values()], [profiles, loaded]);
+  return { families, captureFonts, bodyStatus: status(body), failedRoles: Object.entries(profiles).filter(([, profile]) => status(profile) === "fallback").map(([role]) => role) };
 }

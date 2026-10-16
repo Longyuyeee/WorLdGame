@@ -30,6 +30,15 @@ async function reseal(value: { payload: unknown; sha256: string }) {
   return new TextEncoder().encode(JSON.stringify(value));
 }
 
+it("preserves a bounded display-only excerpt without treating its saved language as session authority", async () => {
+  const fixture = backupFixture();
+  const slot = createWorldPlayerSaveSlotV3({ ...fixture.slot, readingExcerpt: "保存时的另一种语言" });
+  const bytes = await createPlayerSaveBackup(slot);
+  expect((await readPlayerSaveBackup(bytes, createPlayerCore(fixture.project))).slot.readingExcerpt).toBe(slot.readingExcerpt);
+  expect(() => createWorldPlayerSaveSlotV3({ ...fixture.slot, readingExcerpt: "字".repeat(161) })).toThrow();
+  expect(() => createWorldPlayerSaveSlotV3({ ...fixture.slot, readingExcerpt: "" })).toThrow();
+});
+
 it("moves exact session bytes, full branch archives and screenshot into a separate manual slot", async () => {
   const fixture = backupFixture();
   const imageBytes = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l8sAAAAASUVORK5CYII="), byte => byte.charCodeAt(0));

@@ -7,7 +7,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { withPlatformSettings, withProjectSettings } from "@world-studio/gal-settings";
 import { loadProject, migrateS0Project, saveProject, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
-import { PlayerShell } from "./PlayerShell";
+import { PlayerShell, type WorldPlayerPreviewCaptureRequestV1 } from "./PlayerShell";
 import { createPlayerMediaDemoV1, createPlayerMediaMultichannelDemoV1, createPlayerVideoDemoV1 } from "./media-demo";
 import { WebPlayerHost, type WebPlayerHostProps } from "./player-host";
 import { worldPlayerSaveSummaryV3, type WorldPlayerSaveSlotV3, type WorldPlayerSaveStoreV3 } from "./player-save-store";
@@ -1360,6 +1360,40 @@ describe("N51-E5 Player settings application", () => {
     expect(writes[0]?.preview).toEqual({ status: "unavailable", reason: "capture-failed" });
     expect(screen.getByText(/预览不可用/u)).toBeInTheDocument();
   });
+
+  it("freezes manual and auto previews before waiting in the save queue", async () => {
+    const writes: WorldPlayerSaveSlotV3[] = [], releases: Array<() => void> = [];
+    const store: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", async list() { return writes; }, async read() { return null; }, async readPreview() { return null; }, async write(slot) { if (slot.schemaVersion === 3) writes.push(slot); } };
+    const preview = new NodeBlob([new Uint8Array([1, 2, 3])], { type: "image/webp" }) as Blob;
+    const capture = vi.fn((_request: WorldPlayerPreviewCaptureRequestV1) => new Promise<{ blob: Blob; width: number; height: number }>(resolve => releases.push(() => resolve({ blob: preview, width: 32, height: 18 }))));
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={{ version: "1.0.0", owner: "player-host-compositor", capture }} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    const firstHash = container.querySelector("main")!.dataset.runtimeStateHash;
+    expect(capture).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    // Neither the auto slot catalog nor serializer has completed, but both
+    // captures already own the same trigger-time frame.
+    expect(capture).toHaveBeenCalledTimes(2);
+    expect(writes).toHaveLength(0);
+    expect(capture.mock.calls.every(args => (args[0] as unknown as { runtimeStateHash: string })?.runtimeStateHash === firstHash)).toBe(true);
+    await act(async () => { releases.forEach(release => release()); });
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"));
+    expect(writes.filter(slot => slot.kind === "manual")).toHaveLength(1);
+    expect(writes.every(slot => slot.runtimeStateHash === firstHash)).toBe(true);
+    expect(writes.find(slot => slot.kind === "manual")?.readingExcerpt).toBeTruthy();
+  });
+
+  it("does not let a host capture that never settles block a valid save", async () => {
+    const writes: WorldPlayerSaveSlotV3[] = [];
+    const store: WorldPlayerSaveStoreV3 = { version: "3.0.0", backend: "memory-test", async list() { return writes; }, async read() { return null; }, async readPreview() { return null; }, async write(slot) { if (slot.schemaVersion === 3) writes.push(slot); } };
+    const { container } = render(<PlayerShell project={branching()} saveStore={store} previewCapture={{ version: "1.0.0", owner: "player-host-compositor", capture: () => new Promise(() => {}) }} />);
+    fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
+    fireEvent.click(screen.getByRole("button", { name: "存读档" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "保存" })[0]!);
+    await waitFor(() => expect(container.querySelector("main")).toHaveAttribute("data-save-operation", "saved"), { timeout: 4500 });
+    expect(writes.find(slot => slot.kind === "manual")?.preview).toEqual({ status: "unavailable", reason: "capture-unavailable" });
+  }, 6000);
 
   it("writes one automatic save per scene identity and exposes the five-slot view", async () => {
     const records = new Map<string, WorldPlayerSaveSlotV3>();

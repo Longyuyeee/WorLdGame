@@ -24,12 +24,33 @@ export function resumeStudioSession(project: CanonicalProject, continuity: Studi
     return !referencesChanged && old !== undefined && JSON.stringify(old) === JSON.stringify(scene) &&
       previous.sourceDrafts[scene.id] === previous.sourceSessions[scene.id]?.committedSource;
   }).map(scene => scene.id));
+  const activeGroups = previous.textReplaceGroups?.filter(group => group.sceneIds.some(id => {
+    const source = previous.sourceSessions[id];
+    return [...(source?.history ?? []), ...(source?.future ?? [])].some(entry => entry.commandId === group.commandId);
+  }));
+  // A multi-scene command is one transaction. If structure invalidated one
+  // member, retaining another member's half would strand its undo button.
+  let invalidated = true;
+  while (invalidated) {
+    invalidated = false;
+    for (const group of activeGroups ?? []) {
+      const retainedGroup = group.sceneIds.filter(id => unchanged.has(id));
+      if (retainedGroup.length > 0 && retainedGroup.length < group.sceneIds.length) {
+        for (const id of retainedGroup) unchanged.delete(id);
+        invalidated = true;
+      }
+    }
+  }
   const sourceSessions = { ...fresh.sourceSessions }, sourceDrafts = { ...fresh.sourceDrafts };
   for (const id of unchanged) { sourceSessions[id] = previous.sourceSessions[id]!; sourceDrafts[id] = previous.sourceDrafts[id]!; }
   const active = fresh.project.scenes.find(scene => scene.id === (sceneId ?? previous.activeSceneId)) ?? fresh.project.scenes.find(scene => scene.id === fresh.activeSceneId)!;
-  let resumed = reduceStudioSession({ ...fresh, sourceSessions, sourceDrafts, ...(previous.textReplaceGroups ? { textReplaceGroups: previous.textReplaceGroups } : {}) }, { type: "select-scene", sceneId: active.id });
+  const textReplaceGroups = activeGroups?.filter(group => group.sceneIds.every(id => unchanged.has(id)));
+  const resetSceneNames = previous.project.scenes.filter(scene => !unchanged.has(scene.id) && ((previous.sourceSessions[scene.id]?.history.length ?? 0) + (previous.sourceSessions[scene.id]?.future.length ?? 0) > 0)).map(scene => scene.title);
+  const reason = referencesChanged ? "删除了角色、场景或变量，或改变了变量类型，旧历史可能恢复失效引用。" : "场景内容被结构页改写，或同一批跨场景替换的其他场景已改变。";
+  const historyBoundary = resetSceneNames.length ? { resetSceneNames, reason } : previous.historyBoundary;
+  let resumed = reduceStudioSession({ ...fresh, sourceSessions, sourceDrafts, ...(textReplaceGroups ? { textReplaceGroups } : {}), ...(historyBoundary ? { historyBoundary } : {}) }, { type: "select-scene", sceneId: active.id });
   if (active.id === previous.activeSceneId && unchanged.has(active.id)) resumed = { ...resumed,
     selectedStatementId: previous.selectedStatementId, previewIndex: previous.previewIndex };
   return { ...resumed, notice: { tone: "success", title: "继续写作",
-    detail: referencesChanged ? "结构删除了引用对象或改变了变量类型，写作撤销已从新内容开始，避免恢复失效引用。" : "未改写场景的撤销记录和选择位置已保留；结构修改过的场景从新内容开始。" } };
+    detail: resetSceneNames.length ? `${resetSceneNames.join("、")}的写作撤销已从新内容开始，避免恢复失效引用或半批修改。顶部“撤销范围”可查看原因。` : "未改写场景的撤销记录和选择位置已保留；结构管理修改不在写作撤销范围内。" } };
 }

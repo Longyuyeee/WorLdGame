@@ -9,7 +9,9 @@
 .player-save-card__preview .player-save__preview { width: 100%; height: 100%; object-fit: contain; }
 .player-save-card__preview span { display: grid; place-items: center; color: var(--player-muted, #c1bed2); font-size: 12px; }
 .player-save-card__preview span::after { content: '暂无截图'; }.player-save-card__preview span[data-preview-status="available"]::after { content: '正在读取截图…'; }
+.player-save-card__preview span[data-preview-status="error"]::after { content: '截图读取失败，仍可读取进度'; }
 .player-save-card__details { display: grid; align-content: start; gap: 4px; min-width: 0; }
+.player-save-card__excerpt { overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 .player-save-card__details small, .player-save-card__details time { color: var(--player-muted, #c1bed2); font-size: 11px; line-height: 1.6; }
 .player-save-card__details span { font-size: 12px; line-height: 1.6; }.player-save-card__scene { font-size: 15px; overflow-wrap: anywhere; }
 .player-save__panel .player-save-card > button { align-self: end; min-height: 44px; padding: 8px 12px; border-radius: 9px; }

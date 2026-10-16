@@ -3,7 +3,7 @@ import type { WorldPlayerSaveSummaryV3 } from './player-save-store';
 import { playerSaveLabel } from './player-save-label';
 
 export function PlayerSaveDetails({ slot, emptyText = '在这里保存当前故事进度' }: { slot: WorldPlayerSaveSummaryV3 | undefined; emptyText?: string }) {
-  return slot ? <><strong className="player-save-card__scene">{slot.sceneTitle}</strong><span>{slot.chapterTitle ?? '未归属章节'}</span><time>{new Date(slot.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</time></> : <><strong className="player-save-card__scene">空槽位</strong><span>{emptyText}</span></>;
+  return slot ? <><strong className="player-save-card__scene">{slot.sceneTitle}</strong><span>{slot.chapterTitle ?? '未归属章节'}</span>{slot.readingExcerpt && <span className="player-save-card__excerpt">{slot.readingExcerpt}</span>}<time>{new Date(slot.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</time></> : <><strong className="player-save-card__scene">空槽位</strong><span>{emptyText}</span></>;
 }
 
 export function PlayerSaveCard({ slotId, slot, preview, intent, disabled, canSave, overwrite, onSave, onRead }: {

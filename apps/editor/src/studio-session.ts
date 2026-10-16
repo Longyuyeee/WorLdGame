@@ -42,6 +42,7 @@ export interface StudioNotice {
 }
 
 export interface StudioSession {
+  readonly historyBoundary?: { readonly resetSceneNames: readonly string[]; readonly reason: string };
   readonly textReplaceGroups?: readonly TextReplaceGroup[];
   readonly project: StoryProject;
   readonly sourceSessions: Readonly<Record<EntityId, ScriptSourceSession>>;

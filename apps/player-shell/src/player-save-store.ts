@@ -63,6 +63,7 @@ export interface WorldPlayerSaveSlotV2 extends WorldPlayerSaveSlotSourceV2 {
 export type WorldPlayerSaveKindV3 = WorldPlayerSaveKindV2 | "checkpoint";
 
 export interface WorldPlayerSaveSlotSourceV3 extends WorldPlayerSaveSlotSourceV1 {
+  readonly readingExcerpt?: string;
   readonly kind: WorldPlayerSaveKindV3;
   readonly chapterId: string | null;
   readonly chapterTitle: string | null;
@@ -171,7 +172,7 @@ function validV2Fields(value: Record<string, unknown>): boolean {
 }
 
 function validSlotV3(value: unknown): value is WorldPlayerSaveSlotV3 {
-  return isRecord(value) && hasExactKeys(value, slotV3Keys) && validPayload(value) && validV3Fields(value);
+  return isRecord(value) && hasExactKeys(value, "readingExcerpt" in value ? [...slotV3Keys, "readingExcerpt"] : slotV3Keys) && validPayload(value) && validV3Fields(value);
 }
 
 export function readWorldPlayerSaveSlotV3(value: unknown): WorldPlayerSaveSlotV3 {
@@ -181,6 +182,7 @@ export function readWorldPlayerSaveSlotV3(value: unknown): WorldPlayerSaveSlotV3
 
 function validV3Fields(value: Record<string, unknown>): boolean {
   if (!validCommonMetadata(value)) return false;
+  if ("readingExcerpt" in value && (typeof value.readingExcerpt !== "string" || value.readingExcerpt.length === 0 || Array.from(value.readingExcerpt).length > 160)) return false;
   const kind = value.kind;
   const validSlotIdentity = kind === "manual" && /^manual-(?:[1-9]|1[0-2])$/u.test(String(value.slotId)) ||
     kind === "auto" && /^auto-[1-5]$/u.test(String(value.slotId)) || kind === "quick" && value.slotId === "quick-1" ||
@@ -238,7 +240,7 @@ function key(projectId: string, slotId: string): string {
 function normalizeSummary(record: unknown): WorldPlayerSaveSummaryV3 {
   const value = readPlayerStorageMetadata(record);
   const fields = (keys: readonly string[]) => hasExactKeys(value, keys.filter(name => name !== "serializedSessionSave"));
-  if (fields(slotV3Keys) && validV3Fields(value)) return value as unknown as WorldPlayerSaveSummaryV3;
+  if (fields("readingExcerpt" in value ? [...slotV3Keys, "readingExcerpt"] : slotV3Keys) && validV3Fields(value)) return value as unknown as WorldPlayerSaveSummaryV3;
   if (fields(slotV2Keys) && validV2Fields(value)) return { ...value, schemaVersion: 3, checkpointStepId: null, migratedFromSchemaVersion: 2 } as unknown as WorldPlayerSaveSummaryV3;
   if (fields(slotV1Keys) && validV1Fields(value)) {
     const { previewImage: _preview, ...metadata } = value;
