@@ -1,8 +1,13 @@
 .player-panel-layout-safe { position: fixed; pointer-events: none; visibility: hidden; }
-.player-shell[data-player-skin="1"] [data-panel-layout][data-layout-panel-surface] { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; min-height: 0; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; border-radius: 0; animation: none; transform: none; box-sizing: border-box; }
+.player-shell[data-player-skin="1"][data-player-status] [data-panel-layout][data-layout-panel-surface] { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; min-height: 0; max-height: none; margin: 0; padding: 0; overflow: hidden; border: 0; border-radius: 0; animation: none; transform: none; box-sizing: border-box; }
 .player-shell [data-panel-layout="menu"] { z-index: 40; display: block; }
 .player-shell [data-panel-layout="history"] { z-index: 45; display: block; }
 .player-shell [data-panel-layout="save"] { display: block; }
+.player-shell [data-panel-layout="preferences"], .player-shell [data-panel-layout="credits"] { z-index: 60; display: block; }
+.player-shell [data-panel-layout="ending"] { z-index: 25; display: block; }
+.player-shell[data-player-status="ended"]:has([data-panel-layout="ending"]) .player-compact-toolbar { display: none; }
+/* Extras live in the existing control-layer stacking context. Keep the ending mounted, but never above that child flow. */
+.player-shell[data-additional-content="open"] [data-panel-layout="ending"] { visibility: hidden; pointer-events: none; }
 .player-shell [data-panel-layout] > [data-panel-region] { position: absolute; min-width: 0; min-height: 0; box-sizing: border-box; padding: var(--screen-padding, 16px); border: 1px solid var(--skin-border); border-radius: var(--screen-radius, 16px); background: var(--screen-background, var(--player-panel)); overflow: auto; overscroll-behavior: contain; }
 .player-shell [data-panel-layout] > [data-panel-region="primary"] { z-index: 2; display: flex; flex-direction: column; gap: 12px; container-type: inline-size; container-name: player-panel-content; }
 .player-shell [data-panel-layout] > [data-panel-region="primary"] > * { flex-shrink: 0; min-width: 0; }
@@ -26,6 +31,17 @@
 .player-shell [data-panel-layout="save"] .player-save__pages { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .player-shell [data-panel-layout] :is(button,select,input) { max-width: 100%; min-height: 44px; }
 .player-shell [data-panel-layout] :is(p,strong,h2,h3,label,span) { overflow-wrap: anywhere; }
+.player-shell [data-panel-layout] input[type="checkbox"] { min-height: 22px; flex-shrink: 0; }
+.player-shell [data-panel-layout="preferences"] fieldset { margin: 0; }
+.player-shell [data-panel-layout="preferences"] footer { display: grid; gap: 8px; }
+.player-shell [data-panel-layout="credits"] .player-credits__eyebrow { margin-bottom: 2px; }
+.player-shell [data-panel-layout="ending"] [data-panel-region="primary"] { align-items: stretch; text-align: center; }
+.player-shell [data-panel-layout="ending"] [data-panel-region="secondary"] header { width: 100%; }
+.player-shell [data-panel-layout="ending"] [data-panel-region="secondary"] button { width: 100%; }
+@container player-panel-content (max-width: 560px) {
+  .player-shell[data-player-skin="1"] [data-panel-layout="ending"][data-layout-panel-surface] .player-ending-actions { grid-template-columns: minmax(0, 1fr); }
+  .player-shell [data-panel-layout="credits"] dl > div { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+}
 .player-shell[data-settings-high-contrast="true"] [data-panel-layout] > [data-panel-region] { background: #000; border-color: #fff; color: #fff; }
 .player-shell .player-control-layer[data-open="false"] > .player-panel-layout-primary > .player-menu-only { display: none; }
 .player-shell:is([data-layout-title="true"],[data-layout-reading="true"]) .player-control-layer[data-open="false"] > .player-panel-layout-primary > :is(.player-history-controls,.player-playback-controls) { display: none; }

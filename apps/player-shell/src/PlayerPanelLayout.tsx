@@ -1,9 +1,15 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { WebPageLayout } from "@world-studio/project-domain";
 import { resolvePlayerLayout, type LayoutRect } from "./player-layout";
-import "./player-panel-layout.css";
 
-export type PlayerLayoutPanel = "menu" | "save" | "history";
+export type PlayerLayoutPanel = "menu" | "save" | "history" | "preferences" | "credits" | "ending";
+export interface PlayerPanelContent {
+  readonly enabled: boolean;
+  readonly layout: ReturnType<typeof resolvePlayerLayout>;
+  readonly inline: ReactNode;
+  readonly floating: ReactNode;
+  readonly audit: ReactNode;
+}
 export function usePlayerPanelLayout(page: WebPageLayout | undefined, surface: PlayerLayoutPanel, active: boolean) {
   const safe = useRef<HTMLDivElement>(null), [area, setArea] = useState<LayoutRect>({ left: 0, top: 0, width: 0, height: 0 });
   const [compact, setCompact] = useState(false);

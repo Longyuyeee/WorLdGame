@@ -1,17 +1,22 @@
 import type { RefObject } from 'react';
 import type { WebPlayerSkin } from '@world-studio/project-domain';
 import { playerScreenProps } from './player-screen-skin';
+import { PlayerPanelRegion, type PlayerPanelContent } from './PlayerPanelLayout';
 import { DEFAULT_PLAYER_PREFERENCES, PLAYER_AUDIO_CHANNELS, type PlayerPreferences } from './player-preferences';
 
 const channelNames = { master: '总音量', bgm: '背景音乐', voice: '语音', sfx: '音效', ambient: '环境音', ui: '界面音' };
-export function PlayerPreferencesPanel({ preferences, update, saved, active, panel, close, fullscreen, skin }: {
+export function PlayerPreferencesPanel({ preferences, update, saved, active, panel, close, fullscreen, skin, layout }: {
+  layout?: PlayerPanelContent;
   skin?: WebPlayerSkin | undefined;
   preferences: PlayerPreferences; update: (value: PlayerPreferences) => void; saved: boolean; active: boolean;
   panel: RefObject<HTMLDivElement | null>; close: () => void;
   fullscreen: { active: boolean; busy: boolean; message: string; toggle: () => Promise<void> };
 }) {
-  return <div {...playerScreenProps(skin, 'preferences')} ref={panel} className="player-preferences" role="dialog" aria-modal="true" aria-label="玩家设置">
+  return <div {...playerScreenProps(skin, 'preferences')} data-layout-panel-surface={layout?.enabled ? 'preferences' : undefined} data-panel-layout={layout?.layout ? 'preferences' : undefined} ref={panel} className="player-preferences" role="dialog" aria-modal="true" aria-label="玩家设置">
+    <PlayerPanelRegion enabled={!!layout?.enabled} rect={layout?.layout?.secondary} kind="secondary">
     <header><div><h2>玩家设置</h2><p>即时应用，只影响你的阅读；不会修改作品和存档。</p></div><button type="button" onClick={close}>返回故事</button></header>
+    </PlayerPanelRegion>
+    <PlayerPanelRegion enabled={!!layout?.enabled} rect={layout?.layout?.primary} kind="primary">
     <fieldset disabled={!active}>
       <legend>文字与阅读</legend>
       <label>个人字号 <span>{Math.round(preferences.fontScale * 100)}%</span><input aria-label="个人字号" aria-valuetext={`${Math.round(preferences.fontScale * 100)}%`} type="range" min="85" max="140" step="5" value={Math.round(preferences.fontScale * 100)} onChange={event => update({ ...preferences, fontScale: Number(event.target.value) / 100 })} /></label>
@@ -32,5 +37,6 @@ export function PlayerPreferencesPanel({ preferences, update, saved, active, pan
       <p role="status">{fullscreen.message || '全屏由浏览器决定是否支持，不会强制旋转手机。'}</p>
     </fieldset>
     <footer><button type="button" disabled={!active} onClick={() => update(DEFAULT_PLAYER_PREFERENCES)}>恢复作品默认</button><small>只恢复本页的显示和声音，语言与 Auto 节奏保持不变。</small><p role="status">{saved ? '个人设置保存在此浏览器；不影响存档进度。' : '已在本次游玩中应用，但浏览器未允许保存偏好。重新打开可能恢复默认。'}</p></footer>
+    {layout?.inline}</PlayerPanelRegion>{layout?.floating}{layout?.audit}
   </div>;
 }

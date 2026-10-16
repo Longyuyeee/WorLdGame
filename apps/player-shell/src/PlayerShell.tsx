@@ -97,6 +97,8 @@ import { PlayerLayoutBox, PlayerLayoutComponents, usePlayerLayout } from "./Play
 import { webLayoutActions, type WebLayoutAction } from "@world-studio/project-domain";
 import { PlayerPanelRegion, usePlayerPanelLayout, type PlayerLayoutPanel } from "./PlayerPanelLayout";
 import "./player-skin-template.css";
+// Load after the legacy page templates so opted-in viewport layouts keep their geometry.
+import "./player-panel-layout.css";
 
 export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
 
@@ -388,7 +390,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const menuLayout = usePlayerPanelLayout(skin?.layout?.menu, "menu", readingMenuOpen);
   const saveLayout = usePlayerPanelLayout(skin?.layout?.save, "save", savePanelOpen);
   const historyLayout = usePlayerPanelLayout(skin?.layout?.history, "history", historyPanelOpen);
-  const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout };
+  const preferencesLayout = usePlayerPanelLayout(skin?.layout?.preferences, "preferences", preferencesOpen && infoView === "preferences");
+  const creditsLayout = usePlayerPanelLayout(skin?.layout?.credits, "credits", preferencesOpen && infoView === "credits");
+  const endingLayout = usePlayerPanelLayout(skin?.layout?.ending, "ending", content.kind === "ending");
+  const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout, preferences: preferencesLayout, credits: creditsLayout, ending: endingLayout };
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
   const latestSlot = saveSlots.slice().sort((a, b) => b.savedAtEpochMilliseconds - a.savedAtEpochMilliseconds || a.slotId.localeCompare(b.slotId))[0];
@@ -1565,9 +1570,18 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     else if (action === "menu") { readingMenuReturnTrigger.current = trigger; stopSkip(); setReadingMenuOpen(true); }
   };
   const inlineLayoutComponents = <PlayerLayoutComponents rows={componentLayout?.components} inline media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} />;
-  const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement) => {
+  const endingActionBlocked = hostActivity !== "active" || saveOperation === "busy" || preferencesOpen || savePanelOpen || additionalContentOpen || historyPanelOpen || readingMenuOpen;
+  const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement, source: "pointer" | "touch" | "keyboard") => {
     if (hostActivity !== "active" || saveOperation === "busy" || !panelLayouts[surface].layout || !webLayoutActions(surface).includes(action) || !layoutActionEnabled(action)) return;
-    if (action === "resume") { if (surface === "menu") closeReadingMenu(); else if (surface === "history") closeHistoryPanel(); else closeSavePanel(); return; }
+    if (surface === "ending" && endingActionBlocked) return;
+    if (action === "resume") {
+      if (surface === "menu") closeReadingMenu();
+      else if (surface === "history") closeHistoryPanel();
+      else if (surface === "preferences" || surface === "credits") closePreferences();
+      else if (surface === "ending") { if (snapshot.sceneReplay.active) exitSceneReplay(); else applyIntent({ kind: "restart" }, source); }
+      else closeSavePanel();
+      return;
+    }
     if (surface !== "menu") return;
     trigger.focus({ preventScroll: true }); setReadingMenuOpen(false);
     if (action === "save" || action === "load") openSavePanel(action);
@@ -1576,9 +1590,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     else if (action === "credits") openCredits();
     else if (action === "additional") openAdditionalContent();
   };
-  const panelComponents = (surface: PlayerLayoutPanel, inline = false) => <PlayerLayoutComponents rows={panelLayouts[surface].layout?.components} inline={inline} media={mediaAssets} disabled={hostActivity !== "active" || saveOperation === "busy"} onAction={(action, trigger) => panelAction(surface, action, trigger)} actionEnabled={layoutActionEnabled} />;
+  const panelComponents = (surface: PlayerLayoutPanel, inline = false) => {
+    const rows = panelLayouts[surface].layout?.components.map(row => surface === "ending" && snapshot.sceneReplay.active && row.component.kind === "button" ? { ...row, component: { ...row.component, text: "返回原剧情" } } : row);
+    return <PlayerLayoutComponents rows={rows} inline={inline} media={mediaAssets} disabled={hostActivity !== "active" || saveOperation === "busy" || surface === "ending" && endingActionBlocked} onAction={(action, trigger, source) => panelAction(surface, action, trigger, source)} actionEnabled={layoutActionEnabled} />;
+  };
   const panelProps = (surface: PlayerLayoutPanel) => ({ ...playerScreenProps(skin, surface), "data-layout-panel-surface": panelLayouts[surface].enabled ? surface : undefined, "data-panel-layout": panelLayouts[surface].layout ? surface : undefined });
   const panelAudit = (surface: PlayerLayoutPanel) => editorPreview && panelLayouts[surface].layout?.fallback ? <p className="player-layout-audit" role="status">布局保护：内容与返回区使用安全布局，冲突按钮并入内容操作区。</p> : null;
+  const panelContent = (surface: PlayerLayoutPanel) => ({ enabled: panelLayouts[surface].enabled, layout: panelLayouts[surface].layout, inline: panelComponents(surface, true), floating: panelComponents(surface), audit: panelAudit(surface) });
+  const endingReturn = <button className="player-secondary" type="button" disabled={endingActionBlocked} onPointerDown={event => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : skin?.screens?.ending.returnLabel ?? "回到标题"}</button>;
 
   return (
     <main ref={fullscreen.element}
@@ -1699,10 +1718,10 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         ...playerSkinStyle(skin, mediaAssets)
       } as React.CSSProperties}
     >
-      {menuLayout.probe}{saveLayout.probe}{historyLayout.probe}
+      {menuLayout.probe}{saveLayout.probe}{historyLayout.probe}{preferencesLayout.probe}{creditsLayout.probe}{endingLayout.probe}
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
-      {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel skin={skin} credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel skin={skin} panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
+      {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel skin={skin} layout={panelContent('credits')} credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel skin={skin} layout={panelContent('preferences')} panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
       <section className="player-stage" inert={preferencesOpen} aria-label={`${snapshot.title} 游戏画面`}>
         {layoutProbe}
         {componentLayout && <div className="player-layout-components" style={{ display: "contents" }} inert={layoutDisabled}><PlayerLayoutComponents rows={componentLayout.components} media={mediaAssets} disabled={layoutDisabled} onAction={layoutAction} actionEnabled={layoutActionEnabled} /></div>}
@@ -2399,7 +2418,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         )}
 
         {content.kind === "ending" && (
-          <div {...playerScreenProps(skin, 'ending')} className="player-ending" role="status">
+          <div {...panelProps('ending')} className="player-ending" inert={preferencesOpen || savePanelOpen || additionalContentOpen || historyPanelOpen || readingMenuOpen} role="status">
+            <PlayerPanelRegion enabled={endingLayout.enabled} rect={endingLayout.layout?.primary} kind="primary">
             <span>{snapshot.sceneReplay.active ? '回想结束' : skin?.screens?.ending.caption ?? '故事告一段落'}</span>
             <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
             {!snapshot.sceneReplay.active && <>
@@ -2413,8 +2433,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               {hasWebCredits(credits) && <button className="player-secondary" type="button" disabled={hostActivity !== 'active'} onClick={openCredits}>制作名单</button>}
               {saveStore && <button className="player-secondary" type="button" onClick={() => openSavePanel('load')}>读取存档探索其他路线</button>}
             </>}
-            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : skin?.screens?.ending.returnLabel ?? "回到标题"}</button>
+            {!endingLayout.enabled && endingReturn}
             </div>
+            {panelComponents('ending', true)}</PlayerPanelRegion>
+            <PlayerPanelRegion enabled={endingLayout.enabled} rect={endingLayout.layout?.secondary} kind="secondary">{endingLayout.enabled && <header>{endingReturn}</header>}</PlayerPanelRegion>
+            {panelComponents('ending')}{panelAudit('ending')}
           </div>
         )}
 

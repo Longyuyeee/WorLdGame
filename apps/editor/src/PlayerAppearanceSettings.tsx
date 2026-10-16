@@ -38,7 +38,7 @@ export function PlayerAppearanceSettings({ project, onChange, onDirtyChange, rea
   const [bundleBlocking, setBundleBlocking] = useState(false);
   const [selectedScreen, setSelectedScreen] = useState<WebPlayerScreenId>("save");
   const [layoutSelection, setLayoutSelection] = useState("primary"), [layoutDevice, setLayoutDevice] = useState<LayoutDevice>("desktop");
-  const layoutSurface: WebLayoutSurface | null = page === "title" || page === "reading" ? page : page === "pages" && (selectedScreen === "menu" || selectedScreen === "save" || selectedScreen === "history") ? selectedScreen : null;
+  const layoutSurface: WebLayoutSurface | null = page === "title" || page === "reading" ? page : page === "pages" && selectedScreen !== "additional" ? selectedScreen : null;
   const dirty = JSON.stringify(draft) !== savedKey, skin = draft.skin;
   useEffect(() => { onDirtyChange(dirty || bundleBlocking); }, [dirty, bundleBlocking, onDirtyChange]);
   useEffect(() => { setDraft(saved); }, [savedKey]);
