@@ -1,0 +1,481 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests | 1 failed) 3947ms
+   ✓ lets reading continue and writes only the earlier exact checkpoint, once  2365ms
+   ✓ ignores late checkpoint results after unmount  401ms
+   ✓ ignores late checkpoint results after project  460ms
+   × ignores late checkpoint results after timeout 716ms
+ ✓ packages/runtime/src/scheduler-validation.test.ts (8 tests) 1811ms
+     ✓ matches fully validated public commits byte for byte and preserves Back/Forward  411ms
+ ✓ packages/runtime/src/runtime.test.ts (66 tests) 357ms
+ ✓ packages/player-core/src/n62-additional-content-player-core.test.ts (4 tests) 84ms
+ ✓ packages/player-core/src/player-replay-entry.test.ts (5 tests) 79ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  apps/player-shell/src/deferred-checkpoint.test.tsx > ignores late checkpoint results after timeout
+TestingLibraryElementError: Unable to find an element with the text: 检查点写入失败，旧检查点保持不变，剧情继续. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <main
+      class="player-shell"
+      data-additional-content="closed"
+      data-artwork-view="false"
+      data-audio-mode="enabled"
+      data-auto-playback="off"
+      data-compact-reading="false"
+      data-compiler="0.2.0"
+      data-effect-operation="none"
+      data-history-archives="0"
+      data-history-can-back="true"
+      data-history-can-forward="false"
+      data-history-cursor="3"
+      data-history-forward-policy="true"
+      data-history-length="3"
+      data-history-panel="closed"
+      data-host-activity="active"
+      data-input-accepted="true"
+      data-input-source="pointer"
+      data-memory-pressure="idle"
+      data-memory-pressure-serial="0"
+      data-playback-activation="none"
+      data-playback-mode="normal"
+      data-playback-policy="1.2.0"
+      data-playback-speed="normal"
+      data-playback-stop-reason="none"
+      data-player-core="0.5.0"
+      data-player-font="system"
+      data-player-fullscreen="false"
+      data-player-locale="und"
+      data-player-locale-fallbacks="0"
+      data-player-media-fallbacks="0"
+      data-player-media-locale="und"
+      data-player-media-missing="0"
+      data-player-muted="false"
+      data-player-status="presenting"
+      data-player-typography="standard"
+      data-preferences-open="false"
+      data-reading-menu-open="false"
+      data-reading-pace="standard"
+      data-reading-unread-below="false"
+      data-recovery-operation="idle"
+      data-recovery-store="unavailable"
+      data-recovery-store-version="none"
+      data-runtime="0.6.0"
+      data-runtime-host="0.1.0"
+      data-runtime-host-snapshot-hash="f54b5eb474f9ef52719d2d36e70e76699864f341c4d3a1b75eee8b3328706258"
+      data-runtime-state-hash="15694915353729a0e3222872ccdec6afb62f8d55ca6ad12d3ed32f97ddef4bb9"
+      data-save-operation="error"
+      data-save-store="checkpoint-test"
+      data-save-store-version="3.0.0"
+      data-scene-replay="inactive"
+      data-settings-allow-hold="true"
+      data-settings-application="1"
+      data-settings-audio-ambient="0.8"
+      data-settings-audio-bgm="0.8"
+      data-settings-audio-master="1"
+      data-settings-audio-resume="true"
+      data-settings-audio-sfx="0.9"
+      data-settings-audio-ui="0.9"
+      data-settings-audio-voice="1"
+      data-settings-audio-voice-ducking="0.35"
+      data-settings-choice-layout="vertical"
+      data-settings-choice-numbers="true"
+      data-settings-high-contrast="false"
+      data-settings-history-forward="true"
+      data-settings-input-gamepad="true"
+      data-settings-input-hints="true"
+      data-settings-input-keyboard="true"
+      data-settings-input-pointer="true"
+      data-settings-input-touch="true"
+      data-settings-orientation="landscape"
+      data-settings-platform="web"
+      data-settings-quality="high"
+      data-settings-reduce-flashing="false"
+      data-settings-reduce-motion="false"
+      data-settings-safe-area="system"
+      data-settings-stage-duration="360"
+      data-settings-stage-easing="linear"
+      data-settings-text-cps="30"
+      data-settings-text-minimum="0"
+      data-settings-text-punctuation="120"
+      data-settings-textbox-default="adv"
+      data-settings-wait-for-voice="true"
+      data-skip-active="false"
+      data-skip-media="normal"
+      data-stage-images-pending="false"
+      data-video-policy-stop-reason="none"
+      style="--gal-stage-aspect: 1920 / 1080; --gal-stage-ratio: 1.7777777777777777; --gal-font-scale: 1; --gal-message-opacity: 0.88; --gal-line-height: 1.75; --gal-letter-spacing: 0em; --player-font-family: \"Noto Sans\", Inter, system-ui, sans-serif;"
+    >
+      <div
+        class="player-glow player-glow--violet"
+      />
+      <div
+        class="player-glow player-glow--cyan"
+      />
+      <section
+        aria-label="Checkpoint 游戏画面"
+        class="player-stage"
+      >
+        <div
+          aria-label="正式媒体舞台"
+          class="player-stage-world"
+          data-skip-media="normal"
+          style="transform: translate(0%, 0%) scale(1) rotate(0deg);"
+        />
+        <header
+          aria-label="播放器状态"
+          class="player-brand"
+        >
+          <span
+            aria-hidden="true"
+            class="player-brand__mark"
+          >
+            W
+          </span>
+          <span>
+            WorLd Player
+          </span>
+          <span
+            class="player-brand__status"
+          >
+            presenting
+          </span>
+        </header>
+        <div
+          class="player-compact-toolbar"
+        >
+          <button
+            aria-label="欣赏画面"
+            class="player-artwork-trigger"
+            title="隐藏对白并停止自动推进（H）"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              height="16"
+              stroke="currentColor"
+              stroke-width="1.7"
+              viewBox="0 0 24 24"
+              width="16"
+            >
+              <rect
+                height="18"
+                rx="3"
+                width="18"
+                x="3"
+                y="3"
+              />
+              <circle
+                cx="8"
+                cy="8"
+                r="1.5"
+              />
+              <path
+                d="m3 17 5-5 4 4 4-7 5 8"
+              />
+            </svg>
+             
+            欣赏画面
+          </button>
+          <button
+            aria-controls="player-reading-menu"
+            aria-expanded="false"
+            aria-label="打开阅读菜单"
+            type="button"
+          >
+            菜单 ☰
+          </button>
+        </div>
+        <div
+          class="player-control-layer"
+          data-open="false"
+          id="player-reading-menu"
+        >
+          <nav
+            aria-label="剧情历史控制"
+            class="player-history-controls"
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              回看与内容
+            </h3>
+            <button
+              aria-label="打开玩家设置"
+              class="player-menu-only"
+              type="button"
+            >
+              设置
+            </button>
+            <button
+              aria-label="后退一步"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ←
+              </span>
+              <span>
+                后退
+              </span>
+            </button>
+            <span
+              aria-label="历史位置"
+              class="player-history-controls__position"
+            >
+              3
+              /
+              3
+            </span>
+            <button
+              aria-label="前进一步"
+              disabled=""
+              type="button"
+            >
+              <span>
+                前进
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                →
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开剧情历史"
+              class="player-history-controls__open"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ☰
+              </span>
+              <span>
+                历史
+              </span>
+            </button>
+            <button
+              aria-expanded="false"
+              aria-label="打开附加内容"
+              class="player-history-controls__additional player-menu-only"
+              type="button"
+            >
+              <span
+                aria-hidden="true"
+              >
+                ✦
+              </span>
+              <span>
+                附加内容
+              </span>
+            </button>
+          </nav>
+          <div
+            aria-label="播放控制"
+            class="player-playback-controls"
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              自动阅读与快进
+            </h3>
+            <label
+              class="player-menu-only"
+            >
+              自动阅读节奏
+              <select
+                aria-label="自动阅读节奏"
+              >
+                <option
+                  value="standard"
+                >
+                  标准
+                </option>
+                <option
+                  value="calm"
+                >
+                  从容
+                </option>
+                <option
+                  value="brisk"
+                >
+                  快速
+                </option>
+                <option
+                  value="policy"
+                >
+                  原速
+                </option>
+              </select>
+            </label>
+            <button
+              aria-label="自动播放"
+              aria-pressed="false"
+              type="button"
+            >
+              自动
+            </button>
+            <button
+              aria-label="快进已读"
+              aria-pressed="false"
+              type="button"
+            >
+              已读
+            </button>
+            <button
+              aria-label="快进全部"
+              aria-pressed="false"
+              class="player-menu-only"
+              type="button"
+            >
+              全部
+            </button>
+            <label
+              class="player-menu-only"
+            >
+              方式
+              <select
+                aria-label="快进激活方式"
+              >
+                <option
+                  value="toggle"
+                >
+                  切换
+                </option>
+                <option
+                  value="hold"
+                >
+                  按住
+                </option>
+              </select>
+            </label>
+            <label
+              class="player-menu-only"
+            >
+              速度
+              <select
+                aria-label="快进速度"
+              >
+                <option
+                  value="5"
+                >
+                  5×
+                </option>
+                <option
+                  value="10"
+                >
+                  10×
+                </option>
+                <option
+                  value="20"
+                >
+                  20×
+                </option>
+                <option
+                  value="40"
+                >
+                  40×
+                </option>
+                <option
+                  value="instant"
+                >
+                  瞬时
+                </option>
+              </select>
+            </label>
+            <span
+              aria-live="polite"
+            >
+              自动播放关闭
+            </span>
+          </div>
+          <aside
+            class="player-save"
+            data-open="false"
+          >
+            <h3
+              class="player-menu-only player-menu-section-title"
+            >
+              进度与备份
+            </h3>
+            <div
+              aria-label="快速存读档"
+              class="player-save__quick-controls player-menu-only"
+            >
+              <button
+                type="button"
+              >
+                快速保存
+              </button>
+              <button
+                disabled=""
+                type="button"
+              >
+                快速读取
+              </button>
+            </div>
+            <button
+              aria-controls="player-save-panel"
+              aria-expanded="false"
+              class="player-save__toggle"
+              type="button"
+            >
+              存读档
+            </button>
+          </aside>
+        </div>
+        <button
+          aria-label="继续下一句"
+          class="player-dialogue player-dialogue--adv"
+          data-text-ready="true"
+          data-text-reveal-duration="0"
+          type="button"
+        >
+          <span
+            aria-live="polite"
+            class="player-dialogue__text player-typography-text"
+            data-cjk-line-break="standard"
+            lang="und"
+            style="--gal-text-reveal-duration: 0ms;"
+          >
+            After
+          </span>
+          <i
+            aria-hidden="true"
+          >
+            点击继续 →
+          </i>
+        </button>
+      </section>
+    </main>
+  </div>
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ apps/player-shell/src/deferred-checkpoint.test.tsx:54:43
+     52|   await act(async () => test.reply({ data: { id: test.request.id, resu…
+     53|   expect(test.slots.get('checkpoint-1')).toBeUndefined();
+     54|   if (reason === 'timeout') expect(screen.getByText('检查点写入失败，旧检查点保持不变，…
+       |                                           ^
+     55| });
+     56|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 4 passed (5)
+      Tests  1 failed | 86 passed (87)
+   Start at  12:54:39
+   Duration  27.86s (transform 10.70s, setup 1.11s, import 14.29s, tests 6.28s, environment 4.28s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-checkpoint-responsiveness/boundary-tests.json

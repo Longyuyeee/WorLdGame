@@ -14,6 +14,9 @@ function compareCodePoints(left: string, right: string): number {
 }
 
 export function assertCanonicalRuntimeString(value: string): void {
+  // ASCII is NFC and contains no surrogate. Let the native scan handle the
+  // overwhelmingly common keys/IDs instead of walking them again in JS.
+  if (typeof value === "string" && !/[^\x00-\x7f]/u.test(value)) return;
   if (value !== value.normalize("NFC")) throw new TypeError("Runtime strings must use Unicode NFC");
   for (let index = 0; index < value.length; index += 1) {
     const code = value.charCodeAt(index);
@@ -27,18 +30,33 @@ export function assertCanonicalRuntimeString(value: string): void {
   }
 }
 
-// A bounded table of immutable primitives, local to one serialization. Never
-// cache records/checkpoints: callers can mutate them between (or within) calls.
-function quoteCanonicalString(value: string, strings: Map<string, string>): string {
-  const previous = strings.get(value);
+interface CanonicalStringCache { readonly strings: Map<string, string>; characters: number }
+let activeStringCache: CanonicalStringCache | undefined;
+const newStringCache = (): CanonicalStringCache => ({ strings: new Map(), characters: 0 });
+
+/** Share only immutable quoted strings during one synchronous validation.
+ * Records, arrays, bytes and hash results are always recomputed. Nested scopes
+ * are independent and cleanup also runs when validation throws.
+ */
+export function withCanonicalRuntimeStringCache<T>(action: () => T): T {
+  const previous = activeStringCache;
+  activeStringCache = newStringCache();
+  try { return action(); } finally { activeStringCache = previous; }
+}
+
+function quoteCanonicalString(value: string, cache: CanonicalStringCache): string {
+  const previous = cache.strings.get(value);
   if (previous !== undefined) return previous;
   assertCanonicalRuntimeString(value);
   const quoted = JSON.stringify(value);
-  if (value.length <= 512 && strings.size < 256) strings.set(value, quoted);
+  const characters = value.length + quoted.length;
+  if (value.length <= 512 && cache.strings.size < 512 && cache.characters + characters <= 64 * 1024) {
+    cache.strings.set(value, quoted); cache.characters += characters;
+  }
   return quoted;
 }
 
-function stringify(value: unknown, strings: Map<string, string>): string {
+function stringify(value: unknown, strings: CanonicalStringCache): string {
   if (value === null) return "null";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "number") {
@@ -57,7 +75,11 @@ function stringify(value: unknown, strings: Map<string, string>): string {
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) throw new TypeError("Runtime objects must be plain records");
     const record = value as Record<string, unknown>;
-    const members = Object.keys(record).sort(compareCodePoints).map((key) => {
+    const keys = Object.keys(record);
+    // UTF-16 and scalar ordering differ only in the presence of surrogate
+    // pairs. Most Runtime records have ASCII keys and can use native sorting.
+    keys.sort(keys.some(key => /[\ud800-\udbff]/.test(key)) ? compareCodePoints : undefined);
+    const members = keys.map((key) => {
       const quotedKey = quoteCanonicalString(key, strings);
       if (record[key] === undefined) throw new TypeError("Runtime objects cannot contain undefined members");
       return `${quotedKey}:${stringify(record[key], strings)}`;
@@ -68,10 +90,30 @@ function stringify(value: unknown, strings: Map<string, string>): string {
 }
 
 export function canonicalRuntimeStringify(value: unknown): string {
-  return stringify(value, new Map());
+  return stringify(value, activeStringCache ?? newStringCache());
 }
 
+let nativeUtf8Encoder: TextEncoder | undefined;
+
 export function utf8Encode(value: string): Uint8Array {
+  // Native encoding avoids a JS byte-copy loop for each history checkpoint.
+  // Validate first: TextEncoder itself silently replaces unpaired surrogates.
+  // Hosts without this optional API retain the portable implementation below.
+  if (typeof TextEncoder === "function") {
+    assertCanonicalRuntimeString(value);
+    try {
+      const encoded = (nativeUtf8Encoder ??= new TextEncoder()).encode(value);
+      // Embedded hosts can supply an encoder from a different JS realm.
+      const { buffer, byteOffset, byteLength } = encoded;
+      return encoded instanceof Uint8Array ? encoded : new Uint8Array(buffer, byteOffset, byteLength);
+    }
+    catch { /* A restricted host may expose an unusable encoder. */ }
+  }
+  if (typeof value === "string" && !/[^\x00-\x7f]/u.test(value)) {
+    const bytes = new Uint8Array(value.length);
+    for (let index = 0; index < value.length; index++) bytes[index] = value.charCodeAt(index);
+    return bytes;
+  }
   if (value !== value.normalize("NFC")) throw new TypeError("Runtime strings must use Unicode NFC");
   // Exact allocation avoids a large growable boxed-number array plus a copy.
   // Keep this portable implementation independent of host TextEncoder APIs.
@@ -87,14 +129,15 @@ export function utf8Encode(value: string): Uint8Array {
     } else if (code >= 0xdc00 && code <= 0xdfff) {
       throw new TypeError("Runtime strings cannot contain an unpaired low surrogate");
     }
-    const point = value.codePointAt(index)!;
+    const point = code >= 0xd800 && code <= 0xdbff ? value.codePointAt(index)! : code;
     length += point <= 0x7f ? 1 : point <= 0x7ff ? 2 : point <= 0xffff ? 3 : 4;
     if (point > 0xffff) index++;
   }
   const bytes = new Uint8Array(length);
   let offset = 0;
   for (let index = 0; index < value.length; index++) {
-    const point = value.codePointAt(index)!;
+    const code = value.charCodeAt(index);
+    const point = code >= 0xd800 && code <= 0xdbff ? value.codePointAt(index)! : code;
     if (point <= 0x7f) bytes[offset++] = point;
     else if (point <= 0x7ff) { bytes[offset++] = 0xc0 | (point >>> 6); bytes[offset++] = 0x80 | (point & 0x3f); }
     else if (point <= 0xffff) { bytes[offset++] = 0xe0 | (point >>> 12); bytes[offset++] = 0x80 | ((point >>> 6) & 0x3f); bytes[offset++] = 0x80 | (point & 0x3f); }

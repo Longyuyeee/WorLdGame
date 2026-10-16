@@ -1,0 +1,177 @@
+{
+  "passed": true,
+  "label": "baseline",
+  "priorCommit": null,
+  "baselineSourceSnapshot": "evidence/web-load-responsiveness/baseline-sources.json",
+  "formalStyle": true,
+  "cssHash": "44c2f46aa8dce73fb7bbd3700ba9389ce0cfd3f04cbd42e2e7b04ad554400ab1",
+  "fixtureSourceHash": "756fa03e7cf60fb550cbd7c26dd000559aa9e5f2c4a9ea9517bb13ececa0a415",
+  "bundleHash": "7063cdd748e08ed728debb050ed86754593561b1dbda12d96d19e597a5e5f8c9",
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "count": 120,
+      "historyLength": 120,
+      "savedHash": "1f0a07d54e426ba018faa84f8d93a2b7ea5adfd09c8ce2b4353c569a8f5307a5",
+      "advancedHash": "03b5e298e4ff3c30a2d6b0eb296cd3957e9fffb2c527a71f0084e4f2db98c05d",
+      "loadedHash": "f1267bf34d9712fb662505b0257ffa810bd3d4e2d44a321f7d0e3b9f5138beee"
+    },
+    {
+      "count": 240,
+      "historyLength": 240,
+      "savedHash": "92df689430d80ee954c1ee51da0228e7d37cc4d47ba4338768921620b7d2e049",
+      "advancedHash": "d5f4e84961a9c1e78e8b8bcf0fbc653b4122166359dec0f1c4a6ed03464f9403",
+      "loadedHash": "393dba0f287f1b01b03da030e8b5b2fe04346a45149eab180dc032c80eaf3008"
+    },
+    {
+      "count": 480,
+      "historyLength": 480,
+      "savedHash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+      "advancedHash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+      "loadedHash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e"
+    }
+  ],
+  "operations": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 131.79999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 24
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 56.599999994039536,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 26.200000002980232
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 262.69999998807907,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 6739.5999999940395,
+          "duration": 61.29999999701977
+        }
+      ],
+      "maximumHeartbeatGapMs": 30.30000001192093
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 202.29999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 39.70000000298023
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 74,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 23.799999997019768
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 353.79999999701977,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 14807.29999999702,
+          "duration": 67.20000000298023
+        },
+        {
+          "start": 14905.59999999404,
+          "duration": 70.20000000298023
+        }
+      ],
+      "maximumHeartbeatGapMs": 25
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 443.70000000298023,
+      "longTasks": [
+        {
+          "start": 39388.89999999106,
+          "duration": 54
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 39055.5,
+          "duration": 66.29999999701977
+        },
+        {
+          "start": 39388.89999999106,
+          "duration": 54.79999999701977
+        }
+      ],
+      "maximumHeartbeatGapMs": 67.79999999701977
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 139.40000000596046,
+      "longTasks": [
+        {
+          "start": 39575.89999999106,
+          "duration": 63
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 39572.59999999404,
+          "duration": 67.59999999403954
+        }
+      ],
+      "maximumHeartbeatGapMs": 71
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 654.8999999910593,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 39799.69999998808,
+          "duration": 92
+        },
+        {
+          "start": 39905.29999999702,
+          "duration": 72.59999999403954
+        }
+      ],
+      "maximumHeartbeatGapMs": 51.79999999701977
+    }
+  ],
+  "errors": [],
+  "workerLifetime": {
+    "created": 3,
+    "terminated": 1,
+    "live": 2,
+    "peakLive": 2
+  },
+  "workersAfterPressure": {
+    "created": 4,
+    "terminated": 4,
+    "live": 0,
+    "peakLive": 2
+  },
+  "workersAfterUnmount": {
+    "created": 4,
+    "terminated": 4,
+    "live": 0,
+    "peakLive": 2
+  },
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 8,
+    "completed": 8,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "synthetic text, real UI/IndexedDB; public host pressure notification, not physical memory; no injected history, media or forced GC",
+  "physicalDevice": false,
+  "twoHourSoakPassed": false
+}

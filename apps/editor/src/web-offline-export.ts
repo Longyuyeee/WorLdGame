@@ -3,17 +3,35 @@ import { createBlobDigest } from "@world-studio/project-persistence";
 const client = String.raw`(() => {
   const panel = document.getElementById('offline-panel');
   const version = document.getElementById('world-publication-version');
-  const layout = () => document.body.style.setProperty('--player-viewport-offset', Math.ceil((panel?.getBoundingClientRect().height ?? 0) + (version?.getBoundingClientRect().height ?? 0)) + 'px');
-  layout();
-  panel?.addEventListener('toggle', layout);
-  // details.toggle may be queued after its open attribute has already changed layout.
-  // Rebudget in the mutation microtask so the first expanded frame stays readable.
-  if (panel && typeof MutationObserver === 'function') new MutationObserver(layout).observe(panel, { attributes: true, attributeFilter: ['open'] });
-  window.addEventListener('resize', layout);
+  const publishHeight = height => {
+    const value = Math.ceil(height) + 'px';
+    if (document.body.style.getPropertyValue('--player-viewport-offset') !== value) document.body.style.setProperty('--player-viewport-offset', value);
+  };
   if (typeof ResizeObserver === 'function') {
-    const observer = new ResizeObserver(layout);
+    // Use completed border-box layout before paint. Synchronous measurement
+    // here used to force the entire initial player layout a second time.
+    const heights = new Map();
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const box = entry.borderBoxSize?.[0] ?? entry.borderBoxSize;
+        heights.set(entry.target, box?.blockSize ?? entry.target.getBoundingClientRect().height);
+      }
+      if ((!panel || heights.has(panel)) && (!version || heights.has(version))) publishHeight((heights.get(panel) ?? 0) + (heights.get(version) ?? 0));
+    });
     if (panel) observer.observe(panel);
     if (version) observer.observe(version);
+  } else {
+    // Older hosts retain measurement, batched once per frame after mutations.
+    let queued = false;
+    const layout = () => {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(() => { queued = false; publishHeight((panel?.getBoundingClientRect().height ?? 0) + (version?.getBoundingClientRect().height ?? 0)); });
+    };
+    layout();
+    panel?.addEventListener('toggle', layout);
+    if (panel && typeof MutationObserver === 'function') new MutationObserver(layout).observe(panel, { attributes: true, attributeFilter: ['open'] });
+    window.addEventListener('resize', layout);
   }
   const status = document.getElementById('offline-status');
   const action = document.getElementById('offline-action');

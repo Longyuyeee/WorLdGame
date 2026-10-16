@@ -1,0 +1,20 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/editor/src/player-skin-settings.test.tsx (2 tests) 751ms
+   ✓ previews drafts, undoes a preset and applies title plus reading styles together  551ms
+ ✓ apps/player-shell/src/player-skin.test.tsx (2 tests) 502ms
+   ✓ loads distinct authored font roles, shares inherited roles and releases only its own faces  312ms
+ ✓ apps/editor/src/player-appearance-settings.test.tsx (1 test) 480ms
+   ✓ protects appearance drafts and keeps the applied appearance when editing text settings  479ms
+ ✓ apps/player-shell/src/n61-cjk-typography-player-shell.test.tsx (1 test) 264ms
+ ✓ packages/project-domain/src/web-player-skin.test.ts (3 tests) 20ms
+ ✓ packages/project-domain/src/web-player-appearance.test.ts (2 tests) 18ms
+ ✓ apps/editor/src/player-skin-preset.test.ts (5 tests) 38ms
+
+ Test Files  7 passed (7)
+      Tests  16 passed (16)
+   Start at  16:05:53
+   Duration  13.96s (transform 2.50s, setup 1.26s, import 4.63s, tests 2.07s, environment 4.53s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-player-customization/focused-tests-final.json

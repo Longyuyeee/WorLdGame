@@ -1,0 +1,84 @@
+{
+  "passed": true,
+  "scope": "Actual downloaded HTML, directory ZIP and source ZIP integrity; browser walkthrough recorded separately.",
+  "version": "0.2.0",
+  "sameProjectAcrossGameFormats": true,
+  "appearanceEqualsSource": true,
+  "storyScriptsUnchangedFromVersion": "0.1.0",
+  "assets": 7,
+  "validatedSiteFiles": 18,
+  "embeddedFont": {
+    "assetId": "letter_demo",
+    "sha256": "98047083a6a3c82c7d33277d59ea687c16b7cde56bedf198d899db652eff9f9b",
+    "bytes": 110992
+  },
+  "fullFontLicenseInPlayerCredits": true,
+  "exportHasNoEditorPreviewMode": true,
+  "skin": {
+    "colors": {
+      "accent": "#f3c77a",
+      "background": "#10232b",
+      "border": "#708883",
+      "buttonText": "#19222a",
+      "muted": "#c5d4d0",
+      "panel": "#182f36",
+      "speaker": "#e8bb83",
+      "text": "#f8eedb"
+    },
+    "fonts": {
+      "body": "asset:letter_demo",
+      "name": "sans",
+      "title": "asset:letter_demo",
+      "ui": "inherit"
+    },
+    "motion": {
+      "controls": "glow",
+      "dialogue": "rise",
+      "duration": 450,
+      "text": "ink",
+      "title": "fade"
+    },
+    "reading": {
+      "choiceLayout": "columns",
+      "choiceRadius": 16,
+      "fontSize": 24,
+      "letterSpacing": 0,
+      "lineHeight": 1.75,
+      "nameSize": 16,
+      "opacity": 88,
+      "padding": 24,
+      "position": "bottom",
+      "radius": 12,
+      "width": 90,
+      "windowAssetId": ""
+    },
+    "schemaVersion": 1,
+    "title": {
+      "align": "left",
+      "buttonRadius": 18,
+      "coverMode": "stage",
+      "coverOpacity": 80,
+      "fontSize": 72,
+      "panelOpacity": 50,
+      "startLabel": "打开这封回信",
+      "width": 66
+    }
+  },
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.2.0.html",
+      "bytes": 14970305,
+      "sha256": "fdaed55ecdd44dd484a18c6fd33bcae7ff66e73826fc98e1ddd744004f02e349"
+    },
+    {
+      "name": "tomorrow-letter-0.2.0-web.zip",
+      "bytes": 11475037,
+      "sha256": "5668ddcec54a94812314b1760eb3a7c1cfdc00d0553cda1f2886a13dd94ca55f"
+    },
+    {
+      "name": "tomorrow-letter-0.2.0-project.zip",
+      "bytes": 10681408,
+      "sha256": "b96df379e26348d637c96a39304be331178d697be6dee9c5034aa3294d888e89"
+    }
+  ]
+}

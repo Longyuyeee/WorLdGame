@@ -30,6 +30,17 @@ async function openPartialEditor() {
 }
 
 describe("Project Home", () => {
+  it("distinguishes same-title workspaces and opens the selected reference without renaming the project", async () => {
+    const api = actions();
+    const older = { reference, projectId: session.projectId, title: "同名作品", lastOpenedAtMs: 1 };
+    const newer = { ...older, reference: { ...reference, referenceId: "imported-copy" }, lastOpenedAtMs: 1000 };
+    render(<ProjectHome recent={[older, newer]} actions={api} onEnter={vi.fn()} />);
+    expect(screen.getByRole("button", { name: "打开项目：同名作品（最近打开）" })).toHaveTextContent("同名项目 · 最近打开");
+    fireEvent.click(screen.getByRole("button", { name: "打开项目：同名作品（同名项目 2）" }));
+    await waitFor(() => expect(api.openRecent).toHaveBeenCalledExactlyOnceWith(older));
+    expect(older.title).toBe("同名作品");
+    expect(newer.title).toBe("同名作品");
+  });
   it("opens a recent project immediately without a second entry screen", async () => {
     const api = actions(); const enter = vi.fn();
     render(<ProjectHome recent={[{ reference, projectId: project.manifest.projectId, title: "Recent", lastOpenedAtMs: 1 }]} actions={api} onEnter={enter} />);

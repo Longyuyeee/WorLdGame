@@ -1,4 +1,30 @@
 /* The stage keeps common actions; detailed controls share one reading menu. */
+.player-history-panel { overflow: hidden; }
+.player-history-panel > header { flex-shrink: 0; }
+.player-history-search { flex-shrink: 0; padding: 0 2px 12px; border-bottom: 1px solid var(--player-muted, #77758b); }
+.player-history-search label { display: block; margin-bottom: 8px; font-size: 13px; }
+.player-history-search > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.player-history-search input { min-width: 0; flex: 1 1 180px; min-height: 44px; padding: 9px 12px; border: 1px solid var(--player-muted, #77758b); border-radius: 10px; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); font: inherit; font-size: 14px; }
+.player-history-search input::placeholder { color: var(--player-muted, #c1bed2); }
+.player-history-search button { min-height: 44px; padding: 8px 10px; border: 1px solid var(--player-muted, #77758b); border-radius: 10px; color: var(--player-ink, #f8f7ff); background: var(--player-panel, #111425); cursor: pointer; }
+.player-history-search :is(input, button):focus-visible { outline: 3px solid var(--player-accent, #b9a1ff); outline-offset: 2px; }
+.player-history-search p { margin: 8px 0 0; color: var(--player-muted, #c1bed2); font-size: 12px; line-height: 1.5; }
+.player-history-panel-body { min-height: 0; overflow: auto; overscroll-behavior: contain; display: grid; align-content: start; gap: 14px; }
+.player-history-page-records li { scroll-margin-block: 120px 8px; }
+.player-background-save-notice { position: fixed; z-index: 36; top: calc(max(76px, env(safe-area-inset-top)) + var(--player-viewport-offset, 0px)); left: max(14px, env(safe-area-inset-left)); width: min(520px, calc(100vw - 28px)); box-sizing: border-box; padding: 16px; border: 1px solid var(--player-accent, #c5afff); border-radius: 16px; color: var(--player-ink, #f8f7ff); background: var(--player-panel, #111425); box-shadow: 0 10px 32px #0004; }
+.player-background-save-notice strong { font-size: 15px; }
+.player-background-save-notice p { margin: 8px 0 12px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.player-background-save-notice__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.player-background-save-notice button { min-height: 44px; padding: 8px 14px; border: 1px solid currentColor; border-radius: 10px; color: inherit; background: transparent; cursor: pointer; }
+.player-background-save-notice button:first-child { background: var(--player-accent, #c5afff); color: var(--player-panel, #111425); border-color: transparent; }
+.player-background-save-notice button:disabled { opacity: .5; cursor: not-allowed; }
+.player-background-save-notice button:focus-visible { outline: 3px solid var(--player-accent, #c5afff); outline-offset: 3px; }
+.player-history-pages { position: sticky; top: 0; z-index: 1; display: grid; gap: 8px; padding: 12px 0; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); }
+.player-history-pages > span { font-size: 13px; color: var(--player-muted, #c1bed2); }
+.player-history-pages > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.player-history-pages button { flex: 1; min-height: 44px; padding: 7px 8px; border: 1px solid var(--player-muted, #77758b); border-radius: 10px; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); cursor: pointer; }
+.player-history-pages button:disabled { opacity: .5; cursor: default; }
+.player-history-pages button:focus-visible { outline: 3px solid var(--player-accent, #b9a1ff); outline-offset: 2px; }
 .player-compact-toolbar button, .player-reading-menu-heading button {
   min-height: 44px; padding: 8px 14px; border: 1px solid var(--player-muted, #77758b);
   border-radius: 12px; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); cursor: pointer;
@@ -52,3 +78,7 @@
 @media (max-width: 640px) and (orientation: portrait) {
   .player-shell[data-artwork-view="true"] .player-stage-world { top: calc(50% - 100vw / var(--gal-stage-ratio, 1.7778) / 2); }
 }
+.player-title-screen button:disabled { opacity: .45; cursor: wait; }
+.player-title-screen > .player-title-load-status { margin: 12px 0 0; padding: 10px 14px; border: 1px solid var(--player-muted, #77758b); border-radius: 12px; font-size: 14px; line-height: 1.6; }
+.player-shell[data-player-status="title"] .player-title-screen { max-height: calc(100dvh - var(--player-viewport-offset, 0px) - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom))); overflow-y: auto; overscroll-behavior: contain; scroll-padding-block: 16px; }
+.player-title-screen > :not(.player-title-cover) { flex-shrink: 0; }

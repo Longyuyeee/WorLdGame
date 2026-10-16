@@ -5,11 +5,11 @@ import { readPlayerReplayArchive, storePlayerReplayArchive } from './player-repl
 export function restorePlayerReplayArchive(state: PlayerCoreState): PlayerCoreState {
   try { return mergePlayerCoreReplayEntriesV1(state, readPlayerReplayArchive(localStorage, state)); } catch { return state; }
 }
-export function usePlayerReplayArchive(state: PlayerCoreState, setState: Dispatch<SetStateAction<PlayerCoreState>>) {
+export function usePlayerReplayArchive(state: PlayerCoreState, setState: Dispatch<SetStateAction<PlayerCoreState>>, persist = true) {
   const [error, setError] = useState(false), [attempt, retry] = useState(0);
   const projectId = state.projectId, buildId = state.artifacts?.manifest.buildId, entries = state.replayEntries;
   useEffect(() => {
-    if (!buildId || state.replaySession) return;
+    if (!persist || !buildId || state.replaySession) return;
     const sameBuild = (current: PlayerCoreState) => current.projectId === projectId && current.artifacts?.manifest.buildId === buildId;
     const commit = () => {
       try {
@@ -27,6 +27,6 @@ export function usePlayerReplayArchive(state: PlayerCoreState, setState: Dispatc
     commit();
     window.addEventListener('storage', receive);
     return () => window.removeEventListener('storage', receive);
-  }, [projectId, buildId, entries, state.replaySession, setState, attempt]);
+  }, [projectId, buildId, entries, state.replaySession, setState, attempt, persist]);
   return { error, retry: () => retry(value => value + 1) };
 }

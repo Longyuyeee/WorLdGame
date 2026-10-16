@@ -1,0 +1,10 @@
+{
+  "checks": [],
+  "errors": [],
+  "error": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('已核对版本：1.7.0、1.7.1、1.7.2、1.7.3、1.7.4、1.7.5、1.7.6、1.7.7、1.7.8、1.7.9、1.7.10。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。', { exact: true }) to be visible\u001b[22m\n",
+  "stack": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('已核对版本：1.7.0、1.7.1、1.7.2、1.7.3、1.7.4、1.7.5、1.7.6、1.7.7、1.7.8、1.7.9、1.7.10。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。', { exact: true }) to be visible\u001b[22m\n\n    at author (E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-audio-recovery.mjs:41:418)\n    at async file:///E:/Project/AIProject/ClaudeProject/WorLdGame/tools/run-web-audio-recovery.mjs:146:340",
+  "diagnostic": {
+    "dialogue": null,
+    "audio": []
+  }
+}

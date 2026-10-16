@@ -1,13 +1,16 @@
 import type { RefObject } from 'react';
+import type { WebPlayerSkin } from '@world-studio/project-domain';
+import { playerScreenProps } from './player-screen-skin';
 import { DEFAULT_PLAYER_PREFERENCES, PLAYER_AUDIO_CHANNELS, type PlayerPreferences } from './player-preferences';
 
 const channelNames = { master: '总音量', bgm: '背景音乐', voice: '语音', sfx: '音效', ambient: '环境音', ui: '界面音' };
-export function PlayerPreferencesPanel({ preferences, update, saved, active, panel, close, fullscreen }: {
+export function PlayerPreferencesPanel({ preferences, update, saved, active, panel, close, fullscreen, skin }: {
+  skin?: WebPlayerSkin | undefined;
   preferences: PlayerPreferences; update: (value: PlayerPreferences) => void; saved: boolean; active: boolean;
   panel: RefObject<HTMLDivElement | null>; close: () => void;
   fullscreen: { active: boolean; busy: boolean; message: string; toggle: () => Promise<void> };
 }) {
-  return <div ref={panel} className="player-preferences" role="dialog" aria-modal="true" aria-label="玩家设置">
+  return <div {...playerScreenProps(skin, 'preferences')} ref={panel} className="player-preferences" role="dialog" aria-modal="true" aria-label="玩家设置">
     <header><div><h2>玩家设置</h2><p>即时应用，只影响你的阅读；不会修改作品和存档。</p></div><button type="button" onClick={close}>返回故事</button></header>
     <fieldset disabled={!active}>
       <legend>文字与阅读</legend>

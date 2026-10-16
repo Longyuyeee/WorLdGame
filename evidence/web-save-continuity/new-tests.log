@@ -1,0 +1,16 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/player-shell/src/pooled-session-client.test.ts (8 tests) 78ms
+ ✓ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests) 694ms
+   ✓ lets reading continue and writes only the earlier exact checkpoint, once  335ms
+ ✓ apps/player-shell/src/background-save-notice.test.tsx (3 tests) 918ms
+   ✓ shows a persistent nonmodal failure and lets the player save current progress manually  477ms
+   ✓ does not replace an active manual write status when an earlier background write fails  308ms
+
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  13:24:42
+   Duration  8.12s (transform 1.53s, setup 542ms, import 3.47s, tests 1.69s, environment 1.86s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-save-continuity/new-tests.json

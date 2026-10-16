@@ -1,0 +1,6 @@
+PASS 320: title read native restore, no competing Start
+PASS 320: title read failure recovery, no competing Start
+PASS 844: title read native restore, no competing Start
+PASS 844: title read failure recovery, no competing Start
+PASS 1280: title read native restore, no competing Start
+PASS 1280: title read failure recovery, no competing Start

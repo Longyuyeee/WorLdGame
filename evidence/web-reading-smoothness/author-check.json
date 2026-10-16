@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "candidateVersion": "1.7.8",
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31683074,
+      "sha256": "7a96050befc0d695ef8ab236df331093f159f7433278d303f27e6c01836bbd6d"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42908082,
+      "sha256": "2275a011d33eaf8c734775d56b7efc384e8b139d4e0b8602c8466b39994fbf95"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32422769,
+      "sha256": "7d297fca5b4dc5f49ad0b22ed6b7736405cbb13661614206c1d0107835f97cdc"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "checks": [
+    {
+      "name": "actual-editor-save-reopen-formal-1.7.8-dual-export"
+    }
+  ],
+  "sourceReused": false
+}

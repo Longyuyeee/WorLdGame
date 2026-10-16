@@ -3,6 +3,7 @@ import { flushSync } from "react-dom";
 import { PlayerShell, type PlayerHostActivityV1 } from "./PlayerShell";
 import { IndexedDbWorldPlayerSaveStoreV3 } from "./player-save-store";
 import { IndexedDbWorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
+import { createAppearancePreviewSaveStore } from "./appearance-preview-store";
 
 export interface WebPlayerHostProps extends Omit<ComponentProps<typeof PlayerShell>, "hostActivity" | "platform"> {
   readonly activityOverride?: PlayerHostActivityV1;
@@ -16,8 +17,8 @@ export function WebPlayerHost({ activityOverride, saveStore, recoveryStore, ...p
   const [activity, setActivity] = useState(documentActivity);
   const [frozen, setFrozen] = useState(false);
   const [pageHidden, setPageHidden] = useState(false);
-  const resolvedSaveStore = useMemo(() => saveStore ?? (typeof indexedDB === "undefined" ? undefined : new IndexedDbWorldPlayerSaveStoreV3(indexedDB)), [saveStore]);
-  const resolvedRecoveryStore = useMemo(() => recoveryStore ?? (typeof indexedDB === "undefined" ? undefined : new IndexedDbWorldPlayerRecoveryStoreV1(indexedDB)), [recoveryStore]);
+  const resolvedSaveStore = useMemo(() => props.editorPreview ? createAppearancePreviewSaveStore() : saveStore ?? (typeof indexedDB === "undefined" ? undefined : new IndexedDbWorldPlayerSaveStoreV3(indexedDB)), [saveStore, props.editorPreview]);
+  const resolvedRecoveryStore = useMemo(() => props.editorPreview ? undefined : recoveryStore ?? (typeof indexedDB === "undefined" ? undefined : new IndexedDbWorldPlayerRecoveryStoreV1(indexedDB)), [recoveryStore, props.editorPreview]);
 
   useEffect(() => {
     const onVisibilityChange = () => flushSync(() => setActivity(documentActivity()));

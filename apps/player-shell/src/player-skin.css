@@ -1,0 +1,45 @@
+/* Opt-in project skins, shared by the editor's real Player and exported games. */
+.player-shell[data-player-skin="1"] { background: var(--skin-background); color: var(--skin-text); font-family: var(--skin-font-ui, var(--player-font-family)); }
+.player-shell[data-player-skin="1"] .player-stage { background: var(--skin-background); }
+.player-shell[data-player-skin="1"] .player-title-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: var(--skin-cover-opacity); }
+.player-shell[data-player-skin="1"] .player-title-screen { width: min(var(--skin-title-width), 880px); max-width: calc(100% - 32px); background: var(--skin-title-panel); border: 1px solid var(--skin-border); align-items: center; }
+.player-shell[data-player-skin="1"][data-skin-title-align="left"] .player-title-screen { justify-self: start; margin-left: 4%; align-items: flex-start; text-align: left; }
+.player-shell[data-player-skin="1"][data-skin-title-align="right"] .player-title-screen { justify-self: end; margin-right: 4%; align-items: flex-end; text-align: right; }
+.player-shell[data-player-skin="1"] .player-title-screen h1 { font-family: var(--skin-font-title); font-size: clamp(28px, var(--skin-title-size), 12vw); }
+.player-shell[data-player-skin="1"] .player-title-cover { opacity: var(--skin-cover-opacity); }
+.player-shell[data-player-skin="1"] :is(.player-title-screen .player-eyebrow, .player-dialogue__speaker) { color: var(--skin-speaker); }
+.player-shell[data-player-skin="1"] .player-primary { color: var(--skin-button-text); border-radius: var(--skin-button-radius); }
+.player-shell[data-player-skin="1"] .player-title-actions { justify-content: inherit; }
+.player-shell[data-player-skin="1"] .player-dialogue { left: max(12px, calc((100% - var(--skin-window-width)) / 2)); right: max(12px, calc((100% - var(--skin-window-width)) / 2)); border-radius: var(--skin-window-radius); padding: var(--skin-window-padding); border-color: var(--skin-border); color: var(--skin-text); background: var(--skin-window); background-image: var(--skin-window-image); background-size: 100% 100%; }
+.player-shell[data-player-skin="1"] .player-dialogue__speaker { font-family: var(--skin-font-name); font-size: var(--skin-name-size); }
+.player-shell[data-player-skin="1"] .player-dialogue__text { font-family: var(--player-font-family); font-size: calc(var(--skin-font-size) * var(--gal-font-scale, 1)); line-height: var(--skin-line-height); letter-spacing: var(--skin-letter-spacing); color: var(--skin-text); }
+.player-shell[data-player-skin="1"] .player-dialogue i { color: var(--skin-muted); }
+.player-shell[data-player-skin="1"] .player-choice p { color: var(--skin-text); }
+.player-shell[data-player-skin="1"] .player-choice button { color: var(--skin-text); background: var(--skin-window); border-color: var(--skin-border); border-radius: var(--skin-choice-radius); }
+.player-shell[data-player-skin="1"] .player-choice button > [data-choice-number] { color: var(--skin-speaker); background: var(--player-panel); }
+.player-shell[data-player-skin="1"] .player-choice button:is(:hover, .is-selected) { border-color: var(--player-accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--player-accent) 30%, transparent); }
+.player-shell[data-player-skin="1"][data-skin-title-motion="fade"] .player-title-screen,
+.player-shell[data-player-skin="1"][data-skin-dialogue-motion="fade"] .player-dialogue { animation: skin-fade var(--skin-motion-duration) ease-out both; }
+.player-shell[data-player-skin="1"][data-skin-title-motion="rise"] .player-title-screen,
+.player-shell[data-player-skin="1"][data-skin-dialogue-motion="rise"] .player-dialogue { animation: skin-rise var(--skin-motion-duration) ease-out both; }
+.player-shell[data-player-skin="1"][data-skin-text-motion="ink"] .player-dialogue__text { animation: player-text-reveal var(--gal-text-reveal-duration, 0ms) linear both, skin-ink var(--skin-motion-duration) ease-out both; }
+.player-shell[data-player-skin="1"][data-skin-control-motion="none"] :is(.player-choice button, .player-primary):hover { transform: none; }
+.player-shell[data-player-skin="1"][data-skin-control-motion="lift"] :is(.player-choice button, .player-primary):hover { transform: translateY(-3px); transition: transform 160ms ease; }
+.player-shell[data-player-skin="1"][data-skin-control-motion="glow"] :is(.player-choice button, .player-primary):hover { box-shadow: 0 0 24px color-mix(in srgb, var(--player-accent) 38%, transparent); transition: box-shadow 160ms ease; }
+@keyframes skin-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes skin-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes skin-ink { from { opacity: .25; filter: blur(1px); } to { opacity: 1; filter: blur(0); } }
+@media (min-width: 801px) {
+  .player-shell[data-player-skin="1"][data-player-status="title"] .player-stage { min-height: min(640px, calc(100dvh - var(--player-viewport-offset, 0px) - 40px)); }
+  .player-shell[data-player-skin="1"] .player-title-screen { max-height: calc(100dvh - var(--player-viewport-offset, 0px) - 80px); }
+  .player-shell[data-player-skin="1"][data-skin-reading-position="top"] .player-dialogue { top: 68px; bottom: auto; max-height: calc(100% - 150px); }
+  .player-shell[data-player-skin="1"][data-skin-reading-position="middle"] .player-dialogue { top: 50%; bottom: auto; translate: 0 -50%; max-height: calc(100% - 150px); }
+}
+@media (max-width: 800px) {
+  .player-shell[data-player-skin="1"] .player-title-screen { width: calc(100% - 32px); margin-inline: 16px; padding: 22px; }
+  .player-shell[data-player-skin="1"] .player-dialogue { padding: min(var(--skin-window-padding), 22px); }
+}
+.player-shell[data-player-skin="1"][data-settings-reduce-motion="true"] :is(.player-title-screen, .player-dialogue, .player-dialogue__text, .player-primary, .player-choice button) { animation: none; transition: none; }
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] :is(.player-dialogue, .player-choice button, .player-title-screen) { background: #000; background-image: none; color: #fff; border-color: #fff; }
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] :is(.player-dialogue__text, .player-dialogue__speaker, .player-dialogue i, .player-choice p) { color: #fff; }
+@media (prefers-reduced-motion: reduce) { .player-shell[data-player-skin="1"] :is(.player-title-screen, .player-dialogue, .player-dialogue__text, .player-primary, .player-choice button) { animation: none; transition: none; } }

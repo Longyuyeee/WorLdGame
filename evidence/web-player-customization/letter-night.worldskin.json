@@ -1,0 +1,72 @@
+{
+  "format": "world-player-skin",
+  "schemaVersion": 1,
+  "name": "雨夜回信·文楷",
+  "appearance": {
+    "theme": "paper",
+    "accent": "teal",
+    "coverAssetId": "station_night_v2",
+    "skin": {
+      "colors": {
+        "accent": "#f3c77a",
+        "background": "#10232b",
+        "border": "#708883",
+        "buttonText": "#19222a",
+        "muted": "#c5d4d0",
+        "panel": "#182f36",
+        "speaker": "#e8bb83",
+        "text": "#f8eedb"
+      },
+      "fonts": {
+        "body": "asset:letter_demo",
+        "name": "sans",
+        "title": "asset:letter_demo",
+        "ui": "inherit"
+      },
+      "motion": {
+        "controls": "glow",
+        "dialogue": "rise",
+        "duration": 450,
+        "text": "ink",
+        "title": "fade"
+      },
+      "reading": {
+        "choiceLayout": "columns",
+        "choiceRadius": 16,
+        "fontSize": 24,
+        "letterSpacing": 0,
+        "lineHeight": 1.75,
+        "nameSize": 16,
+        "opacity": 88,
+        "padding": 24,
+        "position": "bottom",
+        "radius": 12,
+        "width": 90,
+        "windowAssetId": ""
+      },
+      "schemaVersion": 1,
+      "title": {
+        "align": "left",
+        "buttonRadius": 18,
+        "coverMode": "stage",
+        "coverOpacity": 80,
+        "fontSize": 72,
+        "panelOpacity": 50,
+        "startLabel": "打开这封回信",
+        "width": 66
+      }
+    }
+  },
+  "assets": [
+    {
+      "assetId": "station_night_v2",
+      "displayName": "车站最后的灯",
+      "digest": "sha256:7b0aeee0aef6219584fef7833b6960ecb316bffa3b565ab13f847151068ba0bd"
+    },
+    {
+      "assetId": "letter_demo",
+      "displayName": "文楷·回信字集",
+      "digest": "sha256:98047083a6a3c82c7d33277d59ea687c16b7cde56bedf198d899db652eff9f9b"
+    }
+  ]
+}

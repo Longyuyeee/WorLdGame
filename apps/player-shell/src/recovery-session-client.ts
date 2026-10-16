@@ -1,5 +1,5 @@
-import workerSource from "virtual:world-recovery-worker";
-import { createRecoverySession, type RecoverySessionSource, type RecoverySessionResult } from "./recovery-session-task";
+import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection } from "./session-worker-pool";
+import { createRecoverySession, recoverySessionSource, type RecoverySessionSource, type RecoverySessionResult } from "./recovery-session-task";
 
 export class RecoverySessionError extends Error {
   override readonly name = "RecoverySessionError";
@@ -14,6 +14,10 @@ function publish() {
  * Inline worker keeps the same implementation usable in standalone HTML too.
  */
 export async function serializeRecoverySession(source: RecoverySessionSource, signal: AbortSignal, timeoutMs = 5000): Promise<RecoverySessionResult> {
+  return serializeSession(source, signal, timeoutMs);
+}
+
+async function serializeSession(source: RecoverySessionSource, signal: AbortSignal, timeoutMs = 5000, pool?: SessionWorkerPool): Promise<RecoverySessionResult> {
   signal.throwIfAborted();
   const fallback = () => {
     diagnostics.fallback++; publish(); signal.throwIfAborted();
@@ -21,21 +25,21 @@ export async function serializeRecoverySession(source: RecoverySessionSource, si
     catch { throw new RecoverySessionError("Recovery session validation failed"); }
   };
   if (typeof Worker === "undefined") return fallback();
-  let worker: Worker;
-  let url: string | undefined;
+  let connection: SessionWorkerConnection | null;
   try {
-    url = URL.createObjectURL(new Blob([workerSource], { type: "text/javascript" }));
-    worker = new Worker(url, { name: "world-player-recovery" });
-  } catch { if (url !== undefined) URL.revokeObjectURL(url); return fallback(); }
+    connection = pool ? pool.acquire() : oneShotSessionWorker("world-player-recovery");
+  } catch { return fallback(); }
+  if (connection === null) return fallback();
+  const worker = connection.worker;
   diagnostics.started++; diagnostics.active++; diagnostics.peakActive = Math.max(diagnostics.peakActive, diagnostics.active); publish();
   const id = ++serial;
   return new Promise((resolve, reject) => {
     let settled = false;
-    const finish = (action: () => void) => {
+    const finish = (action: () => void, reuse = false) => {
       if (settled) return;
       settled = true; clearTimeout(timer); signal.removeEventListener("abort", abort);
-      worker.onmessage = worker.onerror = worker.onmessageerror = null; worker.terminate();
-      URL.revokeObjectURL(url!);
+      worker.onmessage = worker.onerror = worker.onmessageerror = null;
+      if (reuse) connection.release(); else connection.discard();
       diagnostics.active--; publish(); action();
     };
     const fail = () => finish(() => { diagnostics.failed++; publish(); reject(new RecoverySessionError("Recovery session background validation failed")); });
@@ -48,10 +52,21 @@ export async function serializeRecoverySession(source: RecoverySessionSource, si
       const result = data.result;
       if (result?.ok !== true || typeof result.serialized !== "string" || result.serialized.length === 0 || result.serialized.length > 64 * 1024 * 1024 ||
           typeof result.artifactHash !== "string" || !/^[0-9a-f]{64}$/.test(result.artifactHash)) { fail(); return; }
-      finish(() => { diagnostics.completed++; publish(); resolve(result as RecoverySessionResult); });
+      finish(() => { diagnostics.completed++; publish(); resolve(result as RecoverySessionResult); }, true);
     };
     signal.addEventListener("abort", abort, { once: true });
     if (signal.aborted) { abort(); return; }
-    try { worker.postMessage({ id, source }); } catch { fail(); }
+    try { worker.postMessage({ id, source: recoverySessionSource(source) }); } catch { fail(); }
   });
+}
+
+export class RecoverySessionRunner {
+  private pool = new SessionWorkerPool("world-player-recovery");
+  private tail: Promise<void> = Promise.resolve();
+  releaseIdle() { this.pool.releaseIdle(); }
+  run(source: RecoverySessionSource, signal: AbortSignal): Promise<RecoverySessionResult> {
+    const pending = this.tail.then(() => serializeSession(source, signal, 5000, this.pool));
+    this.tail = pending.then(() => undefined, () => undefined);
+    return pending;
+  }
 }

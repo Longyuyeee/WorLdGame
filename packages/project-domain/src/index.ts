@@ -8,6 +8,8 @@ export * from "./stable-id";
 export * from "./sha256";
 export * from "./types";
 export * from "./web-player-appearance";
+export * from "./web-player-skin";
+export * from "./web-player-screens";
 export * from "./web-save-compatibility";
 export * from "./web-credits";
 export * from "./web-asset-sources";

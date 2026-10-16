@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
-import { RecoverySessionError, serializeRecoverySession } from "./recovery-session-client";
+import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-client";
 import { startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
 import { useCompactReadingLayout, useReadingMediaQuery, useReadingSurface } from './use-reading-surface';
@@ -11,6 +11,7 @@ import { restorePlayerReplayArchive, usePlayerReplayArchive } from './use-player
 import { usePlayerFullscreen } from './use-player-fullscreen';
 import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
+import { PlayerHistoryContent } from './PlayerHistoryContent';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
 import { playerAudioFailureHint } from './audio-failure';
@@ -27,19 +28,16 @@ import {
   type GalSettingsPlatform
 } from "@world-studio/gal-settings";
 import { semanticHash, readWebPlayerAppearance, webPlayerCoverAssets, type CanonicalProject } from "@world-studio/project-domain";
-import { ForegroundSessionError,ForegroundSessionRunner } from "./foreground-session-client";
+import { ForegroundSessionError,ForegroundSessionRunner,runForegroundSessionTask } from "./foreground-session-client";
 import {
   createPlayerCore,
   canEnterPlayerCoreReplayV1,
-  compactPlayerCoreHistoryV1,
-  createPlayerCoreSessionSaveV1,
   createPlayerCoreSnapshotV1,
   configurePlayerCoreLocaleV1,
   configurePlayerCoreHistoryPolicyV1,
   dispatchPlayerCoreIntentV1,
   schedulePlayerCorePlaybackV1,
-  type PlayerCoreIntentV1,
-  type PlayerHistoryVisibleEventV1
+  type PlayerCoreIntentV1
 } from "@world-studio/player-core";
 import { derivePlayerStagePresentationV1, type PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import { playerSaveLabel } from './player-save-label';
@@ -47,6 +45,10 @@ import { PlayerSaveCard, PlayerSaveDetails } from './PlayerSaveCard';
 import { PlayerSaveBackupPanel } from "./PlayerSaveBackupPanel";
 import { resolvePlayerLocalizedMediaV1 } from "./player-localized-media";
 import { parsePlayerRichTextV1, resolvePlayerTypographyV1 } from "./player-typography";
+import { usePlayerSkinFonts } from "./use-player-skin-fonts";
+import { playerSkinStyle } from "./player-skin";
+import { playerScreenProps } from "./player-screen-skin";
+import type { WebPlayerScreenId } from "@world-studio/project-domain";
 import { browserGamepadFrameV1, createPlayerGamepadTrackerV1, type PlayerGamepadActionV1 } from "./player-input";
 import {
   WORLD_PLAYER_SAVE_PREVIEW_MAXIMUM_BYTES,
@@ -82,6 +84,10 @@ import "./player-reading-controls.css";
 import "./player-save-flow.css";
 import "./player-ending-flow.css";
 import "./player-replay-flow.css";
+import "./player-skin.css";
+import "./player-screen-skin.css";
+
+export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
 
 export interface PlayerShellProps {
   readonly project: CanonicalProject;
@@ -96,6 +102,7 @@ export interface PlayerShellProps {
   readonly playbackPolicy?: WorldPlayerPlaybackPolicyV1;
   readonly memoryPressureRequest?: { readonly serial: number; readonly level: "moderate" | "critical" };
   readonly onReleaseIdleResources?: () => void;
+  readonly editorPreview?: PlayerEditorPreviewOptions;
 }
 
 type PlayerInputSource = "lifecycle" | GalAdvanceInputV1 | "system";
@@ -121,26 +128,6 @@ export interface WorldPlayerPreviewCaptureV1 {
   readonly version: "1.0.0";
   readonly owner: "player-host-compositor";
   capture(request: WorldPlayerPreviewCaptureRequestV1): Promise<WorldPlayerPreviewCaptureResultV1 | null>;
-}
-
-function playerHistoryEventLabel(event: PlayerHistoryVisibleEventV1): string {
-  switch (event.kind) {
-    case "dialogue": return event.text;
-    case "narration": return event.text;
-    case "choice": return event.prompt;
-    case "wait": return `等待 ${event.durationMilliseconds} 毫秒`;
-    case "ending": return event.name;
-  }
-}
-
-function playerHistoryEventKind(event: PlayerHistoryVisibleEventV1): string {
-  switch (event.kind) {
-    case "dialogue": return "对白";
-    case "narration": return "旁白";
-    case "choice": return "选择";
-    case "wait": return "等待";
-    case "ending": return "结局";
-  }
 }
 
 function PlayerRichText({ text, locale }: { readonly text: string; readonly locale: string }) {
@@ -186,8 +173,10 @@ function playerLocalePreferenceKey(projectId: string): string {
   return `world-player.locale.${projectId}`;
 }
 
-function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1]) {
-  const core = restorePlayerReplayArchive(restorePlayerCollection(createPlayerCore(project, historyPolicy)));
+function createLocalizedPlayerCore(project: CanonicalProject, historyPolicy: Parameters<typeof createPlayerCore>[1], persist = true) {
+  const created = createPlayerCore(project, historyPolicy, { checkpointSaveMode: "deferred" });
+  if (!persist) return created;
+  const core = restorePlayerReplayArchive(restorePlayerCollection(created));
   try {
     const preferred = globalThis.localStorage?.getItem(playerLocalePreferenceKey(project.manifest.projectId));
     return preferred === null || preferred === undefined ? core : configurePlayerCoreLocaleV1(core, preferred);
@@ -204,23 +193,25 @@ function storePlayerLocalePreference(projectId: string, locale: string): void {
   }
 }
 
-export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, memoryPressureRequest, onReleaseIdleResources }: PlayerShellProps) {
+const EMPTY_MEDIA_ASSETS: readonly PlayerMediaAssetSourceV1[] = [];
+export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetryMedia, hostActivity = "active", platform = "web", saveStore, recoveryStore, previewCapture, now = Date.now, playbackPolicy = DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1, memoryPressureRequest, onReleaseIdleResources, editorPreview }: PlayerShellProps) {
   const appearance = readWebPlayerAppearance(project);
+  const skin = appearance?.skin;
   const coverAllowed = appearance !== null && webPlayerCoverAssets(project).some(asset => String(asset.assetId ?? asset.id) === appearance.coverAssetId);
   const cover = coverAllowed ? mediaAssets.find(asset => asset.assetId === appearance?.coverAssetId && ["image/png", "image/jpeg", "image/webp"].includes(asset.mimeType)) : undefined;
   const [failedCover, setFailedCover] = useState<string | null>(null);
-  const personal = usePlayerPreferences(project.manifest.projectId);
+  const personal = usePlayerPreferences(project.manifest.projectId, !editorPreview);
   const baseSettings = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
-  const settingsApplication = useMemo(() => applyPlayerPreferences(baseSettings, personal.preferences), [baseSettings, personal.preferences]);
+  const settingsApplication = useMemo(() => applyPlayerPreferences(baseSettings, editorPreview ? { ...personal.preferences, muted: true, revealMode: "instant" } : personal.preferences), [baseSettings, personal.preferences, editorPreview]);
   const fullscreen = usePlayerFullscreen();
-  const [preferencesOpen, setPreferencesOpen] = useState(false);
-  const [infoView, setInfoView] = useState<'preferences' | 'credits'>('preferences');
+  const [preferencesOpen, setPreferencesOpen] = useState(editorPreview?.initialPanel === 'preferences' || editorPreview?.initialPanel === 'credits');
+  const [infoView, setInfoView] = useState<'preferences' | 'credits'>(editorPreview?.initialPanel === 'credits' ? 'credits' : 'preferences');
   const infoTrigger = useRef<HTMLElement | null>(null);
   const credits = useMemo(() => { try { return readWebCredits(project); } catch { return DEFAULT_WEB_CREDITS; } }, [project]);
   const preferencesPanel = useRef<HTMLDivElement | null>(null), preferencesTrigger = useRef<HTMLButtonElement | null>(null);
-  const [state, setState] = useState(() => createLocalizedPlayerCore(project, settingsApplication.history));
-  const collection = usePlayerCollection(state, setState);
-  const replayArchive = usePlayerReplayArchive(state, setState);
+  const [state, setState] = useState(() => { const initial = createLocalizedPlayerCore(project, settingsApplication.history, !editorPreview); return editorPreview?.autoStart ? dispatchPlayerCoreIntentV1(initial, project, { kind: "primary" }) : initial; });
+  const collection = usePlayerCollection(state, setState, !editorPreview);
+  const replayArchive = usePlayerReplayArchive(state, setState, !editorPreview);
   const liveState = useRef(state);
   liveState.current = state;
   const [memoryPressureStatus, setMemoryPressureStatus] = useState<PlayerMemoryPressureStatusV1>("idle");
@@ -248,7 +239,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [textReady, setTextReady] = useState(true);
   const compactReading = useCompactReadingLayout();
   const reducedReadingMotion = useReadingMediaQuery('(prefers-reduced-motion: reduce)');
-  const [readingMenuOpen, setReadingMenuOpen] = useState(false);
+  const [readingMenuOpen, setReadingMenuOpen] = useState(editorPreview?.initialPanel === 'menu');
   const [artworkView, setArtworkView] = useState(false);
   const readingMenu = useRef<HTMLDivElement | null>(null), readingMenuTrigger = useRef<HTMLButtonElement | null>(null);
   const deferredMenuCompletion = useRef<{ stateHash: string | null; hostHash: string } | null>(null);
@@ -263,12 +254,12 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [skipActivation, setSkipActivation] = useState<WorldPlayerSkipActivationV1>(() => playbackPolicy.skip?.defaultActivation ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultActivation);
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
-  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
-  const [additionalContentOpen, setAdditionalContentOpen] = useState(false);
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(editorPreview?.initialPanel === 'history');
+  const [additionalContentOpen, setAdditionalContentOpen] = useState(editorPreview?.initialPanel === 'additional');
   const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">("overview");
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
   const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
-  const [savePanelOpen, setSavePanelOpen] = useState(false);
+  const [savePanelOpen, setSavePanelOpen] = useState(editorPreview?.initialPanel === 'save');
   const [saveSlots, setSaveSlots] = useState<readonly WorldPlayerSaveSummaryV3[]>([]);
   const [savePage, setSavePage] = useState(0);
   const [saveView, setSaveView] = useState<"manual" | "auto" | "quick" | "checkpoint" | "backup">("manual");
@@ -279,6 +270,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const [saveOperation, setSaveOperation] = useState<"idle" | "busy" | "saved" | "loaded" | "error">("idle");
   const [saveMessage, setSaveMessage] = useState("请选择槽位");
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const [backgroundSaveFailure, setBackgroundSaveFailure] = useState<{ kind: "auto" | "checkpoint"; message: string } | null>(null);
   const saveDialog = useRef<HTMLDialogElement | null>(null);
   const saveDialogTrigger = useRef<HTMLElement | null>(null);
   const titleSaveTrigger = useRef<HTMLButtonElement | null>(null);
@@ -353,7 +345,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   const saveListGeneration = useRef(0);
   const recoveryContext = useRef({ projectId: project.manifest.projectId, store: recoveryStore });
   const autoSavedSceneIdentities = useRef(new Set<string>());
-  const consumedCheckpointCandidates = useRef(new Set<string>());
+  const consumedCheckpointCandidates = useRef(new WeakSet<object>());
   const lastRecoveryRuntimeStateHash = useRef<string | null>(null);
   saveContext.current = { projectId: project.manifest.projectId, store: saveStore, previewCapture };
   recoveryContext.current = { projectId: project.manifest.projectId, store: recoveryStore };
@@ -362,7 +354,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   // after a real executable change, including during effect replay in dev.
   const initializedProjectHash = useRef(executableProjectHash);
   const sessionRunner=useMemo(()=>new ForegroundSessionRunner(),[executableProjectHash,saveStore,recoveryStore,previewCapture]);
-  useEffect(()=>{sessionRunner.resume();setSaveOperation("idle");setSaveMessage("请选择槽位");setPendingRead(null);return()=>sessionRunner.cancelPending();},[sessionRunner]);
+  const recoverySessionRunner=useMemo(()=>new RecoverySessionRunner(),[executableProjectHash,recoveryStore]);
+  useEffect(()=>{sessionRunner.resume();setSaveOperation("idle");setSaveMessage("请选择槽位");setBackgroundSaveFailure(null);setPendingRead(null);return()=>sessionRunner.cancelPending();},[sessionRunner]);
+  useEffect(()=>()=>recoverySessionRunner.releaseIdle(),[recoverySessionRunner]);
+  useEffect(()=>{if(hostActivity!=="active"){sessionRunner.releaseIdle();recoverySessionRunner.releaseIdle();}},[hostActivity,sessionRunner,recoverySessionRunner]);
+  useEffect(()=>{if(memoryPressureRequest!==undefined){sessionRunner.releaseIdle();recoverySessionRunner.releaseIdle();}},[memoryPressureRequest,sessionRunner,recoverySessionRunner]);
   const snapshot = useMemo(() => createPlayerCoreSnapshotV1(state), [state]);
   const recoveryBuildCompatible = recoveryCandidate === null || recoveryCandidate.buildId === state.artifacts?.manifest.buildId || state.compatibleSaveBuildIds.includes(recoveryCandidate.buildId);
   const buildStopInstructionIds = state.artifacts?.playerPlaybackPolicy.stopInstructionIds ?? [];
@@ -424,10 +420,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
   }, [audioPlaybackSignature, requestAudio]);
   const typography = useMemo(
-    () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets),
-    [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale]
+    () => resolvePlayerTypographyV1(snapshot.localization.selectedLocale, project.assets.assets, mediaAssets, skin?.fonts.body),
+    [mediaAssets, mediaSignature, project.assets.assets, snapshot.localization.selectedLocale, skin?.fonts.body]
   );
-  const [fontStatus, setFontStatus] = useState<"system" | "loading" | "ready" | "fallback">("system");
+  const skinFonts = usePlayerSkinFonts(typography, project, mediaAssets, skin);
+  const fontStatus = skinFonts.bodyStatus;
   const lastEffectOperation = snapshot.effects.operations.at(-1) ?? null;
   const speakerNames = useMemo(() => Object.fromEntries(project.characters.characters.flatMap((character) => {
     const id = typeof character.id === "string" ? character.id : undefined;
@@ -442,7 +439,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   );
   const reading = useReadingSurface(`${presentedTextId}:${snapshot.history?.cursor}:${snapshot.localization.selectedLocale}:${presentedText}`, `${compactReading}:${readingMenuOpen}:${fontStatus}:${textReady}:${settingsApplication.text.fontScale}:${fullscreen.active}`);
   const readingRef = useCallback((element: HTMLButtonElement | null) => { reading.element.current = element; return releaseAnimationsOnDetach(element); }, [reading.element]);
-  useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(false); setArtworkView(false); }, [project.manifest.projectId]);
+  useEffect(() => { setReadingPace(initialPace()); setReadingMenuOpen(editorPreview?.initialPanel === 'menu'); setArtworkView(false); }, [project.manifest.projectId]);
   const closeReadingMenu = useCallback(() => { setReadingMenuOpen(false); queueMicrotask(() => readingMenuTrigger.current?.focus()); }, []);
   const closePreferences = useCallback(() => { setPreferencesOpen(false); queueMicrotask(() => {
     const trigger = infoView === 'credits' ? infoTrigger.current : null;
@@ -479,38 +476,6 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
   useEffect(() => { if (preferencesOpen) preferencesPanel.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus(); }, [preferencesOpen]);
   const canonicalPlaybackPolicy = validateWorldPlayerPlaybackPolicyV1(playbackPolicy) ? playbackPolicy : DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1;
   const skipActive = skipMode !== null;
-
-  useEffect(() => {
-    const selected = typography.projectFont;
-    if (selected === null) {
-      setFontStatus("system");
-      return;
-    }
-    const FontFaceConstructor = globalThis.FontFace;
-    const fontSet = globalThis.document?.fonts;
-    if (FontFaceConstructor === undefined || fontSet === undefined) {
-      setFontStatus("fallback");
-      return;
-    }
-    let active = true;
-    let loadedFace: FontFace | null = null;
-    setFontStatus("loading");
-    try {
-      const face = new FontFaceConstructor(selected.runtimeFamily, `url("${selected.url.replaceAll('"', '\\"')}")`);
-      void face.load().then((loaded) => {
-        if (!active) return;
-        loadedFace = loaded;
-        fontSet.add(loaded);
-        setFontStatus("ready");
-      }).catch(() => { if (active) setFontStatus("fallback"); });
-    } catch {
-      setFontStatus("fallback");
-    }
-    return () => {
-      active = false;
-      if (loadedFace !== null) fontSet.delete(loadedFace);
-    };
-  }, [typography]);
 
   useEffect(() => {
     setVoicePlaying(false);
@@ -588,7 +553,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setTimeout(() => (titleAdditionalContentTrigger.current ?? readingMenuTrigger.current ?? additionalContentTrigger.current)?.focus(), 0);
   }, [project, restorePlaybackControls, state.replaySession]);
 
-  const refreshSaveSlots = useCallback(async () => {
+  const refreshSaveSlots = useCallback(async (reportFailure = true) => {
     if (saveStore === undefined) return;
     const projectId = project.manifest.projectId;
     const generation = ++saveListGeneration.current;
@@ -598,8 +563,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveSlots(slots);
     } catch {
       if (generation !== saveListGeneration.current || saveContext.current.projectId !== projectId || saveContext.current.store !== saveStore) return;
-      setSaveOperation("error");
-      setSaveMessage("存档存储不可用");
+      if (reportFailure) { setSaveOperation("error"); setSaveMessage("存档存储不可用"); }
     }
   }, [project.manifest.projectId, saveStore]);
 
@@ -688,6 +652,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setSaveOperation("saved");
       setSaveMessage(`${playerSaveLabel(slotId)}已保存${previewStatus === "available" ? "（含截图）" : "（预览不可用）"}`);
       setSaveFeedback(kind === 'quick' ? '快速存档已保存' : '手动存档已保存');
+      setBackgroundSaveFailure(null);
     } catch {
       if(!sessionRunner.active||saveContext.current.projectId!==projectId||saveContext.current.store!==saveStore)return;
       setSaveOperation("error");
@@ -825,6 +790,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     // Pointer callbacks and already queued media completions must honor the same
     // host ceiling as keyboard/Auto, including the final event before pagehide.
     if (audioActivity.current.hostActivity !== 'active') return;
+    if (content.kind === 'title' && saveOperation === 'busy') return;
     if (source === 'system' && intent.kind === 'primary' && (artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen)) {
       deferredMenuCompletion.current = { stateHash: snapshot.runtimeStateHash, hostHash: snapshot.runtimeHostSnapshotHash };
       return;
@@ -868,7 +834,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     }
     setLastInputAccepted(true);
     setState((current) => dispatchPlayerCoreIntentV1(current, project, intent));
-  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
+  }, [artworkView, content.kind, project, recoveryCandidate, recoveryOperation, recoveryStore, saveOperation, settingsApplication, stopSkip, textReady, voicePlaying, preferencesOpen, readingMenuOpen, historyPanelOpen, savePanelOpen, additionalContentOpen, snapshot.runtimeStateHash, snapshot.runtimeHostSnapshotHash, reading]);
   useEffect(() => {
     if (hostActivity !== 'active' || artworkView || preferencesOpen || readingMenuOpen || historyPanelOpen || savePanelOpen || additionalContentOpen || !deferredMenuCompletion.current) return;
     const completion = deferredMenuCompletion.current;
@@ -881,11 +847,11 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     if (initializedProjectHash.current === executableProjectHash) return;
     initializedProjectHash.current = executableProjectHash;
     autoSavedSceneIdentities.current.clear();
-    consumedCheckpointCandidates.current.clear();
+    consumedCheckpointCandidates.current = new WeakSet();
     lastRecoveryRuntimeStateHash.current = null;
     replayPlaybackReturn.current = null;
     additionalContentPlaybackReturn.current = null;
-    setState(createLocalizedPlayerCore(project, settingsApplication.history));
+    setState(createLocalizedPlayerCore(project, settingsApplication.history, !editorPreview));
     setReadingMenuOpen(false); setArtworkView(false); setPendingRead(null); deferredMenuCompletion.current = null;
     setPreferencesOpen(false);
     setMediaErrors([]);
@@ -968,48 +934,57 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     const capturedSnapshot = snapshot;
     void saveCoordinator.writeAuto(project.manifest.projectId, sceneIdentity, async (slotId) => { await persistCurrentSlot("auto", slotId, capturedState, capturedSnapshot); }).then(async (result) => {
       if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
-      await refreshSaveSlots();
+      await refreshSaveSlots(false);
       if(!sessionRunner.active)return;
-      if (result.status === "written") setSaveMessage(`${result.slotId} 已自动保存`);
+      if (result.status === "written") {
+        setSaveFeedback("进度已自动保存");
+        setBackgroundSaveFailure(current => current?.kind === "auto" ? null : current);
+      }
     }).catch(() => {
       if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
-      setSaveOperation("error");
-      setSaveMessage("自动保存失败，原存档保持不变");
+      setBackgroundSaveFailure({ kind: "auto", message: "自动保存失败，原存档保持不变。可以手动保存当前进度，或继续阅读。" });
     });
   }, [hostActivity, persistCurrentSlot, project.manifest.projectId, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state]);
 
   useEffect(() => {
-    if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null || state.checkpointSaveCandidates.length === 0) return;
-    for (const candidate of state.checkpointSaveCandidates) {
+    if (snapshot.sceneReplay.active || saveCoordinator === undefined || saveStore === undefined || hostActivity !== "active" || snapshot.identities.buildId === null) return;
+    for (const candidate of [...state.checkpointSaveCandidates, ...state.deferredCheckpointSaveCandidates]) {
       const buildId = candidate.buildId;
-      const identity = `${buildId}\0${candidate.stepId}\0${candidate.artifactHash}`;
-      if (consumedCheckpointCandidates.current.has(identity)) continue;
-      consumedCheckpointCandidates.current.add(identity);
+      if (consumedCheckpointCandidates.current.has(candidate)) continue;
+      consumedCheckpointCandidates.current.add(candidate);
       void saveCoordinator.writeCheckpoint(project.manifest.projectId, buildId, candidate.stepId, async (slotId) => {
+        const assertOwner = () => { if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) throw new DOMException("Checkpoint scope closed", "AbortError"); };
+        assertOwner();
+        const created = "historySession" in candidate
+          ? (await sessionRunner.run({ kind: "save", source: { artifacts: state.artifacts, historySession: candidate.historySession, runtimeState: candidate.historySession.checkpoints[candidate.historySession.cursor]!.state, replaySession: null } })).result
+          : { ok: true as const, serialized: candidate.serializedSessionSave, artifactHash: candidate.artifactHash };
+        assertOwner();
         const sceneIndex = project.scenes.findIndex((scene) => scene.id === candidate.sceneId);
         const scene = project.scenes[sceneIndex];
         if (scene === undefined) throw new Error("WORLD_PLAYER_SAVE_SCENE_MISSING");
         const scenePath = project.chapters.flatMap((chapter) => chapter.scenePaths)[sceneIndex];
         const chapter = scenePath === undefined ? undefined : project.chapters.find((item) => item.scenePaths.includes(scenePath));
         const captured = await captureSavePreview(project.manifest.projectId, state.runtimeState?.cursor.sceneId ?? candidate.sceneId);
+        assertOwner();
         await saveStore.write(createWorldPlayerSaveSlotV3({
           kind: "checkpoint", slotId, projectId: project.manifest.projectId, buildId, savedAtEpochMilliseconds: now(), title: snapshot.title,
           chapterId: chapter?.id ?? null, chapterTitle: chapter?.title ?? null, sceneId: candidate.sceneId, sceneTitle: scene.title,
           route: null, customMetadata: {}, preview: captured.metadata, presentationKind: snapshot.presentation.kind,
-          runtimeStateHash: candidate.runtimeStateHash, sessionArtifactHash: candidate.artifactHash,
-          serializedSessionSave: candidate.serializedSessionSave, checkpointStepId: candidate.stepId
+          runtimeStateHash: candidate.runtimeStateHash, sessionArtifactHash: created.artifactHash,
+          serializedSessionSave: created.serialized, checkpointStepId: candidate.stepId
         }), captured.blob);
-      }).then(async (result) => {
-        if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
-        await refreshSaveSlots();
-        setSaveMessage(`${result.slotId} 已写入剧情检查点`);
+      }).then(async () => {
+        if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+        await refreshSaveSlots(false);
+        if (!sessionRunner.active) return;
+        setSaveFeedback("剧情检查点已保存");
+        setBackgroundSaveFailure(current => current?.kind === "checkpoint" ? null : current);
       }).catch(() => {
-        if (saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
-        setSaveOperation("error");
-        setSaveMessage("检查点写入失败，旧检查点保持不变，剧情继续");
+        if (!sessionRunner.active || saveContext.current.projectId !== project.manifest.projectId || saveContext.current.store !== saveStore) return;
+        setBackgroundSaveFailure({ kind: "checkpoint", message: "剧情检查点保存失败，旧检查点保持不变。可以手动保存当前进度，或继续阅读。" });
       });
     }
-  }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, snapshot, state.checkpointSaveCandidates, state.runtimeState]);
+  }, [captureSavePreview, hostActivity, now, project, refreshSaveSlots, saveCoordinator, saveStore, sessionRunner, snapshot, state.artifacts, state.checkpointSaveCandidates, state.deferredCheckpointSaveCandidates, state.runtimeState]);
 
   useEffect(() => () => {
     if (recoveryWritePending.current !== null) {
@@ -1035,7 +1010,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       setRecoveryErrorAction("retry");
     }, 8000) };
     recoveryWritePending.current = pending;
-    void serializeRecoverySession({ artifacts: state.artifacts, historySession: state.historySession, runtimeState, replaySession: state.replaySession }, pending.controller.signal).then(async created => {
+    void recoverySessionRunner.run({ artifacts: state.artifacts, historySession: state.historySession, runtimeState, replaySession: state.replaySession }, pending.controller.signal).then(async created => {
       if (!current()) return;
       const record = createWorldPlayerRecoveryRecordV1({
         projectId, buildId: runtimeState.buildId, savedAtEpochMilliseconds: now(), title: snapshot.title,
@@ -1071,7 +1046,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       // Serialize only the newest live state after IO settles, not every skipped line.
       if (recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
     });
-  }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, recoveryWriteRevision, saveBoundaryAllowed, snapshot, state]);
+  }, [hostActivity, now, project.manifest.projectId, recoveryCandidate, recoveryCoordinator, recoveryOperation, recoveryStore, recoverySessionRunner, recoveryWriteRevision, saveBoundaryAllowed, snapshot, state]);
 
   useEffect(() => {
     if (memoryPressureRequest === undefined) { setMemoryPressureStatus("idle"); setMemoryPressureMessage(""); return; }
@@ -1079,6 +1054,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
     setAutoEnabled(false); setAutoPlayback("off"); stopSkip();
     let active = true;
     let timeout: ReturnType<typeof setTimeout> | undefined;
+    const controller = new AbortController();
     const fail = (message: string) => { if (active) { setMemoryPressureStatus("error"); setMemoryPressureMessage(message); } };
     try {
       onReleaseIdleResources?.();
@@ -1086,37 +1062,44 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         fail("上次恢复点保存仍未结束，未继续排队。回滚历史不变，可先手动保存。"); return;
       }
       const protectedState = liveState.current;
-      const compacted = compactPlayerCoreHistoryV1(protectedState, memoryPressureRequest.level === "critical" ? 64 : 128);
-      if (compacted === protectedState) {
+      const retainedBackSteps = memoryPressureRequest.level === 'critical' ? 64 : 128;
+      if (protectedState.artifacts === null || protectedState.historySession === null || protectedState.replaySession !== null ||
+          !['presenting', 'waiting-choice', 'ended'].includes(protectedState.status) || protectedState.historySession.cursor <= retainedBackSteps) {
         setMemoryPressureStatus("released"); setMemoryPressureMessage("已请求释放闲置资源；当前进度和回滚窗口保持不变。");
         return;
       }
       if (recoveryCoordinator === undefined || recoveryStore === undefined || !saveBoundaryAllowed || snapshot.sceneReplay.active || recoveryCandidate !== null) {
         fail("闲置资源已处理，但当前无法保护恢复点，回滚历史保持不变。可先手动保存。"); return;
       }
-      const created = createPlayerCoreSessionSaveV1(protectedState);
-      if (!created.ok || snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || protectedState.runtimeState === null) throw Error("Cannot protect current state");
-      const record = createWorldPlayerRecoveryRecordV1({ projectId: project.manifest.projectId, buildId: protectedState.runtimeState.buildId,
-        savedAtEpochMilliseconds: now(), title: snapshot.title, sceneId: protectedState.runtimeState.cursor.sceneId,
-        presentationKind: snapshot.presentation.kind, runtimeStateHash: snapshot.runtimeStateHash,
-        sessionArtifactHash: created.artifactHash, serializedSessionSave: created.serialized });
-      setMemoryPressureStatus("protecting"); setMemoryPressureMessage("内存保护：正在保存恢复点，暂不收缩历史。");
-      timeout = setTimeout(() => { fail("恢复点保存超时，回滚历史未收缩。请检查存储后重试。"); active = false; }, 8000);
+      if (snapshot.identities.buildId === null || snapshot.runtimeStateHash === null || protectedState.runtimeState === null) throw Error('Cannot protect current state');
+      setMemoryPressureStatus("protecting"); setMemoryPressureMessage("内存保护：正在整理并保存恢复点，暂不收缩历史。");
+      timeout = setTimeout(() => { fail("恢复点保存超时，回滚历史未收缩。请检查存储后重试。"); active = false; controller.abort(); }, 8000);
       memoryWritePending.current = recoveryCoordinator;
-      void recoveryCoordinator.write(record).then(() => {
+      void runForegroundSessionTask({ kind: 'protect', state: protectedState, retainedBackSteps }, controller.signal).then(async reply => {
+        if (!active || reply.kind !== 'protect') return;
+        if (liveState.current !== protectedState) { setMemoryPressureStatus('deferred'); setMemoryPressureMessage('进度已改变，已跳过本次历史收缩。可重新执行内存保护。'); return; }
+        const created = reply.result;
+        const record = createWorldPlayerRecoveryRecordV1({ projectId: project.manifest.projectId, buildId: protectedState.runtimeState!.buildId,
+          savedAtEpochMilliseconds: now(), title: snapshot.title, sceneId: protectedState.runtimeState!.cursor.sceneId,
+          presentationKind: snapshot.presentation.kind, runtimeStateHash: snapshot.runtimeStateHash!,
+          sessionArtifactHash: created.artifactHash, serializedSessionSave: created.serialized });
+        await recoveryCoordinator.write(record);
         if (!active) return;
         clearTimeout(timeout);
         if (liveState.current !== protectedState) { setMemoryPressureStatus("deferred"); setMemoryPressureMessage("进度已改变，已跳过本次历史收缩。可重新执行内存保护。"); return; }
-        setState(compacted);
+        // Preserve live artifacts, host identity and replay entries; only install
+        // the worker's history proposal and the same Core playback reset.
+        setState({ ...protectedState, historySession: created.historySession, schedulerSession: null, playback: created.playback });
         setMemoryPressureStatus("protected");
         setMemoryPressureMessage("恢复点已保存，较早历史已转为只读归档；当前句和正式存档不变。自动播放已停止。");
-      }).catch(() => { clearTimeout(timeout); fail("恢复点保存失败，回滚历史未收缩，正式存档保持不变。可重试。"); })
+      }).catch(error => { clearTimeout(timeout); fail(error instanceof ForegroundSessionError ? '内存保护后台整理失败，回滚历史与正式存档保持不变。可重试。' : "恢复点保存失败，回滚历史未收缩，正式存档保持不变。可重试。"); })
         .finally(() => {
+          clearTimeout(timeout);
           if (memoryWritePending.current === recoveryCoordinator) memoryWritePending.current = null;
-          if (recoveryContext.current.projectId === record.projectId && recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
+          if (recoveryContext.current.projectId === project.manifest.projectId && recoveryContext.current.store === recoveryStore) setRecoveryWriteRevision(revision => revision + 1);
         });
     } catch { fail("内存保护未完成，回滚历史保持不变。可重试或手动保存。"); }
-    return () => { active = false; clearTimeout(timeout); };
+    return () => { active = false; clearTimeout(timeout); controller.abort(); };
     // A request is a transaction for one exact state, not a reaction to every story step.
   }, [memoryPressureRequest, memoryPressureRetry, project, recoveryCoordinator, recoveryStore]);
 
@@ -1565,6 +1548,14 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
       data-scene-replay={snapshot.sceneReplay.active ? snapshot.sceneReplay.replayId : "inactive"}
       data-settings-platform={platform}
       data-player-theme={appearance?.theme}
+      data-player-skin={skin?.schemaVersion}
+      data-editor-preview={editorPreview ? "true" : undefined}
+      data-skin-title-align={skin?.title.align}
+      data-skin-reading-position={skin?.reading.position}
+      data-skin-title-motion={skin?.motion.title}
+      data-skin-dialogue-motion={skin?.motion.dialogue}
+      data-skin-text-motion={skin?.motion.text}
+      data-skin-control-motion={skin?.motion.controls}
       data-player-accent={appearance?.accent}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -1604,15 +1595,18 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         "--gal-message-opacity": settingsApplication.text.messageWindowOpacity,
         "--gal-line-height": settingsApplication.text.lineHeight,
         "--gal-letter-spacing": `${settingsApplication.text.letterSpacingEm}em`,
-        "--player-font-family": fontStatus === "ready" && typography.projectFont !== null
-          ? `"${typography.projectFont.runtimeFamily}", ${typography.fallbackStack}`
-          : typography.fallbackStack
+        "--player-font-family": skinFonts.families.body,
+        "--skin-font-title": skinFonts.families.title,
+        "--skin-font-name": skinFonts.families.name,
+        "--skin-font-ui": skinFonts.families.ui,
+        ...playerSkinStyle(skin, mediaAssets)
       } as React.CSSProperties}
     >
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
-      {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
+      {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel skin={skin} credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel skin={skin} panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
       <section className="player-stage" inert={preferencesOpen} aria-label={`${snapshot.title} 游戏画面`}>
+        {content.kind === "title" && cover && failedCover !== cover.url && skin?.title.coverMode === "stage" && <img className="player-title-backdrop" src={cover.url} alt="" onError={() => setFailedCover(cover.url)} />}
         {stageImageError && <div role="alert" style={{position:"absolute",zIndex:20,inset:"30% 10% auto",padding:16,background:"#181827",color:"white"}}>
           {stageImageStates.includes("budget") ? "画面资源超过安全预算或仍在释放，已停止自动推进。可稍后重试当前画面或手动继续。" : <>{stageImageStates.includes("timeout") ? "画面加载超时，已停止自动推进。" : "画面资源未能加载，已停止自动推进。"}可以重试当前画面或手动继续；若仍失败，请重新下载完整游戏。</>}
           <button type="button" style={{minHeight:44}} onClick={event => { event.stopPropagation(); setImageAttempt(value => value + 1); }}>重试画面资源</button>
@@ -1798,7 +1792,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
             <button type="button" onClick={() => { if (videoElement.current !== null) requestVideo(videoElement.current); }}>恢复视频</button>
           </aside>
         )}
-        {memoryPressureMessage !== "" && <aside className="player-memory-pressure" role="status" aria-live="polite"><span>{memoryPressureMessage}</span>
+        {memoryPressureMessage !== "" && !readingMenuOpen && !historyPanelOpen && !savePanelOpen && !preferencesOpen && !additionalContentOpen && !artworkView && <aside className="player-memory-pressure" role="status" aria-live="polite"><span>{memoryPressureMessage}</span>
           {["error", "deferred"].includes(memoryPressureStatus) && <button type="button" onClick={() => setMemoryPressureRetry(attempt => attempt + 1)}>重试内存保护</button>}
           {memoryPressureStatus !== "protecting" && <button type="button" onClick={() => setMemoryPressureMessage("")}>知道了</button>}
         </aside>}
@@ -1828,7 +1822,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <button ref={readingMenuTrigger} type="button" aria-label={readingMenuOpen ? '关闭阅读菜单' : '打开阅读菜单'} aria-expanded={readingMenuOpen} aria-controls="player-reading-menu" disabled={hostActivity !== 'active' || preferencesOpen || historyPanelOpen || savePanelOpen || additionalContentOpen} onClick={() => { if (readingMenuOpen) closeReadingMenu(); else { stopSkip(); setReadingMenuOpen(true); } }}>{readingMenuOpen ? '返回故事 ×' : '菜单 ☰'}</button>
         </div>}
         {compactReading && content.kind !== 'title' && !silentReading && <p className="player-portrait-hint">横屏更适合观看演出</p>}
-        <div id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
+        <div {...(readingMenuOpen ? playerScreenProps(skin, 'menu') : {})} id="player-reading-menu" ref={readingMenu} className="player-control-layer" data-open={readingMenuOpen} inert={artworkView} role={readingMenuOpen ? 'dialog' : undefined} aria-modal={readingMenuOpen ? true : undefined} aria-label={readingMenuOpen ? '阅读菜单' : undefined}>
         {readingMenuOpen && <header className="player-reading-menu-heading"><strong>阅读菜单</strong><span>剧情暂停推进，设置后返回当前段落。</span><button type="button" onClick={closeReadingMenu}>返回故事</button></header>}
         <nav hidden={content.kind === 'title'} className="player-history-controls" aria-label="剧情历史控制">
           <h3 className="player-menu-only player-menu-section-title">回看与内容</h3>
@@ -1870,55 +1864,20 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           ><span aria-hidden="true">✦</span><span>附加内容</span></button>
         </nav>
         {historyPanelOpen && (
-          <aside className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
+          <aside {...playerScreenProps(skin, 'history')} className="player-history-panel" role="dialog" aria-label="剧情历史" aria-modal="false">
             <header>
               <div><span>HISTORY</span><h2>剧情历史</h2></div>
               <button type="button" aria-label="关闭剧情历史" onClick={() => setHistoryPanelOpen(false)}>关闭</button>
             </header>
-            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <>
-              {snapshot.history.forwardPolicy.blocked && <p className="player-history-panel__notice" role="status">项目设置禁止在回退后沿原分支前进。</p>}
-              {snapshot.history.backwardBarrier !== null && (
-                <p className="player-history-panel__barrier" role="status">
-                  <strong>不可逆边界</strong>
-                  <span>{snapshot.history.backwardBarrier.reason}</span>
-                  <small>距离当前位置 {snapshot.history.backwardBarrier.distance} 步 · {snapshot.history.backwardBarrier.descriptorId}</small>
-                </p>
-              )}
-              <section className="player-history-panel__section">
-                <h3>当前主线</h3>
-                {snapshot.history.activeEntries.length === 0 ? <p className="player-history-panel__empty">尚无可显示条目。</p> : (
-                  <ol className="player-history-list">
-                    {snapshot.history.activeEntries.map((entry) => {
-                      const label = playerHistoryEventLabel(entry.event);
-                      return <li key={entry.entryId} data-history-position={entry.position}>
-                        {entry.canNavigateBack ? (
-                          <button type="button" aria-label={`回退到：${label}`} disabled={hostActivity !== "active"} onClick={() => {
-                            applyIntent({ kind: "history-back-to", entryId: entry.entryId }, pointerInput.current);
-                            setHistoryPanelOpen(false);
-                          }}>
-                            <span>{playerHistoryEventKind(entry.event)} · {entry.position === "past" ? "已读" : entry.position === "current" ? "当前" : "前方"}</span>
-                            <strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong>
-                          </button>
-                        ) : <div><span>{playerHistoryEventKind(entry.event)} · 不可回退</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={label} locale={typography.locale} /></strong></div>}
-                      </li>;
-                    })}
-                  </ol>
-                )}
-              </section>
-              {snapshot.history.archives.map((archive, archiveIndex) => (
-                <section className="player-history-panel__section player-history-panel__archive" key={archive.archiveId} data-archive-id={archive.archiveId}>
-                  <h3>归档记录 {archiveIndex + 1}</h3>
-                  <p>旧分支或内存保护归档 · 只读，不支持回滚</p>
-                  <ol className="player-history-list">
-                    {archive.entries.map((entry) => <li key={entry.entryId}><div><span>{playerHistoryEventKind(entry.event)} · 归档</span><strong className="player-typography-text" lang={typography.locale}><PlayerRichText text={playerHistoryEventLabel(entry.event)} locale={typography.locale} /></strong></div></li>)}
-                  </ol>
-                </section>
-              ))}
-            </>}
+            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <PlayerHistoryContent history={snapshot.history} locale={typography.locale} canNavigate={hostActivity === 'active'} renderText={text => <PlayerRichText text={text} locale={typography.locale} />} onNavigate={entryId => {
+              applyIntent({ kind: 'history-back-to', entryId }, pointerInput.current);
+              setHistoryPanelOpen(false);
+              queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));
+            }} />}
           </aside>
         )}
         {additionalContentOpen && (
-          <aside ref={additionalContentPanel} className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
+          <aside {...playerScreenProps(skin, 'additional')} ref={additionalContentPanel} className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
             <header>
               <div><span>EXTRAS</span><h2>附加内容</h2></div>
               <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
@@ -2066,13 +2025,13 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
           <h3 className="player-menu-only player-menu-section-title">自动阅读与快进</h3>
           <label className="player-menu-only">自动阅读节奏<select aria-label="自动阅读节奏" value={readingPace} onChange={event => {
             const pace = event.target.value as PlayerReadingPace; setReadingPace(pace);
-            try { storePlayerReadingPace(globalThis.localStorage, project.manifest.projectId, pace); } catch { /* Denied storage does not block reading. */ }
+            try { if (!editorPreview) storePlayerReadingPace(globalThis.localStorage, project.manifest.projectId, pace); } catch { /* Denied storage does not block reading. */ }
           }}><option value="standard">标准</option><option value="calm">从容</option><option value="brisk">快速</option><option value="policy">原速</option></select></label>
           {content.kind !== 'title' && snapshot.localization.availableLocales.length > 1 && <>
             <label className="player-locale-control player-menu-only">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={(event) => {
               const locale = event.target.value;
               setState((current) => configurePlayerCoreLocaleV1(current, locale));
-              storePlayerLocalePreference(project.manifest.projectId, locale);
+              if (!editorPreview) storePlayerLocalePreference(project.manifest.projectId, locale);
             }}>{snapshot.localization.availableLocales.map((locale) => <option key={locale} value={locale}>{locale}</option>)}</select></label>
             <span className="player-menu-only" role="status" aria-label="语言状态">{snapshot.localization.selectedLocale === snapshot.localization.sourceLocale
               ? `${snapshot.localization.sourceLocale} · 工程源语言`
@@ -2135,8 +2094,8 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
               }}
             >存读档</button>
             {savePanelOpen && (
-              <dialog ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (saveOperation !== "busy") { if (pendingRead) cancelRead(); else closeSavePanel(); } }}>
-                <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy"} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : undefined}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
+              <dialog {...playerScreenProps(skin, 'save')} ref={saveDialog} id="player-save-panel" className="player-save__panel" aria-label="存读档槽位" aria-modal="true" onCancel={event => { event.preventDefault(); if (saveOperation !== "busy") { if (pendingRead) cancelRead(); else closeSavePanel(); } }}>
+                <header><strong>{saveView === "backup" ? "存档备份与恢复" : saveIntent === "save" ? "保存进度" : "读取进度"}</strong><button type="button" aria-label="关闭存读档" autoFocus disabled={saveOperation === "busy"} onClick={closeSavePanel}>返回故事 ×</button><span data-save-message role={saveOperation === "error" ? "alert" : "status"}>{saveMessage}{saveOperation === "error" && saveMessage === "存档损坏或与当前构建不兼容" && <small>读取失败不会修改当前剧情或原存档，可返回故事或尝试其他存档。</small>}</span></header>
                 {pendingRead ? <section className="player-load-confirm" role="region" aria-label="确认读取存档">
                   <h3>读取{playerSaveLabel(pendingRead.slotId)}？</h3><p>当前未保存的进度会被所选存档替换。取消可回到槽位列表。</p>
                   <p>当前：{project.scenes.find(scene => scene.id === state.runtimeState?.cursor.sceneId)?.title ?? '当前故事'}</p>
@@ -2171,6 +2130,10 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         )}
         </div>
         {saveFeedback && !savePanelOpen && <p className="player-save-feedback" role="status" aria-live="polite">{saveFeedback}</p>}
+        {backgroundSaveFailure && content.kind !== "title" && !savePanelOpen && !readingMenuOpen && !preferencesOpen && !historyPanelOpen && !additionalContentOpen && !artworkView && !snapshot.sceneReplay.active && <aside className="player-background-save-notice" role="alert" aria-label="后台保存提醒">
+          <div><strong>{backgroundSaveFailure.kind === "auto" ? "自动保存未完成" : "检查点未保存"}</strong><p>{backgroundSaveFailure.message}</p></div>
+          <div className="player-background-save-notice__actions"><button type="button" disabled={!saveBoundaryAllowed || hostActivity !== "active"} onClick={() => { setSaveIntent("save"); setSaveView("manual"); setPendingOverwriteSlotId(null); openSavePanel(); }}>保存当前进度</button><button type="button" aria-label="关闭保存提醒" onClick={() => setBackgroundSaveFailure(null)}>知道了</button></div>
+        </aside>}
         {content.kind !== "title" && recoveryStore !== undefined && !snapshot.sceneReplay.active && (recoveryCandidate !== null || recoveryOperation === "error") && (
           <aside className="player-recovery" role={recoveryOperation === "error" ? "alert" : "status"} aria-live="polite">
             <div>
@@ -2207,23 +2170,24 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
 
         {content.kind === "title" && (
           <div className="player-title-screen">
-            {cover?.url && failedCover !== cover.url && <img className="player-title-cover" src={cover.url} alt="" onError={() => setFailedCover(cover.url)} />}
+            {cover?.url && failedCover !== cover.url && skin?.title.coverMode !== "stage" && <img className="player-title-cover" src={cover.url} alt="" onError={() => setFailedCover(cover.url)} />}
             <p className="player-eyebrow">{appearance === null ? "A WORLd STUDIO STORY" : "视觉小说"}</p>
             <h1>{snapshot.title}</h1>
             {appearance === null ? <p>同一个故事核心，面向每一块屏幕。</p> : appearance.titleTagline && <p className="player-title-tagline">{appearance.titleTagline}</p>}
             {latestSlot && saveStore && recoveryOperation !== 'scanning' && (recoveryCandidate === null || !recoveryBuildCompatible) && <section className="player-recent-save" aria-label="最近存档"><button className="player-primary" type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => requestLoadFromSlot(latestSlot.slotId, latestSlot.sessionArtifactHash)}>继续最近存档 <span aria-hidden="true">→</span></button><p>{playerSaveLabel(latestSlot.slotId)} · {latestSlot.sceneTitle} · {new Date(latestSlot.savedAtEpochMilliseconds).toLocaleString('zh-CN', { hour12: false })} · 本地时间</p></section>}
-            <button className={latestSlot || recoveryCandidate !== null && recoveryBuildCompatible ? 'player-secondary' : 'player-primary'} type="button" disabled={hostActivity !== "active" || (recoveryStore !== undefined && recoveryOperation === "scanning")} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
-              开始故事
+            {saveOperation === 'busy' && !savePanelOpen && <p className="player-title-load-status" role="status">正在校验存档，完成后回到故事…</p>}
+            <button className={latestSlot || recoveryCandidate !== null && recoveryBuildCompatible ? 'player-secondary' : 'player-primary'} type="button" disabled={hostActivity !== "active" || saveOperation === 'busy' || recoveryOperation === "scanning"} onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => applyIntent({ kind: "primary" }, pointerInput.current)}>
+              {skin?.title.startLabel ?? "开始故事"}
               <span aria-hidden="true">→</span>
             </button>
-            {settingsApplication.ui.showInputHints && <span className="player-hint">按 Enter 或空格开始</span>}
+            {settingsApplication.ui.showInputHints && saveOperation !== 'busy' && recoveryOperation !== 'scanning' && <span className="player-hint">按 Enter 或空格开始</span>}
             <nav className="player-title-actions" aria-label="作品菜单">
-              {saveStore !== undefined && <button ref={titleSaveTrigger} type="button" disabled={hostActivity !== 'active'} onClick={() => openSavePanel("load")}>读取存档</button>}
-              <button ref={titlePreferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active'} onClick={() => { setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
-              {hasWebCredits(credits) && <button type="button" disabled={hostActivity !== 'active'} onClick={openCredits}>制作名单</button>}
-              <button ref={titleAdditionalContentTrigger} type="button" aria-label="打开附加内容" disabled={hostActivity !== 'active'} onClick={openAdditionalContent}>附加内容</button>
-              {snapshot.localization.availableLocales.length > 1 && <label className="player-title-locale">语言<select aria-label="显示语言" value={snapshot.localization.selectedLocale} onChange={event => {
-                const locale = event.target.value; setState(current => configurePlayerCoreLocaleV1(current, locale)); storePlayerLocalePreference(project.manifest.projectId, locale);
+              {saveStore !== undefined && <button ref={titleSaveTrigger} type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => openSavePanel("load")}>读取存档</button>}
+              <button ref={titlePreferencesTrigger} type="button" aria-label="打开玩家设置" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={() => { setInfoView('preferences'); setPreferencesOpen(true); }}>设置</button>
+              {hasWebCredits(credits) && <button type="button" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={openCredits}>制作名单</button>}
+              <button ref={titleAdditionalContentTrigger} type="button" aria-label="打开附加内容" disabled={hostActivity !== 'active' || saveOperation === 'busy'} onClick={openAdditionalContent}>附加内容</button>
+              {snapshot.localization.availableLocales.length > 1 && <label className="player-title-locale">语言<select aria-label="显示语言" disabled={saveOperation === 'busy'} value={snapshot.localization.selectedLocale} onChange={event => {
+                const locale = event.target.value; setState(current => configurePlayerCoreLocaleV1(current, locale)); if (!editorPreview) storePlayerLocalePreference(project.manifest.projectId, locale);
               }}>{snapshot.localization.availableLocales.map(locale => <option key={locale} value={locale}>{locale}</option>)}</select></label>}
             </nav>
             {recoveryStore !== undefined && (recoveryCandidate !== null || recoveryOperation === 'scanning' || recoveryOperation === 'error' || newStoryConfirmation) && <div className="player-title-recovery" aria-label="开始与恢复进度">
@@ -2286,7 +2250,7 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         {compactReading && (content.kind === 'dialogue' || content.kind === 'narration') && !readingMenuOpen && !preferencesOpen && <p className="player-reading-caption">{reading.unread ? '下滑或点文字，读本段下一屏' : !textReady ? '点击文字显示全文' : '点击文字继续故事'}</p>}
 
         {content.kind === "choice" && (
-          <div className="player-choice" data-choice-layout={settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
+          <div className="player-choice" data-choice-layout={skin?.reading.choiceLayout && skin.reading.choiceLayout !== "inherit" ? skin.reading.choiceLayout === "columns" ? "responsive-grid" : "vertical" : settingsApplication.choice.layout} role="group" aria-labelledby="player-choice-prompt">
             <p id="player-choice-prompt" className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.prompt} locale={typography.locale} /></p>
             {content.options.map((option, index) => (
               <button
@@ -2306,18 +2270,22 @@ export function PlayerShell({ project, mediaAssets = [], onRetryMedia, hostActiv
         )}
 
         {content.kind === "ending" && (
-          <div className="player-ending" role="status">
-            <span>{snapshot.sceneReplay.active ? '回想结束' : '故事告一段落'}</span>
+          <div {...playerScreenProps(skin, 'ending')} className="player-ending" role="status">
+            <span>{snapshot.sceneReplay.active ? '回想结束' : skin?.screens?.ending.caption ?? '故事告一段落'}</span>
             <h2 className="player-typography-text" lang={typography.locale} data-cjk-line-break={typography.cjk ? "strict" : "standard"}><PlayerRichText text={content.name} locale={typography.locale} /></h2>
             {!snapshot.sceneReplay.active && <>
               <p className="player-ending-progress">已达成 {snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 个结局</p>
-              <p className="player-ending-note">已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。</p>
+              {(skin?.screens?.ending.note ?? '已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。') && <p className="player-ending-note">{skin?.screens?.ending.note ?? '已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。'}</p>}
               {collection.error && <p className="player-collection-error" role="alert">本机收藏记录暂未保存，请保留故事存档后重试。<button type="button" onClick={collection.retry}>重试保存收藏</button></p>}
+            </>}
+            <div className="player-ending-actions">
+            {!snapshot.sceneReplay.active && <>
               <button className="player-primary" type="button" onClick={() => { openAdditionalContent(); setAdditionalContentView('endings'); }}>查看收藏与结局</button>
               {hasWebCredits(credits) && <button className="player-secondary" type="button" disabled={hostActivity !== 'active'} onClick={openCredits}>制作名单</button>}
               {saveStore && <button className="player-secondary" type="button" onClick={() => openSavePanel('load')}>读取存档探索其他路线</button>}
             </>}
-            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : "回到标题"}</button>
+            <button className="player-secondary" type="button" onPointerDown={(event) => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : skin?.screens?.ending.returnLabel ?? "回到标题"}</button>
+            </div>
           </div>
         )}
 

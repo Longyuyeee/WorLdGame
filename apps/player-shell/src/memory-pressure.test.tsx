@@ -4,10 +4,11 @@ import { loadProject, migrateS0Project, type S0Project } from "@world-studio/pro
 import { createPlayerCore, createPlayerCoreSessionSaveV1, createPlayerCoreSnapshotV1, dispatchPlayerCoreIntentV1 } from "@world-studio/player-core";
 import { mountWorldPlayerV1, type WorldPlayerHandleV1 } from "./mount-player";
 import { createWorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryRecordV1, type WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
+import { executeForegroundSessionTask, type ForegroundSessionTask } from './foreground-session-task';
 
 const handles: WorldPlayerHandleV1[] = [];
 const containers: HTMLElement[] = [];
-afterEach(() => { vi.useRealTimers(); for (const handle of handles.splice(0)) handle.unmount(); for (const container of containers.splice(0)) container.remove(); });
+afterEach(() => { vi.useRealTimers(); for (const handle of handles.splice(0)) handle.unmount(); for (const container of containers.splice(0)) container.remove(); vi.unstubAllGlobals(); });
 async function setup() {
   const source: S0Project = { schemaVersion: 0, id: "memory_shell", title: "Memory", entrySceneId: "long", characters: [], scenes: [
     { id: "long", title: "Long", statements: [...Array.from({ length: 100 }, (_, n) => ({ id: `line_${n}`, kind: "narration" as const, textId: `text_${n}`, text: `Line ${n}` })), { id: "end", kind: "end", endingName: "Done" }] }
@@ -46,6 +47,9 @@ it("protects before shrinking, preserves the current line, coalesces pressure an
   expect(test.release).toHaveBeenCalledTimes(1);
   fireEvent.click(within(test.container).getByRole("button", { name: "打开剧情历史" }));
   expect(within(test.container).getByRole("heading", { name: "归档记录 1" })).toBeDefined();
+  expect(test.container.querySelector('.player-memory-pressure')).toBeNull();
+  fireEvent.click(within(within(test.container).getByRole('dialog', { name: '剧情历史' })).getByRole('button', { name: '关闭剧情历史' }));
+  expect(test.container.querySelector('.player-memory-pressure')).not.toBeNull();
 });
 
 it("keeps rollback on write failure and allows the player to retry", async () => {
@@ -133,4 +137,42 @@ it("ignores a saved protection result after unmount", async () => {
   act(() => test.handle.unmount());
   await act(async () => { finish(); });
   expect(test.container.querySelector("main")).toBeNull();
+});
+
+function delayedProtectionWorker() {
+  const worker = { onmessage: null as ((event: MessageEvent) => void) | null, onerror: null, onmessageerror: null,
+    postMessage: vi.fn<(message: { id: number; task: ForegroundSessionTask }) => void>(), terminate: vi.fn() };
+  const revoke = vi.fn(), ParentURL = URL;
+  vi.stubGlobal('URL', class extends ParentURL { static override createObjectURL = vi.fn(() => 'blob:protection'); static override revokeObjectURL = revoke; });
+  vi.stubGlobal('Worker', function() { return worker; });
+  return { worker, revoke, request() { const message = worker.postMessage.mock.calls[0]![0]; if (message.task.kind !== 'protect') throw Error('Expected protection worker'); return message; } };
+}
+
+it('does not write an old proposal when reading advances during background preparation', async () => {
+  const test = await setup(), delayed = delayedProtectionWorker(), writes = vi.mocked(test.store.write).mock.calls.length;
+  act(() => test.handle.notifyMemoryPressure('critical'));
+  await waitFor(() => expect(delayed.worker.postMessage).toHaveBeenCalledOnce());
+  const request = delayed.request(), reply = delayed.worker.onmessage!;
+  const before = test.container.querySelector('main')!.dataset.runtimeStateHash;
+  fireEvent.click(within(test.container).getByRole('button', { name: '继续下一句' }));
+  if (test.container.querySelector('main')!.dataset.runtimeStateHash === before) fireEvent.click(within(test.container).getByRole('button', { name: '继续下一句' }));
+  expect(test.container.querySelector('main')!.dataset.runtimeStateHash).not.toBe(before);
+  await act(async () => { reply({ data: { id: request.id, result: executeForegroundSessionTask(request.task) } } as MessageEvent); });
+  expect(test.handle.getObservation().memoryPressure).toBe('deferred');
+  expect(vi.mocked(test.store.write).mock.calls.length).toBe(writes);
+  expect(test.container.querySelector('main')!.dataset.historyArchives).toBe('0');
+});
+
+it.each(['timeout', 'unmount'] as const)('terminates background preparation on %s and ignores late success', async reason => {
+  const test = await setup(), delayed = delayedProtectionWorker(), writes = vi.mocked(test.store.write).mock.calls.length;
+  if (reason === 'timeout') vi.useFakeTimers();
+  act(() => test.handle.notifyMemoryPressure('critical'));
+  const request = delayed.request(), late = delayed.worker.onmessage!;
+  if (reason === 'unmount') act(() => test.handle.unmount());
+  else await act(async () => { await vi.advanceTimersByTimeAsync(5001); });
+  expect(delayed.worker.terminate).toHaveBeenCalledOnce(); expect(delayed.revoke).toHaveBeenCalledOnce();
+  await act(async () => { late({ data: { id: request.id, result: executeForegroundSessionTask(request.task) } } as MessageEvent); });
+  expect(vi.mocked(test.store.write).mock.calls.length).toBe(writes);
+  if (reason === 'timeout') expect(test.handle.getObservation().memoryPressure).toBe('error');
+  else expect(test.container.querySelector('main')).toBeNull();
 });

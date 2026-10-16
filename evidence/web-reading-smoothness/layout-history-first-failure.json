@@ -1,0 +1,127 @@
+{
+  "error": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '快速保存', exact: true })\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '快速保存', exact: true })\u001b[22m\n\n    at E:\\Project\\AIProject\\ClaudeProject\\WorLdGame\\tools\\run-web-reading-layout.mjs:78:65",
+  "checks": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "startupReads": 0,
+      "collapsed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 390,
+        "viewport": 390
+      },
+      "expanded": {
+        "offset": 170,
+        "measured": 170,
+        "shellTop": 170,
+        "width": 390,
+        "viewport": 390
+      },
+      "narrow": {
+        "offset": 191,
+        "measured": 191,
+        "shellTop": 191,
+        "width": 320,
+        "viewport": 320
+      },
+      "closed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 320,
+        "viewport": 320
+      },
+      "landscape": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 844,
+        "viewport": 844
+      }
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "startupReads": 0,
+      "collapsed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 390,
+        "viewport": 390
+      },
+      "expanded": {
+        "offset": 170,
+        "measured": 170,
+        "shellTop": 170,
+        "width": 390,
+        "viewport": 390
+      },
+      "narrow": {
+        "offset": 191,
+        "measured": 191,
+        "shellTop": 191,
+        "width": 320,
+        "viewport": 320
+      },
+      "closed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 320,
+        "viewport": 320
+      },
+      "landscape": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 844,
+        "viewport": 844
+      }
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "startupReads": 0,
+      "collapsed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 390,
+        "viewport": 390
+      },
+      "expanded": {
+        "offset": 170,
+        "measured": 170,
+        "shellTop": 170,
+        "width": 390,
+        "viewport": 390
+      },
+      "narrow": {
+        "offset": 191,
+        "measured": 191,
+        "shellTop": 191,
+        "width": 320,
+        "viewport": 320
+      },
+      "closed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 320,
+        "viewport": 320
+      },
+      "landscape": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 844,
+        "viewport": 844
+      }
+    }
+  ],
+  "errors": []
+}

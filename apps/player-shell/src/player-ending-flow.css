@@ -1,5 +1,6 @@
 .player-ending { display: grid; justify-items: center; gap: 14px; max-width: min(600px, calc(100% - 32px)); padding: 28px; border-radius: 24px; background: var(--player-panel, #111425); color: var(--player-ink, #f8f7ff); border: 1px solid var(--player-muted, #77758b); }
 .player-ending h2 { margin: 0; }
+.player-ending-actions { display: grid; gap: 14px; width: 100%; }
 .player-ending > span { margin: 0; color: var(--player-muted, #c1bed2); }
 .player-ending .player-ending-progress { margin: 0; padding: 6px 12px; border-radius: 100px; font-size: 14px; color: var(--player-ink, #f8f7ff); background: color-mix(in srgb, var(--player-accent, #b9a1ff) 16%, var(--player-panel, #111425)); }
 .player-ending .player-ending-note { margin: 0 0 4px; color: var(--player-muted, #c1bed2); font-size: 13px; line-height: 1.8; }

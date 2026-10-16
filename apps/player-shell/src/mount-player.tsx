@@ -3,7 +3,7 @@ import { createRoot, type Root } from "react-dom/client";
 import type { CanonicalProject } from "@world-studio/project-domain";
 import type { PlayerCoreStatus } from "@world-studio/player-core";
 import { WebPlayerHost } from "./player-host";
-import type { PlayerHostActivityV1, PlayerMemoryPressureStatusV1, WorldPlayerPreviewCaptureV1 } from "./PlayerShell";
+import type { PlayerHostActivityV1, PlayerMemoryPressureStatusV1, WorldPlayerPreviewCaptureV1, PlayerEditorPreviewOptions } from "./PlayerShell";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 import type { WorldPlayerSaveStoreV3 } from "./player-save-store";
 import type { WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
@@ -19,6 +19,7 @@ export interface WorldPlayerMountOptionsV1 {
   readonly recoveryStore?: WorldPlayerRecoveryStoreV1;
   readonly previewCapture?: WorldPlayerPreviewCaptureV1;
   readonly onReleaseIdleResources?: () => void;
+  readonly editorPreview?: PlayerEditorPreviewOptions;
 }
 
 export interface WorldPlayerObservationV1 {
@@ -56,6 +57,7 @@ export interface WorldPlayerHandleV1 {
 }
 
 interface ResolvedWorldPlayerMountOptionsV1 {
+  readonly editorPreview: PlayerEditorPreviewOptions | undefined;
   readonly project: CanonicalProject;
   readonly mediaAssets: readonly PlayerMediaAssetSourceV1[];
   readonly hostActivity: PlayerHostActivityV1;
@@ -91,6 +93,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
   let memoryPressureRequest: { serial: number; level: "moderate" | "critical" } | undefined;
   let options: ResolvedWorldPlayerMountOptionsV1 = {
       project: initial.project,
+      editorPreview: initial.editorPreview,
       mediaAssets: initial.mediaAssets ?? [],
       hostActivity: initial.hostActivity ?? "active",
       onRetryMedia: initial.onRetryMedia,
@@ -108,6 +111,7 @@ export function mountWorldPlayerV1(container: HTMLElement, initial: WorldPlayerM
     flushSync(() => root.render(
       <WebPlayerHost
         project={options.project}
+        {...(options.editorPreview === undefined ? {} : { editorPreview: options.editorPreview })}
         mediaAssets={options.mediaAssets}
         activityOverride={options.hostActivity}
         {...(memoryPressureRequest === undefined ? {} : { memoryPressureRequest })}

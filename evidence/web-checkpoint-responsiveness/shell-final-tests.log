@@ -1,0 +1,13 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests) 1718ms
+   ✓ lets reading continue and writes only the earlier exact checkpoint, once  822ms
+   ✓ ignores late checkpoint results after project  333ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:56:26
+   Duration  9.07s (transform 2.69s, setup 325ms, import 5.56s, tests 1.72s, environment 1.11s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-checkpoint-responsiveness/shell-final-tests.json

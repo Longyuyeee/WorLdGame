@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadProject, migrateS0Project, type CanonicalProject, type S0Project } from "@world-studio/project-domain";
@@ -29,7 +29,8 @@ function connectedContainer(): HTMLElement {
 }
 
 function mount(container = connectedContainer(), project = branching()): WorldPlayerHandleV1 {
-  const handle = mountWorldPlayerV1(container, { project });
+  let handle!: WorldPlayerHandleV1;
+  act(() => { handle = mountWorldPlayerV1(container, { project }); });
   mounted.push(handle);
   return handle;
 }
@@ -59,7 +60,8 @@ describe("N50-E6 versioned Player host embedding API", () => {
   it("reports actual voice waiting as active and suspends it through the host API", async () => {
     const demo = createPlayerMediaMultichannelDemoV1();
     const container = connectedContainer();
-    const handle = mountWorldPlayerV1(container, { project: demo.project, mediaAssets: demo.mediaAssets });
+    let handle!: WorldPlayerHandleV1;
+    act(() => { handle = mountWorldPlayerV1(container, { project: demo.project, mediaAssets: demo.mediaAssets }); });
     mounted.push(handle);
     fireEvent.click(screen.getByRole("button", { name: /开始故事/u }));
     fireEvent.click(screen.getByRole("button", { name: "继续下一句" }));

@@ -4,10 +4,11 @@ import type { PreviewAudioLayerPlan } from "./preview-media-runtime";
 export interface PreviewAudioLayerProps {
   readonly layer: PreviewAudioLayerPlan & { readonly url: string };
   readonly appliedVolume?: number;
+  readonly muted?: boolean;
   readonly onDecodeError: () => void;
 }
 
-export function PreviewAudioLayer({ layer, appliedVolume = layer.volume, onDecodeError }: PreviewAudioLayerProps) {
+export function PreviewAudioLayer({ layer, appliedVolume = layer.volume, muted = false, onDecodeError }: PreviewAudioLayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [status, setStatus] = useState<"starting" | "playing" | "paused" | "blocked" | "error">(
     layer.playback === "paused" ? "paused" : "starting"
@@ -25,6 +26,7 @@ export function PreviewAudioLayer({ layer, appliedVolume = layer.volume, onDecod
   useEffect(() => {
     const audio = audioRef.current;
     if (audio === null) return;
+    audio.muted = muted;
     if (layer.playback === "paused") {
       audio.pause();
       setStatus("paused");
@@ -32,12 +34,13 @@ export function PreviewAudioLayer({ layer, appliedVolume = layer.volume, onDecod
     }
     audio.volume = appliedVolume;
     void audio.play().catch(() => setStatus("blocked"));
-  }, [appliedVolume, layer.playback]);
+  }, [appliedVolume, layer.playback, muted]);
 
   return <>
     <audio
       ref={audioRef}
       src={layer.url}
+      muted={muted}
       autoPlay={layer.playback === "playing"}
       loop={layer.loop}
       data-testid={`preview-audio-${layer.bus}`}
@@ -45,6 +48,7 @@ export function PreviewAudioLayer({ layer, appliedVolume = layer.volume, onDecod
       data-applied-volume={appliedVolume}
       onCanPlay={(event) => {
         event.currentTarget.volume = appliedVolume;
+        event.currentTarget.muted = muted;
         if (layer.playback === "playing") void event.currentTarget.play().catch(() => setStatus("blocked"));
       }}
       onPlay={() => setStatus("playing")}
@@ -56,15 +60,17 @@ export function PreviewAudioLayer({ layer, appliedVolume = layer.volume, onDecod
     <button
       type="button"
       className={`stage-audio-chip stage-audio-chip--${status}`}
-      aria-label={`${layer.bus} 音轨${status === "playing" ? "播放中" : status === "paused" ? "已暂停" : "启用播放"}`}
+      aria-label={`${layer.bus} 音轨${status === "playing" ? "播放中" : status === "paused" ? "已暂停" : "启用播放"}${muted ? "（静音）" : ""}`}
       onClick={() => {
         const audio = audioRef.current;
         if (audio === null || status === "playing" || layer.playback === "paused") return;
         audio.volume = appliedVolume;
+        audio.muted = muted;
         void audio.play().catch(() => setStatus("blocked"));
       }}
     >
       {layer.bus.toUpperCase()} · {status === "playing" ? "播放中" : status === "paused" ? "已暂停" : status === "blocked" ? "点击启用" : status === "error" ? "重试播放" : "准备中"}
+      {muted && " · 静音"}
     </button>
   </>;
 }

@@ -1,0 +1,15 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+ ✓ packages/runtime/src/history-navigation.test.ts (6 tests) 643ms
+ ✓ packages/runtime/src/canonical.test.ts (11 tests) 457ms
+ ✓ packages/runtime/src/history-presentation.test.ts (5 tests) 157ms
+ ✓ apps/player-shell/src/foreground-session-client.test.ts (27 tests) 202ms
+ ✓ apps/player-shell/src/recovery-session-client.test.ts (15 tests) 89ms
+
+ Test Files  5 passed (5)
+      Tests  64 passed (64)
+   Start at  13:05:14
+   Duration  10.14s (transform 982ms, setup 1.05s, import 2.48s, tests 1.55s, environment 3.90s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-reading-advance/focused-tests.json

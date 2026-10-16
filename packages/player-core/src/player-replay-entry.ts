@@ -18,7 +18,12 @@ function checksum(value: Omit<PlayerReplayEntryV1, 'checksum'>): string {
   return sha256Hex(utf8Encode(canonicalRuntimeStringify(value)));
 }
 
-export function createPlayerReplayEntryV1(artifacts: CompilerArtifactsV1, state: RuntimeStateV1, inheritedEffects: readonly RuntimeEffectIntentV1[]): PlayerReplayEntryV1 | null {
+export type PlayerReplayArtifactsV1 = Pick<CompilerArtifactsV1, 'story'> & {
+  readonly manifest: Pick<CompilerArtifactsV1['manifest'], 'buildId'>;
+  readonly catalogs: Pick<CompilerArtifactsV1['catalogs'], 'replay'>;
+};
+
+export function createPlayerReplayEntryV1(artifacts: PlayerReplayArtifactsV1, state: RuntimeStateV1, inheritedEffects: readonly RuntimeEffectIntentV1[]): PlayerReplayEntryV1 | null {
   if (state.cursor.instructionIndex !== 0 || state.terminal.kind !== 'running' || state.pendingChoice || state.pendingEffect || state.pendingBarrier) return null;
   if (!artifacts.catalogs.replay.some(item => item.sceneId === state.cursor.sceneId)) return null;
   const saved = createRuntimeSaveV1(artifacts.story, state);

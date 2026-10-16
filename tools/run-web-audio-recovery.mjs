@@ -15,7 +15,7 @@ const previousPath = path.join(priorDirectory, 'before-rain-stops-project.zip'),
 const priorGame = unzipSync(await readFile(path.join(priorDirectory, 'before-rain-stops-web.zip')));
 const priorManifest = json(previous['world.project.json']), priorVersion = priorManifest.webPublication.version;
 const candidateVersion = process.env.STUDIO_CANDIDATE_VERSION ?? '1.7.3';
-const compatibleVersions = [...new Set([...priorManifest.webSaveCompatibility.versions, priorVersion])];
+const compatibleVersions = [...new Set([...priorManifest.webSaveCompatibility.versions, priorVersion])].sort();
 const mediaProbePath = path.resolve(root, process.env.STUDIO_MEDIA_PROBE_REPORT ?? path.join(output, 'native-media-probe.json'));
 const assertWorker = process.env.STUDIO_ASSERT_RECOVERY_WORKER === '1';
 const assertDirectPng = process.env.STUDIO_ASSERT_DIRECT_PNG === '1';
@@ -26,6 +26,22 @@ assert.ok(selectedEngines.length > 0 && new Set(selectedEngines).size === select
 const check = (name, detail = {}) => { checks.push({ name, ...detail }); console.log('PASS ' + name); };
 const shot = (page, name) => page.screenshot({ path: path.join(output, name + '.png'), animations: 'disabled' });
 const watch = page => page.on('pageerror', e => errors.push(String(e)));
+// Windows may allocate a browser-blocked low port for listen(0). Keep one safe
+// origin across update tests; retry occupied ports only before that origin exists.
+async function listenForBrowser(server) {
+  for (let attempt = 0; attempt < 16; attempt++) {
+    const selected = port ?? 20000 + Math.floor(Math.random() * 30000);
+    try {
+      await new Promise((resolve, reject) => {
+        const cleanup = () => { server.off('error', failed); server.off('listening', ready); };
+        const failed = error => { cleanup(); reject(error); }, ready = () => { cleanup(); resolve(); };
+        server.once('error', failed); server.once('listening', ready); server.listen(selected, '127.0.0.1');
+      });
+      port = server.address().port; return;
+    } catch (error) { if (port !== undefined || error.code !== 'EADDRINUSE') throw error; }
+  }
+  throw Error('No available browser test port');
+}
 async function directPng(page) {
   const modes=await page.locator('canvas[data-image-decode]').evaluateAll(elements=>elements.map(element=>element.dataset.imageDecode));
   assert.ok(modes.length>0);assert.ok(modes.every(mode=>mode==='owned-blob-bitmap'));return modes;
@@ -38,7 +54,7 @@ async function projectMenu(page, name) { await ready(page); if (!await page.loca
 async function author(engines) {
   browser = await engines.chromium.launch({ headless: true }); const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, reducedMotion: 'reduce' }); current = page; watch(page);
   await page.goto(process.env.STUDIO_UI_URL ?? 'http://127.0.0.1:5195/'); await page.getByLabel('导入工程 ZIP', { exact: true }).setInputFiles(previousPath); await ready(page); await nav(page, '发布');
-  await page.getByLabel('发布版本', { exact: true }).fill(candidateVersion); await page.getByRole('button', { name: '应用发布设置', exact: true }).click(); await ready(page); await page.locator('.web-save-compatibility > summary').click(); await page.getByLabel('核对上一版工程 ZIP', { exact: true }).setInputFiles(previousPath); await page.getByText(`已核对版本：${compatibleVersions.join('、')}。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。`, { exact: true }).waitFor();
+  await page.getByLabel('发布版本', { exact: true }).fill(candidateVersion); await page.getByRole('button', { name: '应用发布设置', exact: true }).click(); await ready(page); await page.locator('.web-save-compatibility > summary').click(); await page.getByLabel('核对上一版工程 ZIP', { exact: true }).setInputFiles(previousPath); const displayedVersions=[...compatibleVersions].sort((left,right)=>left.localeCompare(right,'en',{numeric:true})); await page.getByText(`已核对版本：${displayedVersions.join('、')}。读取不会改写原槽位，继续保存仍遵循手动覆盖确认。`, { exact: true }).waitFor();
   await projectMenu(page, '所有项目'); await page.getByRole('main', { name: '项目首页', exact: true }).waitFor(); await page.reload(); await page.getByRole('button', { name: '打开项目：雨停之前', exact: true }).click(); await ready(page);
   await download(page, () => projectMenu(page, '导出工程 ZIP'), 'before-rain-stops-project.zip'); await nav(page, '发布');
   for (const directory of [false, true]) {
@@ -58,7 +74,7 @@ async function audit() {
   await writeFile(path.join(output, 'artifact-audit.json'), JSON.stringify({ passed: true, artifacts, unchangedSourceEntries: Object.keys(source).length - 1, unchangedMedia: 25, permissionsPending: 25, publicDeployment: false }, null, 2)); return { source, payload, artifacts };
 }
 async function startServer() {
-  server = createServer((req, res) => { if (req.url === '/probe') return res.writeHead(200, { 'Content-Type': 'text/html' }).end('<title>Outside game scope</title>'); const name = decodeURIComponent(new URL(req.url, 'http://local').pathname).replace(/^\/gal\//, '') || 'index.html'; const bytes = fail.has(name) ? undefined : served[name]; const type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.wav': 'audio/wav', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json', '.webmanifest': 'application/manifest+json' }[path.extname(name)] ?? 'application/octet-stream'; const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache' }; const m = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range ?? ''); if (bytes && m) { const start = +m[1], end = Math.min(m[2] ? +m[2] : bytes.length - 1, bytes.length - 1); if (start > end) return res.writeHead(416, { 'Content-Range': `bytes */${bytes.length}` }).end(); return res.writeHead(206, { ...headers, 'Content-Length': end - start + 1, 'Content-Range': `bytes ${start}-${end}/${bytes.length}`, 'Accept-Ranges': 'bytes' }).end(bytes.subarray(start, end + 1)); } res.writeHead(bytes ? 200 : 503, headers).end(bytes ?? 'Test missing media'); }); await new Promise(resolve => server.listen(port ?? 0, '127.0.0.1', resolve)); port = server.address().port;
+  server = createServer((req, res) => { if (req.url === '/probe') return res.writeHead(200, { 'Content-Type': 'text/html' }).end('<title>Outside game scope</title>'); const name = decodeURIComponent(new URL(req.url, 'http://local').pathname).replace(/^\/gal\//, '') || 'index.html'; const bytes = fail.has(name) ? undefined : served[name]; const type = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.wav': 'audio/wav', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json', '.webmanifest': 'application/manifest+json' }[path.extname(name)] ?? 'application/octet-stream'; const headers = { 'Content-Type': type, 'Cache-Control': 'no-cache' }; const m = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range ?? ''); if (bytes && m) { const start = +m[1], end = Math.min(m[2] ? +m[2] : bytes.length - 1, bytes.length - 1); if (start > end) return res.writeHead(416, { 'Content-Range': `bytes */${bytes.length}` }).end(); return res.writeHead(206, { ...headers, 'Content-Length': end - start + 1, 'Content-Range': `bytes ${start}-${end}/${bytes.length}`, 'Accept-Ranges': 'bytes' }).end(bytes.subarray(start, end + 1)); } res.writeHead(bytes ? 200 : 503, headers).end(bytes ?? 'Test missing media'); }); await listenForBrowser(server);
 }
 const url = () => `http://127.0.0.1:${port}/gal/`;
 async function offlinePanel(page) { if (!await page.locator('#offline-panel').evaluate(el => el.open)) await page.locator('#offline-panel > summary').click(); }

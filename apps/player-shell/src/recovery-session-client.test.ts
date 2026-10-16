@@ -33,6 +33,20 @@ it("uses the fully validating core serializer and preserves exact bytes/hash", a
   expect(URL.revokeObjectURL).toHaveBeenCalledExactlyOnceWith("blob:owned-worker");
 });
 
+it("transports only complete save inputs and ignores unrelated noncloneable Core data", async () => {
+  const state = source(), test = setup();
+  const input = { ...state, unrelated: () => {}, artifacts: { ...state.artifacts!, unusedCatalog: () => {} } };
+  test.worker.postMessage.mockImplementation(message => { structuredClone(message); });
+  const pending = serializeRecoverySession(input, new AbortController().signal);
+  const message = test.worker.postMessage.mock.calls[0]![0];
+  expect(Object.keys(message.source).sort()).toEqual(["artifacts", "historySession", "replaySession", "runtimeState"]);
+  expect(Object.keys(message.source.artifacts)).toEqual(["story"]);
+  expect(message.source.historySession).toBe(state.historySession);
+  const expected = createRecoverySession(state);
+  test.reply({ id: message.id, result: createRecoverySession(structuredClone(message.source)) });
+  expect(await pending).toEqual(expected);
+});
+
 it("rejects a previously saved source with a subsequently mutated old checkpoint", () => {
   const state = source(); createRecoverySession(state);
   const changed = structuredClone(state), checkpoint = changed.historySession!.checkpoints[0]!;

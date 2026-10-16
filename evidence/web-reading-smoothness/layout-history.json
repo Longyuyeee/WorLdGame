@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "archiveSha256": "7d297fca5b4dc5f49ad0b22ed6b7736405cbb13661614206c1d0107835f97cdc",
+  "fixtureBundleHash": "3fdcb87649ebe7fcc796e6f06890f1fbfc6f2a8a853b643058ae653a1c17c84d",
+  "fixtureCssHash": "c865aca6a780daeaee2ae5c715ccdc6d3562f081556da4a6ae89e8f40f07eb91",
+  "checks": [
+    {
+      "engine": "chromium",
+      "version": "151.0.7922.34",
+      "startupReads": 0,
+      "collapsed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 390,
+        "viewport": 390
+      },
+      "expanded": {
+        "offset": 170,
+        "measured": 170,
+        "shellTop": 170,
+        "width": 390,
+        "viewport": 390
+      },
+      "narrow": {
+        "offset": 191,
+        "measured": 191,
+        "shellTop": 191,
+        "width": 320,
+        "viewport": 320
+      },
+      "closed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 320,
+        "viewport": 320
+      },
+      "landscape": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 844,
+        "viewport": 844
+      }
+    },
+    {
+      "engine": "firefox",
+      "version": "153.0",
+      "startupReads": 0,
+      "collapsed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 390,
+        "viewport": 390
+      },
+      "expanded": {
+        "offset": 170,
+        "measured": 170,
+        "shellTop": 170,
+        "width": 390,
+        "viewport": 390
+      },
+      "narrow": {
+        "offset": 191,
+        "measured": 191,
+        "shellTop": 191,
+        "width": 320,
+        "viewport": 320
+      },
+      "closed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 320,
+        "viewport": 320
+      },
+      "landscape": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 844,
+        "viewport": 844
+      }
+    },
+    {
+      "engine": "webkit",
+      "version": "26.5",
+      "startupReads": 0,
+      "collapsed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 390,
+        "viewport": 390
+      },
+      "expanded": {
+        "offset": 170,
+        "measured": 170,
+        "shellTop": 170,
+        "width": 390,
+        "viewport": 390
+      },
+      "narrow": {
+        "offset": 191,
+        "measured": 191,
+        "shellTop": 191,
+        "width": 320,
+        "viewport": 320
+      },
+      "closed": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 320,
+        "viewport": 320
+      },
+      "landscape": {
+        "offset": 68,
+        "measured": 68,
+        "shellTop": 68,
+        "width": 844,
+        "viewport": 844
+      }
+    },
+    {
+      "history": "95 real UI paragraphs; current/older/future/back/current-page/quick-load/390px",
+      "maximumRendered": 40
+    }
+  ],
+  "errors": [],
+  "physicalDevice": false
+}

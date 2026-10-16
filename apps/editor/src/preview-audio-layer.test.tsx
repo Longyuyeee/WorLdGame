@@ -19,6 +19,23 @@ afterEach(() => {
 });
 
 describe("PreviewAudioLayer", () => {
+  it("mutes before playback and keeps the authored mix when the preview sound preference changes", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function(this: HTMLMediaElement) {
+      expect(this.muted).toBe(true);
+      return Promise.resolve();
+    });
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);
+    const { rerender } = render(<PreviewAudioLayer layer={playingLayer} muted onDecodeError={vi.fn()} />);
+    const audio = screen.getByTestId("preview-audio-bgm") as HTMLAudioElement;
+    await waitFor(() => expect(play).toHaveBeenCalled());
+    fireEvent.canPlay(audio);
+    expect(audio.muted).toBe(true);
+    expect(audio.volume).toBe(0.65);
+    play.mockResolvedValue(undefined);
+    rerender(<PreviewAudioLayer layer={playingLayer} muted={false} onDecodeError={vi.fn()} />);
+    expect(audio.muted).toBe(false);
+    expect(audio.volume).toBe(0.65);
+  });
   it("starts a playable Blob-backed layer and exposes the real playing state", async () => {
     const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockResolvedValue(undefined);
     vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => undefined);

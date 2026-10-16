@@ -12,6 +12,9 @@ const packaged=process.argv.includes('--candidate');
 const archive=await readFile(path.resolve(root,packaged?path.join(output,'before-rain-stops-web.zip'):process.env.STUDIO_SESSION_BASELINE_ARCHIVE??'evidence/web-image-decode/before-rain-stops-web.zip')),files=unzipSync(archive),runtime=await buildPlayerExportRuntime({sourceMap:true});
 const baseline=process.argv.includes('--baseline'),label=packaged?'candidate':baseline?'baseline':'current';
 if(!baseline&&!packaged){files['player.js']=new TextEncoder().encode(runtime.javascript);files['player.css']=new TextEncoder().encode(runtime.css);}
+// For a layout change, keep the old story/version fixed while substituting the
+// exact newly exported offline client. Candidate timing remains a separate run.
+if(!baseline&&!packaged&&process.env.STUDIO_SESSION_CURRENT_ARCHIVE){const current=unzipSync(await readFile(path.resolve(root,process.env.STUDIO_SESSION_CURRENT_ARCHIVE)));for(const name of ['offline.js','offline.css']){assert.ok(current[name]);files[name]=current[name];}}
 const map=sha(files['player.js'])===sha(runtime.javascript)?new SourceMap(runtime.sourceMap):null;
 const server=createServer((req,res)=>{const name=new URL(req.url,'http://local').pathname.slice(1)||'index.html',bytes=files[name];res.writeHead(bytes?200:404,{'Content-Type':{'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.wav':'audio/wav','.svg':'image/svg+xml','.json':'application/json','.webmanifest':'application/manifest+json'}[path.extname(name)]??'application/octet-stream','Cache-Control':'no-store'}).end(bytes??'Missing');});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
@@ -29,7 +32,7 @@ try{
     samples.push({run,readyMs,cpuProfilerAttached:run===0,cpu,telemetry:await page.evaluate(()=>startupTelemetry)});
     if(run===0)await page.screenshot({path:path.join(output,`startup-${label}.png`)});await context.close();
   }
-  assert.deepEqual(errors,[]);await writeFile(path.join(output,`startup-${label}.json`),JSON.stringify({passed:true,label,browser:browser.version(),candidateArchiveSha256:sha(archive),runtimeHash:sha(files['player.js']),samples,errors,scope:'five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark',physicalDevice:false},null,2));
+  assert.deepEqual(errors,[]);await writeFile(path.join(output,`startup-${label}.json`),JSON.stringify({passed:true,label,browser:browser.version(),candidateArchiveSha256:sha(archive),runtimeHash:sha(files['player.js']),offlineClientHash:sha(files['offline.js']),samples,errors,scope:'five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark',physicalDevice:false},null,2));
   console.log(`PASS ${label}: five real ${packaged?'candidate':'fixed-input'} cold title entries`);
 }catch(error){if(current&&!current.isClosed())await current.screenshot({path:path.join(output,`startup-${label}-failure.png`)});await writeFile(path.join(output,`startup-${label}-failure.json`),JSON.stringify({error:String(error),stack:error.stack,samples,errors},null,2));throw error;}
 finally{await browser.close();server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}

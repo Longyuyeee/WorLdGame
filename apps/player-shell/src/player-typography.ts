@@ -1,4 +1,5 @@
 import type { JsonObject, JsonValue } from "@world-studio/project-domain";
+import type { WebPlayerFontSelection } from "@world-studio/project-domain";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
 
 export type PlayerRichTextSegmentV1 =
@@ -59,12 +60,13 @@ function localeScore(asset: JsonObject, locale: string): number {
 export function resolvePlayerTypographyV1(
   locale: string,
   assets: readonly JsonObject[],
-  sources: readonly PlayerMediaAssetSourceV1[]
+  sources: readonly PlayerMediaAssetSourceV1[],
+  selection: WebPlayerFontSelection = "inherit"
 ): PlayerTypographyProfileV1 {
   const normalized = locale.trim() || "und";
   const lower = normalized.toLowerCase();
   const language = lower.split("-")[0] ?? "und";
-  const fallbackStack = language === "ja"
+  const sansStack = language === "ja"
     ? '"Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif'
     : language === "ko"
       ? '"Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif'
@@ -73,6 +75,8 @@ export function resolvePlayerTypographyV1(
         : language === "zh"
           ? '"Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif'
           : '"Noto Sans", Inter, system-ui, sans-serif';
+  const fallbackStack = selection === "serif" ? '"Noto Serif CJK SC", "Source Han Serif SC", "Songti SC", SimSun, serif' : sansStack;
+  const selectedId = selection.startsWith("asset:") ? selection.slice(6) : "";
   const sourcesById = new Map(sources.map((source) => [source.assetId, source]));
   const matched = assets
     .flatMap((asset) => {
@@ -80,7 +84,7 @@ export function resolvePlayerTypographyV1(
       const source = assetId === undefined ? undefined : sourcesById.get(assetId);
       const isFont = stringValue(asset.kind) === "font" || stringValue(asset.mimeType)?.startsWith("font/") === true;
       const score = localeScore(asset, normalized);
-      return source === undefined || !isFont || !source.mimeType.startsWith("font/") || score === 0
+      return selection === "sans" || selection === "serif" || source === undefined || !isFont || !source.mimeType.startsWith("font/") || (selectedId ? source.assetId !== selectedId : score === 0)
         ? []
         : [{ asset, source, score }];
     })

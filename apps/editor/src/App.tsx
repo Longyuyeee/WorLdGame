@@ -235,6 +235,7 @@ import {
 import { createPreviewRenderFrame } from "./preview-render-host";
 import { PreviewCanvasHost } from "./preview-canvas-host";
 import { PreviewAudioLayer } from "./preview-audio-layer";
+import { readPreviewAudioMuted, storePreviewAudioMuted } from "./preview-audio-preference";
 import { deriveDialoguePresentation } from "./dialogue-presentation";
 import { createFormalWebArtifact, createFormalWebDirectoryArtifact, type FormalWebArtifact } from "./formal-web-export";
 import { WebPublicationSettings, readWebPublication } from "./web-publication";
@@ -3280,6 +3281,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
   );
   const [customViewport, setCustomViewport] = useState({ width: 1920, height: 1080 });
   const [showSafeArea, setShowSafeArea] = useState(false);
+  const [previewMuted, setPreviewMuted] = useState(readPreviewAudioMuted);
   const [lastStagePoint, setLastStagePoint] = useState<StageDesignPoint | null>(null);
   const [stageDirectorMessage, setStageDirectorMessage] = useState<string | null>(null);
   const devicePixelRatio = useDevicePixelRatio();
@@ -3724,6 +3726,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
         </select>
         <span>{viewport.width} × {viewport.height}</span>
         <label className="preview-safe-toggle"><input type="checkbox" checked={showSafeArea} onChange={(event) => setShowSafeArea(event.target.checked)} />安全区</label>
+        <label className="preview-safe-toggle" title="只影响本机编辑器预览；会记住选择。"><input type="checkbox" checked={previewMuted} onChange={event => { setPreviewMuted(event.target.checked); storePreviewAudioMuted(event.target.checked); }} />预览静音</label>
       </div>
       {viewportProfileId === "custom" && (
         <div className="preview-custom-size" aria-label="自定义预览尺寸">
@@ -3849,6 +3852,7 @@ function PreviewPanel({ publicationWorkflow, onPublicationWorkflowChange, before
               return <PreviewAudioLayer
                 key={`${layer.bus}:${layer.statementId}:${layer.url}`}
                 layer={{ ...layer, playback }}
+                muted={previewMuted}
                 appliedVolume={galAudioGainV1(
                   settingsApplication,
                   (["bgm", "voice", "sfx", "ambient", "ui"].includes(layer.bus) ? layer.bus : "sfx") as GalAudioBusV1,
@@ -5749,6 +5753,8 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
       <main ref={workspaceGrid} className="workspace-grid" data-workspace-mode={workspaceMode} data-settings-open={settingsOpen}>
         {publishOpen ? <PreviewPanel publicationOnly beforeDeliverySave={async signal => { if (activeSavePromise.current) await activeSavePromise.current; if (signal.aborted) return false; return saveToLocal("manual"); }} deliveryReviewNotes={notesStore.notes} pendingReviewNotes={pendingReviewNotes} onOpenReviewNotes={() => { setReleaseReturnFormat(publicationWorkflow.format); openStudioPage("checks"); }} publicationWorkflow={publicationWorkflow} onPublicationWorkflowChange={setPublicationWorkflow} reviewTrace={reviewTrace} playtestProgress={playtestProgress} onRestartPlaytest={format => { setReleaseReturnFormat(format); restartWorkPlaytest(); }} onReleaseFix={openReleaseFix} onReleaseReview={openReleaseReview} onDraftChange={setPageDirty} session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} assetIndex={assetIndex} assetRepository={assetRepositoryRef.current} canonicalProject={previewCanonicalProject} onRouteTraceChange={receiveRouteTrace} onPublicationChange={applySettingsProject} /> : settingsOpen ? <>
           <SettingsWorkspace
+            assetReader={assetRepositoryRef.current}
+            onOpenAssets={() => setAssetPanelOpen(true)}
             onDraftChange={setPageDirty}
             project={previewCanonicalProject}
             saveStatus={persistence.status}

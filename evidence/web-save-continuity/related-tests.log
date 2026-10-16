@@ -1,0 +1,162 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's play() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/player-shell.test.tsx (80 tests) 19660ms
+     ✓ does not replay held gamepad buttons across title, selection and text-ready renders  474ms
+     ✓ requires neutral after panels, host suspension and gamepad reconnection  316ms
+     ✓ 自动播放 stops on timeout across host suspension and retry requires explicit playback  390ms
+     ✓ 快进全部 stops on timeout across host suspension and retry requires explicit playback  390ms
+     ✓ keeps the archived branch after save, unmount, remount, and load  677ms
+     ✓ waits for actual voice completion plus tail, not estimated duration, and stops at the terminal boundary  435ms
+     ✓ clears its owned timer during Host suspend and only starts a fresh delay after resume  410ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: false)  1152ms
+     ✓ saves and loads a manual Host slot through the formal bridge (summary API: true)  1019ms
+     ✓ requires explicit overwrite confirmation and commits Host-composited preview metadata  566ms
+     ✓ keeps a valid v3 save when preview capture fails  308ms
+     ✓ writes one automatic save per scene identity and exposes the five-slot view  507ms
+     ✓ replaces and loads the fixed quick slot without overwrite confirmation  700ms
+     ✓ persists, lists, and loads an exact build-authored checkpoint without stopping presentation  994ms
+     ✓ writes isolated recovery boundaries and restores them only after an explicit player decision  1590ms
+ ✓ apps/player-shell/src/memory-pressure.test.tsx (12 tests) 8234ms
+   ✓ protects before shrinking, preserves the current line, coalesces pressure and exposes readonly history  1167ms
+   ✓ keeps rollback on write failure and allows the player to retry  785ms
+   ✓ does not shrink a changed story state after a delayed save  789ms
+   ✓ times out safely, ignores late completion, and rejects pressure after unmount  682ms
+   ✓ invalidates an old request when changing projects  621ms
+   ✓ supports a suspended host without resuming it, and does not notify another mounted player  1215ms
+   ✓ does not compact below the moderate window and validates notification values  622ms
+   ✓ does not remove history when the resource owner fails to release  464ms
+   ✓ ignores a saved protection result after unmount  447ms
+   ✓ does not write an old proposal when reading advances during background preparation  541ms
+   ✓ terminates background preparation on timeout and ignores late success  455ms
+   ✓ terminates background preparation on unmount and ignores late success  446ms
+ ✓ apps/player-shell/src/background-save-notice.test.tsx (3 tests) 1129ms
+   ✓ shows a persistent nonmodal failure and lets the player save current progress manually  598ms
+   ✓ does not replace an active manual write status when an earlier background write fails  380ms
+ ✓ apps/player-shell/src/deferred-checkpoint.test.tsx (4 tests) 815ms
+   ✓ lets reading continue and writes only the earlier exact checkpoint, once  391ms
+ ✓ apps/player-shell/src/foreground-session-client.test.ts (27 tests) 181ms
+ ✓ apps/player-shell/src/recovery-session-client.test.ts (15 tests) 120ms
+ ✓ apps/player-shell/src/pooled-session-client.test.ts (8 tests) 93ms
+
+ Test Files  7 passed (7)
+      Tests  149 passed (149)
+   Start at  13:27:16
+   Duration  44.17s (transform 1.90s, setup 1.38s, import 5.17s, tests 30.23s, environment 5.63s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-save-continuity/related-tests.json

@@ -1,0 +1,163 @@
+{
+  "passed": true,
+  "label": "current",
+  "priorCommit": null,
+  "baselineSourceSnapshot": "evidence/web-load-responsiveness/baseline-sources.json",
+  "formalStyle": true,
+  "cssHash": "44c2f46aa8dce73fb7bbd3700ba9389ce0cfd3f04cbd42e2e7b04ad554400ab1",
+  "fixtureSourceHash": "756fa03e7cf60fb550cbd7c26dd000559aa9e5f2c4a9ea9517bb13ececa0a415",
+  "bundleHash": "b71a019117b7f80cc070d89d536d8dd404356d06a9d149738f78fdb6cef8c1a6",
+  "browser": "151.0.7922.34",
+  "rows": [
+    {
+      "count": 120,
+      "historyLength": 120,
+      "savedHash": "1f0a07d54e426ba018faa84f8d93a2b7ea5adfd09c8ce2b4353c569a8f5307a5",
+      "advancedHash": "03b5e298e4ff3c30a2d6b0eb296cd3957e9fffb2c527a71f0084e4f2db98c05d",
+      "loadedHash": "f1267bf34d9712fb662505b0257ffa810bd3d4e2d44a321f7d0e3b9f5138beee"
+    },
+    {
+      "count": 240,
+      "historyLength": 240,
+      "savedHash": "92df689430d80ee954c1ee51da0228e7d37cc4d47ba4338768921620b7d2e049",
+      "advancedHash": "d5f4e84961a9c1e78e8b8bcf0fbc653b4122166359dec0f1c4a6ed03464f9403",
+      "loadedHash": "393dba0f287f1b01b03da030e8b5b2fe04346a45149eab180dc032c80eaf3008"
+    },
+    {
+      "count": 480,
+      "historyLength": 480,
+      "savedHash": "4a021baf224c0d9f9c0e33fed05b8a4e935a8920fe9958469df298126aa40825",
+      "advancedHash": "b1a1d80ccf0f63d5447dbd15b34687a54123baafb0c386d28c83bea18e74482c",
+      "loadedHash": "f5df6f6cc2dc62b1b0aba3bc7d2e8787910fe6ae789d7fc7c8eba6132ce6560e"
+    }
+  ],
+  "operations": [
+    {
+      "name": "120-quick-save",
+      "wallMs": 141.8999999910593,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 22.600000008940697
+    },
+    {
+      "name": "120-advance",
+      "wallMs": 81.70000000298023,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 26.099999994039536
+    },
+    {
+      "name": "120-quick-load",
+      "wallMs": 309.80000001192093,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 6850.20000000298,
+          "duration": 76.79999999701977
+        },
+        {
+          "start": 6948.20000000298,
+          "duration": 88.09999999403954
+        }
+      ],
+      "maximumHeartbeatGapMs": 30.600000008940697
+    },
+    {
+      "name": "240-quick-save",
+      "wallMs": 189.29999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 28.299999997019768
+    },
+    {
+      "name": "240-advance",
+      "wallMs": 72.6000000089407,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 30.599999994039536
+    },
+    {
+      "name": "240-quick-load",
+      "wallMs": 306.5,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 16380.79999999702,
+          "duration": 64.70000000298023
+        }
+      ],
+      "maximumHeartbeatGapMs": 22.69999998807907
+    },
+    {
+      "name": "480-quick-save",
+      "wallMs": 358.79999999701977,
+      "longTasks": [],
+      "longFrames": [],
+      "maximumHeartbeatGapMs": 59
+    },
+    {
+      "name": "480-advance",
+      "wallMs": 110.79999999701977,
+      "longTasks": [
+        {
+          "start": 40031.79999999702,
+          "duration": 56
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 40029.70000000298,
+          "duration": 60.29999999701977
+        }
+      ],
+      "maximumHeartbeatGapMs": 59.69999998807907
+    },
+    {
+      "name": "480-quick-load",
+      "wallMs": 526.2999999970198,
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 40226.39999999106,
+          "duration": 77.1000000089407
+        },
+        {
+          "start": 40313.89999999106,
+          "duration": 61.20000000298023
+        }
+      ],
+      "maximumHeartbeatGapMs": 47.8999999910593
+    }
+  ],
+  "errors": [],
+  "workerLifetime": {
+    "created": 3,
+    "terminated": 1,
+    "live": 2,
+    "peakLive": 2
+  },
+  "workersAfterPressure": {
+    "created": 4,
+    "terminated": 4,
+    "live": 0,
+    "peakLive": 2
+  },
+  "workersAfterUnmount": {
+    "created": 4,
+    "terminated": 4,
+    "live": 0,
+    "peakLive": 2
+  },
+  "foregroundSerializer": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 8,
+    "completed": 8,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "scope": "synthetic text, real UI/IndexedDB; public host pressure notification, not physical memory; no injected history, media or forced GC",
+  "physicalDevice": false,
+  "twoHourSoakPassed": false
+}

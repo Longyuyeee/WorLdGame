@@ -1,9 +1,10 @@
 import type { RefObject } from 'react';
-import type { WebCredits } from '@world-studio/project-domain';
+import type { WebCredits, WebPlayerSkin } from '@world-studio/project-domain';
+import { playerScreenProps } from './player-screen-skin';
 import './player-credits.css';
 
-export function PlayerCreditsPanel({ credits, title, panel, close }: { credits: WebCredits; title: string; panel: RefObject<HTMLDivElement | null>; close: () => void }) {
-  return <div ref={panel} className="player-preferences player-credits" role="dialog" aria-modal="true" aria-labelledby="player-credits-heading">
+export function PlayerCreditsPanel({ credits, title, panel, close, skin }: { credits: WebCredits; title: string; panel: RefObject<HTMLDivElement | null>; close: () => void; skin?: WebPlayerSkin | undefined }) {
+  return <div {...playerScreenProps(skin, 'credits')} ref={panel} className="player-preferences player-credits" role="dialog" aria-modal="true" aria-labelledby="player-credits-heading">
     <header><div><span className="player-credits__eyebrow">{title}</span><h2 id="player-credits-heading">制作名单与致谢</h2></div><button type="button" onClick={close}>返回游戏</button></header>
     {credits.studio && <h3 className="player-credits__studio">{credits.studio}</h3>}
     {credits.website && <a className="player-credits__website" href={credits.website} target="_blank" rel="noopener noreferrer">访问作品网站 ↗</a>}

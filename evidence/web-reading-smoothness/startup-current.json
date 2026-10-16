@@ -1,0 +1,234 @@
+{
+  "passed": true,
+  "label": "current",
+  "browser": "151.0.7922.34",
+  "candidateArchiveSha256": "740c77522cf12e70cdf48989fa2e217c7c3bfe363ca5d178223e40cf8fb5ab22",
+  "runtimeHash": "c5a5ac50a6b206bc2312d89ba0ef6f2df2e6a9d966849cac781597a00de7fe25",
+  "offlineClientHash": "3c03eb9e70e4cb515c889f1671dcdb00401c20a98a81b97b3861fb6afd4ca7e0",
+  "samples": [
+    {
+      "run": 0,
+      "readyMs": 234.20000000298023,
+      "cpuProfilerAttached": true,
+      "cpu": [
+        {
+          "location": "(program) ",
+          "sampledMs": 77.76499999999999
+        },
+        {
+          "location": "(idle) ",
+          "sampledMs": 69.06200000000001
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:126 ",
+          "sampledMs": 7.902
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:27 g",
+          "sampledMs": 7.077
+        },
+        {
+          "location": "(garbage collector) ",
+          "sampledMs": 6.996
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:30 Ke",
+          "sampledMs": 6.111
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:4333 vo",
+          "sampledMs": 4.963
+        },
+        {
+          "location": "(anonymous) http://127.0.0.1:6451/player.js",
+          "sampledMs": 4.529
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:3 m",
+          "sampledMs": 3.665
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:13346 Pd",
+          "sampledMs": 3.348
+        },
+        {
+          "location": "InjectedScript ",
+          "sampledMs": 3.178
+        },
+        {
+          "location": "../../../packages/project-domain/src/sha256.ts:4 We",
+          "sampledMs": 3.0300000000000002
+        },
+        {
+          "location": "../../../packages/project-compiler/src/canonical-json.ts:13 h",
+          "sampledMs": 2.718
+        },
+        {
+          "location": "computeAccessibleNameComposite ",
+          "sampledMs": 1.722
+        },
+        {
+          "location": "../../../node_modules/scheduler/index.js:4 ",
+          "sampledMs": 1.721
+        },
+        {
+          "location": "../src/player-save-store.ts:327 Ku",
+          "sampledMs": 1.715
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:160 cn",
+          "sampledMs": 1.702
+        },
+        {
+          "location": "../src/use-player-collection.ts:11 Lo",
+          "sampledMs": 1.662
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:3793 b",
+          "sampledMs": 1.644
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:8571 Ic",
+          "sampledMs": 1.643
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:134 at",
+          "sampledMs": 1.634
+        },
+        {
+          "location": "../../../packages/project-domain/src/web-save-compatibility.ts:66 ",
+          "sampledMs": 1.631
+        },
+        {
+          "location": "isElementHiddenForAria ",
+          "sampledMs": 1.625
+        },
+        {
+          "location": "../../../packages/project-domain/src/codec.ts:123 et",
+          "sampledMs": 1.624
+        },
+        {
+          "location": "../../../packages/runtime/src/canonical.ts:81 bn",
+          "sampledMs": 1.622
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:7392 Ec",
+          "sampledMs": 1.612
+        },
+        {
+          "location": "../../../node_modules/react-dom/cjs/react-dom-client.production.js:11966 ad",
+          "sampledMs": 1.61
+        },
+        {
+          "location": "queryAll ",
+          "sampledMs": 1.609
+        },
+        {
+          "location": "../src/PlayerShell.tsx:1446 n",
+          "sampledMs": 1.608
+        },
+        {
+          "location": "../../../packages/project-compiler/src/compiler.ts:343 fn",
+          "sampledMs": 1.606
+        }
+      ],
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 52.79999999701977,
+            "duration": 69
+          }
+        ],
+        "frames": [
+          {
+            "start": 19.700000002980232,
+            "duration": 151.59999999403954
+          }
+        ]
+      }
+    },
+    {
+      "run": 1,
+      "readyMs": 231,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 76,
+            "duration": 65
+          }
+        ],
+        "frames": [
+          {
+            "start": 76,
+            "duration": 88.70000000298023
+          }
+        ]
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 232.5,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 78.59999999403954,
+            "duration": 67
+          }
+        ],
+        "frames": [
+          {
+            "start": 78.59999999403954,
+            "duration": 91.1000000089407
+          }
+        ]
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 214.80000001192093,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 73.90000000596046,
+            "duration": 58
+          }
+        ],
+        "frames": [
+          {
+            "start": 36.400000005960464,
+            "duration": 119.09999999403954
+          }
+        ]
+      }
+    },
+    {
+      "run": 4,
+      "readyMs": 214.8999999910593,
+      "cpuProfilerAttached": false,
+      "cpu": null,
+      "telemetry": {
+        "tasks": [
+          {
+            "start": 74.59999999403954,
+            "duration": 55
+          }
+        ],
+        "frames": [
+          {
+            "start": 36.8999999910593,
+            "duration": 116.80000001192093
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "scope": "five fresh desktop contexts, title visible and enabled; first profiled; no CPU throttle or forced GC, not a device or statistical benchmark",
+  "physicalDevice": false
+}

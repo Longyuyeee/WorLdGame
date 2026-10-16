@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-16",
+  "scope": "Web title/reading customization, four font roles, skin configuration reuse, first UI/text motions",
+  "testGroups": [
+    {
+      "report": "initial-tests.json",
+      "success": true,
+      "tests": 83,
+      "passed": 83
+    },
+    {
+      "report": "focused-tests-final.json",
+      "success": true,
+      "tests": 16,
+      "passed": 16
+    },
+    {
+      "report": "preview-fix-tests.json",
+      "success": true,
+      "tests": 5,
+      "passed": 5
+    }
+  ],
+  "distinctTests": 96,
+  "allPassed": true,
+  "typecheck": "passed",
+  "editorBuild": "passed",
+  "playerBuild": "passed",
+  "artifactChecks": "artifact-checks.json",
+  "browserWalkthrough": "browser-walkthrough.json",
+  "silentTests": true,
+  "editorCurrentVersionEndingProgress": "0/2; not rerun after appearance/version changes",
+  "independentDirectoryGameEndings": "2/2",
+  "notRun": [
+    "Full repository audits and performance suites",
+    "Direct file:// execution of downloaded single HTML",
+    "Physical phone/Safari",
+    "Long session/long-story performance",
+    "Natural reading and audio review",
+    "Public deployment"
+  ],
+  "firstFailuresAndFixes": [
+    "Range output shared an accessible label; replaced with aria-hidden span",
+    "Font test matched multiple selectors; scoped to body font role",
+    "Actual choice preview loop had no reachable ending; isolated ending added with formal compile/runtime regression",
+    "Intermediate preview statement type inference fixed before final build"
+  ]
+}

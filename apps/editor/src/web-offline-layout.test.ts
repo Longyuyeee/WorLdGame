@@ -1,26 +1,47 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { addWebOfflineFiles } from './web-offline-export';
-it('budgets version and offline controls before protocol guards and after resize/toggle', () => {
+function fixture() {
   const files: Record<string, Uint8Array> = { 'index.html': new TextEncoder().encode('<html><head></head><body><div id="player-root"></div></body></html>') };
   addWebOfflineFiles(files, '作品');
-  const html = new TextDecoder().decode(files['index.html']);
-  expect(html).toContain('<body style="--player-viewport-offset:68px"><details');
-  document.body.innerHTML = new DOMParser().parseFromString(html, 'text/html').body.innerHTML;
-  const panel = document.getElementById('offline-panel')!, version = document.getElementById('world-publication-version')!;
-  let height = 44, resized = () => {}, mutated = () => {};
-  panel.getBoundingClientRect = () => ({ height } as DOMRect);
-  version.getBoundingClientRect = () => ({ height: 24 } as DOMRect);
+  const doc = new DOMParser().parseFromString(new TextDecoder().decode(files['index.html']), 'text/html');
+  return { doc, panel: doc.getElementById('offline-panel')!, version: doc.getElementById('world-publication-version')!, script: new TextDecoder().decode(files['offline.js']) };
+}
+
+it('uses border-box delivery without forcing startup layout; expansion, wrapping and rotation preserve the viewport budget', () => {
+  const { doc, panel, version, script } = fixture();
+  let resized: ResizeObserverCallback = () => {};
   const observed: Element[] = [];
-  class Observer { constructor(callback: () => void) { resized = callback; } observe(element: Element) { observed.push(element); } }
-  const toggleObserved: unknown[] = [];
-  class ToggleObserver { constructor(callback: () => void) { mutated = callback; } observe(element: Element, options: MutationObserverInit) { toggleObserved.push(element, options); } }
-  new Function('document', 'window', 'ResizeObserver', 'MutationObserver', 'location', new TextDecoder().decode(files['offline.js']))(document, window, Observer, ToggleObserver, { protocol: 'file:' });
-  expect(document.body.style.getPropertyValue('--player-viewport-offset')).toBe('68px');
-  expect(observed).toEqual([panel, version]); expect(document.getElementById('offline-action')!.hidden).toBe(true);
-  expect(toggleObserved).toEqual([panel, { attributes: true, attributeFilter: ['open'] }]);
-  height = 192; mutated(); expect(document.body.style.getPropertyValue('--player-viewport-offset')).toBe('216px');
-  panel.dispatchEvent(new Event('toggle'));
-  expect(document.body.style.getPropertyValue('--player-viewport-offset')).toBe('216px');
-  height = 64; resized(); expect(document.body.style.getPropertyValue('--player-viewport-offset')).toBe('88px');
-  height = 44; window.dispatchEvent(new Event('resize')); expect(document.body.style.getPropertyValue('--player-viewport-offset')).toBe('68px');
+  class Observer { constructor(callback: ResizeObserverCallback) { resized = callback; } observe(element: Element) { observed.push(element); } }
+  const measure = vi.fn(() => { throw Error('Forced layout'); });
+  panel.getBoundingClientRect = measure; version.getBoundingClientRect = measure;
+  const writes = vi.spyOn(doc.body.style, 'setProperty');
+  new Function('document', 'window', 'ResizeObserver', 'location', script)(doc, { addEventListener: vi.fn() }, Observer, { protocol: 'file:' });
+  expect(observed).toEqual([panel, version]);
+  expect(doc.body.style.getPropertyValue('--player-viewport-offset')).toBe('68px');
+  expect(doc.getElementById('offline-action')!.hidden).toBe(true);
+  const resize = (rows: [Element, number][]) => resized(rows.map(([target, blockSize]) => ({ target, borderBoxSize: [{ blockSize }] })) as unknown as ResizeObserverEntry[], {} as ResizeObserver);
+  resize([[panel, 44]]); expect(writes).not.toHaveBeenCalled();
+  resize([[version, 24]]); expect(writes).not.toHaveBeenCalled();
+  resize([[panel, 192.2]]); expect(doc.body.style.getPropertyValue('--player-viewport-offset')).toBe('217px');
+  resize([[panel, 192.2]]); expect(writes).toHaveBeenCalledTimes(1);
+  resize([[panel, 64], [version, 40]]); expect(doc.body.style.getPropertyValue('--player-viewport-offset')).toBe('104px');
+  resize([[panel, 44], [version, 24]]); expect(doc.body.style.getPropertyValue('--player-viewport-offset')).toBe('68px');
+  expect(measure).not.toHaveBeenCalled();
+});
+
+it('coalesces resize and toggle measurement for hosts without ResizeObserver', () => {
+  const { doc, panel, version, script } = fixture();
+  let frame: FrameRequestCallback = () => {}, resized = () => {}, mutated = () => {}, height = 44;
+  const schedule = vi.fn((callback: FrameRequestCallback) => { frame = callback; return 1; });
+  panel.getBoundingClientRect = vi.fn(() => ({ height } as DOMRect));
+  version.getBoundingClientRect = () => ({ height: 24 } as DOMRect);
+  class ToggleObserver { constructor(callback: () => void) { mutated = callback; } observe() {} }
+  const host = { requestAnimationFrame: schedule, addEventListener: (type: string, callback: () => void) => { if (type === 'resize') resized = callback; } };
+  new Function('document', 'window', 'ResizeObserver', 'MutationObserver', 'location', script)(doc, host, undefined, ToggleObserver, { protocol: 'file:' });
+  expect(panel.getBoundingClientRect).not.toHaveBeenCalled();
+  height = 192; mutated(); resized(); panel.dispatchEvent(new Event('toggle'));
+  expect(schedule).toHaveBeenCalledTimes(1); frame(0);
+  expect(doc.body.style.getPropertyValue('--player-viewport-offset')).toBe('216px');
+  height = 44; resized(); frame(16);
+  expect(doc.body.style.getPropertyValue('--player-viewport-offset')).toBe('68px');
 });

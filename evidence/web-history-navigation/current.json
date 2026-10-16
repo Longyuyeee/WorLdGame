@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "label": "current",
+  "browser": "151.0.7922.34",
+  "bundleHash": "b10791b464162ee2d68ea4d16d7c31d0e92726611a55a329cb1b8db3f152ca11",
+  "cssHash": "c865aca6a780daeaee2ae5c715ccdc6d3562f081556da4a6ae89e8f40f07eb91",
+  "before": {
+    "hash": "649965e5f994cabefefbdd2eece93ad1a755524b3cd54ef622e88e5cfdf437b2",
+    "text": "长篇第 119 句：保存与恢复不能丢失历史。"
+  },
+  "navigated": {
+    "hash": "e99b7752a53284b438de234633e2951fabdf824fd3eb91072de66494fd4954b9",
+    "hostHash": "99a4ea0d1d3bc903c57ca3a168cb8b25316faefaebb1a77f096e760921c4395c",
+    "cursor": 21
+  },
+  "compactedCursor": "64",
+  "restoredCursor": 120,
+  "foreground": {
+    "active": 0,
+    "peakActive": 1,
+    "started": 4,
+    "completed": 4,
+    "cancelled": 0,
+    "fallback": 0,
+    "failed": 0
+  },
+  "operations": [
+    {
+      "name": "120-to-21-history-back",
+      "wallMs": 93.5,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 49.900000005960464
+    },
+    {
+      "name": "120-critical-protection",
+      "wallMs": 116.5,
+      "longTasks": [],
+      "maximumHeartbeatGapMs": 17.299999997019768
+    }
+  ],
+  "errors": [],
+  "physicalMemoryPressure": false,
+  "physicalDevice": false
+}

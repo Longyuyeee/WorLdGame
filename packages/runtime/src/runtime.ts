@@ -43,7 +43,7 @@ function finiteScalar(value: unknown): value is RuntimeScalar {
 }
 
 function sortedUniqueIds(value: unknown): value is readonly string[] {
-  return Array.isArray(value) && value.length <= MAX_META_PROGRESS_IDS_PER_DOMAIN && value.every((item) => typeof item === "string" && canonicalId.test(item)) && value.every((item, index) => index === 0 || String(value[index - 1]) < item);
+  return Array.isArray(value) && value.length <= MAX_META_PROGRESS_IDS_PER_DOMAIN && value.every((item, index) => typeof item === "string" && canonicalId.test(item) && (index === 0 || String(value[index - 1]) < item));
 }
 
 function validRecord(value: unknown): value is Readonly<Record<string, unknown>> {

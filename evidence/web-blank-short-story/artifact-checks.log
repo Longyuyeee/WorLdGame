@@ -1,0 +1,81 @@
+{
+  "scope": "Downloaded artifact integrity and content checks; browser walkthrough recorded separately.",
+  "passed": true,
+  "title": "给明天的回信",
+  "projectId": "project_a0f93d5ea60cad1fb662",
+  "version": "0.1.0",
+  "scenes": [
+    {
+      "title": "候车室的来信",
+      "steps": 21,
+      "prose": 16
+    },
+    {
+      "title": "留下的灯",
+      "steps": 18,
+      "prose": 15
+    },
+    {
+      "title": "寄往远方",
+      "steps": 19,
+      "prose": 15
+    }
+  ],
+  "proseParagraphs": 46,
+  "proseCharactersWithPunctuation": 1552,
+  "choices": [
+    {
+      "prompt": "这一封回信，你想怎样写下？",
+      "options": [
+        {
+          "id": "option_ui_95",
+          "label": "留下来，把今晚写完",
+          "targetSceneId": "scene_37805e90104740d0"
+        },
+        {
+          "id": "option_ui_96",
+          "label": "带上信，去下一座城市",
+          "targetSceneId": "scene_7047edf88b1c4dc4"
+        }
+      ]
+    }
+  ],
+  "endings": [
+    "有人等你回来",
+    "把明天写进信里"
+  ],
+  "assets": 6,
+  "appearance": {
+    "accent": "teal",
+    "coverAssetId": "station_night_v2",
+    "schemaVersion": 1,
+    "theme": "paper",
+    "titleTagline": "不必先成为理想中的大人，也可以给明天写一封信。"
+  },
+  "validatedSiteFiles": 17,
+  "sameProjectInBothGameFormats": true,
+  "deliveryGameEqualsStandaloneHtml": true,
+  "deliverySourceEqualsStandaloneProject": true,
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.1.0.html",
+      "bytes": 14804170,
+      "sha256": "38ac2df936052f260b95ed68abb376e3d3c438a3eb70d36ea449120b926c519d"
+    },
+    {
+      "name": "tomorrow-letter-0.1.0-project.zip",
+      "bytes": 10561946,
+      "sha256": "ad3c62eae37dbe90782ddd49827a8dccaff656be857d836f7bdb04cea72451ca"
+    },
+    {
+      "name": "tomorrow-letter-0.1.0-web.zip",
+      "bytes": 11340420,
+      "sha256": "92dc0980385bbffe2d88be48cefed0389c970ac78a6b3e3d3d7d95dbb19ae157"
+    },
+    {
+      "name": "tomorrow-letter-0.1.0-production.zip",
+      "bytes": 25376759,
+      "sha256": "d658f9b35af5e6380377f32f3e710d3d49b2a3786aad6a950bbeea6a121e6284"
+    }
+  ]
+}

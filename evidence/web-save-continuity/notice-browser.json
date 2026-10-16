@@ -1,0 +1,55 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "bundleHash": "9a0aef56f18f40e02033dcb043bb0cd314eb2c69147744c31e23355c2700edb9",
+  "cssHash": "42520dc0c9a5510b9b00313b1957ac11a60ba5acc6b9701ba026050d66ec0c61",
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "bounds": {
+        "x": 14,
+        "y": 76,
+        "width": 292,
+        "height": 160.59375
+      },
+      "savedHash": "baf06c53526890ad3a7600d72183d5e5b8481586388c4f17c544fedb4217f8cf",
+      "nativeManualSave": true,
+      "readingContinued": true
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "bounds": {
+        "x": 14,
+        "y": 76,
+        "width": 520,
+        "height": 139.796875
+      },
+      "savedHash": "baf06c53526890ad3a7600d72183d5e5b8481586388c4f17c544fedb4217f8cf",
+      "nativeManualSave": true,
+      "readingContinued": true
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "bounds": {
+        "x": 14,
+        "y": 76,
+        "width": 520,
+        "height": 139.796875
+      },
+      "savedHash": "baf06c53526890ad3a7600d72183d5e5b8481586388c4f17c544fedb4217f8cf",
+      "nativeManualSave": true,
+      "readingContinued": true
+    }
+  ],
+  "errors": [],
+  "scope": "actual UI/native Worker/IndexedDB; public host store fault for auto writes only; viewport simulation, not physical devices"
+}

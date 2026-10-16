@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it, vi } from "vitest";
-import { canonicalRuntimeBytes, canonicalRuntimeEncoding, canonicalRuntimeStringify, utf8Encode } from "./canonical";
+import { canonicalRuntimeBytes, canonicalRuntimeEncoding, canonicalRuntimeStringify, utf8Encode, withCanonicalRuntimeStringCache } from "./canonical";
 import { sha256Hex } from "./sha256";
 
 // Independent scalar-order oracle: JS default sort uses UTF-16, not code points.
@@ -18,7 +18,60 @@ function reference(value: unknown): string {
 }
 
 describe("canonical allocation optimization compatibility", () => {
+  it.each(['missing', 'restricted'] as const)('keeps strict portable UTF-8 encoding when the native encoder is %s', async mode => {
+    vi.stubGlobal('TextEncoder', mode === 'missing' ? undefined : function() { throw Error('restricted'); });
+    try {
+      vi.resetModules();
+      const { utf8Encode: portable } = await import('./canonical');
+      for (const text of ['', 'ASCII\0"\\', '中文😀é', '\u007f\u0080\u07ff\u0800\uffff𐀀']) {
+        expect(Buffer.from(portable(text))).toEqual(Buffer.from(text, 'utf8'));
+      }
+      for (const text of ['e\u0301', '\ud800', '\udfff']) expect(() => portable(text)).toThrow(TypeError);
+    } finally { vi.unstubAllGlobals(); }
+  });
+  it("reuses only primitive quotes within a validation and reencodes changed records", () => {
+    const quote = vi.spyOn(JSON, "stringify");
+    try {
+      withCanonicalRuntimeStringCache(() => {
+        const value = { key: "中文😀", entries: ["text.1", "text.2"] };
+        const first = canonicalRuntimeEncoding(value), calls = quote.mock.calls.length;
+        expect(canonicalRuntimeEncoding(value)).toEqual(first);
+        expect(quote.mock.calls.length).toBe(calls);
+        value.entries[0] = "changed";
+        expect(canonicalRuntimeStringify(value)).toBe(reference(value));
+        expect(() => canonicalRuntimeStringify({ ...value, invalid: undefined })).toThrow(TypeError);
+        expect(() => canonicalRuntimeEncoding({ value: "\n\u0301" })).toThrow(TypeError);
+      });
+    } finally { quote.mockRestore(); }
+  });
+
+  it("restores nested scopes and discards quotes after successful or failed validation", () => {
+    const quote = vi.spyOn(JSON, "stringify");
+    try {
+      withCanonicalRuntimeStringCache(() => {
+        canonicalRuntimeStringify("outer"); const first = quote.mock.calls.length;
+        expect(() => withCanonicalRuntimeStringCache(() => { canonicalRuntimeStringify("outer"); throw Error("stop"); })).toThrow("stop");
+        expect(quote.mock.calls.length).toBe(first + 1);
+        canonicalRuntimeStringify("outer"); expect(quote.mock.calls.length).toBe(first + 1);
+      });
+      const first = quote.mock.calls.length;
+      canonicalRuntimeStringify("outer"); expect(quote.mock.calls.length).toBe(first + 1);
+    } finally { quote.mockRestore(); }
+  });
+
+  it("bounds scoped primitive retention and still encodes strings beyond either bound", () => {
+    withCanonicalRuntimeStringCache(() => {
+      const values = Array.from({ length: 600 }, (_, index) => `value.${index}.${"x".repeat(400)}`);
+      expect(canonicalRuntimeStringify(values)).toBe(reference(values));
+      expect(canonicalRuntimeStringify(values)).toBe(reference(values));
+      expect(() => canonicalRuntimeStringify({ ["e\u0301"]: 1 })).toThrow(TypeError);
+      expect(() => canonicalRuntimeStringify(["\ud800"])).toThrow(TypeError);
+    });
+  });
+
   it("retains scalar key order, nested serialization and SHA-256 bytes", () => {
+    const bmpOnly = { "\uffff": true, "\ue000": false, "中文": 1, "é": 2, z: 3, a: 4 };
+    expect(canonicalRuntimeStringify(bmpOnly)).toBe(reference(bmpOnly));
     const keys = ["", "a", "aa", "a😀", "é", "中文", "\ue000", "\uffff", "𐀀", "😀", "😀a", "🧪", "\"\\\n"];
     for (let offset = 0; offset < keys.length; offset++) {
       const value = Object.fromEntries(keys.map((_, i) => [keys[(i + offset) % keys.length]!, { sequence: i, text: "中文😀\u0000é", list: [null, true, false, -0, Number.MAX_SAFE_INTEGER] }]));
@@ -42,6 +95,7 @@ describe("canonical allocation optimization compatibility", () => {
   });
 
   it("still rejects noncanonical values rather than silently repairing them", () => {
+    for (const value of [0, true, null, {}, ["ascii"]]) expect(() => utf8Encode(value as unknown as string)).toThrow(TypeError);
     for (const value of ["e\u0301", "\ud800", "\udfff", "a\ud800b"]) {
       expect(() => utf8Encode(value)).toThrow(TypeError);
       expect(() => canonicalRuntimeStringify(value)).toThrow(TypeError);
@@ -85,9 +139,10 @@ describe("canonical allocation optimization compatibility", () => {
     const normalize = vi.spyOn(String.prototype, "normalize");
     try {
       expect(canonicalRuntimeStringify(value)).toBe(reference(value));
-      for (const text of ["text", "status", "中文😀é", "ready"]) {
+      for (const text of ["中文😀é"]) {
         expect(normalize.mock.contexts.map(String).filter(context => context === text)).toHaveLength(1);
       }
+      for (const text of ["text", "status", "ready"]) expect(normalize.mock.contexts.map(String)).not.toContain(text);
     } finally { normalize.mockRestore(); }
     // No mutable object is memoized, even when a getter changes during a call.
     let reads = 0;

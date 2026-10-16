@@ -1,0 +1,17 @@
+
+ RUN  v4.1.10 E:/Project/AIProject/ClaudeProject/WorLdGame
+
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's pause() method
+Not implemented: HTMLMediaElement's load() method
+Not implemented: HTMLMediaElement's load() method
+ ✓ apps/player-shell/src/mount-player.test.tsx (9 tests) 2200ms
+     ✓ suspends synchronously for pagehide and respects host/visibility ceilings on pageshow  592ms
+     ✓ reports actual voice waiting as active and suspends it through the host API  550ms
+
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+   Start at  16:38:30
+   Duration  10.45s (transform 3.13s, setup 430ms, import 6.08s, tests 2.20s, environment 1.37s)
+
+JSON report written to E:/Project/AIProject/ClaudeProject/WorLdGame/evidence/web-player-pages/mount-current-tests.json

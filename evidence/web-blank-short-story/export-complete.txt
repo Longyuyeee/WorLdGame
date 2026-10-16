@@ -1,0 +1,94 @@
+- banner:
+  - generic: W
+  - strong: WorLd Studio
+  - generic "项目菜单":
+    - heading "给明天的回信" [level=1]
+  - generic "编辑器设置":
+    - generic: 编辑器设置
+  - generic "脚本历史":
+    - button "撤销" [disabled]: ↶
+    - button "重做" [disabled]: ↷
+    - generic: 修改已同步
+    - button "备份 5/5"
+    - button "已保存 · s32"
+- navigation "主要功能":
+  - button "故事":
+    - generic: 故事
+  - button "素材":
+    - generic: 素材
+  - button "游戏外观":
+    - generic: 游戏外观
+  - button "检查":
+    - generic: 检查
+  - button "发布":
+    - generic: 发布
+- main:
+  - complementary "发布游戏":
+    - paragraph: 让故事与更多人相遇
+    - heading "发布游戏" [level=2]
+    - paragraph: 完成作品信息，选择导出方式，将你的故事交给玩家。
+    - navigation "发布流程":
+      - button "1 作品信息":
+        - generic: "1"
+        - strong: 作品信息
+      - button "2 导出方式":
+        - generic: "2"
+        - strong: 导出方式
+      - button "3 生成游戏":
+        - generic: "3"
+        - strong: 生成游戏
+      - button "4 试玩与部署":
+        - generic: "4"
+        - strong: 试玩与部署
+    - region "生成可运行的游戏":
+      - heading "检查当前作品并生成游戏" [level=3]
+      - paragraph: 自动核对故事和源文件，发现问题后可以直接定位修复。
+      - strong: 给明天的回信
+      - generic: 0.1.0 · Web · 网页目录 ZIP
+      - term: 故事场景
+      - definition: 3 个
+      - term: 创作素材
+      - definition: 6 项
+      - term: 运行方式
+      - definition: 离线可运行
+      - region "许可与上线准备":
+        - heading "许可与上线准备" [level=3]
+        - paragraph: 6 项素材 · 0 项已记录依据并匹配署名 · 6 项仍待处理
+        - paragraph: 游戏可以继续导出用于本地验证；生成成功不代表素材已获授权或公网已验收。来源依据、联系人等内部信息不会进入玩家游戏。
+        - button "核对素材来源"
+        - button "下载发布准备清单（内部）"
+        - generic "接下来如何部署和验收"
+      - region "生成前检查":
+        - heading "故事与素材检查通过" [level=4]
+        - paragraph: 6 项素材已核对源文件、大小和摘要
+        - button "重新检查"
+        - generic: 生成时会再次核对文件；此检查不代表素材许可、分支、阅读节奏和配音已经确认，也不代表网站已上线。
+      - region "结局试玩进度":
+        - heading "结局试玩进度" [level=3]
+        - strong: 当前版本已从开头到达 0 / 2 个结局
+        - paragraph: 从开头运行到结局后会自动记录，刷新或重开工程后仍可查看。
+        - progressbar "已到达结局数量"
+        - button "从头试玩当前版本"
+        - button "查看路线"
+        - generic "查看结局进度 · 2 个待试玩"
+        - generic "备份或合并试玩进度"
+        - generic: 这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。平时保存在本浏览器，换机前请备份。
+      - button "← 导出方式"
+      - button "构建目录 ZIP": ↗ 导出游戏
+      - button "继续：试玩与部署 →"
+    - complementary "游戏导出结果":
+      - generic: ✓
+      - heading "游戏已生成" [level=3]
+      - paragraph: 可以下载并试玩。文件还未上传到网站。
+      - generic: ▤
+      - strong: 给明天的回信-web.zip
+      - term: 文件大小
+      - definition: 10.8 MiB
+      - term: 格式
+      - definition: 目录 ZIP
+      - link "下载游戏" [active]:
+        - /url: blob:http://127.0.0.1:5196/ea57d3b1-8fc7-4fe8-84fd-c17776785efb
+      - generic: 修改工程后，需要重新生成文件。
+- contentinfo:
+  - generic: 本地优先
+  - generic: 无账户

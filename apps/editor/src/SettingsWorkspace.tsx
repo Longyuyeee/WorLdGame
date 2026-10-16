@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PlayerAppearanceSettings } from "./PlayerAppearanceSettings";
+import type { AssetLibraryReader } from "./asset-library-card";
 import {
   GAL_SETTING_DEFINITIONS,
   GAL_SETTINGS_PLATFORMS,
@@ -25,6 +26,8 @@ import {
 export type SettingsSaveStatus = "loading" | "migrating" | "readonly" | "blocked" | "conflict" | "unavailable" | "unsaved" | "dirty" | "saving" | "autosaving" | "saved" | "autosaved" | "restored" | "degraded" | "error";
 
 export interface SettingsWorkspaceProps {
+  readonly assetReader?: AssetLibraryReader | null;
+  readonly onOpenAssets?: () => void;
   readonly onDraftChange?: (dirty: boolean) => void;
   readonly project: CanonicalProject;
   readonly saveStatus: SettingsSaveStatus;
@@ -126,7 +129,7 @@ function saveStatusLabel(status: SettingsSaveStatus): string {
   return "设置已接入工程事务";
 }
 
-export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectChange, onSave, onClose, onDraftChange }: SettingsWorkspaceProps) {
+export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectChange, onSave, onClose, onDraftChange, assetReader = null, onOpenAssets }: SettingsWorkspaceProps) {
   const [service, setService] = useState<ProjectServiceState>(() => createProjectService(project));
   const [mode, setMode] = useState<GalSettingsCatalogMode>("basic");
   const [layerId, setLayerId] = useState<SettingsLayerId>("project");
@@ -147,6 +150,7 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
     setDrafts({});
     setMessage("已切换工程，设置事务从新工程重新开始。");
   }, [project, service.project.manifest.projectId]);
+  useEffect(() => { setService(current => JSON.stringify(current.project.assets) === JSON.stringify(project.assets) ? current : { ...current, project: { ...current.project, assets: project.assets } }); }, [project.assets]);
 
   const activePlatform = layerId === "project" ? previewPlatform : layerId;
   const resolved = useMemo(() => resolveGalSettings(service.project.settings, activePlatform), [activePlatform, service.project.settings]);
@@ -245,11 +249,11 @@ export function SettingsWorkspace({ project, saveStatus, saveDetail, onProjectCh
         </div>
         <div className="settings-workspace__hero-actions">
           <button type="button" className="settings-secondary" onClick={onClose} disabled={appearanceDirty || Object.keys(drafts).length > 0}>返回创作</button>
-          <button type="button" className="settings-save" onClick={onSave} disabled={["saving", "autosaving", "loading", "readonly", "blocked", "unavailable"].includes(saveStatus)}>保存工程</button>
+          <button type="button" className="settings-save" onClick={onSave} disabled={appearanceDirty || Object.keys(drafts).length > 0 || ["saving", "autosaving", "loading", "readonly", "blocked", "unavailable"].includes(saveStatus)}>保存工程</button>
         </div>
       </header>
 
-      <PlayerAppearanceSettings project={service.project} onDirtyChange={setAppearanceDirty} onChange={next => {
+      <PlayerAppearanceSettings key={service.project.manifest.projectId} reader={assetReader} {...(onOpenAssets ? { onOpenAssets } : {})} project={service.project} onDirtyChange={setAppearanceDirty} onChange={next => {
         setService(createProjectService(next)); onProjectChange(next);
       }} />
       <div className="settings-command-bar">

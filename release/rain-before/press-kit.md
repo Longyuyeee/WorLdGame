@@ -1,31 +1,32 @@
-# 《雨停之前》1.7.7 Web 候选展示资料
+# 《雨停之前》1.7.14 Web 候选展示资料
 
-2026-10-16 更新。当前候选为**启动来源哈希版 1.7.7**，不是已上线、已授权或 Stable 发行声明。核对相同内容的 1.7.0–1.7.6 存档，不沿用历史已变剧情的兼容承诺。
+2026-10-16 更新。当前候选为**历史查找与回退续读版 1.7.14**，不是已上线、已授权或 Stable 发行声明。核对相同内容的 1.7.0–1.7.13 存档，不沿用历史已变剧情的兼容承诺。
 
-本批完成 [#346 启动来源哈希](../../docs/346-web-source-hashing-and-startup.md)：共享同一批版本的来源序列化与标准 SHA 前缀计算，完整来源/指纹/Build ID 和旧档规则保持，不缓存可变工程。沿用 #345 启动去重与受控存读档线程、#344 受限图片解码、#343 后台恢复、#342 字符串优化、#341 失败音轨重试/无声阅读/显式恢复，以及 [#340 部署助手](../../docs/340-web-deployment-check-and-offline-update.md) 与 [#339 来源台账](../../docs/339-web-asset-provenance-and-release-preparation.md)。25 项发行条件仍待确认，公开署名/作者身份未代填；内部准备清单不是许可声明。本机 Windows WebKit 原生媒体绕过 Worker，故障恢复可用，但离线声音不算通过，不能等同真实 Safari 验收。
+本批完成 [#353 历史查找与回退续读](../../docs/353-web-history-search-and-reading-continuity.md)：历史支持主线/归档查找，修复回退后继续报错、保护提示挡住菜单，保留正式历史与作品前进限制；UTF-8 原生编码保留严格校验和便携回退。沿用 #352 读档和标题收纳、#351 受控线程与后台提醒、#350 版本显示、检查点和既有图片、声音及部署助手。剩余普通推进长任务未关闭；25 项发行条件、公开署名/作者身份仍待确认。Windows WebKit 离线声音仍不算通过，不能等同真实 Safari 验收。
 
 ## 当前作品与交付
 
 一句话：一场雨，两条路。读完旧信，把下一次见面写进日历。
 
-生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正，保留中文输入/返回保护；1.7.7 不改剧情和媒体。
+生活向中文视觉小说，9 场景、90 段旁白+9 句对白、两个结局、9,672 字符、74 步演出、25 项素材；每条路线有 60 段旁白和 6 句合成配音对白。内容沿用 1.7.0 的对白节拍/配音/人物退场校订及纸色人名修正，保留中文输入/返回保护；1.7.14 不改剧情和媒体。
 
 | 资料 | 当前路径 |
 | --- | --- |
-| 最新可编辑源工程（含内部来源台账） | `evidence/web-source-hashing/before-rain-stops-project.zip` |
-| 单文件游戏 | `evidence/web-source-hashing/before-rain-stops.html` |
-| Web 部署目录 | `evidence/web-source-hashing/before-rain-stops-web.zip` |
-| 待人工复核的 11 条记录 | `evidence/web-source-hashing/before-rain-stops.worldreview` |
-| 当前更新与边界 | `release-notes-1.7.7.md`、`docs/346-web-source-hashing-and-startup.md` |
-| 当前四产物摘要 | `evidence/web-source-hashing/artifact-audit.json` |
+| 最新可编辑源工程（含内部来源台账） | `evidence/web-reading-throughput/before-rain-stops-project.zip` |
+| 单文件游戏 | `evidence/web-reading-throughput/before-rain-stops.html` |
+| Web 部署目录 | `evidence/web-reading-throughput/before-rain-stops-web.zip` |
+| 待人工复核的 11 条记录 | `evidence/web-reading-throughput/before-rain-stops.worldreview` |
+| 当前更新与边界 | `release-notes-1.7.14.md`、`docs/353-web-history-search-and-reading-continuity.md` |
+| 当前四产物摘要 | `evidence/web-reading-throughput/artifact-audit.json` |
 | 内部来源待办（历史准备报告，当前事实保持） | `evidence/web-release-preparation/preparation.json`、`发布准备.txt`（仅作者资料，不上传玩家网站） |
 | 当前语音来源及技术指标 | `assets/rain-story/voice-revision-v1.7.json`、`source-manifest-v1.7.json` |
 | 背景来源/完整提示词 | `assets/rain-story/source-manifest-v1.6.json`、`image-prompts-v1.6.json` |
-| 手机尺寸声音失败/无声阅读 | `evidence/web-source-hashing/firefox-sound-failure.png`、`firefox-silent-320.png` |
+| 手机尺寸声音失败/无声阅读 | `evidence/web-reading-throughput/chromium-sound-failure.png`、`chromium-silent-320.png` |
+| 剧情查找/只读归档 | `evidence/web-reading-throughput/history-search-320.png`、`history-search-archive.png`（真实阅读与原生槽位，归档由公开宿主保护通知产生） |
 
-本机 Chromium 151、Firefox 153、WebKit 26.5 核对当前候选声音恢复和各两条 HTTP 在线完整路线，每路线六句语音自然结束、后台恢复点写入后刷新显式恢复；1.7.6→1.7.7 多窗口更新、离线旧备份/快速槽位接续、同页八轮和长篇界面夹具，最终范围见 #346。#344 的 117 组 PNG 像素对照为历史，本批媒体字节保持，未冒充重新执行。Chromium/Firefox 断网声音播放；WebKit origin 停服后提示失败、无声阅读，恢复服务后显式恢复声音，不计其离线声音通过。320/390 px 和横屏截图不是物理手机，WebKit 不代表 iPhone Safari；系统键盘、冻结/锁屏/低内存未计通过。11 条校订任务仍待人工复核；未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音。
+本轮 Chromium 151 核对作者重开与双导出、声音恢复、两条 HTTP 完整路线和结局刷新恢复，以及 1.7.13→1.7.14 多窗口更新、离线旧备份/快速槽位和本地 HTML 接续；实际语音自然结束。三种视口完成真实查找、回退续读及原槽位恢复，归档查找保持只读。480 条推进本次 122.9→109.4 ms，仍有 60 ms 长任务，120 条略慢，不作整体性能通过；原生线程压力保护/卸载后为 0。#352 与更早证据保留为历史，本轮未重复累计。严格离线音频、物理手机与 Safari 仍未验收；11 条校订任务仍待人工复核，未测量真人篇幅时长，不发布“完整 20 分钟已验收”等承诺，语音不是全篇或真人配音。
 
-**1.7.7 已核对相同内容的 1.7.0–1.7.6。** 本批现场旧备份来自 1.7.6，不扩写成全部旧版本都重新实查；1.6.0/更早已变剧情仍用原游戏。1.7.6 在 `evidence/web-startup-and-long-story`，1.7.5 在 `evidence/web-image-decode`，1.7.4 在 `evidence/web-recovery-worker`，1.7.3 在 `evidence/web-audio-compatibility`，1.7.2 在 `evidence/web-deployment-flow`，1.7.1 在 `evidence/web-mobile-continuity`，1.7.0 在 `evidence/web-story-beats`。保留原游戏和备份再更新；严格三引擎/实际公网离线音频未验收，未承诺 WebKit 本地 HTML 播放。发布目录先用包内助手生成纯网站目录，不要直接上传全部作者交付资料。
+**1.7.14 已核对相同内容的 1.7.0–1.7.13。** 本批现场旧备份来自 1.7.13，不扩写成全部旧版本都重新实查；1.6.0/更早已变剧情仍用原游戏。1.7.13 在 `evidence/web-load-responsiveness`，1.7.12 在 `evidence/web-save-continuity`，更早候选继续保留原目录。保留原游戏和备份再更新；严格三引擎/实际公网离线音频未验收，未承诺 WebKit 本地 HTML 播放。发布目录先用包内助手生成纯网站目录，不要直接上传全部作者交付资料。
 
 新背景通过内置 imagegen 对本项目图片作光照变体，生成来源与参考摘要可追溯，但许可和最终美术仍待确认；原系统合成语音的对外再分发许可同样未关闭。作者/发行者、联系方式、版权声明、渠道和发布日期不虚构。公开部署前仍需人工全文/听感、美术、实际手机与支持浏览器、来源许可和实际 URL 回查；当前未上传公网。
 

@@ -20,6 +20,22 @@ it("reserves future and other-scene positions for a new actor", () => {
   expect(directionStageContext(scene, 0).newSlot).toBe("actor_2");
   expect(directionStageContext(scene, 1, [...scene, cue("next", "action=hide slot=actor_2")]).newSlot).toBe("actor_3");
 });
+it("offers cross-scene actor references without pretending they are active or choosing them automatically", () => {
+  const previous = [cue("earlier", "action=show asset=portrait_0 slot=primary position=right")];
+  const context = directionStageContext([], 0, previous);
+  expect(context.characters).toEqual([]);
+  expect(context.otherCharacters).toEqual([{ slot: "primary", assetId: "portrait_0" }]);
+  expect(directionStageContext([], 0, [cue("implicit", "asset=portrait_0 slot=primary")]).otherCharacters).toEqual(context.otherCharacters);
+  const dispatch = vi.fn();
+  render(<DirectionInsertPanel command="show" afterId="branch" insertionLabel="分支开头" stageContext={context} assetIndex={entries(1)} disabled={false} createCommandId={() => "cmd"} createEntityId={() => "insert"} dispatch={dispatch} onClose={vi.fn()} />);
+  fireEvent.change(screen.getByLabelText("新增演出动作"), { target: { value: "hide" } });
+  expect(screen.getByLabelText("新增角色槽位选择")).toHaveValue("");
+  expect(screen.getByRole("button", { name: "插入演出" })).toBeDisabled();
+  fireEvent.change(screen.getByLabelText("新增角色槽位选择"), { target: { value: "primary" } });
+  fireEvent.click(screen.getByRole("button", { name: "插入演出" }));
+  expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ afterId: "branch", parameters: expect.objectContaining({ action: "hide", slot: "primary" }) }));
+  expect(directionStageContext(previous, 1, previous).otherCharacters).toEqual([]);
+});
 it("searches labels/tags across pages and keeps selection local until submission", () => {
   const change = vi.fn();
   render(<DirectionAssetPicker assets={entries(14).assets} value="" reader={null} disabled={false} label="选择资源" onChange={change} />);

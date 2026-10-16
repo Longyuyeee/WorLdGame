@@ -1,0 +1,273 @@
+{
+  "passed": true,
+  "hostPlatform": "win32",
+  "requestedEngines": [
+    "chromium"
+  ],
+  "recoveryMatrixComplete": false,
+  "candidateVersion": "1.7.11",
+  "priorVersion": "1.7.10",
+  "assertedBackgroundWorker": true,
+  "mediaProbeReport": "evidence/web-audio-compatibility/native-media-probe.json",
+  "artifacts": {
+    "before-rain-stops-project.zip": {
+      "byteLength": 31683121,
+      "sha256": "a6c133c0cd48fad4efd23b168638cb699614b012deef07f06fe6a2e4d7ecd97b"
+    },
+    "before-rain-stops.html": {
+      "byteLength": 42916101,
+      "sha256": "9fae4a7df57bae36d637358f84b36fdbaa5c253f3be9eb991f84a7b8c42d2172"
+    },
+    "before-rain-stops-web.zip": {
+      "byteLength": 32430854,
+      "sha256": "e21e15e4a27914c318b151e205386ae3363ca2eb40610e4db7e4b145028f9147"
+    },
+    "before-rain-stops.worldreview": {
+      "byteLength": 9208,
+      "sha256": "7e0e2f2f809a671f09f6bf33da1e67850b42d24b766ac2f4976a3f4864bf23be"
+    }
+  },
+  "checks": [
+    {
+      "name": "actual-editor-save-reopen-formal-1.7.11-dual-export"
+    },
+    {
+      "name": "chromium-real-http-failure-retry-keeps-healthy-rain-and-story"
+    },
+    {
+      "name": "chromium-silent-session-rotation-restore-retains-progress-and-preferences"
+    },
+    {
+      "name": "chromium-actual-1.7.10-update-two-windows-offline-backup-explicit-read",
+      "offlineAudioPlays": true,
+      "silentFallbackAndOnlineResume": false,
+      "outageMechanism": "browser-offline"
+    },
+    {
+      "name": "chromium-file-html-actual-old-backup-and-media",
+      "inlineWorkerChecked": true,
+      "imageDecodeModes": [
+        "owned-blob-bitmap",
+        "owned-blob-bitmap"
+      ]
+    },
+    {
+      "name": "chromium-同行的约定-full-route"
+    },
+    {
+      "name": "chromium-远行的约定-full-route"
+    }
+  ],
+  "routes": [
+    {
+      "engine": "chromium",
+      "branch": "留下等雨停",
+      "ending": "同行的约定",
+      "narrationCount": 60,
+      "naturallyEndedVoices": 6,
+      "textIds": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_113",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_129",
+        "stmt_ui_139",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_152",
+        "stmt_ui_167",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_158",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164"
+      ],
+      "noStaleAudioRecoveryAtEnding": true,
+      "humanListening": false,
+      "workerDiagnostics": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 68,
+        "completed": 68,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0,
+        "protectedStateHash": "be9ae6e7e416c35f97debf7a2f884b4c711334f85ff5f602f48649b0e2d862de"
+      },
+      "imageDecodeModes": [
+        "owned-blob-bitmap",
+        "owned-blob-bitmap"
+      ],
+      "foregroundDiagnostics": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 1,
+        "completed": 1,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      },
+      "endingRestoredAfterReload": true,
+      "restoredStageReady": true
+    },
+    {
+      "engine": "chromium",
+      "branch": "去追最后一班车",
+      "ending": "远行的约定",
+      "narrationCount": 60,
+      "naturallyEndedVoices": 6,
+      "textIds": [
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_25",
+        "stmt_ui_23",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_51",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_81",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_196",
+        "stmt_ui_178",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_211",
+        "stmt_ui_223",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_221",
+        "stmt_ui_230",
+        "stmt_ui_232",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_250",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_246",
+        "stmt_ui_248"
+      ],
+      "noStaleAudioRecoveryAtEnding": true,
+      "humanListening": false,
+      "workerDiagnostics": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 68,
+        "completed": 68,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0,
+        "protectedStateHash": "d50d918bf556633738df3d0a8b073015559fa239a3a8b432767639df16e672b5"
+      },
+      "imageDecodeModes": [
+        "owned-blob-bitmap"
+      ],
+      "foregroundDiagnostics": {
+        "active": 0,
+        "peakActive": 1,
+        "started": 1,
+        "completed": 1,
+        "cancelled": 0,
+        "fallback": 0,
+        "failed": 0
+      },
+      "endingRestoredAfterReload": true,
+      "restoredStageReady": true
+    }
+  ],
+  "errors": [],
+  "sourceReused": false,
+  "offlineAudioFixed": false,
+  "fullOfflineAudioMatrixPassed": false,
+  "physicalDevice": false,
+  "publicDeployment": false,
+  "permissionsVerified": false
+}

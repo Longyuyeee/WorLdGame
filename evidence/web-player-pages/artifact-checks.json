@@ -1,0 +1,157 @@
+{
+  "passed": true,
+  "scope": "Actual downloaded HTML, directory ZIP and source ZIP integrity; browser walkthrough recorded separately.",
+  "version": "0.3.0",
+  "sameProjectAcrossGameFormats": true,
+  "appearanceEqualsSource": true,
+  "storyScriptsUnchangedFromVersion": "0.1.0",
+  "assets": 7,
+  "validatedSiteFiles": 18,
+  "embeddedFont": {
+    "assetId": "letter_demo",
+    "sha256": "98047083a6a3c82c7d33277d59ea687c16b7cde56bedf198d899db652eff9f9b",
+    "bytes": 110992
+  },
+  "fullFontLicenseInPlayerCredits": true,
+  "exportHasNoEditorPreviewMode": true,
+  "skin": {
+    "colors": {
+      "accent": "#f3c77a",
+      "background": "#10232b",
+      "border": "#708883",
+      "buttonText": "#19222a",
+      "muted": "#c5d4d0",
+      "panel": "#182f36",
+      "speaker": "#e8bb83",
+      "text": "#f8eedb"
+    },
+    "fonts": {
+      "body": "asset:letter_demo",
+      "name": "sans",
+      "title": "asset:letter_demo",
+      "ui": "inherit"
+    },
+    "motion": {
+      "controls": "glow",
+      "dialogue": "rise",
+      "duration": 450,
+      "text": "ink",
+      "title": "fade"
+    },
+    "reading": {
+      "choiceLayout": "columns",
+      "choiceRadius": 16,
+      "fontSize": 24,
+      "letterSpacing": 0,
+      "lineHeight": 1.75,
+      "nameSize": 16,
+      "opacity": 88,
+      "padding": 24,
+      "position": "bottom",
+      "radius": 12,
+      "width": 90,
+      "windowAssetId": ""
+    },
+    "schemaVersion": 1,
+    "screens": {
+      "ending": {
+        "caption": "谢谢你，读完这封回信",
+        "note": "这一程已写完。愿你带着自己的答案，走向明天。也可以读取存档，看看另一种选择。",
+        "returnLabel": "合上信，回到封面"
+      },
+      "panels": {
+        "additional": {
+          "fontSize": 16,
+          "motion": "fade",
+          "opacity": 98,
+          "padding": 32,
+          "placement": "center",
+          "radius": 16,
+          "width": 1040
+        },
+        "credits": {
+          "fontSize": 16,
+          "motion": "fade",
+          "opacity": 98,
+          "padding": 32,
+          "placement": "center",
+          "radius": 16,
+          "width": 760
+        },
+        "ending": {
+          "fontSize": 16,
+          "motion": "rise",
+          "opacity": 98,
+          "padding": 20,
+          "placement": "center",
+          "radius": 16,
+          "width": 560
+        },
+        "history": {
+          "fontSize": 16,
+          "motion": "fade",
+          "opacity": 98,
+          "padding": 32,
+          "placement": "right",
+          "radius": 16,
+          "width": 460
+        },
+        "menu": {
+          "fontSize": 16,
+          "motion": "fade",
+          "opacity": 98,
+          "padding": 32,
+          "placement": "center",
+          "radius": 16,
+          "width": 760
+        },
+        "preferences": {
+          "fontSize": 16,
+          "motion": "fade",
+          "opacity": 98,
+          "padding": 32,
+          "placement": "center",
+          "radius": 16,
+          "width": 680
+        },
+        "save": {
+          "fontSize": 16,
+          "motion": "fade",
+          "opacity": 98,
+          "padding": 32,
+          "placement": "center",
+          "radius": 16,
+          "width": 1040
+        }
+      },
+      "saveColumns": 3
+    },
+    "title": {
+      "align": "left",
+      "buttonRadius": 18,
+      "coverMode": "stage",
+      "coverOpacity": 80,
+      "fontSize": 72,
+      "panelOpacity": 50,
+      "startLabel": "打开这封回信",
+      "width": 66
+    }
+  },
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.3.0.html",
+      "bytes": 14980423,
+      "sha256": "c38a01d494dd375ebc496ce857fbeba9ab0de762368e70fc630db053f126d1fb"
+    },
+    {
+      "name": "tomorrow-letter-0.3.0-web.zip",
+      "bytes": 11485155,
+      "sha256": "963261245d842fe4211149ff3f66eadfd68cd02006956030e4745c71cab8c5c8"
+    },
+    {
+      "name": "tomorrow-letter-0.3.0-project.zip",
+      "bytes": 10683404,
+      "sha256": "96a889ac72bf3eec199fe9d938762680bbee150d6f105b3bd3e35eff5fe7843b"
+    }
+  ]
+}
