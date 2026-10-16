@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "bundleHash": "377fc230d5667d90bf7e7bf7c4d4a2dce3d846b000dd04494b308c49d7c1b38b",
+  "cssHash": "25a3edbfb4b4962557fe47f56d84441169ed97bb0a2314d01e873e5a28e1b98f",
+  "checks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 740
+      },
+      "cancelBounds": {
+        "x": 25.796875,
+        "y": 118,
+        "width": 90,
+        "height": 44
+      }
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "cancelBounds": {
+        "x": 637.9375,
+        "y": 89,
+        "width": 90,
+        "height": 44
+      }
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "cancelBounds": {
+        "x": 1078.890625,
+        "y": 208.125,
+        "width": 90,
+        "height": 44
+      }
+    }
+  ],
+  "original": {
+    "hash": "d6afc7347bcb21e54f9a09db9227d28140862dfff6fb0e0bfb1c37fc20a8ebd1",
+    "cursor": "480",
+    "length": "480",
+    "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+  },
+  "advanced": {
+    "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+    "cursor": "481",
+    "length": "481",
+    "text": "长篇第 470 句：保存与恢复不能丢失历史。"
+  },
+  "loaded": {
+    "hash": "0bfdd1c2abcced37322c2f34b9412d310658428d445169e5e4354110b5426b7f",
+    "cursor": "480",
+    "length": "480",
+    "text": "长篇第 469 句：保存与恢复不能丢失历史。"
+  },
+  "compatible": {
+    "hash": "812b21234b7aafa7810425030f49a9c757431b2e4f69fba93d4a986bad79fb09",
+    "cursor": "481",
+    "length": "481",
+    "text": "长篇第 470 句：保存与恢复不能丢失历史。"
+  },
+  "workers": {
+    "live": 0,
+    "peak": 2
+  },
+  "errors": [],
+  "scope": "480 naturally read mixed-media entries; genuine native Worker replies held at transport delivery only, with one injected transport failure. Actual cancel, late callback, suspension, quick save/load and explicit compatibility. Not normal timing, physical phones or human listening."
+}

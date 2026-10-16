@@ -8,7 +8,7 @@ import { build } from './player-fixture-build.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
 import { pollBrowserState } from './poll-browser-state.mjs';
 
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-foreground-advance/interaction');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_STORY_INTERACTION_OUTPUT ?? 'evidence/web-foreground-advance/interaction');
 await mkdir(output, { recursive: true });
 const bundles = await build({ configFile: false, logLevel: 'error', define: { 'process.env.NODE_ENV': JSON.stringify('production') }, build: { write: false, minify: true, lib: { entry: path.join(root, 'tools/fixtures/reading-mixed-player.ts'), name: 'StoryInteraction', formats: ['iife'] } } });
 const files = (Array.isArray(bundles) ? bundles : [bundles]).flatMap(item => item.output), code = files.find(item => item.type === 'chunk').code, css = files.filter(item => item.type === 'asset' && item.fileName.endsWith('.css')).map(item => String(item.source)).join('\n');

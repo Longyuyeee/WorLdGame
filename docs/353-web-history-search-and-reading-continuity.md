@@ -1,6 +1,6 @@
 # 353 · Web 历史查找与回退后的继续阅读
 
-> 2026-10-17 后续存读档去重见 [#370](370-web-long-session-load-validation.md)，恢复复制调度见 [#371](371-web-reading-paint-and-recovery.md)，当前长历史普通推进见 [#372](372-web-foreground-story-advance.md)。本页采样、候选产物和当时提交状态按历史保留；当前完整历史、取消恢复与剩余性能边界以 #372 为准。
+> 2026-10-17 后续存读档去重见 [#370](370-web-long-session-load-validation.md)，恢复复制调度见 [#371](371-web-reading-paint-and-recovery.md)，异步推进见 [#372](372-web-foreground-story-advance.md)，当前结果无损回传见 [#373](373-web-history-result-transport.md)。本页采样、候选产物和当时提交状态按历史保留；当前完整历史、取消恢复与剩余性能边界以 #373 为准。
 
 2026-10-16。接续 #352 实际未提交工作区，Web 优先，原生版本搁置。
 

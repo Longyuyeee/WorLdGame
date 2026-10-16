@@ -81,7 +81,7 @@ await page.addInitScript(() => {
     constructor(url, options) {
       super(url, options); this.counted = String(options?.name ?? '').startsWith('world-player-'); this.released = false;
       if (this.counted) { sessionCost.workers.created++; sessionCost.workers.live++; sessionCost.workers.peak = Math.max(sessionCost.workers.peak, sessionCost.workers.live); }
-      this.addEventListener('message', event => { const post = sessionCost.posts.find(item => item.worker === this.workerNumber && item.id === event.data?.id && item.arrived === null); if (post) post.arrived = performance.now(); });
+      this.addEventListener('message', event => { const post = sessionCost.posts.find(item => item.worker === this.workerNumber && item.id === event.data?.id && item.arrived === null); if (post) { post.arrived = performance.now(); post.replyEncoding = event.data?.result?.encoding ?? 'plain'; post.packedCheckpoints = event.data?.result?.checkpoints?.length ?? 0; } });
       this.workerNumber = sessionCost.workers.created;
     }
     postMessage(data, ...args) {
@@ -221,6 +221,13 @@ try {
   const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
   const medians = [120, 480, 960].flatMap(count => ['quick-save', 'advance', 'quick-load'].map(name => ({ count, name, wallMs: median(operations.filter(item => item.count === count && item.name === name).map(item => item.wallMs)) })));
   if (!baseline) {
+    if (process.env.STUDIO_COST_EXPECT_HISTORY_ENCODING === '1') {
+      for (const operation of operations.filter(item => item.count >= 480 && ['advance', 'quick-load'].includes(item.name))) {
+        const post = operation.posts.find(item => item.kind === (operation.name === 'advance' ? 'advance' : 'load'));
+        assert.equal(post?.replyEncoding, 'world-player.history-lists.1', 'The real native worker must actually use compact complete-history replies');
+        assert.ok(post.packedCheckpoints >= operation.count + 1);
+      }
+    }
     assertCopyAfterFrame({ operations, rows });
     const reference = JSON.parse(await readFile(path.join(output, 'baseline.json'), 'utf8'));
     if (process.env.STUDIO_COST_ALLOW_STYLE_CHANGE !== '1') assert.equal(identity.cssHash, reference.cssHash);

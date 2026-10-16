@@ -1,6 +1,7 @@
 import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection } from "./session-worker-pool";
 import { executeForegroundSessionTask, foregroundSessionWorkerTask, applyForegroundSessionWorkerResult, type ForegroundSessionTask, type ForegroundSessionResult, type ForegroundSessionWorkerResult } from "./foreground-session-task";
 import { validStoryAdvanceReply } from './story-advance-task';
+import { decodeHistoryResult } from './history-result-transport';
 
 export class ForegroundSessionError extends Error { override readonly name="ForegroundSessionError"; }
 let serial=0;
@@ -61,7 +62,14 @@ async function executeSessionTask(task:ForegroundSessionTask,signal:AbortSignal,
     const abort=()=>finish(()=>{diagnostics.cancelled++;publish();reject(signal.reason);});
     const timer=setTimeout(fail,timeoutMs);
     worker.onerror=event=>{event.preventDefault();fail();};worker.onmessageerror=fail;
-    worker.onmessage=({data}:MessageEvent)=>{if(data?.id!==id)return;if(!validReply(task,data.result)){fail();return;}const result=applyForegroundSessionWorkerResult(task,data.result);finish(()=>{diagnostics.completed++;publish();resolve(result);},true);};
+    worker.onmessage=({data}:MessageEvent)=>{
+      if(settled || data?.id!==id)return;
+      try {
+        const decoded=decodeHistoryResult(data.result);
+        if(!validReply(task,decoded)){fail();return;}
+        const result=applyForegroundSessionWorkerResult(task,decoded);finish(()=>{diagnostics.completed++;publish();resolve(result);},true);
+      } catch { fail(); }
+    };
     signal.addEventListener("abort",abort,{once:true});if(signal.aborted){abort();return;}
     try{worker.postMessage({id,task:foregroundSessionWorkerTask(task)});}catch{fail();}
   });
