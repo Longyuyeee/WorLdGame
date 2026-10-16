@@ -8,7 +8,13 @@ import { createRecoverySession, type RecoverySessionSource, type RecoverySession
 import type { WorldPlayerRecoveryRecordV1, WorldPlayerRecoveryStoreV1 } from "./player-recovery-store";
 import { IDBFactory } from "fake-indexeddb";
 import { IndexedDbWorldPlayerSaveStoreV3 } from "./player-save-store";
-vi.mock("./recovery-session-client", async original => ({ ...await original<typeof import("./recovery-session-client")>(), serializeRecoverySession: vi.fn() }));
+vi.mock("./recovery-session-client", async original => {
+  const actual = await original<typeof import("./recovery-session-client")>(), serialize = vi.fn<typeof actual.serializeRecoverySession>();
+  return { ...actual, serializeRecoverySession: serialize, RecoverySessionRunner: class {
+    releaseIdle() {}
+    run(source: RecoverySessionSource, signal: AbortSignal) { return serialize(source, signal); }
+  } };
+});
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 
 function project(id = "background_recovery") {

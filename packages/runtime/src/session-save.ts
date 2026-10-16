@@ -1,7 +1,7 @@
 import { canonicalRuntimeEncoding, canonicalRuntimeStringify, utf8Encode } from "./canonical";
-import { runtimeHistorySessionHashSchemaV1, runtimeHistorySessionHashV1 } from "./hash";
-import { hashCanonicalSessionSaveBytes } from "./session-save-bytes";
-import { mergeRuntimeHistoryMetaProgressV1, normalizeRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionV1 } from "./history";
+import { runtimeHistorySessionHashV1 } from "./hash";
+import { hashCanonicalRuntimeHistoryBytes, hashCanonicalSessionSaveBytes } from "./session-save-bytes";
+import { mergeValidatedRuntimeHistoryMetaProgressInternal, normalizeRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionSchemaV1, validateRuntimeHistorySessionV1 } from "./history";
 import { validateRuntimeProgramV1 } from "./runtime";
 import {
   MAX_RUNTIME_SESSION_SAVE_BYTES,
@@ -38,6 +38,14 @@ function exactSessionSaveKeys(value: Record<string, unknown>): boolean {
   return keys.length === sessionSaveKeys.length && keys.every((key, index) => key === sessionSaveKeys[index]);
 }
 
+/** All envelope members use the public canonical serializer. Only the history
+ * text already produced in this synchronous operation is embedded verbatim.
+ * Keys/order are the exact closed Session Save schema, not a general JSON cache.
+ */
+function serializeSessionSaveEnvelope(value: RuntimeSessionSaveV1 | Record<string, unknown>, history: string): string {
+  return `{${sessionSaveKeys.map(key => `${JSON.stringify(key)}:${key === 'history' ? history : canonicalRuntimeStringify(value[key])}`).join(',')}}`;
+}
+
 function rehydration(state: RuntimeStateV1): RuntimeRehydrationV1 {
   if (state.pendingChoice !== null) return { kind: "choice", request: state.pendingChoice };
   if (state.pendingEffect !== null) return { kind: "effect", intent: state.pendingEffect };
@@ -52,6 +60,7 @@ export function createRuntimeSessionSaveV1(program: RuntimeProgramV1, history: R
   try {
     const historyDiagnostics = validateRuntimeHistorySessionV1(program, history);
     if (historyDiagnostics.length > 0) return { ok: false, diagnostics: historyDiagnostics };
+    const historyEncoding = canonicalRuntimeEncoding(history);
     const save: RuntimeSessionSaveV1 = {
       schemaVersion: RUNTIME_SESSION_SAVE_SCHEMA_VERSION,
       format: "world.runtime-session-save",
@@ -61,10 +70,11 @@ export function createRuntimeSessionSaveV1(program: RuntimeProgramV1, history: R
       buildId: history.buildId,
       executionId: history.executionId,
       cursor: history.cursor,
-      historyHash: runtimeHistorySessionHashV1(history),
+      historyHash: hashCanonicalRuntimeHistoryBytes(historyEncoding.bytes, 2),
       history
     };
-    const { serialized, bytes } = canonicalRuntimeEncoding(save);
+    const serialized = serializeSessionSaveEnvelope(save, historyEncoding.serialized);
+    const bytes = utf8Encode(serialized);
     if (bytes.length > MAX_RUNTIME_SESSION_SAVE_BYTES) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save exceeds the supported byte limit")] };
     }
@@ -82,11 +92,16 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
   }
   let parsed: unknown;
   let serializedBytes: Uint8Array;
+  let canonicalHistoryBytes: Uint8Array | undefined;
   try {
     serializedBytes = utf8Encode(serialized);
     if (serializedBytes.length > MAX_RUNTIME_SESSION_SAVE_BYTES) throw new TypeError("session-save-size");
     parsed = JSON.parse(serialized) as unknown;
-    if (canonicalRuntimeStringify(parsed) !== serialized) throw new TypeError("session-save-canonical");
+    if (plainRecord(parsed) && exactSessionSaveKeys(parsed)) {
+      const encoded = canonicalRuntimeEncoding(parsed.history);
+      canonicalHistoryBytes = encoded.bytes;
+      if (serializeSessionSaveEnvelope(parsed, encoded.serialized) !== serialized) throw new TypeError("session-save-canonical");
+    } else if (canonicalRuntimeStringify(parsed) !== serialized) throw new TypeError("session-save-canonical");
   } catch {
     return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save is not canonical JSON within the supported byte limit")] };
   }
@@ -108,7 +123,7 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
     let artifactHash: string;
     if (parsed.schemaVersion === 1) {
       const legacyHistory = parsed.history as unknown as RuntimeHistorySessionLegacyV1;
-      if (runtimeHistorySessionHashSchemaV1(legacyHistory) !== parsed.historyHash) {
+      if (hashCanonicalRuntimeHistoryBytes(canonicalHistoryBytes!, 1) !== parsed.historyHash) {
         return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Session Save v1 History Hash verification failed before normalization")] };
       }
       const legacyDiagnostics = validateRuntimeHistorySessionSchemaV1(program, legacyHistory);
@@ -132,17 +147,22 @@ export function loadRuntimeSessionSaveV1(program: RuntimeProgramV1, serialized: 
       save = parsed as unknown as RuntimeSessionSaveV1;
       artifactHash = hashCanonicalSessionSaveBytes(serializedBytes, 2);
     }
-    const historyDiagnostics = validateRuntimeHistorySessionV1(program, history);
+    // Legacy validation above already checks the normalized chain. Normalizing
+    // only replaces the schema and adds empty archives; do not rescan it here.
+    const historyDiagnostics = parsed.schemaVersion === 1 ? [] : validateRuntimeHistorySessionV1(program, history);
     if (historyDiagnostics.length > 0) return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save contains an invalid Runtime History Session"), ...historyDiagnostics] };
     if (history.buildId !== parsed.buildId || history.executionId !== parsed.executionId || history.cursor !== parsed.cursor || history.projectId !== parsed.projectId || history.irVersion !== parsed.irVersion || history.runtimeVersion !== parsed.runtimeVersion) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_INVALID", "Runtime Session Save envelope does not match its History identity")] };
     }
-    if (parsed.schemaVersion === RUNTIME_SESSION_SAVE_SCHEMA_VERSION && runtimeHistorySessionHashV1(history) !== parsed.historyHash) {
+    if (parsed.schemaVersion === RUNTIME_SESSION_SAVE_SCHEMA_VERSION && hashCanonicalRuntimeHistoryBytes(canonicalHistoryBytes!, 2) !== parsed.historyHash) {
       return { ok: false, diagnostics: [diagnostic("RUNTIME_SAVE_HASH_MISMATCH", "Runtime Session Save History Hash verification failed")] };
     }
     let loadedHistory = history;
     if (options.currentMetaProgress !== undefined) {
-      const merged = mergeRuntimeHistoryMetaProgressV1(program, history, options.currentMetaProgress);
+      // The same locally parsed history has just passed complete chain, envelope
+      // identity and hash checks. Rebase only the cursor and its adjacent links;
+      // public merge/next loads still perform their own full validation.
+      const merged = mergeValidatedRuntimeHistoryMetaProgressInternal(history, options.currentMetaProgress);
       if (merged.diagnostics.length > 0) return { ok: false, diagnostics: merged.diagnostics };
       loadedHistory = merged.session;
     }

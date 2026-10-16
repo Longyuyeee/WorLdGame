@@ -6,7 +6,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { build } from './player-fixture-build.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
-const root=path.resolve(import.meta.dirname,'..'),output=path.join(root,'evidence/web-reading-throughput');await mkdir(output,{recursive:true});
+const root=path.resolve(import.meta.dirname,'..'),output=path.resolve(root,process.env.STUDIO_HISTORY_SEARCH_OUTPUT_DIRECTORY??'evidence/web-reading-throughput');await mkdir(output,{recursive:true});
 const built=await build({configFile:false,logLevel:'error',define:{'process.env.NODE_ENV':JSON.stringify('production')},build:{write:false,minify:true,lib:{entry:path.join(root,'tools/fixtures/reading-advance-player.ts'),name:'HistorySearch',formats:['iife']}}});
 const outputs=(Array.isArray(built)?built:[built]).flatMap(value=>value.output),code=outputs.filter(value=>value.type==='chunk').map(value=>value.code).join('\n'),css=outputs.filter(value=>value.type==='asset'&&value.fileName.endsWith('.css')).map(value=>String(value.source)).join('\n');
 const server=createServer((req,res)=>{const pathname=new URL(req.url,'http://local').pathname;res.writeHead(200,{'Content-Type':pathname.endsWith('.js')?'text/javascript':pathname.endsWith('.css')?'text/css':'text/html'}).end(pathname.endsWith('.js')?code:pathname.endsWith('.css')?css:'<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="player.css"><div id="player-root"></div><script src="player.js"></script>');});

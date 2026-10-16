@@ -1,0 +1,808 @@
+{
+  "passed": true,
+  "browser": "151.0.7922.34",
+  "checks": [
+    "All eleven existing notes are reachable through actual author controls, with local preceding direction for stage notes; no review is automatically approved.",
+    "Portrait and landscape touch-sized controls stay within the task; switching range invalidates the previous proof without silently restarting.",
+    "Both full editor entry routes reach distinct endings; the station note is observed only on its real route, and local reviews never count as entry completions.",
+    "Save/reload/reopen retains the selected review range and issue but never restores live confirmation proof.",
+    "Actual project re-export preserves every source entry byte-for-byte; both game and production exports preserve plot, all 25 media, 11 pending reviews and 2 actual entry receipts.",
+    "Independent desktop HTML and touch-sized HTTP directory each finish one distinct full route after explicit quick-save/reload/load, including six natural muted voice endings."
+  ],
+  "observations": [
+    {
+      "noteId": "18d60a21-2273-4a0f-90b0-f87e34848830",
+      "sceneId": "scene_fff36353633c42d1",
+      "statementId": "stmt_ui_45",
+      "range": "statement",
+      "targetIndex": 10,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_29",
+          "command": "background",
+          "summary": "action=set asset=waiting_room transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_30",
+          "command": "show",
+          "summary": "action=show asset=xia_thoughtful slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_12",
+          "command": "show",
+          "summary": "action=show asset=xia_letter slot=primary z=0 position=left"
+        }
+      ],
+      "currentText": "林远从包里找到一支快没墨的笔，在纸袋上写了两个日期。一个是试合作结束的那天，另一个是试合作结束后的第一个周末。他们并排看着，发现第二个日期两个人都可以空出来。小夏把笔推回他手边，等他把约定记进日历。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "c46e8825-76b1-4fc1-a2c5-af4a94a50414",
+      "sceneId": "scene_e919f09d3b7d45f7",
+      "statementId": "stmt_ui_101",
+      "range": "statement",
+      "targetIndex": 10,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_87",
+          "command": "background",
+          "summary": "action=set asset=sample_station transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_89",
+          "command": "show",
+          "summary": "action=show asset=xia_letter slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_24",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_111",
+          "command": "background",
+          "summary": "action=set asset=night_cafe transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_112",
+          "command": "audio",
+          "summary": "action=play asset=soft_rain bus=ambient loop=true volume=0.12"
+        }
+      ],
+      "currentText": "等待上菜时，林远把试合作的邮件打开给她看。小夏没有替他修改决定，只帮他找出一个没看清的时间：第一天需要的是线上碰面，不是必须早晨站到办公室里。他们对着这句话笑了很久，笑过以后，他给自己写下以后要把完整邮件读完的提醒。林远又给联系人发了一条消息，确认先在线上开始试合作，并把明早的车票退掉，等驻地安排确定后再买票。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "0b8fdbf7-94ce-4581-8740-282392f30ccd",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_148",
+      "range": "statement",
+      "targetIndex": 4,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        }
+      ],
+      "currentText": "线上碰面比他想象中普通。新同事介绍了试合作的内容，询问他能投入多少时间，也明确说可以在第一周之后重新调整。林远第一次没有为了显得可靠，把每一个问题都回答成没问题。他认真看了日历，说出自己真正能够完成的范围。双方约好这两周先远程合作，结束后再确认到岗日期。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "14b00b94-ad55-4897-bee0-5f8850850cee",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_154",
+      "range": "statement",
+      "targetIndex": 12,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        },
+        {
+          "id": "stmt_ui_38",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_46",
+          "command": "audio",
+          "summary": "action=play asset=voice_06 bus=voice loop=false volume=1"
+        },
+        {
+          "id": "stmt_ui_48",
+          "command": "audio",
+          "summary": "action=stop bus=voice"
+        },
+        {
+          "id": "rain17_montage_exit",
+          "command": "show",
+          "summary": "action=hide slot=primary transition=fade duration=300ms"
+        }
+      ],
+      "currentText": "他们没有因为那晚的谈话，从此不再错过消息。林远仍有忙得忘记回复的下午，小夏也有不想讲话的时候。不同的是，过了两天再联系时，他们学着说明实际情况，不把沉默变成一道让对方独自猜答案的题。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "698a904a-7f6b-4597-b5eb-4b2ba881ffee",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_156",
+      "range": "statement",
+      "targetIndex": 13,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        },
+        {
+          "id": "stmt_ui_38",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_46",
+          "command": "audio",
+          "summary": "action=play asset=voice_06 bus=voice loop=false volume=1"
+        },
+        {
+          "id": "stmt_ui_48",
+          "command": "audio",
+          "summary": "action=stop bus=voice"
+        },
+        {
+          "id": "rain17_montage_exit",
+          "command": "show",
+          "summary": "action=hide slot=primary transition=fade duration=300ms"
+        }
+      ],
+      "currentText": "两周后，约好的周末终于到了，天气预报仍然有雨。小夏问要不要改日期。林远说，不如先去车站看看，如果列车停运，就按第二个计划在附近吃饭。他们为这个并不完美的安排笑起来，却都知道这不是放弃去海边，而是允许计划继续活在现实里。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "e8ab111c-725b-469b-b03c-1efadf0ea7f7",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_158",
+      "range": "scene",
+      "targetIndex": 16,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        },
+        {
+          "id": "stmt_ui_38",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_46",
+          "command": "audio",
+          "summary": "action=play asset=voice_06 bus=voice loop=false volume=1"
+        },
+        {
+          "id": "stmt_ui_48",
+          "command": "audio",
+          "summary": "action=stop bus=voice"
+        },
+        {
+          "id": "rain17_montage_exit",
+          "command": "show",
+          "summary": "action=hide slot=primary transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_40",
+          "command": "background",
+          "summary": "action=set asset=station_day transition=fade duration=250ms"
+        },
+        {
+          "id": "stmt_ui_42",
+          "command": "show",
+          "summary": "action=show asset=xia_letter slot=primary z=0 position=left"
+        }
+      ],
+      "currentText": "车站的钟这次准时了。小夏特意看了一眼，林远也看了。他们不需要再偷来三分钟才能说话，反而能在列车到来之前安静地坐着，各自读一会儿书。那张照片仍夹在原来的位置，旁边多了一张写有新日期的车票。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "c2bd7957-b21f-432d-a7a4-74b06c0bf673",
+      "sceneId": "scene_9a1c57d3f36349f1",
+      "statementId": "stmt_ui_232",
+      "range": "scene",
+      "targetIndex": 5,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_227",
+          "command": "background",
+          "summary": "action=set asset=station_day transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_228",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_229",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_66",
+          "command": "background",
+          "summary": "action=set asset=day_cafe transition=fade duration=250ms"
+        }
+      ],
+      "currentText": "他们先去吃了一顿普通的早餐。林远讲新城市的路，讲哪家店晚上还开着，讲工作里仍然需要慢慢学的部分。小夏没有把这些话听成他是否应该回来的一份说明，也没有替他打分。她问了一些具体的问题，好像只是想认识他正在生活的地方。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "f610a299-31bc-4d5d-bef3-9f0f5b802a79",
+      "sceneId": "scene_9a1c57d3f36349f1",
+      "statementId": "stmt_ui_248",
+      "range": "scene",
+      "targetIndex": 22,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_227",
+          "command": "background",
+          "summary": "action=set asset=station_day transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_228",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_229",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_66",
+          "command": "background",
+          "summary": "action=set asset=day_cafe transition=fade duration=250ms"
+        },
+        {
+          "id": "stmt_ui_80",
+          "command": "audio",
+          "summary": "action=play asset=soft_rain bus=ambient loop=true volume=0.1"
+        },
+        {
+          "id": "stmt_ui_76",
+          "command": "audio",
+          "summary": "action=play asset=voice_09 bus=voice loop=false volume=1"
+        },
+        {
+          "id": "stmt_ui_78",
+          "command": "audio",
+          "summary": "action=stop bus=voice"
+        },
+        {
+          "id": "stmt_ui_68",
+          "command": "background",
+          "summary": "action=set asset=sample_station transition=fade duration=250ms"
+        },
+        {
+          "id": "stmt_ui_70",
+          "command": "show",
+          "summary": "action=show asset=xia_thoughtful slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_72",
+          "command": "show",
+          "summary": "action=hide slot=primary transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_74",
+          "command": "background",
+          "summary": "action=set asset=night_studio transition=fade duration=250ms"
+        },
+        {
+          "id": "stmt_ui_82",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        }
+      ],
+      "currentText": "回到房间，他把画放到窗边，把信收在抽屉最上层。海边的计划还有机会，工作和课程也各自继续。林远没有因为远行失去原来的故事，而是学会了给它新的地址：到了就说，变化就说，想念也可以说。雨停之前没有完成的话，终于有了之后一封又一封的回信。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "1c2d90db-c5ce-4400-a863-fa76355377c9",
+      "sceneId": "scene_e919f09d3b7d45f7",
+      "statementId": "stmt_ui_113",
+      "range": "scene",
+      "targetIndex": 16,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_87",
+          "command": "background",
+          "summary": "action=set asset=sample_station transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_89",
+          "command": "show",
+          "summary": "action=show asset=xia_letter slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_24",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_111",
+          "command": "background",
+          "summary": "action=set asset=night_cafe transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_112",
+          "command": "audio",
+          "summary": "action=play asset=soft_rain bus=ambient loop=true volume=0.12"
+        },
+        {
+          "id": "stmt_ui_26",
+          "command": "audio",
+          "summary": "action=play asset=voice_04 bus=voice loop=false volume=1"
+        }
+      ],
+      "currentText": "出发的事明早确认，今晚的回信不用再等。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "63be6397-a2d5-4a75-9cfc-881b2ea9ce39",
+      "sceneId": "scene_9f0052a9d0d84faa",
+      "statementId": "stmt_ui_167",
+      "range": "scene",
+      "targetIndex": 9,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_143",
+          "command": "background",
+          "summary": "action=set asset=morning_studio transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_144",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_145",
+          "command": "show",
+          "summary": "action=hide slot=primary"
+        },
+        {
+          "id": "stmt_ui_38",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=right"
+        },
+        {
+          "id": "stmt_ui_46",
+          "command": "audio",
+          "summary": "action=play asset=voice_06 bus=voice loop=false volume=1"
+        }
+      ],
+      "currentText": "到了就告诉我实际的样子，不用只讲顺利的事。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    },
+    {
+      "noteId": "80d2e509-61ab-4839-85aa-5c6523bb2431",
+      "sceneId": "scene_9a1c57d3f36349f1",
+      "statementId": "stmt_ui_250",
+      "range": "scene",
+      "targetIndex": 10,
+      "precedingDirections": [
+        {
+          "id": "stmt_ui_227",
+          "command": "background",
+          "summary": "action=set asset=station_day transition=fade duration=300ms"
+        },
+        {
+          "id": "stmt_ui_228",
+          "command": "audio",
+          "summary": "action=stop bus=ambient"
+        },
+        {
+          "id": "stmt_ui_229",
+          "command": "show",
+          "summary": "action=show asset=xia_smile slot=primary z=0 position=left"
+        },
+        {
+          "id": "stmt_ui_66",
+          "command": "background",
+          "summary": "action=set asset=day_cafe transition=fade duration=250ms"
+        },
+        {
+          "id": "stmt_ui_80",
+          "command": "audio",
+          "summary": "action=play asset=soft_rain bus=ambient loop=true volume=0.1"
+        },
+        {
+          "id": "stmt_ui_76",
+          "command": "audio",
+          "summary": "action=play asset=voice_09 bus=voice loop=false volume=1"
+        }
+      ],
+      "currentText": "我们有时间，把上次的故事继续讲完。",
+      "status": "fixed",
+      "checkedSourceHash": null
+    }
+  ],
+  "editorRoutes": [
+    {
+      "branch": 0,
+      "ending": "ENDING\n同行的约定",
+      "choices": [
+        "1留下等雨停"
+      ],
+      "ids": [
+        "stmt_ui_1",
+        "stmt_ui_2",
+        "stmt_ui_3",
+        "stmt_ui_4",
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_6",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_8",
+        "stmt_ui_25",
+        "stmt_ui_10",
+        "stmt_ui_23",
+        "stmt_ui_29",
+        "stmt_ui_30",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_12",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_14",
+        "stmt_ui_51",
+        "stmt_ui_16",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_55",
+        "stmt_ui_57",
+        "stmt_ui_59",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_18",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_20",
+        "stmt_ui_81",
+        "stmt_ui_22",
+        "stmt_ui_83",
+        "stmt_ui_87",
+        "stmt_ui_89",
+        "stmt_ui_91",
+        "stmt_ui_93",
+        "stmt_ui_95",
+        "stmt_ui_97",
+        "stmt_ui_24",
+        "stmt_ui_111",
+        "stmt_ui_112",
+        "stmt_ui_99",
+        "stmt_ui_101",
+        "stmt_ui_103",
+        "stmt_ui_105",
+        "stmt_ui_107",
+        "stmt_ui_109",
+        "stmt_ui_26",
+        "stmt_ui_113",
+        "stmt_ui_28",
+        "stmt_ui_117",
+        "stmt_ui_118",
+        "stmt_ui_119",
+        "stmt_ui_121",
+        "stmt_ui_123",
+        "stmt_ui_125",
+        "stmt_ui_127",
+        "stmt_ui_32",
+        "stmt_ui_129",
+        "stmt_ui_34",
+        "stmt_ui_139",
+        "stmt_ui_36",
+        "stmt_ui_131",
+        "stmt_ui_133",
+        "stmt_ui_135",
+        "stmt_ui_137",
+        "stmt_ui_143",
+        "stmt_ui_144",
+        "stmt_ui_145",
+        "stmt_ui_146",
+        "stmt_ui_148",
+        "stmt_ui_150",
+        "stmt_ui_38",
+        "stmt_ui_152",
+        "stmt_ui_46",
+        "stmt_ui_167",
+        "stmt_ui_48",
+        "rain17_montage_exit",
+        "stmt_ui_154",
+        "stmt_ui_156",
+        "stmt_ui_40",
+        "stmt_ui_42",
+        "stmt_ui_158",
+        "stmt_ui_44",
+        "stmt_ui_166",
+        "stmt_ui_160",
+        "stmt_ui_162",
+        "stmt_ui_164",
+        "stmt_ui_169",
+        "stmt_ui_170",
+        "stmt_ui_171",
+        "statement_ad77f6123fe043ee"
+      ],
+      "targetObserved": true
+    },
+    {
+      "branch": 1,
+      "ending": "ENDING\n远行的约定",
+      "choices": [
+        "2去追最后一班车"
+      ],
+      "ids": [
+        "stmt_ui_1",
+        "stmt_ui_2",
+        "stmt_ui_3",
+        "stmt_ui_4",
+        "stmt_ui_5",
+        "stmt_ui_7",
+        "stmt_ui_9",
+        "stmt_ui_11",
+        "stmt_ui_13",
+        "stmt_ui_6",
+        "stmt_ui_15",
+        "stmt_ui_17",
+        "stmt_ui_19",
+        "stmt_ui_21",
+        "stmt_ui_8",
+        "stmt_ui_25",
+        "stmt_ui_10",
+        "stmt_ui_23",
+        "stmt_ui_29",
+        "stmt_ui_30",
+        "stmt_ui_31",
+        "stmt_ui_33",
+        "stmt_ui_35",
+        "stmt_ui_37",
+        "stmt_ui_39",
+        "stmt_ui_41",
+        "stmt_ui_12",
+        "stmt_ui_43",
+        "stmt_ui_45",
+        "stmt_ui_14",
+        "stmt_ui_51",
+        "stmt_ui_16",
+        "stmt_ui_47",
+        "stmt_ui_49",
+        "stmt_ui_55",
+        "stmt_ui_57",
+        "stmt_ui_59",
+        "stmt_ui_61",
+        "stmt_ui_63",
+        "stmt_ui_65",
+        "stmt_ui_18",
+        "stmt_ui_67",
+        "stmt_ui_69",
+        "stmt_ui_71",
+        "stmt_ui_73",
+        "stmt_ui_75",
+        "stmt_ui_77",
+        "stmt_ui_79",
+        "stmt_ui_20",
+        "stmt_ui_81",
+        "stmt_ui_22",
+        "stmt_ui_83",
+        "stmt_ui_172",
+        "stmt_ui_173",
+        "stmt_ui_174",
+        "stmt_ui_176",
+        "stmt_ui_52",
+        "stmt_ui_196",
+        "stmt_ui_54",
+        "stmt_ui_178",
+        "stmt_ui_50",
+        "stmt_ui_194",
+        "stmt_ui_195",
+        "stmt_ui_180",
+        "stmt_ui_182",
+        "stmt_ui_184",
+        "stmt_ui_186",
+        "stmt_ui_188",
+        "stmt_ui_190",
+        "stmt_ui_192",
+        "stmt_ui_200",
+        "stmt_ui_201",
+        "stmt_ui_202",
+        "stmt_ui_203",
+        "stmt_ui_205",
+        "stmt_ui_207",
+        "stmt_ui_209",
+        "stmt_ui_56",
+        "stmt_ui_211",
+        "stmt_ui_62",
+        "stmt_ui_223",
+        "stmt_ui_64",
+        "stmt_ui_58",
+        "stmt_ui_213",
+        "stmt_ui_215",
+        "stmt_ui_217",
+        "stmt_ui_219",
+        "stmt_ui_60",
+        "stmt_ui_221",
+        "stmt_ui_227",
+        "stmt_ui_228",
+        "stmt_ui_229",
+        "stmt_ui_230",
+        "stmt_ui_66",
+        "stmt_ui_232",
+        "stmt_ui_80",
+        "stmt_ui_234",
+        "stmt_ui_236",
+        "stmt_ui_76",
+        "stmt_ui_250",
+        "stmt_ui_78",
+        "stmt_ui_238",
+        "stmt_ui_240",
+        "stmt_ui_68",
+        "stmt_ui_70",
+        "stmt_ui_242",
+        "stmt_ui_244",
+        "stmt_ui_72",
+        "stmt_ui_246",
+        "stmt_ui_74",
+        "stmt_ui_82",
+        "stmt_ui_248",
+        "stmt_ui_252",
+        "stmt_ui_253",
+        "stmt_ui_254",
+        "statement_1709efa4f5ca41ba"
+      ],
+      "targetObserved": false
+    }
+  ],
+  "playerRoutes": [
+    {
+      "branch": 0,
+      "format": "html-file",
+      "ending": "故事告一段落\n同行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "savedHash": "e50c06ee9a620b0e79699bc2b2ab1e1fc944d4bdd62cbaf9dd4ab4b522aca5eb",
+      "loadedHash": "e50c06ee9a620b0e79699bc2b2ab1e1fc944d4bdd62cbaf9dd4ab4b522aca5eb",
+      "restoredText": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。",
+      "texts": 66,
+      "naturallyEndedVoices": 6,
+      "choices": [
+        "1\n留下等雨停"
+      ],
+      "previousSave": {
+        "version": "1.7.13",
+        "bytes": 15470,
+        "sha256": "fe2484873f2a753fa553a9d149703ccf03741aa09823747c72563eeaed48d39f",
+        "stateHash": "e50c06ee9a620b0e79699bc2b2ab1e1fc944d4bdd62cbaf9dd4ab4b522aca5eb",
+        "malformedInputRejected": true
+      },
+      "physicalPhone": false,
+      "humanListening": false
+    },
+    {
+      "branch": 1,
+      "format": "directory-http",
+      "ending": "故事告一段落\n远行的约定\n\n已达成 1 / 2 个结局\n\n已读、画廊、音乐与结局记录会保留。可以查看收藏，或读取存档探索其他选择。\n\n查看收藏与结局\n读取存档探索其他路线\n回到标题",
+      "savedHash": "e50c06ee9a620b0e79699bc2b2ab1e1fc944d4bdd62cbaf9dd4ab4b522aca5eb",
+      "loadedHash": "e50c06ee9a620b0e79699bc2b2ab1e1fc944d4bdd62cbaf9dd4ab4b522aca5eb",
+      "restoredText": "售票员把窗口里的灯关掉时，雨正沿着站台的屋檐连成一条线。站台上的钟比手机慢了三分钟。林远核对了两次，没有走去询问值班员。他看见玻璃上自己的倒影，才发现他已经穿着这件外套站了很久。行李箱旁挂着新公司的地址，手机里存着一份还没签字的合同；这些东西都能说明他要去哪里，却没有一样能替他解释为什么迟迟不肯往前走。",
+      "texts": 66,
+      "naturallyEndedVoices": 6,
+      "choices": [
+        "2\n去追最后一班车"
+      ],
+      "previousSave": {
+        "version": "1.7.13",
+        "bytes": 15470,
+        "sha256": "fe2484873f2a753fa553a9d149703ccf03741aa09823747c72563eeaed48d39f",
+        "stateHash": "e50c06ee9a620b0e79699bc2b2ab1e1fc944d4bdd62cbaf9dd4ab4b522aca5eb",
+        "malformedInputRejected": true
+      },
+      "physicalPhone": false,
+      "humanListening": false
+    }
+  ],
+  "errors": [],
+  "artifacts": {
+    "source": {
+      "bytes": 31683169,
+      "sha256": "69d7baf39c919f429c3ef3f4921bd569190a068e0e4c8ae34ff6608fed3a4cec",
+      "unchangedEntries": 65
+    },
+    "games": {
+      "html": {
+        "bytes": 43004107,
+        "sha256": "f52f70ad8b4ba4e0c1b91f41b7063691117bae3f4a1761609f2e2eb910f482a9",
+        "productionBytes": 74742983,
+        "productionSha256": "1da8170c566ae97286ff80c9a0aefa4a0bf97f302beee6de028ffb22cfc1af43",
+        "fixedNotes": 11,
+        "explicitHumanReviews": 0,
+        "entryCompletions": 2
+      },
+      "directory": {
+        "bytes": 32518801,
+        "sha256": "77c8fe8a0ff385aee0890579184a39df3aa76e5837c4d1cea57339801c54bc50",
+        "productionBytes": 64266205,
+        "productionSha256": "4360d804fc56c7ef3a880f0eb7c5c2643ebb7e1374129b9a003c012443c5144b",
+        "fixedNotes": 11,
+        "explicitHumanReviews": 0,
+        "entryCompletions": 2
+      }
+    },
+    "media": 25,
+    "directoryFilesVerified": 35
+  },
+  "scope": "Real original Rain 1.7.14, no content changes or automatic review approval. Two actual editor routes; one route per independent format, not a format-by-route matrix. Muted native audio; not human reading/listening/artwork acceptance, physical phone, long-story performance, public deployment or release licensing. Byte-identical source retained at its original path; temporary current-runtime exports are audited, not new content candidates."
+}

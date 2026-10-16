@@ -283,6 +283,15 @@ export function validateRuntimeHistorySessionV1(program: RuntimeProgramV1, sessi
 export function mergeRuntimeHistoryMetaProgressV1(program: RuntimeProgramV1, session: RuntimeHistorySessionV1, incoming: RuntimeStateV1["metaProgress"]): RuntimeHistoryResultV1 {
   const validation = validateRuntimeHistorySessionV1(program, session);
   if (validation.length > 0) return result(session, validation);
+  return mergeValidatedRuntimeHistoryMetaProgressInternal(session, incoming);
+}
+
+/** Package-internal, synchronous Session Save load continuation only. The loader
+ * has fully validated its locally parsed history and envelope before this call;
+ * no callbacks or async boundary intervene. Incoming progress is still validated
+ * by rebase. Never export a trust token or reuse this precondition across calls.
+ */
+export function mergeValidatedRuntimeHistoryMetaProgressInternal(session: RuntimeHistorySessionV1, incoming: RuntimeStateV1["metaProgress"]): RuntimeHistoryResultV1 {
   return rebaseMetaProgressAtCursor(session, incoming);
 }
 

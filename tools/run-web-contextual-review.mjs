@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import { unzipSync, strFromU8 } from 'fflate';
 import { readGamePayload } from './audit-rain-story-refinement.mjs';
 
-const root = path.resolve(import.meta.dirname, '..'), output = path.join(root, 'evidence/web-contextual-review');
+const root = path.resolve(import.meta.dirname, '..'), output = path.resolve(root, process.env.STUDIO_CONTEXTUAL_OUTPUT_DIRECTORY ?? 'evidence/web-contextual-review');
 await mkdir(output, { recursive: true });
 const baseline = process.argv.includes('--baseline'), require = createRequire(import.meta.url);
 let chromium;
@@ -97,15 +97,39 @@ async function playerRoute(url, branch, phone) {
   const player = await playerContext.newPage(); current = player; player.setDefaultTimeout(30_000); player.on('pageerror', error => errors.push(String(error)));
   const button = name => player.getByRole('button', { name, exact: true }), main = player.locator('main.player-shell');
   await player.goto(url); await button('打开玩家设置').click(); await player.getByLabel('静音全部声音', { exact: true }).check();
-  await player.getByLabel('文字显示', { exact: true }).selectOption('instant'); await button('返回故事').click(); await button('开始故事').click();
-  const savedHash = await main.getAttribute('data-runtime-state-hash'), savedText = await player.locator('.player-dialogue__text').innerText();
+  await player.getByLabel('文字显示', { exact: true }).selectOption('instant'); await button('返回故事').click();
+  let previousSave = null;
+  if (process.env.STUDIO_VERIFY_SESSION_LOAD === '1') {
+    const oldFile = path.join(source, 'chromium-1.7.13.worldsave'), original = JSON.parse(await readFile(oldFile, 'utf8'));
+    await button('读取存档').click(); const slots = player.getByRole('dialog', { name: '存读档槽位', exact: true });
+    await slots.getByRole('button', { name: '备份', exact: true }).click();
+    const file = slots.getByLabel('选择存档备份文件', { exact: true });
+    const titleHash = await main.getAttribute('data-runtime-state-hash');
+    await file.setInputFiles({ name: 'damaged.worldsave', mimeType: 'application/json', buffer: Buffer.from('not a save') });
+    await slots.getByRole('alert').filter({ hasText: '无法读取备份文件' }).waitFor();
+    assert.equal(await main.getAttribute('data-runtime-state-hash'), titleHash);
+    await file.setInputFiles(oldFile); await slots.getByText('备份校验通过，请选择手动槽位后导入。', { exact: true }).waitFor();
+    await slots.getByRole('button', { name: '导入到所选槽位', exact: true }).click();
+    await slots.getByRole('button', { name: '读取导入的存档', exact: true }).click();
+    await player.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.saveOperation === 'loaded');
+    assert.equal(await main.getAttribute('data-runtime-state-hash'), original.payload.slot.runtimeStateHash);
+    previousSave = { version: '1.7.13', bytes: (await readFile(oldFile)).length, sha256: digest(await readFile(oldFile)), stateHash: original.payload.slot.runtimeStateHash, malformedInputRejected: true };
+  } else await button('开始故事').click();
+  const savedHash = await main.getAttribute('data-runtime-state-hash'), savedText = await player.locator('.player-dialogue__text').innerText(), savedCursor = await main.getAttribute('data-history-cursor'), savedLength = await main.getAttribute('data-history-length');
   await button('打开阅读菜单').click(); await button('快速保存').click(); await player.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.saveOperation === 'saved');
   const menu = player.getByRole('dialog', { name: '阅读菜单', exact: true }); if (await menu.isVisible()) await menu.getByRole('button', { name: '返回故事', exact: true }).click();
-  await button('继续下一句').click(); await player.reload(); await button('读取存档').click();
+  // On a compact screen the first click can page within the same paragraph.
+  // Actually advance before reloading; a scroll-only click is not load coverage.
+  let advancedHash = savedHash;
+  for (let attempt = 0; attempt < 20 && advancedHash === savedHash; attempt++) { await button('继续下一句').click(); advancedHash = await main.getAttribute('data-runtime-state-hash'); }
+  assert.notEqual(advancedHash, savedHash);
+  assert.notEqual(await main.getAttribute('data-history-cursor'), savedCursor);
+  await player.reload(); await button('读取存档').click();
   const slots = player.getByRole('dialog', { name: '存读档槽位', exact: true }); await slots.getByRole('button', { name: '快速', exact: true }).click(); await slots.getByRole('button', { name: '读取', exact: true }).click();
   if (await player.locator('.player-load-confirm').isVisible()) await button('确认读取').click();
   await player.waitForFunction(() => document.querySelector('main.player-shell')?.dataset.saveOperation === 'loaded');
   assert.equal(await player.locator('.player-dialogue__text').innerText(), savedText);
+  assert.equal(await main.getAttribute('data-history-cursor'), savedCursor); assert.equal(await main.getAttribute('data-history-length'), savedLength);
   if (await menu.isVisible()) await menu.getByRole('button', { name: '返回故事', exact: true }).click();
   const loadedHash = await main.getAttribute('data-runtime-state-hash'), texts = new Set(), voices = new Set(), choices = [];
   for (let count = 0; count < 180 && await main.getAttribute('data-player-status') !== 'ended'; count++) {
@@ -121,7 +145,7 @@ async function playerRoute(url, branch, phone) {
   }
   assert.equal(await main.getAttribute('data-player-status'), 'ended'); assert.equal(texts.size, 66); assert.equal(voices.size, 6);
   const ending = await player.locator('.player-ending').innerText(); await player.screenshot({ path: path.join(output, `player-${phone ? 'http-phone' : 'file-desktop'}-ending.png`), animations: 'disabled' });
-  const result = { branch, format: phone ? 'directory-http' : 'html-file', ending, savedHash, loadedHash, restoredText: savedText, texts: texts.size, naturallyEndedVoices: voices.size, choices, physicalPhone: false, humanListening: false };
+  const result = { branch, format: phone ? 'directory-http' : 'html-file', ending, savedHash, advancedHash, loadedHash, savedCursor, restoredCursor: savedCursor, restoredLength: savedLength, restoredText: savedText, texts: texts.size, naturallyEndedVoices: voices.size, choices, ...(previousSave ? { previousSave } : {}), physicalPhone: false, humanListening: false };
   await playerContext.close(); current = page; return result;
 }
 try {
@@ -192,6 +216,12 @@ try {
     }
     const web = unzipSync(downloads.directory), htmlPayload = readGamePayload(downloads.html.toString()), webPayload = readGamePayload(strFromU8(web['index.html']));
     assert.deepEqual(htmlPayload.project, webPayload.project); assert.equal(htmlPayload.editorPreview, undefined);
+    if (process.env.STUDIO_VERIFY_SESSION_LOAD === '1') {
+      assert.notEqual(digest(downloads.html), digest(await readFile(path.join(source, 'before-rain-stops.html'))), 'The validation export must contain the rebuilt runtime, not the archived game');
+      const html = downloads.html.toString();
+      assert.ok(html.includes(`<script>${strFromU8(web['player.js']).replace(/<\/script/gi, '<\\/script')}</script>`));
+      assert.ok(html.includes(`<style>${strFromU8(web['player.css']).replace(/<\/style/gi, '<\\/style')}</style>`));
+    }
     for (const script of scripts) assert.deepEqual(htmlPayload.project.scripts[script.sceneId], script);
     const assets = JSON.parse(strFromU8(sourceFiles['.world-assets/index.json'])).assets;
     for (const asset of assets) {

@@ -70,6 +70,12 @@ for (const path of coreFiles) {
   if (source.includes("commitValidatedRuntimeHistoryStepInternal") && !["packages/runtime/src/history.ts", "packages/runtime/src/scheduler.ts"].includes(localPath)) {
     violations.push(`${localPath} exposes or consumes the scheduler-only history append`);
   }
+  if (source.includes("mergeValidatedRuntimeHistoryMetaProgressInternal") && !["packages/runtime/src/history.ts", "packages/runtime/src/session-save.ts"].includes(localPath)) {
+    violations.push(`${localPath} exposes or consumes the load-only history progress merge`);
+  }
+  if (source.includes("hashCanonicalRuntimeHistoryBytes") && !["packages/runtime/src/hash.ts", "packages/runtime/src/session-save.ts", "packages/runtime/src/session-save-bytes.ts"].includes(localPath)) {
+    violations.push(`${localPath} exposes or consumes internal canonical history bytes`);
+  }
   for (const dependency of forbiddenImports) {
     const importPattern = new RegExp(`from\\s+["']${dependency.replaceAll("-", "\\-")}`);
     if (importPattern.test(source)) {
