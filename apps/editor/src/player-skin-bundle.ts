@@ -97,6 +97,24 @@ function remapAppearance(appearance: SkinBundle["appearance"], current: WebPlaye
   const map = (id: string) => mapping.get(id) ?? id;
   return { ...current, theme: appearance.theme, accent: appearance.accent, coverAssetId: map(appearance.coverAssetId), skin: remapWebPlayerSkinReferences(appearance.skin, map) };
 }
+export function defaultSkinPortraitChoices(bundle: SkinBundle, project: CanonicalProject): Readonly<Record<string, string>> {
+  return Object.fromEntries((bundle.appearance.skin.template?.portrait.bindings ?? []).flatMap(row => project.characters.characters.some(character => character.id === row.characterId) ? [[row.characterId, row.characterId]] : []));
+}
+function mappedPortraits(bundle: SkinBundle, project: CanonicalProject, choices: Readonly<Record<string, SkinAssetChoice>>, characters: Readonly<Record<string, string>>): SkinBundle["appearance"] {
+  const template = bundle.appearance.skin.template;
+  if (!template) return bundle.appearance;
+  const used = new Set<string>();
+  const bindings = template.portrait.bindings.flatMap(row => {
+    if (choices[row.assetId]?.mode === "fallback") return [];
+    if (!Object.hasOwn(characters, row.characterId)) throw Error(`请为头像角色“${row.characterName}”明确选择当前作品角色，或不使用这个头像。不会自动复制角色。`);
+    const id = characters[row.characterId]; if (!id) return [];
+    const character = project.characters.characters.find(item => item.id === id);
+    if (!character) throw Error("头像对应的角色已变化，请重新选择。");
+    if (used.has(id)) throw Error("多个来源头像不能同时对应同一角色，请保留一个或选择不使用。"); used.add(id);
+    return [{ ...row, characterId: id, characterName: String(character.displayName ?? id).slice(0, 80) }];
+  });
+  return { ...bundle.appearance, skin: { ...bundle.appearance.skin, template: { ...template, portrait: { ...template.portrait, bindings } } } };
+}
 /** Apply only style/provenance deltas to the current project; never replace its plot or credits. */
 export function applySkinImportPlan(project: CanonicalProject, plan: Pick<SkinImportPlan, "appearance" | "records" | "publicCredits">): CanonicalProject {
   let next = applyWebPlayerAppearance(project, plan.appearance);
@@ -106,12 +124,13 @@ export function applySkinImportPlan(project: CanonicalProject, plan: Pick<SkinIm
   next = applyWebAssetSources(next, { schemaVersion: 1, records: [...book.records, ...plan.records.filter(row => !existing.has(row.assetId))] });
   return next;
 }
-export async function prepareSkinImport(bundle: SkinBundle, project: CanonicalProject, choices: Readonly<Record<string, SkinAssetChoice>>, reader: AssetLibraryReader | null, signal?: AbortSignal): Promise<SkinImportPlan> {
+export async function prepareSkinImport(bundle: SkinBundle, project: CanonicalProject, choices: Readonly<Record<string, SkinAssetChoice>>, reader: AssetLibraryReader | null, signal?: AbortSignal, portraitChoices: Readonly<Record<string, string>> = defaultSkinPortraitChoices(bundle, project)): Promise<SkinImportPlan> {
+  const appearance = mappedPortraits(bundle, project, choices, portraitChoices), required = new Set(referenceIds(appearance));
   const inputs: AssetImportInput[] = [], mapping = new Map<string, string>(), verified = new Map<BlobDigest, Uint8Array>(), records: WebAssetSourceRecord[] = [];
   const ids = new Set(project.assets.assets.map(row => String(row.assetId ?? row.id)));
   let previewProject = project;
   let totalBytes = 0;
-  for (const asset of bundle.assets) {
+  for (const asset of bundle.assets.filter(row => required.has(row.assetId))) {
     signal?.throwIfAborted(); const choice = choices[asset.assetId];
     if (!choice) throw Error(`请为“${asset.displayName}”选择包内文件、已有素材、替代文件或可读回退。`);
     if (choice.mode === "fallback") { mapping.set(asset.assetId, ""); continue; }
@@ -139,7 +158,7 @@ export async function prepareSkinImport(bundle: SkinBundle, project: CanonicalPr
     if (!records.some(row => row.assetId === id)) records.push(record ? { ...record, assetId: id, permission: "pending" } : newWebAssetSourceRecord(id, digest));
   }
   signal?.throwIfAborted();
-  const plan = { baseProjectId: project.manifest.projectId, baseAssets: JSON.stringify(project.assets), baseAppearance: JSON.stringify(project.ui.preservedFields?.webPlayerAppearance ?? null), appearance: remapAppearance(bundle.appearance, (project.ui.preservedFields?.webPlayerAppearance as unknown as WebPlayerAppearance | undefined) ?? DEFAULT_WEB_PLAYER_APPEARANCE, mapping), inputs, mappings: mapping, records, publicCredits: bundle.publicCredits };
+  const plan = { baseProjectId: project.manifest.projectId, baseAssets: JSON.stringify(project.assets), baseAppearance: JSON.stringify(project.ui.preservedFields?.webPlayerAppearance ?? null), appearance: remapAppearance(appearance, (project.ui.preservedFields?.webPlayerAppearance as unknown as WebPlayerAppearance | undefined) ?? DEFAULT_WEB_PLAYER_APPEARANCE, mapping), inputs, mappings: mapping, records, publicCredits: bundle.publicCredits };
   previewProject = applySkinImportPlan(previewProject, plan);
   return { ...plan, previewProject, reader: { read: digest => verified.has(digest) ? Promise.resolve(verified.get(digest)!) : reader?.read(digest) ?? Promise.resolve(null) } };
 }

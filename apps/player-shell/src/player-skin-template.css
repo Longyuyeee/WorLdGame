@@ -1,0 +1,21 @@
+.player-shell button { --skin-current-button: var(--skin-button-normal); }
+.player-shell button:focus-visible { --skin-current-button: var(--skin-button-hover); }
+@media (hover: hover) and (pointer: fine) { .player-shell button:hover:not(:disabled) { --skin-current-button: var(--skin-button-hover); } }
+.player-shell button:is(:active, [data-skin-pressed="true"]):not(:disabled) { --skin-current-button: var(--skin-button-pressed); }
+.player-shell button:disabled { --skin-current-button: var(--skin-button-disabled); }
+.player-shell .player-dialogue__identity { display: flex; align-items: center; gap: 12px; min-width: 0; margin-bottom: 12px; align-self: start; }
+.player-shell .player-dialogue__identity[data-name-align="right"] { justify-content: flex-end; }
+.player-shell .player-dialogue__identity .player-dialogue__speaker { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.player-shell .player-dialogue__identity[data-name-mode="badge"] .player-dialogue__speaker { padding: var(--skin-name-padding); border: 1px solid var(--skin-border); border-radius: var(--skin-name-radius); background: var(--skin-window); background-image: var(--skin-name-image); background-size: 100% 100%; }
+.player-dialogue__portrait { position: relative; display: grid; place-items: center; width: min(var(--skin-portrait-size), 28vw); height: min(var(--skin-portrait-size), 28vw); flex-shrink: 0; border-radius: var(--skin-portrait-radius); overflow: hidden; background: var(--player-panel); color: var(--skin-speaker); border: 1px solid var(--skin-border); }
+.player-dialogue__portrait img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.player-dialogue__portrait[data-portrait-image="true"] > span { visibility: hidden; }
+.player-dialogue__identity[data-portrait-side="right"] .player-dialogue__portrait { order: 1; }
+.player-shell[data-player-skin="1"][data-skin-window-frame="true"] .player-dialogue { background-image: none; border-radius: 0; border-image-source: var(--skin-window-image); border-image-slice: var(--skin-window-slice); border-image-width: var(--skin-window-frame-width); border-image-repeat: stretch; padding: max(var(--skin-window-padding), var(--skin-window-edge-top)) max(var(--skin-window-padding), var(--skin-window-edge-right)) max(var(--skin-window-padding), var(--skin-window-edge-bottom)) max(var(--skin-window-padding), var(--skin-window-edge-left)); }
+.player-shell[data-player-skin="1"][data-skin-button-images="true"][data-skin-button-frame="true"] button:not(.player-dialogue):not(.player-history-list button):not(:has(img, canvas, video)) { background-image: none !important; border-radius: 0; border-image-source: var(--skin-current-button); border-image-slice: var(--skin-buttons-slice); border-image-width: var(--skin-buttons-frame-width); border-image-repeat: stretch; padding: max(8px, var(--skin-buttons-edge-top)) max(12px, var(--skin-buttons-edge-right)) max(8px, var(--skin-buttons-edge-bottom)) max(12px, var(--skin-buttons-edge-left)); }
+.player-shell .player-dialogue__identity[data-name-frame="true"] .player-dialogue__speaker { background-image: none; border-radius: 0; border-image-source: var(--skin-name-image); border-image-slice: var(--skin-name-slice); border-image-width: var(--skin-name-frame-width); border-image-repeat: stretch; padding: max(var(--skin-name-padding), var(--skin-name-edge-top)) max(var(--skin-name-padding), var(--skin-name-edge-right)) max(var(--skin-name-padding), var(--skin-name-edge-bottom)) max(var(--skin-name-padding), var(--skin-name-edge-left)); }
+.player-shell[data-settings-high-contrast="true"] :is(.player-dialogue, .player-dialogue__speaker, button) { border-image-source: none !important; }
+.player-shell[data-settings-high-contrast="true"] .player-dialogue__identity[data-name-mode="badge"] .player-dialogue__speaker { background: #000; color: #fff; border-color: #fff; }
+.player-shell[data-settings-high-contrast="true"] .player-dialogue__portrait { color: #fff; background: #000; border-color: #fff; }
+.player-shell[data-settings-high-contrast="true"] .player-dialogue__portrait img { display: none; }
+.player-shell[data-settings-high-contrast="true"] .player-dialogue__portrait > span { visibility: visible; }

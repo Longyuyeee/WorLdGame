@@ -1,9 +1,9 @@
 import { WEB_PLAYER_BUTTON_STATE_LABELS, WEB_PLAYER_SKIN_SURFACE_LABELS, webPlayerCoverAssets, type CanonicalProject, type WebPlayerSkinBackground, type WebPlayerSkinImages, type WebPlayerSkinSurface } from "@world-studio/project-domain";
 import "./styles/player-skin-images.css";
 
-function ImageSelect({ project, label, value, onChange }: { project: CanonicalProject; label: string; value: string; onChange: (value: string) => void }) {
+export function ImageSelect({ project, label, value, onChange, disabled = false }: { project: CanonicalProject; label: string; value: string; onChange: (value: string) => void; disabled?: boolean }) {
   const assets = webPlayerCoverAssets(project);
-  return <label>{label}<select aria-label={label} value={value} onChange={event => onChange(event.target.value)}>
+  return <label>{label}<select aria-label={label} value={value} disabled={disabled} onChange={event => onChange(event.target.value)}>
     <option value="">不使用图片，沿用默认样式</option>
     {value && !assets.some(row => (row.assetId ?? row.id) === value) && <option value={value}>图片缺失，请重新选择</option>}
     {assets.map(row => <option key={String(row.assetId ?? row.id)} value={String(row.assetId ?? row.id)}>{String(row.displayName ?? row.assetId)}</option>)}
@@ -32,7 +32,7 @@ export function PlayerSkinButtonSettings({ project, images, onChange, onOpenAsse
     {Object.entries(WEB_PLAYER_BUTTON_STATE_LABELS).map(([state, label]) => <ImageSelect key={state} project={project} label={label} value={images.buttons[state as keyof typeof images.buttons]} onChange={assetId => onChange({ ...images, buttons: { ...images.buttons, [state]: assetId } })} />)}
     <label>图片按钮文字颜色<input aria-label="图片按钮文字颜色" type="color" value={textColor} onChange={event => onTextColorChange(event.target.value)} /></label>
     <small>与“主按钮文字”共用颜色，启用按钮图片后用于所有文字按钮。请分别检查四种底图上的文字是否清楚。</small>
-    <small>未选择的状态沿用普通按钮图片；普通图片也未选时沿用默认样式。键盘焦点使用悬停图并保留焦点边框，手机使用按下图，不依赖悬停。请选用可拉伸的底图并核对文字对比度；九宫格尚未提供。</small>
+    <small>未选择的状态沿用普通按钮图片；普通图片也未选时沿用默认样式。键盘焦点使用悬停图并保留焦点边框，手机使用按下图，不依赖悬停。带边框的图片可在按钮九宫格中保留边角。</small>
     <button type="button" disabled={!onOpenAssets} onClick={onOpenAssets}>导入背景与按钮素材</button>
   </section>;
 }

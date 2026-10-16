@@ -7,6 +7,7 @@ import { readAssetFile } from "./asset-file-import";
 import { PlayerSkinPreview, type SkinPreviewSurface } from "./player-skin-preview";
 import { defaultSkinChoices, exportSkinBundle, prepareSkinImport, readSkinBundle, skinAssetCandidates, skinBundleAssets, SKIN_BUNDLE_MAX_BYTES, type SkinAssetChoice, type SkinBundle, type SkinImportPlan } from "./player-skin-bundle";
 import "./styles/player-skin-bundle.css";
+import { defaultSkinPortraitChoices } from "./player-skin-bundle";
 export type CommitSkinImport = (plan: SkinImportPlan, signal: AbortSignal) => Promise<CanonicalProject>;
 export function PlayerSkinBundleTools({ project, appearance, name, reader, importBlocked, onCommit, onBlockingChange }: {
   readonly project: CanonicalProject; readonly appearance: WebPlayerAppearance; readonly name: string; readonly reader: AssetLibraryReader | null;
@@ -54,18 +55,20 @@ function ExportSkinDialog({ project, appearance, name, reader, onClose }: { read
 function ImportSkinDialog({ bundle, project, reader, onCommit, onClose, onDone }: { readonly bundle: SkinBundle; readonly project: CanonicalProject; readonly reader: AssetLibraryReader | null; readonly onCommit: CommitSkinImport; readonly onClose: () => void; readonly onDone: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null), controller = useRef<AbortController | null>(null);
   const [choices, setChoices] = useState(defaultSkinChoices(bundle, project)), [plan, setPlan] = useState<SkinImportPlan | null>(null), [busy, setBusy] = useState(false), [message, setMessage] = useState("先确认每份素材如何对应，再检查并预览；此时不会写入工程。"), [surface, setSurface] = useState<SkinPreviewSurface>("title");
+  const [portraitChoices, setPortraitChoices] = useState(defaultSkinPortraitChoices(bundle, project));
   useEffect(() => { dialog.current?.showModal(); return () => controller.current?.abort(); }, []);
   const choose = (id: string, value: SkinAssetChoice | undefined) => { setChoices(current => { const next = { ...current }; if (value) next[id] = value; else delete next[id]; return next; }); setPlan(null); setMessage("对应已变化，请重新检查并预览。"); };
   const run = async (commit: boolean) => {
     if (busy) return; const c = new AbortController(); controller.current = c; setBusy(true);
     try { if (commit) { if (!plan) return; setMessage("正在一次性保存皮肤所需素材…"); await onCommit(plan, c.signal); onDone(); }
-      else { setMessage("正在核对摘要、文件类型和媒体预算…"); const prepared = await prepareSkinImport(bundle, project, choices, reader, c.signal); setPlan(prepared); setMessage(`检查通过：新增 ${prepared.inputs.length} 项素材；确认导入前仍只在内存预览。来源记录在工程中保持待复核。`); }
+      else { setMessage("正在核对摘要、文件类型和媒体预算…"); const prepared = await prepareSkinImport(bundle, project, choices, reader, c.signal, portraitChoices); setPlan(prepared); setMessage(`检查通过：新增 ${prepared.inputs.length} 项素材；确认导入前仍只在内存预览。来源记录在工程中保持待复核。`); }
     } catch (e) { setPlan(null); setMessage(c.signal.aborted ? "已停止，未完成的提交不算成功；可重新检查后再试。" : batchImportError(e instanceof AssetBlobError ? e.code : undefined, (e as Error).message)); }
     finally { if (controller.current === c) controller.current = null; setBusy(false); }
   };
   return <dialog ref={dialog} className="entity-edit-dialog skin-bundle-dialog skin-bundle-import" aria-label="对应皮肤素材并预览" onCancel={event => { event.preventDefault(); if (busy) controller.current?.abort(); else setMessage("皮肤尚未导入，请确认导入，或点击取消导入放弃这次对应。"); }}>
     <header><h2>把“{bundle.name}”带到当前作品</h2><p>只更新皮肤、所需素材与相关来源/公开署名，保留本作品的标题、简介、剧情和现有文件。</p></header>
     <div className="skin-bundle-import-layout"><div className="skin-bundle-mapping">
+      {!!bundle.appearance.skin.template?.portrait.bindings.length && <fieldset><legend>对应说话角色的头像</legend><p>按角色选择，不按同名猜测，也不创建源角色。不使用的头像专用素材不会写入工程。</p>{bundle.appearance.skin.template.portrait.bindings.map(row => <label key={row.characterId}>{row.characterName}<select aria-label={`对应头像角色：${row.characterName}`} disabled={busy} value={portraitChoices[row.characterId] ?? "__unselected"} onChange={event => { setPortraitChoices({ ...portraitChoices, [row.characterId]: event.target.value }); setPlan(null); setMessage("头像对应已变化，请重新检查并预览。"); }}><option value="__unselected" disabled>请明确选择目标角色或不使用</option><option value="">不使用这个头像</option>{project.characters.characters.filter(character => typeof character.id === "string" && typeof character.displayName === "string").map(character => <option key={String(character.id)} value={String(character.id)}>{String(character.displayName)}</option>)}</select></label>)}</fieldset>}
       {bundle.assets.map(asset => {
         const selected = choices[asset.assetId], available = bundle.blobs.has(asset.source.digest), candidates = skinAssetCandidates(project, asset), conflict = project.assets.assets.some(row => (row.assetId ?? row.id) === asset.assetId && (row.source as JsonObjectLike | undefined)?.digest !== asset.source.digest);
         const value = !selected ? "" : selected.mode === "existing" ? `existing:${selected.assetId}` : selected.mode;

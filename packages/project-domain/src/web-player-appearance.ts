@@ -47,6 +47,15 @@ export function applyWebPlayerAppearance(project: CanonicalProject, value: WebPl
     if (value.skin.reading.windowAssetId && !webPlayerCoverAssets(project).some(asset => String(asset.assetId ?? asset.id) === value.skin!.reading.windowAssetId)) throw new Error("对话框图片缺失或不受支持，请重新选择。");
     const images = new Set(webPlayerCoverAssets(project).map(asset => String(asset.assetId ?? asset.id)));
     if (webPlayerSkinImageReferences(value.skin).some(id => !images.has(id))) throw new Error("页面背景或按钮图片缺失或未通过检查，请重新选择图片或不使用图片。");
+    const template = value.skin.template;
+    if (template) {
+      if (template.portrait.bindings.some(row => !project.characters.characters.some(character => character.id === row.characterId))) throw new Error("头像对应的角色已不存在，请在阅读页重新对应或移除该头像。");
+      const groups = [[template.frames.window, [value.skin.reading.windowAssetId]], [template.frames.buttons, Object.values(value.skin.images?.buttons ?? {})], [template.frames.name, [template.name.backgroundAssetId]]] as const;
+      for (const [frame, ids] of groups) if (frame.enabled) for (const assetId of ids.filter(Boolean)) {
+        const asset = project.assets.assets.find(row => (row.assetId ?? row.id) === assetId), inspection = (asset?.assetIndexMetadata as JsonObject | undefined)?.inspection as JsonObject | undefined;
+        if (frame.left + frame.right >= Number(inspection?.width) || frame.top + frame.bottom >= Number(inspection?.height)) throw new Error(`素材“${String(asset?.displayName ?? assetId)}”的九宫格切边超出图片尺寸，请减小切边或更换图片，需保留中间区域。`);
+      }
+    }
   }
   return { ...project, ui: { ...project.ui, preservedFields: { ...project.ui.preservedFields,
     webPlayerAppearance: { schemaVersion: 1, theme: value.theme, accent: value.accent,

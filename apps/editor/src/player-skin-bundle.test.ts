@@ -5,7 +5,7 @@ import { applyWebAssetSources, applyWebCredits, applyWebPlayerAppearance, create
 import { createBlobDigest, inspectUntrustedMedia, type BlobDigest } from "@world-studio/project-persistence";
 import { mediaInspectionToJson } from "./media-inspection-client";
 import { applySkinImportPlan, defaultSkinChoices, exportSkinBundle, prepareSkinImport, readSkinBundle, type SkinAssetChoice } from "./player-skin-bundle";
-import { defaultWebPlayerSkinImages, webPlayerSkinReferences } from "@world-studio/project-domain";
+import { defaultWebPlayerSkinImages, defaultWebPlayerSkinTemplate, webPlayerSkinReferences } from "@world-studio/project-domain";
 import { exportPlayerSkinPreset, importPlayerSkinPreset } from "./player-skin-preset";
 const png = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
 function fixture() {
@@ -22,6 +22,21 @@ function fixture() {
   return { project, appearance, reader: { read: async (id: BlobDigest) => blobs.get(id) ?? null } };
 }
 const target = () => createProjectTemplate("新的故事", "018f08d8-71a1-7bc2-a627-2f4a843ee151");
+it("requires explicit portrait-role mapping, prunes unused portrait-only files and never copies characters", async () => {
+  const f = fixture(), template = defaultWebPlayerSkinTemplate(), project = { ...f.project, characters: { ...f.project.characters, characters: [{ id: "source_hero", displayName: "同名" }] } };
+  const appearance = { ...f.appearance, coverAssetId: "", skin: { ...f.appearance.skin, reading: { ...f.appearance.skin.reading, windowAssetId: "" }, template: { ...template, portrait: { ...template.portrait, enabled: true, bindings: [{ characterId: "source_hero", characterName: "同名", assetId: "cover" }] } } } };
+  const b = await readSkinBundle(await exportSkinBundle(project, appearance, "角色模板", f.reader, "", false));
+  const p = { ...target(), characters: { schemaVersion: 1 as const, characters: [{ id: "target_hero", displayName: "同名" }] } }, choices = defaultSkinChoices(b, p);
+  await expect(prepareSkinImport(b, p, choices, null)).rejects.toThrow("明确选择");
+  const plan = await prepareSkinImport(b, p, choices, null, undefined, { source_hero: "target_hero" });
+  expect(plan.previewProject.characters).toEqual(p.characters); expect(plan.previewProject.scripts).toEqual(p.scripts);
+  expect(plan.appearance.skin?.template?.portrait.bindings[0]).toMatchObject({ characterId: "target_hero" }); expect(plan.inputs).toHaveLength(2);
+  const skipped = await prepareSkinImport(b, p, choices, null, undefined, { source_hero: "" }); expect(skipped.inputs).toHaveLength(1); expect(skipped.appearance.skin?.template?.portrait.bindings).toEqual([]);
+  const fallback = await prepareSkinImport(b, p, { ...choices, cover: { mode: "fallback" } }, null); expect(fallback.inputs).toHaveLength(1); expect(fallback.appearance.skin?.template?.portrait.bindings).toEqual([]);
+  await expect(prepareSkinImport(b, p, choices, null, undefined, { source_hero: "unknown" })).rejects.toThrow("角色已变化");
+  const templateWithTwo = { ...b.appearance.skin.template!, portrait: { ...b.appearance.skin.template!.portrait, bindings: [...b.appearance.skin.template!.portrait.bindings, { characterId: "source_two", characterName: "第二人", assetId: "cover" }] } };
+  await expect(prepareSkinImport({ ...b, appearance: { ...b.appearance, skin: { ...b.appearance.skin, template: templateWithTwo } } }, p, choices, null, undefined, { source_hero: "target_hero", source_two: "target_hero" })).rejects.toThrow("同一角色");
+});
 it("carries more than eight independent image references through JSON, ZIP, remapping and missing-image fallback", async () => {
   const f = fixture(), empty = defaultWebPlayerSkinImages(), extra = Array.from({ length: 13 }, (_, i) => ({ ...f.project.assets.assets[0]!, assetId: `image_${i}` }));
   const images = { backgrounds: Object.fromEntries(Object.entries(empty.backgrounds).map(([surface, row], i) => [surface, { ...row, assetId: `image_${i}` }])) as typeof empty.backgrounds, buttons: { normal: "image_9", hover: "image_10", pressed: "image_11", disabled: "image_12" } };

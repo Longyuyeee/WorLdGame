@@ -2,9 +2,11 @@ import { isWebPlayerSkin, webPlayerSkinAssetIdValid, webPlayerSkinReferences, re
 
 export function exportPlayerSkinPreset(project: CanonicalProject, appearance: WebPlayerAppearance, name: string): string {
   if (!appearance.skin || !isWebPlayerSkin(appearance.skin)) throw Error("请先修正皮肤参数。");
+  const template = appearance.skin.template;
+  const skin = template ? { ...appearance.skin, template: { ...template, portrait: { ...template.portrait, bindings: template.portrait.bindings.map(row => ({ ...row, characterName: String(project.characters.characters.find(character => character.id === row.characterId)?.displayName ?? row.characterName).slice(0, 80) })) } } } : appearance.skin;
   const ids = [...new Set([appearance.coverAssetId, ...webPlayerSkinReferences(appearance.skin)].filter(Boolean))];
   const assets = ids.map(assetId => { const asset = project.assets.assets.find(item => String(item.assetId ?? item.id) === assetId); return { assetId, displayName: String(asset?.displayName ?? assetId), digest: (asset?.source as { digest?: string } | undefined)?.digest ?? "" }; });
-  return JSON.stringify({ format: "world-player-skin", schemaVersion: 1, name: name.trim().slice(0, 80) || "我的游戏皮肤", appearance: { theme: appearance.theme, accent: appearance.accent, coverAssetId: appearance.coverAssetId, skin: appearance.skin }, assets }, null, 2);
+  return JSON.stringify({ format: "world-player-skin", schemaVersion: 1, name: name.trim().slice(0, 80) || "我的游戏皮肤", appearance: { theme: appearance.theme, accent: appearance.accent, coverAssetId: appearance.coverAssetId, skin }, assets }, null, 2);
 }
 export function importPlayerSkinPreset(text: string, project: CanonicalProject, current: WebPlayerAppearance): { appearance: WebPlayerAppearance; missing: readonly string[]; name: string } {
   if (new TextEncoder().encode(text).length > 256 * 1024) throw Error("皮肤配置最大 256 KB，请选择导出的 .worldskin.json 文件。");

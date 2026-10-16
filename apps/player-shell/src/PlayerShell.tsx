@@ -90,6 +90,8 @@ import "./player-skin.css";
 import "./player-screen-skin.css";
 import "./player-skin-images.css";
 import { useSkinButtonFeedback } from "./use-skin-button-feedback";
+import { PlayerDialogueIdentity } from "./PlayerDialogueIdentity";
+import "./player-skin-template.css";
 
 export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
 
@@ -1563,6 +1565,8 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       data-skin-text-motion={skin?.motion.text}
       data-skin-control-motion={skin?.motion.controls}
       data-skin-button-images={skin?.images ? Object.values(skin.images.buttons).some(Boolean) : undefined}
+      data-skin-button-frame={!!skin?.template?.frames.buttons.enabled}
+      data-skin-window-frame={!!skin?.template?.frames.window.enabled && !!skin.reading.windowAssetId}
       data-player-accent={appearance?.accent}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}
@@ -2244,7 +2248,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             onClick={event => { if (event.detail > 0 && reading.gesture.current.moved) return; applyIntent({ kind: "primary" }, pointerInput.current); }}
             aria-label="继续下一句"
           >
-            {content.kind === "dialogue" && <strong className="player-dialogue__speaker">{speakerNames[content.speakerId] ?? content.speakerId}</strong>}
+            {content.kind === "dialogue" && <PlayerDialogueIdentity speakerId={content.speakerId} name={speakerNames[content.speakerId] ?? content.speakerId} skin={skin} media={mediaAssets} />}
             <span
               key={`${presentedText}:${textRevealDuration}`}
               ref={releaseAnimationsOnDetach}
