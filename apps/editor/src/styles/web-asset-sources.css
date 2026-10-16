@@ -1,10 +1,13 @@
 .web-sources-editor { width: min(1000px, calc(100vw - 28px)); }
+.web-sources-editor button { min-height: 44px; }
+.web-sources-editor .web-sources-mobile-toggle { display: none; }
 .web-sources-layout { grid-template-columns: minmax(180px, .7fr) minmax(0, 1.5fr); align-items: start; }
 .web-sources-list { min-width: 0; display: grid; gap: 10px; }
 .web-sources-list > div { max-height: 55dvh; overflow: auto; display: grid; grid-auto-rows: max-content; gap: 6px; }
 .web-sources-list button { text-align: left; overflow-wrap: anywhere; }
 .web-sources-list button[aria-pressed="true"] { border-color: var(--studio-violet); background: var(--studio-violet-bg); }
 .web-sources-list button strong, .web-sources-list button small { display: block; }
+.web-sources-list select { width: 100%; min-width: 0; min-height: 44px; font: inherit; color: inherit; background: var(--wg-color-bg-surface-2); border: 1px solid var(--wg-color-border-subtle); border-radius: 9px; padding: 8px; }
 .web-sources-editor .web-sources-filter { display: flex; align-items: center; gap: 8px; }
 .web-sources-filter input { width: 18px; min-height: 18px; }
 .web-sources-fields { display: grid; min-width: 0; gap: 12px; }
@@ -20,9 +23,16 @@
 .web-release-preparation details { margin-top: 14px; }
 .web-release-preparation summary { cursor: pointer; font-size: 13px; }
 .web-release-preparation ol { padding-left: 22px; }
+.web-source-review-queue ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.web-source-review-queue li { min-width: 0; display: grid; gap: 4px; align-content: start; }
+.web-source-review-queue button { text-align: left; overflow-wrap: anywhere; }
+.web-sources-editor footer p[role="status"] { color: var(--wg-color-text-secondary); }
 @media(max-width:639px) {
   .web-sources-layout { grid-template-columns: minmax(0, 1fr); }
+  .web-sources-editor .web-sources-mobile-toggle { display: block; }
+  .web-sources-layout[data-selecting="false"] .web-sources-list, .web-sources-layout[data-selecting="true"] .web-sources-fields { display: none; }
   .web-sources-list > div { max-height: 160px; }
   .web-sources-editor .web-credits-fields { grid-template-columns: minmax(0, 1fr); }
   .web-sources-editor footer > div { flex-wrap: wrap; }
+  .web-source-review-queue ul { grid-template-columns: minmax(0, 1fr); }
 }

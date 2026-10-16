@@ -1,5 +1,7 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
+> 当前接续（2026-10-17）：[#374 发布前素材问题处理与连续核对](docs/374-web-source-review-workflow.md)。回到完整作品交付主线：发布问题分类直达、跨素材错误定位、应用后连续核对、手机详情切换及保存重开／内部资料隔离。测试与实际作品范围见 #374；长篇剩余成本、人工／真机／许可／公网及原生搁置保持。以下为历史。
+
 > 当前接续（2026-10-17）：[#373 长历史结果的无损回传与读取](docs/373-web-history-result-transport.md)。推进／读档结果无损传输重复进度列表，同包共享完整检查点与中途候选，接收端重建全部历史；不使用旧主线程前缀或校验缓存，输入和存档格式不变。迟到回调直接丢弃，实测、回归和完整作品核对见 #373；仍按 Web 完整作品交付，人工／真机／许可／公网及原生搁置边界保持。以下为历史。
 
 > 当前接续（2026-10-17）：[#372 长历史普通推进与可取消计算](docs/372-web-foreground-story-advance.md)。长历史手动推进复用前台 Worker，等待期间保留当前句，可取消、重试或明确选择兼容模式；菜单、保存、读档和暂停使迟到结果失效。原 Core 完整校验、完整历史和存档格式保持；收益定位为主线程响应，不宣称总等待提速。继续 Web 完整作品交付，人工／真机／许可／公网与原生搁置边界保持。以下为历史。
@@ -30,7 +32,7 @@
 
 > 开发进度与后续方向（2026-10-17）：[#358 剧情动效预设与作者复用](docs/358-web-story-motion-presets.md)。人物/文字动效已接通静音试看、应用、保存重开、跨场景预设和配置往返；样章 0.4.0 保持原正文、路线、外观和七份素材。下一批按 #357 顺序推进带素材皮肤包，再做存档缩略图/创作连续性和自由布局。
 
-> 完整作品接续：《雨停之前》1.7.14 的原工程、游戏与校订记录在 [evidence/web-reading-throughput](evidence/web-reading-throughput)，最新代码、连续阅读与同版交付核对见 [#373](docs/373-web-history-result-transport.md)。外观功能样章《给明天的回信》0.9.0 仍在 [evidence/web-additional-layout](evidence/web-additional-layout)，范围见 [#367](docs/367-web-additional-content-layout.md)；历史工程和产物不改写，当前代码的临时验证导出不作为新发行版本。
+> 完整作品接续：《雨停之前》1.7.14 的原工程、游戏与校订记录在 [evidence/web-reading-throughput](evidence/web-reading-throughput)，最新素材交付流程与完整作品回归见 [#374](docs/374-web-source-review-workflow.md)，长篇剩余成本见 [#373](docs/373-web-history-result-transport.md)。外观功能样章《给明天的回信》0.9.0 仍在 [evidence/web-additional-layout](evidence/web-additional-layout)，范围见 [#367](docs/367-web-additional-content-layout.md)；历史工程和产物不改写，当前代码的临时验证导出不作为新发行版本。
 
 > 最新判断：基础创作、主要页面模板和首批剧情动效作者流程可用。199 项相关测试、根类型、双构建、便携架构审计及六组实际静音任务通过；HTML file:// 桌面一路和目录 HTTP 手机一路合计独立 Player 两结局，编辑器整部仍 0/2。未计全格式×路线组合、真机/Safari、人工/许可/公网或长篇性能收尾，范围见 #358。
 

@@ -43,6 +43,7 @@ import { PreviewTranscript } from './PreviewTranscript';
 import { WebCreditsDialog, creditsSummary } from './WebCreditsDialog';
 import { WebAssetSourcesDialog } from './WebAssetSourcesDialog';
 import { WebReleasePreparation } from './WebReleasePreparation';
+import type { WebSourceReviewTarget } from './web-asset-source-workflow';
 import { TextReplaceDialog } from './TextReplaceDialog';
 import { BatchAssetImportDialog } from './BatchAssetImportDialog';
 import { usePageLeaveGuard } from './use-page-leave-guard';
@@ -3297,8 +3298,8 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
   const projectRunBlocked = inputDirty || pendingDraftSceneIds(session).length > 0;
   const [publicationSettingsDirty, setPublicationSettingsDirty] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
-  const [sourcesOpen, setSourcesOpen] = useState(false);
-  const publicationDirty = publicationSettingsDirty || creditsOpen || sourcesOpen;
+  const [sourcesOpen, setSourcesOpen] = useState<WebSourceReviewTarget | null>(null);
+  const publicationDirty = publicationSettingsDirty || creditsOpen || sourcesOpen !== null;
   const [localPublicationWorkflow, setLocalPublicationWorkflow] = useState<PublicationWorkflow>(() => ({ ...DEFAULT_PUBLICATION_WORKFLOW, step: initialPublicationStep, format: initialPublicationFormat }));
   const workflow = publicationWorkflow ?? localPublicationWorkflow;
   const updateWorkflow = (patch: Partial<PublicationWorkflow>) => (onPublicationWorkflowChange ?? setLocalPublicationWorkflow)({ ...workflow, ...patch });
@@ -4130,8 +4131,8 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       <nav className="publication-steps" aria-label="发布流程">
         {["作品信息", "导出方式", "生成游戏", "试玩与部署"].map((label, index) => <button key={label} type="button" aria-current={publicationStep === index ? "step" : undefined} disabled={publicationDirty && publicationStep !== index} onClick={() => setPublicationStep(index)}><span>{index + 1}</span><strong>{label}</strong></button>)}
       </nav>
-      {sourcesOpen && <WebAssetSourcesDialog project={canonicalProject} onApply={onPublicationChange} onClose={() => setSourcesOpen(false)} onReplace={assetId => {
-        setSourcesOpen(false); onReleaseFix?.({ severity: 'warning', code: 'WEB_ASSET_SOURCE_REPLACE', title: '替换待核对素材', message: '', target: 'assets', assetId }, publicationFormat);
+      {sourcesOpen && <WebAssetSourcesDialog project={canonicalProject} initialAssetId={sourcesOpen.assetId} initialStatus={sourcesOpen.status} onApply={onPublicationChange} onClose={() => setSourcesOpen(null)} onReplace={assetId => {
+        setSourcesOpen(null); onReleaseFix?.({ severity: 'warning', code: 'WEB_ASSET_SOURCE_REPLACE', title: '替换待核对素材', message: '', target: 'assets', assetId }, publicationFormat);
       }} />}
       <div className="publication-layout">
       <div className="publication-main">
@@ -4142,7 +4143,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
         </div>
         <section className="web-credits-entry" aria-label="作品制作名单"><span className="web-credits-mark"><StudioIcon name="characters" /></span><div><strong>制作名单与致谢</strong><p>{creditsSummary(canonicalProject)}</p></div><button type="button" disabled={publicationSettingsDirty || projectRunBlocked} onClick={() => setCreditsOpen(true)}>编辑制作名单</button></section>
         {creditsOpen && <WebCreditsDialog project={canonicalProject} onApply={onPublicationChange} onClose={() => setCreditsOpen(false)} />}
-        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={() => setSourcesOpen(true)} />
+        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
         <h3>Web 游戏</h3>
         <div className="publication-platforms publication-platforms--web">
           <div className="publication-platform is-selected"><span className="publication-platform__icon" aria-hidden="true">◎</span><strong>Web</strong><span>浏览器游戏</span><small>支持电脑和手机，无需安装。</small><b aria-hidden="true">✓</b></div>
@@ -4183,7 +4184,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
         </div>
         <dl className="publication-inventory"><div><dt>故事场景</dt><dd>{session.project.scenes.length} 个</dd></div><div><dt>创作素材</dt><dd>{assetIndex.assets.length} 项</dd></div><div><dt>运行方式</dt><dd>离线可运行</dd></div></dl>
         {pendingReviewNotes > 0 && <section className="release-review-notes" aria-label="发布前校订提醒"><StudioIcon name="write" /><div><strong>{pendingReviewNotes} 条试玩问题仍待跟进</strong><p>请确认这些问题是否影响交付；记录不会自动判定作品通过。</p></div><button type="button" disabled={projectRunBlocked || publicationDirty || webBuilding} onClick={onOpenReviewNotes}>查看校订清单</button></section>}
-        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={() => setSourcesOpen(true)} />
+        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
       <WebReleaseReadiness project={canonicalProject} inspection={releaseInspection} blocked={projectRunBlocked || publicationDirty} busy={webBuilding} trace={reviewTrace} progress={playtestProgress} onRestartPreview={() => onRestartPlaytest?.(publicationFormat)} onOpen={finding => { if (finding.target === "publication") setPublicationStep(0); else onReleaseFix?.(finding, publicationFormat); }} onPreview={() => onReleaseReview?.(false, publicationFormat)} onRoutes={() => onReleaseReview?.(true, publicationFormat)} />
         <div className="publication-step-actions"><button type="button" disabled={webBuilding} onClick={() => setPublicationStep(1)}>← 导出方式</button><button className="studio-primary publication-build" type="button" aria-label={publicationFormat === "html" ? "构建试玩 HTML" : "构建目录 ZIP"} onClick={() => void preparePlayableWeb(publicationFormat === "directory")} disabled={projectRunBlocked || webBuilding || publicationDirty || !releaseInspection.ready}>{webBuilding ? "正在打包游戏…" : releaseInspection.checking ? "正在检查…" : "↗ 导出游戏"}</button></div>
         {webBuilding && <button type="button" onClick={() => { webBuildController.current?.abort(); webBuildGeneration.current++; setWebBuilding(false); setWebBuildError("构建已取消，源工程未改变，可重新构建。"); }}>取消本次构建</button>}
@@ -4192,7 +4193,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       </section>
       <section className="publication-step-panel" hidden={publicationStep !== 3} aria-label="试玩与部署">
         <WebReleaseGuide format={webBuild ? webBuild.directory ? "directory" : "html" : publicationFormat} ready={webBuild !== null} productionReady={webBuild?.production !== undefined} />
-        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={() => setSourcesOpen(true)} />
+        <WebReleasePreparation project={canonicalProject} disabled={projectRunBlocked || publicationDirty || webBuilding} onOpen={target => setSourcesOpen(target ?? {})} />
         <div className="publication-step-actions"><button type="button" onClick={() => setPublicationStep(2)}>← 生成游戏</button><button type="button" onClick={() => setPublicationStep(1)}>更换导出方式</button></div>
       </section>
       </div>

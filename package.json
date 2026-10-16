@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-source-review:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-source-review.mjs",
     "audit:web-history-transport:profile": "node tools/run-web-history-transport.mjs --profile",
     "audit:web-history-transport:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-history-transport.mjs --browser",
     "audit:web-foreground-advance:profile": "node tools/run-web-foreground-advance.mjs --profile",
