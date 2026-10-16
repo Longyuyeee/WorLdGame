@@ -1,10 +1,12 @@
 import type { DirectiveNode } from "./model";
+import { STORY_MOTION_PARAMETERS } from "@world-studio/story-core";
+export { STORY_MOTION_PARAMETERS, STORY_MOTIONS, storyMotionError, readStoryMotion, type StoryMotion, type StoryMotionKind } from "@world-studio/story-core";
 
 export type BackgroundAction = "set" | "clear";
 export type CharacterAction = "show" | "move" | "hide";
 export type CameraAction = "move" | "reset";
 export type AudioAction = "play" | "stop" | "pause" | "resume";
-export type TextboxAction = "set" | "reset";
+export type TextboxAction = "set" | "reset" | "motion";
 export type DialogueTemplate = "adv" | "nvl" | "bubble";
 export type DirectiveAction = BackgroundAction | CharacterAction | CameraAction | AudioAction | TextboxAction;
 export type StageTransition = "fade" | "dissolve" | "slide";
@@ -28,10 +30,10 @@ export function isDialogueTemplate(value: string | undefined): value is Dialogue
 
 export const DIRECTIVE_PARAMETERS: Record<DirectiveNode["command"], readonly string[]> = {
   background: ["action", "asset", "transition", "transitionAsset", "duration"],
-  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", ...STAGE_BEZIER_PARAMETERS, "transition", "transitionAsset", "duration", "easing"],
+  show: ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", ...STAGE_BEZIER_PARAMETERS, "transition", "transitionAsset", "duration", "easing", ...STORY_MOTION_PARAMETERS],
   camera: ["action", "x", "y", "zoom", "rotation", "duration", "easing"],
   audio: ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"],
-  textbox: ["action", "template"]
+  textbox: ["action", "template", ...STORY_MOTION_PARAMETERS]
 };
 
 const ACTIONS: Record<DirectiveNode["command"], ReadonlySet<string>> = {
@@ -39,7 +41,7 @@ const ACTIONS: Record<DirectiveNode["command"], ReadonlySet<string>> = {
   show: new Set(["show", "move", "hide"]),
   camera: new Set(["move", "reset"]),
   audio: new Set(["play", "stop", "pause", "resume"]),
-  textbox: new Set(["set", "reset"])
+  textbox: new Set(["set", "reset", "motion"])
 };
 
 const DEFAULT_ACTIONS: Record<DirectiveNode["command"], DirectiveAction> = {
@@ -91,11 +93,11 @@ export function directiveActionParameters(
     if (action === "show") return DIRECTIVE_PARAMETERS.show.filter((parameter) =>
       parameter !== "easing" && parameter !== "curve" && !STAGE_BEZIER_PARAMETERS.includes(parameter as typeof STAGE_BEZIER_PARAMETERS[number])
     );
-    if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "curve", ...STAGE_BEZIER_PARAMETERS, "transition", "duration", "easing"];
-    return ["action", "slot", "transition", "duration"];
+    if (action === "move") return ["action", "slot", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "curve", ...STAGE_BEZIER_PARAMETERS, "transition", "duration", "easing", ...STORY_MOTION_PARAMETERS];
+    return ["action", "slot", "asset", ...STAGE_MOVE_GEOMETRY_PARAMETERS, "transition", "duration", ...STORY_MOTION_PARAMETERS];
   }
   if (command === "camera") return action === "move" ? DIRECTIVE_PARAMETERS.camera : ["action", "duration", "easing"];
-  if (command === "textbox") return action === "set" ? DIRECTIVE_PARAMETERS.textbox : ["action"];
+  if (command === "textbox") return action === "set" ? DIRECTIVE_PARAMETERS.textbox : action === "motion" ? ["action", ...STORY_MOTION_PARAMETERS] : ["action"];
   return action === "play" ? DIRECTIVE_PARAMETERS.audio : ["action", "bus"];
 }
 

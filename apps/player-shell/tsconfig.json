@@ -9,6 +9,7 @@
   },
   "include": ["src"],
   "references": [
+    { "path": "../../packages/story-core" },
     { "path": "../../packages/project-persistence" },
     { "path": "../../packages/gal-settings" },
     { "path": "../../packages/project-domain" },

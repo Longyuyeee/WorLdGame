@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T17:35:33.250Z",
+  "source": "Actual UI downloads",
+  "version": "0.4.0",
+  "sameProjectAcrossFormats": true,
+  "gameHasNoEditorPreviewMode": true,
+  "appearanceUnchangedFrom": "0.3.0",
+  "storyAndRoutesUnchanged": true,
+  "textLines": 46,
+  "motionCues": 5,
+  "customPresets": 2,
+  "assetsUnchangedAndDigestVerified": 7,
+  "siteFilesVerified": 18,
+  "browserReport": "browser-checks.json",
+  "artifacts": [
+    {
+      "name": "tomorrow-letter-0.4.0-project.zip",
+      "bytes": 10684709,
+      "sha256": "d94b68cd67c4ea1bc392cdf1bfc47b4c49b56063b77e5cacffbe6aa629a353d1"
+    },
+    {
+      "name": "tomorrow-letter-0.4.0.html",
+      "bytes": 14986374,
+      "sha256": "e23493bb8678925f48928608db9d4b724e1450a0df7e403263bd45d5a9bd9400"
+    },
+    {
+      "name": "tomorrow-letter-0.4.0-web.zip",
+      "bytes": 11490977,
+      "sha256": "56ab4a714bc6e51c005868624962abd2caadc6cea1f2754699e49555feebf5c9"
+    }
+  ]
+}

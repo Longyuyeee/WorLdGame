@@ -6,6 +6,8 @@ import { DirectionAssetPicker } from "./DirectionAssetPicker";
 import { CharacterTargetFields } from "./CharacterTargetFields";
 import { directionStageContext, type DirectionStageContext } from "./direction-stage-context";
 import { TextBatchDialog } from "./TextBatchDialog";
+import { MotionPresetDialog } from "./MotionPresetDialog";
+import { STORY_MOTION_PARAMETERS, storyMotionError } from "@world-studio/story-core";
 import { describeDirection, directionActionLabel, directionParameterLabel } from "./direction-description";
 import { WebReleaseGuide } from "./WebReleaseGuide";
 import { WebReleaseReadiness, useWebReleaseInspection } from "./WebReleaseReadiness";
@@ -1145,6 +1147,8 @@ function AssetVaultDialog({
 }
 
 interface SequenceViewProps extends CommonProps {
+  readonly canonicalProject?: CanonicalProject;
+  readonly onMotionProjectChange?: (project: CanonicalProject) => void;
   readonly inputDirty: boolean;
   readonly assetReader?: AssetLibraryReader | null;
   readonly onCreateEntity?: (kind: Exclude<EntityKind, "chapter">) => void;
@@ -1279,8 +1283,9 @@ export function DirectionInspector({
   const moveHasGeometry = action !== "move" || (statement.command === "camera" ? CAMERA_GEOMETRY_PARAMETERS : STAGE_MOVE_GEOMETRY_PARAMETERS).some((key) => (form[key] ?? "").trim().length > 0);
   const easingValid = statement.command !== "camera" && action !== "move" || form.easing === undefined || form.easing.length === 0 || isStageEasing(form.easing);
   const transitionValid = form.transition === undefined || form.transition.length === 0 || isStageTransition(form.transition);
-  const templateValid = statement.command !== "textbox" || action === "reset" || isDialogueTemplate(form.template ?? "");
-  const canApply = !disabled && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid && templateValid &&
+  const templateValid = statement.command !== "textbox" || action === "reset" || action === "motion" || isDialogueTemplate(form.template ?? "");
+  const motionError = storyMotionError(statement.command, action ?? "", form);
+  const canApply = !disabled && !motionError && inspection.duplicateKeys.length === 0 && action !== undefined && assetKnown && busValid && slotValid && zValid && templateValid &&
     geometryValid && bezierError === undefined && cameraGeometryValid && moveHasGeometry && easingValid && transitionValid && transitionAssetKnown && durationValid && volumeValid;
 
   const setField = (key: string, value: string) => setForm((current) => ({ ...current, [key]: value }));
@@ -1290,10 +1295,10 @@ export function DirectionInspector({
   const keys = statement.command === "background"
     ? ["action", "asset", "transition", "transitionAsset", "duration"]
     : statement.command === "show"
-      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", "control1X", "control1Y", "control2X", "control2Y", "transition", "transitionAsset", "duration", "easing"]
+      ? ["action", "asset", "slot", "z", "expression", "position", "x", "y", "scale", "rotation", "anchorX", "anchorY", "curve", "control1X", "control1Y", "control2X", "control2Y", "transition", "transitionAsset", "duration", "easing", ...STORY_MOTION_PARAMETERS]
       : statement.command === "camera"
         ? ["action", "x", "y", "zoom", "rotation", "duration", "easing"]
-        : statement.command === "textbox" ? ["action", "template"] : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
+        : statement.command === "textbox" ? ["action", "template", ...STORY_MOTION_PARAMETERS] : ["action", "asset", "bus", "loop", "volume", "fade", "transitionAsset"];
   const inactiveResourcePatch = statement.command === "background"
     ? { asset: null, transitionAsset: null }
     : statement.command === "show"
@@ -1304,7 +1309,7 @@ export function DirectionInspector({
           : { asset: null, z: null, expression: null, position: null, x: null, y: null, scale: null, rotation: null, anchorX: null, anchorY: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null, transition: null, transitionAsset: null, duration: null }
       : statement.command === "camera"
         ? action === "reset" ? { x: null, y: null, zoom: null, rotation: null } : {}
-        : statement.command === "textbox" ? action === "reset" ? { template: null } : {} : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
+        : statement.command === "textbox" ? action === "reset" || action === "motion" ? { template: null } : {} : { asset: null, loop: null, volume: null, fade: null, transitionAsset: null };
 
   return (
     <form className="direction-inspector" onSubmit={(event) => {
@@ -1319,7 +1324,7 @@ export function DirectionInspector({
           ...(statement.command === "audio" && assetRequired ? { volume: form.volume?.trim() ? normalizeAudioVolume(form.volume) : null } : {}),
           action: action ?? null,
           ...(statement.command === "show" && action === "show" ? { easing: null, curve: null, control1X: null, control1Y: null, control2X: null, control2Y: null } : {}),
-          ...(!assetRequired ? inactiveResourcePatch : {})
+          ...(!assetRequired && form.motion !== "fade-out" ? inactiveResourcePatch : {})
         },
         removeLegacyPositional: inspection.positional.length > 0
       }); setBaseline(JSON.stringify(form)); setNotice(""); }
@@ -1333,6 +1338,7 @@ export function DirectionInspector({
         </div>
       </div>
 
+      {form.motion && <p role={motionError ? "alert" : "status"}>{motionError || "此步包含剧情动效，可通过“动效预设”预览和调整。"}</p>}
       {inspection.positional.length > 0 && (
         <div className="migration-notice" role="status">
           <strong>检测到旧式描述</strong>
@@ -1347,7 +1353,7 @@ export function DirectionInspector({
       <div className="direction-field">
         <label htmlFor={`direction-action-${statement.id}`}>动作</label>
         <select id={`direction-action-${statement.id}`} aria-label="演出动作" value={action ?? ""} disabled={disabled} onChange={(event) => setField("action", event.target.value)}>
-          {directiveActionOptions(statement.command).map((option) => <option key={option} value={option}>{directionActionLabel(statement.command, option)}</option>)}
+          {directiveActionOptions(statement.command).filter(option => option !== "motion" || action === "motion").map((option) => <option key={option} value={option}>{directionActionLabel(statement.command, option)}</option>)}
         </select>
       </div>
 
@@ -1667,7 +1673,7 @@ export function DirectionInsertPanel({ stageContext, insertionLabel, command, af
       <p className="direction-insertion-context">{insertionLabel}</p>
       <details><summary>技术信息</summary><p>插入位置：<code>{afterId}</code></p></details>
       <div className="direction-insert__fields">
-        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => { const next = event.target.value as typeof action; setAction(next); if (command === "show") setSlot(next === "show" ? stageContext.newSlot : stageContext.characters.length === 1 ? stageContext.characters[0]?.slot ?? "" : ""); }}>{directiveActionOptions(command).map((value) => <option key={value} value={value}>{directionActionLabel(command, value)}</option>)}</select></label>
+        <label><span>动作</span><select aria-label="新增演出动作" value={action} disabled={disabled} onChange={(event) => { const next = event.target.value as typeof action; setAction(next); if (command === "show") setSlot(next === "show" ? stageContext.newSlot : stageContext.characters.length === 1 ? stageContext.characters[0]?.slot ?? "" : ""); }}>{directiveActionOptions(command).filter(value => value !== "motion").map((value) => <option key={value} value={value}>{directionActionLabel(command, value)}</option>)}</select></label>
         {assetRequired && <DirectionAssetPicker assets={compatibleAssets} value={asset} disabled={disabled} label="新增演出资源" reader={assetReader} onChange={setAsset} />}
         {command === "show" && <CharacterTargetFields context={stageContext} index={assetIndex} value={slot} action={action} disabled={disabled} label="新增角色槽位" onChange={setSlot} />}
         {command === "show" && assetRequired && <label><span>层级</span><input aria-label="新增角色层级" type="number" min={MIN_STAGE_Z} max={MAX_STAGE_Z} value={z} disabled={disabled} onChange={(event) => setZ(event.target.value)} /></label>}
@@ -1941,7 +1947,9 @@ function SequenceView({
   onRequestedFocusHandled,
   runtimeRouteTrace,
   stageExpanded = true,
-  onCreateEntity
+  onCreateEntity,
+  canonicalProject,
+  onMotionProjectChange
 }: SequenceViewProps) {
   const scene = findScene(session.project, session.activeSceneId);
   const selected = findStatement(session.project, scene.id, session.selectedStatementId);
@@ -1952,6 +1960,7 @@ function SequenceView({
   const pendingDraft = hasPendingDraft(session);
   const [insertCommand, setInsertCommand] = useState<DirectionCommand | null>(null);
   const [textBatchOpen, setTextBatchOpen] = useState(false);
+  const [motionPresetOpen, setMotionPresetOpen] = useState(false);
   const [keyframeInsertOpen, setKeyframeInsertOpen] = useState(false);
   const [motionPathOpen, setMotionPathOpen] = useState(false);
   const [bezierPathOpen, setBezierPathOpen] = useState(false);
@@ -2251,6 +2260,7 @@ function SequenceView({
       </div>
 
       <div className="direction-quick-actions" aria-label="场景演出快捷操作"><span>场景演出</span>{([ ["background", "背景", "assets"], ["show", "角色", "characters"], ["audio", "声音", "audio"], ["camera", "镜头", "director"], ["textbox", "对白框", "appearance"] ] as const).map(([command, label, icon]) => <button key={command} type="button" data-command={command} disabled={inputDirty || pendingDraft || inspectorDirty} onClick={() => setInsertCommand(command)}><StudioIcon name={icon} />添加{label}</button>)}</div>
+      {canonicalProject && onMotionProjectChange && <button className="motion-preset-entry" type="button" disabled={inputDirty || pendingDraft || inspectorDirty || !(selected.kind === "dialogue" || selected.kind === "narration" || selected.kind === "direction" && ["show", "textbox"].includes(selected.command))} onClick={() => setMotionPresetOpen(true)}>动效预设 · 试看并应用</button>}
       <details className="statement-tools"><summary>插入与整理内容<span>复制、移动与多选</span></summary>
       <div className="statement-toolbar" aria-label="对白结构工具">
         <label className="sequence-insert"><span>插入语句</span><select aria-label="插入 P0 语句类型" value={sequenceInsertKind} disabled={pendingDraft || inspectorDirty} onChange={(event)=>setSequenceInsertKind(event.target.value as SequenceInsertKind)}>{([['dialogue','对白'],['narration','旁白'],['choice','两选项选择'],['label','标签'],['jump','跳转'],['call','调用'],['return','返回'],['set','设置变量'],['condition','条件分支'],['wait','等待'],['end','结局'],['background','背景'],['show','角色演出'],['camera','镜头'],['audio','音频'],['textbox','文本框模板']] as const).map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
@@ -2588,6 +2598,13 @@ function SequenceView({
         selectionNotice={selectionNotice}
       />}
 
+      {motionPresetOpen && canonicalProject && onMotionProjectChange && <MotionPresetDialog project={canonicalProject} statements={scene.statements} selectedId={selected.id} sceneId={scene.id} reader={assetReader} createId={createEntityId} onProjectChange={onMotionProjectChange} onClose={() => setMotionPresetOpen(false)} onDirtyChange={onInputDirtyChange} onApply={operations => {
+        const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations, selectedStatementId: selected.id };
+        const candidate = reduceStudioSession(session, action);
+        if (candidate.notice.tone === "error" || hasPendingDraft(candidate)) throw new Error(candidate.notice.detail);
+        if (activeSourceSession(candidate).revision === activeSourceSession(session).revision) return;
+        dispatch(action);
+      }} />}
       {textBatchOpen && <TextBatchDialog characters={session.project.characters} afterId={insertionAnchor} createId={createEntityId}
         onDirtyChange={onInputDirtyChange} onClose={() => setTextBatchOpen(false)} onApply={(operations, selectedStatementId) => {
           const action: StudioAction = { type: "p0-batch", commandId: createCommandId(), operations, selectedStatementId };
@@ -5822,7 +5839,7 @@ export function App({ workspaceReferenceId, initialDeliveryReview, onDeliveryRev
           }}
         />
         {mode === "sequence" ? (
-          <SequenceView inputDirty={inputDirty} assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
+          <SequenceView canonicalProject={previewCanonicalProject} onMotionProjectChange={project => applyCanonicalProjectMutation(project, "动效预设已更新，等待保存工程。")} inputDirty={inputDirty} assetReader={assetRepositoryRef.current} {...(onOpenProject ? { onCreateEntity: createStoryEntity } : {})} stageExpanded={workspaceMode === "director"} session={session} dispatch={dispatch} createCommandId={createCommandId} createEntityId={createEntityId} onInputDirtyChange={setInputDirty} assetIndex={assetIndex} variableDefaults={canonicalVariableDefaults} variableTypes={canonicalVariableTypes} variableIds={canonicalVariableIds} variableNames={canonicalVariableNames} variableDisplayNames={canonicalVariableDisplayNames} requestedFocusStatementId={requestedFocusStatementId} onRequestedFocusHandled={() => setRequestedFocusStatementId(null)} runtimeRouteTrace={runtimeRouteTrace} />
         ) : mode === "script" ? (
           <ScriptView session={session} dispatch={dispatch} createCommandId={createCommandId} inputDirty={inputDirty} onInputDirtyChange={setInputDirty} />
         ) : (

@@ -12,6 +12,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@world-studio/story-core": "0.0.0-s0.29",
     "@world-studio/project-persistence": "0.0.0-s0.35",
     "fflate": "^0.8.3",
     "@world-studio/gal-settings": "0.1.0-n51",

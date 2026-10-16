@@ -270,6 +270,7 @@ function directionState(state: RuntimeStateV1, command: string, parameters: Read
     return {};
   }
   if (command === "textbox") {
+    if (action === "motion") return parameters.template === undefined && ["none", "text-ink", "text-rise"].includes(String(parameters.motion)) ? {} : undefined;
     if (action === "reset") return parameters.template === undefined ? {} : undefined;
     return action === "set" && typeof parameters.template === "string" && ["adv", "nvl", "bubble"].includes(parameters.template) ? {} : undefined;
   }
@@ -298,6 +299,7 @@ function directionEffect(state: RuntimeStateV1, instruction: RuntimeInstructionV
   const descriptorId = parameters.descriptorId ?? instruction.instructionId;
   const defaultChannel = command === "show"
     ? `show.${String(parameters.slot ?? parameters.character ?? parameters.asset ?? "invalid")}`
+    : command === "textbox" && parameters.action === "motion" ? "textbox.motion"
     : command === "audio"
       ? `audio.${String(parameters.bus ?? "sfx")}`
       : command;

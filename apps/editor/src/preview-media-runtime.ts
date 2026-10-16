@@ -372,6 +372,7 @@ function applyDirection(statement: StoryStatement, state: MutableStageState): bo
         ...(optional(inspected.parameters, "duration") === undefined ? {} : { duration: inspected.parameters.duration })
       };
     } else if (statement.command === "textbox") {
+      if (action === "motion") return true; // Formal Player preview renders the portable text cue; layout is unchanged.
       if (action === "reset") {
         state.dialogueTemplate = state.defaultDialogueTemplate;
         return true;

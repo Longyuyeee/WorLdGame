@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T17:35:32.893Z",
+  "checks": [
+    "Browse character entrance/emphasis/breathing/exit in the real muted Player; save/export/import a custom entrance and apply it to the original cue; the author dialog fits 736/390/320px.",
+    "Apply a text effect with its restoration as one source transaction; the normal toolbar Undo/Redo removes/restores the whole pair.",
+    "Reuse the named preset in another scene, save locally, return home/reload/reopen, and recover both library and actual scene cues.",
+    "The actual standalone HTML runs from file://, reaches authored character/text cues and the first ending through ordinary player inputs, muted.",
+    "The actual directory ZIP runs under /gal/ over HTTP at 390×844 and reaches the second ending with authored motion, muted.",
+    "OS reduced-motion disables cue animation without hiding the entered character or readable dialogue."
+  ],
+  "errors": [],
+  "audioMuted": true,
+  "independentEndingCoverage": "2/2 across HTML desktop and directory mobile (not every format×route combination)",
+  "editorFullRouteCoverage": "0/2; preview is not full playthrough",
+  "realDevice": false,
+  "publicDeployment": false
+}

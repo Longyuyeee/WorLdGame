@@ -1,5 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { releaseAnimationsOnDetach } from "./owned-animations";
+import { storyMotionStyle } from "./story-motion-style";
+import "./story-motion.css";
 import { RecoverySessionError, RecoverySessionRunner } from "./recovery-session-client";
 import { startPlayerAutoClock } from "./auto-playback-clock";
 import { readPlayerReadingPace, storePlayerReadingPace, readingMillisecondsPerUnit, type PlayerReadingPace } from './player-reading';
@@ -201,6 +203,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const cover = coverAllowed ? mediaAssets.find(asset => asset.assetId === appearance?.coverAssetId && ["image/png", "image/jpeg", "image/webp"].includes(asset.mimeType)) : undefined;
   const [failedCover, setFailedCover] = useState<string | null>(null);
   const personal = usePlayerPreferences(project.manifest.projectId, !editorPreview);
+  const effectiveMuted = !!editorPreview || personal.preferences.muted;
   const baseSettings = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const settingsApplication = useMemo(() => applyPlayerPreferences(baseSettings, editorPreview ? { ...personal.preferences, muted: true, revealMode: "instant" } : personal.preferences), [baseSettings, personal.preferences, editorPreview]);
   const fullscreen = usePlayerFullscreen();
@@ -1499,7 +1502,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       data-reading-unread-below={reading.unread}
       data-reading-pace={readingPace}
       data-preferences-open={preferencesOpen}
-      data-player-muted={personal.preferences.muted}
+      data-player-muted={effectiveMuted}
       data-player-fullscreen={fullscreen.active}
       data-player-locale={snapshot.localization.selectedLocale}
       data-player-media-locale={snapshot.localization.selectedLocale}
@@ -1696,16 +1699,19 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           )}
           {stage.characters.map((character) => (
             <NativeAtlasImage atlas={character.atlas} canvasSampling={character.canvasSampling}
+              motionOwner={character.motion !== undefined}
               hideResourceError
               onResourceState={status=>reportImage(`${imageGeneration}:${character.slot}:${character.assetId}`,status)}
               onResourceFailure={() => { setAutoEnabled(false); setAutoPlayback("stopped"); stopSkip(); }}
-              key={`${imageGeneration}:${character.slot}:${character.assetId}`}
-              className={`player-stage-character player-transition--${character.transition}`}
+              key={`${imageGeneration}:${character.slot}:${character.assetId}:${character.motionKey ?? ""}`}
+              className={`player-stage-character player-transition--${character.motion ? "none" : character.transition}`}
               src={character.url}
               alt={character.displayName}
               data-asset-id={character.assetId}
               data-stage-slot={character.slot}
-              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)`, animationDuration: `${character.durationMilliseconds}ms`, animationTimingFunction: character.easing }}
+              data-story-motion={character.motion?.kind}
+              aria-hidden={character.motion?.kind === "fade-out" ? true : undefined}
+              style={{ left: `${character.x}%`, top: `${character.y}%`, zIndex: character.z, transform: `translate(${-character.anchorX * 100}%, ${-character.anchorY * 100}%) scale(${character.scale}) rotate(${character.rotation}deg)`, animationDuration: `${character.durationMilliseconds}ms`, animationTimingFunction: character.easing, ...storyMotionStyle(character.motion) }}
               onError={() => { if (!character.atlas && !character.canvasSampling) setMediaErrors((current) => [...new Set([...current, character.assetId])]); }}
             />
           ))}
@@ -1713,7 +1719,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         {appliedAudio.map((track) => (
           <audio
             key={`${mediaGeneration}:${audioAttempts[track.bus] ?? 0}:${track.bus}:${track.assetId}`}
-            muted={personal.preferences.muted}
+            muted={effectiveMuted}
             ref={(element) => {
               if (element !== null) {
                 audioElements.current.set(track.bus, element);
@@ -1987,7 +1993,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                     return <li key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
                       <span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.displayName}</strong>{unavailable
                         ? <><small role="status">资源暂不可用，收录记录仍然保留。</small>{onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}</>
-                        : <audio controls preload="metadata" muted={personal.preferences.muted} ref={element => { if (element) element.volume = galAudioGainV1(settingsApplication, 'bgm'); }} aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
+                        : <audio controls preload="metadata" muted={effectiveMuted} ref={element => { if (element) element.volume = galAudioGainV1(settingsApplication, 'bgm'); }} aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
                     </li>;
                   })}
                 </ol>}
@@ -2243,7 +2249,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               data-cjk-line-break={typography.cjk ? "strict" : "standard"}
               aria-live="polite"
               style={{ "--gal-text-reveal-duration": `${textRevealDuration}ms` } as React.CSSProperties}
-            ><PlayerRichText text={content.text} locale={typography.locale} /></span>
+            ><span className="player-story-text-motion" data-story-motion={stage.textMotion?.kind} style={storyMotionStyle(stage.textMotion)}><PlayerRichText text={content.text} locale={typography.locale} /></span></span>
             <i aria-hidden="true">{reading.unread ? '向下阅读 ⌄' : !textReady ? '点击显示全文' : '点击继续 →'}</i>
           </button>
         )}

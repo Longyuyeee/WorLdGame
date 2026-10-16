@@ -25,7 +25,7 @@ export function skinPreviewProject(project: CanonicalProject, surface: SkinPrevi
   return { ...project, manifest: { ...project.manifest, projectId: previewId, entrySceneId: scene.id }, chapters: [{ ...chapter, scenePaths: scenes.map(item => `scenes/${item.id}.json`) }], scenes, scripts, layouts: Object.fromEntries(scenes.map(item => [item.id, { schemaVersion: 1 as const, sceneId: item.id, nodes: [] }])), testRoutes: { schemaVersion: 1, routes: [] }, ui: { ...project.ui, screens: [] } };
 }
 
-export function PlayerSkinPreview({ project, reader, surface, setSurface }: { readonly project: CanonicalProject | null; readonly reader: AssetLibraryReader | null; readonly surface: SkinPreviewSurface; readonly setSurface: (surface: SkinPreviewSurface) => void }) {
+export function PlayerSkinPreview({ project, reader, surface, setSurface, storyPreview }: { readonly project: CanonicalProject | null; readonly reader: AssetLibraryReader | null; readonly surface: SkinPreviewSurface; readonly setSurface: (surface: SkinPreviewSurface) => void; readonly storyPreview?: CanonicalProject | null }) {
   const previewId = useRef(`skin_preview_${Math.random().toString(36).slice(2)}`);
   const [runtime, setRuntime] = useState<{ javascript: string; css: string } | null>(null);
   const [media, setMedia] = useState<readonly { assetId: string; displayName: string; mimeType: string; url: string }[]>([]);
@@ -36,7 +36,7 @@ export function PlayerSkinPreview({ project, reader, surface, setSurface }: { re
   const [width, setWidth] = useState(440);
   const [viewportHeight, setViewportHeight] = useState(() => typeof window === "undefined" ? 900 : window.innerHeight);
   useEffect(() => { const resize = () => setViewportHeight(window.innerHeight); window.addEventListener("resize", resize); return () => window.removeEventListener("resize", resize); }, []);
-  const preview = useMemo(() => project ? skinPreviewProject(project, surface, previewId.current) : null, [project, surface]);
+  const preview = useMemo(() => storyPreview !== undefined ? storyPreview ? { ...storyPreview, manifest: { ...storyPreview.manifest, projectId: previewId.current } } : null : project ? skinPreviewProject(project, surface, previewId.current) : null, [project, surface, storyPreview]);
   useEffect(() => { let active = true; void import("virtual:world-player-export").then(result => { if (active) setRuntime(result.default); }).catch(() => { if (active) setAssetError("播放器暂时无法加载，请刷新后重试。"); }); return () => { active = false; }; }, []);
   const appearance = project ? readWebPlayerAppearance(project) : null;
   const sampleIds = preview ? Object.values(preview.scripts).flatMap(script => script.statements.flatMap(item => item.kind === "direction" ? [String(item.summary).match(/\basset=([A-Za-z0-9_-]+)/u)?.[1] ?? ""] : [])) : [];
@@ -82,6 +82,16 @@ export function PlayerSkinPreview({ project, reader, surface, setSurface }: { re
   }, [expanded]);
   useEffect(() => { if (expanded && !dialog.current?.open) dialog.current?.showModal(); }, [expanded]);
   const designWidth = device === "phone" ? 390 : 960, designHeight = device === "phone" ? 740 : 620, scale = Math.min(1, width / designWidth, expanded ? Math.max(280, viewportHeight - 270) / designHeight : 1);
-  const content = <div className="skin-preview-content"><header><div><strong>真实播放器预览</strong><small>当前外观草稿 · 静音 · 不计入结局试玩</small></div><button type="button" onClick={() => setExpanded(!expanded)}>{expanded ? "收起预览" : "放大预览"}</button></header><div className="skin-preview-tools"><select aria-label="外观预览页面" value={surface} onChange={event => setSurface(event.target.value as SkinPreviewSurface)}><option value="title">标题画面</option><option value="reading">阅读对白</option><option value="choice">分支选项</option>{Object.entries(WEB_PLAYER_SCREEN_LABELS).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select><select aria-label="外观预览设备" value={device} onChange={event => setDevice(event.target.value)}><option value="desktop">桌面</option><option value="phone">手机</option></select><button type="button" onClick={() => setReplay(replay + 1)}>重播效果</button></div><div ref={holder} className="skin-preview-holder"><div className="skin-preview-frame" style={{ height: designHeight * scale, width: designWidth * scale, marginInline: "auto" }}>{document ? <iframe key={`${device}:${replay}`} title="游戏界面真实预览" sandbox="allow-scripts allow-same-origin" srcDoc={document} style={{ width: designWidth, height: designHeight, transform: `scale(${scale})`, transformOrigin: "top left" }} /> : <p role="status">{assetError || (!project ? "修正参数后可继续预览。" : !preview ? "先在故事中添加一段对白或选择，再预览这个页面。" : "正在准备静音预览…")}</p>}</div></div><p className="skin-preview-note">使用正式播放器显示作品片段与页面。预览存档仅临时保留，完整剧情与结局进度请回到故事试玩。</p></div>;
+  const content = <div className="skin-preview-content">
+    <header><div><strong>真实播放器预览</strong><small>{storyPreview !== undefined ? "当前动效草稿" : "当前外观草稿"} · 静音 · 不计入结局试玩</small></div><button type="button" onClick={() => setExpanded(!expanded)}>{expanded ? "收起预览" : "放大预览"}</button></header>
+    <div className="skin-preview-tools">
+      {storyPreview !== undefined ? <span>当前剧情片段</span> : <select aria-label="外观预览页面" value={surface} onChange={event => setSurface(event.target.value as SkinPreviewSurface)}><option value="title">标题画面</option><option value="reading">阅读对白</option><option value="choice">分支选项</option>{Object.entries(WEB_PLAYER_SCREEN_LABELS).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select>}
+      <select aria-label="外观预览设备" value={device} onChange={event => setDevice(event.target.value)}><option value="desktop">桌面</option><option value="phone">手机</option></select><button type="button" onClick={() => setReplay(replay + 1)}>重播效果</button>
+    </div>
+    <div ref={holder} className="skin-preview-holder"><div className="skin-preview-frame" style={{ height: designHeight * scale, width: designWidth * scale, marginInline: "auto" }}>
+      {document ? <iframe key={`${device}:${replay}`} title="游戏界面真实预览" sandbox="allow-scripts allow-same-origin" srcDoc={document} style={{ width: designWidth, height: designHeight, transform: `scale(${scale})`, transformOrigin: "top left" }} /> : <p role="status">{assetError || (!project ? "修正参数后可继续预览。" : !preview ? storyPreview !== undefined ? "请先修正左侧动效与目标步骤。" : "先在故事中添加一段对白或选择，再预览这个页面。" : "正在准备静音预览…")}</p>}
+    </div></div>
+    <p className="skin-preview-note">使用正式播放器显示作品片段与页面。预览存档仅临时保留，完整剧情与结局进度请回到故事试玩。</p>
+  </div>;
   return <aside className="skin-preview">{expanded ? <dialog ref={dialog} className="skin-preview-dialog" aria-label="放大外观预览" onCancel={() => setExpanded(false)}>{content}</dialog> : content}</aside>;
 }

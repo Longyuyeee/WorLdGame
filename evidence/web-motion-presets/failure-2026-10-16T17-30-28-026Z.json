@@ -1,0 +1,21 @@
+{
+  "passed": false,
+  "checks": [
+    "Browse character entrance/emphasis/breathing/exit in the real muted Player; save/export/import a custom entrance and apply it to the original cue.",
+    "Apply a text effect with its restoration as one source transaction; the normal toolbar Undo/Redo removes/restores the whole pair.",
+    "Reuse the named preset in another scene, save locally, return home/reload/reopen, and recover both library and actual scene cues.",
+    "The actual standalone HTML runs from file://, reaches authored character/text cues and the first ending through ordinary player inputs, muted."
+  ],
+  "errors": [],
+  "failure": "locator.click: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '更换导出方式', exact: true })\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-motion-presets.mjs:145:67",
+  "pages": [
+    {
+      "url": "http://127.0.0.1:5195/",
+      "text": "W\nWorLd Studio\n给明天的回信\n编辑器设置\n↶\n↷\n修改已同步\n备份 2/5\n已保存 · s3\n故事\n素材\n游戏外观\n检查\n发布\n\n让故事与更多人相遇\n\n发布游戏\n\n完成作品信息，选择导出方式，将你的故事交给玩家。\n\n1\n作品信息\n2\n导出方式\n3\n生成游戏\n4\n试玩与部署\n检查当前作品并生成游戏\n\n自动核对故事和源文件，发现问题后可以直接定位修复。\n\n给明天的回信\n0.4.0 · Web · 单文件 HTML\n故事场景\n3 个\n创作素材\n7 项\n运行方式\n离线可运行\n许可与上线准备\n\n7 项素材 · 0 项已记录依据并匹配署名 · 7 项仍待处理\n\n游戏可以继续导出用于本地验证；生成成功不代表素材已获授权或公网已验收。来源依据、联系人等内部信息不会进入玩家游戏。\n\n核对素材来源\n下载发布准备清单（内部）\n接下来如何部署和验收\n故事与素材检查通过\n\n7 项素材已核对源文件、大小和摘要\n\n重新检查\n生成时会再次核对文件；此检查不代表素材许可、分支、阅读节奏和配音已经确认，也不代表网站已上线。\n结局试玩进度\n当前版本已从开头到达 0 / 2 个结局\n\n从开头运行到结局后会自动记录，刷新或重开工程后仍可查看。\n\n从头试玩当前版本\n查看路线\n查看结局进度 · 2 个待试玩\n备份或合并试玩进度\n这是编辑器中的运行记录，不代表全部分支、阅读听感或导出后的游戏已验收。平时保存在本浏览器，换机前请备份。\n← 导出方式\n↗ 导出游戏\n继续：试玩与部署 →\n✓\n游戏已生成\n\n可以下载并试玩。文件还未上传到网站。\n\n▤\n给明天的回信.html\n文件大小\n14.3 MiB\n格式\n单文件 HTML\n下载游戏\n▷ 打开试玩\n修改工程后，需要重新生成文件。\n本地优先\n无账户"
+    },
+    {
+      "url": "file:///E:/ProjectSave/GeminiProject/WorLdGame/evidence/web-motion-presets/tomorrow-letter-0.4.0.html",
+      "text": "给明天的回信 · 0.4.0\n\n菜单 ☰\n谢谢你，读完这封回信\n有人等你回来\n\n已达成 1 / 2 个结局\n\n这一程已写完。愿你带着自己的答案，走向明天。也可以读取存档，看看另一种选择。\n\n查看收藏与结局\n制作名单\n读取存档探索其他路线\n合上信，回到封面"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "passed": false,
+  "checks": [
+    "Browse character entrance/emphasis/breathing/exit in the real muted Player; save/export/import a custom entrance and apply it to the original cue.",
+    "Apply a text effect with its restoration as one source transaction; the normal toolbar Undo/Redo removes/restores the whole pair.",
+    "Reuse the named preset in another scene, save locally, return home/reload/reopen, and recover both library and actual scene cues."
+  ],
+  "errors": [],
+  "failure": "locator.check: Timeout 12000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[name=\"publication-format\"][value=\"single-html\"]')\u001b[22m\n\n    at E:\\ProjectSave\\GeminiProject\\WorLdGame\\tools\\run-web-motion-presets.mjs:136:79"
+}

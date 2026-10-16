@@ -1,5 +1,5 @@
 import { semanticHash, sha256, webProjectSourceForRuntime, type CanonicalProject, type JsonObject, type JsonValue, type SceneDocument, type ScriptDocument } from "@world-studio/project-domain";
-import { isDialogueTemplate, isStageTransition, parseTypedExpression, validateStageBezierMotionParameters, type ExpressionValueType } from "@world-studio/story-language";
+import { isDialogueTemplate, isStageTransition, parseTypedExpression, validateStageBezierMotionParameters, storyMotionError, type ExpressionValueType } from "@world-studio/story-language";
 import { canonicalJson, compareCanonicalStrings } from "./canonical-json";
 import { conditionAwareExitDiagnostics } from "./condition-exits";
 import { ADDITIONAL_CONTENT_SCREEN_ID, additionalContentCatalogOverrides, type AdditionalContentCatalogKind, type AdditionalContentCatalogOverride } from "./catalog-overrides";
@@ -14,7 +14,7 @@ import {
 const statementKinds = new Set<RuntimeOpcodeV1>(["dialogue", "narration", "direction", "choice", "label", "jump", "call", "return", "set", "condition", "wait", "checkpoint", "end"]);
 const interactiveKinds = new Set(["dialogue", "narration", "direction", "choice", "wait", "end"]);
 const allowedActions: Readonly<Record<string, ReadonlySet<string>>> = {
-  background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), camera: new Set(["move", "reset"]), audio: new Set(["play", "stop", "pause", "resume"]), textbox: new Set(["set", "reset"])
+  background: new Set(["set", "clear"]), show: new Set(["show", "move", "hide"]), camera: new Set(["move", "reset"]), audio: new Set(["play", "stop", "pause", "resume"]), textbox: new Set(["set", "reset", "motion"])
 };
 
 interface CompileContext {
@@ -256,6 +256,8 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
             if (parameters.easing !== undefined && (typeof parameters.easing !== "string" || !["linear", "ease-in", "ease-out", "ease-in-out"].includes(parameters.easing))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera easing`, ctx));
             if (parameters.duration !== undefined && (typeof parameters.duration !== "string" || !/^\d+(?:\.\d+)?(?:ms|s)$/u.test(parameters.duration))) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} has invalid camera duration`, ctx));
           }
+          const motionError = storyMotionError(command, action, parameters);
+          if (motionError) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} ${motionError}`, ctx));
           if (command === "show" && action === "move") {
             const bezierError = validateStageBezierMotionParameters(parameters as Readonly<Record<string, string>>);
             if (bezierError !== undefined) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} ${bezierError}`, ctx));
@@ -272,7 +274,7 @@ function compileScene(scene: SceneDocument, script: ScriptDocument | undefined, 
             runtimeParameters = normalized.parameters;
             if (normalized.error !== null) diagnostics.push(diagnostic("INVALID_STATEMENT", `Direction ${id} audio ${normalized.error}`, ctx));
           }
-          const requiresAsset = (command === "background" && action === "set") || (command === "show" && action === "show") || (command === "audio" && action === "play");
+          const requiresAsset = (command === "background" && action === "set") || (command === "show" && (action === "show" || parameters.motion === "fade-out")) || (command === "audio" && action === "play");
           const referenced = [requiresAsset ? parameters.asset : undefined, parameters.transitionAsset].filter((value): value is string => typeof value === "string");
           if (requiresAsset && typeof parameters.asset !== "string") diagnostics.push(diagnostic("MISSING_ASSET", `Direction ${id} requires an asset reference`, ctx));
           for (const assetId of referenced) if (!context.assetIds.has(assetId)) diagnostics.push(diagnostic("MISSING_ASSET", `Direction references unknown asset: ${assetId}`, { ...ctx, entityId: assetId }));

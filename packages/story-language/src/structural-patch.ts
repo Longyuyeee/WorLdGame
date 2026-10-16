@@ -1,4 +1,5 @@
 import type { EntityId } from "@world-studio/story-core";
+import { storyMotionError } from "@world-studio/story-core";
 import {
   CAMERA_GEOMETRY_PARAMETERS,
   DIRECTIVE_PARAMETERS,
@@ -235,6 +236,8 @@ function validateDirectiveRequest(request: InsertDirectiveRequest): string | und
   }
   const action = resolveDirectiveAction(request.command, request.parameters.action);
   if (action === undefined) return `Invalid @${request.command} action`;
+  const motionError = storyMotionError(request.command, action, request.parameters);
+  if (motionError) return motionError;
   if (request.parameters.transition !== undefined && !isStageTransition(request.parameters.transition)) {
     return "transition must be fade, dissolve, or slide";
   }

@@ -1,18 +1,18 @@
 # WorLd Studio（工作名）产品与开发设计文档
 
-> 开发进度与后续方向（2026-10-16）：[#357 Web 开发接续](docs/357-web-development-handoff.md)。当前样章 0.3.0，基础制作与主要页面模板定制已接通；接下来按动效预设作者流程 → 带素材皮肤包 → 存档缩略图/创作连续性 → 自由组件布局推进。已测、未测及部分覆盖均按原报告记录，本次仅整理并同步累积工作。
+> 开发进度与后续方向（2026-10-17）：[#358 剧情动效预设与作者复用](docs/358-web-story-motion-presets.md)。人物/文字动效已接通静音试看、应用、保存重开、跨场景预设和配置往返；样章 0.4.0 保持原正文、路线、外观和七份素材。下一批按 #357 顺序推进带素材皮肤包，再做存档缩略图/创作连续性和自由布局。
 
-> 当前接续（2026-10-16）：[#356 其他页面与结局自定义](docs/356-web-player-pages-and-ending.md)。在 #355 标题/阅读/字体/皮肤基础上，补阅读菜单、存读档、历史、设置、附加内容、制作名单和结局的逐页参数与真实预览；支持布局起点、统一风格、三列存档和结局文案。《给明天的回信》0.3.0 源工程、HTML 与目录游戏在 evidence/web-player-pages。
+> 当前样章：《给明天的回信》0.4.0 的工程、HTML、目录包及两份动效配置在 evidence/web-motion-presets；0.3.0 的其他页面与结局模板基线保留在 [#356](docs/356-web-player-pages-and-ending.md)及 evidence/web-player-pages。
 
-> 最新判断：基本制作链与主要页面的模板定制可用；本批静音检查七页预览、正式目录游戏的菜单/历史查找/存档刷新读回和一条完整结局，47 项相关测试、根类型和双构建通过。下一步推进人物/文字动效预设、带素材皮肤包、真实存档缩略图和自由组件；本批不是 0.3.0 两结局全覆盖。HTML 直接 file://、长篇性能、人工/真机/许可/公网条件保持，范围见 #356。
+> 最新判断：基础创作、主要页面模板和首批剧情动效作者流程可用。199 项相关测试、根类型、双构建、便携架构审计及六组实际静音任务通过；HTML file:// 桌面一路和目录 HTTP 手机一路合计独立 Player 两结局，编辑器整部仍 0/2。未计全格式×路线组合、真机/Safari、人工/许可/公网或长篇性能收尾，范围见 #358。
 
 > 状态：S0.41 保留为 Web 技术证据原型；2026-08-13 起执行产品落地主线，D1、S0、M1 均未通过
-> 文档基线：2026-10-16
+> 文档基线：2026-10-17
 > 当前交付目标：[Web 完整 Gal 作品 #304](docs/304-web-complete-gal-delivery.md)。先完成 Web 编辑器与玩家的完整制作、导出和部署上线流程，Windows／Android 原生版本先搁置；当前验收以一部完整作品的实际创作和上线为主线。
 > 当前进展：1.7.14 保持 9 场景/两结局、9,672 字符/74 演出/25 项素材和来源台账；核对 1.7.0–1.7.13，本批现场备份来源为 1.7.13。1.6.0 或更早已变剧情不在兼容范围，旧版游戏与源保留回退。
-> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#356 其他游戏页面](docs/356-web-player-pages-and-ending.md)。[#354](docs/354-web-blank-short-story-and-customization.md) 保留空白创作基线，[#355](docs/355-web-player-ui-fonts-and-skins.md) 保留字体/皮肤交付；#353 的长篇性能限制保留。
+> 最新开发记录：[当前状态 #99](docs/99-current-development-status-audit.md)与 [#358 剧情动效预设](docs/358-web-story-motion-presets.md)。[#354](docs/354-web-blank-short-story-and-customization.md) 保留空白创作基线，[#355](docs/355-web-player-ui-fonts-and-skins.md)与 [#356](docs/356-web-player-pages-and-ending.md)保留外观交付；#353 的长篇性能限制保留。
 > 当前开发入口：[用户任务优先路线 #289](docs/289-user-centered-delivery-route.md)。N62-E1–E5 已实现，当前优先贯通正式 Web 游戏导出，玩家路线图后置；下方旧阶段记录保留为历史背景。以真实创作和交付任务推进，只做必要验证，真人测试等功能与整体 UI 就绪。
-> 当前重心：以《给明天的回信》0.3.0 的实际定制结果继续推进作者能力；《雨停之前》1.7.14 及 11 条待复核任务保留在 evidence/web-reading-throughput，原候选不重发。自然阅读/听感、真机、Safari、来源许可与实际公网仍待验。
+> 当前重心：以《给明天的回信》0.4.0 的实际定制结果继续推进作者能力；《雨停之前》1.7.14 及 11 条待复核任务保留在 evidence/web-reading-throughput，原候选不重发。自然阅读/听感、真机、Safari、来源许可与实际公网仍待验。
 > 当前交付边界：优先交付 Web 完整作品能力。原三端 M1 保留为后续整体范围，Windows／Android 未完成项不阻断本轮 Web 交付；M2 以后保留为愿景池。
 > M1 发布定位：首个可正式公开发布的 Stable 版本，不是功能演示或技术预览。
 > 交付链纠偏：N00–N41 已建立直接面向 `main` 的 [集中整合权威基线](docs/182-n41-consolidated-integration-baseline-audit.md)，Draft PR #61 的 Candidate Windows CI 已绿色；仍未合入 `main`，N41-E2 只能从该 Authority 继续。
