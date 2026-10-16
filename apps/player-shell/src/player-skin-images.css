@@ -1,0 +1,14 @@
+/* Authored page art stays behind content; reading art never replaces a scripted scene background. */
+.player-shell[data-player-skin="1"] .player-stage { background-image: var(--skin-reading-background, none); background-size: var(--skin-reading-background-fit, cover); background-position: center; background-repeat: no-repeat; }
+.player-shell[data-player-skin="1"][data-player-status="title"] .player-stage { background-image: var(--skin-title-background, none); background-size: var(--skin-title-background-fit, cover); }
+.player-shell[data-player-skin="1"] .player-title-backdrop { display: var(--skin-cover-display, block); }
+.player-shell[data-player-skin="1"] [data-skin-screen] { background-image: var(--screen-image, none); background-size: var(--screen-image-fit, cover); background-position: center; background-repeat: no-repeat; }
+/* Text buttons only: gallery/thumbnail artwork keeps its own visual surface. */
+.player-shell[data-player-skin="1"][data-skin-button-images="true"] button:not(.player-dialogue):not(.player-history-list button):not(:has(img, canvas, video)) { color: var(--skin-button-text); background-image: var(--skin-button-normal); background-size: 100% 100%; background-position: center; background-repeat: no-repeat; }
+.player-shell[data-player-skin="1"][data-skin-button-images="true"] button:not(.player-dialogue):not(.player-history-list button):not(:has(img, canvas, video)):focus-visible { background-image: var(--skin-button-hover); outline: 2px solid var(--player-accent); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .player-shell[data-player-skin="1"][data-skin-button-images="true"] button:not(.player-dialogue):not(.player-history-list button):not(:has(img, canvas, video)):hover:not(:disabled) { background-image: var(--skin-button-hover); } }
+.player-shell[data-player-skin="1"][data-skin-button-images="true"] button:not(.player-dialogue):not(.player-history-list button):not(:has(img, canvas, video)):is(:active, [data-skin-pressed="true"]):not(:disabled) { background-image: var(--skin-button-pressed); }
+.player-shell[data-player-skin="1"][data-skin-button-images="true"] button:not(.player-dialogue):not(.player-history-list button):not(:has(img, canvas, video)):disabled { background-image: var(--skin-button-disabled); }
+/* Player accessibility preferences always take priority over authored textures, including focused controls. */
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] :is(.player-stage, [data-skin-screen], button) { background-image: none !important; }
+.player-shell[data-player-skin="1"][data-settings-high-contrast="true"] button { color: #fff !important; background-color: #000 !important; }

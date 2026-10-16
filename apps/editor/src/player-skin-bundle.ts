@@ -4,6 +4,7 @@ import type { AssetLibraryReader } from "./asset-library-card";
 import { browserBlobDigest } from "./browser-blob-digest";
 import { inspectAssetBytes, mediaInspectionToJson } from "./media-inspection-client";
 import { exportPlayerSkinPreset, importPlayerSkinPreset } from "./player-skin-preset";
+import { WEB_PLAYER_SKIN_MAX_ASSETS, remapWebPlayerSkinReferences, webPlayerSkinImageReferences } from "@world-studio/project-domain";
 
 export const SKIN_BUNDLE_MAX_BYTES = 64 * 1024 * 1024 + 512 * 1024;
 const descriptorPath = "skin.json", blobPath = (digest: string) => `blobs/${digest.slice(7)}`;
@@ -30,7 +31,7 @@ export function skinBundleAssets(project: CanonicalProject, appearance: WebPlaye
   applyWebPlayerAppearance(project, appearance);
   if (!appearance.skin) throw Error("请先选择或应用一套皮肤。");
   const assets = referenceIds(appearance as WebPlayerAppearance & { skin: WebPlayerSkin }).map(id => assetDescriptor(project, id));
-  if (assets.length > 8 || assets.reduce((sum, asset) => sum + asset.source.byteLength, 0) > 64 * 1024 * 1024) throw Error("皮肤素材合计最多 64 MB / 8 项，请缩小素材后再导出。");
+  if (assets.length > WEB_PLAYER_SKIN_MAX_ASSETS || assets.reduce((sum, asset) => sum + asset.source.byteLength, 0) > 64 * 1024 * 1024) throw Error("皮肤素材合计最多 64 MB / 24 项，请缩小素材后再导出。");
   return assets;
 }
 export async function exportSkinBundle(project: CanonicalProject, appearance: WebPlayerAppearance, name: string, reader: AssetLibraryReader | null, publicCredits: string, includePrivateSources: boolean, signal?: AbortSignal): Promise<Uint8Array> {
@@ -55,11 +56,11 @@ export async function readSkinBundle(bytes: Uint8Array, signal?: AbortSignal): P
   if (bytes.byteLength > SKIN_BUNDLE_MAX_BYTES) throw Error("皮肤包最大 64 MB 素材加 512 KB 说明。");
   signal?.throwIfAborted();
   let files: Record<string, Uint8Array>;
-  try { files = importProjectBinaryZip(bytes, { maxEntries: 9, maxEntryBytes: 32 * 1024 * 1024, maxTotalBytes: SKIN_BUNDLE_MAX_BYTES }); }
+  try { files = importProjectBinaryZip(bytes, { maxEntries: WEB_PLAYER_SKIN_MAX_ASSETS + 1, maxEntryBytes: 32 * 1024 * 1024, maxTotalBytes: SKIN_BUNDLE_MAX_BYTES }); }
   catch (e) { throw Error(e instanceof ProjectArchiveError && e.code === "UNSUPPORTED_COMPRESSION" ? "请选择本应用导出的 .worldskin.zip；重新压缩的 ZIP 暂不支持，请保留原包。" : "皮肤包目录或内容校验失败，未载入工程。请重新选择完整的皮肤包。"); }
   if (!files[descriptorPath] || files[descriptorPath].byteLength > 512 * 1024) throw Error("缺少有效的皮肤说明 skin.json。");
   let value: unknown; try { value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(files[descriptorPath])); } catch { throw Error("皮肤说明不是有效的 UTF-8 JSON。"); }
-  if (!exact(value, ["format", "schemaVersion", "configuration", "assets", "publicCredits", "sources"]) || value.format !== "world-player-skin-bundle" || value.schemaVersion !== 1 || typeof value.configuration !== "string" || !Array.isArray(value.assets) || value.assets.length > 8 || typeof value.publicCredits !== "string" || value.publicCredits.length > 12000) throw Error("皮肤包格式或版本无效。");
+  if (!exact(value, ["format", "schemaVersion", "configuration", "assets", "publicCredits", "sources"]) || value.format !== "world-player-skin-bundle" || value.schemaVersion !== 1 || typeof value.configuration !== "string" || !Array.isArray(value.assets) || value.assets.length > WEB_PLAYER_SKIN_MAX_ASSETS || typeof value.publicCredits !== "string" || value.publicCredits.length > 12000) throw Error("皮肤包格式或版本无效。");
   // Validate the existing portable configuration contract before using its references.
   importPlayerSkinPreset(value.configuration, createProjectTemplate("Skin validation", "018f08d8-71a1-7bc2-a627-2f4a843ee155"), DEFAULT_WEB_PLAYER_APPEARANCE);
   const config = JSON.parse(value.configuration) as { name: string; appearance: WebPlayerAppearance & { skin: WebPlayerSkin }; assets: { assetId: string; digest: string }[] };
@@ -70,7 +71,7 @@ export async function readSkinBundle(bytes: Uint8Array, signal?: AbortSignal): P
     const s = row.source;
     if (config.assets.find(asset => asset.assetId === row.assetId)?.digest !== s.digest) throw Error("配置与皮肤素材摘要不一致。");
     if (typeof s.digest !== "string" || !/^sha256:[a-f0-9]{64}$/.test(s.digest) || typeof s.byteLength !== "number" || !Number.isSafeInteger(s.byteLength) || s.byteLength <= 0 || s.byteLength > (row.kind === "font" ? 32 : 8) * 1024 * 1024 || typeof s.mimeType !== "string" || !(row.kind === "font" ? ["font/woff", "font/woff2", "font/ttf", "font/otf"] : ["image/png", "image/jpeg", "image/webp"]).includes(s.mimeType)) throw Error("皮肤素材大小或类型不受支持。");
-    if (Object.values(appearance.skin.fonts).some(font => font === `asset:${row.assetId}`) && row.kind !== "font" || [appearance.coverAssetId, appearance.skin.reading.windowAssetId].includes(row.assetId) && row.kind !== "cg") throw Error("图片与字体用途不匹配。");
+    if (Object.values(appearance.skin.fonts).some(font => font === `asset:${row.assetId}`) && row.kind !== "font" || [appearance.coverAssetId, ...webPlayerSkinImageReferences(appearance.skin)].includes(row.assetId) && row.kind !== "cg") throw Error("图片与字体用途不匹配。");
     seen.add(row.assetId); return row as unknown as SkinBundleAsset;
   });
   if (seen.size !== ids.length || assets.reduce((sum, a) => sum + a.source.byteLength, 0) > 64 * 1024 * 1024 || Object.keys(files).some(key => key !== descriptorPath && !assets.some(asset => blobPath(asset.source.digest) === key))) throw Error("皮肤包包含未声明的文件或缺少素材说明。");
@@ -81,7 +82,7 @@ export async function readSkinBundle(bytes: Uint8Array, signal?: AbortSignal): P
     blobs.set(asset.source.digest, data);
   }
   const records = parseWebAssetSources(value.sources).records;
-  if (records.length > 8 || records.some(row => !assets.some(asset => asset.assetId === row.assetId && asset.source.digest === row.digest))) throw Error("皮肤来源记录与素材不符。");
+  if (records.length > WEB_PLAYER_SKIN_MAX_ASSETS || records.some(row => !assets.some(asset => asset.assetId === row.assetId && asset.source.digest === row.digest))) throw Error("皮肤来源记录与素材不符。");
   signal?.throwIfAborted();
   return { name: config.name, appearance, assets, blobs, records, publicCredits: value.publicCredits };
 }
@@ -93,8 +94,8 @@ export function defaultSkinChoices(bundle: SkinBundle, project: CanonicalProject
   }));
 }
 function remapAppearance(appearance: SkinBundle["appearance"], current: WebPlayerAppearance, mapping: ReadonlyMap<string, string>): WebPlayerAppearance {
-  const map = (id: string) => mapping.get(id) ?? id, skin = appearance.skin;
-  return { ...current, theme: appearance.theme, accent: appearance.accent, coverAssetId: map(appearance.coverAssetId), skin: { ...skin, reading: { ...skin.reading, windowAssetId: map(skin.reading.windowAssetId) }, fonts: Object.fromEntries(Object.entries(skin.fonts).map(([role, selection]) => [role, selection.startsWith("asset:") ? map(selection.slice(6)) ? `asset:${map(selection.slice(6))}` : "sans" : selection])) as WebPlayerSkin["fonts"] } };
+  const map = (id: string) => mapping.get(id) ?? id;
+  return { ...current, theme: appearance.theme, accent: appearance.accent, coverAssetId: map(appearance.coverAssetId), skin: remapWebPlayerSkinReferences(appearance.skin, map) };
 }
 /** Apply only style/provenance deltas to the current project; never replace its plot or credits. */
 export function applySkinImportPlan(project: CanonicalProject, plan: Pick<SkinImportPlan, "appearance" | "records" | "publicCredits">): CanonicalProject {

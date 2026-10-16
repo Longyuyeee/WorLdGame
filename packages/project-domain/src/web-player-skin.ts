@@ -1,8 +1,10 @@
 import type { CanonicalProject, JsonObject } from "./types";
 import { isWebPlayerScreens, type WebPlayerScreens } from "./web-player-screens";
+import { isWebPlayerSkinImages, type WebPlayerSkinImages } from "./web-player-skin-images";
 
 export type WebPlayerFontSelection = "inherit" | "sans" | "serif" | `asset:${string}`;
 export interface WebPlayerSkin extends JsonObject {
+  readonly images?: WebPlayerSkinImages;
   readonly screens?: WebPlayerScreens;
   readonly schemaVersion: 1;
   readonly colors: { readonly background: string; readonly panel: string; readonly text: string; readonly muted: string; readonly accent: string; readonly buttonText: string; readonly speaker: string; readonly border: string };
@@ -40,7 +42,7 @@ export const webPlayerSkinAssetIdValid = (value: unknown): value is string => ty
 export function webPlayerSkinFontAssetId(selection: string): string { return selection.startsWith("asset:") ? selection.slice(6) : ""; }
 function font(value: unknown) { return enumeration(value, ["inherit", "sans", "serif"]) || typeof value === "string" && value.startsWith("asset:") && value.length > 6 && webPlayerSkinAssetIdValid(value.slice(6)); }
 export function isWebPlayerSkin(value: unknown): value is WebPlayerSkin {
-  if (!object(value) || !keys(value, ["schemaVersion", "colors", "title", "reading", "fonts", "motion", ...(Object.hasOwn(value, "screens") ? ["screens"] : [])]) || value.schemaVersion !== 1 || Object.hasOwn(value, "screens") && !isWebPlayerScreens(value.screens)) return false;
+  if (!object(value) || !keys(value, ["schemaVersion", "colors", "title", "reading", "fonts", "motion", ...(Object.hasOwn(value, "screens") ? ["screens"] : []), ...(Object.hasOwn(value, "images") ? ["images"] : [])]) || value.schemaVersion !== 1 || Object.hasOwn(value, "screens") && !isWebPlayerScreens(value.screens) || Object.hasOwn(value, "images") && !isWebPlayerSkinImages(value.images)) return false;
   const { colors: c, title: t, reading: r, fonts: f, motion: m } = value;
   return keys(c, Object.keys(WEB_PLAYER_SKIN_COLOR_LABELS)) && Object.values(c).every(color => typeof color === "string" && /^#[0-9a-f]{6}$/iu.test(color)) &&
     keys(t, ["align", "width", "fontSize", "panelOpacity", "coverOpacity", "coverMode", "buttonRadius", "startLabel"]) && enumeration(t.align, ["left", "center", "right"]) && number(t.width, 38, 92) && number(t.fontSize, 28, 96) && number(t.panelOpacity, 0, 100) && number(t.coverOpacity, 0, 100) && enumeration(t.coverMode, ["card", "stage"]) && number(t.buttonRadius, 0, 40) && typeof t.startLabel === "string" && t.startLabel.trim().length > 0 && t.startLabel.length <= 24 &&
@@ -54,4 +56,12 @@ export function webPlayerFontAssets(project: CanonicalProject): readonly JsonObj
     return asset.kind === "font" && ["font/woff", "font/woff2", "font/ttf", "font/otf"].includes(String(source?.mimeType)) && typeof source?.byteLength === "number" && source.byteLength > 0 && source.byteLength <= 32 * 1024 * 1024 && inspection?.status === "pass";
   });
 }
-export function webPlayerSkinReferences(skin: WebPlayerSkin): readonly string[] { return [...new Set([skin.reading.windowAssetId, ...Object.values(skin.fonts).map(webPlayerSkinFontAssetId)].filter(Boolean))]; }
+export function webPlayerSkinImageReferences(skin: WebPlayerSkin): readonly string[] { return [...new Set([skin.reading.windowAssetId, ...Object.values(skin.images?.backgrounds ?? {}).map(row => row.assetId), ...Object.values(skin.images?.buttons ?? {})].filter(Boolean))]; }
+export function webPlayerSkinReferences(skin: WebPlayerSkin): readonly string[] { return [...new Set([...webPlayerSkinImageReferences(skin), ...Object.values(skin.fonts).map(webPlayerSkinFontAssetId)].filter(Boolean))]; }
+/** A single mapping authority for configuration, portable packages and explicit missing-image fallback. */
+export function remapWebPlayerSkinReferences(skin: WebPlayerSkin, replacement: (id: string) => string): WebPlayerSkin {
+  const map = (id: string) => id ? replacement(id) : "";
+  return { ...skin, reading: { ...skin.reading, windowAssetId: map(skin.reading.windowAssetId) },
+    fonts: Object.fromEntries(Object.entries(skin.fonts).map(([role, selection]) => [role, selection.startsWith("asset:") ? map(selection.slice(6)) ? `asset:${map(selection.slice(6))}` : "sans" : selection])) as WebPlayerSkin["fonts"],
+    ...(skin.images ? { images: { backgrounds: Object.fromEntries(Object.entries(skin.images.backgrounds).map(([surface, row]) => [surface, { ...row, assetId: map(row.assetId) }])) as WebPlayerSkinImages["backgrounds"], buttons: Object.fromEntries(Object.entries(skin.images.buttons).map(([state, id]) => [state, map(id)])) as WebPlayerSkinImages["buttons"] } } : {}) };
+}

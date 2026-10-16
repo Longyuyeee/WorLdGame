@@ -36,6 +36,6 @@ export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChang
     </>}
     <button type="button" onClick={() => onChange({ ...screens, panels: Object.fromEntries(Object.entries(screens.panels).map(([id, item]) => [id, { ...item, radius: panel.radius, padding: panel.padding, opacity: panel.opacity, fontSize: panel.fontSize, motion: panel.motion }])) as WebPlayerScreens["panels"] })}>统一窗体风格</button>
     <small>将本页圆角、间距、透明度、字号和动效应用到其他页面，各页宽度与位置保留。可撤销。</small>
-    <button type="button" onClick={() => { const defaults = defaultWebPlayerScreens(); onChange({ ...screens, panels: { ...screens.panels, [selected]: defaults.panels[selected] }, ...(selected === "save" ? { saveColumns: defaults.saveColumns } : {}), ...(selected === "ending" ? { ending: defaults.ending } : {}) }); }}>恢复本页默认</button>
+    <button type="button" onClick={() => { const defaults = defaultWebPlayerScreens(); onChange({ ...screens, panels: { ...screens.panels, [selected]: defaults.panels[selected] }, ...(selected === "save" ? { saveColumns: defaults.saveColumns } : {}), ...(selected === "ending" ? { ending: defaults.ending } : {}) }); }}>恢复本页窗体默认</button>
   </>;
 }

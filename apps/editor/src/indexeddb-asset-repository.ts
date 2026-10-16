@@ -345,7 +345,7 @@ export class IndexedDbAssetRepository implements AssetBlobStore {
 
   /** Small, additive imports publish all blobs/index/lifecycle together. Never replace an existing ID. */
   async importNewAssets(inputs: readonly AssetImportInput[], options: IndexedDbAssetImportOptions): Promise<{ readonly index: AssetIndex; readonly lifecycle: AssetLifecycleManifest }> {
-    if (inputs.length > 8 || inputs.reduce((sum, input) => sum + input.bytes.byteLength, 0) > 64 * 1024 * 1024 || new Set(inputs.map(input => input.assetId)).size !== inputs.length) throw new AssetBlobError("RESOURCE_LIMIT", "index", this.projectId, "批次最多 8 项 / 64 MB，素材标识不能重复。");
+    if (inputs.length > 24 || inputs.reduce((sum, input) => sum + input.bytes.byteLength, 0) > 64 * 1024 * 1024 || new Set(inputs.map(input => input.assetId)).size !== inputs.length) throw new AssetBlobError("RESOURCE_LIMIT", "index", this.projectId, "批次最多 24 项 / 64 MB，素材标识不能重复。");
     const snapshot = inputs.map(input => ({ ...input, bytes: input.bytes.slice() }));
     assertNotCancelled(options.signal, this.projectId);
     const loaded = await this.loadIndex();

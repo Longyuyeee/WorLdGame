@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "checkedAt": "2026-10-16T18:08:01.100Z",
+  "checks": [
+    "Author imports thirteen procedural PNG fixtures, selects nine independent backgrounds and four button states, and previews all nine pages at desktop/phone sizes using the muted formal Player.",
+    "Actual portable package carries fifteen referenced assets, imports the whole batch into a newly authored project and preserves all page/button selections after save/reload/reopen; default package excludes private provenance.",
+    "Downloaded HTML runs from file://, shows page artwork and real normal/hover/keyboard-focus/pressed/disabled button textures, honors high contrast and reaches the new ending, muted.",
+    "Actual directory game under /gal/ works at a 390×844 touch-enabled viewport, including real touch-down pressed artwork, panel controls, accessibility and the ending; this is not a physical phone."
+  ],
+  "errors": [],
+  "screenshots": [
+    "author-desktop-title.png",
+    "author-phone-save.png",
+    "game-desktop-save.png",
+    "game-desktop-reading.png",
+    "game-phone-save.png",
+    "game-phone-reading.png"
+  ],
+  "assets": 15,
+  "validatedSiteFiles": 26,
+  "formalPlayerEndingCoverage": "1/1 each format; new functional mini-project, not the retained story",
+  "editorFullRouteCoverage": "not run",
+  "realDevice": false,
+  "publicDeployment": false,
+  "proceduralFixturesNotFinalArtwork": true,
+  "artifacts": [
+    {
+      "name": "page-images.worldskin.zip",
+      "bytes": 2789415,
+      "sha256": "f8c20d6e59dfe3ba5896401359098cc40ac40e69e84f234882dab4ce3b084456"
+    },
+    {
+      "name": "page-images-project.zip",
+      "bytes": 2807159,
+      "sha256": "8404b481f8a9677956794e9afd769ec68fea2e34112f6d1e5eceee80bf63e767"
+    },
+    {
+      "name": "page-images.html",
+      "bytes": 4483766,
+      "sha256": "e5ac7274081a4d6d1efe2cdeecac2b40f9fd931884abaac55483607968cdaede"
+    },
+    {
+      "name": "page-images-web.zip",
+      "bytes": 3620809,
+      "sha256": "93ebd88786cae930bd3b072cb188b62706fe05dcd32cec5af74e1a2c9b48408a"
+    }
+  ]
+}

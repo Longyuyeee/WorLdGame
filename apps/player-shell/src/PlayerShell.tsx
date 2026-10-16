@@ -88,6 +88,8 @@ import "./player-ending-flow.css";
 import "./player-replay-flow.css";
 import "./player-skin.css";
 import "./player-screen-skin.css";
+import "./player-skin-images.css";
+import { useSkinButtonFeedback } from "./use-skin-button-feedback";
 
 export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
 
@@ -207,6 +209,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const baseSettings = useMemo(() => createGalSettingsApplicationV1(project.settings, platform), [platform, project.settings]);
   const settingsApplication = useMemo(() => applyPlayerPreferences(baseSettings, editorPreview ? { ...personal.preferences, muted: true, revealMode: "instant" } : personal.preferences), [baseSettings, personal.preferences, editorPreview]);
   const fullscreen = usePlayerFullscreen();
+  useSkinButtonFeedback(fullscreen.element, !!skin?.images && Object.values(skin.images.buttons).some(Boolean));
   const [preferencesOpen, setPreferencesOpen] = useState(editorPreview?.initialPanel === 'preferences' || editorPreview?.initialPanel === 'credits');
   const [infoView, setInfoView] = useState<'preferences' | 'credits'>(editorPreview?.initialPanel === 'credits' ? 'credits' : 'preferences');
   const infoTrigger = useRef<HTMLElement | null>(null);
@@ -1559,6 +1562,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
       data-skin-dialogue-motion={skin?.motion.dialogue}
       data-skin-text-motion={skin?.motion.text}
       data-skin-control-motion={skin?.motion.controls}
+      data-skin-button-images={skin?.images ? Object.values(skin.images.buttons).some(Boolean) : undefined}
       data-player-accent={appearance?.accent}
       data-settings-application={settingsApplication.version}
       data-settings-quality={settingsApplication.display.quality}

@@ -1,9 +1,29 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
-import { createProjectTemplate } from "@world-studio/project-domain";
+import { createProjectTemplate, WEB_PLAYER_SCREEN_LABELS } from "@world-studio/project-domain";
 import { SettingsWorkspace } from "./SettingsWorkspace";
 vi.mock("./player-skin-preview", () => ({ PlayerSkinPreview: () => <aside>静音预览</aside> }));
 const fresh = () => createProjectTemplate("Appearance", "018f08d8-71a1-7bc2-a627-2f4a843ee156");
+it("edits every page image plus four button states with undo and preserves independent selections", async () => {
+  const base = fresh(), change = vi.fn(), assets = ["one", "two"].map(assetId => ({ assetId, kind: "cg", displayName: assetId, source: { mimeType: "image/png", byteLength: 10 }, assetIndexMetadata: { inspection: { status: "pass", width: 10, height: 10 } } }));
+  render(<SettingsWorkspace project={{ ...base, assets: { ...base.assets, assets } }} saveStatus="saved" onProjectChange={change} onSave={() => {}} onClose={() => {}} />);
+  const nav = screen.getByRole("navigation", { name: "游戏界面分区" });
+  fireEvent.change(screen.getByLabelText("本页背景图片"), { target: { value: "one" } });
+  fireEvent.click(within(nav).getByRole("button", { name: /阅读与选项/u }));
+  fireEvent.change(screen.getByLabelText("本页背景图片"), { target: { value: "two" } });
+  fireEvent.click(within(nav).getByRole("button", { name: /其他页面/u }));
+  for (const page of Object.keys(WEB_PLAYER_SCREEN_LABELS)) { fireEvent.change(screen.getByLabelText("正在编辑的界面"), { target: { value: page } }); fireEvent.change(screen.getByLabelText("本页背景图片"), { target: { value: "one" } }); }
+  fireEvent.click(within(nav).getByRole("button", { name: /皮肤与动效/u }));
+  for (const label of ["普通按钮图片", "悬停与焦点图片", "按下按钮图片", "禁用按钮图片"]) fireEvent.change(screen.getByLabelText(label), { target: { value: "two" } });
+  fireEvent.click(screen.getByRole("button", { name: "撤销外观调整" })); expect(screen.getByLabelText("禁用按钮图片")).toHaveValue("");
+  fireEvent.click(screen.getByRole("button", { name: "重做外观调整" }));
+  fireEvent.change(screen.getByLabelText("图片按钮文字颜色"), { target: { value: "#ffffff" } });
+  fireEvent.click(screen.getByRole("button", { name: "应用玩家外观" })); await waitFor(() => expect(change).toHaveBeenCalledOnce());
+  const images = change.mock.lastCall?.[0].ui.preservedFields.webPlayerAppearance.skin.images;
+  expect(images.backgrounds.title.assetId).toBe("one"); expect(images.backgrounds.reading.assetId).toBe("two");
+  expect(images.backgrounds.ending.assetId).toBe("one"); expect(Object.values(images.buttons)).toEqual(["two", "two", "two", "two"]);
+  expect(change.mock.lastCall?.[0].ui.preservedFields.webPlayerAppearance.skin.colors.buttonText).toBe("#ffffff");
+});
 it("edits another page, copies shared window style, undoes it and applies ending copy without changing other page widths", async () => {
   const change = vi.fn();
   render(<SettingsWorkspace project={fresh()} saveStatus="saved" onProjectChange={change} onSave={() => {}} onClose={() => {}} />);

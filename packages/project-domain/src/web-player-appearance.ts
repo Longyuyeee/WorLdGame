@@ -1,5 +1,5 @@
 import type { CanonicalProject, JsonObject } from "./types";
-import { isWebPlayerSkin, webPlayerFontAssets, webPlayerSkinFontAssetId, type WebPlayerSkin } from "./web-player-skin";
+import { isWebPlayerSkin, webPlayerFontAssets, webPlayerSkinFontAssetId, webPlayerSkinImageReferences, type WebPlayerSkin } from "./web-player-skin";
 
 export interface WebPlayerAppearance {
   readonly schemaVersion: 1;
@@ -45,6 +45,8 @@ export function applyWebPlayerAppearance(project: CanonicalProject, value: WebPl
     const fonts = new Set(webPlayerFontAssets(project).map(asset => String(asset.assetId ?? asset.id)));
     if (Object.values(value.skin.fonts).some(selection => webPlayerSkinFontAssetId(selection) && !fonts.has(webPlayerSkinFontAssetId(selection)))) throw new Error("所选字体缺失或未通过检查，请先导入字体或改用系统字体。");
     if (value.skin.reading.windowAssetId && !webPlayerCoverAssets(project).some(asset => String(asset.assetId ?? asset.id) === value.skin!.reading.windowAssetId)) throw new Error("对话框图片缺失或不受支持，请重新选择。");
+    const images = new Set(webPlayerCoverAssets(project).map(asset => String(asset.assetId ?? asset.id)));
+    if (webPlayerSkinImageReferences(value.skin).some(id => !images.has(id))) throw new Error("页面背景或按钮图片缺失或未通过检查，请重新选择图片或不使用图片。");
   }
   return { ...project, ui: { ...project.ui, preservedFields: { ...project.ui.preservedFields,
     webPlayerAppearance: { schemaVersion: 1, theme: value.theme, accent: value.accent,

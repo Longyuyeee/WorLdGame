@@ -1,11 +1,13 @@
 import type { WebPlayerSkin } from "@world-studio/project-domain";
 import type { PlayerMediaAssetSourceV1 } from "./player-presentation-adapter";
+import { playerSkinImageStyle } from "./player-skin-images";
 
 export function playerSkinStyle(skin: WebPlayerSkin | undefined, media: readonly PlayerMediaAssetSourceV1[]): Record<string, string | number> {
   if (!skin) return {};
   const rgba = (hex: string, opacity: number) => `rgba(${parseInt(hex.slice(1, 3), 16)},${parseInt(hex.slice(3, 5), 16)},${parseInt(hex.slice(5, 7), 16)},${opacity / 100})`;
   const window = media.find(asset => asset.assetId === skin.reading.windowAssetId && ["image/png", "image/jpeg", "image/webp"].includes(asset.mimeType));
   return {
+    ...playerSkinImageStyle(skin, media),
     "--player-accent": skin.colors.accent, "--player-ink": skin.colors.text, "--player-muted": skin.colors.muted, "--player-panel": skin.colors.panel,
     "--skin-background": skin.colors.background, "--skin-text": skin.colors.text, "--skin-muted": skin.colors.muted, "--skin-border": skin.colors.border, "--skin-speaker": skin.colors.speaker, "--skin-button-text": skin.colors.buttonText,
     "--skin-title-width": `${skin.title.width}%`, "--skin-title-size": `${skin.title.fontSize}px`, "--skin-title-panel": rgba(skin.colors.panel, skin.title.panelOpacity), "--skin-cover-opacity": skin.title.coverOpacity / 100, "--skin-button-radius": `${skin.title.buttonRadius}px`,

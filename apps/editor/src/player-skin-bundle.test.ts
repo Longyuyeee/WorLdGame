@@ -5,6 +5,8 @@ import { applyWebAssetSources, applyWebCredits, applyWebPlayerAppearance, create
 import { createBlobDigest, inspectUntrustedMedia, type BlobDigest } from "@world-studio/project-persistence";
 import { mediaInspectionToJson } from "./media-inspection-client";
 import { applySkinImportPlan, defaultSkinChoices, exportSkinBundle, prepareSkinImport, readSkinBundle, type SkinAssetChoice } from "./player-skin-bundle";
+import { defaultWebPlayerSkinImages, webPlayerSkinReferences } from "@world-studio/project-domain";
+import { exportPlayerSkinPreset, importPlayerSkinPreset } from "./player-skin-preset";
 const png = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==", "base64"));
 function fixture() {
   const font = new Uint8Array(readFileSync("assets/skin-demo/letter-demo.woff2"));
@@ -20,6 +22,22 @@ function fixture() {
   return { project, appearance, reader: { read: async (id: BlobDigest) => blobs.get(id) ?? null } };
 }
 const target = () => createProjectTemplate("新的故事", "018f08d8-71a1-7bc2-a627-2f4a843ee151");
+it("carries more than eight independent image references through JSON, ZIP, remapping and missing-image fallback", async () => {
+  const f = fixture(), empty = defaultWebPlayerSkinImages(), extra = Array.from({ length: 13 }, (_, i) => ({ ...f.project.assets.assets[0]!, assetId: `image_${i}` }));
+  const images = { backgrounds: Object.fromEntries(Object.entries(empty.backgrounds).map(([surface, row], i) => [surface, { ...row, assetId: `image_${i}` }])) as typeof empty.backgrounds, buttons: { normal: "image_9", hover: "image_10", pressed: "image_11", disabled: "image_12" } };
+  const project = { ...f.project, assets: { ...f.project.assets, assets: [...f.project.assets.assets, ...extra] } }, appearance = { ...f.appearance, skin: { ...f.appearance.skin, images } };
+  const text = exportPlayerSkinPreset(project, appearance, "全页模板"), missing = importPlayerSkinPreset(text, target(), DEFAULT_WEB_PLAYER_APPEARANCE);
+  expect(missing.missing).toHaveLength(15); expect(missing.appearance.skin?.images?.buttons.pressed).toMatch(/^missing_skin_/u);
+  const bytes = await exportSkinBundle(project, appearance, "全页模板", f.reader, "", false), b = await readSkinBundle(bytes);
+  expect(b.assets).toHaveLength(15); expect(b.blobs.size).toBe(2);
+  const p = target(), plan = await prepareSkinImport(b, p, defaultSkinChoices(b, p), null);
+  expect(plan.inputs).toHaveLength(2); expect(webPlayerSkinReferences(plan.appearance.skin!)).toHaveLength(2);
+  expect(plan.appearance.skin?.images?.backgrounds.save.assetId).toBe(plan.appearance.skin?.images?.buttons.normal);
+  const remapped = importPlayerSkinPreset(text, plan.previewProject, DEFAULT_WEB_PLAYER_APPEARANCE); expect(remapped.missing).toEqual([]);
+  expect(remapped.appearance.skin?.images).toEqual(plan.appearance.skin?.images);
+  const choices = { ...defaultSkinChoices(b, p), image_11: { mode: "fallback" } as const };
+  const fallback = await prepareSkinImport(b, p, choices, null); expect(fallback.appearance.skin?.images?.buttons.pressed).toBe(""); expect(fallback.appearance.skin?.images?.buttons.normal).not.toBe("");
+});
 async function bundle(privateSources = false) { const f = fixture(); return readSkinBundle(await exportSkinBundle(f.project, f.appearance, "来信皮肤", f.reader, "公开字体许可说明", privateSources)); }
 it("round-trips only referenced bytes, preserves the target plot/title, and keeps provenance private and pending", async () => {
   const b = await bundle(true), p = target(), plan = await prepareSkinImport(b, p, defaultSkinChoices(b, p), null);

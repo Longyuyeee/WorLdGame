@@ -79,6 +79,14 @@ describe("IndexedDbAssetRepository", () => {
     await expect(assets.importNewAssets(inputs, { expectedIndexRevision: 2, maxBytes: 1024 })).rejects.toMatchObject({ code: "INVALID_ASSET" });
     expect(await assets.loadIndex()).toEqual(result.index);
   });
+  it("supports a whole page-art batch beyond eight entries and still rejects an unbounded batch", async () => {
+    const { assets } = await writableRepository(new IDBFactory(), "page_art_batch", () => 55_000);
+    const inputs = Array.from({ length: 24 }, (_, i) => ({ assetId: `page_${i}`, kind: "cg" as const, displayName: `Page ${i}`, mimeType: "image/png", bytes: new Uint8Array([i]) }));
+    const result = await assets.importNewAssets(inputs, { expectedIndexRevision: 0, maxBytes: 1024 });
+    expect(result.index.assets).toHaveLength(24);
+    await expect(assets.importNewAssets([...inputs, { ...inputs[0]!, assetId: "over_limit" }], { expectedIndexRevision: 24, maxBytes: 1024 })).rejects.toMatchObject({ code: "RESOURCE_LIMIT" });
+    expect((await assets.loadIndex()).assets).toHaveLength(24);
+  });
   it("rolls back every new blob/index entry when a skin batch is cancelled at publication", async () => {
     const { assets } = await writableRepository(), controller = new AbortController();
     const inputs = ["one", "two"].map((assetId, i) => ({ assetId, kind: "cg" as const, displayName: assetId, mimeType: "image/png", bytes: inspectedPngHeader(1, 1, i) }));
