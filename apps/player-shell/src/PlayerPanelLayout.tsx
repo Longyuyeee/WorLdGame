@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { WebPageLayout } from "@world-studio/project-domain";
+import type { WebPageLayout, WebLayoutSurface } from "@world-studio/project-domain";
 import { resolvePlayerLayout, type LayoutRect } from "./player-layout";
 
-export type PlayerLayoutPanel = "menu" | "save" | "history" | "preferences" | "credits" | "ending";
+export type PlayerLayoutPanel = Exclude<WebLayoutSurface, "title" | "reading">;
 export interface PlayerPanelContent {
   readonly enabled: boolean;
   readonly layout: ReturnType<typeof resolvePlayerLayout>;

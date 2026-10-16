@@ -51,10 +51,10 @@ describe("N62-E1-E4 additional-content Player path", () => {
     expect(within(gallery).getByRole("img", { name: "Deterministic Sunset" })).toBeVisible();
     const sunset = within(gallery).getByRole("button", { name: "查看画面 Deterministic Sunset" });
     fireEvent.click(sunset);
-    expect(within(gallery).getByRole("group", { name: "Deterministic Sunset 画面预览" })).toBeVisible();
-    expect(within(gallery).getByRole("button", { name: "关闭画面预览" })).toHaveFocus();
+    expect(within(panel).getByRole("dialog", { name: "Deterministic Sunset 画面预览" })).toBeVisible();
+    expect(within(panel).getByRole("button", { name: "关闭画面预览" })).toHaveFocus();
     fireEvent.keyDown(window, { key: "Escape" });
-    expect(within(gallery).queryByRole("group", { name: "Deterministic Sunset 画面预览" })).not.toBeInTheDocument();
+    expect(within(panel).queryByRole("dialog", { name: "Deterministic Sunset 画面预览" })).not.toBeInTheDocument();
     expect(sunset).toHaveFocus();
     fireEvent.click(within(gallery).getByRole("button", { name: "返回附加内容总览" }));
     expect(within(panel).getByRole("button", { name: "查看 CG 画廊" })).toHaveFocus();

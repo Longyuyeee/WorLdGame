@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { webPlayerSkinReferences, webPlayerFontAssets, readWebPlayerAppearance, WEB_PLAYER_SCREEN_LABELS, type WebPlayerScreenId, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
+import { webPlayerSkinReferences, webPlayerFontAssets, readWebPlayerAppearance, WEB_PLAYER_SCREEN_LABELS, WEB_ADDITIONAL_LAYOUT_LABELS, webLayoutIsAdditional, type WebAdditionalLayoutSurface, type WebPlayerScreenId, type CanonicalProject, type JsonObject } from "@world-studio/project-domain";
 import type { BlobDigest } from "@world-studio/project-persistence";
 import type { AssetLibraryReader } from "./asset-library-card";
 import { browserBlobDigest } from "./browser-blob-digest";
 import { PlayerLayoutCanvas, type LayoutEditorBinding } from "./PlayerLayoutCanvas";
 
-export type SkinPreviewSurface = "title" | "reading" | "choice" | WebPlayerScreenId;
+export type SkinPreviewSurface = "title" | "reading" | "choice" | WebPlayerScreenId | WebAdditionalLayoutSurface;
 export function skinPreviewProject(project: CanonicalProject, surface: SkinPreviewSurface, previewId: string): CanonicalProject | null {
   const all = project.scenes.flatMap(scene => project.scripts[scene.id]?.statements ?? []);
   const sample = surface === "choice" ? all.find(item => item.kind === "choice") : all.find(item => item.kind === "dialogue") ?? all.find(item => item.kind === "narration");
@@ -76,7 +76,8 @@ export function PlayerSkinPreview({ project, reader, surface, setSurface, storyP
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!preview || !runtime || assetError || media.length !== assets.length) { setDocument(""); return; }
-      const payload = JSON.stringify({ project: preview, mediaAssets: media, editorPreview: { autoStart: !["title", "preferences", "credits", "additional"].includes(surface), ...(Object.hasOwn(WEB_PLAYER_SCREEN_LABELS, surface) ? { initialPanel: surface } : {}) } }).replaceAll("<", "\\u003c");
+      const additional = webLayoutIsAdditional(surface);
+      const payload = JSON.stringify({ project: preview, mediaAssets: media, editorPreview: { autoStart: !additional && !["title", "preferences", "credits"].includes(surface), ...(additional ? { initialPanel: "additional", ...(surface !== "additional" ? { initialAdditionalView: surface } : {}) } : Object.hasOwn(WEB_PLAYER_SCREEN_LABELS, surface) ? { initialPanel: surface } : {}) } }).replaceAll("<", "\\u003c");
       setDocument(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${runtime.css.replace(/<\/style/giu, "<\\/style")}</style></head><body><div id="player-root"></div><script id="world-project" type="application/json">${payload}</script><script>${runtime.javascript.replace(/<\/script/giu, "<\\/script")}</script></body></html>`);
     }, 350);
     return () => clearTimeout(timer);
@@ -91,7 +92,7 @@ export function PlayerSkinPreview({ project, reader, surface, setSurface, storyP
   const content = <div className="skin-preview-content">
     <header><div><strong>真实播放器预览</strong><small>{storyPreview !== undefined ? "当前动效草稿" : "当前外观草稿"} · 静音 · 不计入结局试玩</small></div><button type="button" onClick={() => setExpanded(!expanded)}>{expanded ? "收起预览" : "放大预览"}</button></header>
     <div className="skin-preview-tools">
-      {storyPreview !== undefined ? <span>当前剧情片段</span> : <select aria-label="外观预览页面" value={surface} onChange={event => setSurface(event.target.value as SkinPreviewSurface)}><option value="title">标题画面</option><option value="reading">阅读对白</option><option value="choice">分支选项</option>{Object.entries(WEB_PLAYER_SCREEN_LABELS).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select>}
+      {storyPreview !== undefined ? <span>当前剧情片段</span> : <select aria-label="外观预览页面" value={surface} onChange={event => setSurface(event.target.value as SkinPreviewSurface)}><option value="title">标题画面</option><option value="reading">阅读对白</option><option value="choice">分支选项</option>{Object.entries({ ...WEB_PLAYER_SCREEN_LABELS, ...WEB_ADDITIONAL_LAYOUT_LABELS }).map(([id, label]) => <option value={id} key={id}>{label}</option>)}</select>}
       <select aria-label="外观预览设备" value={device} onChange={event => setDevice(event.target.value)}><option value="desktop">桌面</option><option value="phone">手机</option></select><button type="button" onClick={() => setReplay(replay + 1)}>重播效果</button>
       {layoutEditor && <button type="button" aria-pressed={editing} onClick={() => setEditing(!editing)}>{editing ? "结束布局编辑" : "编辑预览布局"}</button>}
     </div>

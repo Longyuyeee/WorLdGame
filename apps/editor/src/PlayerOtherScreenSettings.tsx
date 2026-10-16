@@ -1,4 +1,4 @@
-import { defaultWebPlayerScreens, WEB_PLAYER_SCREEN_LABELS, type WebPlayerScreenId, type WebPlayerScreenPanel, type WebPlayerScreens } from "@world-studio/project-domain";
+import { defaultWebPlayerScreens, WEB_PLAYER_SCREEN_LABELS, WEB_ADDITIONAL_LAYOUT_LABELS, type WebAdditionalLayoutSurface, type WebPlayerScreenId, type WebPlayerScreenPanel, type WebPlayerScreens } from "@world-studio/project-domain";
 import type { ReactNode } from "react";
 
 const descriptions: Record<WebPlayerScreenId, string> = {
@@ -12,9 +12,10 @@ const descriptions: Record<WebPlayerScreenId, string> = {
 };
 const ranges = [["本页宽度", "width", 320, 1200, 20, "px"], ["本页圆角", "radius", 0, 40, 1, "px"], ["本页内边距", "padding", 12, 40, 1, "px"], ["本页不透明度", "opacity", 55, 100, 1, "%"], ["本页文字大小", "fontSize", 12, 24, 1, "px"]] as const;
 
-export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChange, layoutControls, freeLayout = false }: {
+export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChange, layoutControls, freeLayout = false, additionalLayoutSurface = "additional", onSelectAdditionalLayout }: {
   screens: WebPlayerScreens; selected: WebPlayerScreenId; onSelect: (id: WebPlayerScreenId) => void; onChange: (screens: WebPlayerScreens) => void;
   layoutControls?: ReactNode; freeLayout?: boolean;
+  additionalLayoutSurface?: WebAdditionalLayoutSurface; onSelectAdditionalLayout?: (id: WebAdditionalLayoutSurface) => void;
 }) {
   const panel = screens.panels[selected];
   const edit = (patch: Partial<WebPlayerScreenPanel>) => onChange({ ...screens, panels: { ...screens.panels, [selected]: { ...panel, ...patch } } });
@@ -22,6 +23,7 @@ export function PlayerOtherScreenSettings({ screens, selected, onSelect, onChang
     <div className="skin-section-heading"><h4>把每一页都照顾好</h4><p>先选页面，再调整窗体。配色与字体沿用当前皮肤，手机自动收窄。</p></div>
     <label>正在编辑的界面<select aria-label="正在编辑的界面" value={selected} onChange={event => onSelect(event.target.value as WebPlayerScreenId)}>{Object.entries(WEB_PLAYER_SCREEN_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
     <p className="skin-screen-description">{descriptions[selected]}</p>
+    {selected === "additional" && onSelectAdditionalLayout && <><label>附加内容布局页面<select aria-label="附加内容布局页面" value={additionalLayoutSurface} onChange={event => onSelectAdditionalLayout(event.target.value as WebAdditionalLayoutSurface)}>{Object.entries(WEB_ADDITIONAL_LAYOUT_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label><p>总览与四个分组的位置、手机布局和组件独立，关闭某页自由布局只恢复该页模板。下面的字体、底色、背景与窗体风格由附加内容共用；分组返回总览，总览返回原游戏页面。</p></>}
     {layoutControls}
     {freeLayout && <p className="skin-screen-description">自由布局已启用：在组件中调整内容区、标题与返回区的位置和尺寸。下面的窗体宽度、位置、整页入场动效与面板预设暂停使用，圆角、字体、底色和素材仍生效；内边距用于内容区，返回区保持紧凑。较窄的存档内容区自动采用单列。</p>}
     <div className="skin-screen-presets" aria-label="本页布局预设">

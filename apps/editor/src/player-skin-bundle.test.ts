@@ -52,16 +52,16 @@ it("retains hidden-device assets and visibility during portable bundle reuse", a
   const plan = await prepareSkinImport(bundle, target(), defaultSkinChoices(bundle, target()), null);
   expect(plan.appearance.skin?.layout?.title.components[0]).toMatchObject({ visibility: "desktop", assetId: expect.any(String) }); expect(plan.inputs).toHaveLength(2); expect(plan.previewProject.scripts).toEqual(target().scripts);
 });
-it("carries image bytes referenced only by optional panels and remaps all six pages without copying plot", async () => {
+it("carries image bytes referenced only by optional panels and remaps every page without copying plot", async () => {
   const f = fixture(), layout = defaultWebPlayerLayout();
   const component = { id: "layout_panel", kind: "image" as const, text: "Panel art", action: "resume" as const, assetId: "cover", fit: "contain" as const, visibility: "desktop" as const, desktop: defaultWebPageLayout("menu").desktop.primary, mobile: null };
-  const appearance = { ...f.appearance, coverAssetId: "", skin: { ...f.appearance.skin, reading: { ...f.appearance.skin.reading, windowAssetId: "" }, layout: { ...layout, ...Object.fromEntries((["menu", "save", "history", "preferences", "credits", "ending"] as const).map(surface => [surface, { ...defaultWebPageLayout(surface), enabled: true, components: [component] }])) } } };
+  const appearance = { ...f.appearance, coverAssetId: "", skin: { ...f.appearance.skin, reading: { ...f.appearance.skin.reading, windowAssetId: "" }, layout: { ...layout, ...Object.fromEntries((["menu", "save", "history", "preferences", "credits", "ending", "additional", "gallery", "music", "replay", "endings"] as const).map(surface => [surface, { ...defaultWebPageLayout(surface), enabled: true, components: [component] }])) } } };
   const bundle = await readSkinBundle(await exportSkinBundle(f.project, appearance, "Panels", f.reader, "", false));
   const plan = await prepareSkinImport(bundle, target(), defaultSkinChoices(bundle, target()), null);
-  for (const surface of ["menu", "save", "history", "preferences", "credits", "ending"] as const) expect(plan.appearance.skin?.layout?.[surface]?.components[0]).toMatchObject({ visibility: "desktop", assetId: expect.any(String) });
+  for (const surface of ["menu", "save", "history", "preferences", "credits", "ending", "additional", "gallery", "music", "replay", "endings"] as const) expect(plan.appearance.skin?.layout?.[surface]?.components[0]).toMatchObject({ visibility: "desktop", assetId: expect.any(String) });
   expect(plan.inputs).toHaveLength(2); expect(plan.previewProject.scripts).toEqual(target().scripts);
   const fallback = await prepareSkinImport(bundle, target(), { ...defaultSkinChoices(bundle, target()), cover: { mode: "fallback" } }, null);
-  for (const surface of ["menu", "save", "history", "preferences", "credits", "ending"] as const) expect(fallback.appearance.skin?.layout?.[surface]?.components[0]?.assetId).toBe("");
+  for (const surface of ["menu", "save", "history", "preferences", "credits", "ending", "additional", "gallery", "music", "replay", "endings"] as const) expect(fallback.appearance.skin?.layout?.[surface]?.components[0]?.assetId).toBe("");
   expect(fallback.inputs).toHaveLength(1);
 });
 it("carries more than eight independent image references through JSON, ZIP, remapping and missing-image fallback", async () => {

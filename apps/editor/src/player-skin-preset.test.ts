@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { applyWebPlayerAppearance, createProjectTemplate, DEFAULT_WEB_PLAYER_APPEARANCE, defaultWebPlayerScreens, WEB_PLAYER_SCREEN_LABELS, webPlayerSkinPreset } from "@world-studio/project-domain";
+import { applyWebPlayerAppearance, createProjectTemplate, DEFAULT_WEB_PLAYER_APPEARANCE, defaultWebPlayerScreens, WEB_PLAYER_SCREEN_LABELS, WEB_ADDITIONAL_LAYOUT_LABELS, type WebAdditionalLayoutSurface, webPlayerSkinPreset } from "@world-studio/project-domain";
 import { exportPlayerSkinPreset, importPlayerSkinPreset } from "./player-skin-preset";
 import { skinPreviewProject } from "./player-skin-preview";
 import { compileProject } from "@world-studio/project-compiler";
@@ -31,6 +31,11 @@ it("rejects bad versions, invalid values and excessive files without mutating th
   expect(() => importPlayerSkinPreset(text.replace('"schemaVersion": 1', '"schemaVersion": 9'), original, DEFAULT_WEB_PLAYER_APPEARANCE)).toThrow("版本");
   expect(() => importPlayerSkinPreset(" ".repeat(256 * 1024 + 1), original, DEFAULT_WEB_PLAYER_APPEARANCE)).toThrow("256 KB");
   expect(original.ui.preservedFields).toBeUndefined();
+});
+it("compiles actual isolated previews for each extra group without fabricating unlocks or copying story changes", () => {
+  const original = fresh(), before = JSON.stringify(original);
+  for (const surface of Object.keys(WEB_ADDITIONAL_LAYOUT_LABELS) as WebAdditionalLayoutSurface[]) expect(compileProject(skinPreviewProject(original, surface, "preview_extra_groups")!, "release").ok).toBe(true);
+  expect(JSON.stringify(original)).toBe(before);
 });
 it("creates an isolated actual-content preview without audio or changes to the author's story", () => {
   const original = fresh(), scene = original.scenes[0]!;

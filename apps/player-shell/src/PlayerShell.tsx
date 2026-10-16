@@ -14,6 +14,7 @@ import { usePlayerFullscreen } from './use-player-fullscreen';
 import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { PlayerHistoryContent } from './PlayerHistoryContent';
+import { PlayerMusicPreview } from './PlayerMusicPreview';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
 import { playerAudioFailureHint } from './audio-failure';
@@ -94,13 +95,14 @@ import { PlayerDialogueIdentity } from "./PlayerDialogueIdentity";
 import { captureBrowserSavePreview } from "./browser-save-preview";
 import { saveReadingExcerpt } from "./save-reading-excerpt";
 import { PlayerLayoutBox, PlayerLayoutComponents, usePlayerLayout } from "./PlayerLayout";
-import { webLayoutActions, type WebLayoutAction } from "@world-studio/project-domain";
+import { webLayoutActions, webLayoutIsAdditional, WEB_ADDITIONAL_LAYOUT_LABELS, type WebAdditionalLayoutSurface, type WebLayoutAction } from "@world-studio/project-domain";
 import { PlayerPanelRegion, usePlayerPanelLayout, type PlayerLayoutPanel } from "./PlayerPanelLayout";
 import "./player-skin-template.css";
 // Load after the legacy page templates so opted-in viewport layouts keep their geometry.
 import "./player-panel-layout.css";
+import "./player-additional-layout.css";
 
-export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; }
+export interface PlayerEditorPreviewOptions { readonly autoStart: boolean; readonly initialPanel?: WebPlayerScreenId; readonly initialAdditionalView?: Exclude<WebAdditionalLayoutSurface, "additional">; }
 
 export interface PlayerShellProps {
   readonly project: CanonicalProject;
@@ -274,7 +276,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(editorPreview?.initialPanel === 'history');
   const [additionalContentOpen, setAdditionalContentOpen] = useState(editorPreview?.initialPanel === 'additional');
-  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">("overview");
+  const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">(editorPreview?.initialPanel === "additional" && editorPreview.initialAdditionalView && webLayoutIsAdditional(editorPreview.initialAdditionalView) ? editorPreview.initialAdditionalView : "overview");
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
   const [additionalContentMediaErrors, setAdditionalContentMediaErrors] = useState<readonly string[]>([]);
   const [savePanelOpen, setSavePanelOpen] = useState(editorPreview?.initialPanel === 'save');
@@ -393,7 +395,14 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const preferencesLayout = usePlayerPanelLayout(skin?.layout?.preferences, "preferences", preferencesOpen && infoView === "preferences");
   const creditsLayout = usePlayerPanelLayout(skin?.layout?.credits, "credits", preferencesOpen && infoView === "credits");
   const endingLayout = usePlayerPanelLayout(skin?.layout?.ending, "ending", content.kind === "ending");
-  const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout, preferences: preferencesLayout, credits: creditsLayout, ending: endingLayout };
+  const additionalSurface: WebAdditionalLayoutSurface = additionalContentView === "overview" ? "additional" : additionalContentView;
+  const overviewLayout = usePlayerPanelLayout(skin?.layout?.additional, "additional", additionalContentOpen && additionalSurface === "additional");
+  const galleryLayout = usePlayerPanelLayout(skin?.layout?.gallery, "gallery", additionalContentOpen && additionalSurface === "gallery");
+  const musicLayout = usePlayerPanelLayout(skin?.layout?.music, "music", additionalContentOpen && additionalSurface === "music");
+  const replayLayout = usePlayerPanelLayout(skin?.layout?.replay, "replay", additionalContentOpen && additionalSurface === "replay");
+  const endingsLayout = usePlayerPanelLayout(skin?.layout?.endings, "endings", additionalContentOpen && additionalSurface === "endings");
+  const panelLayouts = { menu: menuLayout, save: saveLayout, history: historyLayout, preferences: preferencesLayout, credits: creditsLayout, ending: endingLayout, additional: overviewLayout, gallery: galleryLayout, music: musicLayout, replay: replayLayout, endings: endingsLayout };
+  const additionalLayout = panelLayouts[additionalSurface];
   const saveBoundaryAllowed = worldPlayerAutoSaveAllowedV1(snapshot.status, snapshot.presentation.kind);
   const quickSlot = saveSlots.find((slot) => slot.slotId === "quick-1");
   const latestSlot = saveSlots.slice().sort((a, b) => b.savedAtEpochMilliseconds - a.savedAtEpochMilliseconds || a.slotId.localeCompare(b.slotId))[0];
@@ -1362,7 +1371,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     }
     if (galleryPreviewWasOpen.current) {
       galleryPreviewWasOpen.current = false;
-      galleryPreviewTrigger.current?.focus();
+      const trigger = galleryPreviewTrigger.current;
+      if (trigger?.isConnected) trigger.focus();
+      if (!trigger || document.activeElement !== trigger) additionalContentDetailBack.current?.focus();
     }
   }, [selectedGalleryAssetId]);
 
@@ -1406,8 +1417,9 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           return;
         }
         if (event.key === "Tab") {
-          const focusable = Array.from(additionalContentPanel.current?.querySelectorAll<HTMLElement>(
-            'button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+          const scope = selectedGalleryAssetId !== null ? galleryPreviewClose.current?.closest("figure") : additionalContentPanel.current;
+          const focusable = Array.from(scope?.querySelectorAll<HTMLElement>(
+            'button:not(:disabled), [href], audio[controls], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
           ) ?? []);
           if (focusable.length === 0) return;
           const currentIndex = focusable.indexOf(document.activeElement as HTMLElement);
@@ -1574,11 +1586,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const panelAction = (surface: PlayerLayoutPanel, action: WebLayoutAction, trigger: HTMLButtonElement, source: "pointer" | "touch" | "keyboard") => {
     if (hostActivity !== "active" || saveOperation === "busy" || !panelLayouts[surface].layout || !webLayoutActions(surface).includes(action) || !layoutActionEnabled(action)) return;
     if (surface === "ending" && endingActionBlocked) return;
+    if (webLayoutIsAdditional(surface) && (!additionalContentOpen || surface !== additionalSurface || selectedGalleryAssetId !== null)) return;
     if (action === "resume") {
       if (surface === "menu") closeReadingMenu();
       else if (surface === "history") closeHistoryPanel();
       else if (surface === "preferences" || surface === "credits") closePreferences();
       else if (surface === "ending") { if (snapshot.sceneReplay.active) exitSceneReplay(); else applyIntent({ kind: "restart" }, source); }
+      else if (webLayoutIsAdditional(surface)) { if (surface === "additional") closeAdditionalContent(); else setAdditionalContentView("overview"); }
       else closeSavePanel();
       return;
     }
@@ -1594,7 +1608,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
     const rows = panelLayouts[surface].layout?.components.map(row => surface === "ending" && snapshot.sceneReplay.active && row.component.kind === "button" ? { ...row, component: { ...row.component, text: "返回原剧情" } } : row);
     return <PlayerLayoutComponents rows={rows} inline={inline} media={mediaAssets} disabled={hostActivity !== "active" || saveOperation === "busy" || surface === "ending" && endingActionBlocked} onAction={(action, trigger, source) => panelAction(surface, action, trigger, source)} actionEnabled={layoutActionEnabled} />;
   };
-  const panelProps = (surface: PlayerLayoutPanel) => ({ ...playerScreenProps(skin, surface), "data-layout-panel-surface": panelLayouts[surface].enabled ? surface : undefined, "data-panel-layout": panelLayouts[surface].layout ? surface : undefined });
+  const panelProps = (surface: PlayerLayoutPanel) => ({ ...playerScreenProps(skin, webLayoutIsAdditional(surface) ? "additional" : surface), "data-layout-panel-surface": panelLayouts[surface].enabled ? surface : undefined, "data-panel-layout": panelLayouts[surface].layout ? surface : undefined });
   const panelAudit = (surface: PlayerLayoutPanel) => editorPreview && panelLayouts[surface].layout?.fallback ? <p className="player-layout-audit" role="status">布局保护：内容与返回区使用安全布局，冲突按钮并入内容操作区。</p> : null;
   const panelContent = (surface: PlayerLayoutPanel) => ({ enabled: panelLayouts[surface].enabled, layout: panelLayouts[surface].layout, inline: panelComponents(surface, true), floating: panelComponents(surface), audit: panelAudit(surface) });
   const endingReturn = <button className="player-secondary" type="button" disabled={endingActionBlocked} onPointerDown={event => { pointerInput.current = event.pointerType === "touch" ? "touch" : "pointer"; }} onClick={() => snapshot.sceneReplay.active ? exitSceneReplay() : applyIntent({ kind: "restart" }, pointerInput.current)}>{snapshot.sceneReplay.active ? "结束回想，返回原剧情" : skin?.screens?.ending.returnLabel ?? "回到标题"}</button>;
@@ -1718,7 +1732,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
         ...playerSkinStyle(skin, mediaAssets)
       } as React.CSSProperties}
     >
-      {menuLayout.probe}{saveLayout.probe}{historyLayout.probe}{preferencesLayout.probe}{creditsLayout.probe}{endingLayout.probe}
+      {menuLayout.probe}{saveLayout.probe}{historyLayout.probe}{preferencesLayout.probe}{creditsLayout.probe}{endingLayout.probe}{overviewLayout.probe}{galleryLayout.probe}{musicLayout.probe}{replayLayout.probe}{endingsLayout.probe}
       <div className="player-glow player-glow--violet" />
       <div className="player-glow player-glow--cyan" />
       {preferencesOpen && (infoView === 'credits' ? <PlayerCreditsPanel skin={skin} layout={panelContent('credits')} credits={credits} title={snapshot.title} panel={preferencesPanel} close={closePreferences} /> : <PlayerPreferencesPanel skin={skin} layout={panelContent('preferences')} panel={preferencesPanel} preferences={personal.preferences} update={personal.update} saved={personal.saved} active={hostActivity === 'active'} close={closePreferences} fullscreen={fullscreen} />)}
@@ -2011,11 +2025,15 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
           </aside>
         )}
         {additionalContentOpen && (
-          <aside {...playerScreenProps(skin, 'additional')} ref={additionalContentPanel} className="player-additional-content" role="dialog" aria-label="附加内容" aria-modal="true">
+          <aside {...panelProps(additionalSurface)} ref={additionalContentPanel} className="player-additional-content" data-gallery-preview={selectedGalleryAssetId !== null} role="dialog" aria-label="附加内容" aria-modal="true">
+            <PlayerPanelRegion enabled={additionalLayout.enabled} rect={additionalLayout.layout?.secondary} kind="secondary">
             <header>
-              <div><span>EXTRAS</span><h2>附加内容</h2></div>
+              <div><span>EXTRAS</span><h2>{additionalLayout.enabled ? WEB_ADDITIONAL_LAYOUT_LABELS[additionalSurface] : "附加内容"}</h2></div>
               <button ref={additionalContentClose} type="button" aria-label="返回剧情" onClick={closeAdditionalContent}>返回剧情</button>
+              {additionalLayout.enabled && additionalContentView !== "overview" && <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>}
             </header>
+            </PlayerPanelRegion>
+            <PlayerPanelRegion enabled={additionalLayout.enabled} rect={additionalLayout.layout?.primary} kind="primary">
             {collection.error && <p className="player-collection-error" role="alert">本机收藏记录暂时无法读取或保存。本次记录仍在，请保留故事存档后重试。<button type="button" onClick={collection.retry}>重试保存收藏</button></p>}
             {replayArchive.error && <p className="player-collection-error" role="alert">本机回想记录暂时无法读取或保存。本次游玩仍可继续，请稍后重试。<button type="button" onClick={replayArchive.retry}>重试保存回想</button></p>}
             {additionalContentView === "overview" && <>
@@ -2038,10 +2056,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
               </div>
             </>}
             {additionalContentView === "gallery" && <section className="player-additional-content__detail" role="region" aria-label="CG 画廊内容">
-              <div className="player-additional-content__detail-heading">
+              {!additionalLayout.enabled && <div className="player-additional-content__detail-heading">
                 <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => { setSelectedGalleryAssetId(null); setAdditionalContentView("overview"); }}>← 返回总览</button>
                 <div><span>GALLERY</span><h3>CG 画廊</h3><p>{snapshot.additionalContent.gallery.unlocked} / {snapshot.additionalContent.gallery.total} 已发现</p></div>
-              </div>
+              </div>}
+              {additionalLayout.enabled && <p>{snapshot.additionalContent.gallery.unlocked} / {snapshot.additionalContent.gallery.total} 已发现</p>}
               {snapshot.additionalContent.galleryItems.length === 0
                 ? <p className="player-additional-content__empty">这个故事暂时没有可收录的画面。</p>
                 : <div className="player-additional-content__items">
@@ -2070,21 +2089,13 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                     </article>;
                   })}
                 </div>}
-              {selectedGalleryAssetId !== null && (() => {
-                const item = snapshot.additionalContent.galleryItems.find((candidate) => candidate.assetId === selectedGalleryAssetId);
-                const source = additionalContentSources.get(selectedGalleryAssetId);
-                if (item?.displayName === null || item === undefined || source === undefined) return null;
-                return <figure className="player-additional-content__preview" role="group" aria-label={`${item.displayName} 画面预览`}>
-                  <DeferredAtlasImage atlas={source.atlas} src={source.url} alt="" />
-                  <figcaption><strong>{item.displayName}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
-                </figure>;
-              })()}
             </section>}
             {additionalContentView === "replay" && <section className="player-additional-content__detail" role="region" aria-label="场景回想内容">
-              <div className="player-additional-content__detail-heading">
+              {!additionalLayout.enabled && <div className="player-additional-content__detail-heading">
                 <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
                 <div><span>SCENE REPLAY</span><h3>场景回想</h3><p>{snapshot.additionalContent.replay.unlocked} / {snapshot.additionalContent.replay.total} 已解锁</p></div>
-              </div>
+              </div>}
+              {additionalLayout.enabled && <p>{snapshot.additionalContent.replay.unlocked} / {snapshot.additionalContent.replay.total} 已解锁</p>}
               <p className="player-additional-content__replay-note">回想会从你实际走过的场景入口重新开始；退出后，剧情、演出和播放状态都会回到进入前。</p>
               {snapshot.sceneReplay.error !== null && <p className="player-additional-content__replay-error" role="alert">{snapshot.sceneReplay.error}</p>}
               {snapshot.additionalContent.replayItems.some(item => item.unlocked && !canEnterPlayerCoreReplayV1(state, item.replayId)) && <div className="player-replay-context">
@@ -2103,10 +2114,11 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                 </ol>}
             </section>}
             {additionalContentView === "music" && <section className="player-additional-content__detail" role="region" aria-label="音乐室内容">
-              <div className="player-additional-content__detail-heading">
+              {!additionalLayout.enabled && <div className="player-additional-content__detail-heading">
                 <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
                 <div><span>MUSIC</span><h3>音乐室</h3><p>{snapshot.additionalContent.music.unlocked} / {snapshot.additionalContent.music.total} 已收录</p></div>
-              </div>
+              </div>}
+              {additionalLayout.enabled && <p>{snapshot.additionalContent.music.unlocked} / {snapshot.additionalContent.music.total} 已收录</p>}
               {snapshot.additionalContent.musicItems.length === 0
                 ? <p className="player-additional-content__empty">这个故事暂时没有可收录的音乐。</p>
                 : <ol className="player-additional-content__music">
@@ -2121,16 +2133,17 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                     return <li key={item.assetId} data-resource={unavailable ? "missing" : "ready"}>
                       <span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.displayName}</strong>{unavailable
                         ? <><small role="status">资源暂不可用，收录记录仍然保留。</small>{onRetryMedia !== undefined && <button type="button" onClick={() => { setAdditionalContentMediaErrors([]); onRetryMedia(); }}>重试资源</button>}</>
-                        : <audio controls preload="metadata" muted={effectiveMuted} ref={element => { if (element) element.volume = galAudioGainV1(settingsApplication, 'bgm'); }} aria-label={`试听 ${item.displayName}`} src={source.url} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
+                        : <PlayerMusicPreview src={source.url} label={`试听 ${item.displayName}`} muted={effectiveMuted} volume={galAudioGainV1(settingsApplication, 'bgm')} active={hostActivity === "active"} onError={() => setAdditionalContentMediaErrors((current) => [...new Set([...current, item.assetId])])} />}</div>
                     </li>;
                   })}
                 </ol>}
             </section>}
             {additionalContentView === "endings" && <section className="player-additional-content__detail" role="region" aria-label="结局内容">
-              <div className="player-additional-content__detail-heading">
+              {!additionalLayout.enabled && <div className="player-additional-content__detail-heading">
                 <button ref={additionalContentDetailBack} type="button" aria-label="返回附加内容总览" onClick={() => setAdditionalContentView("overview")}>← 返回总览</button>
                 <div><span>ENDINGS</span><h3>结局</h3><p>{snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 已达成</p></div>
-              </div>
+              </div>}
+              {additionalLayout.enabled && <p>{snapshot.additionalContent.endings.unlocked} / {snapshot.additionalContent.endings.total} 已达成</p>}
               {snapshot.additionalContent.endingItems.length === 0
                 ? <p className="player-additional-content__empty">这个故事暂时没有可记录的结局。</p>
                 : <ol className="player-additional-content__endings">
@@ -2141,6 +2154,18 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
                   </li>)}
                 </ol>}
             </section>}
+            {panelComponents(additionalSurface, true)}</PlayerPanelRegion>
+            {panelComponents(additionalSurface)}{panelAudit(additionalSurface)}
+            {selectedGalleryAssetId !== null && (() => {
+              const item = snapshot.additionalContent.galleryItems.find(candidate => candidate.assetId === selectedGalleryAssetId);
+              const source = additionalContentSources.get(selectedGalleryAssetId);
+              const name = item?.unlocked ? item.displayName ?? "画面" : "画面";
+              const unavailable = !item?.unlocked || !source?.mimeType.startsWith("image/") || additionalContentMediaErrors.includes(selectedGalleryAssetId);
+              return <figure className="player-additional-content__preview" role="dialog" aria-modal="true" aria-label={`${name} 画面预览`}>
+                {unavailable || !source ? <p role="status">资源暂不可用，关闭后可在画廊重试。收藏记录仍然保留。</p> : <DeferredAtlasImage atlas={source.atlas} src={source.url} alt="" onResourceFailure={() => setAdditionalContentMediaErrors(current => [...new Set([...current, selectedGalleryAssetId])])} onError={() => setAdditionalContentMediaErrors(current => [...new Set([...current, selectedGalleryAssetId])])} />}
+                <figcaption><strong>{name}</strong><button ref={galleryPreviewClose} type="button" aria-label="关闭画面预览" onClick={() => setSelectedGalleryAssetId(null)}>关闭预览</button></figcaption>
+              </figure>;
+            })()}
           </aside>
         )}
         {typography.projectFont !== null && <output className="player-font-status" role="status" aria-label="字体状态">

@@ -1,4 +1,4 @@
-import { defaultWebLayoutPair, defaultWebPageLayout, WEB_LAYOUT_ACTION_LABELS, WEB_LAYOUT_SURFACE_LABELS, webLayoutActions, webLayoutRegionNames, webLayoutIsPanel, type CanonicalProject, type WebLayoutBox, type WebLayoutComponent, type WebPageLayout, type WebLayoutSurface, type WebPlayerLayout } from "@world-studio/project-domain";
+import { defaultWebLayoutPair, defaultWebPageLayout, WEB_LAYOUT_ACTION_LABELS, WEB_LAYOUT_SURFACE_LABELS, webLayoutActions, webLayoutRegionNames, webLayoutIsPanel, webLayoutIsAdditional, type CanonicalProject, type WebLayoutBox, type WebLayoutComponent, type WebPageLayout, type WebLayoutSurface, type WebPlayerLayout } from "@world-studio/project-domain";
 import { ImageSelect } from "./PlayerSkinImageSettings";
 import "./styles/player-layout-settings.css";
 import type { LayoutDevice } from "./player-layout-edit";
@@ -6,6 +6,7 @@ import type { LayoutDevice } from "./player-layout-edit";
 export function PlayerLayoutSettings({ value, surface, project, onChange, selection, setSelection, device, setDevice }: { value: WebPlayerLayout; surface: WebLayoutSurface; project: CanonicalProject; onChange: (value: WebPlayerLayout) => void; selection: string; setSelection: (value: string) => void; device: LayoutDevice; setDevice: (value: LayoutDevice) => void }) {
   const page = value[surface] ?? defaultWebPageLayout(surface), label = WEB_LAYOUT_SURFACE_LABELS[surface];
   const names = webLayoutRegionNames(surface);
+  const returnLabel = webLayoutIsAdditional(surface) ? surface === "additional" ? "返回游戏" : "返回附加内容总览" : surface === "ending" ? "回到标题" : "返回原页面";
   const selected = page.components.find(row => row.id === selection), target = selected ? selection : selection === "secondary" ? "secondary" : "primary";
   const pair = device === "mobile" ? page.mobile ?? defaultWebLayoutPair(surface, true) : page.desktop;
   const box = selected ? device === "mobile" ? selected.mobile ?? selected.desktop : selected.desktop : pair[target as "primary" | "secondary"];
@@ -18,7 +19,7 @@ export function PlayerLayoutSettings({ value, surface, project, onChange, select
   const add = (kind: WebLayoutComponent["kind"]) => {
     const id = Array.from({ length: 7 }, (_, index) => `layout_${index + 1}`).find(id => !page.components.some(row => row.id === id));
     if (!id || page.components.length >= 6) return;
-    const component: WebLayoutComponent = { id, kind, text: kind === "text" ? "写给玩家的一句话" : kind === "image" ? "装饰图片" : surface === "ending" ? "回到标题" : webLayoutIsPanel(surface) ? "返回原页面" : "打开玩家设置", assetId: "", action: webLayoutIsPanel(surface) ? "resume" : "preferences", fit: "contain", desktop: { anchor: "middle-left", x: 0, y: 0, width: 24, height: 16 }, mobile: null };
+    const component: WebLayoutComponent = { id, kind, text: kind === "text" ? "写给玩家的一句话" : kind === "image" ? "装饰图片" : webLayoutIsPanel(surface) ? returnLabel : "打开玩家设置", assetId: "", action: webLayoutIsPanel(surface) ? "resume" : "preferences", fit: "contain", desktop: { anchor: "middle-left", x: 0, y: 0, width: 24, height: 16 }, mobile: null };
     setPage({ components: [...page.components, component] }); setSelection(id);
   };
   return <details className="skin-layout-settings"><summary>{label}自由组件与响应式布局</summary>
@@ -37,7 +38,7 @@ export function PlayerLayoutSettings({ value, surface, project, onChange, select
         <label>组件显示设备<select aria-label="组件显示设备" value={selected.visibility ?? "all"} onChange={event => changeComponent({ visibility: event.target.value as "all" | "desktop" | "mobile" })}><option value="all">桌面与手机都显示</option><option value="desktop">仅桌面显示</option><option value="mobile">仅手机显示</option></select></label><small>只影响此自定义组件。隐藏不删除素材、位置或动作，默认开始、正文与返回入口始终保留。</small>
         <label>{selected.kind === "image" ? "图片说明" : "组件文字"}<textarea aria-label="组件文字" rows={2} maxLength={selected.kind === "button" ? 48 : 200} value={selected.text} onChange={event => changeComponent({ text: event.target.value })} /></label>
         {selected.kind === "image" && <><ImageSelect project={project} label="组件图片" value={selected.assetId} onChange={assetId => changeComponent({ assetId })} /><label>组件图片适配<select aria-label="组件图片适配" value={selected.fit} onChange={event => changeComponent({ fit: event.target.value as "cover" | "contain" })}><option value="contain">完整显示</option><option value="cover">填满区域</option></select></label><small>没有图片或加载失败时显示图片说明，不阻塞剧情。</small></>}
-        {selected.kind === "button" && <label>按钮动作<select aria-label="按钮动作" value={selected.action} onChange={event => changeComponent({ action: event.target.value as WebLayoutComponent["action"] })}>{webLayoutActions(surface).map(action => <option key={action} value={action}>{surface === "ending" && action === "resume" ? "回到标题（回想时返回原剧情）" : WEB_LAYOUT_ACTION_LABELS[action]}</option>)}</select></label>}
+        {selected.kind === "button" && <label>按钮动作<select aria-label="按钮动作" value={selected.action} onChange={event => changeComponent({ action: event.target.value as WebLayoutComponent["action"] })}>{webLayoutActions(surface).map(action => <option key={action} value={action}>{surface === "ending" && action === "resume" ? "回到标题（回想时返回原剧情）" : webLayoutIsAdditional(surface) ? returnLabel : WEB_LAYOUT_ACTION_LABELS[action]}</option>)}</select></label>}
         <div className="skin-layout-add"><button type="button" disabled={page.components[0]?.id === selected.id} onClick={() => { const rows = [...page.components], index = rows.findIndex(row => row.id === selected.id); [rows[index - 1], rows[index]] = [rows[index]!, rows[index - 1]!]; setPage({ components: rows }); }}>前移组件顺序</button><button type="button" onClick={() => { setPage({ components: page.components.filter(row => row.id !== selected.id) }); setSelection("primary"); }}>删除所选组件</button></div><small>顺序用于显示、键盘访问和按钮回退区；装饰始终在剧情文字下方。</small>
       </>}
       <label>布局安全间距 px<input aria-label="布局安全间距" type="number" min={12} max={40} step={1} value={Number.isFinite(page.inset) ? page.inset : ""} onChange={event => setPage({ inset: event.target.value === "" ? NaN : Number(event.target.value) })} /></label>
