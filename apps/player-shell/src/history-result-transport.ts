@@ -1,105 +1,30 @@
-import { MAX_META_PROGRESS_IDS_PER_DOMAIN, MAX_RUNTIME_HISTORY_ENTRIES, type RuntimeHistoryCheckpointV1, type RuntimeHistorySessionV1, type RuntimeStateV1 } from '@world-studio/runtime';
 import type { ForegroundSessionWorkerResult } from './foreground-session-task';
+import { createHistoryListEncoder, createHistoryListDecoder, plainHistoryTransport, historyTransportRecord as record, requireHistoryTransport as require } from './history-list-transport';
 
 const encoding = 'world-player.history-lists.1';
-// Avoid compact packets becoming allocation amplifiers. Larger valid results
-// retain the existing plain transport, not a new Runtime/history limit.
-const maximumExpandedCells = 8_000_000;
-const plainTransport = Symbol('plain history transport');
-const domains = ['readTextIds', 'unlockedGalleryAssetIds', 'reachedEndingIds'] as const;
-type Domain = typeof domains[number];
-type ListDelta = readonly [prefix: number, suffix: number, inserted: readonly string[]];
-type PackedCheckpoint = Omit<RuntimeHistoryCheckpointV1, 'state'> & {
-  readonly state: Omit<RuntimeStateV1, 'metaProgress'> & { readonly metaProgress: Omit<RuntimeStateV1['metaProgress'], Domain> };
-  readonly lists: readonly ListDelta[];
-};
-type PackedHistory = Omit<RuntimeHistorySessionV1, 'checkpoints'> & { readonly checkpoints: readonly number[] };
-interface PackedReply { readonly encoding: typeof encoding; readonly value: unknown; readonly checkpoints: readonly PackedCheckpoint[] }
 
-function delta(previous: readonly string[], current: readonly string[]): ListDelta {
-  let prefix = 0, suffix = 0;
-  while (prefix < previous.length && prefix < current.length && previous[prefix] === current[prefix]) prefix++;
-  while (suffix < previous.length - prefix && suffix < current.length - prefix && previous[previous.length - suffix - 1] === current[current.length - suffix - 1]) suffix++;
-  return [prefix, suffix, current.slice(prefix, current.length - suffix)];
-}
-
-/** Worker-output-only, AFTER the public Core validator. Each packet is complete:
- * list runs refer only to the preceding checkpoint IN THIS packet, never an
- * earlier request, validation conclusion or mutable main-thread history.
- */
-export function encodeHistoryResult(reply: ForegroundSessionWorkerResult): ForegroundSessionWorkerResult | PackedReply {
+/** Worker-output-only, AFTER public Core validation. References are local to
+ * this complete packet, not an earlier request or validation conclusion. */
+export function encodeHistoryResult(reply: ForegroundSessionWorkerResult) {
   if ((reply.kind !== 'advance' && reply.kind !== 'load') || !reply.result.ok || !reply.result.patch.historySession || reply.result.patch.historySession.entries.length < 480) return reply;
-  const table: PackedCheckpoint[] = [], indices = new Map<RuntimeHistoryCheckpointV1, number>();
-  let expandedCells = 0;
-  let previous: readonly (readonly string[])[] = [[], [], []];
-  const packHistory = (history: RuntimeHistorySessionV1): PackedHistory => ({ ...history, checkpoints: history.checkpoints.map(checkpoint => {
-    const existing = indices.get(checkpoint); if (existing !== undefined) return existing;
-    const progress = checkpoint.state.metaProgress, lists = domains.map(key => progress[key]);
-    expandedCells += lists.reduce((count, list) => count + list.length, 0);
-    if (expandedCells > maximumExpandedCells) throw plainTransport;
-    const { readTextIds: _read, unlockedGalleryAssetIds: _gallery, reachedEndingIds: _endings, ...identity } = progress;
-    const index = table.length; indices.set(checkpoint, index);
-    table.push({ ...checkpoint, state: { ...checkpoint.state, metaProgress: identity }, lists: lists.map((list, i) => delta(previous[i]!, list)) });
-    previous = lists; return index;
-  }) });
+  const codec = createHistoryListEncoder();
   try {
-    const patch = reply.result.patch, historySession = packHistory(patch.historySession!);
-    const deferredCheckpointSaveCandidates = patch.deferredCheckpointSaveCandidates.map(candidate => ({ ...candidate, historySession: packHistory(candidate.historySession) }));
-    const current = patch.historySession!.checkpoints[patch.historySession!.cursor];
-    const runtimeState = current?.state === patch.runtimeState ? indices.get(current) : patch.runtimeState;
-    return { encoding, value: { ...reply, result: { ...reply.result, patch: { ...patch, runtimeState, historySession, deferredCheckpointSaveCandidates } } }, checkpoints: table };
-  } catch (error) { if (error === plainTransport) return reply; throw error; }
+    const patch = reply.result.patch, historySession = codec.packHistory(patch.historySession!);
+    const deferredCheckpointSaveCandidates = patch.deferredCheckpointSaveCandidates.map(candidate => ({ ...candidate, historySession: codec.packHistory(candidate.historySession) }));
+    return { encoding, value: { ...reply, result: { ...reply.result, patch: { ...patch, runtimeState: codec.packRuntime(patch.runtimeState, patch.historySession!), historySession, deferredCheckpointSaveCandidates } } }, checkpoints: codec.checkpoints };
+  } catch (error) { if (error === plainHistoryTransport) return reply; throw error; }
 }
 
-function record(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === 'object' && !Array.isArray(value); }
-function require(value: unknown): asserts value { if (!value) throw Error('Invalid history transport'); }
-function integer(value: unknown): value is number { return Number.isSafeInteger(value) && Number(value) >= 0; }
-
-/** Decode the owned worker's transport envelope, then let the existing client
- * check request/source identity. This is NOT a persisted history format or a
- * substitute for the full validator on the next public Core/save/load call.
- * Plain replies remain compatible; malformed encoded replies never fall back.
- */
+/** Decode the owned worker envelope, then check request/source identity in the
+ * existing client. Malformed encoded replies never fall back to plain data. */
 export function decodeHistoryResult(input: unknown): unknown {
   if (!record(input) || !Object.hasOwn(input, 'encoding')) return input;
   require(input.encoding === encoding && Object.keys(input).length === 3 && Object.hasOwn(input, 'value') && Object.hasOwn(input, 'checkpoints'));
-  const value = input.value, packed = input.checkpoints;
+  const value = input.value;
   require(record(value) && (value.kind === 'advance' || value.kind === 'load') && record(value.result) && value.result.ok === true && record(value.result.patch));
-  require(Array.isArray(packed) && packed.length > 0 && packed.length <= MAX_RUNTIME_HISTORY_ENTRIES + 1);
-  let previous: readonly (readonly string[])[] = [[], [], []];
-  let expandedCells = 0;
-  const table = Array.from(packed, (item: unknown): RuntimeHistoryCheckpointV1 => {
-    require(record(item) && record(item.state) && record(item.state.metaProgress) && Array.isArray(item.lists) && item.lists.length === domains.length);
-    const state = item.state, progress = state.metaProgress as Record<string, unknown>;
-    require(Object.keys(item).length === 4 && ['checkpointId', 'stateHash', 'state', 'lists'].every(key => Object.hasOwn(item, key)) && domains.every(key => !Object.hasOwn(progress, key)));
-    const lists = Array.from(item.lists, (run: unknown, domain: number): readonly string[] => {
-      require(Array.isArray(run) && run.length === 3 && integer(run[0]) && integer(run[1]) && Array.isArray(run[2]));
-      const [prefix, suffix, inserted] = run as [number, number, unknown[]], before = previous[domain]!;
-      require(prefix + suffix <= before.length && prefix + suffix + inserted.length <= MAX_META_PROGRESS_IDS_PER_DOMAIN);
-      expandedCells += prefix + suffix + inserted.length;
-      require(expandedCells <= maximumExpandedCells);
-      for (let i = 0; i < inserted.length; i++) require(typeof inserted[i] === 'string');
-      if (prefix === before.length && suffix === 0 && inserted.length === 0) return before;
-      const result = new Array<string>(prefix + inserted.length + suffix);
-      for (let i = 0; i < prefix; i++) result[i] = before[i]!;
-      for (let i = 0; i < inserted.length; i++) result[prefix + i] = inserted[i] as string;
-      for (let i = 0; i < suffix; i++) result[prefix + inserted.length + i] = before[before.length - suffix + i]!;
-      return result;
-    });
-    previous = lists;
-    const { lists: _runs, ...checkpoint } = item;
-    return { ...checkpoint, state: { ...state, metaProgress: { ...progress, readTextIds: lists[0], unlockedGalleryAssetIds: lists[1], reachedEndingIds: lists[2] } } } as RuntimeHistoryCheckpointV1;
-  });
-  const unpackHistory = (input: unknown): RuntimeHistorySessionV1 => {
-    require(record(input) && Array.isArray(input.checkpoints) && input.checkpoints.length > 0 && input.checkpoints.length <= MAX_RUNTIME_HISTORY_ENTRIES + 1);
-    return { ...input, checkpoints: Array.from(input.checkpoints, (index: unknown) => { require(integer(index) && index < table.length); return table[index]!; }) } as unknown as RuntimeHistorySessionV1;
-  };
-  const patch = value.result.patch;
+  const codec = createHistoryListDecoder(input.checkpoints), patch = value.result.patch;
   require(Array.isArray(patch.deferredCheckpointSaveCandidates));
-  const runtime = patch.runtimeState;
-  if (typeof runtime === 'number') require(integer(runtime) && runtime < table.length);
-  const runtimeState = typeof runtime === 'number' ? table[runtime]!.state : runtime;
-  return { ...value, result: { ...value.result, patch: { ...patch, runtimeState, historySession: unpackHistory(patch.historySession), deferredCheckpointSaveCandidates: Array.from(patch.deferredCheckpointSaveCandidates, (candidate: unknown) => {
-    require(record(candidate)); return { ...candidate, historySession: unpackHistory(candidate.historySession) };
+  return { ...value, result: { ...value.result, patch: { ...patch, runtimeState: codec.unpackRuntime(patch.runtimeState), historySession: codec.unpackHistory(patch.historySession), deferredCheckpointSaveCandidates: Array.from(patch.deferredCheckpointSaveCandidates, (candidate: unknown) => {
+    require(record(candidate)); return { ...candidate, historySession: codec.unpackHistory(candidate.historySession) };
   }) } } };
 }

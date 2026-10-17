@@ -1,6 +1,7 @@
 import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection } from "./session-worker-pool";
 import { createRecoverySession, recoverySessionSource, type RecoverySessionSource, type RecoverySessionResult } from "./recovery-session-task";
 import { yieldBeforeRecoveryCopy } from "./recovery-paint-yield";
+import { encodeSessionInput } from './session-input-transport';
 
 export class RecoverySessionError extends Error {
   override readonly name = "RecoverySessionError";
@@ -62,7 +63,7 @@ async function serializeSession(source: RecoverySessionSource, signal: AbortSign
     signal.addEventListener("abort", abort, { once: true });
     if (signal.aborted) { abort(); return; }
     const start = copied ? copyClock() : undefined;
-    try { worker.postMessage({ id, source: recoverySessionSource(source) }); } catch { fail(); }
+    try { worker.postMessage({ id, source: encodeSessionInput(recoverySessionSource(source)) }); } catch { fail(); }
     finally { const end = start === undefined ? undefined : copyClock(); if (start !== undefined && end !== undefined) copied!(Math.max(0, end - start)); }
   });
 }

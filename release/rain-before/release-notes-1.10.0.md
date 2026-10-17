@@ -1,5 +1,7 @@
 # 《雨停之前》1.10.0 内容与演出候选
 
+长篇输入技术接续见 [#387](../../docs/387-web-session-input-transport.md)：减少完整历史发送时的重复列表，线程接收后仍逐次完整校验，当前进度、未来和候选保持；不扩大 Auto／Skip 异步推进。本批核对临时双导出及完整两路线后只留摘要，没有重发相同 1.10.0，当前可下载双游戏仍为下方 #386。人工、物理设备、素材发行条件与公网验收范围不变。
+
 当前运行文件更新见 [#386](../../docs/386-web-auto-reading-pages.md)：本段翻屏不再退出 Auto，提示解释未读等待与手动接管；手机保存反馈避开正文、阅读说明与工具栏，320px 按钮保持单行。截图存储不兼容时保留完整剧情进度并明确提示，不放宽原存档校验。实际验证与边界见 #386。当前 [HTML](../../evidence/web-auto-reading-pages/before-rain-stops.html) 与 [网站 ZIP](../../evidence/web-auto-reading-pages/before-rain-stops-website.zip) 采用本批 Player；1.10.0 源工程、23 条待人工记录、全部剧情及 26 媒体仍沿 #384，不新增内容版本。
 
 保留 [#385](../../docs/385-web-auto-voice-continuity.md) 的语音修复：播放请求直接失败时 Auto 不再卡住，重试／从本次无声阅读恢复后等待新语音自然结束，旧音轨与迟到结果不提前翻句。菜单／后台／主动停止保护保持，不改 Core 或存档协议。#385 [HTML](../../evidence/web-auto-voice-continuity/before-rain-stops.html) 与 [网站 ZIP](../../evidence/web-auto-voice-continuity/before-rain-stops-website.zip) 原样保留。原 #384 的同内容 1.10.0 备份接续不扩大到 1.9.0 剧情迁移；下方为本篇内容校订说明。

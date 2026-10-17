@@ -1,5 +1,7 @@
 # 《雨停之前》演出素材
 
+2026-10-17 长篇输入技术接续见 [#387](../../docs/387-web-session-input-transport.md)，临时双游戏实际检查后仅保留摘要。当前源／23 条待人工记录沿 #384，当前 HTML／网站仍沿 [#386](../../evidence/web-auto-reading-pages)；1.10.0、全部 26 媒体和来源台账没有变化，不新增素材或许可结论。以下为历史。
+
 2026-10-17 当前 HTML／网站运行文件在 [web-auto-reading-pages](../../evidence/web-auto-reading-pages)，长段落 Auto、手机反馈与截图存储兼容见 [#386](../../docs/386-web-auto-reading-pages.md)。作品仍 1.10.0，源工程、23 条待人工记录、全部 26 媒体与来源台账沿 #384 不变，无新素材或许可结论。以下为历史。
 
 2026-10-17 当前 HTML／网站运行文件在 [web-auto-voice-continuity](../../evidence/web-auto-voice-continuity)，Auto 与语音失败／重试修复见 [#385](../../docs/385-web-auto-voice-continuity.md)。仍为 1.10.0；源工程、23 条待人工记录、全部 26 媒体与来源台账沿 #384 不变，无新素材或许可结论。下方为历史批次。

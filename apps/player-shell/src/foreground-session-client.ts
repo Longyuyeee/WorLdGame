@@ -2,6 +2,7 @@ import { oneShotSessionWorker, SessionWorkerPool, type SessionWorkerConnection }
 import { executeForegroundSessionTask, foregroundSessionWorkerTask, applyForegroundSessionWorkerResult, type ForegroundSessionTask, type ForegroundSessionResult, type ForegroundSessionWorkerResult } from "./foreground-session-task";
 import { validStoryAdvanceReply } from './story-advance-task';
 import { decodeHistoryResult } from './history-result-transport';
+import { encodeForegroundSessionInput } from './session-input-transport';
 
 export class ForegroundSessionError extends Error { override readonly name="ForegroundSessionError"; }
 let serial=0;
@@ -71,7 +72,7 @@ async function executeSessionTask(task:ForegroundSessionTask,signal:AbortSignal,
       } catch { fail(); }
     };
     signal.addEventListener("abort",abort,{once:true});if(signal.aborted){abort();return;}
-    try{worker.postMessage({id,task:foregroundSessionWorkerTask(task)});}catch{fail();}
+    try{worker.postMessage({id,task:encodeForegroundSessionInput(foregroundSessionWorkerTask(task))});}catch{fail();}
   });
 }
 

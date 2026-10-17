@@ -1,6 +1,7 @@
 import { afterEach, beforeAll, expect, it, vi } from 'vitest';
 import { advancePlayerCore, backPlayerCore, createPlayerCore, startPlayerCore, createPlayerCoreSessionSaveV1, type PlayerCoreState } from '@world-studio/player-core';
 import { loadProject, migrateS0Project } from '@world-studio/project-domain';
+import { MAX_RUNTIME_HISTORY_ENTRIES } from '@world-studio/runtime';
 import { executeForegroundSessionWorkerTask, foregroundSessionWorkerTask, applyForegroundSessionWorkerResult, type ForegroundSessionWorkerResult } from './foreground-session-task';
 import { encodeHistoryResult, decodeHistoryResult } from './history-result-transport';
 import { ForegroundSessionError, runForegroundSessionTask } from './foreground-session-client';
@@ -132,5 +133,13 @@ it('falls back to the complete plain reply rather than imposing a new valid hist
   // Codec budget shape only. No claim that these synthetic checkpoints validate.
   const checkpoint = advanced.result.patch.historySession!.checkpoints[0]!, large = { ...checkpoint, state: { ...checkpoint.state, metaProgress: { ...checkpoint.state.metaProgress, readTextIds: Array(100_000).fill('id') } } };
   const reply = { ...advanced, result: { ...advanced.result, patch: { ...advanced.result.patch, historySession: { ...advanced.result.patch.historySession!, checkpoints: Array.from({ length: 82 }, () => ({ ...large })) } } } };
+  expect(encodeHistoryResult(reply)).toBe(reply);
+});
+it('uses complete plain replies when separate candidate tables exceed the combined checkpoint budget', () => {
+  if (advanced.kind !== 'advance' || !advanced.result.ok) throw Error('fixture');
+  // Budget shape only; no public execution/validation claim for this chain.
+  const first = advanced.result.patch.historySession!.checkpoints[0]!, small = { ...first, state: { ...first.state, metaProgress: { ...first.state.metaProgress, readTextIds: [], unlockedGalleryAssetIds: [], reachedEndingIds: [] } } };
+  const historySession = { ...advanced.result.patch.historySession!, checkpoints: Array.from({ length: MAX_RUNTIME_HISTORY_ENTRIES + 1 }, () => ({ ...small })) };
+  const reply = { ...advanced, result: { ...advanced.result, patch: { ...advanced.result.patch, historySession, deferredCheckpointSaveCandidates: [{ ...advanced.result.patch.deferredCheckpointSaveCandidates[0]!, historySession: { ...historySession, checkpoints: [{ ...small }] } }] } } };
   expect(encodeHistoryResult(reply)).toBe(reply);
 });

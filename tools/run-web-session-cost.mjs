@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import { build } from './player-fixture-build.mjs';
 import { sha } from './audit-rain-story-refinement.mjs';
 import { pollBrowserState } from './poll-browser-state.mjs';
+import { listenBrowserLoopback } from './listen-browser-loopback.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const output = path.resolve(root, process.env.STUDIO_COST_OUTPUT_DIRECTORY ?? 'evidence/web-session-cost');
@@ -15,6 +16,7 @@ const baseline = process.argv.includes('--baseline'), label = baseline ? 'baseli
 const baselineCommit = process.env.STUDIO_COST_BASELINE_COMMIT ?? '8207650d4836017e368db0422edc2fabbf51a63d';
 const snapshotFile = path.join(output, 'baseline-sources.json');
 await mkdir(output, { recursive: true });
+if (!process.argv.includes('--audit-only')) await writeFile(path.join(output, `${label}.json`), JSON.stringify({ passed: false, status: 'running' }));
 if (process.argv.includes('--freeze')) {
   const paths = execFileSync('git', ['ls-tree', '-r', '--name-only', baselineCommit, 'packages/runtime/src', 'apps/player-shell/src'], { cwd: root, encoding: 'utf8', windowsHide: true }).trim().split('\n').filter(p => /\.(?:tsx?|css)$/.test(p) && !/\.test\.tsx?$/.test(p));
   const sources = Object.fromEntries(paths.map(p => [p, execFileSync('git', ['show', `${baselineCommit}:${p}`], { cwd: root, encoding: 'utf8', windowsHide: true })]));
@@ -52,7 +54,7 @@ const server = createServer((req, res) => {
   else if (url.pathname === '/player.css') res.writeHead(200, { 'Content-Type': 'text/css' }).end(css);
   else res.writeHead(200, { 'Content-Type': 'text/html' }).end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/player.css"><div id="player-root"></div><script src="/player.js"></script>');
 });
-await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+await listenBrowserLoopback(server);
 const require = createRequire(import.meta.url);
 let chromium;
 try { ({ chromium } = require('playwright')); } catch { ({ chromium } = require(path.join(homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright'))); }
@@ -87,7 +89,7 @@ await page.addInitScript(() => {
     postMessage(data, ...args) {
       const start = performance.now(), previousSynchronousMs = this.previousSynchronousMs ?? 0;
       try { return super.postMessage(data, ...args); }
-      finally { const synchronousMs = performance.now() - start; this.previousSynchronousMs = synchronousMs; if (this.counted) sessionCost.posts.push({ worker: this.workerNumber, id: data?.id, kind: data?.task?.kind ?? 'recovery', start, synchronousMs, previousSynchronousMs, arrived: null }); }
+      finally { const synchronousMs = performance.now() - start; this.previousSynchronousMs = synchronousMs; const input = data?.task?.state ?? data?.task?.source ?? data?.source; if (this.counted) sessionCost.posts.push({ worker: this.workerNumber, id: data?.id, kind: data?.task?.kind ?? 'recovery', start, synchronousMs, previousSynchronousMs, arrived: null, inputEncoding: input?.encoding ?? 'plain', inputCheckpoints: input?.checkpoints?.length ?? 0 }); }
     }
     terminate() { if (this.counted && !this.released) { this.released = true; sessionCost.workers.live--; } return super.terminate(); }
   };
@@ -221,6 +223,13 @@ try {
   const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
   const medians = [120, 480, 960].flatMap(count => ['quick-save', 'advance', 'quick-load'].map(name => ({ count, name, wallMs: median(operations.filter(item => item.count === count && item.name === name).map(item => item.wallMs)) })));
   if (!baseline) {
+    if (process.env.STUDIO_COST_EXPECT_INPUT_ENCODING === '1') {
+      for (const operation of operations.filter(item => item.count >= 480 && ['advance', 'quick-save'].includes(item.name))) {
+        const posts = [...operation.posts, ...(operation.recoveryThroughDurable?.posts ?? [])].filter(item => ['advance', 'save', 'recovery'].includes(item.kind));
+        assert.ok(posts.length > 0);
+        for (const post of posts) { assert.equal(post.inputEncoding, 'world-player.session-input.1'); assert.ok(post.inputCheckpoints >= operation.count + 1); }
+      }
+    }
     if (process.env.STUDIO_COST_EXPECT_HISTORY_ENCODING === '1') {
       for (const operation of operations.filter(item => item.count >= 480 && ['advance', 'quick-load'].includes(item.name))) {
         const post = operation.posts.find(item => item.kind === (operation.name === 'advance' ? 'advance' : 'load'));
@@ -242,5 +251,6 @@ try {
   await writeFile(path.join(output, `${label}.json`), JSON.stringify({ passed: true, ...identity, browser: browser.version(), medians, rows, operations, workersBeforePressure, workersAfterPressure, protectedState, restored, mediaBeforePressure, mediaAfterRestore, errors, foregroundSerializer: await page.evaluate(() => JSON.parse(document.documentElement.dataset.foregroundSerializer ?? 'null')), scope: `Sequential same-machine synthetic ${mixed ? 'text, background, two characters, looping BGM and finite voice' : 'text'}, three repeated real UI operations per size; native Worker/IndexedDB. Sender synchronous postMessage is not total copy cost; reply elapsed includes worker/queue/transport. Advance alone CPU sampled. No injected history, forced GC, physical phone or long soak.` }, null, 2));
 } catch (error) {
   await page.screenshot({ path: path.join(output, `${label}-failure.png`) });
-  await writeFile(path.join(output, `${label}-failure.json`), JSON.stringify({ error: String(error), stack: error.stack, rows, operations, errors }, null, 2)); throw error;
+  const failed = { passed: false, error: String(error), stack: error.stack, rows, operations, errors };
+  await writeFile(path.join(output, `${label}-failure.json`), JSON.stringify(failed, null, 2)); await writeFile(path.join(output, `${label}.json`), JSON.stringify(failed, null, 2)); throw error;
 } finally { await browser.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
