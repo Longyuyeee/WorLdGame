@@ -4132,7 +4132,7 @@ function PreviewPanel({ focusMode = false, onFocusModeChange, publicationWorkflo
       <nav className="publication-steps" aria-label="发布流程">
         {["作品信息", "导出方式", "生成游戏", "试玩与部署"].map((label, index) => <button key={label} type="button" aria-current={publicationStep === index ? "step" : undefined} disabled={publicationDirty && publicationStep !== index} onClick={() => setPublicationStep(index)}><span>{index + 1}</span><strong>{label}</strong></button>)}
       </nav>
-      {sourcesOpen && <WebAssetSourcesDialog project={canonicalProject} initialAssetId={sourcesOpen.assetId} initialStatus={sourcesOpen.status} onApply={onPublicationChange} onClose={() => setSourcesOpen(null)} onReplace={assetId => {
+      {sourcesOpen && <WebAssetSourcesDialog project={canonicalProject} assetIndex={assetIndex} reader={assetRepository} initialAssetId={sourcesOpen.assetId} initialStatus={sourcesOpen.status} onApply={onPublicationChange} onClose={() => setSourcesOpen(null)} onReplace={assetId => {
         setSourcesOpen(null); onReleaseFix?.({ severity: 'warning', code: 'WEB_ASSET_SOURCE_REPLACE', title: '替换待核对素材', message: '', target: 'assets', assetId }, publicationFormat);
       }} />}
       <div className="publication-layout">

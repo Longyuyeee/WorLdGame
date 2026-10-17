@@ -3,9 +3,13 @@ import { applyWebAssetSources, applyWebCredits, EMPTY_WEB_ASSET_SOURCES, include
 import './styles/web-credits.css';
 import './styles/web-asset-sources.css';
 import { nextPendingSource, SOURCE_REVIEW_ACTIONS, sourceDraftProblems, type SourceDraftField, type WebSourceReviewTarget } from './web-asset-source-workflow';
+import type { AssetIndex } from '@world-studio/project-persistence';
+import type { AssetLibraryReader } from './asset-library-card';
+import { SourceAssetPreview } from './SourceAssetPreview';
 
-export function WebAssetSourcesDialog({ project, initialAssetId, initialStatus, onApply, onClose, onReplace }: {
+export function WebAssetSourcesDialog({ project, initialAssetId, initialStatus, assetIndex = null, reader = null, onApply, onClose, onReplace }: {
   project: CanonicalProject; initialAssetId?: string | undefined; initialStatus?: WebSourceReviewTarget['status']; onApply: (project: CanonicalProject) => void; onClose: () => void; onReplace: (assetId: string) => void;
+  assetIndex?: AssetIndex | null; reader?: AssetLibraryReader | null;
 }) {
   const [initial] = useState(() => { try { return { book: readWebAssetSources(project), error: '' }; } catch (error) { return { book: null, error: String(error) }; } });
   const [book, setBook] = useState<WebAssetSources>(initial.book ?? EMPTY_WEB_ASSET_SOURCES);
@@ -20,6 +24,7 @@ export function WebAssetSourcesDialog({ project, initialAssetId, initialStatus, 
   useEffect(() => { dialog.current?.showModal?.(); return () => { const el = trigger.current; if (el instanceof HTMLElement && el.isConnected) el.focus(); }; }, []);
   const rows = inspectWebAssetSources(publicDraft, book), row = rows.find(item => item.assetId === selected);
   const validDigest = !!row && /^sha256:[a-f0-9]{64}$/u.test(row.digest);
+  const previewEntry = assetIndex?.assets.find(entry => entry.assetId === row?.assetId && entry.source.digest === row.digest);
   const draft = row?.record ?? (row && validDigest ? newWebAssetSourceRecord(row.assetId, row.digest) : null);
   const dirty = repair || JSON.stringify(book) !== JSON.stringify(applied.book) || publicDraft !== applied.project;
   const locked = !applied.valid && !repair;
@@ -66,6 +71,7 @@ export function WebAssetSourcesDialog({ project, initialAssetId, initialStatus, 
         <section className="web-sources-fields" aria-label="素材来源详情">{row ? <>
           <h3 tabIndex={-1}>{row.name}</h3><small>{row.assetId} · {WEB_ASSET_SOURCE_STATUS[row.status]}</small><code className="web-sources-digest">当前文件：{row.digest || '没有有效摘要'}</code>
           <p>{SOURCE_REVIEW_ACTIONS[row.status]}</p>
+          {previewEntry && <SourceAssetPreview key={`${previewEntry.assetId}:${previewEntry.source.digest}`} entry={previewEntry} reader={reader} project={publicDraft} visible={!selecting} />}
           {!visible.some(item => item.assetId === row.assetId) && <p role="status">当前详情不在筛选结果内；填写内容仍保留，选择列表项可切换。</p>}
           <button type="button" disabled={!next} onClick={() => { if (next) selectPending(next); setNotice('已切换到下一项待处理（全部素材），未应用的填写仍保留。'); }}>下一项待处理（全部素材）</button>
           {row.status === 'stale' && <div className="web-sources-stale"><p>旧记录对应 {row.record?.digest}。文件已更换，旧依据不再计入当前素材。请重新核对；开始后保留来源/署名供参考，但清空旧确认依据、人和日期。</p><button type="button" disabled={!validDigest} onClick={() => patch({ digest: row.digest, permission: 'pending', evidence: '', reviewedBy: '', reviewedOn: '' })}>为当前文件重新核对</button></div>}

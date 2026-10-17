@@ -1,0 +1,20 @@
+{
+  "passed": false,
+  "error": "AssertionError [ERR_ASSERTION]: {\"width\":485.359375,\"height\":728.03125,\"fullyVisible\":false}",
+  "stack": "AssertionError [ERR_ASSERTION]: {\"width\":485.359375,\"height\":728.03125,\"fullyVisible\":false}\n    at fitMedia (file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-source-preview.mjs:48:10)\n    at async file:///E:/ProjectSave/GeminiProject/WorLdGame/tools/run-web-source-preview.mjs:75:211",
+  "checks": [
+    {
+      "name": "current-voice-revision-exact-source-line-no-autoplay-and-native-playback",
+      "sourceUrl": "blob:http://127.0.0.1:5195/e2468d78-a92e-4c85-a66b-24e15b9e17db",
+      "state": {
+        "paused": true,
+        "time": 0,
+        "url": "blob:http://127.0.0.1:5195/e2468d78-a92e-4c85-a66b-24e15b9e17db"
+      },
+      "nativePlayback": false,
+      "physicalDevice": false,
+      "naturalListeningApproved": false
+    }
+  ],
+  "errors": []
+}

@@ -11,6 +11,16 @@
 .web-sources-editor .web-sources-filter { display: flex; align-items: center; gap: 8px; }
 .web-sources-filter input { width: 18px; min-height: 18px; }
 .web-sources-fields { display: grid; min-width: 0; gap: 12px; }
+.web-source-preview { min-width: 0; display: grid; gap: 10px; padding: 12px; border: 1px solid var(--wg-color-border-subtle); border-radius: 10px; }
+.web-source-preview > p, .web-source-preview .asset-image-preview > p { margin: 0; }
+.web-source-preview .asset-audio-preview, .web-source-preview .asset-image-preview { min-width: 0; display: grid; gap: 10px; }
+.web-source-preview audio { width: 100%; max-width: 100%; }
+.web-source-preview .asset-detail-preview { position: relative; height: min(220px, 30dvh); min-height: 100px; }
+.web-source-preview .asset-detail-preview img { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; max-height: 100%; object-fit: contain; }
+.web-source-preview summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 13px; }
+.web-source-preview ul { display: grid; gap: 12px; margin: 8px 0; padding-left: 18px; }
+.web-source-preview li { min-width: 0; }
+.web-source-preview code { display: block; font-size: 11px; overflow-wrap: anywhere; }
 .web-sources-digest, .web-sources-stale { font-size: 12px; overflow-wrap: anywhere; line-height: 1.6; }
 .web-sources-stale { padding: 12px; border: 1px solid var(--studio-coral); border-radius: 10px; }
 .publication-page .web-sources-form { display: grid; gap: 14px; padding: 0; margin: 0; border: 0; min-width: 0; }
