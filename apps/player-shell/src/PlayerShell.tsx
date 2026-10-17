@@ -19,6 +19,7 @@ import { PlayerPreferencesPanel } from './PlayerPreferencesPanel';
 import { PlayerPublicationTools } from './PlayerPublicationTools';
 import { PlayerCreditsPanel } from './PlayerCreditsPanel';
 import { PlayerHistoryContent } from './PlayerHistoryContent';
+import { historyChoiceSelections } from './history-reading-context';
 import { PlayerMusicPreview } from './PlayerMusicPreview';
 import { DEFAULT_WEB_CREDITS, readWebCredits, hasWebCredits } from '@world-studio/project-domain';
 import { cancelPlayerAudioRequest, requestPlayerAudioPlayback, cancelPlayerMediaRequest, requestPlayerMediaPlayback } from "./audio-playback-request";
@@ -285,6 +286,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
   const [skipSpeed, setSkipSpeed] = useState<WorldPlayerSkipSpeedV1>(() => playbackPolicy.skip?.defaultSpeed ?? DEFAULT_WORLD_PLAYER_PLAYBACK_POLICY_V1.skip.defaultSpeed);
   const [videoPolicyStopReason, setVideoPolicyStopReason] = useState<"none" | "unreadBoundary">("none");
   const [historyPanelOpen, setHistoryPanelOpen] = useState(editorPreview?.initialPanel === 'history');
+  const historySelections = useMemo(() => historyPanelOpen ? historyChoiceSelections(state.historySession) : undefined, [historyPanelOpen, state.historySession]);
   const [additionalContentOpen, setAdditionalContentOpen] = useState(editorPreview?.initialPanel === 'additional');
   const [additionalContentView, setAdditionalContentView] = useState<"overview" | "gallery" | "replay" | "music" | "endings">(editorPreview?.initialPanel === "additional" && editorPreview.initialAdditionalView && webLayoutIsAdditional(editorPreview.initialAdditionalView) ? editorPreview.initialAdditionalView : "overview");
   const [selectedGalleryAssetId, setSelectedGalleryAssetId] = useState<string | null>(null);
@@ -2124,7 +2126,7 @@ export function PlayerShell({ project, mediaAssets = EMPTY_MEDIA_ASSETS, onRetry
             </PlayerPanelRegion>
             <PlayerPanelRegion enabled={historyLayout.enabled} rect={historyLayout.layout?.primary} kind="primary">
             {panelComponents("history", true)}
-            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <PlayerHistoryContent history={snapshot.history} locale={typography.locale} canNavigate={hostActivity === 'active'} renderText={text => <PlayerRichText text={text} locale={typography.locale} />} onNavigate={entryId => {
+            {snapshot.history === null ? <p className="player-history-panel__empty">故事开始后会在这里显示历史。</p> : <PlayerHistoryContent history={snapshot.history} locale={typography.locale} speakerNames={speakerNames} selections={historySelections} canNavigate={hostActivity === 'active'} renderText={text => <PlayerRichText text={text} locale={typography.locale} />} onNavigate={entryId => {
               applyIntent({ kind: 'history-back-to', entryId }, pointerInput.current);
               setHistoryPanelOpen(false);
               queueMicrotask(() => reading.element.current?.focus({ preventScroll: true }));

@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "reports": [
+    {
+      "engine": "chromium",
+      "browser": "151.0.7922.34",
+      "checks": 7,
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "engine": "firefox",
+      "browser": "153.0",
+      "checks": 7,
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    },
+    {
+      "engine": "webkit",
+      "browser": "26.5",
+      "checks": 7,
+      "artifactSha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+    }
+  ],
+  "workChecks": 7,
+  "artifact": {
+    "passed": true,
+    "unchangedPayloadAndAll26Media": true,
+    "sameContentVersion": "1.10.0",
+    "unchangedNotesPending": 23,
+    "sourceAndNotes": "evidence/web-story-arrival-and-night",
+    "websiteFiles": 37,
+    "artifacts": {
+      "html": {
+        "bytes": 46784758,
+        "sha256": "e342827d80a0bd18944cc84655437ded37f25f901d81b4bf4229fd9d97080510"
+      },
+      "website": {
+        "bytes": 35371207,
+        "sha256": "1d2e36bd47d664482d18f5220ab510c421f6cf96bb435ed8a0d681e2288b3211"
+      }
+    }
+  },
+  "inlineWebKitAudioAccepted": false,
+  "temporaryGamesRemoved": true,
+  "existingPublishedCandidateChanged": false
+}

@@ -90,3 +90,4 @@ evidence/web-session-input-transport/work/*.worldsave -text
 evidence/web-voice-reading-continuity/*.html -text
 evidence/web-voice-reading-continuity/**/*.worldsave -text
 evidence/web-load-wait/**/*.worldsave -text
+evidence/web-history-reading/**/*.worldsave -text

@@ -15,6 +15,26 @@
 .player-history-search p { margin: 8px 0 0; color: var(--player-muted, #c1bed2); font-size: 12px; line-height: 1.5; }
 .player-history-panel-body { min-height: 0; overflow: auto; overscroll-behavior: contain; display: grid; align-content: start; gap: 14px; }
 .player-history-page-records li { scroll-margin-block: 120px 8px; }
+.player-history-list .player-history-record { color: inherit; }
+.player-shell .player-history-list .player-history-record > :is(strong, p, span, button) { color: inherit; }
+.player-history-list .player-history-record__identity { font-size: 12px; }
+.player-history-list .player-history-record > strong { user-select: text; -webkit-user-select: text; }
+.player-history-list .player-history-record > button { justify-self: end; min-height: 44px; padding: 8px 12px; border: 1px solid var(--player-muted, #77758b); border-radius: 8px; color: inherit; background: transparent; cursor: pointer; }
+.player-history-list .player-history-record > button:disabled { opacity: .5; cursor: default; }
+.player-history-list .player-history-record > button:focus-visible { outline: 3px solid var(--player-accent, #c5afff); outline-offset: 2px; }
+.player-history-list .player-history-record > p { margin: 4px 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.player-history-list li[data-history-position="current"] > .player-history-record { border-color: var(--player-accent, #c5afff); }
+.player-shell[data-settings-high-contrast="true"] .player-history-panel .player-history-list .player-history-record { color: #fff; background: #000; border-color: #fff; }
+@media (max-height: 480px) {
+  .player-shell .player-history-panel { padding: 12px; gap: 8px; }
+  .player-history-panel > header h2 { margin: 0; font-size: 18px; }
+  .player-history-panel > header > div > span { display: none; }
+  .player-history-search { padding-bottom: 8px; }
+  .player-history-search > label, .player-history-search > p { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .player-history-panel__section > h3 { margin: 0; }
+  .player-history-list .player-history-record { padding: 8px 10px; gap: 3px; }
+  .player-history-list .player-history-record > p { margin-block: 2px; }
+}
 .player-background-save-notice { position: fixed; z-index: 36; top: calc(max(76px, env(safe-area-inset-top)) + var(--player-viewport-offset, 0px)); left: max(14px, env(safe-area-inset-left)); width: min(520px, calc(100vw - 28px)); box-sizing: border-box; padding: 16px; border: 1px solid var(--player-accent, #c5afff); border-radius: 16px; color: var(--player-ink, #f8f7ff); background: var(--player-panel, #111425); box-shadow: 0 10px 32px #0004; }
 .player-background-save-notice strong { font-size: 15px; }
 .player-background-save-notice p { margin: 8px 0 12px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }

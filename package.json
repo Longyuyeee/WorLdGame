@@ -8,6 +8,8 @@
     "packages/*"
   ],
   "scripts": {
+    "audit:web-history-reading": "node tools/run-web-history-reading-tests.mjs",
+    "audit:web-history-reading:browser": "npm run build --workspace @world-studio/editor && node tools/run-web-history-reading-batch.mjs",
     "audit:web-load-wait": "node tools/run-web-load-wait-tests.mjs",
     "audit:web-load-wait:profile": "node tools/run-web-load-wait.mjs --baseline && node tools/run-web-load-wait.mjs --current",
     "audit:web-load-wait:browser": "node tools/run-web-load-wait-browser.mjs && node tools/run-web-load-wait-browser.mjs --engine=firefox && node tools/run-web-load-wait-browser.mjs --engine=webkit",
